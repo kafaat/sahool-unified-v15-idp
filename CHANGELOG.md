@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Documentation Improvements** (February 2026)
+  - Added `CONTRIBUTING.md` with comprehensive contribution guidelines (bilingual AR/EN)
+  - Added `docs/TROUBLESHOOTING.md` with common issues and solutions
+  - Added `docs/API_COMPREHENSIVE.md` with developer-friendly API documentation
+  - Added `docs/ARCHITECTURE_DIAGRAMS.md` with ASCII architecture diagrams
+  - Updated `docs/DEPLOYMENT.md` with detailed deployment steps for Docker and Kubernetes
+  - Updated `docs/README.md` with new documentation index entries
+
 ### Fixed
 
 - **CI/CD Pipeline Fixes** (PR #496)

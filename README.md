@@ -201,17 +201,35 @@ SELECT * FROM fields WHERE ST_Within(geom, ST_MakeEnvelope(...));
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-- [API Gateway Guide](docs/API_GATEWAY.md) ⭐ **NEW** - Kong configuration, security, and service catalog
-- [Deployment Guide](docs/DEPLOYMENT.md)
-- [Security Guide](docs/SECURITY.md)
-- [Operations Guide](docs/OPERATIONS.md)
-- [Observability Guide](docs/OBSERVABILITY.md) ⭐ **NEW**
-- [Incident Runbooks](docs/RUNBOOKS.md) ⭐ **NEW**
-- [SLO/SLI Guidance](docs/SLO_SLI_GUIDE.md) ⭐ **NEW**
-- [Testing Guide](docs/TESTING.md)
-- [API Documentation](docs/API.md)
+### Getting Started
+
+- [Deployment Guide](docs/DEPLOYMENT.md) - Docker and Kubernetes deployment
+- [Contributing Guide](CONTRIBUTING.md) - Contribution guidelines (AR/EN)
+- [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
+
+### Architecture
+
+- [Architecture Diagrams](docs/ARCHITECTURE_DIAGRAMS.md) - System architecture visualizations
+- [API Gateway Guide](docs/API_GATEWAY.md) - Kong configuration and security
+- [Data Flow](docs/DATA_FLOW.md) - Data flow patterns
+
+### API Reference
+
+- [API Comprehensive Guide](docs/API_COMPREHENSIVE.md) - Developer-friendly API documentation
+- [API Endpoints Reference](docs/API_ENDPOINTS_REFERENCE.md) - Complete endpoint listing
+
+### Operations
+
+- [Operations Guide](docs/OPERATIONS.md) - Operational procedures
+- [Observability Guide](docs/OBSERVABILITY.md) - Monitoring and logging
+- [Incident Runbooks](docs/RUNBOOKS.md) - Incident response
+- [Security Guide](docs/SECURITY.md) - Security configuration
+
+### Full Documentation Index
+
+See [docs/README.md](docs/README.md) for the complete documentation index (140+ documents).
 
 ---
 
@@ -414,9 +432,18 @@ kubectl -n backstage port-forward svc/backstage 7007:7007
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
-This is a proprietary project. For contribution guidelines, please contact the development team.
+We welcome contributions from the development team. Please read our [Contributing Guide](CONTRIBUTING.md) before submitting changes.
+
+### Quick Contribution Steps
+
+1. Create a feature branch from `develop`
+2. Make your changes following our coding standards
+3. Write tests for new functionality
+4. Submit a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ---
 
@@ -429,7 +456,7 @@ All rights reserved. Unauthorized copying, modification, or distribution is proh
 ---
 
 <p align="center">
-  <strong>SAHOOL v16.0.0</strong> | Built with ❤️ for Saudi Agriculture
+  <strong>SAHOOL v16.0.0</strong> | Built for Saudi Agriculture
   <br>
-  <sub>Last Updated: December 24, 2024</sub>
+  <sub>Last Updated: February 2026</sub>
 </p>

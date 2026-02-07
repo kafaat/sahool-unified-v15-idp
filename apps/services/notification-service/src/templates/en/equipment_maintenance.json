@@ -1,0 +1,12 @@
+{
+    "template_id": "equipment_maintenance",
+    "category": "reminder",
+    "title": "Equipment Maintenance - {equipment_name}",
+    "body": "Maintenance is due for {equipment_name}.\n\nMaintenance type: {maintenance_type}\nLast maintenance: {last_maintenance_date}\nOperating hours: {operating_hours} hours\n\nRequired tasks:\n{maintenance_tasks}\n\nEstimated cost: {estimated_cost} SAR\n\nDelaying maintenance may lead to costly breakdowns.",
+    "action_url": "/equipment/{equipment_id}/maintenance",
+    "icon": "🔧",
+    "priority": "medium",
+    "metadata": {
+        "variables": ["equipment_name", "equipment_id", "maintenance_type", "last_maintenance_date", "operating_hours", "maintenance_tasks", "estimated_cost"]
+    }
+}

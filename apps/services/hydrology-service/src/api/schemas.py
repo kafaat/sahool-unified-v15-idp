@@ -3,13 +3,28 @@ Pydantic Schemas for Hydrology Service
 نماذج البيانات لخدمة الهيدرولوجيا
 
 Defines request/response models for hydrology analysis endpoints.
+
+Includes comprehensive validation for:
+- Geographic coordinates and polygons
+- Resolution and threshold values
+- Field ID format
 """
 
 from datetime import datetime
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
+
+
+# Validation constants
+# ثوابت التحقق من الصحة
+COORDINATE_PRECISION = 8  # Max decimal places for coordinates
+MIN_RESOLUTION_M = 1.0  # Minimum resolution in meters
+MAX_RESOLUTION_M = 1000.0  # Maximum resolution in meters
+MIN_FLOW_THRESHOLD = 1
+MAX_FLOW_THRESHOLD = 100000
+MAX_RAINFALL_MM = 2000.0  # Maximum rainfall in mm
 
 
 # ==============================================================================
@@ -78,11 +93,63 @@ class BoundingBox(BaseModel):
 
 class GeoPolygon(BaseModel):
     """Geographic polygon with coordinates."""
+
     coordinates: list[list[float]] = Field(
         ...,
+        min_length=3,
         description="List of [lon, lat] coordinate pairs"
     )
     type: str = Field(default="Polygon")
+
+    @field_validator("coordinates")
+    @classmethod
+    def validate_coordinates(cls, v: list[list[float]]) -> list[list[float]]:
+        """Validate polygon coordinates."""
+        if len(v) < 3:
+            raise ValueError(
+                "Polygon must have at least 3 coordinate pairs | "
+                "يجب أن يحتوي المضلع على 3 أزواج إحداثيات على الأقل"
+            )
+
+        for i, coord in enumerate(v):
+            if not isinstance(coord, (list, tuple)) or len(coord) < 2:
+                raise ValueError(
+                    f"Coordinate at index {i} must be [lon, lat] array | "
+                    f"الإحداثية في الفهرس {i} يجب أن تكون مصفوفة [خط الطول، خط العرض]"
+                )
+
+            try:
+                lon, lat = float(coord[0]), float(coord[1])
+            except (TypeError, ValueError) as e:
+                raise ValueError(
+                    f"Coordinate at index {i} contains non-numeric values | "
+                    f"الإحداثية في الفهرس {i} تحتوي على قيم غير رقمية"
+                ) from e
+
+            # Validate coordinate ranges
+            if not -180 <= lon <= 180:
+                raise ValueError(
+                    f"Longitude {lon} at index {i} must be between -180 and 180 | "
+                    f"خط الطول {lon} في الفهرس {i} يجب أن يكون بين -180 و 180"
+                )
+            if not -90 <= lat <= 90:
+                raise ValueError(
+                    f"Latitude {lat} at index {i} must be between -90 and 90 | "
+                    f"خط العرض {lat} في الفهرس {i} يجب أن يكون بين -90 و 90"
+                )
+
+        return v
+
+    @field_validator("type")
+    @classmethod
+    def validate_type(cls, v: str) -> str:
+        """Validate geometry type."""
+        if v != "Polygon":
+            raise ValueError(
+                f"Geometry type must be 'Polygon', got '{v}' | "
+                f"نوع الهندسة يجب أن يكون 'Polygon'، تم الحصول على '{v}'"
+            )
+        return v
 
 
 # ==============================================================================
@@ -94,20 +161,32 @@ class HydrologyAnalysisRequest(BaseModel):
     """Request for full hydrology analysis.
     طلب تحليل هيدرولوجي كامل
     """
-    field_id: str = Field(..., description="Field identifier | معرف الحقل")
-    tenant_id: str = Field(..., description="Tenant identifier | معرف المستأجر")
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     boundary: GeoPolygon | None = Field(
         None,
         description="Field boundary polygon | حدود الحقل"
     )
     dem_source: str | None = Field(
         None,
+        max_length=32,
         description="DEM data source (srtm, aster, local) | مصدر بيانات الارتفاع"
     )
     resolution_m: float = Field(
         default=30.0,
-        ge=1.0,
-        le=1000.0,
+        ge=MIN_RESOLUTION_M,
+        le=MAX_RESOLUTION_M,
         description="Analysis resolution in meters | دقة التحليل بالمتر"
     )
     include_rainfall: bool = Field(
@@ -122,18 +201,52 @@ class HydrologyAnalysisRequest(BaseModel):
     )
     correlation_id: str | None = Field(
         None,
+        max_length=64,
         description="Correlation ID for tracing"
     )
+
+    @field_validator("field_id", "tenant_id")
+    @classmethod
+    def validate_id_fields(cls, v: str) -> str:
+        """Validate field and tenant ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("ID cannot be empty | المعرف لا يمكن أن يكون فارغاً")
+        return v
+
+    @field_validator("dem_source")
+    @classmethod
+    def validate_dem_source(cls, v: str | None) -> str | None:
+        """Validate DEM source value."""
+        if v is not None:
+            v = v.strip().lower()
+            valid_sources = {"srtm", "aster", "copernicus", "local", "custom"}
+            if v and v not in valid_sources:
+                raise ValueError(
+                    f"Invalid DEM source '{v}'. Valid options: {', '.join(valid_sources)} | "
+                    f"مصدر DEM غير صالح '{v}'. الخيارات الصالحة: {', '.join(valid_sources)}"
+                )
+        return v
 
 
 class DrainageAnalysisRequest(BaseModel):
     """Request for drainage network analysis."""
-    field_id: str
-    tenant_id: str | None = None
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     flow_threshold: int = Field(
         default=100,
-        ge=10,
-        le=10000,
+        ge=MIN_FLOW_THRESHOLD,
+        le=MAX_FLOW_THRESHOLD,
         description="Flow accumulation threshold for stream detection"
     )
     include_pattern: bool = Field(
@@ -141,11 +254,30 @@ class DrainageAnalysisRequest(BaseModel):
         description="Include drainage pattern classification"
     )
 
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
 
 class WetnessAnalysisRequest(BaseModel):
     """Request for wetness/waterlogging analysis."""
-    field_id: str
-    tenant_id: str | None = None
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     include_prediction: bool = Field(
         default=True,
         description="Include waterlogging prediction"
@@ -153,14 +285,34 @@ class WetnessAnalysisRequest(BaseModel):
     rainfall_mm: float | None = Field(
         None,
         ge=0,
+        le=MAX_RAINFALL_MM,
         description="Expected rainfall in mm for prediction"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
 
 
 class DepressionAnalysisRequest(BaseModel):
     """Request for depression identification."""
-    field_id: str
-    tenant_id: str | None = None
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     min_depth_m: float = Field(
         default=0.1,
         ge=0.01,
@@ -170,14 +322,34 @@ class DepressionAnalysisRequest(BaseModel):
     min_area_sqm: float = Field(
         default=10.0,
         ge=1.0,
+        le=1000000.0,
         description="Minimum depression area in square meters"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
 
 
 class StreamDetectionRequest(BaseModel):
     """Request for stream detection."""
-    field_id: str
-    tenant_id: str | None = None
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     min_order: int = Field(
         default=1,
         ge=1,
@@ -185,11 +357,30 @@ class StreamDetectionRequest(BaseModel):
         description="Minimum Strahler stream order to include"
     )
 
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
+
 
 class BasinDelineationRequest(BaseModel):
     """Request for basin/watershed delineation."""
-    field_id: str
-    tenant_id: str | None = None
+
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=64,
+        description="Field identifier | معرف الحقل"
+    )
+    tenant_id: str | None = Field(
+        None,
+        max_length=64,
+        description="Tenant identifier | معرف المستأجر"
+    )
     pour_point: GeoPoint | None = Field(
         None,
         description="Custom pour point for watershed delineation"
@@ -197,8 +388,18 @@ class BasinDelineationRequest(BaseModel):
     min_area_ha: float = Field(
         default=0.5,
         ge=0.1,
+        le=10000.0,
         description="Minimum basin area in hectares"
     )
+
+    @field_validator("field_id")
+    @classmethod
+    def validate_field_id(cls, v: str) -> str:
+        """Validate field ID format."""
+        v = v.strip()
+        if not v:
+            raise ValueError("Field ID cannot be empty | معرف الحقل لا يمكن أن يكون فارغاً")
+        return v
 
 
 # ==============================================================================

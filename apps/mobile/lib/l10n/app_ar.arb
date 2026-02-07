@@ -2256,5 +2256,83 @@
   "updateCheckFailed": "فشل التحقق من التحديثات",
   "noInternetForUpdate": "لا يوجد اتصال بالإنترنت. لا يمكن التحقق من التحديثات.",
   "updateSkipped": "تم تخطي التحديث",
-  "updateRemindLaterSet": "سيتم تذكيرك بهذا التحديث لاحقاً"
+  "updateRemindLaterSet": "سيتم تذكيرك بهذا التحديث لاحقاً",
+
+  "offlineMode": "وضع عدم الاتصال",
+  "youAreOffline": "أنت غير متصل بالإنترنت",
+  "changesWillSync": "التغييرات ستُزامن عند عودة الاتصال",
+  "connectedToInternet": "متصل بالإنترنت",
+  "usingCachedData": "يتم استخدام البيانات المخزنة",
+  "syncInProgress": "جاري المزامنة...",
+  "syncComplete": "تمت المزامنة",
+  "syncFailed": "فشلت المزامنة",
+  "pendingChanges": "تغييرات معلقة",
+  "retrySync": "إعادة المزامنة",
+  "conflictDetected": "تم اكتشاف تعارض",
+  "keepLocal": "الاحتفاظ بالمحلية",
+  "keepRemote": "الاحتفاظ بالسحابية",
+  "mergeChanges": "دمج التغييرات",
+  "localVersion": "النسخة المحلية",
+  "remoteVersion": "النسخة السحابية",
+  "modifiedLocally": "تم التعديل محلياً",
+  "modifiedRemotely": "تم التعديل على الخادم",
+
+  "justNow": "الآن",
+  "minutesAgo": "منذ {count} دقيقة",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "hoursAgo": "منذ {count} ساعة",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "daysAgo": "منذ {count} يوم",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "weeksAgo": "منذ {count} أسبوع",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "notificationSettings": "إعدادات الإشعارات",
+  "pushNotifications": "الإشعارات الفورية",
+  "emailNotifications": "إشعارات البريد الإلكتروني",
+  "smsNotifications": "إشعارات الرسائل النصية",
+  "alertNotifications": "إشعارات التنبيهات",
+  "taskReminders": "تذكيرات المهام",
+  "weatherAlerts": "تنبيهات الطقس",
+  "marketUpdates": "تحديثات السوق",
+  "soundEnabled": "الصوت مفعّل",
+  "vibrationEnabled": "الاهتزاز مفعّل",
+  "quietHours": "ساعات الهدوء",
+  "markAllAsRead": "تحديد الكل كمقروء",
+  "clearAllNotifications": "مسح جميع الإشعارات",
+  "noNotifications": "لا توجد إشعارات",
+  "newNotification": "إشعار جديد",
+  "viewNotification": "عرض الإشعار",
+  "dismissNotification": "تجاهل الإشعار",
+
+  "languageSettings": "إعدادات اللغة",
+  "arabic": "العربية",
+  "english": "الإنجليزية",
+  "switchToArabic": "التبديل إلى العربية",
+  "switchToEnglish": "Switch to English",
+  "languageChanged": "تم تغيير اللغة",
+  "restartRequired": "يرجى إعادة تشغيل التطبيق",
+
+  "performanceSettings": "إعدادات الأداء",
+  "reducedAnimations": "تقليل التحريكات",
+  "dataSaverMode": "وضع توفير البيانات",
+  "offlineMapsCaching": "تخزين الخرائط للعمل بدون اتصال",
+  "clearCache": "مسح الذاكرة المؤقتة",
+  "cacheCleared": "تم مسح الذاكرة المؤقتة"
 }

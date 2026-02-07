@@ -14,6 +14,12 @@ export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   showCloseButton?: boolean;
   /** Optional description ID for aria-describedby */
   descriptionId?: string;
+  /** Close button aria-label */
+  closeLabel?: string;
+  /** Close button aria-label in Arabic */
+  closeLabelAr?: string;
+  /** Initial focus element ref */
+  initialFocusRef?: React.RefObject<HTMLElement>;
 }
 
 export function Modal({
@@ -25,30 +31,67 @@ export function Modal({
   closeOnOverlay = true,
   showCloseButton = true,
   descriptionId,
+  closeLabel = "Close",
+  closeLabelAr = "إغلاق",
+  initialFocusRef,
   children,
   className,
   ...props
 }: ModalProps) {
   const modalRef = React.useRef<HTMLDivElement>(null);
   const titleId = React.useId();
+  const previousActiveElement = React.useRef<Element | null>(null);
 
   React.useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isOpen) {
+        e.preventDefault();
+        e.stopPropagation();
         onClose();
       }
     };
 
     if (isOpen) {
+      // Store currently focused element
+      previousActiveElement.current = document.activeElement;
+
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
+
+      // Focus initial element or modal
+      if (initialFocusRef?.current) {
+        initialFocusRef.current.focus();
+      } else if (modalRef.current) {
+        modalRef.current.focus();
+      }
+
+      // Announce modal to screen readers
+      const announcement = titleAr || title || "Dialog opened";
+      const ariaLive = document.createElement("div");
+      ariaLive.setAttribute("role", "status");
+      ariaLive.setAttribute("aria-live", "polite");
+      ariaLive.setAttribute("aria-atomic", "true");
+      ariaLive.className = "sr-only";
+      ariaLive.textContent = announcement;
+      document.body.appendChild(ariaLive);
+
+      return () => {
+        document.removeEventListener("keydown", handleEscape);
+        document.body.style.overflow = "unset";
+        ariaLive.remove();
+
+        // Restore focus to previous element
+        if (previousActiveElement.current instanceof HTMLElement) {
+          previousActiveElement.current.focus();
+        }
+      };
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, title, titleAr, initialFocusRef]);
 
   if (!isOpen) return null;
 
@@ -71,7 +114,7 @@ export function Modal({
       <div
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
         onClick={handleOverlayClick}
-        aria-hidden="true"
+        role="presentation"
       >
         <div
           ref={modalRef}
@@ -79,10 +122,12 @@ export function Modal({
           aria-modal="true"
           aria-labelledby={title || titleAr ? titleId : undefined}
           aria-describedby={descriptionId}
+          tabIndex={-1}
           className={clsx(
             "relative bg-white rounded-lg shadow-xl w-full",
             sizes[size],
             "max-h-[90vh] flex flex-col",
+            "focus:outline-none",
             className,
           )}
           {...props}
@@ -101,11 +146,12 @@ export function Modal({
               )}
               {showCloseButton && (
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100"
-                  aria-label="Close"
+                  className="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-sahool-green-500"
+                  aria-label={`${closeLabelAr} - ${closeLabel}`}
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-5 h-5" aria-hidden="true" />
                 </button>
               )}
             </div>

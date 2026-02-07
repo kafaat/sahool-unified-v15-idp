@@ -1,0 +1,415 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Notifications Workflow
+# Version: 16.0.0
+#
+# Centralized notification system supporting:
+# - Slack notifications
+# - Discord notifications
+# - Email notifications (via SendGrid)
+# - GitHub Issues for critical alerts
+#
+# Usage:
+#   jobs:
+#     notify:
+#       uses: ./.github/workflows/notifications.yml
+#       with:
+#         type: 'success'
+#         title: 'Deployment Complete'
+#         message: 'Successfully deployed to production'
+#       secrets: inherit
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Notifications
+
+on:
+  workflow_call:
+    inputs:
+      type:
+        description: 'Notification type: success, failure, warning, info'
+        required: true
+        type: string
+      title:
+        description: 'Notification title'
+        required: true
+        type: string
+      message:
+        description: 'Notification message'
+        required: true
+        type: string
+      environment:
+        description: 'Environment (staging, production)'
+        required: false
+        type: string
+        default: ''
+      version:
+        description: 'Version being deployed/released'
+        required: false
+        type: string
+        default: ''
+      slack-channel:
+        description: 'Slack channel override'
+        required: false
+        type: string
+        default: ''
+      create-issue:
+        description: 'Create GitHub issue for failures'
+        required: false
+        type: boolean
+        default: false
+      notify-slack:
+        description: 'Send Slack notification'
+        required: false
+        type: boolean
+        default: true
+      notify-discord:
+        description: 'Send Discord notification'
+        required: false
+        type: boolean
+        default: true
+      notify-email:
+        description: 'Send email notification'
+        required: false
+        type: boolean
+        default: false
+
+  # Allow manual trigger for testing
+  workflow_dispatch:
+    inputs:
+      type:
+        description: 'Notification type'
+        required: true
+        type: choice
+        options:
+          - success
+          - failure
+          - warning
+          - info
+      title:
+        description: 'Notification title'
+        required: true
+        type: string
+      message:
+        description: 'Notification message'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  prepare:
+    name: Prepare Notification
+    runs-on: ubuntu-latest
+    outputs:
+      emoji: ${{ steps.format.outputs.emoji }}
+      color: ${{ steps.format.outputs.color }}
+      status: ${{ steps.format.outputs.status }}
+    steps:
+      - name: Format notification
+        id: format
+        run: |
+          TYPE="${{ inputs.type }}"
+
+          case "$TYPE" in
+            success)
+              echo "emoji=✅" >> $GITHUB_OUTPUT
+              echo "color=#36a64f" >> $GITHUB_OUTPUT
+              echo "status=Success" >> $GITHUB_OUTPUT
+              ;;
+            failure)
+              echo "emoji=❌" >> $GITHUB_OUTPUT
+              echo "color=#dc3545" >> $GITHUB_OUTPUT
+              echo "status=Failed" >> $GITHUB_OUTPUT
+              ;;
+            warning)
+              echo "emoji=⚠️" >> $GITHUB_OUTPUT
+              echo "color=#ffc107" >> $GITHUB_OUTPUT
+              echo "status=Warning" >> $GITHUB_OUTPUT
+              ;;
+            info)
+              echo "emoji=ℹ️" >> $GITHUB_OUTPUT
+              echo "color=#17a2b8" >> $GITHUB_OUTPUT
+              echo "status=Info" >> $GITHUB_OUTPUT
+              ;;
+            *)
+              echo "emoji=📢" >> $GITHUB_OUTPUT
+              echo "color=#6c757d" >> $GITHUB_OUTPUT
+              echo "status=Notification" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+  slack:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: inputs.notify-slack != false
+    steps:
+      - name: Send Slack notification
+        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
+        run: |
+          WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}"
+
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "::warning::SLACK_WEBHOOK_URL secret not configured"
+            exit 0
+          fi
+
+          # Build message blocks
+          cat > slack_payload.json << 'EOF'
+          {
+            "text": "${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}",
+            "attachments": [
+              {
+                "color": "${{ needs.prepare.outputs.color }}",
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}*"
+                    }
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "${{ inputs.message }}"
+                    }
+                  },
+                  {
+                    "type": "context",
+                    "elements": [
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Repository:* ${{ github.repository }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Branch:* ${{ github.ref_name }}"
+                      },
+                      {
+                        "type": "mrkdwn",
+                        "text": "*Actor:* ${{ github.actor }}"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+          EOF
+
+          # Add environment if provided
+          if [ -n "${{ inputs.environment }}" ]; then
+            jq '.attachments[0].blocks += [{"type": "context", "elements": [{"type": "mrkdwn", "text": "*Environment:* ${{ inputs.environment }}"}]}]' slack_payload.json > temp.json && mv temp.json slack_payload.json
+          fi
+
+          # Add version if provided
+          if [ -n "${{ inputs.version }}" ]; then
+            jq '.attachments[0].blocks += [{"type": "context", "elements": [{"type": "mrkdwn", "text": "*Version:* ${{ inputs.version }}"}]}]' slack_payload.json > temp.json && mv temp.json slack_payload.json
+          fi
+
+          # Add action link
+          jq '.attachments[0].blocks += [{"type": "actions", "elements": [{"type": "button", "text": {"type": "plain_text", "text": "View Run"}, "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}]}]' slack_payload.json > temp.json && mv temp.json slack_payload.json
+
+          curl -X POST -H 'Content-type: application/json' \
+            --data @slack_payload.json \
+            "$WEBHOOK_URL"
+
+          echo "✅ Slack notification sent"
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  discord:
+    name: Discord Notification
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: inputs.notify-discord != false
+    steps:
+      - name: Send Discord notification
+        if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+        run: |
+          WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
+
+          if [ -z "$WEBHOOK_URL" ]; then
+            echo "::warning::DISCORD_WEBHOOK_URL secret not configured"
+            exit 0
+          fi
+
+          # Build embed
+          cat > discord_payload.json << EOF
+          {
+            "embeds": [
+              {
+                "title": "${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}",
+                "description": "${{ inputs.message }}",
+                "color": $(printf "%d" 0x${COLOR#\#}),
+                "fields": [
+                  {
+                    "name": "Repository",
+                    "value": "${{ github.repository }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Branch",
+                    "value": "${{ github.ref_name }}",
+                    "inline": true
+                  },
+                  {
+                    "name": "Actor",
+                    "value": "${{ github.actor }}",
+                    "inline": true
+                  }
+                ],
+                "footer": {
+                  "text": "SAHOOL CI/CD"
+                },
+                "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+              }
+            ]
+          }
+          EOF
+
+          curl -H "Content-Type: application/json" \
+            -d @discord_payload.json \
+            "$WEBHOOK_URL"
+
+          echo "✅ Discord notification sent"
+        continue-on-error: true
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COLOR: ${{ needs.prepare.outputs.color }}
+
+  email:
+    name: Email Notification
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: inputs.notify-email == true
+    steps:
+      - name: Send email notification via SendGrid
+        if: ${{ secrets.SENDGRID_API_KEY != '' }}
+        run: |
+          API_KEY="${{ secrets.SENDGRID_API_KEY }}"
+
+          if [ -z "$API_KEY" ]; then
+            echo "::warning::SENDGRID_API_KEY secret not configured"
+            exit 0
+          fi
+
+          TO_EMAIL="${{ secrets.NOTIFICATION_EMAIL }}"
+          if [ -z "$TO_EMAIL" ]; then
+            echo "::warning::NOTIFICATION_EMAIL secret not configured"
+            exit 0
+          fi
+
+          # Build email
+          cat > email_payload.json << EOF
+          {
+            "personalizations": [
+              {
+                "to": [{"email": "$TO_EMAIL"}]
+              }
+            ],
+            "from": {"email": "noreply@sahool.io", "name": "SAHOOL CI/CD"},
+            "subject": "${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}",
+            "content": [
+              {
+                "type": "text/html",
+                "value": "<h2>${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}</h2><p>${{ inputs.message }}</p><hr><p><strong>Repository:</strong> ${{ github.repository }}<br><strong>Branch:</strong> ${{ github.ref_name }}<br><strong>Actor:</strong> ${{ github.actor }}<br><a href='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'>View Run</a></p>"
+              }
+            ]
+          }
+          EOF
+
+          curl -X POST "https://api.sendgrid.com/v3/mail/send" \
+            -H "Authorization: Bearer $API_KEY" \
+            -H "Content-Type: application/json" \
+            -d @email_payload.json
+
+          echo "✅ Email notification sent"
+        continue-on-error: true
+        env:
+          SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
+          NOTIFICATION_EMAIL: ${{ secrets.NOTIFICATION_EMAIL }}
+
+  github-issue:
+    name: Create GitHub Issue
+    runs-on: ubuntu-latest
+    needs: prepare
+    if: inputs.create-issue == true && inputs.type == 'failure'
+    permissions:
+      issues: write
+    steps:
+      - name: Create issue for failure
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const title = `${{ needs.prepare.outputs.emoji }} CI/CD Failure: ${{ inputs.title }}`;
+            const body = `
+            ## ${{ needs.prepare.outputs.emoji }} ${{ inputs.title }}
+
+            ${{ inputs.message }}
+
+            ### Details
+            - **Repository:** ${{ github.repository }}
+            - **Branch:** ${{ github.ref_name }}
+            - **Commit:** ${{ github.sha }}
+            - **Actor:** ${{ github.actor }}
+            - **Run:** [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            ${${{ inputs.environment }} ? `- **Environment:** ${{ inputs.environment }}` : ''}
+            ${${{ inputs.version }} ? `- **Version:** ${{ inputs.version }}` : ''}
+
+            ### Workflow Run
+            [View Details](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            `;
+
+            // Check for existing open issues with same title
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'ci-failure'
+            });
+
+            const existingIssue = issues.data.find(i => i.title === title);
+
+            if (existingIssue) {
+              // Add comment to existing issue
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `## New occurrence\n\n${body}`
+              });
+              console.log(`Added comment to existing issue #${existingIssue.number}`);
+            } else {
+              // Create new issue
+              const newIssue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['ci-failure', 'automated']
+              });
+              console.log(`Created new issue #${newIssue.data.number}`);
+            }
+
+  summary:
+    name: Notification Summary
+    runs-on: ubuntu-latest
+    needs: [prepare, slack, discord, email, github-issue]
+    if: always()
+    steps:
+      - name: Generate summary
+        run: |
+          echo "## 📢 Notification Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Channel | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Slack | ${{ needs.slack.result == 'success' && '✅ Sent' || (needs.slack.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Discord | ${{ needs.discord.result == 'success' && '✅ Sent' || (needs.discord.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Email | ${{ needs.email.result == 'success' && '✅ Sent' || (needs.email.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| GitHub Issue | ${{ needs.github-issue.result == 'success' && '✅ Created' || (needs.github-issue.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY

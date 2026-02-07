@@ -2281,5 +2281,93 @@
   "updateCheckFailed": "Failed to check for updates",
   "noInternetForUpdate": "No internet connection. Cannot check for updates.",
   "updateSkipped": "Update skipped",
-  "updateRemindLaterSet": "You will be reminded about this update later"
+  "updateRemindLaterSet": "You will be reminded about this update later",
+
+  "@@_OFFLINE_MODE": {},
+  "@@@_OFFLINE_MODE": "Offline mode related strings",
+  "offlineMode": "Offline Mode",
+  "youAreOffline": "You are offline",
+  "changesWillSync": "Changes will sync when you're back online",
+  "connectedToInternet": "Connected to internet",
+  "usingCachedData": "Using cached data",
+  "syncInProgress": "Syncing...",
+  "syncComplete": "Sync complete",
+  "syncFailed": "Sync failed",
+  "pendingChanges": "Pending changes",
+  "retrySync": "Retry sync",
+  "conflictDetected": "Conflict detected",
+  "keepLocal": "Keep local",
+  "keepRemote": "Keep remote",
+  "mergeChanges": "Merge changes",
+  "localVersion": "Local version",
+  "remoteVersion": "Remote version",
+  "modifiedLocally": "Modified locally",
+  "modifiedRemotely": "Modified on server",
+
+  "@@_TIME_RELATIVE": {},
+  "@@@_TIME_RELATIVE": "Relative time strings",
+  "justNow": "just now",
+  "minutesAgo": "{count} minutes ago",
+  "@minutesAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "hoursAgo": "{count} hours ago",
+  "@hoursAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "daysAgo": "{count} days ago",
+  "@daysAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "weeksAgo": "{count} weeks ago",
+  "@weeksAgo": {
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+
+  "@@_NOTIFICATION_SETTINGS": {},
+  "@@@_NOTIFICATION_SETTINGS": "Notification settings strings",
+  "notificationSettings": "Notification Settings",
+  "pushNotifications": "Push Notifications",
+  "emailNotifications": "Email Notifications",
+  "smsNotifications": "SMS Notifications",
+  "alertNotifications": "Alert Notifications",
+  "taskReminders": "Task Reminders",
+  "weatherAlerts": "Weather Alerts",
+  "marketUpdates": "Market Updates",
+  "soundEnabled": "Sound Enabled",
+  "vibrationEnabled": "Vibration Enabled",
+  "quietHours": "Quiet Hours",
+  "markAllAsRead": "Mark all as read",
+  "clearAllNotifications": "Clear all notifications",
+  "noNotifications": "No notifications",
+  "newNotification": "New notification",
+  "viewNotification": "View notification",
+  "dismissNotification": "Dismiss notification",
+
+  "@@_LANGUAGE_SETTINGS": {},
+  "@@@_LANGUAGE_SETTINGS": "Language settings strings",
+  "languageSettings": "Language Settings",
+  "arabic": "Arabic",
+  "english": "English",
+  "switchToArabic": "Switch to Arabic",
+  "switchToEnglish": "Switch to English",
+  "languageChanged": "Language changed",
+  "restartRequired": "Please restart the app",
+
+  "@@_PERFORMANCE_SETTINGS": {},
+  "@@@_PERFORMANCE_SETTINGS": "Performance settings strings",
+  "performanceSettings": "Performance Settings",
+  "reducedAnimations": "Reduced Animations",
+  "dataSaverMode": "Data Saver Mode",
+  "offlineMapsCaching": "Offline Maps Caching",
+  "clearCache": "Clear Cache",
+  "cacheCleared": "Cache cleared"
 }

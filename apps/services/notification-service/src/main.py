@@ -87,6 +87,12 @@ from .whatsapp_client import get_whatsapp_client
 from .telegram_client import get_telegram_client
 from .sms_providers import get_multi_sms_client
 
+# New enhanced components (v16.0)
+from .analytics_controller import router as analytics_router
+from .history_controller import router as history_router
+from .delivery_tracker import get_delivery_tracker
+from .queue_processor import get_queue_processor
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("sahool-notifications")
@@ -983,12 +989,53 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize multi-provider SMS: {e}")
 
-    logger.info("✅ Notification Service ready")
+    # Initialize delivery tracker (v16.0)
+    try:
+        delivery_tracker = get_delivery_tracker()
+        await delivery_tracker.start()
+        logger.info("✅ Delivery tracker initialized")
+    except Exception as e:
+        logger.warning(f"⚠️  Failed to initialize delivery tracker: {e}")
+
+    # Initialize Redis queue processor (v16.0 - optional)
+    queue_processor = None
+    if os.getenv("REDIS_URL"):
+        try:
+            queue_processor = get_queue_processor()
+            connected = await queue_processor.connect()
+            if connected:
+                await queue_processor.start(num_workers=4)
+                logger.info("✅ Redis queue processor started with 4 workers")
+            else:
+                logger.warning("⚠️  Redis queue processor failed to connect")
+        except Exception as e:
+            logger.warning(f"⚠️  Failed to initialize queue processor: {e}")
+    else:
+        logger.info("ℹ️  Redis queue processor not configured (set REDIS_URL to enable)")
+
+    logger.info("✅ Notification Service v16.0 ready")
 
     yield
 
     # Shutdown
     logger.info("🛑 Shutting down Notification Service...")
+
+    # Stop queue processor (v16.0)
+    if queue_processor:
+        try:
+            await queue_processor.stop()
+            await queue_processor.disconnect()
+            logger.info("✅ Queue processor stopped")
+        except Exception as e:
+            logger.error(f"❌ Error stopping queue processor: {e}")
+
+    # Stop delivery tracker (v16.0)
+    try:
+        delivery_tracker = get_delivery_tracker()
+        await delivery_tracker.stop()
+        logger.info("✅ Delivery tracker stopped")
+    except Exception as e:
+        logger.error(f"❌ Error stopping delivery tracker: {e}")
 
     # Stop NATS subscriber
     if _nats_available and _nats_subscriber:
@@ -1014,8 +1061,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Notification Service | خدمة الإشعارات",
-    version="15.4.0",
-    description="Personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration.",
+    version="16.0.0",
+    description="Enhanced personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration, Redis queue, and comprehensive analytics.",
     lifespan=lifespan,
 )
 
@@ -1031,6 +1078,10 @@ if SECURITY_HEADERS_AVAILABLE:
 app.include_router(channels_router)
 app.include_router(preferences_router)
 app.include_router(otp_router)
+
+# Include enhanced routers (v16.0)
+app.include_router(analytics_router)
+app.include_router(history_router)
 
 # Setup rate limiting middleware
 try:

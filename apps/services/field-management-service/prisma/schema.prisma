@@ -56,6 +56,9 @@ model Farm {
 
   // Indexes
   @@index([tenantId], name: "idx_farm_tenant")
+  @@index([tenantId, isDeleted], name: "idx_farm_tenant_active")
+  @@index([ownerId], name: "idx_farm_owner")
+  @@index([createdAt], name: "idx_farm_created")
   @@map("farms")
 }
 
@@ -120,6 +123,13 @@ model Field {
   @@index([serverUpdatedAt], name: "idx_field_sync")
   @@index([status], name: "idx_field_status")
   @@index([cropType], name: "idx_field_crop")
+  @@index([farmId], name: "idx_field_farm")
+  @@index([tenantId, status], name: "idx_field_tenant_status")
+  @@index([tenantId, cropType], name: "idx_field_tenant_crop")
+  @@index([tenantId, isDeleted], name: "idx_field_tenant_active")
+  @@index([ownerId], name: "idx_field_owner")
+  @@index([plantingDate], name: "idx_field_planting")
+  @@index([expectedHarvest], name: "idx_field_harvest")
   @@map("fields")
 }
 
@@ -247,6 +257,14 @@ model Task {
   @@index([fieldId], name: "idx_task_field")
   @@index([status], name: "idx_task_status")
   @@index([dueDate], name: "idx_task_due")
+  @@index([assignedTo], name: "idx_task_assigned")
+  @@index([createdBy], name: "idx_task_creator")
+  @@index([taskType], name: "idx_task_type")
+  @@index([priority], name: "idx_task_priority")
+  @@index([status, dueDate], name: "idx_task_status_due")
+  @@index([fieldId, status], name: "idx_task_field_status")
+  @@index([assignedTo, status], name: "idx_task_assigned_status")
+  @@index([serverUpdatedAt], name: "idx_task_sync")
   @@map("tasks")
 }
 

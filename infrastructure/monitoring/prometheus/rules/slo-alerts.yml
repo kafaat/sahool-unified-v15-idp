@@ -1,0 +1,318 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - SLO Burn Rate Alerting Rules
+# قواعد تنبيهات معدل حرق أهداف مستوى الخدمة
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-02-07
+#
+# Multi-window, multi-burn-rate SLO alerting based on Google SRE practices.
+# Uses burn rate to predict SLO violation before error budget exhaustion.
+#
+# Burn Rate = (error rate / error budget)
+# If burn rate > 1, we're consuming budget faster than allowed
+#
+# Alert Strategy:
+# - Critical: 14.4x burn rate for 1h (2% of monthly budget in 1h)
+# - Warning: 6x burn rate for 6h (10% of monthly budget in 6h)
+# - Ticket: 1x burn rate for 3d (100% of monthly budget in 30d)
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Critical Infrastructure SLOs (99.9% target)
+  # أهداف الخدمة للبنية التحتية الحرجة
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: slo_critical_infrastructure
+    interval: 30s
+    rules:
+      # PostgreSQL Availability
+      - alert: PostgreSQLSLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="postgres"}[1h])
+          ) / 0.001 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: postgres_availability
+          slo_target: "99.9"
+          platform: sahool
+        annotations:
+          summary: "PostgreSQL burning error budget at critical rate"
+          summary_ar: "PostgreSQL يستهلك ميزانية الأخطاء بمعدل حرج"
+          description: |
+            PostgreSQL availability SLO burn rate is {{ $value | humanize }}x.
+            At this rate, the 30-day error budget will be exhausted in {{ printf "%.1f" (720 | divf $value) }} hours.
+          description_ar: |
+            معدل حرق SLO توفر PostgreSQL هو {{ $value | humanize }}x.
+            بهذا المعدل، ستُستنفد ميزانية الأخطاء لـ 30 يوماً في {{ printf "%.1f" (720 | divf $value) }} ساعة.
+          action: "URGENT: Investigate PostgreSQL availability immediately"
+          action_ar: "عاجل: تحقق من توفر PostgreSQL فوراً"
+          runbook_url: "https://docs.sahool.io/runbooks/postgresql-availability"
+
+      - alert: PostgreSQLSLOBurnRateWarning
+        expr: |
+          (
+            1 - avg_over_time(up{job="postgres"}[6h])
+          ) / 0.001 > 6
+        for: 30m
+        labels:
+          severity: warning
+          category: slo
+          slo_name: postgres_availability
+          slo_target: "99.9"
+          platform: sahool
+        annotations:
+          summary: "PostgreSQL elevated error budget consumption"
+          summary_ar: "استهلاك مرتفع لميزانية أخطاء PostgreSQL"
+          description: "6-hour burn rate: {{ $value | humanize }}x. Error budget consumption accelerated."
+          description_ar: "معدل الحرق لـ 6 ساعات: {{ $value | humanize }}x. استهلاك ميزانية الأخطاء متسارع."
+
+      # Redis Availability
+      - alert: RedisSLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="redis"}[1h])
+          ) / 0.001 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: redis_availability
+          slo_target: "99.9"
+          platform: sahool
+        annotations:
+          summary: "Redis burning error budget at critical rate"
+          summary_ar: "Redis يستهلك ميزانية الأخطاء بمعدل حرج"
+
+      # NATS Availability
+      - alert: NATSSLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="nats"}[1h])
+          ) / 0.001 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: nats_availability
+          slo_target: "99.9"
+          platform: sahool
+        annotations:
+          summary: "NATS burning error budget at critical rate"
+          summary_ar: "NATS يستهلك ميزانية الأخطاء بمعدل حرج"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Essential Services SLOs (99.5% target)
+  # أهداف الخدمة للخدمات الأساسية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: slo_essential_services
+    interval: 30s
+    rules:
+      # Field Management Service Availability
+      - alert: FieldManagementSLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="field-management-service"}[1h])
+          ) / 0.005 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: field_management_availability
+          slo_target: "99.5"
+          platform: sahool
+        annotations:
+          summary: "Field Management Service burning error budget critically"
+          summary_ar: "خدمة إدارة الحقول تستهلك ميزانية الأخطاء بشكل حرج"
+
+      - alert: FieldManagementSLOBurnRateWarning
+        expr: |
+          (
+            1 - avg_over_time(up{job="field-management-service"}[6h])
+          ) / 0.005 > 6
+        for: 30m
+        labels:
+          severity: warning
+          category: slo
+          slo_name: field_management_availability
+          slo_target: "99.5"
+          platform: sahool
+        annotations:
+          summary: "Field Management Service elevated error budget consumption"
+          summary_ar: "استهلاك مرتفع لميزانية أخطاء خدمة إدارة الحقول"
+
+      # User Service Availability
+      - alert: UserServiceSLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="user-service"}[1h])
+          ) / 0.005 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: user_service_availability
+          slo_target: "99.5"
+          platform: sahool
+        annotations:
+          summary: "User Service burning error budget critically"
+          summary_ar: "خدمة المستخدمين تستهلك ميزانية الأخطاء بشكل حرج"
+
+      # API Gateway (Kong)
+      - alert: APIGatewaySLOBurnRateCritical
+        expr: |
+          (
+            1 - avg_over_time(up{job="kong"}[1h])
+          ) / 0.005 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: api_gateway_availability
+          slo_target: "99.5"
+          platform: sahool
+        annotations:
+          summary: "API Gateway burning error budget critically"
+          summary_ar: "بوابة API تستهلك ميزانية الأخطاء بشكل حرج"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Latency SLOs
+  # أهداف زمن الاستجابة
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: slo_latency
+    interval: 30s
+    rules:
+      # P95 Latency SLO (500ms for standard services)
+      - alert: LatencySLOBurnRateCritical
+        expr: |
+          (
+            1 - (
+              sum by (job) (rate(http_request_duration_seconds_bucket{le="0.5"}[1h]))
+              /
+              sum by (job) (rate(http_request_duration_seconds_count[1h]))
+            )
+          ) / 0.01 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: latency_p95
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.job }} latency SLO burn rate critical"
+          summary_ar: "معدل حرق SLO زمن استجابة الخدمة {{ $labels.job }} حرج"
+          description: |
+            P95 latency SLO (500ms) burn rate is {{ $value | humanize }}x.
+            More than 1% of requests exceeding latency threshold.
+          description_ar: |
+            معدل حرق SLO زمن الاستجابة P95 (500 مللي ثانية) هو {{ $value | humanize }}x.
+            أكثر من 1% من الطلبات تتجاوز عتبة زمن الاستجابة.
+
+      - alert: LatencySLOBurnRateWarning
+        expr: |
+          (
+            1 - (
+              sum by (job) (rate(http_request_duration_seconds_bucket{le="0.5"}[6h]))
+              /
+              sum by (job) (rate(http_request_duration_seconds_count[6h]))
+            )
+          ) / 0.01 > 6
+        for: 30m
+        labels:
+          severity: warning
+          category: slo
+          slo_name: latency_p95
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.job }} latency SLO burn rate elevated"
+          summary_ar: "معدل حرق SLO زمن استجابة الخدمة {{ $labels.job }} مرتفع"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Error Rate SLOs
+  # أهداف معدل الأخطاء
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: slo_error_rate
+    interval: 30s
+    rules:
+      # Error Rate SLO (1% for standard services)
+      - alert: ErrorRateSLOBurnRateCritical
+        expr: |
+          (
+            sum by (job) (rate(http_requests_total{status=~"5.."}[1h]))
+            /
+            sum by (job) (rate(http_requests_total[1h]))
+          ) / 0.01 > 14.4
+        for: 2m
+        labels:
+          severity: critical
+          category: slo
+          slo_name: error_rate
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.job }} error rate SLO burn rate critical"
+          summary_ar: "معدل حرق SLO معدل الأخطاء للخدمة {{ $labels.job }} حرج"
+          description: |
+            Error rate SLO (1%) burn rate is {{ $value | humanize }}x.
+            Error rate currently at {{ printf "%.2f" (multiply $value 0.01) }}%.
+          description_ar: |
+            معدل حرق SLO معدل الأخطاء (1%) هو {{ $value | humanize }}x.
+            معدل الأخطاء حالياً عند {{ printf "%.2f" (multiply $value 0.01) }}%.
+
+      - alert: ErrorRateSLOBurnRateWarning
+        expr: |
+          (
+            sum by (job) (rate(http_requests_total{status=~"5.."}[6h]))
+            /
+            sum by (job) (rate(http_requests_total[6h]))
+          ) / 0.01 > 6
+        for: 30m
+        labels:
+          severity: warning
+          category: slo
+          slo_name: error_rate
+          platform: sahool
+        annotations:
+          summary: "Service {{ $labels.job }} error rate SLO burn rate elevated"
+          summary_ar: "معدل حرق SLO معدل الأخطاء للخدمة {{ $labels.job }} مرتفع"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Error Budget Status Recording Rules
+  # قواعد تسجيل حالة ميزانية الأخطاء
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: slo_error_budget_recording
+    interval: 60s
+    rules:
+      # Record error budget remaining for each service
+      - record: sahool:slo:error_budget_remaining:ratio
+        expr: |
+          1 - (
+            (1 - avg_over_time(up[30d]))
+            /
+            0.001
+          )
+        labels:
+          slo_type: availability
+          slo_target: "99.9"
+
+      # Record burn rate for dashboards
+      - record: sahool:slo:burn_rate_1h
+        expr: |
+          (1 - avg_over_time(up[1h])) / 0.001
+
+      - record: sahool:slo:burn_rate_6h
+        expr: |
+          (1 - avg_over_time(up[6h])) / 0.001
+
+      - record: sahool:slo:burn_rate_24h
+        expr: |
+          (1 - avg_over_time(up[24h])) / 0.001
+
+      # Time until error budget exhaustion
+      - record: sahool:slo:time_to_exhaustion_hours
+        expr: |
+          (
+            sahool:slo:error_budget_remaining:ratio
+            /
+            sahool:slo:burn_rate_1h
+          ) * 720

@@ -36,18 +36,33 @@ export 'auth/biometric_service.dart';
 
 // Performance
 export 'performance/performance.dart';
+export 'performance/performance_utils.dart';
 
 // Map
 export 'map/map.dart';
 
 // Notifications
 export 'notifications/notifications.dart';
+export 'notifications/notification_ui_components.dart';
 
 // Offline Sync
 export 'offline/offline.dart';
+export 'offline/offline_ui_components.dart';
 
 // Voice Commands
 export 'voice/voice.dart';
 
 // Deep Linking
 export 'deeplink/deeplink_handler.dart';
+
+// State Management - إدارة الحالة
+export 'state/state_management.dart';
+
+// UI Components - مكونات الواجهة المحسنة
+export 'ui/enhanced_widgets.dart';
+
+// Localization - الترجمة
+export 'l10n/locale_manager.dart';
+
+// Animations - التحريكات
+export 'animations/animations.dart';

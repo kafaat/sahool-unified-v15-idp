@@ -6,6 +6,7 @@
  * - Product listing and management
  * - Smart harvest-to-product conversion
  * - Order processing
+ * - Redis caching for performance
  */
 
 import {
@@ -13,9 +14,11 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  Logger,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
 import {
   calculatePagination,
   createPaginatedResponse,
@@ -64,10 +67,13 @@ interface CreateOrderDto {
 
 @Injectable()
 export class MarketService {
+  private readonly logger = new Logger(MarketService.name);
+
   constructor(
     private prisma: PrismaService,
     @Inject(forwardRef(() => EventsService))
     private eventsService: EventsService,
+    private cacheService: CacheService,
   ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════

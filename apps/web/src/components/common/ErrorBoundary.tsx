@@ -7,25 +7,38 @@ interface Props {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  /** Optional: Component name for better error tracking */
+  componentName?: string;
+  /** Optional: Show home link instead of retry */
+  showHomeLink?: boolean;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+  errorId: string | null;
 }
 
 /**
  * Error Boundary for Web Application
  * Catches JavaScript errors in child components and displays a user-friendly fallback UI
+ *
+ * Features:
+ * - Accessible error messages with ARIA attributes
+ * - Error logging to server with unique error IDs
+ * - Retry and page refresh options
+ * - Development mode stack trace display
+ * - Bilingual support (Arabic/English)
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, error: null, errorId: null };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(error: Error): Partial<State> {
+    const errorId = `ERR-${Date.now().toString(36).toUpperCase()}`;
+    return { hasError: true, error, errorId };
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
@@ -44,12 +57,15 @@ export class ErrorBoundary extends Component<Props, State> {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           type: "react_error_boundary",
+          errorId: this.state.errorId,
+          componentName: this.props.componentName,
           message: error.message,
           stack: error.stack,
           componentStack: errorInfo.componentStack,
           url: typeof window !== "undefined" ? window.location.href : "",
           timestamp: new Date().toISOString(),
           environment: process.env.NODE_ENV || "production",
+          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
         }),
       });
     } catch (e) {
@@ -61,7 +77,13 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   handleRetry = (): void => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null, errorId: null });
+  };
+
+  handleGoHome = (): void => {
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   };
 
   render() {
@@ -71,15 +93,27 @@ export class ErrorBoundary extends Component<Props, State> {
           <div
             className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
             dir="rtl"
+            role="alert"
+            aria-live="assertive"
+            aria-atomic="true"
           >
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full">
+            <div
+              className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full"
+              role="alertdialog"
+              aria-labelledby="error-title"
+              aria-describedby="error-description"
+            >
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <div
+                  className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0"
+                  aria-hidden="true"
+                >
                   <svg
                     className="w-6 h-6 text-red-600"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
+                    aria-hidden="true"
                   >
                     <path
                       strokeLinecap="round"
@@ -90,17 +124,31 @@ export class ErrorBoundary extends Component<Props, State> {
                   </svg>
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-gray-800">
+                  <h2 id="error-title" className="text-xl font-bold text-gray-800">
                     حدث خطأ غير متوقع
+                    <span className="sr-only"> - An unexpected error occurred</span>
                   </h2>
-                  <p className="text-gray-500 text-sm">
+                  <p id="error-description" className="text-gray-500 text-sm">
                     نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً
+                    <span className="sr-only"> - We apologize for the inconvenience. We will fix this soon.</span>
                   </p>
                 </div>
               </div>
 
+              {this.state.errorId && (
+                <p className="text-xs text-gray-400 mb-4" aria-label="Error reference ID">
+                  <span className="font-mono">
+                    رمز المرجع: {this.state.errorId}
+                  </span>
+                </p>
+              )}
+
               {process.env.NODE_ENV === "development" && this.state.error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <div
+                  className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+                  role="region"
+                  aria-label="Error details for developers"
+                >
                   <h3 className="font-medium text-red-800 mb-2">
                     رسالة الخطأ:
                   </h3>
@@ -109,7 +157,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   </code>
                   {this.state.error.stack && (
                     <details className="mt-3">
-                      <summary className="cursor-pointer text-red-600 hover:text-red-800 text-sm">
+                      <summary className="cursor-pointer text-red-600 hover:text-red-800 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded">
                         Stack Trace
                       </summary>
                       <pre className="mt-2 text-xs text-red-600 overflow-auto max-h-32 text-left">
@@ -120,19 +168,34 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
               )}
 
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-end" role="group" aria-label="Error recovery actions">
                 <button
+                  type="button"
                   onClick={() => window.location.reload()}
-                  className="px-5 py-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium"
+                  className="px-5 py-2.5 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors font-medium focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  aria-label="تحديث الصفحة - Refresh page"
                 >
                   تحديث الصفحة
                 </button>
-                <button
-                  onClick={this.handleRetry}
-                  className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm"
-                >
-                  حاول مرة أخرى
-                </button>
+                {this.props.showHomeLink ? (
+                  <button
+                    type="button"
+                    onClick={this.handleGoHome}
+                    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="العودة للرئيسية - Go to home page"
+                  >
+                    الصفحة الرئيسية
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={this.handleRetry}
+                    className="px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="حاول مرة أخرى - Try again"
+                  >
+                    حاول مرة أخرى
+                  </button>
+                )}
               </div>
             </div>
           </div>

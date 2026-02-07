@@ -1,0 +1,12 @@
+{
+    "template_id": "nitrogen_deficiency",
+    "category": "alert",
+    "title": "تنبيه نقص النيتروجين في {field_name}",
+    "body": "تم اكتشاف نقص النيتروجين في حقلك ({field_name}). مستوى النيتروجين الحالي: {nitrogen_level} جزء في المليون (المستوى المطلوب: {target_level} جزء في المليون).\n\nالتوصية: {recommendation}\n\nالكمية الموصى بها: {recommended_rate} كجم/هكتار\n\nيُنصح بالتسميد خلال {days_to_act} أيام للحصول على أفضل النتائج.",
+    "action_url": "/fields/{field_id}/fertilizer-plan",
+    "icon": "🌿",
+    "priority": "high",
+    "metadata": {
+        "variables": ["field_name", "field_id", "nitrogen_level", "target_level", "recommendation", "recommended_rate", "days_to_act"]
+    }
+}

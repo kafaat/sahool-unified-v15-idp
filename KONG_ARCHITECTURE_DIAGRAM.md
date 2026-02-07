@@ -219,7 +219,7 @@ Vision & Terrain (الرؤية والتضاريس)
 ├─ terrain-core:8185         ✅ DEM processing
 ├─ hydrology:8165            ✅ Hydrology analysis
 ├─ leveling-optimizer:8170   ✅ Field leveling
-└─ edge-orchestrator:8190    ✅ Edge device management (Jetson Orin)
+└─ edge-orchestrator:8180    ✅ Edge device management (Jetson Orin)
 
 Integration Services (خدمات التكامل)
 ├─ ws-gateway:8081           ✅ WebSocket gateway

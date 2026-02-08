@@ -1,0 +1,143 @@
+"""Tests for fertigation-engine health and core endpoints."""
+
+import pytest
+from fastapi.testclient import TestClient
+
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+
+from src.main import app
+
+
+@pytest.fixture
+def client():
+    return TestClient(app)
+
+
+@pytest.mark.unit
+class TestHealthEndpoints:
+    def test_healthz(self, client):
+        response = client.get("/healthz")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
+        assert data["service"] == "fertigation-engine"
+
+    def test_readyz(self, client):
+        response = client.get("/readyz")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["crops_with_npk"] > 0
+        assert data["fertilizers_available"] > 0
+
+
+@pytest.mark.unit
+class TestFertigationPlan:
+    def test_basic_plan(self, client):
+        response = client.post("/api/v1/fertigation/plan", json={
+            "crop": "wheat",
+            "growth_phase": "tillering",
+            "field_area_ha": 1.0,
+            "irrigation_volume_m3": 50.0,
+            "ec_water": 0.5,
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["crop"] == "wheat"
+        assert data["n_required_kg_ha"] > 0
+        assert len(data["fertilizer_plan"]) > 0
+        assert data["ec_total"] > 0
+
+    def test_plan_with_soil_nutrients(self, client):
+        """Test that soil nutrients reduce applied amounts."""
+        # Without soil data
+        resp1 = client.post("/api/v1/fertigation/plan", json={
+            "crop": "tomato",
+            "growth_phase": "vegetative",
+            "irrigation_volume_m3": 30.0,
+        })
+        # With existing soil N
+        resp2 = client.post("/api/v1/fertigation/plan", json={
+            "crop": "tomato",
+            "growth_phase": "vegetative",
+            "irrigation_volume_m3": 30.0,
+            "soil_n_ppm": 40.0,
+        })
+        data1 = resp1.json()
+        data2 = resp2.json()
+        assert data2["n_adjusted_kg_ha"] <= data1["n_adjusted_kg_ha"]
+
+    def test_ec_limit_warning(self, client):
+        """Test EC limit checking."""
+        response = client.post("/api/v1/fertigation/plan", json={
+            "crop": "wheat",
+            "growth_phase": "tillering",
+            "field_area_ha": 5.0,
+            "irrigation_volume_m3": 10.0,  # Small volume → high concentration
+            "ec_water": 2.0,
+            "max_ec_solution": 2.5,
+        })
+        assert response.status_code == 200
+
+
+@pytest.mark.unit
+class TestNutrientBalance:
+    def test_balance_surplus(self, client):
+        response = client.post("/api/v1/fertigation/nutrient-balance", json={
+            "field_id": "FIELD-001",
+            "crop": "wheat",
+            "entries": [
+                {"type": "applied", "n_kg": 120, "p_kg": 60, "k_kg": 75},
+                {"type": "removed", "n_kg": 50, "p_kg": 20, "k_kg": 30},
+            ],
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["n_balance_kg_ha"] > 0  # Surplus
+        assert data["surplus_alert"] is True
+
+    def test_balance_deficit(self, client):
+        response = client.post("/api/v1/fertigation/nutrient-balance", json={
+            "field_id": "FIELD-001",
+            "crop": "tomato",
+            "entries": [
+                {"type": "applied", "n_kg": 20, "p_kg": 10, "k_kg": 15},
+                {"type": "removed", "n_kg": 60, "p_kg": 30, "k_kg": 40},
+            ],
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["n_balance_kg_ha"] < 0  # Deficit
+        assert data["deficit_alert"] is True
+
+
+@pytest.mark.unit
+class TestReferenceData:
+    def test_list_fertilizers(self, client):
+        response = client.get("/api/v1/fertigation/fertilizers")
+        assert response.status_code == 200
+        assert response.json()["total"] > 0
+
+    def test_get_crop_npk(self, client):
+        response = client.get("/api/v1/fertigation/crops/wheat/npk")
+        assert response.status_code == 200
+        data = response.json()
+        assert "total_requirements_kg_ha" in data
+        assert data["total_requirements_kg_ha"]["n"] > 0
+
+    def test_crop_npk_not_found(self, client):
+        response = client.get("/api/v1/fertigation/crops/nonexistent/npk")
+        assert response.status_code == 404
+
+    def test_list_crops_with_npk(self, client):
+        response = client.get("/api/v1/fertigation/crops")
+        assert response.status_code == 200
+        assert response.json()["total"] > 0
+
+    def test_list_growth_phases(self, client):
+        response = client.get("/api/v1/fertigation/growth-phases")
+        assert response.status_code == 200
+        assert len(response.json()["phases"]) > 0

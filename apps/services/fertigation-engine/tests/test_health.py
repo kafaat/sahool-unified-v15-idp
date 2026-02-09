@@ -81,6 +81,60 @@ class TestFertigationPlan:
             "max_ec_solution": 2.5,
         })
         assert response.status_code == 200
+        data = response.json()
+        assert data["ec_total"] > 0
+        # With small volume and high ec_water, likely exceeds limit
+        if not data["ec_within_limit"]:
+            assert any("EC" in r or "الموصلية" in r
+                       for r in data["recommendations"] + data["recommendations_ar"])
+
+    def test_unknown_crop_fallback(self, client):
+        """Test that unknown crops use generic NPK fallback."""
+        response = client.post("/api/v1/fertigation/plan", json={
+            "crop": "dragon_fruit",
+            "growth_phase": "vegetative",
+            "irrigation_volume_m3": 40.0,
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["crop"] == "dragon_fruit"
+        # Should use fallback values (n=30, p=15, k=25)
+        assert data["n_required_kg_ha"] == 30.0
+        assert data["p_required_kg_ha"] == 15.0
+        assert data["k_required_kg_ha"] == 25.0
+
+    def test_preferred_fertilizers(self, client):
+        """Test that preferred_fertilizers are respected."""
+        response = client.post("/api/v1/fertigation/plan", json={
+            "crop": "wheat",
+            "growth_phase": "tillering",
+            "irrigation_volume_m3": 50.0,
+            "preferred_fertilizers": ["ammonium_nitrate", "sop"],
+        })
+        assert response.status_code == 200
+        data = response.json()
+        fert_names = [f["fertilizer"] for f in data["fertilizer_plan"]]
+        # Should use ammonium_nitrate for N instead of default urea
+        assert "ammonium_nitrate" in fert_names
+        # Should use sop for K instead of default kcl
+        assert "sop" in fert_names
+
+    def test_plan_with_all_soil_nutrients(self, client):
+        """Test soil N, P, K credits all reduce applied amounts."""
+        resp = client.post("/api/v1/fertigation/plan", json={
+            "crop": "tomato",
+            "growth_phase": "fruit_development",
+            "irrigation_volume_m3": 50.0,
+            "soil_n_ppm": 50.0,
+            "soil_p_ppm": 30.0,
+            "soil_k_ppm": 100.0,
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        # Adjusted values should be less than or equal to required
+        assert data["n_adjusted_kg_ha"] <= data["n_required_kg_ha"]
+        assert data["p_adjusted_kg_ha"] <= data["p_required_kg_ha"]
+        assert data["k_adjusted_kg_ha"] <= data["k_required_kg_ha"]
 
 
 @pytest.mark.unit

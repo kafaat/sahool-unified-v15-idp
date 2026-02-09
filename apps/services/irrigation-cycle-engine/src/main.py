@@ -365,10 +365,15 @@ class IrrigationCycleEngine:
         net_irrigation = readily_aw
 
         # Irrigation cycle (days)
+        # T = ((θfc - θmin) × Zr × β) / (ETc × α × γ)
+        # Note: θ values are volumetric (cm³/cm³), so bulk density is NOT needed.
+        # The product (θfc - θmin) × Zr_mm already gives mm of available water.
         if etc > 0:
             cycle_days = (
-                (req.field_capacity - theta_min) * root_depth_mm * req.bulk_density * req.beta
+                (req.field_capacity - theta_min) * root_depth_mm * req.beta
             ) / (etc * req.alpha * req.gamma)
+            # Clamp to reasonable range (1-60 days)
+            cycle_days = max(1.0, min(cycle_days, 60.0))
         else:
             cycle_days = 30.0  # Default if no ET
 
@@ -635,7 +640,7 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
     """
     Calculate irrigation cycle period and water requirements.
 
-    Uses the formula: T = ((θfc - θmin) × Zr × ρb × β) / (ETc × α × γ)
+    Uses the formula: T = ((θfc - θmin) × Zr × β) / (ETc × α × γ)
     With optional salinity adjustment via SalinityModule.
     """
     try:
@@ -643,18 +648,19 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # Publish NATS event
+    # Publish NATS event (subject: sahool.{tenant_id}.irrigation.cycle_calculated)
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
+            tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
-                "sahool.irrigation.cycle_calculated",
+                f"sahool.{tenant_id}.irrigation.cycle_calculated",
                 json.dumps({
                     "crop": req.crop,
                     "cycle_days": result.cycle_days,
                     "etc_mm_day": result.etc_mm_day,
                     "total_water_mm": result.total_water_mm,
-                    "timestamp": datetime.utcnow().isoformat(),
+                    "timestamp": datetime.now(tz=None).isoformat(),
                 }).encode(),
             )
         except Exception:

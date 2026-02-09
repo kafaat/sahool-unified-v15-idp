@@ -419,21 +419,31 @@ class FertigationEngine:
         ec_water: float, max_ec: float,
         preferred: Optional[list[FertilizerType]],
     ) -> list[dict]:
-        """Select optimal fertilizer combination."""
+        """Select optimal fertilizer combination, respecting user preferences."""
         plan = []
         remaining_n = n_kg * area_ha
         remaining_p = p_kg * area_ha
         remaining_k = k_kg * area_ha
         ec_budget = max_ec - ec_water
 
-        # Simple greedy approach: satisfy P first, then N, then K
+        # Helper: pick preferred fertilizer with nutrient, or fallback to default
+        def _pick_fert(nutrient: str, default: FertilizerType) -> FertilizerType:
+            if preferred:
+                for pf in preferred:
+                    fdata = FERTILIZER_DB.get(pf, {})
+                    if fdata.get(nutrient, 0) > 0:
+                        return pf
+            return default
+
+        # Greedy approach: satisfy P first, then N, then K
         # P sources
         if remaining_p > 0:
-            fert = FERTILIZER_DB[FertilizerType.MAP]
+            p_type = _pick_fert("p", FertilizerType.MAP)
+            fert = FERTILIZER_DB[p_type]
             amount_kg = remaining_p / (fert["p"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
             plan.append({
-                "fertilizer": FertilizerType.MAP.value,
+                "fertilizer": p_type.value,
                 "name": fert["name"],
                 "name_ar": fert["name_ar"],
                 "amount_kg": round(amount_kg, 2),
@@ -448,11 +458,12 @@ class FertigationEngine:
 
         # N sources (remaining)
         if remaining_n > 0:
-            fert = FERTILIZER_DB[FertilizerType.UREA]
+            n_type = _pick_fert("n", FertilizerType.UREA)
+            fert = FERTILIZER_DB[n_type]
             amount_kg = remaining_n / (fert["n"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
             plan.append({
-                "fertilizer": FertilizerType.UREA.value,
+                "fertilizer": n_type.value,
                 "name": fert["name"],
                 "name_ar": fert["name_ar"],
                 "amount_kg": round(amount_kg, 2),
@@ -466,7 +477,8 @@ class FertigationEngine:
         # K sources
         if remaining_k > 0:
             # Use SOP in saline conditions, KCL otherwise
-            fert_type = FertilizerType.SOP if ec_water > 1.5 else FertilizerType.KCL
+            default_k = FertilizerType.SOP if ec_water > 1.5 else FertilizerType.KCL
+            fert_type = _pick_fert("k", default_k)
             fert = FERTILIZER_DB[fert_type]
             amount_kg = remaining_k / (fert["k"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
@@ -658,8 +670,9 @@ async def create_fertigation_plan(req: FertigationRequest):
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
+            tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
-                "sahool.fertigation.plan_created",
+                f"sahool.{tenant_id}.fertigation.plan_created",
                 json.dumps({
                     "crop": req.crop,
                     "phase": req.growth_phase.value,

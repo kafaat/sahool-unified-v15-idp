@@ -200,3 +200,62 @@ class TestStateUpdate:
         est = data["estimated_state"]["soil_moisture_pct"]
         # Should be close to the last few values
         assert 39.0 < est < 43.0
+
+
+@pytest.mark.unit
+class TestSimulationEdgeCases:
+    def test_simulation_high_salinity(self, client):
+        """Test simulation under high salinity stress."""
+        response = client.post("/api/v1/digital-twin/simulate", json={
+            "field_state": {
+                "field_id": "FIELD-SAL",
+                "crop": "tomato",
+                "soil_moisture_pct": 50.0,
+                "soil_ec_dsm": 8.0,  # High salinity
+                "et0_mm_day": 5.0,
+                "days_after_planting": 30,
+            },
+            "days_to_simulate": 10,
+        })
+        assert response.status_code == 200
+        data = response.json()
+        # High salinity should reduce yield
+        assert data["final_yield_pct"] < 100
+
+    def test_simulation_no_irrigation(self, client):
+        """Test simulation without any irrigation events."""
+        response = client.post("/api/v1/digital-twin/simulate", json={
+            "field_state": {
+                "field_id": "FIELD-DRY",
+                "crop": "wheat",
+                "soil_moisture_pct": 30.0,
+                "et0_mm_day": 6.0,
+            },
+            "days_to_simulate": 15,
+        })
+        assert response.status_code == 200
+        data = response.json()
+        assert data["total_irrigation_mm"] == 0
+        # Soil moisture should decrease over time without irrigation
+        last_day = data["daily_states"][-1]
+        assert last_day["soil_moisture_pct"] < 30.0
+
+    def test_simulation_daily_states_structure(self, client):
+        """Verify each daily state has required fields."""
+        response = client.post("/api/v1/digital-twin/simulate", json={
+            "field_state": {
+                "field_id": "FIELD-STRUCT",
+                "crop": "wheat",
+                "soil_moisture_pct": 50.0,
+                "et0_mm_day": 4.0,
+            },
+            "days_to_simulate": 5,
+            "irrigation_schedule": [{"day": 3, "amount_mm": 20.0}],
+        })
+        assert response.status_code == 200
+        data = response.json()
+        for state in data["daily_states"]:
+            assert "day" in state
+            assert "soil_moisture_pct" in state
+            assert "biomass_kg_ha" in state
+            assert "lai" in state

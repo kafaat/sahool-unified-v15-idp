@@ -203,8 +203,9 @@ def calculate_leaching_fraction(
         return 0.5  # Maximum practical LF
 
     lf = ec_water / denominator
-    # Adjust for irrigation efficiency
-    lf = lf / efficiency
+    # Adjust for irrigation efficiency (guard against zero/negative)
+    if efficiency > 0:
+        lf = lf / efficiency
     return max(0.0, min(lf, 0.5))
 
 

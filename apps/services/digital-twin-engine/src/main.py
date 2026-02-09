@@ -331,6 +331,7 @@ class DigitalTwinEngine:
         max_ws = 0.0
         max_ss = 0.0
         peak_lai = lai
+        cum_stress_factor = 0.0  # Accumulated stress for yield estimation
 
         daily_states: list[SimulationDay] = []
         start_date = datetime.utcnow().date()
@@ -396,13 +397,19 @@ class DigitalTwinEngine:
             # Crop growth (simplified)
             growth_factor = (1.0 - water_stress * 0.7) * (1.0 - sal_stress * 0.5)
             daily_biomass = 20.0 * growth_factor * (kc / 1.15)  # kg/ha/day
-            biomass += daily_biomass
-            lai = min(6.0, lai + 0.02 * growth_factor)
-            cc = min(95.0, cc + 0.3 * growth_factor)
+            if growth_factor < 0.3:
+                # Severe stress causes LAI decline and biomass stagnation
+                lai = max(0.5, lai - 0.01 * (1.0 - growth_factor))
+            else:
+                lai = min(6.0, lai + 0.02 * growth_factor)
+            biomass += max(0.0, daily_biomass)
+            cc = min(95.0, max(5.0, cc + (0.3 * growth_factor if growth_factor >= 0.3 else -0.1)))
             peak_lai = max(peak_lai, lai)
 
-            # Yield estimate (% of potential)
-            yield_pct = max(0, min(100, 100 * (1.0 - water_stress * 0.3 - sal_stress * 0.2)))
+            # Cumulative yield estimate (based on accumulated stress over season)
+            cum_stress_factor += (1.0 - growth_factor)
+            avg_stress = cum_stress_factor / day
+            yield_pct = max(0, min(100, 100 * (1.0 - avg_stress * 0.5)))
 
             # Track maximums
             max_ws = max(max_ws, water_stress)
@@ -723,8 +730,9 @@ async def simulate_field(req: SimulationRequest):
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
+            tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
-                "sahool.digital_twin.simulation_complete",
+                f"sahool.{tenant_id}.digital_twin.simulation_complete",
                 json.dumps({
                     "field_id": req.field_state.field_id,
                     "crop": req.field_state.crop,

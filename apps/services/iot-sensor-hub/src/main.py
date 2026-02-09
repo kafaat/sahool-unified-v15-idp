@@ -632,12 +632,13 @@ async def ingest_reading(reading: SensorReading):
     """Ingest a single sensor reading with Kalman filtering and alert checking."""
     result = iot_engine.process_reading(reading)
 
-    # Publish to NATS
+    # Publish to NATS (subject: sahool.{tenant_id}.iot.reading.{type})
     nc = getattr(app.state, "nc", None)
+    tenant_id = os.getenv("TENANT_ID", "default")
     if nc and result["status"] == "accepted":
         try:
             await nc.publish(
-                f"sahool.iot.reading.{reading.sensor_type.value}",
+                f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
                 json.dumps({
                     "node_id": reading.node_id,
                     "sensor_type": reading.sensor_type.value,
@@ -655,9 +656,27 @@ async def ingest_reading(reading: SensorReading):
 async def ingest_batch(batch: SensorReadingBatch):
     """Ingest a batch of sensor readings."""
     results = []
+    nc = getattr(app.state, "nc", None)
+    tenant_id = os.getenv("TENANT_ID", "default")
+
     for reading in batch.readings:
         result = iot_engine.process_reading(reading)
         results.append(result)
+
+        # Publish accepted readings to NATS
+        if nc and result["status"] == "accepted":
+            try:
+                await nc.publish(
+                    f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
+                    json.dumps({
+                        "node_id": reading.node_id,
+                        "sensor_type": reading.sensor_type.value,
+                        "value": result["filtered_value"],
+                        "timestamp": reading.timestamp.isoformat(),
+                    }).encode(),
+                )
+            except Exception:
+                pass
 
     accepted = sum(1 for r in results if r["status"] == "accepted")
     rejected = len(results) - accepted
@@ -683,8 +702,9 @@ async def calculate_wdi(req: WDIRequest):
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
+            tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
-                "sahool.iot.wdi_calculated",
+                f"sahool.{tenant_id}.iot.wdi_calculated",
                 json.dumps({
                     "field_id": req.field_id,
                     "wdi": result.wdi,
@@ -727,11 +747,25 @@ async def cache_status():
 
 
 @app.post("/api/v1/iot/cache/sync")
-async def sync_cache(limit: int = Query(default=1000, le=10000)):
-    """Retrieve and clear synced cache entries."""
+async def sync_cache(
+    limit: int = Query(default=1000, le=10000),
+    confirm_clear: bool = Query(default=False, description="Set true to clear synced entries"),
+):
+    """
+    Retrieve cached entries and optionally clear them.
+
+    Two-phase sync: first call with confirm_clear=false to preview,
+    then confirm_clear=true to actually clear synced entries.
+    """
     pending = iot_engine.offline_cache.get_pending(limit)
-    iot_engine.offline_cache.clear_synced(len(pending))
-    return {"synced": len(pending), "remaining": iot_engine.offline_cache.size, "data": pending}
+    if confirm_clear and pending:
+        iot_engine.offline_cache.clear_synced(len(pending))
+    return {
+        "synced": len(pending),
+        "cleared": confirm_clear,
+        "remaining": iot_engine.offline_cache.size,
+        "data": pending,
+    }
 
 
 # Statistics

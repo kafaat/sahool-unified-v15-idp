@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL v16.0.0 Unified Docker Compose
-# Complete platform deployment with ALL 39 services + infrastructure
+# Complete platform deployment with ALL 43 services + infrastructure (v3.0: +4 integration services)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 services:
@@ -4003,6 +4003,171 @@ services:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8180/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SAHOOL v3.0 Integration Services (4) - Irrigation + IoT + Fertigation + DT
+# محرك دورة الري + بوابة IoT + محرك الأسمدة + التوأم الرقمي
+# ─────────────────────────────────────────────────────────────────────────────
+
+  # Irrigation Cycle Engine - FAO-56 based irrigation scheduling
+  # محرك دورة الري - جدولة الري المبنية على FAO-56
+  irrigation-cycle-engine:
+    build:
+      context: .
+      dockerfile: apps/services/irrigation-cycle-engine/Dockerfile
+    container_name: sahool-irrigation-cycle-engine
+    environment:
+      - PORT=8250
+      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8250:8250"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8250/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # IoT Sensor Hub - LoRaWAN + MQTT gateway with edge computing
+  # بوابة مستشعرات IoT - LoRaWAN + MQTT مع حوسبة طرفية
+  iot-sensor-hub:
+    build:
+      context: .
+      dockerfile: apps/services/iot-sensor-hub/Dockerfile
+    container_name: sahool-iot-sensor-hub
+    environment:
+      - PORT=8251
+      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8251:8251"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8251/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Fertigation Engine - NPK scheduling + nutrient balance
+  # محرك الأسمدة المائية - جدولة NPK + ميزان المغذيات
+  fertigation-engine:
+    build:
+      context: .
+      dockerfile: apps/services/fertigation-engine/Dockerfile
+    container_name: sahool-fertigation-engine
+    environment:
+      - PORT=8252
+      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8252:8252"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8252/healthz')" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    networks:
+      - sahool-network
+
+  # Digital Twin Engine - L3 simulation + optimization + decision support
+  # محرك التوأم الرقمي - محاكاة L3 + تحسين + دعم القرار
+  digital-twin-engine:
+    build:
+      context: .
+      dockerfile: apps/services/digital-twin-engine/Dockerfile
+    container_name: sahool-digital-twin-engine
+    environment:
+      - PORT=8253
+      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+    ports:
+      - "8253:8253"
+    depends_on:
+      nats:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8253/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

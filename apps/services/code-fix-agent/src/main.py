@@ -24,7 +24,7 @@ from .agent import CodeFixAgent
 # ============================================================================
 
 SERVICE_NAME = "code-fix-agent"
-SERVICE_VERSION = "1.0.0"
+SERVICE_VERSION = "16.0.0"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 # Configure structured logging

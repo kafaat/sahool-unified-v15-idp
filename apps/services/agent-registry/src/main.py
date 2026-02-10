@@ -191,7 +191,7 @@ async def health_check():
     return {
         "status": "healthy" if storage_status == "healthy" else "degraded",
         "service": settings.service_name,
-        "version": "1.0.0",
+        "version": "16.0.0",
         "storage": storage_status,
     }
 

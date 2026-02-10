@@ -69,7 +69,10 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN useradd -m -u 1000 -s /bin/bash appuser && \
     chown -R appuser:appuser /app
 
-# Copy shared modules | نسخ الوحدات المشتركة
+# Copy root shared modules first (shared.ai, shared.events, etc.)
+COPY --chown=appuser:appuser shared/ /app/shared/
+
+# Copy services shared modules overlay (shared.errors_py, shared.middleware, etc.)
 COPY --chown=appuser:appuser apps/services/shared/ /app/shared/
 
 # Copy application code | نسخ كود التطبيق

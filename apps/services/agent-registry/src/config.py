@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # Service
     service_name: str = "agent-registry"
-    service_port: int = 8121
+    service_port: int = 8160
     log_level: str = "INFO"
     environment: str = "production"
 

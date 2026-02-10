@@ -29,6 +29,7 @@ on:
 permissions:
   contents: read
   actions: read
+  packages: write
   security-events: write
 
 env:

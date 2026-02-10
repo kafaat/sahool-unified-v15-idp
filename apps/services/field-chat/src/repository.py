@@ -3,8 +3,10 @@ Field Chat Repository
 Data access layer for chat operations
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import datetime, UTC
 from uuid import UUID, uuid4
+
+from tortoise.expressions import F
 
 from .models import ChatMessage, ChatParticipant, ChatThread
 
@@ -25,31 +27,37 @@ class ChatRepository:
         title: str | None = None,
     ) -> tuple[ChatThread, bool]:
         """
-        Get existing thread or create new one (idempotent)
-        Returns (thread, created) tuple
+        Get existing thread or create new one (idempotent).
+        Uses get_or_create to avoid race conditions under concurrent requests.
+        Returns (thread, created) tuple.
         """
-        thread = await ChatThread.get_or_none(
-            tenant_id=tenant_id,
-            scope_type=scope_type,
-            scope_id=scope_id,
-        )
+        from tortoise.exceptions import IntegrityError
 
-        if thread:
+        try:
+            thread, created = await ChatThread.get_or_create(
+                tenant_id=tenant_id,
+                scope_type=scope_type,
+                scope_id=scope_id,
+                defaults={
+                    "id": uuid4(),
+                    "created_by": created_by,
+                    "title": title or self._generate_title(scope_type, scope_id),
+                },
+            )
+        except IntegrityError:
+            # Concurrent insert won the race — fetch the existing row
+            thread = await ChatThread.get(
+                tenant_id=tenant_id,
+                scope_type=scope_type,
+                scope_id=scope_id,
+            )
             return thread, False
 
-        thread = await ChatThread.create(
-            id=uuid4(),
-            tenant_id=tenant_id,
-            scope_type=scope_type,
-            scope_id=scope_id,
-            created_by=created_by,
-            title=title or self._generate_title(scope_type, scope_id),
-        )
+        if created:
+            # Add creator as participant
+            await self.add_participant(tenant_id, thread.id, created_by)
 
-        # Add creator as participant
-        await self.add_participant(tenant_id, thread.id, created_by)
-
-        return thread, True
+        return thread, created
 
     async def get_thread(
         self,
@@ -137,20 +145,20 @@ class ChatRepository:
             message_type=message_type,
         )
 
-        # Update thread stats
+        # Update thread stats atomically
         await ChatThread.filter(id=thread_id).update(
             last_message_at=datetime.now(UTC),
-            message_count=await ChatMessage.filter(thread_id=thread_id).count(),
+            message_count=F("message_count") + 1,
         )
 
-        # Increment unread for other participants
+        # Increment unread for other participants atomically
         await (
             ChatParticipant.filter(
                 thread_id=thread_id,
             )
             .exclude(user_id=sender_id)
             .update(
-                unread_count=ChatParticipant.unread_count + 1,
+                unread_count=F("unread_count") + 1,
             )
         )
 

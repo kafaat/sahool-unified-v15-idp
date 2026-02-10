@@ -6,7 +6,7 @@ REST API for chat thread and message operations
 from datetime import datetime
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from .auth import get_current_user
@@ -21,8 +21,23 @@ def get_repository() -> ChatRepository:
     return ChatRepository()
 
 
-def get_publisher() -> ChatPublisher:
-    return ChatPublisher()
+def get_publisher(request: Request) -> ChatPublisher:
+    """Return the shared NATS publisher managed by app lifespan."""
+    return request.app.state.publisher
+
+
+def _enforce_tenant(user: dict, requested_tenant_id: str) -> None:
+    """Validate that the JWT tenant_id matches the requested tenant_id."""
+    jwt_tenant = user.get("tenant_id")
+    if jwt_tenant and jwt_tenant != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -112,6 +127,8 @@ async def create_thread(
     Create a new chat thread for a field, task, or incident.
     Idempotent: returns existing thread if one already exists for the scope.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     if req.scope_type not in ("field", "task", "incident"):
         raise HTTPException(
             status_code=400,
@@ -140,7 +157,6 @@ async def create_thread(
             title=thread.title,
             correlation_id=req.correlation_id,
         )
-        await pub.close()
 
     return ThreadResponse(
         thread_id=str(thread.id),
@@ -164,6 +180,7 @@ async def get_thread(
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get a specific thread by ID"""
+    _enforce_tenant(user, tenant_id)
     thread = await repo.get_thread(thread_id, tenant_id)
     if not thread:
         raise HTTPException(
@@ -198,6 +215,7 @@ async def get_thread_by_scope(
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get thread by scope (field/task/incident ID)"""
+    _enforce_tenant(user, tenant_id)
     thread = await repo.get_thread_by_scope(tenant_id, scope_type, scope_id)
     if not thread:
         raise HTTPException(
@@ -234,6 +252,7 @@ async def list_threads(
     repo: ChatRepository = Depends(get_repository),
 ):
     """List chat threads with optional filters"""
+    _enforce_tenant(user, tenant_id)
     threads = await repo.list_threads(
         tenant_id=tenant_id,
         user_id=user_id,
@@ -270,6 +289,7 @@ async def archive_thread(
     pub: ChatPublisher = Depends(get_publisher),
 ):
     """Archive a chat thread"""
+    _enforce_tenant(user, tenant_id)
     success = await repo.archive_thread(thread_id, tenant_id)
     if not success:
         raise HTTPException(
@@ -287,7 +307,6 @@ async def archive_thread(
         archived_by=archived_by,
         correlation_id=correlation_id,
     )
-    await pub.close()
 
     return {"status": "archived", "thread_id": str(thread_id)}
 
@@ -306,6 +325,8 @@ async def send_message(
     pub: ChatPublisher = Depends(get_publisher),
 ):
     """Send a message to a chat thread"""
+    _enforce_tenant(user, req.tenant_id)
+
     # Verify thread exists
     thread = await repo.get_thread(thread_id, req.tenant_id)
     if not thread:
@@ -368,7 +389,6 @@ async def send_message(
         reply_to_id=req.reply_to_id,
         correlation_id=req.correlation_id,
     )
-    await pub.close()
 
     return MessageResponse(
         message_id=str(message.id),
@@ -393,6 +413,7 @@ async def list_messages(
     repo: ChatRepository = Depends(get_repository),
 ):
     """List messages in a thread with pagination"""
+    _enforce_tenant(user, tenant_id)
     messages = await repo.list_messages(
         thread_id=thread_id,
         tenant_id=tenant_id,
@@ -427,6 +448,7 @@ async def search_messages(
     repo: ChatRepository = Depends(get_repository),
 ):
     """Search messages by text content"""
+    _enforce_tenant(user, tenant_id)
     messages = await repo.search_messages(
         tenant_id=tenant_id,
         query_text=q,
@@ -464,6 +486,7 @@ async def add_participant(
     pub: ChatPublisher = Depends(get_publisher),
 ):
     """Add a participant to a chat thread"""
+    _enforce_tenant(user, req.tenant_id)
     thread = await repo.get_thread(thread_id, req.tenant_id)
     if not thread:
         raise HTTPException(status_code=404, detail="thread_not_found")
@@ -477,7 +500,6 @@ async def add_participant(
         added_by=req.added_by,
         correlation_id=req.correlation_id,
     )
-    await pub.close()
 
     return {"status": "added", "user_id": req.user_id, "thread_id": str(thread_id)}
 
@@ -493,6 +515,7 @@ async def remove_participant(
     pub: ChatPublisher = Depends(get_publisher),
 ):
     """Remove a participant from a chat thread"""
+    _enforce_tenant(user, tenant_id)
     success = await repo.remove_participant(thread_id, user_id)
     if not success:
         raise HTTPException(status_code=404, detail="participant_not_found")
@@ -503,7 +526,6 @@ async def remove_participant(
         user_id=user_id,
         correlation_id=correlation_id,
     )
-    await pub.close()
 
     return {"status": "removed", "user_id": user_id}
 
@@ -519,6 +541,7 @@ async def mark_as_read(
     pub: ChatPublisher = Depends(get_publisher),
 ):
     """Mark messages in a thread as read"""
+    _enforce_tenant(user, tenant_id)
     success = await repo.mark_read(
         thread_id=thread_id,
         user_id=req.user_id,
@@ -533,7 +556,6 @@ async def mark_as_read(
             last_read_message_id=req.last_read_message_id,
             correlation_id=correlation_id,
         )
-        await pub.close()
 
     return {"status": "marked_read", "thread_id": str(thread_id)}
 
@@ -546,6 +568,7 @@ async def get_unread_counts(
     repo: ChatRepository = Depends(get_repository),
 ):
     """Get unread message counts for all threads"""
+    _enforce_tenant(user, tenant_id)
     counts = await repo.get_unread_counts(tenant_id, user_id)
     total = sum(counts.values())
 

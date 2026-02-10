@@ -9,7 +9,7 @@ LABEL service="marketplace-service"
 LABEL version="16.0.0"
 
 # Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
+RUN apk update && apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -40,8 +40,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# OpenSSL runtime libs are already included in node:20-alpine
+# No apk install needed — curl replaced by Node.js healthcheck below
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
@@ -67,9 +67,9 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check
+# Health check (using Node.js built-in fetch instead of curl)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3010/api/v1/healthz || exit 1
+    CMD node -e "fetch('http://localhost:3010/api/v1/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 # Run the application
 CMD ["node", "dist/src/main.js"]

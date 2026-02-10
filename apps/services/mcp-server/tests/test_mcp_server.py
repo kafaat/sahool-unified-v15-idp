@@ -11,8 +11,9 @@ import pytest
 from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from apps.services.mcp_server.src.main import app
+from src.main import app
 
 
 @pytest.fixture
@@ -185,11 +186,12 @@ class TestMCPProtocol:
         assert len(data["result"]["messages"]) > 0
 
     def test_invalid_method(self, client):
-        """Test invalid method"""
+        """Test invalid method - JSON-RPC 2.0 returns HTTP 200 with error in body"""
         request = {"jsonrpc": "2.0", "id": 7, "method": "invalid/method", "params": {}}
 
         response = client.post("/mcp", json=request)
-        assert response.status_code == 500
+        # JSON-RPC 2.0 spec: Always return HTTP 200, errors in response body
+        assert response.status_code == 200
 
         data = response.json()
         assert data["jsonrpc"] == "2.0"

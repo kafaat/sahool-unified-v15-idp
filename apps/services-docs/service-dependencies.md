@@ -472,7 +472,7 @@ These services have NO dependencies and must start first:
 
 ---
 
-#### mcp-server (Port 8201)
+#### mcp-server (Port 8200)
 **Dependencies:**
 - kong:8000
 - postgres:5432

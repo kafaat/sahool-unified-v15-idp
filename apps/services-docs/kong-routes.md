@@ -201,8 +201,8 @@ All HTTP traffic to SAHOOL services flows through Kong Gateway on port 8000. Kon
 | ALL | `/provider-config` | provider-config | 8104 | Legacy provider config route |
 | ALL | `/api/v1/skills` | skills-service | 8121 | Skills assessment |
 | ALL | `/skills` | skills-service | 8121 | Legacy skills route |
-| ALL | `/api/v1/mcp` | mcp-server | 8201 | Model Context Protocol |
-| ALL | `/mcp` | mcp-server | 8201 | Legacy MCP route |
+| ALL | `/api/v1/mcp` | mcp-server | 8200 | Model Context Protocol |
+| ALL | `/mcp` | mcp-server | 8200 | Legacy MCP route |
 | ALL | `/api/v1/ussd` | ussd-gateway | 8163 | USSD gateway |
 | ALL | `/ussd` | ussd-gateway | 8163 | Legacy USSD route |
 | ALL | `/api/v1/wechat` | wechat-service | 8133 | WeChat integration |

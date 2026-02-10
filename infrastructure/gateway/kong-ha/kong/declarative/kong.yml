@@ -835,7 +835,7 @@ services:
 
   # MCP Server
   - name: mcp-server
-    url: http://mcp-server:8201
+    url: http://mcp-server:8200
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2

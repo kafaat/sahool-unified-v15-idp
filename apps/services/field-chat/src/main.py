@@ -227,6 +227,11 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+def _sanitize_for_log(value: str) -> str:
+    """Strip newline/carriage-return to prevent log injection."""
+    return value.replace("\n", "").replace("\r", "")
+
+
 @app.websocket("/ws/chat/{thread_id}")
 async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | None = None):
     """
@@ -268,7 +273,8 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
         return
 
     await manager.connect(websocket, thread_id)
-    logger.info("WebSocket connected: thread=%s, user=%s", thread_id, user_id)
+    safe_thread_id = _sanitize_for_log(thread_id)
+    logger.info("WebSocket connected: thread=%s, user=%s", safe_thread_id, user_id)
 
     try:
         while True:
@@ -278,4 +284,4 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
             await websocket.send_json({"type": "pong", "data": data})
     except WebSocketDisconnect:
         manager.disconnect(websocket, thread_id)
-        logger.info("WebSocket disconnected: thread=%s", thread_id)
+        logger.info("WebSocket disconnected: thread=%s", safe_thread_id)

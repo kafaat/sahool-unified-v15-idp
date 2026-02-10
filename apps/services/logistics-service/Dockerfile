@@ -43,8 +43,11 @@ RUN mkdir -p /root/.pip && \
 # Install dependencies
 COPY apps/services/logistics-service/requirements.txt .
 
-# Copy shared libraries
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 COPY apps/services/logistics-service/src/ ./src/

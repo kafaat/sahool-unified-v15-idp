@@ -34,8 +34,11 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 # Install dependencies
 COPY apps/services/ussd-gateway/requirements.txt .
 
-# Copy shared libraries
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 COPY apps/services/ussd-gateway/src/ ./src/

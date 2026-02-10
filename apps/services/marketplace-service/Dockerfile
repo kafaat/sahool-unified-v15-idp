@@ -40,8 +40,10 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# OpenSSL runtime libs are already included in node:20-alpine
-# No apk install needed — curl replaced by Node.js healthcheck below
+# Install OpenSSL runtime for Prisma engine detection (openssl-dev NOT needed at runtime)
+# Falls back gracefully if network unavailable — Prisma schema includes linux-musl target as backup
+RUN apk update && apk add --no-cache openssl || \
+    echo "WARN: openssl install failed — Prisma will use linux-musl target"
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./

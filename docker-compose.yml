@@ -3088,7 +3088,7 @@ services:
       dockerfile: apps/services/agent-registry/Dockerfile
     container_name: sahool-agent-registry
     environment:
-      - PORT=8121
+      - PORT=8160
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3096,7 +3096,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8160:8121"
+      - "8160:8160"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3105,7 +3105,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3139,7 +3139,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8121
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
       - "8161:8161"
     depends_on:
@@ -3186,7 +3186,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8121
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
       - "8162:8162"
     depends_on:
@@ -3233,7 +3233,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - AGENT_REGISTRY_URL=http://agent-registry:8121
+      - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
     ports:
       - "8163:8088"
@@ -3465,7 +3465,7 @@ services:
       dockerfile: apps/services/globalgap-compliance/Dockerfile
     container_name: sahool-globalgap-compliance
     environment:
-      - PORT=8123
+      - PORT=8128
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
@@ -3475,7 +3475,7 @@ services:
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8168:8123"
+      - "8128:8128"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3488,7 +3488,7 @@ services:
       traceability-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8123/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8128/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -9,11 +9,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { DisasterService } from "../disaster/disaster.service";
 import { PrismaService } from "../prisma/prisma.service";
-import {
-  DisasterType,
-  Severity,
-  DisasterStatus,
-} from "../disaster/disaster.dto";
+import { DisasterType, Severity } from "../disaster/disaster.dto";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock Prisma Service

@@ -15,7 +15,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field, ConfigDict
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class SwarmTopology(str, Enum):
+class SwarmTopology(StrEnum):
     """
     Swarm communication topology.
     طوبولوجيا اتصال السرب
@@ -40,7 +40,7 @@ class SwarmTopology(str, Enum):
     PIPELINE = "pipeline"  # Sequential processing | معالجة متسلسلة
 
 
-class AgentCapability(str, Enum):
+class AgentCapability(StrEnum):
     """
     Agent capability types.
     أنواع قدرات الوكيل
@@ -58,7 +58,7 @@ class AgentCapability(str, Enum):
     GENERAL = "general"  # عام
 
 
-class TaskPriority(str, Enum):
+class TaskPriority(StrEnum):
     """
     Task priority levels.
     مستويات أولوية المهمة
@@ -70,7 +70,7 @@ class TaskPriority(str, Enum):
     LOW = "low"  # منخفض - عند الإمكان
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """
     Task execution status.
     حالة تنفيذ المهمة
@@ -86,7 +86,7 @@ class TaskStatus(str, Enum):
     CANCELLED = "cancelled"  # ملغى
 
 
-class ConsensusType(str, Enum):
+class ConsensusType(StrEnum):
     """
     Consensus protocol types.
     أنواع بروتوكولات الإجماع
@@ -99,7 +99,7 @@ class ConsensusType(str, Enum):
     QUORUM = "quorum"  # Minimum required | الحد الأدنى المطلوب
 
 
-class MemoryNamespace(str, Enum):
+class MemoryNamespace(StrEnum):
     """
     Collective memory namespace types.
     أنواع مساحات أسماء الذاكرة الجماعية
@@ -240,9 +240,7 @@ class Task(BaseModel):
         description="Unique task identifier | معرف المهمة الفريد",
     )
     description: str = Field(description="Task description (English)")
-    description_ar: str = Field(
-        description="Task description (Arabic) | وصف المهمة بالعربية"
-    )
+    description_ar: str = Field(description="Task description (Arabic) | وصف المهمة بالعربية")
     required_capabilities: list[AgentCapability] = Field(
         default_factory=list,
         description="Required agent capabilities | القدرات المطلوبة",
@@ -528,9 +526,7 @@ class MemoryEntry(BaseModel):
         default_factory=lambda: str(uuid4()),
         description="Unique entry identifier",
     )
-    namespace: MemoryNamespace = Field(
-        description="Memory namespace | مساحة اسم الذاكرة"
-    )
+    namespace: MemoryNamespace = Field(description="Memory namespace | مساحة اسم الذاكرة")
     key: str = Field(description="Entry key | مفتاح الإدخال")
     value: Any = Field(description="Entry value | قيمة الإدخال")
     metadata: dict[str, Any] = Field(default_factory=dict)

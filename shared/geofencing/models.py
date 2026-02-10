@@ -6,11 +6,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 
 
-class GeofenceType(str, Enum):
+class GeofenceType(StrEnum):
     """Type of geofence zone"""
+
     ALLOWED = "allowed"  # منطقة مسموح بها
     RESTRICTED = "restricted"  # منطقة مقيدة
     SENSITIVE = "sensitive"  # منطقة حساسة (مثل مصادر المياه)
@@ -19,8 +20,9 @@ class GeofenceType(str, Enum):
     FARM_BOUNDARY = "farm_boundary"  # حدود المزرعة
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """Type of geofence alert"""
+
     EXIT = "exit"  # خروج من المنطقة
     ENTRY = "entry"  # دخول للمنطقة
     SPEEDING = "speeding"  # سرعة زائدة
@@ -29,16 +31,18 @@ class AlertType(str, Enum):
     UNAUTHORIZED_MOVE = "unauthorized_move"  # حركة غير مصرح بها
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity level"""
+
     LOW = "low"  # منخفض
     MEDIUM = "medium"  # متوسط
     HIGH = "high"  # مرتفع
     CRITICAL = "critical"  # حرج
 
 
-class ZoneStatus(str, Enum):
+class ZoneStatus(StrEnum):
     """Equipment status relative to a zone"""
+
     INSIDE = "inside"  # داخل المنطقة
     OUTSIDE = "outside"  # خارج المنطقة
     APPROACHING = "approaching"  # يقترب
@@ -48,6 +52,7 @@ class ZoneStatus(str, Enum):
 @dataclass
 class LatLng:
     """Geographic coordinate"""
+
     lat: float
     lng: float
 
@@ -65,6 +70,7 @@ class Geofence:
 
     Supports both circular and polygon geofences
     """
+
     id: str
     tenant_id: str
     name: str
@@ -128,6 +134,7 @@ class Geofence:
 @dataclass
 class PositionUpdate:
     """Equipment position update - تحديث موقع المعدة"""
+
     equipment_id: str
     tenant_id: str
     timestamp: datetime
@@ -156,6 +163,7 @@ class GeofenceAlert:
     """
     Geofence alert - تنبيه السياج الجغرافي
     """
+
     alert_id: str
     tenant_id: str
     equipment_id: str
@@ -229,6 +237,7 @@ class EquipmentZoneStatus:
     Equipment's current status relative to all geofences
     حالة المعدة بالنسبة لجميع السياجات الجغرافية
     """
+
     equipment_id: str
     equipment_name: str
     timestamp: datetime

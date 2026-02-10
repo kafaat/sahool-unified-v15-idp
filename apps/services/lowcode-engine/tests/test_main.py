@@ -13,7 +13,9 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 # Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+)
 sys.path.insert(0, project_root)
 
 # Set test environment variables
@@ -27,6 +29,7 @@ os.environ["NATS_URL"] = ""
 # ============================================================================
 # Test Health Endpoints
 # ============================================================================
+
 
 class TestHealthEndpoints:
     """Tests for health check endpoints."""
@@ -74,6 +77,7 @@ class TestHealthEndpoints:
 # ============================================================================
 # Test Component Endpoints
 # ============================================================================
+
 
 class TestComponentEndpoints:
     """Tests for component material endpoints."""
@@ -165,6 +169,7 @@ class TestComponentEndpoints:
 # Test Data Model Endpoints
 # ============================================================================
 
+
 class TestDataModelEndpoints:
     """Tests for data model endpoints."""
 
@@ -234,9 +239,7 @@ class TestDataModelEndpoints:
     @pytest.mark.asyncio
     async def test_list_data_models_with_limit(self, async_client: AsyncClient):
         """Test listing data models with limit parameter."""
-        response = await async_client.get(
-            "/api/v1/models?tenant_id=test-tenant&limit=5"
-        )
+        response = await async_client.get("/api/v1/models?tenant_id=test-tenant&limit=5")
 
         assert response.status_code == 200
         data = response.json()
@@ -244,14 +247,10 @@ class TestDataModelEndpoints:
         assert len(data) <= 5
 
     @pytest.mark.asyncio
-    async def test_get_data_model(
-        self, async_client: AsyncClient, data_model_create_request: dict
-    ):
+    async def test_get_data_model(self, async_client: AsyncClient, data_model_create_request: dict):
         """Test getting a specific data model by ID."""
         # First create a model
-        create_response = await async_client.post(
-            "/api/v1/models", json=data_model_create_request
-        )
+        create_response = await async_client.post("/api/v1/models", json=data_model_create_request)
         model_id = create_response.json()["id"]
 
         # Then get it
@@ -276,13 +275,12 @@ class TestDataModelEndpoints:
 # Test Page Endpoints
 # ============================================================================
 
+
 class TestPageEndpoints:
     """Tests for page endpoints."""
 
     @pytest.mark.asyncio
-    async def test_create_page(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_create_page(self, async_client: AsyncClient, page_create_request: dict):
         """Test creating a new page."""
         response = await async_client.post("/api/v1/pages", json=page_create_request)
 
@@ -327,9 +325,7 @@ class TestPageEndpoints:
         assert response.status_code == 422  # Validation error
 
     @pytest.mark.asyncio
-    async def test_list_pages(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_list_pages(self, async_client: AsyncClient, page_create_request: dict):
         """Test listing pages."""
         # First create a page
         await async_client.post("/api/v1/pages", json=page_create_request)
@@ -344,9 +340,7 @@ class TestPageEndpoints:
     @pytest.mark.asyncio
     async def test_list_pages_filter_published(self, async_client: AsyncClient):
         """Test listing pages filtered by published status."""
-        response = await async_client.get(
-            "/api/v1/pages?tenant_id=test-tenant&is_published=false"
-        )
+        response = await async_client.get("/api/v1/pages?tenant_id=test-tenant&is_published=false")
 
         assert response.status_code == 200
         data = response.json()
@@ -356,14 +350,10 @@ class TestPageEndpoints:
             assert page["is_published"] is False
 
     @pytest.mark.asyncio
-    async def test_get_page(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_get_page(self, async_client: AsyncClient, page_create_request: dict):
         """Test getting a specific page by ID."""
         # First create a page
-        create_response = await async_client.post(
-            "/api/v1/pages", json=page_create_request
-        )
+        create_response = await async_client.post("/api/v1/pages", json=page_create_request)
         page_id = create_response.json()["id"]
 
         # Then get it
@@ -384,14 +374,10 @@ class TestPageEndpoints:
         assert data["detail"] == "Page not found"
 
     @pytest.mark.asyncio
-    async def test_update_page_publish(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_update_page_publish(self, async_client: AsyncClient, page_create_request: dict):
         """Test publishing a page updates its status."""
         # First create a page
-        create_response = await async_client.post(
-            "/api/v1/pages", json=page_create_request
-        )
+        create_response = await async_client.post("/api/v1/pages", json=page_create_request)
         page_id = create_response.json()["id"]
 
         # Verify it's not published
@@ -405,14 +391,10 @@ class TestPageEndpoints:
         assert publish_response.json()["is_published"] is True
 
     @pytest.mark.asyncio
-    async def test_publish_page(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_publish_page(self, async_client: AsyncClient, page_create_request: dict):
         """Test the publish page endpoint."""
         # First create a page
-        create_response = await async_client.post(
-            "/api/v1/pages", json=page_create_request
-        )
+        create_response = await async_client.post("/api/v1/pages", json=page_create_request)
         page_id = create_response.json()["id"]
 
         # Then publish it
@@ -433,14 +415,10 @@ class TestPageEndpoints:
         assert data["detail"] == "Page not found"
 
     @pytest.mark.asyncio
-    async def test_render_page(
-        self, async_client: AsyncClient, page_create_request: dict
-    ):
+    async def test_render_page(self, async_client: AsyncClient, page_create_request: dict):
         """Test rendering a page."""
         # First create a page
-        create_response = await async_client.post(
-            "/api/v1/pages", json=page_create_request
-        )
+        create_response = await async_client.post("/api/v1/pages", json=page_create_request)
         page_id = create_response.json()["id"]
 
         # Then render it
@@ -464,6 +442,7 @@ class TestPageEndpoints:
 # Test AI Suggestion Endpoints
 # ============================================================================
 
+
 class TestAISuggestionEndpoints:
     """Tests for AI suggestion endpoints."""
 
@@ -472,9 +451,7 @@ class TestAISuggestionEndpoints:
         self, async_client: AsyncClient, ai_suggestion_request: dict
     ):
         """Test AI component suggestions."""
-        response = await async_client.post(
-            "/api/v1/ai/suggest", json=ai_suggestion_request
-        )
+        response = await async_client.post("/api/v1/ai/suggest", json=ai_suggestion_request)
 
         assert response.status_code == 200
         data = response.json()
@@ -506,9 +483,7 @@ class TestAISuggestionEndpoints:
         assert len(set(component_ids) & relevant_components) > 0
 
     @pytest.mark.asyncio
-    async def test_ai_suggest_components_arabic_keywords(
-        self, async_client: AsyncClient
-    ):
+    async def test_ai_suggest_components_arabic_keywords(self, async_client: AsyncClient):
         """Test AI suggestions respond to Arabic keywords."""
         request = {
             "description": "Create a dashboard for crop health monitoring",
@@ -523,9 +498,7 @@ class TestAISuggestionEndpoints:
         assert "reasoning_ar" in data
 
     @pytest.mark.asyncio
-    async def test_ai_suggest_components_validation_error(
-        self, async_client: AsyncClient
-    ):
+    async def test_ai_suggest_components_validation_error(self, async_client: AsyncClient):
         """Test AI suggestions with invalid request."""
         request = {
             "description": "short",  # Too short (min_length=10)
@@ -592,6 +565,7 @@ class TestAISuggestionEndpoints:
 # ============================================================================
 # Test Metrics Endpoint
 # ============================================================================
+
 
 class TestMetricsEndpoint:
     """Tests for metrics endpoint."""

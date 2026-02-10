@@ -154,7 +154,7 @@ class DartAnalyzer(BaseAnalyzer):
             # Filter and limit issues
             filtered_issues = [i for i in issues if self._should_include_issue(i)]
             if len(filtered_issues) > self.config.max_issues:
-                filtered_issues = filtered_issues[:self.config.max_issues]
+                filtered_issues = filtered_issues[: self.config.max_issues]
 
             return AnalysisResult(
                 success=True,
@@ -193,7 +193,7 @@ class DartAnalyzer(BaseAnalyzer):
             string_char = None
 
             for j, char in enumerate(line):
-                if char in "\"'" and (j == 0 or line[j-1] != "\\"):
+                if char in "\"'" and (j == 0 or line[j - 1] != "\\"):
                     if not in_string:
                         in_string = True
                         string_char = char
@@ -211,17 +211,19 @@ class DartAnalyzer(BaseAnalyzer):
                     if stack:
                         open_bracket, _ = stack.pop()
                         if brackets[open_bracket] != char:
-                            issues.append(AnalysisIssue(
-                                file_path="<string>",
-                                line_start=i,
-                                line_end=i,
-                                column_start=j,
-                                severity=IssueSeverity.ERROR,
-                                category=IssueCategory.SYNTAX,
-                                code="DS001",
-                                message=f"Mismatched bracket: expected '{brackets[open_bracket]}' but found '{char}'",
-                                message_ar="قوس غير متطابق",
-                            ))
+                            issues.append(
+                                AnalysisIssue(
+                                    file_path="<string>",
+                                    line_start=i,
+                                    line_end=i,
+                                    column_start=j,
+                                    severity=IssueSeverity.ERROR,
+                                    category=IssueCategory.SYNTAX,
+                                    code="DS001",
+                                    message=f"Mismatched bracket: expected '{brackets[open_bracket]}' but found '{char}'",
+                                    message_ar="قوس غير متطابق",
+                                )
+                            )
 
         return issues
 
@@ -234,34 +236,38 @@ class DartAnalyzer(BaseAnalyzer):
         dynamic_pattern = re.compile(r"\bdynamic\b")
         for i, line in enumerate(lines, 1):
             if dynamic_pattern.search(line):
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.WARNING,
-                    category=IssueCategory.TYPE,
-                    code="DT001",
-                    message="Avoid using 'dynamic' type",
-                    message_ar="تجنب استخدام نوع 'dynamic'",
-                    source_code=line.strip(),
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.WARNING,
+                        category=IssueCategory.TYPE,
+                        code="DT001",
+                        message="Avoid using 'dynamic' type",
+                        message_ar="تجنب استخدام نوع 'dynamic'",
+                        source_code=line.strip(),
+                    )
+                )
 
         # Check for missing type annotations
         var_pattern = re.compile(r"^\s*var\s+(\w+)\s*=")
         for i, line in enumerate(lines, 1):
             match = var_pattern.search(line)
             if match:
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.INFO,
-                    category=IssueCategory.TYPE,
-                    code="DT002",
-                    message=f"Consider using explicit type for '{match.group(1)}'",
-                    message_ar=f"فكر في استخدام نوع صريح لـ '{match.group(1)}'",
-                    source_code=line.strip(),
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.INFO,
+                        category=IssueCategory.TYPE,
+                        code="DT002",
+                        message=f"Consider using explicit type for '{match.group(1)}'",
+                        message_ar=f"فكر في استخدام نوع صريح لـ '{match.group(1)}'",
+                        source_code=line.strip(),
+                    )
+                )
 
         return issues
 
@@ -274,18 +280,20 @@ class DartAnalyzer(BaseAnalyzer):
             pattern = re.compile(pattern_info["pattern"], re.IGNORECASE)
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.SECURITY,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                        confidence=0.9,
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.SECURITY,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                            confidence=0.9,
+                        )
+                    )
 
         return issues
 
@@ -297,33 +305,37 @@ class DartAnalyzer(BaseAnalyzer):
         # Line length check
         for i, line in enumerate(lines, 1):
             if len(line) > self.config.max_line_length:
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.INFO,
-                    category=IssueCategory.STYLE,
-                    code="DS501",
-                    message=f"Line too long ({len(line)} > {self.config.max_line_length})",
-                    message_ar="السطر طويل جداً",
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.INFO,
+                        category=IssueCategory.STYLE,
+                        code="DS501",
+                        message=f"Line too long ({len(line)} > {self.config.max_line_length})",
+                        message_ar="السطر طويل جداً",
+                    )
+                )
 
         # Pattern-based style checks
         for pattern_info in self.STYLE_PATTERNS:
             pattern = re.compile(pattern_info["pattern"])
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.STYLE,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.STYLE,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                        )
+                    )
 
         return issues
 
@@ -339,17 +351,19 @@ class DartAnalyzer(BaseAnalyzer):
         for pattern_info in self.FLUTTER_PATTERNS:
             pattern = re.compile(pattern_info["pattern"], re.DOTALL)
             for match in pattern.finditer(code):
-                line_num = code[:match.start()].count("\n") + 1
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=line_num,
-                    line_end=line_num,
-                    severity=pattern_info["severity"],
-                    category=IssueCategory.BEST_PRACTICE,
-                    code=pattern_info["code"],
-                    message=pattern_info["message"],
-                    message_ar=pattern_info["message_ar"],
-                ))
+                line_num = code[: match.start()].count("\n") + 1
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=line_num,
+                        line_end=line_num,
+                        severity=pattern_info["severity"],
+                        category=IssueCategory.BEST_PRACTICE,
+                        code=pattern_info["code"],
+                        message=pattern_info["message"],
+                        message_ar=pattern_info["message_ar"],
+                    )
+                )
 
         return issues
 

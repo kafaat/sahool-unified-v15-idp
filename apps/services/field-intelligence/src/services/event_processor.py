@@ -11,7 +11,9 @@ from uuid import uuid4
 import httpx
 
 # Service URL configuration
-ASTRONOMICAL_SERVICE_URL = os.getenv("ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111")
+ASTRONOMICAL_SERVICE_URL = os.getenv(
+    "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
+)
 
 from ..models.events import (
     AstronomicalEvent,

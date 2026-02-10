@@ -26,7 +26,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -101,7 +101,7 @@ class Service:
     endpoints: list[Endpoint] = field(default_factory=list)
 
 
-class APICategory(str, Enum):
+class APICategory(StrEnum):
     """API categories for documentation"""
 
     AUTHENTICATION = "authentication"

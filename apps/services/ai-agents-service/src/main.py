@@ -35,7 +35,14 @@ from slowapi.errors import RateLimitExceeded
 logger = structlog.get_logger()
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+    ),
+)
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
@@ -74,8 +81,10 @@ VALID_AGENT_TYPES = {"farm_advisor", "research", "planner"}
 # Error Response Model & Custom Exceptions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ErrorResponse(BaseModel):
     """Standardized error response model"""
+
     error: str
     error_ar: str | None = None
     error_code: str
@@ -85,6 +94,7 @@ class ErrorResponse(BaseModel):
 
 class ServiceUnavailableError(Exception):
     """Raised when a required service (DB, NATS) is unavailable"""
+
     def __init__(self, service: str, message: str = "Service unavailable"):
         self.service = service
         self.message = message
@@ -93,6 +103,7 @@ class ServiceUnavailableError(Exception):
 
 class AgentExecutionError(Exception):
     """Raised when agent execution fails"""
+
     def __init__(self, agent_type: str, message: str, execution_id: str | None = None):
         self.agent_type = agent_type
         self.message = message
@@ -102,6 +113,7 @@ class AgentExecutionError(Exception):
 
 class ResourceNotFoundError(Exception):
     """Raised when a requested resource is not found"""
+
     def __init__(self, resource_type: str, resource_id: str):
         self.resource_type = resource_type
         self.resource_id = resource_id
@@ -111,6 +123,7 @@ class ResourceNotFoundError(Exception):
 
 class TenantAccessDeniedError(Exception):
     """Raised when tenant access is denied"""
+
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
         self.message = "Access denied: tenant mismatch"
@@ -162,11 +175,15 @@ def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded) -> JSO
 # Request/Response Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class AgentExecuteRequest(BaseModel):
     """Request to execute an agent task"""
+
     task: str = Field(..., description="Task description in natural language")
     task_ar: str | None = Field(None, description="Task description in Arabic")
-    agent_type: str = Field("farm_advisor", description="Agent type: farm_advisor, research, planner")
+    agent_type: str = Field(
+        "farm_advisor", description="Agent type: farm_advisor, research, planner"
+    )
     mode: str = Field("hybrid", description="Execution mode: plan, execute, hybrid")
     context: dict[str, Any] | None = Field(None, description="Additional context for the agent")
     tenant_id: str = Field(..., description="Tenant ID for multi-tenancy")
@@ -178,6 +195,7 @@ class AgentExecuteRequest(BaseModel):
 
 class AgentStep(BaseModel):
     """Single step in agent execution"""
+
     step_number: int
     action: str
     action_ar: str | None = None
@@ -189,6 +207,7 @@ class AgentStep(BaseModel):
 
 class AgentExecuteResponse(BaseModel):
     """Response from agent execution"""
+
     execution_id: str
     tenant_id: str
     agent_type: str
@@ -206,6 +225,7 @@ class AgentExecuteResponse(BaseModel):
 
 class AgentListItem(BaseModel):
     """Agent type information"""
+
     agent_type: str
     name: str
     name_ar: str
@@ -217,6 +237,7 @@ class AgentListItem(BaseModel):
 
 class ExecutionStatusResponse(BaseModel):
     """Status of an ongoing execution"""
+
     execution_id: str
     status: str
     state: str
@@ -241,6 +262,7 @@ def _use_database() -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Lifespan Management
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -278,9 +300,9 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             from shared.events.publisher import get_publisher
+
             app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME,
-                service_version=SERVICE_VERSION
+                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
             )
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
@@ -308,6 +330,7 @@ async def lifespan(app: FastAPI):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def cache_get(key: str) -> dict | None:
     """Get value from Redis cache."""
@@ -374,6 +397,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 # Request ID Middleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.middleware("http")
 async def add_request_id_middleware(request: Request, call_next):
     """Add request ID to all requests for tracing"""
@@ -387,6 +411,7 @@ async def add_request_id_middleware(request: Request, call_next):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Exception Handlers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
@@ -434,7 +459,9 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 
 
 @app.exception_handler(TenantAccessDeniedError)
-async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError) -> JSONResponse:
+async def tenant_access_denied_handler(
+    request: Request, exc: TenantAccessDeniedError
+) -> JSONResponse:
     """Handle tenant access denied errors (403)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -456,7 +483,9 @@ async def tenant_access_denied_handler(request: Request, exc: TenantAccessDenied
 
 
 @app.exception_handler(ServiceUnavailableError)
-async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError) -> JSONResponse:
+async def service_unavailable_handler(
+    request: Request, exc: ServiceUnavailableError
+) -> JSONResponse:
     """Handle service unavailable errors (503)"""
     request_id = get_request_id(request)
     logger.error(
@@ -518,9 +547,21 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     error_code, error_ar = error_codes.get(exc.status_code, ("ERROR", "خطأ"))
 
     if exc.status_code >= 500:
-        logger.error("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.error(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
     else:
-        logger.warning("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.warning(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -559,7 +600,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # Get allowed origins from environment
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -573,6 +616,7 @@ app.add_middleware(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz", tags=["Health"])
 def health():
@@ -632,6 +676,7 @@ async def health_detailed():
 # Agent Management Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.get("/api/v1/agents", response_model=list[AgentListItem], tags=["Agents"])
 @limiter.limit("60/minute")
 async def list_agents(request: Request, user: User = Depends(get_current_user)):
@@ -652,9 +697,13 @@ async def list_agents(request: Request, user: User = Depends(get_current_user)):
             description_ar="وكيل ثنائي الوضع للاستشارات الزراعية مع وضعي التخطيط والتنفيذ",
             supported_modes=["plan", "execute", "hybrid"],
             available_tools=[
-                "fetch_satellite_data", "fetch_weather_data", "fetch_sensor_data",
-                "analyze_crop_health", "generate_recommendations",
-                "schedule_irrigation", "create_task"
+                "fetch_satellite_data",
+                "fetch_weather_data",
+                "fetch_sensor_data",
+                "analyze_crop_health",
+                "generate_recommendations",
+                "schedule_irrigation",
+                "create_task",
             ],
         ),
         AgentListItem(
@@ -665,8 +714,12 @@ async def list_agents(request: Request, user: User = Depends(get_current_user)):
             description_ar="وكيل متخصص لتحليل البيانات الزراعية والبحث",
             supported_modes=["execute", "hybrid"],
             available_tools=[
-                "fetch_satellite_data", "fetch_weather_data", "fetch_sensor_data",
-                "analyze_crop_health", "calculate_irrigation_need", "diagnose_crop_issue"
+                "fetch_satellite_data",
+                "fetch_weather_data",
+                "fetch_sensor_data",
+                "analyze_crop_health",
+                "calculate_irrigation_need",
+                "diagnose_crop_issue",
             ],
         ),
         AgentListItem(
@@ -676,9 +729,7 @@ async def list_agents(request: Request, user: User = Depends(get_current_user)):
             description="Read-only planning agent for task analysis and recommendations",
             description_ar="وكيل تخطيط للقراءة فقط لتحليل المهام والتوصيات",
             supported_modes=["plan"],
-            available_tools=[
-                "fetch_satellite_data", "fetch_weather_data", "analyze_crop_health"
-            ],
+            available_tools=["fetch_satellite_data", "fetch_weather_data", "analyze_crop_health"],
         ),
     ]
 
@@ -837,15 +888,17 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         # Convert agent steps to response format
         if hasattr(agent, "steps"):
             for i, step in enumerate(agent.steps):
-                response.steps.append(AgentStep(
-                    step_number=i + 1,
-                    action=step.get("action", "unknown"),
-                    action_ar=step.get("action_ar"),
-                    tool_used=step.get("tool"),
-                    result=step.get("result"),
-                    timestamp=step.get("timestamp", datetime.now(UTC)),
-                    duration_ms=step.get("duration_ms"),
-                ))
+                response.steps.append(
+                    AgentStep(
+                        step_number=i + 1,
+                        action=step.get("action", "unknown"),
+                        action_ar=step.get("action_ar"),
+                        tool_used=step.get("tool"),
+                        result=step.get("result"),
+                        timestamp=step.get("timestamp", datetime.now(UTC)),
+                        duration_ms=step.get("duration_ms"),
+                    )
+                )
 
         logger.info(
             "agent_execution_completed",
@@ -942,7 +995,9 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                             status=response.status,
                             total_steps=len(response.steps),
                             duration_ms=response.total_duration_ms or 0,
-                            result_summary=response.final_result.get("summary") if response.final_result else None,
+                            result_summary=response.final_result.get("summary")
+                            if response.final_result
+                            else None,
                         ),
                     )
                 else:
@@ -963,7 +1018,9 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                 logger.warning("nats_publish_failed", event="completed/failed", error=str(e))
 
 
-@app.get("/api/v1/agents/executions/{execution_id}", response_model=AgentExecuteResponse, tags=["Agents"])
+@app.get(
+    "/api/v1/agents/executions/{execution_id}", response_model=AgentExecuteResponse, tags=["Agents"]
+)
 @limiter.limit("60/minute")
 async def get_execution(
     request: Request,
@@ -995,7 +1052,9 @@ async def get_execution(
                 task=db_exec.get("goal", ""),
                 status=db_exec.get("status", "unknown"),
                 state=db_exec.get("state", "unknown"),
-                steps=[AgentStep(**s) for s in db_exec.get("steps", [])] if db_exec.get("steps") else [],
+                steps=[AgentStep(**s) for s in db_exec.get("steps", [])]
+                if db_exec.get("steps")
+                else [],
                 final_result=db_exec.get("result"),
                 error=db_exec.get("error"),
                 started_at=db_exec.get("created_at", datetime.now(UTC)),
@@ -1006,7 +1065,11 @@ async def get_execution(
     raise ResourceNotFoundError(resource_type="Execution", resource_id=execution_id)
 
 
-@app.get("/api/v1/agents/executions/{execution_id}/status", response_model=ExecutionStatusResponse, tags=["Agents"])
+@app.get(
+    "/api/v1/agents/executions/{execution_id}/status",
+    response_model=ExecutionStatusResponse,
+    tags=["Agents"],
+)
 @limiter.limit("60/minute")
 async def get_execution_status(
     request: Request,
@@ -1141,15 +1204,17 @@ async def list_executions(
     results.sort(key=lambda x: x.started_at, reverse=True)
 
     # Apply pagination
-    return results[offset:offset + limit]
+    return results[offset : offset + limit]
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Quick Action Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class QuickAnalysisRequest(BaseModel):
     """Quick analysis request"""
+
     field_id: str
     tenant_id: str
     analysis_type: str = Field("crop_health", description="Type: crop_health, irrigation, yield")
@@ -1157,6 +1222,7 @@ class QuickAnalysisRequest(BaseModel):
 
 class QuickAnalysisResponse(BaseModel):
     """Quick analysis response"""
+
     field_id: str
     analysis_type: str
     summary: str
@@ -1166,7 +1232,9 @@ class QuickAnalysisResponse(BaseModel):
     timestamp: datetime
 
 
-@app.post("/api/v1/agents/quick/analyze", response_model=QuickAnalysisResponse, tags=["Quick Actions"])
+@app.post(
+    "/api/v1/agents/quick/analyze", response_model=QuickAnalysisResponse, tags=["Quick Actions"]
+)
 @limiter.limit("60/minute")
 async def quick_analyze(
     request: Request,
@@ -1205,6 +1273,7 @@ async def quick_analyze(
 # Metrics Endpoint
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.get("/metrics", tags=["Monitoring"])
 def metrics():
     """Prometheus-compatible metrics"""
@@ -1233,6 +1302,7 @@ ai_agents_executions_failed {failed}
 
 if __name__ == "__main__":
     import uvicorn
+
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
     host = os.getenv("HOST", "0.0.0.0")
     uvicorn.run(app, host=host, port=SERVICE_PORT)

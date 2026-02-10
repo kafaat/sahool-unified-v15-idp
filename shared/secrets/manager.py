@@ -25,7 +25,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class SecretKey(str, Enum):
+class SecretKey(StrEnum):
     """
     Standard secret keys used by SAHOOL platform.
 
@@ -91,7 +91,7 @@ class SecretKey(str, Enum):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class SecretBackend(str, Enum):
+class SecretBackend(StrEnum):
     """Supported secrets backends"""
 
     ENVIRONMENT = "environment"

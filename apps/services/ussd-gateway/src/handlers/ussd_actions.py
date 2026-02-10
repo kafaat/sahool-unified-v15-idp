@@ -39,18 +39,18 @@ async def weather_3day(app: FastAPI, phone_number: str, language: str) -> str:
     if language == "ar":
         return f"""📅 توقعات 3 أيام
 
-{today.strftime('%m/%d')}: ☀️ 18-28° صافي
-{(today + timedelta(1)).strftime('%m/%d')}: ⛅ 16-25° غائم جزئي
-{(today + timedelta(2)).strftime('%m/%d')}: 🌧️ 14-22° احتمال مطر 60%
+{today.strftime("%m/%d")}: ☀️ 18-28° صافي
+{(today + timedelta(1)).strftime("%m/%d")}: ⛅ 16-25° غائم جزئي
+{(today + timedelta(2)).strftime("%m/%d")}: 🌧️ 14-22° احتمال مطر 60%
 
-💡 نصيحة: أجّل الرش ليوم {(today + timedelta(2)).strftime('%m/%d')}"""
+💡 نصيحة: أجّل الرش ليوم {(today + timedelta(2)).strftime("%m/%d")}"""
     return f"""📅 3-Day Forecast
 
-{today.strftime('%m/%d')}: ☀️ 18-28° Clear
-{(today + timedelta(1)).strftime('%m/%d')}: ⛅ 16-25° Partly cloudy
-{(today + timedelta(2)).strftime('%m/%d')}: 🌧️ 14-22° Rain 60%
+{today.strftime("%m/%d")}: ☀️ 18-28° Clear
+{(today + timedelta(1)).strftime("%m/%d")}: ⛅ 16-25° Partly cloudy
+{(today + timedelta(2)).strftime("%m/%d")}: 🌧️ 14-22° Rain 60%
 
-💡 Tip: Delay spraying until {(today + timedelta(2)).strftime('%m/%d')}"""
+💡 Tip: Delay spraying until {(today + timedelta(2)).strftime("%m/%d")}"""
 
 
 async def weather_rain(app: FastAPI, phone_number: str, language: str) -> str:
@@ -537,28 +537,23 @@ USSD_ACTIONS: dict[str, Any] = {
     "weather_today": weather_today,
     "weather_3day": weather_3day,
     "weather_rain": weather_rain,
-
     # Fields
     "field_status": field_status,
     "field_ndvi": field_ndvi,
     "field_alerts": field_alerts,
-
     # Irrigation
     "irr_today": irr_today,
     "irr_moisture": irr_moisture,
     "irr_start": irr_start,
     "irr_stop": irr_stop,
-
     # Alerts
     "alerts_unread": alerts_unread,
     "alerts_critical": alerts_critical,
-
     # Prices
     "price_wheat": price_wheat,
     "price_barley": price_barley,
     "price_dates": price_dates,
     "price_vegetables": price_vegetables,
-
     # Help
     "help_usage": help_usage,
     "help_contact": help_contact,

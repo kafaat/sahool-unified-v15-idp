@@ -9,14 +9,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 
-class ResponseStatus(str, Enum):
+class ResponseStatus(StrEnum):
     """Response status."""
 
     SUCCESS = "success"
@@ -24,7 +24,7 @@ class ResponseStatus(str, Enum):
     ERROR = "error"
 
 
-class AlertLevel(str, Enum):
+class AlertLevel(StrEnum):
     """Alert urgency level."""
 
     CRITICAL = "critical"  # P0 - حرج
@@ -34,7 +34,7 @@ class AlertLevel(str, Enum):
     INFO = "info"  # معلومات
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """Recommended action type."""
 
     IRRIGATION = "irrigation"  # ري

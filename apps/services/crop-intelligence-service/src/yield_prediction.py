@@ -9,11 +9,11 @@ Uses regression models calibrated for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """أنواع المحاصيل للتنبؤ بالمحصول"""
 
     WHEAT = "wheat"  # قمح
@@ -33,7 +33,7 @@ class CropType(str, Enum):
     ALFALFA = "alfalfa"  # برسيم
 
 
-class YieldConfidence(str, Enum):
+class YieldConfidence(StrEnum):
     """مستوى ثقة التنبؤ"""
 
     HIGH = "high"  # مرتفع (>80%)
@@ -41,7 +41,7 @@ class YieldConfidence(str, Enum):
     LOW = "low"  # منخفض (<60%)
 
 
-class YieldTrend(str, Enum):
+class YieldTrend(StrEnum):
     """اتجاه المحصول"""
 
     INCREASING = "increasing"  # متزايد

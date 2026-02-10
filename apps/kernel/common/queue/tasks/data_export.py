@@ -136,7 +136,9 @@ def handle_data_export(payload: dict[str, Any]) -> dict[str, Any]:
 
         # Calculate file size and checksum
         # حساب حجم الملف والتحقق من التجزئة
-        file_size = len(file_data) if isinstance(file_data, bytes) else len(file_data.encode("utf-8"))
+        file_size = (
+            len(file_data) if isinstance(file_data, bytes) else len(file_data.encode("utf-8"))
+        )
         checksum = _calculate_checksum(file_data)
 
         # 4. Upload to storage
@@ -182,7 +184,9 @@ def handle_data_export(payload: dict[str, Any]) -> dict[str, Any]:
                 "date_range": {
                     "start": date_range[0].isoformat() if date_range else None,
                     "end": date_range[1].isoformat() if date_range else None,
-                } if date_range else None,
+                }
+                if date_range
+                else None,
             },
             "download_info": {
                 "url_expires_in_hours": 24,
@@ -348,10 +352,20 @@ def _collect_crop_data(
 
         all_data.append(crop_record)
 
-    columns = list(all_data[0].keys()) if all_data else [
-        "crop_id", "field_id", "crop_type", "variety", "planting_date",
-        "growth_stage", "yield_estimate_kg", "status"
-    ]
+    columns = (
+        list(all_data[0].keys())
+        if all_data
+        else [
+            "crop_id",
+            "field_id",
+            "crop_type",
+            "variety",
+            "planting_date",
+            "growth_stage",
+            "yield_estimate_kg",
+            "status",
+        ]
+    )
     return all_data, columns, len(all_data)
 
 
@@ -390,10 +404,19 @@ def _collect_harvest_data(
 
         all_data.append(harvest_record)
 
-    columns = list(all_data[0].keys()) if all_data else [
-        "harvest_id", "field_id", "crop_type", "harvest_date", "yield_kg",
-        "quality_grade", "total_revenue"
-    ]
+    columns = (
+        list(all_data[0].keys())
+        if all_data
+        else [
+            "harvest_id",
+            "field_id",
+            "crop_type",
+            "harvest_date",
+            "yield_kg",
+            "quality_grade",
+            "total_revenue",
+        ]
+    )
     return all_data, columns, len(all_data)
 
 
@@ -430,9 +453,11 @@ def _collect_sensor_data(
 
         all_data.append(sensor_record)
 
-    columns = list(all_data[0].keys()) if all_data else [
-        "sensor_id", "field_id", "device_type", "name", "is_active", "battery_level"
-    ]
+    columns = (
+        list(all_data[0].keys())
+        if all_data
+        else ["sensor_id", "field_id", "device_type", "name", "is_active", "battery_level"]
+    )
     return all_data, columns, len(all_data)
 
 
@@ -458,9 +483,11 @@ def _collect_sensor_readings(
                     reading = {k: v for k, v in reading.items() if k in include_fields}
                 all_data.append(reading)
 
-        columns = list(all_data[0].keys()) if all_data else [
-            "timestamp", "field_id", "sensor_type", "value", "unit"
-        ]
+        columns = (
+            list(all_data[0].keys())
+            if all_data
+            else ["timestamp", "field_id", "sensor_type", "value", "unit"]
+        )
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -489,9 +516,11 @@ def _collect_weather_data(
                     record = {k: v for k, v in record.items() if k in include_fields}
                 all_data.append(record)
 
-        columns = list(all_data[0].keys()) if all_data else [
-            "date", "field_id", "temp_max", "temp_min", "humidity", "rainfall"
-        ]
+        columns = (
+            list(all_data[0].keys())
+            if all_data
+            else ["date", "field_id", "temp_max", "temp_min", "humidity", "rainfall"]
+        )
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -520,9 +549,11 @@ def _collect_ndvi_data(
                     record = {k: v for k, v in record.items() if k in include_fields}
                 all_data.append(record)
 
-        columns = list(all_data[0].keys()) if all_data else [
-            "date", "field_id", "mean", "min", "max", "std", "cloud_cover"
-        ]
+        columns = (
+            list(all_data[0].keys())
+            if all_data
+            else ["date", "field_id", "mean", "min", "max", "std", "cloud_cover"]
+        )
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -551,9 +582,11 @@ def _collect_recommendations_data(
                     record = {k: v for k, v in record.items() if k in include_fields}
                 all_data.append(record)
 
-        columns = list(all_data[0].keys()) if all_data else [
-            "date", "field_id", "type", "recommendation", "priority"
-        ]
+        columns = (
+            list(all_data[0].keys())
+            if all_data
+            else ["date", "field_id", "type", "recommendation", "priority"]
+        )
         return all_data, columns, len(all_data)
 
     # Fallback
@@ -592,10 +625,19 @@ def _collect_analytics_data(
 
         all_data.append(analytics_record)
 
-    columns = list(all_data[0].keys()) if all_data else [
-        "field_id", "period_start", "period_end", "avg_ndvi", "health_score",
-        "yield_estimate_kg_ha", "profit_margin_percent"
-    ]
+    columns = (
+        list(all_data[0].keys())
+        if all_data
+        else [
+            "field_id",
+            "period_start",
+            "period_end",
+            "avg_ndvi",
+            "health_score",
+            "yield_estimate_kg_ha",
+            "profit_margin_percent",
+        ]
+    )
     return all_data, columns, len(all_data)
 
 
@@ -610,12 +652,15 @@ def _collect_generic_data(
     جمع بيانات عامة للأنواع غير المعروفة
     Collect generic data for unknown export types
     """
-    all_data = [{
-        "export_type": export_type,
-        "entity_id": eid,
-        "exported_at": datetime.utcnow().isoformat(),
-        "data": {"message": "Generic export data"},
-    } for eid in (entity_ids if entity_ids else ["unknown"])]
+    all_data = [
+        {
+            "export_type": export_type,
+            "entity_id": eid,
+            "exported_at": datetime.utcnow().isoformat(),
+            "data": {"message": "Generic export data"},
+        }
+        for eid in (entity_ids if entity_ids else ["unknown"])
+    ]
 
     columns = ["export_type", "entity_id", "exported_at", "data"]
     return all_data, columns, len(all_data)
@@ -655,13 +700,15 @@ def _generate_sample_sensor_readings(
     include_fields: list[str],
 ) -> tuple[list[dict[str, Any]], list[str], int]:
     """Generate sample sensor readings"""
-    all_data = [{
-        "timestamp": datetime.utcnow().isoformat(),
-        "field_id": entity_ids[0] if entity_ids else "FIELD-001",
-        "sensor_type": "soil_moisture",
-        "value": 35.5,
-        "unit": "%",
-    }]
+    all_data = [
+        {
+            "timestamp": datetime.utcnow().isoformat(),
+            "field_id": entity_ids[0] if entity_ids else "FIELD-001",
+            "sensor_type": "soil_moisture",
+            "value": 35.5,
+            "unit": "%",
+        }
+    ]
     columns = ["timestamp", "field_id", "sensor_type", "value", "unit"]
     return all_data, columns, len(all_data)
 
@@ -671,14 +718,16 @@ def _generate_sample_weather_data(
     include_fields: list[str],
 ) -> tuple[list[dict[str, Any]], list[str], int]:
     """Generate sample weather data"""
-    all_data = [{
-        "date": date.today().isoformat(),
-        "field_id": entity_ids[0] if entity_ids else "FIELD-001",
-        "temp_max": 32.0,
-        "temp_min": 18.0,
-        "humidity": 45.0,
-        "rainfall": 0.0,
-    }]
+    all_data = [
+        {
+            "date": date.today().isoformat(),
+            "field_id": entity_ids[0] if entity_ids else "FIELD-001",
+            "temp_max": 32.0,
+            "temp_min": 18.0,
+            "humidity": 45.0,
+            "rainfall": 0.0,
+        }
+    ]
     columns = ["date", "field_id", "temp_max", "temp_min", "humidity", "rainfall"]
     return all_data, columns, len(all_data)
 
@@ -688,15 +737,17 @@ def _generate_sample_ndvi_data(
     include_fields: list[str],
 ) -> tuple[list[dict[str, Any]], list[str], int]:
     """Generate sample NDVI data"""
-    all_data = [{
-        "date": date.today().isoformat(),
-        "field_id": entity_ids[0] if entity_ids else "FIELD-001",
-        "mean": 0.65,
-        "min": 0.45,
-        "max": 0.85,
-        "std": 0.08,
-        "cloud_cover": 10.0,
-    }]
+    all_data = [
+        {
+            "date": date.today().isoformat(),
+            "field_id": entity_ids[0] if entity_ids else "FIELD-001",
+            "mean": 0.65,
+            "min": 0.45,
+            "max": 0.85,
+            "std": 0.08,
+            "cloud_cover": 10.0,
+        }
+    ]
     columns = ["date", "field_id", "mean", "min", "max", "std", "cloud_cover"]
     return all_data, columns, len(all_data)
 
@@ -706,14 +757,16 @@ def _generate_sample_recommendations(
     include_fields: list[str],
 ) -> tuple[list[dict[str, Any]], list[str], int]:
     """Generate sample recommendations data"""
-    all_data = [{
-        "date": date.today().isoformat(),
-        "field_id": entity_ids[0] if entity_ids else "FIELD-001",
-        "type": "irrigation",
-        "recommendation": "Irrigate within 24 hours",
-        "recommendation_ar": "الري خلال 24 ساعة",
-        "priority": "high",
-    }]
+    all_data = [
+        {
+            "date": date.today().isoformat(),
+            "field_id": entity_ids[0] if entity_ids else "FIELD-001",
+            "type": "irrigation",
+            "recommendation": "Irrigate within 24 hours",
+            "recommendation_ar": "الري خلال 24 ساعة",
+            "priority": "high",
+        }
+    ]
     columns = ["date", "field_id", "type", "recommendation", "priority"]
     return all_data, columns, len(all_data)
 
@@ -721,8 +774,14 @@ def _generate_sample_recommendations(
 def _get_default_field_columns() -> list[str]:
     """Get default field columns"""
     return [
-        "field_id", "field_name", "area_hectares", "crop_type",
-        "soil_type", "irrigation_type", "status", "last_updated"
+        "field_id",
+        "field_name",
+        "area_hectares",
+        "crop_type",
+        "soil_type",
+        "irrigation_type",
+        "status",
+        "last_updated",
     ]
 
 
@@ -841,7 +900,10 @@ def _to_excel(
 
         output = io.BytesIO()
         wb.save(output)
-        return output.getvalue(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        return (
+            output.getvalue(),
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
 
     except ImportError:
         logger.warning("openpyxl not available, falling back to CSV")
@@ -865,7 +927,9 @@ def _to_json(
         "generated_at": datetime.utcnow().isoformat() + "Z",
         "data": data,
     }
-    return json.dumps(output, indent=2, ensure_ascii=False, default=str), "application/json; charset=utf-8"
+    return json.dumps(
+        output, indent=2, ensure_ascii=False, default=str
+    ), "application/json; charset=utf-8"
 
 
 def _to_geojson(
@@ -891,8 +955,17 @@ def _to_geojson(
                 "coordinates": [lng, lat],
             },
             "properties": {
-                k: v for k, v in record.items()
-                if k not in ["latitude", "longitude", "center_latitude", "center_longitude", "lat", "lng"]
+                k: v
+                for k, v in record.items()
+                if k
+                not in [
+                    "latitude",
+                    "longitude",
+                    "center_latitude",
+                    "center_longitude",
+                    "lat",
+                    "lng",
+                ]
                 and not isinstance(v, dict | list)
             },
         }
@@ -908,7 +981,9 @@ def _to_geojson(
         },
     }
 
-    return json.dumps(geojson, indent=2, ensure_ascii=False, default=str), "application/geo+json; charset=utf-8"
+    return json.dumps(
+        geojson, indent=2, ensure_ascii=False, default=str
+    ), "application/geo+json; charset=utf-8"
 
 
 # ============== Compression and Storage Functions ==============

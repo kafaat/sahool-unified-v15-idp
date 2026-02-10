@@ -158,7 +158,9 @@ class SMSClient:
         try:
             # Validate phone number format
             if not to.startswith("+"):
-                logger.warning(f"Phone number {mask_phone(to)} should be in E.164 format (+country_code...)")
+                logger.warning(
+                    f"Phone number {mask_phone(to)} should be in E.164 format (+country_code...)"
+                )
                 to = f"+{to}"  # Try to fix
 
             # Select content based on language
@@ -174,7 +176,9 @@ class SMSClient:
             response = await asyncio.to_thread(self._send_sync, to=to, content=content)
 
             if response:
-                logger.info(f"📱 SMS sent successfully to {mask_phone(to)}: {sanitize_for_log(response)}")
+                logger.info(
+                    f"📱 SMS sent successfully to {mask_phone(to)}: {sanitize_for_log(response)}"
+                )
                 return response
             else:
                 logger.error(f"Failed to send SMS to {mask_phone(to)}")

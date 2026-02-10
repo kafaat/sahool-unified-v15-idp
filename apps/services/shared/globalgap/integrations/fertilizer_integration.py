@@ -11,7 +11,7 @@ Links with fertilizer-advisor service to:
 import logging
 from dataclasses import asdict, dataclass
 from datetime import timezone, datetime, timedelta, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from .events import GlobalGAPEventPublisher
@@ -19,7 +19,7 @@ from .events import GlobalGAPEventPublisher
 logger = logging.getLogger(__name__)
 
 
-class FertilizerType(str, Enum):
+class FertilizerType(StrEnum):
     """نوع السماد - Fertilizer Type"""
 
     ORGANIC = "organic"  # عضوي
@@ -30,7 +30,7 @@ class FertilizerType(str, Enum):
     GRANULAR = "granular"  # حبيبي
 
 
-class ApplicationMethod(str, Enum):
+class ApplicationMethod(StrEnum):
     """طريقة التطبيق - Application Method"""
 
     BROADCAST = "broadcast"  # نثر
@@ -41,7 +41,7 @@ class ApplicationMethod(str, Enum):
     SIDE_DRESSING = "side_dressing"  # جانبي
 
 
-class NutrientType(str, Enum):
+class NutrientType(StrEnum):
     """نوع المغذي - Nutrient Type"""
 
     NITROGEN = "N"  # نيتروجين

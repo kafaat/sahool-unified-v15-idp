@@ -11,7 +11,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +20,7 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
-class ModelStatus(str, Enum):
+class ModelStatus(StrEnum):
     """Model deployment status."""
 
     ACTIVE = "active"  # Currently in use
@@ -29,7 +29,7 @@ class ModelStatus(str, Enum):
     ROLLBACK = "rollback"  # Available for rollback
 
 
-class ModelStage(str, Enum):
+class ModelStage(StrEnum):
     """Model lifecycle stage."""
 
     DEVELOPMENT = "development"
@@ -272,8 +272,10 @@ class ModelVersionRegistry:
 
         # Trim old versions
         if len(self._versions[task_variant]) > self.max_versions_per_model:
-            old_versions = self._versions[task_variant][self.max_versions_per_model:]
-            self._versions[task_variant] = self._versions[task_variant][:self.max_versions_per_model]
+            old_versions = self._versions[task_variant][self.max_versions_per_model :]
+            self._versions[task_variant] = self._versions[task_variant][
+                : self.max_versions_per_model
+            ]
             for old in old_versions:
                 logger.info("model_version_archived", model_key=old.model_key)
 
@@ -332,7 +334,9 @@ class ModelVersionRegistry:
         logger.warning("version_not_found", task_variant=task_variant, version=version)
         return False
 
-    def rollback(self, task: str, variant: str, to_version: str | None = None) -> ModelVersion | None:
+    def rollback(
+        self, task: str, variant: str, to_version: str | None = None
+    ) -> ModelVersion | None:
         """
         Rollback to a previous model version.
 
@@ -420,7 +424,8 @@ class ModelVersionRegistry:
                 "recall_diff": v_b.metrics.recall - v_a.metrics.recall,
                 "f1_diff": v_b.metrics.f1_score - v_a.metrics.f1_score,
                 "map50_diff": v_b.metrics.map50 - v_a.metrics.map50,
-                "inference_time_diff": v_b.metrics.inference_time_ms - v_a.metrics.inference_time_ms,
+                "inference_time_diff": v_b.metrics.inference_time_ms
+                - v_a.metrics.inference_time_ms,
             },
             "improved": v_b.metrics.map50 > v_a.metrics.map50,
         }

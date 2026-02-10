@@ -27,8 +27,10 @@ os.environ["NATS_URL"] = ""
 # Mock shared.crm Module
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class MockFarmerStatus:
     """Mock FarmerStatus enum."""
+
     LEAD = "lead"
     REGISTERED = "registered"
     ACTIVE = "active"
@@ -38,6 +40,7 @@ class MockFarmerStatus:
 
 class MockDealStage:
     """Mock DealStage enum."""
+
     PROSPECTING = "prospecting"
     QUALIFICATION = "qualification"
     NEGOTIATION = "negotiation"
@@ -47,14 +50,22 @@ class MockDealStage:
     CLOSED_LOST = "closed_lost"
 
     def __iter__(self):
-        return iter([
-            self.PROSPECTING, self.QUALIFICATION, self.NEGOTIATION,
-            self.CONTRACTED, self.DELIVERED, self.PAID, self.CLOSED_LOST
-        ])
+        return iter(
+            [
+                self.PROSPECTING,
+                self.QUALIFICATION,
+                self.NEGOTIATION,
+                self.CONTRACTED,
+                self.DELIVERED,
+                self.PAID,
+                self.CLOSED_LOST,
+            ]
+        )
 
 
 class MockInteractionType:
     """Mock InteractionType enum."""
+
     ADVISORY = "advisory"
     SUPPORT = "support"
     SALES = "sales"
@@ -69,6 +80,7 @@ class MockInteractionType:
 
 class MockFarmer:
     """Mock Farmer model."""
+
     def __init__(
         self,
         id: str,
@@ -108,6 +120,7 @@ class MockFarmer:
 
 class MockFarmerStatusEnum:
     """Mock FarmerStatus enum value."""
+
     def __init__(self, value: str):
         self.value = value
 
@@ -121,6 +134,7 @@ class MockFarmerStatusEnum:
 
 class MockDealStageEnum:
     """Mock DealStage enum value."""
+
     def __init__(self, value: str):
         self.value = value
 
@@ -137,12 +151,14 @@ class MockDealStageEnum:
 
 class MockInteractionTypeEnum:
     """Mock InteractionType enum value."""
+
     def __init__(self, value: str):
         self.value = value
 
 
 class MockHarvestDeal:
     """Mock HarvestDeal model."""
+
     def __init__(
         self,
         id: str,
@@ -180,6 +196,7 @@ class MockHarvestDeal:
 
 class MockInteraction:
     """Mock Interaction model."""
+
     def __init__(
         self,
         id: str,
@@ -232,10 +249,17 @@ class DealStageEnum:
         return MockDealStageEnum(value)
 
     def __iter__(self):
-        return iter([
-            self.PROSPECTING, self.QUALIFICATION, self.NEGOTIATION,
-            self.CONTRACTED, self.DELIVERED, self.PAID, self.CLOSED_LOST
-        ])
+        return iter(
+            [
+                self.PROSPECTING,
+                self.QUALIFICATION,
+                self.NEGOTIATION,
+                self.CONTRACTED,
+                self.DELIVERED,
+                self.PAID,
+                self.CLOSED_LOST,
+            ]
+        )
 
 
 class InteractionTypeEnum:
@@ -257,6 +281,7 @@ class InteractionTypeEnum:
 # Mock services
 class MockFarmerCRMService:
     """Mock FarmerCRMService."""
+
     def __init__(self, tenant_id: str = "sahool"):
         self.tenant_id = tenant_id
         self._farmers = {}
@@ -266,6 +291,7 @@ class MockFarmerCRMService:
 
 class MockFarmerQueryBot:
     """Mock FarmerQueryBot."""
+
     def __init__(self, crm_service: MockFarmerCRMService):
         self.crm = crm_service
 
@@ -279,6 +305,7 @@ class MockFarmerQueryBot:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture(scope="session")
 def mock_crm_module():
@@ -316,13 +343,14 @@ def mock_auth():
 def app(mock_crm_module, mock_auth):
     """Create FastAPI test application with mocked dependencies."""
     # Patch the imports before importing main
-    with patch.dict("sys.modules", {
-        "shared.crm": mock_crm_module,
-        "shared.auth.dependencies": MagicMock(
-            get_current_user=mock_auth["get_current_user"]
-        ),
-        "shared.auth.models": MagicMock(User=mock_auth["User"]),
-    }):
+    with patch.dict(
+        "sys.modules",
+        {
+            "shared.crm": mock_crm_module,
+            "shared.auth.dependencies": MagicMock(get_current_user=mock_auth["get_current_user"]),
+            "shared.auth.models": MagicMock(User=mock_auth["User"]),
+        },
+    ):
         # Import after patching
         from apps.services.crm_service.src import main
 
@@ -337,10 +365,7 @@ def app(mock_crm_module, mock_auth):
 @pytest.fixture
 async def client(app) -> AsyncClient:
     """Create async test client."""
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
 

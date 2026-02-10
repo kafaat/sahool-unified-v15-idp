@@ -9,11 +9,11 @@ Based on agricultural research for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class PestType(str, Enum):
+class PestType(StrEnum):
     """
     أنواع الآفات الشائعة - Extended pest types database
     Based on Agricultural Sensing Technology Article (50+ types)
@@ -138,7 +138,7 @@ class PestType(str, Enum):
     SLUGS = "slugs"  # البزاقات
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """مستوى المخاطر"""
 
     VERY_LOW = "very_low"  # منخفض جداً
@@ -148,7 +148,7 @@ class RiskLevel(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class ControlMethod(str, Enum):
+class ControlMethod(StrEnum):
     """طريقة المكافحة"""
 
     BIOLOGICAL = "biological"  # حيوية
@@ -553,7 +553,12 @@ PEST_DATABASE = {
         "favorable_temp_range": (22, 32),
         "favorable_humidity_min": 50,
         "favorable_humidity_max": 80,
-        "damage_symptoms_en": ["White cottony masses", "Honeydew", "Sooty mold", "Distorted growth"],
+        "damage_symptoms_en": [
+            "White cottony masses",
+            "Honeydew",
+            "Sooty mold",
+            "Distorted growth",
+        ],
         "damage_symptoms_ar": ["كتل قطنية بيضاء", "ندوة عسلية", "عفن أسود", "نمو مشوه"],
         "controls": [
             PestControl(

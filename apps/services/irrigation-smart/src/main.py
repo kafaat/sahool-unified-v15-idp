@@ -16,7 +16,7 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, time, timedelta, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 import jwt
@@ -27,6 +27,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 # NATS messaging
 try:
     import nats
+
     NATS_AVAILABLE = True
 except ImportError:
     NATS_AVAILABLE = False
@@ -45,11 +46,14 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 try:
     from shared.contracts.actions import (
@@ -170,7 +174,7 @@ async def get_current_user(
 # =============================================================================
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     TOMATO = "tomato"
     WHEAT = "wheat"
     COFFEE = "coffee"
@@ -188,7 +192,7 @@ class CropType(str, Enum):
     ALFALFA = "alfalfa"
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     SEEDLING = "seedling"
     VEGETATIVE = "vegetative"
     FLOWERING = "flowering"
@@ -196,7 +200,7 @@ class GrowthStage(str, Enum):
     MATURITY = "maturity"
 
 
-class SoilType(str, Enum):
+class SoilType(StrEnum):
     SANDY = "sandy"
     CLAY = "clay"
     LOAMY = "loamy"
@@ -204,7 +208,7 @@ class SoilType(str, Enum):
     ROCKY = "rocky"
 
 
-class IrrigationMethod(str, Enum):
+class IrrigationMethod(StrEnum):
     FLOOD = "flood"
     DRIP = "drip"
     SPRINKLER = "sprinkler"
@@ -212,7 +216,7 @@ class IrrigationMethod(str, Enum):
     TRADITIONAL = "traditional"
 
 
-class UrgencyLevel(str, Enum):
+class UrgencyLevel(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -295,6 +299,7 @@ class WaterBalance(BaseModel):
 
 class IrrigationExecution(BaseModel):
     """تنفيذ الري - Record actual irrigation event"""
+
     field_id: str
     schedule_id: str | None = None
     plan_id: str | None = None
@@ -642,9 +647,7 @@ def health():
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
     nats_connected = (
-        hasattr(app.state, "nc")
-        and app.state.nc is not None
-        and app.state.nc.is_connected
+        hasattr(app.state, "nc") and app.state.nc is not None and app.state.nc.is_connected
     )
     return {
         "status": "ready",

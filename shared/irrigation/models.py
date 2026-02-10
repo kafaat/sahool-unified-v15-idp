@@ -20,7 +20,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -32,7 +32,7 @@ from pydantic import BaseModel, Field, field_validator
 # =============================================================================
 
 
-class IrrigationGoalType(str, Enum):
+class IrrigationGoalType(StrEnum):
     """
     Types of irrigation optimization goals.
     أنواع أهداف تحسين الري
@@ -57,7 +57,7 @@ class IrrigationGoalType(str, Enum):
     """Minimize pumping energy | تقليل طاقة الضخ"""
 
 
-class ExperienceSource(str, Enum):
+class ExperienceSource(StrEnum):
     """
     Source of experience rules and knowledge.
     مصدر قواعد الخبرة والمعرفة
@@ -79,7 +79,7 @@ class ExperienceSource(str, Enum):
     """Traditional farming wisdom | الحكمة الزراعية التقليدية"""
 
 
-class DecisionType(str, Enum):
+class DecisionType(StrEnum):
     """
     Types of human decisions in the collaborative process.
     أنواع القرارات البشرية في العملية التعاونية
@@ -101,7 +101,7 @@ class DecisionType(str, Enum):
     """Override with manual input | تجاوز بإدخال يدوي"""
 
 
-class SoilType(str, Enum):
+class SoilType(StrEnum):
     """
     Soil types for zone configuration.
     أنواع التربة لتكوين المناطق
@@ -126,7 +126,7 @@ class SoilType(str, Enum):
     """Silty soil | تربة غرينية"""
 
 
-class ProductivityLevel(str, Enum):
+class ProductivityLevel(StrEnum):
     """
     Productivity levels for field zones.
     مستويات الإنتاجية لمناطق الحقل
@@ -142,7 +142,7 @@ class ProductivityLevel(str, Enum):
     """High productivity | إنتاجية عالية"""
 
 
-class ChecklistDimension(str, Enum):
+class ChecklistDimension(StrEnum):
     """
     HMC framework dimensions for checklist validation.
     أبعاد إطار HMC للتحقق من القائمة
@@ -161,7 +161,7 @@ class ChecklistDimension(str, Enum):
     """Value upgrade dimension | بُعد ترقية القيمة"""
 
 
-class CalibrationMethod(str, Enum):
+class CalibrationMethod(StrEnum):
     """
     Methods for calibration/testing of irrigation programs.
     طرق معايرة/اختبار برامج الري
@@ -180,7 +180,7 @@ class CalibrationMethod(str, Enum):
     """Expert agronomist review | مراجعة خبير زراعي"""
 
 
-class SessionStatus(str, Enum):
+class SessionStatus(StrEnum):
     """
     Status of a collaborative decision session.
     حالة جلسة القرار التعاونية
@@ -249,9 +249,7 @@ class IrrigationGoal(BaseModel):
     """
 
     id: UUID = Field(default_factory=uuid4, description="Unique goal ID | معرف الهدف الفريد")
-    goal_type: IrrigationGoalType = Field(
-        ..., description="Type of irrigation goal | نوع هدف الري"
-    )
+    goal_type: IrrigationGoalType = Field(..., description="Type of irrigation goal | نوع هدف الري")
     name: str = Field(default="", description="Goal name (English) | اسم الهدف (إنجليزي)")
     name_ar: str = Field(default="", description="Goal name (Arabic) | اسم الهدف (عربي)")
     description: str = Field(default="", description="Goal description | وصف الهدف")
@@ -270,10 +268,18 @@ class IrrigationGoal(BaseModel):
     priority: int = Field(
         default=1, ge=1, le=10, description="Priority level (1=highest) | مستوى الأولوية"
     )
-    is_primary: bool = Field(default=False, description="Is this the primary goal | هل هذا الهدف الرئيسي")
-    metadata: dict[str, Any] = Field(default_factory=dict, description="Additional metadata | بيانات وصفية إضافية")
+    is_primary: bool = Field(
+        default=False, description="Is this the primary goal | هل هذا الهدف الرئيسي"
+    )
+    metadata: dict[str, Any] = Field(
+        default_factory=dict, description="Additional metadata | بيانات وصفية إضافية"
+    )
 
-    model_config = {"json_schema_extra": {"example": {"goal_type": "water_saving", "target_reduction": 0.3, "priority": 1}}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {"goal_type": "water_saving", "target_reduction": 0.3, "priority": 1}
+        }
+    }
 
 
 class EcologicalConstraint(BaseModel):
@@ -312,7 +318,9 @@ class EcologicalConstraint(BaseModel):
         description="Required water reduction percentage (0-1) | نسبة تخفيض المياه المطلوبة",
     )
     min_irrigation_interval_hours: int | None = Field(
-        None, ge=0, description="Minimum hours between irrigation events | الحد الأدنى للساعات بين أحداث الري"
+        None,
+        ge=0,
+        description="Minimum hours between irrigation events | الحد الأدنى للساعات بين أحداث الري",
     )
 
     # Soil constraints
@@ -398,7 +406,9 @@ class ExperienceRule(BaseModel):
     )
 
     action: str = Field(
-        ..., min_length=1, description="Action to take when condition is met | الإجراء عند تحقق الشرط"
+        ...,
+        min_length=1,
+        description="Action to take when condition is met | الإجراء عند تحقق الشرط",
     )
     action_ar: str = Field(
         default="", description="Action description (Arabic) | وصف الإجراء (عربي)"
@@ -415,9 +425,7 @@ class ExperienceRule(BaseModel):
     rationale: str = Field(
         default="", description="Explanation of why this rule works | شرح سبب نجاح هذه القاعدة"
     )
-    rationale_ar: str = Field(
-        default="", description="Rationale in Arabic | المبرر بالعربية"
-    )
+    rationale_ar: str = Field(default="", description="Rationale in Arabic | المبرر بالعربية")
 
     # Applicability
     crop_types: list[str] = Field(
@@ -487,9 +495,7 @@ class HumanDecision(BaseModel):
     rationale: str = Field(
         default="", description="Human's reasoning for the decision | مبرر الإنسان للقرار"
     )
-    rationale_ar: str = Field(
-        default="", description="Rationale in Arabic | المبرر بالعربية"
-    )
+    rationale_ar: str = Field(default="", description="Rationale in Arabic | المبرر بالعربية")
 
     override_ai: bool = Field(
         default=False,
@@ -551,9 +557,7 @@ class CalibrationResult(BaseModel):
     session_id: UUID | None = Field(
         None, description="Associated session ID | معرف الجلسة المرتبطة"
     )
-    program_id: UUID | None = Field(
-        None, description="Program being calibrated | البرنامج المُعاير"
-    )
+    program_id: UUID | None = Field(None, description="Program being calibrated | البرنامج المُعاير")
 
     method: CalibrationMethod = Field(
         ..., description="Calibration method used | طريقة المعايرة المستخدمة"
@@ -645,13 +649,17 @@ class ZoneConfiguration(BaseModel):
         )
     """
 
-    zone_id: str = Field(..., min_length=1, description="Unique zone identifier | معرف المنطقة الفريد")
+    zone_id: str = Field(
+        ..., min_length=1, description="Unique zone identifier | معرف المنطقة الفريد"
+    )
     name: str = Field(default="", description="Zone name | اسم المنطقة")
     name_ar: str = Field(default="", description="Zone name (Arabic) | اسم المنطقة (عربي)")
     description: str = Field(default="", description="Zone description | وصف المنطقة")
 
     # Physical characteristics
-    soil_type: SoilType | None = Field(None, description="Soil type in zone | نوع التربة في المنطقة")
+    soil_type: SoilType | None = Field(
+        None, description="Soil type in zone | نوع التربة في المنطقة"
+    )
     productivity_level: ProductivityLevel = Field(
         default=ProductivityLevel.MEDIUM,
         description="Historical productivity level | مستوى الإنتاجية التاريخي",
@@ -707,12 +715,14 @@ class CollaborativeChecklistItem(BaseModel):
     """
 
     id: UUID = Field(default_factory=uuid4, description="Unique item ID | معرف العنصر الفريد")
-    dimension: ChecklistDimension = Field(
-        ..., description="HMC framework dimension | بُعد إطار HMC"
-    )
+    dimension: ChecklistDimension = Field(..., description="HMC framework dimension | بُعد إطار HMC")
 
-    item: str = Field(..., min_length=1, description="Checklist item description | وصف عنصر القائمة")
-    item_ar: str = Field(..., min_length=1, description="Item description (Arabic) | الوصف بالعربية")
+    item: str = Field(
+        ..., min_length=1, description="Checklist item description | وصف عنصر القائمة"
+    )
+    item_ar: str = Field(
+        ..., min_length=1, description="Item description (Arabic) | الوصف بالعربية"
+    )
 
     checked: bool = Field(default=False, description="Whether item is completed | هل اكتمل العنصر")
     checked_at: datetime | None = Field(
@@ -720,9 +730,7 @@ class CollaborativeChecklistItem(BaseModel):
     )
     checked_by: str = Field(default="", description="Who checked the item | من حقق العنصر")
 
-    notes: str = Field(
-        default="", description="Additional notes for this item | ملاحظات إضافية"
-    )
+    notes: str = Field(default="", description="Additional notes for this item | ملاحظات إضافية")
     notes_ar: str = Field(default="", description="Notes in Arabic | الملاحظات بالعربية")
 
     is_mandatory: bool = Field(
@@ -748,9 +756,7 @@ class IrrigationSchedule(BaseModel):
     zone_id: str = Field(..., description="Target zone | المنطقة المستهدفة")
 
     start_time: datetime = Field(..., description="Scheduled start time | وقت البدء المجدول")
-    duration_minutes: int = Field(
-        ..., ge=1, description="Duration in minutes | المدة بالدقائق"
-    )
+    duration_minutes: int = Field(..., ge=1, description="Duration in minutes | المدة بالدقائق")
     volume_m3: float | None = Field(
         None, ge=0, description="Planned water volume (m3) | حجم المياه المخطط"
     )
@@ -765,9 +771,7 @@ class IrrigationSchedule(BaseModel):
     )
 
     priority: int = Field(default=5, ge=1, le=10, description="Execution priority | أولوية التنفيذ")
-    is_mandatory: bool = Field(
-        default=False, description="Cannot be skipped | لا يمكن تجاوزه"
-    )
+    is_mandatory: bool = Field(default=False, description="Cannot be skipped | لا يمكن تجاوزه")
 
 
 class IrrigationProgram(BaseModel):
@@ -812,19 +816,18 @@ class IrrigationProgram(BaseModel):
     expected_yield_impact: float | None = Field(
         None, description="Expected yield impact percentage | تأثير الإنتاجية المتوقع"
     )
-    expected_cost: float | None = Field(
-        None, ge=0, description="Expected cost | التكلفة المتوقعة"
-    )
+    expected_cost: float | None = Field(None, ge=0, description="Expected cost | التكلفة المتوقعة")
 
     # Generation info
-    generated_by: str = Field(
-        default="ai", description="Who generated: ai/human/hybrid | من أنشأ"
-    )
+    generated_by: str = Field(default="ai", description="Who generated: ai/human/hybrid | من أنشأ")
     generation_model: str = Field(
         default="", description="AI model used for generation | نموذج الذكاء الاصطناعي"
     )
     confidence_score: float = Field(
-        default=0.8, ge=0.0, le=1.0, description="AI confidence in the program | ثقة الذكاء الاصطناعي"
+        default=0.8,
+        ge=0.0,
+        le=1.0,
+        description="AI confidence in the program | ثقة الذكاء الاصطناعي",
     )
 
     # Goals and constraints applied
@@ -835,7 +838,8 @@ class IrrigationProgram(BaseModel):
         default_factory=list, description="Constraint IDs applied | معرفات القيود المطبقة"
     )
     rules_applied: list[UUID] = Field(
-        default_factory=list, description="Experience rule IDs applied | معرفات قواعد الخبرة المطبقة"
+        default_factory=list,
+        description="Experience rule IDs applied | معرفات قواعد الخبرة المطبقة",
     )
 
     # Status
@@ -878,7 +882,10 @@ class ValidationReport(BaseModel):
         default=False, description="All mandatory items complete | اكتملت جميع العناصر الإلزامية"
     )
     completion_percentage: float = Field(
-        default=0.0, ge=0.0, le=100.0, description="Overall completion percentage | نسبة الإكمال الإجمالية"
+        default=0.0,
+        ge=0.0,
+        le=100.0,
+        description="Overall completion percentage | نسبة الإكمال الإجمالية",
     )
 
     # Per-dimension status
@@ -932,9 +939,7 @@ class SessionOutcome(BaseModel):
     actual_yield: float | None = Field(
         None, ge=0, description="Actual yield achieved | الإنتاجية الفعلية"
     )
-    actual_cost: float | None = Field(
-        None, ge=0, description="Actual cost | التكلفة الفعلية"
-    )
+    actual_cost: float | None = Field(None, ge=0, description="Actual cost | التكلفة الفعلية")
 
     # Performance metrics
     water_saving_achieved: float | None = Field(
@@ -948,9 +953,7 @@ class SessionOutcome(BaseModel):
     )
 
     # Quality indicators
-    overall_success: bool = Field(
-        default=False, description="Overall success | النجاح الإجمالي"
-    )
+    overall_success: bool = Field(default=False, description="Overall success | النجاح الإجمالي")
     farmer_satisfaction: int | None = Field(
         None, ge=1, le=5, description="Farmer satisfaction (1-5) | رضا المزارع"
     )
@@ -1054,9 +1057,7 @@ class DecisionSession(BaseModel):
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Last update time | وقت آخر تحديث"
     )
-    completed_at: datetime | None = Field(
-        None, description="Completion time | وقت الإكمال"
-    )
+    completed_at: datetime | None = Field(None, description="Completion time | وقت الإكمال")
 
     # Iteration tracking
     iteration_count: int = Field(

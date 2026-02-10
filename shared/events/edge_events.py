@@ -28,7 +28,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -151,7 +151,7 @@ SAHOOL_EDGE_ALL = EdgeSubjects.ALL
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class DeviceType(str, Enum):
+class DeviceType(StrEnum):
     """Edge device types"""
 
     EDGE_GATEWAY = "edge_gateway"
@@ -163,7 +163,7 @@ class DeviceType(str, Enum):
     MOBILE_DEVICE = "mobile_device"
 
 
-class DeviceStatus(str, Enum):
+class DeviceStatus(StrEnum):
     """Device status states"""
 
     ONLINE = "online"
@@ -174,7 +174,7 @@ class DeviceStatus(str, Enum):
     INITIALIZING = "initializing"
 
 
-class ConnectionType(str, Enum):
+class ConnectionType(StrEnum):
     """Network connection types"""
 
     WIFI = "wifi"
@@ -186,7 +186,7 @@ class ConnectionType(str, Enum):
     OFFLINE = "offline"
 
 
-class JobType(str, Enum):
+class JobType(StrEnum):
     """Edge job types"""
 
     INFERENCE = "inference"
@@ -199,7 +199,7 @@ class JobType(str, Enum):
     MAINTENANCE = "maintenance"
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     """Job execution status"""
 
     QUEUED = "queued"
@@ -210,7 +210,7 @@ class JobStatus(str, Enum):
     PAUSED = "paused"
 
 
-class SyncDirection(str, Enum):
+class SyncDirection(StrEnum):
     """Data synchronization direction"""
 
     UPLOAD = "upload"
@@ -218,7 +218,7 @@ class SyncDirection(str, Enum):
     BIDIRECTIONAL = "bidirectional"
 
 
-class SyncStatus(str, Enum):
+class SyncStatus(StrEnum):
     """Synchronization status"""
 
     STARTED = "started"
@@ -228,7 +228,7 @@ class SyncStatus(str, Enum):
     FAILED = "failed"
 
 
-class ModelType(str, Enum):
+class ModelType(StrEnum):
     """AI model types for edge deployment"""
 
     YOLO_PEST = "yolo_pest"
@@ -296,9 +296,7 @@ class DeviceCapabilities(BaseModel):
     supported_models: list[str] = Field(
         default_factory=list, description="Supported AI model types"
     )
-    max_inference_fps: float | None = Field(
-        None, ge=0, description="Maximum inference FPS"
-    )
+    max_inference_fps: float | None = Field(None, ge=0, description="Maximum inference FPS")
 
 
 class DeviceHealth(BaseModel):
@@ -331,9 +329,7 @@ class NetworkStatus(BaseModel):
     )
     is_connected: bool = Field(..., description="Currently connected")
     signal_strength_dbm: int | None = Field(None, description="Signal strength in dBm")
-    signal_quality_percent: float | None = Field(
-        None, ge=0, le=100, description="Signal quality"
-    )
+    signal_quality_percent: float | None = Field(None, ge=0, le=100, description="Signal quality")
     bandwidth_mbps: float | None = Field(None, ge=0, description="Available bandwidth")
     latency_ms: int | None = Field(None, ge=0, description="Network latency")
     ip_address: str | None = Field(None, description="Current IP address")
@@ -361,9 +357,7 @@ class JobResult(BaseModel):
 
     outputs_count: int = Field(default=0, ge=0, description="Number of outputs")
     detections_count: int | None = Field(None, ge=0, description="Detections if inference")
-    files_generated: list[str] = Field(
-        default_factory=list, description="Generated file paths"
-    )
+    files_generated: list[str] = Field(default_factory=list, description="Generated file paths")
     metrics: dict | None = Field(None, description="Job-specific metrics")
 
 
@@ -412,9 +406,7 @@ class DeviceOnlineEvent(BaseEdgeEvent):
     health: DeviceHealth | None = Field(None, description="Device health metrics")
 
     # State
-    was_graceful_shutdown: bool = Field(
-        default=True, description="Previous shutdown was graceful"
-    )
+    was_graceful_shutdown: bool = Field(default=True, description="Previous shutdown was graceful")
     offline_duration_seconds: int | None = Field(
         None, ge=0, description="Duration device was offline"
     )
@@ -451,12 +443,8 @@ class DeviceOfflineEvent(BaseEdgeEvent):
     last_known_network: NetworkStatus | None = Field(None, description="Last network status")
 
     # Impact assessment
-    active_jobs_interrupted: int = Field(
-        default=0, ge=0, description="Jobs interrupted by offline"
-    )
-    pending_data_at_risk: bool = Field(
-        default=False, description="Unsynchronized data at risk"
-    )
+    active_jobs_interrupted: int = Field(default=0, ge=0, description="Jobs interrupted by offline")
+    pending_data_at_risk: bool = Field(default=False, description="Unsynchronized data at risk")
 
     # Error details if applicable
     error_code: str | None = Field(None, description="Error code if applicable")
@@ -497,12 +485,8 @@ class DeviceRegisteredEvent(BaseEdgeEvent):
     )
 
     # Assigned configuration
-    assigned_models: list[str] = Field(
-        default_factory=list, description="AI models to deploy"
-    )
-    sync_interval_seconds: int = Field(
-        default=300, ge=60, description="Data sync interval"
-    )
+    assigned_models: list[str] = Field(default_factory=list, description="AI models to deploy")
+    sync_interval_seconds: int = Field(default=300, ge=60, description="Data sync interval")
 
 
 class DeviceHealthUpdateEvent(BaseEdgeEvent):
@@ -524,9 +508,7 @@ class DeviceHealthUpdateEvent(BaseEdgeEvent):
         pattern="^(healthy|degraded|warning|critical)$",
         description="Overall status assessment",
     )
-    issues: list[str] = Field(
-        default_factory=list, description="Current issues detected"
-    )
+    issues: list[str] = Field(default_factory=list, description="Current issues detected")
 
     # Resource trends
     cpu_trend: str | None = Field(
@@ -556,9 +538,7 @@ class DeviceErrorEvent(BaseEdgeEvent):
         pattern="^(hardware|software|network|storage|sensor|inference|unknown)$",
         description="Error type",
     )
-    severity: str = Field(
-        ..., pattern="^(warning|error|critical)$", description="Error severity"
-    )
+    severity: str = Field(..., pattern="^(warning|error|critical)$", description="Error severity")
     error_message: str = Field(..., description="Error message")
     error_message_ar: str | None = Field(None, description="Arabic error message")
 
@@ -568,15 +548,9 @@ class DeviceErrorEvent(BaseEdgeEvent):
 
     # Recovery
     is_recoverable: bool = Field(default=True, description="Error is recoverable")
-    auto_recovery_attempted: bool = Field(
-        default=False, description="Auto-recovery was attempted"
-    )
-    recovery_action_required: str | None = Field(
-        None, description="Required recovery action"
-    )
-    recovery_action_required_ar: str | None = Field(
-        None, description="Arabic recovery action"
-    )
+    auto_recovery_attempted: bool = Field(default=False, description="Auto-recovery was attempted")
+    recovery_action_required: str | None = Field(None, description="Required recovery action")
+    recovery_action_required_ar: str | None = Field(None, description="Arabic recovery action")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -633,9 +607,7 @@ class JobStartedEvent(BaseEdgeEvent):
     started_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC), description="Start time"
     )
-    estimated_duration_seconds: int | None = Field(
-        None, ge=0, description="Estimated duration"
-    )
+    estimated_duration_seconds: int | None = Field(None, ge=0, description="Estimated duration")
     queue_wait_seconds: int | None = Field(None, ge=0, description="Time spent in queue")
 
     # Resources allocated
@@ -696,20 +668,14 @@ class JobCompletedEvent(BaseEdgeEvent):
     status: str = Field(default="completed", description="Completion status")
 
     # Resource usage
-    cpu_usage_avg_percent: float | None = Field(
-        None, ge=0, le=100, description="Average CPU usage"
-    )
+    cpu_usage_avg_percent: float | None = Field(None, ge=0, le=100, description="Average CPU usage")
     memory_usage_max_percent: float | None = Field(
         None, ge=0, le=100, description="Peak memory usage"
     )
-    gpu_usage_avg_percent: float | None = Field(
-        None, ge=0, le=100, description="Average GPU usage"
-    )
+    gpu_usage_avg_percent: float | None = Field(None, ge=0, le=100, description="Average GPU usage")
 
     # Output
-    output_files: list[str] = Field(
-        default_factory=list, description="Output file paths"
-    )
+    output_files: list[str] = Field(default_factory=list, description="Output file paths")
     output_data_bytes: int | None = Field(None, ge=0, description="Output data size")
 
 
@@ -800,9 +766,7 @@ class SyncStartedEvent(BaseEdgeEvent):
     )
 
     # Scope
-    data_types: list[str] = Field(
-        default_factory=list, description="Data types to sync"
-    )
+    data_types: list[str] = Field(default_factory=list, description="Data types to sync")
     records_to_sync: int | None = Field(None, ge=0, description="Records to sync")
     bytes_to_sync: int | None = Field(None, ge=0, description="Bytes to sync")
 
@@ -833,9 +797,7 @@ class SyncProgressEvent(BaseEdgeEvent):
 
     # Timing
     elapsed_seconds: int = Field(..., ge=0, description="Elapsed time")
-    estimated_remaining_seconds: int | None = Field(
-        None, ge=0, description="Estimated remaining"
-    )
+    estimated_remaining_seconds: int | None = Field(None, ge=0, description="Estimated remaining")
 
 
 class SyncCompletedEvent(BaseEdgeEvent):
@@ -945,9 +907,7 @@ class ModelDeploymentStartedEvent(BaseEdgeEvent):
     حدث يُطلق عند بدء نشر نموذج على جهاز الحافة
     """
 
-    deployment_id: UUID = Field(
-        default_factory=uuid4, description="Deployment identifier"
-    )
+    deployment_id: UUID = Field(default_factory=uuid4, description="Deployment identifier")
     device_id: UUID = Field(..., description="Target device identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -1000,9 +960,7 @@ class ModelDeployedEvent(BaseEdgeEvent):
     # Validation
     validation_passed: bool = Field(default=True, description="Model validation passed")
     inference_test_passed: bool = Field(default=True, description="Inference test passed")
-    test_inference_time_ms: int | None = Field(
-        None, ge=0, description="Test inference time"
-    )
+    test_inference_time_ms: int | None = Field(None, ge=0, description="Test inference time")
 
     # Storage
     model_path: str = Field(..., description="Model file path on device")
@@ -1082,9 +1040,7 @@ class DataCollectedEvent(BaseEdgeEvent):
     حدث يُطلق عند جمع البيانات على جهاز الحافة
     """
 
-    collection_id: UUID = Field(
-        default_factory=uuid4, description="Collection identifier"
-    )
+    collection_id: UUID = Field(default_factory=uuid4, description="Collection identifier")
     device_id: UUID = Field(..., description="Device identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
     field_id: UUID | None = Field(None, description="Field identifier if applicable")
@@ -1099,9 +1055,7 @@ class DataCollectedEvent(BaseEdgeEvent):
     # Collection details
     records_count: int = Field(..., ge=1, description="Number of records")
     data_size_bytes: int = Field(..., ge=0, description="Data size in bytes")
-    collection_duration_seconds: int | None = Field(
-        None, ge=0, description="Collection duration"
-    )
+    collection_duration_seconds: int | None = Field(None, ge=0, description="Collection duration")
 
     # Storage
     stored_locally: bool = Field(default=True, description="Stored on device")
@@ -1109,9 +1063,7 @@ class DataCollectedEvent(BaseEdgeEvent):
     pending_upload: bool = Field(default=True, description="Pending upload to cloud")
 
     # Quality
-    quality_score: float | None = Field(
-        None, ge=0, le=1, description="Data quality score"
-    )
+    quality_score: float | None = Field(None, ge=0, le=1, description="Data quality score")
 
 
 class DataUploadedEvent(BaseEdgeEvent):
@@ -1135,9 +1087,7 @@ class DataUploadedEvent(BaseEdgeEvent):
 
     # Status
     upload_successful: bool = Field(default=True, description="Upload successful")
-    local_data_deleted: bool = Field(
-        default=False, description="Local data deleted after upload"
-    )
+    local_data_deleted: bool = Field(default=False, description="Local data deleted after upload")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1192,9 +1142,7 @@ class FirmwareUpdateCompletedEvent(BaseEdgeEvent):
     reboot_count: int = Field(default=1, ge=0, description="Number of reboots")
 
     # Validation
-    post_update_check_passed: bool = Field(
-        default=True, description="Post-update checks passed"
-    )
+    post_update_check_passed: bool = Field(default=True, description="Post-update checks passed")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

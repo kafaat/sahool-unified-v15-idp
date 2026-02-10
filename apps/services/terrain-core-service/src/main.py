@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 # Try to import shared error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     SHARED_ERRORS_AVAILABLE = True
 except ImportError:
     SHARED_ERRORS_AVAILABLE = False
@@ -123,6 +124,7 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=settings.DB_POOL_MIN_SIZE,
@@ -141,6 +143,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             app.state.nc = await nats.connect(nats_url)
             logger.info("Connected to NATS", nats_url=nats_url)
         except Exception as e:
@@ -293,8 +296,12 @@ def readiness():
     Kubernetes readiness probe - is the service ready to accept traffic?
     فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الطلبات؟
     """
-    dem_processor_ready = hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
-    terrain_calc_ready = hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
+    dem_processor_ready = (
+        hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
+    )
+    terrain_calc_ready = (
+        hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
+    )
     nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
     db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
 
@@ -347,8 +354,12 @@ def metrics():
     from fastapi.responses import PlainTextResponse
 
     # Basic service metrics in Prometheus format
-    dem_processor_ready = 1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
-    terrain_calc_ready = 1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
+    dem_processor_ready = (
+        1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
+    )
+    terrain_calc_ready = (
+        1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
+    )
     nats_connected = 1 if (hasattr(app.state, "nc") and app.state.nc) else 0
     db_connected = 1 if (hasattr(app.state, "db_pool") and app.state.db_pool) else 0
 
@@ -422,10 +433,7 @@ async def publish_event(subject: str, data: dict):
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             full_subject = f"{settings.NATS_SUBJECT_PREFIX}.{subject}"
-            await app.state.nc.publish(
-                full_subject,
-                json.dumps(data).encode()
-            )
+            await app.state.nc.publish(full_subject, json.dumps(data).encode())
             logger.debug("Published event", subject=full_subject)
         except Exception as e:
             logger.warning("Failed to publish event", subject=subject, error=str(e))

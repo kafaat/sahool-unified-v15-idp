@@ -130,39 +130,42 @@ def generate_density_map(
     # Create heatmap visualization
     try:
         import matplotlib
-        matplotlib.use('Agg')
+
+        matplotlib.use("Agg")
         import matplotlib.pyplot as plt
         from matplotlib.colors import LinearSegmentedColormap
 
         # Create custom colormap (green to yellow to red)
-        colors = ['#006400', '#32CD32', '#FFFF00', '#FF8C00', '#FF0000']
-        cmap = LinearSegmentedColormap.from_list('density', colors)
+        colors = ["#006400", "#32CD32", "#FFFF00", "#FF8C00", "#FF0000"]
+        cmap = LinearSegmentedColormap.from_list("density", colors)
 
         fig, ax = plt.subplots(figsize=(10, 10))
         grid_array = np.array(grid_counts)
 
-        im = ax.imshow(grid_array, cmap=cmap, interpolation='bilinear', aspect='auto')
-        ax.set_title('Plant Density Map | خريطة كثافة النباتات', fontsize=14)
-        ax.set_xlabel('Grid X')
-        ax.set_ylabel('Grid Y')
+        im = ax.imshow(grid_array, cmap=cmap, interpolation="bilinear", aspect="auto")
+        ax.set_title("Plant Density Map | خريطة كثافة النباتات", fontsize=14)
+        ax.set_xlabel("Grid X")
+        ax.set_ylabel("Grid Y")
 
         cbar = plt.colorbar(im, ax=ax)
-        cbar.set_label('Plants per cell | نباتات لكل خلية')
+        cbar.set_label("Plants per cell | نباتات لكل خلية")
 
         # Save to bytes
         buffer = io.BytesIO()
-        plt.savefig(buffer, format='png', dpi=100, bbox_inches='tight')
+        plt.savefig(buffer, format="png", dpi=100, bbox_inches="tight")
         plt.close(fig)
         buffer.seek(0)
 
-        return base64.b64encode(buffer.getvalue()).decode('utf-8'), grid_counts
+        return base64.b64encode(buffer.getvalue()).decode("utf-8"), grid_counts
 
     except Exception as e:
         logger.warning("density_map_generation_failed", error=str(e))
         return "", grid_counts
 
 
-def estimate_ripeness_stage(class_probs: np.ndarray | None, class_id: int) -> tuple[RipenessStage, float]:
+def estimate_ripeness_stage(
+    class_probs: np.ndarray | None, class_id: int
+) -> tuple[RipenessStage, float]:
     """
     Estimate ripeness stage from classification probabilities.
 
@@ -251,8 +254,16 @@ def create_tracking_visualization(
 
         # Color palette for different track IDs
         colors = [
-            "#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF",
-            "#00FFFF", "#FFA500", "#800080", "#008000", "#FFC0CB",
+            "#FF0000",
+            "#00FF00",
+            "#0000FF",
+            "#FFFF00",
+            "#FF00FF",
+            "#00FFFF",
+            "#FFA500",
+            "#800080",
+            "#008000",
+            "#FFC0CB",
         ]
 
         for obj in tracked_objects:
@@ -312,7 +323,9 @@ async def count_plants(
     generate_density_map_flag: Annotated[bool, Query(alias="generate_density_map")] = True,
     grid_size: Annotated[int, Query(ge=8, le=128)] = 32,
     count_per_unit_area: bool = True,
-    gsd_meters: Annotated[float | None, Query(gt=0.0, description="Ground sampling distance in meters/pixel")] = None,
+    gsd_meters: Annotated[
+        float | None, Query(gt=0.0, description="Ground sampling distance in meters/pixel")
+    ] = None,
     manager: YOLO26ModelManager = Depends(get_manager),
 ) -> PlantCountResponse:
     """
@@ -367,7 +380,9 @@ async def count_plants(
 
         if gsd_meters and count_per_unit_area:
             # Calculate image area in square meters
-            image_area_sqm = (image_metadata.width * gsd_meters) * (image_metadata.height * gsd_meters)
+            image_area_sqm = (image_metadata.width * gsd_meters) * (
+                image_metadata.height * gsd_meters
+            )
             if image_area_sqm > 0:
                 density_per_sqm = total_count / image_area_sqm
 
@@ -432,7 +447,9 @@ async def classify_ripeness(
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.3,
     model_variant: ModelVariant = ModelVariant.MEDIUM,
-    fruit_type: Annotated[str | None, Query(description="Type of fruit (tomato, date, grape, etc.)")] = None,
+    fruit_type: Annotated[
+        str | None, Query(description="Type of fruit (tomato, date, grape, etc.)")
+    ] = None,
     return_stage_distribution: bool = True,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
@@ -588,11 +605,11 @@ def _create_ripeness_visualization(image_bytes: bytes, results: list[RipenessRes
 
         # Colors for each ripeness stage
         stage_colors = {
-            RipenessStage.UNRIPE: "#00FF00",      # Green
+            RipenessStage.UNRIPE: "#00FF00",  # Green
             RipenessStage.EARLY_RIPE: "#90EE90",  # Light green
-            RipenessStage.HALF_RIPE: "#FFD700",   # Gold
-            RipenessStage.RIPE: "#FFA500",        # Orange
-            RipenessStage.OVERRIPE: "#FF4500",    # Red-orange
+            RipenessStage.HALF_RIPE: "#FFD700",  # Gold
+            RipenessStage.RIPE: "#FFA500",  # Orange
+            RipenessStage.OVERRIPE: "#FF4500",  # Red-orange
         }
 
         for result in results:
@@ -631,7 +648,9 @@ async def segment_leaves(
     model_variant: ModelVariant = ModelVariant.MEDIUM,
     return_mask: bool = True,
     calculate_area: bool = True,
-    gsd_meters: Annotated[float | None, Query(gt=0.0, description="Ground sampling distance for area calculation")] = None,
+    gsd_meters: Annotated[
+        float | None, Query(gt=0.0, description="Ground sampling distance for area calculation")
+    ] = None,
     return_visualization: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
 ) -> LeafSegmentationResponse:
@@ -695,6 +714,7 @@ async def segment_leaves(
                 # Calculate perimeter (approximate)
                 try:
                     from scipy import ndimage
+
                     binary_mask = (mask > 0.5).astype(np.uint8)
                     perimeter_pixels = int(ndimage.morphology.binary_erosion(binary_mask).sum())
                     perimeter_pixels = int(np.sum(binary_mask) - perimeter_pixels) * 4
@@ -709,7 +729,7 @@ async def segment_leaves(
             # Calculate area in square meters
             area_sqm = None
             if gsd_meters and calculate_area:
-                area_sqm = area_pixels * (gsd_meters ** 2)
+                area_sqm = area_pixels * (gsd_meters**2)
                 total_area_sqm += area_sqm
 
             # Estimate health indicator (placeholder - would use color analysis)
@@ -738,7 +758,9 @@ async def segment_leaves(
         # Estimate LAI (Leaf Area Index)
         lai = None
         if gsd_meters and total_area_sqm > 0:
-            ground_area_sqm = (image_metadata.width * gsd_meters) * (image_metadata.height * gsd_meters)
+            ground_area_sqm = (image_metadata.width * gsd_meters) * (
+                image_metadata.height * gsd_meters
+            )
             if ground_area_sqm > 0:
                 lai = total_area_sqm / ground_area_sqm
 
@@ -750,7 +772,9 @@ async def segment_leaves(
             mask_base64 = _create_mask_visualization(image_bytes, result.masks)
 
         if return_visualization:
-            visualization_base64 = _create_segmentation_visualization(image_bytes, segments, result.masks)
+            visualization_base64 = _create_segmentation_visualization(
+                image_bytes, segments, result.masks
+            )
 
         logger.info(
             "leaf_segmentation_complete",
@@ -797,8 +821,12 @@ def _create_mask_visualization(image_bytes: bytes, masks: np.ndarray) -> str:
 
         # Create colored overlay for each mask
         colors = [
-            [255, 0, 0, 128], [0, 255, 0, 128], [0, 0, 255, 128],
-            [255, 255, 0, 128], [255, 0, 255, 128], [0, 255, 255, 128],
+            [255, 0, 0, 128],
+            [0, 255, 0, 128],
+            [0, 0, 255, 128],
+            [255, 255, 0, 128],
+            [255, 0, 255, 128],
+            [0, 255, 255, 128],
         ]
 
         overlay = np.zeros((img_array.shape[0], img_array.shape[1], 4), dtype=np.uint8)
@@ -844,7 +872,11 @@ def _create_segmentation_visualization(
             font = ImageFont.load_default()
 
         for segment in segments:
-            color = "#00FF00" if segment.health_indicator and segment.health_indicator > 0.7 else "#FFFF00"
+            color = (
+                "#00FF00"
+                if segment.health_indicator and segment.health_indicator > 0.7
+                else "#FFFF00"
+            )
             bbox = segment.bbox
 
             draw.rectangle(
@@ -945,7 +977,7 @@ async def track_objects(
 
         # Track history management (simple in-memory for demo)
         track_history_key = f"history_{tracker_id}"
-        if not hasattr(manager, '_track_histories'):
+        if not hasattr(manager, "_track_histories"):
             manager._track_histories = {}
 
         previous_tracks = manager._track_histories.get(track_history_key, {})
@@ -956,7 +988,11 @@ async def track_objects(
             confidence = float(result.scores[i])
 
             # Get track ID
-            track_id = int(result.track_ids[i]) if result.track_ids is not None and i < len(result.track_ids) else i
+            track_id = (
+                int(result.track_ids[i])
+                if result.track_ids is not None and i < len(result.track_ids)
+                else i
+            )
             active_track_ids.add(track_id)
 
             # Check if new track
@@ -969,18 +1005,18 @@ async def track_objects(
             track_length = 1
             if track_id in previous_tracks:
                 prev = previous_tracks[track_id]
-                prev_cx = (prev['box'][0] + prev['box'][2]) / 2
-                prev_cy = (prev['box'][1] + prev['box'][3]) / 2
+                prev_cx = (prev["box"][0] + prev["box"][2]) / 2
+                prev_cy = (prev["box"][1] + prev["box"][3]) / 2
                 curr_cx = (box[0] + box[2]) / 2
                 curr_cy = (box[1] + box[3]) / 2
                 velocity = (curr_cx - prev_cx, curr_cy - prev_cy)
-                track_length = prev.get('length', 1) + 1
+                track_length = prev.get("length", 1) + 1
 
             # Update history
             previous_tracks[track_id] = {
-                'box': box.tolist(),
-                'length': track_length,
-                'frame': frame_number,
+                "box": box.tolist(),
+                "length": track_length,
+                "frame": frame_number,
             }
 
             bbox = BoundingBox(
@@ -1006,7 +1042,7 @@ async def track_objects(
         lost_tracks = 0
         for tid in list(previous_tracks.keys()):
             if tid not in active_track_ids:
-                if frame_number - previous_tracks[tid].get('frame', 0) > track_buffer:
+                if frame_number - previous_tracks[tid].get("frame", 0) > track_buffer:
                     del previous_tracks[tid]
                     lost_tracks += 1
 
@@ -1074,7 +1110,7 @@ async def reset_tracker(
     manager.reset_tracker(tracker_id)
 
     # Also clear history
-    if hasattr(manager, '_track_histories'):
+    if hasattr(manager, "_track_histories"):
         history_key = f"history_{tracker_id}"
         if history_key in manager._track_histories:
             del manager._track_histories[history_key]

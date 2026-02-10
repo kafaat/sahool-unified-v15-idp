@@ -9,11 +9,11 @@ Based on agricultural research and spectral analysis for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class NutrientType(str, Enum):
+class NutrientType(StrEnum):
     """أنواع العناصر الغذائية"""
 
     # Macronutrients - العناصر الكبرى
@@ -33,7 +33,7 @@ class NutrientType(str, Enum):
     MOLYBDENUM = "molybdenum"  # موليبدنوم (Mo)
 
 
-class DeficiencySeverity(str, Enum):
+class DeficiencySeverity(StrEnum):
     """مستوى نقص العنصر"""
 
     OPTIMAL = "optimal"  # مثالي

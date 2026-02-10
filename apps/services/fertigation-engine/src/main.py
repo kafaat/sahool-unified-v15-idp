@@ -29,7 +29,7 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Optional
 
 sys.path.insert(0, "/app")
@@ -49,7 +49,7 @@ PORT = int(os.getenv("PORT", "8252"))
 # ---------------------------------------------------------------------------
 
 
-class NutrientType(str, Enum):
+class NutrientType(StrEnum):
     NITROGEN = "nitrogen"
     PHOSPHORUS = "phosphorus"
     POTASSIUM = "potassium"
@@ -61,7 +61,7 @@ class NutrientType(str, Enum):
     BORON = "boron"
 
 
-class FertilizerType(str, Enum):
+class FertilizerType(StrEnum):
     UREA = "urea"  # 46-0-0
     DAP = "dap"  # 18-46-0
     MAP = "map"  # 11-52-0
@@ -76,7 +76,7 @@ class FertilizerType(str, Enum):
     SULFURIC_ACID = "sulfuric_acid"  # For pH correction
 
 
-class GrowthPhase(str, Enum):
+class GrowthPhase(StrEnum):
     GERMINATION = "germination"
     SEEDLING = "seedling"
     VEGETATIVE = "vegetative"
@@ -94,78 +94,111 @@ class GrowthPhase(str, Enum):
 # NPK content (% by weight) and EC contribution
 FERTILIZER_DB: dict[str, dict] = {
     FertilizerType.UREA: {
-        "name": "Urea", "name_ar": "يوريا",
-        "n": 46.0, "p": 0.0, "k": 0.0,
+        "name": "Urea",
+        "name_ar": "يوريا",
+        "n": 46.0,
+        "p": 0.0,
+        "k": 0.0,
         "ec_per_gl": 1.1,  # dS/m per g/L
         "solubility_gl": 1080,  # g/L at 20°C
         "price_sar_kg": 2.5,
     },
     FertilizerType.DAP: {
-        "name": "Di-Ammonium Phosphate", "name_ar": "فوسفات ثنائي الأمونيوم",
-        "n": 18.0, "p": 46.0, "k": 0.0,
+        "name": "Di-Ammonium Phosphate",
+        "name_ar": "فوسفات ثنائي الأمونيوم",
+        "n": 18.0,
+        "p": 46.0,
+        "k": 0.0,
         "ec_per_gl": 0.86,
         "solubility_gl": 575,
         "price_sar_kg": 3.0,
     },
     FertilizerType.MAP: {
-        "name": "Mono-Ammonium Phosphate", "name_ar": "فوسفات أحادي الأمونيوم",
-        "n": 11.0, "p": 52.0, "k": 0.0,
+        "name": "Mono-Ammonium Phosphate",
+        "name_ar": "فوسفات أحادي الأمونيوم",
+        "n": 11.0,
+        "p": 52.0,
+        "k": 0.0,
         "ec_per_gl": 0.80,
         "solubility_gl": 370,
         "price_sar_kg": 3.5,
     },
     FertilizerType.KCL: {
-        "name": "Potassium Chloride (MOP)", "name_ar": "كلوريد البوتاسيوم",
-        "n": 0.0, "p": 0.0, "k": 60.0,
+        "name": "Potassium Chloride (MOP)",
+        "name_ar": "كلوريد البوتاسيوم",
+        "n": 0.0,
+        "p": 0.0,
+        "k": 60.0,
         "ec_per_gl": 1.87,
         "solubility_gl": 340,
         "price_sar_kg": 2.8,
     },
     FertilizerType.SOP: {
-        "name": "Potassium Sulfate (SOP)", "name_ar": "سلفات البوتاسيوم",
-        "n": 0.0, "p": 0.0, "k": 50.0,
+        "name": "Potassium Sulfate (SOP)",
+        "name_ar": "سلفات البوتاسيوم",
+        "n": 0.0,
+        "p": 0.0,
+        "k": 50.0,
         "ec_per_gl": 1.20,
         "solubility_gl": 110,
         "price_sar_kg": 4.0,
     },
     FertilizerType.AMMONIUM_NITRATE: {
-        "name": "Ammonium Nitrate", "name_ar": "نترات الأمونيوم",
-        "n": 34.0, "p": 0.0, "k": 0.0,
+        "name": "Ammonium Nitrate",
+        "name_ar": "نترات الأمونيوم",
+        "n": 34.0,
+        "p": 0.0,
+        "k": 0.0,
         "ec_per_gl": 1.50,
         "solubility_gl": 1870,
         "price_sar_kg": 2.0,
     },
     FertilizerType.CALCIUM_NITRATE: {
-        "name": "Calcium Nitrate", "name_ar": "نترات الكالسيوم",
-        "n": 15.5, "p": 0.0, "k": 0.0,
+        "name": "Calcium Nitrate",
+        "name_ar": "نترات الكالسيوم",
+        "n": 15.5,
+        "p": 0.0,
+        "k": 0.0,
         "ec_per_gl": 1.00,
         "solubility_gl": 1290,
         "price_sar_kg": 3.5,
     },
     FertilizerType.POTASSIUM_NITRATE: {
-        "name": "Potassium Nitrate", "name_ar": "نترات البوتاسيوم",
-        "n": 13.0, "p": 0.0, "k": 46.0,
+        "name": "Potassium Nitrate",
+        "name_ar": "نترات البوتاسيوم",
+        "n": 13.0,
+        "p": 0.0,
+        "k": 46.0,
         "ec_per_gl": 1.20,
         "solubility_gl": 316,
         "price_sar_kg": 5.0,
     },
     FertilizerType.NPK_20_20_20: {
-        "name": "NPK 20-20-20", "name_ar": "سماد مركب 20-20-20",
-        "n": 20.0, "p": 20.0, "k": 20.0,
+        "name": "NPK 20-20-20",
+        "name_ar": "سماد مركب 20-20-20",
+        "n": 20.0,
+        "p": 20.0,
+        "k": 20.0,
         "ec_per_gl": 1.30,
         "solubility_gl": 500,
         "price_sar_kg": 6.0,
     },
     FertilizerType.NPK_15_15_15: {
-        "name": "NPK 15-15-15", "name_ar": "سماد مركب 15-15-15",
-        "n": 15.0, "p": 15.0, "k": 15.0,
+        "name": "NPK 15-15-15",
+        "name_ar": "سماد مركب 15-15-15",
+        "n": 15.0,
+        "p": 15.0,
+        "k": 15.0,
         "ec_per_gl": 1.10,
         "solubility_gl": 450,
         "price_sar_kg": 5.0,
     },
     FertilizerType.PHOSPHORIC_ACID: {
-        "name": "Phosphoric Acid (85%)", "name_ar": "حمض الفوسفوريك",
-        "n": 0.0, "p": 52.0, "k": 0.0,
+        "name": "Phosphoric Acid (85%)",
+        "name_ar": "حمض الفوسفوريك",
+        "n": 0.0,
+        "p": 52.0,
+        "k": 0.0,
         "ec_per_gl": 0.60,
         "solubility_gl": 5480,
         "price_sar_kg": 4.5,
@@ -240,23 +273,25 @@ CROP_NPK_REQUIREMENTS: dict[str, dict[str, dict]] = {
 
 class FertigationRequest(BaseModel):
     """Calculate fertigation schedule for a field."""
+
     crop: str = Field(..., description="Crop name")
     growth_phase: GrowthPhase
     field_area_ha: float = Field(default=1.0, ge=0.01, description="Field area (ha)")
-    soil_n_ppm: Optional[float] = Field(None, description="Current soil N (ppm)")
-    soil_p_ppm: Optional[float] = Field(None, description="Current soil P (ppm)")
-    soil_k_ppm: Optional[float] = Field(None, description="Current soil K (ppm)")
+    soil_n_ppm: float | None = Field(None, description="Current soil N (ppm)")
+    soil_p_ppm: float | None = Field(None, description="Current soil P (ppm)")
+    soil_k_ppm: float | None = Field(None, description="Current soil K (ppm)")
     irrigation_volume_m3: float = Field(..., description="Irrigation volume per event (m³)")
     ec_water: float = Field(default=0.5, description="Irrigation water EC (dS/m)")
     max_ec_solution: float = Field(default=2.5, description="Max EC of fertigation solution (dS/m)")
-    target_yield_tha: Optional[float] = Field(None, description="Target yield (t/ha)")
-    preferred_fertilizers: Optional[list[FertilizerType]] = None
+    target_yield_tha: float | None = Field(None, description="Target yield (t/ha)")
+    preferred_fertilizers: list[FertilizerType] | None = None
 
 
 class FertigationPlan(BaseModel):
     """Fertigation schedule result."""
+
     crop: str
-    crop_ar: Optional[str] = None
+    crop_ar: str | None = None
     growth_phase: str
     field_area_ha: float
     # NPK requirements
@@ -288,6 +323,7 @@ class FertigationPlan(BaseModel):
 
 class NutrientBalanceRequest(BaseModel):
     """Track nutrient balance over time."""
+
     field_id: str
     crop: str
     entries: list[dict] = Field(
@@ -298,6 +334,7 @@ class NutrientBalanceRequest(BaseModel):
 
 class NutrientBalance(BaseModel):
     """Nutrient balance summary."""
+
     field_id: str
     crop: str
     n_balance_kg_ha: float
@@ -324,6 +361,7 @@ class FertigationEngine:
         self._yemen_crops = {}
         try:
             from shared.yemen.crops import YEMEN_CROPS
+
             self._yemen_crops = YEMEN_CROPS
         except ImportError:
             pass
@@ -360,9 +398,14 @@ class FertigationEngine:
 
         # Select fertilizers and calculate rates
         fertilizer_plan = self._select_fertilizers(
-            n_adj, p_adj, k_adj, req.field_area_ha,
-            req.irrigation_volume_m3, req.ec_water,
-            req.max_ec_solution, req.preferred_fertilizers,
+            n_adj,
+            p_adj,
+            k_adj,
+            req.field_area_ha,
+            req.irrigation_volume_m3,
+            req.ec_water,
+            req.max_ec_solution,
+            req.preferred_fertilizers,
         )
 
         # Calculate EC contribution
@@ -380,8 +423,13 @@ class FertigationEngine:
 
         # Generate recommendations
         recs, recs_ar = self._generate_recommendations(
-            n_adj, p_adj, k_adj, ec_total, req.max_ec_solution,
-            req.growth_phase, crop_key,
+            n_adj,
+            p_adj,
+            k_adj,
+            ec_total,
+            req.max_ec_solution,
+            req.growth_phase,
+            crop_key,
         )
 
         crop_data = self._yemen_crops.get(crop_key)
@@ -414,10 +462,14 @@ class FertigationEngine:
 
     def _select_fertilizers(
         self,
-        n_kg: float, p_kg: float, k_kg: float,
-        area_ha: float, irr_vol_m3: float,
-        ec_water: float, max_ec: float,
-        preferred: Optional[list[FertilizerType]],
+        n_kg: float,
+        p_kg: float,
+        k_kg: float,
+        area_ha: float,
+        irr_vol_m3: float,
+        ec_water: float,
+        max_ec: float,
+        preferred: list[FertilizerType] | None,
     ) -> list[dict]:
         """Select optimal fertilizer combination, respecting user preferences."""
         plan = []
@@ -442,17 +494,19 @@ class FertigationEngine:
             fert = FERTILIZER_DB[p_type]
             amount_kg = remaining_p / (fert["p"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
-            plan.append({
-                "fertilizer": p_type.value,
-                "name": fert["name"],
-                "name_ar": fert["name_ar"],
-                "amount_kg": round(amount_kg, 2),
-                "n_supplied_kg": round(amount_kg * fert["n"] / 100, 2),
-                "p_supplied_kg": round(amount_kg * fert["p"] / 100, 2),
-                "k_supplied_kg": 0.0,
-                "ec_contribution": round(ec_contrib, 3),
-                "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
-            })
+            plan.append(
+                {
+                    "fertilizer": p_type.value,
+                    "name": fert["name"],
+                    "name_ar": fert["name_ar"],
+                    "amount_kg": round(amount_kg, 2),
+                    "n_supplied_kg": round(amount_kg * fert["n"] / 100, 2),
+                    "p_supplied_kg": round(amount_kg * fert["p"] / 100, 2),
+                    "k_supplied_kg": 0.0,
+                    "ec_contribution": round(ec_contrib, 3),
+                    "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
+                }
+            )
             remaining_n -= amount_kg * fert["n"] / 100
             remaining_p = 0
 
@@ -462,17 +516,19 @@ class FertigationEngine:
             fert = FERTILIZER_DB[n_type]
             amount_kg = remaining_n / (fert["n"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
-            plan.append({
-                "fertilizer": n_type.value,
-                "name": fert["name"],
-                "name_ar": fert["name_ar"],
-                "amount_kg": round(amount_kg, 2),
-                "n_supplied_kg": round(amount_kg * fert["n"] / 100, 2),
-                "p_supplied_kg": 0.0,
-                "k_supplied_kg": 0.0,
-                "ec_contribution": round(ec_contrib, 3),
-                "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
-            })
+            plan.append(
+                {
+                    "fertilizer": n_type.value,
+                    "name": fert["name"],
+                    "name_ar": fert["name_ar"],
+                    "amount_kg": round(amount_kg, 2),
+                    "n_supplied_kg": round(amount_kg * fert["n"] / 100, 2),
+                    "p_supplied_kg": 0.0,
+                    "k_supplied_kg": 0.0,
+                    "ec_contribution": round(ec_contrib, 3),
+                    "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
+                }
+            )
 
         # K sources
         if remaining_k > 0:
@@ -482,17 +538,19 @@ class FertigationEngine:
             fert = FERTILIZER_DB[fert_type]
             amount_kg = remaining_k / (fert["k"] / 100.0)
             ec_contrib = (amount_kg / max(irr_vol_m3, 1)) * fert["ec_per_gl"]
-            plan.append({
-                "fertilizer": fert_type.value,
-                "name": fert["name"],
-                "name_ar": fert["name_ar"],
-                "amount_kg": round(amount_kg, 2),
-                "n_supplied_kg": 0.0,
-                "p_supplied_kg": 0.0,
-                "k_supplied_kg": round(amount_kg * fert["k"] / 100, 2),
-                "ec_contribution": round(ec_contrib, 3),
-                "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
-            })
+            plan.append(
+                {
+                    "fertilizer": fert_type.value,
+                    "name": fert["name"],
+                    "name_ar": fert["name_ar"],
+                    "amount_kg": round(amount_kg, 2),
+                    "n_supplied_kg": 0.0,
+                    "p_supplied_kg": 0.0,
+                    "k_supplied_kg": round(amount_kg * fert["k"] / 100, 2),
+                    "ec_contribution": round(ec_contrib, 3),
+                    "cost_sar": round(amount_kg * fert["price_sar_kg"], 2),
+                }
+            )
 
         return plan
 
@@ -511,9 +569,14 @@ class FertigationEngine:
         return "low", "منخفض"
 
     def _generate_recommendations(
-        self, n: float, p: float, k: float,
-        ec_total: float, max_ec: float,
-        phase: GrowthPhase, crop: str,
+        self,
+        n: float,
+        p: float,
+        k: float,
+        ec_total: float,
+        max_ec: float,
+        phase: GrowthPhase,
+        crop: str,
     ) -> tuple[list[str], list[str]]:
         recs: list[str] = []
         recs_ar: list[str] = []
@@ -529,12 +592,8 @@ class FertigationEngine:
             )
 
         if n > 60:
-            recs.append(
-                "High N application. Apply early morning to reduce volatilization losses."
-            )
-            recs_ar.append(
-                "تطبيق نيتروجين مرتفع. طبّق في الصباح الباكر لتقليل فقد التطاير."
-            )
+            recs.append("High N application. Apply early morning to reduce volatilization losses.")
+            recs_ar.append("تطبيق نيتروجين مرتفع. طبّق في الصباح الباكر لتقليل فقد التطاير.")
 
         if phase == GrowthPhase.FLOWERING:
             recs.append("Reduce N during flowering to prevent excessive vegetative growth.")
@@ -603,6 +662,7 @@ fert_engine = FertigationEngine()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import logging
+
     logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 
@@ -610,6 +670,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats as nats_lib
+
             app.state.nc = await nats_lib.connect(nats_url)
         except Exception as e:
             logger.warning(f"NATS connection failed: {e}")
@@ -632,6 +693,7 @@ app = FastAPI(
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
@@ -673,13 +735,15 @@ async def create_fertigation_plan(req: FertigationRequest):
             tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.fertigation.plan_created",
-                json.dumps({
-                    "crop": req.crop,
-                    "phase": req.growth_phase.value,
-                    "n_kg": result.n_adjusted_kg_ha,
-                    "ec_total": result.ec_total,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }).encode(),
+                json.dumps(
+                    {
+                        "crop": req.crop,
+                        "phase": req.growth_phase.value,
+                        "n_kg": result.n_adjusted_kg_ha,
+                        "ec_total": result.ec_total,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -701,7 +765,7 @@ async def list_fertilizers():
         "fertilizers": [
             {
                 "type": ftype,
-                **{k: v for k, v in fdata.items()},
+                **dict(fdata.items()),
             }
             for ftype, fdata in FERTILIZER_DB.items()
         ],
@@ -752,4 +816,5 @@ async def list_growth_phases():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)

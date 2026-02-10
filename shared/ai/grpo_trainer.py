@@ -21,25 +21,27 @@ Updated: January 2026
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 # Type hints for optional dependencies
 try:
     import torch
     from torch import Tensor
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
     Tensor = Any
 
 
-class GRPOVariant(str, Enum):
+class GRPOVariant(StrEnum):
     """GRPO algorithm variant."""
-    VANILLA = "vanilla"      # Original GRPO
-    DAPO = "dapo"            # DAPO improvements
-    DR_GRPO = "dr_grpo"      # GRPO Done Right
-    DEEPSEEK = "deepseek"    # DeepSeek V3.2 full improvements
+
+    VANILLA = "vanilla"  # Original GRPO
+    DAPO = "dapo"  # DAPO improvements
+    DR_GRPO = "dr_grpo"  # GRPO Done Right
+    DEEPSEEK = "deepseek"  # DeepSeek V3.2 full improvements
 
 
 @dataclass
@@ -97,12 +99,14 @@ class GRPOConfig:
     preserve_routing: bool = True  # For MoE models
 
     # Domain-specific KL weights
-    domain_kl_weights: dict[str, float] = field(default_factory=lambda: {
-        "math": 0.0,
-        "code": 0.05,
-        "agricultural": 0.0,  # SAHOOL: no KL for agricultural advisory
-        "general": 0.1,
-    })
+    domain_kl_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "math": 0.0,
+            "code": 0.05,
+            "agricultural": 0.0,  # SAHOOL: no KL for agricultural advisory
+            "general": 0.1,
+        }
+    )
 
     # Training parameters
     batch_size: int = 4
@@ -414,7 +418,9 @@ class GRPOTrainer:
             "policy_loss": total_loss,
             "clip_fraction": clipped_count / len(batch.samples) if batch.samples else 0,
             "masked_count": masked_count,
-            "mean_advantage": sum(batch.advantages) / len(batch.advantages) if batch.advantages else 0,
+            "mean_advantage": sum(batch.advantages) / len(batch.advantages)
+            if batch.advantages
+            else 0,
         }
 
         return total_loss, metrics
@@ -533,7 +539,9 @@ class GRPOTrainer:
             policy_loss=policy_loss,
             kl_loss=kl_loss,
             entropy_loss=entropy_loss,
-            mean_reward=sum(s.reward for s in batch.samples) / len(batch.samples) if batch.samples else 0,
+            mean_reward=sum(s.reward for s in batch.samples) / len(batch.samples)
+            if batch.samples
+            else 0,
             mean_advantage=policy_metrics.get("mean_advantage", 0),
             clip_fraction=policy_metrics.get("clip_fraction", 0),
         )
@@ -557,10 +565,13 @@ class GRPOTrainer:
             "skip_rate": skipped_batches / total_batches if total_batches > 0 else 0,
             "masked_sequences": masked_sequences,
             "avg_loss": sum(s.total_loss for s in self._stats_history) / len(self._stats_history),
-            "avg_policy_loss": sum(s.policy_loss for s in self._stats_history) / len(self._stats_history),
+            "avg_policy_loss": sum(s.policy_loss for s in self._stats_history)
+            / len(self._stats_history),
             "avg_kl_loss": sum(s.kl_loss for s in self._stats_history) / len(self._stats_history),
-            "avg_reward": sum(s.mean_reward for s in self._stats_history) / len(self._stats_history),
-            "avg_clip_fraction": sum(s.clip_fraction for s in self._stats_history) / len(self._stats_history),
+            "avg_reward": sum(s.mean_reward for s in self._stats_history)
+            / len(self._stats_history),
+            "avg_clip_fraction": sum(s.clip_fraction for s in self._stats_history)
+            / len(self._stats_history),
         }
 
     def reset_stats(self) -> None:

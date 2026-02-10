@@ -10,12 +10,12 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from datetime import timezone, datetime, timedelta, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 
 logger = logging.getLogger(__name__)
 
 
-class TwoFAEnforcementLevel(str, Enum):
+class TwoFAEnforcementLevel(StrEnum):
     """2FA enforcement levels"""
 
     OPTIONAL = "optional"  # 2FA is optional for all users

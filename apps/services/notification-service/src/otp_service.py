@@ -21,7 +21,7 @@ import os
 import secrets
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ RATE_LIMIT_WINDOW_SECONDS = 60  # 1 minute
 RATE_LIMIT_MAX_REQUESTS = 3
 
 
-class OTPChannel(str, Enum):
+class OTPChannel(StrEnum):
     """قنوات إرسال OTP - OTP delivery channels"""
 
     SMS = "sms"
@@ -46,7 +46,7 @@ class OTPChannel(str, Enum):
     EMAIL = "email"
 
 
-class OTPPurpose(str, Enum):
+class OTPPurpose(StrEnum):
     """أغراض OTP - OTP purposes"""
 
     LOGIN = "login"
@@ -301,19 +301,13 @@ class OTPService:
                         self._use_redis = True
                         logger.info("OTP service initialized with Redis storage")
                     else:
-                        logger.warning(
-                            "Redis ping failed, falling back to in-memory storage"
-                        )
+                        logger.warning("Redis ping failed, falling back to in-memory storage")
                         self._use_redis = False
                 except ImportError:
-                    logger.warning(
-                        "Redis client not available, using in-memory storage"
-                    )
+                    logger.warning("Redis client not available, using in-memory storage")
                     self._use_redis = False
                 except Exception as e:
-                    logger.warning(
-                        f"Failed to connect to Redis: {e}, using in-memory storage"
-                    )
+                    logger.warning(f"Failed to connect to Redis: {e}, using in-memory storage")
                     self._use_redis = False
             else:
                 self._use_redis = False
@@ -574,9 +568,7 @@ class OTPService:
                 rate_key_zset = f"{rate_key}:requests"
 
                 # Remove old entries
-                self._redis_client._master.zremrangebyscore(
-                    rate_key_zset, "-inf", window_start
-                )
+                self._redis_client._master.zremrangebyscore(rate_key_zset, "-inf", window_start)
 
                 # Count current requests
                 request_count = self._redis_client._master.zcard(rate_key_zset)
@@ -605,9 +597,7 @@ class OTPService:
                 self._redis_client._master.zadd(rate_key_zset, {str(now): now})
 
                 # Set expiration on the key
-                self._redis_client._master.expire(
-                    rate_key_zset, RATE_LIMIT_WINDOW_SECONDS * 2
-                )
+                self._redis_client._master.expire(rate_key_zset, RATE_LIMIT_WINDOW_SECONDS * 2)
             else:
                 await self._in_memory_storage.record_request(rate_key)
         except Exception as e:
@@ -641,9 +631,7 @@ class OTPService:
             OTPPurpose.TWO_FACTOR: ("المصادقة الثنائية", "Two-Factor Authentication"),
         }
 
-        purpose_ar, purpose_en = purpose_labels.get(
-            purpose, ("التحقق", "Verification")
-        )
+        purpose_ar, purpose_en = purpose_labels.get(purpose, ("التحقق", "Verification"))
 
         if language == "ar":
             subject = f"رمز التحقق - {purpose_ar} | SAHOOL"
@@ -698,9 +686,7 @@ SAHOOL - Smart Agriculture Platform"""
             OTPPurpose.TWO_FACTOR: ("المصادقة الثنائية", "Two-Factor Authentication"),
         }
 
-        purpose_ar, purpose_en = purpose_labels.get(
-            purpose, ("التحقق", "Verification")
-        )
+        purpose_ar, purpose_en = purpose_labels.get(purpose, ("التحقق", "Verification"))
 
         if language == "ar":
             subject = f"رمز التحقق - {purpose_ar} | SAHOOL"

@@ -200,8 +200,11 @@ class AutoFixEngine:
         sorted_diagnostics = sorted(
             report.diagnostics,
             key=lambda d: (
-                0 if d.severity == DiagnosticSeverity.ERROR else
-                1 if d.severity == DiagnosticSeverity.WARNING else 2
+                0
+                if d.severity == DiagnosticSeverity.ERROR
+                else 1
+                if d.severity == DiagnosticSeverity.WARNING
+                else 2
             ),
         )
 
@@ -270,9 +273,7 @@ class AutoFixEngine:
         results: list[FixResult] = []
 
         # Build diagnostic ID to file path mapping
-        diag_map: dict[str, Diagnostic] = {
-            d.id: d for d in report.diagnostics
-        }
+        diag_map: dict[str, Diagnostic] = {d.id: d for d in report.diagnostics}
 
         for fix in plan.fixes:
             diagnostic = diag_map.get(fix.diagnostic_id)
@@ -508,17 +509,19 @@ class AutoFixEngine:
         ]
 
         if include_arabic:
-            lines.extend([
-                "### ملخص بالعربية",
-                "",
-                f"- **الهدف**: `{report.target}`",
-                f"- **إجمالي المشاكل**: {len(report.diagnostics)}",
-                f"- **الأخطاء**: {report.total_errors}",
-                f"- **التحذيرات**: {report.total_warnings}",
-                f"- **الإصلاحات المطبقة**: {fixed_count}",
-                f"- **الإصلاحات الفاشلة**: {failed_count}",
-                "",
-            ])
+            lines.extend(
+                [
+                    "### ملخص بالعربية",
+                    "",
+                    f"- **الهدف**: `{report.target}`",
+                    f"- **إجمالي المشاكل**: {len(report.diagnostics)}",
+                    f"- **الأخطاء**: {report.total_errors}",
+                    f"- **التحذيرات**: {report.total_warnings}",
+                    f"- **الإصلاحات المطبقة**: {fixed_count}",
+                    f"- **الإصلاحات الفاشلة**: {failed_count}",
+                    "",
+                ]
+            )
 
         # Add issues section
         lines.append("## Issues | المشاكل")
@@ -580,7 +583,9 @@ async def quick_diagnose(target: str) -> DiagnosticReport:
     return await engine.diagnose(target)
 
 
-async def quick_fix(target: str, strategy: FixStrategy = FixStrategy.SAFE) -> tuple[DiagnosticReport, list[FixResult]]:
+async def quick_fix(
+    target: str, strategy: FixStrategy = FixStrategy.SAFE
+) -> tuple[DiagnosticReport, list[FixResult]]:
     """
     Quick diagnose and fix.
 

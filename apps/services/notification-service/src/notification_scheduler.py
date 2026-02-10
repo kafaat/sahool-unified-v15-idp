@@ -18,7 +18,7 @@ import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from .firebase_client import FirebaseClient, NotificationPriority, get_firebase_client
@@ -27,7 +27,7 @@ from .notification_types import NotificationPayload
 logger = logging.getLogger(__name__)
 
 
-class ScheduleFrequency(str, Enum):
+class ScheduleFrequency(StrEnum):
     """تكرار الجدولة"""
 
     ONCE = "once"  # مرة واحدة

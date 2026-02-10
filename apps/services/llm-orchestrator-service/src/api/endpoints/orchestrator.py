@@ -400,9 +400,7 @@ async def check_agents_health(
 # Helper functions
 
 
-def _get_endpoint_for_intent(
-    intent_type: IntentType, endpoints: dict[str, str]
-) -> str:
+def _get_endpoint_for_intent(intent_type: IntentType, endpoints: dict[str, str]) -> str:
     """Get the best endpoint for an intent type."""
     intent_to_endpoint: dict[IntentType, list[str]] = {
         IntentType.CROP_DISEASE: ["disease_detect", "detect", "comprehensive"],
@@ -429,9 +427,7 @@ def _get_endpoint_for_intent(
     return list(endpoints.keys())[0] if endpoints else ""
 
 
-def _build_agent_params(
-    intent: Any, user_intent: UserIntent, agent_name: str
-) -> dict[str, Any]:
+def _build_agent_params(intent: Any, user_intent: UserIntent, agent_name: str) -> dict[str, Any]:
     """Build parameters for agent call."""
     params: dict[str, Any] = {}
 

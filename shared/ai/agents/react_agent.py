@@ -20,7 +20,7 @@ Updated: January 2026
 from abc import abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any, AsyncIterator
 import uuid
 
@@ -37,12 +37,13 @@ from ..llm_provider import LLMProviderManager
 logger = structlog.get_logger()
 
 
-class ReActStepType(str, Enum):
+class ReActStepType(StrEnum):
     """نوع خطوة ReAct"""
-    THOUGHT = "thought"           # Reasoning step
-    ACTION = "action"             # Tool execution
-    OBSERVATION = "observation"   # Result from action
-    REFLECTION = "reflection"     # Self-assessment
+
+    THOUGHT = "thought"  # Reasoning step
+    ACTION = "action"  # Tool execution
+    OBSERVATION = "observation"  # Result from action
+    REFLECTION = "reflection"  # Self-assessment
 
 
 @dataclass
@@ -53,10 +54,11 @@ class ReActThought:
 
     Captures the agent's reasoning before taking an action.
     """
+
     thought_id: str
-    content: str                    # The reasoning text
-    content_ar: str                 # Arabic version
-    confidence: float               # How confident in this reasoning (0-1)
+    content: str  # The reasoning text
+    content_ar: str  # Arabic version
+    confidence: float  # How confident in this reasoning (0-1)
     alternatives: list[str] = field(default_factory=list)  # Alternative thoughts considered
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -80,14 +82,15 @@ class ReActAction:
 
     The action to take based on the thought.
     """
+
     action_id: str
-    action_type: str                # Tool name or action type
-    action_input: dict[str, Any]    # Input parameters
-    rationale: str                  # Why this action was chosen
-    rationale_ar: str               # Arabic version
-    expected_outcome: str           # What we expect to happen
+    action_type: str  # Tool name or action type
+    action_input: dict[str, Any]  # Input parameters
+    rationale: str  # Why this action was chosen
+    rationale_ar: str  # Arabic version
+    expected_outcome: str  # What we expect to happen
     expected_outcome_ar: str
-    confidence: float               # Confidence in action success (0-1)
+    confidence: float  # Confidence in action success (0-1)
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
@@ -113,13 +116,14 @@ class ReActObservation:
 
     The result of executing an action.
     """
+
     observation_id: str
-    action_id: str                  # Reference to the action
-    success: bool                   # Whether action succeeded
-    result: Any                     # The actual result
-    summary: str                    # Human-readable summary
-    summary_ar: str                 # Arabic version
-    execution_time_ms: float        # How long it took
+    action_id: str  # Reference to the action
+    success: bool  # Whether action succeeded
+    result: Any  # The actual result
+    summary: str  # Human-readable summary
+    summary_ar: str  # Arabic version
+    execution_time_ms: float  # How long it took
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
     def to_dict(self) -> dict[str, Any]:
@@ -128,7 +132,9 @@ class ReActObservation:
             "type": "observation",
             "action_id": self.action_id,
             "success": self.success,
-            "result": self.result if isinstance(self.result, (str, int, float, bool, list, dict)) else str(self.result),
+            "result": self.result
+            if isinstance(self.result, (str, int, float, bool, list, dict))
+            else str(self.result),
             "summary": self.summary,
             "summary_ar": self.summary_ar,
             "execution_time_ms": self.execution_time_ms,
@@ -144,17 +150,18 @@ class ReActReflection:
 
     Self-assessment after observation.
     """
+
     reflection_id: str
-    observation_id: str             # Reference to the observation
-    assessment: str                 # What does this observation tell us
-    assessment_ar: str              # Arabic version
-    goal_progress: str              # Progress toward the goal
+    observation_id: str  # Reference to the observation
+    assessment: str  # What does this observation tell us
+    assessment_ar: str  # Arabic version
+    goal_progress: str  # Progress toward the goal
     goal_progress_ar: str
-    next_step_suggestion: str       # What should we do next
+    next_step_suggestion: str  # What should we do next
     next_step_suggestion_ar: str
-    confidence: float               # Confidence in the assessment
-    should_continue: bool           # Should we continue with more steps
-    needs_correction: bool          # Do we need to correct course
+    confidence: float  # Confidence in the assessment
+    should_continue: bool  # Should we continue with more steps
+    needs_correction: bool  # Do we need to correct course
     correction_reason: str | None = None
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -183,6 +190,7 @@ class ReActStep:
     Complete ReAct step with thought, action, observation, and reflection.
     خطوة ReAct كاملة مع التفكير والعمل والملاحظة والتأمل
     """
+
     step_id: str
     step_number: int
     thought: ReActThought
@@ -222,6 +230,7 @@ class ReActTrace:
     Complete reasoning trace for a ReAct execution.
     سجل الاستدلال الكامل لتنفيذ ReAct
     """
+
     trace_id: str
     task: str
     task_ar: str
@@ -273,27 +282,27 @@ class ReActTrace:
             if step.action:
                 action_text = f"{step.action.action_type}"
                 lines.append(f'    {step_id}A["{action_text}"]')
-                lines.append(f'    {step_id}T --> {step_id}A')
+                lines.append(f"    {step_id}T --> {step_id}A")
 
             # Observation node
             if step.observation:
                 obs_text = "✓" if step.observation.success else "✗"
                 lines.append(f'    {step_id}O(("{obs_text}"))')
                 if step.action:
-                    lines.append(f'    {step_id}A --> {step_id}O')
+                    lines.append(f"    {step_id}A --> {step_id}O")
 
             # Reflection node
             if step.reflection:
                 refl_text = "Continue" if step.reflection.should_continue else "Done"
-                lines.append(f'    {step_id}R{{{refl_text}}}')
+                lines.append(f"    {step_id}R{{{refl_text}}}")
                 if step.observation:
-                    lines.append(f'    {step_id}O --> {step_id}R')
+                    lines.append(f"    {step_id}O --> {step_id}R")
 
             # Connect to next step
             if i < len(self.steps) - 1:
-                next_id = f"S{i+1}"
+                next_id = f"S{i + 1}"
                 if step.reflection:
-                    lines.append(f'    {step_id}R --> {next_id}T')
+                    lines.append(f"    {step_id}R --> {next_id}T")
 
         return "\n".join(lines)
 
@@ -546,9 +555,7 @@ class ReActAgent(BaseAutonomousAgent):
                     should_continue = False
 
             # Generate final answer
-            answer_en, answer_ar = await self.generate_final_answer(
-                self.current_trace, context
-            )
+            answer_en, answer_ar = await self.generate_final_answer(self.current_trace, context)
             self.current_trace.final_answer = answer_en
             self.current_trace.final_answer_ar = answer_ar
             self.current_trace.success = True
@@ -782,9 +789,7 @@ class ReActAgent(BaseAutonomousAgent):
 
             # Generate final answer
             yield {"type": "generating_answer"}
-            answer_en, answer_ar = await self.generate_final_answer(
-                self.current_trace, context
-            )
+            answer_en, answer_ar = await self.generate_final_answer(self.current_trace, context)
             self.current_trace.final_answer = answer_en
             self.current_trace.final_answer_ar = answer_ar
             self.current_trace.success = True
@@ -826,10 +831,7 @@ class ReActAgent(BaseAutonomousAgent):
         تصدير سجل للتصحيح أو التعلم
         """
         if trace_id:
-            trace = next(
-                (t for t in self.react_history if t.trace_id == trace_id),
-                None
-            )
+            trace = next((t for t in self.react_history if t.trace_id == trace_id), None)
         else:
             trace = self.current_trace
 
@@ -853,10 +855,7 @@ class ReActAgent(BaseAutonomousAgent):
         الحصول على ملخص مقروء للاستدلال
         """
         if trace_id:
-            trace = next(
-                (t for t in self.react_history if t.trace_id == trace_id),
-                None
-            )
+            trace = next((t for t in self.react_history if t.trace_id == trace_id), None)
         else:
             trace = self.current_trace
 
@@ -868,7 +867,7 @@ class ReActAgent(BaseAutonomousAgent):
             f"المهمة: {trace.task_ar}",
             "",
             "Reasoning Steps:",
-            "="* 50,
+            "=" * 50,
         ]
 
         for step in trace.steps:
@@ -877,7 +876,9 @@ class ReActAgent(BaseAutonomousAgent):
             if step.action:
                 lines.append(f"  Action: {step.action.action_type}")
             if step.observation:
-                lines.append(f"  Result: {'✓' if step.observation.success else '✗'} {step.observation.summary}")
+                lines.append(
+                    f"  Result: {'✓' if step.observation.success else '✗'} {step.observation.summary}"
+                )
             if step.reflection:
                 lines.append(f"  Reflection: {step.reflection.assessment}")
 
@@ -925,7 +926,9 @@ class ReActAgent(BaseAutonomousAgent):
                     tool_name=react_step.action.action_type,
                     tool_input=react_step.action.action_input,
                     reasoning=react_step.thought.content,
-                    status="completed" if react_step.observation and react_step.observation.success else "failed",
+                    status="completed"
+                    if react_step.observation and react_step.observation.success
+                    else "failed",
                 )
                 agent_steps.append(agent_step)
 

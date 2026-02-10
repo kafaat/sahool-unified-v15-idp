@@ -11,7 +11,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 
 import httpx
 
@@ -20,7 +20,7 @@ from ..versions import SERVICE_PORTS
 logger = logging.getLogger(__name__)
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Service health status"""
 
     HEALTHY = "healthy"

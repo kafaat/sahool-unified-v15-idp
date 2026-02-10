@@ -151,12 +151,17 @@ async def example_mcp_server_integration():
         logger.info(f"\nTotal tools available: {len(all_tools)}")
 
         # Count skill tools
-        skill_tools = [t for t in all_tools if t["name"] in [
-            "crop_advisor",
-            "farm_documentation",
-            "compress_context",
-            "query_memory",
-        ]]
+        skill_tools = [
+            t
+            for t in all_tools
+            if t["name"]
+            in [
+                "crop_advisor",
+                "farm_documentation",
+                "compress_context",
+                "query_memory",
+            ]
+        ]
         logger.info(f"  - Skill tools: {len(skill_tools)}")
         logger.info(f"  - Base tools: {len(all_tools) - len(skill_tools)}")
 
@@ -206,12 +211,17 @@ async def example_mcp_client_usage():
             logger.info(f"\nAvailable tools: {len(tools)}")
 
             # Find skill tools
-            skill_tools = [t for t in tools if t["name"] in [
-                "crop_advisor",
-                "farm_documentation",
-                "compress_context",
-                "query_memory",
-            ]]
+            skill_tools = [
+                t
+                for t in tools
+                if t["name"]
+                in [
+                    "crop_advisor",
+                    "farm_documentation",
+                    "compress_context",
+                    "query_memory",
+                ]
+            ]
             logger.info(f"Skill tools found: {len(skill_tools)}")
 
             if skill_tools:

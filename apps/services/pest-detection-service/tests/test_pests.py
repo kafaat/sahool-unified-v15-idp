@@ -145,9 +145,16 @@ class TestPestDataIntegrity:
         data = response.json()
 
         required_fields = [
-            "id", "name_en", "name_ar", "scientific_name",
-            "category", "description_en", "description_ar",
-            "affected_crops", "symptoms_en", "symptoms_ar",
+            "id",
+            "name_en",
+            "name_ar",
+            "scientific_name",
+            "category",
+            "description_en",
+            "description_ar",
+            "affected_crops",
+            "symptoms_en",
+            "symptoms_ar",
         ]
 
         for pest in data:

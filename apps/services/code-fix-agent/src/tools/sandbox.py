@@ -30,6 +30,7 @@ logger = structlog.get_logger(__name__)
 
 class ExecutionStatus(Enum):
     """حالة التنفيذ"""
+
     SUCCESS = "success"
     ERROR = "error"
     TIMEOUT = "timeout"
@@ -46,6 +47,7 @@ class SandboxConfig:
 
     Security-focused defaults for safe code execution.
     """
+
     # Time limits
     timeout_seconds: float = 30.0
     cpu_time_limit: int = 30  # CPU seconds
@@ -69,23 +71,56 @@ class SandboxConfig:
     allow_filesystem: bool = True
     read_only_paths: list[str] = field(default_factory=list)
     writable_paths: list[str] = field(default_factory=list)
-    blocked_paths: list[str] = field(default_factory=lambda: [
-        "/etc", "/var", "/usr", "/bin", "/sbin",
-        "/root", "/home", "/proc", "/sys", "/dev"
-    ])
+    blocked_paths: list[str] = field(
+        default_factory=lambda: [
+            "/etc",
+            "/var",
+            "/usr",
+            "/bin",
+            "/sbin",
+            "/root",
+            "/home",
+            "/proc",
+            "/sys",
+            "/dev",
+        ]
+    )
 
     # Imports
-    blocked_imports: list[str] = field(default_factory=lambda: [
-        "os.system", "subprocess", "socket", "requests",
-        "urllib", "http", "ftplib", "smtplib", "telnetlib",
-        "pickle", "marshal", "shelve", "ctypes", "multiprocessing"
-    ])
+    blocked_imports: list[str] = field(
+        default_factory=lambda: [
+            "os.system",
+            "subprocess",
+            "socket",
+            "requests",
+            "urllib",
+            "http",
+            "ftplib",
+            "smtplib",
+            "telnetlib",
+            "pickle",
+            "marshal",
+            "shelve",
+            "ctypes",
+            "multiprocessing",
+        ]
+    )
 
     # Builtins to disable
-    disabled_builtins: list[str] = field(default_factory=lambda: [
-        "eval", "exec", "compile", "__import__", "open",
-        "input", "breakpoint", "help", "credits", "license"
-    ])
+    disabled_builtins: list[str] = field(
+        default_factory=lambda: [
+            "eval",
+            "exec",
+            "compile",
+            "__import__",
+            "open",
+            "input",
+            "breakpoint",
+            "help",
+            "credits",
+            "license",
+        ]
+    )
 
 
 @dataclass
@@ -94,6 +129,7 @@ class SandboxResult:
     نتيجة تنفيذ الكود
     Code execution result
     """
+
     status: ExecutionStatus
     stdout: str = ""
     stderr: str = ""
@@ -281,7 +317,7 @@ for _name in {disabled}:
 """
 
         # Wrapper template
-        wrapper = f'''
+        wrapper = f"""
 import sys
 import json
 import traceback
@@ -313,17 +349,17 @@ except Exception as e:
 # Output result
 if _error:
     print("__SANDBOX_ERROR__:" + json.dumps(_error), file=sys.stderr)
-'''
+"""
 
         if capture_return:
-            wrapper += '''
+            wrapper += """
 else:
     if '_result' in dir() and _result is not None:
         try:
             print("__SANDBOX_RETURN__:" + json.dumps(_result))
         except:
             print("__SANDBOX_RETURN__:" + repr(_result))
-'''
+"""
 
         return wrapper
 
@@ -387,9 +423,9 @@ else:
 
             # Truncate if needed
             if len(stdout_str) > self.config.max_output_size:
-                stdout_str = stdout_str[:self.config.max_output_size] + "\n... (output truncated)"
+                stdout_str = stdout_str[: self.config.max_output_size] + "\n... (output truncated)"
             if len(stderr_str) > self.config.max_output_size:
-                stderr_str = stderr_str[:self.config.max_output_size] + "\n... (output truncated)"
+                stderr_str = stderr_str[: self.config.max_output_size] + "\n... (output truncated)"
 
             # Parse result
             return self._parse_execution_result(
@@ -410,8 +446,7 @@ else:
         try:
             # CPU time limit
             resource.setrlimit(
-                resource.RLIMIT_CPU,
-                (self.config.cpu_time_limit, self.config.cpu_time_limit)
+                resource.RLIMIT_CPU, (self.config.cpu_time_limit, self.config.cpu_time_limit)
             )
 
             # Memory limit
@@ -424,8 +459,7 @@ else:
 
             # Process limit
             resource.setrlimit(
-                resource.RLIMIT_NPROC,
-                (self.config.max_processes, self.config.max_processes)
+                resource.RLIMIT_NPROC, (self.config.max_processes, self.config.max_processes)
             )
 
         except Exception as e:
@@ -550,6 +584,7 @@ else:
         """تنظيف الموارد"""
         if self._temp_dir and self._temp_dir.exists():
             import shutil
+
             try:
                 shutil.rmtree(self._temp_dir)
             except Exception as e:
@@ -631,16 +666,20 @@ class SecureSandbox(CodeSandbox):
         try:
             # Build Docker command
             cmd = [
-                "docker", "run",
+                "docker",
+                "run",
                 "--rm",
                 "--network=none",  # No network
                 f"--memory={self.config.memory_limit_mb}m",
                 f"--cpus={self.config.cpu_time_limit / 10}",
                 "--read-only",
                 "--security-opt=no-new-privileges",
-                "-v", f"{script_path}:/code/script.py:ro",
+                "-v",
+                f"{script_path}:/code/script.py:ro",
                 "python:3.11-slim",
-                "python", "-u", "/code/script.py",
+                "python",
+                "-u",
+                "/code/script.py",
             ]
 
             # Run Docker

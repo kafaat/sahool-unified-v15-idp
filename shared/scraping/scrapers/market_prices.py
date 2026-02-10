@@ -153,10 +153,7 @@ class MarketPriceReport:
         """Get price for a specific crop."""
         crop_lower = crop_name.lower()
         for price in self.prices:
-            if (
-                price.crop_name.lower() == crop_lower
-                or price.crop_name_ar == crop_name
-            ):
+            if price.crop_name.lower() == crop_lower or price.crop_name_ar == crop_name:
                 return price
         return None
 
@@ -250,9 +247,7 @@ class MarketPriceScraper(BaseScraper):
         start_time = time.time()
 
         # Normalize market name
-        market_normalized = (
-            market.lower().strip() if market else "riyadh"
-        )
+        market_normalized = market.lower().strip() if market else "riyadh"
 
         # Check cache
         cache_key = f"prices_{market_normalized}_{category}_{source}"
@@ -267,14 +262,10 @@ class MarketPriceScraper(BaseScraper):
 
         try:
             if source == "mewa":
-                report = await self._scrape_mewa_prices(
-                    market_normalized, category, crops
-                )
+                report = await self._scrape_mewa_prices(market_normalized, category, crops)
             else:
                 # Fallback to generic scraping
-                report = await self._scrape_generic_prices(
-                    market_normalized, category, crops
-                )
+                report = await self._scrape_generic_prices(market_normalized, category, crops)
 
             # Cache result
             self.set_cached(
@@ -369,9 +360,7 @@ class MarketPriceScraper(BaseScraper):
             # Filter by specific crops if specified
             if crops:
                 if not any(
-                    c.lower() in crop_name.lower()
-                    or c == translation.get("ar")
-                    for c in crops
+                    c.lower() in crop_name.lower() or c == translation.get("ar") for c in crops
                 ):
                     continue
 
@@ -554,12 +543,14 @@ class MarketPriceScraper(BaseScraper):
             if result.status == ScrapingStatus.SUCCESS and result.data:
                 price_info = result.data.get_by_crop(crop)
                 if price_info:
-                    comparison["markets"].append({
-                        "market": market,
-                        "market_ar": price_info.market_ar,
-                        "price": price_info.price,
-                        "currency": price_info.currency,
-                    })
+                    comparison["markets"].append(
+                        {
+                            "market": market,
+                            "market_ar": price_info.market_ar,
+                            "price": price_info.price,
+                            "currency": price_info.currency,
+                        }
+                    )
                     prices.append(price_info.price)
 
         if prices:

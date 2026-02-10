@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class ScanVerdict(Enum):
     """Virus scan verdict"""
+
     CLEAN = "clean"
     MALICIOUS = "malicious"
     SUSPICIOUS = "suspicious"
@@ -27,6 +28,7 @@ class ScanVerdict(Enum):
 @dataclass
 class ScanResult:
     """Result of a virus scan"""
+
     verdict: ScanVerdict
     malicious_count: int = 0
     suspicious_count: int = 0
@@ -293,6 +295,7 @@ class VirusTotalScanner(VirusScannerInterface):
         """Wait if needed to respect rate limits"""
         async with self._rate_limit_lock:
             import time
+
             current_time = time.time()
             elapsed = current_time - self._last_request_time
             if elapsed < self.rate_limit_delay:
@@ -466,7 +469,9 @@ class VirusTotalScanner(VirusScannerInterface):
                 await asyncio.sleep(self.poll_interval)
             else:
                 logger.error(f"Unknown analysis status: {status}")
-                return ScanResult(verdict=ScanVerdict.ERROR, details={"error": f"Unknown status: {status}"})
+                return ScanResult(
+                    verdict=ScanVerdict.ERROR, details={"error": f"Unknown status: {status}"}
+                )
 
     def _parse_analysis_response(self, response_data: dict) -> ScanResult:
         """
@@ -534,7 +539,9 @@ class VirusTotalScanner(VirusScannerInterface):
         """
         if not self.api_key:
             logger.warning("VirusTotal API key not configured")
-            return ScanResult(verdict=ScanVerdict.ERROR, details={"error": "API key not configured"})
+            return ScanResult(
+                verdict=ScanVerdict.ERROR, details={"error": "API key not configured"}
+            )
 
         file_hash = self._compute_sha256(file_content)
         logger.info(f"Scanning file {filename} (SHA256: {file_hash})")

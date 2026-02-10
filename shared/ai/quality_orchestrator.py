@@ -48,7 +48,7 @@ import json
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -70,7 +70,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-class QualityLevel(str, Enum):
+class QualityLevel(StrEnum):
     """Quality level classification - تصنيف مستوى الجودة"""
 
     EXCELLENT = "excellent"  # 90-100%
@@ -80,7 +80,7 @@ class QualityLevel(str, Enum):
     CRITICAL = "critical"  # 0-29%
 
 
-class IssueSeverity(str, Enum):
+class IssueSeverity(StrEnum):
     """Issue severity levels - مستويات خطورة المشاكل"""
 
     CRITICAL = "critical"
@@ -90,7 +90,7 @@ class IssueSeverity(str, Enum):
     INFO = "info"
 
 
-class AuditAction(str, Enum):
+class AuditAction(StrEnum):
     """Audit action types - أنواع إجراءات التدقيق"""
 
     ANALYSIS_STARTED = "analysis_started"
@@ -438,15 +438,17 @@ class AutoAudit:
                 ["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"]
             )
             for entry in self.entries:
-                writer.writerow([
-                    entry.id,
-                    entry.action.value,
-                    entry.timestamp.isoformat(),
-                    entry.session_id,
-                    entry.user_id,
-                    entry.agent_id,
-                    json.dumps(entry.details),
-                ])
+                writer.writerow(
+                    [
+                        entry.id,
+                        entry.action.value,
+                        entry.timestamp.isoformat(),
+                        entry.session_id,
+                        entry.user_id,
+                        entry.agent_id,
+                        json.dumps(entry.details),
+                    ]
+                )
             return output.getvalue()
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -597,15 +599,11 @@ class QualityOrchestrator:
 
                 # Run tools on each file or directory
                 if path_obj.is_file():
-                    results = await self._run_tools_on_target(
-                        path, tools_to_run, fix, parallel
-                    )
+                    results = await self._run_tools_on_target(path, tools_to_run, fix, parallel)
                     all_results.extend(results)
                 else:
                     # For directories, run on the whole directory
-                    results = await self._run_tools_on_target(
-                        path, tools_to_run, fix, parallel
-                    )
+                    results = await self._run_tools_on_target(path, tools_to_run, fix, parallel)
                     all_results.extend(results)
 
             report.tool_results = all_results
@@ -749,15 +747,11 @@ class QualityOrchestrator:
 
         return list(languages)
 
-    def _get_tools(
-        self, languages: list[str], specific_tools: list[str] | None
-    ) -> list:
+    def _get_tools(self, languages: list[str], specific_tools: list[str] | None) -> list:
         """Get tools to run based on config and languages"""
         if specific_tools:
             return [
-                self._registry.get_tool(t)
-                for t in specific_tools
-                if self._registry.get_tool(t)
+                self._registry.get_tool(t) for t in specific_tools if self._registry.get_tool(t)
             ]
 
         tools = []
@@ -813,10 +807,7 @@ class QualityOrchestrator:
     ) -> list[ToolResult]:
         """Run tools on a target path"""
         if parallel:
-            tasks = [
-                self._registry.run_tool(tool.id, target, auto_fix=fix)
-                for tool in tools
-            ]
+            tasks = [self._registry.run_tool(tool.id, target, auto_fix=fix) for tool in tools]
             return list(await asyncio.gather(*tasks))
         else:
             results = []
@@ -886,9 +877,7 @@ class QualityOrchestrator:
                             file_path=item.get("filename", ""),
                             line=item.get("line_number"),
                             column=None,
-                            severity=self._map_bandit_severity(
-                                item.get("issue_severity", "LOW")
-                            ),
+                            severity=self._map_bandit_severity(item.get("issue_severity", "LOW")),
                             category="security",
                             message=item.get("issue_text", ""),
                             code=item.get("test_id"),
@@ -899,9 +888,7 @@ class QualityOrchestrator:
             elif result.tool_id == "mypy":
                 # Mypy text output parsing
                 for line in result.stdout.split("\n"):
-                    match = re.match(
-                        r"(.+):(\d+):(\d+)?: (error|warning|note): (.+)", line
-                    )
+                    match = re.match(r"(.+):(\d+):(\d+)?: (error|warning|note): (.+)", line)
                     if match:
                         issues.append(
                             QualityIssue(
@@ -939,9 +926,7 @@ class QualityOrchestrator:
                                 file_path=match.group(3),
                                 line=int(match.group(4)),
                                 column=int(match.group(5)),
-                                severity=severity_map.get(
-                                    match.group(1), IssueSeverity.MEDIUM
-                                ),
+                                severity=severity_map.get(match.group(1), IssueSeverity.MEDIUM),
                                 category="lint",
                                 message=match.group(2),
                                 auto_fixable=False,
@@ -1111,7 +1096,7 @@ def generate_quality_report_markdown(report: QualityReport) -> str:
 
 | Metric | Value |
 |--------|-------|
-| Quality Score | {level_emoji.get(report.quality_level, '')} {report.quality_score:.1f}% ({report.quality_level.value}) |
+| Quality Score | {level_emoji.get(report.quality_level, "")} {report.quality_score:.1f}% ({report.quality_level.value}) |
 | Files Analyzed | {report.files_analyzed} |
 | Total Issues | {report.total_issues} |
 | Fixed | {report.fixed_count} |
@@ -1140,16 +1125,16 @@ def generate_quality_report_markdown(report: QualityReport) -> str:
     md += f"""
 ## Tools Executed | الأدوات المنفذة
 
-{', '.join(report.tools_executed)}
+{", ".join(report.tools_executed)}
 
 ## Paths Analyzed | المسارات المحللة
 
-{chr(10).join('- ' + p for p in report.paths)}
+{chr(10).join("- " + p for p in report.paths)}
 
 ---
 *Report ID: {report.id}*
 *Session: {report.session_id}*
-*Generated: {report.completed_at.isoformat() if report.completed_at else 'N/A'}*
+*Generated: {report.completed_at.isoformat() if report.completed_at else "N/A"}*
 """
 
     return md

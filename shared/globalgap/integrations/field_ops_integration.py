@@ -40,7 +40,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import date, datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -58,7 +58,7 @@ from .events import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class ActivityType(str, Enum):
+class ActivityType(StrEnum):
     """
     Field operation activity types
     أنواع أنشطة عمليات الحقل
@@ -77,7 +77,7 @@ class ActivityType(str, Enum):
     MONITORING = "MONITORING"  # المراقبة
 
 
-class HarvestMethod(str, Enum):
+class HarvestMethod(StrEnum):
     """
     Harvest methods
     طرق الحصاد
@@ -88,7 +88,7 @@ class HarvestMethod(str, Enum):
     SEMI_MECHANICAL = "SEMI_MECHANICAL"  # شبه ميكانيكي
 
 
-class PackagingType(str, Enum):
+class PackagingType(StrEnum):
     """
     Packaging types
     أنواع التعبئة

@@ -51,8 +51,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=26.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.WHEAT, CropType.ALFALFA,
-            CropType.TOMATO, CropType.POTATO,
+            CropType.DATE_PALM,
+            CropType.WHEAT,
+            CropType.ALFALFA,
+            CropType.TOMATO,
+            CropType.POTATO,
         ],
         traditional_farming_practices_ar=[
             "زراعة النخيل في الواحات",
@@ -78,8 +81,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=24.5,
         groundwater_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.WHEAT, CropType.BARLEY,
-            CropType.GRAPE, CropType.TOMATO, CropType.WATERMELON,
+            CropType.DATE_PALM,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.GRAPE,
+            CropType.TOMATO,
+            CropType.WATERMELON,
         ],
         traditional_farming_practices_ar=[
             "منطقة التمور الأشهر في المملكة",
@@ -105,8 +112,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=22.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.WHEAT, CropType.BARLEY, CropType.POTATO,
-            CropType.DATE_PALM, CropType.OLIVE,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.POTATO,
+            CropType.DATE_PALM,
+            CropType.OLIVE,
         ],
         traditional_farming_practices_ar=[
             "سلة الغذاء في المملكة",
@@ -134,8 +144,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         surface_water_available=False,
         desalinated_water_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.RICE, CropType.ALFALFA,
-            CropType.TOMATO, CropType.CITRUS,
+            CropType.DATE_PALM,
+            CropType.RICE,
+            CropType.ALFALFA,
+            CropType.TOMATO,
+            CropType.CITRUS,
         ],
         traditional_farming_practices_ar=[
             "زراعة الأرز في الأحساء",
@@ -162,8 +175,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         groundwater_available=True,
         surface_water_available=True,
         primary_crops=[
-            CropType.WHEAT, CropType.BARLEY, CropType.COFFEE,
-            CropType.SORGHUM, CropType.POMEGRANATE, CropType.FIG,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.COFFEE,
+            CropType.SORGHUM,
+            CropType.POMEGRANATE,
+            CropType.FIG,
         ],
         traditional_farming_practices_ar=[
             "الزراعة المدرجة على الجبال",
@@ -190,8 +207,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         groundwater_available=True,
         surface_water_available=True,
         primary_crops=[
-            CropType.MANGO, CropType.PAPAYA, CropType.BANANA,
-            CropType.SORGHUM, CropType.SESAME, CropType.COFFEE,
+            CropType.MANGO,
+            CropType.PAPAYA,
+            CropType.BANANA,
+            CropType.SORGHUM,
+            CropType.SESAME,
+            CropType.COFFEE,
         ],
         traditional_farming_practices_ar=[
             "زراعة الفواكه الاستوائية",
@@ -217,8 +238,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=21.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.GRAPE, CropType.CITRUS,
-            CropType.OLIVE, CropType.WHEAT,
+            CropType.DATE_PALM,
+            CropType.GRAPE,
+            CropType.CITRUS,
+            CropType.OLIVE,
+            CropType.WHEAT,
         ],
         traditional_farming_practices_ar=[
             "زراعة العنب والزيتون",
@@ -244,8 +268,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=20.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.OLIVE, CropType.DATE_PALM, CropType.WHEAT,
-            CropType.BARLEY, CropType.TOMATO,
+            CropType.OLIVE,
+            CropType.DATE_PALM,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.TOMATO,
         ],
         traditional_farming_practices_ar=[
             "أكبر منطقة لزراعة الزيتون",
@@ -271,8 +298,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=23.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.CITRUS, CropType.GRAPE,
-            CropType.POMEGRANATE, CropType.SORGHUM,
+            CropType.DATE_PALM,
+            CropType.CITRUS,
+            CropType.GRAPE,
+            CropType.POMEGRANATE,
+            CropType.SORGHUM,
         ],
         traditional_farming_practices_ar=[
             "الواحات الزراعية التقليدية",
@@ -285,7 +315,6 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
             "Beekeeping",
         ],
     ),
-
     # Yemen regions
     Region.SANA: RegionMetadata(
         region=Region.SANA,
@@ -301,8 +330,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         groundwater_available=True,
         surface_water_available=True,
         primary_crops=[
-            CropType.WHEAT, CropType.BARLEY, CropType.GRAPE,
-            CropType.POTATO, CropType.POMEGRANATE, CropType.QAT,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.GRAPE,
+            CropType.POTATO,
+            CropType.POMEGRANATE,
+            CropType.QAT,
         ],
         traditional_farming_practices_ar=[
             "الزراعة المدرجة",
@@ -329,8 +362,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         groundwater_available=True,
         surface_water_available=True,
         primary_crops=[
-            CropType.COFFEE, CropType.SORGHUM, CropType.MAIZE,
-            CropType.WHEAT, CropType.MANGO, CropType.BANANA,
+            CropType.COFFEE,
+            CropType.SORGHUM,
+            CropType.MAIZE,
+            CropType.WHEAT,
+            CropType.MANGO,
+            CropType.BANANA,
         ],
         traditional_farming_practices_ar=[
             "منطقة البن اليمني الشهير",
@@ -358,8 +395,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         surface_water_available=False,
         desalinated_water_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.TOMATO, CropType.ONION,
-            CropType.CUCUMBER, CropType.WATERMELON,
+            CropType.DATE_PALM,
+            CropType.TOMATO,
+            CropType.ONION,
+            CropType.CUCUMBER,
+            CropType.WATERMELON,
         ],
         traditional_farming_practices_ar=[
             "الزراعة الساحلية",
@@ -385,8 +425,11 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         avg_annual_temp_c=27.0,
         groundwater_available=True,
         primary_crops=[
-            CropType.DATE_PALM, CropType.SESAME, CropType.SORGHUM,
-            CropType.WHEAT, CropType.ALFALFA,
+            CropType.DATE_PALM,
+            CropType.SESAME,
+            CropType.SORGHUM,
+            CropType.WHEAT,
+            CropType.ALFALFA,
         ],
         traditional_farming_practices_ar=[
             "زراعة النخيل في الوديان",
@@ -413,8 +456,12 @@ REGION_METADATA: dict[Region, RegionMetadata] = {
         groundwater_available=True,
         surface_water_available=True,
         primary_crops=[
-            CropType.COFFEE, CropType.WHEAT, CropType.MAIZE,
-            CropType.POTATO, CropType.SORGHUM, CropType.QAT,
+            CropType.COFFEE,
+            CropType.WHEAT,
+            CropType.MAIZE,
+            CropType.POTATO,
+            CropType.SORGHUM,
+            CropType.QAT,
         ],
         traditional_farming_practices_ar=[
             "أكثر مناطق اليمن أمطاراً",
@@ -573,8 +620,11 @@ def _create_traditional_seasons() -> dict[TraditionalSeason, TraditionalSeasonIn
             "Date palm pollination",
         ],
         recommended_crops=[
-            CropType.TOMATO, CropType.CUCUMBER, CropType.SQUASH,
-            CropType.WATERMELON, CropType.MELON,
+            CropType.TOMATO,
+            CropType.CUCUMBER,
+            CropType.SQUASH,
+            CropType.WATERMELON,
+            CropType.MELON,
         ],
         proverb_ar="سعد السعود تدب الحرارة في العود",
         proverb_en="In Saad al-Suud, warmth creeps into the wood (trees wake up)",
@@ -658,7 +708,10 @@ def _create_traditional_seasons() -> dict[TraditionalSeason, TraditionalSeasonIn
             "Tree planting",
         ],
         recommended_crops=[
-            CropType.WHEAT, CropType.BARLEY, CropType.ONION, CropType.GARLIC,
+            CropType.WHEAT,
+            CropType.BARLEY,
+            CropType.ONION,
+            CropType.GARLIC,
         ],
         proverb_ar="السماك يمسك الزرع بالتراب",
         proverb_en="Simak holds the crop in the soil",
@@ -1243,15 +1296,17 @@ class SeasonCalculator:
 
         for season in seasons:
             start, end = season.get_date_range(year)
-            transitions.append({
-                "season": season.season.value,
-                "season_name_ar": season.name_ar,
-                "season_name_en": season.name_en,
-                "start_date": start.isoformat(),
-                "end_date": end.isoformat(),
-                "description_ar": season.description_ar,
-                "description_en": season.description_en,
-            })
+            transitions.append(
+                {
+                    "season": season.season.value,
+                    "season_name_ar": season.name_ar,
+                    "season_name_en": season.name_en,
+                    "start_date": start.isoformat(),
+                    "end_date": end.isoformat(),
+                    "description_ar": season.description_ar,
+                    "description_en": season.description_en,
+                }
+            )
 
         return sorted(transitions, key=lambda x: x["start_date"])
 
@@ -1283,7 +1338,8 @@ class SeasonCalculator:
                             name_en=season_info.name_en,
                             start_date_approx=start,
                             end_date_approx=season_info.end_date_approx.replace(year=year)
-                            if season_info.end_date_approx else None,
+                            if season_info.end_date_approx
+                            else None,
                             duration_days=season_info.duration_days,
                             star_name_ar=season_info.star_name_ar,
                             star_name_en=season_info.star_name_en,

@@ -462,7 +462,11 @@ class WhatsAppClient:
                     return message_id
                 return None
             else:
-                error_data = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
+                error_data = (
+                    response.json()
+                    if response.headers.get("content-type", "").startswith("application/json")
+                    else {}
+                )
                 error = error_data.get("error", {})
                 logger.error(
                     "send_message_failed",

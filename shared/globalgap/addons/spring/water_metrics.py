@@ -9,14 +9,14 @@ Pydantic models for tracking water usage, efficiency, and quality metrics.
 from __future__ import annotations
 
 from datetime import date
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
 # ==================== Enumerations ====================
 
 
-class WaterSourceType(str, Enum):
+class WaterSourceType(StrEnum):
     """Water source type enumeration / تعداد أنواع مصادر المياه"""
 
     WELL = "WELL"  # بئر
@@ -30,7 +30,7 @@ class WaterSourceType(str, Enum):
     DESALINATED = "DESALINATED"  # محلاة
 
 
-class IrrigationMethod(str, Enum):
+class IrrigationMethod(StrEnum):
     """Irrigation method enumeration / تعداد طرق الري"""
 
     DRIP = "DRIP"  # بالتنقيط
@@ -42,7 +42,7 @@ class IrrigationMethod(str, Enum):
     FURROW = "FURROW"  # خنادق
 
 
-class WaterQualityStatus(str, Enum):
+class WaterQualityStatus(StrEnum):
     """Water quality status / حالة جودة المياه"""
 
     EXCELLENT = "EXCELLENT"  # ممتاز
@@ -435,7 +435,9 @@ class WaterEfficiencyScore(BaseModel):
         if v is None or v == 0:
             if info.data.get("rainwater_harvested_m3") and info.data.get("total_water_used_m3"):
                 if info.data["total_water_used_m3"] > 0:
-                    return (info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]) * 100
+                    return (
+                        info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]
+                    ) * 100
         return v
 
     class Config:

@@ -16,7 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 import uuid
 
 
@@ -25,8 +25,9 @@ import uuid
 # ==============================================================================
 
 
-class EquipmentType(str, Enum):
+class EquipmentType(StrEnum):
     """Type of agricultural equipment - نوع المعدات الزراعية"""
+
     TRACTOR = "tractor"  # جرار
     HARVESTER = "harvester"  # حصادة
     IRRIGATION_SYSTEM = "irrigation_system"  # نظام ري
@@ -41,8 +42,9 @@ class EquipmentType(str, Enum):
     OTHER = "other"  # أخرى
 
 
-class EquipmentStatus(str, Enum):
+class EquipmentStatus(StrEnum):
     """Equipment operational status - حالة تشغيل المعدات"""
+
     OPERATIONAL = "operational"  # تعمل
     IN_USE = "in_use"  # قيد الاستخدام
     IDLE = "idle"  # خاملة
@@ -52,8 +54,9 @@ class EquipmentStatus(str, Enum):
     DECOMMISSIONED = "decommissioned"  # خارج الخدمة
 
 
-class MaintenanceType(str, Enum):
+class MaintenanceType(StrEnum):
     """Type of maintenance - نوع الصيانة"""
+
     PREVENTIVE = "preventive"  # صيانة وقائية
     CORRECTIVE = "corrective"  # صيانة تصحيحية
     PREDICTIVE = "predictive"  # صيانة تنبؤية
@@ -62,8 +65,9 @@ class MaintenanceType(str, Enum):
     OVERHAUL = "overhaul"  # إصلاح شامل
 
 
-class MaintenanceStatus(str, Enum):
+class MaintenanceStatus(StrEnum):
     """Maintenance task status - حالة مهمة الصيانة"""
+
     SCHEDULED = "scheduled"  # مجدولة
     PENDING = "pending"  # معلقة
     IN_PROGRESS = "in_progress"  # قيد التنفيذ
@@ -72,8 +76,9 @@ class MaintenanceStatus(str, Enum):
     OVERDUE = "overdue"  # متأخرة
 
 
-class MaintenancePriority(str, Enum):
+class MaintenancePriority(StrEnum):
     """Maintenance priority level - مستوى أولوية الصيانة"""
+
     LOW = "low"  # منخفضة
     MEDIUM = "medium"  # متوسطة
     HIGH = "high"  # عالية
@@ -81,8 +86,9 @@ class MaintenancePriority(str, Enum):
     EMERGENCY = "emergency"  # طارئة
 
 
-class PartCategory(str, Enum):
+class PartCategory(StrEnum):
     """Spare part category - فئة قطع الغيار"""
+
     ENGINE = "engine"  # محرك
     TRANSMISSION = "transmission"  # ناقل الحركة
     HYDRAULICS = "hydraulics"  # نظام هيدروليكي
@@ -100,16 +106,18 @@ class PartCategory(str, Enum):
     OTHER = "other"  # أخرى
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity level - مستوى خطورة التنبيه"""
+
     INFO = "info"  # معلومات
     WARNING = "warning"  # تحذير
     CRITICAL = "critical"  # حرج
     EMERGENCY = "emergency"  # طارئ
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """Type of maintenance alert - نوع تنبيه الصيانة"""
+
     SCHEDULED_DUE = "scheduled_due"  # صيانة مجدولة مستحقة
     OVERDUE = "overdue"  # صيانة متأخرة
     HOURS_THRESHOLD = "hours_threshold"  # عتبة ساعات التشغيل
@@ -121,8 +129,9 @@ class AlertType(str, Enum):
     INSPECTION_DUE = "inspection_due"  # فحص مستحق
 
 
-class FuelType(str, Enum):
+class FuelType(StrEnum):
     """Fuel type for equipment - نوع الوقود"""
+
     DIESEL = "diesel"  # ديزل
     GASOLINE = "gasoline"  # بنزين
     ELECTRIC = "electric"  # كهربائي
@@ -132,8 +141,9 @@ class FuelType(str, Enum):
     NONE = "none"  # لا يوجد
 
 
-class IrrigationType(str, Enum):
+class IrrigationType(StrEnum):
     """Type of irrigation system - نوع نظام الري"""
+
     DRIP = "drip"  # تنقيط
     SPRINKLER = "sprinkler"  # رشاش
     CENTER_PIVOT = "center_pivot"  # محوري مركزي
@@ -151,6 +161,7 @@ class IrrigationType(str, Enum):
 @dataclass
 class EquipmentSpecs:
     """Equipment specifications - مواصفات المعدات"""
+
     manufacturer: str  # الشركة المصنعة
     model: str  # الموديل
     year: int  # سنة الصنع
@@ -213,6 +224,7 @@ class Equipment:
     """
     Agricultural equipment asset - أصل المعدات الزراعية
     """
+
     id: str
     tenant_id: str
     farm_id: str
@@ -283,13 +295,19 @@ class Equipment:
             "total_hours": self.total_hours,
             "total_kilometers": self.total_kilometers,
             "total_hectares": self.total_hectares,
-            "last_maintenance_date": self.last_maintenance_date.isoformat() if self.last_maintenance_date else None,
-            "next_maintenance_date": self.next_maintenance_date.isoformat() if self.next_maintenance_date else None,
+            "last_maintenance_date": self.last_maintenance_date.isoformat()
+            if self.last_maintenance_date
+            else None,
+            "next_maintenance_date": self.next_maintenance_date.isoformat()
+            if self.next_maintenance_date
+            else None,
             "is_active": self.is_active,
             "location": {
                 "lat": self.current_lat,
                 "lng": self.current_lng,
-            } if self.current_lat and self.current_lng else None,
+            }
+            if self.current_lat and self.current_lng
+            else None,
         }
 
     def get_maintenance_due_status(self) -> dict:
@@ -300,21 +318,33 @@ class Equipment:
         return {
             "oil_change": {
                 "hours_remaining": self.specs.oil_change_hours - self.hours_since_last_oil_change,
-                "percent_used": (self.hours_since_last_oil_change / self.specs.oil_change_hours) * 100,
+                "percent_used": (self.hours_since_last_oil_change / self.specs.oil_change_hours)
+                * 100,
                 "is_due": self.hours_since_last_oil_change >= self.specs.oil_change_hours,
-                "is_approaching": self.hours_since_last_oil_change >= self.specs.oil_change_hours * 0.9,
+                "is_approaching": self.hours_since_last_oil_change
+                >= self.specs.oil_change_hours * 0.9,
             },
             "filter_change": {
-                "hours_remaining": self.specs.filter_change_hours - self.hours_since_last_filter_change,
-                "percent_used": (self.hours_since_last_filter_change / self.specs.filter_change_hours) * 100,
+                "hours_remaining": self.specs.filter_change_hours
+                - self.hours_since_last_filter_change,
+                "percent_used": (
+                    self.hours_since_last_filter_change / self.specs.filter_change_hours
+                )
+                * 100,
                 "is_due": self.hours_since_last_filter_change >= self.specs.filter_change_hours,
-                "is_approaching": self.hours_since_last_filter_change >= self.specs.filter_change_hours * 0.9,
+                "is_approaching": self.hours_since_last_filter_change
+                >= self.specs.filter_change_hours * 0.9,
             },
             "major_service": {
-                "hours_remaining": self.specs.major_service_hours - self.hours_since_last_major_service,
-                "percent_used": (self.hours_since_last_major_service / self.specs.major_service_hours) * 100,
+                "hours_remaining": self.specs.major_service_hours
+                - self.hours_since_last_major_service,
+                "percent_used": (
+                    self.hours_since_last_major_service / self.specs.major_service_hours
+                )
+                * 100,
                 "is_due": self.hours_since_last_major_service >= self.specs.major_service_hours,
-                "is_approaching": self.hours_since_last_major_service >= self.specs.major_service_hours * 0.9,
+                "is_approaching": self.hours_since_last_major_service
+                >= self.specs.major_service_hours * 0.9,
             },
             "overhaul": {
                 "hours_remaining": self.specs.overhaul_hours - self.hours_since_last_overhaul,
@@ -335,6 +365,7 @@ class MaintenanceTask:
     """
     Individual maintenance task - مهمة صيانة فردية
     """
+
     id: str
     tenant_id: str
     equipment_id: str
@@ -436,6 +467,7 @@ class MaintenanceTask:
 @dataclass
 class ChecklistItem:
     """Maintenance checklist item - عنصر قائمة الفحص"""
+
     id: str
     description: str
     description_ar: str
@@ -462,6 +494,7 @@ class MaintenanceSchedule:
     """
     Recurring maintenance schedule - جدول الصيانة المتكرر
     """
+
     id: str
     tenant_id: str
     equipment_id: str
@@ -533,7 +566,9 @@ class MaintenanceSchedule:
             "default_priority": self.default_priority.value,
             "estimated_duration_hours": self.estimated_duration_hours,
             "estimated_cost": str(self.estimated_cost),
-            "last_executed_at": self.last_executed_at.isoformat() if self.last_executed_at else None,
+            "last_executed_at": self.last_executed_at.isoformat()
+            if self.last_executed_at
+            else None,
             "next_due_at": self.next_due_at.isoformat() if self.next_due_at else None,
             "next_due_hours": self.next_due_hours,
             "is_active": self.is_active,
@@ -550,6 +585,7 @@ class SparePart:
     """
     Spare part in inventory - قطعة غيار في المخزون
     """
+
     id: str
     tenant_id: str
 
@@ -649,6 +685,7 @@ class SparePart:
 @dataclass
 class MaintenancePart:
     """Part used in a maintenance task - قطعة مستخدمة في مهمة صيانة"""
+
     part_id: str
     part_number: str
     name: str
@@ -678,6 +715,7 @@ class MaintenancePart:
 @dataclass
 class PartRequirement:
     """Required part for a maintenance schedule - قطعة مطلوبة لجدول صيانة"""
+
     part_id: str
     part_number: str
     name: str
@@ -700,6 +738,7 @@ class PartRequirement:
 @dataclass
 class PartTransaction:
     """Inventory transaction for a part - معاملة مخزون لقطعة غيار"""
+
     id: str
     tenant_id: str
     part_id: str
@@ -756,6 +795,7 @@ class ServiceRecord:
     """
     Service history record - سجل تاريخ الخدمة
     """
+
     id: str
     tenant_id: str
     equipment_id: str
@@ -849,6 +889,7 @@ class MaintenanceAlert:
     """
     Maintenance alert - تنبيه الصيانة
     """
+
     id: str
     tenant_id: str
     equipment_id: str
@@ -928,6 +969,7 @@ class MaintenanceAlert:
 @dataclass
 class TractorMaintenanceProfile:
     """Tractor-specific maintenance profile - ملف صيانة خاص بالجرار"""
+
     equipment_id: str
 
     # Engine maintenance - صيانة المحرك
@@ -963,6 +1005,7 @@ class TractorMaintenanceProfile:
 @dataclass
 class HarvesterMaintenanceProfile:
     """Harvester-specific maintenance profile - ملف صيانة خاص بالحصادة"""
+
     equipment_id: str
 
     # Cutting system - نظام القطع
@@ -993,6 +1036,7 @@ class HarvesterMaintenanceProfile:
 @dataclass
 class IrrigationMaintenanceProfile:
     """Irrigation system maintenance profile - ملف صيانة نظام الري"""
+
     equipment_id: str
 
     # System type - نوع النظام
@@ -1031,6 +1075,7 @@ class IrrigationMaintenanceProfile:
 @dataclass
 class SprayerMaintenanceProfile:
     """Sprayer-specific maintenance profile - ملف صيانة خاص بالرشاشة"""
+
     equipment_id: str
 
     # Tank - الخزان
@@ -1120,7 +1165,9 @@ def get_maintenance_type_name(maintenance_type: MaintenanceType, language: str =
         MaintenanceType.SCHEDULED: {"en": "Scheduled Maintenance", "ar": "صيانة مجدولة"},
         MaintenanceType.OVERHAUL: {"en": "Major Overhaul", "ar": "إصلاح شامل"},
     }
-    return names.get(maintenance_type, {"en": "Unknown", "ar": "غير معروف"}).get(language, "Unknown")
+    return names.get(maintenance_type, {"en": "Unknown", "ar": "غير معروف"}).get(
+        language, "Unknown"
+    )
 
 
 def get_alert_severity_name(severity: AlertSeverity, language: str = "en") -> str:

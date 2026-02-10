@@ -11,7 +11,7 @@ import asyncio
 import time
 from collections import deque
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Callable, TypeVar
 from uuid import UUID, uuid4
 
@@ -24,7 +24,7 @@ logger = structlog.get_logger(__name__)
 T = TypeVar("T")
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Batch job status."""
 
     PENDING = "pending"
@@ -146,9 +146,7 @@ class BatchProcessor:
             BatchJob with job_id for tracking
         """
         if len(self._job_queue) >= self.max_queue_size:
-            raise ValueError(
-                f"Queue full. Maximum queue size: {self.max_queue_size}"
-            )
+            raise ValueError(f"Queue full. Maximum queue size: {self.max_queue_size}")
 
         job_id = uuid4()
         items = []
@@ -296,7 +294,7 @@ class BatchProcessor:
         results = []
 
         for i in range(0, len(images), chunk_size):
-            chunk = images[i:i + chunk_size]
+            chunk = images[i : i + chunk_size]
 
             # Filter out None items
             valid_indices = [j for j, img in enumerate(chunk) if img is not None]
@@ -333,13 +331,17 @@ class BatchProcessor:
         self._total_processed += len(job.items)
         self._total_processing_time += job.total_processing_time_ms
 
-        self._batch_stats.append({
-            "job_id": str(job.job_id),
-            "batch_size": len(job.items),
-            "processing_time_ms": job.total_processing_time_ms,
-            "throughput": len(job.items) / (job.total_processing_time_ms / 1000) if job.total_processing_time_ms > 0 else 0,
-            "timestamp": job.completed_at,
-        })
+        self._batch_stats.append(
+            {
+                "job_id": str(job.job_id),
+                "batch_size": len(job.items),
+                "processing_time_ms": job.total_processing_time_ms,
+                "throughput": len(job.items) / (job.total_processing_time_ms / 1000)
+                if job.total_processing_time_ms > 0
+                else 0,
+                "timestamp": job.completed_at,
+            }
+        )
 
         # Keep only last 100 stats
         if len(self._batch_stats) > 100:
@@ -388,7 +390,8 @@ class BatchProcessor:
             "total_processed": self._total_processed,
             "average_throughput": (
                 self._total_processed / (self._total_processing_time / 1000)
-                if self._total_processing_time > 0 else 0
+                if self._total_processing_time > 0
+                else 0
             ),
         }
 
@@ -402,13 +405,19 @@ class BatchProcessor:
             }
 
         throughputs = [s["throughput"] for s in self._batch_stats]
-        latencies = [s["processing_time_ms"] / s["batch_size"] for s in self._batch_stats if s["batch_size"] > 0]
+        latencies = [
+            s["processing_time_ms"] / s["batch_size"]
+            for s in self._batch_stats
+            if s["batch_size"] > 0
+        ]
 
         return {
             "total_processed": self._total_processed,
             "total_batches": len(self._batch_stats),
             "current_batch_size": self._current_batch_size,
-            "average_throughput": round(sum(throughputs) / len(throughputs), 2) if throughputs else 0,
+            "average_throughput": round(sum(throughputs) / len(throughputs), 2)
+            if throughputs
+            else 0,
             "max_throughput": round(max(throughputs), 2) if throughputs else 0,
             "min_throughput": round(min(throughputs), 2) if throughputs else 0,
             "average_latency_ms": round(sum(latencies) / len(latencies), 2) if latencies else 0,

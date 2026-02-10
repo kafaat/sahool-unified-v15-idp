@@ -162,12 +162,10 @@ __all__ = [
     "AIModelInfo",
     "ModelComparison",
     "ModelDiscoveryResult",
-
     # === Registry ===
     "AgriculturalAIRegistry",
     "get_registry",
     "reset_registry",
-
     # === Integrator ===
     # Task Type Enum
     "TaskType",
@@ -185,7 +183,6 @@ __all__ = [
     "compare_models",
     # Constants
     "TASK_CAPABILITY_MAP",
-
     # === Connectors ===
     # Base
     "BaseConnector",
@@ -303,12 +300,12 @@ def list_featured_models() -> list[str]:
     获取特色/旗舰模型列表
     """
     return [
-        "shengnong",     # ShengNong 3.0 - China Agricultural University flagship
-        "cropwizard",    # CropWizard - NCSA expert system
-        "plantgpt",      # PlantGPT - Plant genomics leader
-        "agrogpt",       # AgroGPT - Arabic-supporting VLM
-        "prithvi",       # Prithvi - NASA/IBM geospatial foundation
-        "agront",        # AgroNT - Nucleotide transformer
+        "shengnong",  # ShengNong 3.0 - China Agricultural University flagship
+        "cropwizard",  # CropWizard - NCSA expert system
+        "plantgpt",  # PlantGPT - Plant genomics leader
+        "agrogpt",  # AgroGPT - Arabic-supporting VLM
+        "prithvi",  # Prithvi - NASA/IBM geospatial foundation
+        "agront",  # AgroNT - Nucleotide transformer
         "farmvibes_ai",  # FarmVibes.AI - Microsoft precision farming
     ]
 

@@ -428,8 +428,10 @@ def track_compression(func: Callable) -> Callable:
     # Return appropriate wrapper based on function type
     if hasattr(func, "__await__"):
         return async_wrapper
-    return sync_wrapper if not hasattr(func, "__code__") else (
-        async_wrapper if "async" in func.__code__.co_names else sync_wrapper
+    return (
+        sync_wrapper
+        if not hasattr(func, "__code__")
+        else (async_wrapper if "async" in func.__code__.co_names else sync_wrapper)
     )
 
 
@@ -467,9 +469,7 @@ def track_memory_operation(operation_type: str = "general") -> Callable:
                     latency
                 )
 
-                logger.info(
-                    f"memory_{operation_type}_completed: latency={latency:.3f}s"
-                )
+                logger.info(f"memory_{operation_type}_completed: latency={latency:.3f}s")
 
                 return result
             except Exception as e:
@@ -492,9 +492,7 @@ def track_memory_operation(operation_type: str = "general") -> Callable:
                     latency
                 )
 
-                logger.info(
-                    f"memory_{operation_type}_completed: latency={latency:.3f}s"
-                )
+                logger.info(f"memory_{operation_type}_completed: latency={latency:.3f}s")
 
                 return result
             except Exception as e:
@@ -548,17 +546,13 @@ def track_evaluation(recommendation_type: str = "general") -> Callable:
                     if "accuracy" in scores:
                         metrics.evaluation_score_accuracy.observe(scores["accuracy"])
                     if "actionability" in scores:
-                        metrics.evaluation_score_actionability.observe(
-                            scores["actionability"]
-                        )
+                        metrics.evaluation_score_actionability.observe(scores["actionability"])
                     if "safety" in scores:
                         metrics.evaluation_score_safety.observe(scores["safety"])
                     if "relevance" in scores:
                         metrics.evaluation_score_relevance.observe(scores["relevance"])
                     if "completeness" in scores:
-                        metrics.evaluation_score_completeness.observe(
-                            scores["completeness"]
-                        )
+                        metrics.evaluation_score_completeness.observe(scores["completeness"])
                     if "clarity" in scores:
                         metrics.evaluation_score_clarity.observe(scores["clarity"])
 
@@ -597,17 +591,13 @@ def track_evaluation(recommendation_type: str = "general") -> Callable:
                     if "accuracy" in scores:
                         metrics.evaluation_score_accuracy.observe(scores["accuracy"])
                     if "actionability" in scores:
-                        metrics.evaluation_score_actionability.observe(
-                            scores["actionability"]
-                        )
+                        metrics.evaluation_score_actionability.observe(scores["actionability"])
                     if "safety" in scores:
                         metrics.evaluation_score_safety.observe(scores["safety"])
                     if "relevance" in scores:
                         metrics.evaluation_score_relevance.observe(scores["relevance"])
                     if "completeness" in scores:
-                        metrics.evaluation_score_completeness.observe(
-                            scores["completeness"]
-                        )
+                        metrics.evaluation_score_completeness.observe(scores["completeness"])
                     if "clarity" in scores:
                         metrics.evaluation_score_clarity.observe(scores["clarity"])
 

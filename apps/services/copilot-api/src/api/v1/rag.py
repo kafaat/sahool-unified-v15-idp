@@ -34,6 +34,7 @@ async def search(
     البحث في قاعدة المعرفة
     """
     import time
+
     start_time = time.time()
 
     rag_service = get_rag_service()

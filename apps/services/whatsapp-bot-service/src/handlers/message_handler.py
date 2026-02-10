@@ -548,7 +548,9 @@ class MessageHandler:
             await self._forward_to_llm_orchestrator(
                 phone_number,
                 session,
-                "What's the weather forecast for my location?" if session.language == Language.ENGLISH else "ما هو توقع الطقس لموقعي؟",
+                "What's the weather forecast for my location?"
+                if session.language == Language.ENGLISH
+                else "ما هو توقع الطقس لموقعي؟",
             )
 
         elif button_id == "btn_fertilizer":
@@ -637,7 +639,9 @@ class MessageHandler:
 
             if response.status_code == 200:
                 data = response.json()
-                response_text = data.get("response", data.get("response_ar" if is_arabic else "response_en", ""))
+                response_text = data.get(
+                    "response", data.get("response_ar" if is_arabic else "response_en", "")
+                )
 
                 if response_text:
                     # Send response to user
@@ -758,9 +762,7 @@ class MessageHandler:
 
         buttons = self.response_builder.get_main_menu_buttons(session.language)
         body_text = (
-            "اختر أحد الخيارات التالية:"
-            if is_arabic
-            else "Choose one of the following options:"
+            "اختر أحد الخيارات التالية:" if is_arabic else "Choose one of the following options:"
         )
 
         await self.whatsapp_client.send_interactive_buttons(
@@ -929,7 +931,9 @@ class MessageHandler:
         buttons = [
             {
                 "id": action.get("id", f"action_{i}"),
-                "title": action.get("title_ar" if is_arabic else "title", action.get("title", ""))[:20],
+                "title": action.get("title_ar" if is_arabic else "title", action.get("title", ""))[
+                    :20
+                ],
             }
             for i, action in enumerate(actions)
         ]

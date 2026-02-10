@@ -23,7 +23,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, date, UTC
 from decimal import Decimal
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
@@ -32,7 +32,7 @@ from typing import Any
 # =============================================================================
 
 
-class WaterSourceType(str, Enum):
+class WaterSourceType(StrEnum):
     """Type of water source - نوع مصدر المياه"""
 
     WELL = "well"  # بئر
@@ -48,7 +48,7 @@ class WaterSourceType(str, Enum):
     SPRING = "spring"  # ينبوع
 
 
-class WaterSourceStatus(str, Enum):
+class WaterSourceStatus(StrEnum):
     """Operational status of water source - حالة تشغيل مصدر المياه"""
 
     ACTIVE = "active"  # يعمل
@@ -61,7 +61,7 @@ class WaterSourceStatus(str, Enum):
     SUSPENDED = "suspended"  # معلق
 
 
-class WaterQualityClass(str, Enum):
+class WaterQualityClass(StrEnum):
     """Water quality classification per Saudi standards - تصنيف جودة المياه"""
 
     CLASS_A = "A"  # صالحة للشرب - Potable
@@ -71,7 +71,7 @@ class WaterQualityClass(str, Enum):
     UNFIT = "unfit"  # غير صالحة - Unfit for use
 
 
-class WaterRightType(str, Enum):
+class WaterRightType(StrEnum):
     """Type of water allocation right - نوع حق تخصيص المياه"""
 
     TRADITIONAL = "traditional"  # حق تقليدي
@@ -82,7 +82,7 @@ class WaterRightType(str, Enum):
     TRANSFERRED = "transferred"  # منقول
 
 
-class AllocationPeriod(str, Enum):
+class AllocationPeriod(StrEnum):
     """Period for water allocation - فترة تخصيص المياه"""
 
     DAILY = "daily"  # يومي
@@ -92,7 +92,7 @@ class AllocationPeriod(str, Enum):
     ANNUAL = "annual"  # سنوي
 
 
-class IrrigationMethod(str, Enum):
+class IrrigationMethod(StrEnum):
     """Irrigation method - طريقة الري"""
 
     DRIP = "drip"  # ري بالتنقيط
@@ -104,7 +104,7 @@ class IrrigationMethod(str, Enum):
     MANUAL = "manual"  # ري يدوي
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity level - مستوى خطورة التنبيه"""
 
     INFO = "info"  # معلومات
@@ -114,7 +114,7 @@ class AlertSeverity(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class ComplianceStatus(str, Enum):
+class ComplianceStatus(StrEnum):
     """Regulatory compliance status - حالة الامتثال التنظيمي"""
 
     COMPLIANT = "compliant"  # ممتثل
@@ -124,7 +124,7 @@ class ComplianceStatus(str, Enum):
     WARNING = "warning"  # تحذير
 
 
-class MeterType(str, Enum):
+class MeterType(StrEnum):
     """Water meter type - نوع عداد المياه"""
 
     MECHANICAL = "mechanical"  # ميكانيكي
@@ -207,9 +207,7 @@ class WaterMeter:
             "model": self.model,
             "serial_number": self.serial_number,
             "current_reading_m3": self.current_reading_m3,
-            "last_reading_at": (
-                self.last_reading_at.isoformat() if self.last_reading_at else None
-            ),
+            "last_reading_at": (self.last_reading_at.isoformat() if self.last_reading_at else None),
             "is_active": self.is_active,
             "is_certified": self.is_certified,
         }
@@ -348,9 +346,7 @@ class WaterSource:
             "quality": {
                 "class": self.water_quality_class.value,
                 "last_test_at": (
-                    self.last_quality_test_at.isoformat()
-                    if self.last_quality_test_at
-                    else None
+                    self.last_quality_test_at.isoformat() if self.last_quality_test_at else None
                 ),
                 "salinity_ppm": self.salinity_ppm,
                 "ph_level": self.ph_level,
@@ -358,9 +354,7 @@ class WaterSource:
             "license": {
                 "number": self.license_number,
                 "expiry_at": (
-                    self.license_expiry_at.isoformat()
-                    if self.license_expiry_at
-                    else None
+                    self.license_expiry_at.isoformat() if self.license_expiry_at else None
                 ),
                 "licensed_extraction_m3_day": self.licensed_extraction_m3_day,
                 "licensed_extraction_m3_year": self.licensed_extraction_m3_year,
@@ -588,9 +582,7 @@ class WaterAllocation:
                 "method": self.irrigation_method.value,
                 "count": self.irrigation_count,
                 "last_at": (
-                    self.last_irrigation_at.isoformat()
-                    if self.last_irrigation_at
-                    else None
+                    self.last_irrigation_at.isoformat() if self.last_irrigation_at else None
                 ),
             },
             "priority": self.priority,
@@ -835,9 +827,7 @@ class WaterConsumptionRecord:
             "field_id": self.field_id,
             "allocation_id": self.allocation_id,
             "period": {
-                "start": (
-                    self.period_start.isoformat() if self.period_start else None
-                ),
+                "start": (self.period_start.isoformat() if self.period_start else None),
                 "end": self.period_end.isoformat() if self.period_end else None,
             },
             "consumption": {
@@ -846,9 +836,7 @@ class WaterConsumptionRecord:
                 "meter_reading_end": self.meter_reading_end,
             },
             "irrigation": {
-                "method": (
-                    self.irrigation_method.value if self.irrigation_method else None
-                ),
+                "method": (self.irrigation_method.value if self.irrigation_method else None),
                 "duration_hours": self.duration_hours,
                 "flow_rate_m3_hr": self.flow_rate_m3_hr,
             },
@@ -934,9 +922,7 @@ class IrrigationEvent:
             "field_id": self.field_id,
             "source_id": self.source_id,
             "timing": {
-                "started_at": (
-                    self.started_at.isoformat() if self.started_at else None
-                ),
+                "started_at": (self.started_at.isoformat() if self.started_at else None),
                 "ended_at": self.ended_at.isoformat() if self.ended_at else None,
                 "duration_minutes": self.duration_minutes,
             },
@@ -1047,9 +1033,7 @@ class WaterAlert:
                     self.acknowledged_at.isoformat() if self.acknowledged_at else None
                 ),
                 "resolved": self.resolved,
-                "resolved_at": (
-                    self.resolved_at.isoformat() if self.resolved_at else None
-                ),
+                "resolved_at": (self.resolved_at.isoformat() if self.resolved_at else None),
             },
             "created_at": self.created_at.isoformat(),
         }

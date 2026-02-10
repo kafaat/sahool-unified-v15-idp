@@ -23,7 +23,7 @@ import json
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import structlog
@@ -36,7 +36,7 @@ from .llm_provider import (
 logger = structlog.get_logger(__name__)
 
 
-class CodeTaskType(str, Enum):
+class CodeTaskType(StrEnum):
     """Types of code-related tasks."""
 
     COMPLETION = "completion"
@@ -186,7 +186,6 @@ Rules:
 - Use proper indentation
 - Follow language conventions
 أنت مساعد ذكي لإكمال الكود. أكمل الكود بناءً على السياق المقدم.""",
-
         CodeTaskType.REVIEW: """You are an expert code reviewer. Analyze the code for:
 1. Bugs and potential issues
 2. Security vulnerabilities (OWASP Top 10)
@@ -204,7 +203,6 @@ Return your analysis in JSON format with:
 - summary_ar: brief summary in Arabic
 
 أنت مراجع كود خبير. حلل الكود بحثاً عن الأخطاء والثغرات الأمنية.""",
-
         CodeTaskType.FIX: """You are an expert debugging assistant. Fix the code based on the error provided.
 Return your fix in JSON format with:
 - fixed_code: the corrected code
@@ -214,7 +212,6 @@ Return your fix in JSON format with:
 - confidence: your confidence level (0-1)
 
 أنت مساعد تصحيح أخطاء خبير. أصلح الكود بناءً على الخطأ المقدم.""",
-
         CodeTaskType.TEST_GENERATION: """You are an expert test writer. Generate comprehensive tests for the provided code.
 Include:
 - Unit tests for each function/method
@@ -223,7 +220,6 @@ Include:
 - Use pytest for Python, Jest/Vitest for TypeScript, flutter_test for Dart
 
 أنت كاتب اختبارات خبير. قم بإنشاء اختبارات شاملة للكود المقدم.""",
-
         CodeTaskType.DOCUMENTATION: """You are an expert technical writer. Generate documentation for the code.
 Include:
 - Module/class docstrings
@@ -233,7 +229,6 @@ Include:
 - Support both English and Arabic where appropriate
 
 أنت كاتب تقني خبير. قم بإنشاء توثيق للكود.""",
-
         CodeTaskType.REFACTOR: """You are an expert code refactoring assistant. Suggest improvements for:
 1. Code organization and structure
 2. Naming conventions
@@ -247,7 +242,6 @@ Return suggestions in JSON format with:
 - priority_order: ordered list of most important changes
 
 أنت مساعد إعادة هيكلة كود خبير. اقترح تحسينات للكود.""",
-
         CodeTaskType.EXPLAIN: """You are an expert code explainer. Explain the code clearly for:
 - What it does
 - How it works
@@ -544,11 +538,15 @@ Return ONLY the test code."""
         Returns:
             Documented code
         """
-        arabic_instruction = """
+        arabic_instruction = (
+            """
 Include Arabic translations in docstrings where appropriate:
 - Module docstring: Include Arabic description
 - Function docstrings: Include Arabic brief
-""" if include_arabic else ""
+"""
+            if include_arabic
+            else ""
+        )
 
         prompt = f"""Add comprehensive {doc_style}-style documentation to the following {language} code:
 

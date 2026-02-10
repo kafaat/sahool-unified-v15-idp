@@ -12,10 +12,10 @@ Last updated: December 2025
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class CropCategory(str, Enum):
+class CropCategory(StrEnum):
     """تصنيفات المحاصيل الرئيسية"""
 
     CEREALS = "cereals"  # الحبوب
@@ -31,7 +31,7 @@ class CropCategory(str, Enum):
     TUBERS = "tubers"  # الدرنيات
 
 
-class GrowthHabit(str, Enum):
+class GrowthHabit(StrEnum):
     """طريقة النمو"""
 
     ANNUAL = "annual"  # حولي
@@ -39,7 +39,7 @@ class GrowthHabit(str, Enum):
     BIENNIAL = "biennial"  # ثنائي الحول
 
 
-class WaterRequirement(str, Enum):
+class WaterRequirement(StrEnum):
     """متطلبات المياه"""
 
     VERY_LOW = "very_low"  # منخفضة جداً (<300mm)

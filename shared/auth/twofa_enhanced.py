@@ -26,7 +26,7 @@ import secrets
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 try:
@@ -42,7 +42,7 @@ from .twofa_service import TwoFactorAuthService, TOTP_INTERVAL
 logger = logging.getLogger(__name__)
 
 
-class TwoFAMethod(str, Enum):
+class TwoFAMethod(StrEnum):
     """Supported 2FA methods"""
 
     TOTP = "totp"  # Time-based OTP (Google Authenticator, etc.)
@@ -51,7 +51,7 @@ class TwoFAMethod(str, Enum):
     BACKUP = "backup"  # Backup recovery codes
 
 
-class TwoFAStatus(str, Enum):
+class TwoFAStatus(StrEnum):
     """2FA setup status"""
 
     NOT_CONFIGURED = "not_configured"
@@ -110,7 +110,7 @@ class TwoFAConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "TwoFAConfig":
+    def from_dict(cls, data: dict) -> TwoFAConfig:
         """Create from dictionary"""
         return cls(
             user_id=data["user_id"],

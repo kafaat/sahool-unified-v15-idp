@@ -20,7 +20,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -30,7 +30,7 @@ from pydantic import BaseModel, Field
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class EventPriority(str, Enum):
+class EventPriority(StrEnum):
     """Event priority levels"""
 
     LOW = "low"
@@ -39,7 +39,7 @@ class EventPriority(str, Enum):
     CRITICAL = "critical"
 
 
-class EventStatus(str, Enum):
+class EventStatus(StrEnum):
     """Event processing status"""
 
     PENDING = "pending"

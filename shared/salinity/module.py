@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Optional
+from enum import StrEnum
 
 
-class SalinityRisk(str, Enum):
+class SalinityRisk(StrEnum):
     """Salinity risk classification per FAO-29."""
+
     NONE = "none"
     SLIGHT_MODERATE = "slight_moderate"
     SEVERE = "severe"
@@ -28,6 +28,7 @@ class SalinityRisk(str, Enum):
 @dataclass
 class SalinityAssessment:
     """Complete salinity assessment for a field/water source."""
+
     ec_water: float  # dS/m - Electrical Conductivity of irrigation water
     ec_soil: float  # dS/m - Electrical Conductivity of soil saturation extract
     sar: float  # Sodium Adsorption Ratio
@@ -44,6 +45,7 @@ class SalinityAssessment:
 @dataclass
 class LeachingRequirement:
     """Leaching requirement calculation result."""
+
     leaching_fraction: float  # LF (0-1)
     extra_water_mm: float  # Additional water needed per irrigation (mm)
     total_water_mm: float  # Total water including leaching (mm)
@@ -146,8 +148,10 @@ def classify_salinity_risk(ec_water: float, sar: float) -> SalinityRisk:
 
 
 def calculate_yield_reduction(
-    ec_soil: float, crop: str, custom_threshold: Optional[float] = None,
-    custom_slope: Optional[float] = None,
+    ec_soil: float,
+    crop: str,
+    custom_threshold: float | None = None,
+    custom_slope: float | None = None,
 ) -> float:
     """
     Calculate expected yield reduction due to salinity (FAO-29 linear model).
@@ -164,11 +168,7 @@ def calculate_yield_reduction(
     Returns:
         Yield reduction as percentage (0-100)
     """
-    if crop in CROP_SALINITY_TOLERANCE:
-        threshold, slope = CROP_SALINITY_TOLERANCE[crop]
-    else:
-        # Default conservative values for unknown crops
-        threshold, slope = 2.0, 12.0
+    threshold, slope = CROP_SALINITY_TOLERANCE.get(crop, (2.0, 12.0))
 
     if custom_threshold is not None:
         threshold = custom_threshold
@@ -183,7 +183,9 @@ def calculate_yield_reduction(
 
 
 def calculate_leaching_fraction(
-    ec_water: float, ec_soil_threshold: float, efficiency: float = 0.8,
+    ec_water: float,
+    ec_soil_threshold: float,
+    efficiency: float = 0.8,
 ) -> float:
     """
     Calculate leaching fraction required to maintain soil salinity below threshold.
@@ -210,9 +212,11 @@ def calculate_leaching_fraction(
 
 
 def adjust_kc_for_salinity(
-    kc: float, ec_soil: float, crop: str,
-    custom_threshold: Optional[float] = None,
-    custom_slope: Optional[float] = None,
+    kc: float,
+    ec_soil: float,
+    crop: str,
+    custom_threshold: float | None = None,
+    custom_slope: float | None = None,
 ) -> float:
     """
     Adjust crop coefficient (Kc) for salinity stress.
@@ -252,7 +256,7 @@ class SalinityModule:
     def __init__(
         self,
         default_irrigation_efficiency: float = 0.85,
-        custom_crop_tolerances: Optional[dict[str, tuple[float, float]]] = None,
+        custom_crop_tolerances: dict[str, tuple[float, float]] | None = None,
     ):
         self.default_efficiency = default_irrigation_efficiency
         self.crop_tolerances = {**CROP_SALINITY_TOLERANCE}
@@ -267,8 +271,8 @@ class SalinityModule:
         na: float = 0.0,
         ca: float = 0.0,
         mg: float = 0.0,
-        ec_soil: Optional[float] = None,
-        sar: Optional[float] = None,
+        ec_soil: float | None = None,
+        sar: float | None = None,
     ) -> SalinityAssessment:
         """
         Perform complete salinity assessment.
@@ -306,12 +310,17 @@ class SalinityModule:
 
         # Calculate yield reduction
         yield_reduction = calculate_yield_reduction(
-            ec_soil, crop_lower, threshold, slope,
+            ec_soil,
+            crop_lower,
+            threshold,
+            slope,
         )
 
         # Calculate leaching fraction
         lf = calculate_leaching_fraction(
-            ec_water, threshold, self.default_efficiency,
+            ec_water,
+            threshold,
+            self.default_efficiency,
         )
 
         # Adjust Kc
@@ -319,7 +328,13 @@ class SalinityModule:
 
         # Generate recommendations
         recs, recs_ar = self._generate_recommendations(
-            ec_water, ec_soil, sar, risk, crop_lower, yield_reduction, lf,
+            ec_water,
+            ec_soil,
+            sar,
+            risk,
+            crop_lower,
+            yield_reduction,
+            lf,
         )
 
         return SalinityAssessment(
@@ -404,12 +419,8 @@ class SalinityModule:
 
         # High SAR
         if sar > 6.0:
-            recs.append(
-                "High SAR detected. Consider gypsum application to improve soil structure."
-            )
-            recs_ar.append(
-                "نسبة امتصاص الصوديوم مرتفعة. يُنصح بإضافة الجبس لتحسين بنية التربة."
-            )
+            recs.append("High SAR detected. Consider gypsum application to improve soil structure.")
+            recs_ar.append("نسبة امتصاص الصوديوم مرتفعة. يُنصح بإضافة الجبس لتحسين بنية التربة.")
 
         # Yield impact
         if yield_reduction > 10.0:
@@ -429,8 +440,7 @@ class SalinityModule:
                 "Consider blending water sources or alternative water supply."
             )
             recs_ar.append(
-                "حرج: خطر ملوحة شديد. يلزم تدخل فوري. "
-                "يُنصح بخلط مصادر المياه أو البحث عن مصدر بديل."
+                "حرج: خطر ملوحة شديد. يلزم تدخل فوري. يُنصح بخلط مصادر المياه أو البحث عن مصدر بديل."
             )
 
         # Drip irrigation recommendation for saline water

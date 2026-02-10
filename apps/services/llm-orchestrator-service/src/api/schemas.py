@@ -9,13 +9,13 @@ AI agents across the SAHOOL platform.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 
-class IntentType(str, Enum):
+class IntentType(StrEnum):
     """
     Types of user intents that can be classified.
     أنواع نوايا المستخدم التي يمكن تصنيفها.
@@ -37,7 +37,7 @@ class IntentType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """
     Types of automated actions that can be triggered.
     أنواع الإجراءات التلقائية التي يمكن تنفيذها.
@@ -53,7 +53,7 @@ class ActionType(str, Enum):
     CREATE_TASK = "create_task"
 
 
-class ExecutionMode(str, Enum):
+class ExecutionMode(StrEnum):
     """
     Execution modes for agent calls.
     أوضاع تنفيذ استدعاءات الوكلاء.

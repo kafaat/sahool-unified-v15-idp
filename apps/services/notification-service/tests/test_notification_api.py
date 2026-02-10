@@ -288,9 +288,7 @@ class TestNotificationActions:
     async def test_mark_notification_as_read(self, app_client, mock_notification_repo):
         """Test marking notification as read"""
         notification_id = str(uuid4())
-        response = app_client.patch(
-            f"//{notification_id}/read", params={"farmer_id": "farmer-123"}
-        )
+        response = app_client.patch(f"//{notification_id}/read", params={"farmer_id": "farmer-123"})
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
@@ -299,9 +297,7 @@ class TestNotificationActions:
     @pytest.mark.asyncio
     async def test_mark_notification_as_read_invalid_id(self, app_client):
         """Test marking notification with invalid ID"""
-        response = app_client.patch(
-            "//invalid-id/read", params={"farmer_id": "farmer-123"}
-        )
+        response = app_client.patch("//invalid-id/read", params={"farmer_id": "farmer-123"})
         assert response.status_code == 400
 
     @pytest.mark.asyncio
@@ -478,30 +474,22 @@ class TestPaginationAndFiltering:
     @pytest.mark.asyncio
     async def test_pagination_parameters(self, app_client, mock_notification_repo):
         """Test pagination with limit and offset"""
-        response = app_client.get(
-            "//farmer/farmer-123", params={"limit": 10, "offset": 20}
-        )
+        response = app_client.get("//farmer/farmer-123", params={"limit": 10, "offset": 20})
         assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_pagination_boundary_values(self, app_client, mock_notification_repo):
         """Test pagination boundary values"""
         # Test minimum
-        response = app_client.get(
-            "//farmer/farmer-123", params={"limit": 1, "offset": 0}
-        )
+        response = app_client.get("//farmer/farmer-123", params={"limit": 1, "offset": 0})
         assert response.status_code == 200
 
         # Test maximum
-        response = app_client.get(
-            "//farmer/farmer-123", params={"limit": 100, "offset": 0}
-        )
+        response = app_client.get("//farmer/farmer-123", params={"limit": 100, "offset": 0})
         assert response.status_code == 200
 
     @pytest.mark.asyncio
     async def test_filtering_by_type(self, app_client, mock_notification_repo):
         """Test filtering notifications by type"""
-        response = app_client.get(
-            "//farmer/farmer-123", params={"type": "weather_alert"}
-        )
+        response = app_client.get("//farmer/farmer-123", params={"type": "weather_alert"})
         assert response.status_code == 200

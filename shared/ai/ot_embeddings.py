@@ -30,6 +30,7 @@ class OTConfig:
 
     إعدادات تضمينات النقل الأمثل
     """
+
     # Sinkhorn parameters
     regularization: float = 0.1  # Entropic regularization (epsilon)
     num_iterations: int = 100  # Sinkhorn iterations
@@ -60,6 +61,7 @@ class OTMatchResult:
 
     نتيجة مطابقة النقل الأمثل
     """
+
     # Distance measures
     wasserstein_distance: float
     sinkhorn_distance: float
@@ -197,6 +199,7 @@ class OTEmbeddingMatcher:
             OTMatchResult with distances and metadata
         """
         import time
+
         start_time = time.time()
 
         # Handle single vectors (wrap in list)
@@ -237,10 +240,10 @@ class OTEmbeddingMatcher:
                 for i in range(n):
                     # log(sum_j(K[i,j] * v[j])) - log(mu[i])
                     max_val = max(log_K[i][j] + g[j] for j in range(m))
-                    log_sum = math.log(sum(
-                        math.exp(log_K[i][j] + g[j] - max_val)
-                        for j in range(m)
-                    )) + max_val
+                    log_sum = (
+                        math.log(sum(math.exp(log_K[i][j] + g[j] - max_val) for j in range(m)))
+                        + max_val
+                    )
                     f_new.append(math.log(mu[i]) - log_sum)
                 f = f_new
 
@@ -248,10 +251,10 @@ class OTEmbeddingMatcher:
                 g_new = []
                 for j in range(m):
                     max_val = max(log_K[i][j] + f[i] for i in range(n))
-                    log_sum = math.log(sum(
-                        math.exp(log_K[i][j] + f[i] - max_val)
-                        for i in range(n)
-                    )) + max_val
+                    log_sum = (
+                        math.log(sum(math.exp(log_K[i][j] + f[i] - max_val) for i in range(n)))
+                        + max_val
+                    )
                     g_new.append(math.log(nu[j]) - log_sum)
 
                 # Check convergence
@@ -267,8 +270,7 @@ class OTEmbeddingMatcher:
             transport_plan = None
             if return_plan:
                 transport_plan = [
-                    [math.exp(f[i] + log_K[i][j] + g[j]) for j in range(m)]
-                    for i in range(n)
+                    [math.exp(f[i] + log_K[i][j] + g[j]) for j in range(m)] for i in range(n)
                 ]
 
             # Compute Sinkhorn distance: sum(P * C)
@@ -314,10 +316,7 @@ class OTEmbeddingMatcher:
             # Compute transport plan
             transport_plan = None
             if return_plan:
-                transport_plan = [
-                    [u[i] * K[i][j] * v[j] for j in range(m)]
-                    for i in range(n)
-                ]
+                transport_plan = [[u[i] * K[i][j] * v[j] for j in range(m)] for i in range(n)]
 
             # Compute Sinkhorn distance
             sinkhorn_dist = 0.0
@@ -506,9 +505,10 @@ class BilingualOTMatcher:
         except ImportError:
             # Fallback: return dummy embedding
             import hashlib
+
             # Create deterministic pseudo-embedding from text
             h = hashlib.sha256(text.encode()).hexdigest()
-            return [int(h[i:i+2], 16) / 255.0 for i in range(0, 64, 2)]
+            return [int(h[i : i + 2], 16) / 255.0 for i in range(0, 64, 2)]
 
     async def match(
         self,
@@ -585,7 +585,7 @@ class BilingualOTMatcher:
 
         for i, ar_text in enumerate(arabic_texts):
             best_j = -1
-            best_dist = float('inf')
+            best_dist = float("inf")
 
             for j, en_text in enumerate(english_texts):
                 if j not in used_en and distances[i][j] < best_dist:

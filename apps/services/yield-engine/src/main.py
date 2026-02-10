@@ -15,7 +15,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 
 from fastapi import FastAPI, HTTPException
 
@@ -43,7 +43,7 @@ SERVICE_PORT = int(os.getenv("PORT", 8098))
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """المحاصيل المدعومة للتنبؤ"""
 
     # Cereals - الحبوب

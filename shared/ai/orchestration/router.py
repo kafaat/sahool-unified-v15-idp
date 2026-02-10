@@ -341,9 +341,9 @@ class AgentRouter:
         else:
             self._stats.exploitation_count += 1
         self._stats.avg_routing_time_ms = (
-            (self._stats.avg_routing_time_ms * (self._stats.total_routing_decisions - 1)
-             + routing_time) / self._stats.total_routing_decisions
-        )
+            self._stats.avg_routing_time_ms * (self._stats.total_routing_decisions - 1)
+            + routing_time
+        ) / self._stats.total_routing_decisions
 
         # Store task history for learning
         self._task_history[task.task_id] = {
@@ -387,17 +387,13 @@ class AgentRouter:
             # Check capability match
             if task.required_capabilities:
                 has_capability = any(
-                    cap in profile.capabilities
-                    for cap in task.required_capabilities
+                    cap in profile.capabilities for cap in task.required_capabilities
                 )
                 if not has_capability:
                     continue
             else:
                 # If no specific capability required, allow GENERAL capable agents
-                if (
-                    AgentCapability.GENERAL not in profile.capabilities
-                    and not profile.capabilities
-                ):
+                if AgentCapability.GENERAL not in profile.capabilities and not profile.capabilities:
                     continue
 
             candidates.append(agent_id)
@@ -435,10 +431,7 @@ class AgentRouter:
 
             # Apply specialization bonus
             if profile.specialization:
-                if any(
-                    profile.specialization.lower() in task.description.lower()
-                    for _ in [1]
-                ):
+                if any(profile.specialization.lower() in task.description.lower() for _ in [1]):
                     base_score += 0.1
 
             scored.append((agent_id, max(0.0, min(1.0, base_score))))
@@ -580,9 +573,8 @@ class AgentRouter:
             # Update average execution time
             if result.execution_time_ms > 0:
                 score.avg_execution_time_ms = (
-                    (score.avg_execution_time_ms * (score.total_tasks - 1)
-                     + result.execution_time_ms) / score.total_tasks
-                )
+                    score.avg_execution_time_ms * (score.total_tasks - 1) + result.execution_time_ms
+                ) / score.total_tasks
 
             # Update exploration bonus (decay over time)
             score.exploration_bonus = self.ucb_constant * math.sqrt(

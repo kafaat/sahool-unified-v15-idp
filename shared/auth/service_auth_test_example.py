@@ -349,7 +349,7 @@ def test_rate_limiting():
             allowed, remaining = check_service_call_rate_limit(
                 "advisory-service", "notification-service"
             )
-            print(f"  Call {i+1}: Allowed={allowed}, Remaining={remaining}")
+            print(f"  Call {i + 1}: Allowed={allowed}, Remaining={remaining}")
 
         # Test stats
         stats = get_service_call_stats("advisory-service", "notification-service")

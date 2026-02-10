@@ -268,10 +268,17 @@ class TestThresholdDataIntegrity:
         data = response.json()
 
         required_fields = [
-            "id", "pest_id", "pest_name_en", "pest_name_ar",
-            "crop", "threshold_value", "threshold_unit",
-            "action_threshold", "economic_injury_level",
-            "sampling_method_en", "sampling_method_ar",
+            "id",
+            "pest_id",
+            "pest_name_en",
+            "pest_name_ar",
+            "crop",
+            "threshold_value",
+            "threshold_unit",
+            "action_threshold",
+            "economic_injury_level",
+            "sampling_method_en",
+            "sampling_method_ar",
         ]
 
         for threshold in data:

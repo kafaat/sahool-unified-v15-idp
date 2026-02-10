@@ -5,7 +5,7 @@ Provides fault-tolerant API calls with automatic failover.
 
 import logging
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 try:
@@ -16,7 +16,7 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
-class CircuitState(str, Enum):
+class CircuitState(StrEnum):
     """Circuit breaker states."""
 
     CLOSED = "closed"  # Normal operation

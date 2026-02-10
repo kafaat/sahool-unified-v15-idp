@@ -17,7 +17,7 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query
@@ -93,7 +93,7 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 # ==============================================================================
 
 
-class VehicleType(str, Enum):
+class VehicleType(StrEnum):
     TRUCK = "truck"
     PICKUP = "pickup"
     VAN = "van"
@@ -102,7 +102,7 @@ class VehicleType(str, Enum):
     TRACTOR_TRAILER = "tractor_trailer"
 
 
-class VehicleStatus(str, Enum):
+class VehicleStatus(StrEnum):
     AVAILABLE = "available"
     IN_TRANSIT = "in_transit"
     LOADING = "loading"
@@ -111,7 +111,7 @@ class VehicleStatus(str, Enum):
     OUT_OF_SERVICE = "out_of_service"
 
 
-class ShipmentStatus(str, Enum):
+class ShipmentStatus(StrEnum):
     SCHEDULED = "scheduled"
     COLLECTING = "collecting"
     IN_TRANSIT = "in_transit"
@@ -121,7 +121,7 @@ class ShipmentStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class StorageType(str, Enum):
+class StorageType(StrEnum):
     COLD = "cold"
     DRY = "dry"
     CONTROLLED_ATMOSPHERE = "controlled_atmosphere"
@@ -129,7 +129,7 @@ class StorageType(str, Enum):
     GENERAL = "general"
 
 
-class CollectionPriority(str, Enum):
+class CollectionPriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -735,10 +735,19 @@ async def combined_health():
             "vehicles": len(VEHICLES),
             "facilities": len(STORAGE_FACILITIES),
             "active_collections": len(
-                [c for c in HARVEST_COLLECTIONS.values() if c["status"] != ShipmentStatus.DELIVERED.value]
+                [
+                    c
+                    for c in HARVEST_COLLECTIONS.values()
+                    if c["status"] != ShipmentStatus.DELIVERED.value
+                ]
             ),
             "active_shipments": len(
-                [s for s in SHIPMENTS.values() if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]]
+                [
+                    s
+                    for s in SHIPMENTS.values()
+                    if s["status"]
+                    not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]
+                ]
             ),
         },
     }
@@ -773,7 +782,9 @@ async def list_vehicles(
 
     # Add Arabic translations
     for v in vehicles:
-        v["vehicle_type_ar"] = VEHICLE_TYPE_AR.get(VehicleType(v["vehicle_type"]), v["vehicle_type"])
+        v["vehicle_type_ar"] = VEHICLE_TYPE_AR.get(
+            VehicleType(v["vehicle_type"]), v["vehicle_type"]
+        )
         v["status_ar"] = VEHICLE_STATUS_AR.get(VehicleStatus(v["status"]), v["status"])
 
     return {
@@ -1003,7 +1014,11 @@ async def create_storage_facility(
 
     await publish_event(
         f"sahool.{tenant_id}.logistics.facility.created",
-        {"facility_id": facility_id, "tenant_id": tenant_id, "storage_type": data.storage_type.value},
+        {
+            "facility_id": facility_id,
+            "tenant_id": tenant_id,
+            "storage_type": data.storage_type.value,
+        },
     )
 
     facility["storage_type_ar"] = STORAGE_TYPE_AR.get(data.storage_type)
@@ -1035,9 +1050,13 @@ async def update_facility_conditions(
     alerts = []
     if temperature_c is not None:
         if facility.get("temperature_min_c") and temperature_c < facility["temperature_min_c"]:
-            alerts.append(f"Temperature below minimum: {temperature_c}C < {facility['temperature_min_c']}C")
+            alerts.append(
+                f"Temperature below minimum: {temperature_c}C < {facility['temperature_min_c']}C"
+            )
         if facility.get("temperature_max_c") and temperature_c > facility["temperature_max_c"]:
-            alerts.append(f"Temperature above maximum: {temperature_c}C > {facility['temperature_max_c']}C")
+            alerts.append(
+                f"Temperature above maximum: {temperature_c}C > {facility['temperature_max_c']}C"
+            )
 
     return {
         "status": "ok",
@@ -1236,7 +1255,9 @@ async def optimize_route(
             collections.append(col)
 
     if not collections:
-        raise HTTPException(status_code=400, detail="No valid collections found | لم يتم العثور على جمع صالح")
+        raise HTTPException(
+            status_code=400, detail="No valid collections found | لم يتم العثور على جمع صالح"
+        )
 
     # Simple nearest-neighbor optimization
     optimized_order = []
@@ -1249,9 +1270,13 @@ async def optimize_route(
         # Find nearest collection
         nearest = min(
             remaining,
-            key=lambda c: calculate_distance(current_lat, current_lon, c["pickup_lat"], c["pickup_lon"]),
+            key=lambda c: calculate_distance(
+                current_lat, current_lon, c["pickup_lat"], c["pickup_lon"]
+            ),
         )
-        distance = calculate_distance(current_lat, current_lon, nearest["pickup_lat"], nearest["pickup_lon"])
+        distance = calculate_distance(
+            current_lat, current_lon, nearest["pickup_lat"], nearest["pickup_lon"]
+        )
         total_distance += distance
 
         optimized_order.append(nearest["collection_id"])
@@ -1272,7 +1297,9 @@ async def optimize_route(
 
     # Return to start if requested
     if data.return_to_start:
-        return_distance = calculate_distance(current_lat, current_lon, data.start_lat, data.start_lon)
+        return_distance = calculate_distance(
+            current_lat, current_lon, data.start_lat, data.start_lon
+        )
         total_distance += return_distance
         waypoints.append(
             {
@@ -1448,18 +1475,30 @@ async def get_logistics_stats(
     shipments = [s for s in SHIPMENTS.values() if s["tenant_id"] == tenant_id]
 
     available_vehicles = len([v for v in vehicles if v["status"] == VehicleStatus.AVAILABLE.value])
-    in_transit_vehicles = len([v for v in vehicles if v["status"] == VehicleStatus.IN_TRANSIT.value])
+    in_transit_vehicles = len(
+        [v for v in vehicles if v["status"] == VehicleStatus.IN_TRANSIT.value]
+    )
 
     total_storage_capacity = sum(f["total_capacity_kg"] for f in facilities)
     available_storage = sum(f["available_capacity_kg"] for f in facilities)
 
-    pending_collections = len([c for c in collections if c["status"] == ShipmentStatus.SCHEDULED.value])
+    pending_collections = len(
+        [c for c in collections if c["status"] == ShipmentStatus.SCHEDULED.value]
+    )
     active_collections = len(
-        [c for c in collections if c["status"] in [ShipmentStatus.COLLECTING.value, ShipmentStatus.IN_TRANSIT.value]]
+        [
+            c
+            for c in collections
+            if c["status"] in [ShipmentStatus.COLLECTING.value, ShipmentStatus.IN_TRANSIT.value]
+        ]
     )
 
     active_shipments = len(
-        [s for s in shipments if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]]
+        [
+            s
+            for s in shipments
+            if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]
+        ]
     )
 
     return {

@@ -148,10 +148,7 @@ class ServiceTokenRevocationStore:
         Returns:
             Number of revocations cleaned up
         """
-        jtis_to_remove = [
-            jti for jti, ts in self.revocation_timestamps.items()
-            if ts < older_than
-        ]
+        jtis_to_remove = [jti for jti, ts in self.revocation_timestamps.items() if ts < older_than]
 
         for jti in jtis_to_remove:
             self.revoked_tokens.discard(jti)
@@ -212,18 +209,16 @@ class ServiceCallAuditLog:
 
         # Maintain max size
         if len(self.log_entries) > self.max_entries:
-            self.log_entries = self.log_entries[-self.max_entries:]
+            self.log_entries = self.log_entries[-self.max_entries :]
 
         log_level = logging.INFO if success else logging.WARNING
         logger.log(
             log_level,
             f"Service call: {source_service} -> {target_service} | "
-            f"Status: {'success' if success else 'failed'}"
+            f"Status: {'success' if success else 'failed'}",
         )
 
-    def get_logs_for_service(
-        self, service_name: str, limit: int = 100
-    ) -> list[dict]:
+    def get_logs_for_service(self, service_name: str, limit: int = 100) -> list[dict]:
         """
         Get audit logs for a specific service.
 
@@ -235,9 +230,9 @@ class ServiceCallAuditLog:
             List of matching log entries
         """
         matching = [
-            entry for entry in self.log_entries
-            if entry["source_service"] == service_name or
-               entry["target_service"] == service_name
+            entry
+            for entry in self.log_entries
+            if entry["source_service"] == service_name or entry["target_service"] == service_name
         ]
         return matching[-limit:] if matching else []
 
@@ -253,7 +248,8 @@ class ServiceCallAuditLog:
         """
         cutoff = datetime.now(UTC) - timedelta(hours=hours)
         return [
-            entry for entry in self.log_entries
+            entry
+            for entry in self.log_entries
             if not entry["success"] and entry["timestamp"] > cutoff
         ]
 
@@ -297,10 +293,7 @@ class ServiceCallRateLimiter:
         minute_ago = now - 60
 
         # Remove old timestamps
-        self.call_timestamps[key] = [
-            ts for ts in self.call_timestamps[key]
-            if ts > minute_ago
-        ]
+        self.call_timestamps[key] = [ts for ts in self.call_timestamps[key] if ts > minute_ago]
 
         current_count = len(self.call_timestamps[key])
         remaining = max(0, self.calls_per_minute - current_count)
@@ -654,6 +647,7 @@ def get_allowed_targets(service_name: str) -> list[str]:
 
 # Service Token Revocation Functions
 
+
 def revoke_service_token(jti: str) -> None:
     """
     Revoke a service token by JTI.
@@ -701,6 +695,7 @@ def get_revocation_store() -> ServiceTokenRevocationStore:
 
 
 # Service Call Audit Logging Functions
+
 
 def get_audit_log() -> ServiceCallAuditLog:
     """
@@ -750,9 +745,7 @@ def log_service_call(
     _audit_log.log_call(source_service, target_service, jti, success, error_message)
 
 
-def get_service_audit_logs(
-    service_name: str, limit: int = 100
-) -> list[dict]:
+def get_service_audit_logs(service_name: str, limit: int = 100) -> list[dict]:
     """
     Get audit logs for a specific service.
 
@@ -773,6 +766,7 @@ def get_service_audit_logs(
 
 # Service Call Rate Limiting Functions
 
+
 def get_rate_limiter() -> ServiceCallRateLimiter:
     """
     Get the global service call rate limiter.
@@ -785,9 +779,7 @@ def get_rate_limiter() -> ServiceCallRateLimiter:
     return _rate_limiter
 
 
-def check_service_call_rate_limit(
-    source_service: str, target_service: str
-) -> tuple[bool, int]:
+def check_service_call_rate_limit(source_service: str, target_service: str) -> tuple[bool, int]:
     """
     Check if a service call should be rate limited.
 
@@ -808,9 +800,7 @@ def check_service_call_rate_limit(
     return _rate_limiter.is_allowed(source_service, target_service)
 
 
-def get_service_call_stats(
-    source_service: str, target_service: str
-) -> dict:
+def get_service_call_stats(source_service: str, target_service: str) -> dict:
     """
     Get statistics for service calls between two services.
 
@@ -834,10 +824,7 @@ def get_service_call_stats(
 
     # Get success/failure stats from audit log
     logs = audit.get_logs_for_service(source_service, limit=1000)
-    logs = [
-        log for log in logs
-        if log["target_service"] == target_service
-    ]
+    logs = [log for log in logs if log["target_service"] == target_service]
 
     success_count = sum(1 for log in logs if log["success"])
     failure_count = len(logs) - success_count

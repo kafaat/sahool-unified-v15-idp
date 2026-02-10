@@ -37,39 +37,33 @@ class Settings(BaseSettings):
 
     # External Services
     terrain_service_url: str = Field(
-        default="http://terrain-core-service:8164",
-        alias="TERRAIN_SERVICE_URL"
+        default="http://terrain-core-service:8164", alias="TERRAIN_SERVICE_URL"
     )
     weather_service_url: str = Field(
-        default="http://weather-service:8108",
-        alias="WEATHER_SERVICE_URL"
+        default="http://weather-service:8108", alias="WEATHER_SERVICE_URL"
     )
 
     # Hydrology Analysis Settings
     default_dem_resolution: float = Field(
-        default=30.0,
-        alias="DEFAULT_DEM_RESOLUTION",
-        description="Default DEM resolution in meters"
+        default=30.0, alias="DEFAULT_DEM_RESOLUTION", description="Default DEM resolution in meters"
     )
     flow_accumulation_threshold: int = Field(
         default=100,
         alias="FLOW_ACCUMULATION_THRESHOLD",
-        description="Minimum flow accumulation for stream detection"
+        description="Minimum flow accumulation for stream detection",
     )
     depression_fill_max_depth: float = Field(
         default=2.0,
         alias="DEPRESSION_FILL_MAX_DEPTH",
-        description="Maximum depth (m) for depression filling"
+        description="Maximum depth (m) for depression filling",
     )
     wetness_index_high_threshold: float = Field(
         default=12.0,
         alias="WETNESS_INDEX_HIGH_THRESHOLD",
-        description="TWI threshold for high wetness areas"
+        description="TWI threshold for high wetness areas",
     )
     basin_area_min_hectares: float = Field(
-        default=0.5,
-        alias="BASIN_AREA_MIN_HECTARES",
-        description="Minimum basin area in hectares"
+        default=0.5, alias="BASIN_AREA_MIN_HECTARES", description="Minimum basin area in hectares"
     )
 
     # Caching

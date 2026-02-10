@@ -10,7 +10,7 @@ import json
 import os
 import sys
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 import httpx
@@ -66,7 +66,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class ProviderType(str, Enum):
+class ProviderType(StrEnum):
     MAP = "map"
     WEATHER = "weather"
     SATELLITE = "satellite"
@@ -75,14 +75,14 @@ class ProviderType(str, Enum):
     SMS = "sms"
 
 
-class ProviderPriority(str, Enum):
+class ProviderPriority(StrEnum):
     PRIMARY = "primary"
     SECONDARY = "secondary"
     TERTIARY = "tertiary"
     DISABLED = "disabled"
 
 
-class ProviderStatus(str, Enum):
+class ProviderStatus(StrEnum):
     AVAILABLE = "available"
     UNAVAILABLE = "unavailable"
     RATE_LIMITED = "rate_limited"
@@ -90,7 +90,7 @@ class ProviderStatus(str, Enum):
     CHECKING = "checking"
 
 
-class MapProviderName(str, Enum):
+class MapProviderName(StrEnum):
     OPENSTREETMAP = "openstreetmap"
     GOOGLE_MAPS = "google_maps"
     GOOGLE_SATELLITE = "google_satellite"
@@ -103,14 +103,14 @@ class MapProviderName(str, Enum):
     OPENTOPOMAP = "opentopomap"
 
 
-class WeatherProviderName(str, Enum):
+class WeatherProviderName(StrEnum):
     OPEN_METEO = "open_meteo"
     OPENWEATHERMAP = "openweathermap"
     WEATHER_API = "weather_api"
     VISUAL_CROSSING = "visual_crossing"
 
 
-class SatelliteProviderName(str, Enum):
+class SatelliteProviderName(StrEnum):
     SENTINEL_HUB = "sentinel_hub"
     PLANET_LABS = "planet_labs"
     MAXAR = "maxar"
@@ -119,7 +119,7 @@ class SatelliteProviderName(str, Enum):
     COPERNICUS = "copernicus"
 
 
-class PaymentProviderName(str, Enum):
+class PaymentProviderName(StrEnum):
     STRIPE = "stripe"
     PAYPAL = "paypal"
     MOYASAR = "moyasar"
@@ -130,7 +130,7 @@ class PaymentProviderName(str, Enum):
     THARWATT = "tharwatt"  # بوابة ثروات اليمنية
 
 
-class NotificationProviderName(str, Enum):
+class NotificationProviderName(StrEnum):
     FIREBASE_FCM = "firebase_fcm"
     ONESIGNAL = "onesignal"
     PUSHER = "pusher"
@@ -138,7 +138,7 @@ class NotificationProviderName(str, Enum):
     VONAGE_SMS = "vonage_sms"
 
 
-class SMSProviderName(str, Enum):
+class SMSProviderName(StrEnum):
     TWILIO = "twilio"
     VONAGE = "vonage"
     UNIFONIC = "unifonic"

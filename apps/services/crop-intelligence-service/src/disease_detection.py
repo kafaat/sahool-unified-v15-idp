@@ -9,11 +9,11 @@ Based on agricultural research for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """أنواع المحاصيل المدعومة في اليمن"""
 
     WHEAT = "wheat"  # قمح
@@ -34,7 +34,7 @@ class CropType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class DiseaseSeverity(str, Enum):
+class DiseaseSeverity(StrEnum):
     """مستوى خطورة المرض"""
 
     HEALTHY = "healthy"  # سليم
@@ -44,7 +44,7 @@ class DiseaseSeverity(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class DiseaseType(str, Enum):
+class DiseaseType(StrEnum):
     """أنواع الأمراض الشائعة"""
 
     # Fungal diseases - أمراض فطرية
@@ -76,7 +76,7 @@ class DiseaseType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class TreatmentType(str, Enum):
+class TreatmentType(StrEnum):
     """نوع العلاج المقترح"""
 
     FUNGICIDE = "fungicide"  # مبيد فطري

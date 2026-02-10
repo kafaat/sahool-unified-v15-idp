@@ -1,14 +1,14 @@
 """Pydantic schemas for Supply Chain Service."""
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
 
-class ProductCategory(str, Enum):
+class ProductCategory(StrEnum):
     """Product category enumeration."""
 
     SEEDS = "seeds"
@@ -21,7 +21,7 @@ class ProductCategory(str, Enum):
     OTHER = "other"
 
 
-class OrderStatus(str, Enum):
+class OrderStatus(StrEnum):
     """Order status enumeration."""
 
     PENDING = "pending"
@@ -32,7 +32,7 @@ class OrderStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class DeliveryStatusEnum(str, Enum):
+class DeliveryStatusEnum(StrEnum):
     """Delivery status enumeration."""
 
     PREPARING = "preparing"
@@ -43,7 +43,7 @@ class DeliveryStatusEnum(str, Enum):
     FAILED = "failed"
 
 
-class PaymentMethod(str, Enum):
+class PaymentMethod(StrEnum):
     """Payment method enumeration."""
 
     CASH_ON_DELIVERY = "cash_on_delivery"

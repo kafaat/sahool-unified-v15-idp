@@ -290,7 +290,7 @@ export function registerCustomConflictResolver() {
   // محلل مخصص لملاحظات الحقول - Custom resolver for field observations
   syncManager.registerCustomResolver(
     SyncDataType.FIELD_OBSERVATION,
-    async (local, server, base) => {
+    async (local, server, _base) => {
       console.log("🔧 حل تعارض ملاحظة الحقل...");
 
       // دمج ذكي - Smart merge

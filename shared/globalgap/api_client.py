@@ -18,7 +18,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 import httpx
@@ -38,7 +38,7 @@ logger = structlog.get_logger()
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class CertificateStatus(str, Enum):
+class CertificateStatus(StrEnum):
     """
     Certificate status enumeration
     تعداد حالات الشهادة

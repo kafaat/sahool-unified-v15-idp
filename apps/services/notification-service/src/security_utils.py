@@ -37,14 +37,14 @@ def sanitize_for_log(value: Any, max_length: int = 100) -> str:
     str_value = str(value)
 
     # Remove newlines and carriage returns (prevents log forging)
-    str_value = str_value.replace('\n', '\\n').replace('\r', '\\r')
+    str_value = str_value.replace("\n", "\\n").replace("\r", "\\r")
 
     # Remove control characters (ASCII 0-31 and 127)
-    str_value = re.sub(r'[\x00-\x1f\x7f]', '', str_value)
+    str_value = re.sub(r"[\x00-\x1f\x7f]", "", str_value)
 
     # Truncate to max length
     if len(str_value) > max_length:
-        str_value = str_value[:max_length] + '...'
+        str_value = str_value[:max_length] + "..."
 
     return str_value
 
@@ -123,9 +123,19 @@ def sanitize_dict_for_log(data: dict, sensitive_keys: set[str] | None = None) ->
     """
     if sensitive_keys is None:
         sensitive_keys = {
-            'phone', 'email', 'password', 'token', 'secret',
-            'api_key', 'auth_token', 'refresh_token', 'otp',
-            'identifier', 'phone_number', 'to', 'from_'
+            "phone",
+            "email",
+            "password",
+            "token",
+            "secret",
+            "api_key",
+            "auth_token",
+            "refresh_token",
+            "otp",
+            "identifier",
+            "phone_number",
+            "to",
+            "from_",
         }
 
     result = {}
@@ -133,11 +143,11 @@ def sanitize_dict_for_log(data: dict, sensitive_keys: set[str] | None = None) ->
         sanitized_key = sanitize_for_log(key, max_length=50)
 
         if key.lower() in sensitive_keys:
-            if 'phone' in key.lower() or key.lower() == 'to':
+            if "phone" in key.lower() or key.lower() == "to":
                 result[sanitized_key] = mask_phone(value)
-            elif 'email' in key.lower():
+            elif "email" in key.lower():
                 result[sanitized_key] = mask_email(value)
-            elif key.lower() == 'identifier':
+            elif key.lower() == "identifier":
                 result[sanitized_key] = mask_identifier(value)
             else:
                 result[sanitized_key] = "[REDACTED]"

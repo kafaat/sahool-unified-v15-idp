@@ -198,8 +198,8 @@ def text_similarity(text1: str, text2: str) -> float:
         float: Similarity score between 0 and 1
     """
     # Tokenize and normalize
-    words1 = set(re.findall(r'\w+', text1.lower()))
-    words2 = set(re.findall(r'\w+', text2.lower()))
+    words1 = set(re.findall(r"\w+", text1.lower()))
+    words2 = set(re.findall(r"\w+", text2.lower()))
 
     return jaccard_similarity(words1, words2)
 
@@ -326,18 +326,11 @@ class CollectiveMemory:
                 value=value,
                 metadata=metadata or {},
                 tenant_id=self.tenant_id,
-                expires_at=(
-                    datetime.now(UTC) + timedelta(hours=ttl)
-                    if ttl > 0 else None
-                ),
+                expires_at=(datetime.now(UTC) + timedelta(hours=ttl) if ttl > 0 else None),
             )
 
             # Generate embedding if enabled
-            if (
-                self.enable_embeddings
-                and generate_embedding
-                and self.embedding_function
-            ):
+            if self.enable_embeddings and generate_embedding and self.embedding_function:
                 text_value = str(value) if not isinstance(value, str) else value
                 try:
                     entry.embedding = self.embedding_function(text_value)
@@ -360,9 +353,7 @@ class CollectiveMemory:
 
             # Update stats
             self._stats.total_entries = len(self._cache)
-            self._stats.by_namespace[namespace.value] = len(
-                self._namespace_index[namespace]
-            )
+            self._stats.by_namespace[namespace.value] = len(self._namespace_index[namespace])
 
             logger.debug(
                 "memory_stored",
@@ -501,9 +492,8 @@ class CollectiveMemory:
         query_time = (time.time() - start_time) * 1000
         total_queries = self._stats.cache_hits + self._stats.cache_misses + 1
         self._stats.avg_access_time_ms = (
-            (self._stats.avg_access_time_ms * (total_queries - 1) + query_time)
-            / total_queries
-        )
+            self._stats.avg_access_time_ms * (total_queries - 1) + query_time
+        ) / total_queries
 
         result = [
             PatternMatch(
@@ -545,7 +535,7 @@ class CollectiveMemory:
             matching_ids: set[str] = set()
 
             # Check pattern index
-            keywords = re.findall(r'\w+', pattern.lower())
+            keywords = re.findall(r"\w+", pattern.lower())
             for keyword in keywords:
                 if keyword in self._pattern_index:
                     matching_ids.update(self._pattern_index[keyword])
@@ -719,9 +709,7 @@ class CollectiveMemory:
 
         # Update namespace counts
         for namespace in MemoryNamespace:
-            self._stats.by_namespace[namespace.value] = len(
-                self._namespace_index[namespace]
-            )
+            self._stats.by_namespace[namespace.value] = len(self._namespace_index[namespace])
 
         return self._stats
 
@@ -764,7 +752,7 @@ class CollectiveMemory:
     def _update_pattern_index(self, entry: MemoryEntry) -> None:
         """Update pattern index with entry keywords."""
         text = self._entry_to_text(entry)
-        keywords = set(re.findall(r'\w+', text.lower()))
+        keywords = set(re.findall(r"\w+", text.lower()))
 
         cache_key = self._make_cache_key(entry.namespace, entry.key)
 
@@ -778,7 +766,7 @@ class CollectiveMemory:
     def _remove_from_pattern_index(self, entry: MemoryEntry) -> None:
         """Remove entry from pattern index."""
         text = self._entry_to_text(entry)
-        keywords = set(re.findall(r'\w+', text.lower()))
+        keywords = set(re.findall(r"\w+", text.lower()))
 
         cache_key = self._make_cache_key(entry.namespace, entry.key)
 

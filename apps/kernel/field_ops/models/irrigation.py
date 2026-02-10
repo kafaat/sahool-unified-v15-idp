@@ -7,7 +7,7 @@ Pydantic models for irrigation scheduling and water management
 """
 
 from datetime import UTC, date, datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 # ============== التعدادات - Enumerations ==============
 
 
-class IrrigationType(str, Enum):
+class IrrigationType(StrEnum):
     """
     أنواع أنظمة الري
     Types of irrigation systems
@@ -28,7 +28,7 @@ class IrrigationType(str, Enum):
     CENTER_PIVOT = "center_pivot"  # ري محوري
 
 
-class SoilType(str, Enum):
+class SoilType(StrEnum):
     """
     أنواع التربة في اليمن
     Soil types in Yemen
@@ -41,7 +41,7 @@ class SoilType(str, Enum):
     ROCKY = "rocky"  # صخرية
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """
     أنواع المحاصيل الرئيسية في اليمن
     Main crop types in Yemen
@@ -82,7 +82,7 @@ class CropType(str, Enum):
     QAT = "qat"  # قات
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """
     مراحل نمو المحصول
     Crop growth stages (based on FAO)
@@ -94,7 +94,7 @@ class GrowthStage(str, Enum):
     LATE_SEASON = "late_season"  # نهاية الموسم
 
 
-class IrrigationStatus(str, Enum):
+class IrrigationStatus(StrEnum):
     """
     حالة جدول الري
     Irrigation schedule status

@@ -100,9 +100,6 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-
-
-
 def verify_token(token: str, check_revocation: bool = True) -> dict:
     """
     Verify and decode a JWT token.

@@ -114,7 +114,7 @@ async def init_notification_db(create_schema: bool = False) -> None:
         await Tortoise.init(config=config)
 
         logger.info("✅ Database connection established")
-        db_host = DATABASE_URL.split('@')[1] if '@' in DATABASE_URL else 'configured'
+        db_host = DATABASE_URL.split("@")[1] if "@" in DATABASE_URL else "configured"
         logger.info("📊 Database URL: %s", db_host)
 
         # Generate schemas (only in development!)

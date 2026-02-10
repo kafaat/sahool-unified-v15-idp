@@ -118,12 +118,14 @@ class SupplierIntegration:
             total_price = unit_price * item["quantity"]
             subtotal += total_price
 
-            quote_items.append({
-                "sku": item["sku"],
-                "quantity": item["quantity"],
-                "unit_price": round(unit_price, 2),
-                "total_price": round(total_price, 2),
-            })
+            quote_items.append(
+                {
+                    "sku": item["sku"],
+                    "quantity": item["quantity"],
+                    "unit_price": round(unit_price, 2),
+                    "total_price": round(total_price, 2),
+                }
+            )
 
         delivery_fee = 100.0 if subtotal < 1000 else 0.0
         tax = subtotal * 0.15

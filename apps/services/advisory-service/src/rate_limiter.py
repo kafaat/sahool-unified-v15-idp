@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RateLimitTier:
     """Rate limit configuration for a tier."""
+
     requests_per_minute: int
     requests_per_hour: int
     burst_limit: int  # Max requests in 5 seconds
@@ -218,6 +219,7 @@ def rate_limit(tier: str = "default"):
         async def assess_disease(request: Request, ...):
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -288,6 +290,7 @@ def rate_limit(tier: str = "default"):
             return func(*args, **kwargs)
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper

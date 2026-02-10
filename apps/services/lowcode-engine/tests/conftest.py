@@ -14,7 +14,9 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 # Add project root to path FIRST
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+)
 sys.path.insert(0, project_root)
 
 # Add src path for importing main module
@@ -73,6 +75,7 @@ from shared.lowcode import (
 # Engine Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def lowcode_engine() -> LowCodeEngine:
     """Provide a real LowCodeEngine instance."""
@@ -89,6 +92,7 @@ def ai_suggester(lowcode_engine: LowCodeEngine) -> AIComponentSuggester:
 # Sample Data Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def sample_component() -> ComponentMaterial:
     """Provide a sample component."""
@@ -104,7 +108,9 @@ def sample_component() -> ComponentMaterial:
             PropDefinition(name="required", name_ar="مطلوب", type="boolean", default=False),
         ],
         slots=[SlotDefinition(name="content", name_ar="المحتوى", description="Content slot")],
-        events=[EventDefinition(name="onClick", name_ar="عند النقر", description="Triggered on click")],
+        events=[
+            EventDefinition(name="onClick", name_ar="عند النقر", description="Triggered on click")
+        ],
         is_container=False,
         icon="test-icon",
     )
@@ -152,10 +158,12 @@ def sample_field_definition() -> FieldDefinition:
 # HTTP Client Fixtures
 # ============================================================================
 
+
 @pytest.fixture
 def app():
     """Provide the FastAPI application instance."""
     from main import app as fastapi_app
+
     return fastapi_app
 
 
@@ -182,6 +190,7 @@ def test_user_id() -> str:
 # ============================================================================
 # Data Fixtures for API Tests
 # ============================================================================
+
 
 @pytest.fixture
 def data_model_create_request() -> dict:

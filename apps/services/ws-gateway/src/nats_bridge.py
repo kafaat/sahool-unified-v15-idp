@@ -488,9 +488,7 @@ class NATSBridge:
             "total_errors": self.total_errors,
             "total_messages_processed": self.total_messages_processed,
             "last_message_received": (
-                self.last_message_received.isoformat()
-                if self.last_message_received
-                else None
+                self.last_message_received.isoformat() if self.last_message_received else None
             ),
         }
 
@@ -515,9 +513,7 @@ class NATSBridge:
             if count > 10  # More than 10 errors on a subject
         ]
 
-        is_healthy = (
-            has_subscriptions and error_rate < 0.1 and len(high_error_subjects) == 0
-        )
+        is_healthy = has_subscriptions and error_rate < 0.1 and len(high_error_subjects) == 0
 
         return {
             "healthy": is_healthy,
@@ -539,6 +535,4 @@ class NATSBridge:
         self.total_errors += 1
         subject_prefix = subject.split(".")[0:3]
         subject_key = ".".join(subject_prefix) if subject_prefix else subject
-        self.subscription_errors[subject_key] = (
-            self.subscription_errors.get(subject_key, 0) + 1
-        )
+        self.subscription_errors[subject_key] = self.subscription_errors.get(subject_key, 0) + 1

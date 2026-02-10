@@ -545,8 +545,7 @@ class CollaborativeChecklist:
 
         # Build warnings for optional unchecked items
         optional_unchecked = [
-            item for item in self._items.values()
-            if not item.is_mandatory and not item.checked
+            item for item in self._items.values() if not item.is_mandatory and not item.checked
         ]
         warnings = [item.item for item in optional_unchecked]
         warnings_ar = [item.item_ar for item in optional_unchecked]
@@ -557,7 +556,9 @@ class CollaborativeChecklist:
             dim_items = self.get_items_by_dimension(dimension)
             dim_checked = sum(1 for item in dim_items if item.checked)
             dim_mandatory = sum(1 for item in dim_items if item.is_mandatory)
-            dim_mandatory_checked = sum(1 for item in dim_items if item.is_mandatory and item.checked)
+            dim_mandatory_checked = sum(
+                1 for item in dim_items if item.is_mandatory and item.checked
+            )
 
             dimension_status[dimension.value] = {
                 "total": len(dim_items),
@@ -575,7 +576,9 @@ class CollaborativeChecklist:
                 recommendations.append("Start by defining your primary irrigation goal")
             if "run_simulation" in [self._get_item_id(item) for item in incomplete_mandatory]:
                 recommendations.append("Run simulation to verify the program before approval")
-            if "human_approves_execution" in [self._get_item_id(item) for item in incomplete_mandatory]:
+            if "human_approves_execution" in [
+                self._get_item_id(item) for item in incomplete_mandatory
+            ]:
                 recommendations.append("Human approval required before execution")
 
         # Determine if ready for execution
@@ -624,8 +627,7 @@ class CollaborativeChecklist:
         mandatory_checked = sum(1 for item in dim_items if item.is_mandatory and item.checked)
 
         incomplete_mandatory = [
-            item for item in dim_items
-            if item.is_mandatory and not item.checked
+            item for item in dim_items if item.is_mandatory and not item.checked
         ]
 
         return {
@@ -637,8 +639,7 @@ class CollaborativeChecklist:
             "is_complete": mandatory == mandatory_checked,
             "completion_percentage": (checked / len(dim_items) * 100) if dim_items else 0.0,
             "incomplete_mandatory": [
-                {"item": item.item, "item_ar": item.item_ar}
-                for item in incomplete_mandatory
+                {"item": item.item, "item_ar": item.item_ar} for item in incomplete_mandatory
             ],
         }
 
@@ -662,7 +663,10 @@ class CollaborativeChecklist:
         dimension_names = {
             ChecklistDimension.GOAL_ANCHORING: ("Goal Anchoring", "ترسيخ الأهداف"),
             ChecklistDimension.EXPERIENCE_INJECTION: ("Experience Injection", "حقن الخبرة"),
-            ChecklistDimension.SUPERVISION_CALIBRATION: ("Supervision Calibration", "معايرة الإشراف"),
+            ChecklistDimension.SUPERVISION_CALIBRATION: (
+                "Supervision Calibration",
+                "معايرة الإشراف",
+            ),
             ChecklistDimension.VALUE_UPGRADE: ("Value Upgrade", "ترقية القيمة"),
         }
 
@@ -752,7 +756,9 @@ class CollaborativeChecklist:
             "mandatory_unchecked": mandatory - mandatory_checked,
             "optional_items": total - mandatory,
             "completion_percentage": (checked / total * 100) if total > 0 else 0.0,
-            "mandatory_completion_percentage": (mandatory_checked / mandatory * 100) if mandatory > 0 else 0.0,
+            "mandatory_completion_percentage": (mandatory_checked / mandatory * 100)
+            if mandatory > 0
+            else 0.0,
             "by_dimension": {
                 dimension.value: self.validate_dimension(dimension)
                 for dimension in ChecklistDimension

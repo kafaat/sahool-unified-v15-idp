@@ -263,9 +263,13 @@ class MasterCoordinatorAgent(BaseAgent):
             action_type="coordinated_recommendation",
             parameters={
                 "unified_recommendation": {
-                    "primary": unified.primary_action.to_dict()
-                    if hasattr(unified.primary_action, "to_dict")
-                    else str(unified.primary_action),
+                    "primary": {
+                        "action_type": unified.primary_action.action_type,
+                        "parameters": unified.primary_action.parameters,
+                        "confidence": unified.primary_action.confidence,
+                        "priority": unified.primary_action.priority,
+                        "reasoning": unified.primary_action.reasoning,
+                    },
                     "supporting": len(unified.supporting_actions),
                     "conflicts_resolved": len(unified.conflicts_resolved),
                     "summary_ar": unified.summary_ar,
@@ -340,9 +344,10 @@ class MasterCoordinatorAgent(BaseAgent):
         action1 = conflict["action1"].action
         action2 = conflict["action2"].action
 
-        # Calculate utilities
-        utility1 = self.calculate_utility(action1, self.context)
-        utility2 = self.calculate_utility(action2, self.context)
+        # Calculate utilities (use empty context if not set)
+        ctx = self.context or AgentContext()
+        utility1 = self.calculate_utility(action1, ctx)
+        utility2 = self.calculate_utility(action2, ctx)
 
         if utility1 >= utility2:
             selected = action1
@@ -374,8 +379,7 @@ class MasterCoordinatorAgent(BaseAgent):
         self, recommendations: list[AgentRecommendation], resolutions: list[ConflictResolution]
     ) -> UnifiedRecommendation:
         """إنشاء التوصية الموحدة"""
-        # Get resolved actions
-        {r.selected_action for r in resolutions}
+        # Get excluded actions (conflicting ones that were not selected)
         excluded_actions = set()
         for r in resolutions:
             for a in r.conflicting_actions:
@@ -392,8 +396,9 @@ class MasterCoordinatorAgent(BaseAgent):
             valid_actions = [recommendations[0].action] if recommendations else []
 
         # Sort by priority and utility
+        ctx = self.context or AgentContext()
         sorted_actions = sorted(
-            valid_actions, key=lambda a: (a.priority, -self.calculate_utility(a, self.context))
+            valid_actions, key=lambda a: (a.priority, -self.calculate_utility(a, ctx))
         )
 
         primary = sorted_actions[0] if sorted_actions else None

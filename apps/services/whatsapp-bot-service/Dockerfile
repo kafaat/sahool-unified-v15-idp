@@ -47,8 +47,11 @@ COPY --from=builder /opt/venv /opt/venv
 # Set working directory
 WORKDIR /app
 
-# Copy shared modules
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ /app/shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ /app/shared/
 
 # Copy service code
 COPY apps/services/whatsapp-bot-service/src/ /app/src/

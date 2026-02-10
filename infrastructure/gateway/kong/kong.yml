@@ -220,7 +220,7 @@ services:
 
   - name: chat-service
     host: chat-service
-    port: 8114  # FIXED: chat-service listens on 8114 (not 8000 which is Kong's port)
+    port: 8000  # Container internal port (docker-compose PORT=8000, host-mapped to 8115)
     protocol: http
     routes:
       - name: chat-service-route
@@ -571,7 +571,7 @@ services:
 
   - name: mcp-server
     host: mcp-server
-    port: 8201
+    port: 8200
     protocol: http
     routes:
       - name: mcp-server-route
@@ -595,10 +595,9 @@ services:
   # -----------------------------
 
   # Audit Service - Compliance logging
-  # FIX: Corrected port from 8114 to 8122 (matching docker-compose.yml)
   - name: audit-service
     host: audit-service
-    port: 8122
+    port: 8114  # Container internal port (Dockerfile EXPOSE 8114, docker-compose PORT=8114)
     protocol: http
     routes:
       - name: audit-service-route
@@ -651,10 +650,9 @@ services:
         protocols: ["http", "https"]
 
   # GlobalGAP Compliance - Certification tracking
-  # FIX: Corrected port from 8123 to 8168 (matching updated docker-compose.yml)
   - name: globalgap-compliance
     host: globalgap-compliance
-    port: 8168
+    port: 8128  # Container internal port (Dockerfile EXPOSE 8128, docker-compose PORT=8128)
     protocol: http
     routes:
       - name: globalgap-compliance-route
@@ -830,10 +828,9 @@ services:
 
   # Copilot API - AI copilot for agricultural advisory
   # واجهة برمجة المساعد الذكي - مساعد الذكاء الاصطناعي للاستشارات الزراعية
-  # FIX: Corrected port from 8210 to 8163 (matching docker-compose.yml)
   - name: copilot-api
     host: copilot-api
-    port: 8163
+    port: 8088  # Container internal port (Dockerfile EXPOSE 8088, docker-compose maps 8163:8088)
     protocol: http
     connect_timeout: 30000
     write_timeout: 120000
@@ -921,10 +918,9 @@ services:
 
   # Supply Chain Service - Agricultural supply chain management
   # خدمة سلسلة التوريد - إدارة سلسلة التوريد الزراعية
-  # FIX: Corrected port from 8230 to 8166 (matching docker-compose.yml)
   - name: supply-chain-service
     host: supply-chain-service
-    port: 8166
+    port: 8230  # Container internal port (Dockerfile EXPOSE 8230, docker-compose PORT=8230)
     protocol: http
     routes:
       - name: supply-chain-route

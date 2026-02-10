@@ -26,11 +26,26 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Install system dependencies first (using HTTP), then configure HTTPS
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
-    build-essential gcc libpq-dev python3-dev libsqlite3-dev && \
-    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+# Install build dependencies required to compile native wheels
+# Configure Debian mirror fallback for network-restricted environments
+RUN set -e; \
+    # Try default sources first, fall back to mirror if DNS fails
+    (apt-get update 2>/dev/null && apt-get install -y --no-install-recommends \
+        build-essential gcc libpq-dev python3-dev libsqlite3-dev) || \
+    ( \
+        echo "Default apt sources failed, switching to mirror..."; \
+        # Bookworm DEB822 format
+        if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+            sed -i 's|URIs: http://deb.debian.org|URIs: https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
+        fi; \
+        # Traditional format fallback
+        if [ -f /etc/apt/sources.list ]; then \
+            sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list; \
+        fi; \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            build-essential gcc libpq-dev python3-dev libsqlite3-dev \
+    ) && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
@@ -51,8 +66,16 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/field-chat/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
-# Copy shared libraries (required for shared.errors_py, shared.cors_config)
+# Remove build-time packages to keep the runtime image small
+RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev libsqlite3-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    || true
+
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 COPY apps/services/field-chat/src/ ./src/

@@ -292,7 +292,7 @@ await syncManager.forceSync();
 | Kong Service | المنفذ | الوصف |
 |--------------|--------|-------|
 | `agent-registry` | 8160 | سجل الوكلاء |
-| `ai-agents-core` | 8122 | نواة الوكلاء |
+| `ai-agents-core` | 8161 | نواة الوكلاء |
 | `ai-agents-service` | 8130 | تنسيق الوكلاء |
 | `knowledge-graph` | 8140 | رسم المعرفة |
 | `mcp-server` | 8200 | Model Context Protocol |
@@ -310,9 +310,9 @@ await syncManager.forceSync();
 | `code-review-service` | 8102 | مراجعة الكود |
 | `lowcode-engine` | 8132 | محرك Low-Code |
 | `wechat-service` | 8133 | تكامل WeChat |
-| `globalgap-compliance` | 8123 | شهادة GlobalGAP |
-| `logistics-service` | 8162 | اللوجستيات |
-| `ussd-gateway` | 8163 | بوابة USSD |
+| `globalgap-compliance` | 8128 | شهادة GlobalGAP |
+| `logistics-service` | 8167 | اللوجستيات |
+| `ussd-gateway` | 8183 | بوابة USSD |
 
 ### 5.3 الخدمات المهملة (لا يجب استخدامها)
 

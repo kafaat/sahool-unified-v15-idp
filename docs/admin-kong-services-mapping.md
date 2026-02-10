@@ -90,7 +90,7 @@
 | Kong Service | المنفذ | الوصف | سبب عدم الاتصال المحتمل |
 |--------------|--------|-------|------------------------|
 | `agent-registry` | 8160 | سجل الوكلاء | بنية تحتية AI |
-| `ai-agents-core` | 8122 | نواة الوكلاء | بنية تحتية AI |
+| `ai-agents-core` | 8161 | نواة الوكلاء | بنية تحتية AI |
 | `ai-agents-service` | 8130 | تنسيق الوكلاء | بنية تحتية AI |
 | `knowledge-graph` | 8140 | رسم المعرفة | بنية تحتية AI |
 | `mcp-server` | 8200 | Model Context Protocol | بنية تحتية AI |
@@ -111,9 +111,9 @@
 | `crm-service` | 8131 | CRM | نظام مستقل |
 | `lowcode-engine` | 8132 | التطوير السريع | أداة داخلية |
 | `wechat-service` | 8133 | WeChat | سوق صيني محدد |
-| `globalgap-compliance` | 8123 | GlobalGAP | شهادات متخصصة |
-| `logistics-service` | 8162 | اللوجستيات | نظام مستقل |
-| `ussd-gateway` | 8163 | USSD | قنوات بديلة |
+| `globalgap-compliance` | 8128 | GlobalGAP | شهادات متخصصة |
+| `logistics-service` | 8167 | اللوجستيات | نظام مستقل |
+| `ussd-gateway` | 8183 | USSD | قنوات بديلة |
 
 ### 2.6 الخدمات المهملة (Deprecated) - يجب عدم استخدامها
 

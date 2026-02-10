@@ -120,7 +120,7 @@ infrastructure/gateway/kong/kong.yml
 | export-service | 8158 | غير موجودة |
 | import-service | 8159 | غير موجودة |
 | monitoring-service | 8160 | تعارض مع agent-registry |
-| logging-service | 8161 | تعارض مع code-fix-agent |
+| logging-service | 8162 | تعارض مع code-fix-agent |
 | tracing-service | 8162 | تعارض مع code-review-agent |
 | cache-service | 8163 | غير موجودة |
 | search-service | 8164 | غير موجودة |

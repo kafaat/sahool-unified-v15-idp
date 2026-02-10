@@ -41,7 +41,7 @@ from services import KnowledgeGraphService, EntityService, RelationshipService
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SERVICE_NAME = "knowledge-graph"
-SERVICE_VERSION = "1.0.0"
+SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8140
 
 # Configure logging

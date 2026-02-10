@@ -1,7 +1,7 @@
 # ============================================
 # SAHOOL GlobalGAP Compliance Service Dockerfile
 # خدمة الامتثال لمعايير GlobalGAP
-# Port: 8123
+# Port: 8128
 # ============================================
 
 FROM python:3.11-slim-bookworm
@@ -9,12 +9,12 @@ FROM python:3.11-slim-bookworm
 # Labels | العلامات
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
 LABEL service="globalgap-compliance"
-LABEL version="1.0.0"
+LABEL version="16.0.0"
 
 # Environment | البيئة
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-ENV PORT=8123
+ENV PORT=8128
 
 # Create non-root user | إنشاء مستخدم غير جذر
 RUN groupadd -r sahool && useradd -r -g sahool sahool
@@ -28,7 +28,10 @@ COPY apps/services/globalgap-compliance/requirements.txt .
 # Install Python dependencies | تثبيت تبعيات Python
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
-# Copy shared modules (required for imports from shared/) | نسخ الوحدات المشتركة
+# Copy root shared modules first (shared.events, etc.)
+COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py, etc.)
 COPY apps/services/shared/ ./shared/
 
 # Copy source code | نسخ الكود المصدري
@@ -41,11 +44,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port | عرض المنفذ
-EXPOSE 8123
+EXPOSE 8128
 
 # Health check using Python | فحص الصحة باستخدام Python
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8123/health/live')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8128/healthz')" || exit 1
 
 # Run application | تشغيل التطبيق
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8123"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8128"]

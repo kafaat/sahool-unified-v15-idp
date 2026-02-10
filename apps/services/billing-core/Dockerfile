@@ -42,8 +42,11 @@ RUN mkdir -p /root/.pip && \
 COPY apps/services/billing-core/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
-# Copy shared libraries (required for shared.middleware, shared.observability, shared.errors_py)
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy application source
 COPY apps/services/billing-core/src ./src

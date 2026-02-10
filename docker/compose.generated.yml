@@ -1947,10 +1947,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-ai-agents-core
     ports:
-    - 8122:8122
+    - 8161:8161
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8122
+    - PORT=8161
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -1959,7 +1959,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8122/healthz
+      - http://localhost:8161/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1976,7 +1976,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=ai-agents-core
-    - sahool.port=8122
+    - sahool.port=8161
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.ai-agents-core.rule=PathPrefix(`/api/v1/ai/agents/core`)
@@ -2026,10 +2026,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-code-fix-agent
     ports:
-    - 8161:8161
+    - 8162:8162
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8161
+    - PORT=8162
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2038,7 +2038,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8161/healthz
+      - http://localhost:8162/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2055,7 +2055,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=code-fix-agent
-    - sahool.port=8161
+    - sahool.port=8162
     - sahool.category=analytics
     - traefik.enable=true
     - traefik.http.routers.code-fix-agent.rule=PathPrefix(`/api/v1/code/fix/agent`)
@@ -2182,10 +2182,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-globalgap-compliance
     ports:
-    - 8123:8123
+    - 8128:8128
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8123
+    - PORT=8128
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2194,7 +2194,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8123/healthz
+      - http://localhost:8128/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2211,7 +2211,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=globalgap-compliance
-    - sahool.port=8123
+    - sahool.port=8128
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.globalgap-compliance.rule=PathPrefix(`/api/v1/globalgap/compliance`)
@@ -2261,10 +2261,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-logistics-service
     ports:
-    - 8181:8181
+    - 8167:8167
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8181
+    - PORT=8167
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2274,7 +2274,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8181/healthz
+      - http://localhost:8167/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2291,7 +2291,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=logistics-service
-    - sahool.port=8181
+    - sahool.port=8167
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.logistics-service.rule=PathPrefix(`/api/v1/logistics/service`)
@@ -2340,10 +2340,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-ussd-gateway
     ports:
-    - 8180:8180
+    - 8183:8183
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8180
+    - PORT=8183
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2352,7 +2352,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8180/healthz
+      - http://localhost:8183/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2369,7 +2369,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=ussd-gateway
-    - sahool.port=8180
+    - sahool.port=8183
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.ussd-gateway.rule=PathPrefix(`/api/v1/ussd/gateway`)

@@ -36,6 +36,9 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 # ─────────────────────────────────────────────────────────────────────────────
 FROM dependencies AS production
 
+# Copy shared modules (required for shared.ai imports)
+COPY shared/ ./shared/
+
 # Copy application code
 COPY apps/services/copilot-api/src/ ./src/
 

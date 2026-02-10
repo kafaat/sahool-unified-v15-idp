@@ -52,7 +52,7 @@ USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("weather_core_starting", port=8108, version="15.3.3")
+    logger.info("weather_core_starting", port=8108, version="16.0.0")
 
     # Initialize weather provider
     if USE_MOCK_WEATHER:

@@ -17,8 +17,8 @@ class Settings(BaseSettings):
 
     # Service Configuration | إعدادات الخدمة
     service_name: str = "globalgap-compliance"
-    service_version: str = "1.0.0"
-    service_port: int = 8120
+    service_version: str = "16.0.0"
+    service_port: int = 8128
     log_level: str = "INFO"
 
     # Database Configuration | إعدادات قاعدة البيانات

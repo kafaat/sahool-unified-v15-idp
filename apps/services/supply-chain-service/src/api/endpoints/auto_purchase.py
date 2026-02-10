@@ -293,7 +293,7 @@ async def bulk_purchase(
                 quantity=item.quantity,
                 optimize_for=request.optimize_for,
             )
-            supplier_id = best["id"] if best else uuid4()
+            supplier_id = best["supplier_id"] if best else uuid4()
 
         if supplier_id not in supplier_items:
             supplier_items[supplier_id] = []

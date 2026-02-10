@@ -365,6 +365,8 @@ class DiseaseExpertAgent(BaseAgent):
             disease_scores[disease_id] = disease_scores.get(disease_id, 0) + score
 
         # Select highest scoring disease
+        if not disease_scores:
+            return None
         best_disease_id = max(disease_scores, key=disease_scores.get)
         final_confidence = min(disease_scores[best_disease_id], 1.0)
 

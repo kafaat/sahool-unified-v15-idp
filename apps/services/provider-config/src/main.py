@@ -35,7 +35,7 @@ from .models import Database
 app = FastAPI(
     title="SAHOOL Provider Configuration Service",
     description="خدمة إدارة وتكوين المزودين الخارجيين للخرائط والطقس والأقمار الصناعية",
-    version="1.0.0",
+    version="16.0.0",
 )
 
 # Setup unified error handling
@@ -962,7 +962,7 @@ async def root():
     return {
         "service": "SAHOOL Provider Configuration Service",
         "service_ar": "خدمة إدارة المزودين - سهول",
-        "version": "1.0.0",
+        "version": "16.0.0",
         "description": "Manage external service providers (Maps, Weather, Satellite)",
     }
 

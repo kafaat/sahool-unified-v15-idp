@@ -14,7 +14,12 @@ COPY apps/services/fertigation-engine/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt || \
     pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
 
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
+
 COPY apps/services/fertigation-engine/src ./src/
 
 USER sahool

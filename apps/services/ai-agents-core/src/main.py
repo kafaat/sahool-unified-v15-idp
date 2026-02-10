@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="SAHOOL AI Agents Core",
     description="Hierarchical Multi-Agent System for Smart Agriculture",
-    version="1.0.0",
+    version="16.0.0",
 )
 
 # Setup unified error handling
@@ -281,5 +281,5 @@ async def get_agent_metrics(agent_id: str):
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", "8120"))
+    port = int(os.getenv("PORT", "8161"))
     uvicorn.run(app, host="0.0.0.0", port=port)

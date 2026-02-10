@@ -570,16 +570,16 @@ services:
       context: ../../apps/services/ai-agents-core
       dockerfile: Dockerfile
     ports:
-    - 8122:8122
+    - 8161:8161
     environment:
-    - PORT=8122
+    - PORT=8161
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8122/healthz
+      - http://localhost:8161/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -596,16 +596,16 @@ services:
       context: ../../apps/services/code-fix-agent
       dockerfile: Dockerfile
     ports:
-    - 8161:8161
+    - 8162:8162
     environment:
-    - PORT=8161
+    - PORT=8162
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8161/healthz
+      - http://localhost:8162/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1389,16 +1389,16 @@ services:
       context: ../../apps/services/globalgap-compliance
       dockerfile: Dockerfile
     ports:
-    - 8123:8123
+    - 8128:8128
     environment:
-    - PORT=8123
+    - PORT=8128
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8123/healthz
+      - http://localhost:8128/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1416,16 +1416,16 @@ services:
       context: ../../apps/services/logistics-service
       dockerfile: Dockerfile
     ports:
-    - 8181:8181
+    - 8167:8167
     environment:
-    - PORT=8181
+    - PORT=8167
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8181/healthz
+      - http://localhost:8167/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1444,16 +1444,16 @@ services:
       context: ../../apps/services/ussd-gateway
       dockerfile: Dockerfile
     ports:
-    - 8180:8180
+    - 8183:8183
     environment:
-    - PORT=8180
+    - PORT=8183
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8180/healthz
+      - http://localhost:8183/healthz
       interval: 30s
       timeout: 10s
       retries: 3

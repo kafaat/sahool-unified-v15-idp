@@ -23,14 +23,11 @@ RUN for i in 1 2 3; do \
         (echo "Attempt $i failed, retrying..." && sleep $((i * 5))); \
     done
 
-# Copy shared modules (from repo root)
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
 
-# Copy services shared modules (needed for errors_py module)
-COPY apps/services/shared/ ./apps/services/shared/
-
-# Create compatibility layer: copy errors_py to shared/errors_py so imports work
-RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy source code
 COPY apps/services/vegetation-analysis-service/src/ ./src/

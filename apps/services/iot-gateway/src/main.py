@@ -316,7 +316,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL IoT Gateway",
     description="MQTT to NATS bridge for sensor data ingestion",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 

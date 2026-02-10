@@ -44,6 +44,9 @@ COPY --from=builder /opt/venv /opt/venv
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Copy shared modules (required for shared.ai imports)
+COPY shared/ ./shared/
+
 # Copy application code
 COPY apps/services/code-fix-agent/src/ ./src/
 

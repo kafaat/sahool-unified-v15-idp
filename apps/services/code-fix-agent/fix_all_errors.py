@@ -28,7 +28,7 @@ from agent.ollama_client import OllamaClient
 logger = structlog.get_logger()
 
 # Configuration
-CODE_FIX_AGENT_URL = os.getenv("CODE_FIX_AGENT_URL", "http://localhost:8161")
+CODE_FIX_AGENT_URL = os.getenv("CODE_FIX_AGENT_URL", "http://localhost:8162")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "deepseek-coder:latest")
 PROJECT_ROOT = Path(__file__).parent.parent.parent.parent  # Go up to project root

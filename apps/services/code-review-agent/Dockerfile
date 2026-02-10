@@ -10,13 +10,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies and clean up in same layer
-# hadolint ignore=DL3009
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    make \
-    g++ \
-    && rm -rf /var/lib/apt/lists/*
+# Install build dependencies (Alpine uses apk, not apt-get)
+RUN apk add --no-cache python3 make g++
 
 # Copy package files
 COPY apps/services/code-review-agent/package*.json ./
@@ -43,8 +38,8 @@ LABEL maintainer="KAFAAT <dev@kafaat.com>"
 LABEL description="AI-powered code review agent using Claude Agent SDK"
 LABEL version="1.0.0"
 
-# Create non-root user
-RUN groupadd -r agent && useradd -r -g agent agent
+# Create non-root user (Alpine uses addgroup/adduser, not groupadd/useradd)
+RUN addgroup -S agent && adduser -S -G agent agent
 
 WORKDIR /app
 

@@ -104,7 +104,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Field Core",
     description="Crop profitability analysis and financial insights for farmers",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -131,8 +131,8 @@ except Exception as e:
 def health():
     return {
         "status": "ok",
-        "service": "field_core",
-        "version": "15.3.3",
+        "service": "field_management",
+        "version": "16.0.0",
         "timestamp": datetime.now(UTC).isoformat(),
     }
 

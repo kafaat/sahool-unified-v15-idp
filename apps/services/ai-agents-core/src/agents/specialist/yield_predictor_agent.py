@@ -187,9 +187,10 @@ class YieldPredictorAgent(BaseAgent):
             return best_action
 
         # Default: return prediction only
+        import dataclasses
         return AgentAction(
             action_type="yield_prediction",
-            parameters={"prediction": prediction.__dict__, "crop_type": crop_type},
+            parameters={"prediction": dataclasses.asdict(prediction), "crop_type": crop_type},
             confidence=prediction.confidence,
             priority=2,
             reasoning=f"توقع إنتاج {crop_type}: {prediction.yield_per_hectare:.1f} طن/هكتار",
@@ -301,8 +302,8 @@ class YieldPredictorAgent(BaseAgent):
 
         ratio = min(accumulated_gdd / required_gdd, 1.0)
 
-        # Quadratic response
-        yield_estimate = base_yield * (2 * ratio - ratio**2)
+        # Linear response capped at 100% (quadratic 2r-r^2 overestimates for ratio<1)
+        yield_estimate = base_yield * ratio
 
         confidence = 0.6 if weather else 0.3
 

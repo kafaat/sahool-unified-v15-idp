@@ -1,189 +1,71 @@
 # SAHOOL Deprecated Services Registry
 
-# سجل الخدمات المجمدة والمتوقفة
+# سجل الخدمات المتوقفة والمدمجة
 
-> **تاريخ التحديث**: 2026-01-03
-> **الحالة**: مجمّد - في انتظار قرار الإزالة أو الدمج
+> **تاريخ التحديث**: 2026-02-10
+> **الحالة**: محدّث - تم حل جميع تعارضات المنافذ
 
 ---
 
 ## 📋 ملخص تنفيذي
 
-هذه الوثيقة توضح الخدمات المجمدة (Deprecated) التي تم استبدالها بخدمات موحدة جديدة.
-**لا يجب تشغيل هذه الخدمات مع الخدمات الجديدة في نفس الوقت بسبب تعارض المنافذ.**
+هذه الوثيقة توضح الخدمات المتوقفة (Deprecated) التي تم استبدالها بخدمات موحدة جديدة.
+
+This document lists deprecated services that have been replaced by consolidated new services.
 
 ---
 
-## 🔴 الخدمات المجمدة (Frozen Services)
+## 🔴 الخدمات المتوقفة | Deprecated Services
 
-### جدول التعارضات
+### الخدمات المدمجة (تم نقل وظائفها بالكامل) | Fully Consolidated Services
 
-| المنفذ | الخدمة المجمدة         | الخدمة البديلة                | سبب التجميد     |
-| ------ | ---------------------- | ----------------------------- | --------------- |
-| 3000   | `field-core`           | `field-management-service`    | تم دمج الوظائف  |
-| 3020   | `user-service`         | `disaster-assessment`         | تعارض منفذ      |
-| 8080   | `agent-registry`       | `field-ops`                   | تعارض منفذ      |
-| 8090   | `satellite-service`    | `vegetation-analysis-service` | تم دمج الوظائف  |
-| 8092   | `weather-advanced`     | `weather-service`             | تم دمج الوظائف  |
-| 8093   | `fertilizer-advisor`   | `advisory-service`            | تم دمج الوظائف  |
-| 8095   | `crop-health-ai`       | `crop-intelligence-service`   | تم دمج الوظائف  |
-| 8098   | `yield-engine`         | `yield-prediction-service`    | تم دمج الوظائف  |
-| 8120   | `ai-agents-core`       | -                             | يحتاج منفذ جديد |
-| 8120   | `globalgap-compliance` | -                             | يحتاج منفذ جديد |
+| الخدمة المتوقفة | Deprecated Service | البديل | Replacement | المنفذ الجديد | New Port | تاريخ الإيقاف | Date |
+|-----------------|-------------------|--------|-------------|---------------|----------|---------------|------|
+| `field-ops` | field-ops | `field-management-service` | field-management-service | 3000 | 3000 | قديم | Legacy |
+| `field-core` | field-core | `field-management-service` | field-management-service | 3000 | 3000 | قديم | Legacy |
+| `field-service` | field-service | `field-management-service` | field-management-service | 3000 | 3000 | قديم | Legacy |
+| `satellite-service` | satellite-service | `vegetation-analysis-service` | vegetation-analysis-service | 8090 | 8090 | 2026-01-11 |
+| `weather-advanced` | weather-advanced | `weather-service` | weather-service | 8092 | 8092 | 2026-01-11 |
+| `crop-health-ai` | crop-health-ai | `crop-intelligence-service` | crop-intelligence-service | 8095 | 8095 | 2026-01-11 |
+| `fertilizer-advisor` | fertilizer-advisor | `advisory-service` | advisory-service | 8093 | 8093 | 2026-01-11 |
 
----
+### خدمات قيد الإزالة | Services Pending Removal
 
-## 📁 تفاصيل كل خدمة مجمدة
-
-### 1. field-core (المنفذ 3000)
-
-```yaml
-المسار: apps/services/field-core/
-الحالة: FROZEN
-البديل: field-management-service
-سبب التجميد: تم دمج جميع وظائف إدارة الحقول في field-management-service
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 2. user-service (المنفذ 3020)
-
-```yaml
-المسار: apps/services/user-service/
-الحالة: FROZEN
-البديل: يحتاج تغيير المنفذ أو دمج مع خدمة أخرى
-سبب التجميد: تعارض مع disaster-assessment
-الإجراء المقترح: تغيير المنفذ إلى 3025 أو دمج مع auth-service
-```
-
-### 3. agent-registry (المنفذ 8080)
-
-```yaml
-المسار: apps/services/agent-registry/
-الحالة: FROZEN
-البديل: يحتاج تغيير المنفذ
-سبب التجميد: تعارض مع field-ops
-الإجراء المقترح: تغيير المنفذ إلى 8121
-```
-
-### 4. satellite-service (المنفذ 8090)
-
-```yaml
-المسار: apps/services/satellite-service/
-الحالة: FROZEN
-البديل: vegetation-analysis-service
-سبب التجميد: تم دمج وظائف تحليل الأقمار الصناعية
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 5. weather-advanced (المنفذ 8092)
-
-```yaml
-المسار: apps/services/weather-advanced/
-الحالة: FROZEN
-البديل: weather-service
-سبب التجميد: تم دمج وظائف الطقس المتقدمة
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 6. fertilizer-advisor (المنفذ 8093)
-
-```yaml
-المسار: apps/services/fertilizer-advisor/
-الحالة: FROZEN
-البديل: advisory-service
-سبب التجميد: تم دمج وظائف استشارات الأسمدة
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 7. crop-health-ai (المنفذ 8095)
-
-```yaml
-المسار: apps/services/crop-health-ai/
-الحالة: FROZEN
-البديل: crop-intelligence-service
-سبب التجميد: تم دمج وظائف الذكاء الاصطناعي لصحة المحاصيل
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 8. yield-engine (المنفذ 8098)
-
-```yaml
-المسار: apps/services/yield-engine/
-الحالة: FROZEN
-البديل: yield-prediction-service
-سبب التجميد: تم دمج محرك التنبؤ بالإنتاجية
-الإجراء المقترح: حذف بعد التأكد من نقل جميع الوظائف
-```
-
-### 9. ai-agents-core (المنفذ 8120)
-
-```yaml
-المسار: apps/services/ai-agents-core/
-الحالة: FROZEN - يحتاج إصلاح
-البديل: لا يوجد (خدمة فريدة)
-سبب التجميد: تعارض مع globalgap-compliance
-الإجراء المقترح: تغيير المنفذ إلى 8122
-```
-
-### 10. globalgap-compliance (المنفذ 8120)
-
-```yaml
-المسار: apps/services/globalgap-compliance/
-الحالة: FROZEN - يحتاج إصلاح
-البديل: لا يوجد (خدمة فريدة)
-سبب التجميد: تعارض مع ai-agents-core
-الإجراء المقترح: تغيير المنفذ إلى 8123
-```
+| الخدمة | Service | المنفذ | Port | البديل | Replacement | الملاحظات | Notes |
+|--------|---------|--------|------|--------|-------------|----------|-------|
+| `ndvi-engine` | ndvi-engine | 8107 | 8107 | `vegetation-analysis-service` (8090) | vegetation-analysis-service | قيد الإزالة | Pending removal |
+| `weather-core` | weather-core | 8108 | 8108 | `weather-service` (8092) | weather-service | قيد الإزالة | Pending removal |
 
 ---
 
-## 🛠️ خطة الإصلاح المستقبلية
+## ✅ تعارضات المنافذ المحلولة | Resolved Port Conflicts
 
-### المرحلة 1: تغيير المنافذ (أولوية عالية)
+تم حل جميع تعارضات المنافذ التالية في فبراير 2026:
 
-- [ ] تغيير منفذ `user-service` من 3020 إلى 3025
-- [ ] تغيير منفذ `agent-registry` من 8080 إلى 8121
-- [ ] تغيير منفذ `ai-agents-core` من 8120 إلى 8122
-- [ ] تغيير منفذ `globalgap-compliance` من 8120 إلى 8123
+All the following port conflicts were resolved in February 2026:
 
-### المرحلة 2: التحقق من الدمج (أولوية متوسطة)
-
-- [ ] التحقق من نقل وظائف `field-core` إلى `field-management-service`
-- [ ] التحقق من نقل وظائف `satellite-service` إلى `vegetation-analysis-service`
-- [ ] التحقق من نقل وظائف `weather-advanced` إلى `weather-service`
-- [ ] التحقق من نقل وظائف `fertilizer-advisor` إلى `advisory-service`
-- [ ] التحقق من نقل وظائف `crop-health-ai` إلى `crop-intelligence-service`
-- [ ] التحقق من نقل وظائف `yield-engine` إلى `yield-prediction-service`
-
-### المرحلة 3: الحذف النهائي (أولوية منخفضة)
-
-- [ ] حذف الخدمات المدمجة بعد التأكد من استقرار الخدمات الجديدة
-- [ ] تحديث الوثائق
-- [ ] إزالة من docker-compose files
+| الخدمة | Service | المنفذ القديم | Old Port | المنفذ الجديد | New Port | سبب التغيير | Reason |
+|--------|---------|---------------|----------|---------------|----------|-------------|--------|
+| `agent-registry` | agent-registry | 8121 | 8121 | **8160** | **8160** | تعارض مع skills-service | Conflict with skills-service |
+| `ai-agents-core` | ai-agents-core | 8120 | 8120 | **8161** | **8161** | تعارض مع field-intelligence | Conflict with field-intelligence |
+| `globalgap-compliance` | globalgap-compliance | 8120/8123 | 8120/8123 | **8128** | **8128** | تعارض مع field-intelligence/traceability | Conflict with field-intelligence/traceability |
+| `ussd-gateway` | ussd-gateway | 8180 | 8180 | **8183** | **8183** | تعارض مع edge-orchestrator | Conflict with edge-orchestrator |
+| `logistics-service` | logistics-service | 8181 | 8181 | **8167** | **8167** | محاذاة مع Dockerfile | Aligned with Dockerfile |
+| `user-service` | user-service | 3020 | 3020 | **3025** | **3025** | تعارض مع disaster-assessment | Conflict with disaster-assessment |
 
 ---
 
-## ⚠️ تحذيرات مهمة
+## ⚠️ تحذيرات مهمة | Important Warnings
 
-1. **لا تشغل الخدمات المجمدة مع البديلة في نفس الوقت**
-2. **لا تحذف أي خدمة قبل التأكد من نقل جميع الوظائف**
-3. **احتفظ بنسخة احتياطية قبل أي تغيير**
-
----
-
-## 📞 للتواصل
-
-عند الحاجة لتفعيل أي خدمة مجمدة، يرجى:
-
-1. مراجعة هذه الوثيقة
-2. تغيير المنفذ إذا لزم الأمر
-3. تحديث docker-compose.yml
-4. اختبار التكامل مع الخدمات الأخرى
+1. **لا تشغل الخدمات المتوقفة مع البدائل في نفس الوقت** | Do not run deprecated services alongside their replacements
+2. **جميع الخدمات المتوقفة تُظهر تحذير DEPRECATION في السجلات** | All deprecated services show DEPRECATION WARNING in logs
+3. **المرجع الأساسي للمنافذ**: `governance/services.yaml` و `docker-compose.yml` | Port source of truth: `governance/services.yaml` and `docker-compose.yml`
 
 ---
 
-## 📝 سجل التغييرات
+## 📝 سجل التغييرات | Changelog
 
-| التاريخ    | التغيير                             | المسؤول |
-| ---------- | ----------------------------------- | ------- |
-| 2026-01-03 | إنشاء الوثيقة وتوثيق 10 خدمات مجمدة | Claude  |
+| التاريخ | Date | التغيير | Change |
+|---------|------|---------|--------|
+| 2026-02-10 | 2026-02-10 | تحديث شامل: حل جميع تعارضات المنافذ، تحديث المنافذ الجديدة | Comprehensive update: resolved all port conflicts, updated new ports |
+| 2026-01-03 | 2026-01-03 | إنشاء الوثيقة | Document creation |

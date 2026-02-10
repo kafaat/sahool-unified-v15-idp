@@ -27,13 +27,26 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install build dependencies required to compile native wheels
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    libpq-dev \
-    python3-dev \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Configure Debian mirror fallback for network-restricted environments
+RUN set -e; \
+    # Try default sources first, fall back to mirror if DNS fails
+    (apt-get update 2>/dev/null && apt-get install -y --no-install-recommends \
+        build-essential gcc libpq-dev python3-dev libsqlite3-dev) || \
+    ( \
+        echo "Default apt sources failed, switching to mirror..."; \
+        # Bookworm DEB822 format
+        if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+            sed -i 's|URIs: http://deb.debian.org|URIs: https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
+        fi; \
+        # Traditional format fallback
+        if [ -f /etc/apt/sources.list ]; then \
+            sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list; \
+        fi; \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            build-essential gcc libpq-dev python3-dev libsqlite3-dev \
+    ) && \
+    rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies

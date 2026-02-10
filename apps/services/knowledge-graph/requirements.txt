@@ -16,7 +16,7 @@ tortoise-orm==0.21.7
 pydantic==2.12.5
 
 # Graph/Relationship Management
-networkx==3.2.1
+networkx==3.6.1
 
 # HTTP Client
 httpx==0.28.1

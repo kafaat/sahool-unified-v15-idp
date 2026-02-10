@@ -95,8 +95,8 @@ All HTTP traffic to SAHOOL services flows through Kong Gateway on port 8000. Kon
 
 | Method | Route | Service | Port | Purpose |
 |--------|-------|---------|------|---------|
-| ALL | `/api/v1/chat` | chat-service | 8114 | Chat operations |
-| ALL | `/chat` | chat-service | 8114 | Legacy chat route |
+| ALL | `/api/v1/chat` | chat-service | 8000 | Chat operations |
+| ALL | `/chat` | chat-service | 8000 | Legacy chat route |
 | ALL | `/api/v1/field-chat` | field-chat | 8099 | Field-specific chat |
 | ALL | `/field-chat` | field-chat | 8099 | Legacy field chat route |
 | ALL | `/api/v1/community` | community-chat | 8097 | Community posts |
@@ -171,10 +171,10 @@ All HTTP traffic to SAHOOL services flows through Kong Gateway on port 8000. Kon
 | ALL | `/task` | task-service | 8103 | Legacy task route |
 | ALL | `/api/v1/crm` | crm-service | 8131 | CRM operations |
 | ALL | `/crm` | crm-service | 8131 | Legacy CRM route |
-| ALL | `/api/v1/globalgap` | globalgap-compliance | 8123 | GlobalGAP compliance |
-| ALL | `/globalgap` | globalgap-compliance | 8123 | Legacy GlobalGAP route |
-| ALL | `/api/v1/logistics` | logistics-service | 8162 | Logistics operations |
-| ALL | `/logistics` | logistics-service | 8162 | Legacy logistics route |
+| ALL | `/api/v1/globalgap` | globalgap-compliance | 8128 | GlobalGAP compliance |
+| ALL | `/globalgap` | globalgap-compliance | 8128 | Legacy GlobalGAP route |
+| ALL | `/api/v1/logistics` | logistics-service | 8167 | Logistics operations |
+| ALL | `/logistics` | logistics-service | 8167 | Legacy logistics route |
 
 ### Notifications & Alerts
 
@@ -286,22 +286,18 @@ KONG_MEM_CACHE_SIZE: 128m
 
 ## 🐛 Known Issues
 
-### Port Conflicts
+### Resolved Port Conflicts (Feb 2026)
 
-1. **audit-service** (8114) conflicts with **chat-service** (8114)
-   - **Fix:** Move audit-service to port 8124
-
-2. **mcp-server** has duplicate port mappings
-   - Current: `8201:8200` and `8201:8201`
-   - **Fix:** Use single mapping `8201:8201`
+All port conflicts have been resolved:
+- **audit-service**: 8114 (no longer conflicts with chat-service which uses 8000 internally)
+- **agent-registry**: moved to 8160 (was 8121, conflicted with skills-service)
+- **globalgap-compliance**: moved to 8128 (was 8123, conflicted with traceability-service)
+- **ussd-gateway**: moved to 8183 (was 8180, conflicted with edge-orchestrator)
 
 ### Missing Routes
 
 1. **ground-vision-service** (8182) - Not configured in Kong
    - **Recommendation:** Add route `/api/v1/ground-vision`
-
-2. **audit-service** (8114) - Configured but port conflicts
-   - **Recommendation:** Fix port conflict first
 
 ---
 

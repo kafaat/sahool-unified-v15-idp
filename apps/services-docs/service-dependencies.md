@@ -509,7 +509,7 @@ These services have NO dependencies and must start first:
 
 ---
 
-#### ai-agents-core (Port 8122)
+#### ai-agents-core (Port 8161)
 **Dependencies:**
 - (Not specified in docker-compose)
 

@@ -813,8 +813,8 @@ This service has been migrated to [new-service]
 
 | Service               | Type    | Port | Description              |
 | --------------------- | ------- | ---- | ------------------------ |
-| globalgap-compliance  | Python  | 8120 | GlobalGAP compliance     |
-| audit-service         | Python  | 8122 | Audit logging            |
+| globalgap-compliance  | Python  | 8128 | GlobalGAP compliance     |
+| audit-service         | Python  | 8114 | Audit logging            |
 | traceability-service  | Python  | 8123 | Product traceability     |
 
 ### Vision, Terrain & Edge Services (New)

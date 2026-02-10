@@ -27,7 +27,7 @@
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7",
-    "@types/node": "^20.19.31",
+    "@types/node": "^20.19.33",
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prisma": "^5.22.0"

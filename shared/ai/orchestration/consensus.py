@@ -308,9 +308,8 @@ class WeightedVoting(ConsensusProtocol):
         winner_weight = weighted_counts[winner_key]
         winner_votes = vote_groups[winner_key]
 
-        # Calculate agreement ratio based on weights
-        agreement_ratio = winner_weight / (total_weight * max(v.confidence for v in votes))
-        agreement_ratio = min(1.0, agreement_ratio)  # Cap at 1.0
+        # Calculate agreement ratio based on weights (winner share of total)
+        agreement_ratio = winner_weight / total_weight if total_weight > 0 else 0.0
 
         # Check threshold
         reached = agreement_ratio >= self.threshold

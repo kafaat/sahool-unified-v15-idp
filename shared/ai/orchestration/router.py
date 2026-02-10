@@ -563,11 +563,11 @@ class AgentRouter:
 
             score = self._scores[key]
 
-            # Q-Learning update
-            # Q(s,a) = Q(s,a) + alpha * (reward - Q(s,a))
-            # Simplified since we don't have next state
+            # Q-Learning update with discount factor
+            # Q(s,a) = Q(s,a) + alpha * (gamma * reward - Q(s,a))
+            # gamma applied since no explicit next-state value
             old_q = score.q_value
-            new_q = old_q + self.learning_rate * (reward - old_q)
+            new_q = old_q + self.learning_rate * (self.discount_factor * reward - old_q)
             score.q_value = max(0.0, min(1.0, new_q))
 
             # Update statistics

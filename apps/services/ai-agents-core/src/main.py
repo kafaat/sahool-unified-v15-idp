@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="SAHOOL AI Agents Core",
     description="Hierarchical Multi-Agent System for Smart Agriculture",
-    version="1.0.0",
+    version="16.0.0",
 )
 
 # Setup unified error handling

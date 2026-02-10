@@ -352,6 +352,9 @@ class IoTAgent(BaseAgent):
         action = self.evaluate_rules(self.context)
         if action:
             action.source_agent = self.agent_id
+            # Enrich rule-based actions with actual sensor values
+            if action.action_type == "salinity_alert":
+                action.parameters["ec_value"] = self.context.sensor_data.get("soil_ec", 0)
             return action
 
         # 3. Predictive action based on trends

@@ -34,7 +34,7 @@
     "axios": "^1.7.9"
   },
   "devDependencies": {
-    "@types/node": "^20.19.31",
+    "@types/node": "^20.19.33",
     "tsup": "^8.0.1",
     "typescript": "^5.9.3"
   },

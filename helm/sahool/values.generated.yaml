@@ -1523,7 +1523,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8122
+    port: 8161
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1539,13 +1539,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8122'
+      value: '8161'
     serviceAccount:
       create: true
       name: sahool-ai-agents-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8122'
+      prometheus.io/port: '8161'
       prometheus.io/path: /metrics
   chat-service:
     enabled: true
@@ -1715,7 +1715,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8123
+    port: 8128
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1731,13 +1731,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8123'
+      value: '8128'
     serviceAccount:
       create: true
       name: sahool-globalgap-compliance
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8123'
+      prometheus.io/port: '8128'
       prometheus.io/path: /metrics
   knowledge-graph:
     enabled: true
@@ -1779,7 +1779,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8181
+    port: 8167
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1795,13 +1795,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8181'
+      value: '8167'
     serviceAccount:
       create: true
       name: sahool-logistics-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8181'
+      prometheus.io/port: '8167'
       prometheus.io/path: /metrics
   ndvi-engine:
     enabled: true
@@ -1843,7 +1843,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8180
+    port: 8183
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1859,13 +1859,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8180'
+      value: '8183'
     serviceAccount:
       create: true
       name: sahool-ussd-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8180'
+      prometheus.io/port: '8183'
       prometheus.io/path: /metrics
   weather-core:
     enabled: true
@@ -2500,7 +2500,7 @@ ingress:
     - path: /api/v1/ai/agents/core
       pathType: Prefix
       service: ai-agents-core
-      port: 8122
+      port: 8161
     - path: /api/v1/chat/service
       pathType: Prefix
       service: chat-service
@@ -2524,7 +2524,7 @@ ingress:
     - path: /api/v1/globalgap/compliance
       pathType: Prefix
       service: globalgap-compliance
-      port: 8123
+      port: 8128
     - path: /api/v1/knowledge/graph
       pathType: Prefix
       service: knowledge-graph
@@ -2532,7 +2532,7 @@ ingress:
     - path: /api/v1/logistics/service
       pathType: Prefix
       service: logistics-service
-      port: 8181
+      port: 8167
     - path: /api/v1/ndvi/engine
       pathType: Prefix
       service: ndvi-engine
@@ -2540,7 +2540,7 @@ ingress:
     - path: /api/v1/ussd/gateway
       pathType: Prefix
       service: ussd-gateway
-      port: 8180
+      port: 8183
     - path: /api/v1/weather/core
       pathType: Prefix
       service: weather-core

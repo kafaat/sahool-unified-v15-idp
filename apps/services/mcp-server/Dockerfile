@@ -15,8 +15,11 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY apps/services/mcp-server/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 
-# Copy shared modules
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ /app/shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ /app/shared/
 
 # Copy service code
 COPY apps/services/mcp-server/src/ /app/src/

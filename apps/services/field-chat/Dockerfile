@@ -4,7 +4,7 @@
 # Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim AS base
+FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
 # Build arguments
 ARG SERVICE_NAME=field-chat
@@ -26,14 +26,12 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Install build dependencies required to compile native wheels
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    gcc \
-    libpq-dev \
-    python3-dev \
-    libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Install system dependencies first (using HTTP), then configure HTTPS
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates apt-transport-https \
+    build-essential gcc libpq-dev python3-dev libsqlite3-dev && \
+    sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
+    rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
@@ -52,11 +50,6 @@ RUN mkdir -p /root/.pip && \
 # Install dependencies (using shared requirements)
 COPY apps/services/field-chat/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
-
-# Remove build-time packages to keep the runtime image small
-RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    || true
 
 # Copy shared libraries (required for shared.errors_py, shared.cors_config)
 COPY shared/ ./shared/

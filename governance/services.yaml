@@ -2167,8 +2167,7 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # CODE FIX AGENT - وكيل إصلاح الكود
-  # NOTE: Dockerfile uses 8090 which conflicts with vegetation-analysis-service
-  # Reassigned to 8161 to avoid conflict
+  # NOTE: Dockerfile uses 8162 (changed from 8090/8161 to avoid conflicts)
   # ═══════════════════════════════════════════════════════════════════════════
   code-fix-agent:
     name: "Code Fix Agent"
@@ -2179,7 +2178,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/code-fix-agent"
-    port: 8161  # Changed from 8090 (conflict with vegetation-analysis-service)
+    port: 8162  # Changed from 8161 (conflict with ai-agents-core)
     protocol: http
     health_endpoint: "/healthz"
     status: active

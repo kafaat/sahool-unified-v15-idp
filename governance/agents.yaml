@@ -1504,7 +1504,7 @@ agents:
     name_ar: "وكيل تخطيط الحصاد"
     version: "16.0.0"
     category: operations
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Optimal harvest timing, equipment scheduling, and post-harvest logistics planning"
     description_ar: "التوقيت الأمثل للحصاد وجدولة المعدات وتخطيط لوجستيات ما بعد الحصاد"
@@ -1570,7 +1570,7 @@ agents:
     name_ar: "وكيل أسعار السوق"
     version: "16.0.0"
     category: market
-    type: utility_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Real-time market price tracking, price prediction, and optimal selling time recommendations"
     description_ar: "تتبع أسعار السوق الحية وتوقع الأسعار وتوصيات التوقيت الأمثل للبيع"
@@ -1636,7 +1636,7 @@ agents:
     name_ar: "وكيل الدورة الزراعية"
     version: "16.0.0"
     category: precision
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Plans optimal crop rotation sequences considering soil health, market demand, and water availability"
     description_ar: "يخطط تسلسلات الدورة الزراعية المثلى مراعياً صحة التربة والطلب السوقي وتوفر المياه"
@@ -1701,7 +1701,7 @@ agents:
     name_ar: "وكيل إدارة الملوحة"
     version: "16.0.0"
     category: sustainability
-    type: model_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "FAO-29 based salinity monitoring, leaching requirement calculation, and salt-tolerant crop recommendations for Yemen/GCC"
     description_ar: "مراقبة الملوحة وحساب متطلبات الغسيل وتوصيات المحاصيل المتحملة للملوحة وفق FAO-29 لليمن والخليج"
@@ -1770,7 +1770,7 @@ agents:
     name_ar: "وكيل التوأم الرقمي"
     version: "16.0.0"
     category: intelligence
-    type: utility_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "L3 digital twin simulation for fields including soil-water-plant-atmosphere continuum modeling"
     description_ar: "محاكاة التوأم الرقمي من المستوى الثالث للحقول بما في ذلك نمذجة سلسلة التربة-الماء-النبات-الغلاف الجوي"
@@ -1835,7 +1835,7 @@ agents:
     name_ar: "وكيل تحسين التسميد بالري"
     version: "16.0.0"
     category: precision
-    type: utility_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Optimizes fertigation schedules combining nutrient injection with irrigation for maximum efficiency"
     description_ar: "يحسّن جداول التسميد بالري بدمج حقن العناصر الغذائية مع الري لتحقيق أقصى كفاءة"
@@ -1889,7 +1889,7 @@ agents:
     name_ar: "وكيل مهام الطائرات المسيرة"
     version: "16.0.0"
     category: operations
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Autonomous drone flight planning for field surveying, spraying, and monitoring missions"
     description_ar: "تخطيط مهام الطائرات المسيرة الذاتية للمسح والرش ومراقبة الحقول"
@@ -1957,7 +1957,7 @@ agents:
     name_ar: "وكيل الأجهزة الطرفية"
     version: "16.0.0"
     category: iot
-    type: model_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Manages edge computing devices (Jetson Orin), model deployment, OTA updates, and device health"
     description_ar: "يدير أجهزة الحوسبة الطرفية ونشر النماذج والتحديثات اللاسلكية وصحة الأجهزة"
@@ -2086,7 +2086,7 @@ agents:
     name_ar: "وكيل مستشار المزارع"
     version: "16.0.0"
     category: social
-    type: utility_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Personalized farmer advisory via Arabic NLP chat, adapting to literacy level and farming experience"
     description_ar: "استشارات شخصية للمزارع عبر محادثة بالعربية تتكيف مع مستوى المعرفة والخبرة الزراعية"
@@ -2162,7 +2162,7 @@ agents:
     name_ar: "وكيل إدارة التعاونيات"
     version: "16.0.0"
     category: social
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Manages cooperative activities, shared resource allocation, group purchasing, and collective marketing"
     description_ar: "يدير أنشطة التعاونيات وتوزيع الموارد المشتركة والشراء الجماعي والتسويق التعاوني"
@@ -2226,7 +2226,7 @@ agents:
     name_ar: "وكيل الامتثال لمعايير جلوبال جاب"
     version: "16.0.0"
     category: monitoring
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Automated GlobalGAP compliance checking, documentation preparation, and audit readiness assessment"
     description_ar: "فحص الامتثال التلقائي لمعايير جلوبال جاب وإعداد الوثائق وتقييم جاهزية التدقيق"
@@ -2291,7 +2291,7 @@ agents:
     name_ar: "وكيل التتبع"
     version: "16.0.0"
     category: monitoring
-    type: model_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Farm-to-fork product traceability, batch tracking, and provenance verification"
     description_ar: "تتبع المنتج من المزرعة إلى المائدة وتتبع الدفعات والتحقق من المصدر"
@@ -2356,7 +2356,7 @@ agents:
     name_ar: "وكيل صيانة المعدات"
     version: "16.0.0"
     category: operations
-    type: model_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Predictive maintenance scheduling for farm equipment based on usage patterns and manufacturer specs"
     description_ar: "جدولة الصيانة التنبؤية للمعدات الزراعية بناءً على أنماط الاستخدام ومواصفات الشركة المصنعة"
@@ -2420,7 +2420,7 @@ agents:
     name_ar: "وكيل المرونة المناخية"
     version: "16.0.0"
     category: sustainability
-    type: goal_based
+    type: autonomous
     owner: "data-team@sahool.io"
     description: "Climate change adaptation planning, drought risk assessment, and resilient farming practice recommendations"
     description_ar: "تخطيط التكيف مع التغير المناخي وتقييم مخاطر الجفاف وتوصيات الممارسات الزراعية المرنة"
@@ -2486,7 +2486,7 @@ agents:
     name_ar: "وكيل تحسين المخزون"
     version: "16.0.0"
     category: operations
-    type: utility_based
+    type: specialist
     owner: "data-team@sahool.io"
     description: "Optimizes farm input inventory (seeds, fertilizer, pesticides) with reorder points and supplier management"
     description_ar: "يحسّن مخزون المدخلات الزراعية (البذور والأسمدة والمبيدات) مع نقاط إعادة الطلب وإدارة الموردين"

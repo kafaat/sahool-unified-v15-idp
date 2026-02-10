@@ -1587,7 +1587,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8161
+    port: 8162
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1603,13 +1603,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8161'
+      value: '8162'
     serviceAccount:
       create: true
       name: sahool-code-fix-agent
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8161'
+      prometheus.io/port: '8162'
       prometheus.io/path: /metrics
   code-review-agent:
     enabled: true
@@ -2508,7 +2508,7 @@ ingress:
     - path: /api/v1/code/fix/agent
       pathType: Prefix
       service: code-fix-agent
-      port: 8161
+      port: 8162
     - path: /api/v1/code/review/agent
       pathType: Prefix
       service: code-review-agent

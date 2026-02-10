@@ -90,7 +90,7 @@ All port conflicts have been resolved:
 
 | Port | Service | New Port | Status |
 |------|---------|----------|--------|
-| 8090 | code-fix-agent | **8161** | ✅ Fixed |
+| 8090 | code-fix-agent | **8162** | ✅ Fixed |
 | 8121 | skills-service | **8170** | ✅ Fixed |
 | 8130 | ussd-gateway | **8180** | ✅ Fixed |
 | 8131 | logistics-service | **8181** | ✅ Fixed |
@@ -220,7 +220,7 @@ Changes:
 
 | Service | Current Port | New Port |
 |---------|--------------|----------|
-| code-fix-agent | 8090 | 8161 |
+| code-fix-agent | 8090 | 8162 |
 | skills-service | 8121 | 8170 |
 | ussd-gateway | 8130 | 8180 |
 | logistics-service | 8131 | 8181 |

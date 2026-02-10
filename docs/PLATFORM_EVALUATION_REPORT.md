@@ -29,7 +29,7 @@
 |-------|-------------|---------|
 | chat-service | 8000 / 8114 | Dockerfile: 8000، Kong: 8114 |
 | agent-registry | 8160 | تم التصحيح من 8121 |
-| code-fix-agent | 8161 | تم التصحيح من 8090 |
+| code-fix-agent | 8162 | تم التصحيح من 8090 |
 
 **التأثير**: فشل التوجيه عبر Kong API Gateway
 

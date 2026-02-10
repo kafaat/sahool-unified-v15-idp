@@ -2026,10 +2026,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-code-fix-agent
     ports:
-    - 8161:8161
+    - 8162:8162
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8161
+    - PORT=8162
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2038,7 +2038,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8161/healthz
+      - http://localhost:8162/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2055,7 +2055,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=code-fix-agent
-    - sahool.port=8161
+    - sahool.port=8162
     - sahool.category=analytics
     - traefik.enable=true
     - traefik.http.routers.code-fix-agent.rule=PathPrefix(`/api/v1/code/fix/agent`)

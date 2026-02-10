@@ -1117,227 +1117,251 @@
 
 
 <h1 id="sahool-deprecated-services-registry">SAHOOL Deprecated Services Registry<a class="headerlink" href="#sahool-deprecated-services-registry" title="Permanent link">&para;</a></h1>
-<h1 id="_1">سجل الخدمات المجمدة والمتوقفة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="_1">سجل الخدمات المتوقفة والمدمجة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p><strong>تاريخ التحديث</strong>: 2026-01-03
-<strong>الحالة</strong>: مجمّد - في انتظار قرار الإزالة أو الدمج</p>
+<p><strong>تاريخ التحديث</strong>: 2026-02-10
+<strong>الحالة</strong>: محدّث - تم حل جميع تعارضات المنافذ</p>
 </blockquote>
 <hr />
 <h2 id="_2">📋 ملخص تنفيذي<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
-<p>هذه الوثيقة توضح الخدمات المجمدة (Deprecated) التي تم استبدالها بخدمات موحدة جديدة.
-<strong>لا يجب تشغيل هذه الخدمات مع الخدمات الجديدة في نفس الوقت بسبب تعارض المنافذ.</strong></p>
+<p>هذه الوثيقة توضح الخدمات المتوقفة (Deprecated) التي تم استبدالها بخدمات موحدة جديدة.</p>
+<p>This document lists deprecated services that have been replaced by consolidated new services.</p>
 <hr />
-<h2 id="frozen-services">🔴 الخدمات المجمدة (Frozen Services)<a class="headerlink" href="#frozen-services" title="Permanent link">&para;</a></h2>
-<h3 id="_3">جدول التعارضات<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<h2 id="deprecated-services">🔴 الخدمات المتوقفة | Deprecated Services<a class="headerlink" href="#deprecated-services" title="Permanent link">&para;</a></h2>
+<h3 id="fully-consolidated-services">الخدمات المدمجة (تم نقل وظائفها بالكامل) | Fully Consolidated Services<a class="headerlink" href="#fully-consolidated-services" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>المنفذ</th>
-<th>الخدمة المجمدة</th>
-<th>الخدمة البديلة</th>
-<th>سبب التجميد</th>
+<th>الخدمة المتوقفة</th>
+<th>Deprecated Service</th>
+<th>البديل</th>
+<th>Replacement</th>
+<th>المنفذ الجديد</th>
+<th>New Port</th>
+<th>تاريخ الإيقاف</th>
+<th>Date</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>3000</td>
-<td><code>field-core</code></td>
-<td><code>field-management-service</code></td>
-<td>تم دمج الوظائف</td>
-</tr>
-<tr>
-<td>3020</td>
-<td><code>user-service</code></td>
-<td><code>disaster-assessment</code></td>
-<td>تعارض منفذ</td>
-</tr>
-<tr>
-<td>8080</td>
-<td><code>agent-registry</code></td>
 <td><code>field-ops</code></td>
-<td>تعارض منفذ</td>
+<td>field-ops</td>
+<td><code>field-management-service</code></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>3000</td>
+<td>قديم</td>
+<td>Legacy</td>
 </tr>
 <tr>
-<td>8090</td>
+<td><code>field-core</code></td>
+<td>field-core</td>
+<td><code>field-management-service</code></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>3000</td>
+<td>قديم</td>
+<td>Legacy</td>
+</tr>
+<tr>
+<td><code>field-service</code></td>
+<td>field-service</td>
+<td><code>field-management-service</code></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>3000</td>
+<td>قديم</td>
+<td>Legacy</td>
+</tr>
+<tr>
 <td><code>satellite-service</code></td>
+<td>satellite-service</td>
 <td><code>vegetation-analysis-service</code></td>
-<td>تم دمج الوظائف</td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>8090</td>
+<td>2026-01-11</td>
+<td></td>
 </tr>
 <tr>
-<td>8092</td>
 <td><code>weather-advanced</code></td>
+<td>weather-advanced</td>
 <td><code>weather-service</code></td>
-<td>تم دمج الوظائف</td>
+<td>weather-service</td>
+<td>8092</td>
+<td>8092</td>
+<td>2026-01-11</td>
+<td></td>
 </tr>
 <tr>
-<td>8093</td>
-<td><code>fertilizer-advisor</code></td>
-<td><code>advisory-service</code></td>
-<td>تم دمج الوظائف</td>
-</tr>
-<tr>
-<td>8095</td>
 <td><code>crop-health-ai</code></td>
+<td>crop-health-ai</td>
 <td><code>crop-intelligence-service</code></td>
-<td>تم دمج الوظائف</td>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td>8095</td>
+<td>2026-01-11</td>
+<td></td>
 </tr>
 <tr>
-<td>8098</td>
-<td><code>yield-engine</code></td>
-<td><code>yield-prediction-service</code></td>
-<td>تم دمج الوظائف</td>
+<td><code>fertilizer-advisor</code></td>
+<td>fertilizer-advisor</td>
+<td><code>advisory-service</code></td>
+<td>advisory-service</td>
+<td>8093</td>
+<td>8093</td>
+<td>2026-01-11</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-pending-removal">خدمات قيد الإزالة | Services Pending Removal<a class="headerlink" href="#services-pending-removal" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ</th>
+<th>Port</th>
+<th>البديل</th>
+<th>Replacement</th>
+<th>الملاحظات</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ndvi-engine</code></td>
+<td>ndvi-engine</td>
+<td>8107</td>
+<td>8107</td>
+<td><code>vegetation-analysis-service</code> (8090)</td>
+<td>vegetation-analysis-service</td>
+<td>قيد الإزالة</td>
+<td>Pending removal</td>
 </tr>
 <tr>
-<td>8120</td>
-<td><code>ai-agents-core</code></td>
-<td>-</td>
-<td>يحتاج منفذ جديد</td>
-</tr>
-<tr>
-<td>8120</td>
-<td><code>globalgap-compliance</code></td>
-<td>-</td>
-<td>يحتاج منفذ جديد</td>
+<td><code>weather-core</code></td>
+<td>weather-core</td>
+<td>8108</td>
+<td>8108</td>
+<td><code>weather-service</code> (8092)</td>
+<td>weather-service</td>
+<td>قيد الإزالة</td>
+<td>Pending removal</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="_4">📁 تفاصيل كل خدمة مجمدة<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
-<h3 id="1-field-core-3000">1. field-core (المنفذ 3000)<a class="headerlink" href="#1-field-core-3000" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/field-core/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">field-management-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج جميع وظائف إدارة الحقول في field-management-service</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="2-user-service-3020">2. user-service (المنفذ 3020)<a class="headerlink" href="#2-user-service-3020" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/user-service/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">يحتاج تغيير المنفذ أو دمج مع خدمة أخرى</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعارض مع disaster-assessment</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تغيير المنفذ إلى 3025 أو دمج مع auth-service</span>
-</code></pre></div>
-
-<h3 id="3-agent-registry-8080">3. agent-registry (المنفذ 8080)<a class="headerlink" href="#3-agent-registry-8080" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/agent-registry/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">يحتاج تغيير المنفذ</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعارض مع field-ops</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تغيير المنفذ إلى 8121</span>
-</code></pre></div>
-
-<h3 id="4-satellite-service-8090">4. satellite-service (المنفذ 8090)<a class="headerlink" href="#4-satellite-service-8090" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/satellite-service/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">vegetation-analysis-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج وظائف تحليل الأقمار الصناعية</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="5-weather-advanced-8092">5. weather-advanced (المنفذ 8092)<a class="headerlink" href="#5-weather-advanced-8092" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/weather-advanced/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">weather-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج وظائف الطقس المتقدمة</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="6-fertilizer-advisor-8093">6. fertilizer-advisor (المنفذ 8093)<a class="headerlink" href="#6-fertilizer-advisor-8093" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/fertilizer-advisor/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">advisory-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج وظائف استشارات الأسمدة</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="7-crop-health-ai-8095">7. crop-health-ai (المنفذ 8095)<a class="headerlink" href="#7-crop-health-ai-8095" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/crop-health-ai/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">crop-intelligence-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج وظائف الذكاء الاصطناعي لصحة المحاصيل</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="8-yield-engine-8098">8. yield-engine (المنفذ 8098)<a class="headerlink" href="#8-yield-engine-8098" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/yield-engine/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yield-prediction-service</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تم دمج محرك التنبؤ بالإنتاجية</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">حذف بعد التأكد من نقل جميع الوظائف</span>
-</code></pre></div>
-
-<h3 id="9-ai-agents-core-8120">9. ai-agents-core (المنفذ 8120)<a class="headerlink" href="#9-ai-agents-core-8120" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/ai-agents-core/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN - يحتاج إصلاح</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لا يوجد (خدمة فريدة)</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعارض مع globalgap-compliance</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تغيير المنفذ إلى 8122</span>
-</code></pre></div>
-
-<h3 id="10-globalgap-compliance-8120">10. globalgap-compliance (المنفذ 8120)<a class="headerlink" href="#10-globalgap-compliance-8120" title="Permanent link">&para;</a></h3>
-<div class="codehilite"><pre><span></span><code><span class="nt">المسار</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/services/globalgap-compliance/</span>
-<span class="nt">الحالة</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">FROZEN - يحتاج إصلاح</span>
-<span class="nt">البديل</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">لا يوجد (خدمة فريدة)</span>
-<span class="nt">سبب التجميد</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تعارض مع ai-agents-core</span>
-<span class="nt">الإجراء المقترح</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">تغيير المنفذ إلى 8123</span>
-</code></pre></div>
-
-<hr />
-<h2 id="_5">🛠️ خطة الإصلاح المستقبلية<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
-<h3 id="1">المرحلة 1: تغيير المنافذ (أولوية عالية)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[ ] تغيير منفذ <code>user-service</code> من 3020 إلى 3025</li>
-<li>[ ] تغيير منفذ <code>agent-registry</code> من 8080 إلى 8121</li>
-<li>[ ] تغيير منفذ <code>ai-agents-core</code> من 8120 إلى 8122</li>
-<li>[ ] تغيير منفذ <code>globalgap-compliance</code> من 8120 إلى 8123</li>
-</ul>
-<h3 id="2">المرحلة 2: التحقق من الدمج (أولوية متوسطة)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[ ] التحقق من نقل وظائف <code>field-core</code> إلى <code>field-management-service</code></li>
-<li>[ ] التحقق من نقل وظائف <code>satellite-service</code> إلى <code>vegetation-analysis-service</code></li>
-<li>[ ] التحقق من نقل وظائف <code>weather-advanced</code> إلى <code>weather-service</code></li>
-<li>[ ] التحقق من نقل وظائف <code>fertilizer-advisor</code> إلى <code>advisory-service</code></li>
-<li>[ ] التحقق من نقل وظائف <code>crop-health-ai</code> إلى <code>crop-intelligence-service</code></li>
-<li>[ ] التحقق من نقل وظائف <code>yield-engine</code> إلى <code>yield-prediction-service</code></li>
-</ul>
-<h3 id="3">المرحلة 3: الحذف النهائي (أولوية منخفضة)<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[ ] حذف الخدمات المدمجة بعد التأكد من استقرار الخدمات الجديدة</li>
-<li>[ ] تحديث الوثائق</li>
-<li>[ ] إزالة من docker-compose files</li>
-</ul>
-<hr />
-<h2 id="_6">⚠️ تحذيرات مهمة<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
-<ol>
-<li><strong>لا تشغل الخدمات المجمدة مع البديلة في نفس الوقت</strong></li>
-<li><strong>لا تحذف أي خدمة قبل التأكد من نقل جميع الوظائف</strong></li>
-<li><strong>احتفظ بنسخة احتياطية قبل أي تغيير</strong></li>
-</ol>
-<hr />
-<h2 id="_7">📞 للتواصل<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h2>
-<p>عند الحاجة لتفعيل أي خدمة مجمدة، يرجى:</p>
-<ol>
-<li>مراجعة هذه الوثيقة</li>
-<li>تغيير المنفذ إذا لزم الأمر</li>
-<li>تحديث docker-compose.yml</li>
-<li>اختبار التكامل مع الخدمات الأخرى</li>
-</ol>
-<hr />
-<h2 id="_8">📝 سجل التغييرات<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h2>
+<h2 id="resolved-port-conflicts">✅ تعارضات المنافذ المحلولة | Resolved Port Conflicts<a class="headerlink" href="#resolved-port-conflicts" title="Permanent link">&para;</a></h2>
+<p>تم حل جميع تعارضات المنافذ التالية في فبراير 2026:</p>
+<p>All the following port conflicts were resolved in February 2026:</p>
 <table>
 <thead>
 <tr>
-<th>التاريخ</th>
-<th>التغيير</th>
-<th>المسؤول</th>
+<th>الخدمة</th>
+<th>Service</th>
+<th>المنفذ القديم</th>
+<th>Old Port</th>
+<th>المنفذ الجديد</th>
+<th>New Port</th>
+<th>سبب التغيير</th>
+<th>Reason</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><code>agent-registry</code></td>
+<td>agent-registry</td>
+<td>8121</td>
+<td>8121</td>
+<td><strong>8160</strong></td>
+<td><strong>8160</strong></td>
+<td>تعارض مع skills-service</td>
+<td>Conflict with skills-service</td>
+</tr>
+<tr>
+<td><code>ai-agents-core</code></td>
+<td>ai-agents-core</td>
+<td>8120</td>
+<td>8120</td>
+<td><strong>8161</strong></td>
+<td><strong>8161</strong></td>
+<td>تعارض مع field-intelligence</td>
+<td>Conflict with field-intelligence</td>
+</tr>
+<tr>
+<td><code>globalgap-compliance</code></td>
+<td>globalgap-compliance</td>
+<td>8120/8123</td>
+<td>8120/8123</td>
+<td><strong>8128</strong></td>
+<td><strong>8128</strong></td>
+<td>تعارض مع field-intelligence/traceability</td>
+<td>Conflict with field-intelligence/traceability</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>ussd-gateway</td>
+<td>8180</td>
+<td>8180</td>
+<td><strong>8183</strong></td>
+<td><strong>8183</strong></td>
+<td>تعارض مع edge-orchestrator</td>
+<td>Conflict with edge-orchestrator</td>
+</tr>
+<tr>
+<td><code>logistics-service</code></td>
+<td>logistics-service</td>
+<td>8181</td>
+<td>8181</td>
+<td><strong>8167</strong></td>
+<td><strong>8167</strong></td>
+<td>محاذاة مع Dockerfile</td>
+<td>Aligned with Dockerfile</td>
+</tr>
+<tr>
+<td><code>user-service</code></td>
+<td>user-service</td>
+<td>3020</td>
+<td>3020</td>
+<td><strong>3025</strong></td>
+<td><strong>3025</strong></td>
+<td>تعارض مع disaster-assessment</td>
+<td>Conflict with disaster-assessment</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="important-warnings">⚠️ تحذيرات مهمة | Important Warnings<a class="headerlink" href="#important-warnings" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>لا تشغل الخدمات المتوقفة مع البدائل في نفس الوقت</strong> | Do not run deprecated services alongside their replacements</li>
+<li><strong>جميع الخدمات المتوقفة تُظهر تحذير DEPRECATION في السجلات</strong> | All deprecated services show DEPRECATION WARNING in logs</li>
+<li><strong>المرجع الأساسي للمنافذ</strong>: <code>governance/services.yaml</code> و <code>docker-compose.yml</code> | Port source of truth: <code>governance/services.yaml</code> and <code>docker-compose.yml</code></li>
+</ol>
+<hr />
+<h2 id="changelog">📝 سجل التغييرات | Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>التاريخ</th>
+<th>Date</th>
+<th>التغيير</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-02-10</td>
+<td>2026-02-10</td>
+<td>تحديث شامل: حل جميع تعارضات المنافذ، تحديث المنافذ الجديدة</td>
+<td>Comprehensive update: resolved all port conflicts, updated new ports</td>
+</tr>
+<tr>
 <td>2026-01-03</td>
-<td>إنشاء الوثيقة وتوثيق 10 خدمات مجمدة</td>
-<td>Claude</td>
+<td>2026-01-03</td>
+<td>إنشاء الوثيقة</td>
+<td>Document creation</td>
 </tr>
 </tbody>
 </table>

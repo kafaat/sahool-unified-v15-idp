@@ -210,9 +210,7 @@ class TestCircuitBreaker:
         assert circuit_breaker.stats.consecutive_failures == 1
 
     @pytest.mark.asyncio
-    async def test_circuit_opens_after_threshold(
-        self, circuit_breaker: CircuitBreaker
-    ):
+    async def test_circuit_opens_after_threshold(self, circuit_breaker: CircuitBreaker):
         """Test circuit opens after failure threshold."""
 
         async def fail_func():
@@ -250,9 +248,7 @@ class TestCircuitBreaker:
         assert exc_info.value.retry_after is not None
 
     @pytest.mark.asyncio
-    async def test_circuit_transitions_to_half_open(
-        self, circuit_breaker: CircuitBreaker
-    ):
+    async def test_circuit_transitions_to_half_open(self, circuit_breaker: CircuitBreaker):
         """Test circuit transitions to half-open after timeout."""
 
         async def fail_func():
@@ -303,9 +299,7 @@ class TestCircuitBreaker:
         assert circuit_breaker.state == CircuitState.CLOSED
 
     @pytest.mark.asyncio
-    async def test_circuit_reopens_on_failure_in_half_open(
-        self, circuit_breaker: CircuitBreaker
-    ):
+    async def test_circuit_reopens_on_failure_in_half_open(self, circuit_breaker: CircuitBreaker):
         """Test circuit reopens on failure in half-open state."""
 
         async def fail_func():
@@ -469,9 +463,7 @@ class TestConcurrency:
             return "success"
 
         # Run multiple concurrent calls
-        results = await asyncio.gather(
-            *[circuit_breaker.call(slow_success) for _ in range(5)]
-        )
+        results = await asyncio.gather(*[circuit_breaker.call(slow_success) for _ in range(5)])
 
         assert all(r == "success" for r in results)
         assert circuit_breaker.stats.total_calls == 5
@@ -540,9 +532,7 @@ class TestEdgeCases:
         assert result == "Hi, World!"
 
     @pytest.mark.asyncio
-    async def test_async_generator_not_supported(
-        self, circuit_breaker: CircuitBreaker
-    ):
+    async def test_async_generator_not_supported(self, circuit_breaker: CircuitBreaker):
         """Test that we handle async calls correctly."""
 
         async def async_func():

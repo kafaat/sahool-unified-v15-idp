@@ -438,9 +438,7 @@ class TestHMCEngineAIProgramGeneration:
         )
 
         # Try to generate without setting goal
-        hmc_engine.generate_program.side_effect = ValueError(
-            "Cannot generate program without goal"
-        )
+        hmc_engine.generate_program.side_effect = ValueError("Cannot generate program without goal")
 
         with pytest.raises(ValueError) as exc_info:
             await hmc_engine.generate_program(session_id=session_id)

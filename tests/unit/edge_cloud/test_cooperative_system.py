@@ -257,8 +257,7 @@ class CooperativeOrchestrator:
     def get_system_metrics(self) -> dict[str, Any]:
         """Get system metrics"""
         total_inferences = (
-            self._metrics["edge_inference_count"] +
-            self._metrics["cloud_inference_count"]
+            self._metrics["edge_inference_count"] + self._metrics["cloud_inference_count"]
         )
 
         return {
@@ -307,9 +306,7 @@ class TestFullPipeline:
         assert result["latency_ms"] > 0
 
     @pytest.mark.asyncio
-    async def test_pipeline_routes_to_edge_for_latency(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_pipeline_routes_to_edge_for_latency(self, orchestrator: CooperativeOrchestrator):
         """Test pipeline routes to edge for latency-sensitive tasks"""
         result = await orchestrator.execute_pipeline(
             sensor_data={"soil_moisture": 30},
@@ -335,9 +332,7 @@ class TestFullPipeline:
         assert result["routing_reason"] == "task_complexity"
 
     @pytest.mark.asyncio
-    async def test_pipeline_edge_inference_result(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_pipeline_edge_inference_result(self, orchestrator: CooperativeOrchestrator):
         """Test edge inference returns expected result structure"""
         orchestrator.set_mode(InferenceMode.EDGE.value)
 
@@ -364,9 +359,7 @@ class TestFullPipeline:
         assert "additional_analysis" in result["result"]
 
     @pytest.mark.asyncio
-    async def test_pipeline_multiple_executions(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_pipeline_multiple_executions(self, orchestrator: CooperativeOrchestrator):
         """Test multiple pipeline executions"""
         results = []
         for moisture in [25, 35, 45, 55, 65]:
@@ -392,10 +385,7 @@ class TestEdgeCloudSync:
     @pytest.mark.asyncio
     async def test_sync_edge_to_cloud_success(self, orchestrator: CooperativeOrchestrator):
         """Test successful edge to cloud sync"""
-        data = [
-            {"reading_id": str(uuid.uuid4()), "value": 45.0}
-            for _ in range(100)
-        ]
+        data = [{"reading_id": str(uuid.uuid4()), "value": 45.0} for _ in range(100)]
 
         result = await orchestrator.sync_edge_to_cloud(data)
 
@@ -404,9 +394,7 @@ class TestEdgeCloudSync:
         assert result["direction"] == "edge_to_cloud"
 
     @pytest.mark.asyncio
-    async def test_sync_fails_when_cloud_unavailable(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_sync_fails_when_cloud_unavailable(self, orchestrator: CooperativeOrchestrator):
         """Test sync fails when cloud is unavailable"""
         orchestrator.set_cloud_status("disconnected")
 
@@ -418,9 +406,7 @@ class TestEdgeCloudSync:
         assert result["records_pending"] == 1
 
     @pytest.mark.asyncio
-    async def test_sync_cloud_to_edge_model_updates(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_sync_cloud_to_edge_model_updates(self, orchestrator: CooperativeOrchestrator):
         """Test cloud to edge sync includes model updates"""
         result = await orchestrator.sync_cloud_to_edge(
             model_updates=True,
@@ -432,9 +418,7 @@ class TestEdgeCloudSync:
         assert result["updates"][0]["type"] == "model"
 
     @pytest.mark.asyncio
-    async def test_sync_cloud_to_edge_all_updates(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_sync_cloud_to_edge_all_updates(self, orchestrator: CooperativeOrchestrator):
         """Test cloud to edge sync with all update types"""
         result = await orchestrator.sync_cloud_to_edge(
             model_updates=True,
@@ -484,9 +468,7 @@ class TestFallbackToEdge:
         assert "data_buffering" in result["capabilities_available"]
 
     @pytest.mark.asyncio
-    async def test_automatic_fallback_in_pipeline(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_automatic_fallback_in_pipeline(self, orchestrator: CooperativeOrchestrator):
         """Test automatic fallback in pipeline execution"""
         # Set cloud mode but make cloud unavailable
         orchestrator.set_mode(InferenceMode.CLOUD.value)
@@ -541,9 +523,7 @@ class TestSystemMetrics:
         assert metrics["fallback_count"] == 0
 
     @pytest.mark.asyncio
-    async def test_metrics_after_edge_inference(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_metrics_after_edge_inference(self, orchestrator: CooperativeOrchestrator):
         """Test metrics updated after edge inference"""
         orchestrator.set_mode(InferenceMode.EDGE.value)
 
@@ -554,9 +534,7 @@ class TestSystemMetrics:
         assert metrics["cloud_inference_count"] == 0
 
     @pytest.mark.asyncio
-    async def test_metrics_after_cloud_inference(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_metrics_after_cloud_inference(self, orchestrator: CooperativeOrchestrator):
         """Test metrics updated after cloud inference"""
         orchestrator.set_mode(InferenceMode.CLOUD.value)
 
@@ -593,9 +571,7 @@ class TestSystemMetrics:
         assert "cloud_status" in metrics
 
     @pytest.mark.asyncio
-    async def test_comprehensive_metrics_scenario(
-        self, orchestrator: CooperativeOrchestrator
-    ):
+    async def test_comprehensive_metrics_scenario(self, orchestrator: CooperativeOrchestrator):
         """Test comprehensive metrics in realistic scenario"""
         # Simulate mixed workload
         for _ in range(5):

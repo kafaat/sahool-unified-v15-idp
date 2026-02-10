@@ -246,12 +246,14 @@ class TestGraphStore:
     def store(self):
         """Create fresh store for each test"""
         from shared.ai.graph_memory import GraphStore
+
         return GraphStore()
 
     @pytest.fixture
     def sample_entity(self):
         """Create sample entity"""
         from shared.ai.graph_memory import Entity, EntityType
+
         return Entity(
             id="test-entity-001",
             type=EntityType.FIELD,
@@ -321,14 +323,22 @@ class TestGraphStore:
         await store.add_entity(Entity(id="field-1", type=EntityType.FIELD, name="Field 1"))
         await store.add_entity(Entity(id="field-2", type=EntityType.FIELD, name="Field 2"))
 
-        await store.add_relationship(Relationship(
-            id="r1", source_id="farm-1", target_id="field-1",
-            relation_type=RelationType.CONTAINS
-        ))
-        await store.add_relationship(Relationship(
-            id="r2", source_id="farm-1", target_id="field-2",
-            relation_type=RelationType.CONTAINS
-        ))
+        await store.add_relationship(
+            Relationship(
+                id="r1",
+                source_id="farm-1",
+                target_id="field-1",
+                relation_type=RelationType.CONTAINS,
+            )
+        )
+        await store.add_relationship(
+            Relationship(
+                id="r2",
+                source_id="farm-1",
+                target_id="field-2",
+                relation_type=RelationType.CONTAINS,
+            )
+        )
 
         outgoing = await store.get_outgoing_relationships("farm-1")
         assert len(outgoing) == 2
@@ -341,10 +351,14 @@ class TestGraphStore:
         await store.add_entity(Entity(id="farm-1", type=EntityType.FARM, name="Farm"))
         await store.add_entity(Entity(id="field-1", type=EntityType.FIELD, name="Field"))
 
-        await store.add_relationship(Relationship(
-            id="r1", source_id="farm-1", target_id="field-1",
-            relation_type=RelationType.CONTAINS
-        ))
+        await store.add_relationship(
+            Relationship(
+                id="r1",
+                source_id="farm-1",
+                target_id="field-1",
+                relation_type=RelationType.CONTAINS,
+            )
+        )
 
         incoming = await store.get_incoming_relationships("field-1")
         assert len(incoming) == 1
@@ -357,10 +371,14 @@ class TestGraphStore:
         await store.add_entity(Entity(id="farm-1", type=EntityType.FARM, name="Farm"))
         await store.add_entity(Entity(id="field-1", type=EntityType.FIELD, name="Field"))
 
-        await store.add_relationship(Relationship(
-            id="r1", source_id="farm-1", target_id="field-1",
-            relation_type=RelationType.CONTAINS
-        ))
+        await store.add_relationship(
+            Relationship(
+                id="r1",
+                source_id="farm-1",
+                target_id="field-1",
+                relation_type=RelationType.CONTAINS,
+            )
+        )
 
         neighbors = await store.get_neighbors("farm-1", direction="outgoing")
         assert len(neighbors) == 1
@@ -397,6 +415,7 @@ class TestSimpleEmbedder:
     def embedder(self):
         """Create embedder instance"""
         from shared.ai.graph_memory import SimpleEmbedder
+
         return SimpleEmbedder(dimension=64)
 
     @pytest.mark.asyncio
@@ -491,6 +510,7 @@ class TestGraphMemory:
     def memory(self):
         """Create fresh memory for each test"""
         from shared.ai.graph_memory import GraphMemory
+
         return GraphMemory(tenant_id="test-tenant")
 
     @pytest.mark.asyncio
@@ -556,8 +576,10 @@ class TestGraphMemory:
 
         assert len(results) > 0
         # Wheat irrigation should score higher
-        assert "wheat" in results[0].entity.content.lower() or \
-               "irrigation" in results[0].entity.content.lower()
+        assert (
+            "wheat" in results[0].entity.content.lower()
+            or "irrigation" in results[0].entity.content.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_search_with_type_filter(self, memory):
@@ -701,10 +723,7 @@ class TestRelationshipExtraction:
 
         # Add field with farm_id property
         field = await memory.add(
-            "North Field",
-            EntityType.FIELD,
-            name="Field",
-            properties={"farm_id": farm.id}
+            "North Field", EntityType.FIELD, name="Field", properties={"farm_id": farm.id}
         )
         await memory.cognify()
 
@@ -727,10 +746,7 @@ class TestRelationshipExtraction:
 
         # Add crop with field_id property
         crop = await memory.add(
-            "Winter Wheat",
-            EntityType.CROP,
-            name="Wheat",
-            properties={"field_id": field.id}
+            "Winter Wheat", EntityType.CROP, name="Wheat", properties={"field_id": field.id}
         )
         await memory.cognify()
 

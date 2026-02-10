@@ -303,9 +303,7 @@ class TestFarmMemoryStore:
                 memory_type=MemoryType.OBSERVATION,
             )
 
-        result = memory_small_window.recall(
-            tenant_id=test_tenant_id, limit=max_entries + 10
-        )
+        result = memory_small_window.recall(tenant_id=test_tenant_id, limit=max_entries + 10)
         assert len(result.entries) <= max_entries
 
 
@@ -367,9 +365,7 @@ class TestFarmMemoryRecall:
             memory_type=MemoryType.ACTION,
         )
 
-        result = memory.recall(
-            tenant_id=test_tenant_id, memory_types=[MemoryType.OBSERVATION]
-        )
+        result = memory.recall(tenant_id=test_tenant_id, memory_types=[MemoryType.OBSERVATION])
 
         assert len(result.entries) == 1
         assert result.entries[0].memory_type == MemoryType.OBSERVATION
@@ -389,9 +385,7 @@ class TestFarmMemoryRecall:
             relevance=RelevanceScore.CRITICAL,
         )
 
-        result = memory.recall(
-            tenant_id=test_tenant_id, min_relevance=RelevanceScore.CRITICAL
-        )
+        result = memory.recall(tenant_id=test_tenant_id, min_relevance=RelevanceScore.CRITICAL)
 
         assert len(result.entries) == 1
         assert result.entries[0].relevance == RelevanceScore.CRITICAL
@@ -527,9 +521,7 @@ class TestFarmMemoryForget:
             memory_type=MemoryType.ACTION,
         )
 
-        forgotten = memory.forget(
-            tenant_id=test_tenant_id, memory_types=[MemoryType.OBSERVATION]
-        )
+        forgotten = memory.forget(tenant_id=test_tenant_id, memory_types=[MemoryType.OBSERVATION])
 
         assert forgotten == 1
         result = memory.recall(tenant_id=test_tenant_id)

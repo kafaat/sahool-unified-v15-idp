@@ -27,6 +27,7 @@ import pytest
 
 class TaskType(str, Enum):
     """Types of tasks that can be routed | أنواع المهام القابلة للتوجيه"""
+
     FIELD_ANALYSIS = "field_analysis"
     DISEASE_DETECTION = "disease_detection"
     IRRIGATION_ADVICE = "irrigation_advice"
@@ -40,6 +41,7 @@ class TaskType(str, Enum):
 @dataclass
 class Agent:
     """Agent definition | تعريف الوكيل"""
+
     agent_id: str
     name: str
     capabilities: list[TaskType]
@@ -51,6 +53,7 @@ class Agent:
 @dataclass
 class Task:
     """Task to be routed | مهمة للتوجيه"""
+
     task_id: str
     task_type: TaskType
     description: str
@@ -62,6 +65,7 @@ class Task:
 @dataclass
 class RoutingDecision:
     """Routing decision result | نتيجة قرار التوجيه"""
+
     task_id: str
     selected_agent_id: str
     confidence: float
@@ -73,6 +77,7 @@ class RoutingDecision:
 @dataclass
 class TaskOutcome:
     """Outcome of a completed task | نتيجة المهمة المكتملة"""
+
     task_id: str
     agent_id: str
     success: bool
@@ -129,9 +134,7 @@ class AgentRouter:
     def register_agent(self, agent: Agent) -> None:
         """Register an agent | تسجيل وكيل"""
         self.agents[agent.agent_id] = agent
-        self._performance_matrix[agent.agent_id] = {
-            cap: agent.score for cap in agent.capabilities
-        }
+        self._performance_matrix[agent.agent_id] = {cap: agent.score for cap in agent.capabilities}
 
     def unregister_agent(self, agent_id: str) -> bool:
         """Unregister an agent | إلغاء تسجيل وكيل"""
@@ -180,10 +183,7 @@ class AgentRouter:
         confidence = self._calculate_confidence(best_agent, task.task_type)
 
         # Get alternative agents
-        alternatives = [
-            a.agent_id for a in capable_agents
-            if a.agent_id != best_agent.agent_id
-        ][:3]
+        alternatives = [a.agent_id for a in capable_agents if a.agent_id != best_agent.agent_id][:3]
 
         decision = RoutingDecision(
             task_id=task.task_id,
@@ -199,7 +199,8 @@ class AgentRouter:
     def _find_capable_agents(self, task_type: TaskType) -> list[Agent]:
         """Find agents capable of handling a task type"""
         return [
-            agent for agent in self.agents.values()
+            agent
+            for agent in self.agents.values()
             if task_type in agent.capabilities and agent.is_available
         ]
 
@@ -209,9 +210,7 @@ class AgentRouter:
         best_score = -1.0
 
         for agent in agents:
-            score = self._performance_matrix.get(agent.agent_id, {}).get(
-                task_type, agent.score
-            )
+            score = self._performance_matrix.get(agent.agent_id, {}).get(task_type, agent.score)
             if score > best_score:
                 best_score = score
                 best_agent = agent
@@ -220,15 +219,12 @@ class AgentRouter:
 
     def _calculate_confidence(self, agent: Agent, task_type: TaskType) -> float:
         """Calculate routing confidence"""
-        base_score = self._performance_matrix.get(agent.agent_id, {}).get(
-            task_type, agent.score
-        )
+        base_score = self._performance_matrix.get(agent.agent_id, {}).get(task_type, agent.score)
 
         # Adjust based on history
-        relevant_outcomes = [
-            o for o in self.outcome_history
-            if o.agent_id == agent.agent_id
-        ][-10:]  # Last 10 outcomes
+        relevant_outcomes = [o for o in self.outcome_history if o.agent_id == agent.agent_id][
+            -10:
+        ]  # Last 10 outcomes
 
         if relevant_outcomes:
             success_rate = sum(1 for o in relevant_outcomes if o.success) / len(relevant_outcomes)
@@ -250,10 +246,7 @@ class AgentRouter:
             return
 
         # Find the task type from routing history
-        routing = next(
-            (r for r in self.routing_history if r.task_id == outcome.task_id),
-            None
-        )
+        routing = next((r for r in self.routing_history if r.task_id == outcome.task_id), None)
 
         if not routing:
             return
@@ -265,13 +258,13 @@ class AgentRouter:
             return
 
         for task_type in agent.capabilities:
-            current_score = self._performance_matrix[outcome.agent_id].get(
-                task_type, 0.5
-            )
+            current_score = self._performance_matrix[outcome.agent_id].get(task_type, 0.5)
 
             # Update score based on outcome
             if outcome.success:
-                new_score = current_score + self.learning_rate * (outcome.quality_score - current_score)
+                new_score = current_score + self.learning_rate * (
+                    outcome.quality_score - current_score
+                )
             else:
                 new_score = current_score - self.learning_rate * current_score
 
@@ -295,7 +288,8 @@ class AgentRouter:
             "agents_registered": len(self.agents),
             "avg_confidence": (
                 sum(r.confidence for r in self.routing_history) / total_routings
-                if total_routings > 0 else 0.0
+                if total_routings > 0
+                else 0.0
             ),
         }
 
@@ -430,19 +424,13 @@ class TestAgentRouterInitialization:
 
     def test_router_initializes_with_fallback(self, agents_list: list[Agent]):
         """Test router initializes with fallback agent."""
-        router = AgentRouter(
-            agents=agents_list,
-            fallback_agent_id="field_analyst_001"
-        )
+        router = AgentRouter(agents=agents_list, fallback_agent_id="field_analyst_001")
 
         assert router.fallback_agent_id == "field_analyst_001"
 
     def test_router_custom_learning_rate(self, agents_list: list[Agent]):
         """Test router with custom learning rate."""
-        router = AgentRouter(
-            agents=agents_list,
-            learning_rate=0.25
-        )
+        router = AgentRouter(agents=agents_list, learning_rate=0.25)
 
         assert router.learning_rate == 0.25
 
@@ -550,11 +538,7 @@ class TestRouteTaskSelectsBestAgent:
         )
 
         router = AgentRouter(agents=[agent1, agent2])
-        task = Task(
-            task_id="test_task",
-            task_type=TaskType.FIELD_ANALYSIS,
-            description="Test task"
-        )
+        task = Task(task_id="test_task", task_type=TaskType.FIELD_ANALYSIS, description="Test task")
 
         decision = await router.route_task(task)
 
@@ -579,26 +563,18 @@ class TestRouteTaskSelectsBestAgent:
         )
 
         router = AgentRouter(agents=[agent1, agent2])
-        task = Task(
-            task_id="test_task",
-            task_type=TaskType.FIELD_ANALYSIS,
-            description="Test task"
-        )
+        task = Task(task_id="test_task", task_type=TaskType.FIELD_ANALYSIS, description="Test task")
 
         decision = await router.route_task(task)
 
         assert decision.selected_agent_id == "available"
 
     @pytest.mark.asyncio
-    async def test_route_task_provides_alternatives(
-        self, router: AgentRouter
-    ):
+    async def test_route_task_provides_alternatives(self, router: AgentRouter):
         """Test that routing decision includes alternative agents."""
         # Create task that multiple agents can handle
         task = Task(
-            task_id="test_task",
-            task_type=TaskType.YIELD_PREDICTION,
-            description="Predict yield"
+            task_id="test_task", task_type=TaskType.YIELD_PREDICTION, description="Predict yield"
         )
 
         decision = await router.route_task(task)
@@ -623,9 +599,7 @@ class TestLearnFromOutcomeUpdatesScores:
         # First route the task
         decision = await router.route_task(field_analysis_task)
 
-        initial_score = router.get_agent_score(
-            decision.selected_agent_id, TaskType.FIELD_ANALYSIS
-        )
+        initial_score = router.get_agent_score(decision.selected_agent_id, TaskType.FIELD_ANALYSIS)
 
         # Record successful outcome with high quality
         outcome = TaskOutcome(
@@ -638,9 +612,7 @@ class TestLearnFromOutcomeUpdatesScores:
 
         await router.learn_from_outcome(outcome)
 
-        new_score = router.get_agent_score(
-            decision.selected_agent_id, TaskType.FIELD_ANALYSIS
-        )
+        new_score = router.get_agent_score(decision.selected_agent_id, TaskType.FIELD_ANALYSIS)
 
         # Score should increase for successful high-quality outcome
         assert new_score is not None
@@ -653,9 +625,7 @@ class TestLearnFromOutcomeUpdatesScores:
         """Test that failure decreases agent score."""
         decision = await router.route_task(field_analysis_task)
 
-        initial_score = router.get_agent_score(
-            decision.selected_agent_id, TaskType.FIELD_ANALYSIS
-        )
+        initial_score = router.get_agent_score(decision.selected_agent_id, TaskType.FIELD_ANALYSIS)
 
         # Record failed outcome
         outcome = TaskOutcome(
@@ -668,9 +638,7 @@ class TestLearnFromOutcomeUpdatesScores:
 
         await router.learn_from_outcome(outcome)
 
-        new_score = router.get_agent_score(
-            decision.selected_agent_id, TaskType.FIELD_ANALYSIS
-        )
+        new_score = router.get_agent_score(decision.selected_agent_id, TaskType.FIELD_ANALYSIS)
 
         # Score should decrease for failure
         assert new_score is not None
@@ -681,25 +649,27 @@ class TestLearnFromOutcomeUpdatesScores:
         """Test that multiple outcomes influence future routing."""
         # Create two agents with same capability
         router2 = AgentRouter()
-        router2.register_agent(Agent(
-            agent_id="agent_a",
-            name="Agent A",
-            capabilities=[TaskType.FIELD_ANALYSIS],
-            score=0.7,
-        ))
-        router2.register_agent(Agent(
-            agent_id="agent_b",
-            name="Agent B",
-            capabilities=[TaskType.FIELD_ANALYSIS],
-            score=0.7,
-        ))
+        router2.register_agent(
+            Agent(
+                agent_id="agent_a",
+                name="Agent A",
+                capabilities=[TaskType.FIELD_ANALYSIS],
+                score=0.7,
+            )
+        )
+        router2.register_agent(
+            Agent(
+                agent_id="agent_b",
+                name="Agent B",
+                capabilities=[TaskType.FIELD_ANALYSIS],
+                score=0.7,
+            )
+        )
 
         # Route several tasks and record outcomes
         for i in range(5):
             task = Task(
-                task_id=f"task_{i}",
-                task_type=TaskType.FIELD_ANALYSIS,
-                description=f"Task {i}"
+                task_id=f"task_{i}", task_type=TaskType.FIELD_ANALYSIS, description=f"Task {i}"
             )
             decision = await router2.route_task(task)
 
@@ -732,9 +702,7 @@ class TestLearnFromOutcomeUpdatesScores:
         assert score_b is not None
 
     @pytest.mark.asyncio
-    async def test_outcome_history_stored(
-        self, router: AgentRouter, field_analysis_task: Task
-    ):
+    async def test_outcome_history_stored(self, router: AgentRouter, field_analysis_task: Task):
         """Test that outcomes are stored in history."""
         decision = await router.route_task(field_analysis_task)
 
@@ -767,7 +735,7 @@ class TestRouterHandlesUnknownTask:
         task = Task(
             task_id="unknown_task",
             task_type=TaskType.CROP_RECOMMENDATION,
-            description="Unknown task type"
+            description="Unknown task type",
         )
 
         # Fallback agent should handle it
@@ -780,18 +748,20 @@ class TestRouterHandlesUnknownTask:
     async def test_router_raises_when_no_agent_available(self):
         """Test that router raises when no agent can handle task."""
         # Router with agents that can't handle weather analysis
-        router = AgentRouter(agents=[
-            Agent(
-                agent_id="limited_agent",
-                name="Limited Agent",
-                capabilities=[TaskType.FIELD_ANALYSIS],
-            )
-        ])
+        router = AgentRouter(
+            agents=[
+                Agent(
+                    agent_id="limited_agent",
+                    name="Limited Agent",
+                    capabilities=[TaskType.FIELD_ANALYSIS],
+                )
+            ]
+        )
 
         task = Task(
             task_id="weather_task",
             task_type=TaskType.WEATHER_ANALYSIS,
-            description="Weather analysis"
+            description="Weather analysis",
         )
 
         with pytest.raises(ValueError) as exc_info:
@@ -808,15 +778,10 @@ class TestRouterHandlesUnknownTask:
             capabilities=[TaskType.FIELD_ANALYSIS],  # Limited capabilities
         )
 
-        router = AgentRouter(
-            agents=[fallback],
-            fallback_agent_id="fallback"
-        )
+        router = AgentRouter(agents=[fallback], fallback_agent_id="fallback")
 
         task = Task(
-            task_id="unknown",
-            task_type=TaskType.PEST_IDENTIFICATION,
-            description="Unknown"
+            task_id="unknown", task_type=TaskType.PEST_IDENTIFICATION, description="Unknown"
         )
 
         decision = await router.route_task(task)
@@ -842,11 +807,7 @@ class TestRouterFallbackAgent:
     async def test_fallback_agent_low_confidence(self, router: AgentRouter):
         """Test that fallback routing has lower confidence."""
         # Create task that only fallback can handle
-        task = Task(
-            task_id="test",
-            task_type=TaskType.CROP_RECOMMENDATION,
-            description="Test"
-        )
+        task = Task(task_id="test", task_type=TaskType.CROP_RECOMMENDATION, description="Test")
 
         decision = await router.route_task(task)
 
@@ -854,14 +815,10 @@ class TestRouterFallbackAgent:
         assert decision.confidence <= 0.5
 
     @pytest.mark.asyncio
-    async def test_fallback_not_preferred_when_specialist_available(
-        self, router: AgentRouter
-    ):
+    async def test_fallback_not_preferred_when_specialist_available(self, router: AgentRouter):
         """Test that specialists are preferred over fallback."""
         task = Task(
-            task_id="field_task",
-            task_type=TaskType.FIELD_ANALYSIS,
-            description="Field analysis"
+            task_id="field_task", task_type=TaskType.FIELD_ANALYSIS, description="Field analysis"
         )
 
         decision = await router.route_task(task)
@@ -888,16 +845,9 @@ class TestRouterFallbackAgent:
             is_available=True,
         )
 
-        router = AgentRouter(
-            agents=[specialist, fallback],
-            fallback_agent_id="fallback"
-        )
+        router = AgentRouter(agents=[specialist, fallback], fallback_agent_id="fallback")
 
-        task = Task(
-            task_id="test",
-            task_type=TaskType.FIELD_ANALYSIS,
-            description="Test"
-        )
+        task = Task(task_id="test", task_type=TaskType.FIELD_ANALYSIS, description="Test")
 
         decision = await router.route_task(task)
 
@@ -913,9 +863,7 @@ class TestRoutingStatistics:
     """Tests for routing statistics and history."""
 
     @pytest.mark.asyncio
-    async def test_routing_history_tracked(
-        self, router: AgentRouter, field_analysis_task: Task
-    ):
+    async def test_routing_history_tracked(self, router: AgentRouter, field_analysis_task: Task):
         """Test that routing decisions are tracked."""
         await router.route_task(field_analysis_task)
 
@@ -923,9 +871,7 @@ class TestRoutingStatistics:
         assert router.routing_history[0].task_id == field_analysis_task.task_id
 
     @pytest.mark.asyncio
-    async def test_routing_stats_calculated(
-        self, router: AgentRouter, field_analysis_task: Task
-    ):
+    async def test_routing_stats_calculated(self, router: AgentRouter, field_analysis_task: Task):
         """Test that routing stats are calculated correctly."""
         # Route a task
         decision = await router.route_task(field_analysis_task)
@@ -1020,11 +966,7 @@ class TestEdgeCases:
     async def test_empty_agents_raises_on_route(self):
         """Test that empty router raises on route attempt."""
         router = AgentRouter()
-        task = Task(
-            task_id="test",
-            task_type=TaskType.FIELD_ANALYSIS,
-            description="Test"
-        )
+        task = Task(task_id="test", task_type=TaskType.FIELD_ANALYSIS, description="Test")
 
         with pytest.raises(ValueError):
             await router.route_task(task)
@@ -1044,12 +986,14 @@ class TestEdgeCases:
                 quality_score=1.0,
             )
             # Add to routing history
-            router.routing_history.append(RoutingDecision(
-                task_id=f"task_{i}",
-                selected_agent_id=decision.selected_agent_id,
-                confidence=0.9,
-                reasoning="Test",
-            ))
+            router.routing_history.append(
+                RoutingDecision(
+                    task_id=f"task_{i}",
+                    selected_agent_id=decision.selected_agent_id,
+                    confidence=0.9,
+                    reasoning="Test",
+                )
+            )
             await router.learn_from_outcome(outcome)
 
         score = router.get_agent_score(decision.selected_agent_id, TaskType.FIELD_ANALYSIS)

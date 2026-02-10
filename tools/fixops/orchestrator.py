@@ -28,6 +28,7 @@ from .signals import CISignal, LocalSignal, SignalCollector
 try:
     from shared.ai.auto_fix.engine import AutoFixEngine
     from shared.ai.auto_fix.models import FixStrategy as AutoFixStrategy
+
     HAS_AUTO_FIX = True
 except ImportError:
     HAS_AUTO_FIX = False
@@ -37,6 +38,7 @@ except ImportError:
 # Import AI Audit for logging
 try:
     from shared.ai.audit import AIAuditLogger, get_audit_logger
+
     HAS_AUDIT = True
 except ImportError:
     HAS_AUDIT = False
@@ -47,6 +49,7 @@ logger = structlog.get_logger(__name__)
 
 class SignalSource(str, Enum):
     """Signal sources | مصادر الإشارات"""
+
     CI = "ci"
     LOCAL = "local"
     MANUAL = "manual"
@@ -56,6 +59,7 @@ class SignalSource(str, Enum):
 @dataclass
 class FixOpsConfig:
     """Configuration for FixOps | تكوين FixOps"""
+
     repo_root: Path = field(default_factory=Path.cwd)
     artifacts_dir: Optional[Path] = None
     output_dir: Path = field(default_factory=lambda: Path.cwd() / ".fixops")
@@ -75,7 +79,7 @@ class FixOpsConfig:
 
     # Integration options
     use_auto_fix_engine: bool = True  # Use shared/ai/auto_fix engine
-    use_audit_logger: bool = True     # Log to AI Audit system
+    use_audit_logger: bool = True  # Log to AI Audit system
 
     def __post_init__(self):
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -84,6 +88,7 @@ class FixOpsConfig:
 @dataclass
 class FixRecommendation:
     """Single fix recommendation | توصية إصلاح واحدة"""
+
     id: str
     priority: str  # "critical", "high", "medium", "low"
     category: str  # "bug", "security", "style", "performance"
@@ -119,6 +124,7 @@ class FixRecommendation:
 @dataclass
 class FixOpsSummary:
     """Summary of FixOps run | ملخص تشغيل FixOps"""
+
     id: str
     version: str = "1.0"
     repo_root: str = ""
@@ -283,9 +289,7 @@ class FixOpsOrchestrator:
         logger.info("Collecting signals", sources=[s.value for s in sources])
 
         if SignalSource.CI in sources:
-            ci_signals = self.signal_collector.collect_ci_signals(
-                self.config.artifacts_dir
-            )
+            ci_signals = self.signal_collector.collect_ci_signals(self.config.artifacts_dir)
             self._summary.ci_signals = [s.to_dict() for s in ci_signals]
 
         if SignalSource.LOCAL in sources:
@@ -511,7 +515,8 @@ class FixOpsOrchestrator:
         logger.info("Applying fixes", strategy=self.config.fix_strategy)
 
         auto_fixable = [
-            r for r in self._summary.recommendations
+            r
+            for r in self._summary.recommendations
             if r.auto_fixable and r.priority in ("critical", "high")
         ]
 
@@ -554,15 +559,15 @@ class FixOpsOrchestrator:
 
             self._summary.fixes_applied = len(successful_fixes)
             self._summary.fixes_failed = len(failed_fixes)
-            self._summary.files_modified = list(set(
-                r.file_path for r in successful_fixes if r.file_path
-            ))
+            self._summary.files_modified = list(
+                set(r.file_path for r in successful_fixes if r.file_path)
+            )
 
             # Log to audit
             if self._audit_logger:
                 await self._audit_logger.log_auto_fix(
                     run_id=self._summary.id,
-                    total_issues=report.total_issues if hasattr(report, 'total_issues') else 0,
+                    total_issues=report.total_issues if hasattr(report, "total_issues") else 0,
                     fixes_applied=self._summary.fixes_applied,
                     fixes_failed=self._summary.fixes_failed,
                     strategy=self.config.fix_strategy,

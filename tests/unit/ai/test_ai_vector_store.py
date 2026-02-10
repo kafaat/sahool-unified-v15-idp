@@ -42,6 +42,7 @@ from shared.ai.vector_store import (
 # Config Tests
 # ============================================================================
 
+
 class TestVectorStoreConfig:
     """Tests for VectorStoreConfig"""
 
@@ -76,6 +77,7 @@ class TestVectorStoreConfig:
 # Enum Tests
 # ============================================================================
 
+
 class TestEnums:
     """Tests for enumeration types"""
 
@@ -101,6 +103,7 @@ class TestEnums:
 # ============================================================================
 # Data Class Tests
 # ============================================================================
+
 
 class TestVectorDocument:
     """Tests for VectorDocument data class"""
@@ -233,6 +236,7 @@ class TestCollectionInfo:
 # ============================================================================
 # Memory Backend Tests
 # ============================================================================
+
 
 class TestMemoryBackend:
     """Tests for MemoryBackend"""
@@ -425,6 +429,7 @@ class TestMemoryBackend:
 # SQLite Backend Tests
 # ============================================================================
 
+
 class TestSQLiteBackend:
     """Tests for SQLiteBackend"""
 
@@ -504,6 +509,7 @@ class TestSQLiteBackend:
 # ============================================================================
 # Main VectorStore Tests
 # ============================================================================
+
 
 class TestVectorStore:
     """Tests for main VectorStore class"""
@@ -663,6 +669,7 @@ class TestVectorStore:
 # Integration Tests
 # ============================================================================
 
+
 class TestIntegration:
     """Integration tests for vector store"""
 
@@ -754,6 +761,7 @@ class TestIntegration:
 # Edge Case Tests
 # ============================================================================
 
+
 class TestEdgeCases:
     """Tests for edge cases and error handling"""
 
@@ -823,6 +831,7 @@ class TestEdgeCases:
 # ============================================================================
 # Distance Metric Tests
 # ============================================================================
+
 
 class TestDistanceMetrics:
     """Tests for different distance metrics"""

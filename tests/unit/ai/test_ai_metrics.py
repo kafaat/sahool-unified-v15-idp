@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from unittest.mock import AsyncMock, Mock, patch
 
 # Configure pytest-asyncio
-pytest_plugins = ('pytest_asyncio',)
+pytest_plugins = ("pytest_asyncio",)
 
 # Import metrics components
 from shared.ai.context_engineering.metrics import (
@@ -167,9 +167,7 @@ class TestAIMetricsRegistry:
 class TestCompressionMetrics:
     """Test compression-related metrics"""
 
-    def test_track_compression_decorator_sync(
-        self, metrics_registry, mock_compression_result
-    ):
+    def test_track_compression_decorator_sync(self, metrics_registry, mock_compression_result):
         """Test track_compression decorator with sync function"""
 
         @track_compression
@@ -182,9 +180,7 @@ class TestCompressionMetrics:
         assert metrics_registry.compression_operations.value >= 0
 
     @pytest.mark.asyncio
-    async def test_track_compression_decorator_async(
-        self, mock_compression_result
-    ):
+    async def test_track_compression_decorator_async(self, mock_compression_result):
         """Test track_compression decorator with async function"""
 
         @track_compression
@@ -341,9 +337,7 @@ class TestMemoryMetrics:
 class TestEvaluationMetrics:
     """Test evaluation-related metrics"""
 
-    def test_track_evaluation_decorator(
-        self, metrics_registry, mock_evaluation_result
-    ):
+    def test_track_evaluation_decorator(self, metrics_registry, mock_evaluation_result):
         """Test track_evaluation decorator"""
 
         @track_evaluation(recommendation_type="irrigation")
@@ -356,9 +350,7 @@ class TestEvaluationMetrics:
         assert metrics_registry.evaluation_operations.value >= 1
 
     @pytest.mark.asyncio
-    async def test_track_evaluation_decorator_async(
-        self, mock_evaluation_result
-    ):
+    async def test_track_evaluation_decorator_async(self, mock_evaluation_result):
         """Test track_evaluation decorator with async function"""
 
         @track_evaluation(recommendation_type="fertilization")
@@ -380,9 +372,7 @@ class TestEvaluationMetrics:
 
         # Record evaluation
         metrics_registry.evaluation_operations.inc()
-        metrics_registry.evaluation_score_overall.observe(
-            mock_evaluation_result.overall_score
-        )
+        metrics_registry.evaluation_score_overall.observe(mock_evaluation_result.overall_score)
         metrics_registry.evaluation_score_accuracy.observe(
             mock_evaluation_result.criteria_scores["accuracy"]
         )

@@ -26,6 +26,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class CISignal:
     """Signal from CI/CD system | إشارة من نظام CI/CD"""
+
     source: str  # "github_actions", "gitlab_ci", "jenkins"
     job_id: Optional[str] = None
     workflow: Optional[str] = None
@@ -52,6 +53,7 @@ class CISignal:
 @dataclass
 class LocalSignal:
     """Signal from local environment | إشارة من البيئة المحلية"""
+
     tool: str  # "ruff", "eslint", "mypy", "bandit"
     file_path: Optional[str] = None
     issues: list[dict[str, Any]] = field(default_factory=list)
@@ -131,7 +133,9 @@ class SignalCollector:
             # Collect artifacts
             if artifacts_dir and artifacts_dir.exists():
                 artifacts = list(artifacts_dir.rglob("*"))
-                signal.artifacts = [str(a.relative_to(artifacts_dir)) for a in artifacts if a.is_file()][:100]
+                signal.artifacts = [
+                    str(a.relative_to(artifacts_dir)) for a in artifacts if a.is_file()
+                ][:100]
 
             return signal
         except Exception as e:
@@ -280,6 +284,7 @@ class SignalCollector:
     def _run_openapi_validator(self, paths: list[str]) -> Optional[LocalSignal]:
         """Validate OpenAPI/Swagger specs | فحص مواصفات OpenAPI"""
         import time
+
         start = time.time()
 
         # Check for OpenAPI files
@@ -306,10 +311,14 @@ class SignalCollector:
                     cwd=self.repo_root,
                 )
                 if result.returncode != 0:
-                    issues.append({
-                        "file": str(spec_file),
-                        "message": result.stderr[:500] if result.stderr else "Validation failed",
-                    })
+                    issues.append(
+                        {
+                            "file": str(spec_file),
+                            "message": result.stderr[:500]
+                            if result.stderr
+                            else "Validation failed",
+                        }
+                    )
             except (FileNotFoundError, subprocess.TimeoutExpired):
                 pass
 
@@ -324,6 +333,7 @@ class SignalCollector:
     def _run_docker_lint(self, paths: list[str]) -> Optional[LocalSignal]:
         """Lint Dockerfiles with hadolint | فحص Dockerfile بـ hadolint"""
         import time
+
         start = time.time()
 
         # Find Dockerfiles
@@ -351,13 +361,15 @@ class SignalCollector:
                     try:
                         data = json.loads(result.stdout)
                         for item in data:
-                            issues.append({
-                                "file": str(dockerfile),
-                                "line": item.get("line"),
-                                "code": item.get("code"),
-                                "message": item.get("message"),
-                                "level": item.get("level"),
-                            })
+                            issues.append(
+                                {
+                                    "file": str(dockerfile),
+                                    "line": item.get("line"),
+                                    "code": item.get("code"),
+                                    "message": item.get("message"),
+                                    "level": item.get("level"),
+                                }
+                            )
                     except json.JSONDecodeError:
                         pass
 
@@ -382,6 +394,7 @@ class SignalCollector:
     def _run_k8s_lint(self, paths: list[str]) -> Optional[LocalSignal]:
         """Lint Kubernetes manifests | فحص ملفات Kubernetes"""
         import time
+
         start = time.time()
 
         # Check for Helm charts or K8s manifests
@@ -406,11 +419,13 @@ class SignalCollector:
                 if result.returncode != 0:
                     for line in (result.stdout + result.stderr).split("\n"):
                         if "[ERROR]" in line or "[WARNING]" in line:
-                            issues.append({
-                                "file": str(chart_dir),
-                                "message": line,
-                                "tool": "helm",
-                            })
+                            issues.append(
+                                {
+                                    "file": str(chart_dir),
+                                    "message": line,
+                                    "tool": "helm",
+                                }
+                            )
             except (FileNotFoundError, subprocess.TimeoutExpired):
                 pass
 
@@ -427,11 +442,13 @@ class SignalCollector:
                 if result.returncode != 0:
                     for line in result.stderr.split("\n"):
                         if line.strip():
-                            issues.append({
-                                "file": str(manifest),
-                                "message": line,
-                                "tool": "kubeval",
-                            })
+                            issues.append(
+                                {
+                                    "file": str(manifest),
+                                    "message": line,
+                                    "tool": "kubeval",
+                                }
+                            )
             except (FileNotFoundError, subprocess.TimeoutExpired):
                 pass
 
@@ -446,6 +463,7 @@ class SignalCollector:
     def _run_docker_compose_validation(self, paths: list[str]) -> Optional[LocalSignal]:
         """Validate docker-compose files | فحص ملفات docker-compose"""
         import time
+
         start = time.time()
 
         # Find docker-compose files
@@ -472,10 +490,14 @@ class SignalCollector:
                     cwd=self.repo_root,
                 )
                 if result.returncode != 0:
-                    issues.append({
-                        "file": str(compose_file),
-                        "message": result.stderr[:500] if result.stderr else "Validation failed",
-                    })
+                    issues.append(
+                        {
+                            "file": str(compose_file),
+                            "message": result.stderr[:500]
+                            if result.stderr
+                            else "Validation failed",
+                        }
+                    )
             except (FileNotFoundError, subprocess.TimeoutExpired):
                 pass
 
@@ -490,6 +512,7 @@ class SignalCollector:
     def _run_sqlfluff(self, paths: list[str]) -> Optional[LocalSignal]:
         """Lint SQL files with sqlfluff | فحص ملفات SQL"""
         import time
+
         start = time.time()
 
         # Find SQL files
@@ -517,12 +540,14 @@ class SignalCollector:
                     data = json.loads(result.stdout)
                     for file_result in data:
                         for violation in file_result.get("violations", []):
-                            issues.append({
-                                "file": file_result.get("filepath"),
-                                "line": violation.get("start_line_no"),
-                                "code": violation.get("code"),
-                                "message": violation.get("description"),
-                            })
+                            issues.append(
+                                {
+                                    "file": file_result.get("filepath"),
+                                    "line": violation.get("start_line_no"),
+                                    "code": violation.get("code"),
+                                    "message": violation.get("description"),
+                                }
+                            )
                 except json.JSONDecodeError:
                     pass
 
@@ -543,6 +568,7 @@ class SignalCollector:
     def _run_prisma_validate(self, paths: list[str]) -> Optional[LocalSignal]:
         """Validate Prisma schema | فحص Prisma schema"""
         import time
+
         start = time.time()
 
         # Find Prisma schema files
@@ -562,10 +588,14 @@ class SignalCollector:
                     cwd=schema.parent.parent,
                 )
                 if result.returncode != 0:
-                    issues.append({
-                        "file": str(schema),
-                        "message": result.stderr[:500] if result.stderr else "Validation failed",
-                    })
+                    issues.append(
+                        {
+                            "file": str(schema),
+                            "message": result.stderr[:500]
+                            if result.stderr
+                            else "Validation failed",
+                        }
+                    )
             except (FileNotFoundError, subprocess.TimeoutExpired):
                 pass
 
@@ -580,6 +610,7 @@ class SignalCollector:
     def _run_yaml_lint(self, paths: list[str]) -> Optional[LocalSignal]:
         """Lint YAML files with yamllint | فحص ملفات YAML"""
         import time
+
         start = time.time()
 
         try:
@@ -597,11 +628,13 @@ class SignalCollector:
                     if ":" in line and line.strip():
                         parts = line.split(":")
                         if len(parts) >= 3:
-                            issues.append({
-                                "file": parts[0],
-                                "line": parts[1] if len(parts) > 1 else "",
-                                "message": ":".join(parts[2:]).strip(),
-                            })
+                            issues.append(
+                                {
+                                    "file": parts[0],
+                                    "line": parts[1] if len(parts) > 1 else "",
+                                    "message": ":".join(parts[2:]).strip(),
+                                }
+                            )
 
             return LocalSignal(
                 tool="yamllint",
@@ -620,6 +653,7 @@ class SignalCollector:
     def _run_shellcheck(self, paths: list[str]) -> Optional[LocalSignal]:
         """Lint shell scripts with shellcheck | فحص سكريبتات Shell"""
         import time
+
         start = time.time()
 
         # Find shell scripts
@@ -647,13 +681,15 @@ class SignalCollector:
                 try:
                     data = json.loads(result.stdout)
                     for item in data:
-                        issues.append({
-                            "file": item.get("file"),
-                            "line": item.get("line"),
-                            "code": item.get("code"),
-                            "message": item.get("message"),
-                            "level": item.get("level"),
-                        })
+                        issues.append(
+                            {
+                                "file": item.get("file"),
+                                "line": item.get("line"),
+                                "code": item.get("code"),
+                                "message": item.get("message"),
+                                "level": item.get("level"),
+                            }
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -678,6 +714,7 @@ class SignalCollector:
     def _run_semgrep(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Semgrep security scanner | تشغيل ماسح Semgrep الأمني"""
         import time
+
         start = time.time()
 
         try:
@@ -694,13 +731,15 @@ class SignalCollector:
                 try:
                     data = json.loads(result.stdout)
                     for item in data.get("results", []):
-                        issues.append({
-                            "file": item.get("path"),
-                            "line": item.get("start", {}).get("line"),
-                            "message": item.get("extra", {}).get("message"),
-                            "severity": item.get("extra", {}).get("severity"),
-                            "rule_id": item.get("check_id"),
-                        })
+                        issues.append(
+                            {
+                                "file": item.get("path"),
+                                "line": item.get("start", {}).get("line"),
+                                "message": item.get("extra", {}).get("message"),
+                                "severity": item.get("extra", {}).get("severity"),
+                                "rule_id": item.get("check_id"),
+                            }
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -724,10 +763,11 @@ class SignalCollector:
     def _run_pylint(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Pylint for advanced Python analysis | تشغيل Pylint للتحليل المتقدم"""
         import time
+
         start = time.time()
 
         # Filter to Python files only
-        python_paths = [p for p in paths if p.endswith('.py') or os.path.isdir(p)]
+        python_paths = [p for p in paths if p.endswith(".py") or os.path.isdir(p)]
         if not python_paths:
             return None
 
@@ -745,14 +785,16 @@ class SignalCollector:
                 try:
                     data = json.loads(result.stdout)
                     for item in data:
-                        issues.append({
-                            "file": item.get("path"),
-                            "line": item.get("line"),
-                            "message": item.get("message"),
-                            "message_id": item.get("message-id"),
-                            "symbol": item.get("symbol"),
-                            "type": item.get("type"),  # error, warning, convention, refactor
-                        })
+                        issues.append(
+                            {
+                                "file": item.get("path"),
+                                "line": item.get("line"),
+                                "message": item.get("message"),
+                                "message_id": item.get("message-id"),
+                                "symbol": item.get("symbol"),
+                                "type": item.get("type"),  # error, warning, convention, refactor
+                            }
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -778,6 +820,7 @@ class SignalCollector:
     def _run_dart_analyze(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Dart analyzer for Flutter | تشغيل محلل Dart لـ Flutter"""
         import time
+
         start = time.time()
 
         # Check for Dart/Flutter project
@@ -799,14 +842,16 @@ class SignalCollector:
                 try:
                     data = json.loads(result.stdout)
                     for item in data.get("diagnostics", []):
-                        issues.append({
-                            "file": item.get("location", {}).get("file"),
-                            "line": item.get("location", {}).get("startLine"),
-                            "message": item.get("problemMessage"),
-                            "code": item.get("code"),
-                            "severity": item.get("severity"),
-                            "correction": item.get("correctionMessage"),
-                        })
+                        issues.append(
+                            {
+                                "file": item.get("location", {}).get("file"),
+                                "line": item.get("location", {}).get("startLine"),
+                                "message": item.get("problemMessage"),
+                                "code": item.get("code"),
+                                "severity": item.get("severity"),
+                                "correction": item.get("correctionMessage"),
+                            }
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -832,6 +877,7 @@ class SignalCollector:
     def _run_flutter_analyze(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Flutter analyzer | تشغيل محلل Flutter"""
         import time
+
         start = time.time()
 
         try:
@@ -850,10 +896,12 @@ class SignalCollector:
                     if " - " in line and ("info" in line or "warning" in line or "error" in line):
                         parts = line.split(" - ")
                         if len(parts) >= 2:
-                            issues.append({
-                                "raw": line,
-                                "message": parts[-1] if len(parts) > 1 else line,
-                            })
+                            issues.append(
+                                {
+                                    "raw": line,
+                                    "message": parts[-1] if len(parts) > 1 else line,
+                                }
+                            )
 
             return LocalSignal(
                 tool="flutter_analyze",
@@ -872,6 +920,7 @@ class SignalCollector:
     def _run_typescript(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run TypeScript compiler check | تشغيل فحص مترجم TypeScript"""
         import time
+
         start = time.time()
 
         # Check for TypeScript project
@@ -911,6 +960,7 @@ class SignalCollector:
     def _run_npm_audit(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run npm audit for package vulnerabilities | تشغيل تدقيق npm للثغرات"""
         import time
+
         start = time.time()
 
         # Check for npm project
@@ -934,12 +984,14 @@ class SignalCollector:
                     data = json.loads(result.stdout)
                     vulnerabilities = data.get("vulnerabilities", {})
                     for pkg_name, vuln_data in vulnerabilities.items():
-                        issues.append({
-                            "package": pkg_name,
-                            "severity": vuln_data.get("severity"),
-                            "via": vuln_data.get("via"),
-                            "fixAvailable": vuln_data.get("fixAvailable"),
-                        })
+                        issues.append(
+                            {
+                                "package": pkg_name,
+                                "severity": vuln_data.get("severity"),
+                                "via": vuln_data.get("via"),
+                                "fixAvailable": vuln_data.get("fixAvailable"),
+                            }
+                        )
                     metrics = data.get("metadata", {}).get("vulnerabilities", {})
                 except json.JSONDecodeError:
                     pass
@@ -967,6 +1019,7 @@ class SignalCollector:
     def _run_pip_audit(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run pip-audit for Python package vulnerabilities | تشغيل تدقيق pip للثغرات"""
         import time
+
         start = time.time()
 
         try:
@@ -983,11 +1036,13 @@ class SignalCollector:
                 try:
                     data = json.loads(result.stdout)
                     for vuln in data:
-                        issues.append({
-                            "package": vuln.get("name"),
-                            "version": vuln.get("version"),
-                            "vulns": vuln.get("vulns", []),
-                        })
+                        issues.append(
+                            {
+                                "package": vuln.get("name"),
+                                "version": vuln.get("version"),
+                                "vulns": vuln.get("vulns", []),
+                            }
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -1008,6 +1063,7 @@ class SignalCollector:
     def _run_ruff(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Ruff linter"""
         import time
+
         start = time.time()
 
         try:
@@ -1045,6 +1101,7 @@ class SignalCollector:
     def _run_eslint(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run ESLint"""
         import time
+
         start = time.time()
 
         try:
@@ -1062,14 +1119,16 @@ class SignalCollector:
                     data = json.loads(result.stdout)
                     for file_result in data:
                         for msg in file_result.get("messages", []):
-                            issues.append({
-                                "file": file_result.get("filePath"),
-                                "line": msg.get("line"),
-                                "column": msg.get("column"),
-                                "message": msg.get("message"),
-                                "severity": msg.get("severity"),
-                                "ruleId": msg.get("ruleId"),
-                            })
+                            issues.append(
+                                {
+                                    "file": file_result.get("filePath"),
+                                    "line": msg.get("line"),
+                                    "column": msg.get("column"),
+                                    "message": msg.get("message"),
+                                    "severity": msg.get("severity"),
+                                    "ruleId": msg.get("ruleId"),
+                                }
+                            )
                 except json.JSONDecodeError:
                     pass
 
@@ -1090,6 +1149,7 @@ class SignalCollector:
     def _run_mypy(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Mypy type checker"""
         import time
+
         start = time.time()
 
         try:
@@ -1124,6 +1184,7 @@ class SignalCollector:
     def _run_bandit(self, paths: list[str]) -> Optional[LocalSignal]:
         """Run Bandit security scanner"""
         import time
+
         start = time.time()
 
         try:
@@ -1149,7 +1210,9 @@ class SignalCollector:
                 metrics={
                     "total_issues": len(issues),
                     "high_severity": len([i for i in issues if i.get("issue_severity") == "HIGH"]),
-                    "medium_severity": len([i for i in issues if i.get("issue_severity") == "MEDIUM"]),
+                    "medium_severity": len(
+                        [i for i in issues if i.get("issue_severity") == "MEDIUM"]
+                    ),
                 },
                 execution_time_ms=(time.time() - start) * 1000,
                 exit_code=result.returncode,
@@ -1169,9 +1232,7 @@ class SignalCollector:
             "summary": {
                 "ci_count": len(self._ci_signals),
                 "local_count": len(self._local_signals),
-                "total_issues": sum(
-                    len(s.issues) for s in self._local_signals
-                ),
+                "total_issues": sum(len(s.issues) for s in self._local_signals),
             },
         }
 

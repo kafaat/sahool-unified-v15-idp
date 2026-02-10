@@ -337,9 +337,7 @@ class TestEventSubscriber:
     @pytest.fixture
     def subscriber(self, config):
         """Create EventSubscriber instance"""
-        return EventSubscriber(
-            config=config, service_name="test-service", service_version="1.0.0"
-        )
+        return EventSubscriber(config=config, service_name="test-service", service_version="1.0.0")
 
     def test_subscriber_creation(self, subscriber):
         """Test creating subscriber"""

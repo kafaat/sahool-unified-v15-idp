@@ -13,6 +13,7 @@ from dataclasses import dataclass
 @dataclass
 class GeoJSONPolygon:
     """GeoJSON Polygon representation."""
+
     coordinates: list[list[list[float]]]
 
     @property
@@ -20,10 +21,7 @@ class GeoJSONPolygon:
         return "Polygon"
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "type": self.type,
-            "coordinates": self.coordinates
-        }
+        return {"type": self.type, "coordinates": self.coordinates}
 
     def to_json(self) -> str:
         return json.dumps(self.to_dict())
@@ -32,6 +30,7 @@ class GeoJSONPolygon:
 @dataclass
 class GeoJSONPoint:
     """GeoJSON Point representation."""
+
     coordinates: list[float]
 
     @property
@@ -39,10 +38,7 @@ class GeoJSONPoint:
         return "Point"
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "type": self.type,
-            "coordinates": self.coordinates
-        }
+        return {"type": self.type, "coordinates": self.coordinates}
 
 
 class GeometryValidator:
@@ -109,13 +105,7 @@ class GeometryValidator:
 def sample_polygon():
     """Create sample field polygon."""
     return GeoJSONPolygon(
-        coordinates=[[[
-            [46.7, 24.7],
-            [46.8, 24.7],
-            [46.8, 24.8],
-            [46.7, 24.8],
-            [46.7, 24.7]
-        ]]]
+        coordinates=[[[[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]]]
     )
 
 
@@ -140,25 +130,19 @@ class TestGeoJSONValidation:
 
     def test_invalid_polygon_unclosed(self, geometry_validator):
         """Test unclosed polygon fails validation."""
-        invalid = {
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]
-        }
+        invalid = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1]]]}
         assert not geometry_validator.validate_polygon(invalid)
 
     def test_invalid_polygon_too_few_points(self, geometry_validator):
         """Test polygon with too few points fails validation."""
-        invalid = {
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [1, 0], [0, 0]]]
-        }
+        invalid = {"type": "Polygon", "coordinates": [[[0, 0], [1, 0], [0, 0]]]}
         assert not geometry_validator.validate_polygon(invalid)
 
     def test_invalid_polygon_out_of_bounds(self, geometry_validator):
         """Test polygon with out-of-bounds coordinates fails validation."""
         invalid = {
             "type": "Polygon",
-            "coordinates": [[[200, 100], [201, 100], [201, 101], [200, 101], [200, 100]]]
+            "coordinates": [[[200, 100], [201, 100], [201, 101], [200, 101], [200, 100]]],
         }
         assert not geometry_validator.validate_polygon(invalid)
 
@@ -185,10 +169,7 @@ class TestSpatialQueries:
             ) as contains
         """
 
-        polygon = {
-            "type": "Polygon",
-            "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]
-        }
+        polygon = {"type": "Polygon", "coordinates": [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]]}
         point_inside = {"type": "Point", "coordinates": [5, 5]}
         point_outside = {"type": "Point", "coordinates": [15, 15]}
 
@@ -360,8 +341,8 @@ class TestMultiPolygonSupport:
             "type": "MultiPolygon",
             "coordinates": [
                 [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-                [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]]
-            ]
+                [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]],
+            ],
         }
 
         assert multipolygon["type"] == "MultiPolygon"
@@ -371,13 +352,10 @@ class TestMultiPolygonSupport:
         """Test splitting MultiPolygon into Polygon collection."""
         multipolygon_coords = [
             [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
-            [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]]
+            [[[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]],
         ]
 
-        polygons = [
-            {"type": "Polygon", "coordinates": coords}
-            for coords in multipolygon_coords
-        ]
+        polygons = [{"type": "Polygon", "coordinates": coords} for coords in multipolygon_coords]
 
         assert len(polygons) == 2
         assert all(p["type"] == "Polygon" for p in polygons)

@@ -89,7 +89,7 @@ class TestSparseRetriever:
         tokens = sparse_retriever._tokenize(text)
         assert len(tokens) > 0
         # Arabic words should be preserved
-        assert any("\u0600" <= c <= "\u06FF" for token in tokens for c in token)
+        assert any("\u0600" <= c <= "\u06ff" for token in tokens for c in token)
 
     def test_tokenize_mixed(self, sparse_retriever):
         """Test tokenization of mixed Arabic/English text"""
@@ -98,7 +98,7 @@ class TestSparseRetriever:
         assert "wheat" in tokens
         assert "irrigation" in tokens
         # Arabic words should also be present
-        assert len([t for t in tokens if any("\u0600" <= c <= "\u06FF" for c in t)]) >= 1
+        assert len([t for t in tokens if any("\u0600" <= c <= "\u06ff" for c in t)]) >= 1
 
     def test_tokenize_removes_short_tokens(self, sparse_retriever):
         """Test that short tokens are removed"""
@@ -121,10 +121,10 @@ class TestSparseRetriever:
     def test_calculate_bm25_score(self, sparse_retriever):
         """Test BM25 score calculation"""
         score = sparse_retriever._calculate_bm25_score(
-            tf=3,       # Term frequency
-            idf=2.0,    # IDF value
-            dl=100,     # Document length
-            avg_dl=100, # Average document length
+            tf=3,  # Term frequency
+            idf=2.0,  # IDF value
+            dl=100,  # Document length
+            avg_dl=100,  # Average document length
         )
         assert score > 0
 
@@ -261,7 +261,9 @@ class TestDenseRetriever:
         assert results[0].retrieval_method == "dense"
 
     @pytest.mark.asyncio
-    async def test_retrieve_filters_by_min_score(self, dense_retriever, mock_vector_store, mock_embedding_service):
+    async def test_retrieve_filters_by_min_score(
+        self, dense_retriever, mock_vector_store, mock_embedding_service
+    ):
         """Test that results below min score are filtered"""
         mock_embed_result = MagicMock()
         mock_embed_result.vector = [0.1, 0.2, 0.3]
@@ -326,7 +328,9 @@ class TestHybridRetriever:
         return HybridRetriever(mock_dense_retriever, mock_sparse_retriever)
 
     @pytest.mark.asyncio
-    async def test_retrieve_combines_results(self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever):
+    async def test_retrieve_combines_results(
+        self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever
+    ):
         """Test that hybrid retriever combines dense and sparse results"""
         chunk1 = KnowledgeChunk(id="c1", text="From dense")
         chunk2 = KnowledgeChunk(id="c2", text="From sparse")
@@ -354,7 +358,9 @@ class TestHybridRetriever:
             assert r.retrieval_method == "hybrid"
 
     @pytest.mark.asyncio
-    async def test_add_documents_to_both(self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever):
+    async def test_add_documents_to_both(
+        self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever
+    ):
         """Test that documents are added to both indices"""
         chunks = [KnowledgeChunk(id="c1", text="Test document")]
 
@@ -365,7 +371,9 @@ class TestHybridRetriever:
         mock_sparse_retriever.add_documents.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_add_documents_fails_if_one_fails(self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever):
+    async def test_add_documents_fails_if_one_fails(
+        self, hybrid_retriever, mock_dense_retriever, mock_sparse_retriever
+    ):
         """Test that add fails if either index fails"""
         chunks = [KnowledgeChunk(id="c1", text="Test")]
         mock_sparse_retriever.add_documents.return_value = False
@@ -398,7 +406,9 @@ class TestAdaptiveRetriever:
         return retriever
 
     @pytest.fixture
-    def adaptive_retriever(self, mock_dense_retriever, mock_sparse_retriever, mock_hybrid_retriever):
+    def adaptive_retriever(
+        self, mock_dense_retriever, mock_sparse_retriever, mock_hybrid_retriever
+    ):
         return AdaptiveRetriever(mock_dense_retriever, mock_sparse_retriever, mock_hybrid_retriever)
 
     def test_analyze_query_keyword(self, adaptive_retriever):
@@ -409,14 +419,24 @@ class TestAdaptiveRetriever:
 
     def test_analyze_query_semantic(self, adaptive_retriever):
         """Test semantic query detection"""
-        assert adaptive_retriever._analyze_query("What is the best irrigation schedule for wheat in summer?") == "semantic"
-        assert adaptive_retriever._analyze_query("How do I prevent wheat rust disease from spreading?") == "semantic"
+        assert (
+            adaptive_retriever._analyze_query(
+                "What is the best irrigation schedule for wheat in summer?"
+            )
+            == "semantic"
+        )
+        assert (
+            adaptive_retriever._analyze_query("How do I prevent wheat rust disease from spreading?")
+            == "semantic"
+        )
         assert adaptive_retriever._analyze_query("كيف يمكنني ري القمح بشكل صحيح؟") == "semantic"
 
     def test_analyze_query_hybrid(self, adaptive_retriever):
         """Test hybrid query detection"""
         # Medium-length queries without question words
-        assert adaptive_retriever._analyze_query("wheat irrigation best practices summer") == "hybrid"
+        assert (
+            adaptive_retriever._analyze_query("wheat irrigation best practices summer") == "hybrid"
+        )
         assert adaptive_retriever._analyze_query("fertilizer application timing wheat") == "hybrid"
 
     @pytest.mark.asyncio
@@ -441,7 +461,9 @@ class TestAdaptiveRetriever:
         ]
 
         config = RetrievalConfig()
-        await adaptive_retriever.retrieve("What is the best way to irrigate wheat in dry conditions?", config)
+        await adaptive_retriever.retrieve(
+            "What is the best way to irrigate wheat in dry conditions?", config
+        )
 
         mock_dense_retriever.retrieve.assert_called_once()
 
@@ -459,7 +481,9 @@ class TestAdaptiveRetriever:
         mock_hybrid_retriever.retrieve.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_add_documents_delegates_to_hybrid(self, adaptive_retriever, mock_hybrid_retriever):
+    async def test_add_documents_delegates_to_hybrid(
+        self, adaptive_retriever, mock_hybrid_retriever
+    ):
         """Test that add_documents delegates to hybrid retriever"""
         chunks = [KnowledgeChunk(id="c1", text="Test")]
 

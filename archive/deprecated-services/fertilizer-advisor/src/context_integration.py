@@ -152,7 +152,7 @@ def compress_crop_data(
     Field Information:
     - Crop: {crop.value}
     - Area: {area_hectares} ha
-    - Target Yield: {target_yield or 'default'} kg/ha
+    - Target Yield: {target_yield or "default"} kg/ha
     """
 
     compression_result = compressor.compress_text(
@@ -361,10 +361,7 @@ def evaluate_fertilizer_recommendation(
         "feedback": evaluation.feedback,
         "feedback_ar": evaluation.feedback_ar,
         "improvements": evaluation.improvements,
-        "scores": {
-            criteria.value: asdict(score)
-            for criteria, score in evaluation.scores.items()
-        },
+        "scores": {criteria.value: asdict(score) for criteria, score in evaluation.scores.items()},
         "evaluated_at": evaluation.evaluated_at.isoformat(),
     }
 

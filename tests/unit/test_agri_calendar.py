@@ -228,8 +228,10 @@ class TestTraditionalSeasons:
         simak = TRADITIONAL_SEASONS[TraditionalSeason.SIMAK]
 
         # Simak is for planting wheat and onion
-        assert any("wheat" in activity.lower() or "قمح" in activity
-                  for activity in simak.agricultural_activities_en + simak.agricultural_activities_ar)
+        assert any(
+            "wheat" in activity.lower() or "قمح" in activity
+            for activity in simak.agricultural_activities_en + simak.agricultural_activities_ar
+        )
 
     def test_get_upcoming_traditional_seasons(self):
         """Test getting upcoming traditional seasons"""
@@ -275,11 +277,7 @@ class TestPlantingRecommendations:
     def test_get_planting_recommendation_wheat_qassim(self):
         """Test getting planting recommendation for wheat in Qassim"""
         engine = PlantingRecommendationEngine()
-        rec = engine.get_planting_recommendation(
-            CropType.WHEAT,
-            Region.QASSIM,
-            date(2026, 9, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.WHEAT, Region.QASSIM, date(2026, 9, 1))
 
         assert rec is not None
         assert rec.crop_type == CropType.WHEAT
@@ -292,11 +290,7 @@ class TestPlantingRecommendations:
     def test_planting_window_optimal_dates(self):
         """Test planting window optimal date calculations"""
         engine = PlantingRecommendationEngine()
-        rec = engine.get_planting_recommendation(
-            CropType.TOMATO,
-            Region.RIYADH,
-            date(2026, 1, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.TOMATO, Region.RIYADH, date(2026, 1, 1))
 
         # Tomato in Riyadh should be September-October
         assert rec.recommended_planting_start is not None
@@ -305,11 +299,7 @@ class TestPlantingRecommendations:
     def test_harvest_date_calculation(self):
         """Test harvest date calculation from planting date"""
         engine = PlantingRecommendationEngine()
-        rec = engine.get_planting_recommendation(
-            CropType.POTATO,
-            Region.HAIL,
-            date(2026, 1, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.POTATO, Region.HAIL, date(2026, 1, 1))
 
         if rec.recommended_planting_start and rec.expected_harvest_start:
             days_to_harvest = (rec.expected_harvest_start - rec.recommended_planting_start).days
@@ -319,11 +309,7 @@ class TestPlantingRecommendations:
     def test_planting_recommendation_has_confidence(self):
         """Test that recommendations include confidence levels"""
         engine = PlantingRecommendationEngine()
-        rec = engine.get_planting_recommendation(
-            CropType.WHEAT,
-            Region.HAIL,
-            date(2026, 10, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.WHEAT, Region.HAIL, date(2026, 10, 1))
 
         assert rec.confidence is not None
         assert rec.confidence_score >= 0.0
@@ -333,9 +319,7 @@ class TestPlantingRecommendations:
         """Test that recommendations are bilingual"""
         engine = PlantingRecommendationEngine()
         rec = engine.get_planting_recommendation(
-            CropType.DATE_PALM,
-            Region.RIYADH,
-            date(2026, 1, 1)
+            CropType.DATE_PALM, Region.RIYADH, date(2026, 1, 1)
         )
 
         # Should have both English and Arabic content
@@ -383,16 +367,17 @@ class TestPlantingRecommendations:
         """Test generating calendar events for region"""
         engine = PlantingRecommendationEngine()
         events = engine.generate_calendar_events(
-            Region.QASSIM,
-            2026,
-            [CropType.WHEAT, CropType.TOMATO]
+            Region.QASSIM, 2026, [CropType.WHEAT, CropType.TOMATO]
         )
 
         assert len(events) > 0
 
         # Should have planting and harvest events
         event_types = {e.event_type for e in events}
-        assert PlantingEventType.PLANTING_START in event_types or PlantingEventType.HARVEST_START in event_types
+        assert (
+            PlantingEventType.PLANTING_START in event_types
+            or PlantingEventType.HARVEST_START in event_types
+        )
 
     def test_calendar_event_priority_levels(self):
         """Test that calendar events have proper priority levels"""
@@ -411,11 +396,7 @@ class TestPlantingRecommendations:
         """Test recommendation for crop-region combo without data"""
         engine = PlantingRecommendationEngine()
         # Try an uncommon combination
-        rec = engine.get_planting_recommendation(
-            CropType.PAPAYA,
-            Region.HAIL,
-            date(2026, 1, 1)
-        )
+        rec = engine.get_planting_recommendation(CropType.PAPAYA, Region.HAIL, date(2026, 1, 1))
 
         # Should still return recommendation, possibly with lower confidence
         assert rec is not None
@@ -631,8 +612,7 @@ class TestIslamicEvents:
         # Should have events that affect market or labor
         assert len(affecting) > 0
         for event_info in affecting:
-            assert (event_info["event"].affects_market or
-                   event_info["event"].affects_labor)
+            assert event_info["event"].affects_market or event_info["event"].affects_labor
 
     def test_market_impact_calendar(self):
         """Test getting market impact calendar for year"""
@@ -813,12 +793,20 @@ class TestRegionalDifferences:
         riyadh_meta = get_region_info(Region.RIYADH)
         assert len(riyadh_meta.traditional_farming_practices_ar) > 0
         # Check that at least one practice is in Arabic (contains Arabic characters)
-        assert any(ord(c) > 127 for practice in riyadh_meta.traditional_farming_practices_ar for c in practice)
+        assert any(
+            ord(c) > 127
+            for practice in riyadh_meta.traditional_farming_practices_ar
+            for c in practice
+        )
 
         asir_meta = get_region_info(Region.ASIR)
         assert len(asir_meta.traditional_farming_practices_ar) > 0
         # Check that at least one practice is in Arabic
-        assert any(ord(c) > 127 for practice in asir_meta.traditional_farming_practices_ar for c in practice)
+        assert any(
+            ord(c) > 127
+            for practice in asir_meta.traditional_farming_practices_ar
+            for c in practice
+        )
 
     def test_get_region_info_helper(self):
         """Test get_region_info helper function"""
@@ -886,16 +874,13 @@ class TestIntegration:
 
         # Get planting recommendation
         planting_rec = engine.get_planting_recommendation(
-            CropType.WHEAT,
-            Region.RIYADH,
-            date(2026, 10, 1)
+            CropType.WHEAT, Region.RIYADH, date(2026, 10, 1)
         )
 
         # Check if any Islamic events affect planting period
         if planting_rec.recommended_planting_start:
             islamic_events = events_manager.get_upcoming_events(
-                days_ahead=60,
-                from_date=planting_rec.recommended_planting_start
+                days_ahead=60, from_date=planting_rec.recommended_planting_start
             )
             # Should have some events (could be empty, that's ok)
             assert isinstance(islamic_events, list)
@@ -927,14 +912,18 @@ class TestIntegration:
 
         # Using class method
         engine = PlantingRecommendationEngine()
-        rec_class = engine.get_planting_recommendation(CropType.WHEAT, Region.HAIL, date(2026, 10, 1))
+        rec_class = engine.get_planting_recommendation(
+            CropType.WHEAT, Region.HAIL, date(2026, 10, 1)
+        )
 
         # Should produce similar results
         assert rec_helper.crop_type == rec_class.crop_type
         assert rec_helper.region == rec_class.region
         if rec_helper.recommended_planting_start and rec_class.recommended_planting_start:
             # Dates should be very close (within 2 days due to calculations)
-            diff = abs((rec_helper.recommended_planting_start - rec_class.recommended_planting_start).days)
+            diff = abs(
+                (rec_helper.recommended_planting_start - rec_class.recommended_planting_start).days
+            )
             assert diff <= 2
 
 

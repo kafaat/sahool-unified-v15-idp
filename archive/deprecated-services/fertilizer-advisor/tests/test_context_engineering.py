@@ -154,7 +154,9 @@ class TestContextEngineering:
         if data.get("status") == "success":
             assert "recommendations" in data
 
-    def test_compression_with_recommendation(self, client, sample_fertilizer_request, sample_soil_analysis):
+    def test_compression_with_recommendation(
+        self, client, sample_fertilizer_request, sample_soil_analysis
+    ):
         """Test that compression metadata is stored with recommendations"""
         request_with_soil = sample_fertilizer_request.model_dump(mode="json")
         request_with_soil["soil_analysis"] = sample_soil_analysis.model_dump(mode="json")

@@ -463,7 +463,12 @@ class TestOfflineFirstJourney:
 
         for feature, config in offline_features.items():
             assert "sync_strategy" in config
-            assert config["sync_strategy"] in ["read_only", "queue_and_sync", "background_upload", "cached"]
+            assert config["sync_strategy"] in [
+                "read_only",
+                "queue_and_sync",
+                "background_upload",
+                "cached",
+            ]
 
     def test_conflict_resolution_strategies(self):
         """
@@ -481,7 +486,13 @@ class TestOfflineFirstJourney:
             "advisory_acknowledgment": "merge_union",
         }
 
-        valid_strategies = ["server_wins", "client_wins", "last_write_wins", "merge_append", "merge_union"]
+        valid_strategies = [
+            "server_wins",
+            "client_wins",
+            "last_write_wins",
+            "merge_append",
+            "merge_union",
+        ]
 
         for entity, strategy in conflict_strategies.items():
             assert strategy in valid_strategies

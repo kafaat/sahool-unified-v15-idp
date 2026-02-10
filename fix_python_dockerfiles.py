@@ -22,11 +22,11 @@ def find_python_dockerfiles(root_dir: str = ".") -> List[Path]:
     """Find all Dockerfiles in Python services."""
     dockerfiles = []
     services_dir = Path(root_dir) / "apps" / "services"
-    
+
     if not services_dir.exists():
         print(f"❌ Services directory not found: {services_dir}")
         return dockerfiles
-    
+
     for service_dir in services_dir.iterdir():
         if service_dir.is_dir():
             dockerfile = service_dir / "Dockerfile"
@@ -35,7 +35,7 @@ def find_python_dockerfiles(root_dir: str = ".") -> List[Path]:
                 requirements = service_dir / "requirements.txt"
                 if requirements.exists():
                     dockerfiles.append(dockerfile)
-    
+
     return dockerfiles
 
 
@@ -44,21 +44,21 @@ def needs_update(content: str) -> bool:
     # Check if already has fallback pattern
     if "|| \\" in content and "pip install" in content and "pypi.org/simple" in content:
         return False
-    
+
     # Check if has pip install without fallback
-    if re.search(r'pip install.*-r requirements\.txt', content):
+    if re.search(r"pip install.*-r requirements\.txt", content):
         return True
-    
+
     return False
 
 
 def apply_resilient_pattern(content: str) -> Tuple[str, bool]:
     """Apply the resilient multi-mirror fallback pattern."""
     modified = False
-    
+
     # Pattern 1: Upgrade pip command
-    pip_upgrade_pattern = r'RUN pip install --no-cache-dir --upgrade pip \|\| true'
-    pip_upgrade_replacement = '''# Upgrade pip with resilient fallback
+    pip_upgrade_pattern = r"RUN pip install --no-cache-dir --upgrade pip \|\| true"
+    pip_upgrade_replacement = """# Upgrade pip with resilient fallback
 RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     -i https://mirrors.aliyun.com/pypi/simple/ \\
     --upgrade pip || \\
@@ -66,15 +66,17 @@ RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     --index-url https://pypi.org/simple \\
     --trusted-host pypi.org \\
     --trusted-host files.pythonhosted.org \\
-    --upgrade pip || true'''
-    
+    --upgrade pip || true"""
+
     if re.search(pip_upgrade_pattern, content):
         content = re.sub(pip_upgrade_pattern, pip_upgrade_replacement, content)
         modified = True
-    
+
     # Pattern 2: Requirements installation (standalone)
-    req_install_pattern = r'RUN pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt'
-    req_install_replacement = '''# Install dependencies with resilient multi-mirror fallback strategy
+    req_install_pattern = (
+        r"RUN pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt"
+    )
+    req_install_replacement = """# Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun mirror first (fast in China), fallback to official PyPI
 RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     -i https://mirrors.aliyun.com/pypi/simple/ \\
@@ -83,15 +85,15 @@ RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     --index-url https://pypi.org/simple \\
     --trusted-host pypi.org \\
     --trusted-host files.pythonhosted.org \\
-    -r requirements.txt'''
-    
+    -r requirements.txt"""
+
     if re.search(req_install_pattern, content):
         content = re.sub(req_install_pattern, req_install_replacement, content)
         modified = True
-    
+
     # Pattern 3: Chained RUN commands (upgrade + install + chown)
-    chained_pattern = r'RUN pip install --no-cache-dir --upgrade pip \|\| true &&\s*\\\s*pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt &&\s*\\\s*chown -R sahool:sahool /app'
-    chained_replacement = '''# Upgrade pip with resilient fallback
+    chained_pattern = r"RUN pip install --no-cache-dir --upgrade pip \|\| true &&\s*\\\s*pip install --no-cache-dir --timeout=\d+ --retries=\d+ -r requirements\.txt &&\s*\\\s*chown -R sahool:sahool /app"
+    chained_replacement = """# Upgrade pip with resilient fallback
 RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     -i https://mirrors.aliyun.com/pypi/simple/ \\
     --upgrade pip || \\
@@ -112,53 +114,53 @@ RUN pip install --no-cache-dir --timeout=300 --retries=5 \\
     -r requirements.txt
 
 # Set ownership
-RUN chown -R sahool:sahool /app'''
-    
+RUN chown -R sahool:sahool /app"""
+
     if re.search(chained_pattern, content):
         content = re.sub(chained_pattern, chained_replacement, content)
         modified = True
-    
+
     return content, modified
 
 
 def main():
     """Main execution function."""
     print("🔍 Scanning for Python Dockerfiles...")
-    
+
     dockerfiles = find_python_dockerfiles()
-    
+
     if not dockerfiles:
         print("❌ No Python Dockerfiles found.")
         return
-    
+
     print(f"✅ Found {len(dockerfiles)} Python Dockerfiles\n")
-    
+
     updated_count = 0
     skipped_count = 0
-    
+
     for dockerfile in dockerfiles:
         service_name = dockerfile.parent.name
         print(f"📄 Processing: {service_name}")
-        
-        with open(dockerfile, 'r', encoding='utf-8') as f:
+
+        with open(dockerfile, "r", encoding="utf-8") as f:
             original_content = f.read()
-        
+
         if not needs_update(original_content):
             print(f"   ⏭️  Already has resilient pattern, skipping.\n")
             skipped_count += 1
             continue
-        
+
         updated_content, modified = apply_resilient_pattern(original_content)
-        
+
         if modified:
-            with open(dockerfile, 'w', encoding='utf-8') as f:
+            with open(dockerfile, "w", encoding="utf-8") as f:
                 f.write(updated_content)
             print(f"   ✅ Updated with resilient fallback pattern\n")
             updated_count += 1
         else:
             print(f"   ⚠️  No matching patterns found, skipping.\n")
             skipped_count += 1
-    
+
     print("=" * 60)
     print(f"📊 Summary:")
     print(f"   Updated: {updated_count}")

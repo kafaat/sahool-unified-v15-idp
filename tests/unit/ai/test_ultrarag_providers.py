@@ -25,6 +25,7 @@ from shared.ai.ultrarag.models import TriRAGConfig, EntityType, RelationType
 # AgriRAGProvider Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestAgriRAGProvider:
     """Tests for AgriRAGProvider"""
 
@@ -149,6 +150,7 @@ class TestAgriRAGProvider:
 # CodeRAGProvider Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestCodeRAGProvider:
     """Tests for CodeRAGProvider"""
 
@@ -247,6 +249,7 @@ class TestCodeRAGProvider:
 # AgriQueryContext Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestAgriQueryContext:
     """Tests for AgriQueryContext"""
 
@@ -275,6 +278,7 @@ class TestAgriQueryContext:
 # CodeQueryContext Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestCodeQueryContext:
     """Tests for CodeQueryContext"""
 
@@ -300,6 +304,7 @@ class TestCodeQueryContext:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Integration Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestProvidersIntegration:
     """Integration tests for providers"""
@@ -367,6 +372,7 @@ class TestProvidersIntegration:
 # GEERAGProvider Tests
 # اختبارات مزود الأقمار الصناعية
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestGEERAGProvider:
     """Tests for GEERAGProvider"""
@@ -482,9 +488,7 @@ class TestGEERAGProvider:
     @pytest.mark.asyncio
     async def test_general_query(self, provider):
         """Test general satellite query"""
-        result = await provider.general_query(
-            query="How to calculate NDVI from Sentinel-2 imagery"
-        )
+        result = await provider.general_query(query="How to calculate NDVI from Sentinel-2 imagery")
 
         assert isinstance(result, GEEAnalysisResult)
         assert result.query is not None
@@ -510,6 +514,7 @@ class TestGEERAGProvider:
 # ═══════════════════════════════════════════════════════════════════════════════
 # GEEQueryContext Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestGEEQueryContext:
     """Tests for GEEQueryContext"""
@@ -540,6 +545,7 @@ class TestGEEQueryContext:
 # ═══════════════════════════════════════════════════════════════════════════════
 # TimeSeriesPoint Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestTimeSeriesPoint:
     """Tests for TimeSeriesPoint"""
@@ -579,6 +585,7 @@ class TestTimeSeriesPoint:
 # ═══════════════════════════════════════════════════════════════════════════════
 # All Three Providers Integration Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestAllProvidersIntegration:
     """Integration tests for all providers together"""

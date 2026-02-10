@@ -124,6 +124,7 @@ class TestCircuitBreaker:
 
     def test_successful_call_returns_result(self, circuit_breaker):
         """Test that successful call returns result."""
+
         def success_func():
             return "success"
 
@@ -142,6 +143,7 @@ class TestCircuitBreaker:
 
     def test_failed_call_increments_failure_count(self, circuit_breaker):
         """Test that failed call increments failure count."""
+
         def fail_func():
             raise Exception("Test failure")
 
@@ -152,6 +154,7 @@ class TestCircuitBreaker:
 
     def test_circuit_opens_after_threshold(self, circuit_breaker):
         """Test that circuit opens after reaching failure threshold."""
+
         def fail_func():
             raise Exception("Test failure")
 
@@ -214,6 +217,7 @@ class TestCircuitBreaker:
 
     def test_call_with_arguments(self, circuit_breaker):
         """Test call with positional and keyword arguments."""
+
         def add(a, b, c=0):
             return a + b + c
 
@@ -579,7 +583,7 @@ class TestRetryLogic:
         """Test that exponential backoff is applied."""
         # This is more of an integration test
         # Verify delays increase exponentially
-        delays = [0.5 * (2 ** i) for i in range(3)]
+        delays = [0.5 * (2**i) for i in range(3)]
 
         assert delays[0] == 0.5
         assert delays[1] == 1.0

@@ -216,10 +216,7 @@ class TestBilingualMessage:
 
     def test_message_creation(self):
         """Test creating bilingual message."""
-        msg = BilingualMessage(
-            en="Batch started",
-            ar="بدأت الدفعة"
-        )
+        msg = BilingualMessage(en="Batch started", ar="بدأت الدفعة")
         assert msg.en == "Batch started"
         assert msg.ar == "بدأت الدفعة"
 
@@ -243,9 +240,18 @@ class TestBilingualMessage:
     def test_batch_messages_defined(self):
         """Test that standard batch messages are defined."""
         expected_keys = [
-            "started", "completed", "partially_completed", "failed",
-            "cancelled", "rolled_back", "paused", "resumed",
-            "item_completed", "item_failed", "rollback_started", "rollback_completed",
+            "started",
+            "completed",
+            "partially_completed",
+            "failed",
+            "cancelled",
+            "rolled_back",
+            "paused",
+            "resumed",
+            "item_completed",
+            "item_failed",
+            "rollback_started",
+            "rollback_completed",
         ]
         for key in expected_keys:
             assert key in BATCH_MESSAGES
@@ -882,6 +888,7 @@ class TestBatchExecutorErrorHandling:
     @pytest.mark.asyncio
     async def test_stop_on_error(self, sample_field_items):
         """Test stop_on_error configuration."""
+
         async def always_fail(item, batch):
             if item.field_id == "field_001":
                 raise Exception("First item failed")
@@ -910,6 +917,7 @@ class TestBatchExecutorErrorHandling:
     @pytest.mark.asyncio
     async def test_timeout_handling(self, sample_field_items):
         """Test item timeout handling."""
+
         async def slow_execute(item, batch):
             if item.field_id == "field_002":
                 await asyncio.sleep(5)  # Longer than timeout
@@ -937,6 +945,7 @@ class TestBatchExecutorErrorHandling:
     @pytest.mark.asyncio
     async def test_failure_threshold(self, sample_field_items):
         """Test failure threshold stops execution."""
+
         async def mostly_fail(item, batch):
             if item.field_id != "field_001":
                 raise Exception("Failed")
@@ -1013,6 +1022,7 @@ class TestBatchExecutorRollback:
     @pytest.mark.asyncio
     async def test_rollback_on_threshold(self, sample_field_items):
         """Test rollback on threshold strategy."""
+
         async def mostly_fail(item, batch):
             if item.field_id == "field_001":
                 return {"processed": True}
@@ -1068,6 +1078,7 @@ class TestBatchExecutorRollback:
     @pytest.mark.asyncio
     async def test_rollback_failure_handling(self, sample_field_items):
         """Test handling when rollback fails."""
+
         async def fail_last(item, batch):
             if item.field_id == "field_003":
                 raise Exception("Last item failed")
@@ -1315,6 +1326,7 @@ class TestBatchExecutorValidation:
     @pytest.mark.asyncio
     async def test_validate_batch_with_custom_validator(self, sample_field_items):
         """Test validation with custom validator."""
+
         class ValidatingProcessor(FieldOperationProcessor):
             async def validate(self, item, batch):
                 if item.area_hectares <= 0:
@@ -1758,9 +1770,7 @@ class TestEdgeCases:
             tenant_id="farm_001",
             operation_type=BatchOperationType.IRRIGATION,
             name="Single Item",
-            field_items=[
-                FieldOperationItem(field_id="field_001", area_hectares=5.0)
-            ],
+            field_items=[FieldOperationItem(field_id="field_001", area_hectares=5.0)],
         )
 
         executor = BatchExecutor()
@@ -1774,8 +1784,7 @@ class TestEdgeCases:
     async def test_large_batch(self):
         """Test batch with many items."""
         items = [
-            FieldOperationItem(field_id=f"field_{i:04d}", area_hectares=1.0)
-            for i in range(100)
+            FieldOperationItem(field_id=f"field_{i:04d}", area_hectares=1.0) for i in range(100)
         ]
 
         batch = BatchOperation(
@@ -1796,6 +1805,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_all_items_fail(self, sample_field_items):
         """Test when all items fail."""
+
         async def always_fail(item, batch):
             raise Exception("Simulated failure")
 
@@ -1850,6 +1860,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_result_data_stored(self, sample_field_items):
         """Test result data is stored on items."""
+
         async def execute_with_data(item, batch):
             return {
                 "processed_at": datetime.utcnow().isoformat(),
@@ -1875,6 +1886,7 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_rollback_data_stored(self, sample_field_items):
         """Test rollback data is stored for completed items."""
+
         async def execute_with_data(item, batch):
             return {"record_id": f"rec_{item.field_id}"}
 
@@ -1913,10 +1925,7 @@ class TestExceptions:
 
     def test_batch_execution_error(self):
         """Test BatchExecutionError creation."""
-        error = BatchExecutionError(
-            "Execution failed",
-            "فشل التنفيذ"
-        )
+        error = BatchExecutionError("Execution failed", "فشل التنفيذ")
         assert error.message == "Execution failed"
         assert error.message_ar == "فشل التنفيذ"
         assert str(error) == "Execution failed"
@@ -1969,6 +1978,7 @@ class TestItemProcessors:
     @pytest.mark.asyncio
     async def test_field_operation_processor_custom(self):
         """Test field operation processor with custom handler."""
+
         async def custom_execute(item, batch):
             return {"custom": True}
 
@@ -2074,8 +2084,7 @@ class TestBatchOperationsIntegration:
                 method="drip",
             ),
             field_items=[
-                FieldOperationItem(field_id=f"field_{i}", area_hectares=5.0)
-                for i in range(5)
+                FieldOperationItem(field_id=f"field_{i}", area_hectares=5.0) for i in range(5)
             ],
             config=BatchConfig(
                 max_concurrent=2,
@@ -2128,9 +2137,7 @@ class TestBatchOperationsIntegration:
             tenant_id="farm_001",
             operation_type=BatchOperationType.IRRIGATION,
             name="Scheduler Test",
-            field_items=[
-                FieldOperationItem(field_id="field_001", area_hectares=5.0)
-            ],
+            field_items=[FieldOperationItem(field_id="field_001", area_hectares=5.0)],
         )
 
         events = []
@@ -2200,7 +2207,5 @@ class TestBatchOperationsIntegration:
         assert "Simulated failure" in batch.field_items[1].error_message
 
         # Verify audit
-        completed_entry = next(
-            e for e in batch.audit_log if e["action"] == "batch_completed"
-        )
+        completed_entry = next(e for e in batch.audit_log if e["action"] == "batch_completed")
         assert completed_entry["details"]["status"] == "partially_completed"

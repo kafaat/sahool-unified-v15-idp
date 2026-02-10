@@ -247,9 +247,7 @@ class ProjectAnalyzer:
 
         if self.results["files_with_issues"] > 0:
             report.append("\n📄 الملفات التي تحتاج مراجعة:")
-            for file_info in sorted(
-                self.results["files"], key=lambda x: -x["issues_count"]
-            )[:20]:
+            for file_info in sorted(self.results["files"], key=lambda x: -x["issues_count"])[:20]:
                 report.append(f"   - {file_info['path']} ({file_info['issues_count']} مشكلة)")
 
         report.append("\n" + "=" * 60)

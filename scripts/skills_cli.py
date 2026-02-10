@@ -199,9 +199,7 @@ def compress_field_data(field_data: dict[str, Any]) -> CompressionResult:
         "soil_type",
     ]
 
-    compressed_data = {
-        k: v for k, v in field_data.items() if k in priority_fields
-    }
+    compressed_data = {k: v for k, v in field_data.items() if k in priority_fields}
     compressed_text = json.dumps(compressed_data, ensure_ascii=False, indent=2)
 
     original_tokens = estimate_tokens(text_repr)
@@ -270,15 +268,37 @@ def evaluate_advisory(
     for dimension in weights:
         # Check for key terms
         if dimension == "accuracy":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"])
+                else 3.0
+            )
         elif dimension == "relevance":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["field", "specific", "your"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["field", "specific", "your"])
+                else 3.0
+            )
         elif dimension == "actionability":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]) else 2.0
+            score = (
+                4.0
+                if any(
+                    w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]
+                )
+                else 2.0
+            )
         elif dimension == "timeliness":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"])
+                else 3.0
+            )
         else:  # safety
-            score = 3.0 if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"]) else 2.0
+            score = (
+                3.0
+                if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"])
+                else 2.0
+            )
 
         scores[dimension] = min(5.0, max(1.0, score))
 
@@ -396,7 +416,9 @@ Example:
     type=str,
     help="Output file (JSON format)",
 )
-def compress(text: str | None, json_data: str | None, level: str, language: str, output: str | None):
+def compress(
+    text: str | None, json_data: str | None, level: str, language: str, output: str | None
+):
     """Compress agricultural data"""
 
     result = None
@@ -870,9 +892,18 @@ def generate_doc(list: bool, skill: str | None, format: str, output: str | None)
             "title": "Context Compression Skill",
             "description": "Reduces token usage while preserving critical agricultural data",
             "commands": [
-                {"name": "compress --level light", "description": "Light compression (80% retention)"},
-                {"name": "compress --level medium", "description": "Medium compression (50% retention)"},
-                {"name": "compress --level heavy", "description": "Heavy compression (25% retention)"},
+                {
+                    "name": "compress --level light",
+                    "description": "Light compression (80% retention)",
+                },
+                {
+                    "name": "compress --level medium",
+                    "description": "Medium compression (50% retention)",
+                },
+                {
+                    "name": "compress --level heavy",
+                    "description": "Heavy compression (25% retention)",
+                },
             ],
             "features": [
                 "Agricultural abbreviations support",
@@ -958,9 +989,7 @@ def generate_doc(list: bool, skill: str | None, format: str, output: str | None)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-@cli.command(
-    help="Show practical examples for all commands"
-)
+@cli.command(help="Show practical examples for all commands")
 def examples():
     """Show practical examples"""
 

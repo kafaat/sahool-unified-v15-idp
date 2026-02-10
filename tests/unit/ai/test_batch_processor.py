@@ -12,8 +12,8 @@ import sys
 
 
 # Mock the dependencies before importing
-sys.modules['shared.ai.orchestration'] = MagicMock()
-sys.modules['shared.ai.orchestration.models'] = MagicMock()
+sys.modules["shared.ai.orchestration"] = MagicMock()
+sys.modules["shared.ai.orchestration.models"] = MagicMock()
 
 
 class TestBatchConfig:
@@ -247,10 +247,7 @@ class TestBatchProcessorLogic:
         ]
         exclude_patterns = ["node_modules", ".venv"]
 
-        filtered = [
-            f for f in all_files
-            if not any(pattern in f for pattern in exclude_patterns)
-        ]
+        filtered = [f for f in all_files if not any(pattern in f for pattern in exclude_patterns)]
 
         assert len(filtered) == 3
         assert "node_modules/package.js" not in filtered
@@ -261,10 +258,7 @@ class TestBatchProcessorLogic:
         files = list(range(100))
         batch_size = 25
 
-        batches = [
-            files[i:i + batch_size]
-            for i in range(0, len(files), batch_size)
-        ]
+        batches = [files[i : i + batch_size] for i in range(0, len(files), batch_size)]
 
         assert len(batches) == 4
         assert len(batches[0]) == 25

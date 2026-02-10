@@ -443,7 +443,7 @@ async def list_posts(
 
     # Sort
     if sort_by == "popular":
-        filtered.sort(key=lambda p: (p.likes_count + p.comments_count * 2), reverse=True)
+        filtered.sort(key=lambda p: p.likes_count + p.comments_count * 2, reverse=True)
     elif sort_by == "unanswered":
         filtered = [p for p in filtered if not p.has_expert_reply]
         filtered.sort(key=lambda p: p.created_at, reverse=True)

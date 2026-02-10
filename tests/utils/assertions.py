@@ -56,8 +56,7 @@ def assert_api_response(
     if expected_keys:
         for key in expected_keys:
             assert key in data, (
-                f"Expected key '{key}' not in response. "
-                f"Available keys: {list(data.keys())}"
+                f"Expected key '{key}' not in response. Available keys: {list(data.keys())}"
             )
 
     return data
@@ -120,9 +119,7 @@ def assert_response_error(
 
     if error_code:
         actual_code = data.get("error_code") or data.get("code") or data.get("error")
-        assert actual_code == error_code, (
-            f"Expected error code '{error_code}', got '{actual_code}'"
-        )
+        assert actual_code == error_code, f"Expected error code '{error_code}', got '{actual_code}'"
 
     return data
 

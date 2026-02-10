@@ -25,8 +25,12 @@ SERVICE_VERSION = os.getenv("SERVICE_VERSION", "1.0.0")
 log = structlog.get_logger()
 
 # Prometheus metrics
-REQS = Counter("http_requests_total", "Total HTTP requests", ["service", "path", "method", "status"])
-LATENCY = Histogram("http_request_duration_seconds", "Request latency", ["service", "path", "method"])
+REQS = Counter(
+    "http_requests_total", "Total HTTP requests", ["service", "path", "method", "status"]
+)
+LATENCY = Histogram(
+    "http_request_duration_seconds", "Request latency", ["service", "path", "method"]
+)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -53,7 +57,13 @@ class AuditMiddleware(BaseHTTPMiddleware):
     def __init__(self, app, audit_enabled: bool = True, exclude_paths: list[str] | None = None):
         super().__init__(app)
         self.audit_enabled = audit_enabled
-        self.exclude_paths = exclude_paths or ["/healthz", "/readyz", "/metrics", "/docs", "/openapi.json"]
+        self.exclude_paths = exclude_paths or [
+            "/healthz",
+            "/readyz",
+            "/metrics",
+            "/docs",
+            "/openapi.json",
+        ]
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         import time
@@ -179,7 +189,9 @@ app = FastAPI(
 
 # Add audit middleware
 audit_enabled = os.getenv("AUDIT_ENABLED", "true").lower() == "true"
-audit_exclude = os.getenv("AUDIT_EXCLUDE_PATHS", "/healthz,/readyz,/metrics,/docs,/openapi.json").split(",")
+audit_exclude = os.getenv(
+    "AUDIT_EXCLUDE_PATHS", "/healthz,/readyz,/metrics,/docs,/openapi.json"
+).split(",")
 app.add_middleware(AuditMiddleware, audit_enabled=audit_enabled, exclude_paths=audit_exclude)
 
 

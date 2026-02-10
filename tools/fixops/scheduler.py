@@ -32,16 +32,18 @@ logger = structlog.get_logger(__name__)
 
 class CheckType(str, Enum):
     """Types of checks | أنواع الفحوصات"""
-    PRE_COMMIT = "pre_commit"      # قبل الـ commit
-    POST_COMMIT = "post_commit"    # بعد الـ commit
-    POST_FIX = "post_fix"          # بعد الإصلاح
-    PERIODIC = "periodic"          # دوري
-    ON_DEMAND = "on_demand"        # عند الطلب
-    CI_CD = "ci_cd"               # في CI/CD
+
+    PRE_COMMIT = "pre_commit"  # قبل الـ commit
+    POST_COMMIT = "post_commit"  # بعد الـ commit
+    POST_FIX = "post_fix"  # بعد الإصلاح
+    PERIODIC = "periodic"  # دوري
+    ON_DEMAND = "on_demand"  # عند الطلب
+    CI_CD = "ci_cd"  # في CI/CD
 
 
 class CheckFrequency(str, Enum):
     """Frequency of periodic checks | تكرار الفحوصات الدورية"""
+
     HOURLY = "hourly"
     DAILY = "daily"
     WEEKLY = "weekly"
@@ -51,6 +53,7 @@ class CheckFrequency(str, Enum):
 @dataclass
 class ScheduledCheck:
     """Scheduled check configuration | تكوين الفحص المجدول"""
+
     id: str
     name: str
     name_ar: str
@@ -80,6 +83,7 @@ class ScheduledCheck:
 @dataclass
 class CheckResult:
     """Result of a scheduled check | نتيجة الفحص المجدول"""
+
     check_id: str
     check_type: CheckType
     started_at: datetime
@@ -151,12 +155,14 @@ class LogAnalyzer:
 
                     for pattern, category, category_ar in self.ERROR_PATTERNS:
                         if re.search(pattern, line):
-                            issues.append({
-                                "line_number": i + 1,
-                                "category": category,
-                                "category_ar": category_ar,
-                                "content": line.strip()[:200],
-                            })
+                            issues.append(
+                                {
+                                    "line_number": i + 1,
+                                    "category": category,
+                                    "category_ar": category_ar,
+                                    "content": line.strip()[:200],
+                                }
+                            )
                             break
         except (OSError, IOError) as e:
             logger.warning("Failed to analyze log", path=str(log_path), error=str(e))
@@ -267,16 +273,20 @@ class FixOpsScheduler:
                 with open(self.config_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                     for check_data in data.get("checks", []):
-                        self.checks.append(ScheduledCheck(
-                            id=check_data["id"],
-                            name=check_data["name"],
-                            name_ar=check_data.get("name_ar", ""),
-                            check_type=CheckType(check_data["check_type"]),
-                            frequency=CheckFrequency(check_data["frequency"]) if check_data.get("frequency") else None,
-                            tools=check_data.get("tools", []),
-                            paths=check_data.get("paths", []),
-                            enabled=check_data.get("enabled", True),
-                        ))
+                        self.checks.append(
+                            ScheduledCheck(
+                                id=check_data["id"],
+                                name=check_data["name"],
+                                name_ar=check_data.get("name_ar", ""),
+                                check_type=CheckType(check_data["check_type"]),
+                                frequency=CheckFrequency(check_data["frequency"])
+                                if check_data.get("frequency")
+                                else None,
+                                tools=check_data.get("tools", []),
+                                paths=check_data.get("paths", []),
+                                enabled=check_data.get("enabled", True),
+                            )
+                        )
             except (json.JSONDecodeError, KeyError) as e:
                 logger.warning("Failed to load scheduler config", error=str(e))
                 self.checks = self.DEFAULT_CHECKS.copy()
@@ -288,10 +298,15 @@ class FixOpsScheduler:
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(self.config_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "checks": [c.to_dict() for c in self.checks],
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-            }, f, indent=2, ensure_ascii=False)
+            json.dump(
+                {
+                    "checks": [c.to_dict() for c in self.checks],
+                    "updated_at": datetime.now(timezone.utc).isoformat(),
+                },
+                f,
+                indent=2,
+                ensure_ascii=False,
+            )
 
     def add_callback(self, callback: Callable[[CheckResult], None]) -> None:
         """Add callback for check results"""
@@ -393,7 +408,7 @@ class FixOpsScheduler:
                 name_ar="فحص قبل الـ commit",
                 check_type=CheckType.PRE_COMMIT,
                 tools=["ruff", "eslint"],
-            )
+            ),
         )
 
         return await self.run_check(check, paths=staged_files)
@@ -414,7 +429,7 @@ class FixOpsScheduler:
                 name_ar="التحقق بعد الإصلاح",
                 check_type=CheckType.POST_FIX,
                 tools=["ruff", "mypy"],
-            )
+            ),
         )
 
         return await self.run_check(check, paths=modified_files)

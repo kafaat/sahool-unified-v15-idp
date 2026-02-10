@@ -178,10 +178,7 @@ class TestHaversineDistance:
         # Move approximately 100 meters east
         # At latitude 15, 1 degree longitude is approximately 107 km
         delta_lng = 100 / (107000)  # ~100 meters in degrees
-        distance = haversine_distance(
-            SANAA_LAT, SANAA_LNG,
-            SANAA_LAT, SANAA_LNG + delta_lng
-        )
+        distance = haversine_distance(SANAA_LAT, SANAA_LNG, SANAA_LAT, SANAA_LNG + delta_lng)
 
         # Should be approximately 100 meters (allow 5% tolerance)
         assert abs(distance - 100) < 5
@@ -381,7 +378,7 @@ class TestDistanceToPolygonBoundary:
         distance = distance_to_polygon_boundary(5, 5, square)
         # Should be positive and reasonable
         assert distance > 0
-        assert distance < float('inf')
+        assert distance < float("inf")
 
     def test_point_outside_polygon(self):
         """Test distance from point outside polygon to boundary"""
@@ -399,12 +396,12 @@ class TestDistanceToPolygonBoundary:
         """Test with single-point boundary"""
         point = [LatLng(0, 0)]
         distance = distance_to_polygon_boundary(5, 5, point)
-        assert distance == float('inf')
+        assert distance == float("inf")
 
     def test_empty_boundary(self):
         """Test with empty boundary"""
         distance = distance_to_polygon_boundary(5, 5, [])
-        assert distance == float('inf')
+        assert distance == float("inf")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -541,9 +538,7 @@ class TestPositionChecking:
     def test_position_inside_circular_geofence(self, circular_geofence):
         """Test position inside circular geofence"""
         is_inside, distance = check_position_in_geofence(
-            SAMPLE_FIELD_CENTER[0],
-            SAMPLE_FIELD_CENTER[1],
-            circular_geofence
+            SAMPLE_FIELD_CENTER[0], SAMPLE_FIELD_CENTER[1], circular_geofence
         )
 
         assert is_inside is True
@@ -555,7 +550,7 @@ class TestPositionChecking:
         is_inside, distance = check_position_in_geofence(
             SAMPLE_FIELD_CENTER[0] + 0.02,  # ~2.2km north
             SAMPLE_FIELD_CENTER[1],
-            circular_geofence
+            circular_geofence,
         )
 
         assert is_inside is False
@@ -567,9 +562,7 @@ class TestPositionChecking:
         # 500m north is approximately 500/111000 degrees
         delta_lat = SAMPLE_FIELD_RADIUS_M / 111000
         is_inside, distance = check_position_in_geofence(
-            SAMPLE_FIELD_CENTER[0] + delta_lat,
-            SAMPLE_FIELD_CENTER[1],
-            circular_geofence
+            SAMPLE_FIELD_CENTER[0] + delta_lat, SAMPLE_FIELD_CENTER[1], circular_geofence
         )
 
         # Should be approximately on the boundary
@@ -580,11 +573,7 @@ class TestPositionChecking:
         center_lat = sum(p[0] for p in SAMPLE_FARM_BOUNDARY) / len(SAMPLE_FARM_BOUNDARY)
         center_lng = sum(p[1] for p in SAMPLE_FARM_BOUNDARY) / len(SAMPLE_FARM_BOUNDARY)
 
-        is_inside, distance = check_position_in_geofence(
-            center_lat,
-            center_lng,
-            polygon_geofence
-        )
+        is_inside, distance = check_position_in_geofence(center_lat, center_lng, polygon_geofence)
 
         assert is_inside is True
         assert distance > 0
@@ -594,7 +583,7 @@ class TestPositionChecking:
         is_inside, distance = check_position_in_geofence(
             20.0,  # Far outside
             50.0,
-            polygon_geofence
+            polygon_geofence,
         )
 
         assert is_inside is False
@@ -612,14 +601,12 @@ class TestPositionChecking:
 
         is_inside, distance = check_position_in_geofence(15.0, 44.0, geofence)
         assert is_inside is False
-        assert distance == float('inf')
+        assert distance == float("inf")
 
     def test_calculate_distance_to_boundary(self, circular_geofence):
         """Test distance to boundary calculation"""
         distance = calculate_distance_to_boundary(
-            SAMPLE_FIELD_CENTER[0],
-            SAMPLE_FIELD_CENTER[1],
-            circular_geofence
+            SAMPLE_FIELD_CENTER[0], SAMPLE_FIELD_CENTER[1], circular_geofence
         )
 
         assert distance == SAMPLE_FIELD_RADIUS_M
@@ -1622,7 +1609,8 @@ class TestEdgeCases:
 
         # Get applicable geofences (internal to update_position)
         geofences = [
-            gf for gf in engine.geofences.values()
+            gf
+            for gf in engine.geofences.values()
             if gf.tenant_id == update.tenant_id and gf.is_active
         ]
         assert len(geofences) == 1
@@ -1648,7 +1636,7 @@ class TestEdgeCases:
         # The implementation skips circular geofence check when radius_m=0
         is_inside, distance = check_position_in_geofence(15.0, 44.0, geo)
         assert is_inside is False  # No valid geometry
-        assert distance == float('inf')
+        assert distance == float("inf")
 
     def test_minimal_radius_geofence(self):
         """Test geofence with very small (but positive) radius"""

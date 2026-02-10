@@ -30,6 +30,7 @@ import pytest
 
 class GoalPriority(str, Enum):
     """Irrigation goal priority levels"""
+
     WATER_SAVING = "water_saving"
     HIGH_YIELD = "high_yield"
     BALANCED = "balanced"
@@ -38,6 +39,7 @@ class GoalPriority(str, Enum):
 
 class ConstraintType(str, Enum):
     """Types of ecological constraints"""
+
     WATER_LIMIT = "water_limit"
     GROUNDWATER_PROTECTION = "groundwater_protection"
     SOIL_HEALTH = "soil_health"
@@ -47,6 +49,7 @@ class ConstraintType(str, Enum):
 
 class RuleSource(str, Enum):
     """Source of experience rules"""
+
     FARMER = "farmer"
     AI = "ai"
     AGRONOMIST = "agronomist"
@@ -55,6 +58,7 @@ class RuleSource(str, Enum):
 
 class SessionStatus(str, Enum):
     """HMC session status"""
+
     PENDING = "pending"
     GOAL_SETTING = "goal_setting"
     AI_GENERATION = "ai_generation"
@@ -67,6 +71,7 @@ class SessionStatus(str, Enum):
 
 class ChecklistCategory(str, Enum):
     """Checklist item categories"""
+
     GOAL_ANCHORING = "goal_anchoring"
     EXPERIENCE_INJECTION = "experience_injection"
     SUPERVISION = "supervision"
@@ -75,6 +80,7 @@ class ChecklistCategory(str, Enum):
 
 class ZoneType(str, Enum):
     """Irrigation zone types"""
+
     HIGH_VALUE = "high_value"
     STANDARD = "standard"
     WATER_SCARCE = "water_scarce"
@@ -602,50 +608,60 @@ def mock_farm_advisor() -> MagicMock:
     advisor = MagicMock()
 
     # Field data
-    advisor.get_field_data = AsyncMock(return_value={
-        "field_id": str(uuid.uuid4()),
-        "area_hectares": 10.5,
-        "crop_type": "wheat",
-        "growth_stage": "tillering",
-        "soil_type": "loamy",
-        "irrigation_method": "drip",
-    })
+    advisor.get_field_data = AsyncMock(
+        return_value={
+            "field_id": str(uuid.uuid4()),
+            "area_hectares": 10.5,
+            "crop_type": "wheat",
+            "growth_stage": "tillering",
+            "soil_type": "loamy",
+            "irrigation_method": "drip",
+        }
+    )
 
     # Soil moisture
-    advisor.get_soil_moisture = AsyncMock(return_value={
-        "moisture_percent": 42.0,
-        "ec_ds_m": 1.8,
-        "temperature_c": 18.5,
-        "reading_time": datetime.now(UTC).isoformat(),
-    })
+    advisor.get_soil_moisture = AsyncMock(
+        return_value={
+            "moisture_percent": 42.0,
+            "ec_ds_m": 1.8,
+            "temperature_c": 18.5,
+            "reading_time": datetime.now(UTC).isoformat(),
+        }
+    )
 
     # Crop water requirement
-    advisor.get_crop_water_requirement = AsyncMock(return_value={
-        "daily_et_mm": 5.5,
-        "kc": 1.05,
-        "root_depth_cm": 45,
-    })
+    advisor.get_crop_water_requirement = AsyncMock(
+        return_value={
+            "daily_et_mm": 5.5,
+            "kc": 1.05,
+            "root_depth_cm": 45,
+        }
+    )
 
     # Historical data
-    advisor.get_irrigation_history = AsyncMock(return_value=[
-        {
-            "date": (date.today() - timedelta(days=i)).isoformat(),
-            "water_amount_mm": 20 + (i % 5),
-            "duration_minutes": 45,
-            "yield_impact": 0.95 + (0.01 * (i % 3)),
-        }
-        for i in range(30)
-    ])
+    advisor.get_irrigation_history = AsyncMock(
+        return_value=[
+            {
+                "date": (date.today() - timedelta(days=i)).isoformat(),
+                "water_amount_mm": 20 + (i % 5),
+                "duration_minutes": 45,
+                "yield_impact": 0.95 + (0.01 * (i % 3)),
+            }
+            for i in range(30)
+        ]
+    )
 
     # Advisory
-    advisor.get_irrigation_advisory = AsyncMock(return_value={
-        "recommended_amount_mm": 22,
-        "optimal_time": "06:00",
-        "urgency": "normal",
-        "confidence": 0.85,
-        "reasoning_en": "Based on soil moisture and weather forecast",
-        "reasoning_ar": "بناءً على رطوبة التربة وتوقعات الطقس",
-    })
+    advisor.get_irrigation_advisory = AsyncMock(
+        return_value={
+            "recommended_amount_mm": 22,
+            "optimal_time": "06:00",
+            "urgency": "normal",
+            "confidence": 0.85,
+            "reasoning_en": "Based on soil moisture and weather forecast",
+            "reasoning_ar": "بناءً على رطوبة التربة وتوقعات الطقس",
+        }
+    )
 
     return advisor
 
@@ -659,36 +675,42 @@ def mock_weather_service() -> MagicMock:
     weather = MagicMock()
 
     # Current weather
-    weather.get_current = AsyncMock(return_value={
-        "temperature_c": 28.5,
-        "humidity_percent": 45.0,
-        "wind_speed_kmh": 12.0,
-        "solar_radiation_wm2": 650,
-        "precipitation_mm": 0.0,
-        "timestamp": datetime.now(UTC).isoformat(),
-    })
+    weather.get_current = AsyncMock(
+        return_value={
+            "temperature_c": 28.5,
+            "humidity_percent": 45.0,
+            "wind_speed_kmh": 12.0,
+            "solar_radiation_wm2": 650,
+            "precipitation_mm": 0.0,
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    )
 
     # Forecast
-    weather.get_forecast = AsyncMock(return_value=[
-        {
-            "date": (date.today() + timedelta(days=i)).isoformat(),
-            "temperature_high_c": 30 + (i % 5),
-            "temperature_low_c": 18 + (i % 3),
-            "humidity_percent": 40 + (i * 2),
-            "precipitation_mm": 0.0 if i < 5 else 5.0,
-            "precipitation_probability": 0.1 if i < 5 else 0.6,
-            "wind_speed_kmh": 10 + (i * 2),
-            "et0_mm": 5.5 + (0.2 * i),
-        }
-        for i in range(7)
-    ])
+    weather.get_forecast = AsyncMock(
+        return_value=[
+            {
+                "date": (date.today() + timedelta(days=i)).isoformat(),
+                "temperature_high_c": 30 + (i % 5),
+                "temperature_low_c": 18 + (i % 3),
+                "humidity_percent": 40 + (i * 2),
+                "precipitation_mm": 0.0 if i < 5 else 5.0,
+                "precipitation_probability": 0.1 if i < 5 else 0.6,
+                "wind_speed_kmh": 10 + (i * 2),
+                "et0_mm": 5.5 + (0.2 * i),
+            }
+            for i in range(7)
+        ]
+    )
 
     # ET0 calculation
-    weather.calculate_et0 = AsyncMock(return_value={
-        "et0_mm": 5.8,
-        "method": "penman_monteith",
-        "date": date.today().isoformat(),
-    })
+    weather.calculate_et0 = AsyncMock(
+        return_value={
+            "et0_mm": 5.8,
+            "method": "penman_monteith",
+            "date": date.today().isoformat(),
+        }
+    )
 
     return weather
 
@@ -701,32 +723,38 @@ def mock_irrigation_agent() -> MagicMock:
     """
     agent = MagicMock()
 
-    agent.optimize_schedule = AsyncMock(return_value={
-        "schedule": [
-            {
-                "date": (date.today() + timedelta(days=i)).isoformat(),
-                "water_amount_mm": 20,
-                "start_time": "06:00",
-                "duration_minutes": 45,
-            }
-            for i in range(7)
-        ],
-        "total_water_m3": 1400,
-        "estimated_savings_percent": 22.0,
-        "confidence": 0.85,
-    })
+    agent.optimize_schedule = AsyncMock(
+        return_value={
+            "schedule": [
+                {
+                    "date": (date.today() + timedelta(days=i)).isoformat(),
+                    "water_amount_mm": 20,
+                    "start_time": "06:00",
+                    "duration_minutes": 45,
+                }
+                for i in range(7)
+            ],
+            "total_water_m3": 1400,
+            "estimated_savings_percent": 22.0,
+            "confidence": 0.85,
+        }
+    )
 
-    agent.validate_schedule = AsyncMock(return_value={
-        "is_valid": True,
-        "warnings": [],
-        "errors": [],
-    })
+    agent.validate_schedule = AsyncMock(
+        return_value={
+            "is_valid": True,
+            "warnings": [],
+            "errors": [],
+        }
+    )
 
-    agent.execute_schedule = AsyncMock(return_value={
-        "execution_id": str(uuid.uuid4()),
-        "status": "scheduled",
-        "message": "Schedule activated successfully",
-    })
+    agent.execute_schedule = AsyncMock(
+        return_value={
+            "execution_id": str(uuid.uuid4()),
+            "status": "scheduled",
+            "message": "Schedule activated successfully",
+        }
+    )
 
     return agent
 
@@ -773,19 +801,23 @@ def experience_injection_dimension() -> MagicMock:
     """
     dimension = MagicMock()
     dimension.inject_farmer_experience = MagicMock(return_value=True)
-    dimension.translate_tacit_knowledge = MagicMock(return_value={
-        "rule_id": str(uuid.uuid4()),
-        "condition_formula": "soil_moisture < 35",
-        "action_parameters": {"water_amount_mm": 20},
-    })
-    dimension.calibrate_reward_function = MagicMock(return_value={
-        "reward_weights": {
-            "water_savings": 0.4,
-            "yield": 0.4,
-            "cost": 0.2,
-        },
-        "calibration_score": 0.88,
-    })
+    dimension.translate_tacit_knowledge = MagicMock(
+        return_value={
+            "rule_id": str(uuid.uuid4()),
+            "condition_formula": "soil_moisture < 35",
+            "action_parameters": {"water_amount_mm": 20},
+        }
+    )
+    dimension.calibrate_reward_function = MagicMock(
+        return_value={
+            "reward_weights": {
+                "water_savings": 0.4,
+                "yield": 0.4,
+                "cost": 0.2,
+            },
+            "calibration_score": 0.88,
+        }
+    )
     dimension.update_knowledge_base = AsyncMock(return_value=True)
     return dimension
 
@@ -797,24 +829,32 @@ def supervision_calibration_dimension() -> MagicMock:
     بُعد معايرة الإشراف الوهمي
     """
     dimension = MagicMock()
-    dimension.run_simulation = AsyncMock(return_value={
-        "status": "passed",
-        "simulated_yield_percent": 94.0,
-        "simulated_water_savings_percent": 23.0,
-    })
-    dimension.compare_field_trial = AsyncMock(return_value={
-        "actual_yield_percent": 93.5,
-        "actual_water_savings_percent": 22.5,
-        "deviation": 0.5,
-    })
-    dimension.check_emergency_strategy = MagicMock(return_value={
-        "has_strategy": True,
-        "scenarios_covered": ["drought", "equipment_failure", "sensor_failure"],
-    })
-    dimension.handle_sensor_failure = AsyncMock(return_value={
-        "fallback_mode": "conservative",
-        "fallback_schedule": [],
-    })
+    dimension.run_simulation = AsyncMock(
+        return_value={
+            "status": "passed",
+            "simulated_yield_percent": 94.0,
+            "simulated_water_savings_percent": 23.0,
+        }
+    )
+    dimension.compare_field_trial = AsyncMock(
+        return_value={
+            "actual_yield_percent": 93.5,
+            "actual_water_savings_percent": 22.5,
+            "deviation": 0.5,
+        }
+    )
+    dimension.check_emergency_strategy = MagicMock(
+        return_value={
+            "has_strategy": True,
+            "scenarios_covered": ["drought", "equipment_failure", "sensor_failure"],
+        }
+    )
+    dimension.handle_sensor_failure = AsyncMock(
+        return_value={
+            "fallback_mode": "conservative",
+            "fallback_schedule": [],
+        }
+    )
     return dimension
 
 
@@ -825,26 +865,34 @@ def value_upgrade_dimension() -> MagicMock:
     بُعد ترقية القيمة الوهمي
     """
     dimension = MagicMock()
-    dimension.extract_field_rules = AsyncMock(return_value=[
-        {
-            "rule_id": str(uuid.uuid4()),
-            "condition": "soil_moisture < 40",
-            "action": "irrigate_20mm",
-            "confidence": 0.85,
+    dimension.extract_field_rules = AsyncMock(
+        return_value=[
+            {
+                "rule_id": str(uuid.uuid4()),
+                "condition": "soil_moisture < 40",
+                "action": "irrigate_20mm",
+                "confidence": 0.85,
+            }
+        ]
+    )
+    dimension.integrate_fertilization = AsyncMock(
+        return_value={
+            "integrated_schedule": [],
+            "nutrient_water_sync": True,
         }
-    ])
-    dimension.integrate_fertilization = AsyncMock(return_value={
-        "integrated_schedule": [],
-        "nutrient_water_sync": True,
-    })
-    dimension.integrate_weather = AsyncMock(return_value={
-        "weather_adjusted": True,
-        "rain_reduction_mm": 5.0,
-    })
-    dimension.calculate_carbon_reduction = MagicMock(return_value={
-        "carbon_saved_kg": 125.5,
-        "water_energy_saved_kwh": 450.0,
-    })
+    )
+    dimension.integrate_weather = AsyncMock(
+        return_value={
+            "weather_adjusted": True,
+            "rain_reduction_mm": 5.0,
+        }
+    )
+    dimension.calculate_carbon_reduction = MagicMock(
+        return_value={
+            "carbon_saved_kg": 125.5,
+            "water_energy_saved_kwh": 450.0,
+        }
+    )
     return dimension
 
 

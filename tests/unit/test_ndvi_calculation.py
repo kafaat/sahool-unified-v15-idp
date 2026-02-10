@@ -278,21 +278,39 @@ class TestHealthScore:
         """Test health score stays within 0-10 bounds"""
         # Extreme cases
         stats_good = NDVIStatistics(
-            mean=0.9, median=0.9, min=0.8, max=1.0, std_dev=0.05,
-            coverage_percent=100.0, valid_pixels=100, total_pixels=100
+            mean=0.9,
+            median=0.9,
+            min=0.8,
+            max=1.0,
+            std_dev=0.05,
+            coverage_percent=100.0,
+            valid_pixels=100,
+            total_pixels=100,
         )
         zones_good = ZoneClassification(
-            healthy_percent=100.0, stressed_percent=0.0,
-            critical_percent=0.0, bare_soil_percent=0.0, water_percent=0.0
+            healthy_percent=100.0,
+            stressed_percent=0.0,
+            critical_percent=0.0,
+            bare_soil_percent=0.0,
+            water_percent=0.0,
         )
 
         stats_bad = NDVIStatistics(
-            mean=-0.5, median=-0.5, min=-1.0, max=0.0, std_dev=0.4,
-            coverage_percent=0.0, valid_pixels=100, total_pixels=100
+            mean=-0.5,
+            median=-0.5,
+            min=-1.0,
+            max=0.0,
+            std_dev=0.4,
+            coverage_percent=0.0,
+            valid_pixels=100,
+            total_pixels=100,
         )
         zones_bad = ZoneClassification(
-            healthy_percent=0.0, stressed_percent=0.0,
-            critical_percent=100.0, bare_soil_percent=0.0, water_percent=0.0
+            healthy_percent=0.0,
+            stressed_percent=0.0,
+            critical_percent=100.0,
+            bare_soil_percent=0.0,
+            water_percent=0.0,
         )
 
         score_good = calculate_health_score(stats_good, zones_good)
@@ -308,12 +326,21 @@ class TestAlertGeneration:
     def test_generate_alerts_critical_zone(self):
         """Test alert generation for critical zones"""
         stats = NDVIStatistics(
-            mean=0.3, median=0.3, min=0.1, max=0.5, std_dev=0.1,
-            coverage_percent=50.0, valid_pixels=100, total_pixels=100
+            mean=0.3,
+            median=0.3,
+            min=0.1,
+            max=0.5,
+            std_dev=0.1,
+            coverage_percent=50.0,
+            valid_pixels=100,
+            total_pixels=100,
         )
         zones = ZoneClassification(
-            healthy_percent=20.0, stressed_percent=30.0,
-            critical_percent=35.0, bare_soil_percent=10.0, water_percent=5.0
+            healthy_percent=20.0,
+            stressed_percent=30.0,
+            critical_percent=35.0,
+            bare_soil_percent=10.0,
+            water_percent=5.0,
         )
 
         alerts = generate_alerts(stats, zones)
@@ -326,12 +353,21 @@ class TestAlertGeneration:
     def test_generate_alerts_healthy_field(self):
         """Test minimal alerts for healthy field"""
         stats = NDVIStatistics(
-            mean=0.65, median=0.66, min=0.5, max=0.8, std_dev=0.08,
-            coverage_percent=95.0, valid_pixels=100, total_pixels=100
+            mean=0.65,
+            median=0.66,
+            min=0.5,
+            max=0.8,
+            std_dev=0.08,
+            coverage_percent=95.0,
+            valid_pixels=100,
+            total_pixels=100,
         )
         zones = ZoneClassification(
-            healthy_percent=90.0, stressed_percent=8.0,
-            critical_percent=2.0, bare_soil_percent=0.0, water_percent=0.0
+            healthy_percent=90.0,
+            stressed_percent=8.0,
+            critical_percent=2.0,
+            bare_soil_percent=0.0,
+            water_percent=0.0,
         )
 
         alerts = generate_alerts(stats, zones)
@@ -342,12 +378,21 @@ class TestAlertGeneration:
     def test_generate_alerts_high_variance(self):
         """Test alert generation for high variance"""
         stats = NDVIStatistics(
-            mean=0.5, median=0.5, min=0.1, max=0.9, std_dev=0.3,
-            coverage_percent=70.0, valid_pixels=100, total_pixels=100
+            mean=0.5,
+            median=0.5,
+            min=0.1,
+            max=0.9,
+            std_dev=0.3,
+            coverage_percent=70.0,
+            valid_pixels=100,
+            total_pixels=100,
         )
         zones = ZoneClassification(
-            healthy_percent=50.0, stressed_percent=30.0,
-            critical_percent=10.0, bare_soil_percent=5.0, water_percent=5.0
+            healthy_percent=50.0,
+            stressed_percent=30.0,
+            critical_percent=10.0,
+            bare_soil_percent=5.0,
+            water_percent=5.0,
         )
 
         alerts = generate_alerts(stats, zones)

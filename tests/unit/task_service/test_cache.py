@@ -180,6 +180,7 @@ class TestCacheAdapter:
         await adapter.set("key1", "cached_value")
 
         call_count = 0
+
         def factory():
             nonlocal call_count
             call_count += 1
@@ -196,6 +197,7 @@ class TestCacheAdapter:
         adapter = CacheAdapter(namespace="test_miss")
 
         call_count = 0
+
         def factory():
             nonlocal call_count
             call_count += 1

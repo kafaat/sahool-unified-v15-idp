@@ -173,9 +173,7 @@ class TestHydrologyConfiguration:
 class TestDrainageNetworkExtraction:
     """Tests for drainage network extraction algorithms."""
 
-    def test_stream_extraction_from_flow_accumulation(
-        self, sample_flow_accumulation: np.ndarray
-    ):
+    def test_stream_extraction_from_flow_accumulation(self, sample_flow_accumulation: np.ndarray):
         """Test stream extraction based on flow accumulation threshold."""
         threshold = 100
 
@@ -190,9 +188,7 @@ class TestDrainageNetworkExtraction:
         total_pixels = sample_flow_accumulation.size
         assert stream_pixel_count < total_pixels * 0.5
 
-    def test_drainage_network_vectorization(
-        self, sample_flow_accumulation: np.ndarray
-    ):
+    def test_drainage_network_vectorization(self, sample_flow_accumulation: np.ndarray):
         """Test conversion of drainage network to vector format."""
         threshold = 100
         streams = sample_flow_accumulation >= threshold
@@ -220,9 +216,7 @@ class TestDrainageNetworkExtraction:
         assert drainage_geojson["type"] == "FeatureCollection"
         assert len(drainage_geojson["features"]) > 0
 
-    def test_drainage_density_calculation(
-        self, sample_flow_accumulation: np.ndarray
-    ):
+    def test_drainage_density_calculation(self, sample_flow_accumulation: np.ndarray):
         """Test drainage density calculation."""
         threshold = 100
         cell_size_m = 30.0  # 30m resolution
@@ -250,14 +244,14 @@ class TestDrainageNetworkExtraction:
         # Count inflows to each cell (simplified)
         # D8: 1=E, 2=SE, 4=S, 8=SW, 16=W, 32=NW, 64=N, 128=NE
         direction_offsets = {
-            1: (0, 1),    # E
-            2: (1, 1),    # SE
-            4: (1, 0),    # S
-            8: (1, -1),   # SW
+            1: (0, 1),  # E
+            2: (1, 1),  # SE
+            4: (1, 0),  # S
+            8: (1, -1),  # SW
             16: (0, -1),  # W
-            32: (-1, -1), # NW
+            32: (-1, -1),  # NW
             64: (-1, 0),  # N
-            128: (-1, 1), # NE
+            128: (-1, 1),  # NE
         }
 
         for i in range(1, rows - 1):
@@ -300,12 +294,14 @@ class TestDepressionIdentification:
                 neighborhood = dem[i - 1 : i + 2, j - 1 : j + 2]
                 # Check if center is local minimum
                 if center == np.min(neighborhood) and center < np.mean(neighborhood):
-                    depressions.append({
-                        "row": i,
-                        "col": j,
-                        "elevation": float(center),
-                        "depth": float(np.mean(neighborhood) - center),
-                    })
+                    depressions.append(
+                        {
+                            "row": i,
+                            "col": j,
+                            "elevation": float(center),
+                            "depth": float(np.mean(neighborhood) - center),
+                        }
+                    )
 
         # Should find the added depressions
         assert len(depressions) > 0
@@ -405,11 +401,13 @@ class TestWaterloggingPrediction:
 
     def test_waterlogging_risk_from_twi(self):
         """Test waterlogging risk calculation from TWI values."""
-        twi_values = np.array([
-            [8.0, 9.5, 10.0],
-            [11.0, 13.5, 12.0],
-            [14.0, 15.0, 11.5],
-        ])
+        twi_values = np.array(
+            [
+                [8.0, 9.5, 10.0],
+                [11.0, 13.5, 12.0],
+                [14.0, 15.0, 11.5],
+            ]
+        )
 
         high_risk_threshold = 12.0
 
@@ -419,17 +417,14 @@ class TestWaterloggingPrediction:
 
         assert high_risk_percent > 0
 
-    def test_waterlogging_prediction_with_rainfall(
-        self, sample_weather_data: dict[str, Any]
-    ):
+    def test_waterlogging_prediction_with_rainfall(self, sample_weather_data: dict[str, Any]):
         """Test waterlogging prediction incorporating rainfall forecast."""
         weather = sample_weather_data
         soil_moisture = weather["current"]["soil_moisture_percent"]
 
         # Sum expected rainfall over next 7 days
         total_expected_rain = sum(
-            day["precipitation_mm"] * day["probability"]
-            for day in weather["forecast_7d"]
+            day["precipitation_mm"] * day["probability"] for day in weather["forecast_7d"]
         )
 
         # Risk factors
@@ -477,9 +472,7 @@ class TestWaterloggingPrediction:
         assert len(recommendations) > 0
         assert len(recommendations_ar) == len(recommendations)
 
-    def test_waterlogging_temporal_prediction(
-        self, sample_weather_data: dict[str, Any]
-    ):
+    def test_waterlogging_temporal_prediction(self, sample_weather_data: dict[str, Any]):
         """Test temporal prediction of waterlogging events."""
         weather = sample_weather_data
         base_moisture = weather["current"]["soil_moisture_percent"]
@@ -500,11 +493,13 @@ class TestWaterloggingPrediction:
 
             # Risk based on moisture level
             risk = new_moisture / 100
-            daily_risk.append({
-                "date": day["date"],
-                "moisture_percent": new_moisture,
-                "risk": risk,
-            })
+            daily_risk.append(
+                {
+                    "date": day["date"],
+                    "moisture_percent": new_moisture,
+                    "risk": risk,
+                }
+            )
 
         # Find days with high risk
         high_risk_days = [d for d in daily_risk if d["risk"] > 0.7]

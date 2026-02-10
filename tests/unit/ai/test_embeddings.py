@@ -299,11 +299,13 @@ class TestEmbeddingsAdapter:
     async def test_embed_batch(self):
         """Test batch embedding"""
         adapter = EmbeddingsAdapter()
-        adapter._generate_embedding = AsyncMock(side_effect=[
-            [0.1, 0.2],
-            [0.3, 0.4],
-            [0.5, 0.6],
-        ])
+        adapter._generate_embedding = AsyncMock(
+            side_effect=[
+                [0.1, 0.2],
+                [0.3, 0.4],
+                [0.5, 0.6],
+            ]
+        )
 
         texts = ["text1", "text2", "text3"]
         result = await adapter.embed_batch(texts)
@@ -317,10 +319,12 @@ class TestEmbeddingsAdapter:
     async def test_similarity(self):
         """Test similarity calculation between texts"""
         adapter = EmbeddingsAdapter()
-        adapter._generate_embedding = AsyncMock(side_effect=[
-            [1.0, 0.0, 0.0],
-            [0.707, 0.707, 0.0],
-        ])
+        adapter._generate_embedding = AsyncMock(
+            side_effect=[
+                [1.0, 0.0, 0.0],
+                [0.707, 0.707, 0.0],
+            ]
+        )
 
         sim = await adapter.similarity("text1", "text2")
         assert 0.0 <= sim <= 1.0
@@ -331,50 +335,54 @@ class TestEmbeddingsAdapter:
         adapter = EmbeddingsAdapter()
 
         # Mock embeddings - query and 3 candidates
-        adapter.embed = AsyncMock(side_effect=[
-            EmbeddingResult(
-                embedding=[1.0, 0.0],
-                text="query",
+        adapter.embed = AsyncMock(
+            side_effect=[
+                EmbeddingResult(
+                    embedding=[1.0, 0.0],
+                    text="query",
+                    provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
+                    model="m",
+                    dimension=2,
+                    latency_ms=1.0,
+                ),
+            ]
+        )
+        adapter.embed_batch = AsyncMock(
+            return_value=BatchEmbeddingResult(
+                embeddings=[
+                    EmbeddingResult(
+                        embedding=[0.9, 0.1],
+                        text="c1",
+                        provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
+                        model="m",
+                        dimension=2,
+                        latency_ms=1.0,
+                    ),
+                    EmbeddingResult(
+                        embedding=[0.0, 1.0],
+                        text="c2",
+                        provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
+                        model="m",
+                        dimension=2,
+                        latency_ms=1.0,
+                    ),
+                    EmbeddingResult(
+                        embedding=[0.5, 0.5],
+                        text="c3",
+                        provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
+                        model="m",
+                        dimension=2,
+                        latency_ms=1.0,
+                    ),
+                ],
+                total_texts=3,
+                successful=3,
+                failed=0,
+                total_latency_ms=3.0,
                 provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
                 model="m",
-                dimension=2,
-                latency_ms=1.0,
-            ),
-        ])
-        adapter.embed_batch = AsyncMock(return_value=BatchEmbeddingResult(
-            embeddings=[
-                EmbeddingResult(
-                    embedding=[0.9, 0.1],
-                    text="c1",
-                    provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
-                    model="m",
-                    dimension=2,
-                    latency_ms=1.0,
-                ),
-                EmbeddingResult(
-                    embedding=[0.0, 1.0],
-                    text="c2",
-                    provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
-                    model="m",
-                    dimension=2,
-                    latency_ms=1.0,
-                ),
-                EmbeddingResult(
-                    embedding=[0.5, 0.5],
-                    text="c3",
-                    provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
-                    model="m",
-                    dimension=2,
-                    latency_ms=1.0,
-                ),
-            ],
-            total_texts=3,
-            successful=3,
-            failed=0,
-            total_latency_ms=3.0,
-            provider=EmbeddingProvider.SENTENCE_TRANSFORMERS,
-            model="m",
-        ))
+            )
+        )
 
         candidates = ["c1", "c2", "c3"]
         results = await adapter.find_most_similar("query", candidates, top_k=2)

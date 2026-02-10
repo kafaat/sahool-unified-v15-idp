@@ -127,9 +127,7 @@ class TestAIMetricsCollector:
         # Should not raise, metrics should be recorded internally
         assert True
 
-    def test_record_agent_invocation_failure(
-        self, metrics_collector: AIMetricsCollector
-    ):
+    def test_record_agent_invocation_failure(self, metrics_collector: AIMetricsCollector):
         """Test recording failed agent invocation."""
         metrics_collector.record_agent_invocation(
             agent_id="test-agent",
@@ -173,9 +171,7 @@ class TestAIMetricsCollector:
 
         assert True  # Should not raise
 
-    def test_update_circuit_breaker_state(
-        self, metrics_collector: AIMetricsCollector
-    ):
+    def test_update_circuit_breaker_state(self, metrics_collector: AIMetricsCollector):
         """Test updating circuit breaker state."""
         metrics_collector.update_circuit_breaker_state(
             name="ollama",
@@ -227,9 +223,7 @@ class TestModuleFunctions:
 class TestAggregation:
     """Tests for metrics aggregation."""
 
-    def test_multiple_agents_tracked(
-        self, metrics_collector: AIMetricsCollector
-    ):
+    def test_multiple_agents_tracked(self, metrics_collector: AIMetricsCollector):
         """Test that different agents are tracked separately."""
         metrics_collector.record_agent_invocation(
             agent_id="agent-a",
@@ -245,9 +239,7 @@ class TestAggregation:
         # Should track both without error
         assert True
 
-    def test_provider_metrics_aggregation(
-        self, metrics_collector: AIMetricsCollector
-    ):
+    def test_provider_metrics_aggregation(self, metrics_collector: AIMetricsCollector):
         """Test metrics aggregation by provider."""
         # Record calls to different providers
         metrics_collector.record_llm_call(

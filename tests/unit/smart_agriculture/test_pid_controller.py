@@ -444,9 +444,7 @@ class TestTargetNPKSetting:
         assert result["nitrogen_deficit_ppm"] == 7.0
         assert result["fertilizer_rate_kg_ha"] > 0
 
-    def test_calculate_application_no_deficiency(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_calculate_application_no_deficiency(self, fertilizer_controller: FertilizerController):
         """Test calculating application when at target"""
         current = {"nitrogen": 25.0, "phosphorus": 25.0, "potassium": 180.0}
         target = {"nitrogen": 25.0, "phosphorus": 25.0, "potassium": 180.0}
@@ -456,9 +454,7 @@ class TestTargetNPKSetting:
         assert result["nitrogen_deficit_ppm"] == 0.0
         # Should still have minimal output (depends on integral)
 
-    def test_application_history_tracked(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_application_history_tracked(self, fertilizer_controller: FertilizerController):
         """Test that application history is tracked"""
         current = {"nitrogen": 18.0}
         target = {"nitrogen": 25.0}
@@ -538,9 +534,7 @@ class TestFertilizerEfficiency:
     def fertilizer_controller(self, controller: PIDController) -> FertilizerController:
         return FertilizerController(controller)
 
-    def test_efficiency_score_calculation(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_efficiency_score_calculation(self, fertilizer_controller: FertilizerController):
         """Test efficiency score is calculated"""
         current = {"nitrogen": 18.0}
         target = {"nitrogen": 25.0}
@@ -550,9 +544,7 @@ class TestFertilizerEfficiency:
         assert "efficiency_score" in result
         assert 0 <= result["efficiency_score"] <= 100
 
-    def test_efficiency_metrics_aggregation(
-        self, fertilizer_controller: FertilizerController
-    ):
+    def test_efficiency_metrics_aggregation(self, fertilizer_controller: FertilizerController):
         """Test efficiency metrics aggregation"""
         # Simulate multiple applications
         for nitrogen in [15, 18, 20, 22, 24]:
@@ -600,27 +592,21 @@ class TestWaterSaving:
     def water_controller(self, controller: PIDController) -> WaterController:
         return WaterController(controller)
 
-    def test_calculate_irrigation_for_dry_soil(
-        self, water_controller: WaterController
-    ):
+    def test_calculate_irrigation_for_dry_soil(self, water_controller: WaterController):
         """Test irrigation calculation for dry soil"""
         result = water_controller.calculate_irrigation(30.0)
 
         assert result["water_amount_mm"] > 0
         assert result["moisture_deficit_percent"] == 20.0  # 50 - 30
 
-    def test_calculate_irrigation_for_wet_soil(
-        self, water_controller: WaterController
-    ):
+    def test_calculate_irrigation_for_wet_soil(self, water_controller: WaterController):
         """Test irrigation calculation for wet soil"""
         result = water_controller.calculate_irrigation(60.0)
 
         # Should be zero or minimal (above target)
         assert result["water_amount_mm"] == 0
 
-    def test_weather_adjustment_factor(
-        self, water_controller: WaterController
-    ):
+    def test_weather_adjustment_factor(self, water_controller: WaterController):
         """Test weather adjustment factor"""
         # Hot day - increase irrigation
         result_hot = water_controller.calculate_irrigation(35.0, weather_factor=1.3)
@@ -632,9 +618,7 @@ class TestWaterSaving:
 
         assert result_hot["water_amount_mm"] > result_rain["water_amount_mm"]
 
-    def test_water_savings_calculation(
-        self, water_controller: WaterController
-    ):
+    def test_water_savings_calculation(self, water_controller: WaterController):
         """Test water savings calculation"""
         # Simulate several irrigations
         for moisture in [30, 35, 40, 45]:
@@ -646,9 +630,7 @@ class TestWaterSaving:
         assert "water_saved_mm" in metrics
         assert "savings_percent" in metrics
 
-    def test_set_moisture_target(
-        self, water_controller: WaterController
-    ):
+    def test_set_moisture_target(self, water_controller: WaterController):
         """Test setting moisture target"""
         water_controller.set_moisture_target(55.0)
 
@@ -656,9 +638,7 @@ class TestWaterSaving:
         result = water_controller.calculate_irrigation(50.0)
         assert result["moisture_deficit_percent"] == 5.0  # 55 - 50
 
-    def test_savings_vs_traditional_irrigation(
-        self, water_controller: WaterController
-    ):
+    def test_savings_vs_traditional_irrigation(self, water_controller: WaterController):
         """Test savings compared to traditional fixed irrigation"""
         result = water_controller.calculate_irrigation(40.0)
 

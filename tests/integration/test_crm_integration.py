@@ -257,9 +257,7 @@ class TestCRMIntegration:
         deal_id = deal["id"]
 
         # Step 4: Log an interaction
-        interaction_request = interaction_factory.create_interaction_request(
-            farmer_id=farmer_id
-        )
+        interaction_request = interaction_factory.create_interaction_request(farmer_id=farmer_id)
         interaction_response = await crm_client.post(
             "/api/v1/interactions",
             json=interaction_request,
@@ -278,9 +276,7 @@ class TestCRMIntegration:
         assert farmer_after["last_interaction_at"] is not None
 
         # Step 6: List farmers and verify
-        list_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_id}&status=active"
-        )
+        list_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_id}&status=active")
         assert list_response.status_code == 200
         farmers = list_response.json()
         farmer_ids = [f["id"] for f in farmers]
@@ -336,9 +332,7 @@ class TestCRMIntegration:
         ]
 
         for stage in stages:
-            response = await crm_client.patch(
-                f"/api/v1/deals/{deal_id}/stage?stage={stage}"
-            )
+            response = await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage={stage}")
 
             assert response.status_code == 200
             updated_deal = response.json()
@@ -383,9 +377,7 @@ class TestCRMIntegration:
         await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage=negotiation")
 
         # Mark as lost
-        response = await crm_client.patch(
-            f"/api/v1/deals/{deal_id}/stage?stage=closed_lost"
-        )
+        response = await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage=closed_lost")
 
         assert response.status_code == 200
         lost_deal = response.json()
@@ -419,16 +411,12 @@ class TestCRMIntegration:
 
             # Move to different stages
             if i == 1:
-                await crm_client.patch(
-                    f"/api/v1/deals/{deal_id}/stage?stage=negotiation"
-                )
+                await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage=negotiation")
             elif i == 2:
                 await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage=paid")
 
         # Get pipeline statistics
-        stats_response = await crm_client.get(
-            f"/api/v1/deals/pipeline?tenant_id={tenant_id}"
-        )
+        stats_response = await crm_client.get(f"/api/v1/deals/pipeline?tenant_id={tenant_id}")
 
         assert stats_response.status_code == 200
         stats = stats_response.json()
@@ -488,9 +476,7 @@ class TestCRMIntegration:
         farmer_b = farmer_b_response.json()
 
         # List farmers for tenant A - should only see tenant A's farmers
-        list_a_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_a}"
-        )
+        list_a_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_a}")
         assert list_a_response.status_code == 200
         farmers_a = list_a_response.json()
 
@@ -498,9 +484,7 @@ class TestCRMIntegration:
             assert farmer["id"] != farmer_b["id"]
 
         # List farmers for tenant B - should only see tenant B's farmers
-        list_b_response = await crm_client.get(
-            f"/api/v1/farmers?tenant_id={tenant_b}"
-        )
+        list_b_response = await crm_client.get(f"/api/v1/farmers?tenant_id={tenant_b}")
         assert list_b_response.status_code == 200
         farmers_b = list_b_response.json()
 
@@ -550,9 +534,7 @@ class TestCRMIntegration:
             assert interaction["farmer_id"] == farmer_id
 
         # List interactions for farmer
-        list_response = await crm_client.get(
-            f"/api/v1/interactions?farmer_id={farmer_id}"
-        )
+        list_response = await crm_client.get(f"/api/v1/interactions?farmer_id={farmer_id}")
         assert list_response.status_code == 200
         interactions = list_response.json()
         assert len(interactions) >= len(interaction_types)
@@ -787,9 +769,7 @@ class TestCRMIntegration:
             )
 
             # Advance deal stage
-            await crm_client.patch(
-                f"/api/v1/deals/{deal_id}/stage?stage=qualification"
-            )
+            await crm_client.patch(f"/api/v1/deals/{deal_id}/stage?stage=qualification")
 
             # Wait for event
             await asyncio.sleep(2)
@@ -798,8 +778,7 @@ class TestCRMIntegration:
             # Verify event
             if received_events:
                 stage_events = [
-                    e for e in received_events
-                    if e.get("event_type") == "deal.stage_advanced"
+                    e for e in received_events if e.get("event_type") == "deal.stage_advanced"
                 ]
                 if stage_events:
                     event = stage_events[0]

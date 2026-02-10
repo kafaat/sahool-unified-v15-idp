@@ -184,7 +184,7 @@ Provide a detailed analysis in JSON format."""
 
         system_prompt = f"""You are an expert code fixer. Fix the provided code according to the {strategy} strategy.
 
-Strategy: {strategy_instructions.get(strategy, strategy_instructions['minimal'])}
+Strategy: {strategy_instructions.get(strategy, strategy_instructions["minimal"])}
 
 Return your fix as a JSON object with this structure:
 {{

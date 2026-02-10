@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Optional
 
 import structlog
@@ -20,8 +20,9 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
-class AgentType(str, Enum):
+class AgentType(StrEnum):
     """Available agent types"""
+
     CODE_FIX = "code_fix"
     CODE_REVIEW = "code_review"
     FIELD_ADVISOR = "field_advisor"
@@ -33,6 +34,7 @@ class AgentType(str, Enum):
 @dataclass
 class AgentRoute:
     """Agent routing configuration"""
+
     agent_type: AgentType
     patterns: list[str]
     keywords_en: list[str]
@@ -44,6 +46,7 @@ class AgentRoute:
 @dataclass
 class RoutingResult:
     """Result of agent routing"""
+
     agent_type: AgentType
     confidence: float
     matched_patterns: list[str] = field(default_factory=list)
@@ -78,7 +81,6 @@ class AgentRouter:
                 keywords_ar=["أصلح", "خطأ", "مشكلة", "كود", "تصحيح", "إصلاح"],
                 priority=10,
             ),
-
             # Code Review Agent
             AgentRoute(
                 agent_type=AgentType.CODE_REVIEW,
@@ -91,7 +93,6 @@ class AgentRouter:
                 keywords_ar=["راجع", "مراجعة", "فحص", "جودة الكود"],
                 priority=9,
             ),
-
             # Field Advisor
             AgentRoute(
                 agent_type=AgentType.FIELD_ADVISOR,
@@ -105,7 +106,6 @@ class AgentRouter:
                 keywords_ar=["حقل", "محصول", "مزرعة", "نبات", "غطاء نباتي", "نمو"],
                 priority=8,
             ),
-
             # Weather Advisor
             AgentRoute(
                 agent_type=AgentType.WEATHER_ADVISOR,
@@ -119,7 +119,6 @@ class AgentRouter:
                 keywords_ar=["طقس", "توقعات", "حرارة", "مطر", "رطوبة", "رياح"],
                 priority=7,
             ),
-
             # Irrigation Advisor
             AgentRoute(
                 agent_type=AgentType.IRRIGATION_ADVISOR,
@@ -133,7 +132,6 @@ class AgentRouter:
                 keywords_ar=["ري", "ماء", "سقي", "رطوبة", "جفاف"],
                 priority=7,
             ),
-
             # General (fallback)
             AgentRoute(
                 agent_type=AgentType.GENERAL,

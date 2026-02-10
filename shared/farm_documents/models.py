@@ -12,7 +12,7 @@ and compliance document management.
 from __future__ import annotations
 
 from datetime import date, datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 from pydantic import BaseModel, Field, field_validator
@@ -23,7 +23,7 @@ from pydantic import BaseModel, Field, field_validator
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class DocumentType(str, Enum):
+class DocumentType(StrEnum):
     """Document type enumeration - تعداد أنواع الوثائق"""
 
     # Certifications - الشهادات
@@ -66,7 +66,7 @@ class DocumentType(str, Enum):
     OTHER = "other"  # أخرى
 
 
-class CertificationType(str, Enum):
+class CertificationType(StrEnum):
     """Certification type enumeration - تعداد أنواع الشهادات"""
 
     GLOBALGAP = "globalgap"  # GlobalGAP
@@ -90,7 +90,7 @@ class CertificationType(str, Enum):
     OTHER = "other"  # أخرى
 
 
-class CertificationStatus(str, Enum):
+class CertificationStatus(StrEnum):
     """Certification status - حالة الشهادة"""
 
     PENDING = "pending"  # قيد الانتظار
@@ -101,7 +101,7 @@ class CertificationStatus(str, Enum):
     RENEWAL_IN_PROGRESS = "renewal_in_progress"  # التجديد قيد التقدم
 
 
-class DocumentStatus(str, Enum):
+class DocumentStatus(StrEnum):
     """Document status - حالة الوثيقة"""
 
     DRAFT = "draft"  # مسودة
@@ -112,7 +112,7 @@ class DocumentStatus(str, Enum):
     EXPIRED = "expired"  # منتهي
 
 
-class ComplianceStatus(str, Enum):
+class ComplianceStatus(StrEnum):
     """Compliance document status - حالة وثيقة الامتثال"""
 
     COMPLIANT = "compliant"  # متوافق
@@ -122,7 +122,7 @@ class ComplianceStatus(str, Enum):
     NOT_APPLICABLE = "not_applicable"  # غير قابل للتطبيق
 
 
-class AlertPriority(str, Enum):
+class AlertPriority(StrEnum):
     """Alert priority levels - مستويات أولوية التنبيه"""
 
     CRITICAL = "critical"  # حرج
@@ -132,7 +132,7 @@ class AlertPriority(str, Enum):
     INFORMATIONAL = "informational"  # معلوماتي
 
 
-class SharePermission(str, Enum):
+class SharePermission(StrEnum):
     """Document share permissions - صلاحيات مشاركة الوثيقة"""
 
     VIEW = "view"  # عرض فقط
@@ -141,7 +141,7 @@ class SharePermission(str, Enum):
     FULL_ACCESS = "full_access"  # وصول كامل
 
 
-class FileFormat(str, Enum):
+class FileFormat(StrEnum):
     """Supported file formats - تنسيقات الملفات المدعومة"""
 
     PDF = "pdf"
@@ -270,30 +270,22 @@ class FarmDocument(BaseModel):
     metadata: DocumentMetadata = Field(..., description="File metadata")
 
     # Status
-    status: DocumentStatus = Field(
-        default=DocumentStatus.APPROVED, description="Document status"
-    )
+    status: DocumentStatus = Field(default=DocumentStatus.APPROVED, description="Document status")
 
     # Dates
-    document_date: date | None = Field(
-        None, description="Date of the document (e.g., report date)"
-    )
+    document_date: date | None = Field(None, description="Date of the document (e.g., report date)")
     issue_date: date | None = Field(None, description="Document issue date")
     expiry_date: date | None = Field(None, description="Document expiry date")
 
     # References
-    reference_number: str | None = Field(
-        None, description="External reference number"
-    )
+    reference_number: str | None = Field(None, description="External reference number")
     related_document_ids: list[str] = Field(
         default_factory=list, description="Related document IDs"
     )
 
     # Tags
     tags: list[str] = Field(default_factory=list, description="Document tags")
-    tags_ar: list[str] = Field(
-        default_factory=list, description="Document tags in Arabic"
-    )
+    tags_ar: list[str] = Field(default_factory=list, description="Document tags in Arabic")
 
     # Version control
     version: int = Field(default=1, description="Document version")
@@ -301,9 +293,7 @@ class FarmDocument(BaseModel):
 
     # Access control
     is_confidential: bool = Field(default=False, description="Confidential document")
-    access_level: str = Field(
-        default="farm", description="Access level (farm, tenant, public)"
-    )
+    access_level: str = Field(default="farm", description="Access level (farm, tenant, public)")
 
     # Audit
     uploaded_by: str = Field(..., description="User ID who uploaded")
@@ -406,12 +396,8 @@ class Certification(BaseModel):
 
     # Certification body
     certification_body_id: str | None = Field(None, description="Certification body ID")
-    certification_body_name_en: str | None = Field(
-        None, description="CB name in English"
-    )
-    certification_body_name_ar: str | None = Field(
-        None, description="CB name in Arabic"
-    )
+    certification_body_name_en: str | None = Field(None, description="CB name in English")
+    certification_body_name_ar: str | None = Field(None, description="CB name in Arabic")
 
     # Scope
     scope_en: str | None = Field(None, description="Certification scope in English")
@@ -419,9 +405,7 @@ class Certification(BaseModel):
     products_covered: list[str] = Field(
         default_factory=list, description="Products covered by certification"
     )
-    certified_area_hectares: float | None = Field(
-        None, description="Certified area in hectares"
-    )
+    certified_area_hectares: float | None = Field(None, description="Certified area in hectares")
 
     # Dates
     issue_date: date = Field(..., description="Certificate issue date")
@@ -435,17 +419,13 @@ class Certification(BaseModel):
     )
 
     # Documents
-    certificate_document_id: str | None = Field(
-        None, description="Certificate document ID"
-    )
+    certificate_document_id: str | None = Field(None, description="Certificate document ID")
     audit_report_document_ids: list[str] = Field(
         default_factory=list, description="Audit report document IDs"
     )
 
     # Verification
-    verification_url: str | None = Field(
-        None, description="URL to verify certificate online"
-    )
+    verification_url: str | None = Field(None, description="URL to verify certificate online")
     ggn: str | None = Field(None, description="GlobalGAP Number (if applicable)")
 
     # Notes
@@ -528,9 +508,7 @@ class ComplianceRequirement(BaseModel):
     required_documents: list[DocumentType] = Field(
         default_factory=list, description="Required document types"
     )
-    document_renewal_days: int | None = Field(
-        None, description="Document validity period in days"
-    )
+    document_renewal_days: int | None = Field(None, description="Document validity period in days")
 
     # Compliance criteria
     is_mandatory: bool = Field(default=True, description="Mandatory requirement")
@@ -631,17 +609,11 @@ class DocumentAlert(BaseModel):
     # Related entities
     document_id: str | None = Field(None, description="Related document ID")
     certification_id: str | None = Field(None, description="Related certification ID")
-    compliance_document_id: str | None = Field(
-        None, description="Related compliance document ID"
-    )
+    compliance_document_id: str | None = Field(None, description="Related compliance document ID")
 
     # Alert info
-    alert_type: str = Field(
-        ..., description="Alert type (EXPIRY, RENEWAL, MISSING, COMPLIANCE)"
-    )
-    priority: AlertPriority = Field(
-        default=AlertPriority.MEDIUM, description="Alert priority"
-    )
+    alert_type: str = Field(..., description="Alert type (EXPIRY, RENEWAL, MISSING, COMPLIANCE)")
+    priority: AlertPriority = Field(default=AlertPriority.MEDIUM, description="Alert priority")
 
     # Messages
     title_en: str = Field(..., description="Alert title in English")
@@ -651,12 +623,8 @@ class DocumentAlert(BaseModel):
     message_ar: str = Field(..., description="Alert message in Arabic")
 
     # Action required
-    action_required_en: str | None = Field(
-        None, description="Required action in English"
-    )
-    action_required_ar: str | None = Field(
-        None, description="Required action in Arabic"
-    )
+    action_required_en: str | None = Field(None, description="Required action in English")
+    action_required_ar: str | None = Field(None, description="Required action in Arabic")
     action_due_date: date | None = Field(None, description="Action due date")
 
     # Status
@@ -672,17 +640,13 @@ class DocumentAlert(BaseModel):
 
     # Notification
     notification_sent: bool = Field(default=False, description="Notification sent")
-    notification_sent_at: datetime | None = Field(
-        None, description="Notification timestamp"
-    )
+    notification_sent_at: datetime | None = Field(None, description="Notification timestamp")
     notification_channels: list[str] = Field(
         default_factory=list, description="Channels used (email, sms, push)"
     )
 
     # Recipients
-    recipient_user_ids: list[str] = Field(
-        default_factory=list, description="User IDs to notify"
-    )
+    recipient_user_ids: list[str] = Field(default_factory=list, description="User IDs to notify")
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -716,12 +680,8 @@ class DocumentShare(BaseModel):
 
     # Sharing info
     shared_by: str = Field(..., description="User ID who shared")
-    shared_with_user_id: str | None = Field(
-        None, description="Internal user ID (if internal)"
-    )
-    shared_with_email: str | None = Field(
-        None, description="External email (if external)"
-    )
+    shared_with_user_id: str | None = Field(None, description="Internal user ID (if internal)")
+    shared_with_email: str | None = Field(None, description="External email (if external)")
     shared_with_name: str | None = Field(None, description="Recipient name")
 
     # Permissions
@@ -754,9 +714,7 @@ class DocumentShare(BaseModel):
 
     # Audit
     last_accessed_at: datetime | None = Field(None, description="Last access time")
-    access_log: list[dict] = Field(
-        default_factory=list, description="Access log entries"
-    )
+    access_log: list[dict] = Field(default_factory=list, description="Access log entries")
 
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
@@ -794,15 +752,9 @@ class DocumentSummary(BaseModel):
     """
 
     total_documents: int = Field(default=0, description="Total documents")
-    by_type: dict[str, int] = Field(
-        default_factory=dict, description="Count by document type"
-    )
-    by_status: dict[str, int] = Field(
-        default_factory=dict, description="Count by status"
-    )
-    by_category: dict[str, int] = Field(
-        default_factory=dict, description="Count by category"
-    )
+    by_type: dict[str, int] = Field(default_factory=dict, description="Count by document type")
+    by_status: dict[str, int] = Field(default_factory=dict, description="Count by status")
+    by_category: dict[str, int] = Field(default_factory=dict, description="Count by category")
 
     expiring_soon: int = Field(default=0, description="Documents expiring in 30 days")
     expired: int = Field(default=0, description="Expired documents")
@@ -823,9 +775,7 @@ class CertificationSummary(BaseModel):
     expired_certifications: int = Field(default=0, description="Expired certifications")
     pending_certifications: int = Field(default=0, description="Pending certifications")
 
-    by_type: dict[str, int] = Field(
-        default_factory=dict, description="Count by certification type"
-    )
+    by_type: dict[str, int] = Field(default_factory=dict, description="Count by certification type")
 
     expiring_soon: list[dict] = Field(
         default_factory=list, description="Certifications expiring in 90 days"
@@ -833,9 +783,7 @@ class CertificationSummary(BaseModel):
 
     next_audit_date: date | None = Field(None, description="Next scheduled audit")
 
-    compliance_score: float | None = Field(
-        None, description="Overall compliance score (0-100)"
-    )
+    compliance_score: float | None = Field(None, description="Overall compliance score (0-100)")
 
 
 class ComplianceSummary(BaseModel):
@@ -847,18 +795,12 @@ class ComplianceSummary(BaseModel):
     total_requirements: int = Field(default=0, description="Total requirements")
     compliant: int = Field(default=0, description="Compliant requirements")
     non_compliant: int = Field(default=0, description="Non-compliant requirements")
-    partially_compliant: int = Field(
-        default=0, description="Partially compliant requirements"
-    )
+    partially_compliant: int = Field(default=0, description="Partially compliant requirements")
     pending_review: int = Field(default=0, description="Pending review")
 
-    compliance_percentage: float = Field(
-        default=0.0, description="Overall compliance percentage"
-    )
+    compliance_percentage: float = Field(default=0.0, description="Overall compliance percentage")
 
-    by_category: dict[str, dict] = Field(
-        default_factory=dict, description="Compliance by category"
-    )
+    by_category: dict[str, dict] = Field(default_factory=dict, description="Compliance by category")
 
     missing_documents: list[dict] = Field(
         default_factory=list, description="Missing required documents"

@@ -11,14 +11,14 @@ Updated: December 2025
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Trust Levels & User Tiers
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class TrustLevel(str, Enum):
+class TrustLevel(StrEnum):
     """User trust level determines guardrail strictness"""
 
     BLOCKED = "blocked"  # Blocked user - reject all requests
@@ -29,7 +29,7 @@ class TrustLevel(str, Enum):
     ADMIN = "admin"  # System administrators - bypass most guardrails
 
 
-class ContentSafetyLevel(str, Enum):
+class ContentSafetyLevel(StrEnum):
     """Content safety classification levels"""
 
     SAFE = "safe"  # Content is safe

@@ -16,22 +16,23 @@ Sources:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 @dataclass
 class GrowthStage:
     """Crop growth stage with duration and Kc."""
+
     name: str
     name_ar: str
     duration_days: int
     kc: float
-    gdd_cumulative: Optional[float] = None  # Growing Degree Days
+    gdd_cumulative: float | None = None  # Growing Degree Days
 
 
 @dataclass
 class YemenCropParameters:
     """Complete crop parameters adapted for Yemen conditions."""
+
     name: str
     name_ar: str
     scientific_name: str
@@ -501,12 +502,14 @@ YEMEN_CROPS: dict[str, YemenCropParameters] = {
 }
 
 
-def get_yemen_crop(name: str) -> Optional[YemenCropParameters]:
+def get_yemen_crop(name: str) -> YemenCropParameters | None:
     """Get crop parameters by name (case-insensitive)."""
     return YEMEN_CROPS.get(name.lower().replace(" ", "_"))
 
 
-def list_yemen_crops(crop_type: Optional[str] = None, region: Optional[str] = None) -> list[YemenCropParameters]:
+def list_yemen_crops(
+    crop_type: str | None = None, region: str | None = None
+) -> list[YemenCropParameters]:
     """List crops with optional filtering by type or region."""
     crops = list(YEMEN_CROPS.values())
     if crop_type:

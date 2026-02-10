@@ -415,6 +415,7 @@ def cached_analysis(
         async def detect_diseases(...):
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         async def wrapper(*args, **kwargs):
             # Generate cache key from arguments
@@ -437,6 +438,7 @@ def cached_analysis(
             return result
 
         return wrapper
+
     return decorator
 
 

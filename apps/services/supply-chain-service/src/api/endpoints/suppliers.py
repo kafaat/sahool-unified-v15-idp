@@ -174,8 +174,7 @@ async def list_suppliers(
     "/nearby",
     response_model=SupplierListResponse,
     summary="Find Nearby Suppliers | العثور على موردين قريبين",
-    description="Find suppliers near a specific location. "
-    "العثور على موردين بالقرب من موقع محدد.",
+    description="Find suppliers near a specific location. العثور على موردين بالقرب من موقع محدد.",
 )
 async def find_nearby_suppliers(
     latitude: float = Query(..., ge=-90, le=90, description="Latitude"),
@@ -202,9 +201,7 @@ async def find_nearby_suppliers(
 
     nearby = []
     for supplier in MOCK_SUPPLIERS.values():
-        distance = _haversine_distance(
-            latitude, longitude, supplier.latitude, supplier.longitude
-        )
+        distance = _haversine_distance(latitude, longitude, supplier.latitude, supplier.longitude)
         if distance <= radius_km:
             nearby.append((supplier, distance))
 

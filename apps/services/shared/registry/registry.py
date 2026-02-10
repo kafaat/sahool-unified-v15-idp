@@ -9,7 +9,7 @@ Core registry service for agent registration, discovery, and health monitoring.
 import asyncio
 import contextlib
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 import httpx
@@ -21,7 +21,7 @@ from .agent_card import AgentCard
 logger = structlog.get_logger()
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Agent health status / حالة صحة الوكيل"""
 
     HEALTHY = "healthy"

@@ -7,12 +7,12 @@ Data models for GlobalGAP IFA checklists and control points.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class ComplianceLevel(str, Enum):
+class ComplianceLevel(StrEnum):
     """
     Compliance level according to IFA standards
     مستوى الامتثال وفقًا لمعايير IFA
@@ -23,7 +23,7 @@ class ComplianceLevel(str, Enum):
     RECOMMENDATION = "recommendation"  # توصية - Recommendation (good practice)
 
 
-class ChecklistCategory(str, Enum):
+class ChecklistCategory(StrEnum):
     """
     Main checklist categories from IFA v6
     فئات قائمة المراجعة الرئيسية من معايير IFA v6
@@ -46,7 +46,7 @@ class ChecklistCategory(str, Enum):
     CB_SITE_HISTORY = "cb_site_history"  # تاريخ الموقع
 
 
-class ControlPointStatus(str, Enum):
+class ControlPointStatus(StrEnum):
     """
     Status of a control point assessment
     حالة تقييم نقطة التحكم

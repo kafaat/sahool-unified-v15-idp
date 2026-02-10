@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Callable
 import asyncio
 import json
@@ -40,17 +40,18 @@ from .models import (
 )
 
 
-class ProgressEventType(str, Enum):
+class ProgressEventType(StrEnum):
     """Progress event type | نوع حدث التقدم"""
-    ENROLLMENT = "enrollment"              # التسجيل
-    LESSON_STARTED = "lesson_started"      # بدأ الدرس
+
+    ENROLLMENT = "enrollment"  # التسجيل
+    LESSON_STARTED = "lesson_started"  # بدأ الدرس
     LESSON_COMPLETED = "lesson_completed"  # أكمل الدرس
-    QUIZ_STARTED = "quiz_started"          # بدأ الاختبار
-    QUIZ_COMPLETED = "quiz_completed"      # أكمل الاختبار
+    QUIZ_STARTED = "quiz_started"  # بدأ الاختبار
+    QUIZ_COMPLETED = "quiz_completed"  # أكمل الاختبار
     COURSE_COMPLETED = "course_completed"  # أكمل الدورة
     SKILL_LEVELED_UP = "skill_leveled_up"  # ارتقى المهارة
     CERTIFICATION_EARNED = "certification_earned"  # حصل على الشهادة
-    STREAK_ACHIEVED = "streak_achieved"    # حقق سلسلة
+    STREAK_ACHIEVED = "streak_achieved"  # حقق سلسلة
 
 
 @dataclass
@@ -59,6 +60,7 @@ class LessonProgress:
     Progress for a single lesson
     تقدم لدرس واحد
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     lesson_id: str = ""
@@ -119,16 +121,24 @@ class LessonProgress:
             farmer_id=data.get("farmer_id", ""),
             lesson_id=data.get("lesson_id", ""),
             course_id=data.get("course_id", ""),
-            started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else None,
-            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
+            started_at=datetime.fromisoformat(data["started_at"])
+            if data.get("started_at")
+            else None,
+            completed_at=datetime.fromisoformat(data["completed_at"])
+            if data.get("completed_at")
+            else None,
             is_completed=data.get("is_completed", False),
             time_spent_minutes=data.get("time_spent_minutes", 0),
             last_position_seconds=data.get("last_position_seconds", 0),
             content_viewed=data.get("content_viewed", False),
             downloads_completed=data.get("downloads_completed", []),
             notes=data.get("notes"),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
 
 
@@ -138,6 +148,7 @@ class QuizAttempt:
     Quiz attempt record
     سجل محاولة الاختبار
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     quiz_id: str = ""
@@ -194,8 +205,12 @@ class QuizAttempt:
             lesson_id=data.get("lesson_id", ""),
             course_id=data.get("course_id", ""),
             attempt_number=data.get("attempt_number", 1),
-            started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else datetime.now(UTC),
-            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
+            started_at=datetime.fromisoformat(data["started_at"])
+            if data.get("started_at")
+            else datetime.now(UTC),
+            completed_at=datetime.fromisoformat(data["completed_at"])
+            if data.get("completed_at")
+            else None,
             score=data.get("score", 0),
             max_score=data.get("max_score", 0),
             percentage=data.get("percentage", 0.0),
@@ -213,6 +228,7 @@ class CourseEnrollment:
     Course enrollment record
     سجل التسجيل في الدورة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     course_id: str = ""
@@ -293,12 +309,16 @@ class CourseEnrollment:
             "progress_percentage": self.progress_percentage,
             "total_time_spent_minutes": self.total_time_spent_minutes,
             "average_quiz_score": self.average_quiz_score,
-            "last_activity_at": self.last_activity_at.isoformat() if self.last_activity_at else None,
+            "last_activity_at": self.last_activity_at.isoformat()
+            if self.last_activity_at
+            else None,
             "last_lesson_id": self.last_lesson_id,
             "lesson_progress": [lp.to_dict() for lp in self.lesson_progress],
             "quiz_attempts": [qa.to_dict() for qa in self.quiz_attempts],
             "certificate_id": self.certificate_id,
-            "certificate_issued_at": self.certificate_issued_at.isoformat() if self.certificate_issued_at else None,
+            "certificate_issued_at": self.certificate_issued_at.isoformat()
+            if self.certificate_issued_at
+            else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -311,24 +331,42 @@ class CourseEnrollment:
             farmer_id=data.get("farmer_id", ""),
             course_id=data.get("course_id", ""),
             status=EnrollmentStatus(data.get("status", "enrolled")),
-            enrolled_at=datetime.fromisoformat(data["enrolled_at"]) if data.get("enrolled_at") else datetime.now(UTC),
-            started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else None,
-            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
-            expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
+            enrolled_at=datetime.fromisoformat(data["enrolled_at"])
+            if data.get("enrolled_at")
+            else datetime.now(UTC),
+            started_at=datetime.fromisoformat(data["started_at"])
+            if data.get("started_at")
+            else None,
+            completed_at=datetime.fromisoformat(data["completed_at"])
+            if data.get("completed_at")
+            else None,
+            expires_at=datetime.fromisoformat(data["expires_at"])
+            if data.get("expires_at")
+            else None,
             lessons_completed=data.get("lessons_completed", 0),
             total_lessons=data.get("total_lessons", 0),
             quizzes_passed=data.get("quizzes_passed", 0),
             total_quizzes=data.get("total_quizzes", 0),
             total_time_spent_minutes=data.get("total_time_spent_minutes", 0),
             average_quiz_score=data.get("average_quiz_score", 0.0),
-            last_activity_at=datetime.fromisoformat(data["last_activity_at"]) if data.get("last_activity_at") else None,
+            last_activity_at=datetime.fromisoformat(data["last_activity_at"])
+            if data.get("last_activity_at")
+            else None,
             last_lesson_id=data.get("last_lesson_id"),
-            lesson_progress=[LessonProgress.from_dict(lp) for lp in data.get("lesson_progress", [])],
+            lesson_progress=[
+                LessonProgress.from_dict(lp) for lp in data.get("lesson_progress", [])
+            ],
             quiz_attempts=[QuizAttempt.from_dict(qa) for qa in data.get("quiz_attempts", [])],
             certificate_id=data.get("certificate_id"),
-            certificate_issued_at=datetime.fromisoformat(data["certificate_issued_at"]) if data.get("certificate_issued_at") else None,
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            certificate_issued_at=datetime.fromisoformat(data["certificate_issued_at"])
+            if data.get("certificate_issued_at")
+            else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
 
 
@@ -338,6 +376,7 @@ class ProgressEvent:
     Progress event for tracking and notifications
     حدث التقدم للتتبع والإشعارات
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     tenant_id: str = ""
@@ -393,12 +432,16 @@ class ProgressEvent:
             course_id=data.get("course_id"),
             lesson_id=data.get("lesson_id"),
             quiz_id=data.get("quiz_id"),
-            skill_category=SkillCategory(data["skill_category"]) if data.get("skill_category") else None,
+            skill_category=SkillCategory(data["skill_category"])
+            if data.get("skill_category")
+            else None,
             certification_id=data.get("certification_id"),
             data=data.get("data", {}),
             message=BilingualText.from_dict(data.get("message", {})),
             xp_earned=data.get("xp_earned", 0),
-            timestamp=datetime.fromisoformat(data["timestamp"]) if data.get("timestamp") else datetime.now(UTC),
+            timestamp=datetime.fromisoformat(data["timestamp"])
+            if data.get("timestamp")
+            else datetime.now(UTC),
         )
 
 
@@ -411,11 +454,12 @@ class ProgressStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/learning_progress" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_learning_progress"  # nosec B108
-        self.storage_path = Path(storage_path or os.getenv(
-            "LEARNING_PROGRESS_PATH",
-            default_path
-        ))
+        default_path = (
+            "/var/lib/sahool/learning_progress"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_learning_progress"
+        )  # nosec B108
+        self.storage_path = Path(storage_path or os.getenv("LEARNING_PROGRESS_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -787,7 +831,9 @@ class ProgressTracker:
                 profile,
                 skill_category,
                 xp_earned=xp_earned // len(lesson.skills) if lesson.skills else 0,
-                learning_minutes=progress.time_spent_minutes // len(lesson.skills) if lesson.skills else 0,
+                learning_minutes=progress.time_spent_minutes // len(lesson.skills)
+                if lesson.skills
+                else 0,
             )
 
         # Update streak
@@ -840,10 +886,7 @@ class ProgressTracker:
             raise ValueError(f"Farmer {farmer_id} is not enrolled in course {lesson.course_id}")
 
         # Count existing attempts
-        existing_attempts = [
-            qa for qa in enrollment.quiz_attempts
-            if qa.quiz_id == lesson.quiz.id
-        ]
+        existing_attempts = [qa for qa in enrollment.quiz_attempts if qa.quiz_id == lesson.quiz.id]
 
         if len(existing_attempts) >= lesson.quiz.attempts_allowed:
             raise ValueError("Maximum quiz attempts reached")
@@ -930,7 +973,9 @@ class ProgressTracker:
         active_attempt.completed_at = datetime.now(UTC)
         active_attempt.answers = answers
         active_attempt.score = score
-        active_attempt.percentage = (score / active_attempt.max_score * 100) if active_attempt.max_score > 0 else 0
+        active_attempt.percentage = (
+            (score / active_attempt.max_score * 100) if active_attempt.max_score > 0 else 0
+        )
         active_attempt.passed = active_attempt.percentage >= lesson.quiz.passing_score
         active_attempt.correct_count = correct_count
         active_attempt.incorrect_count = incorrect_count
@@ -942,17 +987,15 @@ class ProgressTracker:
         if active_attempt.passed:
             # Check if first pass
             previous_passes = sum(
-                1 for qa in enrollment.quiz_attempts
+                1
+                for qa in enrollment.quiz_attempts
                 if qa.quiz_id == lesson.quiz.id and qa.passed and qa.id != active_attempt.id
             )
             if previous_passes == 0:
                 enrollment.quizzes_passed += 1
 
         # Calculate average score
-        all_scores = [
-            qa.percentage for qa in enrollment.quiz_attempts
-            if qa.completed_at
-        ]
+        all_scores = [qa.percentage for qa in enrollment.quiz_attempts if qa.completed_at]
         enrollment.average_quiz_score = sum(all_scores) / len(all_scores) if all_scores else 0
         enrollment.updated_at = datetime.now(UTC)
 
@@ -974,7 +1017,10 @@ class ProgressTracker:
                 if skill:
                     skill.quizzes_passed += 1
                     # Update average score
-                    total_score = skill.average_quiz_score * (skill.quizzes_passed - 1) + active_attempt.percentage
+                    total_score = (
+                        skill.average_quiz_score * (skill.quizzes_passed - 1)
+                        + active_attempt.percentage
+                    )
                     skill.average_quiz_score = total_score / skill.quizzes_passed
                     if active_attempt.percentage > skill.best_quiz_score:
                         skill.best_quiz_score = active_attempt.percentage
@@ -1174,7 +1220,9 @@ class ProgressTracker:
             # Check score if completed
             if enrollment and enrollment.is_completed:
                 if enrollment.average_quiz_score < certification.minimum_score:
-                    missing.append(f"Minimum score {certification.minimum_score}% required for {course_id}")
+                    missing.append(
+                        f"Minimum score {certification.minimum_score}% required for {course_id}"
+                    )
 
         # Check required skills
         for skill_category in certification.required_skills:
@@ -1287,10 +1335,16 @@ class ProgressTracker:
                 for skill in profile.skills
             },
             "weekly_goal_progress": (
-                min(100, (profile.total_learning_minutes / profile.weekly_learning_goal_minutes) * 100)
-                if profile.weekly_learning_goal_minutes > 0 else 0
+                min(
+                    100,
+                    (profile.total_learning_minutes / profile.weekly_learning_goal_minutes) * 100,
+                )
+                if profile.weekly_learning_goal_minutes > 0
+                else 0
             ),
-            "last_activity_at": profile.last_learning_date.isoformat() if profile.last_learning_date else None,
+            "last_activity_at": profile.last_learning_date.isoformat()
+            if profile.last_learning_date
+            else None,
         }
 
     async def get_events(

@@ -24,7 +24,7 @@ import time
 from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -46,7 +46,7 @@ DEFAULT_RELEVANCE_THRESHOLD = 0.5
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """
     Type of memory entry.
     نوع إدخال الذاكرة
@@ -61,7 +61,7 @@ class MemoryType(str, Enum):
     SYSTEM = "system"  # System events
 
 
-class RelevanceScore(str, Enum):
+class RelevanceScore(StrEnum):
     """
     Relevance scoring for memory retrieval.
     تقييم الصلة لاسترجاع الذاكرة
@@ -505,9 +505,7 @@ class FarmMemory:
         for entry in entries:
             should_forget = False
 
-            if (entry_id and entry.id == entry_id) or (
-                field_id and entry.field_id == field_id
-            ):
+            if (entry_id and entry.id == entry_id) or (field_id and entry.field_id == field_id):
                 should_forget = True
             elif memory_types and entry.memory_type in memory_types:
                 if field_id is None or entry.field_id == field_id:
@@ -584,8 +582,7 @@ class FarmMemory:
 
         # Score entries by relevance to query
         scored_entries = [
-            (entry, self._calculate_relevance_score(entry, query))
-            for entry in result.entries
+            (entry, self._calculate_relevance_score(entry, query)) for entry in result.entries
         ]
 
         # Sort by relevance score
@@ -712,9 +709,7 @@ class FarmMemory:
 
             # Filter by relevance
             if min_relevance:
-                if self._relevance_to_int(entry.relevance) < self._relevance_to_int(
-                    min_relevance
-                ):
+                if self._relevance_to_int(entry.relevance) < self._relevance_to_int(min_relevance):
                     continue
 
             # Filter by time
@@ -741,9 +736,7 @@ class FarmMemory:
 
         if len(entries) > self.config.max_entries:
             # Remove oldest low-relevance entries first
-            entries.sort(
-                key=lambda e: (self._relevance_to_int(e.relevance), e.timestamp)
-            )
+            entries.sort(key=lambda e: (self._relevance_to_int(e.relevance), e.timestamp))
 
             # Keep the most relevant/recent entries
             entries_to_remove = entries[: len(entries) - self.config.max_entries]

@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class LLMResponse(BaseModel):
     """Structured response from LLM"""
+
     crop_type: str
     crop_type_ar: str
     growth_stage: str
@@ -50,10 +51,7 @@ class LLMProvider(Protocol):
     """Protocol for LLM providers"""
 
     async def analyze(
-        self,
-        prompt: str,
-        images: list[dict],
-        response_format: type[BaseModel]
+        self, prompt: str, images: list[dict], response_format: type[BaseModel]
     ) -> LLMResponse:
         """Analyze images with prompt."""
         ...
@@ -72,16 +70,14 @@ class AnthropicProvider:
         if self.client is None:
             try:
                 from anthropic import AsyncAnthropic
+
                 self.client = AsyncAnthropic(api_key=self.api_key)
             except ImportError:
                 logger.error("anthropic package not installed")
                 raise
 
     async def analyze(
-        self,
-        prompt: str,
-        images: list[dict],
-        response_format: type[BaseModel]
+        self, prompt: str, images: list[dict], response_format: type[BaseModel]
     ) -> LLMResponse:
         """Analyze images using Claude."""
         self._ensure_client()
@@ -90,23 +86,29 @@ class AnthropicProvider:
         content = []
 
         for img in images:
-            content.append({
-                "type": "image",
-                "source": {
-                    "type": "base64",
-                    "media_type": "image/jpeg",
-                    "data": img["data"],
-                },
-            })
-            content.append({
-                "type": "text",
-                "text": f"[Frame timestamp: {img['timestamp']}]",
-            })
+            content.append(
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/jpeg",
+                        "data": img["data"],
+                    },
+                }
+            )
+            content.append(
+                {
+                    "type": "text",
+                    "text": f"[Frame timestamp: {img['timestamp']}]",
+                }
+            )
 
-        content.append({
-            "type": "text",
-            "text": prompt,
-        })
+        content.append(
+            {
+                "type": "text",
+                "text": prompt,
+            }
+        )
 
         # Call Claude
         response = await self.client.messages.create(
@@ -148,22 +150,13 @@ class AnthropicProvider:
 class OllamaProvider:
     """Ollama local LLM provider for MLLM analysis."""
 
-    def __init__(
-        self,
-        base_url: str | None = None,
-        model: str = "llava:13b"
-    ):
+    def __init__(self, base_url: str | None = None, model: str = "llava:13b"):
         """Initialize Ollama provider."""
-        self.base_url = base_url or os.getenv(
-            "OLLAMA_BASE_URL", "http://localhost:11434"
-        )
+        self.base_url = base_url or os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
         self.model = model
 
     async def analyze(
-        self,
-        prompt: str,
-        images: list[dict],
-        response_format: type[BaseModel]
+        self, prompt: str, images: list[dict], response_format: type[BaseModel]
     ) -> LLMResponse:
         """Analyze images using Ollama."""
         import aiohttp
@@ -287,9 +280,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
         self.max_frames = max_frames_per_analysis
 
         # Initialize change detector
-        self.change_detector = change_detector or ChangeDetector(
-            trigger_threshold=change_threshold
-        )
+        self.change_detector = change_detector or ChangeDetector(trigger_threshold=change_threshold)
 
         # Auto-detect LLM provider
         if llm_provider is None:
@@ -297,9 +288,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
         else:
             self.llm = llm_provider
 
-        logger.info(
-            f"CropTimelineReasoner initialized with {type(self.llm).__name__}"
-        )
+        logger.info(f"CropTimelineReasoner initialized with {type(self.llm).__name__}")
 
     def _auto_detect_provider(self) -> LLMProvider:
         """Auto-detect available LLM provider."""
@@ -344,8 +333,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
         result = await self.change_detector.compute_change(arr1, arr2)
 
         logger.debug(
-            f"Change score: {result.change_score:.3f}, "
-            f"trigger: {result.should_trigger_analysis}"
+            f"Change score: {result.change_score:.3f}, trigger: {result.should_trigger_analysis}"
         )
 
         return result.should_trigger_analysis
@@ -375,6 +363,7 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
             CropTimelineAnalysis or None if no analysis needed
         """
         import time
+
         start_time = time.time()
 
         # Check if analysis is warranted
@@ -385,8 +374,8 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
                 return None
 
         # Select frames for analysis (most recent)
-        selected_frames = frames[-self.max_frames:]
-        selected_images = frame_images[-self.max_frames:]
+        selected_frames = frames[-self.max_frames :]
+        selected_images = frame_images[-self.max_frames :]
 
         # Build prompt
         prompt = self._build_prompt(field_id, context)
@@ -418,13 +407,11 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
             analysis_id=f"analysis_{field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
             field_id=field_id,
             crop_type=self._parse_crop_type(response.crop_type),
-            crop_type_ar=response.crop_type_ar or CROP_TYPE_AR.get(
-                self._parse_crop_type(response.crop_type), "غير معروف"
-            ),
+            crop_type_ar=response.crop_type_ar
+            or CROP_TYPE_AR.get(self._parse_crop_type(response.crop_type), "غير معروف"),
             current_stage=self._parse_growth_stage(response.growth_stage),
-            current_stage_ar=response.growth_stage_ar or GROWTH_STAGE_AR.get(
-                self._parse_growth_stage(response.growth_stage), "غير معروف"
-            ),
+            current_stage_ar=response.growth_stage_ar
+            or GROWTH_STAGE_AR.get(self._parse_growth_stage(response.growth_stage), "غير معروف"),
             stage_confidence=response.confidence,
             health_score=response.health_score,
             operations_detected=response.operations,
@@ -460,8 +447,12 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
             area_hectares=context.area_hectares,
             expected_crop=context.expected_crop.value if context.expected_crop else "unknown",
             expected_crop_ar=context.expected_crop_ar or "غير محدد",
-            expected_planting_date=context.expected_planting_date.isoformat() if context.expected_planting_date else "غير محدد",
-            rotation_history=str(context.rotation_history) if context.rotation_history else "غير متوفر",
+            expected_planting_date=context.expected_planting_date.isoformat()
+            if context.expected_planting_date
+            else "غير محدد",
+            rotation_history=str(context.rotation_history)
+            if context.rotation_history
+            else "غير متوفر",
             soil_type=context.soil_type or "غير محدد",
             irrigation_type=context.irrigation_type or "غير محدد",
         )

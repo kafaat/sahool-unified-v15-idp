@@ -126,6 +126,7 @@ try:
         get_ci_integration,
         get_sentry_integration,
     )
+
     OBSERVABILITY_AVAILABLE = True
 except ImportError:
     OBSERVABILITY_AVAILABLE = False
@@ -158,6 +159,7 @@ try:
         generate_text,
         generate_with_ollama_fallback,
     )
+
     LLM_MANAGER_AVAILABLE = True
 except ImportError:
     LLM_MANAGER_AVAILABLE = False
@@ -173,6 +175,7 @@ try:
         CodeFixResult,
         get_code_llm_provider,
     )
+
     CODE_LLM_AVAILABLE = True
 except ImportError:
     CODE_LLM_AVAILABLE = False
@@ -189,6 +192,7 @@ try:
         fix_code_with_ollama,
         generate_tests_with_ollama,
     )
+
     OLLAMA_AVAILABLE = True
 except ImportError:
     OLLAMA_AVAILABLE = False
@@ -208,6 +212,7 @@ try:
         create_code_fix_dataset,
         train_code_fixer,
     )
+
     TRAINING_AVAILABLE = True
 except ImportError:
     TRAINING_AVAILABLE = False
@@ -552,59 +557,67 @@ __all__ = [
 
 # Add LLM Manager exports if available
 if LLM_MANAGER_AVAILABLE:
-    __all__.extend([
-        "LLMProviderManager",
-        "LLMProvider",
-        "LLMConfig",
-        "LLMResponse",
-        "LLMProviderError",
-        "AllProvidersFailedError",
-        "get_llm_manager",
-        "generate_text",
-        "generate_with_ollama_fallback",
-    ])
+    __all__.extend(
+        [
+            "LLMProviderManager",
+            "LLMProvider",
+            "LLMConfig",
+            "LLMResponse",
+            "LLMProviderError",
+            "AllProvidersFailedError",
+            "get_llm_manager",
+            "generate_text",
+            "generate_with_ollama_fallback",
+        ]
+    )
 
 # Add Code LLM Provider exports if available
 if CODE_LLM_AVAILABLE:
-    __all__.extend([
-        "CodeLLMProvider",
-        "CodeTaskType",
-        "CodeContext",
-        "CodeCompletionResult",
-        "CodeReviewResult",
-        "CodeFixResult",
-        "get_code_llm_provider",
-        "CODE_LLM_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            "CodeLLMProvider",
+            "CodeTaskType",
+            "CodeContext",
+            "CodeCompletionResult",
+            "CodeReviewResult",
+            "CodeFixResult",
+            "get_code_llm_provider",
+            "CODE_LLM_AVAILABLE",
+        ]
+    )
 
 # Add Ollama exports if available
 if OLLAMA_AVAILABLE:
-    __all__.extend([
-        "OllamaClient",
-        "OllamaConfig",
-        "OllamaError",
-        "OllamaModel",
-        "OllamaResponse",
-        "analyze_code_with_ollama",
-        "fix_code_with_ollama",
-        "generate_tests_with_ollama",
-    ])
+    __all__.extend(
+        [
+            "OllamaClient",
+            "OllamaConfig",
+            "OllamaError",
+            "OllamaModel",
+            "OllamaResponse",
+            "analyze_code_with_ollama",
+            "fix_code_with_ollama",
+            "generate_tests_with_ollama",
+        ]
+    )
 
 # Add training exports if available
 if TRAINING_AVAILABLE:
-    __all__.extend([
-        "DatasetBuilder",
-        "DatasetType",
-        "ModelTrainer",
-        "TrainingConfig",
-        "TrainingDataset",
-        "TrainingExample",
-        "TrainingJob",
-        "TrainingStatus",
-        "TrainingEvalResult",
-        "create_code_fix_dataset",
-        "train_code_fixer",
-    ])
+    __all__.extend(
+        [
+            "DatasetBuilder",
+            "DatasetType",
+            "ModelTrainer",
+            "TrainingConfig",
+            "TrainingDataset",
+            "TrainingExample",
+            "TrainingJob",
+            "TrainingStatus",
+            "TrainingEvalResult",
+            "create_code_fix_dataset",
+            "train_code_fixer",
+        ]
+    )
 
 # Agent Orchestration Framework (Claude-Flow inspired) - optional
 try:
@@ -669,70 +682,73 @@ try:
         get_collective_memory,
         reset_collective_memory,
     )
+
     ORCHESTRATION_AVAILABLE = True
 
-    __all__.extend([
-        # === Orchestration Enums ===
-        "AgentCapability",
-        "ConsensusType",
-        "MemoryNamespace",
-        "SwarmTopology",
-        "TaskPriority",
-        "TaskStatus",
-        # === Orchestration Agent Models ===
-        "AgentProfile",
-        "AgentScore",
-        "OrchestrationAgentState",
-        # === Orchestration Task Models ===
-        "Task",
-        "TaskResult",
-        # === Orchestration Swarm Models ===
-        "SwarmConfig",
-        "SwarmResult",
-        "SwarmState",
-        # === Orchestration Consensus Models ===
-        "ConsensusResult",
-        "Vote",
-        # === Orchestration Memory Models ===
-        "OrchestrationMemoryEntry",
-        "MemoryStats",
-        "PatternMatch",
-        # === Orchestration Routing Models ===
-        "RoutingDecision",
-        "RouterStats",
-        # === Router ===
-        "AgentRouter",
-        "get_router",
-        "reset_router",
-        # === Swarm Coordination ===
-        "SwarmCoordinator",
-        "AggregationStrategy",
-        "MajorityVoteAggregation",
-        "WeightedAverageAggregation",
-        "ConcatenateAggregation",
-        "BestResultAggregation",
-        "get_swarm_coordinator",
-        "reset_swarm_coordinator",
-        # === Consensus Protocols ===
-        "ConsensusProtocol",
-        "MajorityVoting",
-        "WeightedVoting",
-        "RaftConsensus",
-        "UnanimousConsensus",
-        "QuorumConsensus",
-        "ConsensusManager",
-        "get_consensus_manager",
-        "reach_consensus",
-        # === Collective Memory ===
-        "CollectiveMemory",
-        "LRUCache",
-        "cosine_similarity",
-        "jaccard_similarity",
-        "text_similarity",
-        "get_collective_memory",
-        "reset_collective_memory",
-        "ORCHESTRATION_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            # === Orchestration Enums ===
+            "AgentCapability",
+            "ConsensusType",
+            "MemoryNamespace",
+            "SwarmTopology",
+            "TaskPriority",
+            "TaskStatus",
+            # === Orchestration Agent Models ===
+            "AgentProfile",
+            "AgentScore",
+            "OrchestrationAgentState",
+            # === Orchestration Task Models ===
+            "Task",
+            "TaskResult",
+            # === Orchestration Swarm Models ===
+            "SwarmConfig",
+            "SwarmResult",
+            "SwarmState",
+            # === Orchestration Consensus Models ===
+            "ConsensusResult",
+            "Vote",
+            # === Orchestration Memory Models ===
+            "OrchestrationMemoryEntry",
+            "MemoryStats",
+            "PatternMatch",
+            # === Orchestration Routing Models ===
+            "RoutingDecision",
+            "RouterStats",
+            # === Router ===
+            "AgentRouter",
+            "get_router",
+            "reset_router",
+            # === Swarm Coordination ===
+            "SwarmCoordinator",
+            "AggregationStrategy",
+            "MajorityVoteAggregation",
+            "WeightedAverageAggregation",
+            "ConcatenateAggregation",
+            "BestResultAggregation",
+            "get_swarm_coordinator",
+            "reset_swarm_coordinator",
+            # === Consensus Protocols ===
+            "ConsensusProtocol",
+            "MajorityVoting",
+            "WeightedVoting",
+            "RaftConsensus",
+            "UnanimousConsensus",
+            "QuorumConsensus",
+            "ConsensusManager",
+            "get_consensus_manager",
+            "reach_consensus",
+            # === Collective Memory ===
+            "CollectiveMemory",
+            "LRUCache",
+            "cosine_similarity",
+            "jaccard_similarity",
+            "text_similarity",
+            "get_collective_memory",
+            "reset_collective_memory",
+            "ORCHESTRATION_AVAILABLE",
+        ]
+    )
 except ImportError:
     ORCHESTRATION_AVAILABLE = False
 
@@ -785,57 +801,60 @@ try:
         list_arabic_supported_models,
         list_open_source_models,
     )
+
     MODELS_REGISTRY_AVAILABLE = True
 
-    __all__.extend([
-        # === Agricultural AI Models Registry ===
-        # Models & Enums
-        "AIModelCategory",
-        "ModelCapability",
-        "ModelLicense",
-        "ModelStatus",
-        "ModelArchitecture",
-        "LanguageSupport",
-        "ModelEndpoint",
-        "DeveloperInfo",
-        "ModelPerformance",
-        "AIModelInfo",
-        "ModelComparison",
-        "ModelDiscoveryResult",
-        # Registry
-        "AgriculturalAIRegistry",
-        "get_registry",
-        "reset_registry",
-        # Integrator
-        "TaskType",
-        "ModelIntegrator",
-        "ModelCallResult",
-        "ModelSelection",
-        "get_integrator",
-        "reset_integrator",
-        "discover_models",
-        "get_best_model",
-        "call_agri_model",
-        "compare_agri_models",
-        "TASK_CAPABILITY_MAP",
-        # Connectors
-        "BaseConnector",
-        "ConnectorResponse",
-        "ShengNongConnector",
-        "CropWizardConnector",
-        "PlantGPTConnector",
-        "AgroGPTConnector",
-        "GenericRESTConnector",
-        "create_connector",
-        "get_available_connectors",
-        # Utilities
-        "get_philosophy",
-        "get_category_info",
-        "list_featured_models",
-        "list_arabic_supported_models",
-        "list_open_source_models",
-        "MODELS_REGISTRY_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            # === Agricultural AI Models Registry ===
+            # Models & Enums
+            "AIModelCategory",
+            "ModelCapability",
+            "ModelLicense",
+            "ModelStatus",
+            "ModelArchitecture",
+            "LanguageSupport",
+            "ModelEndpoint",
+            "DeveloperInfo",
+            "ModelPerformance",
+            "AIModelInfo",
+            "ModelComparison",
+            "ModelDiscoveryResult",
+            # Registry
+            "AgriculturalAIRegistry",
+            "get_registry",
+            "reset_registry",
+            # Integrator
+            "TaskType",
+            "ModelIntegrator",
+            "ModelCallResult",
+            "ModelSelection",
+            "get_integrator",
+            "reset_integrator",
+            "discover_models",
+            "get_best_model",
+            "call_agri_model",
+            "compare_agri_models",
+            "TASK_CAPABILITY_MAP",
+            # Connectors
+            "BaseConnector",
+            "ConnectorResponse",
+            "ShengNongConnector",
+            "CropWizardConnector",
+            "PlantGPTConnector",
+            "AgroGPTConnector",
+            "GenericRESTConnector",
+            "create_connector",
+            "get_available_connectors",
+            # Utilities
+            "get_philosophy",
+            "get_category_info",
+            "list_featured_models",
+            "list_arabic_supported_models",
+            "list_open_source_models",
+            "MODELS_REGISTRY_AVAILABLE",
+        ]
+    )
 except ImportError:
     MODELS_REGISTRY_AVAILABLE = False
 
@@ -855,6 +874,7 @@ try:
         reset_tool_registry,
         generate_default_config,
     )
+
     TOOL_REGISTRY_AVAILABLE = True
 except ImportError:
     TOOL_REGISTRY_AVAILABLE = False
@@ -874,62 +894,69 @@ try:
         run_quality_check,
         generate_quality_report_markdown,
     )
+
     QUALITY_ORCHESTRATOR_AVAILABLE = True
 except ImportError:
     QUALITY_ORCHESTRATOR_AVAILABLE = False
 
 # Add Observability exports if available
 if OBSERVABILITY_AVAILABLE:
-    __all__.extend([
-        # Observability (Sentry, OpenTelemetry, Prometheus, Test Integration, CI/CD)
-        "AIAgentObservability",
-        "ObservabilityContext",
-        "AgentErrorType",
-        "AgentTracer",
-        "CIFeedback",
-        "GitHubActionsIntegration",
-        "SentryIntegration",
-        "TestFrameworkIntegration",
-        "TestResult",
-        "create_observability",
-        "get_agent_tracer",
-        "get_ci_integration",
-        "get_sentry_integration",
-    ])
+    __all__.extend(
+        [
+            # Observability (Sentry, OpenTelemetry, Prometheus, Test Integration, CI/CD)
+            "AIAgentObservability",
+            "ObservabilityContext",
+            "AgentErrorType",
+            "AgentTracer",
+            "CIFeedback",
+            "GitHubActionsIntegration",
+            "SentryIntegration",
+            "TestFrameworkIntegration",
+            "TestResult",
+            "create_observability",
+            "get_agent_tracer",
+            "get_ci_integration",
+            "get_sentry_integration",
+        ]
+    )
 
 # Add Tool Registry exports if available
 if TOOL_REGISTRY_AVAILABLE:
-    __all__.extend([
-        # Tool Registry
-        "ToolRegistry",
-        "ToolInfo",
-        "ToolResult",
-        "QualityConfig",
-        "ToolMetrics",
-        "ToolCategory",
-        "ToolCapability",
-        "ToolStatus",
-        "Language",
-        "get_tool_registry",
-        "reset_tool_registry",
-        "generate_default_config",
-        "TOOL_REGISTRY_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            # Tool Registry
+            "ToolRegistry",
+            "ToolInfo",
+            "ToolResult",
+            "QualityConfig",
+            "ToolMetrics",
+            "ToolCategory",
+            "ToolCapability",
+            "ToolStatus",
+            "Language",
+            "get_tool_registry",
+            "reset_tool_registry",
+            "generate_default_config",
+            "TOOL_REGISTRY_AVAILABLE",
+        ]
+    )
 
 # Add Quality Orchestrator exports if available
 if QUALITY_ORCHESTRATOR_AVAILABLE:
-    __all__.extend([
-        # Quality Orchestrator
-        "QualityOrchestrator",
-        "QualityReport",
-        "QualityIssue",
-        "QualityGateResult",
-        "AutoAudit",
-        "QualityAuditEntry",
-        "QualityLevel",
-        "IssueSeverity",
-        "AuditAction",
-        "run_quality_check",
-        "generate_quality_report_markdown",
-        "QUALITY_ORCHESTRATOR_AVAILABLE",
-    ])
+    __all__.extend(
+        [
+            # Quality Orchestrator
+            "QualityOrchestrator",
+            "QualityReport",
+            "QualityIssue",
+            "QualityGateResult",
+            "AutoAudit",
+            "QualityAuditEntry",
+            "QualityLevel",
+            "IssueSeverity",
+            "AuditAction",
+            "run_quality_check",
+            "generate_quality_report_markdown",
+            "QUALITY_ORCHESTRATOR_AVAILABLE",
+        ]
+    )

@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
@@ -22,8 +22,9 @@ from uuid import uuid4
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """Supply chain event types - أنواع أحداث سلسلة التوريد"""
+
     HARVEST = "harvest"  # الحصاد
     PROCESSING = "processing"  # المعالجة
     STORAGE = "storage"  # التخزين
@@ -32,8 +33,9 @@ class EventType(str, Enum):
     CONSUMER_SCAN = "consumer_scan"  # مسح المستهلك
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Batch lifecycle status - حالة دورة حياة الدفعة"""
+
     CREATED = "created"  # تم الإنشاء
     HARVESTED = "harvested"  # تم الحصاد
     IN_PROCESSING = "in_processing"  # قيد المعالجة
@@ -45,8 +47,9 @@ class BatchStatus(str, Enum):
     RECALLED = "recalled"  # تم استرجاعه
 
 
-class CertificationType(str, Enum):
+class CertificationType(StrEnum):
     """Types of certifications - أنواع الشهادات"""
+
     GLOBALGAP = "globalgap"  # GlobalGAP
     ORGANIC = "organic"  # عضوي
     HALAL = "halal"  # حلال
@@ -58,8 +61,9 @@ class CertificationType(str, Enum):
     LOCAL_GAP = "local_gap"  # الممارسات الزراعية المحلية
 
 
-class QualityGrade(str, Enum):
+class QualityGrade(StrEnum):
     """Product quality grades - درجات جودة المنتج"""
+
     PREMIUM = "premium"  # ممتاز
     GRADE_A = "grade_a"  # درجة أ
     GRADE_B = "grade_b"  # درجة ب
@@ -67,8 +71,9 @@ class QualityGrade(str, Enum):
     REJECTED = "rejected"  # مرفوض
 
 
-class StorageCondition(str, Enum):
+class StorageCondition(StrEnum):
     """Storage condition types - أنواع ظروف التخزين"""
+
     AMBIENT = "ambient"  # درجة حرارة الغرفة
     CHILLED = "chilled"  # مبرد (0-4 درجة)
     FROZEN = "frozen"  # مجمد
@@ -76,8 +81,9 @@ class StorageCondition(str, Enum):
     HUMIDITY_CONTROLLED = "humidity_controlled"  # رطوبة متحكم بها
 
 
-class TransportMode(str, Enum):
+class TransportMode(StrEnum):
     """Transport mode types - أنواع وسائل النقل"""
+
     TRUCK_REFRIGERATED = "truck_refrigerated"  # شاحنة مبردة
     TRUCK_AMBIENT = "truck_ambient"  # شاحنة عادية
     AIR_FREIGHT = "air_freight"  # شحن جوي
@@ -94,6 +100,7 @@ class TransportMode(str, Enum):
 @dataclass
 class GeoLocation:
     """Geographic location - الموقع الجغرافي"""
+
     latitude: float
     longitude: float
     altitude_m: float | None = None
@@ -103,6 +110,7 @@ class GeoLocation:
 @dataclass
 class Address:
     """Physical address - العنوان الفعلي"""
+
     address_line1_en: str
     address_line1_ar: str
     city_en: str
@@ -123,6 +131,7 @@ class Address:
 @dataclass
 class Producer:
     """Farm/Producer information - معلومات المزرعة/المنتج"""
+
     id: str
     name_en: str
     name_ar: str
@@ -139,6 +148,7 @@ class Producer:
 @dataclass
 class ProcessingFacility:
     """Processing/Packing facility - مرفق المعالجة/التعبئة"""
+
     id: str
     name_en: str
     name_ar: str
@@ -153,6 +163,7 @@ class ProcessingFacility:
 @dataclass
 class Transporter:
     """Transport company - شركة النقل"""
+
     id: str
     company_name_en: str
     company_name_ar: str
@@ -164,6 +175,7 @@ class Transporter:
 @dataclass
 class Retailer:
     """Retail outlet - منفذ البيع بالتجزئة"""
+
     id: str
     name_en: str
     name_ar: str
@@ -181,6 +193,7 @@ class Retailer:
 @dataclass
 class Certification:
     """Certification record - سجل الشهادة"""
+
     id: str
     certification_type: CertificationType
     certificate_number: str
@@ -219,6 +232,7 @@ class Certification:
 @dataclass
 class ComplianceRecord:
     """Compliance/inspection record - سجل الامتثال/التفتيش"""
+
     id: str
     certification_id: str
     inspection_date: datetime
@@ -253,6 +267,7 @@ class ProduceBatch:
     Represents a batch of agricultural produce from harvest to consumer.
     يمثل دفعة من المنتجات الزراعية من الحصاد إلى المستهلك.
     """
+
     id: str = field(default_factory=lambda: str(uuid4()))
     batch_code: str = ""  # Human-readable batch code (e.g., "WH-2025-001")
 
@@ -303,6 +318,7 @@ class ProduceBatch:
 @dataclass
 class BatchSplit:
     """Record of batch splitting - سجل تقسيم الدفعة"""
+
     id: str
     parent_batch_id: str
     child_batch_ids: list[str]
@@ -315,6 +331,7 @@ class BatchSplit:
 @dataclass
 class BatchMerge:
     """Record of batch merging - سجل دمج الدفعات"""
+
     id: str
     source_batch_ids: list[str]
     target_batch_id: str
@@ -337,6 +354,7 @@ class SupplyChainEvent:
     Records a single event in the product's journey from farm to consumer.
     يسجل حدثاً واحداً في رحلة المنتج من المزرعة إلى المستهلك.
     """
+
     id: str = field(default_factory=lambda: str(uuid4()))
     batch_id: str = ""
     event_type: EventType = EventType.HARVEST
@@ -378,6 +396,7 @@ class SupplyChainEvent:
 @dataclass
 class HarvestEvent(SupplyChainEvent):
     """Harvest event details - تفاصيل حدث الحصاد"""
+
     # Override defaults
     event_type: EventType = field(default=EventType.HARVEST)
 
@@ -406,6 +425,7 @@ class HarvestEvent(SupplyChainEvent):
 @dataclass
 class ProcessingEvent(SupplyChainEvent):
     """Processing/Packing event details - تفاصيل حدث المعالجة/التعبئة"""
+
     event_type: EventType = field(default=EventType.PROCESSING)
 
     # Facility
@@ -433,6 +453,7 @@ class ProcessingEvent(SupplyChainEvent):
 @dataclass
 class StorageEvent(SupplyChainEvent):
     """Storage event details - تفاصيل حدث التخزين"""
+
     event_type: EventType = field(default=EventType.STORAGE)
 
     # Storage facility
@@ -460,6 +481,7 @@ class StorageEvent(SupplyChainEvent):
 @dataclass
 class TransportEvent(SupplyChainEvent):
     """Transport event details - تفاصيل حدث النقل"""
+
     event_type: EventType = field(default=EventType.TRANSPORT)
 
     # Transporter
@@ -495,6 +517,7 @@ class TransportEvent(SupplyChainEvent):
 @dataclass
 class RetailEvent(SupplyChainEvent):
     """Retail arrival/display event - حدث الوصول/العرض في التجزئة"""
+
     event_type: EventType = field(default=EventType.RETAIL)
 
     # Retailer
@@ -524,6 +547,7 @@ class RetailEvent(SupplyChainEvent):
 @dataclass
 class ConsumerScanEvent(SupplyChainEvent):
     """Consumer QR scan event - حدث مسح المستهلك للرمز"""
+
     event_type: EventType = field(default=EventType.CONSUMER_SCAN)
 
     # Scan info
@@ -547,6 +571,7 @@ class ConsumerScanEvent(SupplyChainEvent):
 @dataclass
 class ProductJourneyStep:
     """Single step in product journey display - خطوة واحدة في عرض رحلة المنتج"""
+
     step_number: int
     event_type: EventType
 
@@ -577,6 +602,7 @@ class ProductJourney:
     Complete product journey for consumer display
     رحلة المنتج الكاملة لعرض المستهلك
     """
+
     batch_id: str
     batch_code: str
 
@@ -623,6 +649,7 @@ class ProductJourney:
 @dataclass
 class QRCodeData:
     """Data encoded in QR code - البيانات المشفرة في رمز QR"""
+
     batch_id: str
     batch_code: str
     product_name_en: str
@@ -654,6 +681,7 @@ class BatchTraceReport:
     Comprehensive report of a batch's journey through the supply chain.
     تقرير شامل لرحلة الدفعة عبر سلسلة التوريد.
     """
+
     batch: ProduceBatch
     producer: Producer | None = None
     events: list[SupplyChainEvent] = field(default_factory=list)

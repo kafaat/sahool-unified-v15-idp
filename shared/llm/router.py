@@ -159,9 +159,7 @@ class LLMRouter:
             logger.warning(f"Failed to create provider {provider_type}: {e}")
             return None
 
-    async def _check_provider_available(
-        self, provider_type: ProviderType
-    ) -> bool:
+    async def _check_provider_available(self, provider_type: ProviderType) -> bool:
         """Check if a provider is available (with caching)."""
         # Return cached result if recent
         cached = self._provider_available.get(provider_type)
@@ -174,10 +172,7 @@ class LLMRouter:
             return False
 
         try:
-            available = await asyncio.wait_for(
-                provider.is_available(),
-                timeout=5.0
-            )
+            available = await asyncio.wait_for(provider.is_available(), timeout=5.0)
             self._provider_available[provider_type] = available
             return available
         except TimeoutError:
@@ -203,9 +198,7 @@ class LLMRouter:
             info = get_model_info(model)
             if info:
                 provider = (
-                    ProviderType.OLLAMA
-                    if info["provider"] == "ollama"
-                    else ProviderType.OPENAI
+                    ProviderType.OLLAMA if info["provider"] == "ollama" else ProviderType.OPENAI
                 )
                 return model, provider
             # Unknown model, try Ollama first
@@ -221,7 +214,8 @@ class LLMRouter:
             # Filter by preference
             if prefer_local:
                 local_matches = [
-                    m for m in matching_models
+                    m
+                    for m in matching_models
                     if get_model_info(m) and get_model_info(m).get("provider") == "ollama"
                 ]
                 if local_matches:
@@ -262,9 +256,7 @@ class LLMRouter:
         if prefer_local is None:
             prefer_local = self._config.prefer_local
 
-        selected_model, selected_provider = self._select_model(
-            model, capabilities, prefer_local
-        )
+        selected_model, selected_provider = self._select_model(model, capabilities, prefer_local)
 
         # Build fallback list
         fallbacks: list[tuple[ProviderType, str]] = []
@@ -274,9 +266,7 @@ class LLMRouter:
             # Ollama -> OpenAI compat -> Cloud
             fallbacks.append((ProviderType.OPENAI_COMPAT, selected_model))
             if self._config.cloud.openai_api_key:
-                fallbacks.append(
-                    (ProviderType.OPENAI, self._config.cloud.openai_model)
-                )
+                fallbacks.append((ProviderType.OPENAI, self._config.cloud.openai_model))
         elif selected_provider == ProviderType.OPENAI_COMPAT:
             fallbacks.append((ProviderType.OLLAMA, self._config.ollama.default_model))
 
@@ -337,9 +327,7 @@ class LLMRouter:
         self._stats.last_request = datetime.now(UTC)
 
         # Build provider list to try
-        providers_to_try = [
-            (decision.provider_type, decision.model)
-        ]
+        providers_to_try = [(decision.provider_type, decision.model)]
         if enable_fallback:
             providers_to_try.extend(decision.fallbacks)
 
@@ -375,8 +363,7 @@ class LLMRouter:
                 if errors:
                     self._stats.fallback_count += 1
                     logger.info(
-                        f"Used fallback provider {provider_type.value} "
-                        f"after {len(errors)} failures"
+                        f"Used fallback provider {provider_type.value} after {len(errors)} failures"
                     )
 
                 return response
@@ -580,9 +567,7 @@ class LLMRouter:
                 "total_cost_usd": self._stats.total_cost_usd,
                 "provider_usage": self._stats.provider_usage,
                 "last_request": (
-                    self._stats.last_request.isoformat()
-                    if self._stats.last_request
-                    else None
+                    self._stats.last_request.isoformat() if self._stats.last_request else None
                 ),
             },
         }

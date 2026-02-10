@@ -34,6 +34,7 @@ from shared.crop_insurance.models import (
 @dataclass
 class WeatherHistoryData:
     """Historical weather data for risk analysis | بيانات الطقس التاريخية لتحليل المخاطر"""
+
     station_id: str
     start_date: date
     end_date: date
@@ -64,6 +65,7 @@ class WeatherHistoryData:
 @dataclass
 class SoilData:
     """Soil data for risk assessment | بيانات التربة لتقييم المخاطر"""
+
     field_id: str
 
     # Soil type
@@ -97,6 +99,7 @@ class SoilData:
 @dataclass
 class HistoricalYieldData:
     """Historical yield data for field | بيانات الإنتاجية التاريخية للحقل"""
+
     field_id: str
     crop_type: str
 
@@ -126,6 +129,7 @@ class HistoricalYieldData:
 @dataclass
 class CropRiskProfile:
     """Risk profile specific to crop type | ملف المخاطر الخاص بنوع المحصول"""
+
     crop_type: str
     crop_type_ar: str
 
@@ -196,9 +200,7 @@ class WeatherRiskAnalyzer:
     def __init__(self, region: str = "default"):
         """Initialize with region"""
         self.region = region
-        self.benchmarks = self.REGIONAL_BENCHMARKS.get(
-            region, self.REGIONAL_BENCHMARKS["default"]
-        )
+        self.benchmarks = self.REGIONAL_BENCHMARKS.get(region, self.REGIONAL_BENCHMARKS["default"])
 
     def analyze(
         self,
@@ -215,78 +217,88 @@ class WeatherRiskAnalyzer:
 
         # Drought risk
         drought_score = self._calculate_drought_risk(weather_history)
-        factors.append(RiskFactor(
-            factor_type="weather",
-            name="Drought Risk",
-            name_ar="خطر الجفاف",
-            weight=0.30,
-            score=drought_score,
-            impact="negative" if drought_score > 50 else "neutral",
-            description=f"Based on {weather_history.rainfall_deficit_years} deficit years in {weather_history.years_of_data} years",
-            description_ar=f"بناءً على {weather_history.rainfall_deficit_years} سنة عجز من أصل {weather_history.years_of_data} سنة",
-            data_source="weather_history",
-            confidence=weather_history.data_completeness,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="weather",
+                name="Drought Risk",
+                name_ar="خطر الجفاف",
+                weight=0.30,
+                score=drought_score,
+                impact="negative" if drought_score > 50 else "neutral",
+                description=f"Based on {weather_history.rainfall_deficit_years} deficit years in {weather_history.years_of_data} years",
+                description_ar=f"بناءً على {weather_history.rainfall_deficit_years} سنة عجز من أصل {weather_history.years_of_data} سنة",
+                data_source="weather_history",
+                confidence=weather_history.data_completeness,
+            )
+        )
 
         # Flood risk
         flood_score = self._calculate_flood_risk(weather_history)
-        factors.append(RiskFactor(
-            factor_type="weather",
-            name="Flood Risk",
-            name_ar="خطر الفيضان",
-            weight=0.20,
-            score=flood_score,
-            impact="negative" if flood_score > 50 else "neutral",
-            description=f"Based on {weather_history.flood_events_per_year:.1f} flood events per year",
-            description_ar=f"بناءً على {weather_history.flood_events_per_year:.1f} حدث فيضان سنوياً",
-            data_source="weather_history",
-            confidence=weather_history.data_completeness,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="weather",
+                name="Flood Risk",
+                name_ar="خطر الفيضان",
+                weight=0.20,
+                score=flood_score,
+                impact="negative" if flood_score > 50 else "neutral",
+                description=f"Based on {weather_history.flood_events_per_year:.1f} flood events per year",
+                description_ar=f"بناءً على {weather_history.flood_events_per_year:.1f} حدث فيضان سنوياً",
+                data_source="weather_history",
+                confidence=weather_history.data_completeness,
+            )
+        )
 
         # Frost risk
         frost_score = self._calculate_frost_risk(weather_history, crop_profile)
-        factors.append(RiskFactor(
-            factor_type="weather",
-            name="Frost Risk",
-            name_ar="خطر الصقيع",
-            weight=0.15,
-            score=frost_score,
-            impact="negative" if frost_score > 50 else "neutral",
-            description=f"Based on {weather_history.frost_days_per_year:.1f} frost days per year",
-            description_ar=f"بناءً على {weather_history.frost_days_per_year:.1f} يوم صقيع سنوياً",
-            data_source="weather_history",
-            confidence=weather_history.data_completeness,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="weather",
+                name="Frost Risk",
+                name_ar="خطر الصقيع",
+                weight=0.15,
+                score=frost_score,
+                impact="negative" if frost_score > 50 else "neutral",
+                description=f"Based on {weather_history.frost_days_per_year:.1f} frost days per year",
+                description_ar=f"بناءً على {weather_history.frost_days_per_year:.1f} يوم صقيع سنوياً",
+                data_source="weather_history",
+                confidence=weather_history.data_completeness,
+            )
+        )
 
         # Heat stress risk
         heat_score = self._calculate_heat_risk(weather_history, crop_profile)
-        factors.append(RiskFactor(
-            factor_type="weather",
-            name="Heat Stress Risk",
-            name_ar="خطر الإجهاد الحراري",
-            weight=0.20,
-            score=heat_score,
-            impact="negative" if heat_score > 50 else "neutral",
-            description=f"Based on {weather_history.heat_wave_days_per_year:.1f} extreme heat days per year",
-            description_ar=f"بناءً على {weather_history.heat_wave_days_per_year:.1f} يوم حرارة شديدة سنوياً",
-            data_source="weather_history",
-            confidence=weather_history.data_completeness,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="weather",
+                name="Heat Stress Risk",
+                name_ar="خطر الإجهاد الحراري",
+                weight=0.20,
+                score=heat_score,
+                impact="negative" if heat_score > 50 else "neutral",
+                description=f"Based on {weather_history.heat_wave_days_per_year:.1f} extreme heat days per year",
+                description_ar=f"بناءً على {weather_history.heat_wave_days_per_year:.1f} يوم حرارة شديدة سنوياً",
+                data_source="weather_history",
+                confidence=weather_history.data_completeness,
+            )
+        )
 
         # Hail risk
         hail_score = self._calculate_hail_risk(weather_history)
-        factors.append(RiskFactor(
-            factor_type="weather",
-            name="Hail Risk",
-            name_ar="خطر البرد",
-            weight=0.15,
-            score=hail_score,
-            impact="negative" if hail_score > 30 else "neutral",
-            description=f"Based on {weather_history.hail_events_per_year:.1f} hail events per year",
-            description_ar=f"بناءً على {weather_history.hail_events_per_year:.1f} حدث برد سنوياً",
-            data_source="weather_history",
-            confidence=weather_history.data_completeness,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="weather",
+                name="Hail Risk",
+                name_ar="خطر البرد",
+                weight=0.15,
+                score=hail_score,
+                impact="negative" if hail_score > 30 else "neutral",
+                description=f"Based on {weather_history.hail_events_per_year:.1f} hail events per year",
+                description_ar=f"بناءً على {weather_history.hail_events_per_year:.1f} حدث برد سنوياً",
+                data_source="weather_history",
+                confidence=weather_history.data_completeness,
+            )
+        )
 
         return factors
 
@@ -411,65 +423,73 @@ class HistoricalYieldAnalyzer:
 
         # Yield volatility risk
         volatility_score = self._calculate_volatility_risk(yield_data)
-        factors.append(RiskFactor(
-            factor_type="historical",
-            name="Yield Volatility",
-            name_ar="تقلب الإنتاجية",
-            weight=0.30,
-            score=volatility_score,
-            impact="negative" if volatility_score > 50 else "neutral",
-            description=f"Yield standard deviation: {yield_data.yield_standard_deviation:.2f} t/ha",
-            description_ar=f"انحراف الإنتاجية المعياري: {yield_data.yield_standard_deviation:.2f} طن/هـ",
-            data_source="yield_history",
-            confidence=min(yield_data.total_seasons / 10, 1.0),
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="historical",
+                name="Yield Volatility",
+                name_ar="تقلب الإنتاجية",
+                weight=0.30,
+                score=volatility_score,
+                impact="negative" if volatility_score > 50 else "neutral",
+                description=f"Yield standard deviation: {yield_data.yield_standard_deviation:.2f} t/ha",
+                description_ar=f"انحراف الإنتاجية المعياري: {yield_data.yield_standard_deviation:.2f} طن/هـ",
+                data_source="yield_history",
+                confidence=min(yield_data.total_seasons / 10, 1.0),
+            )
+        )
 
         # Loss history risk
         loss_score = self._calculate_loss_history_risk(yield_data)
-        factors.append(RiskFactor(
-            factor_type="historical",
-            name="Loss History",
-            name_ar="تاريخ الخسائر",
-            weight=0.35,
-            score=loss_score,
-            impact="negative" if loss_score > 40 else "neutral",
-            description=f"{yield_data.loss_seasons} loss seasons out of {yield_data.total_seasons}",
-            description_ar=f"{yield_data.loss_seasons} موسم خسارة من أصل {yield_data.total_seasons}",
-            data_source="yield_history",
-            confidence=min(yield_data.total_seasons / 10, 1.0),
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="historical",
+                name="Loss History",
+                name_ar="تاريخ الخسائر",
+                weight=0.35,
+                score=loss_score,
+                impact="negative" if loss_score > 40 else "neutral",
+                description=f"{yield_data.loss_seasons} loss seasons out of {yield_data.total_seasons}",
+                description_ar=f"{yield_data.loss_seasons} موسم خسارة من أصل {yield_data.total_seasons}",
+                data_source="yield_history",
+                confidence=min(yield_data.total_seasons / 10, 1.0),
+            )
+        )
 
         # Performance vs regional average
         performance_score = self._calculate_performance_risk(yield_data)
-        factors.append(RiskFactor(
-            factor_type="historical",
-            name="Regional Performance",
-            name_ar="الأداء الإقليمي",
-            weight=0.20,
-            score=performance_score,
-            impact="positive" if yield_data.performance_vs_regional > 1 else "negative",
-            description=f"Yields at {yield_data.performance_vs_regional:.0%} of regional average",
-            description_ar=f"الإنتاجية بنسبة {yield_data.performance_vs_regional:.0%} من المتوسط الإقليمي",
-            data_source="yield_history",
-            confidence=0.8,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="historical",
+                name="Regional Performance",
+                name_ar="الأداء الإقليمي",
+                weight=0.20,
+                score=performance_score,
+                impact="positive" if yield_data.performance_vs_regional > 1 else "negative",
+                description=f"Yields at {yield_data.performance_vs_regional:.0%} of regional average",
+                description_ar=f"الإنتاجية بنسبة {yield_data.performance_vs_regional:.0%} من المتوسط الإقليمي",
+                data_source="yield_history",
+                confidence=0.8,
+            )
+        )
 
         # Trend risk
         trend_score = self._calculate_trend_risk(yield_data)
-        factors.append(RiskFactor(
-            factor_type="historical",
-            name="Yield Trend",
-            name_ar="اتجاه الإنتاجية",
-            weight=0.15,
-            score=trend_score,
-            impact="positive" if yield_data.yield_trend == "improving" else (
-                "negative" if yield_data.yield_trend == "declining" else "neutral"
-            ),
-            description=f"Trend: {yield_data.yield_trend} ({yield_data.trend_percentage_per_year:+.1f}%/year)",
-            description_ar=f"الاتجاه: {yield_data.yield_trend} ({yield_data.trend_percentage_per_year:+.1f}%/سنة)",
-            data_source="yield_history",
-            confidence=min(yield_data.total_seasons / 5, 1.0),
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="historical",
+                name="Yield Trend",
+                name_ar="اتجاه الإنتاجية",
+                weight=0.15,
+                score=trend_score,
+                impact="positive"
+                if yield_data.yield_trend == "improving"
+                else ("negative" if yield_data.yield_trend == "declining" else "neutral"),
+                description=f"Trend: {yield_data.yield_trend} ({yield_data.trend_percentage_per_year:+.1f}%/year)",
+                description_ar=f"الاتجاه: {yield_data.yield_trend} ({yield_data.trend_percentage_per_year:+.1f}%/سنة)",
+                data_source="yield_history",
+                confidence=min(yield_data.total_seasons / 5, 1.0),
+            )
+        )
 
         return factors
 
@@ -597,9 +617,7 @@ class RiskCalculator:
         base_rate = self.BASE_RATES.get(crop_type.lower(), self.BASE_RATES["default"])
 
         # Apply risk multiplier
-        risk_multiplier = self.RISK_MULTIPLIERS.get(
-            risk_profile.overall_risk_level, 1.0
-        )
+        risk_multiplier = self.RISK_MULTIPLIERS.get(risk_profile.overall_risk_level, 1.0)
 
         # Apply coverage adjustment
         coverage_adjustment = self.COVERAGE_ADJUSTMENTS.get(coverage_type, 1.0)
@@ -813,7 +831,7 @@ class RiskAssessmentEngine:
 
             # Store yield statistics
             profile.historical_yield_average = yield_data.average_yield
-            profile.historical_yield_variance = yield_data.yield_standard_deviation ** 2
+            profile.historical_yield_variance = yield_data.yield_standard_deviation**2
 
         # Location risk assessment
         if latitude is not None and longitude is not None:
@@ -881,61 +899,71 @@ class RiskAssessmentEngine:
             "excessive": 60,
         }
         drainage_score = drainage_scores.get(soil.drainage_class, 50)
-        factors.append(RiskFactor(
-            factor_type="soil",
-            name="Drainage",
-            name_ar="الصرف",
-            weight=0.30,
-            score=drainage_score,
-            impact="negative" if drainage_score > 50 else "positive",
-            description=f"Drainage class: {soil.drainage_class}",
-            description_ar=f"درجة الصرف: {soil.drainage_class}",
-            data_source="soil_analysis",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="soil",
+                name="Drainage",
+                name_ar="الصرف",
+                weight=0.30,
+                score=drainage_score,
+                impact="negative" if drainage_score > 50 else "positive",
+                description=f"Drainage class: {soil.drainage_class}",
+                description_ar=f"درجة الصرف: {soil.drainage_class}",
+                data_source="soil_analysis",
+            )
+        )
 
         # Salinity risk
-        salinity_score = min(soil.salinity_ec * 15, 100) if soil.salinity_ec > 2 else soil.salinity_ec * 5
-        factors.append(RiskFactor(
-            factor_type="soil",
-            name="Salinity",
-            name_ar="الملوحة",
-            weight=0.25,
-            score=salinity_score,
-            impact="negative" if salinity_score > 40 else "neutral",
-            description=f"EC: {soil.salinity_ec} dS/m",
-            description_ar=f"الموصلية الكهربائية: {soil.salinity_ec} ديسيسيمنز/م",
-            data_source="soil_analysis",
-        ))
+        salinity_score = (
+            min(soil.salinity_ec * 15, 100) if soil.salinity_ec > 2 else soil.salinity_ec * 5
+        )
+        factors.append(
+            RiskFactor(
+                factor_type="soil",
+                name="Salinity",
+                name_ar="الملوحة",
+                weight=0.25,
+                score=salinity_score,
+                impact="negative" if salinity_score > 40 else "neutral",
+                description=f"EC: {soil.salinity_ec} dS/m",
+                description_ar=f"الموصلية الكهربائية: {soil.salinity_ec} ديسيسيمنز/م",
+                data_source="soil_analysis",
+            )
+        )
 
         # pH risk (optimal range 6.0-7.5)
         ph_deviation = abs(soil.ph_level - 6.75)
         ph_score = min(ph_deviation * 20, 100)
-        factors.append(RiskFactor(
-            factor_type="soil",
-            name="pH Level",
-            name_ar="درجة الحموضة",
-            weight=0.20,
-            score=ph_score,
-            impact="negative" if ph_score > 30 else "neutral",
-            description=f"pH: {soil.ph_level}",
-            description_ar=f"درجة الحموضة: {soil.ph_level}",
-            data_source="soil_analysis",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="soil",
+                name="pH Level",
+                name_ar="درجة الحموضة",
+                weight=0.20,
+                score=ph_score,
+                impact="negative" if ph_score > 30 else "neutral",
+                description=f"pH: {soil.ph_level}",
+                description_ar=f"درجة الحموضة: {soil.ph_level}",
+                data_source="soil_analysis",
+            )
+        )
 
         # Erosion risk
         erosion_scores = {"low": 20, "medium": 50, "high": 80}
         erosion_score = erosion_scores.get(soil.erosion_risk, 50)
-        factors.append(RiskFactor(
-            factor_type="soil",
-            name="Erosion Risk",
-            name_ar="خطر التعرية",
-            weight=0.25,
-            score=erosion_score,
-            impact="negative" if erosion_score > 50 else "neutral",
-            description=f"Erosion risk: {soil.erosion_risk}",
-            description_ar=f"خطر التعرية: {soil.erosion_risk}",
-            data_source="soil_analysis",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="soil",
+                name="Erosion Risk",
+                name_ar="خطر التعرية",
+                weight=0.25,
+                score=erosion_score,
+                impact="negative" if erosion_score > 50 else "neutral",
+                description=f"Erosion risk: {soil.erosion_risk}",
+                description_ar=f"خطر التعرية: {soil.erosion_risk}",
+                data_source="soil_analysis",
+            )
+        )
 
         return factors
 
@@ -949,48 +977,54 @@ class RiskAssessmentEngine:
         # Distance from coast (approximation)
         # Higher risk for coastal areas due to saltwater intrusion, storms
         coastal_risk = 30  # Default medium risk
-        factors.append(RiskFactor(
-            factor_type="location",
-            name="Coastal Proximity",
-            name_ar="القرب من الساحل",
-            weight=0.30,
-            score=coastal_risk,
-            impact="neutral",
-            description="Distance from coastal areas",
-            description_ar="المسافة من المناطق الساحلية",
-            data_source="location",
-            confidence=0.6,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="location",
+                name="Coastal Proximity",
+                name_ar="القرب من الساحل",
+                weight=0.30,
+                score=coastal_risk,
+                impact="neutral",
+                description="Distance from coastal areas",
+                description_ar="المسافة من المناطق الساحلية",
+                data_source="location",
+                confidence=0.6,
+            )
+        )
 
         # Elevation risk (flood vs frost)
         elevation_risk = 35  # Default
-        factors.append(RiskFactor(
-            factor_type="location",
-            name="Elevation",
-            name_ar="الارتفاع",
-            weight=0.25,
-            score=elevation_risk,
-            impact="neutral",
-            description="Elevation-based risk factors",
-            description_ar="عوامل المخاطر القائمة على الارتفاع",
-            data_source="location",
-            confidence=0.5,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="location",
+                name="Elevation",
+                name_ar="الارتفاع",
+                weight=0.25,
+                score=elevation_risk,
+                impact="neutral",
+                description="Elevation-based risk factors",
+                description_ar="عوامل المخاطر القائمة على الارتفاع",
+                data_source="location",
+                confidence=0.5,
+            )
+        )
 
         # Regional agricultural zone
         agri_zone_risk = 40  # Default
-        factors.append(RiskFactor(
-            factor_type="location",
-            name="Agricultural Zone",
-            name_ar="المنطقة الزراعية",
-            weight=0.45,
-            score=agri_zone_risk,
-            impact="neutral",
-            description=f"Location: {latitude:.4f}, {longitude:.4f}",
-            description_ar=f"الموقع: {latitude:.4f}، {longitude:.4f}",
-            data_source="location",
-            confidence=0.7,
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="location",
+                name="Agricultural Zone",
+                name_ar="المنطقة الزراعية",
+                weight=0.45,
+                score=agri_zone_risk,
+                impact="neutral",
+                description=f"Location: {latitude:.4f}, {longitude:.4f}",
+                description_ar=f"الموقع: {latitude:.4f}، {longitude:.4f}",
+                data_source="location",
+                confidence=0.7,
+            )
+        )
 
         return factors
 
@@ -1000,50 +1034,56 @@ class RiskAssessmentEngine:
 
         # Base loss rate risk
         loss_rate_score = min(crop.base_loss_rate * 500, 100)  # 20% base = 100 score
-        factors.append(RiskFactor(
-            factor_type="crop",
-            name="Base Loss Rate",
-            name_ar="معدل الخسارة الأساسي",
-            weight=0.35,
-            score=loss_rate_score,
-            impact="negative" if loss_rate_score > 30 else "neutral",
-            description=f"Historical loss rate: {crop.base_loss_rate:.1%}",
-            description_ar=f"معدل الخسارة التاريخي: {crop.base_loss_rate:.1%}",
-            data_source="crop_profile",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="crop",
+                name="Base Loss Rate",
+                name_ar="معدل الخسارة الأساسي",
+                weight=0.35,
+                score=loss_rate_score,
+                impact="negative" if loss_rate_score > 30 else "neutral",
+                description=f"Historical loss rate: {crop.base_loss_rate:.1%}",
+                description_ar=f"معدل الخسارة التاريخي: {crop.base_loss_rate:.1%}",
+                data_source="crop_profile",
+            )
+        )
 
         # Yield volatility risk
         volatility_score = min(crop.yield_volatility * 200, 100)  # 50% CV = 100 score
-        factors.append(RiskFactor(
-            factor_type="crop",
-            name="Yield Volatility",
-            name_ar="تقلب الإنتاجية",
-            weight=0.30,
-            score=volatility_score,
-            impact="negative" if volatility_score > 40 else "neutral",
-            description=f"Yield coefficient of variation: {crop.yield_volatility:.1%}",
-            description_ar=f"معامل تغير الإنتاجية: {crop.yield_volatility:.1%}",
-            data_source="crop_profile",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="crop",
+                name="Yield Volatility",
+                name_ar="تقلب الإنتاجية",
+                weight=0.30,
+                score=volatility_score,
+                impact="negative" if volatility_score > 40 else "neutral",
+                description=f"Yield coefficient of variation: {crop.yield_volatility:.1%}",
+                description_ar=f"معامل تغير الإنتاجية: {crop.yield_volatility:.1%}",
+                data_source="crop_profile",
+            )
+        )
 
         # Combined vulnerability score
         avg_vulnerability = (
-            crop.drought_vulnerability +
-            crop.flood_vulnerability +
-            crop.pest_vulnerability +
-            crop.disease_vulnerability
+            crop.drought_vulnerability
+            + crop.flood_vulnerability
+            + crop.pest_vulnerability
+            + crop.disease_vulnerability
         ) / 4
-        factors.append(RiskFactor(
-            factor_type="crop",
-            name="Overall Vulnerability",
-            name_ar="الهشاشة الإجمالية",
-            weight=0.35,
-            score=avg_vulnerability,
-            impact="negative" if avg_vulnerability > 50 else "neutral",
-            description=f"Average vulnerability score: {avg_vulnerability:.0f}/100",
-            description_ar=f"متوسط درجة الهشاشة: {avg_vulnerability:.0f}/100",
-            data_source="crop_profile",
-        ))
+        factors.append(
+            RiskFactor(
+                factor_type="crop",
+                name="Overall Vulnerability",
+                name_ar="الهشاشة الإجمالية",
+                weight=0.35,
+                score=avg_vulnerability,
+                impact="negative" if avg_vulnerability > 50 else "neutral",
+                description=f"Average vulnerability score: {avg_vulnerability:.0f}/100",
+                description_ar=f"متوسط درجة الهشاشة: {avg_vulnerability:.0f}/100",
+                data_source="crop_profile",
+            )
+        )
 
         return factors
 

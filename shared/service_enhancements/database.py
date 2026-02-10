@@ -32,7 +32,7 @@ from __future__ import annotations
 import asyncio
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Callable, Generic, TypeVar
 
@@ -140,12 +140,12 @@ class QueryBuilder:
         self._offset: int | None = None
         self._joins: list[str] = []
 
-    def select(self, *columns: str) -> "QueryBuilder":
+    def select(self, *columns: str) -> QueryBuilder:
         """Set columns to select."""
         self._columns = list(columns) if columns else ["*"]
         return self
 
-    def where(self, condition: str, *params: Any) -> "QueryBuilder":
+    def where(self, condition: str, *params: Any) -> QueryBuilder:
         """Add WHERE condition with parameters."""
         # Adjust parameter numbers based on existing params
         param_offset = len(self._params)
@@ -158,27 +158,27 @@ class QueryBuilder:
         self._params.extend(params)
         return self
 
-    def join(self, join_clause: str) -> "QueryBuilder":
+    def join(self, join_clause: str) -> QueryBuilder:
         """Add JOIN clause."""
         self._joins.append(join_clause)
         return self
 
-    def order_by(self, order: str) -> "QueryBuilder":
+    def order_by(self, order: str) -> QueryBuilder:
         """Set ORDER BY clause."""
         self._order_by = order
         return self
 
-    def limit(self, limit: int) -> "QueryBuilder":
+    def limit(self, limit: int) -> QueryBuilder:
         """Set LIMIT."""
         self._limit = limit
         return self
 
-    def offset(self, offset: int) -> "QueryBuilder":
+    def offset(self, offset: int) -> QueryBuilder:
         """Set OFFSET."""
         self._offset = offset
         return self
 
-    def paginate(self, page: int = 1, size: int = 20) -> "QueryBuilder":
+    def paginate(self, page: int = 1, size: int = 20) -> QueryBuilder:
         """Apply pagination."""
         pagination = PaginatedQuery(page=page, page_size=size)
         self._limit = pagination.limit
@@ -330,6 +330,7 @@ def with_retry(
         async def save_field(pool, field_data):
             ...
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -367,6 +368,7 @@ def with_retry(
             raise last_exception
 
         return wrapper
+
     return decorator
 
 
@@ -432,7 +434,7 @@ async def batch_insert(
         )
 
         sql = f"""
-            INSERT INTO {table} ({', '.join(columns)})
+            INSERT INTO {table} ({", ".join(columns)})
             VALUES {batch_placeholders}
         """
 

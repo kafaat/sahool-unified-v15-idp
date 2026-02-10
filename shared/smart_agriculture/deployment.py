@@ -86,12 +86,14 @@ class SaaSConfig:
 
         tier_features = {
             ServiceTier.BASIC: base_features,
-            ServiceTier.STANDARD: base_features + [
+            ServiceTier.STANDARD: base_features
+            + [
                 "blockchain_trace",
                 "advanced_analytics",
                 "api_access",
             ],
-            ServiceTier.PROFESSIONAL: base_features + [
+            ServiceTier.PROFESSIONAL: base_features
+            + [
                 "blockchain_trace",
                 "advanced_analytics",
                 "api_access",
@@ -99,7 +101,8 @@ class SaaSConfig:
                 "satellite_imagery",
                 "custom_reports",
             ],
-            ServiceTier.ENTERPRISE: base_features + [
+            ServiceTier.ENTERPRISE: base_features
+            + [
                 "blockchain_trace",
                 "advanced_analytics",
                 "api_access",
@@ -579,10 +582,7 @@ class DeploymentManager:
         annual_savings = sum(self._savings_estimates.values()) * area_hectares
 
         # Calculate benefits breakdown
-        benefits = {
-            f"{k}_savings": v * area_hectares
-            for k, v in self._savings_estimates.items()
-        }
+        benefits = {f"{k}_savings": v * area_hectares for k, v in self._savings_estimates.items()}
 
         # Calculate payback period
         net_annual_benefit = annual_savings - annual_costs
@@ -628,32 +628,38 @@ class DeploymentManager:
         lines = ["Smart Agriculture Deployment Summary", "=" * 40]
 
         if self._mode == DeploymentMode.SAAS and self._saas_config:
-            lines.extend([
-                "Mode: SaaS (Cloud)",
-                f"Tier: {self._saas_config.tier.value.title()}",
-                f"Annual Cost: {self._saas_config.annual_cost_yuan:,.0f} yuan/year",
-                f"Max Fields: {self._saas_config.max_fields}",
-                f"Max Sensors: {self._saas_config.max_sensors}",
-                f"Features: {len(self._saas_config.features)}",
-            ])
+            lines.extend(
+                [
+                    "Mode: SaaS (Cloud)",
+                    f"Tier: {self._saas_config.tier.value.title()}",
+                    f"Annual Cost: {self._saas_config.annual_cost_yuan:,.0f} yuan/year",
+                    f"Max Fields: {self._saas_config.max_fields}",
+                    f"Max Sensors: {self._saas_config.max_sensors}",
+                    f"Features: {len(self._saas_config.features)}",
+                ]
+            )
         elif self._mode == DeploymentMode.CUSTOM and self._custom_config:
-            lines.extend([
-                "Mode: Custom (On-Premise)",
-                f"One-time Cost: {self._custom_config.one_time_cost_yuan:,.0f} yuan",
-                f"Hardware Cost: {self._custom_config.hardware_cost_yuan:,.0f} yuan",
-                f"Total Initial: {self._custom_config.total_cost:,.0f} yuan",
-                f"Local Server: {'Yes' if self._custom_config.includes_server else 'No'}",
-                f"Edge Gateway: {'Yes' if self._custom_config.includes_gateway else 'No'}",
-            ])
+            lines.extend(
+                [
+                    "Mode: Custom (On-Premise)",
+                    f"One-time Cost: {self._custom_config.one_time_cost_yuan:,.0f} yuan",
+                    f"Hardware Cost: {self._custom_config.hardware_cost_yuan:,.0f} yuan",
+                    f"Total Initial: {self._custom_config.total_cost:,.0f} yuan",
+                    f"Local Server: {'Yes' if self._custom_config.includes_server else 'No'}",
+                    f"Edge Gateway: {'Yes' if self._custom_config.includes_gateway else 'No'}",
+                ]
+            )
 
         if self._maintenance_plan:
-            lines.extend([
-                "",
-                "Maintenance Plan:",
-                f"  Annual Cost: {self._maintenance_plan.annual_cost_yuan:,.0f} yuan/year",
-                f"  Updates: {'Included' if self._maintenance_plan.includes_updates else 'Not included'}",
-                f"  Support: {'Included' if self._maintenance_plan.includes_support else 'Not included'}",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "Maintenance Plan:",
+                    f"  Annual Cost: {self._maintenance_plan.annual_cost_yuan:,.0f} yuan/year",
+                    f"  Updates: {'Included' if self._maintenance_plan.includes_updates else 'Not included'}",
+                    f"  Support: {'Included' if self._maintenance_plan.includes_support else 'Not included'}",
+                ]
+            )
 
         return "\n".join(lines)
 
@@ -662,27 +668,33 @@ class DeploymentManager:
         lines = ["ملخص نشر الزراعة الذكية", "=" * 40]
 
         if self._mode == DeploymentMode.SAAS and self._saas_config:
-            lines.extend([
-                "الوضع: SaaS (سحابي)",
-                f"الطبقة: {self._saas_config.tier.value}",
-                f"التكلفة السنوية: {self._saas_config.annual_cost_yuan:,.0f} يوان/سنة",
-                f"الحد الأقصى للحقول: {self._saas_config.max_fields}",
-                f"الحد الأقصى للمستشعرات: {self._saas_config.max_sensors}",
-            ])
+            lines.extend(
+                [
+                    "الوضع: SaaS (سحابي)",
+                    f"الطبقة: {self._saas_config.tier.value}",
+                    f"التكلفة السنوية: {self._saas_config.annual_cost_yuan:,.0f} يوان/سنة",
+                    f"الحد الأقصى للحقول: {self._saas_config.max_fields}",
+                    f"الحد الأقصى للمستشعرات: {self._saas_config.max_sensors}",
+                ]
+            )
         elif self._mode == DeploymentMode.CUSTOM and self._custom_config:
-            lines.extend([
-                "الوضع: مخصص (محلي)",
-                f"تكلفة لمرة واحدة: {self._custom_config.one_time_cost_yuan:,.0f} يوان",
-                f"تكلفة الأجهزة: {self._custom_config.hardware_cost_yuan:,.0f} يوان",
-                f"الإجمالي الأولي: {self._custom_config.total_cost:,.0f} يوان",
-            ])
+            lines.extend(
+                [
+                    "الوضع: مخصص (محلي)",
+                    f"تكلفة لمرة واحدة: {self._custom_config.one_time_cost_yuan:,.0f} يوان",
+                    f"تكلفة الأجهزة: {self._custom_config.hardware_cost_yuan:,.0f} يوان",
+                    f"الإجمالي الأولي: {self._custom_config.total_cost:,.0f} يوان",
+                ]
+            )
 
         if self._maintenance_plan:
-            lines.extend([
-                "",
-                "خطة الصيانة:",
-                f"  التكلفة السنوية: {self._maintenance_plan.annual_cost_yuan:,.0f} يوان/سنة",
-            ])
+            lines.extend(
+                [
+                    "",
+                    "خطة الصيانة:",
+                    f"  التكلفة السنوية: {self._maintenance_plan.annual_cost_yuan:,.0f} يوان/سنة",
+                ]
+            )
 
         return "\n".join(lines)
 

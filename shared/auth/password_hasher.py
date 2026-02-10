@@ -15,7 +15,7 @@ import hashlib
 import hmac
 import logging
 import secrets
-from enum import Enum
+from enum import Enum, StrEnum
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +42,7 @@ except ImportError:
     logger.warning("bcrypt not available")
 
 
-class HashAlgorithm(str, Enum):
+class HashAlgorithm(StrEnum):
     """Supported password hashing algorithms"""
 
     ARGON2ID = "argon2id"

@@ -11,14 +11,14 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Health check status values"""
 
     HEALTHY = "healthy"

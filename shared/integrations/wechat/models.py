@@ -13,7 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, ConfigDict
@@ -23,11 +23,13 @@ from pydantic import BaseModel, Field, ConfigDict
 # Enums
 # =============================================================================
 
-class MessageType(str, Enum):
+
+class MessageType(StrEnum):
     """
     WeChat message types.
     أنواع رسائل WeChat
     """
+
     TEXT = "text"
     IMAGE = "image"
     VOICE = "voice"
@@ -40,64 +42,70 @@ class MessageType(str, Enum):
     RECALLED = "recalled"
 
 
-class MessageDirection(str, Enum):
+class MessageDirection(StrEnum):
     """
     Message direction.
     اتجاه الرسالة
     """
+
     INCOMING = "incoming"
     OUTGOING = "outgoing"
 
 
-class ContactType(str, Enum):
+class ContactType(StrEnum):
     """
     Contact types.
     أنواع جهات الاتصال
     """
+
     INDIVIDUAL = "individual"
     GROUP = "group"
     OFFICIAL_ACCOUNT = "official_account"
     MINI_PROGRAM = "mini_program"
 
 
-class MomentVisibility(str, Enum):
+class MomentVisibility(StrEnum):
     """
     Moment visibility settings.
     إعدادات رؤية اللحظات
     """
+
     PUBLIC = "public"
     FRIENDS_ONLY = "friends_only"
     PRIVATE = "private"
     SELECTED_FRIENDS = "selected_friends"
 
 
-class SentimentType(str, Enum):
+class SentimentType(StrEnum):
     """
     Sentiment analysis result.
     نتيجة تحليل المشاعر
     """
+
     POSITIVE = "positive"
     NEGATIVE = "negative"
     NEUTRAL = "neutral"
     MIXED = "mixed"
 
 
-class PriorityLevel(str, Enum):
+class PriorityLevel(StrEnum):
     """
     Message priority level.
     مستوى أولوية الرسالة
     """
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
 
-class TopicCategory(str, Enum):
+class TopicCategory(StrEnum):
     """
     Agricultural topic categories.
     فئات الموضوعات الزراعية
     """
+
     IRRIGATION = "irrigation"
     FERTILIZER = "fertilizer"
     PEST_DISEASE = "pest_disease"
@@ -109,11 +117,12 @@ class TopicCategory(str, Enum):
     URGENT = "urgent"
 
 
-class AgentType(str, Enum):
+class AgentType(StrEnum):
     """
     WeChat agent types.
     أنواع وكلاء WeChat
     """
+
     CHAT_SUMMARIZER = "chat_summarizer"
     AUTO_REPLIER = "auto_replier"
     MESSAGE_SEARCHER = "message_searcher"
@@ -125,11 +134,13 @@ class AgentType(str, Enum):
 # Base Models
 # =============================================================================
 
+
 class BilingualText(BaseModel):
     """
     Bilingual text content.
     محتوى نص ثنائي اللغة
     """
+
     model_config = ConfigDict(extra="allow")
 
     en: str = ""
@@ -150,6 +161,7 @@ class Location(BaseModel):
     Geographic location.
     الموقع الجغرافي
     """
+
     latitude: float
     longitude: float
     name: str | None = None
@@ -163,6 +175,7 @@ class Attachment(BaseModel):
     Message attachment.
     مرفق الرسالة
     """
+
     model_config = ConfigDict(extra="allow")
 
     type: str
@@ -181,6 +194,7 @@ class Attachment(BaseModel):
 # Contact Models
 # =============================================================================
 
+
 class WeChatContact(BaseModel):
     """
     WeChat contact model.
@@ -188,6 +202,7 @@ class WeChatContact(BaseModel):
 
     Represents a WeChat contact (individual or group).
     """
+
     model_config = ConfigDict(extra="allow")
 
     id: str = Field(..., description="Unique contact identifier | معرف جهة الاتصال الفريد")
@@ -244,6 +259,7 @@ class WeChatGroup(BaseModel):
     WeChat group model.
     نموذج مجموعة WeChat
     """
+
     model_config = ConfigDict(extra="allow")
 
     id: str
@@ -275,6 +291,7 @@ class WeChatGroup(BaseModel):
 # Message Models
 # =============================================================================
 
+
 class WeChatMessage(BaseModel):
     """
     WeChat message model.
@@ -282,6 +299,7 @@ class WeChatMessage(BaseModel):
 
     Represents a single message in WeChat.
     """
+
     model_config = ConfigDict(extra="allow")
 
     id: str = Field(..., description="Unique message ID | معرف الرسالة الفريد")
@@ -336,9 +354,9 @@ class WeChatMessage(BaseModel):
     def is_urgent(self) -> bool:
         """Check if message is urgent."""
         return (
-            self.priority == PriorityLevel.CRITICAL or
-            self.priority == PriorityLevel.HIGH or
-            TopicCategory.URGENT in self.topics
+            self.priority == PriorityLevel.CRITICAL
+            or self.priority == PriorityLevel.HIGH
+            or TopicCategory.URGENT in self.topics
         )
 
 
@@ -347,6 +365,7 @@ class WeChatMoment(BaseModel):
     WeChat Moments (朋友圈) post model.
     نموذج منشور لحظات WeChat
     """
+
     model_config = ConfigDict(extra="allow")
 
     id: str
@@ -386,11 +405,13 @@ class WeChatMoment(BaseModel):
 # Analysis Models
 # =============================================================================
 
+
 class MessageAnalysis(BaseModel):
     """
     Single message analysis result.
     نتيجة تحليل رسالة واحدة
     """
+
     message_id: str
     sentiment: SentimentType
     sentiment_score: float = Field(ge=-1.0, le=1.0)
@@ -411,6 +432,7 @@ class ChatSummary(BaseModel):
 
     Generated by ChatSummarizerAgent.
     """
+
     model_config = ConfigDict(extra="allow")
 
     chat_id: str
@@ -461,6 +483,7 @@ class ChatInsight(BaseModel):
 
     Generated by ChatInsightsAgent.
     """
+
     model_config = ConfigDict(extra="allow")
 
     chat_id: str
@@ -508,6 +531,7 @@ class MultiChatStatus(BaseModel):
 
     Generated by MultiChatCheckerAgent.
     """
+
     model_config = ConfigDict(extra="allow")
 
     # Overall stats
@@ -542,6 +566,7 @@ class SearchResult(BaseModel):
 
     Returned by MessageSearcherAgent.
     """
+
     model_config = ConfigDict(extra="allow")
 
     query: str
@@ -566,6 +591,7 @@ class SearchResult(BaseModel):
 # Agent Response Models
 # =============================================================================
 
+
 class AgentResponse(BaseModel):
     """
     Generic agent response model.
@@ -573,6 +599,7 @@ class AgentResponse(BaseModel):
 
     Used by all WeChat agents to return results.
     """
+
     model_config = ConfigDict(extra="allow")
 
     agent_type: AgentType
@@ -606,6 +633,7 @@ class AutoReplyResponse(AgentResponse):
     Auto-reply agent response.
     استجابة وكيل الرد التلقائي
     """
+
     agent_type: AgentType = AgentType.AUTO_REPLIER
 
     # Reply content
@@ -631,6 +659,7 @@ class SummaryResponse(AgentResponse):
     Summary agent response.
     استجابة وكيل الملخص
     """
+
     agent_type: AgentType = AgentType.CHAT_SUMMARIZER
 
     summary: ChatSummary | None = None
@@ -642,6 +671,7 @@ class InsightsResponse(AgentResponse):
     Insights agent response.
     استجابة وكيل الرؤى
     """
+
     agent_type: AgentType = AgentType.CHAT_INSIGHTS
 
     insight: ChatInsight | None = None
@@ -652,11 +682,13 @@ class InsightsResponse(AgentResponse):
 # Request Models
 # =============================================================================
 
+
 class FetchMessagesRequest(BaseModel):
     """
     Request to fetch messages.
     طلب جلب الرسائل
     """
+
     chat_id: str
     limit: int = Field(default=50, ge=1, le=500)
     offset: int = Field(default=0, ge=0)
@@ -671,6 +703,7 @@ class SendMessageRequest(BaseModel):
     Request to send a message.
     طلب إرسال رسالة
     """
+
     chat_id: str
     content: str
     content_ar: str | None = None
@@ -686,6 +719,7 @@ class SearchMessagesRequest(BaseModel):
     Request to search messages.
     طلب البحث في الرسائل
     """
+
     query: str
     chat_ids: list[str] | None = None
     contact_ids: list[str] | None = None
@@ -703,6 +737,7 @@ class PublishMomentRequest(BaseModel):
     Request to publish a moment.
     طلب نشر لحظة
     """
+
     content: str
     content_ar: str | None = None
     images: list[str] = Field(default_factory=list)

@@ -28,7 +28,6 @@ import time
 from dataclasses import dataclass
 
 
-
 from datetime import datetime, timezone, UTC
 
 from typing import Any
@@ -424,9 +423,7 @@ def calculate_vegetation_indices(band_data: dict[str, BandData]) -> VegetationIn
     )
 
 
-def save_processed_image(
-    field_id: str, indices: VegetationIndices, output_format: str
-) -> str:
+def save_processed_image(field_id: str, indices: VegetationIndices, output_format: str) -> str:
     """
     حفظ الصورة المعالجة
     Save processed image
@@ -492,7 +489,9 @@ def process_satellite_image(payload: dict[str, Any]) -> ProcessingResult:
 
         # Check cloud coverage threshold
         if cloud_coverage > MAX_CLOUD_COVERAGE_PERCENT:
-            logger.warning(f"High cloud coverage ({cloud_coverage:.1f}%) - results may be unreliable")
+            logger.warning(
+                f"High cloud coverage ({cloud_coverage:.1f}%) - results may be unreliable"
+            )
 
         # Step 4: Crop to field boundary - قص حسب حدود الحقل
         logger.info("Step 4: Cropping to field boundary")
@@ -629,9 +628,7 @@ def handle_satellite_image_processing(payload: dict[str, Any]) -> dict[str, Any]
             "processing_time": processing_result.processing_duration_sec,
             "status": "success",
             "vegetation_indices": (
-                processing_result.indices.to_dict()
-                if processing_result.indices
-                else None
+                processing_result.indices.to_dict() if processing_result.indices else None
             ),
         }
 

@@ -747,7 +747,7 @@ class BoundingBoxModel(TerrainValidatedModel):
         return v
 
     @model_validator(mode="after")
-    def validate_box_order(self) -> "BoundingBoxModel":
+    def validate_box_order(self) -> BoundingBoxModel:
         if self.max_lon <= self.min_lon:
             raise ValueError("max_lon must be greater than min_lon")
         if self.max_lat <= self.min_lat:

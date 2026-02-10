@@ -73,7 +73,9 @@ class NATSPublisher:
             self._connected = False
             logger.info("NATS connection closed")
 
-    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] | None = None) -> bool:
+    async def publish_alert(
+        self, alert: dict[str, Any], recipients: list[str] | None = None
+    ) -> bool:
         """
         Publish an alert notification to NATS
 

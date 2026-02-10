@@ -23,24 +23,26 @@ Updated: January 2026
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class GPUGeneration(str, Enum):
+class GPUGeneration(StrEnum):
     """NVIDIA GPU generation."""
+
     UNKNOWN = "unknown"
-    VOLTA = "volta"       # SM70 - First Tensor Cores
-    TURING = "turing"     # SM75
-    AMPERE = "ampere"     # SM80 - cp.async
-    ADA = "ada"           # SM89
-    HOPPER = "hopper"     # SM90 - TMA, WGMMA
+    VOLTA = "volta"  # SM70 - First Tensor Cores
+    TURING = "turing"  # SM75
+    AMPERE = "ampere"  # SM80 - cp.async
+    ADA = "ada"  # SM89
+    HOPPER = "hopper"  # SM90 - TMA, WGMMA
     BLACKWELL = "blackwell"  # SM100 - TMEM
-    RUBIN = "rubin"       # SM110 (predicted)
+    RUBIN = "rubin"  # SM110 (predicted)
 
 
-class DeviceType(str, Enum):
+class DeviceType(StrEnum):
     """Compute device type."""
+
     CPU = "cpu"
     CUDA = "cuda"
     MPS = "mps"  # Apple Silicon
@@ -55,6 +57,7 @@ class HardwareProfile:
 
     ملف تعريف قدرات الأجهزة المكتشفة
     """
+
     device_type: DeviceType = DeviceType.CPU
     device_name: str = "CPU"
 
@@ -114,6 +117,7 @@ class InferenceConfig:
         gradient_checkpointing: Trade compute for memory
         compile_model: Use torch.compile for optimization
     """
+
     # Precision
     precision: str = "bf16"  # bf16, fp16, fp32, int8
 
@@ -162,6 +166,7 @@ class InferenceStats:
 
     إحصائيات تشغيل الاستدلال
     """
+
     total_tokens: int = 0
     total_time_ms: float = 0.0
     tokens_per_second: float = 0.0
@@ -219,6 +224,7 @@ class HardwareDetector:
         # Try CUDA first
         try:
             import torch
+
             if torch.cuda.is_available():
                 return cls._detect_cuda()
         except ImportError:
@@ -227,7 +233,8 @@ class HardwareDetector:
         # Try Apple Silicon
         try:
             import torch
-            if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+
+            if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
                 return cls._detect_mps()
         except ImportError:
             pass
@@ -270,7 +277,7 @@ class HardwareDetector:
             gpu_generation=generation,
             compute_capability=cc,
             sm_count=props.multi_processor_count,
-            total_memory_gb=props.total_memory / (1024 ** 3),
+            total_memory_gb=props.total_memory / (1024**3),
             tensor_cores=tensor_cores,
             supports_bf16=supports_bf16,
             supports_fp16=supports_fp16,
@@ -420,32 +427,33 @@ class HardwareAwareOptimizer:
             Optimized model
         """
         # Check if model has optimization methods
-        if hasattr(model, 'half') and self.config.precision == "fp16":
+        if hasattr(model, "half") and self.config.precision == "fp16":
             model = model.half()
-        elif hasattr(model, 'bfloat16') and self.config.precision == "bf16":
+        elif hasattr(model, "bfloat16") and self.config.precision == "bf16":
             model = model.bfloat16()
 
         # Enable Flash Attention if supported
-        if self.config.flash_attention and hasattr(model, 'enable_flash_attention'):
+        if self.config.flash_attention and hasattr(model, "enable_flash_attention"):
             model.enable_flash_attention()
 
         # Set attention chunk size
-        if hasattr(model, 'set_attention_chunk_size'):
+        if hasattr(model, "set_attention_chunk_size"):
             model.set_attention_chunk_size(self.config.attention_chunk_size)
 
         # Enable KV cache quantization
-        if self.config.kv_cache_quantization and hasattr(model, 'enable_kv_cache_quantization'):
+        if self.config.kv_cache_quantization and hasattr(model, "enable_kv_cache_quantization"):
             model.enable_kv_cache_quantization()
 
         # Enable gradient checkpointing
-        if self.config.gradient_checkpointing and hasattr(model, 'gradient_checkpointing_enable'):
+        if self.config.gradient_checkpointing and hasattr(model, "gradient_checkpointing_enable"):
             model.gradient_checkpointing_enable()
 
         # Compile model with torch.compile
         if self.config.compile_model:
             try:
                 import torch
-                if hasattr(torch, 'compile'):
+
+                if hasattr(torch, "compile"):
                     model = torch.compile(
                         model,
                         mode=self.config.compile_mode,
@@ -514,12 +522,14 @@ class HardwareAwareOptimizer:
             Tuple of (outputs, stats)
         """
         import time
+
         start_time = time.time()
 
         # Track memory
         peak_memory = 0.0
         try:
             import torch
+
             if torch.cuda.is_available():
                 torch.cuda.reset_peak_memory_stats()
         except ImportError:
@@ -547,8 +557,9 @@ class HardwareAwareOptimizer:
         # Get peak memory
         try:
             import torch
+
             if torch.cuda.is_available():
-                peak_memory = torch.cuda.max_memory_allocated() / (1024 ** 3)
+                peak_memory = torch.cuda.max_memory_allocated() / (1024**3)
         except ImportError:
             pass
 
@@ -580,7 +591,8 @@ class HardwareAwareOptimizer:
             "total_tokens": total_tokens,
             "total_time_ms": total_time,
             "avg_tokens_per_second": total_tokens / (total_time / 1000) if total_time > 0 else 0,
-            "avg_peak_memory_gb": sum(s.peak_memory_gb for s in self._stats_history) / len(self._stats_history),
+            "avg_peak_memory_gb": sum(s.peak_memory_gb for s in self._stats_history)
+            / len(self._stats_history),
         }
 
     def get_hardware_recommendations(self) -> list[dict[str, str]]:
@@ -595,52 +607,64 @@ class HardwareAwareOptimizer:
 
         # Tensor Core recommendations
         if self.profile.tensor_cores and not self.config.use_tensor_cores:
-            recommendations.append({
-                "type": "performance",
-                "message": "Enable Tensor Cores for faster matrix operations",
-                "message_ar": "تمكين نوى التنسور لعمليات المصفوفات الأسرع",
-            })
+            recommendations.append(
+                {
+                    "type": "performance",
+                    "message": "Enable Tensor Cores for faster matrix operations",
+                    "message_ar": "تمكين نوى التنسور لعمليات المصفوفات الأسرع",
+                }
+            )
 
         # Flash Attention
         if self.profile.supports_flash_attention and not self.config.flash_attention:
-            recommendations.append({
-                "type": "memory",
-                "message": "Enable Flash Attention for memory efficiency and speed",
-                "message_ar": "تمكين Flash Attention لكفاءة الذاكرة والسرعة",
-            })
+            recommendations.append(
+                {
+                    "type": "memory",
+                    "message": "Enable Flash Attention for memory efficiency and speed",
+                    "message_ar": "تمكين Flash Attention لكفاءة الذاكرة والسرعة",
+                }
+            )
 
         # Precision recommendations
         if self.profile.supports_bf16 and self.config.precision != "bf16":
-            recommendations.append({
-                "type": "precision",
-                "message": "Use BF16 precision for better training stability with same speed",
-                "message_ar": "استخدم دقة BF16 لثبات تدريب أفضل بنفس السرعة",
-            })
+            recommendations.append(
+                {
+                    "type": "precision",
+                    "message": "Use BF16 precision for better training stability with same speed",
+                    "message_ar": "استخدم دقة BF16 لثبات تدريب أفضل بنفس السرعة",
+                }
+            )
 
         # SFU bottleneck warning (Blackwell)
         if self.profile.gpu_generation == GPUGeneration.BLACKWELL:
-            recommendations.append({
-                "type": "attention",
-                "message": "Blackwell has SFU bottleneck in Softmax - use larger attention chunks",
-                "message_ar": "Blackwell لديه عنق زجاجة SFU في Softmax - استخدم قطع انتباه أكبر",
-                "source": "Zartbot GPU Analysis",
-            })
+            recommendations.append(
+                {
+                    "type": "attention",
+                    "message": "Blackwell has SFU bottleneck in Softmax - use larger attention chunks",
+                    "message_ar": "Blackwell لديه عنق زجاجة SFU في Softmax - استخدم قطع انتباه أكبر",
+                    "source": "Zartbot GPU Analysis",
+                }
+            )
 
         # TMA recommendation (Hopper+)
         if self.profile.supports_tma:
-            recommendations.append({
-                "type": "memory",
-                "message": "TMA available - use Tensor Memory operations for async data loading",
-                "message_ar": "TMA متاح - استخدم عمليات ذاكرة التنسور للتحميل غير المتزامن",
-            })
+            recommendations.append(
+                {
+                    "type": "memory",
+                    "message": "TMA available - use Tensor Memory operations for async data loading",
+                    "message_ar": "TMA متاح - استخدم عمليات ذاكرة التنسور للتحميل غير المتزامن",
+                }
+            )
 
         # Memory recommendations
         if self.profile.total_memory_gb < 16:
-            recommendations.append({
-                "type": "memory",
-                "message": "Limited GPU memory - enable gradient checkpointing and KV cache quantization",
-                "message_ar": "ذاكرة GPU محدودة - مكّن نقاط تفتيش التدرج وتكميم ذاكرة KV",
-            })
+            recommendations.append(
+                {
+                    "type": "memory",
+                    "message": "Limited GPU memory - enable gradient checkpointing and KV cache quantization",
+                    "message_ar": "ذاكرة GPU محدودة - مكّن نقاط تفتيش التدرج وتكميم ذاكرة KV",
+                }
+            )
 
         return recommendations
 

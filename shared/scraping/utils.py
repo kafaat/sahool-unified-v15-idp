@@ -529,9 +529,7 @@ def detect_language(text: str) -> str:
         return "en"
 
     # Count Arabic vs Latin characters
-    arabic_count = len(
-        re.findall(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]", text)
-    )
+    arabic_count = len(re.findall(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]", text))
     latin_count = len(re.findall(r"[a-zA-Z]", text))
 
     return "ar" if arabic_count > latin_count else "en"

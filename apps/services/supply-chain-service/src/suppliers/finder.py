@@ -64,9 +64,7 @@ class SupplierFinder:
         ]
 
     @staticmethod
-    def _haversine_distance(
-        lat1: float, lon1: float, lat2: float, lon2: float
-    ) -> float:
+    def _haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         """Calculate distance between two points in kilometers."""
         R = 6371  # Earth's radius in kilometers
 
@@ -113,8 +111,7 @@ class SupplierFinder:
         if latitude is not None and longitude is not None:
             for supplier in suppliers:
                 supplier["distance_km"] = self._haversine_distance(
-                    latitude, longitude,
-                    supplier["latitude"], supplier["longitude"]
+                    latitude, longitude, supplier["latitude"], supplier["longitude"]
                 )
             suppliers.sort(key=lambda s: s["distance_km"])
 
@@ -146,8 +143,7 @@ class SupplierFinder:
         nearby = []
         for supplier in self._mock_suppliers:
             distance = self._haversine_distance(
-                latitude, longitude,
-                supplier["latitude"], supplier["longitude"]
+                latitude, longitude, supplier["latitude"], supplier["longitude"]
             )
             if distance <= radius_km:
                 supplier_copy = supplier.copy()
@@ -193,15 +189,17 @@ class SupplierFinder:
             unit_price = round(base_price * supplier["price_modifier"], 2)
             total_price = round(unit_price * quantity, 2)
 
-            comparisons.append({
-                "supplier_id": supplier["id"],
-                "supplier_name": supplier["name"],
-                "supplier_name_ar": supplier["name_ar"],
-                "unit_price": unit_price,
-                "total_price": total_price,
-                "delivery_days": supplier["delivery_days"],
-                "rating": supplier["rating"],
-            })
+            comparisons.append(
+                {
+                    "supplier_id": supplier["id"],
+                    "supplier_name": supplier["name"],
+                    "supplier_name_ar": supplier["name_ar"],
+                    "unit_price": unit_price,
+                    "total_price": total_price,
+                    "delivery_days": supplier["delivery_days"],
+                    "rating": supplier["rating"],
+                }
+            )
 
         # Sort by total price
         comparisons.sort(key=lambda c: c["total_price"])
@@ -276,16 +274,18 @@ class SupplierFinder:
             unit_price = round(base_price * supplier["price_modifier"], 2)
             total_price = round(unit_price * quantity, 2)
 
-            quotes.append({
-                "supplier_id": supplier["id"],
-                "supplier_name": supplier["name"],
-                "supplier_name_ar": supplier["name_ar"],
-                "unit_price": unit_price,
-                "total_price": total_price,
-                "delivery_days": supplier["delivery_days"],
-                "availability": random.choice(["in_stock", "limited", "in_stock"]),
-                "rating": supplier["rating"],
-            })
+            quotes.append(
+                {
+                    "supplier_id": supplier["id"],
+                    "supplier_name": supplier["name"],
+                    "supplier_name_ar": supplier["name_ar"],
+                    "unit_price": unit_price,
+                    "total_price": total_price,
+                    "delivery_days": supplier["delivery_days"],
+                    "availability": random.choice(["in_stock", "limited", "in_stock"]),
+                    "rating": supplier["rating"],
+                }
+            )
 
         return quotes
 

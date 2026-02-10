@@ -7,7 +7,7 @@ Pydantic models for user activity analytics and metrics
 """
 
 from datetime import date, datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -15,7 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # ============== التعدادات - Enumerations ==============
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """
     أنواع أحداث نشاط المستخدم
     User activity event types
@@ -73,7 +73,7 @@ class EventType(str, Enum):
     FEEDBACK_SUBMITTED = "feedback_submitted"  # إرسال ملاحظات
 
 
-class UserRole(str, Enum):
+class UserRole(StrEnum):
     """
     أدوار المستخدمين
     User roles
@@ -86,7 +86,7 @@ class UserRole(str, Enum):
     RESEARCHER = "researcher"  # باحث
 
 
-class Governorate(str, Enum):
+class Governorate(StrEnum):
     """
     محافظات اليمن
     Yemen governorates
@@ -116,7 +116,7 @@ class Governorate(str, Enum):
     ADAN_ISLAH = "adan_islah"  # عدن الإصلاح
 
 
-class TimePeriod(str, Enum):
+class TimePeriod(StrEnum):
     """
     الفترات الزمنية للتحليل
     Time periods for analysis

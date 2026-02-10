@@ -27,6 +27,7 @@ router = APIRouter(prefix="/analytics", tags=["Notification Analytics | تحلي
 
 class DeliveryStatsResponse(BaseModel):
     """استجابة إحصائيات التسليم"""
+
     time_range: str
     start_time: str
     end_time: str
@@ -42,6 +43,7 @@ class DeliveryStatsResponse(BaseModel):
 
 class ChannelPerformanceResponse(BaseModel):
     """استجابة أداء القنوات"""
+
     time_range: str
     channels: dict[str, Any]
     best_performing_channel: str | None
@@ -50,6 +52,7 @@ class ChannelPerformanceResponse(BaseModel):
 
 class DashboardSummaryResponse(BaseModel):
     """استجابة ملخص لوحة القيادة"""
+
     generated_at: str
     summary: dict[str, Any]
     delivery: dict[str, Any]
@@ -66,8 +69,7 @@ class DashboardSummaryResponse(BaseModel):
 @router.get("/delivery-stats")
 async def get_delivery_statistics(
     time_range: str = Query(
-        default="day",
-        description="Time range: hour, day, week, month, quarter, year"
+        default="day", description="Time range: hour, day, week, month, quarter, year"
     ),
     tenant_id: str | None = Query(default=None, description="Tenant ID filter"),
 ):
@@ -90,7 +92,7 @@ async def get_delivery_statistics(
     except ValueError:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid time_range: {time_range}. Valid values: hour, day, week, month, quarter, year"
+            detail=f"Invalid time_range: {time_range}. Valid values: hour, day, week, month, quarter, year",
         )
     except Exception as e:
         logger.error(f"Error getting delivery stats: {e}")
@@ -392,15 +394,13 @@ async def compare_time_periods(
             "changes": {
                 "total_notifications": calc_change(
                     current_stats.get("total_notifications", 0),
-                    previous_stats.get("total_notifications", 0)
+                    previous_stats.get("total_notifications", 0),
                 ),
                 "delivery_rate": calc_change(
-                    current_stats.get("delivery_rate", 0),
-                    previous_stats.get("delivery_rate", 0)
+                    current_stats.get("delivery_rate", 0), previous_stats.get("delivery_rate", 0)
                 ),
                 "read_rate": calc_change(
-                    current_stats.get("read_rate", 0),
-                    previous_stats.get("read_rate", 0)
+                    current_stats.get("read_rate", 0), previous_stats.get("read_rate", 0)
                 ),
             },
         }

@@ -97,6 +97,7 @@ EVENT_DISPLAY_INFO = {
 @dataclass
 class ChainConfig:
     """Configuration for supply chain tracking - إعدادات تتبع سلسلة التوريد"""
+
     # Temperature thresholds for alerts
     min_temp_threshold_c: float = 0.0
     max_temp_threshold_c: float = 8.0
@@ -853,13 +854,9 @@ class SupplyChainTracker:
         # Compliance issues
         compliance_issues = []
         if temp_excursions > 0:
-            compliance_issues.append(
-                f"Temperature excursion detected {temp_excursions} time(s)"
-            )
+            compliance_issues.append(f"Temperature excursion detected {temp_excursions} time(s)")
         if quality_failed > 0:
-            compliance_issues.append(
-                f"Quality check failed {quality_failed} time(s)"
-            )
+            compliance_issues.append(f"Quality check failed {quality_failed} time(s)")
         if not all_certs_valid:
             compliance_issues.append("One or more certifications are expired")
 

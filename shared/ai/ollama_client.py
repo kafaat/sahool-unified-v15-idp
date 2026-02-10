@@ -23,17 +23,18 @@ import json
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any, AsyncIterator
 
 try:
     import httpx
+
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False
 
 
-class OllamaModel(str, Enum):
+class OllamaModel(StrEnum):
     """Available Ollama models for code tasks."""
 
     CODELLAMA_13B = "codellama:13b"

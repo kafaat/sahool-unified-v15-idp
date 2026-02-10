@@ -60,6 +60,7 @@ async def readiness():
     if settings.redis_url:
         try:
             import redis.asyncio as redis
+
             client = redis.from_url(settings.redis_url)
             await client.ping()
             components["redis"] = True
@@ -70,6 +71,7 @@ async def readiness():
     # Check NATS
     try:
         import nats
+
         nc = await nats.connect(settings.nats_url, connect_timeout=2)
         await nc.close()
         components["nats"] = True
@@ -112,15 +114,15 @@ async def metrics():
 
     metrics_text = f"""# HELP copilot_guard_checks_total Total guard checks
 # TYPE copilot_guard_checks_total counter
-copilot_guard_checks_total {stats['total_checks']}
+copilot_guard_checks_total {stats["total_checks"]}
 
 # HELP copilot_guard_allowed_total Total allowed calls
 # TYPE copilot_guard_allowed_total counter
-copilot_guard_allowed_total {stats['allowed']}
+copilot_guard_allowed_total {stats["allowed"]}
 
 # HELP copilot_guard_blocked_total Total blocked calls
 # TYPE copilot_guard_blocked_total counter
-copilot_guard_blocked_total {stats['blocked']}
+copilot_guard_blocked_total {stats["blocked"]}
 """
 
     return Response(content=metrics_text, media_type="text/plain")

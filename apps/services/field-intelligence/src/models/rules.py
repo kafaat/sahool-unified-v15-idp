@@ -4,13 +4,13 @@ Field automation and event-triggered rules
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class RuleStatus(str, Enum):
+class RuleStatus(StrEnum):
     """حالات القاعدة - Rule Status"""
 
     ACTIVE = "active"  # نشطة
@@ -18,7 +18,7 @@ class RuleStatus(str, Enum):
     PAUSED = "paused"  # متوقفة مؤقتاً
 
 
-class ConditionOperator(str, Enum):
+class ConditionOperator(StrEnum):
     """معاملات الشرط - Condition Operators"""
 
     EQUALS = "equals"  # يساوي
@@ -32,7 +32,7 @@ class ConditionOperator(str, Enum):
     BETWEEN = "between"  # بين
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """أنواع الإجراءات - Action Types"""
 
     CREATE_TASK = "create_task"  # إنشاء مهمة

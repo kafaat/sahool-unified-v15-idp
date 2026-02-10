@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 import uuid
 
@@ -28,15 +28,17 @@ import uuid
 # =============================================================================
 
 
-class CalendarType(str, Enum):
+class CalendarType(StrEnum):
     """Calendar system types"""
+
     GREGORIAN = "gregorian"  # ميلادي
     HIJRI = "hijri"  # هجري
     BOTH = "both"  # كلاهما
 
 
-class Region(str, Enum):
+class Region(StrEnum):
     """Agricultural regions in Saudi Arabia and Yemen"""
+
     # Saudi Arabia regions
     RIYADH = "riyadh"  # الرياض
     QASSIM = "qassim"  # القصيم
@@ -65,8 +67,9 @@ class Region(str, Enum):
     LAHIJ = "lahij"  # لحج
 
 
-class ClimateZone(str, Enum):
+class ClimateZone(StrEnum):
     """Climate zones for agricultural planning"""
+
     ARID_HOT = "arid_hot"  # جاف حار (Central/Eastern Saudi)
     ARID_MILD = "arid_mild"  # جاف معتدل (Northern Saudi)
     SEMI_ARID = "semi_arid"  # شبه جاف
@@ -75,8 +78,9 @@ class ClimateZone(str, Enum):
     COASTAL = "coastal"  # ساحلي (Red Sea, Gulf coasts)
 
 
-class AgriculturalSeason(str, Enum):
+class AgriculturalSeason(StrEnum):
     """Agricultural seasons in the Middle East"""
+
     WINTER = "winter"  # الشتاء (Dec-Feb)
     SPRING = "spring"  # الربيع (Mar-May)
     SUMMER = "summer"  # الصيف (Jun-Aug)
@@ -89,11 +93,12 @@ class AgriculturalSeason(str, Enum):
     RABI = "rabi"  # الربيع - Spring (Mar 21 - Jun 20)
 
 
-class TraditionalSeason(str, Enum):
+class TraditionalSeason(StrEnum):
     """
     Traditional Arab seasons based on Anwa'a (الأنواء)
     Each Naw'a lasts approximately 13 days
     """
+
     # Summer Anwa'a (الصيف)
     THURAYA = "thuraya"  # الثريا (Jun 7)
     DABARAN = "dabaran"  # الدبران (Jun 20)
@@ -131,8 +136,9 @@ class TraditionalSeason(str, Enum):
     BUTAIN = "butain"  # البطين (May 24)
 
 
-class HijriMonth(str, Enum):
+class HijriMonth(StrEnum):
     """Islamic (Hijri) calendar months"""
+
     MUHARRAM = "muharram"  # محرم
     SAFAR = "safar"  # صفر
     RABI_AL_AWWAL = "rabi_al_awwal"  # ربيع الأول
@@ -147,8 +153,9 @@ class HijriMonth(str, Enum):
     DHU_AL_HIJJAH = "dhu_al_hijjah"  # ذو الحجة
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Common crops in Saudi Arabia and Yemen"""
+
     # Cereals - الحبوب
     WHEAT = "wheat"  # قمح
     BARLEY = "barley"  # شعير
@@ -202,8 +209,9 @@ class CropType(str, Enum):
     SUDAN_GRASS = "sudan_grass"  # حشيشة السودان
 
 
-class PlantingEventType(str, Enum):
+class PlantingEventType(StrEnum):
     """Types of agricultural calendar events"""
+
     PLANTING_START = "planting_start"  # بداية الزراعة
     PLANTING_END = "planting_end"  # نهاية الزراعة
     TRANSPLANTING = "transplanting"  # الشتل
@@ -218,8 +226,9 @@ class PlantingEventType(str, Enum):
     WEEDING = "weeding"  # إزالة الأعشاب
 
 
-class EventPriority(str, Enum):
+class EventPriority(StrEnum):
     """Priority level for calendar events"""
+
     CRITICAL = "critical"  # حرج - Must not miss
     HIGH = "high"  # عالي
     MEDIUM = "medium"  # متوسط
@@ -227,8 +236,9 @@ class EventPriority(str, Enum):
     INFORMATIONAL = "informational"  # معلوماتي
 
 
-class RecommendationConfidence(str, Enum):
+class RecommendationConfidence(StrEnum):
     """Confidence level for recommendations"""
+
     HIGH = "high"  # عالية (>85%)
     MEDIUM = "medium"  # متوسطة (60-85%)
     LOW = "low"  # منخفضة (<60%)
@@ -245,6 +255,7 @@ class HijriDate:
     Hijri (Islamic) calendar date
     تاريخ هجري
     """
+
     year: int  # السنة الهجرية
     month: int  # الشهر (1-12)
     day: int  # اليوم (1-30)
@@ -289,6 +300,7 @@ class IslamicEvent:
     Islamic calendar event relevant to agriculture
     حدث في التقويم الإسلامي ذو صلة بالزراعة
     """
+
     event_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Event info
@@ -351,6 +363,7 @@ class TraditionalSeasonInfo:
     Traditional Arabic agricultural season (Naw'a - نوء)
     معلومات الموسم الزراعي التقليدي
     """
+
     season: TraditionalSeason
 
     # Names
@@ -389,7 +402,9 @@ class TraditionalSeasonInfo:
             "season": self.season.value,
             "name_ar": self.name_ar,
             "name_en": self.name_en,
-            "start_date_approx": self.start_date_approx.isoformat() if self.start_date_approx else None,
+            "start_date_approx": self.start_date_approx.isoformat()
+            if self.start_date_approx
+            else None,
             "end_date_approx": self.end_date_approx.isoformat() if self.end_date_approx else None,
             "duration_days": self.duration_days,
             "star_name_ar": self.star_name_ar,
@@ -419,6 +434,7 @@ class SeasonDefinition:
     Agricultural season definition for a specific region
     تعريف الموسم الزراعي لمنطقة محددة
     """
+
     # Required fields (no defaults) - must come first
     season: AgriculturalSeason
     region: Region
@@ -526,6 +542,7 @@ class PlantingWindow:
     Optimal planting window for a crop in a region
     نافذة الزراعة المثلى لمحصول في منطقة
     """
+
     # Required fields (no defaults) - must come first
     crop_type: CropType
     region: Region
@@ -621,7 +638,9 @@ class PlantingWindow:
                 "start_day": self.extended_start_day,
                 "end_month": self.extended_end_month,
                 "end_day": self.extended_end_day,
-            } if self.extended_start_month else None,
+            }
+            if self.extended_start_month
+            else None,
             "maturity": {
                 "days_to_germination": self.days_to_germination,
                 "days_to_maturity_min": self.days_to_maturity_min,
@@ -638,7 +657,9 @@ class PlantingWindow:
                 "max": self.expected_yield_tons_ha_max,
                 "avg": self.expected_yield_tons_ha_avg,
             },
-            "traditional_season": self.traditional_season.value if self.traditional_season else None,
+            "traditional_season": self.traditional_season.value
+            if self.traditional_season
+            else None,
             "traditional_guidance_ar": self.traditional_guidance_ar,
             "confidence": self.confidence.value,
             "notes_ar": self.notes_ar,
@@ -652,6 +673,7 @@ class CalendarEvent:
     Agricultural calendar event
     حدث في التقويم الزراعي
     """
+
     # Required fields (no defaults) - must come first
     event_type: PlantingEventType
 
@@ -743,11 +765,15 @@ class CalendarEvent:
             "description_ar": self.description_ar,
             "date_gregorian": self.date_gregorian.isoformat() if self.date_gregorian else None,
             "date_hijri": self.date_hijri.to_dict() if self.date_hijri else None,
-            "end_date_gregorian": self.end_date_gregorian.isoformat() if self.end_date_gregorian else None,
+            "end_date_gregorian": self.end_date_gregorian.isoformat()
+            if self.end_date_gregorian
+            else None,
             "duration_days": self.duration_days,
             "priority": self.priority.value,
             "priority_icon": self.get_priority_icon(),
-            "traditional_season": self.traditional_season.value if self.traditional_season else None,
+            "traditional_season": self.traditional_season.value
+            if self.traditional_season
+            else None,
             "recommended_actions_en": self.recommended_actions_en,
             "recommended_actions_ar": self.recommended_actions_ar,
             "reminder_days_before": self.reminder_days_before,
@@ -769,6 +795,7 @@ class PlantingRecommendation:
     Planting date recommendation for a specific crop and location
     توصية بتاريخ الزراعة لمحصول ومكان محدد
     """
+
     # Required fields (no defaults) - must come first
     crop_type: CropType
 
@@ -845,12 +872,20 @@ class PlantingRecommendation:
             "crop_variety": self.crop_variety,
             "crop_name_ar": self.crop_name_ar,
             "recommended_planting": {
-                "start": self.recommended_planting_start.isoformat() if self.recommended_planting_start else None,
-                "end": self.recommended_planting_end.isoformat() if self.recommended_planting_end else None,
-                "optimal": self.recommended_planting_optimal.isoformat() if self.recommended_planting_optimal else None,
+                "start": self.recommended_planting_start.isoformat()
+                if self.recommended_planting_start
+                else None,
+                "end": self.recommended_planting_end.isoformat()
+                if self.recommended_planting_end
+                else None,
+                "optimal": self.recommended_planting_optimal.isoformat()
+                if self.recommended_planting_optimal
+                else None,
             },
             "expected_harvest": {
-                "start": self.expected_harvest_start.isoformat() if self.expected_harvest_start else None,
+                "start": self.expected_harvest_start.isoformat()
+                if self.expected_harvest_start
+                else None,
                 "end": self.expected_harvest_end.isoformat() if self.expected_harvest_end else None,
             },
             "alternative_windows": self.alternative_windows,
@@ -860,10 +895,16 @@ class PlantingRecommendation:
             "reasoning_ar": self.reasoning_ar,
             "factors_en": self.factors_en,
             "factors_ar": self.factors_ar,
-            "traditional_season": self.traditional_season.value if self.traditional_season else None,
+            "traditional_season": self.traditional_season.value
+            if self.traditional_season
+            else None,
             "traditional_guidance_ar": self.traditional_guidance_ar,
-            "planting_start_hijri": self.planting_start_hijri.to_dict() if self.planting_start_hijri else None,
-            "planting_end_hijri": self.planting_end_hijri.to_dict() if self.planting_end_hijri else None,
+            "planting_start_hijri": self.planting_start_hijri.to_dict()
+            if self.planting_start_hijri
+            else None,
+            "planting_end_hijri": self.planting_end_hijri.to_dict()
+            if self.planting_end_hijri
+            else None,
             "weather_adjusted": self.weather_adjusted,
             "expected_yield_tons_ha": self.expected_yield_tons_ha,
             "expected_growing_days": self.expected_growing_days,
@@ -881,6 +922,7 @@ class SeasonalCalendar:
     Complete seasonal agricultural calendar for a region
     التقويم الزراعي الموسمي الكامل لمنطقة
     """
+
     # Required fields (no defaults) - must come first
     region: Region
 
@@ -950,7 +992,8 @@ class SeasonalCalendar:
         end_date = today + timedelta(days=days_ahead)
 
         return [
-            e for e in self.upcoming_events
+            e
+            for e in self.upcoming_events
             if e.date_gregorian and today <= e.date_gregorian <= end_date
         ]
 
@@ -965,7 +1008,9 @@ class SeasonalCalendar:
             "year": self.year,
             "seasons": [s.to_dict() for s in self.seasons],
             "current_season": self.current_season.value if self.current_season else None,
-            "current_traditional_season": self.current_traditional_season.value if self.current_traditional_season else None,
+            "current_traditional_season": self.current_traditional_season.value
+            if self.current_traditional_season
+            else None,
             "planting_windows": [w.to_dict() for w in self.planting_windows],
             "upcoming_events": [e.to_dict() for e in self.upcoming_events],
             "islamic_events": [e.to_dict() for e in self.islamic_events],
@@ -992,6 +1037,7 @@ class RegionMetadata:
     Metadata for an agricultural region
     بيانات وصفية لمنطقة زراعية
     """
+
     region: Region
 
     # Names

@@ -148,7 +148,6 @@ __all__ = [
     "CacheConfig",
     "get_wechat_config",
     "reset_config",
-
     # ===== Enums =====
     "MessageType",
     "MessageDirection",
@@ -158,39 +157,32 @@ __all__ = [
     "PriorityLevel",
     "TopicCategory",
     "AgentType",
-
     # ===== Base Models =====
     "BilingualText",
     "Location",
     "Attachment",
-
     # ===== Contact Models =====
     "WeChatContact",
     "WeChatGroup",
-
     # ===== Message Models =====
     "WeChatMessage",
     "WeChatMoment",
-
     # ===== Analysis Models =====
     "MessageAnalysis",
     "ChatSummary",
     "ChatInsight",
     "MultiChatStatus",
     "SearchResult",
-
     # ===== Response Models =====
     "AgentResponse",
     "AutoReplyResponse",
     "SummaryResponse",
     "InsightsResponse",
-
     # ===== Request Models =====
     "FetchMessagesRequest",
     "SendMessageRequest",
     "SearchMessagesRequest",
     "PublishMomentRequest",
-
     # ===== Client =====
     "WeChatMCPClient",
     "WeChatMCPError",
@@ -201,7 +193,6 @@ __all__ = [
     "wechat_client",
     "fetch_recent_messages",
     "send_quick_message",
-
     # ===== Agents =====
     "BaseWeChatAgent",
     "AgentContext",

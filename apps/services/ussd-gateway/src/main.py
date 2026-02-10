@@ -38,9 +38,7 @@ async def lifespan(app: FastAPI):
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url, min_size=2, max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Database connection established")
         except Exception as e:
@@ -59,8 +57,7 @@ async def lifespan(app: FastAPI):
 
             # Subscribe to alert events for SMS forwarding
             await app.state.nc.subscribe(
-                "sahool.*.alert.*",
-                cb=lambda msg: handle_alert_for_sms(app, msg)
+                "sahool.*.alert.*", cb=lambda msg: handle_alert_for_sms(app, msg)
             )
         except Exception as e:
             logger.error(f"NATS connection failed: {e}")
@@ -124,8 +121,18 @@ USSD_MENUS = {
         "title_ar": "معلومات الطقس",
         "options": [
             {"key": "1", "label_en": "Today", "label_ar": "اليوم", "action": "weather_today"},
-            {"key": "2", "label_en": "3-Day Forecast", "label_ar": "توقعات 3 أيام", "action": "weather_3day"},
-            {"key": "3", "label_en": "Rain Alert", "label_ar": "تنبيه مطر", "action": "weather_rain"},
+            {
+                "key": "2",
+                "label_en": "3-Day Forecast",
+                "label_ar": "توقعات 3 أيام",
+                "action": "weather_3day",
+            },
+            {
+                "key": "3",
+                "label_en": "Rain Alert",
+                "label_ar": "تنبيه مطر",
+                "action": "weather_rain",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -133,9 +140,24 @@ USSD_MENUS = {
         "title_en": "My Fields",
         "title_ar": "حقولي",
         "options": [
-            {"key": "1", "label_en": "Field Status", "label_ar": "حالة الحقل", "action": "field_status"},
-            {"key": "2", "label_en": "NDVI Health", "label_ar": "صحة المحصول", "action": "field_ndvi"},
-            {"key": "3", "label_en": "Recent Alerts", "label_ar": "التنبيهات الأخيرة", "action": "field_alerts"},
+            {
+                "key": "1",
+                "label_en": "Field Status",
+                "label_ar": "حالة الحقل",
+                "action": "field_status",
+            },
+            {
+                "key": "2",
+                "label_en": "NDVI Health",
+                "label_ar": "صحة المحصول",
+                "action": "field_ndvi",
+            },
+            {
+                "key": "3",
+                "label_en": "Recent Alerts",
+                "label_ar": "التنبيهات الأخيرة",
+                "action": "field_alerts",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -143,10 +165,30 @@ USSD_MENUS = {
         "title_en": "Irrigation",
         "title_ar": "الري",
         "options": [
-            {"key": "1", "label_en": "Today's Schedule", "label_ar": "جدول اليوم", "action": "irr_today"},
-            {"key": "2", "label_en": "Soil Moisture", "label_ar": "رطوبة التربة", "action": "irr_moisture"},
-            {"key": "3", "label_en": "Start Irrigation", "label_ar": "بدء الري", "action": "irr_start"},
-            {"key": "4", "label_en": "Stop Irrigation", "label_ar": "إيقاف الري", "action": "irr_stop"},
+            {
+                "key": "1",
+                "label_en": "Today's Schedule",
+                "label_ar": "جدول اليوم",
+                "action": "irr_today",
+            },
+            {
+                "key": "2",
+                "label_en": "Soil Moisture",
+                "label_ar": "رطوبة التربة",
+                "action": "irr_moisture",
+            },
+            {
+                "key": "3",
+                "label_en": "Start Irrigation",
+                "label_ar": "بدء الري",
+                "action": "irr_start",
+            },
+            {
+                "key": "4",
+                "label_en": "Stop Irrigation",
+                "label_ar": "إيقاف الري",
+                "action": "irr_stop",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -154,9 +196,24 @@ USSD_MENUS = {
         "title_en": "My Alerts",
         "title_ar": "تنبيهاتي",
         "options": [
-            {"key": "1", "label_en": "Unread Alerts", "label_ar": "تنبيهات غير مقروءة", "action": "alerts_unread"},
-            {"key": "2", "label_en": "Critical Alerts", "label_ar": "تنبيهات حرجة", "action": "alerts_critical"},
-            {"key": "3", "label_en": "Alert Settings", "label_ar": "إعدادات التنبيهات", "next": "alert_settings"},
+            {
+                "key": "1",
+                "label_en": "Unread Alerts",
+                "label_ar": "تنبيهات غير مقروءة",
+                "action": "alerts_unread",
+            },
+            {
+                "key": "2",
+                "label_en": "Critical Alerts",
+                "label_ar": "تنبيهات حرجة",
+                "action": "alerts_critical",
+            },
+            {
+                "key": "3",
+                "label_en": "Alert Settings",
+                "label_ar": "إعدادات التنبيهات",
+                "next": "alert_settings",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -167,7 +224,12 @@ USSD_MENUS = {
             {"key": "1", "label_en": "Wheat", "label_ar": "القمح", "action": "price_wheat"},
             {"key": "2", "label_en": "Barley", "label_ar": "الشعير", "action": "price_barley"},
             {"key": "3", "label_en": "Dates", "label_ar": "التمور", "action": "price_dates"},
-            {"key": "4", "label_en": "Vegetables", "label_ar": "الخضروات", "action": "price_vegetables"},
+            {
+                "key": "4",
+                "label_en": "Vegetables",
+                "label_ar": "الخضروات",
+                "action": "price_vegetables",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -175,9 +237,24 @@ USSD_MENUS = {
         "title_en": "Help",
         "title_ar": "مساعدة",
         "options": [
-            {"key": "1", "label_en": "How to use", "label_ar": "كيفية الاستخدام", "action": "help_usage"},
-            {"key": "2", "label_en": "Contact Support", "label_ar": "تواصل مع الدعم", "action": "help_contact"},
-            {"key": "3", "label_en": "Register Farm", "label_ar": "تسجيل مزرعة", "action": "help_register"},
+            {
+                "key": "1",
+                "label_en": "How to use",
+                "label_ar": "كيفية الاستخدام",
+                "action": "help_usage",
+            },
+            {
+                "key": "2",
+                "label_en": "Contact Support",
+                "label_ar": "تواصل مع الدعم",
+                "action": "help_contact",
+            },
+            {
+                "key": "3",
+                "label_en": "Register Farm",
+                "label_ar": "تسجيل مزرعة",
+                "action": "help_register",
+            },
             {"key": "0", "label_en": "Back", "label_ar": "رجوع", "next": "main"},
         ],
     },
@@ -187,6 +264,7 @@ USSD_MENUS = {
 # ============================================================
 # Health Endpoints
 # ============================================================
+
 
 @app.get("/healthz")
 @app.get("/health/live")
@@ -209,6 +287,7 @@ async def readiness():
 # ============================================================
 # USSD Endpoints - نقاط USSD
 # ============================================================
+
 
 @app.post("/ussd/callback")
 async def ussd_callback(request: Request):
@@ -276,6 +355,7 @@ async def ussd_simulate(request: Request):
 # SMS Endpoints - نقاط SMS
 # ============================================================
 
+
 @app.post("/sms/send")
 async def send_sms(request: Request):
     """
@@ -302,12 +382,14 @@ async def send_sms(request: Request):
     if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.publish(
             f"sahool.{tenant_id or 'system'}.sms.sent",
-            json.dumps({
-                "phone_number": phone_number[-4:],  # Last 4 digits only for privacy
-                "message_length": len(final_message),
-                "language": language,
-                "timestamp": datetime.now(UTC).isoformat(),
-            }).encode()
+            json.dumps(
+                {
+                    "phone_number": phone_number[-4:],  # Last 4 digits only for privacy
+                    "message_length": len(final_message),
+                    "language": language,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            ).encode(),
         )
 
     return {
@@ -367,10 +449,12 @@ async def send_bulk_sms(request: Request):
         language = await get_user_language(app, phone)
         final_message = message_ar if language == "ar" else message
         result = await send_sms_via_provider(phone, final_message)
-        results.append({
-            "phone": phone[-4:],
-            "success": result.get("success", False),
-        })
+        results.append(
+            {
+                "phone": phone[-4:],
+                "success": result.get("success", False),
+            }
+        )
 
     success_count = sum(1 for r in results if r["success"])
 
@@ -384,6 +468,7 @@ async def send_bulk_sms(request: Request):
 # ============================================================
 # WhatsApp Endpoints - نقاط واتساب
 # ============================================================
+
 
 @app.post("/whatsapp/webhook")
 async def whatsapp_webhook(request: Request):
@@ -444,6 +529,7 @@ async def send_whatsapp(request: Request):
 # Helper Functions
 # ============================================================
 
+
 async def get_user_language(app: FastAPI, phone_number: str) -> str:
     """Get user's preferred language"""
     if not hasattr(app.state, "db_pool") or not app.state.db_pool:
@@ -457,7 +543,7 @@ async def get_user_language(app: FastAPI, phone_number: str) -> str:
                 FROM users
                 WHERE phone_number = $1
                 """,
-                phone_number
+                phone_number,
             )
             if row:
                 return row["preferred_language"] or "ar"
@@ -468,11 +554,7 @@ async def get_user_language(app: FastAPI, phone_number: str) -> str:
 
 
 async def process_ussd_input(
-    app: FastAPI,
-    session_id: str,
-    phone_number: str,
-    text: str,
-    language: str
+    app: FastAPI, session_id: str, phone_number: str, text: str, language: str
 ) -> tuple[str, bool]:
     """
     Process USSD input and return response
@@ -512,12 +594,7 @@ async def process_ussd_input(
     return "\n".join(lines), False
 
 
-async def execute_ussd_action(
-    app: FastAPI,
-    action: str,
-    phone_number: str,
-    language: str
-) -> str:
+async def execute_ussd_action(app: FastAPI, action: str, phone_number: str, language: str) -> str:
     """Execute USSD action and return response"""
     from .handlers.ussd_actions import USSD_ACTIONS
 
@@ -531,11 +608,7 @@ async def execute_ussd_action(
     return "Sorry, this service is not available"
 
 
-async def process_sms_keyword(
-    app: FastAPI,
-    phone_number: str,
-    message: str
-) -> str | None:
+async def process_sms_keyword(app: FastAPI, phone_number: str, message: str) -> str | None:
     """
     Process SMS keyword and return response
     معالجة كلمة مفتاحية SMS وإرجاع الاستجابة
@@ -549,25 +622,20 @@ async def process_sms_keyword(
         "طقس": ("weather_today", "ar"),
         "RAIN": ("weather_rain", "en"),
         "مطر": ("weather_rain", "ar"),
-
         # Field status
         "FIELD": ("field_status", "en"),
         "حقل": ("field_status", "ar"),
         "NDVI": ("field_ndvi", language),
-
         # Irrigation
         "WATER": ("irr_moisture", "en"),
         "ماء": ("irr_moisture", "ar"),
         "ري": ("irr_today", "ar"),
-
         # Prices
         "PRICE": ("price_wheat", "en"),
         "سعر": ("price_wheat", "ar"),
-
         # Help
         "HELP": ("help_usage", "en"),
         "مساعدة": ("help_usage", "ar"),
-
         # Registration
         "REGISTER": ("help_register", "en"),
         "تسجيل": ("help_register", "ar"),
@@ -577,6 +645,7 @@ async def process_sms_keyword(
     for keyword, (action, resp_lang) in keywords.items():
         if message.startswith(keyword):
             from .handlers.ussd_actions import USSD_ACTIONS
+
             handler = USSD_ACTIONS.get(action)
             if handler:
                 return await handler(app, phone_number, resp_lang)
@@ -584,11 +653,7 @@ async def process_sms_keyword(
     return None
 
 
-async def process_whatsapp_message(
-    app: FastAPI,
-    phone_number: str,
-    text: str
-):
+async def process_whatsapp_message(app: FastAPI, phone_number: str, text: str):
     """Process incoming WhatsApp message"""
     # Similar to SMS processing but with rich responses
     response = await process_sms_keyword(app, phone_number, text.upper())
@@ -596,11 +661,7 @@ async def process_whatsapp_message(
         await send_whatsapp_via_provider(phone_number, response)
 
 
-async def process_whatsapp_button(
-    app: FastAPI,
-    phone_number: str,
-    button_id: str
-):
+async def process_whatsapp_button(app: FastAPI, phone_number: str, button_id: str):
     """Process WhatsApp button click"""
     language = await get_user_language(app, phone_number)
     from .handlers.ussd_actions import USSD_ACTIONS
@@ -611,10 +672,7 @@ async def process_whatsapp_button(
         await send_whatsapp_via_provider(phone_number, response)
 
 
-async def send_sms_via_provider(
-    phone_number: str,
-    message: str
-) -> dict:
+async def send_sms_via_provider(phone_number: str, message: str) -> dict:
     """
     Send SMS via configured provider
     إرسال SMS عبر المزود المكوّن
@@ -639,7 +697,7 @@ async def send_whatsapp_via_provider(
     message: str,
     template: str | None = None,
     buttons: list | None = None,
-    language: str = "ar"
+    language: str = "ar",
 ) -> dict:
     """
     Send WhatsApp message via Business API
@@ -688,7 +746,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
                     AND alert_types @> $2
                     """,
                     tenant_id,
-                    [data.get("alert_type", "general")]
+                    [data.get("alert_type", "general")],
                 )
 
                 for row in rows:
@@ -700,4 +758,5 @@ async def handle_alert_for_sms(app: FastAPI, msg):
 
 # Include API routes
 from .api.v1 import router as api_router
+
 app.include_router(api_router, prefix="/api/v1")

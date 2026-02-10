@@ -33,6 +33,7 @@ router = APIRouter(prefix="/history", tags=["Notification History | سجل ال�
 
 class NotificationHistoryResponse(BaseModel):
     """استجابة سجل الإشعارات"""
+
     id: str
     user_id: str
     title: str
@@ -53,6 +54,7 @@ class NotificationHistoryResponse(BaseModel):
 
 class DeliveryLogResponse(BaseModel):
     """استجابة سجل التسليم"""
+
     id: str
     notification_id: str
     channel: str
@@ -66,6 +68,7 @@ class DeliveryLogResponse(BaseModel):
 
 class HistoryStatsResponse(BaseModel):
     """استجابة إحصائيات السجل"""
+
     total_notifications: int
     sent: int
     failed: int
@@ -77,6 +80,7 @@ class HistoryStatsResponse(BaseModel):
 
 class PaginatedHistoryResponse(BaseModel):
     """استجابة سجل مرقم"""
+
     total: int
     page: int
     page_size: int
@@ -94,7 +98,9 @@ async def get_user_notification_history(
     user_id: str,
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=20, ge=1, le=100),
-    status: str | None = Query(default=None, description="Filter by status: pending, sent, failed, read"),
+    status: str | None = Query(
+        default=None, description="Filter by status: pending, sent, failed, read"
+    ),
     type: str | None = Query(default=None, description="Filter by notification type"),
     channel: str | None = Query(default=None, description="Filter by channel"),
     start_date: datetime | None = Query(default=None, description="Filter from date"),
@@ -330,19 +336,21 @@ async def get_failed_notifications(
             # Get notification details
             notification = await NotificationRepository.get_by_id(log.notification_id)
 
-            results.append({
-                "log_id": str(log.id),
-                "notification_id": str(log.notification_id),
-                "user_id": notification.user_id if notification else None,
-                "channel": log.channel,
-                "status": log.status,
-                "error_message": log.error_message,
-                "retry_count": log.retry_count,
-                "next_retry_at": log.next_retry_at.isoformat() if log.next_retry_at else None,
-                "attempted_at": log.attempted_at.isoformat(),
-                "notification_type": notification.type if notification else None,
-                "notification_title": notification.title if notification else None,
-            })
+            results.append(
+                {
+                    "log_id": str(log.id),
+                    "notification_id": str(log.notification_id),
+                    "user_id": notification.user_id if notification else None,
+                    "channel": log.channel,
+                    "status": log.status,
+                    "error_message": log.error_message,
+                    "retry_count": log.retry_count,
+                    "next_retry_at": log.next_retry_at.isoformat() if log.next_retry_at else None,
+                    "attempted_at": log.attempted_at.isoformat(),
+                    "notification_type": notification.type if notification else None,
+                    "notification_title": notification.title if notification else None,
+                }
+            )
 
         return {
             "total": len(results),
@@ -410,7 +418,9 @@ async def get_notification_stats(
 
 @router.delete("/old")
 async def cleanup_old_notifications(
-    days: int = Query(default=30, ge=7, le=365, description="Delete notifications older than this many days"),
+    days: int = Query(
+        default=30, ge=7, le=365, description="Delete notifications older than this many days"
+    ),
 ):
     """
     تنظيف الإشعارات القديمة
@@ -463,10 +473,7 @@ async def export_notification_history(
     """
     try:
         # Build query
-        query = Notification.filter(
-            created_at__gte=start_date,
-            created_at__lte=end_date
-        )
+        query = Notification.filter(created_at__gte=start_date, created_at__lte=end_date)
 
         if user_id:
             query = query.filter(user_id=user_id)
@@ -548,7 +555,7 @@ async def retry_failed_notification(
         if notification.status != "failed":
             raise HTTPException(
                 status_code=400,
-                detail=f"Cannot retry notification with status '{notification.status}'"
+                detail=f"Cannot retry notification with status '{notification.status}'",
             )
 
         # Reset status to pending for retry

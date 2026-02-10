@@ -34,7 +34,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Callable, Coroutine, Generic, TypeVar
 
 from pydantic import BaseModel, Field
@@ -61,7 +61,7 @@ MAX_BATCH_SIZE = 1000
 # =============================================================================
 
 
-class BatchItemStatus(str, Enum):
+class BatchItemStatus(StrEnum):
     """Status of individual batch item processing."""
 
     PENDING = "pending"
@@ -72,7 +72,7 @@ class BatchItemStatus(str, Enum):
     SKIPPED = "skipped"
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Overall batch processing status."""
 
     PENDING = "pending"
@@ -179,11 +179,10 @@ class BatchRequestModel(BaseModel):
         ...,
         min_length=1,
         max_length=MAX_BATCH_SIZE,
-        description="List of items to process | قائمة العناصر للمعالجة"
+        description="List of items to process | قائمة العناصر للمعالجة",
     )
     options: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Batch processing options | خيارات المعالجة الدفعية"
+        default_factory=dict, description="Batch processing options | خيارات المعالجة الدفعية"
     )
 
 
@@ -196,8 +195,7 @@ class BatchItemResultModel(BaseModel):
     error: str | None = Field(None, description="Error message | رسالة الخطأ")
     error_ar: str | None = Field(None, description="Error message (Arabic) | رسالة الخطأ بالعربية")
     processing_time_ms: float = Field(
-        0.0,
-        description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
+        0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
     )
 
 
@@ -210,16 +208,13 @@ class BatchResultModel(BaseModel):
     success_count: int = Field(..., description="Successful items | العناصر الناجحة")
     error_count: int = Field(..., description="Failed items | العناصر الفاشلة")
     results: list[BatchItemResultModel] = Field(
-        default_factory=list,
-        description="Individual results | النتائج الفردية"
+        default_factory=list, description="Individual results | النتائج الفردية"
     )
     total_processing_time_ms: float = Field(
-        0.0,
-        description="Total processing time | إجمالي وقت المعالجة"
+        0.0, description="Total processing time | إجمالي وقت المعالجة"
     )
     average_processing_time_ms: float = Field(
-        0.0,
-        description="Average processing time per item | متوسط وقت المعالجة لكل عنصر"
+        0.0, description="Average processing time per item | متوسط وقت المعالجة لكل عنصر"
     )
 
 
@@ -290,10 +285,7 @@ class BatchProcessor(Generic[T, R]):
         sorted_requests = sorted(requests, key=lambda r: -r.priority)
 
         # Create tasks for all requests
-        tasks = [
-            self._process_item(request, handler, batch_result)
-            for request in sorted_requests
-        ]
+        tasks = [self._process_item(request, handler, batch_result) for request in sorted_requests]
 
         # Wait for all tasks to complete
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -333,7 +325,7 @@ class BatchProcessor(Generic[T, R]):
                     item_result.result = result
                     item_result.status = BatchItemStatus.SUCCESS
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 item_result.status = BatchItemStatus.TIMEOUT
                 item_result.error = f"Processing timed out after {self.timeout_seconds}s"
                 item_result.error_ar = f"انتهت مهلة المعالجة بعد {self.timeout_seconds} ثانية"
@@ -380,10 +372,7 @@ async def process_batch(
     Returns:
         BatchResult with all results
     """
-    requests = [
-        BatchRequest(data=item, id=str(i))
-        for i, item in enumerate(items)
-    ]
+    requests = [BatchRequest(data=item, id=str(i)) for i, item in enumerate(items)]
 
     processor = BatchProcessor[T, R](
         max_concurrent=max_concurrent,
@@ -437,11 +426,13 @@ def create_batch_requests(
     requests = []
     for item in items:
         request_id = item.get(field_id_key, str(uuid.uuid4()))
-        requests.append(BatchRequest(
-            id=request_id,
-            data=item,
-            metadata={"source_field_id": request_id},
-        ))
+        requests.append(
+            BatchRequest(
+                id=request_id,
+                data=item,
+                metadata={"source_field_id": request_id},
+            )
+        )
     return requests
 
 

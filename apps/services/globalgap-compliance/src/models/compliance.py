@@ -7,12 +7,12 @@ Data models for compliance status, records, and audit results.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class ComplianceStatus(str, Enum):
+class ComplianceStatus(StrEnum):
     """
     Compliance status enumeration
     تعداد حالات الامتثال
@@ -25,7 +25,7 @@ class ComplianceStatus(str, Enum):
     NOT_ASSESSED = "not_assessed"  # لم يتم التقييم
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """
     Severity level for non-compliance
     مستوى خطورة عدم الامتثال

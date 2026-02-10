@@ -27,7 +27,7 @@ Usage:
 
 from __future__ import annotations
 
-import functools
+import asyncio
 import json
 import logging
 import os
@@ -109,15 +109,34 @@ class StructuredFormatter(logging.Formatter):
         # Add extra fields from record
         if hasattr(record, "__dict__"):
             extras = {
-                k: v for k, v in record.__dict__.items()
-                if k not in (
-                    "name", "msg", "args", "created", "filename",
-                    "funcName", "levelname", "levelno", "lineno",
-                    "module", "msecs", "pathname", "process",
-                    "processName", "relativeCreated", "stack_info",
-                    "exc_info", "exc_text", "thread", "threadName",
-                    "message", "asctime",
-                ) and not k.startswith("_")
+                k: v
+                for k, v in record.__dict__.items()
+                if k
+                not in (
+                    "name",
+                    "msg",
+                    "args",
+                    "created",
+                    "filename",
+                    "funcName",
+                    "levelname",
+                    "levelno",
+                    "lineno",
+                    "module",
+                    "msecs",
+                    "pathname",
+                    "process",
+                    "processName",
+                    "relativeCreated",
+                    "stack_info",
+                    "exc_info",
+                    "exc_text",
+                    "thread",
+                    "threadName",
+                    "message",
+                    "asctime",
+                )
+                and not k.startswith("_")
             }
             if extras:
                 log_entry["extra"] = extras
@@ -169,9 +188,9 @@ class ServiceLogger:
         if use_json:
             handler.setFormatter(StructuredFormatter(self.service_name))
         else:
-            handler.setFormatter(logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            ))
+            handler.setFormatter(
+                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            )
 
         self._logger.addHandler(handler)
         self._logger.propagate = False
@@ -366,6 +385,7 @@ def log_performance(
         async def calculate_irrigation(field_id: str):
             ...
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -438,7 +458,3 @@ def log_performance(
         return sync_wrapper
 
     return decorator
-
-
-# Import asyncio for checking coroutine functions
-import asyncio

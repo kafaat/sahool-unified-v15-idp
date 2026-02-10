@@ -20,6 +20,7 @@ from typing import Any
 @dataclass
 class PolicyRule:
     """Single policy rule | قاعدة سياسة واحدة"""
+
     id: str
     name: str
     name_ar: str
@@ -61,6 +62,7 @@ class GuardPolicy:
     Complete guard policy configuration.
     تكوين سياسة الحماية الكاملة
     """
+
     version: str = "1.0"
     name: str = "default"
     name_ar: str = "افتراضي"

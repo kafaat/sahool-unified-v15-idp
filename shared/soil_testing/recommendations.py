@@ -384,51 +384,67 @@ FERTILIZER_PRODUCTS: dict[str, dict] = {
 CROP_REQUIREMENTS: dict[str, dict] = {
     "wheat": {
         "name_ar": "قمح",
-        "N": 120, "P2O5": 50, "K2O": 80,
+        "N": 120,
+        "P2O5": 50,
+        "K2O": 80,
         "target_yield": 5.0,
         "cl_sensitive": False,
         "growth_stages": ["seeding", "tillering", "stem_elongation", "heading"],
     },
     "barley": {
         "name_ar": "شعير",
-        "N": 100, "P2O5": 45, "K2O": 70,
+        "N": 100,
+        "P2O5": 45,
+        "K2O": 70,
         "target_yield": 4.5,
         "cl_sensitive": False,
     },
     "tomato": {
         "name_ar": "طماطم",
-        "N": 180, "P2O5": 60, "K2O": 270,
+        "N": 180,
+        "P2O5": 60,
+        "K2O": 270,
         "target_yield": 60.0,
         "cl_sensitive": True,
     },
     "cucumber": {
         "name_ar": "خيار",
-        "N": 150, "P2O5": 50, "K2O": 200,
+        "N": 150,
+        "P2O5": 50,
+        "K2O": 200,
         "target_yield": 50.0,
         "cl_sensitive": True,
     },
     "date_palm": {
         "name_ar": "نخيل",
-        "N": 1.5, "P2O5": 0.5, "K2O": 2.0,
+        "N": 1.5,
+        "P2O5": 0.5,
+        "K2O": 2.0,
         "per_tree": True,
         "target_yield": 100.0,
         "cl_sensitive": False,
     },
     "alfalfa": {
         "name_ar": "برسيم",
-        "N": 0, "P2O5": 60, "K2O": 150,
+        "N": 0,
+        "P2O5": 60,
+        "K2O": 150,
         "target_yield": 15.0,
         "cl_sensitive": False,
     },
     "potato": {
         "name_ar": "بطاطس",
-        "N": 175, "P2O5": 55, "K2O": 245,
+        "N": 175,
+        "P2O5": 55,
+        "K2O": 245,
         "target_yield": 35.0,
         "cl_sensitive": True,
     },
     "onion": {
         "name_ar": "بصل",
-        "N": 120, "P2O5": 40, "K2O": 100,
+        "N": 120,
+        "P2O5": 40,
+        "K2O": 100,
         "target_yield": 40.0,
         "cl_sensitive": False,
     },
@@ -438,6 +454,7 @@ CROP_REQUIREMENTS: dict[str, dict] = {
 @dataclass
 class RecommendationConfig:
     """Configuration for amendment recommendations - إعدادات توصيات التعديل"""
+
     # Economic factors
     max_budget_per_ha: Decimal | None = None
     currency: str = "SAR"
@@ -528,21 +545,15 @@ class SoilAmendmentRecommender:
 
         # 2. Macronutrient fertilizers
         recommendations.extend(
-            self._recommend_macronutrients(
-                interpretation, soil_test, crop_data, target_yield
-            )
+            self._recommend_macronutrients(interpretation, soil_test, crop_data, target_yield)
         )
 
         # 3. Micronutrient amendments
-        recommendations.extend(
-            self._recommend_micronutrients(interpretation, soil_test, crop_data)
-        )
+        recommendations.extend(self._recommend_micronutrients(interpretation, soil_test, crop_data))
 
         # 4. Organic matter
         if soil_test.soil_properties and soil_test.soil_properties.organic_matter_percent < 2.0:
-            recommendations.extend(
-                self._recommend_organic_amendments(soil_test.soil_properties)
-            )
+            recommendations.extend(self._recommend_organic_amendments(soil_test.soil_properties))
 
         # Sort by priority
         recommendations.sort(key=lambda x: x.priority)
@@ -571,12 +582,12 @@ class SoilAmendmentRecommender:
         )
 
         # Estimate yield improvement
-        yield_improvement = self._estimate_yield_improvement(
-            interpretation, recommendations
-        )
+        yield_improvement = self._estimate_yield_improvement(interpretation, recommendations)
 
         # Calculate ROI
-        expected_revenue_improvement = Decimal(str(yield_improvement * target_yield * 1500))  # Approximate
+        expected_revenue_improvement = Decimal(
+            str(yield_improvement * target_yield * 1500)
+        )  # Approximate
         roi = (
             float(expected_revenue_improvement - total_cost) / float(total_cost) * 100
             if total_cost > 0
@@ -617,37 +628,43 @@ class SoilAmendmentRecommender:
         if properties.ph < 5.5:
             # Need lime
             lime_rate = self._calculate_lime_requirement(properties)
-            recommendations.append(self._create_recommendation(
-                "agricultural_lime" if lime_rate < 3000 else "dolomitic_lime",
-                lime_rate,
-                target="pH",
-                priority=1,
-                reason_en=f"Soil pH ({properties.ph}) is too low; lime needed to raise to optimal range",
-                reason_ar=f"درجة حموضة التربة ({properties.ph}) منخفضة جداً؛ يحتاج جير لرفعها للنطاق المثالي",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    "agricultural_lime" if lime_rate < 3000 else "dolomitic_lime",
+                    lime_rate,
+                    target="pH",
+                    priority=1,
+                    reason_en=f"Soil pH ({properties.ph}) is too low; lime needed to raise to optimal range",
+                    reason_ar=f"درجة حموضة التربة ({properties.ph}) منخفضة جداً؛ يحتاج جير لرفعها للنطاق المثالي",
+                )
+            )
         elif properties.ph > 8.5:
             # Need sulfur
             sulfur_rate = self._calculate_sulfur_requirement(properties)
-            recommendations.append(self._create_recommendation(
-                "elemental_sulfur",
-                sulfur_rate,
-                target="pH",
-                priority=2,
-                reason_en=f"Soil pH ({properties.ph}) is too high; sulfur needed to lower",
-                reason_ar=f"درجة حموضة التربة ({properties.ph}) مرتفعة جداً؛ يحتاج كبريت لخفضها",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    "elemental_sulfur",
+                    sulfur_rate,
+                    target="pH",
+                    priority=2,
+                    reason_en=f"Soil pH ({properties.ph}) is too high; sulfur needed to lower",
+                    reason_ar=f"درجة حموضة التربة ({properties.ph}) مرتفعة جداً؛ يحتاج كبريت لخفضها",
+                )
+            )
 
         # Sodicity
         if properties.is_sodic or properties.esp > 15 or properties.sar > 13:
             gypsum_rate = self._calculate_gypsum_requirement(properties)
-            recommendations.append(self._create_recommendation(
-                "gypsum",
-                gypsum_rate,
-                target="sodicity",
-                priority=1,
-                reason_en=f"Soil is sodic (ESP: {properties.esp}%, SAR: {properties.sar}); gypsum needed for reclamation",
-                reason_ar=f"التربة صودية (ESP: {properties.esp}%، SAR: {properties.sar})؛ يحتاج جبس للاستصلاح",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    "gypsum",
+                    gypsum_rate,
+                    target="sodicity",
+                    priority=1,
+                    reason_en=f"Soil is sodic (ESP: {properties.esp}%, SAR: {properties.sar}); gypsum needed for reclamation",
+                    reason_ar=f"التربة صودية (ESP: {properties.esp}%، SAR: {properties.sar})؛ يحتاج جبس للاستصلاح",
+                )
+            )
 
         return recommendations
 
@@ -694,16 +711,23 @@ class SoilAmendmentRecommender:
                 n_product = "ammonium_sulfate"
 
             n_rate = n_needed / (self.products[n_product]["nutrients"]["N"] / 100)
-            priority = 1 if n_interp and n_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 2
+            priority = (
+                1
+                if n_interp
+                and n_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
+                else 2
+            )
 
-            recommendations.append(self._create_recommendation(
-                n_product,
-                n_rate,
-                target="N",
-                priority=priority,
-                reason_en=f"Nitrogen required: {n_needed:.0f} kg/ha for target yield",
-                reason_ar=f"النيتروجين المطلوب: {n_needed:.0f} كجم/هـ للإنتاجية المستهدفة",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    n_product,
+                    n_rate,
+                    target="N",
+                    priority=priority,
+                    reason_en=f"Nitrogen required: {n_needed:.0f} kg/ha for target yield",
+                    reason_ar=f"النيتروجين المطلوب: {n_needed:.0f} كجم/هـ للإنتاجية المستهدفة",
+                )
+            )
 
         # Phosphorus
         if p_needed > 0:
@@ -713,16 +737,23 @@ class SoilAmendmentRecommender:
                 p_product = "tsp"
 
             p_rate = p_needed / (self.products[p_product]["nutrients"]["P2O5"] / 100)
-            priority = 1 if p_interp and p_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 2
+            priority = (
+                1
+                if p_interp
+                and p_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
+                else 2
+            )
 
-            recommendations.append(self._create_recommendation(
-                p_product,
-                p_rate,
-                target="P",
-                priority=priority,
-                reason_en=f"Phosphorus required: {p_needed:.0f} kg P2O5/ha",
-                reason_ar=f"الفسفور المطلوب: {p_needed:.0f} كجم P2O5/هـ",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    p_product,
+                    p_rate,
+                    target="P",
+                    priority=priority,
+                    reason_en=f"Phosphorus required: {p_needed:.0f} kg P2O5/ha",
+                    reason_ar=f"الفسفور المطلوب: {p_needed:.0f} كجم P2O5/هـ",
+                )
+            )
 
         # Potassium
         if k_needed > 0:
@@ -731,16 +762,23 @@ class SoilAmendmentRecommender:
                 k_product = "sop"
 
             k_rate = k_needed / (self.products[k_product]["nutrients"]["K2O"] / 100)
-            priority = 2 if k_interp and k_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT] else 3
+            priority = (
+                2
+                if k_interp
+                and k_interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT]
+                else 3
+            )
 
-            recommendations.append(self._create_recommendation(
-                k_product,
-                k_rate,
-                target="K",
-                priority=priority,
-                reason_en=f"Potassium required: {k_needed:.0f} kg K2O/ha",
-                reason_ar=f"البوتاسيوم المطلوب: {k_needed:.0f} كجم K2O/هـ",
-            ))
+            recommendations.append(
+                self._create_recommendation(
+                    k_product,
+                    k_rate,
+                    target="K",
+                    priority=priority,
+                    reason_en=f"Potassium required: {k_needed:.0f} kg K2O/ha",
+                    reason_ar=f"البوتاسيوم المطلوب: {k_needed:.0f} كجم K2O/هـ",
+                )
+            )
 
         return recommendations
 
@@ -774,7 +812,11 @@ class SoilAmendmentRecommender:
 
         for interp in interpretation.interpretations:
             if interp.nutrient_code in micro_products:
-                if interp.status in [NutrientStatus.DEFICIENT, NutrientStatus.VERY_DEFICIENT, NutrientStatus.LOW]:
+                if interp.status in [
+                    NutrientStatus.DEFICIENT,
+                    NutrientStatus.VERY_DEFICIENT,
+                    NutrientStatus.LOW,
+                ]:
                     product_options = micro_products[interp.nutrient_code]
 
                     # Choose product based on soil pH
@@ -794,14 +836,16 @@ class SoilAmendmentRecommender:
                     if interp.status == NutrientStatus.VERY_DEFICIENT:
                         rate *= 1.5
 
-                    recommendations.append(self._create_recommendation(
-                        product,
-                        rate,
-                        target=interp.nutrient_code,
-                        priority=3 if interp.status == NutrientStatus.LOW else 2,
-                        reason_en=f"{interp.nutrient_name} is {interp.status.value} ({interp.value:.2f} {interp.unit})",
-                        reason_ar=f"{interp.nutrient_name_ar} {interp.status_description_ar} ({interp.value:.2f} {interp.unit})",
-                    ))
+                    recommendations.append(
+                        self._create_recommendation(
+                            product,
+                            rate,
+                            target=interp.nutrient_code,
+                            priority=3 if interp.status == NutrientStatus.LOW else 2,
+                            reason_en=f"{interp.nutrient_name} is {interp.status.value} ({interp.value:.2f} {interp.unit})",
+                            reason_ar=f"{interp.nutrient_name_ar} {interp.status_description_ar} ({interp.value:.2f} {interp.unit})",
+                        )
+                    )
 
         return recommendations
 
@@ -831,24 +875,28 @@ class SoilAmendmentRecommender:
         if self.config.prefer_organic:
             product = "cow_manure"
 
-        recommendations.append(self._create_recommendation(
-            product,
-            rate,
-            target="OM",
-            priority=priority,
-            reason_en=f"Organic matter is {message} ({om:.1f}%); add organic amendments",
-            reason_ar=f"المادة العضوية {message_ar} ({om:.1f}%)؛ أضف تعديلات عضوية",
-        ))
+        recommendations.append(
+            self._create_recommendation(
+                product,
+                rate,
+                target="OM",
+                priority=priority,
+                reason_en=f"Organic matter is {message} ({om:.1f}%); add organic amendments",
+                reason_ar=f"المادة العضوية {message_ar} ({om:.1f}%)؛ أضف تعديلات عضوية",
+            )
+        )
 
         # Also recommend humic acid
-        recommendations.append(self._create_recommendation(
-            "humic_acid",
-            20.0,  # 20 kg/ha
-            target="OM",
-            priority=priority + 1,
-            reason_en="Humic acid to improve soil structure and nutrient availability",
-            reason_ar="حمض الهيوميك لتحسين بنية التربة وتوفر العناصر الغذائية",
-        ))
+        recommendations.append(
+            self._create_recommendation(
+                "humic_acid",
+                20.0,  # 20 kg/ha
+                target="OM",
+                priority=priority + 1,
+                reason_en="Humic acid to improve soil structure and nutrient availability",
+                reason_ar="حمض الهيوميك لتحسين بنية التربة وتوفر العناصر الغذائية",
+            )
+        )
 
         return recommendations
 
@@ -918,7 +966,7 @@ class SoilAmendmentRecommender:
         # Adjust for CaCO3 content
         if properties.caco3_percent > 5:
             # Calcareous soils need more sulfur
-            base_rate *= (1 + properties.caco3_percent / 10)
+            base_rate *= 1 + properties.caco3_percent / 10
 
         sulfur_needed = (current_ph - target_ph) * base_rate
         return min(max(100, sulfur_needed), 2000)  # Limit between 100-2000 kg/ha
@@ -947,55 +995,71 @@ class SoilAmendmentRecommender:
         phases = []
 
         # Phase 1: Soil amendments (before planting)
-        soil_amendments = [r for r in recommendations if r.amendment_type in ["amendment", "organic"]]
+        soil_amendments = [
+            r for r in recommendations if r.amendment_type in ["amendment", "organic"]
+        ]
         if soil_amendments:
-            phases.append({
-                "phase": 1,
-                "name": "Soil Preparation",
-                "name_ar": "تحضير التربة",
-                "timing": "2-4 weeks before planting",
-                "timing_ar": "2-4 أسابيع قبل الزراعة",
-                "recommendations": [r.amendment_id for r in soil_amendments],
-            })
+            phases.append(
+                {
+                    "phase": 1,
+                    "name": "Soil Preparation",
+                    "name_ar": "تحضير التربة",
+                    "timing": "2-4 weeks before planting",
+                    "timing_ar": "2-4 أسابيع قبل الزراعة",
+                    "recommendations": [r.amendment_id for r in soil_amendments],
+                }
+            )
 
         # Phase 2: Basal fertilizer (at planting)
-        basal = [r for r in recommendations
-                 if r.target_nutrient in ["P", "K"] and r.amendment_type in ["phosphorus", "potassium"]]
+        basal = [
+            r
+            for r in recommendations
+            if r.target_nutrient in ["P", "K"] and r.amendment_type in ["phosphorus", "potassium"]
+        ]
         if basal:
-            phases.append({
-                "phase": 2,
-                "name": "Basal Application",
-                "name_ar": "التسميد الأساسي",
-                "timing": "At planting",
-                "timing_ar": "عند الزراعة",
-                "recommendations": [r.amendment_id for r in basal],
-            })
+            phases.append(
+                {
+                    "phase": 2,
+                    "name": "Basal Application",
+                    "name_ar": "التسميد الأساسي",
+                    "timing": "At planting",
+                    "timing_ar": "عند الزراعة",
+                    "recommendations": [r.amendment_id for r in basal],
+                }
+            )
 
         # Phase 3: Top dressing (during growth)
-        topdress = [r for r in recommendations
-                    if r.target_nutrient == "N" and r.amendment_type in ["nitrogen", "compound"]]
+        topdress = [
+            r
+            for r in recommendations
+            if r.target_nutrient == "N" and r.amendment_type in ["nitrogen", "compound"]
+        ]
         if topdress:
-            phases.append({
-                "phase": 3,
-                "name": "Top Dressing",
-                "name_ar": "التسميد السطحي",
-                "timing": "Split during active growth",
-                "timing_ar": "مقسم خلال النمو النشط",
-                "recommendations": [r.amendment_id for r in topdress],
-                "split": True,
-            })
+            phases.append(
+                {
+                    "phase": 3,
+                    "name": "Top Dressing",
+                    "name_ar": "التسميد السطحي",
+                    "timing": "Split during active growth",
+                    "timing_ar": "مقسم خلال النمو النشط",
+                    "recommendations": [r.amendment_id for r in topdress],
+                    "split": True,
+                }
+            )
 
         # Phase 4: Micronutrients
         micros = [r for r in recommendations if r.amendment_type == "micronutrient"]
         if micros:
-            phases.append({
-                "phase": 4,
-                "name": "Micronutrient Application",
-                "name_ar": "تطبيق العناصر الصغرى",
-                "timing": "Early to mid growth",
-                "timing_ar": "من بداية إلى منتصف النمو",
-                "recommendations": [r.amendment_id for r in micros],
-            })
+            phases.append(
+                {
+                    "phase": 4,
+                    "name": "Micronutrient Application",
+                    "name_ar": "تطبيق العناصر الصغرى",
+                    "timing": "Early to mid growth",
+                    "timing_ar": "من بداية إلى منتصف النمو",
+                    "recommendations": [r.amendment_id for r in micros],
+                }
+            )
 
         return phases
 

@@ -46,7 +46,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     wrapper_class=structlog.stdlib.BoundLogger,
     context_class=dict,
@@ -70,7 +70,7 @@ async def lifespan(app: FastAPI):
         "Starting hydrology-service",
         version=settings.version,
         environment=settings.environment,
-        port=settings.port
+        port=settings.port,
     )
 
     # Database connection
@@ -79,13 +79,13 @@ async def lifespan(app: FastAPI):
             app.state.db_pool = await asyncpg.create_pool(
                 settings.database_url,
                 min_size=settings.db_pool_min_size,
-                max_size=settings.db_pool_max_size
+                max_size=settings.db_pool_max_size,
             )
             logger.info("Connected to database")
 
             # Create tables if not exists
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS hydrology_analyses (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         field_id VARCHAR(255) NOT NULL,
@@ -97,22 +97,22 @@ async def lifespan(app: FastAPI):
                         analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         UNIQUE(field_id, analysis_type, tenant_id)
                     )
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_hydrology_field_id
                     ON hydrology_analyses(field_id)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_hydrology_tenant_id
                     ON hydrology_analyses(tenant_id)
-                ''')
+                """)
             logger.info("Database tables initialized")
 
         except Exception as e:
             logger.warning(
                 "Failed to connect to database",
                 error=str(e),
-                database_url=settings.database_url[:20] + "..."
+                database_url=settings.database_url[:20] + "...",
             )
             app.state.db_pool = None
     else:
@@ -135,7 +135,7 @@ async def lifespan(app: FastAPI):
         "Hydrology service ready",
         port=settings.port,
         terrain_service=settings.terrain_service_url,
-        weather_service=settings.weather_service_url
+        weather_service=settings.weather_service_url,
     )
 
     yield
@@ -255,11 +255,11 @@ def combined_health():
             "api": {"status": "healthy"},
             "database": {
                 "status": "healthy" if db_connected else "unavailable",
-                "connected": db_connected
+                "connected": db_connected,
             },
             "nats": {
                 "status": "healthy" if nats_connected else "unavailable",
-                "connected": nats_connected
+                "connected": nats_connected,
             },
         },
         "timestamp": datetime.now(UTC).isoformat(),
@@ -321,17 +321,10 @@ async def publish_event(subject: str, data: dict):
     """
     if hasattr(app.state, "nc") and app.state.nc:
         try:
-            await app.state.nc.publish(
-                subject,
-                json.dumps(data).encode()
-            )
+            await app.state.nc.publish(subject, json.dumps(data).encode())
             logger.debug("Published event", subject=subject)
         except Exception as e:
-            logger.warning(
-                "Failed to publish event",
-                subject=subject,
-                error=str(e)
-            )
+            logger.warning("Failed to publish event", subject=subject, error=str(e))
 
 
 # ==============================================================================
@@ -345,7 +338,7 @@ async def save_analysis(
     result: dict,
     tenant_id: str | None = None,
     dem_source: str | None = None,
-    resolution_m: float | None = None
+    resolution_m: float | None = None,
 ) -> bool:
     """
     Save analysis result to database.
@@ -354,7 +347,8 @@ async def save_analysis(
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute(
+                    """
                     INSERT INTO hydrology_analyses
                     (field_id, tenant_id, analysis_type, result, dem_source, resolution_m)
                     VALUES ($1, $2, $3, $4, $5, $6)
@@ -364,29 +358,29 @@ async def save_analysis(
                         dem_source = $5,
                         resolution_m = $6,
                         analyzed_at = NOW()
-                ''', field_id, tenant_id, analysis_type, json.dumps(result),
-                   dem_source, resolution_m)
-            logger.debug(
-                "Saved analysis",
-                field_id=field_id,
-                analysis_type=analysis_type
-            )
+                """,
+                    field_id,
+                    tenant_id,
+                    analysis_type,
+                    json.dumps(result),
+                    dem_source,
+                    resolution_m,
+                )
+            logger.debug("Saved analysis", field_id=field_id, analysis_type=analysis_type)
             return True
         except Exception as e:
             logger.warning(
                 "Failed to save analysis",
                 field_id=field_id,
                 analysis_type=analysis_type,
-                error=str(e)
+                error=str(e),
             )
             return False
     return False
 
 
 async def get_analysis(
-    field_id: str,
-    analysis_type: str,
-    tenant_id: str | None = None
+    field_id: str, analysis_type: str, tenant_id: str | None = None
 ) -> dict | None:
     """
     Retrieve analysis result from database.
@@ -396,24 +390,33 @@ async def get_analysis(
         try:
             async with app.state.db_pool.acquire() as conn:
                 if tenant_id:
-                    row = await conn.fetchrow('''
+                    row = await conn.fetchrow(
+                        """
                         SELECT result, analyzed_at, dem_source, resolution_m
                         FROM hydrology_analyses
                         WHERE field_id = $1 AND analysis_type = $2 AND tenant_id = $3
-                    ''', field_id, analysis_type, tenant_id)
+                    """,
+                        field_id,
+                        analysis_type,
+                        tenant_id,
+                    )
                 else:
-                    row = await conn.fetchrow('''
+                    row = await conn.fetchrow(
+                        """
                         SELECT result, analyzed_at, dem_source, resolution_m
                         FROM hydrology_analyses
                         WHERE field_id = $1 AND analysis_type = $2
-                    ''', field_id, analysis_type)
+                    """,
+                        field_id,
+                        analysis_type,
+                    )
 
                 if row:
-                    data = json.loads(row['result'])
-                    data['_metadata'] = {
-                        'analyzed_at': row['analyzed_at'].isoformat(),
-                        'dem_source': row['dem_source'],
-                        'resolution_m': row['resolution_m'],
+                    data = json.loads(row["result"])
+                    data["_metadata"] = {
+                        "analyzed_at": row["analyzed_at"].isoformat(),
+                        "dem_source": row["dem_source"],
+                        "resolution_m": row["resolution_m"],
                     }
                     return data
         except Exception as e:
@@ -421,7 +424,7 @@ async def get_analysis(
                 "Failed to get analysis",
                 field_id=field_id,
                 analysis_type=analysis_type,
-                error=str(e)
+                error=str(e),
             )
     return None
 
@@ -435,9 +438,4 @@ if __name__ == "__main__":
     import uvicorn
 
     settings = get_settings()
-    uvicorn.run(
-        app,
-        host=settings.host,
-        port=settings.port,
-        log_level=settings.log_level.lower()
-    )
+    uvicorn.run(app, host=settings.host, port=settings.port, log_level=settings.log_level.lower())

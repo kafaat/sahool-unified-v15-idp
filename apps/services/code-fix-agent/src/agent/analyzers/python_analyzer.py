@@ -210,7 +210,7 @@ class PythonAnalyzer(BaseAnalyzer):
             # Filter and limit issues
             filtered_issues = [i for i in issues if self._should_include_issue(i)]
             if len(filtered_issues) > self.config.max_issues:
-                filtered_issues = filtered_issues[:self.config.max_issues]
+                filtered_issues = filtered_issues[: self.config.max_issues]
 
             return AnalysisResult(
                 success=True,
@@ -241,18 +241,20 @@ class PythonAnalyzer(BaseAnalyzer):
         try:
             ast.parse(code)
         except SyntaxError as e:
-            issues.append(AnalysisIssue(
-                file_path="<string>",
-                line_start=e.lineno or 1,
-                line_end=e.lineno or 1,
-                column_start=e.offset or 0,
-                severity=IssueSeverity.ERROR,
-                category=IssueCategory.SYNTAX,
-                code="E999",
-                message=f"Syntax error: {e.msg}",
-                message_ar=f"خطأ نحوي: {e.msg}",
-                confidence=1.0,
-            ))
+            issues.append(
+                AnalysisIssue(
+                    file_path="<string>",
+                    line_start=e.lineno or 1,
+                    line_end=e.lineno or 1,
+                    column_start=e.offset or 0,
+                    severity=IssueSeverity.ERROR,
+                    category=IssueCategory.SYNTAX,
+                    code="E999",
+                    message=f"Syntax error: {e.msg}",
+                    message_ar=f"خطأ نحوي: {e.msg}",
+                    confidence=1.0,
+                )
+            )
 
         return issues
 
@@ -270,34 +272,41 @@ class PythonAnalyzer(BaseAnalyzer):
                     for op, comparator in zip(node.ops, node.comparators):
                         if isinstance(comparator, ast.Constant) and comparator.value is None:
                             if not isinstance(op, (ast.Is, ast.IsNot)):
-                                issues.append(AnalysisIssue(
-                                    file_path="<string>",
-                                    line_start=node.lineno,
-                                    line_end=node.lineno,
-                                    category=IssueCategory.TYPE,
-                                    code="E711",
-                                    message="Comparison to None should use 'is' or 'is not'",
-                                    message_ar="المقارنة مع None يجب أن تستخدم 'is' أو 'is not'",
-                                    severity=IssueSeverity.WARNING,
-                                    fix_available=True,
-                                ))
+                                issues.append(
+                                    AnalysisIssue(
+                                        file_path="<string>",
+                                        line_start=node.lineno,
+                                        line_end=node.lineno,
+                                        category=IssueCategory.TYPE,
+                                        code="E711",
+                                        message="Comparison to None should use 'is' or 'is not'",
+                                        message_ar="المقارنة مع None يجب أن تستخدم 'is' أو 'is not'",
+                                        severity=IssueSeverity.WARNING,
+                                        fix_available=True,
+                                    )
+                                )
 
                 # Check for True/False comparison
                 if isinstance(node, ast.Compare):
                     for op, comparator in zip(node.ops, node.comparators):
-                        if isinstance(comparator, ast.Constant) and comparator.value in (True, False):
+                        if isinstance(comparator, ast.Constant) and comparator.value in (
+                            True,
+                            False,
+                        ):
                             if isinstance(op, (ast.Eq, ast.NotEq)):
-                                issues.append(AnalysisIssue(
-                                    file_path="<string>",
-                                    line_start=node.lineno,
-                                    line_end=node.lineno,
-                                    category=IssueCategory.TYPE,
-                                    code="E712",
-                                    message="Comparison to True/False should use 'if x:' or 'if not x:'",
-                                    message_ar="المقارنة مع True/False يجب أن تستخدم 'if x:' أو 'if not x:'",
-                                    severity=IssueSeverity.WARNING,
-                                    fix_available=True,
-                                ))
+                                issues.append(
+                                    AnalysisIssue(
+                                        file_path="<string>",
+                                        line_start=node.lineno,
+                                        line_end=node.lineno,
+                                        category=IssueCategory.TYPE,
+                                        code="E712",
+                                        message="Comparison to True/False should use 'if x:' or 'if not x:'",
+                                        message_ar="المقارنة مع True/False يجب أن تستخدم 'if x:' أو 'if not x:'",
+                                        severity=IssueSeverity.WARNING,
+                                        fix_available=True,
+                                    )
+                                )
 
         except SyntaxError:
             pass  # Already caught in syntax check
@@ -313,18 +322,20 @@ class PythonAnalyzer(BaseAnalyzer):
             pattern = re.compile(pattern_info["pattern"], re.IGNORECASE)
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.SECURITY,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                        confidence=0.9,
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.SECURITY,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                            confidence=0.9,
+                        )
+                    )
 
         return issues
 
@@ -336,50 +347,56 @@ class PythonAnalyzer(BaseAnalyzer):
         # Line length check
         for i, line in enumerate(lines, 1):
             if len(line) > self.config.max_line_length:
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.INFO,
-                    category=IssueCategory.STYLE,
-                    code="E501",
-                    message=f"Line too long ({len(line)} > {self.config.max_line_length})",
-                    message_ar=f"السطر طويل جداً ({len(line)} > {self.config.max_line_length})",
-                    fix_available=False,
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.INFO,
+                        category=IssueCategory.STYLE,
+                        code="E501",
+                        message=f"Line too long ({len(line)} > {self.config.max_line_length})",
+                        message_ar=f"السطر طويل جداً ({len(line)} > {self.config.max_line_length})",
+                        fix_available=False,
+                    )
+                )
 
         # Trailing whitespace
         for i, line in enumerate(lines, 1):
             if line.rstrip() != line and line.strip():
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.INFO,
-                    category=IssueCategory.STYLE,
-                    code="W291",
-                    message="Trailing whitespace",
-                    message_ar="مسافة بيضاء في نهاية السطر",
-                    fix_available=True,
-                    fix_code=line.rstrip(),
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.INFO,
+                        category=IssueCategory.STYLE,
+                        code="W291",
+                        message="Trailing whitespace",
+                        message_ar="مسافة بيضاء في نهاية السطر",
+                        fix_available=True,
+                        fix_code=line.rstrip(),
+                    )
+                )
 
         # Pattern-based style checks
         for pattern_info in self.STYLE_PATTERNS:
             pattern = re.compile(pattern_info["pattern"], re.MULTILINE)
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.STYLE,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.STYLE,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                        )
+                    )
 
         return issues
 
@@ -404,17 +421,19 @@ class PythonAnalyzer(BaseAnalyzer):
             for name, line in imports:
                 base_name = name.split(".")[0]
                 if base_name not in used_names and name not in used_names:
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=line,
-                        line_end=line,
-                        severity=IssueSeverity.WARNING,
-                        category=IssueCategory.LOGIC,
-                        code="F401",
-                        message=f"'{name}' imported but unused",
-                        message_ar=f"'{name}' مستورد ولكن غير مستخدم",
-                        fix_available=True,
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=line,
+                            line_end=line,
+                            severity=IssueSeverity.WARNING,
+                            category=IssueCategory.LOGIC,
+                            code="F401",
+                            message=f"'{name}' imported but unused",
+                            message_ar=f"'{name}' مستورد ولكن غير مستخدم",
+                            fix_available=True,
+                        )
+                    )
 
             # Check for unreachable code
             for node in ast.walk(tree):
@@ -422,16 +441,18 @@ class PythonAnalyzer(BaseAnalyzer):
                     found_return = False
                     for stmt in node.body:
                         if found_return:
-                            issues.append(AnalysisIssue(
-                                file_path="<string>",
-                                line_start=stmt.lineno,
-                                line_end=stmt.lineno,
-                                severity=IssueSeverity.WARNING,
-                                category=IssueCategory.LOGIC,
-                                code="W0101",
-                                message="Unreachable code",
-                                message_ar="كود لا يمكن الوصول إليه",
-                            ))
+                            issues.append(
+                                AnalysisIssue(
+                                    file_path="<string>",
+                                    line_start=stmt.lineno,
+                                    line_end=stmt.lineno,
+                                    severity=IssueSeverity.WARNING,
+                                    category=IssueCategory.LOGIC,
+                                    code="W0101",
+                                    message="Unreachable code",
+                                    message_ar="كود لا يمكن الوصول إليه",
+                                )
+                            )
                             break
                         if isinstance(stmt, ast.Return):
                             found_return = True
@@ -463,12 +484,14 @@ class PythonAnalyzer(BaseAnalyzer):
                         if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
                             methods += 1
 
-            metrics.update({
-                "functions": functions,
-                "classes": classes,
-                "methods": methods,
-                "cyclomatic_complexity": self._calculate_complexity(tree),
-            })
+            metrics.update(
+                {
+                    "functions": functions,
+                    "classes": classes,
+                    "methods": methods,
+                    "cyclomatic_complexity": self._calculate_complexity(tree),
+                }
+            )
 
         except SyntaxError:
             pass
@@ -491,8 +514,18 @@ class PythonAnalyzer(BaseAnalyzer):
         complexity = 1
 
         for node in ast.walk(tree):
-            if isinstance(node, (ast.If, ast.For, ast.While, ast.ExceptHandler,
-                                 ast.With, ast.Assert, ast.comprehension)):
+            if isinstance(
+                node,
+                (
+                    ast.If,
+                    ast.For,
+                    ast.While,
+                    ast.ExceptHandler,
+                    ast.With,
+                    ast.Assert,
+                    ast.comprehension,
+                ),
+            ):
                 complexity += 1
             elif isinstance(node, ast.BoolOp):
                 complexity += len(node.values) - 1

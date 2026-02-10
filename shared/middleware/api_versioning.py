@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 import re
 from collections.abc import Callable
-from enum import Enum
+from enum import StrEnum
 
 from fastapi import APIRouter, HTTPException, Request
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class APIVersion(str, Enum):
+class APIVersion(StrEnum):
     """Supported API versions"""
 
     V1 = "v1"

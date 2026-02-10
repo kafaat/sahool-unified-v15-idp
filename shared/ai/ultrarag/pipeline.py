@@ -42,6 +42,7 @@ logger = structlog.get_logger(__name__)
 
 class RAGStage(Enum):
     """RAG pipeline stages | مراحل خط أنابيب RAG"""
+
     QUERY_PROCESSING = "query_processing"
     RETRIEVAL = "retrieval"
     RERANKING = "reranking"
@@ -53,6 +54,7 @@ class RAGStage(Enum):
 @dataclass
 class StageResult:
     """Result from a pipeline stage | نتيجة مرحلة في خط الأنابيب"""
+
     stage: RAGStage
     success: bool
     data: Any = None
@@ -63,6 +65,7 @@ class StageResult:
 @dataclass
 class PipelineContext:
     """Context passed through pipeline stages | السياق الممرر عبر المراحل"""
+
     request: RAGRequest
     query: str
     expanded_queries: list[str] = field(default_factory=list)
@@ -310,7 +313,7 @@ Alternative queries:"""
                 )
 
                 # Parse response
-                lines = response.strip().split('\n')
+                lines = response.strip().split("\n")
                 for line in lines[:2]:
                     line = line.strip()
                     if line and line not in expansions:
@@ -349,7 +352,7 @@ Alternative queries:"""
 
             # Re-sort by score and limit
             all_results.sort(key=lambda x: x.score, reverse=True)
-            results = all_results[:self.config.top_k * 2]  # Get more for reranking
+            results = all_results[: self.config.top_k * 2]  # Get more for reranking
 
         ctx.retrieval_results = results
         return ctx
@@ -376,9 +379,9 @@ Alternative queries:"""
         """Build context from retrieval results | بناء السياق من النتائج"""
         context_parts = []
 
-        for i, result in enumerate(ctx.retrieval_results[:self.config.rerank_top_k]):
+        for i, result in enumerate(ctx.retrieval_results[: self.config.rerank_top_k]):
             # Build context entry
-            entry = f"[Source {i+1}] (Score: {result.score:.3f})\n{result.chunk.text}"
+            entry = f"[Source {i + 1}] (Score: {result.score:.3f})\n{result.chunk.text}"
 
             # Add Arabic text if available
             if result.chunk.text_ar:
@@ -418,7 +421,7 @@ Alternative queries:"""
         """Post-process results | معالجة النتائج النهائية"""
         # Add source metadata to generation result
         if ctx.generation_result:
-            ctx.generation_result.sources = ctx.retrieval_results[:self.config.rerank_top_k]
+            ctx.generation_result.sources = ctx.retrieval_results[: self.config.rerank_top_k]
 
         return ctx
 
@@ -432,11 +435,7 @@ Alternative queries:"""
 
     def get_metrics(self) -> dict[str, Any]:
         """Get pipeline metrics | الحصول على مقاييس خط الأنابيب"""
-        avg_latency = (
-            self._total_latency_ms / self._query_count
-            if self._query_count > 0
-            else 0.0
-        )
+        avg_latency = self._total_latency_ms / self._query_count if self._query_count > 0 else 0.0
         return {
             "query_count": self._query_count,
             "total_latency_ms": self._total_latency_ms,
@@ -485,7 +484,9 @@ class RAGPipelineBuilder:
         self._config.llm_provider = provider
         return self
 
-    def with_embedding(self, model: str, provider: str = "sentence_transformers") -> "RAGPipelineBuilder":
+    def with_embedding(
+        self, model: str, provider: str = "sentence_transformers"
+    ) -> "RAGPipelineBuilder":
         self._config.embedding_model = model
         self._config.embedding_provider = provider
         return self

@@ -26,13 +26,14 @@ logger = logging.getLogger(__name__)
 @dataclass
 class PoolConfig:
     """Configuration for database connection pool."""
+
     min_connections: int = 2
     max_connections: int = 10
     command_timeout: int = 60
     idle_timeout: int = 300
 
     @classmethod
-    def from_env(cls) -> "PoolConfig":
+    def from_env(cls) -> PoolConfig:
         return cls(
             min_connections=int(os.getenv("DB_POOL_MIN", "2")),
             max_connections=int(os.getenv("DB_POOL_MAX", "10")),
@@ -151,9 +152,15 @@ class IrrigationDatabase:
                     # Save plan
                     await conn.execute(
                         plan_sql,
-                        plan_id, field_id, crop, growth_stage,
-                        total_water_m3, estimated_cost,
-                        len(schedules), tenant_id, datetime.now(UTC),
+                        plan_id,
+                        field_id,
+                        crop,
+                        growth_stage,
+                        total_water_m3,
+                        estimated_cost,
+                        len(schedules),
+                        tenant_id,
+                        datetime.now(UTC),
                     )
 
                     # Save schedules
@@ -172,9 +179,7 @@ class IrrigationDatabase:
                             datetime.now(UTC),
                         )
 
-            logger.info(
-                f"Saved irrigation plan {plan_id} with {len(schedules)} schedules"
-            )
+            logger.info(f"Saved irrigation plan {plan_id} with {len(schedules)} schedules")
             return True
 
         except Exception as e:
@@ -206,9 +211,16 @@ class IrrigationDatabase:
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     sql,
-                    execution_id, field_id, plan_id, schedule_id,
-                    amount_mm, duration_minutes, method,
-                    executed_at, tenant_id, datetime.now(UTC),
+                    execution_id,
+                    field_id,
+                    plan_id,
+                    schedule_id,
+                    amount_mm,
+                    duration_minutes,
+                    method,
+                    executed_at,
+                    tenant_id,
+                    datetime.now(UTC),
                 )
 
             logger.info(f"Saved irrigation execution {execution_id}")
@@ -332,8 +344,7 @@ async def create_pool(database_url: str, config: PoolConfig | None = None):
         )
 
         logger.info(
-            f"Database pool created (min={config.min_connections}, "
-            f"max={config.max_connections})"
+            f"Database pool created (min={config.min_connections}, max={config.max_connections})"
         )
 
         return pool

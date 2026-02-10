@@ -25,13 +25,14 @@ import math
 import re
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any, Callable
 from uuid import uuid4
 
 
-class EntityType(str, Enum):
+class EntityType(StrEnum):
     """Types of entities in the agricultural domain"""
+
     FARM = "farm"
     FIELD = "field"
     CROP = "crop"
@@ -48,34 +49,35 @@ class EntityType(str, Enum):
     CUSTOM = "custom"
 
 
-class RelationType(str, Enum):
+class RelationType(StrEnum):
     """Types of relationships between entities"""
+
     # Ownership/Containment
-    OWNS = "owns"                    # farmer OWNS farm
-    CONTAINS = "contains"            # farm CONTAINS field
-    BELONGS_TO = "belongs_to"        # field BELONGS_TO farm
+    OWNS = "owns"  # farmer OWNS farm
+    CONTAINS = "contains"  # farm CONTAINS field
+    BELONGS_TO = "belongs_to"  # field BELONGS_TO farm
 
     # Agricultural relationships
-    GROWS = "grows"                  # field GROWS crop
-    PLANTED_IN = "planted_in"        # crop PLANTED_IN field
-    APPLIED_TO = "applied_to"        # treatment APPLIED_TO field
+    GROWS = "grows"  # field GROWS crop
+    PLANTED_IN = "planted_in"  # crop PLANTED_IN field
+    APPLIED_TO = "applied_to"  # treatment APPLIED_TO field
     HARVESTED_FROM = "harvested_from"  # harvest HARVESTED_FROM field
 
     # Equipment relationships
-    MONITORS = "monitors"            # sensor MONITORS field
-    USED_IN = "used_in"              # equipment USED_IN field
+    MONITORS = "monitors"  # sensor MONITORS field
+    USED_IN = "used_in"  # equipment USED_IN field
 
     # Advisory relationships
     RECOMMENDS_FOR = "recommends_for"  # advisory RECOMMENDS_FOR field
-    ADDRESSES = "addresses"          # treatment ADDRESSES pest/disease
+    ADDRESSES = "addresses"  # treatment ADDRESSES pest/disease
 
     # Temporal relationships
-    FOLLOWED_BY = "followed_by"      # crop FOLLOWED_BY crop (rotation)
-    PRECEDED_BY = "preceded_by"      # crop PRECEDED_BY crop
+    FOLLOWED_BY = "followed_by"  # crop FOLLOWED_BY crop (rotation)
+    PRECEDED_BY = "preceded_by"  # crop PRECEDED_BY crop
 
     # Similarity/Association
-    SIMILAR_TO = "similar_to"        # entity SIMILAR_TO entity
-    RELATED_TO = "related_to"        # generic relationship
+    SIMILAR_TO = "similar_to"  # entity SIMILAR_TO entity
+    RELATED_TO = "related_to"  # generic relationship
 
     # Custom
     CUSTOM = "custom"
@@ -87,6 +89,7 @@ class Entity:
     An entity in the knowledge graph.
     كيان في رسم المعرفة البياني.
     """
+
     id: str
     type: EntityType
     name: str
@@ -127,8 +130,12 @@ class Entity:
             content_ar=data.get("content_ar"),
             properties=data.get("properties", {}),
             embedding=data.get("embedding"),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if "created_at" in data
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if "updated_at" in data
+            else datetime.now(UTC),
             tenant_id=data.get("tenant_id", "default"),
             metadata=data.get("metadata", {}),
         )
@@ -152,6 +159,7 @@ class Relationship:
     A relationship between two entities.
     علاقة بين كيانين.
     """
+
     id: str
     source_id: str
     target_id: str
@@ -182,7 +190,9 @@ class Relationship:
             relation_type=RelationType(data["relation_type"]),
             weight=data.get("weight", 1.0),
             properties=data.get("properties", {}),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if "created_at" in data
+            else datetime.now(UTC),
             metadata=data.get("metadata", {}),
         )
 
@@ -193,6 +203,7 @@ class SearchResult:
     A search result with relevance scoring.
     نتيجة بحث مع تقييم الصلة.
     """
+
     entity: Entity
     score: float  # Combined score (semantic + graph)
     semantic_score: float  # Vector similarity score
@@ -248,9 +259,7 @@ class GraphStore:
         return self._entities.get(entity_id)
 
     async def get_entities_by_type(
-        self,
-        entity_type: EntityType,
-        tenant_id: str | None = None
+        self, entity_type: EntityType, tenant_id: str | None = None
     ) -> list[Entity]:
         """Get all entities of a specific type"""
         ids = self._type_index.get(entity_type, set())
@@ -292,7 +301,7 @@ class GraphStore:
         self,
         entity_id: str,
         relation_type: RelationType | None = None,
-        direction: str = "both"  # "outgoing", "incoming", "both"
+        direction: str = "both",  # "outgoing", "incoming", "both"
     ) -> list[tuple[Entity, Relationship]]:
         """Get neighboring entities with their relationships"""
         neighbors = []
@@ -358,9 +367,7 @@ class GraphStore:
         return {
             "total_entities": len(self._entities),
             "total_relationships": len(self._relationships),
-            "entities_by_type": {
-                t.value: len(ids) for t, ids in self._type_index.items()
-            },
+            "entities_by_type": {t.value: len(ids) for t, ids in self._type_index.items()},
             "tenants": list(self._tenant_index.keys()),
         }
 
@@ -384,12 +391,14 @@ class SimpleEmbedder:
         """Simple tokenization"""
         text = text.lower()
         # Handle Arabic text
-        tokens = re.findall(r'[\w\u0600-\u06FF]+', text)
+        tokens = re.findall(r"[\w\u0600-\u06FF]+", text)
         return tokens
 
     def _hash_token(self, token: str) -> int:
         """Hash token to dimension index (not for security, just distribution)"""
-        return int(hashlib.md5(token.encode(), usedforsecurity=False).hexdigest(), 16) % self.dimension
+        return (
+            int(hashlib.md5(token.encode(), usedforsecurity=False).hexdigest(), 16) % self.dimension
+        )
 
     async def embed(self, text: str) -> list[float]:
         """Create embedding for text"""
@@ -466,7 +475,7 @@ class GraphMemory:
         self,
         store: GraphStore | None = None,
         embedder: SimpleEmbedder | None = None,
-        tenant_id: str = "default"
+        tenant_id: str = "default",
     ):
         self.store = store or GraphStore()
         self.embedder = embedder or SimpleEmbedder()
@@ -479,72 +488,89 @@ class GraphMemory:
 
     def _register_default_extractors(self) -> None:
         """Register default relationship extractors"""
+
         # Farm-Field relationship
-        async def extract_farm_field(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
+        async def extract_farm_field(
+            entity: Entity, all_entities: list[Entity]
+        ) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.FIELD:
                 farm_id = entity.properties.get("farm_id")
                 if farm_id:
                     for e in all_entities:
                         if e.type == EntityType.FARM and e.id == farm_id:
-                            relationships.append(Relationship(
-                                id=str(uuid4()),
-                                source_id=e.id,
-                                target_id=entity.id,
-                                relation_type=RelationType.CONTAINS,
-                                weight=1.0,
-                            ))
+                            relationships.append(
+                                Relationship(
+                                    id=str(uuid4()),
+                                    source_id=e.id,
+                                    target_id=entity.id,
+                                    relation_type=RelationType.CONTAINS,
+                                    weight=1.0,
+                                )
+                            )
             return relationships
 
         # Field-Crop relationship
-        async def extract_field_crop(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
+        async def extract_field_crop(
+            entity: Entity, all_entities: list[Entity]
+        ) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.CROP:
                 field_id = entity.properties.get("field_id")
                 if field_id:
                     for e in all_entities:
                         if e.type == EntityType.FIELD and e.id == field_id:
-                            relationships.append(Relationship(
-                                id=str(uuid4()),
-                                source_id=e.id,
-                                target_id=entity.id,
-                                relation_type=RelationType.GROWS,
-                                weight=1.0,
-                            ))
+                            relationships.append(
+                                Relationship(
+                                    id=str(uuid4()),
+                                    source_id=e.id,
+                                    target_id=entity.id,
+                                    relation_type=RelationType.GROWS,
+                                    weight=1.0,
+                                )
+                            )
             return relationships
 
         # Farmer-Farm relationship
-        async def extract_farmer_farm(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
+        async def extract_farmer_farm(
+            entity: Entity, all_entities: list[Entity]
+        ) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.FARM:
                 farmer_id = entity.properties.get("farmer_id") or entity.properties.get("owner_id")
                 if farmer_id:
                     for e in all_entities:
                         if e.type == EntityType.FARMER and e.id == farmer_id:
-                            relationships.append(Relationship(
-                                id=str(uuid4()),
-                                source_id=e.id,
-                                target_id=entity.id,
-                                relation_type=RelationType.OWNS,
-                                weight=1.0,
-                            ))
+                            relationships.append(
+                                Relationship(
+                                    id=str(uuid4()),
+                                    source_id=e.id,
+                                    target_id=entity.id,
+                                    relation_type=RelationType.OWNS,
+                                    weight=1.0,
+                                )
+                            )
             return relationships
 
         # Similarity relationship based on embeddings
-        async def extract_similarity(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
+        async def extract_similarity(
+            entity: Entity, all_entities: list[Entity]
+        ) -> list[Relationship]:
             relationships = []
             if entity.embedding:
                 for e in all_entities:
                     if e.id != entity.id and e.type == entity.type and e.embedding:
                         sim = cosine_similarity(entity.embedding, e.embedding)
                         if sim > 0.7:  # High similarity threshold
-                            relationships.append(Relationship(
-                                id=str(uuid4()),
-                                source_id=entity.id,
-                                target_id=e.id,
-                                relation_type=RelationType.SIMILAR_TO,
-                                weight=sim,
-                            ))
+                            relationships.append(
+                                Relationship(
+                                    id=str(uuid4()),
+                                    source_id=entity.id,
+                                    target_id=e.id,
+                                    relation_type=RelationType.SIMILAR_TO,
+                                    weight=sim,
+                                )
+                            )
             return relationships
 
         self._relationship_extractors = [
@@ -715,19 +741,18 @@ class GraphMemory:
             graph_score = min(1.0, total_connections / 10.0)
 
             # Combined score
-            combined_score = (
-                semantic_weight * semantic_score +
-                graph_weight * graph_score
-            )
+            combined_score = semantic_weight * semantic_score + graph_weight * graph_score
 
             if combined_score >= min_score:
-                results.append(SearchResult(
-                    entity=entity,
-                    score=combined_score,
-                    semantic_score=semantic_score,
-                    graph_score=graph_score,
-                    relationships=outgoing + incoming,
-                ))
+                results.append(
+                    SearchResult(
+                        entity=entity,
+                        score=combined_score,
+                        semantic_score=semantic_score,
+                        graph_score=graph_score,
+                        relationships=outgoing + incoming,
+                    )
+                )
 
         # Sort by score descending
         results.sort(key=lambda x: x.score, reverse=True)
@@ -778,14 +803,16 @@ class GraphMemory:
                     # Score based on depth and relationship weights
                     score = rel.weight / (level + 1)
 
-                    results.append(SearchResult(
-                        entity=neighbor,
-                        score=score,
-                        semantic_score=0.0,
-                        graph_score=score,
-                        path=new_path,
-                        relationships=new_rels,
-                    ))
+                    results.append(
+                        SearchResult(
+                            entity=neighbor,
+                            score=score,
+                            semantic_score=0.0,
+                            graph_score=score,
+                            path=new_path,
+                            relationships=new_rels,
+                        )
+                    )
 
                     next_level.append((neighbor, new_path, new_rels))
 
@@ -828,8 +855,7 @@ class GraphMemory:
         return rel
 
     def add_relationship_extractor(
-        self,
-        extractor: Callable[[Entity, list[Entity]], list[Relationship]]
+        self, extractor: Callable[[Entity, list[Entity]], list[Relationship]]
     ) -> None:
         """Add a custom relationship extractor"""
         self._relationship_extractors.append(extractor)
@@ -858,11 +884,7 @@ def get_graph_memory(tenant_id: str = "default") -> GraphMemory:
 
 
 # Convenience functions (Cognee-style API)
-async def add(
-    content: str,
-    entity_type: EntityType = EntityType.DOCUMENT,
-    **kwargs
-) -> Entity:
+async def add(content: str, entity_type: EntityType = EntityType.DOCUMENT, **kwargs) -> Entity:
     """Add content to graph memory"""
     memory = get_graph_memory()
     return await memory.add(content, entity_type, **kwargs)
@@ -888,6 +910,7 @@ async def search(query: str, limit: int = 10, **kwargs) -> list[SearchResult]:
 # ============================================================================
 # Vector Store Integration
 # ============================================================================
+
 
 class PersistentGraphStore(GraphStore):
     """

@@ -178,6 +178,7 @@ def readiness():
 
     if not is_ready:
         from fastapi.responses import JSONResponse
+
         return JSONResponse(
             content={"status": "not_ready", "service": "advisory_service", "checks": checks},
             status_code=503,

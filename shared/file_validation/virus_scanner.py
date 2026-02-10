@@ -223,6 +223,7 @@ class CloudVirusScanner(VirusScannerInterface):
             detection_threshold: Number of positive detections to consider file malicious
         """
         import os
+
         self.api_key = api_key or os.getenv("VIRUSTOTAL_API_KEY")
         self.timeout = timeout
         self.detection_threshold = detection_threshold
@@ -232,12 +233,13 @@ class CloudVirusScanner(VirusScannerInterface):
         """Get or create HTTP client lazily"""
         if self._http_client is None:
             import httpx
+
             self._http_client = httpx.AsyncClient(
                 timeout=self.timeout,
                 headers={
                     "x-apikey": self.api_key or "",
                     "Accept": "application/json",
-                }
+                },
             )
         return self._http_client
 
@@ -301,7 +303,10 @@ class CloudVirusScanner(VirusScannerInterface):
 
                 logger.info(
                     "VirusTotal report found: malicious=%d, suspicious=%d, threshold=%d, safe=%s",
-                    malicious, suspicious, self.detection_threshold, is_safe
+                    malicious,
+                    suspicious,
+                    self.detection_threshold,
+                    is_safe,
                 )
                 return is_safe
 
@@ -363,9 +368,7 @@ class CloudVirusScanner(VirusScannerInterface):
         """
         for attempt in range(max_attempts):
             try:
-                response = await client.get(
-                    f"{self.VIRUSTOTAL_API_URL}/analyses/{analysis_id}"
-                )
+                response = await client.get(f"{self.VIRUSTOTAL_API_URL}/analyses/{analysis_id}")
 
                 if response.status_code == 200:
                     data = response.json()
@@ -381,12 +384,16 @@ class CloudVirusScanner(VirusScannerInterface):
 
                         logger.info(
                             "VirusTotal scan complete: malicious=%d, suspicious=%d, safe=%s",
-                            malicious, suspicious, is_safe
+                            malicious,
+                            suspicious,
+                            is_safe,
                         )
                         return is_safe
 
                     elif status in ("queued", "in-progress"):
-                        logger.debug("Analysis in progress, attempt %d/%d", attempt + 1, max_attempts)
+                        logger.debug(
+                            "Analysis in progress, attempt %d/%d", attempt + 1, max_attempts
+                        )
                         await asyncio.sleep(poll_interval)
                         continue
 

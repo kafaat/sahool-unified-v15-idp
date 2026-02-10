@@ -42,6 +42,7 @@ def validate_field_id(field_id: str) -> str:
         )
     return field_id
 
+
 from ..schemas import (
     DEPRESSION_RISK_AR,
     DRAINAGE_TYPE_AR,
@@ -93,17 +94,13 @@ router = APIRouter(prefix="/api/v1/hydrology", tags=["Hydrology | الهيدرو
 # ==============================================================================
 
 
-def get_tenant_id(
-    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")
-) -> str | None:
+def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str | None:
     """Extract tenant ID from header (optional)."""
     return x_tenant_id
 
 
 async def fetch_dem_from_terrain_service(
-    field_id: str,
-    tenant_id: str | None = None,
-    resolution_m: float = 30.0
+    field_id: str, tenant_id: str | None = None, resolution_m: float = 30.0
 ) -> DEMData | None:
     """
     Fetch DEM data from terrain-core-service.
@@ -129,11 +126,8 @@ async def fetch_dem_from_terrain_service(
             # Use the correct DEM endpoint path: /api/v1/terrain/dem/{field_id}
             response = await client.get(
                 f"{settings.terrain_service_url}/api/v1/terrain/dem/{validated_field_id}",
-                params={
-                    "include_data": "true",
-                    "resolution_m": resolution_m
-                },
-                headers=headers
+                params={"include_data": "true", "resolution_m": resolution_m},
+                headers=headers,
             )
 
             if response.status_code == 200:
@@ -150,44 +144,39 @@ async def fetch_dem_from_terrain_service(
                             bounds.get("min_lon", 45.0),
                             bounds.get("min_lat", 15.0),
                             bounds.get("max_lon", 45.1),
-                            bounds.get("max_lat", 15.1)
-                        ) if bounds else None
+                            bounds.get("max_lat", 15.1),
+                        )
+                        if bounds
+                        else None,
                     )
                     logger.info(
                         "Fetched DEM from terrain service",
                         field_id=field_id,
                         rows=dem.rows,
-                        cols=dem.cols
+                        cols=dem.cols,
                     )
                     return dem
                 else:
                     logger.warning(
                         "DEM data not included in response (field may be too large)",
-                        field_id=field_id
+                        field_id=field_id,
                     )
                     return None
             else:
                 logger.warning(
                     "Failed to fetch DEM from terrain service",
                     field_id=field_id,
-                    status=response.status_code
+                    status=response.status_code,
                 )
                 return None
 
     except Exception as e:
-        logger.warning(
-            "Error fetching DEM from terrain service",
-            field_id=field_id,
-            error=str(e)
-        )
+        logger.warning("Error fetching DEM from terrain service", field_id=field_id, error=str(e))
         return None
 
 
 async def fetch_rainfall_from_weather_service(
-    lat: float,
-    lon: float,
-    days: int = 30,
-    tenant_id: str | None = None
+    lat: float, lon: float, days: int = 30, tenant_id: str | None = None
 ) -> dict[str, Any] | None:
     """
     Fetch rainfall data from weather-service.
@@ -209,29 +198,24 @@ async def fetch_rainfall_from_weather_service(
                     "lat": lat,
                     "lon": lon,
                 },
-                headers=headers
+                headers=headers,
             )
 
             if response.status_code == 200:
                 return response.json()
             else:
                 logger.warning(
-                    "Failed to fetch rainfall from weather service",
-                    status=response.status_code
+                    "Failed to fetch rainfall from weather service", status=response.status_code
                 )
                 return None
 
     except Exception as e:
-        logger.warning(
-            "Error fetching rainfall from weather service",
-            error=str(e)
-        )
+        logger.warning("Error fetching rainfall from weather service", error=str(e))
         return None
 
 
 def generate_mock_analysis_data(
-    field_id: str,
-    resolution_m: float = 30.0
+    field_id: str, resolution_m: float = 30.0
 ) -> tuple[DEMData, HydrologyAnalyzer]:
     """Generate mock DEM and run analysis for testing."""
     # Generate synthetic DEM
@@ -241,7 +225,7 @@ def generate_mock_analysis_data(
         resolution=resolution_m,
         base_elevation=100.0,
         relief=50.0,
-        bounds=(45.0, 15.0, 45.1, 15.1)  # Mock bounds in Yemen region
+        bounds=(45.0, 15.0, 45.1, 15.1),  # Mock bounds in Yemen region
     )
 
     # Run analysis
@@ -259,8 +243,7 @@ def generate_mock_analysis_data(
 
 @router.post("/analyze", response_model=HydrologyAnalysisResponse)
 async def analyze_hydrology(
-    request: HydrologyAnalysisRequest,
-    tenant_id: str | None = Depends(get_tenant_id)
+    request: HydrologyAnalysisRequest, tenant_id: str | None = Depends(get_tenant_id)
 ) -> HydrologyAnalysisResponse:
     """
     Full hydrology analysis for a field.
@@ -282,30 +265,20 @@ async def analyze_hydrology(
     effective_tenant_id = request.tenant_id or tenant_id
 
     logger.info(
-        "Starting hydrology analysis",
-        field_id=request.field_id,
-        tenant_id=effective_tenant_id
+        "Starting hydrology analysis", field_id=request.field_id, tenant_id=effective_tenant_id
     )
 
     # Try to fetch real DEM data
-    dem = await fetch_dem_from_terrain_service(
-        request.field_id,
-        effective_tenant_id
-    )
+    dem = await fetch_dem_from_terrain_service(request.field_id, effective_tenant_id)
 
     # Fall back to mock data if no DEM available
     if dem is None:
         logger.info("Using mock DEM data for analysis")
-        dem, analyzer = generate_mock_analysis_data(
-            request.field_id,
-            request.resolution_m
-        )
+        dem, analyzer = generate_mock_analysis_data(request.field_id, request.resolution_m)
     else:
         analyzer = HydrologyAnalyzer()
         analyzer.load_dem(dem)
-        analyzer.run_full_analysis(
-            flow_threshold=settings.flow_accumulation_threshold
-        )
+        analyzer.run_full_analysis(flow_threshold=settings.flow_accumulation_threshold)
 
     # Fetch rainfall data if requested
     rainfall_data = None
@@ -313,10 +286,7 @@ async def analyze_hydrology(
         center_lat = (dem.bounds[1] + dem.bounds[3]) / 2
         center_lon = (dem.bounds[0] + dem.bounds[2]) / 2
         rainfall_data = await fetch_rainfall_from_weather_service(
-            center_lat,
-            center_lon,
-            request.rainfall_period_days,
-            effective_tenant_id
+            center_lat, center_lon, request.rainfall_period_days, effective_tenant_id
         )
 
     # Build response
@@ -346,10 +316,7 @@ async def analyze_hydrology(
 
     # Generate recommendations
     recommendations_ar, recommendations_en = generate_recommendations(
-        drainage,
-        wetness,
-        depressions,
-        flood_risk
+        drainage, wetness, depressions, flood_risk
     )
 
     result = HydrologyAnalysisResult(
@@ -361,8 +328,7 @@ async def analyze_hydrology(
         field_area_ha=round(field_area_ha, 2),
         mean_elevation_m=round(float(analyzer.dem.elevation.mean()), 1),
         elevation_range_m=round(
-            float(analyzer.dem.elevation.max() - analyzer.dem.elevation.min()),
-            1
+            float(analyzer.dem.elevation.max() - analyzer.dem.elevation.min()), 1
         ),
         mean_slope_percent=round(float(analyzer.flow_data.slope.mean()) * 100 / 45, 1),
         drainage=drainage,
@@ -383,13 +349,11 @@ async def analyze_hydrology(
     logger.info(
         "Hydrology analysis complete",
         field_id=request.field_id,
-        processing_time_ms=round(processing_time, 2)
+        processing_time_ms=round(processing_time, 2),
     )
 
     return HydrologyAnalysisResponse(
-        success=True,
-        data=result,
-        processing_time_ms=round(processing_time, 2)
+        success=True, data=result, processing_time_ms=round(processing_time, 2)
     )
 
 
@@ -397,16 +361,12 @@ async def analyze_hydrology(
 async def get_drainage_network(
     field_id: str,
     flow_threshold: int = Query(
-        default=100,
-        ge=10,
-        le=10000,
-        description="Flow accumulation threshold"
+        default=100, ge=10, le=10000, description="Flow accumulation threshold"
     ),
     include_pattern: bool = Query(
-        default=True,
-        description="Include drainage pattern classification"
+        default=True, description="Include drainage pattern classification"
     ),
-    tenant_id: str | None = Depends(get_tenant_id)
+    tenant_id: str | None = Depends(get_tenant_id),
 ) -> DrainageNetworkResponse:
     """
     Get drainage network for a field.
@@ -425,23 +385,18 @@ async def get_drainage_network(
         data=drainage,
         analyzed_at=datetime.now(UTC),
         dem_source="mock",
-        resolution_m=dem.resolution
+        resolution_m=dem.resolution,
     )
 
 
 @router.get("/wetness/{field_id}", response_model=WetnessAnalysisResponse)
 async def get_wetness_analysis(
     field_id: str,
-    include_prediction: bool = Query(
-        default=True,
-        description="Include waterlogging prediction"
-    ),
+    include_prediction: bool = Query(default=True, description="Include waterlogging prediction"),
     rainfall_mm: float | None = Query(
-        default=None,
-        ge=0,
-        description="Expected rainfall for prediction"
+        default=None, ge=0, description="Expected rainfall for prediction"
     ),
-    tenant_id: str | None = Depends(get_tenant_id)
+    tenant_id: str | None = Depends(get_tenant_id),
 ) -> WetnessAnalysisResponse:
     """
     Get wetness/waterlogging analysis for a field.
@@ -462,28 +417,17 @@ async def get_wetness_analysis(
 
     wetness = build_wetness_analysis(analyzer, dem, field_id, rainfall_data)
 
-    return WetnessAnalysisResponse(
-        success=True,
-        data=wetness,
-        analyzed_at=datetime.now(UTC)
-    )
+    return WetnessAnalysisResponse(success=True, data=wetness, analyzed_at=datetime.now(UTC))
 
 
 @router.get("/depressions/{field_id}", response_model=DepressionAnalysisResponse)
 async def get_depressions(
     field_id: str,
     min_depth_m: float = Query(
-        default=0.1,
-        ge=0.01,
-        le=10.0,
-        description="Minimum depression depth"
+        default=0.1, ge=0.01, le=10.0, description="Minimum depression depth"
     ),
-    min_area_sqm: float = Query(
-        default=10.0,
-        ge=1.0,
-        description="Minimum depression area"
-    ),
-    tenant_id: str | None = Depends(get_tenant_id)
+    min_area_sqm: float = Query(default=10.0, ge=1.0, description="Minimum depression area"),
+    tenant_id: str | None = Depends(get_tenant_id),
 ) -> DepressionAnalysisResponse:
     """
     Identify depressions/sinks in the field.
@@ -498,23 +442,14 @@ async def get_depressions(
     dem, analyzer = generate_mock_analysis_data(field_id)
     depressions = build_depression_analysis(analyzer, dem, field_id)
 
-    return DepressionAnalysisResponse(
-        success=True,
-        data=depressions,
-        analyzed_at=datetime.now(UTC)
-    )
+    return DepressionAnalysisResponse(success=True, data=depressions, analyzed_at=datetime.now(UTC))
 
 
 @router.get("/streams/{field_id}", response_model=StreamNetworkResponse)
 async def get_streams(
     field_id: str,
-    min_order: int = Query(
-        default=1,
-        ge=1,
-        le=6,
-        description="Minimum Strahler stream order"
-    ),
-    tenant_id: str | None = Depends(get_tenant_id)
+    min_order: int = Query(default=1, ge=1, le=6, description="Minimum Strahler stream order"),
+    tenant_id: str | None = Depends(get_tenant_id),
 ) -> StreamNetworkResponse:
     """
     Detect streams in the field.
@@ -528,22 +463,14 @@ async def get_streams(
     dem, analyzer = generate_mock_analysis_data(field_id)
     streams = build_stream_network(analyzer, dem, field_id)
 
-    return StreamNetworkResponse(
-        success=True,
-        data=streams,
-        analyzed_at=datetime.now(UTC)
-    )
+    return StreamNetworkResponse(success=True, data=streams, analyzed_at=datetime.now(UTC))
 
 
 @router.get("/basins/{field_id}", response_model=BasinDelineationResponse)
 async def get_basins(
     field_id: str,
-    min_area_ha: float = Query(
-        default=0.5,
-        ge=0.1,
-        description="Minimum basin area in hectares"
-    ),
-    tenant_id: str | None = Depends(get_tenant_id)
+    min_area_ha: float = Query(default=0.5, ge=0.1, description="Minimum basin area in hectares"),
+    tenant_id: str | None = Depends(get_tenant_id),
 ) -> BasinDelineationResponse:
     """
     Delineate drainage basins/watersheds.
@@ -558,11 +485,7 @@ async def get_basins(
     dem, analyzer = generate_mock_analysis_data(field_id)
     basins = build_basin_delineation(analyzer, dem, field_id)
 
-    return BasinDelineationResponse(
-        success=True,
-        data=basins,
-        analyzed_at=datetime.now(UTC)
-    )
+    return BasinDelineationResponse(success=True, data=basins, analyzed_at=datetime.now(UTC))
 
 
 # ==============================================================================
@@ -571,9 +494,7 @@ async def get_basins(
 
 
 def build_drainage_network(
-    analyzer: HydrologyAnalyzer,
-    dem: DEMData,
-    field_id: str
+    analyzer: HydrologyAnalyzer, dem: DEMData, field_id: str
 ) -> DrainageNetwork:
     """Build DrainageNetwork response from analyzer results."""
     import random
@@ -599,14 +520,16 @@ def build_drainage_network(
         length_m = len(seg.cells) * dem.resolution
         total_length += length_m
 
-        segments.append(DrainageSegment(
-            segment_id=seg.segment_id,
-            coordinates=coords,
-            stream_order=seg.stream_order,
-            length_m=round(length_m, 1),
-            upstream_area_ha=round(seg.upstream_cells * dem.cell_area / 10000, 2),
-            slope_percent=round(random.uniform(1, 10), 1)
-        ))
+        segments.append(
+            DrainageSegment(
+                segment_id=seg.segment_id,
+                coordinates=coords,
+                stream_order=seg.stream_order,
+                length_m=round(length_m, 1),
+                upstream_area_ha=round(seg.upstream_cells * dem.cell_area / 10000, 2),
+                slope_percent=round(random.uniform(1, 10), 1),
+            )
+        )
 
     # Calculate drainage density
     field_area_ha = dem.rows * dem.cols * dem.cell_area / 10000
@@ -650,8 +573,8 @@ def build_drainage_network(
         statistics={
             "segment_count": len(segments),
             "order_distribution": order_counts,
-            "mean_segment_length_m": round(total_length / len(segments), 1) if segments else 0
-        }
+            "mean_segment_length_m": round(total_length / len(segments), 1) if segments else 0,
+        },
     )
 
 
@@ -659,7 +582,7 @@ def build_wetness_analysis(
     analyzer: HydrologyAnalyzer,
     dem: DEMData,
     field_id: str,
-    rainfall_data: dict[str, Any] | None = None
+    rainfall_data: dict[str, Any] | None = None,
 ) -> WetnessAnalysis:
     """Build WetnessAnalysis response from analyzer results."""
     import numpy as np
@@ -673,17 +596,19 @@ def build_wetness_analysis(
     zones = []
     for zd in zone_data:
         level = WetnessLevel(zd["level"])
-        zones.append(WetnessZone(
-            zone_id=str(uuid.uuid4())[:8],
-            level=level,
-            level_ar=WETNESS_LEVEL_AR[level],
-            area_ha=round(zd["area_ha"], 2),
-            percentage=round(zd["percentage"], 1),
-            twi_mean=round((zd["twi_range"][0] + zd["twi_range"][1]) / 2, 1),
-            twi_range=(round(zd["twi_range"][0], 1), round(zd["twi_range"][1], 1)),
-            recommendations_ar=get_wetness_recommendations_ar(level),
-            recommendations_en=get_wetness_recommendations_en(level)
-        ))
+        zones.append(
+            WetnessZone(
+                zone_id=str(uuid.uuid4())[:8],
+                level=level,
+                level_ar=WETNESS_LEVEL_AR[level],
+                area_ha=round(zd["area_ha"], 2),
+                percentage=round(zd["percentage"], 1),
+                twi_mean=round((zd["twi_range"][0] + zd["twi_range"][1]) / 2, 1),
+                twi_range=(round(zd["twi_range"][0], 1), round(zd["twi_range"][1], 1)),
+                recommendations_ar=get_wetness_recommendations_ar(level),
+                recommendations_en=get_wetness_recommendations_en(level),
+            )
+        )
 
     # Find dominant level
     dominant_zone = max(zones, key=lambda z: z.area_ha) if zones else None
@@ -708,7 +633,7 @@ def build_wetness_analysis(
             affected_percentage=round(10 * (total_rainfall / 50), 1),
             time_to_drain_hours=24 + total_rainfall * 0.5,
             mitigation_ar=["تحسين نظام الصرف", "إنشاء قنوات تصريف إضافية"],
-            mitigation_en=["Improve drainage system", "Create additional drainage channels"]
+            mitigation_en=["Improve drainage system", "Create additional drainage channels"],
         )
 
     return WetnessAnalysis(
@@ -722,14 +647,12 @@ def build_wetness_analysis(
         dominant_level_ar=WETNESS_LEVEL_AR[dominant_level],
         zones=zones,
         waterlogging_prediction=prediction,
-        irrigation_efficiency_score=round(irrigation_efficiency, 1)
+        irrigation_efficiency_score=round(irrigation_efficiency, 1),
     )
 
 
 def build_depression_analysis(
-    analyzer: HydrologyAnalyzer,
-    dem: DEMData,
-    field_id: str
+    analyzer: HydrologyAnalyzer, dem: DEMData, field_id: str
 ) -> DepressionAnalysis:
     """Build DepressionAnalysis response from analyzer results."""
     field_area_ha = dem.rows * dem.cols * dem.cell_area / 10000
@@ -771,20 +694,24 @@ def build_depression_analysis(
         else:
             center = GeoPoint(lat=15.0, lon=45.0)
 
-        depressions.append(Depression(
-            depression_id=dep.depression_id,
-            center=center,
-            depth_m=round(dep.depth_m, 2),
-            area_sqm=round(area_sqm, 1),
-            volume_m3=round(dep.volume_m3, 2),
-            perimeter_m=round(len(dep.cells) * 4 * dem.resolution / 3, 1),
-            risk_level=risk,
-            risk_level_ar=DEPRESSION_RISK_AR[risk],
-            drainage_recommendations_ar=get_depression_recommendations_ar(risk),
-            drainage_recommendations_en=get_depression_recommendations_en(risk)
-        ))
+        depressions.append(
+            Depression(
+                depression_id=dep.depression_id,
+                center=center,
+                depth_m=round(dep.depth_m, 2),
+                area_sqm=round(area_sqm, 1),
+                volume_m3=round(dep.volume_m3, 2),
+                perimeter_m=round(len(dep.cells) * 4 * dem.resolution / 3, 1),
+                risk_level=risk,
+                risk_level_ar=DEPRESSION_RISK_AR[risk],
+                drainage_recommendations_ar=get_depression_recommendations_ar(risk),
+                drainage_recommendations_en=get_depression_recommendations_en(risk),
+            )
+        )
 
-    depressions_percentage = (total_area / (field_area_ha * 10000)) * 100 if field_area_ha > 0 else 0
+    depressions_percentage = (
+        (total_area / (field_area_ha * 10000)) * 100 if field_area_ha > 0 else 0
+    )
 
     # Generate summary
     if critical_count > 0:
@@ -808,15 +735,11 @@ def build_depression_analysis(
         critical_count=critical_count,
         depressions=depressions,
         summary_ar=summary_ar,
-        summary_en=summary_en
+        summary_en=summary_en,
     )
 
 
-def build_stream_network(
-    analyzer: HydrologyAnalyzer,
-    dem: DEMData,
-    field_id: str
-) -> StreamNetwork:
+def build_stream_network(analyzer: HydrologyAnalyzer, dem: DEMData, field_id: str) -> StreamNetwork:
     """Build StreamNetwork response from analyzer results."""
     streams = []
     max_order = 1
@@ -845,15 +768,17 @@ def build_stream_network(
         length_m = len(seg.cells) * dem.resolution
         total_length += length_m
 
-        streams.append(Stream(
-            stream_id=seg.segment_id,
-            order=order,
-            coordinates=coords,
-            length_m=round(length_m, 1),
-            avg_slope_percent=round(5.0, 1),  # Mock value
-            upstream_area_ha=round(seg.upstream_cells * dem.cell_area / 10000, 2),
-            is_perennial=order >= 3
-        ))
+        streams.append(
+            Stream(
+                stream_id=seg.segment_id,
+                order=order,
+                coordinates=coords,
+                length_m=round(length_m, 1),
+                avg_slope_percent=round(5.0, 1),  # Mock value
+                upstream_area_ha=round(seg.upstream_cells * dem.cell_area / 10000, 2),
+                is_perennial=order >= 3,
+            )
+        )
 
     # Find main stream
     main_stream_length = max([s.length_m for s in streams]) if streams else 0
@@ -869,15 +794,13 @@ def build_stream_network(
         hydraulic_geometry={
             "width_coefficient": 2.5,
             "depth_coefficient": 0.4,
-            "velocity_coefficient": 0.3
-        }
+            "velocity_coefficient": 0.3,
+        },
     )
 
 
 def build_basin_delineation(
-    analyzer: HydrologyAnalyzer,
-    dem: DEMData,
-    field_id: str
+    analyzer: HydrologyAnalyzer, dem: DEMData, field_id: str
 ) -> BasinDelineation:
     """Build BasinDelineation response from analyzer results."""
     import math
@@ -926,7 +849,7 @@ def build_basin_delineation(
         # Time of concentration (Kirpich formula simplified)
         length_km = math.sqrt(area_ha / 100)
         slope = 5.0  # percent
-        tc_hours = 0.0195 * (length_km * 1000) ** 0.77 / (slope ** 0.385) / 60
+        tc_hours = 0.0195 * (length_km * 1000) ** 0.77 / (slope**0.385) / 60
         tc_minutes = tc_hours * 60
 
         # Create boundary polygon (simplified rectangle for mock)
@@ -940,21 +863,22 @@ def build_basin_delineation(
             ]
         )
 
-        sub_basins.append(SubBasin(
-            basin_id=basin_data["basin_id"],
-            area_ha=round(area_ha, 2),
-            perimeter_m=round(perimeter, 1),
-            centroid=centroid,
-            pour_point=pour_point,
-            mean_elevation_m=round(basin_data["mean_elevation"], 1),
-            elevation_range_m=round(
-                basin_data["max_elevation"] - basin_data["min_elevation"],
-                1
-            ),
-            mean_slope_percent=5.0,
-            time_of_concentration_min=round(tc_minutes, 1),
-            boundary=boundary
-        ))
+        sub_basins.append(
+            SubBasin(
+                basin_id=basin_data["basin_id"],
+                area_ha=round(area_ha, 2),
+                perimeter_m=round(perimeter, 1),
+                centroid=centroid,
+                pour_point=pour_point,
+                mean_elevation_m=round(basin_data["mean_elevation"], 1),
+                elevation_range_m=round(
+                    basin_data["max_elevation"] - basin_data["min_elevation"], 1
+                ),
+                mean_slope_percent=5.0,
+                time_of_concentration_min=round(tc_minutes, 1),
+                boundary=boundary,
+            )
+        )
 
     # Main outlet
     if sub_basins:
@@ -972,21 +896,19 @@ def build_basin_delineation(
         total_area_ha=round(total_area, 2),
         main_basin_area_ha=round(main_basin_area, 2),
         outlet_point=main_outlet,
-        mean_elevation_m=round(
-            sum(b.mean_elevation_m for b in sub_basins) / len(sub_basins),
-            1
-        ) if sub_basins else 100.0,
+        mean_elevation_m=round(sum(b.mean_elevation_m for b in sub_basins) / len(sub_basins), 1)
+        if sub_basins
+        else 100.0,
         relief_m=50.0,  # Mock value
         elongation_ratio=round(elongation_ratio, 2),
         circularity_ratio=round(circularity_ratio, 2),
         basins=sub_basins,
-        runoff_coefficient=0.3  # Typical agricultural value
+        runoff_coefficient=0.3,  # Typical agricultural value
     )
 
 
 def calculate_flood_risk(
-    wetness: WetnessAnalysis,
-    depressions: DepressionAnalysis
+    wetness: WetnessAnalysis, depressions: DepressionAnalysis
 ) -> DepressionRisk:
     """Calculate overall flood risk level."""
     # Score based on multiple factors
@@ -1023,10 +945,7 @@ def calculate_flood_risk(
         return DepressionRisk.LOW
 
 
-def calculate_drainage_quality_score(
-    drainage: DrainageNetwork,
-    wetness: WetnessAnalysis
-) -> float:
+def calculate_drainage_quality_score(drainage: DrainageNetwork, wetness: WetnessAnalysis) -> float:
     """Calculate overall drainage quality score (0-100)."""
     score = 100.0
 
@@ -1057,7 +976,7 @@ def generate_recommendations(
     drainage: DrainageNetwork,
     wetness: WetnessAnalysis,
     depressions: DepressionAnalysis,
-    flood_risk: DepressionRisk
+    flood_risk: DepressionRisk,
 ) -> tuple[list[str], list[str]]:
     """Generate recommendations based on analysis results."""
     recommendations_ar = []
@@ -1076,7 +995,9 @@ def generate_recommendations(
     # Depression recommendations
     if depressions.critical_count > 0:
         recommendations_ar.append("معالجة المنخفضات الحرجة فوراً لتجنب التشبع المائي")
-        recommendations_en.append("Address critical depressions immediately to prevent waterlogging")
+        recommendations_en.append(
+            "Address critical depressions immediately to prevent waterlogging"
+        )
     elif depressions.high_risk_count > 0:
         recommendations_ar.append("ردم المنخفضات عالية الخطورة أو إنشاء صرف تحتي")
         recommendations_en.append("Fill high-risk depressions or install subsurface drainage")
@@ -1123,7 +1044,10 @@ def get_wetness_recommendations_en(level: WetnessLevel) -> list[str]:
         WetnessLevel.MODERATE: ["Maintain current irrigation schedule"],
         WetnessLevel.WET: ["Reduce irrigation rate", "Ensure drainage system is working"],
         WetnessLevel.VERY_WET: ["Temporarily stop irrigation", "Improve drainage"],
-        WetnessLevel.WATERLOGGED: ["Urgent intervention to drain excess water", "Create emergency drainage channels"],
+        WetnessLevel.WATERLOGGED: [
+            "Urgent intervention to drain excess water",
+            "Create emergency drainage channels",
+        ],
     }
     return recs.get(level, [])
 

@@ -4,13 +4,13 @@ SAHOOL Notification Service - Database Models
 """
 
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 
 from tortoise import fields
 from tortoise.models import Model
 
 
-class ChannelType(str, Enum):
+class ChannelType(StrEnum):
     """
     نوع القناة - Channel Type Enum
     """

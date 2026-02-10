@@ -21,6 +21,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class GeneratorConfig:
     """Configuration for generation | تكوين التوليد"""
+
     model: str = "codellama:7b"
     provider: str = "ollama"
     max_tokens: int = 1024
@@ -302,7 +303,7 @@ Final Answer:
             import re
 
             # Try to extract confidence
-            confidence_match = re.search(r'(\d+)\s*%', response)
+            confidence_match = re.search(r"(\d+)\s*%", response)
             if confidence_match:
                 confidence = float(confidence_match.group(1)) / 100.0
 

@@ -10,7 +10,7 @@ import csv
 import io
 import json
 from datetime import date, datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
@@ -62,7 +62,7 @@ except ImportError:
 # ============== Enums ==============
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """
     صيغ التصدير المدعومة
     Supported export formats
@@ -75,7 +75,7 @@ class ExportFormat(str, Enum):
     PDF = "pdf"
 
 
-class ReportType(str, Enum):
+class ReportType(StrEnum):
     """
     أنواع التقارير
     Report types

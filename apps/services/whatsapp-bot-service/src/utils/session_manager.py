@@ -149,7 +149,7 @@ class SessionManager:
 
         # Trim message history if needed
         if len(session.messages) > self.context_limit:
-            session.messages = session.messages[-self.context_limit:]
+            session.messages = session.messages[-self.context_limit :]
 
         try:
             session_dict = session.model_dump(mode="json")

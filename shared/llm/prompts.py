@@ -13,11 +13,11 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class PromptLanguage(str, Enum):
+class PromptLanguage(StrEnum):
     """Supported languages."""
 
     ENGLISH = "en"
@@ -25,7 +25,7 @@ class PromptLanguage(str, Enum):
     BILINGUAL = "both"
 
 
-class PromptCategory(str, Enum):
+class PromptCategory(StrEnum):
     """Prompt categories."""
 
     CROP_ADVISORY = "crop_advisory"

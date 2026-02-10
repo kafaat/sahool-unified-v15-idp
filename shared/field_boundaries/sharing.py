@@ -14,7 +14,7 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from .geometry import (
@@ -31,7 +31,7 @@ from .models import (
 )
 
 
-class PermissionLevel(str, Enum):
+class PermissionLevel(StrEnum):
     """
     Boundary permission levels | مستويات صلاحيات الحدود
 
@@ -42,6 +42,7 @@ class PermissionLevel(str, Enum):
         APPROVE: Can approve changes | يمكن الموافقة على التغييرات
         ADMIN: Full control | تحكم كامل
     """
+
     VIEW = "view"
     COMMENT = "comment"
     EDIT = "edit"
@@ -49,10 +50,11 @@ class PermissionLevel(str, Enum):
     ADMIN = "admin"
 
 
-class ShareStatus(str, Enum):
+class ShareStatus(StrEnum):
     """
     Share request status | حالة طلب المشاركة
     """
+
     PENDING = "pending"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
@@ -60,10 +62,11 @@ class ShareStatus(str, Enum):
     REVOKED = "revoked"
 
 
-class ApprovalStatus(str, Enum):
+class ApprovalStatus(StrEnum):
     """
     Boundary approval status | حالة الموافقة على الحدود
     """
+
     PENDING = "pending"
     APPROVED = "approved"
     REJECTED = "rejected"
@@ -76,6 +79,7 @@ class SharePermission:
     Permission record for boundary sharing.
     سجل صلاحيات مشاركة الحدود.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     boundary_id: str = ""
     user_id: str = ""
@@ -98,6 +102,7 @@ class ApprovalRequest:
     Request for boundary approval from neighbor.
     طلب الموافقة على الحدود من الجار.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     boundary_id: str = ""
     requester_id: str = ""
@@ -127,6 +132,7 @@ class ConflictResolution:
     Resolution record for boundary conflict.
     سجل حل تعارض الحدود.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     conflict_id: str = ""
 
@@ -181,7 +187,7 @@ class BoundarySharingManager:
         permission_level: PermissionLevel = PermissionLevel.VIEW,
         message: str | None = None,
         message_ar: str | None = None,
-        expires_in_days: int = 30
+        expires_in_days: int = 30,
     ) -> BoundaryShareRequest:
         """
         Create a boundary share request.
@@ -206,7 +212,7 @@ class BoundarySharingManager:
             message_ar=message_ar,
             permission_level=permission_level.value,
             status=ShareStatus.PENDING.value,
-            expires_at=datetime.now(UTC) + timedelta(days=expires_in_days)
+            expires_at=datetime.now(UTC) + timedelta(days=expires_in_days),
         )
 
         self._share_requests[request.id] = request
@@ -217,7 +223,7 @@ class BoundarySharingManager:
         request_id: str,
         user_id: str,
         response_message: str | None = None,
-        response_message_ar: str | None = None
+        response_message_ar: str | None = None,
     ) -> tuple[bool, str, SharePermission | None]:
         """
         Accept a share request.
@@ -257,7 +263,7 @@ class BoundarySharingManager:
             boundary_id=request.boundary_id,
             user_id=user_id,
             granted_by=request.requester_id,
-            level=PermissionLevel(request.permission_level)
+            level=PermissionLevel(request.permission_level),
         )
 
         return (True, "Share accepted | تم قبول المشاركة", permission)
@@ -267,7 +273,7 @@ class BoundarySharingManager:
         request_id: str,
         user_id: str,
         response_message: str | None = None,
-        response_message_ar: str | None = None
+        response_message_ar: str | None = None,
     ) -> tuple[bool, str]:
         """
         Reject a share request.
@@ -287,12 +293,7 @@ class BoundarySharingManager:
 
         return (True, "Share rejected | تم رفض المشاركة")
 
-    def revoke_share(
-        self,
-        boundary_id: str,
-        user_id: str,
-        revoker_id: str
-    ) -> tuple[bool, str]:
+    def revoke_share(self, boundary_id: str, user_id: str, revoker_id: str) -> tuple[bool, str]:
         """
         Revoke a user's access to a boundary.
         إلغاء وصول مستخدم إلى حدود.
@@ -326,7 +327,7 @@ class BoundarySharingManager:
         user_id: str,
         granted_by: str,
         level: PermissionLevel,
-        expires_at: datetime | None = None
+        expires_at: datetime | None = None,
     ) -> SharePermission:
         """Grant permission to user."""
         permission = SharePermission(
@@ -335,7 +336,7 @@ class BoundarySharingManager:
             granted_by=granted_by,
             permission_level=level,
             expires_at=expires_at,
-            can_reshare=level in [PermissionLevel.ADMIN, PermissionLevel.APPROVE]
+            can_reshare=level in [PermissionLevel.ADMIN, PermissionLevel.APPROVE],
         )
 
         if boundary_id not in self._permissions:
@@ -344,11 +345,7 @@ class BoundarySharingManager:
         self._permissions[boundary_id].append(permission)
         return permission
 
-    def get_permission(
-        self,
-        boundary_id: str,
-        user_id: str
-    ) -> SharePermission | None:
+    def get_permission(self, boundary_id: str, user_id: str) -> SharePermission | None:
         """Get user's permission for a boundary."""
         permissions = self._permissions.get(boundary_id, [])
 
@@ -363,10 +360,7 @@ class BoundarySharingManager:
         return None
 
     def has_permission(
-        self,
-        boundary_id: str,
-        user_id: str,
-        required_level: PermissionLevel
+        self, boundary_id: str, user_id: str, required_level: PermissionLevel
     ) -> bool:
         """Check if user has required permission level."""
         permission = self.get_permission(boundary_id, user_id)
@@ -380,7 +374,7 @@ class BoundarySharingManager:
             PermissionLevel.COMMENT,
             PermissionLevel.EDIT,
             PermissionLevel.APPROVE,
-            PermissionLevel.ADMIN
+            PermissionLevel.ADMIN,
         ]
 
         user_level_idx = hierarchy.index(permission.permission_level)
@@ -388,18 +382,12 @@ class BoundarySharingManager:
 
         return user_level_idx >= required_level_idx
 
-    def list_shared_with(
-        self,
-        boundary_id: str
-    ) -> list[SharePermission]:
+    def list_shared_with(self, boundary_id: str) -> list[SharePermission]:
         """List all users the boundary is shared with."""
         permissions = self._permissions.get(boundary_id, [])
         return [p for p in permissions if p.is_active]
 
-    def list_accessible_boundaries(
-        self,
-        user_id: str
-    ) -> list[tuple[str, SharePermission]]:
+    def list_accessible_boundaries(self, user_id: str) -> list[tuple[str, SharePermission]]:
         """List all boundaries accessible to a user."""
         result = []
 
@@ -423,7 +411,7 @@ class BoundarySharingManager:
         neighbor_id: str,
         message: str | None = None,
         message_ar: str | None = None,
-        expires_in_days: int = 14
+        expires_in_days: int = 14,
     ) -> ApprovalRequest:
         """
         Request approval from a neighbor for boundary.
@@ -445,7 +433,7 @@ class BoundarySharingManager:
             approver_id=neighbor_id,
             message=message,
             message_ar=message_ar,
-            expires_at=datetime.now(UTC) + timedelta(days=expires_in_days)
+            expires_at=datetime.now(UTC) + timedelta(days=expires_in_days),
         )
 
         self._approval_requests[request.id] = request
@@ -456,7 +444,7 @@ class BoundarySharingManager:
         request_id: str,
         user_id: str,
         response_message: str | None = None,
-        response_message_ar: str | None = None
+        response_message_ar: str | None = None,
     ) -> tuple[bool, str]:
         """
         Approve a boundary.
@@ -485,7 +473,7 @@ class BoundarySharingManager:
         user_id: str,
         response_message: str | None = None,
         response_message_ar: str | None = None,
-        requested_changes: dict[str, Any] | None = None
+        requested_changes: dict[str, Any] | None = None,
     ) -> tuple[bool, str]:
         """
         Reject a boundary with optional change requests.
@@ -511,13 +499,11 @@ class BoundarySharingManager:
         status_msg = "Changes requested" if requested_changes else "Rejected"
         return (True, f"Boundary {status_msg} | الحدود {status_msg}")
 
-    def get_pending_approvals(
-        self,
-        user_id: str
-    ) -> list[ApprovalRequest]:
+    def get_pending_approvals(self, user_id: str) -> list[ApprovalRequest]:
         """Get all pending approval requests for a user."""
         return [
-            req for req in self._approval_requests.values()
+            req
+            for req in self._approval_requests.values()
             if req.approver_id == user_id and req.status == ApprovalStatus.PENDING.value
         ]
 
@@ -530,7 +516,7 @@ class BoundarySharingManager:
         boundary: FieldBoundary,
         neighbor_boundaries: list[FieldBoundary],
         overlap_threshold_sqm: float = 10.0,
-        gap_threshold_m: float = 1.0
+        gap_threshold_m: float = 1.0,
     ) -> list[BoundaryConflict]:
         """
         Detect conflicts between a boundary and its neighbors.
@@ -575,7 +561,7 @@ class BoundarySharingManager:
                         owner_id_b=neighbor.owner_id,
                         conflict_type=ConflictType.OVERLAP,
                         overlap_area_sqm=overlap_area,
-                        severity=self._classify_conflict_severity(overlap_area)
+                        severity=self._classify_conflict_severity(overlap_area),
                     )
                     conflicts.append(conflict)
                     self._conflicts[conflict.id] = conflict
@@ -595,7 +581,7 @@ class BoundarySharingManager:
                         owner_id_b=neighbor.owner_id,
                         conflict_type=ConflictType.GAP,
                         gap_distance_m=min_distance,
-                        severity="low"
+                        severity="low",
                     )
                     conflicts.append(conflict)
                     self._conflicts[conflict.id] = conflict
@@ -603,12 +589,10 @@ class BoundarySharingManager:
         return conflicts
 
     def _calculate_min_boundary_distance(
-        self,
-        coords1: list[tuple[float, float]],
-        coords2: list[tuple[float, float]]
+        self, coords1: list[tuple[float, float]], coords2: list[tuple[float, float]]
     ) -> float:
         """Calculate minimum distance between two boundaries."""
-        min_dist = float('inf')
+        min_dist = float("inf")
 
         for p1 in coords1:
             for p2 in coords2:
@@ -630,7 +614,7 @@ class BoundarySharingManager:
         self,
         boundary_id: str | None = None,
         user_id: str | None = None,
-        include_resolved: bool = False
+        include_resolved: bool = False,
     ) -> list[BoundaryConflict]:
         """
         Get conflicts filtered by criteria.
@@ -640,15 +624,13 @@ class BoundarySharingManager:
 
         if boundary_id:
             conflicts = [
-                c for c in conflicts
+                c
+                for c in conflicts
                 if c.boundary_id_a == boundary_id or c.boundary_id_b == boundary_id
             ]
 
         if user_id:
-            conflicts = [
-                c for c in conflicts
-                if c.owner_id_a == user_id or c.owner_id_b == user_id
-            ]
+            conflicts = [c for c in conflicts if c.owner_id_a == user_id or c.owner_id_b == user_id]
 
         if not include_resolved:
             conflicts = [c for c in conflicts if not c.is_resolved]
@@ -666,7 +648,7 @@ class BoundarySharingManager:
         description: str | None = None,
         description_ar: str | None = None,
         agreed_boundary: Polygon | None = None,
-        mediator_id: str | None = None
+        mediator_id: str | None = None,
     ) -> ConflictResolution:
         """
         Create a conflict resolution record.
@@ -689,17 +671,14 @@ class BoundarySharingManager:
             resolution_description=description,
             resolution_description_ar=description_ar,
             agreed_boundary=agreed_boundary,
-            mediator_id=mediator_id
+            mediator_id=mediator_id,
         )
 
         self._resolutions[resolution.id] = resolution
         return resolution
 
     def approve_resolution(
-        self,
-        resolution_id: str,
-        user_id: str,
-        is_party_a: bool
+        self, resolution_id: str, user_id: str, is_party_a: bool
     ) -> tuple[bool, str]:
         """
         Approve a resolution by one of the parties.
@@ -746,12 +725,13 @@ class BoundarySharingManager:
 # PostGIS Integration Helpers | وظائف مساعدة للتكامل مع PostGIS
 # -------------------------------------------------------------------------
 
+
 def generate_postgis_conflict_detection_query(
     table: str,
     boundary_id: str,
     tenant_id: str,
     overlap_threshold_sqm: float = 10.0,
-    geometry_column: str = "geometry"
+    geometry_column: str = "geometry",
 ) -> str:
     """
     Generate PostGIS query to detect boundary conflicts.
@@ -817,10 +797,7 @@ def generate_postgis_conflict_detection_query(
 
 
 def generate_postgis_shared_boundaries_query(
-    permissions_table: str,
-    boundaries_table: str,
-    user_id: str,
-    geometry_column: str = "geometry"
+    permissions_table: str, boundaries_table: str, user_id: str, geometry_column: str = "geometry"
 ) -> str:
     """
     Generate PostGIS query to get all boundaries shared with a user.
@@ -853,7 +830,7 @@ def generate_postgis_neighbor_notification_query(
     boundaries_table: str,
     boundary_id: str,
     buffer_m: float = 50.0,
-    geometry_column: str = "geometry"
+    geometry_column: str = "geometry",
 ) -> str:
     """
     Generate PostGIS query to find neighbors to notify about boundary changes.
@@ -863,8 +840,11 @@ def generate_postgis_neighbor_notification_query(
     not raw user input. Table and column names are application constants.
     """
     import re
+
     # Validate boundary_id is a UUID format to prevent SQL injection
-    uuid_pattern = re.compile(r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', re.I)
+    uuid_pattern = re.compile(
+        r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.I
+    )
     if not uuid_pattern.match(boundary_id):
         raise ValueError("Invalid boundary_id format: must be UUID")
 

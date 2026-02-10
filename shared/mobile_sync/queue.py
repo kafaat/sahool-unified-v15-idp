@@ -77,31 +77,31 @@ class SyncQueueConfig:
     """Configuration for the sync queue."""
 
     # Queue limits
-    max_queue_size: int = 10000              # الحد الأقصى لحجم القائمة
-    max_retries: int = 3                     # الحد الأقصى لمحاولات الإعادة
-    max_batch_size: int = 50                 # الحد الأقصى لحجم الدفعة
-    max_concurrent_syncs: int = 5            # الحد الأقصى للمزامنات المتزامنة
+    max_queue_size: int = 10000  # الحد الأقصى لحجم القائمة
+    max_retries: int = 3  # الحد الأقصى لمحاولات الإعادة
+    max_batch_size: int = 50  # الحد الأقصى لحجم الدفعة
+    max_concurrent_syncs: int = 5  # الحد الأقصى للمزامنات المتزامنة
 
     # Timeouts
-    item_timeout_seconds: float = 60.0       # مهلة كل عنصر
-    batch_timeout_seconds: float = 300.0     # مهلة الدفعة
+    item_timeout_seconds: float = 60.0  # مهلة كل عنصر
+    batch_timeout_seconds: float = 300.0  # مهلة الدفعة
 
     # Retry configuration
-    retry_base_delay_seconds: float = 60.0   # تأخير أساسي للإعادة
+    retry_base_delay_seconds: float = 60.0  # تأخير أساسي للإعادة
     retry_max_delay_seconds: float = 3600.0  # تأخير أقصى للإعادة
-    retry_exponential_base: float = 2.0      # أساس التراجع الأسي
+    retry_exponential_base: float = 2.0  # أساس التراجع الأسي
 
     # Batching configuration
-    batch_by_entity_type: bool = True        # تجميع حسب نوع الكيان
-    batch_by_direction: bool = True          # تجميع حسب الاتجاه
+    batch_by_entity_type: bool = True  # تجميع حسب نوع الكيان
+    batch_by_direction: bool = True  # تجميع حسب الاتجاه
 
     # Priority configuration
-    priority_boost_on_retry: bool = False    # رفع الأولوية عند الإعادة
-    auto_expire_hours: int = 72              # انتهاء صلاحية تلقائي
+    priority_boost_on_retry: bool = False  # رفع الأولوية عند الإعادة
+    auto_expire_hours: int = 72  # انتهاء صلاحية تلقائي
 
     # Deduplication
-    deduplicate_pending: bool = True         # إزالة المكرر في الانتظار
-    merge_pending_updates: bool = True       # دمج التحديثات المنتظرة
+    deduplicate_pending: bool = True  # إزالة المكرر في الانتظار
+    merge_pending_updates: bool = True  # دمج التحديثات المنتظرة
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -825,11 +825,15 @@ class SyncQueueManager:
             "download": download_stats,
             "combined": {
                 "total_enqueued": upload_stats["total_enqueued"] + download_stats["total_enqueued"],
-                "total_processed": upload_stats["total_processed"] + download_stats["total_processed"],
-                "total_succeeded": upload_stats["total_succeeded"] + download_stats["total_succeeded"],
+                "total_processed": upload_stats["total_processed"]
+                + download_stats["total_processed"],
+                "total_succeeded": upload_stats["total_succeeded"]
+                + download_stats["total_succeeded"],
                 "total_failed": upload_stats["total_failed"] + download_stats["total_failed"],
-                "total_conflicts": upload_stats["total_conflicts"] + download_stats["total_conflicts"],
-                "current_queue_size": upload_stats["current_queue_size"] + download_stats["current_queue_size"],
+                "total_conflicts": upload_stats["total_conflicts"]
+                + download_stats["total_conflicts"],
+                "current_queue_size": upload_stats["current_queue_size"]
+                + download_stats["current_queue_size"],
             },
             "active_sessions": len(self._sessions),
         }

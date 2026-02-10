@@ -59,7 +59,9 @@ class SensorDataProcessor:
 
         # Trim old readings
         if len(self._readings[reading.sensor_id]) > self._max_readings:
-            self._readings[reading.sensor_id] = self._readings[reading.sensor_id][-self._max_readings:]
+            self._readings[reading.sensor_id] = self._readings[reading.sensor_id][
+                -self._max_readings :
+            ]
 
         # Check thresholds
         if sensor:
@@ -81,31 +83,39 @@ class SensorDataProcessor:
         # Critical thresholds
         if sensor.critical_min is not None and value < sensor.critical_min:
             return self._create_threshold_alert(
-                reading, sensor, "critical_low",
+                reading,
+                sensor,
+                "critical_low",
                 f"Critical low: {value:.1f}% (min: {sensor.critical_min}%)",
-                AlertSeverity.CRITICAL
+                AlertSeverity.CRITICAL,
             )
 
         if sensor.critical_max is not None and value > sensor.critical_max:
             return self._create_threshold_alert(
-                reading, sensor, "critical_high",
+                reading,
+                sensor,
+                "critical_high",
                 f"Critical high: {value:.1f}% (max: {sensor.critical_max}%)",
-                AlertSeverity.CRITICAL
+                AlertSeverity.CRITICAL,
             )
 
         # Warning thresholds
         if sensor.min_threshold is not None and value < sensor.min_threshold:
             return self._create_threshold_alert(
-                reading, sensor, "low_moisture",
+                reading,
+                sensor,
+                "low_moisture",
                 f"Low moisture: {value:.1f}% (threshold: {sensor.min_threshold}%)",
-                AlertSeverity.HIGH
+                AlertSeverity.HIGH,
             )
 
         if sensor.max_threshold is not None and value > sensor.max_threshold:
             return self._create_threshold_alert(
-                reading, sensor, "high_moisture",
+                reading,
+                sensor,
+                "high_moisture",
                 f"High moisture: {value:.1f}% (threshold: {sensor.max_threshold}%)",
-                AlertSeverity.MEDIUM
+                AlertSeverity.MEDIUM,
             )
 
         return None
@@ -116,7 +126,7 @@ class SensorDataProcessor:
         sensor: SoilSensor,
         alert_type: str,
         message: str,
-        severity: AlertSeverity
+        severity: AlertSeverity,
     ) -> SensorAlert:
         """Create threshold alert"""
         alert_messages = {
@@ -220,11 +230,7 @@ class SensorDataProcessor:
 
         return result
 
-    def get_aggregation(
-        self,
-        sensor_id: str,
-        period_hours: int = 24
-    ) -> SensorAggregation | None:
+    def get_aggregation(self, sensor_id: str, period_hours: int = 24) -> SensorAggregation | None:
         """
         Get aggregated readings for time period
         الحصول على القراءات المجمعة لفترة زمنية
@@ -254,8 +260,8 @@ class SensorDataProcessor:
 
         # Calculate trend
         if len(values) >= 2:
-            first_half = values[:len(values)//2]
-            second_half = values[len(values)//2:]
+            first_half = values[: len(values) // 2]
+            second_half = values[len(values) // 2 :]
             first_avg = sum(first_half) / len(first_half)
             second_avg = sum(second_half) / len(second_half)
 
@@ -293,8 +299,7 @@ class SensorDataProcessor:
 
 
 def aggregate_readings(
-    readings: list[SensorReading],
-    interval_minutes: int = 60
+    readings: list[SensorReading], interval_minutes: int = 60
 ) -> list[SensorAggregation]:
     """
     Aggregate readings into time intervals
@@ -311,7 +316,7 @@ def aggregate_readings(
         interval_start = reading.timestamp.replace(
             minute=(reading.timestamp.minute // interval_minutes) * interval_minutes,
             second=0,
-            microsecond=0
+            microsecond=0,
         )
         intervals[interval_start].append(reading)
 
@@ -327,27 +332,28 @@ def aggregate_readings(
         max_val = max(values)
         variance = sum((v - avg_val) ** 2 for v in values) / len(values)
 
-        aggregations.append(SensorAggregation(
-            sensor_id=interval_readings[0].sensor_id,
-            field_id="",  # Set by caller
-            period_start=interval_start,
-            period_end=interval_start + timedelta(minutes=interval_minutes),
-            reading_type=interval_readings[0].reading_type,
-            count=len(interval_readings),
-            avg_value=avg_val,
-            min_value=min_val,
-            max_value=max_val,
-            std_value=math.sqrt(variance),
-            valid_readings=len(values),
-            invalid_readings=len(interval_readings) - len(values),
-        ))
+        aggregations.append(
+            SensorAggregation(
+                sensor_id=interval_readings[0].sensor_id,
+                field_id="",  # Set by caller
+                period_start=interval_start,
+                period_end=interval_start + timedelta(minutes=interval_minutes),
+                reading_type=interval_readings[0].reading_type,
+                count=len(interval_readings),
+                avg_value=avg_val,
+                min_value=min_val,
+                max_value=max_val,
+                std_value=math.sqrt(variance),
+                valid_readings=len(values),
+                invalid_readings=len(interval_readings) - len(values),
+            )
+        )
 
     return aggregations
 
 
 def detect_anomalies(
-    readings: list[SensorReading],
-    threshold_std: float = 3.0
+    readings: list[SensorReading], threshold_std: float = 3.0
 ) -> list[SensorReading]:
     """
     Detect anomalous readings using statistical analysis
@@ -381,7 +387,7 @@ def interpolate_field_moisture(
     sensors: list[SoilSensor],
     readings: dict[str, SensorReading],
     field_bounds: tuple[float, float, float, float],  # min_lat, max_lat, min_lng, max_lng
-    resolution_m: float = 10.0
+    resolution_m: float = 10.0,
 ) -> FieldMoistureMap:
     """
     Interpolate soil moisture across field using IDW
@@ -411,11 +417,13 @@ def interpolate_field_moisture(
     points = []
     for sensor in sensors:
         if sensor.id in readings and readings[sensor.id].is_valid:
-            points.append({
-                "lat": sensor.lat,
-                "lng": sensor.lng,
-                "value": readings[sensor.id].value,
-            })
+            points.append(
+                {
+                    "lat": sensor.lat,
+                    "lng": sensor.lng,
+                    "value": readings[sensor.id].value,
+                }
+            )
 
     if not points:
         return FieldMoistureMap(
@@ -447,14 +455,14 @@ def interpolate_field_moisture(
 
             for point in points:
                 dist = math.sqrt(
-                    ((lat - point["lat"]) * meters_per_degree_lat) ** 2 +
-                    ((lng - point["lng"]) * meters_per_degree_lng) ** 2
+                    ((lat - point["lat"]) * meters_per_degree_lat) ** 2
+                    + ((lng - point["lng"]) * meters_per_degree_lng) ** 2
                 )
 
                 if dist < 1:
                     dist = 1  # Prevent division by zero
 
-                weight = 1.0 / (dist ** 2)  # IDW power = 2
+                weight = 1.0 / (dist**2)  # IDW power = 2
                 weighted_sum += point["value"] * weight
                 weight_total += weight
 
@@ -468,7 +476,9 @@ def interpolate_field_moisture(
     avg_moisture = sum(all_values) / len(all_values) if all_values else 0
     min_moisture = min(all_values) if all_values else 0
     max_moisture = max(all_values) if all_values else 0
-    variance = sum((v - avg_moisture) ** 2 for v in all_values) / len(all_values) if all_values else 0
+    variance = (
+        sum((v - avg_moisture) ** 2 for v in all_values) / len(all_values) if all_values else 0
+    )
     std_moisture = math.sqrt(variance)
 
     # Find dry and wet zones
@@ -538,9 +548,9 @@ def generate_moisture_alert(
             title_en="🚨 Critical: Field Needs Irrigation",
             title_ar="🚨 حرج: الحقل يحتاج ري فوري",
             message_en=f"Average soil moisture is critically low at {avg:.1f}%. "
-                       f"Immediate irrigation recommended. {len(moisture_map.dry_zones)} dry zones detected.",
+            f"Immediate irrigation recommended. {len(moisture_map.dry_zones)} dry zones detected.",
             message_ar=f"متوسط رطوبة التربة حرج عند {avg:.1f}%. "
-                       f"يُنصح بالري الفوري. تم اكتشاف {len(moisture_map.dry_zones)} مناطق جافة.",
+            f"يُنصح بالري الفوري. تم اكتشاف {len(moisture_map.dry_zones)} مناطق جافة.",
         )
 
     # Warning dry
@@ -558,9 +568,8 @@ def generate_moisture_alert(
             title_en="⚠️ Low Soil Moisture - Plan Irrigation",
             title_ar="⚠️ رطوبة تربة منخفضة - خطط للري",
             message_en=f"Average soil moisture is low at {avg:.1f}%. "
-                       f"Plan irrigation within 24-48 hours.",
-            message_ar=f"متوسط رطوبة التربة منخفض عند {avg:.1f}%. "
-                       f"خطط للري خلال 24-48 ساعة.",
+            f"Plan irrigation within 24-48 hours.",
+            message_ar=f"متوسط رطوبة التربة منخفض عند {avg:.1f}%. خطط للري خلال 24-48 ساعة.",
         )
 
     # Waterlogged warning
@@ -578,9 +587,9 @@ def generate_moisture_alert(
             title_en="💧 High Soil Moisture - Skip Irrigation",
             title_ar="💧 رطوبة تربة مرتفعة - تخطي الري",
             message_en=f"Average soil moisture is high at {avg:.1f}%. "
-                       f"Skip next irrigation cycle. {len(moisture_map.wet_zones)} waterlogged zones.",
+            f"Skip next irrigation cycle. {len(moisture_map.wet_zones)} waterlogged zones.",
             message_ar=f"متوسط رطوبة التربة مرتفع عند {avg:.1f}%. "
-                       f"تخطي دورة الري التالية. {len(moisture_map.wet_zones)} مناطق مشبعة.",
+            f"تخطي دورة الري التالية. {len(moisture_map.wet_zones)} مناطق مشبعة.",
         )
 
     return None

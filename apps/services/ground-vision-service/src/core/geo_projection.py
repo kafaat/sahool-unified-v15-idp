@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class CameraIntrinsicsMatrix(BaseModel):
     """Camera intrinsic parameters for matrix construction"""
+
     fx: float  # Focal length x
     fy: float  # Focal length y
     cx: float  # Principal point x
@@ -30,11 +31,7 @@ class CameraIntrinsicsMatrix(BaseModel):
 
     def to_matrix(self) -> np.ndarray:
         """Convert to 3x3 intrinsic matrix K"""
-        return np.array([
-            [self.fx, 0, self.cx],
-            [0, self.fy, self.cy],
-            [0, 0, 1]
-        ])
+        return np.array([[self.fx, 0, self.cx], [0, self.fy, self.cy], [0, 0, 1]])
 
     def distortion_coeffs(self) -> np.ndarray:
         """Get distortion coefficients vector"""
@@ -73,9 +70,7 @@ class DEMService:
         return self.default_elevation
 
     def get_elevation_grid(
-        self,
-        bounds: tuple[float, float, float, float],
-        resolution: float = 10.0
+        self, bounds: tuple[float, float, float, float], resolution: float = 10.0
     ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Get elevation grid for a bounding box.
@@ -113,7 +108,7 @@ class QuaternionGeoProjector:
     # WGS84 ellipsoid parameters
     WGS84_A = 6378137.0  # Semi-major axis (meters)
     WGS84_B = 6356752.314245  # Semi-minor axis (meters)
-    WGS84_E2 = 1 - (WGS84_B ** 2) / (WGS84_A ** 2)  # First eccentricity squared
+    WGS84_E2 = 1 - (WGS84_B**2) / (WGS84_A**2)  # First eccentricity squared
 
     def __init__(
         self,
@@ -144,12 +139,14 @@ class QuaternionGeoProjector:
         self.position = np.array(camera_position_enu)
 
         # Scipy uses [x, y, z, w] format, but we receive [w, x, y, z]
-        quat_scipy = np.array([
-            camera_quaternion[1],  # x
-            camera_quaternion[2],  # y
-            camera_quaternion[3],  # z
-            camera_quaternion[0],  # w
-        ])
+        quat_scipy = np.array(
+            [
+                camera_quaternion[1],  # x
+                camera_quaternion[2],  # y
+                camera_quaternion[3],  # z
+                camera_quaternion[0],  # w
+            ]
+        )
         self.rotation = Rotation.from_quat(quat_scipy)
 
         self.origin_lat = origin_lat
@@ -158,15 +155,10 @@ class QuaternionGeoProjector:
 
         self.dem = dem_service or DEMService(default_elevation=origin_alt)
 
-        logger.info(
-            f"QuaternionGeoProjector initialized at origin ({origin_lat}, {origin_lon})"
-        )
+        logger.info(f"QuaternionGeoProjector initialized at origin ({origin_lat}, {origin_lon})")
 
     def pixel_to_geo(
-        self,
-        u: float,
-        v: float,
-        terrain_elevation: float | None = None
+        self, u: float, v: float, terrain_elevation: float | None = None
     ) -> tuple[float, float]:
         """
         Transform image pixel (u, v) to geographic coordinates (lon, lat).
@@ -199,9 +191,7 @@ class QuaternionGeoProjector:
 
         # Step 4: Ray-terrain intersection
         target_elevation = terrain_elevation or self.dem.default_elevation
-        intersection_enu = self._intersect_ray_plane(
-            self.position, ray_world, target_elevation
-        )
+        intersection_enu = self._intersect_ray_plane(self.position, ray_world, target_elevation)
 
         if intersection_enu is None:
             # Ray doesn't intersect terrain (looking at sky)
@@ -245,10 +235,7 @@ class QuaternionGeoProjector:
         return (u, v)
 
     def generate_footprint_polygon(
-        self,
-        image_width: int,
-        image_height: int,
-        terrain_elevation: float | None = None
+        self, image_width: int, image_height: int, terrain_elevation: float | None = None
     ) -> list[tuple[float, float]]:
         """
         Generate the ground footprint polygon for the camera's field of view.
@@ -263,10 +250,10 @@ class QuaternionGeoProjector:
         """
         # Image corner pixels
         corners_pixel = [
-            (0, 0),                          # Top-left
-            (image_width, 0),                # Top-right
-            (image_width, image_height),     # Bottom-right
-            (0, image_height),               # Bottom-left
+            (0, 0),  # Top-left
+            (image_width, 0),  # Top-right
+            (image_width, image_height),  # Bottom-right
+            (0, image_height),  # Bottom-left
         ]
 
         # Project each corner to geographic coordinates
@@ -306,10 +293,7 @@ class QuaternionGeoProjector:
         return (u_corrected, v_corrected)
 
     def _intersect_ray_plane(
-        self,
-        origin: np.ndarray,
-        direction: np.ndarray,
-        plane_elevation: float
+        self, origin: np.ndarray, direction: np.ndarray, plane_elevation: float
     ) -> np.ndarray | None:
         """
         Intersect a ray with a horizontal plane at given elevation.
@@ -366,12 +350,7 @@ class QuaternionGeoProjector:
 
         return (lon, lat)
 
-    def _wgs84_to_enu(
-        self,
-        lon: float,
-        lat: float,
-        alt: float | None = None
-    ) -> np.ndarray:
+    def _wgs84_to_enu(self, lon: float, lat: float, alt: float | None = None) -> np.ndarray:
         """
         Convert WGS84 (lon, lat) to ENU coordinates.
 
@@ -422,11 +401,7 @@ class OrthoRectifier:
     Generate orthorectified images from tower camera frames.
     """
 
-    def __init__(
-        self,
-        projector: QuaternionGeoProjector,
-        output_resolution_m: float = 0.5
-    ):
+    def __init__(self, projector: QuaternionGeoProjector, output_resolution_m: float = 0.5):
         """
         Initialize orthorectifier.
 
@@ -438,9 +413,7 @@ class OrthoRectifier:
         self.resolution = output_resolution_m
 
     def compute_output_bounds(
-        self,
-        image_width: int,
-        image_height: int
+        self, image_width: int, image_height: int
     ) -> tuple[float, float, float, float]:
         """
         Compute the geographic bounds of the output ortho image.
@@ -448,19 +421,14 @@ class OrthoRectifier:
         Returns:
             Tuple of (min_lon, min_lat, max_lon, max_lat)
         """
-        footprint = self.projector.generate_footprint_polygon(
-            image_width, image_height
-        )
+        footprint = self.projector.generate_footprint_polygon(image_width, image_height)
 
         lons = [p[0] for p in footprint]
         lats = [p[1] for p in footprint]
 
         return (min(lons), min(lats), max(lons), max(lats))
 
-    def compute_output_size(
-        self,
-        bounds: tuple[float, float, float, float]
-    ) -> tuple[int, int]:
+    def compute_output_size(self, bounds: tuple[float, float, float, float]) -> tuple[int, int]:
         """
         Compute the output image size in pixels.
 
@@ -483,9 +451,7 @@ class OrthoRectifier:
         return (width_px, height_px)
 
     async def orthorectify(
-        self,
-        image: np.ndarray,
-        bounds: tuple[float, float, float, float] | None = None
+        self, image: np.ndarray, bounds: tuple[float, float, float, float] | None = None
     ) -> tuple[np.ndarray, dict]:
         """
         Generate orthorectified image.
@@ -534,17 +500,17 @@ class OrthoRectifier:
 
                     if len(image.shape) == 3:
                         ortho[oy, ox] = (
-                            (1 - dx) * (1 - dy) * image[iy_int, ix_int] +
-                            dx * (1 - dy) * image[iy_int, ix_int + 1] +
-                            (1 - dx) * dy * image[iy_int + 1, ix_int] +
-                            dx * dy * image[iy_int + 1, ix_int + 1]
+                            (1 - dx) * (1 - dy) * image[iy_int, ix_int]
+                            + dx * (1 - dy) * image[iy_int, ix_int + 1]
+                            + (1 - dx) * dy * image[iy_int + 1, ix_int]
+                            + dx * dy * image[iy_int + 1, ix_int + 1]
                         )
                     else:
                         ortho[oy, ox] = (
-                            (1 - dx) * (1 - dy) * image[iy_int, ix_int] +
-                            dx * (1 - dy) * image[iy_int, ix_int + 1] +
-                            (1 - dx) * dy * image[iy_int + 1, ix_int] +
-                            dx * dy * image[iy_int + 1, ix_int + 1]
+                            (1 - dx) * (1 - dy) * image[iy_int, ix_int]
+                            + dx * (1 - dy) * image[iy_int, ix_int + 1]
+                            + (1 - dx) * dy * image[iy_int + 1, ix_int]
+                            + dx * dy * image[iy_int + 1, ix_int + 1]
                         )
 
         # Geotransform (GDAL-style)

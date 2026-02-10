@@ -410,11 +410,13 @@ async def websocket_endpoint(
             except WebSocketDisconnect:
                 break
             except json.JSONDecodeError:
-                await conn.send_message({
-                    "type": "error",
-                    "message": "Invalid JSON",
-                    "message_ar": "JSON غير صالح",
-                })
+                await conn.send_message(
+                    {
+                        "type": "error",
+                        "message": "Invalid JSON",
+                        "message_ar": "JSON غير صالح",
+                    }
+                )
 
     except Exception as e:
         logger.error("websocket_error", client_id=client_id, error=str(e))
@@ -510,15 +512,19 @@ async def device_websocket_endpoint(
                     )
 
                 elif message_type == "ping":
-                    await conn.send_message({"type": "pong", "timestamp": datetime.utcnow().isoformat()})
+                    await conn.send_message(
+                        {"type": "pong", "timestamp": datetime.utcnow().isoformat()}
+                    )
 
             except WebSocketDisconnect:
                 break
             except json.JSONDecodeError:
-                await conn.send_message({
-                    "type": "error",
-                    "message": "Invalid JSON",
-                })
+                await conn.send_message(
+                    {
+                        "type": "error",
+                        "message": "Invalid JSON",
+                    }
+                )
             except Exception as e:
                 logger.error(
                     "device_ws_message_error",

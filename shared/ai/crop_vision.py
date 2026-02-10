@@ -25,14 +25,15 @@ from __future__ import annotations
 import base64
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Supported crop types for analysis"""
+
     WHEAT = "wheat"
     BARLEY = "barley"
     CORN = "corn"
@@ -46,8 +47,9 @@ class CropType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class DiseaseType(str, Enum):
+class DiseaseType(StrEnum):
     """Common crop diseases"""
+
     # Wheat diseases
     WHEAT_RUST = "wheat_rust"
     WHEAT_POWDERY_MILDEW = "wheat_powdery_mildew"
@@ -69,8 +71,9 @@ class DiseaseType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """Crop growth stages (Zadoks scale for cereals)"""
+
     GERMINATION = "germination"
     SEEDLING = "seedling"
     TILLERING = "tillering"
@@ -85,8 +88,9 @@ class GrowthStage(str, Enum):
     UNKNOWN = "unknown"
 
 
-class PestType(str, Enum):
+class PestType(StrEnum):
     """Common agricultural pests"""
+
     APHIDS = "aphids"
     LOCUSTS = "locusts"
     RED_PALM_WEEVIL = "red_palm_weevil"
@@ -98,8 +102,9 @@ class PestType(str, Enum):
     UNKNOWN = "unknown"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Severity levels for issues"""
+
     NONE = "none"
     LOW = "low"
     MODERATE = "moderate"
@@ -110,6 +115,7 @@ class Severity(str, Enum):
 @dataclass
 class BoundingBox:
     """Bounding box for detected regions"""
+
     x: float  # Top-left x (0-1 normalized)
     y: float  # Top-left y (0-1 normalized)
     width: float  # Width (0-1 normalized)
@@ -125,6 +131,7 @@ class DiseaseDetection:
     Disease detection result.
     نتيجة كشف المرض.
     """
+
     disease_type: DiseaseType
     confidence: float  # 0.0 to 1.0
     severity: Severity
@@ -151,6 +158,7 @@ class GrowthStageDetection:
     Growth stage detection result.
     نتيجة كشف مرحلة النمو.
     """
+
     stage: GrowthStage
     confidence: float
     days_in_stage: int | None = None
@@ -175,6 +183,7 @@ class PestDetection:
     Pest detection result.
     نتيجة كشف الآفات.
     """
+
     pest_type: PestType
     confidence: float
     severity: Severity
@@ -203,6 +212,7 @@ class YieldEstimate:
     Yield estimation result.
     نتيجة تقدير الإنتاجية.
     """
+
     crop_type: CropType
     estimated_yield_kg_per_ha: float
     confidence_range: tuple[float, float]  # (min, max) kg/ha
@@ -227,6 +237,7 @@ class NDVIAnalysis:
     NDVI analysis result.
     نتيجة تحليل NDVI.
     """
+
     mean_ndvi: float  # -1 to 1
     min_ndvi: float
     max_ndvi: float
@@ -255,6 +266,7 @@ class VisionAnalysisResult:
     Complete vision analysis result.
     نتيجة تحليل الرؤية الكاملة.
     """
+
     id: str
     image_path: str | None
     timestamp: datetime
@@ -473,24 +485,16 @@ class CropVisionAnalyzer:
 
         # Perform requested analyses
         if "disease" in analysis_types:
-            result.disease_detections = await self._detect_diseases(
-                image_path, detected_crop
-            )
+            result.disease_detections = await self._detect_diseases(image_path, detected_crop)
 
         if "growth" in analysis_types:
-            result.growth_stage = await self._detect_growth_stage(
-                image_path, detected_crop
-            )
+            result.growth_stage = await self._detect_growth_stage(image_path, detected_crop)
 
         if "pest" in analysis_types:
-            result.pest_detections = await self._detect_pests(
-                image_path, detected_crop
-            )
+            result.pest_detections = await self._detect_pests(image_path, detected_crop)
 
         if "yield" in analysis_types:
-            result.yield_estimate = await self._estimate_yield(
-                image_path, detected_crop
-            )
+            result.yield_estimate = await self._estimate_yield(image_path, detected_crop)
 
         if "ndvi" in analysis_types:
             result.ndvi_analysis = await self._analyze_ndvi(image_path)
@@ -499,8 +503,8 @@ class CropVisionAnalyzer:
         result.overall_health_score = self._calculate_health_score(result)
 
         # Generate priority actions
-        result.priority_actions, result.priority_actions_ar = (
-            self._generate_priority_actions(result)
+        result.priority_actions, result.priority_actions_ar = self._generate_priority_actions(
+            result
         )
 
         return result
@@ -757,9 +761,7 @@ async def detect_crop_disease(
 ) -> list[DiseaseDetection]:
     """Detect diseases in crop image"""
     analyzer = get_crop_vision_analyzer()
-    result = await analyzer.analyze_image(
-        image_path, crop_type, analysis_types=["disease"]
-    )
+    result = await analyzer.analyze_image(image_path, crop_type, analysis_types=["disease"])
     return result.disease_detections
 
 
@@ -769,7 +771,5 @@ async def detect_crop_pests(
 ) -> list[PestDetection]:
     """Detect pests in crop image"""
     analyzer = get_crop_vision_analyzer()
-    result = await analyzer.analyze_image(
-        image_path, crop_type, analysis_types=["pest"]
-    )
+    result = await analyzer.analyze_image(image_path, crop_type, analysis_types=["pest"])
     return result.pest_detections

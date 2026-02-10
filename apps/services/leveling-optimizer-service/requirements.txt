@@ -2,13 +2,13 @@
 # خدمة تحسين التسوية - المتطلبات
 
 # FastAPI framework
-fastapi==0.128.0
+fastapi==0.128.5
 uvicorn[standard]==0.34.0
 pydantic==2.12.5
 pydantic-settings==2.7.0
 # Async support
 anyio==4.7.0
-starlette==0.41.3
+starlette==0.52.1
 # HTTP client (for potential external calls)
 httpx==0.28.1
 # Database (optional)

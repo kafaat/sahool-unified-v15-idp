@@ -79,7 +79,7 @@ async def lifespan(app: FastAPI):
     مدير دورة حياة التطبيق
     """
     # Startup
-    logger.info("agent_registry_service_starting", version="1.0.0")
+    logger.info("agent_registry_service_starting", version="16.0.0")
 
     try:
         # Initialize storage
@@ -142,7 +142,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Agent Registry Service",
     description="A2A Protocol-compliant agent registry for SAHOOL platform",
-    version="1.0.0",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -191,7 +191,7 @@ async def health_check():
     return {
         "status": "healthy" if storage_status == "healthy" else "degraded",
         "service": settings.service_name,
-        "version": "1.0.0",
+        "version": "16.0.0",
         "storage": storage_status,
     }
 

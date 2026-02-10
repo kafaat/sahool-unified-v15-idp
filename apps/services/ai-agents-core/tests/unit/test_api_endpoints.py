@@ -626,8 +626,8 @@ class TestResponseFormat:
 
         data = response.json()
 
-        # Should have error detail
-        assert "detail" in data
+        # Should have error detail (unified error handler uses "error" key)
+        assert "detail" in data or "error" in data
 
 
 # ============================================================================

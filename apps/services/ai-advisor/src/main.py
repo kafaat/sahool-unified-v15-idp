@@ -200,7 +200,7 @@ async def lifespan(app: FastAPI):
     global CONTEXT_ENGINEERING_AVAILABLE
 
     # Startup | بدء التشغيل
-    logger.info("ai_advisor_service_starting", version="1.0.0")
+    logger.info("ai_advisor_service_starting", version="16.0.0")
 
     try:
         # Initialize embeddings and retriever | تهيئة التضمينات والمسترجع
@@ -338,7 +338,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="AI Advisor Service",
     description="Multi-agent AI system for agricultural advisory",
-    version="1.0.0",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -418,7 +418,7 @@ async def health_check():
     return {
         "status": "healthy" if is_healthy else "degraded",
         "service": settings.service_name,
-        "version": "1.0.0",
+        "version": "16.0.0",
         "embeddings_ready": embeddings_ok,
         "retriever_ready": retriever_ok,
         "agents_available": agents_count,

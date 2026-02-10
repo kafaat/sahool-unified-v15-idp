@@ -1,6 +1,6 @@
 # SAHOOL Agent Registry Service - Dockerfile
 # ===========================================
-# Port: 8121
+# Port: 8160
 
 FROM python:3.11-slim-bookworm
 
@@ -38,11 +38,11 @@ RUN chown -R sahool:sahool /app
 USER sahool
 
 # Expose port
-EXPOSE 8121
+EXPOSE 8160
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:8121/healthz').raise_for_status()"
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8160/healthz')" || exit 1
 
 # Run the service
-CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8121"]
+CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8160"]

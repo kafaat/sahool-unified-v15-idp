@@ -21,6 +21,12 @@ RUN pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements
     --trusted-host mirrors.aliyun.com \
     -r requirements.txt
 
+# Copy root shared modules (shared.ai, shared.events, etc.)
+COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
+
 # Copy application code
 COPY apps/services/astronomical-calendar/src/ ./src/
 
@@ -32,6 +38,7 @@ USER appuser
 # Environment variables
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONPATH=/app
 ENV PORT=8111
 
 # Expose port

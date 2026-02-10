@@ -78,7 +78,7 @@ async def lifespan(app: FastAPI):
 
     logger.info(
         "Starting Copilot API",
-        version="1.0.0",
+        version="16.0.0",
         mode=settings.copilot_mode,
         environment=settings.environment,
     )
@@ -142,7 +142,7 @@ def create_app() -> FastAPI:
         - 🌍 Bilingual (Arabic/English)
         - 🔌 Offline-first architecture
         """,
-        version="1.0.0",
+        version="16.0.0",
         docs_url="/docs",
         redoc_url="/redoc",
         openapi_url="/openapi.json",
@@ -199,7 +199,7 @@ def create_app() -> FastAPI:
             "service": "copilot-api",
             "name": "SAHOOL Copilot API",
             "name_ar": "واجهة برمجة Copilot لسهول",
-            "version": "1.0.0",
+            "version": "16.0.0",
             "status": "running",
             "docs": "/docs",
             "health": "/healthz",
@@ -211,7 +211,7 @@ def create_app() -> FastAPI:
         settings = get_settings()
         return {
             "service": "copilot-api",
-            "version": "1.0.0",
+            "version": "16.0.0",
             "mode": settings.copilot_mode,
             "environment": settings.environment,
             "features": {

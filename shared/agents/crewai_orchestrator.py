@@ -283,8 +283,9 @@ class AgriculturalCrew:
             # Execute crew
             from crewai import Crew
 
+            selected_agents = [self._agents[role] for role in selected_roles if role in self._agents]
             crew = Crew(
-                agents=list(self._agents.values()),
+                agents=selected_agents,
                 tasks=tasks,
                 verbose=True,
             )

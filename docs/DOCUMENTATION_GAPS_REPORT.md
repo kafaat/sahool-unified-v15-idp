@@ -286,7 +286,7 @@ test-node # Run Node.js tests
 | Service | Governance | Dockerfile | Status |
 |---------|-----------|-----------|--------|
 | agent-registry | 8160 | 8121 | ❌ |
-| code-fix-agent | 8161 | 8090 | ❌ |
+| code-fix-agent | 8162 | 8090 | ❌ |
 | crop-health-ai | 9095 | 8128 | ❌ |
 | fertilizer-advisor | 9093 | 8127 | ❌ |
 | field-core | 3005 | 3001 | ❌ |

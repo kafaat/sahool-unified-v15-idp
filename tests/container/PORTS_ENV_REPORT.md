@@ -3,6 +3,15 @@
 **Generated:** 2026-01-06
 **Location:** `/home/user/sahool-unified-v15-idp/tests/container/PORTS_ENV_REPORT.md`
 
+> **⚠️ NOTE (2026-02-10):** This report is a historical snapshot from 2026-01-06. All port conflicts documented below have been **RESOLVED**:
+> - `agent-registry`: moved to **8160** (was 8080/8121)
+> - `ai-agents-core`: moved to **8161** (was 8120)
+> - `globalgap-compliance`: moved to **8128** (was 8120/8123)
+> - `ussd-gateway`: moved to **8183** (was 8180)
+> - `logistics-service`: aligned to **8167**
+>
+> See `PORT_ALLOCATION_MAP.md` for current port allocations.
+
 ## Executive Summary
 
 This report documents all ports and environment variables for services in `/home/user/sahool-unified-v15-idp/apps/services/`. It cross-references:

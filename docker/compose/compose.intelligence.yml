@@ -297,16 +297,16 @@ services:
       context: ../../apps/services/ai-agents-core
       dockerfile: Dockerfile
     ports:
-    - 8122:8122
+    - 8161:8161
     environment:
-    - PORT=8122
+    - PORT=8161
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8122/healthz
+      - http://localhost:8161/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -323,16 +323,16 @@ services:
       context: ../../apps/services/code-fix-agent
       dockerfile: Dockerfile
     ports:
-    - 8161:8161
+    - 8162:8162
     environment:
-    - PORT=8161
+    - PORT=8162
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8161/healthz
+      - http://localhost:8162/healthz
       interval: 30s
       timeout: 10s
       retries: 3

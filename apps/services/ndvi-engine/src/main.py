@@ -85,7 +85,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL NDVI Engine (DEPRECATED)",
     description="⚠️ DEPRECATED - Use vegetation-analysis-service instead. Remote sensing NDVI computation and vegetation analysis",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -117,7 +117,7 @@ async def add_deprecation_header(request: Request, call_next):
 
 @app.get("/healthz")
 def health():
-    return {"status": "ok", "service": "ndvi_engine", "version": "15.3.3"}
+    return {"status": "ok", "service": "ndvi_engine", "version": "16.0.0"}
 
 
 @app.get("/readyz")

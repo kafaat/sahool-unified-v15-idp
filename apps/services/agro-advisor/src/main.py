@@ -95,7 +95,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Agro Advisor",
     description="Disease diagnosis, nutrient assessment, and fertilizer planning for Yemen agriculture",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -109,7 +109,7 @@ add_request_id_middleware(app)
 
 @app.get("/healthz")
 def health():
-    return {"status": "ok", "service": "agro_advisor", "version": "15.3.3"}
+    return {"status": "ok", "service": "agro_advisor", "version": "16.0.0"}
 
 
 @app.get("/readyz")

@@ -9,8 +9,8 @@
 # dependencies, and operational parameters.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "1.0.0"
-last_updated: "2026-01-10"
+version: "16.0.0"
+last_updated: "2026-02-10"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Registry Configuration
@@ -20,7 +20,7 @@ registry:
   service: "agent-registry"
   endpoint: "https://api.sahool.app/registry/v1"
   protocol: "A2A"
-  version: "1.0.0"
+  version: "16.0.0"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Categories
@@ -47,6 +47,30 @@ categories:
     description: "Security, audit, and compliance agents / وكلاء الأمان والتدقيق"
     description_ar: "وكلاء الأمان والتدقيق والامتثال"
 
+  iot:
+    description: "IoT, edge computing, and sensor agents / وكلاء إنترنت الأشياء والحوسبة الطرفية"
+    description_ar: "وكلاء إنترنت الأشياء والاستشعار والحوسبة الطرفية"
+
+  precision:
+    description: "Precision agriculture and optimization agents / وكلاء الزراعة الدقيقة والتحسين"
+    description_ar: "وكلاء الزراعة الدقيقة والتحسين"
+
+  sustainability:
+    description: "Sustainability, environment, and resource agents / وكلاء الاستدامة والبيئة"
+    description_ar: "وكلاء الاستدامة والبيئة وإدارة الموارد"
+
+  market:
+    description: "Market analysis and economics agents / وكلاء تحليل السوق والاقتصاد"
+    description_ar: "وكلاء تحليل السوق والاقتصاد الزراعي"
+
+  social:
+    description: "Community engagement and farmer education agents / وكلاء المجتمع والتعليم"
+    description_ar: "وكلاء التواصل المجتمعي وتعليم المزارعين"
+
+  operations:
+    description: "Farm operations and logistics agents / وكلاء العمليات الزراعية واللوجستيات"
+    description_ar: "وكلاء العمليات الزراعية والإدارة اللوجستية"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # SAHOOL AI Agents
 # ─────────────────────────────────────────────────────────────────────────────
@@ -58,7 +82,7 @@ agents:
   field-analyst-agent:
     name: "Field Analyst Agent"
     name_ar: "وكيل تحليل الحقول"
-    version: "1.0.0"
+    version: "16.0.0"
     category: analysis
     type: specialist
     owner: "data-team@sahool.io"
@@ -134,7 +158,7 @@ agents:
   disease-expert-agent:
     name: "Disease Expert Agent"
     name_ar: "وكيل خبير الأمراض"
-    version: "1.0.0"
+    version: "16.0.0"
     category: intelligence
     type: autonomous
     owner: "data-team@sahool.io"
@@ -237,7 +261,7 @@ agents:
   irrigation-advisor-agent:
     name: "Irrigation Advisor Agent"
     name_ar: "وكيل مستشار الري"
-    version: "1.0.0"
+    version: "16.0.0"
     category: advisory
     type: specialist
     owner: "data-team@sahool.io"
@@ -314,7 +338,7 @@ agents:
   yield-predictor-agent:
     name: "Yield Predictor Agent"
     name_ar: "وكيل توقع الإنتاج"
-    version: "1.0.0"
+    version: "16.0.0"
     category: intelligence
     type: autonomous
     owner: "data-team@sahool.io"
@@ -392,7 +416,7 @@ agents:
   fertilizer-advisor-agent:
     name: "Fertilizer Advisor Agent"
     name_ar: "وكيل مستشار الأسمدة"
-    version: "1.0.0"
+    version: "16.0.0"
     category: advisory
     type: specialist
     owner: "data-team@sahool.io"
@@ -468,7 +492,7 @@ agents:
   crop-growth-monitor-agent:
     name: "Crop Growth Monitor Agent"
     name_ar: "وكيل مراقبة نمو المحاصيل"
-    version: "1.0.0"
+    version: "16.0.0"
     category: monitoring
     type: sub-agent
     owner: "data-team@sahool.io"
@@ -533,7 +557,7 @@ agents:
   weather-advisor-agent:
     name: "Weather Advisor Agent"
     name_ar: "وكيل مستشار الطقس"
-    version: "1.0.0"
+    version: "16.0.0"
     category: advisory
     type: specialist
     owner: "data-team@sahool.io"
@@ -597,7 +621,7 @@ agents:
   satellite-analyst-agent:
     name: "Satellite Analyst Agent"
     name_ar: "وكيل تحليل الأقمار الصناعية"
-    version: "1.0.0"
+    version: "16.0.0"
     category: analysis
     type: specialist
     owner: "data-team@sahool.io"
@@ -669,7 +693,7 @@ agents:
   audit-agent:
     name: "Audit Agent"
     name_ar: "وكيل التدقيق والأمان"
-    version: "1.0.0"
+    version: "16.0.0"
     category: security
     type: specialist
     owner: "data-team@sahool.io"
@@ -902,7 +926,7 @@ agents:
   code-fix-agent:
     name: "Code Fix Agent"
     name_ar: "وكيل إصلاح الكود"
-    version: "1.0.0"
+    version: "16.0.0"
     category: intelligence
     type: autonomous
     owner: "data-team@sahool.io"
@@ -1095,7 +1119,7 @@ agents:
   code-review-agent:
     name: "Code Review Agent"
     name_ar: "وكيل مراجعة الكود"
-    version: "1.0.0"
+    version: "16.0.0"
     category: intelligence
     type: autonomous
     owner: "data-team@sahool.io"
@@ -1247,6 +1271,1465 @@ agents:
 
     status: "active"
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # NEW PROPOSED AGENTS (v16.0.0) - الوكلاء المقترحون الجدد
+  # 22 new autonomous agents for enhanced agricultural intelligence
+  # 22 وكيل مستقل جديد لتعزيز الذكاء الزراعي
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 1. SOIL HEALTH AGENT - وكيل صحة التربة
+  # ─────────────────────────────────────────────────────────────────────────
+  soil-health-agent:
+    name: "Soil Health Agent"
+    name_ar: "وكيل صحة التربة"
+    version: "16.0.0"
+    category: analysis
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Deep soil analysis covering pH, EC, organic matter, nutrient profiles, and microbiome health"
+    description_ar: "تحليل عميق للتربة يشمل الحموضة والملوحة والمادة العضوية والعناصر الغذائية وصحة الميكروبيوم"
+
+    capabilities:
+      - name: "analyze_soil_profile"
+        description: "Complete soil profile analysis with nutrient mapping"
+        input_schema:
+          type: object
+          required: ["field_id"]
+          properties:
+            field_id: { type: string }
+            depth_cm: { type: number }
+        output_schema:
+          type: object
+          properties:
+            health_score: { type: number }
+            nutrient_map: { type: object }
+            recommendations: { type: array }
+
+      - name: "predict_soil_degradation"
+        description: "Predict soil degradation risk based on current practices"
+        input_schema:
+          type: object
+          required: ["field_id", "crop_history"]
+        output_schema:
+          type: object
+          properties:
+            risk_level: { type: string }
+            degradation_timeline: { type: string }
+
+    skills:
+      - skill_id: "soil_chemistry"
+        name: "Soil Chemistry"
+        name_ar: "كيمياء التربة"
+        level: "expert"
+        keywords: ["soil", "chemistry", "ph", "ec", "nutrients"]
+
+      - skill_id: "soil_biology"
+        name: "Soil Biology"
+        name_ar: "بيولوجيا التربة"
+        level: "advanced"
+        keywords: ["microbiome", "organic-matter", "soil-biology"]
+
+    dependencies:
+      - soil-analysis-service
+      - indicators-service
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/soil-health/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/soil-health/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["agriculture", "soil", "analysis", "nutrients", "health"]
+      organization: "SAHOOL"
+      license: "Proprietary"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 2. WATER RESOURCE AGENT - وكيل الموارد المائية
+  # ─────────────────────────────────────────────────────────────────────────
+  water-resource-agent:
+    name: "Water Resource Agent"
+    name_ar: "وكيل الموارد المائية"
+    version: "16.0.0"
+    category: sustainability
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Manages water resources including well levels, reservoir capacity, water quality, and allocation optimization"
+    description_ar: "يدير الموارد المائية بما في ذلك مستويات الآبار وسعة الخزانات وجودة المياه وتحسين التوزيع"
+
+    capabilities:
+      - name: "monitor_water_resources"
+        description: "Monitor well levels, reservoir capacity, and water quality"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            resources: { type: array }
+            total_available_m3: { type: number }
+
+      - name: "optimize_water_allocation"
+        description: "Optimize water distribution across fields based on crop needs"
+        input_schema:
+          type: object
+          required: ["farm_id", "fields"]
+        output_schema:
+          type: object
+          properties:
+            allocation_plan: { type: object }
+            savings_percent: { type: number }
+
+    skills:
+      - skill_id: "hydrology"
+        name: "Hydrology"
+        name_ar: "علم المياه"
+        level: "expert"
+        keywords: ["water", "hydrology", "wells", "aquifer"]
+
+      - skill_id: "water_quality"
+        name: "Water Quality Assessment"
+        name_ar: "تقييم جودة المياه"
+        level: "expert"
+        keywords: ["water-quality", "salinity", "contamination"]
+
+    dependencies:
+      - hydrology-service
+      - irrigation-smart
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/water-resource/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/water-resource/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["water", "resources", "sustainability", "hydrology", "irrigation"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 3. PEST SCOUT AGENT - وكيل كشف الآفات
+  # ─────────────────────────────────────────────────────────────────────────
+  pest-scout-agent:
+    name: "Pest Scout Agent"
+    name_ar: "وكيل كشف الآفات"
+    version: "16.0.0"
+    category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Proactive pest scouting using drone imagery, trap data, and weather-based risk models for IPM"
+    description_ar: "كشف استباقي للآفات باستخدام صور الطائرات المسيرة وبيانات المصائد ونماذج المخاطر المناخية للإدارة المتكاملة"
+
+    capabilities:
+      - name: "scout_pests"
+        description: "Active pest scouting with image recognition and trap analysis"
+        input_schema:
+          type: object
+          required: ["field_id"]
+          properties:
+            field_id: { type: string }
+            pest_type: { type: string }
+        output_schema:
+          type: object
+          properties:
+            pests_detected: { type: array }
+            risk_map: { type: object }
+
+      - name: "predict_pest_outbreak"
+        description: "Predict pest outbreak probability based on weather and historical data"
+        input_schema:
+          type: object
+          required: ["field_id", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            outbreak_probability: { type: number }
+            predicted_pests: { type: array }
+
+    skills:
+      - skill_id: "entomology"
+        name: "Entomology"
+        name_ar: "علم الحشرات"
+        level: "expert"
+        keywords: ["pest", "insect", "identification", "ipm"]
+
+      - skill_id: "drone_scouting"
+        name: "Drone Scouting"
+        name_ar: "المسح بالطائرات المسيرة"
+        level: "advanced"
+        keywords: ["drone", "scouting", "aerial", "survey"]
+
+    dependencies:
+      - pest-detection-service
+      - yolo26-vision-service
+      - drone-service
+      - weather-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/pest-scout/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/pest-scout/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["pest", "scouting", "ipm", "drone", "computer-vision"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 4. HARVEST PLANNER AGENT - وكيل تخطيط الحصاد
+  # ─────────────────────────────────────────────────────────────────────────
+  harvest-planner-agent:
+    name: "Harvest Planner Agent"
+    name_ar: "وكيل تخطيط الحصاد"
+    version: "16.0.0"
+    category: operations
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Optimal harvest timing, equipment scheduling, and post-harvest logistics planning"
+    description_ar: "التوقيت الأمثل للحصاد وجدولة المعدات وتخطيط لوجستيات ما بعد الحصاد"
+
+    capabilities:
+      - name: "plan_harvest"
+        description: "Determine optimal harvest window and create logistics plan"
+        input_schema:
+          type: object
+          required: ["field_id", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            optimal_date_range: { type: object }
+            equipment_plan: { type: object }
+            labor_requirements: { type: object }
+
+      - name: "estimate_harvest_yield"
+        description: "Pre-harvest yield estimation for logistics planning"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            estimated_yield_tons: { type: number }
+            quality_grade: { type: string }
+
+    skills:
+      - skill_id: "harvest_logistics"
+        name: "Harvest Logistics"
+        name_ar: "لوجستيات الحصاد"
+        level: "expert"
+        keywords: ["harvest", "logistics", "planning", "scheduling"]
+
+    dependencies:
+      - yield-engine
+      - equipment-service
+      - weather-service
+      - task-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/harvest-planner/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/harvest-planner/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["harvest", "planning", "logistics", "operations"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 5. MARKET PRICE AGENT - وكيل أسعار السوق
+  # ─────────────────────────────────────────────────────────────────────────
+  market-price-agent:
+    name: "Market Price Agent"
+    name_ar: "وكيل أسعار السوق"
+    version: "16.0.0"
+    category: market
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Real-time market price tracking, price prediction, and optimal selling time recommendations"
+    description_ar: "تتبع أسعار السوق الحية وتوقع الأسعار وتوصيات التوقيت الأمثل للبيع"
+
+    capabilities:
+      - name: "track_prices"
+        description: "Track current market prices for agricultural commodities"
+        input_schema:
+          type: object
+          required: ["crop_type"]
+          properties:
+            crop_type: { type: string }
+            market_id: { type: string }
+        output_schema:
+          type: object
+          properties:
+            current_price: { type: number }
+            price_trend: { type: string }
+
+      - name: "predict_price_trend"
+        description: "Predict price trends for optimal selling decisions"
+        input_schema:
+          type: object
+          required: ["crop_type", "horizon_days"]
+        output_schema:
+          type: object
+          properties:
+            predicted_prices: { type: array }
+            sell_recommendation: { type: string }
+
+    skills:
+      - skill_id: "market_analysis"
+        name: "Market Analysis"
+        name_ar: "تحليل السوق"
+        level: "expert"
+        keywords: ["market", "price", "economics", "trading"]
+
+    dependencies:
+      - marketplace-service
+      - advisory-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/market-price/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/market-price/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["market", "price", "economics", "prediction", "trading"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 6. CROP ROTATION AGENT - وكيل الدورة الزراعية
+  # ─────────────────────────────────────────────────────────────────────────
+  crop-rotation-agent:
+    name: "Crop Rotation Agent"
+    name_ar: "وكيل الدورة الزراعية"
+    version: "16.0.0"
+    category: precision
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Plans optimal crop rotation sequences considering soil health, market demand, and water availability"
+    description_ar: "يخطط تسلسلات الدورة الزراعية المثلى مراعياً صحة التربة والطلب السوقي وتوفر المياه"
+
+    capabilities:
+      - name: "plan_rotation"
+        description: "Generate multi-season crop rotation plan"
+        input_schema:
+          type: object
+          required: ["field_id", "seasons_ahead"]
+        output_schema:
+          type: object
+          properties:
+            rotation_plan: { type: array }
+            soil_improvement_score: { type: number }
+
+      - name: "evaluate_rotation"
+        description: "Evaluate current rotation effectiveness"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            score: { type: number }
+            issues: { type: array }
+
+    skills:
+      - skill_id: "agronomy"
+        name: "Agronomy"
+        name_ar: "علم الزراعة"
+        level: "expert"
+        keywords: ["rotation", "agronomy", "soil-health", "cropping-system"]
+
+    dependencies:
+      - soil-analysis-service
+      - yield-engine
+      - marketplace-service
+      - advisory-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/crop-rotation/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/crop-rotation/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["crop-rotation", "agronomy", "soil-health", "planning"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 7. SALINITY MANAGEMENT AGENT - وكيل إدارة الملوحة
+  # ─────────────────────────────────────────────────────────────────────────
+  salinity-management-agent:
+    name: "Salinity Management Agent"
+    name_ar: "وكيل إدارة الملوحة"
+    version: "16.0.0"
+    category: sustainability
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "FAO-29 based salinity monitoring, leaching requirement calculation, and salt-tolerant crop recommendations for Yemen/GCC"
+    description_ar: "مراقبة الملوحة وحساب متطلبات الغسيل وتوصيات المحاصيل المتحملة للملوحة وفق FAO-29 لليمن والخليج"
+
+    capabilities:
+      - name: "assess_salinity"
+        description: "Assess soil and water salinity levels with FAO-29 methodology"
+        input_schema:
+          type: object
+          required: ["field_id"]
+          properties:
+            field_id: { type: string }
+            water_source_id: { type: string }
+        output_schema:
+          type: object
+          properties:
+            soil_ec: { type: number }
+            water_ec: { type: number }
+            leaching_fraction: { type: number }
+            crop_tolerance_rating: { type: string }
+
+      - name: "calculate_leaching"
+        description: "Calculate leaching requirement for salinity management"
+        input_schema:
+          type: object
+          required: ["soil_ec", "irrigation_ec", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            leaching_requirement: { type: number }
+            extra_water_m3: { type: number }
+
+    skills:
+      - skill_id: "salinity_science"
+        name: "Salinity Science"
+        name_ar: "علم الملوحة"
+        level: "expert"
+        keywords: ["salinity", "ec", "leaching", "fao-29"]
+
+    dependencies:
+      - soil-analysis-service
+      - irrigation-smart
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/salinity-management/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/salinity-management/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["salinity", "fao-29", "leaching", "water-quality", "yemen"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 8. DIGITAL TWIN AGENT - وكيل التوأم الرقمي
+  # ─────────────────────────────────────────────────────────────────────────
+  digital-twin-agent:
+    name: "Digital Twin Agent"
+    name_ar: "وكيل التوأم الرقمي"
+    version: "16.0.0"
+    category: intelligence
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "L3 digital twin simulation for fields including soil-water-plant-atmosphere continuum modeling"
+    description_ar: "محاكاة التوأم الرقمي من المستوى الثالث للحقول بما في ذلك نمذجة سلسلة التربة-الماء-النبات-الغلاف الجوي"
+
+    capabilities:
+      - name: "simulate_field"
+        description: "Run digital twin simulation for a field over specified time horizon"
+        input_schema:
+          type: object
+          required: ["field_id", "horizon_days"]
+        output_schema:
+          type: object
+          properties:
+            simulated_states: { type: array }
+            scenario_outcomes: { type: object }
+
+      - name: "what_if_analysis"
+        description: "Run what-if scenarios for management decisions"
+        input_schema:
+          type: object
+          required: ["field_id", "scenarios"]
+        output_schema:
+          type: object
+          properties:
+            scenario_results: { type: array }
+            best_scenario: { type: object }
+
+    skills:
+      - skill_id: "simulation"
+        name: "Agricultural Simulation"
+        name_ar: "المحاكاة الزراعية"
+        level: "expert"
+        keywords: ["digital-twin", "simulation", "modeling", "scenario"]
+
+    dependencies:
+      - digital-twin-engine
+      - crop-growth-model
+      - weather-service
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/digital-twin/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/digital-twin/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["digital-twin", "simulation", "modeling", "l3", "scenario-analysis"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 9. FERTIGATION OPTIMIZER AGENT - وكيل تحسين التسميد بالري
+  # ─────────────────────────────────────────────────────────────────────────
+  fertigation-optimizer-agent:
+    name: "Fertigation Optimizer Agent"
+    name_ar: "وكيل تحسين التسميد بالري"
+    version: "16.0.0"
+    category: precision
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Optimizes fertigation schedules combining nutrient injection with irrigation for maximum efficiency"
+    description_ar: "يحسّن جداول التسميد بالري بدمج حقن العناصر الغذائية مع الري لتحقيق أقصى كفاءة"
+
+    capabilities:
+      - name: "optimize_fertigation"
+        description: "Create optimal fertigation schedule for crop stage"
+        input_schema:
+          type: object
+          required: ["field_id", "crop_type", "crop_stage"]
+        output_schema:
+          type: object
+          properties:
+            schedule: { type: array }
+            nutrient_plan: { type: object }
+            cost_estimate: { type: number }
+
+    skills:
+      - skill_id: "fertigation"
+        name: "Fertigation Science"
+        name_ar: "علم التسميد بالري"
+        level: "expert"
+        keywords: ["fertigation", "nutrients", "injection", "drip"]
+
+    dependencies:
+      - fertigation-engine
+      - irrigation-smart
+      - soil-analysis-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/fertigation-optimizer/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/fertigation-optimizer/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["fertigation", "nutrients", "precision", "optimization"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 10. DRONE FLIGHT AGENT - وكيل مهام الطائرات المسيرة
+  # ─────────────────────────────────────────────────────────────────────────
+  drone-flight-agent:
+    name: "Drone Flight Agent"
+    name_ar: "وكيل مهام الطائرات المسيرة"
+    version: "16.0.0"
+    category: operations
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Autonomous drone flight planning for field surveying, spraying, and monitoring missions"
+    description_ar: "تخطيط مهام الطائرات المسيرة الذاتية للمسح والرش ومراقبة الحقول"
+
+    capabilities:
+      - name: "plan_survey_mission"
+        description: "Plan drone survey flight path for field monitoring"
+        input_schema:
+          type: object
+          required: ["field_id", "mission_type"]
+          properties:
+            field_id: { type: string }
+            mission_type: { type: string, enum: ["survey", "spray", "scout"] }
+        output_schema:
+          type: object
+          properties:
+            flight_plan: { type: object }
+            estimated_duration: { type: number }
+            waypoints: { type: array }
+
+      - name: "analyze_drone_imagery"
+        description: "Analyze imagery captured during drone missions"
+        input_schema:
+          type: object
+          required: ["mission_id"]
+        output_schema:
+          type: object
+          properties:
+            analysis_results: { type: object }
+            anomalies: { type: array }
+
+    skills:
+      - skill_id: "drone_operations"
+        name: "Drone Operations"
+        name_ar: "عمليات الطائرات المسيرة"
+        level: "expert"
+        keywords: ["drone", "uav", "flight", "survey", "spray"]
+
+    dependencies:
+      - drone-service
+      - yolo26-vision-service
+      - terrain-core-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/drone-flight/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/drone-flight/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["drone", "uav", "survey", "spray", "flight-planning"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 11. EDGE DEVICE AGENT - وكيل الأجهزة الطرفية
+  # ─────────────────────────────────────────────────────────────────────────
+  edge-device-agent:
+    name: "Edge Device Agent"
+    name_ar: "وكيل الأجهزة الطرفية"
+    version: "16.0.0"
+    category: iot
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Manages edge computing devices (Jetson Orin), model deployment, OTA updates, and device health"
+    description_ar: "يدير أجهزة الحوسبة الطرفية ونشر النماذج والتحديثات اللاسلكية وصحة الأجهزة"
+
+    capabilities:
+      - name: "deploy_model"
+        description: "Deploy AI model to edge device"
+        input_schema:
+          type: object
+          required: ["device_id", "model_id"]
+        output_schema:
+          type: object
+          properties:
+            deployment_status: { type: string }
+            inference_latency_ms: { type: number }
+
+      - name: "monitor_devices"
+        description: "Monitor health and performance of edge devices"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            devices: { type: array }
+            alerts: { type: array }
+
+    skills:
+      - skill_id: "edge_computing"
+        name: "Edge Computing"
+        name_ar: "الحوسبة الطرفية"
+        level: "expert"
+        keywords: ["edge", "jetson", "deployment", "ota"]
+
+    dependencies:
+      - edge-orchestrator-service
+      - iot-gateway
+
+    endpoint:
+      url: "https://api.sahool.app/agents/edge-device/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/edge-device/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["edge", "iot", "jetson", "deployment", "device-management"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 12. TERRAIN ANALYST AGENT - وكيل تحليل التضاريس
+  # ─────────────────────────────────────────────────────────────────────────
+  terrain-analyst-agent:
+    name: "Terrain Analyst Agent"
+    name_ar: "وكيل تحليل التضاريس"
+    version: "16.0.0"
+    category: analysis
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "DEM analysis, slope/aspect computation, drainage modeling, and field leveling optimization"
+    description_ar: "تحليل نموذج الارتفاع الرقمي وحساب الانحدار والاتجاه ونمذجة الصرف وتحسين تسوية الحقول"
+
+    capabilities:
+      - name: "analyze_terrain"
+        description: "Full terrain analysis from DEM data"
+        input_schema:
+          type: object
+          required: ["field_id"]
+        output_schema:
+          type: object
+          properties:
+            slope_map: { type: object }
+            drainage_pattern: { type: object }
+            leveling_plan: { type: object }
+
+      - name: "optimize_leveling"
+        description: "Calculate optimal field leveling with cut-fill analysis"
+        input_schema:
+          type: object
+          required: ["field_id", "target_slope"]
+        output_schema:
+          type: object
+          properties:
+            cut_volume_m3: { type: number }
+            fill_volume_m3: { type: number }
+            cost_estimate: { type: number }
+
+    skills:
+      - skill_id: "geospatial_analysis"
+        name: "Geospatial Analysis"
+        name_ar: "التحليل المكاني"
+        level: "expert"
+        keywords: ["terrain", "dem", "slope", "drainage", "gis"]
+
+    dependencies:
+      - terrain-core-service
+      - hydrology-service
+      - leveling-optimizer-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/terrain-analyst/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/terrain-analyst/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["terrain", "dem", "slope", "drainage", "leveling", "gis"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 13. FARMER ADVISOR AGENT - وكيل مستشار المزارع
+  # ─────────────────────────────────────────────────────────────────────────
+  farmer-advisor-agent:
+    name: "Farmer Advisor Agent"
+    name_ar: "وكيل مستشار المزارع"
+    version: "16.0.0"
+    category: social
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Personalized farmer advisory via Arabic NLP chat, adapting to literacy level and farming experience"
+    description_ar: "استشارات شخصية للمزارع عبر محادثة بالعربية تتكيف مع مستوى المعرفة والخبرة الزراعية"
+
+    capabilities:
+      - name: "chat_advisory"
+        description: "Arabic NLP-powered conversational advisory"
+        input_schema:
+          type: object
+          required: ["message"]
+          properties:
+            message: { type: string }
+            farmer_id: { type: string }
+            language: { type: string, enum: ["ar", "en"] }
+        output_schema:
+          type: object
+          properties:
+            response: { type: string }
+            response_ar: { type: string }
+            confidence: { type: number }
+
+      - name: "generate_field_report"
+        description: "Generate simplified field status report for farmer"
+        input_schema:
+          type: object
+          required: ["field_id", "farmer_id"]
+        output_schema:
+          type: object
+          properties:
+            report: { type: string }
+            report_ar: { type: string }
+            action_items: { type: array }
+
+    skills:
+      - skill_id: "arabic_nlp"
+        name: "Arabic NLP"
+        name_ar: "معالجة اللغة العربية الطبيعية"
+        level: "expert"
+        keywords: ["nlp", "arabic", "chat", "advisory"]
+
+      - skill_id: "farmer_education"
+        name: "Farmer Education"
+        name_ar: "تعليم المزارعين"
+        level: "advanced"
+        keywords: ["education", "training", "literacy", "simplification"]
+
+    dependencies:
+      - field-chat
+      - advisory-service
+      - agro-advisor
+
+    endpoint:
+      url: "https://api.sahool.app/agents/farmer-advisor/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/farmer-advisor/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["farmer", "advisory", "arabic", "nlp", "chat", "education"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 14. COOPERATIVE MANAGER AGENT - وكيل إدارة التعاونيات
+  # ─────────────────────────────────────────────────────────────────────────
+  cooperative-manager-agent:
+    name: "Cooperative Manager Agent"
+    name_ar: "وكيل إدارة التعاونيات"
+    version: "16.0.0"
+    category: social
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Manages cooperative activities, shared resource allocation, group purchasing, and collective marketing"
+    description_ar: "يدير أنشطة التعاونيات وتوزيع الموارد المشتركة والشراء الجماعي والتسويق التعاوني"
+
+    capabilities:
+      - name: "allocate_shared_resources"
+        description: "Optimize allocation of shared equipment and water among members"
+        input_schema:
+          type: object
+          required: ["cooperative_id"]
+        output_schema:
+          type: object
+          properties:
+            allocation_plan: { type: object }
+            schedule: { type: array }
+
+      - name: "coordinate_marketing"
+        description: "Coordinate group selling for better prices"
+        input_schema:
+          type: object
+          required: ["cooperative_id", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            aggregated_volume: { type: number }
+            price_advantage_percent: { type: number }
+
+    skills:
+      - skill_id: "cooperative_management"
+        name: "Cooperative Management"
+        name_ar: "إدارة التعاونيات"
+        level: "advanced"
+        keywords: ["cooperative", "group", "shared-resources", "collective"]
+
+    dependencies:
+      - cooperative-service
+      - marketplace-service
+      - equipment-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/cooperative-manager/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/cooperative-manager/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["cooperative", "community", "shared-resources", "marketing"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 15. GLOBALGAP COMPLIANCE AGENT - وكيل الامتثال لمعايير جلوبال جاب
+  # ─────────────────────────────────────────────────────────────────────────
+  globalgap-compliance-agent:
+    name: "GlobalGAP Compliance Agent"
+    name_ar: "وكيل الامتثال لمعايير جلوبال جاب"
+    version: "16.0.0"
+    category: monitoring
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Automated GlobalGAP compliance checking, documentation preparation, and audit readiness assessment"
+    description_ar: "فحص الامتثال التلقائي لمعايير جلوبال جاب وإعداد الوثائق وتقييم جاهزية التدقيق"
+
+    capabilities:
+      - name: "check_compliance"
+        description: "Check farm compliance against GlobalGAP checkpoints"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            compliance_score: { type: number }
+            gaps: { type: array }
+            documentation_status: { type: object }
+
+      - name: "prepare_audit"
+        description: "Generate audit-ready documentation package"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            documents: { type: array }
+            readiness_score: { type: number }
+
+    skills:
+      - skill_id: "globalgap"
+        name: "GlobalGAP Standards"
+        name_ar: "معايير جلوبال جاب"
+        level: "expert"
+        keywords: ["globalgap", "compliance", "certification", "audit"]
+
+    dependencies:
+      - globalgap-compliance
+      - traceability-service
+      - audit-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/globalgap-compliance/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/globalgap-compliance/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["globalgap", "compliance", "certification", "audit", "quality"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 16. TRACEABILITY AGENT - وكيل التتبع
+  # ─────────────────────────────────────────────────────────────────────────
+  traceability-agent:
+    name: "Traceability Agent"
+    name_ar: "وكيل التتبع"
+    version: "16.0.0"
+    category: monitoring
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Farm-to-fork product traceability, batch tracking, and provenance verification"
+    description_ar: "تتبع المنتج من المزرعة إلى المائدة وتتبع الدفعات والتحقق من المصدر"
+
+    capabilities:
+      - name: "trace_product"
+        description: "Trace product from harvest to retail"
+        input_schema:
+          type: object
+          required: ["batch_id"]
+        output_schema:
+          type: object
+          properties:
+            trace: { type: array }
+            certifications: { type: array }
+            quality_checks: { type: array }
+
+      - name: "verify_provenance"
+        description: "Verify product origin and handling chain"
+        input_schema:
+          type: object
+          required: ["product_id"]
+        output_schema:
+          type: object
+          properties:
+            verified: { type: boolean }
+            origin: { type: object }
+            chain_of_custody: { type: array }
+
+    skills:
+      - skill_id: "supply_chain"
+        name: "Supply Chain Traceability"
+        name_ar: "تتبع سلسلة الإمداد"
+        level: "expert"
+        keywords: ["traceability", "provenance", "batch", "supply-chain"]
+
+    dependencies:
+      - traceability-service
+      - inventory-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/traceability/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/traceability/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["traceability", "provenance", "supply-chain", "batch-tracking"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 17. EQUIPMENT MAINTENANCE AGENT - وكيل صيانة المعدات
+  # ─────────────────────────────────────────────────────────────────────────
+  equipment-maintenance-agent:
+    name: "Equipment Maintenance Agent"
+    name_ar: "وكيل صيانة المعدات"
+    version: "16.0.0"
+    category: operations
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Predictive maintenance scheduling for farm equipment based on usage patterns and manufacturer specs"
+    description_ar: "جدولة الصيانة التنبؤية للمعدات الزراعية بناءً على أنماط الاستخدام ومواصفات الشركة المصنعة"
+
+    capabilities:
+      - name: "predict_maintenance"
+        description: "Predict when equipment will need maintenance"
+        input_schema:
+          type: object
+          required: ["equipment_id"]
+        output_schema:
+          type: object
+          properties:
+            next_maintenance_date: { type: string }
+            predicted_issues: { type: array }
+            cost_estimate: { type: number }
+
+      - name: "schedule_maintenance"
+        description: "Create optimal maintenance schedule to minimize downtime"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            schedule: { type: array }
+            downtime_hours: { type: number }
+
+    skills:
+      - skill_id: "predictive_maintenance"
+        name: "Predictive Maintenance"
+        name_ar: "الصيانة التنبؤية"
+        level: "advanced"
+        keywords: ["maintenance", "prediction", "equipment", "scheduling"]
+
+    dependencies:
+      - equipment-service
+      - task-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/equipment-maintenance/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/equipment-maintenance/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["equipment", "maintenance", "predictive", "scheduling"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 18. CLIMATE RESILIENCE AGENT - وكيل المرونة المناخية
+  # ─────────────────────────────────────────────────────────────────────────
+  climate-resilience-agent:
+    name: "Climate Resilience Agent"
+    name_ar: "وكيل المرونة المناخية"
+    version: "16.0.0"
+    category: sustainability
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Climate change adaptation planning, drought risk assessment, and resilient farming practice recommendations"
+    description_ar: "تخطيط التكيف مع التغير المناخي وتقييم مخاطر الجفاف وتوصيات الممارسات الزراعية المرنة"
+
+    capabilities:
+      - name: "assess_climate_risk"
+        description: "Assess farm-level climate change risks and vulnerabilities"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            risk_score: { type: number }
+            vulnerabilities: { type: array }
+            adaptation_plan: { type: object }
+
+      - name: "recommend_adaptation"
+        description: "Recommend climate adaptation strategies"
+        input_schema:
+          type: object
+          required: ["farm_id", "risk_profile"]
+        output_schema:
+          type: object
+          properties:
+            strategies: { type: array }
+            priority_actions: { type: array }
+            investment_plan: { type: object }
+
+    skills:
+      - skill_id: "climate_science"
+        name: "Climate Science"
+        name_ar: "علم المناخ"
+        level: "expert"
+        keywords: ["climate", "adaptation", "drought", "resilience"]
+
+    dependencies:
+      - weather-service
+      - disaster-assessment
+      - advisory-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/climate-resilience/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/climate-resilience/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["climate", "resilience", "adaptation", "drought", "sustainability"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 19. INVENTORY OPTIMIZER AGENT - وكيل تحسين المخزون
+  # ─────────────────────────────────────────────────────────────────────────
+  inventory-optimizer-agent:
+    name: "Inventory Optimizer Agent"
+    name_ar: "وكيل تحسين المخزون"
+    version: "16.0.0"
+    category: operations
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Optimizes farm input inventory (seeds, fertilizer, pesticides) with reorder points and supplier management"
+    description_ar: "يحسّن مخزون المدخلات الزراعية (البذور والأسمدة والمبيدات) مع نقاط إعادة الطلب وإدارة الموردين"
+
+    capabilities:
+      - name: "optimize_inventory"
+        description: "Optimize inventory levels based on seasonal needs"
+        input_schema:
+          type: object
+          required: ["farm_id"]
+        output_schema:
+          type: object
+          properties:
+            reorder_list: { type: array }
+            cost_savings: { type: number }
+            stockout_risk: { type: object }
+
+    skills:
+      - skill_id: "inventory_management"
+        name: "Inventory Management"
+        name_ar: "إدارة المخزون"
+        level: "advanced"
+        keywords: ["inventory", "stock", "reorder", "supply"]
+
+    dependencies:
+      - inventory-service
+      - billing-core
+
+    endpoint:
+      url: "https://api.sahool.app/agents/inventory-optimizer/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/inventory-optimizer/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["inventory", "optimization", "supply-chain", "operations"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 20. WEED DETECTION AGENT - وكيل كشف الأعشاب الضارة
+  # ─────────────────────────────────────────────────────────────────────────
+  weed-detection-agent:
+    name: "Weed Detection Agent"
+    name_ar: "وكيل كشف الأعشاب الضارة"
+    version: "16.0.0"
+    category: intelligence
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "YOLO26-powered weed detection, species identification, and site-specific herbicide recommendation"
+    description_ar: "كشف الأعشاب الضارة بتقنية YOLO26 وتحديد الأنواع وتوصيات المبيدات الموقعية"
+
+    capabilities:
+      - name: "detect_weeds"
+        description: "Detect and classify weeds from field imagery"
+        input_schema:
+          type: object
+          required: ["field_id"]
+          properties:
+            field_id: { type: string }
+            image_source: { type: string, enum: ["drone", "camera", "satellite"] }
+        output_schema:
+          type: object
+          properties:
+            weeds_detected: { type: array }
+            coverage_percent: { type: number }
+            weed_map: { type: object }
+
+      - name: "recommend_control"
+        description: "Recommend weed control strategy"
+        input_schema:
+          type: object
+          required: ["weeds", "crop_type"]
+        output_schema:
+          type: object
+          properties:
+            control_plan: { type: object }
+            herbicide_options: { type: array }
+
+    skills:
+      - skill_id: "weed_science"
+        name: "Weed Science"
+        name_ar: "علم الأعشاب الضارة"
+        level: "expert"
+        keywords: ["weed", "herbicide", "detection", "control"]
+
+    dependencies:
+      - yolo26-vision-service
+      - drone-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/weed-detection/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/weed-detection/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["weed", "detection", "yolo26", "computer-vision", "herbicide"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 21. ASTRONOMICAL CALENDAR AGENT - وكيل التقويم الفلكي
+  # ─────────────────────────────────────────────────────────────────────────
+  astronomical-calendar-agent:
+    name: "Astronomical Calendar Agent"
+    name_ar: "وكيل التقويم الفلكي"
+    version: "16.0.0"
+    category: advisory
+    type: specialist
+    owner: "data-team@sahool.io"
+    description: "Islamic calendar and astronomical timing for agricultural operations aligned with traditional Yemen farming"
+    description_ar: "التقويم الإسلامي والتوقيت الفلكي للعمليات الزراعية المتوافقة مع الزراعة اليمنية التقليدية"
+
+    capabilities:
+      - name: "get_planting_calendar"
+        description: "Planting calendar based on Islamic months and star positions"
+        input_schema:
+          type: object
+          required: ["crop_type", "location"]
+        output_schema:
+          type: object
+          properties:
+            optimal_dates: { type: array }
+            islamic_month: { type: string }
+            star_position: { type: string }
+
+      - name: "align_operations"
+        description: "Align farm operations with traditional astronomical timing"
+        input_schema:
+          type: object
+          required: ["operation_type", "location"]
+        output_schema:
+          type: object
+          properties:
+            recommended_dates: { type: array }
+            traditional_guidance: { type: string }
+            guidance_ar: { type: string }
+
+    skills:
+      - skill_id: "agricultural_astronomy"
+        name: "Agricultural Astronomy"
+        name_ar: "الفلك الزراعي"
+        level: "expert"
+        keywords: ["calendar", "astronomy", "islamic", "traditional"]
+
+    dependencies:
+      - astronomical-calendar
+
+    endpoint:
+      url: "https://api.sahool.app/agents/astronomical-calendar/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/astronomical-calendar/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["calendar", "astronomy", "islamic", "traditional", "yemen"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # 22. DISASTER RESPONSE AGENT - وكيل الاستجابة للكوارث
+  # ─────────────────────────────────────────────────────────────────────────
+  disaster-response-agent:
+    name: "Disaster Response Agent"
+    name_ar: "وكيل الاستجابة للكوارث"
+    version: "16.0.0"
+    category: monitoring
+    type: autonomous
+    owner: "data-team@sahool.io"
+    description: "Emergency response coordination for agricultural disasters (floods, droughts, locust swarms, frost)"
+    description_ar: "تنسيق الاستجابة الطارئة للكوارث الزراعية (فيضانات، جفاف، أسراب جراد، صقيع)"
+
+    capabilities:
+      - name: "assess_disaster"
+        description: "Rapid disaster assessment and damage estimation"
+        input_schema:
+          type: object
+          required: ["disaster_type", "affected_area"]
+        output_schema:
+          type: object
+          properties:
+            severity: { type: string }
+            affected_farms: { type: array }
+            estimated_loss: { type: number }
+            response_plan: { type: object }
+
+      - name: "coordinate_response"
+        description: "Coordinate emergency response actions across affected farms"
+        input_schema:
+          type: object
+          required: ["disaster_id"]
+        output_schema:
+          type: object
+          properties:
+            actions: { type: array }
+            resource_allocation: { type: object }
+            timeline: { type: object }
+
+    skills:
+      - skill_id: "disaster_management"
+        name: "Disaster Management"
+        name_ar: "إدارة الكوارث"
+        level: "expert"
+        keywords: ["disaster", "emergency", "flood", "drought", "locust"]
+
+    dependencies:
+      - disaster-assessment
+      - alert-service
+      - notification-service
+      - weather-service
+
+    endpoint:
+      url: "https://api.sahool.app/agents/disaster-response/invoke"
+      method: "POST"
+
+    health_endpoint: "https://api.sahool.app/agents/disaster-response/health"
+
+    security:
+      scheme: "bearer"
+      requires_authentication: true
+
+    metadata:
+      tags: ["disaster", "emergency", "response", "flood", "drought", "locust"]
+      organization: "SAHOOL"
+
+    status: "proposed"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Agent Orchestration Rules
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1282,6 +2765,88 @@ orchestration:
         - irrigation-advisor-agent
         - crop-growth-monitor-agent
       execution: "parallel"
+
+    # ═══════════════════════════════════════════════════════════════════════
+    # Precision Agriculture Workflows - سير عمل الزراعة الدقيقة
+    # ═══════════════════════════════════════════════════════════════════════
+
+    precision_irrigation:
+      description: "Full precision irrigation workflow / سير عمل الري الدقيق المتكامل"
+      description_ar: "سير عمل الري الدقيق المتكامل"
+      agents:
+        - irrigation-advisor-agent
+        - soil-health-agent
+        - water-resource-agent
+        - salinity-management-agent
+        - fertigation-optimizer-agent
+        - digital-twin-agent
+      execution: "sequential"
+      coordinator: "irrigation-advisor-agent"
+
+    pest_management:
+      description: "Integrated pest management workflow / سير عمل الإدارة المتكاملة للآفات"
+      description_ar: "سير عمل الإدارة المتكاملة للآفات"
+      agents:
+        - pest-scout-agent
+        - weed-detection-agent
+        - disease-expert-agent
+        - drone-flight-agent
+      execution: "parallel"
+      coordinator: "pest-scout-agent"
+
+    farm_operations:
+      description: "Daily farm operations orchestration / تنسيق العمليات الزراعية اليومية"
+      description_ar: "تنسيق العمليات الزراعية اليومية"
+      agents:
+        - harvest-planner-agent
+        - equipment-maintenance-agent
+        - inventory-optimizer-agent
+        - cooperative-manager-agent
+      execution: "parallel"
+
+    sustainability_assessment:
+      description: "Farm sustainability and compliance assessment / تقييم الاستدامة والامتثال"
+      description_ar: "تقييم الاستدامة والامتثال"
+      agents:
+        - climate-resilience-agent
+        - globalgap-compliance-agent
+        - traceability-agent
+        - soil-health-agent
+        - water-resource-agent
+      execution: "parallel"
+
+    farmer_engagement:
+      description: "Farmer advisory and education / استشارات وتعليم المزارعين"
+      description_ar: "استشارات وتعليم المزارعين"
+      agents:
+        - farmer-advisor-agent
+        - astronomical-calendar-agent
+        - market-price-agent
+      execution: "sequential"
+      coordinator: "farmer-advisor-agent"
+
+    emergency_response:
+      description: "Disaster detection and coordinated response / كشف الكوارث والاستجابة المنسقة"
+      description_ar: "كشف الكوارث والاستجابة المنسقة"
+      agents:
+        - disaster-response-agent
+        - weather-advisor-agent
+        - drone-flight-agent
+        - edge-device-agent
+      execution: "sequential"
+      coordinator: "disaster-response-agent"
+
+    digital_twin_simulation:
+      description: "Full farm digital twin simulation / محاكاة التوأم الرقمي للمزرعة"
+      description_ar: "محاكاة التوأم الرقمي الكاملة للمزرعة"
+      agents:
+        - digital-twin-agent
+        - terrain-analyst-agent
+        - soil-health-agent
+        - crop-growth-monitor-agent
+        - weather-advisor-agent
+      execution: "parallel"
+      coordinator: "digital-twin-agent"
 
     # ═══════════════════════════════════════════════════════════════════════
     # Code Quality Workflows - سير عمل جودة الكود

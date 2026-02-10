@@ -103,7 +103,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="SAHOOL Smart Irrigation Service | خدمة الري الذكي",
-    version="15.3.0",
+    version="16.0.0",
     description="AI-powered irrigation scheduling, water conservation, and smart recommendations",
     lifespan=lifespan,
 )

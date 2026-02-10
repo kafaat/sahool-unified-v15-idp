@@ -71,8 +71,11 @@ RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev lib
     && rm -rf /var/lib/apt/lists/* \
     || true
 
-# Copy shared libraries (required for shared.errors_py, shared.cors_config)
+# Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY apps/services/shared/ ./shared/
 
 # Copy source
 COPY apps/services/field-chat/src/ ./src/

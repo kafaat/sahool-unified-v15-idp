@@ -1,6 +1,6 @@
 """
 SAHOOL Logistics Service - خدمة اللوجستيات الزراعية
-Port: 8181
+Port: 8167
 
 Provides agricultural logistics management:
 - Harvest collection scheduling and routing (جدولة جمع المحاصيل والتوجيه)
@@ -83,7 +83,7 @@ logger = logging.getLogger("sahool-logistics")
 
 SERVICE_NAME = "sahool-logistics-service"
 SERVICE_VERSION = "16.0.0"
-SERVICE_PORT = int(os.getenv("PORT", "8181"))
+SERVICE_PORT = int(os.getenv("PORT", "8167"))
 NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 DATABASE_URL = os.getenv("DATABASE_URL", "")
 

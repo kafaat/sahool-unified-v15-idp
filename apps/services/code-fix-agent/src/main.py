@@ -24,7 +24,7 @@ from .agent import CodeFixAgent
 # ============================================================================
 
 SERVICE_NAME = "code-fix-agent"
-SERVICE_VERSION = "1.0.0"
+SERVICE_VERSION = "16.0.0"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
 # Configure structured logging
@@ -559,7 +559,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", "8161"))
+    port = int(os.getenv("PORT", "8162"))
     host = os.getenv("HOST", "0.0.0.0")
 
     uvicorn.run(

@@ -125,7 +125,7 @@
 | Kong Service | المنفذ | الوصف |
 |--------------|--------|-------|
 | `agent-registry` | 8160 | سجل الوكلاء |
-| `ai-agents-core` | 8122 | نواة الوكلاء |
+| `ai-agents-core` | 8161 | نواة الوكلاء |
 | `ai-agents-service` | 8130 | تنسيق الوكلاء |
 | `knowledge-graph` | 8140 | رسم المعرفة |
 | `mcp-server` | 8200 | Model Context Protocol |
@@ -147,9 +147,9 @@
 | `crm-service` | 8131 | CRM |
 | `lowcode-engine` | 8132 | التطوير السريع |
 | `wechat-service` | 8133 | تكامل WeChat |
-| `globalgap-compliance` | 8123 | شهادة GlobalGAP |
-| `logistics-service` | 8162 | اللوجستيات |
-| `ussd-gateway` | 8163 | بوابة USSD |
+| `globalgap-compliance` | 8128 | شهادة GlobalGAP |
+| `logistics-service` | 8167 | اللوجستيات |
+| `ussd-gateway` | 8183 | بوابة USSD |
 | `inventory-service` | 8116 | إدارة المخزون |
 
 ### 2.4 خدمات الإشعارات والبوابات - غير مستخدمة مباشرة
@@ -282,7 +282,7 @@
 │   (31 services)  │    │   (Business)     │    │   (31 services)  │
 │                  │    │                  │    │                  │
 │ field-mgmt:3000  │    │ marketplace:3010 │    │ agent-reg:8160   │
-│ field-core:3005  │    │ billing:8089     │    │ ai-agents:8122   │
+│ field-core:3005  │    │ billing:8089     │    │ ai-agents:8161   │
 │ field-intel:8120 │    │ disaster:3020    │    │ knowledge:8140   │
 │ weather:8092     │    │ community:8097   │    │ mcp-server:8200  │
 │ weather-core:8108│    │ reports:8084     │    │ skills:8121      │

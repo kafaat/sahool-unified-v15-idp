@@ -101,7 +101,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="SAHOOL Field Chat",
     description="Real-time collaboration for fields, tasks, and incidents",
-    version="15.3.3",
+    version="16.0.0",
     lifespan=lifespan,
 )
 
@@ -144,7 +144,7 @@ async def health_check():
     return {
         "status": "ok",
         "service": "field_chat",
-        "version": "15.3.3",
+        "version": "16.0.0",
     }
 
 
@@ -174,7 +174,7 @@ async def root(user: dict = Depends(get_current_user)):
     """Root endpoint with service info (requires authentication)"""
     return {
         "service": "SAHOOL Field Chat",
-        "version": "15.3.3",
+        "version": "16.0.0",
         "description_ar": "خدمة المحادثات الميدانية للحقول والمهام",
         "description_en": "Field chat service for fields and tasks",
         "endpoints": {

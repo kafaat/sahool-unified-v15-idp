@@ -35,7 +35,7 @@ logger = logging.getLogger("sahool-yield-engine")
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SERVICE_NAME = "yield-engine"
-SERVICE_VERSION = "1.0.0"
+SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = int(os.getenv("PORT", 8098))
 
 # ═══════════════════════════════════════════════════════════════════════════════

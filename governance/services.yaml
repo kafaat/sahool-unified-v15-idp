@@ -2102,7 +2102,7 @@ services:
     category: core
     layer: intelligence
     path: "apps/services/ai-agents-core"
-    port: 8122  # Matches Dockerfile EXPOSE
+    port: 8161  # Matches Dockerfile EXPOSE
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2167,8 +2167,7 @@ services:
 
   # ═══════════════════════════════════════════════════════════════════════════
   # CODE FIX AGENT - وكيل إصلاح الكود
-  # NOTE: Dockerfile uses 8090 which conflicts with vegetation-analysis-service
-  # Reassigned to 8161 to avoid conflict
+  # NOTE: Dockerfile uses 8162 (changed from 8090/8161 to avoid conflicts)
   # ═══════════════════════════════════════════════════════════════════════════
   code-fix-agent:
     name: "Code Fix Agent"
@@ -2179,7 +2178,7 @@ services:
     category: analytics
     layer: intelligence
     path: "apps/services/code-fix-agent"
-    port: 8161  # Changed from 8090 (conflict with vegetation-analysis-service)
+    port: 8162  # Changed from 8161 (conflict with ai-agents-core)
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2320,7 +2319,7 @@ services:
     category: core
     layer: business
     path: "apps/services/globalgap-compliance"
-    port: 8123  # Matches Dockerfile ENV PORT
+    port: 8128  # Matches Dockerfile ENV PORT
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2395,7 +2394,7 @@ services:
     category: core
     layer: business
     path: "apps/services/logistics-service"
-    port: 8181  # Changed from 8131 (conflict with crm-service) to 8181
+    port: 8167  # Matches Dockerfile EXPOSE and code default
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2467,7 +2466,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/ussd-gateway"
-    port: 8180  # Changed from 8130 (conflict with ai-agents-service) to 8180
+    port: 8183  # Changed from 8180 (conflict with edge-orchestrator) to 8183
     protocol: http
     health_endpoint: "/healthz"
     status: active

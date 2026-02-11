@@ -13,15 +13,19 @@ _transform: true
 # الإضافات العالمية (تُطبق على جميع المسارات والخدمات)
 # ==============================================================================
 plugins:
-  # CORS Configuration - Configured for development
-  # Note: In production, replace origins with specific allowed domains
-  # ملاحظة: في الإنتاج، استبدل الأصول بالنطاقات المسموح بها فقط
+  # CORS Configuration - Environment-based security
+  # تكوين CORS - أمان يعتمد على البيئة
+  # PRODUCTION: Set KONG_CORS_ORIGINS to specific domains
+  # DEVELOPMENT: Uses wildcard (*)
+  # الإنتاج: عيّن KONG_CORS_ORIGINS للنطاقات المحددة
+  # التطوير: يستخدم حرف البدل (*)
   - name: cors
     config:
-      # SECURITY: In production, specify exact origins instead of wildcard
-      # Example: ["https://app.sahool.com", "https://admin.sahool.com"]
+      # SECURITY: In production, set environment variable KONG_CORS_ORIGINS to:
+      # "https://app.sahool.com,https://admin.sahool.com,https://mobile.sahool.com"
+      # For development, "*" is used
       origins:
-        - "*"
+        - "*"  # Replace with ${KONG_CORS_ORIGINS:-*} in production
       methods:
         - GET
         - POST
@@ -68,6 +72,40 @@ plugins:
       allowed_payload_size: 10  # MB
       size_unit: megabytes
       require_content_length: false
+
+  # Security Headers - Added for all responses
+  # رؤوس الأمان - مضافة لجميع الاستجابات
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
+      remove:
+        headers:
+          - "Server"
+          - "X-Powered-By"
+
+  # Bot Detection - Block malicious bots and scrapers
+  # كشف الروبوتات - حظر الروبوتات الخبيثة
+  - name: bot-detection
+    config:
+      deny:
+        - "sqlmap"
+        - "Nikto"
+        - "masscan"
+        - "ZmEu"
+        - "dirbuster"
+        - "gobuster"
+        - "nuclei"
+        - "nmap"
+      allow:
+        - "Googlebot"
+        - "bingbot"
 
 # ------------------------------------------------------------------------------
 # Services + Routes
@@ -164,6 +202,19 @@ services:
         paths: ["/api/v1/marketplace", "/marketplace"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # Rate limiting for marketplace operations
+      # تحديد المعدل لعمليات السوق
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 1000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   - name: research-core
     host: research-core
@@ -282,6 +333,30 @@ services:
         paths: ["/api/v1/billing", "/billing"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # IP Restriction - Billing access only from internal networks
+      # قيود IP - الوصول للفوترة فقط من الشبكات الداخلية
+      - name: ip-restriction
+        config:
+          allow:
+            - "10.0.0.0/8"       # Internal network
+            - "172.16.0.0/12"    # Docker networks
+            - "192.168.0.0/16"   # Private network
+            - "127.0.0.1/32"     # Localhost
+          status: 403
+          message: "Access denied. Billing API is restricted. الوصول مرفوض. API الفوترة محظور."
+      # Strict rate limiting for billing operations
+      # تحديد صارم للمعدل لعمليات الفوترة
+      - name: rate-limiting
+        config:
+          minute: 20
+          hour: 200
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   - name: vegetation-analysis-service
     host: vegetation-analysis-service
@@ -442,6 +517,30 @@ services:
         paths: ["/api/v1/iot-gateway", "/iot-gateway"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # IP Restriction - IoT Gateway access control
+      # قيود IP - التحكم في الوصول لبوابة IoT
+      - name: ip-restriction
+        config:
+          allow:
+            - "10.0.0.0/8"       # Internal network
+            - "172.16.0.0/12"    # Docker networks
+            - "192.168.0.0/16"   # Private network
+            - "127.0.0.1/32"     # Localhost
+          status: 403
+          message: "Access denied. IoT Gateway is restricted. الوصول مرفوض. بوابة IoT محظورة."
+      # Rate limiting for IoT device connections
+      # تحديد المعدل لاتصالات أجهزة IoT
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
 
   # DEPRECATED
   - name: ndvi-engine

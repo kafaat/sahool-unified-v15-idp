@@ -75,6 +75,8 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_PROXY_LISTEN: "0.0.0.0:8000 reuseport backlog=16384, 0.0.0.0:8443 ssl reuseport backlog=16384"
+      # SECURITY FIX: Admin API only accessible from localhost
+      # إصلاح الأمان: واجهة الإدارة متاحة فقط من المضيف المحلي
       KONG_ADMIN_LISTEN: "127.0.0.1:8001, 127.0.0.1:8444 ssl"
       KONG_STATUS_LISTEN: "0.0.0.0:8100"
 

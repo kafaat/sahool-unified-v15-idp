@@ -78,6 +78,9 @@ The platform follows a **Domain-Driven Design (DDD)** approach within a Monorepo
 Start the entire backend stack (Postgres, Kong, NATS, Core Services):
 
 ```bash
+# First, create .env file (required for Docker Compose)
+ln -s .env.development .env
+
 # Using Make (recommended)
 make up
 

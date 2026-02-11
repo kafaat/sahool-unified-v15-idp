@@ -7,6 +7,8 @@ chmod 755 /mosquitto/config
 
 # Create passwd file - owned by mosquitto user (required for Mosquitto to read it after dropping privileges)
 # NOTE: Future Mosquitto versions may require root:root, but current version needs mosquitto ownership
+# Remove existing passwd file if it exists (from previous runs)
+rm -f /mosquitto/config/passwd
 mosquitto_passwd -b -c /mosquitto/config/passwd "${MQTT_USER}" "${MQTT_PASSWORD}" || {
     echo "ERROR: Failed to create passwd file" >&2
     exit 1

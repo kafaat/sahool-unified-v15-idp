@@ -1,78 +1,112 @@
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Field Intelligence Service
 # خدمة ذكاء الحقول والقواعد الآلية
-# =====================
-# Field Intelligence and Automation Rules Service
+# Multi-stage build with security hardening
 # Version: 16.0.0
+# Updated: February 2026
+# ═══════════════════════════════════════════════════════════════════════════════
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
-# Build arguments
-ARG SERVICE_NAME=field-intelligence
-ARG SERVICE_VERSION=16.0.0
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
-LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
-LABEL org.opencontainers.image.description="Field Intelligence and Automation Rules Service"
-LABEL maintainer="SAHOOL Team <dev@sahool.io>"
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
+
+USER sahool
+WORKDIR /home/sahool
+
+# Create virtual environment
+ENV VIRTUAL_ENV=/home/sahool/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Configure pip
+RUN mkdir -p ~/.pip && \
+    cat > ~/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+[install]
+prefer-binary = true
+EOF
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0
+
+# Copy and install dependencies
+COPY --chown=sahool:sahool apps/services/field-intelligence/requirements.txt /tmp/requirements.txt
+COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
+
+RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Runtime
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL Field Intelligence Service" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.description="Field Intelligence and Automation Rules Service" \
+      maintainer="SAHOOL Team <dev@sahool.io>"
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
+
+# Copy virtual environment
+COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
+
+# Set environment
+ENV VIRTUAL_ENV=/home/sahool/venv \
+    PATH="/home/sahool/venv/bin:$PATH" \
     PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1 \
-    PIP_DEFAULT_TIMEOUT=300 \
-    PIP_RETRIES=10
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-# Create non-root user
-# إنشاء مستخدم غير جذري للأمان
-RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash --create-home sahool
-
-# Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
-
-# Configure pip for better network resilience
-# إعداد pip لتحسين مقاومة الشبكة
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
-
-# Install dependencies
-# تثبيت المتطلبات
-COPY apps/services/field-intelligence/requirements.txt .
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
-
 # Copy shared libraries
-# نسخ المكتبات المشتركة
-COPY apps/services/shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy source
-# نسخ الكود المصدري
-COPY apps/services/field-intelligence/src/ ./src/
+COPY --chown=sahool:sahool apps/services/field-intelligence/src/ ./src/
 
-# Set ownership
-# تعيين الملكية
-RUN chown -R sahool:sahool /app
-
+# Switch to non-root user
 USER sahool
 
 # Expose port
-# فتح المنفذ
 EXPOSE 8120
 
 # Health check
-# فحص الصحة
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8120/healthz')" || exit 1
 
 # Run the application
-# تشغيل التطبيق
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8120"]

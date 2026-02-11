@@ -225,6 +225,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
+        id: build-push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -233,19 +234,21 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
-          cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          # DISABLED: GitHub Actions Cache service is intermittently unavailable
+          # cache-from: type=gha,scope=${{ matrix.service }}-v2
+          # cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
           build-args: |
             SERVICE_NAME=${{ matrix.service }}
             BUILD_DATE=${{ github.event.head_commit.timestamp }}
             VCS_REF=${{ github.sha }}
         # Continue on transient Docker Hub errors
-        continue-on-error: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        continue-on-error: true
 
       - name: Generate SBOM
-        if: steps.check.outputs.exists == 'true'
-        uses: anchore/sbom-action@v0
+        # Only generate SBOM if image was actually pushed to registry
+        if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
+        uses: anchore/sbom-action@v0.18.0
+        continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
           artifact-name: sbom-${{ matrix.service }}.spdx.json
@@ -402,6 +405,7 @@ jobs:
 
       - name: Build and push
         if: steps.check.outputs.exists == 'true'
+        id: build-push
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -410,11 +414,21 @@ jobs:
           push: ${{ github.event.inputs.push == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          # Reset cache scope to avoid corrupted cache (BlobNotFound errors)
-          cache-from: type=gha,scope=${{ matrix.service }}-v2
-          cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
+          # DISABLED: GitHub Actions Cache service is intermittently unavailable
+          # cache-from: type=gha,scope=${{ matrix.service }}-v2
+          # cache-to: type=gha,scope=${{ matrix.service }}-v2,mode=max
         # Continue on transient Docker Hub errors
-        continue-on-error: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        continue-on-error: true
+
+      - name: Generate SBOM
+        # Only generate SBOM if image was actually pushed to registry
+        if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
+        uses: anchore/sbom-action@v0.18.0
+        continue-on-error: true
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
+          artifact-name: sbom-${{ matrix.service }}.spdx.json
+          output-file: ./sbom-${{ matrix.service }}.spdx.json
 
   build-summary:
     name: Build Summary

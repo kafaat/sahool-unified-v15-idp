@@ -682,8 +682,9 @@ jobs:
           file: ${{ matrix.service.path }}/Dockerfile
           push: false
           tags: sahool/${{ matrix.service.name }}:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # DISABLED: GitHub Actions Cache service is intermittently unavailable
+          # cache-from: type=gha
+          # cache-to: type=gha,mode=max
 
       - name: Build Docker image (no cache fallback)
         if: steps.check-dockerfile.outputs.exists == 'true' && steps.docker-build.outcome == 'failure'

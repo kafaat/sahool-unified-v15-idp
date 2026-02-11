@@ -375,6 +375,21 @@ services:
         paths: ["/api/v1/ndvi", "/ndvi"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # Cache NDVI and satellite data (updates every few hours)
+      # تخزين بيانات NDVI والأقمار الصناعية مؤقتًا
+      - name: proxy-cache
+        config:
+          response_code:
+            - 200
+          request_method:
+            - GET
+          content_type:
+            - application/json
+          cache_ttl: 1800  # 30 minutes
+          strategy: memory
+          memory:
+            dictionary_name: kong_db_cache
 
   - name: indicators-service
     host: indicators-service
@@ -395,6 +410,21 @@ services:
         paths: ["/api/v1/weather", "/weather"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      # Cache weather data (updates hourly)
+      # تخزين بيانات الطقس مؤقتًا
+      - name: proxy-cache
+        config:
+          response_code:
+            - 200
+          request_method:
+            - GET
+          content_type:
+            - application/json
+          cache_ttl: 900  # 15 minutes
+          strategy: memory
+          memory:
+            dictionary_name: kong_db_cache
 
   - name: advisory-service
     host: advisory-service

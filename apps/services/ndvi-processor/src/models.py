@@ -3,7 +3,7 @@ SAHOOL NDVI Processor - Data Models
 نماذج بيانات معالج NDVI
 """
 
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 # ============== Enums ==============
 
 
-class SatelliteSource(str, Enum):
+class SatelliteSource(StrEnum):
     """مصادر الأقمار الصناعية"""
 
     SENTINEL_2 = "sentinel-2"
@@ -20,7 +20,7 @@ class SatelliteSource(str, Enum):
     MODIS = "modis"
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     """حالة المهمة"""
 
     QUEUED = "queued"
@@ -30,7 +30,7 @@ class JobStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class CompositeMethod(str, Enum):
+class CompositeMethod(StrEnum):
     """طريقة التركيب"""
 
     MAX_NDVI = "max_ndvi"
@@ -39,7 +39,7 @@ class CompositeMethod(str, Enum):
     MIN_CLOUD = "min_cloud"
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """صيغة التصدير"""
 
     GEOTIFF = "geotiff"
@@ -48,7 +48,7 @@ class ExportFormat(str, Enum):
     JSON = "json"
 
 
-class TrendDirection(str, Enum):
+class TrendDirection(StrEnum):
     """اتجاه التغير"""
 
     IMPROVING = "improving"

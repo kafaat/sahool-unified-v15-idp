@@ -47,7 +47,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -64,7 +64,7 @@ from .events import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class PestCategory(str, Enum):
+class PestCategory(StrEnum):
     """
     Pest/disease categories
     فئات الآفات والأمراض
@@ -80,7 +80,7 @@ class PestCategory(str, Enum):
     RODENT = "RODENT"  # قوارض
 
 
-class IPMActivityType(str, Enum):
+class IPMActivityType(StrEnum):
     """
     IPM activity types
     أنواع أنشطة الإدارة المتكاملة للآفات
@@ -96,7 +96,7 @@ class IPMActivityType(str, Enum):
     CHEMICAL_CONTROL = "CHEMICAL_CONTROL"  # المكافحة الكيميائية
 
 
-class DetectionMethod(str, Enum):
+class DetectionMethod(StrEnum):
     """
     Detection methods
     طرق الكشف
@@ -110,7 +110,7 @@ class DetectionMethod(str, Enum):
     SCOUTING = "SCOUTING"  # المسح
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """
     Severity levels
     مستويات الخطورة
@@ -122,7 +122,7 @@ class SeverityLevel(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class PPPType(str, Enum):
+class PPPType(StrEnum):
     """
     Plant Protection Product types
     أنواع منتجات وقاية النباتات

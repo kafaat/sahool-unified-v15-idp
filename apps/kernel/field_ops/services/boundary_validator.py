@@ -19,7 +19,7 @@ Version: 1.0.0
 import json
 import math
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -89,7 +89,7 @@ YEMEN_GOVERNORATES = [
 # ============== التعدادات - Enumerations ==============
 
 
-class ValidationSeverity(str, Enum):
+class ValidationSeverity(StrEnum):
     """مستوى خطورة مشكلة التحقق - Validation issue severity"""
 
     INFO = "info"  # معلومات - Information
@@ -98,7 +98,7 @@ class ValidationSeverity(str, Enum):
     CRITICAL = "critical"  # حرج - Critical
 
 
-class GeometryIssueType(str, Enum):
+class GeometryIssueType(StrEnum):
     """أنواع مشاكل الهندسة - Geometry issue types"""
 
     SELF_INTERSECTION = "self_intersection"  # تقاطع ذاتي
@@ -109,7 +109,7 @@ class GeometryIssueType(str, Enum):
     TOPOLOGY_ERROR = "topology_error"  # خطأ في الطوبولوجيا
 
 
-class BoundarySeverity(str, Enum):
+class BoundarySeverity(StrEnum):
     """مستوى خطورة انتهاك الحدود - Boundary violation severity"""
 
     OUT_OF_YEMEN = "out_of_yemen"  # خارج اليمن

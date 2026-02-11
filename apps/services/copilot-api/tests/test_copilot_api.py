@@ -116,8 +116,7 @@ class TestToolGuardrails:
         ]
 
         for text, should_block in test_cases:
-            blocked = any(re.search(pattern, text, re.IGNORECASE)
-                         for pattern in BLOCKED_PATTERNS)
+            blocked = any(re.search(pattern, text, re.IGNORECASE) for pattern in BLOCKED_PATTERNS)
             assert blocked == should_block, f"Pattern check failed for: {text}"
 
     def test_dangerous_commands(self):
@@ -181,10 +180,8 @@ class TestRAGService:
         service = CopilotRAGService(settings)
 
         # Mock the search
-        with patch.object(service, '_search_keyword') as mock_search:
-            mock_search.return_value = [
-                {"content": "Test document", "score": 0.9}
-            ]
+        with patch.object(service, "_search_keyword") as mock_search:
+            mock_search.return_value = [{"content": "Test document", "score": 0.9}]
 
             results = await service.search("test query", top_k=5)
             assert len(results) >= 0  # May be empty in unit tests
@@ -240,7 +237,11 @@ class TestMultiLLMProviderDetection:
         settings = Settings()
 
         # Ollama should always be listed
-        providers = settings.get_available_providers() if hasattr(settings, 'get_available_providers') else []
+        providers = (
+            settings.get_available_providers()
+            if hasattr(settings, "get_available_providers")
+            else []
+        )
         # In production, this would check actual providers
 
 

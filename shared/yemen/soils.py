@@ -14,12 +14,12 @@ Sources:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass
 class YemenSoilProfile:
     """Soil hydraulic and physical properties for irrigation calculations."""
+
     name: str
     name_ar: str
     soil_type: str  # FAO soil classification
@@ -201,13 +201,13 @@ YEMEN_SOIL_PROFILES: dict[str, YemenSoilProfile] = {
 }
 
 
-def get_soil_profile(name: str) -> Optional[YemenSoilProfile]:
+def get_soil_profile(name: str) -> YemenSoilProfile | None:
     """Get soil profile by name (case-insensitive, underscores optional)."""
     key = name.lower().replace(" ", "_")
     return YEMEN_SOIL_PROFILES.get(key)
 
 
-def list_soil_profiles(region: Optional[str] = None) -> list[YemenSoilProfile]:
+def list_soil_profiles(region: str | None = None) -> list[YemenSoilProfile]:
     """List soil profiles with optional region filter."""
     profiles = list(YEMEN_SOIL_PROFILES.values())
     if region:

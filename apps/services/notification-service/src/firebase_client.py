@@ -16,7 +16,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ except ImportError:
     logger.warning("Firebase Admin SDK not installed. Install with: pip install firebase-admin")
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     """أولوية الإشعار"""
 
     LOW = "low"

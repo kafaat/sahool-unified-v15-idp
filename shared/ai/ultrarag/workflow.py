@@ -23,6 +23,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class WorkflowExecutionContext:
     """Context for workflow execution | سياق تنفيذ سير العمل"""
+
     workflow_id: str
     variables: dict[str, Any] = field(default_factory=dict)
     step_results: dict[str, Any] = field(default_factory=dict)
@@ -35,6 +36,7 @@ class WorkflowExecutionContext:
 @dataclass
 class StepExecutionResult:
     """Result from step execution | نتيجة تنفيذ الخطوة"""
+
     step_id: str
     success: bool
     output: Any = None
@@ -76,8 +78,12 @@ class WorkflowEngine:
         # Register built-in condition evaluators
         self._condition_evaluators = {
             "has_results": lambda ctx, params: len(ctx.variables.get("results", [])) > 0,
-            "confidence_above": lambda ctx, params: ctx.variables.get("confidence", 0) > params.get("threshold", 0.5),
-            "result_count_above": lambda ctx, params: len(ctx.variables.get("results", [])) > params.get("count", 0),
+            "confidence_above": lambda ctx, params: (
+                ctx.variables.get("confidence", 0) > params.get("threshold", 0.5)
+            ),
+            "result_count_above": lambda ctx, params: (
+                len(ctx.variables.get("results", [])) > params.get("count", 0)
+            ),
             "language_is": lambda ctx, params: ctx.variables.get("language") == params.get("lang"),
         }
 
@@ -312,6 +318,7 @@ class WorkflowEngine:
 
         # Use retriever directly
         from .retriever import RetrievalConfig
+
         config = RetrievalConfig(
             top_k=top_k,
             collection=collection,
@@ -339,6 +346,7 @@ class WorkflowEngine:
         top_k = step.config.get("top_k", 5)
 
         from .reranker import RerankConfig
+
         config = RerankConfig(top_k=top_k)
 
         rerank_result = await self.rag_pipeline.reranker.rerank(query, results, config)
@@ -368,6 +376,7 @@ class WorkflowEngine:
 
         if self.rag_pipeline and self.rag_pipeline._generator:
             from .models import GenerationMode
+
             mode = GenerationMode(step.config.get("mode", "standard"))
 
             result = await self.rag_pipeline._generator.generate(
@@ -409,7 +418,9 @@ class WorkflowEngine:
     ) -> tuple[Any, str | None]:
         """Handle loop step"""
         loop_config = step.loop_config or {}
-        items = loop_config.get("items") or ctx.variables.get(loop_config.get("items_var", "items"), [])
+        items = loop_config.get("items") or ctx.variables.get(
+            loop_config.get("items_var", "items"), []
+        )
         body_step = loop_config.get("body_step")
         max_iterations = loop_config.get("max_iterations", 100)
 
@@ -518,7 +529,9 @@ class WorkflowEngine:
             seen = set()
             deduped = []
             for item in aggregated:
-                item_id = getattr(item, "id", None) or (item.chunk.id if hasattr(item, "chunk") else str(item))
+                item_id = getattr(item, "id", None) or (
+                    item.chunk.id if hasattr(item, "chunk") else str(item)
+                )
                 if item_id not in seen:
                     seen.add(item_id)
                     deduped.append(item)
@@ -537,7 +550,6 @@ class WorkflowEngine:
         if self.rag_pipeline is None:
             raise ValueError("RAG pipeline not configured")
 
-
         query = step.config.get("query") or ctx.variables.get("query", "")
         collection = step.config.get("collection", "default")
 
@@ -552,7 +564,9 @@ class WorkflowEngine:
         result = await self.rag_pipeline.run(request)
 
         ctx.variables["rag_result"] = result
-        ctx.variables["answer"] = result.generation_result.answer if result.generation_result else None
+        ctx.variables["answer"] = (
+            result.generation_result.answer if result.generation_result else None
+        )
         ctx.variables["results"] = result.retrieval_results
 
         return result, None

@@ -29,7 +29,7 @@ Usage:
 from __future__ import annotations
 
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -103,7 +103,7 @@ SAHOOL_TERRAIN_ALL = TerrainSubjects.ALL
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class ErosionRiskLevel(str, Enum):
+class ErosionRiskLevel(StrEnum):
     """Erosion risk levels"""
 
     NEGLIGIBLE = "negligible"
@@ -113,7 +113,7 @@ class ErosionRiskLevel(str, Enum):
     SEVERE = "severe"
 
 
-class WaterloggingRisk(str, Enum):
+class WaterloggingRisk(StrEnum):
     """Waterlogging risk levels"""
 
     NONE = "none"
@@ -123,7 +123,7 @@ class WaterloggingRisk(str, Enum):
     CRITICAL = "critical"
 
 
-class SlopeClass(str, Enum):
+class SlopeClass(StrEnum):
     """Slope classification for agricultural use"""
 
     FLAT = "flat"  # 0-2%
@@ -133,7 +133,7 @@ class SlopeClass(str, Enum):
     VERY_STEEP = "very_steep"  # >15%
 
 
-class TerrainDataSource(str, Enum):
+class TerrainDataSource(StrEnum):
     """Source of terrain data"""
 
     DRONE_PHOTOGRAMMETRY = "drone_photogrammetry"
@@ -143,7 +143,7 @@ class TerrainDataSource(str, Enum):
     INTERPOLATED = "interpolated"
 
 
-class LevelingMethod(str, Enum):
+class LevelingMethod(StrEnum):
     """Land leveling methods"""
 
     LASER_GUIDED = "laser_guided"
@@ -299,9 +299,7 @@ class TerrainAnalysisStartedEvent(BaseTerrainEvent):
     حدث يُطلق عند بدء مهمة تحليل التضاريس
     """
 
-    analysis_id: UUID = Field(
-        default_factory=uuid4, description="Analysis job identifier"
-    )
+    analysis_id: UUID = Field(default_factory=uuid4, description="Analysis job identifier")
     field_id: UUID = Field(..., description="Target field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -353,21 +351,15 @@ class TerrainAnalysisCompletedEvent(BaseTerrainEvent):
     topographic_wetness_index_mean: float | None = Field(
         None, description="Mean Topographic Wetness Index (TWI)"
     )
-    stream_power_index_mean: float | None = Field(
-        None, description="Mean Stream Power Index (SPI)"
-    )
+    stream_power_index_mean: float | None = Field(None, description="Mean Stream Power Index (SPI)")
     sediment_transport_index_mean: float | None = Field(
         None, description="Mean Sediment Transport Index (STI)"
     )
 
     # Drainage analysis
-    drainage_density: float | None = Field(
-        None, ge=0, description="Drainage density (km/km2)"
-    )
+    drainage_density: float | None = Field(None, ge=0, description="Drainage density (km/km2)")
     depression_count: int | None = Field(None, ge=0, description="Number of depressions")
-    depression_total_area_sqm: float | None = Field(
-        None, ge=0, description="Total depression area"
-    )
+    depression_total_area_sqm: float | None = Field(None, ge=0, description="Total depression area")
 
     # Erosion risk summary
     erosion_risk_level: str = Field(
@@ -375,9 +367,7 @@ class TerrainAnalysisCompletedEvent(BaseTerrainEvent):
         pattern="^(negligible|low|moderate|high|severe)$",
         description="Overall erosion risk",
     )
-    high_risk_area_sqm: float | None = Field(
-        None, ge=0, description="High erosion risk area"
-    )
+    high_risk_area_sqm: float | None = Field(None, ge=0, description="High erosion risk area")
     high_risk_area_percentage: float | None = Field(
         None, ge=0, le=100, description="High risk area percentage"
     )
@@ -398,9 +388,7 @@ class TerrainAnalysisCompletedEvent(BaseTerrainEvent):
         pattern="^(excellent|good|moderate|poor|unsuitable)$",
         description="Irrigation suitability",
     )
-    leveling_required: bool = Field(
-        default=False, description="Whether leveling is recommended"
-    )
+    leveling_required: bool = Field(default=False, description="Whether leveling is recommended")
 
     # Processing metadata
     started_at: datetime = Field(..., description="Analysis start time")
@@ -465,9 +453,7 @@ class HighErosionRiskEvent(BaseTerrainEvent):
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
     # Risk assessment
-    risk_level: str = Field(
-        ..., pattern="^(high|severe)$", description="Erosion risk level"
-    )
+    risk_level: str = Field(..., pattern="^(high|severe)$", description="Erosion risk level")
     erosion_type: str = Field(
         ...,
         pattern="^(sheet|rill|gully|wind|combined)$",
@@ -476,12 +462,8 @@ class HighErosionRiskEvent(BaseTerrainEvent):
 
     # Affected area
     affected_area_sqm: float = Field(..., ge=0, description="Affected area in m2")
-    affected_area_percentage: float = Field(
-        ..., ge=0, le=100, description="Percentage of field"
-    )
-    erosion_zones: list[ErosionZone] = Field(
-        default_factory=list, description="Erosion zones"
-    )
+    affected_area_percentage: float = Field(..., ge=0, le=100, description="Percentage of field")
+    erosion_zones: list[ErosionZone] = Field(default_factory=list, description="Erosion zones")
 
     # Estimated impact
     estimated_soil_loss_tons_per_ha_year: float | None = Field(
@@ -501,15 +483,11 @@ class HighErosionRiskEvent(BaseTerrainEvent):
     )
 
     # Recommendations
-    recommended_actions: list[str] = Field(
-        default_factory=list, description="Recommended actions"
-    )
+    recommended_actions: list[str] = Field(default_factory=list, description="Recommended actions")
     recommended_actions_ar: list[str] = Field(
         default_factory=list, description="Arabic recommendations"
     )
-    urgency: str = Field(
-        ..., pattern="^(immediate|soon|seasonal)$", description="Action urgency"
-    )
+    urgency: str = Field(..., pattern="^(immediate|soon|seasonal)$", description="Action urgency")
 
     # Cost-benefit
     estimated_prevention_cost: float | None = Field(
@@ -547,18 +525,14 @@ class WaterloggingDetectedEvent(BaseTerrainEvent):
 
     # Affected area
     affected_area_sqm: float = Field(..., ge=0, description="Affected area in m2")
-    affected_area_percentage: float = Field(
-        ..., ge=0, le=100, description="Percentage of field"
-    )
+    affected_area_percentage: float = Field(..., ge=0, le=100, description="Percentage of field")
     drainage_zones: list[DrainageZone] = Field(
         default_factory=list, description="Problem drainage zones"
     )
 
     # Depression analysis
     depression_count: int = Field(..., ge=0, description="Number of depressions")
-    max_depression_depth_m: float | None = Field(
-        None, ge=0, description="Maximum depression depth"
-    )
+    max_depression_depth_m: float | None = Field(None, ge=0, description="Maximum depression depth")
     total_depression_volume_m3: float | None = Field(
         None, ge=0, description="Total depression volume"
     )
@@ -569,9 +543,7 @@ class WaterloggingDetectedEvent(BaseTerrainEvent):
         pattern="^(well_drained|moderately_drained|poorly_drained|very_poorly_drained)$",
         description="Soil drainage class",
     )
-    water_table_depth_m: float | None = Field(
-        None, ge=0, description="Water table depth if known"
-    )
+    water_table_depth_m: float | None = Field(None, ge=0, description="Water table depth if known")
     contributing_factors: list[str] = Field(
         default_factory=list, description="Contributing factors"
     )
@@ -584,9 +556,7 @@ class WaterloggingDetectedEvent(BaseTerrainEvent):
     )
 
     # Recommendations
-    recommended_actions: list[str] = Field(
-        default_factory=list, description="Recommended actions"
-    )
+    recommended_actions: list[str] = Field(default_factory=list, description="Recommended actions")
     recommended_actions_ar: list[str] = Field(
         default_factory=list, description="Arabic recommendations"
     )
@@ -642,9 +612,7 @@ class DrainageIssueEvent(BaseTerrainEvent):
 
     # Recommendations
     recommended_solution: str = Field(..., description="Recommended solution")
-    recommended_solution_ar: str | None = Field(
-        None, description="Arabic recommendation"
-    )
+    recommended_solution_ar: str | None = Field(None, description="Arabic recommendation")
     estimated_cost: float | None = Field(None, ge=0, description="Solution cost estimate")
     currency: str = Field(default="SAR", description="Currency code")
 
@@ -660,9 +628,7 @@ class LevelingRecommendedEvent(BaseTerrainEvent):
     حدث يُطلق عند التوصية بتسوية الأرض
     """
 
-    recommendation_id: UUID = Field(
-        default_factory=uuid4, description="Recommendation identifier"
-    )
+    recommendation_id: UUID = Field(default_factory=uuid4, description="Recommendation identifier")
     field_id: UUID = Field(..., description="Target field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -678,15 +644,9 @@ class LevelingRecommendedEvent(BaseTerrainEvent):
     )
 
     # Current state
-    current_slope_mean_percent: float = Field(
-        ..., ge=0, description="Current mean slope"
-    )
-    current_elevation_range_m: float = Field(
-        ..., ge=0, description="Current elevation range"
-    )
-    unevenness_index: float | None = Field(
-        None, ge=0, description="Field unevenness index"
-    )
+    current_slope_mean_percent: float = Field(..., ge=0, description="Current mean slope")
+    current_elevation_range_m: float = Field(..., ge=0, description="Current elevation range")
+    unevenness_index: float | None = Field(None, ge=0, description="Field unevenness index")
 
     # Target state
     target_slope_percent: float = Field(..., ge=0, description="Target slope")
@@ -708,12 +668,8 @@ class LevelingRecommendedEvent(BaseTerrainEvent):
     fill_zones_count: int = Field(default=0, ge=0, description="Number of fill zones")
 
     # Benefits
-    expected_benefits: list[str] = Field(
-        default_factory=list, description="Expected benefits"
-    )
-    expected_benefits_ar: list[str] = Field(
-        default_factory=list, description="Arabic benefits"
-    )
+    expected_benefits: list[str] = Field(default_factory=list, description="Expected benefits")
+    expected_benefits_ar: list[str] = Field(default_factory=list, description="Arabic benefits")
     irrigation_efficiency_improvement_percent: float | None = Field(
         None, ge=0, le=100, description="Expected irrigation efficiency improvement"
     )
@@ -730,17 +686,11 @@ class LevelingRecommendedEvent(BaseTerrainEvent):
     estimated_annual_savings: float | None = Field(
         None, ge=0, description="Estimated annual savings"
     )
-    payback_period_years: float | None = Field(
-        None, ge=0, description="Payback period in years"
-    )
+    payback_period_years: float | None = Field(None, ge=0, description="Payback period in years")
 
     # Implementation
-    recommended_timing: str | None = Field(
-        None, description="Recommended implementation timing"
-    )
-    recommended_timing_ar: str | None = Field(
-        None, description="Arabic timing recommendation"
-    )
+    recommended_timing: str | None = Field(None, description="Recommended implementation timing")
+    recommended_timing_ar: str | None = Field(None, description="Arabic timing recommendation")
     estimated_duration_days: int | None = Field(
         None, ge=1, description="Estimated duration in days"
     )
@@ -757,9 +707,7 @@ class DrainageRecommendedEvent(BaseTerrainEvent):
     حدث يُطلق عند التوصية بتحسينات الصرف
     """
 
-    recommendation_id: UUID = Field(
-        default_factory=uuid4, description="Recommendation identifier"
-    )
+    recommendation_id: UUID = Field(default_factory=uuid4, description="Recommendation identifier")
     field_id: UUID = Field(..., description="Target field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -779,20 +727,14 @@ class DrainageRecommendedEvent(BaseTerrainEvent):
     )
 
     # Drainage design
-    main_drain_length_m: float | None = Field(
-        None, ge=0, description="Main drain length"
-    )
+    main_drain_length_m: float | None = Field(None, ge=0, description="Main drain length")
     lateral_drain_length_m: float | None = Field(
         None, ge=0, description="Total lateral drain length"
     )
     drain_spacing_m: float | None = Field(None, ge=0, description="Drain spacing")
     drain_depth_m: float | None = Field(None, ge=0, description="Drain depth")
-    outlet_location_lat: float | None = Field(
-        None, ge=-90, le=90, description="Outlet latitude"
-    )
-    outlet_location_lon: float | None = Field(
-        None, ge=-180, le=180, description="Outlet longitude"
-    )
+    outlet_location_lat: float | None = Field(None, ge=-90, le=90, description="Outlet latitude")
+    outlet_location_lon: float | None = Field(None, ge=-180, le=180, description="Outlet longitude")
 
     # Expected improvements
     expected_improvements: list[str] = Field(
@@ -811,9 +753,7 @@ class DrainageRecommendedEvent(BaseTerrainEvent):
     estimated_annual_benefit: float | None = Field(
         None, ge=0, description="Estimated annual benefit"
     )
-    payback_period_years: float | None = Field(
-        None, ge=0, description="Payback period"
-    )
+    payback_period_years: float | None = Field(None, ge=0, description="Payback period")
 
     # Supporting data
     drainage_design_url: str | None = Field(None, description="Drainage design URL")
@@ -826,9 +766,7 @@ class ContourFarmingRecommendedEvent(BaseTerrainEvent):
     حدث يُطلق عند التوصية بممارسات الزراعة الكنتورية
     """
 
-    recommendation_id: UUID = Field(
-        default_factory=uuid4, description="Recommendation identifier"
-    )
+    recommendation_id: UUID = Field(default_factory=uuid4, description="Recommendation identifier")
     field_id: UUID = Field(..., description="Target field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -857,21 +795,13 @@ class ContourFarmingRecommendedEvent(BaseTerrainEvent):
     water_retention_improvement_percent: float | None = Field(
         None, ge=0, le=100, description="Water retention improvement"
     )
-    expected_benefits: list[str] = Field(
-        default_factory=list, description="Expected benefits"
-    )
-    expected_benefits_ar: list[str] = Field(
-        default_factory=list, description="Arabic benefits"
-    )
+    expected_benefits: list[str] = Field(default_factory=list, description="Expected benefits")
+    expected_benefits_ar: list[str] = Field(default_factory=list, description="Arabic benefits")
 
     # Implementation
     implementation_notes: str | None = Field(None, description="Implementation notes")
-    implementation_notes_ar: str | None = Field(
-        None, description="Arabic implementation notes"
-    )
-    compatible_crops: list[str] = Field(
-        default_factory=list, description="Compatible crops"
-    )
+    implementation_notes_ar: str | None = Field(None, description="Arabic implementation notes")
+    compatible_crops: list[str] = Field(default_factory=list, description="Compatible crops")
 
     # Supporting data
     report_url: str | None = Field(None, description="Detailed report URL")
@@ -905,9 +835,7 @@ class DEMUpdatedEvent(BaseTerrainEvent):
     )
 
     # Coverage
-    coverage_percentage: float = Field(
-        ..., ge=0, le=100, description="Field coverage percentage"
-    )
+    coverage_percentage: float = Field(..., ge=0, le=100, description="Field coverage percentage")
     points_count: int | None = Field(None, ge=0, description="Number of elevation points")
 
     # Statistics summary

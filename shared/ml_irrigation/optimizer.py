@@ -241,10 +241,14 @@ class WaterOptimizer:
         current_usage_mm = sum(r.amount_mm for r in recent_records)
 
         # Calculate daily average
-        total_days = max(1, (
-            (recent_records[-1].irrigation_date - recent_records[0].irrigation_date).days
-            if len(recent_records) > 1 else 1
-        ))
+        total_days = max(
+            1,
+            (
+                (recent_records[-1].irrigation_date - recent_records[0].irrigation_date).days
+                if len(recent_records) > 1
+                else 1
+            ),
+        )
         daily_avg_mm = current_usage_mm / total_days
 
         # Calculate optimal water requirement
@@ -378,8 +382,11 @@ class WaterOptimizer:
                     severity=AnomalySeverity.MEDIUM,
                     detected_value=mean_interval,
                     expected_value=self.config.min_irrigation_interval_hours,
-                    deviation_percent=((self.config.min_irrigation_interval_hours - mean_interval) /
-                                       self.config.min_irrigation_interval_hours * 100),
+                    deviation_percent=(
+                        (self.config.min_irrigation_interval_hours - mean_interval)
+                        / self.config.min_irrigation_interval_hours
+                        * 100
+                    ),
                     field_id=field_id,
                     detection_method="interval_analysis",
                 )
@@ -469,8 +476,7 @@ class WaterOptimizer:
         # Calculate efficiency from effectiveness ratings
         effectiveness_ratings = [r.effectiveness_rating for r in records if r.effectiveness_rating]
         calculated_efficiency = (
-            statistics.mean(effectiveness_ratings) / 5.0
-            if effectiveness_ratings else 0.75
+            statistics.mean(effectiveness_ratings) / 5.0 if effectiveness_ratings else 0.75
         )
 
         # Analyze temporal patterns
@@ -536,7 +542,7 @@ class WaterOptimizer:
         # Base calculation from ET if features available
         if features:
             # ETc = ET0 * Kc
-            kc = features.crop.kc if hasattr(features.crop, 'kc') else 1.0
+            kc = features.crop.kc if hasattr(features.crop, "kc") else 1.0
             etc = features.weather.et0 * kc
 
             # Account for efficiency
@@ -544,8 +550,9 @@ class WaterOptimizer:
             optimal_daily = etc / efficiency if efficiency > 0 else etc
 
             # Adjust for soil type (sandy needs more frequent, less amount)
-            if hasattr(features.soil, 'soil_type'):
+            if hasattr(features.soil, "soil_type"):
                 from .models import SoilType
+
                 if features.soil.soil_type == SoilType.SANDY:
                     optimal_daily *= 0.9  # Smaller amounts more frequently
                 elif features.soil.soil_type == SoilType.CLAY:
@@ -596,7 +603,9 @@ class WaterOptimizer:
         # Determine irrigation type and get optimal timing
         irr_type = features.irrigation_type.value if features else "drip"
         season = self._get_season(current_date)
-        timing = OPTIMAL_TIMING.get(irr_type, OPTIMAL_TIMING["drip"]).get(season, {"start": 6, "end": 8})
+        timing = OPTIMAL_TIMING.get(irr_type, OPTIMAL_TIMING["drip"]).get(
+            season, {"start": 6, "end": 8}
+        )
 
         # Calculate irrigation frequency based on amount
         # Typical single application: 15-25mm
@@ -612,14 +621,16 @@ class WaterOptimizer:
                 second=0,
             )
 
-            schedule.append({
-                "date": irrigation_datetime.date().isoformat(),
-                "time": f"{timing['start']:02d}:00",
-                "amount_mm": round(single_application, 1),
-                "duration_minutes": self._estimate_duration(single_application, irr_type),
-                "notes": f"Optimal timing for {season}",
-                "notes_ar": f"التوقيت الأمثل لموسم {self._get_season_ar(season)}",
-            })
+            schedule.append(
+                {
+                    "date": irrigation_datetime.date().isoformat(),
+                    "time": f"{timing['start']:02d}:00",
+                    "amount_mm": round(single_application, 1),
+                    "duration_minutes": self._estimate_duration(single_application, irr_type),
+                    "notes": f"Optimal timing for {season}",
+                    "notes_ar": f"التوقيت الأمثل لموسم {self._get_season_ar(season)}",
+                }
+            )
 
             next_irrigation += timedelta(days=interval_days)
 
@@ -687,9 +698,11 @@ class WaterOptimizer:
 
         # Timing recommendation
         if features:
-            optimal_hour = OPTIMAL_TIMING.get(
-                features.irrigation_type.value, OPTIMAL_TIMING["drip"]
-            ).get(self._get_season(datetime.now(UTC)), {}).get("start", 6)
+            optimal_hour = (
+                OPTIMAL_TIMING.get(features.irrigation_type.value, OPTIMAL_TIMING["drip"])
+                .get(self._get_season(datetime.now(UTC)), {})
+                .get("start", 6)
+            )
 
             recommendations.append(
                 f"Schedule irrigation around {optimal_hour}:00 for minimum evaporation losses."
@@ -707,9 +720,7 @@ class WaterOptimizer:
                     recommendations.append(
                         "Consider less frequent, deeper irrigation to encourage root growth."
                     )
-                    recommendations_ar.append(
-                        "فكر في ري أقل تكراراً وأعمق لتشجيع نمو الجذور."
-                    )
+                    recommendations_ar.append("فكر في ري أقل تكراراً وأعمق لتشجيع نمو الجذور.")
 
         # Efficiency recommendation
         if features and features.system_efficiency < 0.8:
@@ -743,7 +754,7 @@ class WaterOptimizer:
         intervals = []
 
         for i in range(1, len(sorted_records)):
-            delta = sorted_records[i].irrigation_date - sorted_records[i-1].irrigation_date
+            delta = sorted_records[i].irrigation_date - sorted_records[i - 1].irrigation_date
             intervals.append(delta.total_seconds() / 3600)  # Convert to hours
 
         return intervals
@@ -759,14 +770,20 @@ class WaterOptimizer:
         detection_method: str,
     ) -> IrrigationAnomaly:
         """Create an anomaly object"""
-        descriptions = ANOMALY_DESCRIPTIONS.get(anomaly_type, {
-            "en": "Unknown anomaly detected",
-            "ar": "تم اكتشاف شذوذ غير معروف",
-        })
-        recommendations = ANOMALY_RECOMMENDATIONS.get(anomaly_type, {
-            "en": "Inspect irrigation system",
-            "ar": "افحص نظام الري",
-        })
+        descriptions = ANOMALY_DESCRIPTIONS.get(
+            anomaly_type,
+            {
+                "en": "Unknown anomaly detected",
+                "ar": "تم اكتشاف شذوذ غير معروف",
+            },
+        )
+        recommendations = ANOMALY_RECOMMENDATIONS.get(
+            anomaly_type,
+            {
+                "en": "Inspect irrigation system",
+                "ar": "افحص نظام الري",
+            },
+        )
 
         return IrrigationAnomaly(
             field_id=field_id,
@@ -822,8 +839,10 @@ class WaterOptimizer:
             interval_std = statistics.stdev(intervals)
             interval_mean = statistics.mean(intervals)
             if interval_std < interval_mean * 0.2:
-                patterns.append(f"Regular irrigation pattern with ~{interval_mean/24:.1f} day interval")
-                patterns_ar.append(f"نمط ري منتظم بفترة ~{interval_mean/24:.1f} يوم")
+                patterns.append(
+                    f"Regular irrigation pattern with ~{interval_mean / 24:.1f} day interval"
+                )
+                patterns_ar.append(f"نمط ري منتظم بفترة ~{interval_mean / 24:.1f} يوم")
 
         # Morning vs evening pattern
         morning_count = sum(1 for r in records if r.irrigation_date.hour < 12)
@@ -839,8 +858,8 @@ class WaterOptimizer:
         # Increasing/decreasing trend
         if len(records) >= 10:
             amounts = [r.amount_mm for r in records]
-            first_half = statistics.mean(amounts[:len(amounts)//2])
-            second_half = statistics.mean(amounts[len(amounts)//2:])
+            first_half = statistics.mean(amounts[: len(amounts) // 2])
+            second_half = statistics.mean(amounts[len(amounts) // 2 :])
 
             if second_half > first_half * 1.2:
                 patterns.append("Increasing irrigation amounts over time")
@@ -865,14 +884,18 @@ class WaterOptimizer:
 
         # Efficiency insight
         if efficiency >= 0.85:
-            insights.append(f"Good irrigation efficiency ({efficiency*100:.0f}%)")
-            insights_ar.append(f"كفاءة ري جيدة ({efficiency*100:.0f}%)")
+            insights.append(f"Good irrigation efficiency ({efficiency * 100:.0f}%)")
+            insights_ar.append(f"كفاءة ري جيدة ({efficiency * 100:.0f}%)")
         elif efficiency >= 0.70:
-            insights.append(f"Moderate irrigation efficiency ({efficiency*100:.0f}%), room for improvement")
-            insights_ar.append(f"كفاءة ري متوسطة ({efficiency*100:.0f}%)، مجال للتحسين")
+            insights.append(
+                f"Moderate irrigation efficiency ({efficiency * 100:.0f}%), room for improvement"
+            )
+            insights_ar.append(f"كفاءة ري متوسطة ({efficiency * 100:.0f}%)، مجال للتحسين")
         else:
-            insights.append(f"Low irrigation efficiency ({efficiency*100:.0f}%), significant improvement needed")
-            insights_ar.append(f"كفاءة ري منخفضة ({efficiency*100:.0f}%)، تحسين كبير مطلوب")
+            insights.append(
+                f"Low irrigation efficiency ({efficiency * 100:.0f}%), significant improvement needed"
+            )
+            insights_ar.append(f"كفاءة ري منخفضة ({efficiency * 100:.0f}%)، تحسين كبير مطلوب")
 
         # Interval insight
         if average_interval_days < 1:
@@ -884,7 +907,9 @@ class WaterOptimizer:
 
         # Amount insight
         if average_amount_mm > 40:
-            insights.append("Large irrigation amounts - consider splitting into smaller applications")
+            insights.append(
+                "Large irrigation amounts - consider splitting into smaller applications"
+            )
             insights_ar.append("كميات ري كبيرة - فكر في تقسيمها إلى تطبيقات أصغر")
         elif average_amount_mm < 10:
             insights.append("Small irrigation amounts - consider deeper, less frequent irrigation")
@@ -931,16 +956,12 @@ class WaterOptimizer:
             recommendations.append(
                 "Consider reducing irrigation frequency with larger amounts per application."
             )
-            recommendations_ar.append(
-                "فكر في تقليل تكرار الري مع كميات أكبر لكل تطبيق."
-            )
+            recommendations_ar.append("فكر في تقليل تكرار الري مع كميات أكبر لكل تطبيق.")
         elif average_interval_days > optimal_interval * 2:
             recommendations.append(
                 "Consider more frequent irrigation with smaller amounts to maintain consistent moisture."
             )
-            recommendations_ar.append(
-                "فكر في ري أكثر تكراراً بكميات أصغر للحفاظ على رطوبة متسقة."
-            )
+            recommendations_ar.append("فكر في ري أكثر تكراراً بكميات أصغر للحفاظ على رطوبة متسقة.")
 
         return recommendations, recommendations_ar
 

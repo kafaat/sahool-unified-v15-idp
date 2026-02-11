@@ -17,7 +17,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 
 from .models import (
     Coordinate,
@@ -34,8 +34,9 @@ from .models import (
 # ==============================================================================
 
 
-class ClassificationMethod(str, Enum):
+class ClassificationMethod(StrEnum):
     """Method for classifying zones - طريقة تصنيف المناطق"""
+
     QUANTILE = "quantile"  # Equal count per zone | عدد متساوٍ لكل منطقة
     EQUAL_INTERVAL = "equal_interval"  # Equal range per zone | نطاق متساوٍ لكل منطقة
     JENKS = "jenks"  # Natural breaks | فواصل طبيعية
@@ -43,8 +44,9 @@ class ClassificationMethod(str, Enum):
     STANDARD_DEVIATION = "std_dev"  # Based on std deviation | بناءً على الانحراف المعياري
 
 
-class VRASourceType(str, Enum):
+class VRASourceType(StrEnum):
     """Source data type for VRA - نوع البيانات المصدر"""
+
     NDVI = "ndvi"  # Normalized Difference Vegetation Index | مؤشر الغطاء النباتي
     LAI = "lai"  # Leaf Area Index | مؤشر مساحة الورقة
     YIELD = "yield"  # Historical yield data | بيانات المحصول التاريخية
@@ -59,8 +61,9 @@ class VRASourceType(str, Enum):
     CUSTOM = "custom"  # Custom data source | مصدر بيانات مخصص
 
 
-class RateAdjustmentMode(str, Enum):
+class RateAdjustmentMode(StrEnum):
     """How to adjust rates in zones - كيفية ضبط المعدلات في المناطق"""
+
     PROPORTIONAL = "proportional"  # Rate proportional to index | معدل متناسب مع المؤشر
     INVERSE = "inverse"  # Rate inverse to index | معدل عكسي للمؤشر
     THRESHOLD = "threshold"  # On/off at threshold | تشغيل/إيقاف عند العتبة
@@ -97,6 +100,7 @@ DEFAULT_RATE_MULTIPLIERS = {
 @dataclass
 class VRAConfig:
     """Configuration for VRA map generation - تكوين إنشاء خريطة VRA"""
+
     # Source data
     source_type: VRASourceType = VRASourceType.NDVI
 
@@ -136,6 +140,7 @@ class VRAConfig:
 @dataclass
 class GridCell:
     """Single cell in a raster grid - خلية واحدة في الشبكة النقطية"""
+
     row: int
     col: int
     center: Coordinate
@@ -158,6 +163,7 @@ class GridCell:
 @dataclass
 class VRARasterData:
     """Raster data for VRA processing - بيانات نقطية لمعالجة VRA"""
+
     # Grid properties
     rows: int
     cols: int
@@ -260,10 +266,7 @@ class VRAGenerator:
 
         # Convert to raster data structure
         raster = self._create_raster_from_array(
-            data=ndvi_data,
-            bounds=bounds,
-            cell_size_m=cell_size_m,
-            source_type=VRASourceType.NDVI
+            data=ndvi_data, bounds=bounds, cell_size_m=cell_size_m, source_type=VRASourceType.NDVI
         )
 
         # Classify cells into zones
@@ -339,8 +342,12 @@ class VRAGenerator:
 
         # Create interpolated grid
         rows = int((bounds.max_lat - bounds.min_lat) * 111320 / cell_size_m)
-        cols = int((bounds.max_lng - bounds.min_lng) * 111320 *
-                   math.cos(math.radians((bounds.min_lat + bounds.max_lat) / 2)) / cell_size_m)
+        cols = int(
+            (bounds.max_lng - bounds.min_lng)
+            * 111320
+            * math.cos(math.radians((bounds.min_lat + bounds.max_lat) / 2))
+            / cell_size_m
+        )
 
         rows = max(1, rows)
         cols = max(1, cols)
@@ -424,8 +431,12 @@ class VRAGenerator:
         # Convert detections to density grid
         bounds = self._get_bounds_from_boundary(boundary)
         rows = int((bounds.max_lat - bounds.min_lat) * 111320 / cell_size_m)
-        cols = int((bounds.max_lng - bounds.min_lng) * 111320 *
-                   math.cos(math.radians((bounds.min_lat + bounds.max_lat) / 2)) / cell_size_m)
+        cols = int(
+            (bounds.max_lng - bounds.min_lng)
+            * 111320
+            * math.cos(math.radians((bounds.min_lat + bounds.max_lat) / 2))
+            / cell_size_m
+        )
 
         rows = max(1, rows)
         cols = max(1, cols)
@@ -533,7 +544,7 @@ class VRAGenerator:
                 VRAZoneType.HIGH_VIGOR: 0.75,
                 VRAZoneType.BARE_SOIL: 0.0,
                 VRAZoneType.EXCLUSION: 0.0,
-            }
+            },
         )
 
         original_config = self.config
@@ -578,7 +589,7 @@ class VRAGenerator:
         data: list[list[float]],
         bounds: BoundingBox,
         cell_size_m: float,
-        source_type: VRASourceType
+        source_type: VRASourceType,
     ) -> VRARasterData:
         """Create VRARasterData from 2D array"""
         rows = len(data)
@@ -596,15 +607,10 @@ class VRAGenerator:
                 value = data[r][c]
                 center = Coordinate(
                     lat=bounds.max_lat - (r + 0.5) * lat_step,
-                    lng=bounds.min_lng + (c + 0.5) * lng_step
+                    lng=bounds.min_lng + (c + 0.5) * lng_step,
                 )
 
-                cell = GridCell(
-                    row=r,
-                    col=c,
-                    center=center,
-                    value=value
-                )
+                cell = GridCell(row=r, col=c, center=center, value=value)
                 row_cells.append(cell)
 
                 if value != -999.0:  # Skip no-data
@@ -616,9 +622,11 @@ class VRAGenerator:
         min_val = min(all_values) if all_values else 0
         max_val = max(all_values) if all_values else 1
         mean_val = sum(all_values) / len(all_values) if all_values else 0.5
-        std_val = math.sqrt(
-            sum((v - mean_val) ** 2 for v in all_values) / len(all_values)
-        ) if len(all_values) > 1 else 0
+        std_val = (
+            math.sqrt(sum((v - mean_val) ** 2 for v in all_values) / len(all_values))
+            if len(all_values) > 1
+            else 0
+        )
 
         return VRARasterData(
             rows=rows,
@@ -641,8 +649,7 @@ class VRAGenerator:
 
         # Get all valid values
         values = [
-            cell.value for row in raster.cells for cell in row
-            if cell.value != raster.no_data_value
+            cell.value for row in raster.cells for cell in row if cell.value != raster.no_data_value
         ]
 
         if not values:
@@ -653,16 +660,10 @@ class VRAGenerator:
 
         # Calculate thresholds based on method
         if method == ClassificationMethod.QUANTILE:
-            thresholds = [
-                values_sorted[int(i * n / zone_count)]
-                for i in range(1, zone_count)
-            ]
+            thresholds = [values_sorted[int(i * n / zone_count)] for i in range(1, zone_count)]
         elif method == ClassificationMethod.EQUAL_INTERVAL:
             interval = (raster.max_value - raster.min_value) / zone_count
-            thresholds = [
-                raster.min_value + i * interval
-                for i in range(1, zone_count)
-            ]
+            thresholds = [raster.min_value + i * interval for i in range(1, zone_count)]
         elif method == ClassificationMethod.STANDARD_DEVIATION:
             thresholds = [
                 raster.mean_value + (i - zone_count // 2) * raster.std_value
@@ -737,15 +738,10 @@ class VRAGenerator:
 
                 # Apply limits
                 cell.rate_l_ha = max(
-                    self.config.min_rate_l_ha,
-                    min(self.config.max_rate_l_ha, cell.rate_l_ha)
+                    self.config.min_rate_l_ha, min(self.config.max_rate_l_ha, cell.rate_l_ha)
                 )
 
-    def _cells_to_zones(
-        self,
-        raster: VRARasterData,
-        bounds: BoundingBox
-    ) -> list[VRAZone]:
+    def _cells_to_zones(self, raster: VRARasterData, bounds: BoundingBox) -> list[VRAZone]:
         """Convert classified cells to VRA zones"""
         zones = []
         zone_cells: dict[VRAZoneType, list[GridCell]] = {}
@@ -760,7 +756,7 @@ class VRAGenerator:
         # Create zone for each type
         lat_step = (bounds.max_lat - bounds.min_lat) / raster.rows
         lng_step = (bounds.max_lng - bounds.min_lng) / raster.cols
-        cell_area_m2 = raster.cell_size_m ** 2
+        cell_area_m2 = raster.cell_size_m**2
 
         for zone_type, cells in zone_cells.items():
             if not cells:
@@ -771,9 +767,11 @@ class VRAGenerator:
             rates = [c.rate_l_ha for c in cells]
 
             ndvi_mean = sum(values) / len(values) if values else None
-            ndvi_std = math.sqrt(
-                sum((v - ndvi_mean) ** 2 for v in values) / len(values)
-            ) if values and len(values) > 1 and ndvi_mean else None
+            ndvi_std = (
+                math.sqrt(sum((v - ndvi_mean) ** 2 for v in values) / len(values))
+                if values and len(values) > 1 and ndvi_mean
+                else None
+            )
 
             avg_rate = sum(rates) / len(rates) if rates else 0
             area_ha = len(cells) * cell_area_m2 / 10000
@@ -792,7 +790,8 @@ class VRAGenerator:
                 centroid=self._calculate_centroid(cells),
                 rate_l_ha=avg_rate,
                 rate_percent=(avg_rate / self.config.base_rate_l_ha * 100)
-                             if self.config.base_rate_l_ha > 0 else 100,
+                if self.config.base_rate_l_ha > 0
+                else 100,
                 ndvi_mean=ndvi_mean,
                 ndvi_std=ndvi_std,
                 source_date=datetime.now(UTC),
@@ -805,10 +804,7 @@ class VRAGenerator:
         return zones
 
     def _create_zone_boundary(
-        self,
-        cells: list[GridCell],
-        lat_step: float,
-        lng_step: float
+        self, cells: list[GridCell], lat_step: float, lng_step: float
     ) -> list[Coordinate]:
         """Create simplified boundary polygon for zone cells"""
         if not cells:
@@ -839,10 +835,13 @@ class VRAGenerator:
 
         # Find lowest point
         start = min(points, key=lambda p: (p[0], p[1]))
-        points = sorted(points, key=lambda p: (
-            math.atan2(p[1] - start[1], p[0] - start[0]),
-            (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2
-        ))
+        points = sorted(
+            points,
+            key=lambda p: (
+                math.atan2(p[1] - start[1], p[0] - start[0]),
+                (p[0] - start[0]) ** 2 + (p[1] - start[1]) ** 2,
+            ),
+        )
 
         hull = []
         for p in points:
@@ -853,10 +852,7 @@ class VRAGenerator:
         return hull
 
     def _cross(
-        self,
-        o: tuple[float, float],
-        a: tuple[float, float],
-        b: tuple[float, float]
+        self, o: tuple[float, float], a: tuple[float, float], b: tuple[float, float]
     ) -> float:
         """Cross product for convex hull"""
         return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
@@ -887,11 +883,7 @@ class VRAGenerator:
         }
         return labels.get(zone_type, ("Unknown", "غير معروف"))
 
-    def _calculate_jenks_breaks(
-        self,
-        values: list[float],
-        n_classes: int
-    ) -> list[float]:
+    def _calculate_jenks_breaks(self, values: list[float], n_classes: int) -> list[float]:
         """Calculate Jenks natural breaks (simplified)"""
         if len(values) <= n_classes:
             return sorted(set(values))
@@ -906,10 +898,7 @@ class VRAGenerator:
         lngs = [c.lng for c in boundary]
 
         return BoundingBox(
-            min_lat=min(lats),
-            max_lat=max(lats),
-            min_lng=min(lngs),
-            max_lng=max(lngs)
+            min_lat=min(lats), max_lat=max(lats), min_lng=min(lngs), max_lng=max(lngs)
         )
 
     def _point_in_polygon(self, point: Coordinate, polygon: list[Coordinate]) -> bool:
@@ -919,22 +908,20 @@ class VRAGenerator:
 
         j = n - 1
         for i in range(n):
-            if ((polygon[i].lat > point.lat) != (polygon[j].lat > point.lat)) and \
-               (point.lng < (polygon[j].lng - polygon[i].lng) *
-                (point.lat - polygon[i].lat) / (polygon[j].lat - polygon[i].lat) +
-                polygon[i].lng):
+            if ((polygon[i].lat > point.lat) != (polygon[j].lat > point.lat)) and (
+                point.lng
+                < (polygon[j].lng - polygon[i].lng)
+                * (point.lat - polygon[i].lat)
+                / (polygon[j].lat - polygon[i].lat)
+                + polygon[i].lng
+            ):
                 inside = not inside
             j = i
 
         return inside
 
     def _idw_interpolate(
-        self,
-        lat: float,
-        lng: float,
-        points: list[dict],
-        value_field: str,
-        power: float = 2.0
+        self, lat: float, lng: float, points: list[dict], value_field: str, power: float = 2.0
     ) -> float:
         """Inverse distance weighting interpolation"""
         if not points:
@@ -951,12 +938,12 @@ class VRAGenerator:
             # Calculate distance
             dlat = (lat - p_lat) * 111320
             dlng = (lng - p_lng) * 111320 * math.cos(math.radians(lat))
-            dist = math.sqrt(dlat ** 2 + dlng ** 2)
+            dist = math.sqrt(dlat**2 + dlng**2)
 
             if dist < 0.001:  # Very close, use this value
                 return p_val
 
-            weight = 1.0 / (dist ** power)
+            weight = 1.0 / (dist**power)
             weights.append(weight)
             values.append(p_val)
 
@@ -1067,10 +1054,7 @@ def create_spot_spray_map(
         )
 
 
-def export_prescription_to_shapefile(
-    prescription: PrescriptionMap,
-    output_path: str
-) -> dict:
+def export_prescription_to_shapefile(prescription: PrescriptionMap, output_path: str) -> dict:
     """
     Export prescription map to Shapefile format.
     تصدير خريطة الوصفة إلى تنسيق Shapefile.
@@ -1089,25 +1073,21 @@ def export_prescription_to_shapefile(
         from shapely.geometry import Polygon, mapping
 
         schema = {
-            'geometry': 'Polygon',
-            'properties': {
-                'zone_id': 'str',
-                'zone_type': 'str',
-                'rate_l_ha': 'float',
-                'rate_pct': 'float',
-                'area_ha': 'float',
-                'ndvi_mean': 'float',
-                'label_en': 'str',
-                'label_ar': 'str',
-            }
+            "geometry": "Polygon",
+            "properties": {
+                "zone_id": "str",
+                "zone_type": "str",
+                "rate_l_ha": "float",
+                "rate_pct": "float",
+                "area_ha": "float",
+                "ndvi_mean": "float",
+                "label_en": "str",
+                "label_ar": "str",
+            },
         }
 
         with fiona.open(
-            output_path,
-            'w',
-            driver='ESRI Shapefile',
-            crs='EPSG:4326',
-            schema=schema
+            output_path, "w", driver="ESRI Shapefile", crs="EPSG:4326", schema=schema
         ) as output:
             for zone in prescription.zones:
                 if len(zone.boundary) < 3:
@@ -1115,19 +1095,21 @@ def export_prescription_to_shapefile(
 
                 polygon = Polygon([(c.lng, c.lat) for c in zone.boundary])
 
-                output.write({
-                    'geometry': mapping(polygon),
-                    'properties': {
-                        'zone_id': zone.id,
-                        'zone_type': zone.zone_type.value,
-                        'rate_l_ha': zone.rate_l_ha,
-                        'rate_pct': zone.rate_percent,
-                        'area_ha': zone.area_ha,
-                        'ndvi_mean': zone.ndvi_mean or 0,
-                        'label_en': zone.label_en,
-                        'label_ar': zone.label_ar,
+                output.write(
+                    {
+                        "geometry": mapping(polygon),
+                        "properties": {
+                            "zone_id": zone.id,
+                            "zone_type": zone.zone_type.value,
+                            "rate_l_ha": zone.rate_l_ha,
+                            "rate_pct": zone.rate_percent,
+                            "area_ha": zone.area_ha,
+                            "ndvi_mean": zone.ndvi_mean or 0,
+                            "label_en": zone.label_en,
+                            "label_ar": zone.label_ar,
+                        },
                     }
-                })
+                )
 
         return {
             "success": True,

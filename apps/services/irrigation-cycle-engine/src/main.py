@@ -47,6 +47,7 @@ PORT = int(os.getenv("PORT", "8250"))
 
 class WeatherInput(BaseModel):
     """Daily weather data for ET0 calculation."""
+
     date: date
     temp_min_c: float = Field(..., description="Min temperature (°C)")
     temp_max_c: float = Field(..., description="Max temperature (°C)")
@@ -59,6 +60,7 @@ class WeatherInput(BaseModel):
 
 class ET0Request(BaseModel):
     """Request for ET0 calculation."""
+
     latitude: float = Field(..., description="Latitude (decimal degrees)")
     elevation_m: float = Field(..., description="Elevation (m)")
     weather: list[WeatherInput] = Field(..., min_length=1, description="Weather data series")
@@ -66,6 +68,7 @@ class ET0Request(BaseModel):
 
 class ET0Response(BaseModel):
     """ET0 calculation result."""
+
     date: date
     et0_mm: float
     method: str = "penman_monteith_fao56"
@@ -73,17 +76,18 @@ class ET0Response(BaseModel):
 
 class IrrigationCycleRequest(BaseModel):
     """Request for irrigation cycle calculation."""
+
     crop: str = Field(..., description="Crop name")
-    growth_stage: Optional[str] = Field(None, description="Current growth stage name")
+    growth_stage: str | None = Field(None, description="Current growth stage name")
     field_capacity: float = Field(..., description="θfc (cm³/cm³)")
     wilting_point: float = Field(..., description="θwp (cm³/cm³)")
     root_depth_m: float = Field(default=1.0, description="Effective root depth (m)")
     bulk_density: float = Field(default=1.4, description="Soil bulk density (g/cm³)")
     depletion_fraction: float = Field(default=0.5, description="Allowable depletion (p)")
     et0_mm_day: float = Field(..., description="Reference ET (mm/day)")
-    kc: Optional[float] = Field(None, description="Crop coefficient (overrides crop DB)")
-    ec_water: Optional[float] = Field(None, description="Irrigation water EC (dS/m)")
-    ec_soil: Optional[float] = Field(None, description="Soil EC (dS/m)")
+    kc: float | None = Field(None, description="Crop coefficient (overrides crop DB)")
+    ec_water: float | None = Field(None, description="Irrigation water EC (dS/m)")
+    ec_soil: float | None = Field(None, description="Soil EC (dS/m)")
     alpha: float = Field(default=1.0, description="ET correction factor α")
     beta: float = Field(default=1.0, description="Soil correction factor β")
     gamma: float = Field(default=1.0, description="Stress correction factor γ")
@@ -91,31 +95,34 @@ class IrrigationCycleRequest(BaseModel):
 
 class IrrigationCycleResponse(BaseModel):
     """Irrigation cycle calculation result."""
+
     cycle_days: float = Field(..., description="Irrigation cycle T (days)")
     net_irrigation_mm: float = Field(..., description="Net irrigation depth (mm)")
     gross_irrigation_mm: float = Field(..., description="Gross irrigation with efficiency (mm)")
     etc_mm_day: float = Field(..., description="Crop ET (mm/day)")
     kc_used: float = Field(..., description="Kc value used")
-    kc_adjusted: Optional[float] = Field(None, description="Salinity-adjusted Kc")
-    leaching_fraction: Optional[float] = Field(None, description="Leaching fraction if salinity")
+    kc_adjusted: float | None = Field(None, description="Salinity-adjusted Kc")
+    leaching_fraction: float | None = Field(None, description="Leaching fraction if salinity")
     total_water_mm: float = Field(..., description="Total water including leaching (mm)")
     available_water_mm: float = Field(..., description="Total available water in root zone (mm)")
     readily_available_mm: float = Field(..., description="Readily available water (mm)")
-    next_irrigation_date: Optional[date] = Field(None, description="Recommended next irrigation")
+    next_irrigation_date: date | None = Field(None, description="Recommended next irrigation")
     crop_name: str
-    crop_name_ar: Optional[str] = None
+    crop_name_ar: str | None = None
     recommendations: list[str] = []
     recommendations_ar: list[str] = []
 
 
 class YemenCropListResponse(BaseModel):
     """List of available Yemen crops."""
+
     crops: list[dict]
     total: int
 
 
 class CropInfoResponse(BaseModel):
     """Detailed crop information."""
+
     name: str
     name_ar: str
     crop_type: str
@@ -128,6 +135,7 @@ class CropInfoResponse(BaseModel):
 
 class ScheduleRequest(BaseModel):
     """Multi-day irrigation schedule request."""
+
     crop: str
     soil_profile: str = Field(..., description="Yemen soil profile name")
     climate_zone: str = Field(..., description="Yemen climate zone")
@@ -135,11 +143,12 @@ class ScheduleRequest(BaseModel):
     days: int = Field(default=30, ge=1, le=365)
     field_area_ha: float = Field(default=1.0, description="Field area (hectares)")
     irrigation_efficiency: float = Field(default=0.85, description="System efficiency (0-1)")
-    ec_water: Optional[float] = Field(None, description="Water EC (dS/m)")
+    ec_water: float | None = Field(None, description="Water EC (dS/m)")
 
 
 class ScheduleDay(BaseModel):
     """Single day in irrigation schedule."""
+
     date: date
     day_of_season: int
     growth_stage: str
@@ -154,6 +163,7 @@ class ScheduleDay(BaseModel):
 
 class ScheduleResponse(BaseModel):
     """Multi-day irrigation schedule."""
+
     crop: str
     crop_ar: str
     soil_profile: str
@@ -259,8 +269,10 @@ class IrrigationCycleEngine:
         e_a = (e_s_min * humidity_max / 100.0 + e_s_max * humidity_min / 100.0) / 2.0
 
         # Slope of saturation vapor pressure curve (kPa/°C)
-        delta = 4098.0 * (0.6108 * math.exp((17.27 * t_mean) / (t_mean + 237.3))) / (
-            (t_mean + 237.3) ** 2
+        delta = (
+            4098.0
+            * (0.6108 * math.exp((17.27 * t_mean) / (t_mean + 237.3)))
+            / ((t_mean + 237.3) ** 2)
         )
 
         # Net radiation (simplified)
@@ -270,9 +282,15 @@ class IrrigationCycleEngine:
         solar_decl = 0.409 * math.sin(2.0 * math.pi * day_of_year / 365.0 - 1.39)
         ws = math.acos(-math.tan(lat_rad) * math.tan(solar_decl))
         ra = (
-            24.0 * 60.0 / math.pi * 0.0820 * dr
-            * (ws * math.sin(lat_rad) * math.sin(solar_decl)
-               + math.cos(lat_rad) * math.cos(solar_decl) * math.sin(ws))
+            24.0
+            * 60.0
+            / math.pi
+            * 0.0820
+            * dr
+            * (
+                ws * math.sin(lat_rad) * math.sin(solar_decl)
+                + math.cos(lat_rad) * math.cos(solar_decl) * math.sin(ws)
+            )
         )
 
         # Clear sky radiation
@@ -283,10 +301,11 @@ class IrrigationCycleEngine:
 
         # Net longwave radiation
         sigma = 4.903e-9  # Stefan-Boltzmann (MJ/m²/day/K⁴)
-        rnl = sigma * (
-            ((temp_max + 273.16) ** 4 + (temp_min + 273.16) ** 4) / 2.0
-        ) * (0.34 - 0.14 * math.sqrt(max(e_a, 0.01))) * (
-            1.35 * (solar_radiation / max(rso, 0.1)) - 0.35
+        rnl = (
+            sigma
+            * (((temp_max + 273.16) ** 4 + (temp_min + 273.16) ** 4) / 2.0)
+            * (0.34 - 0.14 * math.sqrt(max(e_a, 0.01)))
+            * (1.35 * (solar_radiation / max(rso, 0.1)) - 0.35)
         )
 
         # Net radiation
@@ -296,10 +315,9 @@ class IrrigationCycleEngine:
         g = 0.0
 
         # ET0 (mm/day) - FAO Penman-Monteith
-        numerator = (
-            0.408 * delta * (rn - g)
-            + gamma * (900.0 / (t_mean + 273.0)) * wind_speed_2m * (e_s - e_a)
-        )
+        numerator = 0.408 * delta * (rn - g) + gamma * (
+            900.0 / (t_mean + 273.0)
+        ) * wind_speed_2m * (e_s - e_a)
         denominator = delta + gamma * (1.0 + 0.34 * wind_speed_2m)
 
         et0 = numerator / denominator
@@ -322,8 +340,11 @@ class IrrigationCycleEngine:
             # Find Kc for current growth stage
             if req.growth_stage:
                 stage = next(
-                    (s for s in crop_data.growth_stages
-                     if s.name.lower() == req.growth_stage.lower()),
+                    (
+                        s
+                        for s in crop_data.growth_stages
+                        if s.name.lower() == req.growth_stage.lower()
+                    ),
                     None,
                 )
                 kc = stage.kc if stage else crop_data.kc_mid
@@ -369,9 +390,9 @@ class IrrigationCycleEngine:
         # Note: θ values are volumetric (cm³/cm³), so bulk density is NOT needed.
         # The product (θfc - θmin) × Zr_mm already gives mm of available water.
         if etc > 0:
-            cycle_days = (
-                (req.field_capacity - theta_min) * root_depth_mm * req.beta
-            ) / (etc * req.alpha * req.gamma)
+            cycle_days = ((req.field_capacity - theta_min) * root_depth_mm * req.beta) / (
+                etc * req.alpha * req.gamma
+            )
             # Clamp to reasonable range (1-60 days)
             cycle_days = max(1.0, min(cycle_days, 60.0))
         else:
@@ -397,7 +418,9 @@ class IrrigationCycleEngine:
             recs_ar.append("دورة طويلة. راقب رطوبة التربة للتحقق من دقة الجدول.")
 
         if leaching_fraction and leaching_fraction > 0.15:
-            recs.append(f"High leaching fraction ({leaching_fraction:.0%}). Salinity management critical.")
+            recs.append(
+                f"High leaching fraction ({leaching_fraction:.0%}). Salinity management critical."
+            )
             recs_ar.append(f"نسبة غسيل عالية ({leaching_fraction:.0%}). إدارة الملوحة حرجة.")
 
         next_date = date.today() + timedelta(days=int(cycle_days))
@@ -473,7 +496,9 @@ class IrrigationCycleEngine:
             # Salinity adjustment
             if req.ec_water and self._salinity_module:
                 assessment = self._salinity_module.assess(
-                    ec_water=req.ec_water, crop=req.crop, kc=kc,
+                    ec_water=req.ec_water,
+                    crop=req.crop,
+                    kc=kc,
                 )
                 kc = assessment.adjusted_kc
 
@@ -495,7 +520,9 @@ class IrrigationCycleEngine:
 
                 if req.ec_water and self._salinity_module:
                     lr = self._salinity_module.calculate_leaching_requirement(
-                        req.ec_water, req.crop, irrigation_mm,
+                        req.ec_water,
+                        req.crop,
+                        irrigation_mm,
                     )
                     irrigation_mm = lr.total_water_mm
 
@@ -505,18 +532,20 @@ class IrrigationCycleEngine:
 
             sm_pct = max(0.0, min(100.0, (soil_moisture - wp) / (fc - wp) * 100.0))
 
-            schedule.append(ScheduleDay(
-                date=current_date,
-                day_of_season=day_offset + 1,
-                growth_stage=stage_name,
-                kc=round(kc, 3),
-                et0_mm=round(et0, 2),
-                etc_mm=round(etc, 2),
-                soil_moisture_pct=round(sm_pct, 1),
-                irrigate=irrigate,
-                irrigation_mm=round(irrigation_mm, 1),
-                cumulative_water_mm=round(cumulative_water, 1),
-            ))
+            schedule.append(
+                ScheduleDay(
+                    date=current_date,
+                    day_of_season=day_offset + 1,
+                    growth_stage=stage_name,
+                    kc=round(kc, 3),
+                    et0_mm=round(et0, 2),
+                    etc_mm=round(etc, 2),
+                    soil_moisture_pct=round(sm_pct, 1),
+                    irrigate=irrigate,
+                    irrigation_mm=round(irrigation_mm, 1),
+                    cumulative_water_mm=round(cumulative_water, 1),
+                )
+            )
 
         avg_cycle = req.days / max(irrigation_events, 1)
         total_m3_ha = cumulative_water * 10.0  # mm to m³/ha
@@ -546,6 +575,7 @@ engine = IrrigationCycleEngine()
 async def lifespan(app: FastAPI):
     """Application lifespan management."""
     import logging
+
     logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 
@@ -554,6 +584,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats as nats_lib
+
             app.state.nc = await nats_lib.connect(nats_url)
             logger.info(f"Connected to NATS: {nats_url}")
         except Exception as e:
@@ -580,6 +611,7 @@ app = FastAPI(
 # Setup error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
@@ -589,6 +621,7 @@ except ImportError:
 # ---------------------------------------------------------------------------
 # Health Endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.get("/healthz")
 def health():
@@ -609,6 +642,7 @@ def readiness():
 # ---------------------------------------------------------------------------
 # ET0 Endpoints
 # ---------------------------------------------------------------------------
+
 
 @app.post("/api/v1/irrigation/et0", response_model=list[ET0Response])
 async def calculate_et0(req: ET0Request):
@@ -635,6 +669,7 @@ async def calculate_et0(req: ET0Request):
 # Irrigation Cycle Endpoints
 # ---------------------------------------------------------------------------
 
+
 @app.post("/api/v1/irrigation/cycle", response_model=IrrigationCycleResponse)
 async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
     """
@@ -655,13 +690,15 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
             tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.irrigation.cycle_calculated",
-                json.dumps({
-                    "crop": req.crop,
-                    "cycle_days": result.cycle_days,
-                    "etc_mm_day": result.etc_mm_day,
-                    "total_water_mm": result.total_water_mm,
-                    "timestamp": datetime.now(tz=None).isoformat(),
-                }).encode(),
+                json.dumps(
+                    {
+                        "crop": req.crop,
+                        "cycle_days": result.cycle_days,
+                        "etc_mm_day": result.etc_mm_day,
+                        "total_water_mm": result.total_water_mm,
+                        "timestamp": datetime.now(tz=None).isoformat(),
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -688,14 +725,16 @@ async def generate_irrigation_schedule(req: ScheduleRequest):
 # Yemen Data Endpoints
 # ---------------------------------------------------------------------------
 
+
 @app.get("/api/v1/yemen/crops", response_model=YemenCropListResponse)
 async def list_yemen_crops(
-    crop_type: Optional[str] = Query(None, description="Filter by type"),
-    region: Optional[str] = Query(None, description="Filter by region"),
+    crop_type: str | None = Query(None, description="Filter by type"),
+    region: str | None = Query(None, description="Filter by region"),
 ):
     """List available Yemen crop parameters."""
     try:
         from shared.yemen.crops import list_yemen_crops as _list_crops
+
         crops = _list_crops(crop_type=crop_type, region=region)
         return YemenCropListResponse(
             crops=[
@@ -760,10 +799,11 @@ async def list_climate_zones():
 
 
 @app.get("/api/v1/yemen/soils")
-async def list_soil_profiles(region: Optional[str] = Query(None)):
+async def list_soil_profiles(region: str | None = Query(None)):
     """List Yemen soil profiles with hydraulic properties."""
     try:
         from shared.yemen.soils import list_soil_profiles as _list_soils
+
         soils = _list_soils(region=region)
         return {
             "profiles": [
@@ -790,12 +830,13 @@ async def list_soil_profiles(region: Optional[str] = Query(None)):
 # Salinity Endpoints
 # ---------------------------------------------------------------------------
 
+
 @app.post("/api/v1/irrigation/salinity-assessment")
 async def assess_salinity(
     ec_water: float = Query(..., description="EC of irrigation water (dS/m)"),
     crop: str = Query(..., description="Crop name"),
     kc: float = Query(default=1.0, description="Current Kc"),
-    ec_soil: Optional[float] = Query(None, description="Soil EC (dS/m)"),
+    ec_soil: float | None = Query(None, description="Soil EC (dS/m)"),
     na: float = Query(default=0.0, description="Sodium (meq/L)"),
     ca: float = Query(default=0.0, description="Calcium (meq/L)"),
     mg: float = Query(default=0.0, description="Magnesium (meq/L)"),
@@ -805,8 +846,13 @@ async def assess_salinity(
         raise HTTPException(status_code=503, detail="Salinity module not available")
 
     assessment = engine._salinity_module.assess(
-        ec_water=ec_water, crop=crop, kc=kc,
-        ec_soil=ec_soil, na=na, ca=ca, mg=mg,
+        ec_water=ec_water,
+        crop=crop,
+        kc=kc,
+        ec_soil=ec_soil,
+        na=na,
+        ca=ca,
+        mg=mg,
     )
     return {
         "ec_water": assessment.ec_water,
@@ -825,4 +871,5 @@ async def assess_salinity(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)

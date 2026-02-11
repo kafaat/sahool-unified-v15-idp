@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 import uuid
 
@@ -38,27 +38,29 @@ from .progress import (
 )
 
 
-class RecommendationReason(str, Enum):
+class RecommendationReason(StrEnum):
     """Reason for recommendation | سبب التوصية"""
-    SKILL_GAP = "skill_gap"                    # فجوة في المهارات
-    NEXT_LEVEL = "next_level"                  # المستوى التالي
-    POPULAR = "popular"                        # شائع
-    TRENDING = "trending"                      # رائج
-    SIMILAR_FARMERS = "similar_farmers"        # مزارعون مشابهون
-    CROP_RELEVANT = "crop_relevant"            # متعلق بالمحصول
-    SEASONAL = "seasonal"                      # موسمي
-    PREREQUISITE = "prerequisite"              # متطلب مسبق
-    CONTINUATION = "continuation"              # استمرار
+
+    SKILL_GAP = "skill_gap"  # فجوة في المهارات
+    NEXT_LEVEL = "next_level"  # المستوى التالي
+    POPULAR = "popular"  # شائع
+    TRENDING = "trending"  # رائج
+    SIMILAR_FARMERS = "similar_farmers"  # مزارعون مشابهون
+    CROP_RELEVANT = "crop_relevant"  # متعلق بالمحصول
+    SEASONAL = "seasonal"  # موسمي
+    PREREQUISITE = "prerequisite"  # متطلب مسبق
+    CONTINUATION = "continuation"  # استمرار
     CERTIFICATION_PATH = "certification_path"  # مسار الشهادة
-    PERSONALIZED = "personalized"              # مخصص
-    BEGINNER_FRIENDLY = "beginner_friendly"    # مناسب للمبتدئين
+    PERSONALIZED = "personalized"  # مخصص
+    BEGINNER_FRIENDLY = "beginner_friendly"  # مناسب للمبتدئين
 
 
-class RecommendationPriority(str, Enum):
+class RecommendationPriority(StrEnum):
     """Recommendation priority | أولوية التوصية"""
-    HIGH = "high"          # عالية
-    MEDIUM = "medium"      # متوسطة
-    LOW = "low"            # منخفضة
+
+    HIGH = "high"  # عالية
+    MEDIUM = "medium"  # متوسطة
+    LOW = "low"  # منخفضة
 
 
 @dataclass
@@ -67,12 +69,13 @@ class RecommendationScore:
     Score breakdown for a recommendation
     تفصيل درجة التوصية
     """
+
     # Individual scores (0-100)
-    relevance_score: float = 0.0      # How relevant to farmer
-    difficulty_match: float = 0.0     # How well difficulty matches level
-    skill_gap_score: float = 0.0      # How much it addresses skill gaps
-    popularity_score: float = 0.0     # General popularity
-    freshness_score: float = 0.0      # Recency of content
+    relevance_score: float = 0.0  # How relevant to farmer
+    difficulty_match: float = 0.0  # How well difficulty matches level
+    skill_gap_score: float = 0.0  # How much it addresses skill gaps
+    popularity_score: float = 0.0  # General popularity
+    freshness_score: float = 0.0  # Recency of content
     completion_likelihood: float = 0.0  # Predicted completion rate
 
     # Weights (sum to 1.0)
@@ -87,12 +90,12 @@ class RecommendationScore:
     def total_score(self) -> float:
         """Calculate weighted total score"""
         return (
-            self.relevance_score * self.relevance_weight +
-            self.difficulty_match * self.difficulty_weight +
-            self.skill_gap_score * self.skill_gap_weight +
-            self.popularity_score * self.popularity_weight +
-            self.freshness_score * self.freshness_weight +
-            self.completion_likelihood * self.completion_weight
+            self.relevance_score * self.relevance_weight
+            + self.difficulty_match * self.difficulty_weight
+            + self.skill_gap_score * self.skill_gap_weight
+            + self.popularity_score * self.popularity_weight
+            + self.freshness_score * self.freshness_weight
+            + self.completion_likelihood * self.completion_weight
         )
 
     def to_dict(self) -> dict[str, Any]:
@@ -116,6 +119,7 @@ class CourseRecommendation:
     A course recommendation
     توصية بدورة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Course info
@@ -164,6 +168,7 @@ class LearningPath:
     A recommended learning path
     مسار تعلم موصى به
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Path info
@@ -239,12 +244,32 @@ SEASONAL_TOPICS: dict[int, list[SkillCategory]] = {
 CROP_SKILL_MAPPING: dict[str, list[SkillCategory]] = {
     "wheat": [SkillCategory.CROP_MANAGEMENT, SkillCategory.IRRIGATION, SkillCategory.FERTILIZATION],
     "barley": [SkillCategory.CROP_MANAGEMENT, SkillCategory.IRRIGATION, SkillCategory.SOIL_HEALTH],
-    "date_palm": [SkillCategory.PEST_MANAGEMENT, SkillCategory.IRRIGATION, SkillCategory.HARVESTING],
-    "tomato": [SkillCategory.PEST_MANAGEMENT, SkillCategory.CROP_MANAGEMENT, SkillCategory.IRRIGATION],
-    "cucumber": [SkillCategory.CROP_MANAGEMENT, SkillCategory.IRRIGATION, SkillCategory.PEST_MANAGEMENT],
-    "citrus": [SkillCategory.IRRIGATION, SkillCategory.FERTILIZATION, SkillCategory.PEST_MANAGEMENT],
+    "date_palm": [
+        SkillCategory.PEST_MANAGEMENT,
+        SkillCategory.IRRIGATION,
+        SkillCategory.HARVESTING,
+    ],
+    "tomato": [
+        SkillCategory.PEST_MANAGEMENT,
+        SkillCategory.CROP_MANAGEMENT,
+        SkillCategory.IRRIGATION,
+    ],
+    "cucumber": [
+        SkillCategory.CROP_MANAGEMENT,
+        SkillCategory.IRRIGATION,
+        SkillCategory.PEST_MANAGEMENT,
+    ],
+    "citrus": [
+        SkillCategory.IRRIGATION,
+        SkillCategory.FERTILIZATION,
+        SkillCategory.PEST_MANAGEMENT,
+    ],
     "olives": [SkillCategory.HARVESTING, SkillCategory.POST_HARVEST, SkillCategory.IRRIGATION],
-    "vegetables": [SkillCategory.CROP_MANAGEMENT, SkillCategory.PEST_MANAGEMENT, SkillCategory.IRRIGATION],
+    "vegetables": [
+        SkillCategory.CROP_MANAGEMENT,
+        SkillCategory.PEST_MANAGEMENT,
+        SkillCategory.IRRIGATION,
+    ],
 }
 
 
@@ -325,13 +350,15 @@ class ContentRecommender:
         if not include_enrolled and self.progress_tracker:
             enrollments = await self.progress_tracker.get_enrollments(profile.farmer_id)
             enrolled_course_ids = {
-                e.course_id for e in enrollments
+                e.course_id
+                for e in enrollments
                 if e.status not in [EnrollmentStatus.DROPPED, EnrollmentStatus.EXPIRED]
             }
 
         # Filter publishedcourses
         available_courses = [
-            c for c in courses
+            c
+            for c in courses
             if c.status == CourseStatus.PUBLISHED and c.id not in enrolled_course_ids
         ]
 
@@ -392,7 +419,10 @@ class ContentRecommender:
             reasons.append(RecommendationReason.SEASONAL)
 
         # Check beginner friendliness
-        if course.difficulty == DifficultyLevel.BEGINNER and profile.overall_level == DifficultyLevel.BEGINNER:
+        if (
+            course.difficulty == DifficultyLevel.BEGINNER
+            and profile.overall_level == DifficultyLevel.BEGINNER
+        ):
             reasons.append(RecommendationReason.BEGINNER_FRIENDLY)
 
         # Determine priority
@@ -491,7 +521,8 @@ class ContentRecommender:
 
         # Score based on addressing weak skills
         weak_skills = [
-            cat for cat, level in skill_levels.items()
+            cat
+            for cat, level in skill_levels.items()
             if level < 2  # Below intermediate
         ]
 
@@ -684,10 +715,13 @@ class ContentRecommender:
             ),
         }
 
-        return reason_templates.get(primary, BilingualText(
-            en="Recommended for you",
-            ar="موصى به لك",
-        ))
+        return reason_templates.get(
+            primary,
+            BilingualText(
+                en="Recommended for you",
+                ar="موصى به لك",
+            ),
+        )
 
     async def get_next_course(
         self,
@@ -730,13 +764,12 @@ class ContentRecommender:
         """
         # Filter courses for this skill
         skill_courses = [
-            c for c in courses
-            if c.status == CourseStatus.PUBLISHED and (
-                c.category == target_skill or
-                any(
-                    target_skill in lesson.skills
-                    for lesson in c.lessons
-                )
+            c
+            for c in courses
+            if c.status == CourseStatus.PUBLISHED
+            and (
+                c.category == target_skill
+                or any(target_skill in lesson.skills for lesson in c.lessons)
             )
         ]
 
@@ -871,21 +904,17 @@ class ContentRecommender:
 
         # Filter for seasonal courses
         seasonal_courses = [
-            c for c in courses
-            if c.status == CourseStatus.PUBLISHED and (
-                c.category in seasonal_skills or
-                any(
-                    skill in seasonal_skills
-                    for lesson in c.lessons
-                    for skill in lesson.skills
-                )
+            c
+            for c in courses
+            if c.status == CourseStatus.PUBLISHED
+            and (
+                c.category in seasonal_skills
+                or any(skill in seasonal_skills for lesson in c.lessons for skill in lesson.skills)
             )
         ]
 
         # Get recommendations from seasonal courses
-        recommendations = await self.get_recommendations(
-            profile, seasonal_courses, limit
-        )
+        recommendations = await self.get_recommendations(profile, seasonal_courses, limit)
 
         # Ensure seasonal reason is included
         for rec in recommendations:
@@ -916,9 +945,10 @@ class ContentRecommender:
         """
         # Filter short courses
         quick_courses = [
-            c for c in courses
-            if c.status == CourseStatus.PUBLISHED and
-            c.estimated_duration_minutes <= max_duration_minutes
+            c
+            for c in courses
+            if c.status == CourseStatus.PUBLISHED
+            and c.estimated_duration_minutes <= max_duration_minutes
         ]
 
         return await self.get_recommendations(profile, quick_courses, limit)
@@ -934,9 +964,7 @@ def get_content_recommender(
 ) -> ContentRecommender:
     """Get or create a content recommender for a tenant"""
     if tenant_id not in _recommenders:
-        _recommenders[tenant_id] = ContentRecommender(
-            tenant_id, progress_tracker
-        )
+        _recommenders[tenant_id] = ContentRecommender(tenant_id, progress_tracker)
     return _recommenders[tenant_id]
 
 

@@ -13,7 +13,7 @@ import os
 import sys
 import uuid
 from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -111,7 +111,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class EquipmentType(str, Enum):
+class EquipmentType(StrEnum):
     TRACTOR = "tractor"
     PUMP = "pump"
     DRONE = "drone"
@@ -123,21 +123,21 @@ class EquipmentType(str, Enum):
     OTHER = "other"
 
 
-class EquipmentStatus(str, Enum):
+class EquipmentStatus(StrEnum):
     OPERATIONAL = "operational"
     MAINTENANCE = "maintenance"
     INACTIVE = "inactive"
     REPAIR = "repair"
 
 
-class MaintenancePriority(str, Enum):
+class MaintenancePriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
 
-class MaintenanceType(str, Enum):
+class MaintenanceType(StrEnum):
     OIL_CHANGE = "oil_change"
     FILTER_CHANGE = "filter_change"
     TIRE_CHECK = "tire_check"

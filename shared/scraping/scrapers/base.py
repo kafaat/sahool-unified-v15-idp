@@ -198,9 +198,7 @@ class RateLimiter:
         now = time.time()
 
         # Clean old request times (older than 1 minute)
-        self._request_times = [
-            t for t in self._request_times if now - t < 60
-        ]
+        self._request_times = [t for t in self._request_times if now - t < 60]
 
         # Check requests per minute
         if (
@@ -209,10 +207,7 @@ class RateLimiter:
         ):
             sleep_time = 60 - (now - self._request_times[0])
             if sleep_time > 0:
-                logger.debug(
-                    f"Rate limit: waiting {sleep_time:.2f}s "
-                    f"(requests/min limit)"
-                )
+                logger.debug(f"Rate limit: waiting {sleep_time:.2f}s (requests/min limit)")
                 await asyncio.sleep(sleep_time)
 
         # Minimum delay between requests
@@ -316,14 +311,10 @@ class BaseScraper(ABC):
             logger.debug(f"Navigated to {url}")
 
         except PlaywrightTimeout as e:
-            raise NavigationError(
-                f"Navigation timeout for {url}", url=url
-            ) from e
+            raise NavigationError(f"Navigation timeout for {url}", url=url) from e
         except Exception as e:
             if not isinstance(e, NavigationError):
-                raise NavigationError(
-                    f"Navigation failed: {e}", url=url
-                ) from e
+                raise NavigationError(f"Navigation failed: {e}", url=url) from e
             raise
 
     async def wait_for(
@@ -428,9 +419,7 @@ class BaseScraper(ABC):
                 value = await element.get_attribute(attribute)
                 return value or default
         except Exception as e:
-            logger.debug(
-                f"Failed to extract {attribute} from {selector}: {e}"
-            )
+            logger.debug(f"Failed to extract {attribute} from {selector}: {e}")
 
         return default
 
@@ -580,7 +569,7 @@ class BaseScraper(ABC):
                 if attempt < config.max_retries:
                     # Calculate delay with exponential backoff
                     delay = min(
-                        config.base_delay * (config.backoff_multiplier ** attempt),
+                        config.base_delay * (config.backoff_multiplier**attempt),
                         config.max_delay,
                     )
                     # Add jitter

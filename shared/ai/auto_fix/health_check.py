@@ -20,23 +20,25 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Health status levels | مستويات حالة الصحة"""
+
     HEALTHY = "healthy"
     DEGRADED = "degraded"
     UNHEALTHY = "unhealthy"
     UNKNOWN = "unknown"
 
 
-class ComponentType(str, Enum):
+class ComponentType(StrEnum):
     """Platform component types | أنواع مكونات المنصة"""
+
     SERVICE = "service"
     DATABASE = "database"
     CACHE = "cache"
@@ -49,6 +51,7 @@ class ComponentType(str, Enum):
 @dataclass
 class HealthCheckResult:
     """Result of a health check | نتيجة فحص الصحة"""
+
     component: str
     component_type: ComponentType
     status: HealthStatus
@@ -79,6 +82,7 @@ class HealthCheckResult:
 @dataclass
 class HealthReport:
     """Complete health report | تقرير صحة كامل"""
+
     results: list[HealthCheckResult] = field(default_factory=list)
     _overall_status: HealthStatus | None = field(default=None, repr=False)
     timestamp: datetime = field(default_factory=datetime.now)
@@ -143,10 +147,7 @@ class HealthChecker:
         """Check if a port is open | فحص إذا كان المنفذ مفتوحاً"""
         start = asyncio.get_event_loop().time()
         try:
-            _, writer = await asyncio.wait_for(
-                asyncio.open_connection(host, port),
-                timeout=timeout
-            )
+            _, writer = await asyncio.wait_for(asyncio.open_connection(host, port), timeout=timeout)
             writer.close()
             await writer.wait_closed()
             latency = (asyncio.get_event_loop().time() - start) * 1000
@@ -154,7 +155,9 @@ class HealthChecker:
         except Exception:
             return False, 0
 
-    async def check_postgresql(self, host: str = "localhost", port: int = 5432) -> HealthCheckResult:
+    async def check_postgresql(
+        self, host: str = "localhost", port: int = 5432
+    ) -> HealthCheckResult:
         """Check PostgreSQL health | فحص صحة PostgreSQL"""
         is_open, latency = await self._check_port(host, port)
 
@@ -258,6 +261,7 @@ class HealthChecker:
 
             if stdout:
                 import json
+
                 for line in stdout.decode().strip().split("\n"):
                     if line:
                         try:
@@ -275,26 +279,30 @@ class HealthChecker:
                             else:
                                 status = HealthStatus.UNHEALTHY
 
-                            results.append(HealthCheckResult(
-                                component=name,
-                                component_type=ComponentType.CONTAINER,
-                                status=status,
-                                message=f"Container {name}: {state}",
-                                message_ar=f"حاوية {name}: {state}",
-                                details={"state": state, "health": health},
-                            ))
+                            results.append(
+                                HealthCheckResult(
+                                    component=name,
+                                    component_type=ComponentType.CONTAINER,
+                                    status=status,
+                                    message=f"Container {name}: {state}",
+                                    message_ar=f"حاوية {name}: {state}",
+                                    details={"state": state, "health": health},
+                                )
+                            )
                         except json.JSONDecodeError:
                             continue
 
         except Exception as e:
             logger.error(f"Docker check failed: {e}")
-            results.append(HealthCheckResult(
-                component="Docker",
-                component_type=ComponentType.CONTAINER,
-                status=HealthStatus.UNKNOWN,
-                message=f"Cannot check Docker: {e}",
-                message_ar=f"لا يمكن فحص Docker: {e}",
-            ))
+            results.append(
+                HealthCheckResult(
+                    component="Docker",
+                    component_type=ComponentType.CONTAINER,
+                    status=HealthStatus.UNKNOWN,
+                    message=f"Cannot check Docker: {e}",
+                    message_ar=f"لا يمكن فحص Docker: {e}",
+                )
+            )
 
         return results
 

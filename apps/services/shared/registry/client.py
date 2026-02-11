@@ -57,7 +57,9 @@ class AgentInvocationResponse(BaseModel):
     output_data: dict[str, Any] | None = Field(None, description="Output data from the agent")
     error: str | None = Field(None, description="Error message if failed")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Response metadata")
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(UTC), description="Response timestamp")
+    timestamp: datetime = Field(
+        default_factory=lambda: datetime.now(UTC), description="Response timestamp"
+    )
     response_time_ms: float | None = Field(None, description="Response time in milliseconds")
 
     model_config = ConfigDict(

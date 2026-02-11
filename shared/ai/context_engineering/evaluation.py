@@ -25,7 +25,7 @@ import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -46,7 +46,7 @@ MAX_SCORE = 1.0
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class EvaluationCriteria(str, Enum):
+class EvaluationCriteria(StrEnum):
     """
     Evaluation criteria for recommendations.
     معايير تقييم التوصيات
@@ -68,7 +68,7 @@ class EvaluationCriteria(str, Enum):
     CLARITY = "clarity"  # الوضوح
 
 
-class EvaluationGrade(str, Enum):
+class EvaluationGrade(StrEnum):
     """
     Overall grade for evaluation.
     الدرجة الإجمالية للتقييم
@@ -81,7 +81,7 @@ class EvaluationGrade(str, Enum):
     POOR = "poor"  # ضعيف (< 0.4)
 
 
-class RecommendationType(str, Enum):
+class RecommendationType(StrEnum):
     """
     Type of agricultural recommendation.
     نوع التوصية الزراعية
@@ -296,8 +296,7 @@ class EvaluationResult:
                 return (
                     "Recommendation needs improvement before implementation. "
                     "Please address the noted concerns.",
-                    "التوصية تحتاج إلى تحسين قبل التنفيذ. "
-                    "يرجى معالجة الملاحظات المذكورة.",
+                    "التوصية تحتاج إلى تحسين قبل التنفيذ. يرجى معالجة الملاحظات المذكورة.",
                 )
 
     @staticmethod
@@ -901,9 +900,7 @@ class RecommendationEvaluator(BaseEvaluator):
             evidence.append(f"Contains timing guidance: {found_times[:3]}")
 
         # Check for step-by-step indicators
-        step_indicators = re.findall(
-            r"(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)", rec_lower
-        )
+        step_indicators = re.findall(r"(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)", rec_lower)
         if step_indicators:
             score += 0.1
             evidence.append("Contains step-by-step instructions")

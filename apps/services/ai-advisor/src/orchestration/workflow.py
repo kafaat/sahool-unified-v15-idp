@@ -8,7 +8,7 @@ Manages multi-step workflows for complex agricultural tasks.
 
 from collections.abc import Callable
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
@@ -16,7 +16,7 @@ import structlog
 logger = structlog.get_logger()
 
 
-class WorkflowStatus(str, Enum):
+class WorkflowStatus(StrEnum):
     """Workflow execution status | حالة تنفيذ سير العمل"""
 
     PENDING = "pending"

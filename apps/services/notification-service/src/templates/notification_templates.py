@@ -9,14 +9,14 @@ and comprehensive template categories for Yemen's agricultural context.
 import json
 import logging
 import re
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class TemplateCategory(str, Enum):
+class TemplateCategory(StrEnum):
     """فئات القوالب - Template Categories"""
 
     ALERT = "alert"  # تنبيهات عاجلة
@@ -25,7 +25,7 @@ class TemplateCategory(str, Enum):
     RECOMMENDATION = "recommendation"  # توصيات
 
 
-class NotificationChannel(str, Enum):
+class NotificationChannel(StrEnum):
     """قنوات الإشعارات - Notification Channels"""
 
     PUSH = "push"  # إشعار دفع

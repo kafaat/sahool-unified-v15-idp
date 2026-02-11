@@ -334,7 +334,9 @@ async def detect_pests(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = PEST_CLASSES.get(class_id, BilingualLabel(en="Unknown Pest", ar="آفة غير معروفة"))
+            label = PEST_CLASSES.get(
+                class_id, BilingualLabel(en="Unknown Pest", ar="آفة غير معروفة")
+            )
 
             # Calculate severity
             box_area = (box[2] - box[0]) * (box[3] - box[1])
@@ -367,19 +369,23 @@ async def detect_pests(
             )
             detections.append(detection)
 
-            visualization_data.append({
-                "class_id": class_id,
-                "confidence": confidence,
-                "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
-                "severity": severity,
-            })
+            visualization_data.append(
+                {
+                    "class_id": class_id,
+                    "confidence": confidence,
+                    "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
+                    "severity": severity,
+                }
+            )
 
         processing_time = (time.perf_counter() - start_time) * 1000
 
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(image_bytes, visualization_data, PEST_CLASSES)
+            visualization_base64 = create_visualization(
+                image_bytes, visualization_data, PEST_CLASSES
+            )
 
         logger.info(
             "pest_detection_complete",
@@ -490,11 +496,17 @@ async def detect_diseases(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = DISEASE_CLASSES.get(class_id, BilingualLabel(en="Unknown Disease", ar="مرض غير معروف"))
+            label = DISEASE_CLASSES.get(
+                class_id, BilingualLabel(en="Unknown Disease", ar="مرض غير معروف")
+            )
 
             # Calculate affected area
             box_area = (box[2] - box[0]) * (box[3] - box[1])
-            area_percent = (box_area / image_area * 100) if image_area > 0 and calculate_affected_area else None
+            area_percent = (
+                (box_area / image_area * 100)
+                if image_area > 0 and calculate_affected_area
+                else None
+            )
             if area_percent:
                 total_affected_area += area_percent
 
@@ -506,7 +518,11 @@ async def detect_diseases(
             # Estimate spread risk based on disease type and severity
             spread_risk = severity
             if class_id in [4, 12, 13]:  # Late Blight, Mosaic Virus, YLCV - high spread risk
-                spread_risk = SeverityLevel.HIGH if severity != SeverityLevel.CRITICAL else SeverityLevel.CRITICAL
+                spread_risk = (
+                    SeverityLevel.HIGH
+                    if severity != SeverityLevel.CRITICAL
+                    else SeverityLevel.CRITICAL
+                )
 
             # Get treatment recommendations
             treatment = DISEASE_TREATMENTS.get(class_id, {})
@@ -533,12 +549,14 @@ async def detect_diseases(
             )
             detections.append(detection)
 
-            visualization_data.append({
-                "class_id": class_id,
-                "confidence": confidence,
-                "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
-                "severity": severity,
-            })
+            visualization_data.append(
+                {
+                    "class_id": class_id,
+                    "confidence": confidence,
+                    "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
+                    "severity": severity,
+                }
+            )
 
         processing_time = (time.perf_counter() - start_time) * 1000
 
@@ -546,18 +564,27 @@ async def detect_diseases(
         health_score = max(0.0, 100.0 - total_affected_area)
         if len(detections) > 0:
             avg_severity = sum(
-                [1 if d.severity == SeverityLevel.LOW else
-                 2 if d.severity == SeverityLevel.MEDIUM else
-                 3 if d.severity == SeverityLevel.HIGH else
-                 4 if d.severity == SeverityLevel.CRITICAL else 0
-                 for d in detections]
+                [
+                    1
+                    if d.severity == SeverityLevel.LOW
+                    else 2
+                    if d.severity == SeverityLevel.MEDIUM
+                    else 3
+                    if d.severity == SeverityLevel.HIGH
+                    else 4
+                    if d.severity == SeverityLevel.CRITICAL
+                    else 0
+                    for d in detections
+                ]
             ) / len(detections)
             health_score = max(0.0, health_score - (avg_severity * 10))
 
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(image_bytes, visualization_data, DISEASE_CLASSES)
+            visualization_base64 = create_visualization(
+                image_bytes, visualization_data, DISEASE_CLASSES
+            )
 
         logger.info(
             "disease_detection_complete",
@@ -668,14 +695,18 @@ async def detect_weeds(
             box = result.boxes[i]
 
             # Get bilingual label
-            label = WEED_CLASSES.get(class_id, BilingualLabel(en="Unknown Weed", ar="عشبة غير معروفة"))
+            label = WEED_CLASSES.get(
+                class_id, BilingualLabel(en="Unknown Weed", ar="عشبة غير معروفة")
+            )
 
             # Update species distribution
             species_distribution[label.en] = species_distribution.get(label.en, 0) + 1
 
             # Calculate coverage
             box_area = (box[2] - box[0]) * (box[3] - box[1])
-            coverage_percent = (box_area / image_area * 100) if image_area > 0 and calculate_coverage else None
+            coverage_percent = (
+                (box_area / image_area * 100) if image_area > 0 and calculate_coverage else None
+            )
             if coverage_percent:
                 total_coverage += coverage_percent
 
@@ -698,12 +729,14 @@ async def detect_weeds(
             )
             detections.append(detection)
 
-            visualization_data.append({
-                "class_id": class_id,
-                "confidence": confidence,
-                "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
-                "severity": SeverityLevel.MEDIUM,  # Default for visualization
-            })
+            visualization_data.append(
+                {
+                    "class_id": class_id,
+                    "confidence": confidence,
+                    "bbox": {"x1": box[0], "y1": box[1], "x2": box[2], "y2": box[3]},
+                    "severity": SeverityLevel.MEDIUM,  # Default for visualization
+                }
+            )
 
         processing_time = (time.perf_counter() - start_time) * 1000
 
@@ -713,7 +746,9 @@ async def detect_weeds(
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
-            visualization_base64 = create_visualization(image_bytes, visualization_data, WEED_CLASSES)
+            visualization_base64 = create_visualization(
+                image_bytes, visualization_data, WEED_CLASSES
+            )
 
         logger.info(
             "weed_detection_complete",

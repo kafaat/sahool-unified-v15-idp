@@ -10,7 +10,7 @@ Supports 18+ crops with regional adaptations
 import json
 from dataclasses import dataclass
 from datetime import date, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -21,7 +21,7 @@ except (ImportError, ValueError):
     # Fallback definitions for standalone usage
     from enum import Enum
 
-    class CropType(str, Enum):
+    class CropType(StrEnum):
         """Crop types - fallback definition"""
 
         WHEAT = "wheat"
@@ -42,7 +42,7 @@ except (ImportError, ValueError):
         CHICKPEAS = "chickpeas"
         LENTILS = "lentils"
 
-    class GrowthStage(str, Enum):
+    class GrowthStage(StrEnum):
         """Growth stages - fallback definition"""
 
         INITIAL = "initial"
@@ -54,7 +54,7 @@ except (ImportError, ValueError):
 # ============== التعدادات الإضافية - Additional Enumerations ==============
 
 
-class DetailedGrowthStage(str, Enum):
+class DetailedGrowthStage(StrEnum):
     """
     مراحل النمو التفصيلية
     Detailed growth stages (6-stage model)
@@ -68,7 +68,7 @@ class DetailedGrowthStage(str, Enum):
     HARVEST = "harvest"  # حصاد
 
 
-class YemenRegion(str, Enum):
+class YemenRegion(StrEnum):
     """
     مناطق اليمن الزراعية
     Yemen agricultural regions
@@ -79,7 +79,7 @@ class YemenRegion(str, Enum):
     HADHRAMAUT = "hadhramaut"  # حضرموت - الشرق
 
 
-class Season(str, Enum):
+class Season(StrEnum):
     """
     الفصول
     Seasons

@@ -21,7 +21,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
@@ -40,11 +40,14 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 # Import authentication dependencies
 try:
@@ -102,7 +105,7 @@ logger = logging.getLogger("sahool-notifications")
 # =============================================================================
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     WEATHER_ALERT = "weather_alert"
     PEST_OUTBREAK = "pest_outbreak"
     IRRIGATION_REMINDER = "irrigation_reminder"
@@ -112,14 +115,14 @@ class NotificationType(str, Enum):
     TASK_REMINDER = "task_reminder"
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
 
-class NotificationChannel(str, Enum):
+class NotificationChannel(StrEnum):
     PUSH = "push"
     SMS = "sms"
     EMAIL = "email"
@@ -127,7 +130,7 @@ class NotificationChannel(str, Enum):
     IN_APP = "in_app"
 
 
-class Governorate(str, Enum):
+class Governorate(StrEnum):
     SANAA = "sanaa"
     ADEN = "aden"
     TAIZ = "taiz"
@@ -142,7 +145,7 @@ class Governorate(str, Enum):
     ABYAN = "abyan"
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     TOMATO = "tomato"
     WHEAT = "wheat"
     COFFEE = "coffee"
@@ -966,7 +969,9 @@ async def lifespan(app: FastAPI):
         if whatsapp_client._initialized:
             logger.info("✅ WhatsApp client initialized")
         else:
-            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
+            logger.info(
+                "ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
 

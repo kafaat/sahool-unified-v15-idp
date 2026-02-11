@@ -60,6 +60,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             app.state.nc = await nats.connect(nats_url)
             logger.info("nats_connected", url=nats_url)
         except Exception as e:
@@ -73,6 +74,7 @@ async def lifespan(app: FastAPI):
     if redis_url:
         try:
             import redis.asyncio as redis
+
             app.state.redis = redis.from_url(redis_url)
             logger.info("redis_connected", url=redis_url)
         except Exception as e:

@@ -305,25 +305,23 @@ class EventCorrelator:
                 if reading.get("sensor_type") == "soil_moisture":
                     moisture = reading.get("value", 50)
                     if moisture < 30:  # Low moisture confirms stress
-                        validation["adjusted_confidence"] = min(
-                            0.95,
-                            detection_confidence + 0.1
+                        validation["adjusted_confidence"] = min(0.95, detection_confidence + 0.1)
+                        validation["supporting_evidence"].append(
+                            {
+                                "source": "iot_soil_moisture",
+                                "value": moisture,
+                                "note": "Low soil moisture confirms water stress",
+                            }
                         )
-                        validation["supporting_evidence"].append({
-                            "source": "iot_soil_moisture",
-                            "value": moisture,
-                            "note": "Low soil moisture confirms water stress",
-                        })
                     elif moisture > 60:  # High moisture conflicts
-                        validation["adjusted_confidence"] = max(
-                            0.3,
-                            detection_confidence - 0.2
+                        validation["adjusted_confidence"] = max(0.3, detection_confidence - 0.2)
+                        validation["conflicting_evidence"].append(
+                            {
+                                "source": "iot_soil_moisture",
+                                "value": moisture,
+                                "note": "Adequate soil moisture conflicts with stress detection",
+                            }
                         )
-                        validation["conflicting_evidence"].append({
-                            "source": "iot_soil_moisture",
-                            "value": moisture,
-                            "note": "Adequate soil moisture conflicts with stress detection",
-                        })
 
         # Validate crop health against NDVI
         if detection_type in ["nutrient_deficiency", "disease_outbreak"]:
@@ -331,15 +329,14 @@ class EventCorrelator:
             if ndvi and "value" in ndvi:
                 ndvi_value = ndvi["value"]
                 if ndvi_value < 0.4:  # Low NDVI confirms issues
-                    validation["adjusted_confidence"] = min(
-                        0.95,
-                        detection_confidence + 0.1
+                    validation["adjusted_confidence"] = min(0.95, detection_confidence + 0.1)
+                    validation["supporting_evidence"].append(
+                        {
+                            "source": "satellite_ndvi",
+                            "value": ndvi_value,
+                            "note": "Low NDVI supports health issue detection",
+                        }
                     )
-                    validation["supporting_evidence"].append({
-                        "source": "satellite_ndvi",
-                        "value": ndvi_value,
-                        "note": "Low NDVI supports health issue detection",
-                    })
 
         return validation
 
@@ -349,7 +346,8 @@ class EventCorrelator:
 
         for cache in [self._ndvi_cache, self._weather_cache, self._iot_cache]:
             expired_keys = [
-                k for k, v in cache.items()
+                k
+                for k, v in cache.items()
                 if (now - v["timestamp"]).total_seconds() > self._cache_ttl
             ]
             for k in expired_keys:

@@ -399,10 +399,10 @@ class HMCIrrigationEngine:
     @property
     def is_session_active(self) -> bool:
         """Check if there is an active session."""
-        return (
-            self._current_session is not None
-            and self._current_session.status not in [SessionStatus.COMPLETED, SessionStatus.CANCELLED]
-        )
+        return self._current_session is not None and self._current_session.status not in [
+            SessionStatus.COMPLETED,
+            SessionStatus.CANCELLED,
+        ]
 
     # =========================================================================
     # Session Management - إدارة الجلسات
@@ -502,12 +502,22 @@ class HMCIrrigationEngine:
                 else False
             ),
             "dimension_status": {
-                "goal_anchoring": self._goal_dimension.get_status() if self._goal_dimension else None,
-                "experience_injection": self._experience_dimension.get_status() if self._experience_dimension else None,
-                "supervision_calibration": self._calibration_dimension.get_status() if self._calibration_dimension else None,
-                "value_upgrade": self._value_dimension.get_status() if self._value_dimension else None,
+                "goal_anchoring": self._goal_dimension.get_status()
+                if self._goal_dimension
+                else None,
+                "experience_injection": self._experience_dimension.get_status()
+                if self._experience_dimension
+                else None,
+                "supervision_calibration": self._calibration_dimension.get_status()
+                if self._calibration_dimension
+                else None,
+                "value_upgrade": self._value_dimension.get_status()
+                if self._value_dimension
+                else None,
             },
-            "checklist_complete": self._checklist.validate_all().is_complete if self._checklist else False,
+            "checklist_complete": self._checklist.validate_all().is_complete
+            if self._checklist
+            else False,
             "created_at": self._current_session.created_at.isoformat(),
             "updated_at": self._current_session.updated_at.isoformat(),
         }
@@ -1128,9 +1138,7 @@ class HMCIrrigationEngine:
         # Calculate performance vs predictions
         water_saving = None
         if results.get("actual_water_usage_m3") and program.expected_water_usage_m3:
-            water_saving = (
-                1 - results["actual_water_usage_m3"] / program.expected_water_usage_m3
-            )
+            water_saving = 1 - results["actual_water_usage_m3"] / program.expected_water_usage_m3
 
         # Create outcome record
         outcome = SessionOutcome(
@@ -1158,7 +1166,12 @@ class HMCIrrigationEngine:
         # Extract new rules if successful
         if outcome.overall_success and results.get("lessons_learned"):
             observations = [
-                {"observation": lesson, "condition": "learned_condition", "outcome": "success", "confidence": 0.7}
+                {
+                    "observation": lesson,
+                    "condition": "learned_condition",
+                    "outcome": "success",
+                    "confidence": 0.7,
+                }
                 for lesson in results.get("lessons_learned", [])
             ]
             extracted = self._value_dimension.extract_field_rules(observations)

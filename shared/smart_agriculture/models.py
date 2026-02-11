@@ -142,13 +142,13 @@ class FertilizerRatio:
 
     def __post_init__(self):
         """Validate ratio values are within acceptable range."""
-        for name, value in [("n_ratio", self.n_ratio),
-                           ("p_ratio", self.p_ratio),
-                           ("k_ratio", self.k_ratio)]:
+        for name, value in [
+            ("n_ratio", self.n_ratio),
+            ("p_ratio", self.p_ratio),
+            ("k_ratio", self.k_ratio),
+        ]:
             if not 0.0 <= value <= 1.0:
-                raise ValueError(
-                    f"{name} must be between 0.0 and 1.0, got {value}"
-                )
+                raise ValueError(f"{name} must be between 0.0 and 1.0, got {value}")
 
     @property
     def total(self) -> float:
@@ -306,8 +306,7 @@ class EnvironmentThreshold:
         }
 
         base = crop_thresholds.get(
-            crop_type.lower(),
-            {"temp": (15, 30), "humidity": (50, 80), "light": 12}
+            crop_type.lower(), {"temp": (15, 30), "humidity": (50, 80), "light": 12}
         )
 
         # Adjust for growth stage

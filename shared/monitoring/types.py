@@ -14,7 +14,7 @@ Based on Remote Sensing + AI Agricultural Monitoring Products:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
@@ -23,7 +23,7 @@ from typing import Any
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class DataSource(str, Enum):
+class DataSource(StrEnum):
     """Satellite data source"""
 
     SENTINEL_2 = "sentinel-2"
@@ -34,7 +34,7 @@ class DataSource(str, Enum):
     MOCK = "mock"
 
 
-class Resolution(str, Enum):
+class Resolution(StrEnum):
     """Spatial resolution categories"""
 
     HIGH = "high"  # 1-3m
@@ -79,7 +79,7 @@ class MonitoringMetadata:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class MainCropType(str, Enum):
+class MainCropType(StrEnum):
     """Main staple crop types"""
 
     WHEAT = "wheat"  # القمح
@@ -132,7 +132,7 @@ class CropAreaMonitoringResult:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class EconomicCropType(str, Enum):
+class EconomicCropType(StrEnum):
     """Economic/cash crop types"""
 
     TEA = "tea"  # الشاي
@@ -185,7 +185,7 @@ class GrowthLevel(int, Enum):
     EXCELLENT = 5
 
 
-class GrowthStatus(str, Enum):
+class GrowthStatus(StrEnum):
     """Growth status categories"""
 
     VERY_POOR = "very_poor"  # سيئ جداً
@@ -206,7 +206,7 @@ class GrowthIndicators:
     water_stress_index: float
 
 
-class RiskType(str, Enum):
+class RiskType(StrEnum):
     """Risk alert types"""
 
     DISEASE = "disease"
@@ -216,7 +216,7 @@ class RiskType(str, Enum):
     HEAT_STRESS = "heat_stress"
 
 
-class RiskSeverity(str, Enum):
+class RiskSeverity(StrEnum):
     """Risk severity levels"""
 
     LOW = "low"
@@ -269,7 +269,7 @@ class CropGrowthStatus:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class MaturityStage(str, Enum):
+class MaturityStage(StrEnum):
     """Maturity stage categories"""
 
     VEGETATIVE = "vegetative"  # نمو خضري
@@ -345,7 +345,7 @@ class SeedlingLevel(int, Enum):
     EXCELLENT = 4  # شتلات ممتازة - نمو مزدهر
 
 
-class SeedlingStatus(str, Enum):
+class SeedlingStatus(StrEnum):
     """Seedling status categories"""
 
     WEAK = "weak"
@@ -354,7 +354,7 @@ class SeedlingStatus(str, Enum):
     EXCELLENT = "excellent"
 
 
-class SoilMoistureStatus(str, Enum):
+class SoilMoistureStatus(StrEnum):
     """Soil moisture status"""
 
     CRITICAL = "critical"
@@ -363,7 +363,7 @@ class SoilMoistureStatus(str, Enum):
     HIGH = "high"
 
 
-class InterventionType(str, Enum):
+class InterventionType(StrEnum):
     """Intervention types for seedlings"""
 
     IRRIGATION = "irrigation"

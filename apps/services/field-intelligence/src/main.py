@@ -52,12 +52,15 @@ except ImportError:
     def add_request_id_middleware(app):
         pass
 
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
 
@@ -69,6 +72,7 @@ from .services.rules_engine import RulesEngine
 # Database module
 try:
     from .database import init_db as init_database, close_pool, rules_repo
+
     DB_MODULE_AVAILABLE = True
 except ImportError:
     DB_MODULE_AVAILABLE = False

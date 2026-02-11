@@ -151,9 +151,7 @@ async def list_products(
     if search:
         search_lower = search.lower()
         products = [
-            p
-            for p in products
-            if search_lower in p.name.lower() or search_lower in p.name_ar
+            p for p in products if search_lower in p.name.lower() or search_lower in p.name_ar
         ]
 
     if is_available:

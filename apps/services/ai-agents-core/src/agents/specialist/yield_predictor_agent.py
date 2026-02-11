@@ -188,6 +188,7 @@ class YieldPredictorAgent(BaseAgent):
 
         # Default: return prediction only
         import dataclasses
+
         return AgentAction(
             action_type="yield_prediction",
             parameters={"prediction": dataclasses.asdict(prediction), "crop_type": crop_type},

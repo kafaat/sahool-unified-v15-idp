@@ -86,8 +86,7 @@ class OpenAICompatProvider(LLMProvider):
         """
         if not HTTPX_AVAILABLE:
             raise ImportError(
-                "httpx is required for OpenAICompatProvider. "
-                "Install with: pip install httpx"
+                "httpx is required for OpenAICompatProvider. Install with: pip install httpx"
             )
 
         self._config = config or get_config().openai_compat
@@ -243,9 +242,7 @@ class OpenAICompatProvider(LLMProvider):
             response.raise_for_status()
             data = response.json()
 
-            latency_ms = (
-                datetime.now(UTC) - start_time
-            ).total_seconds() * 1000
+            latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             # Extract response
             choice = data.get("choices", [{}])[0]
@@ -274,9 +271,7 @@ class OpenAICompatProvider(LLMProvider):
             if e.response.status_code == 404:
                 raise ModelNotFoundError(model, ProviderType.OPENAI_COMPAT) from e
             if e.response.status_code == 429:
-                raise OpenAICompatError(
-                    "Rate limited", status=GenerationStatus.RATE_LIMITED
-                ) from e
+                raise OpenAICompatError("Rate limited", status=GenerationStatus.RATE_LIMITED) from e
             raise OpenAICompatError(f"Chat failed: {e}") from e
         except Exception as e:
             raise OpenAICompatError(f"Chat failed: {e}") from e

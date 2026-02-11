@@ -22,7 +22,7 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
@@ -61,7 +61,7 @@ SERVICE_PORT = int(os.getenv("PORT", "8119"))
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """Crop growth stages for Kc determination"""
 
     INITIAL = "initial"  # المرحلة الأولية
@@ -70,7 +70,7 @@ class GrowthStage(str, Enum):
     LATE_SEASON = "late_season"  # نهاية الموسم
 
 
-class SoilType(str, Enum):
+class SoilType(StrEnum):
     """Soil types common in Yemen"""
 
     SANDY = "sandy"  # رملي
@@ -81,7 +81,7 @@ class SoilType(str, Enum):
     SILTY_CLAY = "silty_clay"  # طيني غريني
 
 
-class IrrigationMethod(str, Enum):
+class IrrigationMethod(StrEnum):
     """Irrigation methods"""
 
     DRIP = "drip"  # تنقيط
@@ -91,7 +91,7 @@ class IrrigationMethod(str, Enum):
     FURROW = "furrow"  # أخاديد
 
 
-class UrgencyLevel(str, Enum):
+class UrgencyLevel(StrEnum):
     """Irrigation urgency levels"""
 
     NONE = "none"  # لا حاجة

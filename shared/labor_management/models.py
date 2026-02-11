@@ -11,14 +11,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, date, time, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
 # ==================== Enums ====================
 
-class WorkerStatus(str, Enum):
+
+class WorkerStatus(StrEnum):
     """Worker employment status - حالة توظيف العامل"""
+
     ACTIVE = "active"  # نشط
     INACTIVE = "inactive"  # غير نشط
     ON_LEAVE = "on_leave"  # في إجازة
@@ -26,8 +28,9 @@ class WorkerStatus(str, Enum):
     SUSPENDED = "suspended"  # موقوف
 
 
-class WorkerType(str, Enum):
+class WorkerType(StrEnum):
     """Worker employment type - نوع التوظيف"""
+
     FULL_TIME = "full_time"  # دوام كامل
     PART_TIME = "part_time"  # دوام جزئي
     SEASONAL = "seasonal"  # موسمي
@@ -35,8 +38,9 @@ class WorkerType(str, Enum):
     DAILY = "daily"  # يومي
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """Task status - حالة المهمة"""
+
     PENDING = "pending"  # قيد الانتظار
     ASSIGNED = "assigned"  # معينة
     IN_PROGRESS = "in_progress"  # قيد التنفيذ
@@ -46,16 +50,18 @@ class TaskStatus(str, Enum):
     BLOCKED = "blocked"  # محظورة (e.g., due to REI)
 
 
-class TaskPriority(str, Enum):
+class TaskPriority(StrEnum):
     """Task priority levels - مستويات أولوية المهمة"""
+
     CRITICAL = "critical"  # حرج
     HIGH = "high"  # عالي
     MEDIUM = "medium"  # متوسط
     LOW = "low"  # منخفض
 
 
-class TaskCategory(str, Enum):
+class TaskCategory(StrEnum):
     """Task category types - أنواع فئات المهام"""
+
     PLANTING = "planting"  # زراعة
     IRRIGATION = "irrigation"  # ري
     FERTILIZATION = "fertilization"  # تسميد
@@ -73,8 +79,9 @@ class TaskCategory(str, Enum):
     PACKING = "packing"  # تعبئة
 
 
-class SkillLevel(str, Enum):
+class SkillLevel(StrEnum):
     """Skill proficiency level - مستوى إتقان المهارة"""
+
     NONE = "none"  # لا يوجد
     BEGINNER = "beginner"  # مبتدئ
     INTERMEDIATE = "intermediate"  # متوسط
@@ -82,8 +89,9 @@ class SkillLevel(str, Enum):
     EXPERT = "expert"  # خبير
 
 
-class SkillCategory(str, Enum):
+class SkillCategory(StrEnum):
     """Skill category - فئة المهارة"""
+
     EQUIPMENT_OPERATION = "equipment_operation"  # تشغيل المعدات
     PESTICIDE_HANDLING = "pesticide_handling"  # التعامل مع المبيدات
     IRRIGATION_SYSTEMS = "irrigation_systems"  # أنظمة الري
@@ -97,8 +105,9 @@ class SkillCategory(str, Enum):
     SAFETY = "safety"  # السلامة
 
 
-class AttendanceStatus(str, Enum):
+class AttendanceStatus(StrEnum):
     """Attendance status - حالة الحضور"""
+
     PRESENT = "present"  # حاضر
     ABSENT = "absent"  # غائب
     LATE = "late"  # متأخر
@@ -108,8 +117,9 @@ class AttendanceStatus(str, Enum):
     HOLIDAY = "holiday"  # عطلة
 
 
-class LeaveType(str, Enum):
+class LeaveType(StrEnum):
     """Leave type - نوع الإجازة"""
+
     ANNUAL = "annual"  # سنوية
     SICK = "sick"  # مرضية
     EMERGENCY = "emergency"  # طارئة
@@ -120,8 +130,9 @@ class LeaveType(str, Enum):
     COMPENSATORY = "compensatory"  # تعويضية
 
 
-class SafetyViolationType(str, Enum):
+class SafetyViolationType(StrEnum):
     """Safety violation type - نوع مخالفة السلامة"""
+
     REI_VIOLATION = "rei_violation"  # انتهاك فترة إعادة الدخول
     PPE_MISSING = "ppe_missing"  # معدات الحماية مفقودة
     PPE_IMPROPER = "ppe_improper"  # معدات حماية غير مناسبة
@@ -132,8 +143,9 @@ class SafetyViolationType(str, Enum):
     INJURY = "injury"  # إصابة
 
 
-class SafetyCertification(str, Enum):
+class SafetyCertification(StrEnum):
     """Safety certification types - أنواع شهادات السلامة"""
+
     PESTICIDE_APPLICATOR = "pesticide_applicator"  # رخصة تطبيق المبيدات
     EQUIPMENT_OPERATOR = "equipment_operator"  # رخصة تشغيل المعدات
     FORKLIFT_OPERATOR = "forklift_operator"  # رخصة الرافعة الشوكية
@@ -143,8 +155,9 @@ class SafetyCertification(str, Enum):
     HEIGHT_WORK = "height_work"  # شهادة العمل على ارتفاعات
 
 
-class PPEType(str, Enum):
+class PPEType(StrEnum):
     """Personal Protective Equipment types - أنواع معدات الحماية الشخصية"""
+
     GLOVES = "gloves"  # قفازات
     RESPIRATOR = "respirator"  # كمامة/جهاز تنفس
     GOGGLES = "goggles"  # نظارات واقية
@@ -158,9 +171,11 @@ class PPEType(str, Enum):
 
 # ==================== Data Classes ====================
 
+
 @dataclass
 class BilingualText:
     """Bilingual text container - نص ثنائي اللغة"""
+
     en: str
     ar: str
 
@@ -172,6 +187,7 @@ class BilingualText:
 @dataclass
 class WorkerSkill:
     """Worker skill record - سجل مهارة العامل"""
+
     skill_id: str
     skill_name: str
     skill_name_ar: str
@@ -210,6 +226,7 @@ class WorkerSkill:
 @dataclass
 class WorkerCertification:
     """Safety certification record - سجل شهادة السلامة"""
+
     certification_id: str
     certification_type: SafetyCertification
     name: str
@@ -243,6 +260,7 @@ class WorkerCertification:
 @dataclass
 class EmergencyContact:
     """Emergency contact information - معلومات الاتصال في حالات الطوارئ"""
+
     name: str
     relationship: str
     relationship_ar: str
@@ -259,6 +277,7 @@ class Worker:
     Contains comprehensive worker information including personal details,
     employment info, skills, certifications, and safety records.
     """
+
     worker_id: str
     tenant_id: str
     farm_id: str
@@ -329,10 +348,17 @@ class Worker:
         """Get full name in Arabic"""
         return f"{self.first_name_ar} {self.last_name_ar}"
 
-    def has_skill(self, skill_category: SkillCategory, min_level: SkillLevel = SkillLevel.BEGINNER) -> bool:
+    def has_skill(
+        self, skill_category: SkillCategory, min_level: SkillLevel = SkillLevel.BEGINNER
+    ) -> bool:
         """Check if worker has a skill at minimum level"""
-        skill_order = [SkillLevel.NONE, SkillLevel.BEGINNER, SkillLevel.INTERMEDIATE,
-                      SkillLevel.ADVANCED, SkillLevel.EXPERT]
+        skill_order = [
+            SkillLevel.NONE,
+            SkillLevel.BEGINNER,
+            SkillLevel.INTERMEDIATE,
+            SkillLevel.ADVANCED,
+            SkillLevel.EXPERT,
+        ]
         min_index = skill_order.index(min_level)
 
         for skill in self.skills:
@@ -342,7 +368,9 @@ class Worker:
                     return True
         return False
 
-    def has_valid_certification(self, cert_type: SafetyCertification, check_date: date | None = None) -> bool:
+    def has_valid_certification(
+        self, cert_type: SafetyCertification, check_date: date | None = None
+    ) -> bool:
         """Check if worker has valid certification of given type"""
         for cert in self.certifications:
             if cert.certification_type == cert_type and cert.is_valid(check_date):
@@ -362,6 +390,7 @@ class Worker:
 @dataclass
 class TaskRequirement:
     """Task skill and certification requirements - متطلبات المهمة"""
+
     required_skills: list[tuple[SkillCategory, SkillLevel]] = field(default_factory=list)
     required_certifications: list[SafetyCertification] = field(default_factory=list)
     required_ppe: list[PPEType] = field(default_factory=list)
@@ -386,6 +415,7 @@ class Task:
     Represents a work task that can be assigned to workers.
     Includes safety requirements and integration with pesticide compliance.
     """
+
     task_id: str
     tenant_id: str
     farm_id: str
@@ -462,6 +492,7 @@ class Task:
 @dataclass
 class WorkShift:
     """Work shift definition - تعريف وردية العمل"""
+
     shift_id: str
     name: str
     name_ar: str
@@ -498,6 +529,7 @@ class WorkerSchedule:
 
     Assigns a worker to a shift on specific dates.
     """
+
     schedule_id: str
     tenant_id: str
     farm_id: str
@@ -535,6 +567,7 @@ class AttendanceRecord:
 
     Tracks daily attendance including clock in/out times.
     """
+
     attendance_id: str
     tenant_id: str
     farm_id: str
@@ -587,6 +620,7 @@ class LeaveRequest:
     """
     Leave request - طلب إجازة
     """
+
     leave_id: str
     tenant_id: str
     farm_id: str
@@ -620,6 +654,7 @@ class Timesheet:
     """
     Weekly timesheet summary - ملخص الجدول الزمني الأسبوعي
     """
+
     timesheet_id: str
     tenant_id: str
     farm_id: str
@@ -657,6 +692,7 @@ class SafetyViolation:
     """
     Safety violation record - سجل مخالفة السلامة
     """
+
     violation_id: str
     tenant_id: str
     farm_id: str
@@ -713,6 +749,7 @@ class REIZone:
 
     Tracks areas that are temporarily restricted due to pesticide application.
     """
+
     zone_id: str
     tenant_id: str
     farm_id: str
@@ -773,6 +810,7 @@ class REIZone:
 @dataclass
 class SafetyChecklistItem:
     """Safety checklist item - عنصر قائمة التحقق من السلامة"""
+
     item_id: str
     description: str
     description_ar: str
@@ -790,6 +828,7 @@ class PreTaskSafetyCheck:
 
     Safety checklist completed before starting a task.
     """
+
     check_id: str
     tenant_id: str
     farm_id: str
@@ -833,6 +872,7 @@ class PreTaskSafetyCheck:
 
 # ==================== Helper Functions ====================
 
+
 def generate_id(prefix: str = "") -> str:
     """Generate a unique ID with optional prefix"""
     unique = uuid4().hex[:12]
@@ -847,7 +887,7 @@ def create_worker(
     first_name_ar: str,
     last_name_ar: str,
     phone: str,
-    **kwargs
+    **kwargs,
 ) -> Worker:
     """Factory function to create a new worker"""
     return Worker(
@@ -859,17 +899,12 @@ def create_worker(
         first_name_ar=first_name_ar,
         last_name_ar=last_name_ar,
         phone=phone,
-        **kwargs
+        **kwargs,
     )
 
 
 def create_task(
-    tenant_id: str,
-    farm_id: str,
-    title: str,
-    title_ar: str,
-    category: TaskCategory,
-    **kwargs
+    tenant_id: str, farm_id: str, title: str, title_ar: str, category: TaskCategory, **kwargs
 ) -> Task:
     """Factory function to create a new task"""
     return Task(
@@ -879,7 +914,7 @@ def create_task(
         title=title,
         title_ar=title_ar,
         category=category,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -893,7 +928,7 @@ def create_rei_zone(
     pesticide_name_ar: str,
     application_time: datetime,
     rei_hours: int,
-    **kwargs
+    **kwargs,
 ) -> REIZone:
     """Factory function to create a new REI zone"""
     rei_expiry_time = application_time + timedelta(hours=rei_hours)
@@ -911,8 +946,8 @@ def create_rei_zone(
         rei_hours=rei_hours,
         rei_expiry_time=rei_expiry_time,
         warning_message_en=f"RESTRICTED AREA: Re-entry prohibited until {rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
-                          f"due to {pesticide_name} application ({rei_hours}h REI)",
+        f"due to {pesticide_name} application ({rei_hours}h REI)",
         warning_message_ar=f"منطقة مقيدة: يحظر الدخول حتى {rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
-                          f"بسبب تطبيق {pesticide_name_ar} (فترة إعادة الدخول {rei_hours} ساعة)",
-        **kwargs
+        f"بسبب تطبيق {pesticide_name_ar} (فترة إعادة الدخول {rei_hours} ساعة)",
+        **kwargs,
     )

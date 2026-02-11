@@ -22,7 +22,7 @@ Field-First Architecture:
 import logging
 import uuid
 from datetime import date, datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from fastapi import BackgroundTasks, FastAPI, Query
@@ -56,7 +56,7 @@ app = FastAPI(
 # =============================================================================
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """مراحل نمو المحصول"""
 
     GERMINATION = "germination"  # الإنبات
@@ -67,7 +67,7 @@ class GrowthStage(str, Enum):
     MATURITY = "maturity"  # النضج
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """مستوى المخاطر"""
 
     LOW = "low"
@@ -76,7 +76,7 @@ class RiskLevel(str, Enum):
     CRITICAL = "critical"
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """أنواع المحاصيل"""
 
     WHEAT = "wheat"

@@ -4,13 +4,13 @@ Agricultural field events and anomalies
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """أنواع الأحداث - Event Types"""
 
     NDVI_DROP = "ndvi_drop"  # انخفاض مؤشر NDVI
@@ -27,7 +27,7 @@ class EventType(str, Enum):
     CUSTOM = "custom"  # حدث مخصص
 
 
-class EventStatus(str, Enum):
+class EventStatus(StrEnum):
     """حالات الحدث - Event Status"""
 
     ACTIVE = "active"  # نشط
@@ -36,7 +36,7 @@ class EventStatus(str, Enum):
     IGNORED = "ignored"  # تم التجاهل
 
 
-class EventSeverity(str, Enum):
+class EventSeverity(StrEnum):
     """درجات خطورة الحدث - Event Severity"""
 
     LOW = "low"  # منخفضة

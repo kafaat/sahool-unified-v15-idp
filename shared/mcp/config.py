@@ -28,6 +28,7 @@ from typing import Any
 
 class TransportType(Enum):
     """Supported MCP transport types"""
+
     STDIO = "stdio"
     HTTP = "http"
     SSE = "sse"
@@ -36,6 +37,7 @@ class TransportType(Enum):
 
 class Language(Enum):
     """Supported languages for bilingual output"""
+
     ENGLISH = "en"
     ARABIC = "ar"
     BOTH = "both"
@@ -43,6 +45,7 @@ class Language(Enum):
 
 class AgentType(Enum):
     """Types of AI agents that can be spawned"""
+
     CROP_ADVISOR = "crop_advisor"
     IRRIGATION_SPECIALIST = "irrigation_specialist"
     PEST_MANAGEMENT = "pest_management"
@@ -54,6 +57,7 @@ class AgentType(Enum):
 
 class RateLimitTier(Enum):
     """Rate limiting tiers"""
+
     FREE = "free"
     STANDARD = "standard"
     PREMIUM = "premium"
@@ -83,6 +87,7 @@ class ServerConfig:
         debug: Enable debug logging
         cors_origins: Allowed CORS origins
     """
+
     name: str = "sahool-mcp-server"
     name_ar: str = "خادم سهول MCP"
     version: str = "1.0.0"
@@ -91,9 +96,7 @@ class ServerConfig:
     transport: TransportType = field(
         default_factory=lambda: TransportType(os.getenv("MCP_TRANSPORT", "http"))
     )
-    debug: bool = field(
-        default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true"
-    )
+    debug: bool = field(default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true")
     cors_origins: list[str] = field(
         default_factory=lambda: os.getenv("MCP_CORS_ORIGINS", "*").split(",")
     )
@@ -121,6 +124,7 @@ class APIConfig:
 
     Configures endpoints for various SAHOOL services that MCP tools connect to.
     """
+
     base_url: str = field(
         default_factory=lambda: os.getenv("SAHOOL_API_URL", "http://localhost:8000")
     )
@@ -132,9 +136,7 @@ class APIConfig:
         )
     )
     weather_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "WEATHER_SERVICE_URL", "http://weather-service:8092"
-        )
+        default_factory=lambda: os.getenv("WEATHER_SERVICE_URL", "http://weather-service:8092")
     )
     crop_intelligence_url: str = field(
         default_factory=lambda: os.getenv(
@@ -142,19 +144,13 @@ class APIConfig:
         )
     )
     irrigation_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "IRRIGATION_SERVICE_URL", "http://irrigation-smart:8094"
-        )
+        default_factory=lambda: os.getenv("IRRIGATION_SERVICE_URL", "http://irrigation-smart:8094")
     )
     advisory_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "ADVISORY_SERVICE_URL", "http://advisory-service:8093"
-        )
+        default_factory=lambda: os.getenv("ADVISORY_SERVICE_URL", "http://advisory-service:8093")
     )
     user_service_url: str = field(
-        default_factory=lambda: os.getenv(
-            "USER_SERVICE_URL", "http://user-service:3025"
-        )
+        default_factory=lambda: os.getenv("USER_SERVICE_URL", "http://user-service:3025")
     )
     notification_service_url: str = field(
         default_factory=lambda: os.getenv(
@@ -166,9 +162,7 @@ class APIConfig:
     default_timeout: float = field(
         default_factory=lambda: float(os.getenv("MCP_DEFAULT_TIMEOUT", "30"))
     )
-    long_timeout: float = field(
-        default_factory=lambda: float(os.getenv("MCP_LONG_TIMEOUT", "120"))
-    )
+    long_timeout: float = field(default_factory=lambda: float(os.getenv("MCP_LONG_TIMEOUT", "120")))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -193,12 +187,9 @@ class AuthConfig:
 
     Settings for JWT authentication and API key validation.
     """
-    jwt_secret_key: str = field(
-        default_factory=lambda: os.getenv("JWT_SECRET_KEY", "")
-    )
-    jwt_algorithm: str = field(
-        default_factory=lambda: os.getenv("JWT_ALGORITHM", "HS256")
-    )
+
+    jwt_secret_key: str = field(default_factory=lambda: os.getenv("JWT_SECRET_KEY", ""))
+    jwt_algorithm: str = field(default_factory=lambda: os.getenv("JWT_ALGORITHM", "HS256"))
     jwt_expiry_minutes: int = field(
         default_factory=lambda: int(os.getenv("JWT_EXPIRY_MINUTES", "60"))
     )
@@ -207,9 +198,7 @@ class AuthConfig:
 
     # Rate limiting
     rate_limit_tier: RateLimitTier = field(
-        default_factory=lambda: RateLimitTier(
-            os.getenv("MCP_RATE_LIMIT_TIER", "standard")
-        )
+        default_factory=lambda: RateLimitTier(os.getenv("MCP_RATE_LIMIT_TIER", "standard"))
     )
 
     @property
@@ -236,10 +225,9 @@ class AgentConfig:
 
     Settings for spawning and managing AI agents.
     """
+
     # Agent pool settings
-    max_agents: int = field(
-        default_factory=lambda: int(os.getenv("MCP_MAX_AGENTS", "10"))
-    )
+    max_agents: int = field(default_factory=lambda: int(os.getenv("MCP_MAX_AGENTS", "10")))
     agent_timeout_seconds: int = field(
         default_factory=lambda: int(os.getenv("MCP_AGENT_TIMEOUT", "300"))
     )
@@ -254,14 +242,10 @@ class AgentConfig:
     ollama_url: str = field(
         default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
     )
-    ollama_model: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_MODEL", "codellama:7b")
-    )
+    ollama_model: str = field(default_factory=lambda: os.getenv("OLLAMA_MODEL", "codellama:7b"))
 
     # Agent types configuration
-    available_agent_types: list[AgentType] = field(
-        default_factory=lambda: list(AgentType)
-    )
+    available_agent_types: list[AgentType] = field(default_factory=lambda: list(AgentType))
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
@@ -283,6 +267,7 @@ class BilingualConfig:
 
     Settings for Arabic/English bilingual support.
     """
+
     default_language: Language = field(
         default_factory=lambda: Language(os.getenv("MCP_DEFAULT_LANGUAGE", "en"))
     )
@@ -292,41 +277,43 @@ class BilingualConfig:
     arabic_rtl: bool = True  # Always use RTL for Arabic
 
     # Common translations
-    translations: dict[str, dict[str, str]] = field(default_factory=lambda: {
-        "success": {"en": "Success", "ar": "نجاح"},
-        "error": {"en": "Error", "ar": "خطأ"},
-        "field": {"en": "Field", "ar": "حقل"},
-        "farm": {"en": "Farm", "ar": "مزرعة"},
-        "farmer": {"en": "Farmer", "ar": "مزارع"},
-        "crop": {"en": "Crop", "ar": "محصول"},
-        "weather": {"en": "Weather", "ar": "طقس"},
-        "irrigation": {"en": "Irrigation", "ar": "ري"},
-        "fertilizer": {"en": "Fertilizer", "ar": "سماد"},
-        "recommendation": {"en": "Recommendation", "ar": "توصية"},
-        "analysis": {"en": "Analysis", "ar": "تحليل"},
-        "health": {"en": "Health", "ar": "صحة"},
-        "status": {"en": "Status", "ar": "حالة"},
-        "agent": {"en": "Agent", "ar": "وكيل"},
-        "advisory": {"en": "Advisory", "ar": "استشارة"},
-        "soil": {"en": "Soil", "ar": "تربة"},
-        "pest": {"en": "Pest", "ar": "آفة"},
-        "disease": {"en": "Disease", "ar": "مرض"},
-        "yield": {"en": "Yield", "ar": "محصول"},
-        "area": {"en": "Area", "ar": "مساحة"},
-        "hectare": {"en": "Hectare", "ar": "هكتار"},
-        "date": {"en": "Date", "ar": "تاريخ"},
-        "temperature": {"en": "Temperature", "ar": "درجة حرارة"},
-        "humidity": {"en": "Humidity", "ar": "رطوبة"},
-        "precipitation": {"en": "Precipitation", "ar": "هطول"},
-        "wind": {"en": "Wind", "ar": "رياح"},
-        "ndvi": {"en": "NDVI (Vegetation Index)", "ar": "مؤشر الغطاء النباتي"},
-        "sensor": {"en": "Sensor", "ar": "مستشعر"},
-        "history": {"en": "History", "ar": "تاريخ"},
-        "action_required": {"en": "Action Required", "ar": "إجراء مطلوب"},
-        "warning": {"en": "Warning", "ar": "تحذير"},
-        "critical": {"en": "Critical", "ar": "حرج"},
-        "normal": {"en": "Normal", "ar": "عادي"},
-    })
+    translations: dict[str, dict[str, str]] = field(
+        default_factory=lambda: {
+            "success": {"en": "Success", "ar": "نجاح"},
+            "error": {"en": "Error", "ar": "خطأ"},
+            "field": {"en": "Field", "ar": "حقل"},
+            "farm": {"en": "Farm", "ar": "مزرعة"},
+            "farmer": {"en": "Farmer", "ar": "مزارع"},
+            "crop": {"en": "Crop", "ar": "محصول"},
+            "weather": {"en": "Weather", "ar": "طقس"},
+            "irrigation": {"en": "Irrigation", "ar": "ري"},
+            "fertilizer": {"en": "Fertilizer", "ar": "سماد"},
+            "recommendation": {"en": "Recommendation", "ar": "توصية"},
+            "analysis": {"en": "Analysis", "ar": "تحليل"},
+            "health": {"en": "Health", "ar": "صحة"},
+            "status": {"en": "Status", "ar": "حالة"},
+            "agent": {"en": "Agent", "ar": "وكيل"},
+            "advisory": {"en": "Advisory", "ar": "استشارة"},
+            "soil": {"en": "Soil", "ar": "تربة"},
+            "pest": {"en": "Pest", "ar": "آفة"},
+            "disease": {"en": "Disease", "ar": "مرض"},
+            "yield": {"en": "Yield", "ar": "محصول"},
+            "area": {"en": "Area", "ar": "مساحة"},
+            "hectare": {"en": "Hectare", "ar": "هكتار"},
+            "date": {"en": "Date", "ar": "تاريخ"},
+            "temperature": {"en": "Temperature", "ar": "درجة حرارة"},
+            "humidity": {"en": "Humidity", "ar": "رطوبة"},
+            "precipitation": {"en": "Precipitation", "ar": "هطول"},
+            "wind": {"en": "Wind", "ar": "رياح"},
+            "ndvi": {"en": "NDVI (Vegetation Index)", "ar": "مؤشر الغطاء النباتي"},
+            "sensor": {"en": "Sensor", "ar": "مستشعر"},
+            "history": {"en": "History", "ar": "تاريخ"},
+            "action_required": {"en": "Action Required", "ar": "إجراء مطلوب"},
+            "warning": {"en": "Warning", "ar": "تحذير"},
+            "critical": {"en": "Critical", "ar": "حرج"},
+            "normal": {"en": "Normal", "ar": "عادي"},
+        }
+    )
 
     def translate(self, key: str, language: Language | None = None) -> str:
         """Get translation for a key"""
@@ -358,6 +345,7 @@ class MCPConfig:
         print(config.server.host)
         print(config.api.base_url)
     """
+
     server: ServerConfig = field(default_factory=ServerConfig)
     api: APIConfig = field(default_factory=APIConfig)
     auth: AuthConfig = field(default_factory=AuthConfig)
@@ -422,79 +410,78 @@ class ToolDescriptions:
 
     FETCH_FIELD_DATA = {
         "en": "Retrieve comprehensive field data including boundaries, soil properties, "
-              "crop information, sensor data, and historical activities.",
+        "crop information, sensor data, and historical activities.",
         "ar": "استرجاع بيانات الحقل الشاملة بما في ذلك الحدود وخصائص التربة "
-              "ومعلومات المحصول وبيانات المستشعرات والأنشطة التاريخية."
+        "ومعلومات المحصول وبيانات المستشعرات والأنشطة التاريخية.",
     }
 
     ANALYZE_CROP_HEALTH = {
         "en": "Analyze crop health using satellite imagery and NDVI analysis. "
-              "Identifies stress areas, disease risks, and provides recommendations.",
+        "Identifies stress areas, disease risks, and provides recommendations.",
         "ar": "تحليل صحة المحصول باستخدام صور الأقمار الصناعية وتحليل NDVI. "
-              "يحدد مناطق الإجهاد ومخاطر الأمراض ويقدم التوصيات."
+        "يحدد مناطق الإجهاد ومخاطر الأمراض ويقدم التوصيات.",
     }
 
     GET_WEATHER_FORECAST = {
         "en": "Get weather forecast for a specific location. Returns temperature, "
-              "humidity, precipitation, wind speed, and agricultural advisories.",
+        "humidity, precipitation, wind speed, and agricultural advisories.",
         "ar": "الحصول على توقعات الطقس لموقع محدد. يعرض درجة الحرارة والرطوبة "
-              "والهطول وسرعة الرياح والإرشادات الزراعية."
+        "والهطول وسرعة الرياح والإرشادات الزراعية.",
     }
 
     IRRIGATION_RECOMMENDATION = {
         "en": "Calculate optimal irrigation requirements based on soil moisture, "
-              "weather forecast, crop type, and growth stage.",
+        "weather forecast, crop type, and growth stage.",
         "ar": "حساب متطلبات الري المثلى بناءً على رطوبة التربة "
-              "وتوقعات الطقس ونوع المحصول ومرحلة النمو."
+        "وتوقعات الطقس ونوع المحصول ومرحلة النمو.",
     }
 
     FERTILIZER_RECOMMENDATION = {
         "en": "Get fertilizer recommendations based on soil analysis, crop requirements, "
-              "and growth stage. Includes NPK ratios and application schedules.",
+        "and growth stage. Includes NPK ratios and application schedules.",
         "ar": "الحصول على توصيات الأسمدة بناءً على تحليل التربة ومتطلبات المحصول "
-              "ومرحلة النمو. يشمل نسب NPK وجداول التطبيق."
+        "ومرحلة النمو. يشمل نسب NPK وجداول التطبيق.",
     }
 
     GET_FARMER_INFO = {
         "en": "Retrieve farmer profile information including contact details, "
-              "farm portfolio, preferences, and interaction history.",
+        "farm portfolio, preferences, and interaction history.",
         "ar": "استرجاع معلومات ملف المزارع بما في ذلك بيانات الاتصال "
-              "ومحفظة المزرعة والتفضيلات وسجل التفاعلات."
+        "ومحفظة المزرعة والتفضيلات وسجل التفاعلات.",
     }
 
     LOG_INTERACTION = {
         "en": "Log an interaction with a farmer. Records advisory given, "
-              "farmer response, and follow-up actions needed.",
+        "farmer response, and follow-up actions needed.",
         "ar": "تسجيل تفاعل مع مزارع. يسجل الاستشارة المقدمة "
-              "واستجابة المزارع والإجراءات المطلوبة للمتابعة."
+        "واستجابة المزارع والإجراءات المطلوبة للمتابعة.",
     }
 
     GET_RECOMMENDATIONS_HISTORY = {
         "en": "Get history of recommendations given to a farmer, "
-              "including outcomes and feedback received.",
-        "ar": "الحصول على سجل التوصيات المقدمة للمزارع "
-              "بما في ذلك النتائج والتعليقات المستلمة."
+        "including outcomes and feedback received.",
+        "ar": "الحصول على سجل التوصيات المقدمة للمزارع بما في ذلك النتائج والتعليقات المستلمة.",
     }
 
     SPAWN_AGENT = {
         "en": "Create a specialized AI agent for agricultural tasks. "
-              "Agents can be crop advisors, irrigation specialists, pest managers, etc.",
+        "Agents can be crop advisors, irrigation specialists, pest managers, etc.",
         "ar": "إنشاء وكيل ذكاء اصطناعي متخصص للمهام الزراعية. "
-              "يمكن أن يكون الوكلاء مستشاري محاصيل أو متخصصين في الري أو مديري آفات."
+        "يمكن أن يكون الوكلاء مستشاري محاصيل أو متخصصين في الري أو مديري آفات.",
     }
 
     QUERY_AGENT = {
         "en": "Send a query to a spawned AI agent and receive specialized advice. "
-              "Supports context from field data and previous interactions.",
+        "Supports context from field data and previous interactions.",
         "ar": "إرسال استفسار إلى وكيل الذكاء الاصطناعي والحصول على نصيحة متخصصة. "
-              "يدعم السياق من بيانات الحقل والتفاعلات السابقة."
+        "يدعم السياق من بيانات الحقل والتفاعلات السابقة.",
     }
 
     GET_AGENT_STATUS = {
         "en": "Check the status of a spawned AI agent including activity, "
-              "resource usage, and pending tasks.",
+        "resource usage, and pending tasks.",
         "ar": "التحقق من حالة وكيل الذكاء الاصطناعي بما في ذلك النشاط "
-              "واستخدام الموارد والمهام المعلقة."
+        "واستخدام الموارد والمهام المعلقة.",
     }
 
     @classmethod
@@ -533,57 +520,57 @@ class ResourceDescriptions:
 
     FIELD_INFO = {
         "en": "General field information including name, location, area, and current crop",
-        "ar": "معلومات الحقل العامة بما في ذلك الاسم والموقع والمساحة والمحصول الحالي"
+        "ar": "معلومات الحقل العامة بما في ذلك الاسم والموقع والمساحة والمحصول الحالي",
     }
 
     FIELD_BOUNDARIES = {
         "en": "Geospatial field boundaries in GeoJSON format",
-        "ar": "حدود الحقل الجغرافية المكانية بتنسيق GeoJSON"
+        "ar": "حدود الحقل الجغرافية المكانية بتنسيق GeoJSON",
     }
 
     FIELD_SOIL = {
         "en": "Soil properties and test results including NPK, pH, organic matter",
-        "ar": "خصائص التربة ونتائج الاختبارات بما في ذلك NPK ودرجة الحموضة والمادة العضوية"
+        "ar": "خصائص التربة ونتائج الاختبارات بما في ذلك NPK ودرجة الحموضة والمادة العضوية",
     }
 
     FIELD_SENSORS = {
         "en": "IoT sensor data from field including soil moisture, temperature",
-        "ar": "بيانات مستشعرات إنترنت الأشياء من الحقل بما في ذلك رطوبة التربة ودرجة الحرارة"
+        "ar": "بيانات مستشعرات إنترنت الأشياء من الحقل بما في ذلك رطوبة التربة ودرجة الحرارة",
     }
 
     FARMER_PROFILE = {
         "en": "Farmer profile with contact information and preferences",
-        "ar": "ملف المزارع مع معلومات الاتصال والتفضيلات"
+        "ar": "ملف المزارع مع معلومات الاتصال والتفضيلات",
     }
 
     FARMER_FARMS = {
         "en": "List of farms owned or managed by the farmer",
-        "ar": "قائمة المزارع المملوكة أو المُدارة من قبل المزارع"
+        "ar": "قائمة المزارع المملوكة أو المُدارة من قبل المزارع",
     }
 
     WEATHER_CURRENT = {
         "en": "Current weather conditions for registered locations",
-        "ar": "أحوال الطقس الحالية للمواقع المسجلة"
+        "ar": "أحوال الطقس الحالية للمواقع المسجلة",
     }
 
     WEATHER_FORECAST = {
         "en": "Weather forecast for the coming days",
-        "ar": "توقعات الطقس للأيام القادمة"
+        "ar": "توقعات الطقس للأيام القادمة",
     }
 
     KNOWLEDGE_CROPS = {
         "en": "Crop growing guides and best practices",
-        "ar": "أدلة زراعة المحاصيل وأفضل الممارسات"
+        "ar": "أدلة زراعة المحاصيل وأفضل الممارسات",
     }
 
     KNOWLEDGE_PESTS = {
         "en": "Pest identification and management guides",
-        "ar": "أدلة تحديد الآفات وإدارتها"
+        "ar": "أدلة تحديد الآفات وإدارتها",
     }
 
     KNOWLEDGE_DISEASES = {
         "en": "Crop disease identification and treatment guides",
-        "ar": "أدلة تحديد أمراض المحاصيل وعلاجها"
+        "ar": "أدلة تحديد أمراض المحاصيل وعلاجها",
     }
 
     @classmethod
@@ -634,6 +621,7 @@ def reload_config() -> MCPConfig:
 if __name__ == "__main__":
     # Print current configuration
     import json
+
     config = get_config()
     print("SAHOOL MCP Configuration")
     print("=" * 50)

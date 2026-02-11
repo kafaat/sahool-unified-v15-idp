@@ -90,22 +90,38 @@ Type "عربي" to switch to Arabic.""",
             {
                 "title": "🌱 المحاصيل",
                 "rows": [
-                    {"id": "menu_disease", "title": "تشخيص الأمراض", "description": "كشف أمراض المحاصيل من الصور"},
-                    {"id": "menu_pest", "title": "الآفات", "description": "التعرف على الآفات ومكافحتها"},
+                    {
+                        "id": "menu_disease",
+                        "title": "تشخيص الأمراض",
+                        "description": "كشف أمراض المحاصيل من الصور",
+                    },
+                    {
+                        "id": "menu_pest",
+                        "title": "الآفات",
+                        "description": "التعرف على الآفات ومكافحتها",
+                    },
                     {"id": "menu_fertilizer", "title": "التسميد", "description": "توصيات الأسمدة"},
                 ],
             },
             {
                 "title": "💧 الري والطقس",
                 "rows": [
-                    {"id": "menu_irrigation", "title": "جدول الري", "description": "نصائح الري حسب المحصول"},
+                    {
+                        "id": "menu_irrigation",
+                        "title": "جدول الري",
+                        "description": "نصائح الري حسب المحصول",
+                    },
                     {"id": "menu_weather", "title": "الطقس", "description": "توقعات الطقس لموقعك"},
                 ],
             },
             {
                 "title": "⚙️ الإعدادات",
                 "rows": [
-                    {"id": "btn_language", "title": "تغيير اللغة", "description": "English / العربية"},
+                    {
+                        "id": "btn_language",
+                        "title": "تغيير اللغة",
+                        "description": "English / العربية",
+                    },
                     {"id": "btn_help", "title": "المساعدة", "description": "دليل الاستخدام"},
                 ],
             },
@@ -114,22 +130,46 @@ Type "عربي" to switch to Arabic.""",
             {
                 "title": "🌱 Crops",
                 "rows": [
-                    {"id": "menu_disease", "title": "Disease Diagnosis", "description": "Detect crop diseases from photos"},
-                    {"id": "menu_pest", "title": "Pests", "description": "Identify and control pests"},
-                    {"id": "menu_fertilizer", "title": "Fertilization", "description": "Fertilizer recommendations"},
+                    {
+                        "id": "menu_disease",
+                        "title": "Disease Diagnosis",
+                        "description": "Detect crop diseases from photos",
+                    },
+                    {
+                        "id": "menu_pest",
+                        "title": "Pests",
+                        "description": "Identify and control pests",
+                    },
+                    {
+                        "id": "menu_fertilizer",
+                        "title": "Fertilization",
+                        "description": "Fertilizer recommendations",
+                    },
                 ],
             },
             {
                 "title": "💧 Irrigation & Weather",
                 "rows": [
-                    {"id": "menu_irrigation", "title": "Irrigation Schedule", "description": "Irrigation tips by crop"},
-                    {"id": "menu_weather", "title": "Weather", "description": "Weather forecast for your location"},
+                    {
+                        "id": "menu_irrigation",
+                        "title": "Irrigation Schedule",
+                        "description": "Irrigation tips by crop",
+                    },
+                    {
+                        "id": "menu_weather",
+                        "title": "Weather",
+                        "description": "Weather forecast for your location",
+                    },
                 ],
             },
             {
                 "title": "⚙️ Settings",
                 "rows": [
-                    {"id": "btn_language", "title": "Change Language", "description": "English / العربية"},
+                    {
+                        "id": "btn_language",
+                        "title": "Change Language",
+                        "description": "English / العربية",
+                    },
                     {"id": "btn_help", "title": "Help", "description": "User guide"},
                 ],
             },
@@ -189,7 +229,9 @@ Type "عربي" to switch to Arabic.""",
             response_parts.append("🔍 **Analysis Results:**\n")
 
         for i, detection in enumerate(detections, 1):
-            label = detection.get("label_ar" if is_arabic else "label", detection.get("label", "Unknown"))
+            label = detection.get(
+                "label_ar" if is_arabic else "label", detection.get("label", "Unknown")
+            )
             confidence = detection.get("confidence", 0) * 100
             category = detection.get("category", "")
 
@@ -199,7 +241,9 @@ Type "عربي" to switch to Arabic.""",
                 response_parts.append(f"{i}. **{label}** (confidence: {confidence:.0f}%)")
 
         # Add recommendations if available
-        recommendations = vision_result.get("recommendations_ar" if is_arabic else "recommendations", [])
+        recommendations = vision_result.get(
+            "recommendations_ar" if is_arabic else "recommendations", []
+        )
         if recommendations:
             if is_arabic:
                 response_parts.append("\n\n📋 **التوصيات:**")
@@ -268,7 +312,9 @@ Type "عربي" to switch to Arabic.""",
         """
         is_arabic = language == Language.ARABIC
 
-        recommendation = irrigation_data.get("recommendation_ar" if is_arabic else "recommendation", "")
+        recommendation = irrigation_data.get(
+            "recommendation_ar" if is_arabic else "recommendation", ""
+        )
         water_amount = irrigation_data.get("water_amount_mm", "N/A")
         next_irrigation = irrigation_data.get("next_irrigation", "")
         soil_moisture = irrigation_data.get("soil_moisture", "N/A")
@@ -307,8 +353,12 @@ Type "عربي" to switch to Arabic.""",
         """
         is_arabic = language == Language.ARABIC
 
-        recommendation = fertilizer_data.get("recommendation_ar" if is_arabic else "recommendation", "")
-        fertilizer_type = fertilizer_data.get("fertilizer_type_ar" if is_arabic else "fertilizer_type", "")
+        recommendation = fertilizer_data.get(
+            "recommendation_ar" if is_arabic else "recommendation", ""
+        )
+        fertilizer_type = fertilizer_data.get(
+            "fertilizer_type_ar" if is_arabic else "fertilizer_type", ""
+        )
         application_rate = fertilizer_data.get("application_rate", "N/A")
         timing = fertilizer_data.get("timing_ar" if is_arabic else "timing", "")
 

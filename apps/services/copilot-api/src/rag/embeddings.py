@@ -16,7 +16,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Optional
 
 import structlog
@@ -24,8 +24,9 @@ import structlog
 logger = structlog.get_logger(__name__)
 
 
-class EmbeddingProvider(str, Enum):
+class EmbeddingProvider(StrEnum):
     """Supported embedding providers"""
+
     SENTENCE_TRANSFORMERS = "sentence_transformers"
     OLLAMA = "ollama"
     OPENAI = "openai"
@@ -34,6 +35,7 @@ class EmbeddingProvider(str, Enum):
 @dataclass
 class EmbeddingConfig:
     """Configuration for embedding service"""
+
     provider: EmbeddingProvider = EmbeddingProvider.SENTENCE_TRANSFORMERS
     model: str = "paraphrase-multilingual-MiniLM-L12-v2"
     ollama_base_url: str = "http://localhost:11434"
@@ -62,6 +64,7 @@ class EmbeddingConfig:
 @dataclass
 class EmbeddingResult:
     """Result of embedding operation"""
+
     embedding: list[float]
     text: str
     dimension: int
@@ -114,13 +117,14 @@ class EmbeddingService:
         """Initialize Sentence Transformers model"""
         try:
             from sentence_transformers import SentenceTransformer
+
             self._model = SentenceTransformer(self.config.model)
             self._dimension = self._model.get_sentence_embedding_dimension()
             self._initialized = True
             logger.info(
                 "Sentence Transformers initialized",
                 model=self.config.model,
-                dimension=self._dimension
+                dimension=self._dimension,
             )
             return True
         except ImportError:
@@ -134,11 +138,9 @@ class EmbeddingService:
         """Initialize Ollama embedding"""
         try:
             import httpx
+
             async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.config.ollama_base_url}/api/tags",
-                    timeout=5.0
-                )
+                response = await client.get(f"{self.config.ollama_base_url}/api/tags", timeout=5.0)
                 if response.status_code == 200:
                     self._initialized = True
                     self._dimension = 4096  # Default for nomic-embed-text
@@ -231,7 +233,7 @@ class EmbeddingService:
         """
         results = []
         for i in range(0, len(texts), self.config.batch_size):
-            batch = texts[i:i + self.config.batch_size]
+            batch = texts[i : i + self.config.batch_size]
             for text in batch:
                 result = await self.embed(text)
                 results.append(result)
@@ -249,6 +251,7 @@ class EmbeddingService:
         """Generate embedding using Ollama"""
         try:
             import httpx
+
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     f"{self.config.ollama_base_url}/api/embeddings",
@@ -256,7 +259,7 @@ class EmbeddingService:
                         "model": self.config.model,
                         "prompt": text,
                     },
-                    timeout=30.0
+                    timeout=30.0,
                 )
                 if response.status_code == 200:
                     data = response.json()
@@ -270,6 +273,7 @@ class EmbeddingService:
         """Generate embedding using OpenAI"""
         try:
             import httpx
+
             async with httpx.AsyncClient() as client:
                 response = await client.post(
                     "https://api.openai.com/v1/embeddings",
@@ -281,7 +285,7 @@ class EmbeddingService:
                         "model": "text-embedding-3-small",
                         "input": text,
                     },
-                    timeout=30.0
+                    timeout=30.0,
                 )
                 if response.status_code == 200:
                     data = response.json()
@@ -320,8 +324,7 @@ class EmbeddingService:
     def _get_cache_key(self, text: str) -> str:
         """Generate cache key for text"""
         return hashlib.md5(
-            f"{self.config.provider}:{self.config.model}:{text}".encode(),
-            usedforsecurity=False
+            f"{self.config.provider}:{self.config.model}:{text}".encode(), usedforsecurity=False
         ).hexdigest()
 
     @property

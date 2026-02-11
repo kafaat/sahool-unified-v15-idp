@@ -63,16 +63,19 @@ class BatchExecutionError(Exception):
 
 class BatchRollbackError(BatchExecutionError):
     """Exception raised when rollback fails."""
+
     pass
 
 
 class BatchCancelledException(BatchExecutionError):
     """Exception raised when batch is cancelled."""
+
     pass
 
 
 class BatchThresholdExceededError(BatchExecutionError):
     """Exception raised when failure threshold is exceeded."""
+
     pass
 
 
@@ -131,8 +134,14 @@ class FieldOperationProcessor(ItemProcessor[FieldOperationItem]):
 
     def __init__(
         self,
-        execute_operation: Callable[[FieldOperationItem, BatchOperation], Coroutine[Any, Any, dict[str, Any]]] | None = None,
-        rollback_operation: Callable[[FieldOperationItem, BatchOperation], Coroutine[Any, Any, bool]] | None = None,
+        execute_operation: Callable[
+            [FieldOperationItem, BatchOperation], Coroutine[Any, Any, dict[str, Any]]
+        ]
+        | None = None,
+        rollback_operation: Callable[
+            [FieldOperationItem, BatchOperation], Coroutine[Any, Any, bool]
+        ]
+        | None = None,
     ):
         """
         Initialize processor with optional custom handlers.
@@ -144,7 +153,9 @@ class FieldOperationProcessor(ItemProcessor[FieldOperationItem]):
         self._execute = execute_operation
         self._rollback = rollback_operation
 
-    async def process(self, item: FieldOperationItem, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
+    async def process(
+        self, item: FieldOperationItem, batch: BatchOperation
+    ) -> tuple[bool, dict[str, Any] | None]:
         """Process a field operation item."""
         try:
             if self._execute:
@@ -193,7 +204,8 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
 
     def __init__(
         self,
-        create_harvest_record: Callable[[HarvestEntry, BatchOperation], Coroutine[Any, Any, str]] | None = None,
+        create_harvest_record: Callable[[HarvestEntry, BatchOperation], Coroutine[Any, Any, str]]
+        | None = None,
         delete_harvest_record: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         """
@@ -206,7 +218,9 @@ class HarvestEntryProcessor(ItemProcessor[HarvestEntry]):
         self._create = create_harvest_record
         self._delete = delete_harvest_record
 
-    async def process(self, item: HarvestEntry, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
+    async def process(
+        self, item: HarvestEntry, batch: BatchOperation
+    ) -> tuple[bool, dict[str, Any] | None]:
         """Process a harvest entry."""
         try:
             if self._create:
@@ -259,13 +273,16 @@ class EquipmentAssignmentProcessor(ItemProcessor[EquipmentAssignment]):
 
     def __init__(
         self,
-        create_assignment: Callable[[EquipmentAssignment, BatchOperation], Coroutine[Any, Any, str]] | None = None,
+        create_assignment: Callable[[EquipmentAssignment, BatchOperation], Coroutine[Any, Any, str]]
+        | None = None,
         delete_assignment: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         self._create = create_assignment
         self._delete = delete_assignment
 
-    async def process(self, item: EquipmentAssignment, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
+    async def process(
+        self, item: EquipmentAssignment, batch: BatchOperation
+    ) -> tuple[bool, dict[str, Any] | None]:
         """Process an equipment assignment."""
         try:
             if self._create:
@@ -316,20 +333,29 @@ class AlertAcknowledgmentProcessor(ItemProcessor[AlertAcknowledgment]):
 
     def __init__(
         self,
-        acknowledge_alert: Callable[[AlertAcknowledgment, BatchOperation], Coroutine[Any, Any, bool]] | None = None,
+        acknowledge_alert: Callable[
+            [AlertAcknowledgment, BatchOperation], Coroutine[Any, Any, bool]
+        ]
+        | None = None,
         unacknowledge_alert: Callable[[str], Coroutine[Any, Any, bool]] | None = None,
     ):
         self._acknowledge = acknowledge_alert
         self._unacknowledge = unacknowledge_alert
 
-    async def process(self, item: AlertAcknowledgment, batch: BatchOperation) -> tuple[bool, dict[str, Any] | None]:
+    async def process(
+        self, item: AlertAcknowledgment, batch: BatchOperation
+    ) -> tuple[bool, dict[str, Any] | None]:
         """Process an alert acknowledgment."""
         try:
             if self._acknowledge:
                 success = await self._acknowledge(item, batch)
                 if success:
                     item.acknowledged_at = datetime.now(UTC)
-                return success, {"acknowledged_at": item.acknowledged_at.isoformat() if item.acknowledged_at else None}
+                return success, {
+                    "acknowledged_at": item.acknowledged_at.isoformat()
+                    if item.acknowledged_at
+                    else None
+                }
 
             # Default mock implementation
             logger.info(
@@ -512,10 +538,7 @@ class BatchExecutor:
                 batch_id=batch.id,
                 status=BatchStatus.COMPLETED,
                 total_items=0,
-                message=BilingualMessage(
-                    en="No items to process",
-                    ar="لا توجد عناصر للمعالجة"
-                ),
+                message=BilingualMessage(en="No items to process", ar="لا توجد عناصر للمعالجة"),
             )
 
         # Initialize batch state
@@ -550,8 +573,7 @@ class BatchExecutor:
                 batch.status = BatchStatus.CANCELLED
                 batch.cancelled_at = datetime.now(UTC)
                 raise BatchCancelledException(
-                    "Batch operation was cancelled",
-                    "تم إلغاء عملية الدفعة"
+                    "Batch operation was cancelled", "تم إلغاء عملية الدفعة"
                 )
 
             # Determine final status
@@ -603,7 +625,7 @@ class BatchExecutor:
                 "failed": failed,
                 "skipped": skipped,
                 "duration_seconds": round(duration, 2),
-            }
+            },
         )
 
         await self._notify_status(batch.status, message)
@@ -649,9 +671,7 @@ class BatchExecutor:
             await self._notify_progress(batch.progress)
 
             # Process item with retry
-            success, error = await self._process_item_with_retry(
-                item, batch, processor, config
-            )
+            success, error = await self._process_item_with_retry(item, batch, processor, config)
 
             if success:
                 completed += 1
@@ -660,14 +680,16 @@ class BatchExecutor:
                 failed += 1
                 item.status = ItemStatus.FAILED
                 item.error_message = error
-                errors.append({
-                    "item_id": item.id,
-                    "error": error,
-                })
+                errors.append(
+                    {
+                        "item_id": item.id,
+                        "error": error,
+                    }
+                )
 
                 if config.stop_on_error:
                     # Mark remaining items as skipped
-                    for remaining in items[idx + 1:]:
+                    for remaining in items[idx + 1 :]:
                         remaining.status = ItemStatus.SKIPPED
                         skipped += 1
                     break
@@ -675,7 +697,7 @@ class BatchExecutor:
                 # Check failure threshold
                 if self._check_threshold_exceeded(failed, len(items), config):
                     # Mark remaining as skipped
-                    for remaining in items[idx + 1:]:
+                    for remaining in items[idx + 1 :]:
                         remaining.status = ItemStatus.SKIPPED
                         skipped += 1
                     break
@@ -716,9 +738,7 @@ class BatchExecutor:
                 while self._pause_requested:
                     await asyncio.sleep(0.5)
 
-                success, error = await self._process_item_with_retry(
-                    item, batch, processor, config
-                )
+                success, error = await self._process_item_with_retry(item, batch, processor, config)
 
                 async with lock:
                     if success:
@@ -728,10 +748,12 @@ class BatchExecutor:
                         failed += 1
                         item.status = ItemStatus.FAILED
                         item.error_message = error
-                        errors.append({
-                            "item_id": item.id,
-                            "error": error,
-                        })
+                        errors.append(
+                            {
+                                "item_id": item.id,
+                                "error": error,
+                            }
+                        )
 
                     # Update progress
                     batch.progress.update(len(items), completed, failed, skipped)
@@ -740,10 +762,7 @@ class BatchExecutor:
                 await self._notify_item(item, item.status, error if not success else None)
 
         # Create tasks for all items
-        tasks = [
-            process_with_semaphore(idx, item)
-            for idx, item in enumerate(items)
-        ]
+        tasks = [process_with_semaphore(idx, item) for idx, item in enumerate(items)]
 
         # Execute all tasks
         await asyncio.gather(*tasks, return_exceptions=True)
@@ -780,7 +799,11 @@ class BatchExecutor:
                         item.rollback_data = result_data.copy()
                     return True, None
 
-                last_error = result_data.get("error", "Unknown error") if result_data else "Processing failed"
+                last_error = (
+                    result_data.get("error", "Unknown error")
+                    if result_data
+                    else "Processing failed"
+                )
 
             except TimeoutError:
                 last_error = f"Timeout after {config.timeout_per_item_seconds}s"
@@ -848,13 +871,10 @@ class BatchExecutor:
                     rollback_success = False
                     logger.error(f"Rollback exception for item {item.id}: {e}")
 
-        batch.add_audit_entry(
-            "rollback_completed",
-            {"success": rollback_success}
-        )
+        batch.add_audit_entry("rollback_completed", {"success": rollback_success})
         await self._notify_status(
             BatchStatus.ROLLED_BACK if rollback_success else BatchStatus.PARTIALLY_COMPLETED,
-            BATCH_MESSAGES["rollback_completed"]
+            BATCH_MESSAGES["rollback_completed"],
         )
 
         return rollback_success
@@ -903,10 +923,12 @@ class BatchExecutor:
         for item in items:
             valid, error = await processor.validate(item, batch)
             if not valid:
-                validation_errors.append({
-                    "item_id": item.id,
-                    "error": error,
-                })
+                validation_errors.append(
+                    {
+                        "item_id": item.id,
+                        "error": error,
+                    }
+                )
 
         return len(validation_errors) == 0, validation_errors
 
@@ -964,10 +986,7 @@ async def execute_irrigation_batch(
         name="Batch Irrigation",
         name_ar="ري جماعي",
         irrigation_params=IrrigationParams(water_amount_mm=water_amount_mm),
-        field_items=[
-            FieldOperationItem(field_id=fid)
-            for fid in field_ids
-        ],
+        field_items=[FieldOperationItem(field_id=fid) for fid in field_ids],
     )
 
     return await execute_batch(batch, progress_callback)

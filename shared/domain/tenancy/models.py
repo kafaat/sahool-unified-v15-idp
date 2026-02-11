@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class TenantStatus(str, Enum):
+class TenantStatus(StrEnum):
     """Tenant status"""
 
     ACTIVE = "active"
@@ -20,7 +20,7 @@ class TenantStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class TenantPlan(str, Enum):
+class TenantPlan(StrEnum):
     """Tenant subscription plan"""
 
     FREE = "free"

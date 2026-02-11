@@ -3,10 +3,10 @@ SAHOOL Action Types
 أنواع الإجراءات والحالات
 """
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """أنواع الإجراءات الميدانية"""
 
     # Irrigation - الري
@@ -48,7 +48,7 @@ class ActionType(str, Enum):
     PHOTO_CAPTURE = "photo_capture"
 
 
-class ActionStatus(str, Enum):
+class ActionStatus(StrEnum):
     """حالات الإجراء"""
 
     PENDING = "pending"  # في الانتظار
@@ -60,7 +60,7 @@ class ActionStatus(str, Enum):
     EXPIRED = "expired"  # انتهت صلاحيته
 
 
-class UrgencyLevel(str, Enum):
+class UrgencyLevel(StrEnum):
     """مستويات الاستعجال"""
 
     LOW = "low"  # منخفض - يمكن الانتظار
@@ -84,7 +84,7 @@ class UrgencyLevel(str, Enum):
         return delays[self.value]
 
 
-class ResourceType(str, Enum):
+class ResourceType(StrEnum):
     """أنواع الموارد المطلوبة"""
 
     # Water - المياه

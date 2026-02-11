@@ -99,7 +99,8 @@ class EfficiencyMetrics:
         if self.management_radius_before > 0:
             return (
                 (self.management_radius_after - self.management_radius_before)
-                / self.management_radius_before * 100
+                / self.management_radius_before
+                * 100
             )
         return 0.0
 
@@ -146,7 +147,8 @@ class ResponseMetrics:
         if self.response_time_before > 0:
             return (
                 (self.response_time_before - self.response_time_after)
-                / self.response_time_before * 100
+                / self.response_time_before
+                * 100
             )
         return 0.0
 
@@ -198,9 +200,7 @@ class CostMetrics:
     def total_savings(self) -> float:
         """Calculate total cost savings."""
         return (
-            self.fertilizer_cost_reduction +
-            self.water_cost_reduction +
-            self.energy_cost_reduction
+            self.fertilizer_cost_reduction + self.water_cost_reduction + self.energy_cost_reduction
         )
 
     @property
@@ -387,12 +387,14 @@ class OperationalMetrics:
             value: Observed value
             notes: Optional notes
         """
-        self._history.append({
-            "timestamp": datetime.now().isoformat(),
-            "metric": metric_name,
-            "value": value,
-            "notes": notes,
-        })
+        self._history.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "metric": metric_name,
+                "value": value,
+                "notes": notes,
+            }
+        )
 
     def get_metric_values(self) -> list[MetricValue]:
         """
@@ -519,8 +521,7 @@ class OperationalMetrics:
                 "shelf_life_improvement_days": self.quality.shelf_life_improvement,
             },
             "custom_metrics": {
-                name: metric.to_dict()
-                for name, metric in self._custom_metrics.items()
+                name: metric.to_dict() for name, metric in self._custom_metrics.items()
             },
             "tracking_since": self._tracking_start.isoformat(),
             "observation_count": len(self._history),

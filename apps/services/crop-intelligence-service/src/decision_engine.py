@@ -6,11 +6,11 @@ Rule-based diagnostic system for vegetation indices analysis
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Literal
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """مراحل نمو المحصول"""
 
     seedling = "seedling"  # شتلة

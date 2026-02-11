@@ -35,6 +35,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class AgriQueryContext:
     """Agricultural query context | سياق الاستعلام الزراعي"""
+
     crop_type: str | None = None
     growth_stage: str | None = None
     region: str | None = None
@@ -48,6 +49,7 @@ class AgriQueryContext:
 @dataclass
 class AgriAdvisoryResult:
     """Agricultural advisory result | نتيجة الاستشارة الزراعية"""
+
     query: str
     advisory: str
     advisory_ar: str | None = None
@@ -93,10 +95,7 @@ class AgriRAGProvider:
 
         # Initialize dense/sparse retrievers if services available
         if self.vector_store and self.embedding_service:
-            self._dense_retriever = DenseRetriever(
-                self.vector_store,
-                self.embedding_service
-            )
+            self._dense_retriever = DenseRetriever(self.vector_store, self.embedding_service)
             self._sparse_retriever = SparseRetriever(self.vector_store)
         else:
             # Use mock for testing
@@ -123,87 +122,171 @@ class AgriRAGProvider:
         # Crop Entities - كيانات المحاصيل
         # ═══════════════════════════════════════════════════════════════════════
         crops = [
-            {"id": "crop_wheat", "name": "Wheat", "name_ar": "قمح",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Poaceae", "season": "winter"}},
-            {"id": "crop_barley", "name": "Barley", "name_ar": "شعير",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Poaceae", "season": "winter"}},
-            {"id": "crop_date_palm", "name": "Date Palm", "name_ar": "نخيل",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Arecaceae", "season": "perennial"}},
-            {"id": "crop_tomato", "name": "Tomato", "name_ar": "طماطم",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Solanaceae", "season": "summer"}},
-            {"id": "crop_cucumber", "name": "Cucumber", "name_ar": "خيار",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Cucurbitaceae", "season": "summer"}},
-            {"id": "crop_alfalfa", "name": "Alfalfa", "name_ar": "برسيم",
-             "entity_type": EntityType.CROP.value,
-             "properties": {"family": "Fabaceae", "season": "perennial"}},
+            {
+                "id": "crop_wheat",
+                "name": "Wheat",
+                "name_ar": "قمح",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Poaceae", "season": "winter"},
+            },
+            {
+                "id": "crop_barley",
+                "name": "Barley",
+                "name_ar": "شعير",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Poaceae", "season": "winter"},
+            },
+            {
+                "id": "crop_date_palm",
+                "name": "Date Palm",
+                "name_ar": "نخيل",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Arecaceae", "season": "perennial"},
+            },
+            {
+                "id": "crop_tomato",
+                "name": "Tomato",
+                "name_ar": "طماطم",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Solanaceae", "season": "summer"},
+            },
+            {
+                "id": "crop_cucumber",
+                "name": "Cucumber",
+                "name_ar": "خيار",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Cucurbitaceae", "season": "summer"},
+            },
+            {
+                "id": "crop_alfalfa",
+                "name": "Alfalfa",
+                "name_ar": "برسيم",
+                "entity_type": EntityType.CROP.value,
+                "properties": {"family": "Fabaceae", "season": "perennial"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Disease Entities - كيانات الأمراض
         # ═══════════════════════════════════════════════════════════════════════
         diseases = [
-            {"id": "disease_rust", "name": "Rust Disease", "name_ar": "مرض الصدأ",
-             "entity_type": EntityType.DISEASE.value,
-             "properties": {"type": "fungal", "severity": "high"}},
-            {"id": "disease_powdery_mildew", "name": "Powdery Mildew", "name_ar": "البياض الدقيقي",
-             "entity_type": EntityType.DISEASE.value,
-             "properties": {"type": "fungal", "severity": "medium"}},
-            {"id": "disease_fusarium", "name": "Fusarium Wilt", "name_ar": "ذبول الفيوزاريوم",
-             "entity_type": EntityType.DISEASE.value,
-             "properties": {"type": "fungal", "severity": "high"}},
-            {"id": "disease_bacterial_blight", "name": "Bacterial Blight", "name_ar": "اللفحة البكتيرية",
-             "entity_type": EntityType.DISEASE.value,
-             "properties": {"type": "bacterial", "severity": "high"}},
-            {"id": "disease_rpw", "name": "Red Palm Weevil", "name_ar": "سوسة النخيل الحمراء",
-             "entity_type": EntityType.PEST.value,
-             "properties": {"type": "insect", "severity": "critical"}},
-            {"id": "disease_leaf_miner", "name": "Leaf Miner", "name_ar": "حافرة الأوراق",
-             "entity_type": EntityType.PEST.value,
-             "properties": {"type": "insect", "severity": "medium"}},
+            {
+                "id": "disease_rust",
+                "name": "Rust Disease",
+                "name_ar": "مرض الصدأ",
+                "entity_type": EntityType.DISEASE.value,
+                "properties": {"type": "fungal", "severity": "high"},
+            },
+            {
+                "id": "disease_powdery_mildew",
+                "name": "Powdery Mildew",
+                "name_ar": "البياض الدقيقي",
+                "entity_type": EntityType.DISEASE.value,
+                "properties": {"type": "fungal", "severity": "medium"},
+            },
+            {
+                "id": "disease_fusarium",
+                "name": "Fusarium Wilt",
+                "name_ar": "ذبول الفيوزاريوم",
+                "entity_type": EntityType.DISEASE.value,
+                "properties": {"type": "fungal", "severity": "high"},
+            },
+            {
+                "id": "disease_bacterial_blight",
+                "name": "Bacterial Blight",
+                "name_ar": "اللفحة البكتيرية",
+                "entity_type": EntityType.DISEASE.value,
+                "properties": {"type": "bacterial", "severity": "high"},
+            },
+            {
+                "id": "disease_rpw",
+                "name": "Red Palm Weevil",
+                "name_ar": "سوسة النخيل الحمراء",
+                "entity_type": EntityType.PEST.value,
+                "properties": {"type": "insect", "severity": "critical"},
+            },
+            {
+                "id": "disease_leaf_miner",
+                "name": "Leaf Miner",
+                "name_ar": "حافرة الأوراق",
+                "entity_type": EntityType.PEST.value,
+                "properties": {"type": "insect", "severity": "medium"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Treatment Entities - كيانات العلاج
         # ═══════════════════════════════════════════════════════════════════════
         treatments = [
-            {"id": "treat_fungicide_propiconazole", "name": "Propiconazole", "name_ar": "بروبيكونازول",
-             "entity_type": EntityType.PESTICIDE.value,
-             "properties": {"type": "fungicide", "target": "rust"}},
-            {"id": "treat_fungicide_sulfur", "name": "Sulfur", "name_ar": "كبريت",
-             "entity_type": EntityType.PESTICIDE.value,
-             "properties": {"type": "fungicide", "target": "powdery_mildew"}},
-            {"id": "treat_insecticide_emamectin", "name": "Emamectin Benzoate", "name_ar": "إيمامكتين بنزوات",
-             "entity_type": EntityType.PESTICIDE.value,
-             "properties": {"type": "insecticide", "target": "rpw"}},
-            {"id": "treat_urea", "name": "Urea 46%", "name_ar": "يوريا 46%",
-             "entity_type": EntityType.FERTILIZER.value,
-             "properties": {"type": "nitrogen", "n_content": 46}},
-            {"id": "treat_dap", "name": "DAP 18-46-0", "name_ar": "داب 18-46-0",
-             "entity_type": EntityType.FERTILIZER.value,
-             "properties": {"type": "phosphorus", "n_content": 18, "p_content": 46}},
-            {"id": "treat_potash", "name": "Potassium Sulfate", "name_ar": "سلفات البوتاسيوم",
-             "entity_type": EntityType.FERTILIZER.value,
-             "properties": {"type": "potassium", "k_content": 50}},
+            {
+                "id": "treat_fungicide_propiconazole",
+                "name": "Propiconazole",
+                "name_ar": "بروبيكونازول",
+                "entity_type": EntityType.PESTICIDE.value,
+                "properties": {"type": "fungicide", "target": "rust"},
+            },
+            {
+                "id": "treat_fungicide_sulfur",
+                "name": "Sulfur",
+                "name_ar": "كبريت",
+                "entity_type": EntityType.PESTICIDE.value,
+                "properties": {"type": "fungicide", "target": "powdery_mildew"},
+            },
+            {
+                "id": "treat_insecticide_emamectin",
+                "name": "Emamectin Benzoate",
+                "name_ar": "إيمامكتين بنزوات",
+                "entity_type": EntityType.PESTICIDE.value,
+                "properties": {"type": "insecticide", "target": "rpw"},
+            },
+            {
+                "id": "treat_urea",
+                "name": "Urea 46%",
+                "name_ar": "يوريا 46%",
+                "entity_type": EntityType.FERTILIZER.value,
+                "properties": {"type": "nitrogen", "n_content": 46},
+            },
+            {
+                "id": "treat_dap",
+                "name": "DAP 18-46-0",
+                "name_ar": "داب 18-46-0",
+                "entity_type": EntityType.FERTILIZER.value,
+                "properties": {"type": "phosphorus", "n_content": 18, "p_content": 46},
+            },
+            {
+                "id": "treat_potash",
+                "name": "Potassium Sulfate",
+                "name_ar": "سلفات البوتاسيوم",
+                "entity_type": EntityType.FERTILIZER.value,
+                "properties": {"type": "potassium", "k_content": 50},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Irrigation Entities - كيانات الري
         # ═══════════════════════════════════════════════════════════════════════
         irrigation = [
-            {"id": "irr_drip", "name": "Drip Irrigation", "name_ar": "الري بالتنقيط",
-             "entity_type": EntityType.IRRIGATION.value,
-             "properties": {"efficiency": 90, "type": "localized"}},
-            {"id": "irr_sprinkler", "name": "Sprinkler Irrigation", "name_ar": "الري بالرش",
-             "entity_type": EntityType.IRRIGATION.value,
-             "properties": {"efficiency": 75, "type": "overhead"}},
-            {"id": "irr_pivot", "name": "Center Pivot", "name_ar": "الري المحوري",
-             "entity_type": EntityType.IRRIGATION.value,
-             "properties": {"efficiency": 85, "type": "mechanical"}},
+            {
+                "id": "irr_drip",
+                "name": "Drip Irrigation",
+                "name_ar": "الري بالتنقيط",
+                "entity_type": EntityType.IRRIGATION.value,
+                "properties": {"efficiency": 90, "type": "localized"},
+            },
+            {
+                "id": "irr_sprinkler",
+                "name": "Sprinkler Irrigation",
+                "name_ar": "الري بالرش",
+                "entity_type": EntityType.IRRIGATION.value,
+                "properties": {"efficiency": 75, "type": "overhead"},
+            },
+            {
+                "id": "irr_pivot",
+                "name": "Center Pivot",
+                "name_ar": "الري المحوري",
+                "entity_type": EntityType.IRRIGATION.value,
+                "properties": {"efficiency": 85, "type": "mechanical"},
+            },
         ]
 
         # Add all entities
@@ -215,42 +298,84 @@ class AgriRAGProvider:
         # ═══════════════════════════════════════════════════════════════════════
         relations = [
             # Crop-Disease relations
-            {"source_id": "disease_rust", "target_id": "crop_wheat",
-             "relation_type": RelationType.AFFECTS.value},
-            {"source_id": "disease_rust", "target_id": "crop_barley",
-             "relation_type": RelationType.AFFECTS.value},
-            {"source_id": "disease_powdery_mildew", "target_id": "crop_cucumber",
-             "relation_type": RelationType.AFFECTS.value},
-            {"source_id": "disease_fusarium", "target_id": "crop_tomato",
-             "relation_type": RelationType.AFFECTS.value},
-            {"source_id": "disease_rpw", "target_id": "crop_date_palm",
-             "relation_type": RelationType.AFFECTS.value},
-
+            {
+                "source_id": "disease_rust",
+                "target_id": "crop_wheat",
+                "relation_type": RelationType.AFFECTS.value,
+            },
+            {
+                "source_id": "disease_rust",
+                "target_id": "crop_barley",
+                "relation_type": RelationType.AFFECTS.value,
+            },
+            {
+                "source_id": "disease_powdery_mildew",
+                "target_id": "crop_cucumber",
+                "relation_type": RelationType.AFFECTS.value,
+            },
+            {
+                "source_id": "disease_fusarium",
+                "target_id": "crop_tomato",
+                "relation_type": RelationType.AFFECTS.value,
+            },
+            {
+                "source_id": "disease_rpw",
+                "target_id": "crop_date_palm",
+                "relation_type": RelationType.AFFECTS.value,
+            },
             # Treatment-Disease relations
-            {"source_id": "treat_fungicide_propiconazole", "target_id": "disease_rust",
-             "relation_type": RelationType.TREATS.value},
-            {"source_id": "treat_fungicide_sulfur", "target_id": "disease_powdery_mildew",
-             "relation_type": RelationType.TREATS.value},
-            {"source_id": "treat_insecticide_emamectin", "target_id": "disease_rpw",
-             "relation_type": RelationType.TREATS.value},
-
+            {
+                "source_id": "treat_fungicide_propiconazole",
+                "target_id": "disease_rust",
+                "relation_type": RelationType.TREATS.value,
+            },
+            {
+                "source_id": "treat_fungicide_sulfur",
+                "target_id": "disease_powdery_mildew",
+                "relation_type": RelationType.TREATS.value,
+            },
+            {
+                "source_id": "treat_insecticide_emamectin",
+                "target_id": "disease_rpw",
+                "relation_type": RelationType.TREATS.value,
+            },
             # Fertilizer-Crop relations
-            {"source_id": "treat_urea", "target_id": "crop_wheat",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "treat_dap", "target_id": "crop_wheat",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "treat_potash", "target_id": "crop_date_palm",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-
+            {
+                "source_id": "treat_urea",
+                "target_id": "crop_wheat",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "treat_dap",
+                "target_id": "crop_wheat",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "treat_potash",
+                "target_id": "crop_date_palm",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
             # Irrigation-Crop relations
-            {"source_id": "irr_drip", "target_id": "crop_tomato",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "irr_drip", "target_id": "crop_date_palm",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "irr_pivot", "target_id": "crop_wheat",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "irr_sprinkler", "target_id": "crop_alfalfa",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
+            {
+                "source_id": "irr_drip",
+                "target_id": "crop_tomato",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "irr_drip",
+                "target_id": "crop_date_palm",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "irr_pivot",
+                "target_id": "crop_wheat",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "irr_sprinkler",
+                "target_id": "crop_alfalfa",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
         ]
 
         for relation in relations:
@@ -298,16 +423,20 @@ class AgriRAGProvider:
         treatments = []
         for r in results:
             if r.chunk.metadata.get("entity_type") == EntityType.DISEASE.value:
-                diseases.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                    "confidence": r.score,
-                })
+                diseases.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                        "confidence": r.score,
+                    }
+                )
             elif r.chunk.metadata.get("entity_type") == EntityType.PESTICIDE.value:
-                treatments.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                })
+                treatments.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                    }
+                )
 
         return AgriAdvisoryResult(
             query=query,
@@ -352,11 +481,13 @@ class AgriRAGProvider:
         irrigation_methods = []
         for r in results:
             if r.chunk.metadata.get("entity_type") == EntityType.IRRIGATION.value:
-                irrigation_methods.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                    "score": r.score,
-                })
+                irrigation_methods.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                        "score": r.score,
+                    }
+                )
 
         return AgriAdvisoryResult(
             query=query,
@@ -404,11 +535,13 @@ class AgriRAGProvider:
         fertilizers = []
         for r in results:
             if r.chunk.metadata.get("entity_type") == EntityType.FERTILIZER.value:
-                fertilizers.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                    "score": r.score,
-                })
+                fertilizers.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                        "score": r.score,
+                    }
+                )
 
         return AgriAdvisoryResult(
             query=query,

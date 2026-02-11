@@ -11,14 +11,14 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Health check status values"""
 
     HEALTHY = "healthy"
@@ -46,9 +46,7 @@ class ServiceHealth:
     status: HealthStatus
     components: list[ComponentHealth] = field(default_factory=list)
     uptime_seconds: float = 0
-    timestamp: str = field(
-        default_factory=lambda: datetime.now(UTC).isoformat() + "Z"
-    )
+    timestamp: str = field(default_factory=lambda: datetime.now(UTC).isoformat() + "Z")
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON response"""

@@ -10,7 +10,7 @@ import asyncio
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Callable
 from uuid import UUID
 
@@ -22,8 +22,9 @@ from .repository import NotificationLogRepository, NotificationRepository
 logger = logging.getLogger("sahool-notifications.delivery-tracker")
 
 
-class DeliveryStatus(str, Enum):
+class DeliveryStatus(StrEnum):
     """حالة التسليم"""
+
     QUEUED = "queued"  # في الطابور
     SENDING = "sending"  # جاري الإرسال
     SENT = "sent"  # تم الإرسال
@@ -34,8 +35,9 @@ class DeliveryStatus(str, Enum):
     EXPIRED = "expired"  # انتهت الصلاحية
 
 
-class DeliveryEventType(str, Enum):
+class DeliveryEventType(StrEnum):
     """نوع حدث التسليم"""
+
     STATUS_CHANGE = "status_change"
     RETRY_SCHEDULED = "retry_scheduled"
     DELIVERY_CONFIRMED = "delivery_confirmed"
@@ -47,6 +49,7 @@ class DeliveryEventType(str, Enum):
 @dataclass
 class DeliveryEvent:
     """حدث تسليم"""
+
     notification_id: str
     event_type: DeliveryEventType
     status: DeliveryStatus
@@ -151,9 +154,7 @@ class DeliveryTracker:
             # Update notification status in database
             if new_status == DeliveryStatus.SENT:
                 await NotificationRepository.update_status(
-                    notif_uuid,
-                    status="sent",
-                    sent_at=datetime.now(UTC)
+                    notif_uuid, status="sent", sent_at=datetime.now(UTC)
                 )
             elif new_status == DeliveryStatus.FAILED:
                 await NotificationRepository.update_status(notif_uuid, status="failed")
@@ -167,7 +168,9 @@ class DeliveryTracker:
                 status=new_status.value,
                 error_message=details.get("error") if details else None,
                 provider_response=provider_response,
-                provider_message_id=provider_response.get("message_id") if provider_response else None,
+                provider_message_id=provider_response.get("message_id")
+                if provider_response
+                else None,
             )
 
             # Trigger callbacks and webhooks
@@ -577,7 +580,10 @@ async def handle_email_callback(
             notification_id=notification_id,
             channel="email",
             error_message="Email dropped by provider",
-            provider_response={"message_id": message_id, "reason": details.get("reason") if details else None},
+            provider_response={
+                "message_id": message_id,
+                "reason": details.get("reason") if details else None,
+            },
         )
 
 

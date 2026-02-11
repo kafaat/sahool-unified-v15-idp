@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 # Import unified error handling
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     HAS_ERROR_HANDLERS = True
 except ImportError:
     HAS_ERROR_HANDLERS = False
@@ -81,6 +82,7 @@ async def lifespan(app: FastAPI):
     if database_url:
         try:
             import asyncpg
+
             state.db_pool = await asyncpg.create_pool(
                 database_url,
                 min_size=2,
@@ -96,6 +98,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             state.nc = await nats.connect(nats_url)
             logger.info("NATS connection established")
 
@@ -249,6 +252,7 @@ def readiness():
 
 class CameraRegistration(BaseModel):
     """Camera registration request"""
+
     camera_id: str
     tower_id: str
     name: str
@@ -268,6 +272,7 @@ class CameraRegistration(BaseModel):
 
 class CameraResponse(BaseModel):
     """Camera response"""
+
     camera_id: str
     tower_id: str
     name: str
@@ -333,6 +338,7 @@ async def get_camera(camera_id: str):
 
 class FrameProcessRequest(BaseModel):
     """Frame processing request"""
+
     frame_id: str
     camera_id: str
     field_id: str
@@ -343,6 +349,7 @@ class FrameProcessRequest(BaseModel):
 
 class FrameProcessResponse(BaseModel):
     """Frame processing response"""
+
     frame_id: str
     processed: bool
     detections_count: int
@@ -365,6 +372,7 @@ async def process_frame(request: FrameProcessRequest):
     5. Publishes events
     """
     import time
+
     start_time = time.time()
 
     # TODO: Implement full processing pipeline
@@ -428,6 +436,7 @@ async def get_detection(detection_id: str):
 
 class TimelineAnalysisRequest(BaseModel):
     """Timeline analysis request"""
+
     field_id: str
     tenant_id: str
     frame_ids: list[str] = Field(..., min_length=1, max_length=10)
@@ -436,6 +445,7 @@ class TimelineAnalysisRequest(BaseModel):
 
 class TimelineAnalysisResponse(BaseModel):
     """Timeline analysis response"""
+
     analysis_id: str
     field_id: str
     crop_type: str
@@ -460,6 +470,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     - Anomalies
     """
     import time
+
     start_time = time.time()
 
     # TODO: Implement actual analysis
@@ -540,6 +551,7 @@ async def get_anomaly(anomaly_id: str):
 
 class AnomalyAcknowledgeRequest(BaseModel):
     """Anomaly acknowledgement request"""
+
     acknowledged_by: str
     notes: str = None
     notes_ar: str = None
@@ -562,6 +574,7 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
 
 class AnomalyResolveRequest(BaseModel):
     """Anomaly resolution request"""
+
     resolved_by: str
     resolution_notes: str
     resolution_notes_ar: str = None
@@ -593,7 +606,9 @@ async def metrics():
     Prometheus metrics endpoint.
     """
     # TODO: Implement Prometheus metrics
-    return "# HELP ground_vision_up Service is up\n# TYPE ground_vision_up gauge\nground_vision_up 1\n"
+    return (
+        "# HELP ground_vision_up Service is up\n# TYPE ground_vision_up gauge\nground_vision_up 1\n"
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

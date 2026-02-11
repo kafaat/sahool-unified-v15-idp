@@ -28,9 +28,9 @@ from __future__ import annotations
 
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -71,84 +71,55 @@ class BilingualMessage:
 # Standard success messages
 MESSAGES = {
     "analysis_complete": BilingualMessage(
-        en="Terrain analysis completed successfully",
-        ar="تم إكمال تحليل التضاريس بنجاح"
+        en="Terrain analysis completed successfully", ar="تم إكمال تحليل التضاريس بنجاح"
     ),
     "slope_complete": BilingualMessage(
-        en="Slope analysis completed successfully",
-        ar="تم إكمال تحليل الميل بنجاح"
+        en="Slope analysis completed successfully", ar="تم إكمال تحليل الميل بنجاح"
     ),
     "flow_complete": BilingualMessage(
-        en="Flow analysis completed successfully",
-        ar="تم إكمال تحليل التدفق بنجاح"
+        en="Flow analysis completed successfully", ar="تم إكمال تحليل التدفق بنجاح"
     ),
     "twi_complete": BilingualMessage(
-        en="TWI analysis completed successfully",
-        ar="تم إكمال تحليل مؤشر الرطوبة الطبوغرافية بنجاح"
+        en="TWI analysis completed successfully", ar="تم إكمال تحليل مؤشر الرطوبة الطبوغرافية بنجاح"
     ),
     "contour_complete": BilingualMessage(
-        en="Contour generation completed successfully",
-        ar="تم إنشاء خطوط الكنتور بنجاح"
+        en="Contour generation completed successfully", ar="تم إنشاء خطوط الكنتور بنجاح"
     ),
     "hydrology_complete": BilingualMessage(
-        en="Hydrology analysis completed successfully",
-        ar="تم إكمال التحليل الهيدرولوجي بنجاح"
+        en="Hydrology analysis completed successfully", ar="تم إكمال التحليل الهيدرولوجي بنجاح"
     ),
     "drainage_complete": BilingualMessage(
-        en="Drainage analysis completed successfully",
-        ar="تم إكمال تحليل الصرف بنجاح"
+        en="Drainage analysis completed successfully", ar="تم إكمال تحليل الصرف بنجاح"
     ),
     "leveling_complete": BilingualMessage(
-        en="Leveling analysis completed successfully",
-        ar="تم إكمال تحليل التسوية بنجاح"
+        en="Leveling analysis completed successfully", ar="تم إكمال تحليل التسوية بنجاح"
     ),
     "simulation_complete": BilingualMessage(
-        en="Leveling simulation completed successfully",
-        ar="تم إكمال محاكاة التسوية بنجاح"
+        en="Leveling simulation completed successfully", ar="تم إكمال محاكاة التسوية بنجاح"
     ),
     "batch_complete": BilingualMessage(
-        en="Batch processing completed successfully",
-        ar="تم إكمال المعالجة الدفعية بنجاح"
+        en="Batch processing completed successfully", ar="تم إكمال المعالجة الدفعية بنجاح"
     ),
     "cached_result": BilingualMessage(
-        en="Result retrieved from cache",
-        ar="تم استرداد النتيجة من التخزين المؤقت"
+        en="Result retrieved from cache", ar="تم استرداد النتيجة من التخزين المؤقت"
     ),
 }
 
 # Standard error messages
 ERROR_MESSAGES = {
-    "validation_error": BilingualMessage(
-        en="Validation error",
-        ar="خطأ في التحقق من الصحة"
-    ),
-    "field_not_found": BilingualMessage(
-        en="Field not found",
-        ar="الحقل غير موجود"
-    ),
+    "validation_error": BilingualMessage(en="Validation error", ar="خطأ في التحقق من الصحة"),
+    "field_not_found": BilingualMessage(en="Field not found", ar="الحقل غير موجود"),
     "dem_unavailable": BilingualMessage(
-        en="DEM data not available for this region",
-        ar="بيانات الارتفاعات غير متاحة لهذه المنطقة"
+        en="DEM data not available for this region", ar="بيانات الارتفاعات غير متاحة لهذه المنطقة"
     ),
-    "processing_error": BilingualMessage(
-        en="Error processing request",
-        ar="خطأ في معالجة الطلب"
-    ),
-    "timeout_error": BilingualMessage(
-        en="Request timed out",
-        ar="انتهت مهلة الطلب"
-    ),
-    "internal_error": BilingualMessage(
-        en="Internal server error",
-        ar="خطأ داخلي في الخادم"
-    ),
+    "processing_error": BilingualMessage(en="Error processing request", ar="خطأ في معالجة الطلب"),
+    "timeout_error": BilingualMessage(en="Request timed out", ar="انتهت مهلة الطلب"),
+    "internal_error": BilingualMessage(en="Internal server error", ar="خطأ داخلي في الخادم"),
     "invalid_geometry": BilingualMessage(
-        en="Invalid geometry provided",
-        ar="الهندسة المقدمة غير صالحة"
+        en="Invalid geometry provided", ar="الهندسة المقدمة غير صالحة"
     ),
     "insufficient_data": BilingualMessage(
-        en="Insufficient data for analysis",
-        ar="بيانات غير كافية للتحليل"
+        en="Insufficient data for analysis", ar="بيانات غير كافية للتحليل"
     ),
 }
 
@@ -174,44 +145,35 @@ class ProcessingMeta(BaseModel):
 
     request_id: str = Field(
         default_factory=lambda: str(uuid.uuid4()),
-        description="Unique request identifier | معرف الطلب الفريد"
+        description="Unique request identifier | معرف الطلب الفريد",
     )
     processed_at: datetime = Field(
-        default_factory=datetime.utcnow,
-        description="Processing timestamp | وقت المعالجة"
+        default_factory=datetime.utcnow, description="Processing timestamp | وقت المعالجة"
     )
     processing_time_ms: float = Field(
-        0.0,
-        description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
+        0.0, description="Processing time in milliseconds | وقت المعالجة بالمللي ثانية"
     )
     cached: bool = Field(
-        False,
-        description="Result was retrieved from cache | تم استرداد النتيجة من التخزين المؤقت"
+        False, description="Result was retrieved from cache | تم استرداد النتيجة من التخزين المؤقت"
     )
-    service_version: str = Field(
-        "16.0.0",
-        description="Service version | إصدار الخدمة"
-    )
+    service_version: str = Field("16.0.0", description="Service version | إصدار الخدمة")
 
 
 class TerrainResponseMeta(BaseModel):
     """Combined metadata for terrain responses."""
 
     processing: ProcessingMeta = Field(
-        default_factory=ProcessingMeta,
-        description="Processing metadata | بيانات المعالجة"
+        default_factory=ProcessingMeta, description="Processing metadata | بيانات المعالجة"
     )
     pagination: PaginationMeta | None = Field(
-        None,
-        description="Pagination metadata | بيانات الترقيم"
+        None, description="Pagination metadata | بيانات الترقيم"
     )
     warnings: list[str] = Field(
-        default_factory=list,
-        description="Processing warnings | تحذيرات المعالجة"
+        default_factory=list, description="Processing warnings | تحذيرات المعالجة"
     )
     warnings_ar: list[str] = Field(
         default_factory=list,
-        description="Processing warnings in Arabic | تحذيرات المعالجة بالعربية"
+        description="Processing warnings in Arabic | تحذيرات المعالجة بالعربية",
     )
 
 
@@ -224,8 +186,7 @@ class TerrainSuccessResponse(BaseModel):
     message_ar: str = Field("", description="Response message (Arabic)")
     data: Any = Field(None, description="Response data")
     meta: TerrainResponseMeta = Field(
-        default_factory=TerrainResponseMeta,
-        description="Response metadata"
+        default_factory=TerrainResponseMeta, description="Response metadata"
     )
 
 
@@ -241,8 +202,7 @@ class TerrainErrorResponse(BaseModel):
     detail_ar: str | None = Field(None, description="Detailed error information (Arabic)")
     field: str | None = Field(None, description="Field that caused the error")
     request_id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()),
-        description="Request identifier for debugging"
+        default_factory=lambda: str(uuid.uuid4()), description="Request identifier for debugging"
     )
 
 
@@ -457,7 +417,7 @@ class ResponseTimer:
         self.start_time: float = 0.0
         self.end_time: float = 0.0
 
-    def __enter__(self) -> "ResponseTimer":
+    def __enter__(self) -> ResponseTimer:
         self.start_time = time.time()
         return self
 

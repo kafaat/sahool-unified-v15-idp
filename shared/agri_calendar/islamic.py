@@ -86,226 +86,237 @@ def _create_islamic_events() -> list[IslamicEvent]:
     events = []
 
     # Ramadan - رمضان
-    events.append(IslamicEvent(
-        name_en="Ramadan (Start)",
-        name_ar="بداية رمضان",
-        description_en="Beginning of the holy month of fasting",
-        description_ar="بداية شهر الصيام المبارك",
-        hijri_month=HijriMonth.RAMADAN,
-        hijri_day=1,
-        agricultural_significance_en=(
-            "Labor productivity decreases during fasting hours. "
-            "Plan heavy agricultural work for early morning or after iftar. "
-            "Increased demand for dates and certain vegetables."
-        ),
-        agricultural_significance_ar=(
-            "تنخفض إنتاجية العمال خلال ساعات الصيام. "
-            "خطط للأعمال الزراعية الثقيلة في الصباح الباكر أو بعد الإفطار. "
-            "زيادة الطلب على التمور وبعض الخضروات."
-        ),
-        affects_market=True,
-        market_impact_en=(
-            "High demand for dates, vegetables (especially tomatoes, onions, "
-            "cucumbers), and herbs. Prices typically increase 20-40%."
-        ),
-        market_impact_ar=(
-            "طلب عالي على التمور والخضروات (خاصة الطماطم والبصل والخيار) "
-            "والأعشاب. ترتفع الأسعار عادة 20-40%."
-        ),
-        affects_labor=True,
-        labor_impact_en=(
-            "Reduced working hours. Workers prefer early morning shifts. "
-            "Heavy machinery operation limited to cooler hours."
-        ),
-        labor_impact_ar=(
-            "ساعات عمل مخفضة. يفضل العمال الورديات الصباحية الباكرة. "
-            "تقتصر عمليات الآلات الثقيلة على الساعات الأقل حرارة."
-        ),
-        duration_days=30,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Ramadan (Start)",
+            name_ar="بداية رمضان",
+            description_en="Beginning of the holy month of fasting",
+            description_ar="بداية شهر الصيام المبارك",
+            hijri_month=HijriMonth.RAMADAN,
+            hijri_day=1,
+            agricultural_significance_en=(
+                "Labor productivity decreases during fasting hours. "
+                "Plan heavy agricultural work for early morning or after iftar. "
+                "Increased demand for dates and certain vegetables."
+            ),
+            agricultural_significance_ar=(
+                "تنخفض إنتاجية العمال خلال ساعات الصيام. "
+                "خطط للأعمال الزراعية الثقيلة في الصباح الباكر أو بعد الإفطار. "
+                "زيادة الطلب على التمور وبعض الخضروات."
+            ),
+            affects_market=True,
+            market_impact_en=(
+                "High demand for dates, vegetables (especially tomatoes, onions, "
+                "cucumbers), and herbs. Prices typically increase 20-40%."
+            ),
+            market_impact_ar=(
+                "طلب عالي على التمور والخضروات (خاصة الطماطم والبصل والخيار) "
+                "والأعشاب. ترتفع الأسعار عادة 20-40%."
+            ),
+            affects_labor=True,
+            labor_impact_en=(
+                "Reduced working hours. Workers prefer early morning shifts. "
+                "Heavy machinery operation limited to cooler hours."
+            ),
+            labor_impact_ar=(
+                "ساعات عمل مخفضة. يفضل العمال الورديات الصباحية الباكرة. "
+                "تقتصر عمليات الآلات الثقيلة على الساعات الأقل حرارة."
+            ),
+            duration_days=30,
+        )
+    )
 
     # Eid al-Fitr - عيد الفطر
-    events.append(IslamicEvent(
-        name_en="Eid al-Fitr",
-        name_ar="عيد الفطر",
-        description_en="Festival marking the end of Ramadan",
-        description_ar="عيد يحتفل بنهاية رمضان",
-        hijri_month=HijriMonth.SHAWWAL,
-        hijri_day=1,
-        agricultural_significance_en=(
-            "Major holiday - no farm work expected. Markets closed for 4-5 days. "
-            "Plan harvests before or after the holiday."
-        ),
-        agricultural_significance_ar=(
-            "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 4-5 أيام. "
-            "خطط للحصاد قبل أو بعد العطلة."
-        ),
-        affects_market=True,
-        market_impact_en=(
-            "Markets closed. Pre-holiday rush for produce. "
-            "Post-holiday prices may drop due to reduced demand."
-        ),
-        market_impact_ar=(
-            "الأسواق مغلقة. اندفاع قبل العطلة على المنتجات. "
-            "قد تنخفض الأسعار بعد العطلة بسبب تراجع الطلب."
-        ),
-        affects_labor=True,
-        labor_impact_en="All workers on leave for 4-5 days minimum",
-        labor_impact_ar="جميع العمال في إجازة لمدة 4-5 أيام على الأقل",
-        duration_days=5,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Eid al-Fitr",
+            name_ar="عيد الفطر",
+            description_en="Festival marking the end of Ramadan",
+            description_ar="عيد يحتفل بنهاية رمضان",
+            hijri_month=HijriMonth.SHAWWAL,
+            hijri_day=1,
+            agricultural_significance_en=(
+                "Major holiday - no farm work expected. Markets closed for 4-5 days. "
+                "Plan harvests before or after the holiday."
+            ),
+            agricultural_significance_ar=(
+                "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 4-5 أيام. "
+                "خطط للحصاد قبل أو بعد العطلة."
+            ),
+            affects_market=True,
+            market_impact_en=(
+                "Markets closed. Pre-holiday rush for produce. "
+                "Post-holiday prices may drop due to reduced demand."
+            ),
+            market_impact_ar=(
+                "الأسواق مغلقة. اندفاع قبل العطلة على المنتجات. "
+                "قد تنخفض الأسعار بعد العطلة بسبب تراجع الطلب."
+            ),
+            affects_labor=True,
+            labor_impact_en="All workers on leave for 4-5 days minimum",
+            labor_impact_ar="جميع العمال في إجازة لمدة 4-5 أيام على الأقل",
+            duration_days=5,
+        )
+    )
 
     # Eid al-Adha - عيد الأضحى
-    events.append(IslamicEvent(
-        name_en="Eid al-Adha",
-        name_ar="عيد الأضحى",
-        description_en="Festival of Sacrifice",
-        description_ar="عيد الأضحى المبارك",
-        hijri_month=HijriMonth.DHU_AL_HIJJAH,
-        hijri_day=10,
-        agricultural_significance_en=(
-            "Major holiday - no farm work expected. Markets closed for 5-7 days. "
-            "Livestock markets very active before the holiday. "
-            "High demand for fodder and animal feed."
-        ),
-        agricultural_significance_ar=(
-            "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 5-7 أيام. "
-            "أسواق الماشية نشطة جداً قبل العطلة. "
-            "طلب عالي على الأعلاف."
-        ),
-        affects_market=True,
-        market_impact_en=(
-            "Livestock markets peak before Eid. Fodder prices increase. "
-            "Fresh produce markets closed during holiday."
-        ),
-        market_impact_ar=(
-            "أسواق الماشية تبلغ ذروتها قبل العيد. ترتفع أسعار الأعلاف. "
-            "أسواق المنتجات الطازجة مغلقة خلال العطلة."
-        ),
-        affects_labor=True,
-        labor_impact_en="All workers on leave for 5-7 days minimum",
-        labor_impact_ar="جميع العمال في إجازة لمدة 5-7 أيام على الأقل",
-        duration_days=7,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Eid al-Adha",
+            name_ar="عيد الأضحى",
+            description_en="Festival of Sacrifice",
+            description_ar="عيد الأضحى المبارك",
+            hijri_month=HijriMonth.DHU_AL_HIJJAH,
+            hijri_day=10,
+            agricultural_significance_en=(
+                "Major holiday - no farm work expected. Markets closed for 5-7 days. "
+                "Livestock markets very active before the holiday. "
+                "High demand for fodder and animal feed."
+            ),
+            agricultural_significance_ar=(
+                "عطلة كبرى - لا يُتوقع عمل زراعي. الأسواق مغلقة 5-7 أيام. "
+                "أسواق الماشية نشطة جداً قبل العطلة. "
+                "طلب عالي على الأعلاف."
+            ),
+            affects_market=True,
+            market_impact_en=(
+                "Livestock markets peak before Eid. Fodder prices increase. "
+                "Fresh produce markets closed during holiday."
+            ),
+            market_impact_ar=(
+                "أسواق الماشية تبلغ ذروتها قبل العيد. ترتفع أسعار الأعلاف. "
+                "أسواق المنتجات الطازجة مغلقة خلال العطلة."
+            ),
+            affects_labor=True,
+            labor_impact_en="All workers on leave for 5-7 days minimum",
+            labor_impact_ar="جميع العمال في إجازة لمدة 5-7 أيام على الأقل",
+            duration_days=7,
+        )
+    )
 
     # Hajj Season - موسم الحج
-    events.append(IslamicEvent(
-        name_en="Hajj Season",
-        name_ar="موسم الحج",
-        description_en="Annual Islamic pilgrimage to Makkah",
-        description_ar="موسم الحج السنوي إلى مكة",
-        hijri_month=HijriMonth.DHU_AL_HIJJAH,
-        hijri_day=8,  # Starts 8th, peaks 9th (Arafat)
-        agricultural_significance_en=(
-            "Major pilgrim influx affects logistics in western Saudi Arabia. "
-            "Some workers may be on Hajj leave. "
-            "Increased demand for food supplies in Makkah/Madinah region."
-        ),
-        agricultural_significance_ar=(
-            "تدفق الحجاج الكبير يؤثر على اللوجستيات في غرب السعودية. "
-            "بعض العمال قد يكونون في إجازة الحج. "
-            "زيادة الطلب على المواد الغذائية في منطقة مكة/المدينة."
-        ),
-        affects_market=True,
-        market_impact_en=(
-            "High demand in Makkah/Madinah region. Transportation challenges. "
-            "Good opportunity for suppliers near holy sites."
-        ),
-        market_impact_ar=(
-            "طلب عالي في منطقة مكة/المدينة. تحديات في النقل. "
-            "فرصة جيدة للموردين قرب الأماكن المقدسة."
-        ),
-        affects_labor=True,
-        labor_impact_en="Some workers may take Hajj leave (varies by arrangement)",
-        labor_impact_ar="بعض العمال قد يأخذون إجازة الحج (حسب الترتيبات)",
-        duration_days=6,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Hajj Season",
+            name_ar="موسم الحج",
+            description_en="Annual Islamic pilgrimage to Makkah",
+            description_ar="موسم الحج السنوي إلى مكة",
+            hijri_month=HijriMonth.DHU_AL_HIJJAH,
+            hijri_day=8,  # Starts 8th, peaks 9th (Arafat)
+            agricultural_significance_en=(
+                "Major pilgrim influx affects logistics in western Saudi Arabia. "
+                "Some workers may be on Hajj leave. "
+                "Increased demand for food supplies in Makkah/Madinah region."
+            ),
+            agricultural_significance_ar=(
+                "تدفق الحجاج الكبير يؤثر على اللوجستيات في غرب السعودية. "
+                "بعض العمال قد يكونون في إجازة الحج. "
+                "زيادة الطلب على المواد الغذائية في منطقة مكة/المدينة."
+            ),
+            affects_market=True,
+            market_impact_en=(
+                "High demand in Makkah/Madinah region. Transportation challenges. "
+                "Good opportunity for suppliers near holy sites."
+            ),
+            market_impact_ar=(
+                "طلب عالي في منطقة مكة/المدينة. تحديات في النقل. "
+                "فرصة جيدة للموردين قرب الأماكن المقدسة."
+            ),
+            affects_labor=True,
+            labor_impact_en="Some workers may take Hajj leave (varies by arrangement)",
+            labor_impact_ar="بعض العمال قد يأخذون إجازة الحج (حسب الترتيبات)",
+            duration_days=6,
+        )
+    )
 
     # Islamic New Year - رأس السنة الهجرية
-    events.append(IslamicEvent(
-        name_en="Islamic New Year",
-        name_ar="رأس السنة الهجرية",
-        description_en="First day of Muharram",
-        description_ar="أول يوم من محرم",
-        hijri_month=HijriMonth.MUHARRAM,
-        hijri_day=1,
-        agricultural_significance_en=(
-            "Official holiday. Good time for agricultural planning for the new year. "
-            "Traditional time to assess previous year's performance."
-        ),
-        agricultural_significance_ar=(
-            "عطلة رسمية. وقت مناسب للتخطيط الزراعي للعام الجديد. "
-            "وقت تقليدي لتقييم أداء العام السابق."
-        ),
-        affects_market=True,
-        market_impact_en="Markets closed for 1-2 days",
-        market_impact_ar="الأسواق مغلقة ليوم أو يومين",
-        affects_labor=True,
-        labor_impact_en="Public holiday - no work",
-        labor_impact_ar="عطلة رسمية - لا عمل",
-        duration_days=1,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Islamic New Year",
+            name_ar="رأس السنة الهجرية",
+            description_en="First day of Muharram",
+            description_ar="أول يوم من محرم",
+            hijri_month=HijriMonth.MUHARRAM,
+            hijri_day=1,
+            agricultural_significance_en=(
+                "Official holiday. Good time for agricultural planning for the new year. "
+                "Traditional time to assess previous year's performance."
+            ),
+            agricultural_significance_ar=(
+                "عطلة رسمية. وقت مناسب للتخطيط الزراعي للعام الجديد. "
+                "وقت تقليدي لتقييم أداء العام السابق."
+            ),
+            affects_market=True,
+            market_impact_en="Markets closed for 1-2 days",
+            market_impact_ar="الأسواق مغلقة ليوم أو يومين",
+            affects_labor=True,
+            labor_impact_en="Public holiday - no work",
+            labor_impact_ar="عطلة رسمية - لا عمل",
+            duration_days=1,
+        )
+    )
 
     # Day of Ashura - يوم عاشوراء
-    events.append(IslamicEvent(
-        name_en="Day of Ashura",
-        name_ar="يوم عاشوراء",
-        description_en="10th of Muharram",
-        description_ar="العاشر من محرم",
-        hijri_month=HijriMonth.MUHARRAM,
-        hijri_day=10,
-        agricultural_significance_en=(
-            "Many Muslims fast on this day. Consider reduced productivity."
-        ),
-        agricultural_significance_ar=(
-            "كثير من المسلمين يصومون في هذا اليوم. يُتوقع انخفاض في الإنتاجية."
-        ),
-        affects_labor=True,
-        labor_impact_en="Some workers may fast",
-        labor_impact_ar="بعض العمال قد يصومون",
-        duration_days=1,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Day of Ashura",
+            name_ar="يوم عاشوراء",
+            description_en="10th of Muharram",
+            description_ar="العاشر من محرم",
+            hijri_month=HijriMonth.MUHARRAM,
+            hijri_day=10,
+            agricultural_significance_en=(
+                "Many Muslims fast on this day. Consider reduced productivity."
+            ),
+            agricultural_significance_ar=(
+                "كثير من المسلمين يصومون في هذا اليوم. يُتوقع انخفاض في الإنتاجية."
+            ),
+            affects_labor=True,
+            labor_impact_en="Some workers may fast",
+            labor_impact_ar="بعض العمال قد يصومون",
+            duration_days=1,
+        )
+    )
 
     # Mawlid al-Nabi - المولد النبوي
-    events.append(IslamicEvent(
-        name_en="Mawlid al-Nabi (Prophet's Birthday)",
-        name_ar="المولد النبوي الشريف",
-        description_en="Prophet Muhammad's birthday",
-        description_ar="ذكرى مولد النبي محمد صلى الله عليه وسلم",
-        hijri_month=HijriMonth.RABI_AL_AWWAL,
-        hijri_day=12,
-        agricultural_significance_en=(
-            "Holiday in some countries. Check local observance."
-        ),
-        agricultural_significance_ar=(
-            "عطلة في بعض البلدان. تحقق من الاحتفال المحلي."
-        ),
-        affects_market=False,
-        affects_labor=False,
-        duration_days=1,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Mawlid al-Nabi (Prophet's Birthday)",
+            name_ar="المولد النبوي الشريف",
+            description_en="Prophet Muhammad's birthday",
+            description_ar="ذكرى مولد النبي محمد صلى الله عليه وسلم",
+            hijri_month=HijriMonth.RABI_AL_AWWAL,
+            hijri_day=12,
+            agricultural_significance_en=("Holiday in some countries. Check local observance."),
+            agricultural_significance_ar=("عطلة في بعض البلدان. تحقق من الاحتفال المحلي."),
+            affects_market=False,
+            affects_labor=False,
+            duration_days=1,
+        )
+    )
 
     # Laylat al-Qadr Period - ليالي القدر
-    events.append(IslamicEvent(
-        name_en="Laylat al-Qadr Period (Last 10 days of Ramadan)",
-        name_ar="العشر الأواخر من رمضان",
-        description_en="Most blessed nights of Ramadan",
-        description_ar="أكثر ليالي رمضان بركة",
-        hijri_month=HijriMonth.RAMADAN,
-        hijri_day=21,  # Starts from 21st
-        agricultural_significance_en=(
-            "Many workers increase religious observance. "
-            "Expect minimal availability for night work."
-        ),
-        agricultural_significance_ar=(
-            "كثير من العمال يزيدون من العبادة. "
-            "توقع الحد الأدنى من التوفر للعمل الليلي."
-        ),
-        affects_labor=True,
-        labor_impact_en="Workers focused on worship, especially at night",
-        labor_impact_ar="العمال مركزون على العبادة، خاصة في الليل",
-        duration_days=10,
-    ))
+    events.append(
+        IslamicEvent(
+            name_en="Laylat al-Qadr Period (Last 10 days of Ramadan)",
+            name_ar="العشر الأواخر من رمضان",
+            description_en="Most blessed nights of Ramadan",
+            description_ar="أكثر ليالي رمضان بركة",
+            hijri_month=HijriMonth.RAMADAN,
+            hijri_day=21,  # Starts from 21st
+            agricultural_significance_en=(
+                "Many workers increase religious observance. "
+                "Expect minimal availability for night work."
+            ),
+            agricultural_significance_ar=(
+                "كثير من العمال يزيدون من العبادة. توقع الحد الأدنى من التوفر للعمل الليلي."
+            ),
+            affects_labor=True,
+            labor_impact_en="Workers focused on worship, especially at night",
+            labor_impact_ar="العمال مركزون على العبادة، خاصة في الليل",
+            duration_days=10,
+        )
+    )
 
     return events
 
@@ -546,10 +557,7 @@ class HijriCalendar:
         """Convert Julian Day Number to Hijri date"""
         jd = math.floor(jd) + 0.5
         year = math.floor((30 * (jd - self.HIJRI_EPOCH) + 10646) / 10631)
-        month = min(
-            12,
-            math.ceil((jd - (29 + self._hijri_to_jd(year, 1, 1))) / 29.5) + 1
-        )
+        month = min(12, math.ceil((jd - (29 + self._hijri_to_jd(year, 1, 1))) / 29.5) + 1)
         day = int(jd - self._hijri_to_jd(year, month, 1)) + 1
 
         return year, month, day
@@ -650,12 +658,14 @@ class IslamicEventsManager:
                 event_date = self.get_event_gregorian_date(event, year)
                 if event_date and from_date <= event_date <= end_date:
                     hijri_date = self.calendar.gregorian_to_hijri(event_date)
-                    upcoming.append({
-                        "event": event,
-                        "gregorian_date": event_date,
-                        "hijri_date": hijri_date,
-                        "days_until": (event_date - from_date).days,
-                    })
+                    upcoming.append(
+                        {
+                            "event": event,
+                            "gregorian_date": event_date,
+                            "hijri_date": hijri_date,
+                            "days_until": (event_date - from_date).days,
+                        }
+                    )
 
         # Sort by date
         upcoming.sort(key=lambda x: x["gregorian_date"])
@@ -671,10 +681,7 @@ class IslamicEventsManager:
         الحصول على الأحداث التي تؤثر على العمليات الزراعية
         """
         upcoming = self.get_upcoming_events(days_ahead, from_date)
-        return [
-            e for e in upcoming
-            if e["event"].affects_market or e["event"].affects_labor
-        ]
+        return [e for e in upcoming if e["event"].affects_market or e["event"].affects_labor]
 
     def get_market_impact_calendar(
         self,
@@ -693,14 +700,16 @@ class IslamicEventsManager:
             event_date = self.get_event_gregorian_date(event, gregorian_year)
             if event_date:
                 hijri_date = self.calendar.gregorian_to_hijri(event_date)
-                calendar.append({
-                    "event": event,
-                    "gregorian_date": event_date,
-                    "hijri_date": hijri_date,
-                    "end_date": event_date + timedelta(days=event.duration_days - 1),
-                    "market_impact_en": event.market_impact_en,
-                    "market_impact_ar": event.market_impact_ar,
-                })
+                calendar.append(
+                    {
+                        "event": event,
+                        "gregorian_date": event_date,
+                        "hijri_date": hijri_date,
+                        "end_date": event_date + timedelta(days=event.duration_days - 1),
+                        "market_impact_en": event.market_impact_en,
+                        "market_impact_ar": event.market_impact_ar,
+                    }
+                )
 
         calendar.sort(key=lambda x: x["gregorian_date"])
         return calendar

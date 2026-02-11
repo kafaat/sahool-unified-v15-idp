@@ -15,7 +15,16 @@ from uuid import UUID, uuid4
 
 import numpy as np
 import structlog
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    File,
+    HTTPException,
+    Query,
+    UploadFile,
+    status,
+)
 from PIL import Image
 from pydantic import BaseModel, Field
 
@@ -299,20 +308,22 @@ async def batch_detect_pests(
                         area_ratio = box_area / image_area if image_area > 0 else 0
                         severity = calculate_severity(confidence, area_ratio)
 
-                        detections.append({
-                            "class_id": class_id,
-                            "class_name_en": label.en,
-                            "class_name_ar": label.ar,
-                            "scientific_name": label.scientific_name,
-                            "confidence": round(confidence, 4),
-                            "bbox": {
-                                "x1": float(box[0]),
-                                "y1": float(box[1]),
-                                "x2": float(box[2]),
-                                "y2": float(box[3]),
-                            },
-                            "severity": severity.value,
-                        })
+                        detections.append(
+                            {
+                                "class_id": class_id,
+                                "class_name_en": label.en,
+                                "class_name_ar": label.ar,
+                                "scientific_name": label.scientific_name,
+                                "confidence": round(confidence, 4),
+                                "bbox": {
+                                    "x1": float(box[0]),
+                                    "y1": float(box[1]),
+                                    "x2": float(box[2]),
+                                    "y2": float(box[3]),
+                                },
+                                "severity": severity.value,
+                            }
+                        )
 
                     item_time = (time.perf_counter() - item_start) * 1000
 
@@ -452,15 +463,17 @@ async def batch_detect_diseases(
                         image_size=image_size,
                     )
                     if cached:
-                        results.append(BatchItemResult(
-                            item_id=str(uuid4()),
-                            index=idx,
-                            status="success",
-                            filename=filename,
-                            detections=cached.get("detections", []),
-                            detection_count=cached.get("count", 0),
-                            processing_time_ms=0.0,
-                        ))
+                        results.append(
+                            BatchItemResult(
+                                item_id=str(uuid4()),
+                                index=idx,
+                                status="success",
+                                filename=filename,
+                                detections=cached.get("detections", []),
+                                detection_count=cached.get("count", 0),
+                                processing_time_ms=0.0,
+                            )
+                        )
                         continue
 
                 item_start = time.perf_counter()
@@ -492,21 +505,23 @@ async def batch_detect_diseases(
                     area_ratio = box_area / image_area if image_area > 0 else 0
                     severity = calculate_severity(confidence, area_ratio)
 
-                    detections.append({
-                        "class_id": class_id,
-                        "class_name_en": label.en,
-                        "class_name_ar": label.ar,
-                        "scientific_name": label.scientific_name,
-                        "confidence": round(confidence, 4),
-                        "bbox": {
-                            "x1": float(box[0]),
-                            "y1": float(box[1]),
-                            "x2": float(box[2]),
-                            "y2": float(box[3]),
-                        },
-                        "severity": severity.value,
-                        "affected_area_percent": round(area_ratio * 100, 2),
-                    })
+                    detections.append(
+                        {
+                            "class_id": class_id,
+                            "class_name_en": label.en,
+                            "class_name_ar": label.ar,
+                            "scientific_name": label.scientific_name,
+                            "confidence": round(confidence, 4),
+                            "bbox": {
+                                "x1": float(box[0]),
+                                "y1": float(box[1]),
+                                "x2": float(box[2]),
+                                "y2": float(box[3]),
+                            },
+                            "severity": severity.value,
+                            "affected_area_percent": round(area_ratio * 100, 2),
+                        }
+                    )
 
                 item_time = (time.perf_counter() - item_start) * 1000
 
@@ -521,25 +536,29 @@ async def batch_detect_diseases(
                         result={"detections": detections, "count": len(detections)},
                     )
 
-                results.append(BatchItemResult(
-                    item_id=str(uuid4()),
-                    index=idx,
-                    status="success",
-                    filename=filename,
-                    detections=detections,
-                    detection_count=len(detections),
-                    processing_time_ms=round(item_time, 2),
-                ))
+                results.append(
+                    BatchItemResult(
+                        item_id=str(uuid4()),
+                        index=idx,
+                        status="success",
+                        filename=filename,
+                        detections=detections,
+                        detection_count=len(detections),
+                        processing_time_ms=round(item_time, 2),
+                    )
+                )
 
             except Exception as e:
-                results.append(BatchItemResult(
-                    item_id=str(uuid4()),
-                    index=idx,
-                    status="failed",
-                    filename=filename,
-                    error=str(e),
-                    error_ar="فشل معالجة الصورة",
-                ))
+                results.append(
+                    BatchItemResult(
+                        item_id=str(uuid4()),
+                        index=idx,
+                        status="failed",
+                        filename=filename,
+                        error=str(e),
+                        error_ar="فشل معالجة الصورة",
+                    )
+                )
 
         total_time = (time.perf_counter() - start_time) * 1000
         successful = sum(1 for r in results if r.status == "success")

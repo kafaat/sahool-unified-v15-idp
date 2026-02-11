@@ -4,24 +4,25 @@ Based on: Qin et al. (2026) - YOLO-based operation detection
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class OperationType(str, Enum):
+class OperationType(StrEnum):
     """Agricultural operation types - أنواع العمليات الزراعية"""
-    HARVEST = "harvest"           # حصاد
-    TILLAGE = "tillage"           # حراثة
-    IRRIGATION = "irrigation"     # ري
-    PLANTING = "planting"         # زراعة
-    SPRAYING = "spraying"         # رش (مبيدات/أسمدة)
-    FERTILIZING = "fertilizing"   # تسميد
-    WEEDING = "weeding"           # إزالة الأعشاب
-    MULCHING = "mulching"         # تغطية التربة
-    PRUNING = "pruning"           # تقليم
-    TRANSPORT = "transport"       # نقل
-    UNKNOWN = "unknown"           # غير معروف
+
+    HARVEST = "harvest"  # حصاد
+    TILLAGE = "tillage"  # حراثة
+    IRRIGATION = "irrigation"  # ري
+    PLANTING = "planting"  # زراعة
+    SPRAYING = "spraying"  # رش (مبيدات/أسمدة)
+    FERTILIZING = "fertilizing"  # تسميد
+    WEEDING = "weeding"  # إزالة الأعشاب
+    MULCHING = "mulching"  # تغطية التربة
+    PRUNING = "pruning"  # تقليم
+    TRANSPORT = "transport"  # نقل
+    UNKNOWN = "unknown"  # غير معروف
 
 
 OPERATION_TYPE_AR = {
@@ -39,25 +40,27 @@ OPERATION_TYPE_AR = {
 }
 
 
-class DetectionConfidence(str, Enum):
+class DetectionConfidence(StrEnum):
     """Detection confidence levels"""
-    HIGH = "high"       # > 0.85
-    MEDIUM = "medium"   # 0.60 - 0.85
-    LOW = "low"         # < 0.60
+
+    HIGH = "high"  # > 0.85
+    MEDIUM = "medium"  # 0.60 - 0.85
+    LOW = "low"  # < 0.60
 
 
-class EquipmentType(str, Enum):
+class EquipmentType(StrEnum):
     """Agricultural equipment types - أنواع المعدات الزراعية"""
-    COMBINE_HARVESTER = "combine_harvester"     # حاصدة درس
-    TRACTOR = "tractor"                         # جرار
-    PLOW = "plow"                               # محراث
-    SPRAYER = "sprayer"                         # رشاشة
-    SEEDER = "seeder"                           # بذارة
-    IRRIGATION_PIVOT = "irrigation_pivot"       # محور الري
-    IRRIGATION_DRIP = "irrigation_drip"         # ري بالتنقيط
-    TRUCK = "truck"                             # شاحنة
-    WORKER = "worker"                           # عامل
-    UNKNOWN = "unknown"                         # غير معروف
+
+    COMBINE_HARVESTER = "combine_harvester"  # حاصدة درس
+    TRACTOR = "tractor"  # جرار
+    PLOW = "plow"  # محراث
+    SPRAYER = "sprayer"  # رشاشة
+    SEEDER = "seeder"  # بذارة
+    IRRIGATION_PIVOT = "irrigation_pivot"  # محور الري
+    IRRIGATION_DRIP = "irrigation_drip"  # ري بالتنقيط
+    TRUCK = "truck"  # شاحنة
+    WORKER = "worker"  # عامل
+    UNKNOWN = "unknown"  # غير معروف
 
 
 EQUIPMENT_TYPE_AR = {
@@ -76,6 +79,7 @@ EQUIPMENT_TYPE_AR = {
 
 class BoundingBox(BaseModel):
     """Geo-referenced bounding box"""
+
     # Image coordinates
     x_min: int
     y_min: int
@@ -84,8 +88,7 @@ class BoundingBox(BaseModel):
 
     # Geographic coordinates (corners)
     geo_coords: list[dict] | None = Field(
-        default=None,
-        description="List of {lat, lon} for bounding box corners"
+        default=None, description="List of {lat, lon} for bounding box corners"
     )
 
 
@@ -93,16 +96,14 @@ class FieldOperationDetection(BaseModel):
     """
     Detected agricultural operation - عملية زراعية مكتشفة
     """
+
     detection_id: str = Field(..., description="Unique detection identifier")
     field_id: str = Field(..., description="Field where operation was detected")
     camera_id: str = Field(..., description="Camera that captured the detection")
 
     # Operation details
     operation_type: OperationType
-    operation_type_ar: str = Field(
-        default="",
-        description="Operation type in Arabic"
-    )
+    operation_type_ar: str = Field(default="", description="Operation type in Arabic")
     confidence: float = Field(..., ge=0.0, le=1.0)
     confidence_level: DetectionConfidence
 
@@ -138,13 +139,9 @@ class FieldOperationDetection(BaseModel):
         super().__init__(**data)
         # Auto-fill Arabic translations
         if not self.operation_type_ar:
-            self.operation_type_ar = OPERATION_TYPE_AR.get(
-                self.operation_type, "غير معروف"
-            )
+            self.operation_type_ar = OPERATION_TYPE_AR.get(self.operation_type, "غير معروف")
         if self.equipment_type and not self.equipment_type_ar:
-            self.equipment_type_ar = EQUIPMENT_TYPE_AR.get(
-                self.equipment_type, "غير معروف"
-            )
+            self.equipment_type_ar = EQUIPMENT_TYPE_AR.get(self.equipment_type, "غير معروف")
 
     class Config:
         json_schema_extra = {
@@ -165,6 +162,7 @@ class FieldOperationDetection(BaseModel):
 
 class DetectionSummary(BaseModel):
     """Summary of detections for a field or time period"""
+
     field_id: str
     period_start: datetime
     period_end: datetime

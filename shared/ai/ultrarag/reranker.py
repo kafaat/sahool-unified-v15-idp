@@ -22,6 +22,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class RerankConfig:
     """Configuration for reranking | تكوين إعادة الترتيب"""
+
     method: RerankingMethod = RerankingMethod.CROSS_ENCODER
     top_k: int = 5
     model: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
@@ -59,13 +60,14 @@ class CrossEncoderReranker(Reranker):
         try:
             # Try to import sentence-transformers
             from sentence_transformers import CrossEncoder
+
             self._model = CrossEncoder(self.model_name)
             self._initialized = True
             logger.info("cross_encoder_initialized", model=self.model_name)
         except ImportError:
             logger.warning(
                 "cross_encoder_import_error",
-                message="sentence-transformers not installed, falling back to score-based reranking"
+                message="sentence-transformers not installed, falling back to score-based reranking",
             )
             self._model = None
             self._initialized = True
@@ -115,7 +117,8 @@ class CrossEncoderReranker(Reranker):
 
                 # Apply threshold and top_k
                 final_results = [
-                    r for r in scored_results[:config.top_k]
+                    r
+                    for r in scored_results[: config.top_k]
                     if r.score >= config.min_score_threshold
                 ]
             else:
@@ -123,7 +126,7 @@ class CrossEncoderReranker(Reranker):
                 final_results = sorted(results, key=lambda x: x.score, reverse=True)
                 for i, result in enumerate(final_results):
                     result.rank = i + 1
-                final_results = final_results[:config.top_k]
+                final_results = final_results[: config.top_k]
 
             elapsed = (time.time() - start_time) * 1000
 
@@ -144,7 +147,7 @@ class CrossEncoderReranker(Reranker):
             logger.error("cross_encoder_rerank_error", error=str(e))
             # Fallback to original results
             return RerankResult(
-                results=results[:config.top_k],
+                results=results[: config.top_k],
                 method=RerankingMethod.CROSS_ENCODER,
                 processing_time_ms=(time.time() - start_time) * 1000,
             )
@@ -178,7 +181,7 @@ class LLMReranker(Reranker):
                 # Fallback to original ranking
                 logger.warning("llm_reranker_no_client")
                 return RerankResult(
-                    results=results[:config.top_k],
+                    results=results[: config.top_k],
                     method=RerankingMethod.LLM,
                     processing_time_ms=(time.time() - start_time) * 1000,
                 )
@@ -186,7 +189,7 @@ class LLMReranker(Reranker):
             # Create prompt for LLM to score relevance
             scored_results = []
 
-            for result in results[:min(len(results), 20)]:  # Limit to 20 for efficiency
+            for result in results[: min(len(results), 20)]:  # Limit to 20 for efficiency
                 prompt = self._create_scoring_prompt(query, result.chunk.text)
 
                 response = await self.llm_client.generate(
@@ -208,7 +211,7 @@ class LLMReranker(Reranker):
             for i, result in enumerate(scored_results):
                 result.rank = i + 1
 
-            final_results = scored_results[:config.top_k]
+            final_results = scored_results[: config.top_k]
             elapsed = (time.time() - start_time) * 1000
 
             logger.info(
@@ -227,7 +230,7 @@ class LLMReranker(Reranker):
         except Exception as e:
             logger.error("llm_rerank_error", error=str(e))
             return RerankResult(
-                results=results[:config.top_k],
+                results=results[: config.top_k],
                 method=RerankingMethod.LLM,
                 processing_time_ms=(time.time() - start_time) * 1000,
             )
@@ -248,7 +251,8 @@ Relevance score (0-10):"""
         try:
             # Extract first number from response
             import re
-            numbers = re.findall(r'\d+(?:\.\d+)?', response)
+
+            numbers = re.findall(r"\d+(?:\.\d+)?", response)
             if numbers:
                 score = float(numbers[0])
                 return min(max(score / 10.0, 0.0), 1.0)  # Normalize to 0-1
@@ -312,7 +316,7 @@ class ReciprocalRankFusionReranker(Reranker):
 
             # Create final results
             final_results = []
-            for i, (doc_id, score) in enumerate(sorted_docs[:config.top_k]):
+            for i, (doc_id, score) in enumerate(sorted_docs[: config.top_k]):
                 result = chunk_map[doc_id]
                 result.score = score
                 result.rank = i + 1
@@ -337,7 +341,7 @@ class ReciprocalRankFusionReranker(Reranker):
         except Exception as e:
             logger.error("rrf_rerank_error", error=str(e))
             return RerankResult(
-                results=results[:config.top_k],
+                results=results[: config.top_k],
                 method=RerankingMethod.RECIPROCAL_RANK,
                 processing_time_ms=(time.time() - start_time) * 1000,
             )
@@ -362,7 +366,7 @@ class NoReranker(Reranker):
         for i, result in enumerate(sorted_results):
             result.rank = i + 1
 
-        final_results = sorted_results[:config.top_k]
+        final_results = sorted_results[: config.top_k]
         elapsed = (time.time() - start_time) * 1000
 
         return RerankResult(

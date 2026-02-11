@@ -29,8 +29,10 @@ os.environ["WECHAT_APP_SECRET"] = ""
 # Mock User Class
 # ===============================================================================
 
+
 class MockUser:
     """Mock User model for authentication."""
+
     def __init__(self, tenant_id: str = "test-tenant"):
         self.id = "test-user-id"
         self.email = "test@example.com"
@@ -58,6 +60,7 @@ class MockUser:
 # Mock Auth Module
 # ===============================================================================
 
+
 def mock_get_current_user():
     """Dependency override for get_current_user."""
     return MockUser(tenant_id="test-tenant")
@@ -77,6 +80,7 @@ sys.modules["shared.auth.models"] = mock_auth_models
 # ===============================================================================
 # Test Fixtures
 # ===============================================================================
+
 
 @pytest.fixture(scope="session")
 def mock_user():

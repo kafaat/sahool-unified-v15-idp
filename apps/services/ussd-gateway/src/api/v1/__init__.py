@@ -32,6 +32,7 @@ async def get_service_status():
 async def get_ussd_menus():
     """Get available USSD menu structure"""
     from ..main import USSD_MENUS
+
     return USSD_MENUS
 
 

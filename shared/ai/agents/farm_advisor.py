@@ -50,6 +50,7 @@ class FarmContext:
     Farm context for advisory.
     سياق المزرعة للاستشارة
     """
+
     farm_id: str
     farmer_id: str
     farmer_name: str | None = None
@@ -68,6 +69,7 @@ class CollaborativeDecision:
     Result of a collaborative decision.
     نتيجة قرار تعاوني
     """
+
     decision_id: str
     topic: str
     topic_ar: str
@@ -83,6 +85,7 @@ class CollaborativeDecision:
 # SPECIALIZED SUB-AGENTS
 # الوكلاء الفرعيين المتخصصين
 # ========================================
+
 
 class IrrigationSubAgent(BaseAutonomousAgent):
     """
@@ -112,72 +115,80 @@ class IrrigationSubAgent(BaseAutonomousAgent):
 
     def _register_default_tools(self) -> None:
         """Register irrigation-specific tools."""
-        self.register_tool(AgentTool(
-            name="calculate_et",
-            name_ar="حساب التبخر-نتح",
-            description="Calculate evapotranspiration using Penman-Monteith",
-            description_ar="حساب التبخر-نتح باستخدام بنمان-مونتيث",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "weather_data": {"type": "object"},
-                    "crop_coefficient": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_et",
+                name_ar="حساب التبخر-نتح",
+                description="Calculate evapotranspiration using Penman-Monteith",
+                description_ar="حساب التبخر-نتح باستخدام بنمان-مونتيث",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "weather_data": {"type": "object"},
+                        "crop_coefficient": {"type": "number"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._calculate_et,
-            tags=["irrigation", "et"],
-        ))
+                handler=self._calculate_et,
+                tags=["irrigation", "et"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="calculate_water_balance",
-            name_ar="حساب التوازن المائي",
-            description="Calculate soil water balance",
-            description_ar="حساب التوازن المائي للتربة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "soil_moisture": {"type": "number"},
-                    "et_value": {"type": "number"},
-                    "rainfall_mm": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_water_balance",
+                name_ar="حساب التوازن المائي",
+                description="Calculate soil water balance",
+                description_ar="حساب التوازن المائي للتربة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "soil_moisture": {"type": "number"},
+                        "et_value": {"type": "number"},
+                        "rainfall_mm": {"type": "number"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._calculate_water_balance,
-            tags=["irrigation", "water_balance"],
-        ))
+                handler=self._calculate_water_balance,
+                tags=["irrigation", "water_balance"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="optimize_irrigation_schedule",
-            name_ar="تحسين جدول الري",
-            description="Optimize irrigation schedule for water efficiency",
-            description_ar="تحسين جدول الري لكفاءة المياه",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "growth_stage": {"type": "string"},
-                    "water_budget": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="optimize_irrigation_schedule",
+                name_ar="تحسين جدول الري",
+                description="Optimize irrigation schedule for water efficiency",
+                description_ar="تحسين جدول الري لكفاءة المياه",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "growth_stage": {"type": "string"},
+                        "water_budget": {"type": "number"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._optimize_schedule,
-            tags=["irrigation", "optimization"],
-        ))
+                handler=self._optimize_schedule,
+                tags=["irrigation", "optimization"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register irrigation capabilities."""
-        self.register_capability(AgentCapability(
-            name="irrigation_calculation",
-            name_ar="حساب الري",
-            description="Calculate irrigation requirements and scheduling",
-            description_ar="حساب متطلبات الري والجدولة",
-            domains=["irrigation", "water_management"],
-            skill_level=0.9,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="irrigation_calculation",
+                name_ar="حساب الري",
+                description="Calculate irrigation requirements and scheduling",
+                description_ar="حساب متطلبات الري والجدولة",
+                domains=["irrigation", "water_management"],
+                skill_level=0.9,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -338,70 +349,78 @@ class FertilizerSubAgent(BaseAutonomousAgent):
 
     def _register_default_tools(self) -> None:
         """Register fertilizer-specific tools."""
-        self.register_tool(AgentTool(
-            name="analyze_soil_nutrients",
-            name_ar="تحليل مغذيات التربة",
-            description="Analyze soil nutrient levels from test results",
-            description_ar="تحليل مستويات مغذيات التربة من نتائج الاختبار",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "soil_test": {"type": "object"},
+        self.register_tool(
+            AgentTool(
+                name="analyze_soil_nutrients",
+                name_ar="تحليل مغذيات التربة",
+                description="Analyze soil nutrient levels from test results",
+                description_ar="تحليل مستويات مغذيات التربة من نتائج الاختبار",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "soil_test": {"type": "object"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._analyze_nutrients,
-            tags=["fertilizer", "nutrients"],
-        ))
+                handler=self._analyze_nutrients,
+                tags=["fertilizer", "nutrients"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="calculate_nutrient_requirements",
-            name_ar="حساب متطلبات العناصر الغذائية",
-            description="Calculate crop nutrient requirements based on yield target",
-            description_ar="حساب متطلبات العناصر الغذائية بناءً على هدف الإنتاج",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "crop_type": {"type": "string"},
-                    "growth_stage": {"type": "string"},
-                    "target_yield": {"type": "number"},
-                    "area_ha": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_nutrient_requirements",
+                name_ar="حساب متطلبات العناصر الغذائية",
+                description="Calculate crop nutrient requirements based on yield target",
+                description_ar="حساب متطلبات العناصر الغذائية بناءً على هدف الإنتاج",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "crop_type": {"type": "string"},
+                        "growth_stage": {"type": "string"},
+                        "target_yield": {"type": "number"},
+                        "area_ha": {"type": "number"},
+                    },
+                    "required": ["crop_type"],
                 },
-                "required": ["crop_type"]
-            },
-            handler=self._calculate_requirements,
-            tags=["fertilizer", "calculation"],
-        ))
+                handler=self._calculate_requirements,
+                tags=["fertilizer", "calculation"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="recommend_fertilizer",
-            name_ar="توصية السماد",
-            description="Recommend specific fertilizer products and application rates",
-            description_ar="توصية منتجات سماد محددة ومعدلات التطبيق",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "nutrient_deficit": {"type": "object"},
-                    "crop_type": {"type": "string"},
-                    "budget": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="recommend_fertilizer",
+                name_ar="توصية السماد",
+                description="Recommend specific fertilizer products and application rates",
+                description_ar="توصية منتجات سماد محددة ومعدلات التطبيق",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "nutrient_deficit": {"type": "object"},
+                        "crop_type": {"type": "string"},
+                        "budget": {"type": "number"},
+                    },
+                    "required": ["nutrient_deficit"],
                 },
-                "required": ["nutrient_deficit"]
-            },
-            handler=self._recommend_fertilizer,
-            tags=["fertilizer", "recommendation"],
-        ))
+                handler=self._recommend_fertilizer,
+                tags=["fertilizer", "recommendation"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register fertilizer capabilities."""
-        self.register_capability(AgentCapability(
-            name="fertilizer_recommendation",
-            name_ar="توصية التسميد",
-            description="Provide nutrient management and fertilizer recommendations",
-            description_ar="تقديم إدارة العناصر الغذائية وتوصيات التسميد",
-            domains=["fertilizer", "nutrition"],
-            skill_level=0.9,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="fertilizer_recommendation",
+                name_ar="توصية التسميد",
+                description="Provide nutrient management and fertilizer recommendations",
+                description_ar="تقديم إدارة العناصر الغذائية وتوصيات التسميد",
+                domains=["fertilizer", "nutrition"],
+                skill_level=0.9,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -463,8 +482,16 @@ class FertilizerSubAgent(BaseAutonomousAgent):
         return {
             "field_id": field_id,
             "nitrogen": {"value": soil_test.get("nitrogen", 18), "status": "low", "target": 25},
-            "phosphorus": {"value": soil_test.get("phosphorus", 25), "status": "adequate", "target": 20},
-            "potassium": {"value": soil_test.get("potassium", 150), "status": "adequate", "target": 120},
+            "phosphorus": {
+                "value": soil_test.get("phosphorus", 25),
+                "status": "adequate",
+                "target": 20,
+            },
+            "potassium": {
+                "value": soil_test.get("potassium", 150),
+                "status": "adequate",
+                "target": 120,
+            },
             "deficiencies": ["nitrogen"],
         }
 
@@ -550,71 +577,79 @@ class PestControlSubAgent(BaseAutonomousAgent):
 
     def _register_default_tools(self) -> None:
         """Register pest control tools."""
-        self.register_tool(AgentTool(
-            name="identify_pest",
-            name_ar="تحديد الآفة",
-            description="Identify pest or disease from symptoms",
-            description_ar="تحديد الآفة أو المرض من الأعراض",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "symptoms": {"type": "array", "items": {"type": "string"}},
-                    "crop_type": {"type": "string"},
-                    "image_url": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="identify_pest",
+                name_ar="تحديد الآفة",
+                description="Identify pest or disease from symptoms",
+                description_ar="تحديد الآفة أو المرض من الأعراض",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "symptoms": {"type": "array", "items": {"type": "string"}},
+                        "crop_type": {"type": "string"},
+                        "image_url": {"type": "string"},
+                    },
+                    "required": ["symptoms"],
                 },
-                "required": ["symptoms"]
-            },
-            handler=self._identify_pest,
-            tags=["pest", "identification"],
-        ))
+                handler=self._identify_pest,
+                tags=["pest", "identification"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="assess_infestation_level",
-            name_ar="تقييم مستوى الإصابة",
-            description="Assess the severity of pest/disease infestation",
-            description_ar="تقييم شدة إصابة الآفة/المرض",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "pest_id": {"type": "string"},
-                    "affected_area_percent": {"type": "number"},
-                    "population_density": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="assess_infestation_level",
+                name_ar="تقييم مستوى الإصابة",
+                description="Assess the severity of pest/disease infestation",
+                description_ar="تقييم شدة إصابة الآفة/المرض",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "pest_id": {"type": "string"},
+                        "affected_area_percent": {"type": "number"},
+                        "population_density": {"type": "number"},
+                    },
+                    "required": ["pest_id"],
                 },
-                "required": ["pest_id"]
-            },
-            handler=self._assess_infestation,
-            tags=["pest", "assessment"],
-        ))
+                handler=self._assess_infestation,
+                tags=["pest", "assessment"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="recommend_treatment",
-            name_ar="توصية العلاج",
-            description="Recommend IPM treatment strategy",
-            description_ar="توصية استراتيجية المكافحة المتكاملة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "pest_id": {"type": "string"},
-                    "severity": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "organic_only": {"type": "boolean"},
+        self.register_tool(
+            AgentTool(
+                name="recommend_treatment",
+                name_ar="توصية العلاج",
+                description="Recommend IPM treatment strategy",
+                description_ar="توصية استراتيجية المكافحة المتكاملة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "pest_id": {"type": "string"},
+                        "severity": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "organic_only": {"type": "boolean"},
+                    },
+                    "required": ["pest_id", "severity"],
                 },
-                "required": ["pest_id", "severity"]
-            },
-            handler=self._recommend_treatment,
-            tags=["pest", "treatment"],
-        ))
+                handler=self._recommend_treatment,
+                tags=["pest", "treatment"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register pest control capabilities."""
-        self.register_capability(AgentCapability(
-            name="pest_management",
-            name_ar="إدارة الآفات",
-            description="Identify and manage pests and diseases",
-            description_ar="تحديد وإدارة الآفات والأمراض",
-            domains=["pest_control", "disease_management", "ipm"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="pest_management",
+                name_ar="إدارة الآفات",
+                description="Identify and manage pests and diseases",
+                description_ar="تحديد وإدارة الآفات والأمراض",
+                domains=["pest_control", "disease_management", "ipm"],
+                skill_level=0.85,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -629,7 +664,10 @@ class PestControlSubAgent(BaseAutonomousAgent):
                 description="Identify pest/disease",
                 description_ar="تحديد الآفة/المرض",
                 tool_name="identify_pest",
-                tool_input={"symptoms": context.get("symptoms", []), "crop_type": context.get("crop_type")},
+                tool_input={
+                    "symptoms": context.get("symptoms", []),
+                    "crop_type": context.get("crop_type"),
+                },
             ),
             AgentStep(
                 step_id=str(uuid.uuid4()),
@@ -765,7 +803,9 @@ class PestControlSubAgent(BaseAutonomousAgent):
             "urgency": severity,
             "treatments": [
                 {
-                    "method": "Fungicide application" if pest_id == "leaf_rust" else "Cultural control",
+                    "method": "Fungicide application"
+                    if pest_id == "leaf_rust"
+                    else "Cultural control",
                     "product": "Propiconazole" if pest_id == "leaf_rust" else "N/A",
                 }
             ],
@@ -800,71 +840,79 @@ class HarvestPlannerSubAgent(BaseAutonomousAgent):
 
     def _register_default_tools(self) -> None:
         """Register harvest planning tools."""
-        self.register_tool(AgentTool(
-            name="assess_crop_maturity",
-            name_ar="تقييم نضج المحصول",
-            description="Assess crop maturity for harvest readiness",
-            description_ar="تقييم نضج المحصول للاستعداد للحصاد",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "planted_date": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="assess_crop_maturity",
+                name_ar="تقييم نضج المحصول",
+                description="Assess crop maturity for harvest readiness",
+                description_ar="تقييم نضج المحصول للاستعداد للحصاد",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "planted_date": {"type": "string"},
+                    },
+                    "required": ["field_id", "crop_type"],
                 },
-                "required": ["field_id", "crop_type"]
-            },
-            handler=self._assess_maturity,
-            tags=["harvest", "maturity"],
-        ))
+                handler=self._assess_maturity,
+                tags=["harvest", "maturity"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="calculate_optimal_harvest_window",
-            name_ar="حساب نافذة الحصاد المثلى",
-            description="Calculate optimal harvest timing window",
-            description_ar="حساب نافذة توقيت الحصاد المثلى",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "maturity_data": {"type": "object"},
-                    "weather_forecast": {"type": "object"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_optimal_harvest_window",
+                name_ar="حساب نافذة الحصاد المثلى",
+                description="Calculate optimal harvest timing window",
+                description_ar="حساب نافذة توقيت الحصاد المثلى",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "maturity_data": {"type": "object"},
+                        "weather_forecast": {"type": "object"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._calculate_window,
-            tags=["harvest", "timing"],
-        ))
+                handler=self._calculate_window,
+                tags=["harvest", "timing"],
+            )
+        )
 
-        self.register_tool(AgentTool(
-            name="plan_harvest_logistics",
-            name_ar="تخطيط لوجستيات الحصاد",
-            description="Plan harvest equipment and labor logistics",
-            description_ar="تخطيط معدات الحصاد والعمالة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "area_ha": {"type": "number"},
-                    "harvest_date": {"type": "string"},
-                    "equipment_available": {"type": "array"},
+        self.register_tool(
+            AgentTool(
+                name="plan_harvest_logistics",
+                name_ar="تخطيط لوجستيات الحصاد",
+                description="Plan harvest equipment and labor logistics",
+                description_ar="تخطيط معدات الحصاد والعمالة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "area_ha": {"type": "number"},
+                        "harvest_date": {"type": "string"},
+                        "equipment_available": {"type": "array"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._plan_logistics,
-            tags=["harvest", "logistics"],
-        ))
+                handler=self._plan_logistics,
+                tags=["harvest", "logistics"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register harvest planning capabilities."""
-        self.register_capability(AgentCapability(
-            name="harvest_planning",
-            name_ar="تخطيط الحصاد",
-            description="Plan harvest timing and logistics",
-            description_ar="تخطيط توقيت الحصاد والخدمات اللوجستية",
-            domains=["harvest", "logistics", "yield"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="harvest_planning",
+                name_ar="تخطيط الحصاد",
+                description="Plan harvest timing and logistics",
+                description_ar="تخطيط توقيت الحصاد والخدمات اللوجستية",
+                domains=["harvest", "logistics", "yield"],
+                skill_level=0.85,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -1061,156 +1109,173 @@ class FarmAdvisorAgent(BaseAutonomousAgent):
         """Register advisory tools."""
 
         # Tool 1: Get Field Status
-        self.register_tool(AgentTool(
-            name="get_field_status",
-            name_ar="الحصول على حالة الحقل",
-            description="Get current status of a field (health, moisture, etc.)",
-            description_ar="الحصول على الحالة الحالية للحقل (الصحة، الرطوبة، إلخ)",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "include_history": {"type": "boolean", "default": False},
+        self.register_tool(
+            AgentTool(
+                name="get_field_status",
+                name_ar="الحصول على حالة الحقل",
+                description="Get current status of a field (health, moisture, etc.)",
+                description_ar="الحصول على الحالة الحالية للحقل (الصحة، الرطوبة، إلخ)",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "include_history": {"type": "boolean", "default": False},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._get_field_status,
-            tags=["status", "monitoring"],
-        ))
+                handler=self._get_field_status,
+                tags=["status", "monitoring"],
+            )
+        )
 
         # Tool 2: Calculate Irrigation Need
-        self.register_tool(AgentTool(
-            name="calculate_irrigation_need",
-            name_ar="حساب احتياج الري",
-            description="Calculate irrigation requirements based on conditions",
-            description_ar="حساب متطلبات الري بناءً على الظروف",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "soil_moisture": {"type": "number"},
-                    "weather_forecast": {"type": "object"},
-                    "growth_stage": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_irrigation_need",
+                name_ar="حساب احتياج الري",
+                description="Calculate irrigation requirements based on conditions",
+                description_ar="حساب متطلبات الري بناءً على الظروف",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "soil_moisture": {"type": "number"},
+                        "weather_forecast": {"type": "object"},
+                        "growth_stage": {"type": "string"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._calculate_irrigation_need,
-            tags=["irrigation", "calculation"],
-        ))
+                handler=self._calculate_irrigation_need,
+                tags=["irrigation", "calculation"],
+            )
+        )
 
         # Tool 3: Calculate Fertilizer Need
-        self.register_tool(AgentTool(
-            name="calculate_fertilizer_need",
-            name_ar="حساب احتياج السماد",
-            description="Calculate fertilizer requirements based on soil test",
-            description_ar="حساب متطلبات السماد بناءً على تحليل التربة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "soil_test": {"type": "object"},
-                    "target_yield": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_fertilizer_need",
+                name_ar="حساب احتياج السماد",
+                description="Calculate fertilizer requirements based on soil test",
+                description_ar="حساب متطلبات السماد بناءً على تحليل التربة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "soil_test": {"type": "object"},
+                        "target_yield": {"type": "number"},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._calculate_fertilizer_need,
-            tags=["fertilizer", "calculation"],
-        ))
+                handler=self._calculate_fertilizer_need,
+                tags=["fertilizer", "calculation"],
+            )
+        )
 
         # Tool 4: Diagnose Crop Issue
-        self.register_tool(AgentTool(
-            name="diagnose_crop_issue",
-            name_ar="تشخيص مشكلة المحصول",
-            description="Diagnose crop health issues based on symptoms",
-            description_ar="تشخيص مشاكل صحة المحصول بناءً على الأعراض",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "symptoms": {"type": "array", "items": {"type": "string"}},
-                    "image_url": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="diagnose_crop_issue",
+                name_ar="تشخيص مشكلة المحصول",
+                description="Diagnose crop health issues based on symptoms",
+                description_ar="تشخيص مشاكل صحة المحصول بناءً على الأعراض",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "symptoms": {"type": "array", "items": {"type": "string"}},
+                        "image_url": {"type": "string"},
+                    },
+                    "required": ["crop_type", "symptoms"],
                 },
-                "required": ["crop_type", "symptoms"]
-            },
-            handler=self._diagnose_crop_issue,
-            tags=["diagnosis", "health"],
-        ))
+                handler=self._diagnose_crop_issue,
+                tags=["diagnosis", "health"],
+            )
+        )
 
         # Tool 5: Create Task (Execute mode only)
-        self.register_tool(AgentTool(
-            name="create_task",
-            name_ar="إنشاء مهمة",
-            description="Create a farm task for execution",
-            description_ar="إنشاء مهمة مزرعة للتنفيذ",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "task_type": {
-                        "type": "string",
-                        "enum": ["irrigation", "fertilizer", "spray", "harvest", "inspection"]
+        self.register_tool(
+            AgentTool(
+                name="create_task",
+                name_ar="إنشاء مهمة",
+                description="Create a farm task for execution",
+                description_ar="إنشاء مهمة مزرعة للتنفيذ",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "task_type": {
+                            "type": "string",
+                            "enum": ["irrigation", "fertilizer", "spray", "harvest", "inspection"],
+                        },
+                        "description": {"type": "string"},
+                        "scheduled_date": {"type": "string", "format": "date"},
+                        "priority": {"type": "string", "enum": ["urgent", "high", "medium", "low"]},
+                        "parameters": {"type": "object"},
                     },
-                    "description": {"type": "string"},
-                    "scheduled_date": {"type": "string", "format": "date"},
-                    "priority": {"type": "string", "enum": ["urgent", "high", "medium", "low"]},
-                    "parameters": {"type": "object"},
+                    "required": ["field_id", "task_type", "description"],
                 },
-                "required": ["field_id", "task_type", "description"]
-            },
-            handler=self._create_task,
-            requires_approval=True,
-            is_destructive=False,
-            tags=["task", "execution"],
-        ))
+                handler=self._create_task,
+                requires_approval=True,
+                is_destructive=False,
+                tags=["task", "execution"],
+            )
+        )
 
         # Tool 6: Schedule Irrigation (Execute mode only)
-        self.register_tool(AgentTool(
-            name="schedule_irrigation",
-            name_ar="جدولة الري",
-            description="Schedule irrigation for a field",
-            description_ar="جدولة الري للحقل",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "water_amount_mm": {"type": "number"},
-                    "scheduled_time": {"type": "string", "format": "date-time"},
-                    "duration_minutes": {"type": "integer"},
-                    "method": {"type": "string", "enum": ["drip", "sprinkler", "flood", "pivot"]},
+        self.register_tool(
+            AgentTool(
+                name="schedule_irrigation",
+                name_ar="جدولة الري",
+                description="Schedule irrigation for a field",
+                description_ar="جدولة الري للحقل",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "water_amount_mm": {"type": "number"},
+                        "scheduled_time": {"type": "string", "format": "date-time"},
+                        "duration_minutes": {"type": "integer"},
+                        "method": {
+                            "type": "string",
+                            "enum": ["drip", "sprinkler", "flood", "pivot"],
+                        },
+                    },
+                    "required": ["field_id", "water_amount_mm"],
                 },
-                "required": ["field_id", "water_amount_mm"]
-            },
-            handler=self._schedule_irrigation,
-            requires_approval=True,
-            is_destructive=False,
-            tags=["irrigation", "scheduling"],
-        ))
+                handler=self._schedule_irrigation,
+                requires_approval=True,
+                is_destructive=False,
+                tags=["irrigation", "scheduling"],
+            )
+        )
 
         # Tool 7: Generate Advisory Report
-        self.register_tool(AgentTool(
-            name="generate_advisory_report",
-            name_ar="توليد تقرير استشاري",
-            description="Generate a comprehensive advisory report",
-            description_ar="توليد تقرير استشاري شامل",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "farm_id": {"type": "string"},
-                    "field_ids": {"type": "array", "items": {"type": "string"}},
-                    "report_type": {
-                        "type": "string",
-                        "enum": ["daily", "weekly", "monthly", "seasonal"]
+        self.register_tool(
+            AgentTool(
+                name="generate_advisory_report",
+                name_ar="توليد تقرير استشاري",
+                description="Generate a comprehensive advisory report",
+                description_ar="توليد تقرير استشاري شامل",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "farm_id": {"type": "string"},
+                        "field_ids": {"type": "array", "items": {"type": "string"}},
+                        "report_type": {
+                            "type": "string",
+                            "enum": ["daily", "weekly", "monthly", "seasonal"],
+                        },
+                        "include_recommendations": {"type": "boolean", "default": True},
                     },
-                    "include_recommendations": {"type": "boolean", "default": True},
+                    "required": ["farm_id"],
                 },
-                "required": ["farm_id"]
-            },
-            handler=self._generate_advisory_report,
-            tags=["report", "advisory"],
-        ))
+                handler=self._generate_advisory_report,
+                tags=["report", "advisory"],
+            )
+        )
 
     async def decompose_task(
         self,
@@ -1295,14 +1360,16 @@ Create an advisory plan as JSON array."""
                     if farm_id and "farm_id" not in tool_input:
                         tool_input["farm_id"] = farm_id
 
-                    steps.append(AgentStep(
-                        step_id=str(uuid.uuid4()),
-                        step_number=i + 1,
-                        description=item.get("description", f"Step {i+1}"),
-                        description_ar=item.get("description_ar", f"الخطوة {i+1}"),
-                        tool_name=item.get("tool_name"),
-                        tool_input=tool_input,
-                    ))
+                    steps.append(
+                        AgentStep(
+                            step_id=str(uuid.uuid4()),
+                            step_number=i + 1,
+                            description=item.get("description", f"Step {i + 1}"),
+                            description_ar=item.get("description_ar", f"الخطوة {i + 1}"),
+                            tool_name=item.get("tool_name"),
+                            tool_input=tool_input,
+                        )
+                    )
 
                 return steps
 
@@ -1323,8 +1390,12 @@ Create an advisory plan as JSON array."""
 
         # Detect question type
         is_irrigation = any(w in task_lower for w in ["water", "irrigation", "ري", "سقي", "ماء"])
-        is_fertilizer = any(w in task_lower for w in ["fertilizer", "nutrient", "سماد", "تسميد", "نيتروجين"])
-        is_disease = any(w in task_lower for w in ["disease", "pest", "yellow", "مرض", "آفة", "اصفرار"])
+        is_fertilizer = any(
+            w in task_lower for w in ["fertilizer", "nutrient", "سماد", "تسميد", "نيتروجين"]
+        )
+        is_disease = any(
+            w in task_lower for w in ["disease", "pest", "yellow", "مرض", "آفة", "اصفرار"]
+        )
 
         steps = [
             AgentStep(
@@ -1338,53 +1409,63 @@ Create an advisory plan as JSON array."""
         ]
 
         if is_irrigation:
-            steps.append(AgentStep(
-                step_id=str(uuid.uuid4()),
-                step_number=2,
-                description="Calculate irrigation requirements",
-                description_ar="حساب متطلبات الري",
-                tool_name="calculate_irrigation_need",
-                tool_input={"field_id": field_id},
-            ))
+            steps.append(
+                AgentStep(
+                    step_id=str(uuid.uuid4()),
+                    step_number=2,
+                    description="Calculate irrigation requirements",
+                    description_ar="حساب متطلبات الري",
+                    tool_name="calculate_irrigation_need",
+                    tool_input={"field_id": field_id},
+                )
+            )
         elif is_fertilizer:
-            steps.append(AgentStep(
-                step_id=str(uuid.uuid4()),
-                step_number=2,
-                description="Calculate fertilizer requirements",
-                description_ar="حساب متطلبات السماد",
-                tool_name="calculate_fertilizer_need",
-                tool_input={"field_id": field_id},
-            ))
+            steps.append(
+                AgentStep(
+                    step_id=str(uuid.uuid4()),
+                    step_number=2,
+                    description="Calculate fertilizer requirements",
+                    description_ar="حساب متطلبات السماد",
+                    tool_name="calculate_fertilizer_need",
+                    tool_input={"field_id": field_id},
+                )
+            )
         elif is_disease:
-            steps.append(AgentStep(
-                step_id=str(uuid.uuid4()),
-                step_number=2,
-                description="Diagnose crop issue",
-                description_ar="تشخيص مشكلة المحصول",
-                tool_name="diagnose_crop_issue",
-                tool_input={"field_id": field_id, "symptoms": [], "crop_type": "wheat"},
-            ))
+            steps.append(
+                AgentStep(
+                    step_id=str(uuid.uuid4()),
+                    step_number=2,
+                    description="Diagnose crop issue",
+                    description_ar="تشخيص مشكلة المحصول",
+                    tool_name="diagnose_crop_issue",
+                    tool_input={"field_id": field_id, "symptoms": [], "crop_type": "wheat"},
+                )
+            )
 
         # Add report generation
-        steps.append(AgentStep(
-            step_id=str(uuid.uuid4()),
-            step_number=len(steps) + 1,
-            description="Generate advisory report",
-            description_ar="توليد تقرير استشاري",
-            tool_name="generate_advisory_report",
-            tool_input={"farm_id": farm_id, "field_ids": [field_id] if field_id else []},
-        ))
+        steps.append(
+            AgentStep(
+                step_id=str(uuid.uuid4()),
+                step_number=len(steps) + 1,
+                description="Generate advisory report",
+                description_ar="توليد تقرير استشاري",
+                tool_name="generate_advisory_report",
+                tool_input={"farm_id": farm_id, "field_ids": [field_id] if field_id else []},
+            )
+        )
 
         # In execute mode, add action step
         if self.mode == AgentMode.EXECUTE and is_irrigation:
-            steps.append(AgentStep(
-                step_id=str(uuid.uuid4()),
-                step_number=len(steps) + 1,
-                description="Schedule irrigation based on analysis",
-                description_ar="جدولة الري بناءً على التحليل",
-                tool_name="schedule_irrigation",
-                tool_input={"field_id": field_id},
-            ))
+            steps.append(
+                AgentStep(
+                    step_id=str(uuid.uuid4()),
+                    step_number=len(steps) + 1,
+                    description="Schedule irrigation based on analysis",
+                    description_ar="جدولة الري بناءً على التحليل",
+                    tool_name="schedule_irrigation",
+                    tool_input={"field_id": field_id},
+                )
+            )
 
         return steps
 
@@ -1515,15 +1596,17 @@ Create an advisory plan as JSON array."""
         recommendations = []
         if n_deficit > 0:
             urea_kg = n_deficit * 2  # Simplified calculation
-            recommendations.append({
-                "fertilizer": "Urea 46%",
-                "fertilizer_ar": "يوريا 46%",
-                "rate_kg_ha": urea_kg,
-                "timing": "Now - tillering stage",
-                "timing_ar": "الآن - مرحلة التفريع",
-                "method": "Broadcast with dew",
-                "method_ar": "نثر مع الندى",
-            })
+            recommendations.append(
+                {
+                    "fertilizer": "Urea 46%",
+                    "fertilizer_ar": "يوريا 46%",
+                    "rate_kg_ha": urea_kg,
+                    "timing": "Now - tillering stage",
+                    "timing_ar": "الآن - مرحلة التفريع",
+                    "method": "Broadcast with dew",
+                    "method_ar": "نثر مع الندى",
+                }
+            )
 
         return {
             "field_id": field_id,
@@ -1554,24 +1637,28 @@ Create an advisory plan as JSON array."""
         symptom_text = " ".join(symptoms).lower()
 
         if "yellow" in symptom_text or "اصفرار" in symptom_text:
-            diagnoses.append({
-                "condition": "Nitrogen Deficiency",
-                "condition_ar": "نقص النيتروجين",
-                "confidence": 0.85,
-                "symptoms_matched": ["yellowing leaves", "stunted growth"],
-                "treatment": "Apply Urea 46% at 46 kg/ha",
-                "treatment_ar": "تطبيق يوريا 46% بمعدل 46 كجم/هكتار",
-            })
+            diagnoses.append(
+                {
+                    "condition": "Nitrogen Deficiency",
+                    "condition_ar": "نقص النيتروجين",
+                    "confidence": 0.85,
+                    "symptoms_matched": ["yellowing leaves", "stunted growth"],
+                    "treatment": "Apply Urea 46% at 46 kg/ha",
+                    "treatment_ar": "تطبيق يوريا 46% بمعدل 46 كجم/هكتار",
+                }
+            )
 
         if "spots" in symptom_text or "بقع" in symptom_text:
-            diagnoses.append({
-                "condition": "Leaf Rust",
-                "condition_ar": "صدأ الأوراق",
-                "confidence": 0.70,
-                "symptoms_matched": ["brown spots", "pustules"],
-                "treatment": "Apply fungicide (Propiconazole)",
-                "treatment_ar": "تطبيق مبيد فطري (بروبيكونازول)",
-            })
+            diagnoses.append(
+                {
+                    "condition": "Leaf Rust",
+                    "condition_ar": "صدأ الأوراق",
+                    "confidence": 0.70,
+                    "symptoms_matched": ["brown spots", "pustules"],
+                    "treatment": "Apply fungicide (Propiconazole)",
+                    "treatment_ar": "تطبيق مبيد فطري (بروبيكونازول)",
+                }
+            )
 
         return {
             "field_id": field_id,
@@ -1659,7 +1746,7 @@ Create an advisory plan as JSON array."""
         logger.info("generating_report", farm_id=farm_id)
 
         # Gather all gathered data from steps
-        gathered_data = getattr(self, '_gathered_data', {})
+        gathered_data = getattr(self, "_gathered_data", {})
 
         report = {
             "report_id": str(uuid.uuid4()),
@@ -1702,12 +1789,12 @@ Create an advisory plan as JSON array."""
             return f"""
 ## Advisory Summary | ملخص الاستشارة
 
-**English:** {summary.get('en', 'N/A')}
+**English:** {summary.get("en", "N/A")}
 
-**العربية:** {summary.get('ar', 'غير متوفر')}
+**العربية:** {summary.get("ar", "غير متوفر")}
 
 ---
-Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PLAN else 'تنفيذ'}
+Mode: {self.mode.value} | الوضع: {"تخطيط" if self.mode == AgentMode.PLAN else "تنفيذ"}
 """
 
         return "Advisory analysis completed. | اكتمل التحليل الاستشاري."
@@ -1719,14 +1806,16 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
 
     def _register_default_capabilities(self) -> None:
         """Register advisor capabilities."""
-        self.register_capability(AgentCapability(
-            name="general_advisory",
-            name_ar="الاستشارة العامة",
-            description="Provide general agricultural advisory",
-            description_ar="تقديم استشارات زراعية عامة",
-            domains=["advisory", "farming"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="general_advisory",
+                name_ar="الاستشارة العامة",
+                description="Provide general agricultural advisory",
+                description_ar="تقديم استشارات زراعية عامة",
+                domains=["advisory", "farming"],
+                skill_level=0.85,
+            )
+        )
 
     def get_irrigation_agent(self) -> IrrigationSubAgent:
         """
@@ -1933,11 +2022,13 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
                 analysis_task = f"Analyze and vote on: {topic}\nOptions: {options}"
                 result = await agent.run(task=analysis_task, context=context)
 
-                individual_recommendations.append({
-                    "agent_id": agent.agent_id,
-                    "domain": domain,
-                    "analysis": result.get("outputs", []),
-                })
+                individual_recommendations.append(
+                    {
+                        "agent_id": agent.agent_id,
+                        "domain": domain,
+                        "analysis": result.get("outputs", []),
+                    }
+                )
 
         # Also include this coordinator's vote
         participating_agents.append(self)
@@ -1950,7 +2041,9 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
 
         # Build final recommendation
         winning_option_idx = consensus_result.get("winning_option", 0)
-        winning_option = options[winning_option_idx] if winning_option_idx < len(options) else options[0]
+        winning_option = (
+            options[winning_option_idx] if winning_option_idx < len(options) else options[0]
+        )
 
         decision = CollaborativeDecision(
             decision_id=proposal.proposal_id,
@@ -1958,7 +2051,9 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
             topic_ar=topic_ar,
             participating_agents=[a.agent_id for a in participating_agents],
             final_recommendation=winning_option,
-            confidence=consensus_result.get("weighted_score", 0.5) / len(participating_agents) if participating_agents else 0.5,
+            confidence=consensus_result.get("weighted_score", 0.5) / len(participating_agents)
+            if participating_agents
+            else 0.5,
             consensus_type=consensus_type.value,
             individual_recommendations=individual_recommendations,
         )
@@ -2030,10 +2125,12 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
             # Extract recommendations
             if result.get("success") and result.get("outputs"):
                 for output in result.get("outputs", []):
-                    all_advice["combined_recommendations"].append({
-                        "domain": domain,
-                        "recommendation": output.get("output"),
-                    })
+                    all_advice["combined_recommendations"].append(
+                        {
+                            "domain": domain,
+                            "recommendation": output.get("output"),
+                        }
+                    )
 
         return all_advice
 
@@ -2139,12 +2236,12 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
         advice["learning_metadata"] = {
             "experiences_recalled": len(similar_experiences),
             "proven_approaches_found": sum(
-                1 for exp in similar_experiences
-                if exp.get("feedback", {}).get("rating", 0) >= 4
+                1 for exp in similar_experiences if exp.get("feedback", {}).get("rating", 0) >= 4
             ),
             "average_farmer_satisfaction": (
                 sum(self.farmer_satisfaction_scores) / len(self.farmer_satisfaction_scores)
-                if self.farmer_satisfaction_scores else 0
+                if self.farmer_satisfaction_scores
+                else 0
             ),
         }
 
@@ -2170,11 +2267,11 @@ Mode: {self.mode.value} | الوضع: {'تخطيط' if self.mode == AgentMode.PL
 
         return {
             "total_feedback": len(self.farmer_satisfaction_scores),
-            "average_rating": sum(self.farmer_satisfaction_scores) / len(self.farmer_satisfaction_scores),
+            "average_rating": sum(self.farmer_satisfaction_scores)
+            / len(self.farmer_satisfaction_scores),
             "success_rate": successes / len(outcomes) if outcomes else 0,
             "rating_distribution": {
-                i: self.farmer_satisfaction_scores.count(i)
-                for i in range(1, 6)
+                i: self.farmer_satisfaction_scores.count(i) for i in range(1, 6)
             },
             "outcome_distribution": {
                 "success": successes,

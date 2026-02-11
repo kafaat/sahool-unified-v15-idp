@@ -328,11 +328,7 @@ def get_quick_responses_by_category(category: str) -> list[tuple[str, QuickRespo
     Get quick responses filtered by category.
     الحصول على الردود السريعة مفلترة حسب الفئة.
     """
-    return [
-        (key, resp)
-        for key, resp in QUICK_RESPONSES.items()
-        if resp.category == category
-    ]
+    return [(key, resp) for key, resp in QUICK_RESPONSES.items() if resp.category == category]
 
 
 def get_categories() -> list[str]:

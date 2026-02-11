@@ -6,7 +6,7 @@ Inventory Database Models
 import uuid
 from datetime import date, datetime
 from decimal import Decimal
-from enum import Enum
+from enum import Enum, StrEnum
 
 import sqlalchemy as sa
 from sqlalchemy import (
@@ -69,7 +69,7 @@ class TenantEntity(Base, TimestampMixin, TenantMixin):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
 
-class MovementType(str, Enum):
+class MovementType(StrEnum):
     """Types of inventory movements"""
 
     RECEIPT = "receipt"  # Receiving from supplier
@@ -80,7 +80,7 @@ class MovementType(str, Enum):
     WRITE_OFF = "write_off"  # Damaged/expired write-off
 
 
-class TransactionType(str, Enum):
+class TransactionType(StrEnum):
     """Types of inventory transactions"""
 
     PURCHASE = "purchase"
@@ -90,7 +90,7 @@ class TransactionType(str, Enum):
     RETURN = "return"
 
 
-class UnitOfMeasure(str, Enum):
+class UnitOfMeasure(StrEnum):
     """Standard units of measure"""
 
     KG = "kg"

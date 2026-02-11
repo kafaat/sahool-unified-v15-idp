@@ -42,7 +42,7 @@ from .database import Base
 # =============================================================================
 
 
-class SubscriptionStatus(str, enum.Enum):
+class SubscriptionStatus(enum.StrEnum):
     """حالة الاشتراك"""
 
     ACTIVE = "active"
@@ -53,7 +53,7 @@ class SubscriptionStatus(str, enum.Enum):
     EXPIRED = "expired"
 
 
-class InvoiceStatus(str, enum.Enum):
+class InvoiceStatus(enum.StrEnum):
     """حالة الفاتورة"""
 
     DRAFT = "draft"
@@ -64,7 +64,7 @@ class InvoiceStatus(str, enum.Enum):
     REFUNDED = "refunded"
 
 
-class PaymentMethod(str, enum.Enum):
+class PaymentMethod(enum.StrEnum):
     """طريقة الدفع"""
 
     CREDIT_CARD = "credit_card"
@@ -74,7 +74,7 @@ class PaymentMethod(str, enum.Enum):
     THARWATT = "tharwatt"
 
 
-class PaymentStatus(str, enum.Enum):
+class PaymentStatus(enum.StrEnum):
     """حالة الدفعة"""
 
     PENDING = "pending"
@@ -84,14 +84,14 @@ class PaymentStatus(str, enum.Enum):
     REFUNDED = "refunded"
 
 
-class Currency(str, enum.Enum):
+class Currency(enum.StrEnum):
     """العملة"""
 
     USD = "USD"
     YER = "YER"
 
 
-class BillingCycle(str, enum.Enum):
+class BillingCycle(enum.StrEnum):
     """دورة الفوترة"""
 
     MONTHLY = "monthly"
@@ -99,7 +99,7 @@ class BillingCycle(str, enum.Enum):
     YEARLY = "yearly"
 
 
-class PlanTier(str, enum.Enum):
+class PlanTier(enum.StrEnum):
     """مستوى الخطة"""
 
     FREE = "free"

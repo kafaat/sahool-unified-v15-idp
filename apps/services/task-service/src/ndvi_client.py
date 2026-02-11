@@ -11,7 +11,7 @@ License: MIT
 
 import logging
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 import httpx
@@ -41,7 +41,7 @@ HEALTH_THRESHOLDS = {
 # =============================================================================
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Field health status based on NDVI analysis"""
 
     CRITICAL = "critical"
@@ -51,7 +51,7 @@ class HealthStatus(str, Enum):
     EXCELLENT = "excellent"
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity levels"""
 
     LOW = "low"

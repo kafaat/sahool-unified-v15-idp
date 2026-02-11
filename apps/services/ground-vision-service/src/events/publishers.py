@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class EventPayload(BaseModel):
     """Base event payload structure"""
+
     event_id: str
     event_type: str
     timestamp: str
@@ -111,9 +112,7 @@ class GroundVisionPublisher:
         Args:
             detection: Field operation detection result
         """
-        subject = self.SUBJECT_OPERATION_DETECTED.format(
-            tenant_id=detection.tenant_id
-        )
+        subject = self.SUBJECT_OPERATION_DETECTED.format(tenant_id=detection.tenant_id)
 
         payload = EventPayload(
             event_id=self._generate_event_id(),
@@ -128,7 +127,9 @@ class GroundVisionPublisher:
                 "operation_type_ar": detection.operation_type_ar,
                 "confidence": detection.confidence,
                 "confidence_level": detection.confidence_level.value,
-                "equipment_type": detection.equipment_type.value if detection.equipment_type else None,
+                "equipment_type": detection.equipment_type.value
+                if detection.equipment_type
+                else None,
                 "equipment_type_ar": detection.equipment_type_ar,
                 "center_lat": detection.center_lat,
                 "center_lon": detection.center_lon,
@@ -192,10 +193,7 @@ class GroundVisionPublisher:
         )
 
         await self._publish(subject, payload)
-        logger.info(
-            f"Published growth_stage_changed: {from_stage} -> {to_stage} "
-            f"for {field_id}"
-        )
+        logger.info(f"Published growth_stage_changed: {from_stage} -> {to_stage} for {field_id}")
 
     async def publish_anomaly_detected(
         self,
@@ -207,9 +205,7 @@ class GroundVisionPublisher:
         Args:
             anomaly: Anomaly detection result
         """
-        subject = self.SUBJECT_ANOMALY_DETECTED.format(
-            tenant_id=anomaly.tenant_id
-        )
+        subject = self.SUBJECT_ANOMALY_DETECTED.format(tenant_id=anomaly.tenant_id)
 
         payload = EventPayload(
             event_id=self._generate_event_id(),
@@ -253,9 +249,7 @@ class GroundVisionPublisher:
         Args:
             analysis: Crop timeline analysis result
         """
-        subject = self.SUBJECT_TIMELINE_UPDATED.format(
-            tenant_id=analysis.tenant_id
-        )
+        subject = self.SUBJECT_TIMELINE_UPDATED.format(tenant_id=analysis.tenant_id)
 
         payload = EventPayload(
             event_id=self._generate_event_id(),

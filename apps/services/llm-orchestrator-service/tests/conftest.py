@@ -81,12 +81,14 @@ def mock_agent_executor():
     """Mock agent executor for testing."""
     executor = AsyncMock()
     executor.execute_plan = AsyncMock(return_value=[])
-    executor.call_single_agent = AsyncMock(return_value={
-        "agent_name": "test-agent",
-        "success": True,
-        "result": {"status": "ok"},
-        "latency_ms": 100,
-    })
+    executor.call_single_agent = AsyncMock(
+        return_value={
+            "agent_name": "test-agent",
+            "success": True,
+            "result": {"status": "ok"},
+            "latency_ms": 100,
+        }
+    )
     return executor
 
 

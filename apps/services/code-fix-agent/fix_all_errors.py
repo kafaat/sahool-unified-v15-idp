@@ -101,7 +101,13 @@ class ErrorScanner:
 class CodeFixClient:
     """Client for code-fix-agent API with Ollama support"""
 
-    def __init__(self, base_url: str, use_ollama: bool = True, ollama_url: str = None, ollama_model: str = None):
+    def __init__(
+        self,
+        base_url: str,
+        use_ollama: bool = True,
+        ollama_url: str = None,
+        ollama_model: str = None,
+    ):
         self.base_url = base_url
         self.use_ollama = use_ollama
         self.client = httpx.AsyncClient(timeout=60.0)
@@ -112,7 +118,9 @@ class CodeFixClient:
                 base_url=ollama_url or OLLAMA_URL,
                 model=ollama_model or OLLAMA_MODEL,
             )
-            logger.info("ollama_enabled", url=ollama_url or OLLAMA_URL, model=ollama_model or OLLAMA_MODEL)
+            logger.info(
+                "ollama_enabled", url=ollama_url or OLLAMA_URL, model=ollama_model or OLLAMA_MODEL
+            )
         else:
             self.ollama = None
 
@@ -127,7 +135,7 @@ class CodeFixClient:
                     "data": {
                         "issues": result.get("issues", []),
                         "summary": result.get("summary", ""),
-                    }
+                    },
                 }
             except Exception as e:
                 logger.error("ollama_analyze_failed", error=str(e))
@@ -288,7 +296,9 @@ async def process_file(
 
 async def main():
     """Main entry point"""
-    parser = argparse.ArgumentParser(description="Batch fix code errors using Ollama DeepSeek-Coder")
+    parser = argparse.ArgumentParser(
+        description="Batch fix code errors using Ollama DeepSeek-Coder"
+    )
     parser.add_argument(
         "--language",
         choices=["python", "dart", "all"],
@@ -409,7 +419,13 @@ async def main():
 
     for file_path, language in files_to_process:
         result = await process_file(
-            file_path, language, scanner, fix_client, args.dry_run, args.strategy, args.deep_analysis
+            file_path,
+            language,
+            scanner,
+            fix_client,
+            args.dry_run,
+            args.strategy,
+            args.deep_analysis,
         )
 
         if result.get("success"):
@@ -434,7 +450,11 @@ async def main():
     )
 
     print("\n" + "=" * 60)
-    print("BATCH FIX SUMMARY - Powered by Ollama DeepSeek-Coder" if use_ollama else "BATCH FIX SUMMARY")
+    print(
+        "BATCH FIX SUMMARY - Powered by Ollama DeepSeek-Coder"
+        if use_ollama
+        else "BATCH FIX SUMMARY"
+    )
     print("=" * 60)
     print(f"Total files scanned: {results['total']}")
     print(f"Files fixed: {results['fixed']}")

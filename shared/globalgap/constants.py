@@ -6,7 +6,7 @@ Constants and configuration values for IFA v6 compliance.
 الثوابت وقيم التكوين للامتثال لـ IFA v6.
 """
 
-from enum import Enum
+from enum import StrEnum
 
 # IFA Version
 # إصدار IFA
@@ -27,7 +27,7 @@ GGN_PREFIX = "40"
 
 # Compliance Levels
 # مستويات الامتثال
-class ComplianceLevel(str, Enum):
+class ComplianceLevel(StrEnum):
     """Compliance level enumeration / تعداد مستويات الامتثال"""
 
     MAJOR_MUST = "MAJOR_MUST"
@@ -85,7 +85,7 @@ CERTIFICATION_MINIMUM_REQUIREMENTS = {
 
 # Audit Types
 # أنواع التدقيق
-class AuditType(str, Enum):
+class AuditType(StrEnum):
     """Audit type enumeration / تعداد أنواع التدقيق"""
 
     INITIAL = "INITIAL"

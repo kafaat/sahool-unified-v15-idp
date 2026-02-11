@@ -25,18 +25,19 @@ import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable
 
 try:
     import httpx
+
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False
 
 
-class TrainingStatus(str, Enum):
+class TrainingStatus(StrEnum):
     """Status of a training job."""
 
     PENDING = "pending"
@@ -48,14 +49,14 @@ class TrainingStatus(str, Enum):
     CANCELLED = "cancelled"
 
 
-class DatasetType(str, Enum):
+class DatasetType(StrEnum):
     """Type of training dataset."""
 
-    CODE_FIX = "code_fix"              # Error -> Fix pairs
-    CODE_REVIEW = "code_review"        # Code -> Review pairs
-    CODE_GENERATION = "code_generation" # Prompt -> Code pairs
-    TEST_GENERATION = "test_generation" # Code -> Tests pairs
-    AGRICULTURAL = "agricultural"       # SAHOOL-specific advisory
+    CODE_FIX = "code_fix"  # Error -> Fix pairs
+    CODE_REVIEW = "code_review"  # Code -> Review pairs
+    CODE_GENERATION = "code_generation"  # Prompt -> Code pairs
+    TEST_GENERATION = "test_generation"  # Code -> Tests pairs
+    AGRICULTURAL = "agricultural"  # SAHOOL-specific advisory
 
 
 @dataclass
@@ -84,10 +85,13 @@ class TrainingExample:
 
     def to_jsonl(self) -> str:
         """Convert to JSONL format for training."""
-        return json.dumps({
-            "prompt": self.prompt,
-            "completion": self.completion,
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "prompt": self.prompt,
+                "completion": self.completion,
+            },
+            ensure_ascii=False,
+        )
 
 
 @dataclass
@@ -126,11 +130,13 @@ class TrainingDataset:
             for line in f:
                 if line.strip():
                     data = json.loads(line)
-                    examples.append(TrainingExample(
-                        id=str(uuid.uuid4()),
-                        prompt=data["prompt"],
-                        completion=data["completion"],
-                    ))
+                    examples.append(
+                        TrainingExample(
+                            id=str(uuid.uuid4()),
+                            prompt=data["prompt"],
+                            completion=data["completion"],
+                        )
+                    )
 
         return cls(
             id=dataset_id or str(uuid.uuid4()),
@@ -250,7 +256,9 @@ class TrainingJob:
             "current_step": self.current_step,
             "total_steps": self.total_steps,
             "loss": self.loss,
-            "evaluation_result": self.evaluation_result.to_dict() if self.evaluation_result else None,
+            "evaluation_result": self.evaluation_result.to_dict()
+            if self.evaluation_result
+            else None,
             "error_message": self.error_message,
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
@@ -315,14 +323,16 @@ Code:
 
 Return only the fixed code:"""
 
-        self._examples.append(TrainingExample(
-            id=str(uuid.uuid4()),
-            prompt=prompt,
-            completion=fixed,
-            language=language,
-            category="code_fix",
-            metadata={"rule_id": rule_id, "error_message": error_message},
-        ))
+        self._examples.append(
+            TrainingExample(
+                id=str(uuid.uuid4()),
+                prompt=prompt,
+                completion=fixed,
+                language=language,
+                category="code_fix",
+                metadata={"rule_id": rule_id, "error_message": error_message},
+            )
+        )
 
         return self
 
@@ -353,13 +363,15 @@ Return only the fixed code:"""
 
 Provide your review:"""
 
-        self._examples.append(TrainingExample(
-            id=str(uuid.uuid4()),
-            prompt=prompt,
-            completion=review,
-            language=language,
-            category="code_review",
-        ))
+        self._examples.append(
+            TrainingExample(
+                id=str(uuid.uuid4()),
+                prompt=prompt,
+                completion=review,
+                language=language,
+                category="code_review",
+            )
+        )
         self._dataset_type = DatasetType.CODE_REVIEW
 
         return self
@@ -393,14 +405,16 @@ Provide your review:"""
 
 Return the test code:"""
 
-        self._examples.append(TrainingExample(
-            id=str(uuid.uuid4()),
-            prompt=prompt,
-            completion=tests,
-            language=language,
-            category="test_generation",
-            metadata={"framework": framework},
-        ))
+        self._examples.append(
+            TrainingExample(
+                id=str(uuid.uuid4()),
+                prompt=prompt,
+                completion=tests,
+                language=language,
+                category="test_generation",
+                metadata={"framework": framework},
+            )
+        )
         self._dataset_type = DatasetType.TEST_GENERATION
 
         return self
@@ -435,14 +449,16 @@ Farmer's Question: {query}
 
 Provide expert advice:"""
 
-        self._examples.append(TrainingExample(
-            id=str(uuid.uuid4()),
-            prompt=prompt,
-            completion=response,
-            language=language_code,
-            category="agricultural",
-            metadata={"crop_type": crop_type},
-        ))
+        self._examples.append(
+            TrainingExample(
+                id=str(uuid.uuid4()),
+                prompt=prompt,
+                completion=response,
+                language=language_code,
+                category="agricultural",
+                metadata={"crop_type": crop_type},
+            )
+        )
         self._dataset_type = DatasetType.AGRICULTURAL
 
         return self
@@ -828,7 +844,11 @@ Consider local climate, soil conditions, and available resources."""
     async def cancel_job(self, job_id: str) -> bool:
         """Cancel a training job."""
         job = self._jobs.get(job_id)
-        if job and job.status in [TrainingStatus.PENDING, TrainingStatus.PREPARING, TrainingStatus.TRAINING]:
+        if job and job.status in [
+            TrainingStatus.PENDING,
+            TrainingStatus.PREPARING,
+            TrainingStatus.TRAINING,
+        ]:
             job.status = TrainingStatus.CANCELLED
             job.completed_at = datetime.now(UTC)
             return True

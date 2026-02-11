@@ -27,6 +27,7 @@ class ApplicationRateResult:
     """
     Result of application rate calculation - نتيجة حساب معدل التطبيق
     """
+
     fertilizer_name: str
     fertilizer_name_ar: str
     npk_ratio: str
@@ -80,6 +81,7 @@ class BlendCalculation:
     """
     Custom fertilizer blend calculation - حساب خلطة سماد مخصصة
     """
+
     target_n_kg_ha: float
     target_p_kg_ha: float
     target_k_kg_ha: float
@@ -265,9 +267,7 @@ class FertilizerCalculator:
 
         nutrient_content = fert.get(target_nutrient, 0)
         if nutrient_content <= 0:
-            raise ValueError(
-                f"Fertilizer {fertilizer_code} does not contain {target_nutrient}"
-            )
+            raise ValueError(f"Fertilizer {fertilizer_code} does not contain {target_nutrient}")
 
         # Calculate rate
         rate_kg_ha = (target_kg_per_ha / nutrient_content) * 100
@@ -330,9 +330,7 @@ class FertilizerCalculator:
         nutrient_content = nutrient_map.get(target_nutrient, 0)
 
         if nutrient_content <= 0:
-            raise ValueError(
-                f"Fertilizer {fertilizer.name} does not contain {target_nutrient}"
-            )
+            raise ValueError(f"Fertilizer {fertilizer.name} does not contain {target_nutrient}")
 
         # Calculate rate
         rate_kg_ha = (target_kg_per_ha / nutrient_content) * 100
@@ -665,9 +663,7 @@ class FertilizerCalculator:
         # Compare with previous season
         if previous_season_cost and previous_season_cost > 0:
             analysis.previous_season_cost = previous_season_cost
-            change = (
-                (analysis.total_cost - previous_season_cost) / previous_season_cost
-            ) * 100
+            change = ((analysis.total_cost - previous_season_cost) / previous_season_cost) * 100
             analysis.cost_change_percent = float(change)
 
             if change > 10:
@@ -688,9 +684,9 @@ class FertilizerCalculator:
             analysis.savings_opportunities_ar.append(
                 "ينصح باستخدام مصادر نيتروجين أكثر فعالية من حيث التكلفة مثل اليوريا."
             )
-            analysis.potential_savings = (
-                analysis.cost_per_kg_n - Decimal("5.50")
-            ) * Decimal(str(total_n))
+            analysis.potential_savings = (analysis.cost_per_kg_n - Decimal("5.50")) * Decimal(
+                str(total_n)
+            )
 
         return analysis
 
@@ -773,15 +769,9 @@ class FertilizerCalculator:
             else:
                 return NutrientStatus.EXCESSIVE
 
-        balance.n_status = get_status(
-            balance.n_balance_kg_ha, balance.crop_n_requirement_kg_ha
-        )
-        balance.p_status = get_status(
-            balance.p_balance_kg_ha, balance.crop_p_requirement_kg_ha
-        )
-        balance.k_status = get_status(
-            balance.k_balance_kg_ha, balance.crop_k_requirement_kg_ha
-        )
+        balance.n_status = get_status(balance.n_balance_kg_ha, balance.crop_n_requirement_kg_ha)
+        balance.p_status = get_status(balance.p_balance_kg_ha, balance.crop_p_requirement_kg_ha)
+        balance.k_status = get_status(balance.k_balance_kg_ha, balance.crop_k_requirement_kg_ha)
 
         # Check micronutrients
         micronutrient_thresholds = {

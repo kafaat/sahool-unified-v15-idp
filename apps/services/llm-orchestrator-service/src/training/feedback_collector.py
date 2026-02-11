@@ -8,7 +8,7 @@ for reinforcement learning and supervised fine-tuning.
 
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -17,8 +17,9 @@ import structlog
 logger = structlog.get_logger()
 
 
-class FeedbackType(str, Enum):
+class FeedbackType(StrEnum):
     """Type of feedback provided."""
+
     THUMBS_UP = "thumbs_up"
     THUMBS_DOWN = "thumbs_down"
     RATING = "rating"  # 1-5 scale
@@ -26,8 +27,9 @@ class FeedbackType(str, Enum):
     OUTCOME = "outcome"  # Did the advice work?
 
 
-class OutcomeStatus(str, Enum):
+class OutcomeStatus(StrEnum):
     """Outcome of following agent advice."""
+
     SUCCESS = "success"
     PARTIAL = "partial"
     FAILURE = "failure"
@@ -216,13 +218,11 @@ class FeedbackCollector:
         if feedback:
             if feedback.agent_name in self._by_agent:
                 self._by_agent[feedback.agent_name] = [
-                    fid for fid in self._by_agent[feedback.agent_name]
-                    if fid != feedback_id
+                    fid for fid in self._by_agent[feedback.agent_name] if fid != feedback_id
                 ]
             if feedback.session_id in self._by_session:
                 self._by_session[feedback.session_id] = [
-                    fid for fid in self._by_session[feedback.session_id]
-                    if fid != feedback_id
+                    fid for fid in self._by_session[feedback.session_id] if fid != feedback_id
                 ]
 
     async def get_feedback_for_agent(
@@ -314,7 +314,6 @@ class FeedbackCollector:
             "with_outcomes": len(with_outcomes),
             "success_rate": round(successes / len(with_outcomes) * 100, 1) if with_outcomes else 0,
             "by_type": {
-                ft.value: sum(1 for f in feedbacks if f.feedback_type == ft)
-                for ft in FeedbackType
+                ft.value: sum(1 for f in feedbacks if f.feedback_type == ft) for ft in FeedbackType
             },
         }

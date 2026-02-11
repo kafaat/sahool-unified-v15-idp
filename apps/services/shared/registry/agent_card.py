@@ -9,13 +9,13 @@ Reference: https://github.com/a2a-protocol/spec
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_validator
 
 
-class SecurityScheme(str, Enum):
+class SecurityScheme(StrEnum):
     """Security authentication schemes / مخططات المصادقة الأمنية"""
 
     API_KEY = "apiKey"
@@ -25,7 +25,7 @@ class SecurityScheme(str, Enum):
     NONE = "none"
 
 
-class InputMode(str, Enum):
+class InputMode(StrEnum):
     """Agent input modes / أنماط إدخال الوكيل"""
 
     TEXT = "text"
@@ -34,7 +34,7 @@ class InputMode(str, Enum):
     STREAM = "stream"
 
 
-class OutputMode(str, Enum):
+class OutputMode(StrEnum):
     """Agent output modes / أنماط إخراج الوكيل"""
 
     TEXT = "text"

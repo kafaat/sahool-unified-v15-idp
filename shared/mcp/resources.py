@@ -103,49 +103,57 @@ class FieldDataResource(ResourceProvider):
                 field_name = field.get("name", field_id)
                 field_name_ar = field.get("name_ar", field_name)
 
-                resources.extend([
-                    Resource(
-                        uri=f"field://{field_id}/info",
-                        name=f"Field {field_name} - Info",
-                        name_ar=f"حقل {field_name_ar} - معلومات",
-                        description=ResourceDescriptions.get("field_info", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("field_info", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"field://{field_id}/boundaries",
-                        name=f"Field {field_name} - Boundaries",
-                        name_ar=f"حقل {field_name_ar} - الحدود",
-                        description=ResourceDescriptions.get("field_boundaries", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("field_boundaries", Language.ARABIC),
-                        mimeType="application/geo+json",
-                    ),
-                    Resource(
-                        uri=f"field://{field_id}/soil",
-                        name=f"Field {field_name} - Soil Data",
-                        name_ar=f"حقل {field_name_ar} - بيانات التربة",
-                        description=ResourceDescriptions.get("field_soil", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("field_soil", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"field://{field_id}/sensors",
-                        name=f"Field {field_name} - Sensors",
-                        name_ar=f"حقل {field_name_ar} - المستشعرات",
-                        description=ResourceDescriptions.get("field_sensors", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("field_sensors", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"field://{field_id}/activities",
-                        name=f"Field {field_name} - Activities",
-                        name_ar=f"حقل {field_name_ar} - الأنشطة",
-                        description="Historical activities and tasks for the field | الأنشطة والمهام التاريخية للحقل",
-                    ),
-                    Resource(
-                        uri=f"field://{field_id}/health",
-                        name=f"Field {field_name} - Health",
-                        name_ar=f"حقل {field_name_ar} - الصحة",
-                        description="Crop health metrics and NDVI data | مقاييس صحة المحصول وبيانات NDVI",
-                    ),
-                ])
+                resources.extend(
+                    [
+                        Resource(
+                            uri=f"field://{field_id}/info",
+                            name=f"Field {field_name} - Info",
+                            name_ar=f"حقل {field_name_ar} - معلومات",
+                            description=ResourceDescriptions.get("field_info", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("field_info", Language.ARABIC),
+                        ),
+                        Resource(
+                            uri=f"field://{field_id}/boundaries",
+                            name=f"Field {field_name} - Boundaries",
+                            name_ar=f"حقل {field_name_ar} - الحدود",
+                            description=ResourceDescriptions.get(
+                                "field_boundaries", Language.ENGLISH
+                            ),
+                            description_ar=ResourceDescriptions.get(
+                                "field_boundaries", Language.ARABIC
+                            ),
+                            mimeType="application/geo+json",
+                        ),
+                        Resource(
+                            uri=f"field://{field_id}/soil",
+                            name=f"Field {field_name} - Soil Data",
+                            name_ar=f"حقل {field_name_ar} - بيانات التربة",
+                            description=ResourceDescriptions.get("field_soil", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get("field_soil", Language.ARABIC),
+                        ),
+                        Resource(
+                            uri=f"field://{field_id}/sensors",
+                            name=f"Field {field_name} - Sensors",
+                            name_ar=f"حقل {field_name_ar} - المستشعرات",
+                            description=ResourceDescriptions.get("field_sensors", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get(
+                                "field_sensors", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"field://{field_id}/activities",
+                            name=f"Field {field_name} - Activities",
+                            name_ar=f"حقل {field_name_ar} - الأنشطة",
+                            description="Historical activities and tasks for the field | الأنشطة والمهام التاريخية للحقل",
+                        ),
+                        Resource(
+                            uri=f"field://{field_id}/health",
+                            name=f"Field {field_name} - Health",
+                            name_ar=f"حقل {field_name_ar} - الصحة",
+                            description="Crop health metrics and NDVI data | مقاييس صحة المحصول وبيانات NDVI",
+                        ),
+                    ]
+                )
 
             return resources
         except Exception as e:
@@ -181,7 +189,9 @@ class FieldDataResource(ResourceProvider):
             response.raise_for_status()
             data = response.json()
 
-            mime_type = "application/geo+json" if resource_type == "boundaries" else "application/json"
+            mime_type = (
+                "application/geo+json" if resource_type == "boundaries" else "application/json"
+            )
 
             return ResourceContent(
                 uri=uri,
@@ -220,40 +230,48 @@ class FarmerDataResource(ResourceProvider):
                 farmer_name = farmer.get("name", farmer_id)
                 farmer_name_ar = farmer.get("name_ar", farmer_name)
 
-                resources.extend([
-                    Resource(
-                        uri=f"farmer://{farmer_id}/profile",
-                        name=f"Farmer {farmer_name} - Profile",
-                        name_ar=f"مزارع {farmer_name_ar} - الملف الشخصي",
-                        description=ResourceDescriptions.get("farmer_profile", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("farmer_profile", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"farmer://{farmer_id}/farms",
-                        name=f"Farmer {farmer_name} - Farms",
-                        name_ar=f"مزارع {farmer_name_ar} - المزارع",
-                        description=ResourceDescriptions.get("farmer_farms", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("farmer_farms", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"farmer://{farmer_id}/preferences",
-                        name=f"Farmer {farmer_name} - Preferences",
-                        name_ar=f"مزارع {farmer_name_ar} - التفضيلات",
-                        description="Farmer communication and advisory preferences | تفضيلات التواصل والاستشارة للمزارع",
-                    ),
-                    Resource(
-                        uri=f"farmer://{farmer_id}/interactions",
-                        name=f"Farmer {farmer_name} - Interactions",
-                        name_ar=f"مزارع {farmer_name_ar} - التفاعلات",
-                        description="History of interactions and communications | سجل التفاعلات والاتصالات",
-                    ),
-                    Resource(
-                        uri=f"farmer://{farmer_id}/recommendations",
-                        name=f"Farmer {farmer_name} - Recommendations",
-                        name_ar=f"مزارع {farmer_name_ar} - التوصيات",
-                        description="History of recommendations and outcomes | سجل التوصيات والنتائج",
-                    ),
-                ])
+                resources.extend(
+                    [
+                        Resource(
+                            uri=f"farmer://{farmer_id}/profile",
+                            name=f"Farmer {farmer_name} - Profile",
+                            name_ar=f"مزارع {farmer_name_ar} - الملف الشخصي",
+                            description=ResourceDescriptions.get(
+                                "farmer_profile", Language.ENGLISH
+                            ),
+                            description_ar=ResourceDescriptions.get(
+                                "farmer_profile", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"farmer://{farmer_id}/farms",
+                            name=f"Farmer {farmer_name} - Farms",
+                            name_ar=f"مزارع {farmer_name_ar} - المزارع",
+                            description=ResourceDescriptions.get("farmer_farms", Language.ENGLISH),
+                            description_ar=ResourceDescriptions.get(
+                                "farmer_farms", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"farmer://{farmer_id}/preferences",
+                            name=f"Farmer {farmer_name} - Preferences",
+                            name_ar=f"مزارع {farmer_name_ar} - التفضيلات",
+                            description="Farmer communication and advisory preferences | تفضيلات التواصل والاستشارة للمزارع",
+                        ),
+                        Resource(
+                            uri=f"farmer://{farmer_id}/interactions",
+                            name=f"Farmer {farmer_name} - Interactions",
+                            name_ar=f"مزارع {farmer_name_ar} - التفاعلات",
+                            description="History of interactions and communications | سجل التفاعلات والاتصالات",
+                        ),
+                        Resource(
+                            uri=f"farmer://{farmer_id}/recommendations",
+                            name=f"Farmer {farmer_name} - Recommendations",
+                            name_ar=f"مزارع {farmer_name_ar} - التوصيات",
+                            description="History of recommendations and outcomes | سجل التوصيات والنتائج",
+                        ),
+                    ]
+                )
 
             return resources
         except Exception as e:
@@ -434,41 +452,55 @@ class CropCatalogResource(ResourceProvider):
                 crop_name = crop.get("name")
                 crop_name_ar = crop.get("name_ar", crop_name)
 
-                resources.extend([
-                    Resource(
-                        uri=f"crops://{crop_id}/info",
-                        name=f"{crop_name} - Information",
-                        name_ar=f"{crop_name_ar} - معلومات",
-                        description=f"Complete information about {crop_name} | معلومات شاملة عن {crop_name_ar}",
-                    ),
-                    Resource(
-                        uri=f"crops://{crop_id}/growing-guide",
-                        name=f"{crop_name} - Growing Guide",
-                        name_ar=f"{crop_name_ar} - دليل الزراعة",
-                        description=ResourceDescriptions.get("knowledge_crops", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("knowledge_crops", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"crops://{crop_id}/pests",
-                        name=f"{crop_name} - Pest Management",
-                        name_ar=f"{crop_name_ar} - إدارة الآفات",
-                        description=ResourceDescriptions.get("knowledge_pests", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("knowledge_pests", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"crops://{crop_id}/diseases",
-                        name=f"{crop_name} - Disease Management",
-                        name_ar=f"{crop_name_ar} - إدارة الأمراض",
-                        description=ResourceDescriptions.get("knowledge_diseases", Language.ENGLISH),
-                        description_ar=ResourceDescriptions.get("knowledge_diseases", Language.ARABIC),
-                    ),
-                    Resource(
-                        uri=f"crops://{crop_id}/varieties",
-                        name=f"{crop_name} - Varieties",
-                        name_ar=f"{crop_name_ar} - الأصناف",
-                        description=f"Available varieties of {crop_name} | الأصناف المتاحة من {crop_name_ar}",
-                    ),
-                ])
+                resources.extend(
+                    [
+                        Resource(
+                            uri=f"crops://{crop_id}/info",
+                            name=f"{crop_name} - Information",
+                            name_ar=f"{crop_name_ar} - معلومات",
+                            description=f"Complete information about {crop_name} | معلومات شاملة عن {crop_name_ar}",
+                        ),
+                        Resource(
+                            uri=f"crops://{crop_id}/growing-guide",
+                            name=f"{crop_name} - Growing Guide",
+                            name_ar=f"{crop_name_ar} - دليل الزراعة",
+                            description=ResourceDescriptions.get(
+                                "knowledge_crops", Language.ENGLISH
+                            ),
+                            description_ar=ResourceDescriptions.get(
+                                "knowledge_crops", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"crops://{crop_id}/pests",
+                            name=f"{crop_name} - Pest Management",
+                            name_ar=f"{crop_name_ar} - إدارة الآفات",
+                            description=ResourceDescriptions.get(
+                                "knowledge_pests", Language.ENGLISH
+                            ),
+                            description_ar=ResourceDescriptions.get(
+                                "knowledge_pests", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"crops://{crop_id}/diseases",
+                            name=f"{crop_name} - Disease Management",
+                            name_ar=f"{crop_name_ar} - إدارة الأمراض",
+                            description=ResourceDescriptions.get(
+                                "knowledge_diseases", Language.ENGLISH
+                            ),
+                            description_ar=ResourceDescriptions.get(
+                                "knowledge_diseases", Language.ARABIC
+                            ),
+                        ),
+                        Resource(
+                            uri=f"crops://{crop_id}/varieties",
+                            name=f"{crop_name} - Varieties",
+                            name_ar=f"{crop_name_ar} - الأصناف",
+                            description=f"Available varieties of {crop_name} | الأصناف المتاحة من {crop_name_ar}",
+                        ),
+                    ]
+                )
 
             return resources
         except Exception as e:
@@ -566,7 +598,14 @@ class KnowledgeBaseResource(ResourceProvider):
             "id": "disease-management",
             "name": "Disease Management",
             "name_ar": "إدارة الأمراض",
-            "subtopics": ["identification", "prevention", "treatment", "fungal", "bacterial", "viral"],
+            "subtopics": [
+                "identification",
+                "prevention",
+                "treatment",
+                "fungal",
+                "bacterial",
+                "viral",
+            ],
         },
         {
             "id": "organic",

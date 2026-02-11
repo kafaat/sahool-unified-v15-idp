@@ -70,14 +70,10 @@ class PestDetectionModel:
 
     def __init__(self):
         """Initialize pest detection model."""
-        self._logger = structlog.get_logger(__name__).bind(
-            model=self.MODEL_NAME
-        )
+        self._logger = structlog.get_logger(__name__).bind(model=self.MODEL_NAME)
 
     async def detect(
-        self,
-        image_data: bytes | str,
-        confidence_threshold: float = 0.5
+        self, image_data: bytes | str, confidence_threshold: float = 0.5
     ) -> list[PestDetection]:
         """
         Detect pests in an image.
@@ -100,15 +96,12 @@ class PestDetectionModel:
         self._logger.info(
             "pest_detection_completed",
             detection_count=len(detections),
-            message_ar="اكتمل كشف الآفات"
+            message_ar="اكتمل كشف الآفات",
         )
 
         return detections
 
-    def _simulate_detection(
-        self,
-        confidence_threshold: float
-    ) -> list[PestDetection]:
+    def _simulate_detection(self, confidence_threshold: float) -> list[PestDetection]:
         """Simulate pest detection for demonstration."""
         import random
 
@@ -193,9 +186,7 @@ class MoisturePredictionModel:
 
     def __init__(self):
         """Initialize moisture prediction model."""
-        self._logger = structlog.get_logger(__name__).bind(
-            model=self.MODEL_NAME
-        )
+        self._logger = structlog.get_logger(__name__).bind(model=self.MODEL_NAME)
 
     async def predict(
         self,
@@ -203,7 +194,7 @@ class MoisturePredictionModel:
         days: int = 3,
         weather_factors: dict[str, Any] | None = None,
         soil_type: str = "loamy",
-        crop_type: str = ""
+        crop_type: str = "",
     ) -> MoisturePrediction:
         """
         Predict soil moisture for upcoming days.
@@ -229,18 +220,10 @@ class MoisturePredictionModel:
         weather = weather_factors or {}
 
         # Generate predictions
-        predictions = self._generate_predictions(
-            initial_moisture,
-            days,
-            weather,
-            soil_type
-        )
+        predictions = self._generate_predictions(initial_moisture, days, weather, soil_type)
 
         # Generate confidence intervals
-        confidence_intervals = [
-            (pred - pred * 0.05, pred + pred * 0.05)
-            for pred in predictions
-        ]
+        confidence_intervals = [(pred - pred * 0.05, pred + pred * 0.05) for pred in predictions]
 
         result = MoisturePrediction(
             predictions=predictions,
@@ -260,17 +243,13 @@ class MoisturePredictionModel:
             days=days,
             initial_moisture=initial_moisture,
             predictions=predictions,
-            message_ar="اكتمل التنبؤ بالرطوبة"
+            message_ar="اكتمل التنبؤ بالرطوبة",
         )
 
         return result
 
     def _generate_predictions(
-        self,
-        initial_moisture: float,
-        days: int,
-        weather: dict[str, Any],
-        soil_type: str
+        self, initial_moisture: float, days: int, weather: dict[str, Any], soil_type: str
     ) -> list[float]:
         """Generate moisture predictions."""
         import random
@@ -337,15 +316,13 @@ class YieldPredictionModel:
 
     def __init__(self):
         """Initialize yield prediction model."""
-        self._logger = structlog.get_logger(__name__).bind(
-            model=self.MODEL_NAME
-        )
+        self._logger = structlog.get_logger(__name__).bind(model=self.MODEL_NAME)
 
     async def estimate(
         self,
         field_data: dict[str, Any],
         weather_forecast: dict[str, Any] | None = None,
-        days: int = 15
+        days: int = 15,
     ) -> YieldEstimation:
         """
         Estimate crop yield.
@@ -382,19 +359,10 @@ class YieldPredictionModel:
         estimated_yield = base_yield * stage_factor * health_factor
 
         # Generate yield curve
-        yield_curve = self._generate_yield_curve(
-            estimated_yield,
-            days,
-            weather,
-            growth_stage
-        )
+        yield_curve = self._generate_yield_curve(estimated_yield, days, weather, growth_stage)
 
         # Identify risk factors
-        risk_factors, risk_factors_ar = self._identify_risks(
-            ndvi,
-            soil_moisture,
-            weather
-        )
+        risk_factors, risk_factors_ar = self._identify_risks(ndvi, soil_moisture, weather)
 
         # Contributing factors
         contributing_factors = {
@@ -427,7 +395,7 @@ class YieldPredictionModel:
             "yield_estimation_completed",
             crop_type=crop_type,
             estimated_yield=estimated_yield,
-            message_ar="اكتمل تقدير الإنتاجية"
+            message_ar="اكتمل تقدير الإنتاجية",
         )
 
         return result
@@ -443,11 +411,7 @@ class YieldPredictionModel:
         }
         return factors.get(growth_stage, 0.5)
 
-    def _calculate_health_factor(
-        self,
-        ndvi: float,
-        soil_moisture: float
-    ) -> float:
+    def _calculate_health_factor(self, ndvi: float, soil_moisture: float) -> float:
         """Calculate overall health factor."""
         # NDVI factor (optimal 0.7-0.9)
         if ndvi >= 0.7:
@@ -468,11 +432,7 @@ class YieldPredictionModel:
         return (ndvi_factor + moisture_factor) / 2
 
     def _generate_yield_curve(
-        self,
-        base_yield: float,
-        days: int,
-        weather: dict[str, Any],
-        growth_stage: str
+        self, base_yield: float, days: int, weather: dict[str, Any], growth_stage: str
     ) -> list[float]:
         """Generate daily yield curve."""
         import random
@@ -508,10 +468,7 @@ class YieldPredictionModel:
         return curve
 
     def _identify_risks(
-        self,
-        ndvi: float,
-        soil_moisture: float,
-        weather: dict[str, Any]
+        self, ndvi: float, soil_moisture: float, weather: dict[str, Any]
     ) -> tuple[list[str], list[str]]:
         """Identify risk factors."""
         risks = []
@@ -573,11 +530,7 @@ class CloudAILayer:
     MOISTURE_PREDICTION_ERROR = 0.03  # 3%
     YIELD_HORIZON_DAYS = 15
 
-    def __init__(
-        self,
-        farm_id: str,
-        enable_training: bool = True
-    ):
+    def __init__(self, farm_id: str, enable_training: bool = True):
         """
         Initialize Cloud AI Layer.
         تهيئة طبقة الذكاء الاصطناعي السحابية
@@ -607,22 +560,17 @@ class CloudAILayer:
         self._total_processing_time_ms = 0.0
 
         # Logger
-        self._logger = structlog.get_logger(__name__).bind(
-            farm_id=farm_id,
-            layer="cloud"
-        )
+        self._logger = structlog.get_logger(__name__).bind(farm_id=farm_id, layer="cloud")
 
         self._logger.info(
             "cloud_layer_initialized",
             farm_id=farm_id,
             enable_training=enable_training,
-            message_ar="تم تهيئة طبقة السحابة"
+            message_ar="تم تهيئة طبقة السحابة",
         )
 
     async def pest_detection(
-        self,
-        image: bytes | str,
-        confidence_threshold: float = 0.5
+        self, image: bytes | str, confidence_threshold: float = 0.5
     ) -> tuple[str, float]:
         """
         Detect pests in crop image using YOLOv5-style model.
@@ -686,15 +634,13 @@ class CloudAILayer:
             confidence=confidence,
             detection_count=len(detections),
             processing_time_ms=processing_time,
-            message_ar="اكتمل كشف الآفات"
+            message_ar="اكتمل كشف الآفات",
         )
 
         return pest_type, confidence
 
     async def pest_detection_full(
-        self,
-        image: bytes | str,
-        confidence_threshold: float = 0.5
+        self, image: bytes | str, confidence_threshold: float = 0.5
     ) -> list[PestDetection]:
         """
         Get full pest detection results including all detections.
@@ -715,7 +661,7 @@ class CloudAILayer:
         days: int = 3,
         weather_factors: dict[str, Any] | None = None,
         soil_type: str = "loamy",
-        crop_type: str = ""
+        crop_type: str = "",
     ) -> list[float]:
         """
         Predict soil moisture for upcoming days.
@@ -759,9 +705,7 @@ class CloudAILayer:
             prediction_ar=f"رطوبة {days} أيام",
             confidence=1.0 - self.MOISTURE_PREDICTION_ERROR,
             processing_time_ms=processing_time,
-            numeric_predictions={
-                f"day_{i+1}": v for i, v in enumerate(prediction.predictions)
-            },
+            numeric_predictions={f"day_{i + 1}": v for i, v in enumerate(prediction.predictions)},
             error_margin=self.MOISTURE_PREDICTION_ERROR,
             input_type="time_series",
             input_summary=f"History: {len(history)} points, Last: {history[-1] if history else 'N/A'}",
@@ -776,7 +720,7 @@ class CloudAILayer:
             predictions=prediction.predictions,
             error_margin=self.MOISTURE_PREDICTION_ERROR,
             processing_time_ms=processing_time,
-            message_ar="اكتمل التنبؤ بالرطوبة"
+            message_ar="اكتمل التنبؤ بالرطوبة",
         )
 
         return prediction.predictions
@@ -787,7 +731,7 @@ class CloudAILayer:
         days: int = 3,
         weather_factors: dict[str, Any] | None = None,
         soil_type: str = "loamy",
-        crop_type: str = ""
+        crop_type: str = "",
     ) -> MoisturePrediction:
         """
         Get full moisture prediction with confidence intervals.
@@ -808,7 +752,7 @@ class CloudAILayer:
         self,
         field_data: dict[str, Any],
         weather_forecast: dict[str, Any] | None = None,
-        days: int = 15
+        days: int = 15,
     ) -> list[float]:
         """
         Estimate crop yield with 15-day yield curve.
@@ -855,7 +799,7 @@ class CloudAILayer:
                 "estimated_yield_kg_ha": estimation.estimated_yield_kg_ha,
                 "min_yield_kg_ha": estimation.min_yield_kg_ha or 0,
                 "max_yield_kg_ha": estimation.max_yield_kg_ha or 0,
-                **{f"day_{i+1}": v for i, v in enumerate(estimation.yield_curve)},
+                **{f"day_{i + 1}": v for i, v in enumerate(estimation.yield_curve)},
             },
             input_type="field_data",
             input_summary=f"Crop: {field_data.get('crop_type')}, Area: {field_data.get('area_ha')}ha",
@@ -871,7 +815,7 @@ class CloudAILayer:
             estimated_yield=estimation.estimated_yield_kg_ha,
             confidence=estimation.confidence,
             processing_time_ms=processing_time,
-            message_ar="اكتمل تقدير الإنتاجية"
+            message_ar="اكتمل تقدير الإنتاجية",
         )
 
         return estimation.yield_curve
@@ -880,7 +824,7 @@ class CloudAILayer:
         self,
         field_data: dict[str, Any],
         weather_forecast: dict[str, Any] | None = None,
-        days: int = 15
+        days: int = 15,
     ) -> YieldEstimation:
         """
         Get full yield estimation with all details.
@@ -896,9 +840,7 @@ class CloudAILayer:
         )
 
     async def train_model(
-        self,
-        training_data: list[dict[str, Any]],
-        model_type: str = "pest_detection"
+        self, training_data: list[dict[str, Any]], model_type: str = "pest_detection"
     ) -> dict[str, Any]:
         """
         Train or fine-tune a model with new data.
@@ -919,10 +861,7 @@ class CloudAILayer:
             result = await cloud.train_model(training_data, "pest_detection")
         """
         if not self.enable_training:
-            self._logger.warning(
-                "training_disabled",
-                message_ar="التدريب معطل"
-            )
+            self._logger.warning("training_disabled", message_ar="التدريب معطل")
             return {"status": "error", "message": "Training is disabled"}
 
         # Store training data
@@ -942,7 +881,7 @@ class CloudAILayer:
                 "precision": 0.91,
                 "recall": 0.89,
                 "f1_score": 0.90,
-            }
+            },
         }
 
         self._logger.info(
@@ -950,15 +889,12 @@ class CloudAILayer:
             model_type=model_type,
             samples=len(training_data),
             metrics=result["metrics"],
-            message_ar="اكتمل تدريب النموذج"
+            message_ar="اكتمل تدريب النموذج",
         )
 
         return result
 
-    async def get_decision_recommendations(
-        self,
-        context: dict[str, Any]
-    ) -> list[Recommendation]:
+    async def get_decision_recommendations(self, context: dict[str, Any]) -> list[Recommendation]:
         """
         Get AI-powered decision recommendations.
         الحصول على توصيات قرارات مدعومة بالذكاء الاصطناعي
@@ -984,81 +920,91 @@ class CloudAILayer:
         # Analyze soil moisture
         soil_moisture = context.get("soil_moisture", 50.0)
         if soil_moisture < 30:
-            recommendations.append(Recommendation(
-                title="Urgent Irrigation Required",
-                title_ar="الري العاجل مطلوب",
-                description=f"Soil moisture is critically low at {soil_moisture}%. Immediate irrigation recommended.",
-                description_ar=f"رطوبة التربة منخفضة جداً عند {soil_moisture}%. يُوصى بالري الفوري.",
-                category="irrigation",
-                priority=1,
-                action_required=True,
-                suggested_action="Schedule irrigation within 6 hours",
-                suggested_action_ar="جدولة الري خلال 6 ساعات",
-                confidence=0.95,
-                based_on=["soil_moisture_sensor", "weather_forecast"],
-            ))
+            recommendations.append(
+                Recommendation(
+                    title="Urgent Irrigation Required",
+                    title_ar="الري العاجل مطلوب",
+                    description=f"Soil moisture is critically low at {soil_moisture}%. Immediate irrigation recommended.",
+                    description_ar=f"رطوبة التربة منخفضة جداً عند {soil_moisture}%. يُوصى بالري الفوري.",
+                    category="irrigation",
+                    priority=1,
+                    action_required=True,
+                    suggested_action="Schedule irrigation within 6 hours",
+                    suggested_action_ar="جدولة الري خلال 6 ساعات",
+                    confidence=0.95,
+                    based_on=["soil_moisture_sensor", "weather_forecast"],
+                )
+            )
         elif soil_moisture < 40:
-            recommendations.append(Recommendation(
-                title="Plan Irrigation",
-                title_ar="خطط للري",
-                description=f"Soil moisture at {soil_moisture}% is below optimal. Schedule irrigation.",
-                description_ar=f"رطوبة التربة عند {soil_moisture}% أقل من المستوى المثالي.",
-                category="irrigation",
-                priority=3,
-                action_required=True,
-                suggested_action="Schedule irrigation within 24-48 hours",
-                suggested_action_ar="جدولة الري خلال 24-48 ساعة",
-                confidence=0.85,
-                based_on=["soil_moisture_sensor"],
-            ))
+            recommendations.append(
+                Recommendation(
+                    title="Plan Irrigation",
+                    title_ar="خطط للري",
+                    description=f"Soil moisture at {soil_moisture}% is below optimal. Schedule irrigation.",
+                    description_ar=f"رطوبة التربة عند {soil_moisture}% أقل من المستوى المثالي.",
+                    category="irrigation",
+                    priority=3,
+                    action_required=True,
+                    suggested_action="Schedule irrigation within 24-48 hours",
+                    suggested_action_ar="جدولة الري خلال 24-48 ساعة",
+                    confidence=0.85,
+                    based_on=["soil_moisture_sensor"],
+                )
+            )
 
         # Analyze temperature
         temperature = context.get("temperature", 25.0)
         if temperature > 35:
-            recommendations.append(Recommendation(
-                title="Heat Stress Alert",
-                title_ar="تنبيه الإجهاد الحراري",
-                description=f"High temperature ({temperature}C) may cause crop stress.",
-                description_ar=f"درجة الحرارة المرتفعة ({temperature}م) قد تسبب إجهاد المحصول.",
-                category="climate",
-                priority=2,
-                action_required=True,
-                suggested_action="Increase irrigation frequency, consider shade nets",
-                suggested_action_ar="زيادة تكرار الري، النظر في شبكات التظليل",
-                confidence=0.88,
-                based_on=["weather_sensor", "forecast"],
-            ))
+            recommendations.append(
+                Recommendation(
+                    title="Heat Stress Alert",
+                    title_ar="تنبيه الإجهاد الحراري",
+                    description=f"High temperature ({temperature}C) may cause crop stress.",
+                    description_ar=f"درجة الحرارة المرتفعة ({temperature}م) قد تسبب إجهاد المحصول.",
+                    category="climate",
+                    priority=2,
+                    action_required=True,
+                    suggested_action="Increase irrigation frequency, consider shade nets",
+                    suggested_action_ar="زيادة تكرار الري، النظر في شبكات التظليل",
+                    confidence=0.88,
+                    based_on=["weather_sensor", "forecast"],
+                )
+            )
 
         # Analyze NDVI
         ndvi = context.get("ndvi", 0.7)
         if ndvi < 0.5:
-            recommendations.append(Recommendation(
-                title="Low Vegetation Health",
-                title_ar="صحة نباتية منخفضة",
-                description=f"NDVI of {ndvi} indicates poor crop health. Investigation required.",
-                description_ar=f"مؤشر NDVI {ndvi} يدل على صحة محصول ضعيفة. يلزم التحقيق.",
-                category="crop_health",
-                priority=2,
-                action_required=True,
-                suggested_action="Inspect field for pest/disease, check nutrient levels",
-                suggested_action_ar="فحص الحقل للآفات/الأمراض، التحقق من مستويات المغذيات",
-                confidence=0.80,
-                based_on=["satellite_imagery", "ndvi_analysis"],
-            ))
+            recommendations.append(
+                Recommendation(
+                    title="Low Vegetation Health",
+                    title_ar="صحة نباتية منخفضة",
+                    description=f"NDVI of {ndvi} indicates poor crop health. Investigation required.",
+                    description_ar=f"مؤشر NDVI {ndvi} يدل على صحة محصول ضعيفة. يلزم التحقيق.",
+                    category="crop_health",
+                    priority=2,
+                    action_required=True,
+                    suggested_action="Inspect field for pest/disease, check nutrient levels",
+                    suggested_action_ar="فحص الحقل للآفات/الأمراض، التحقق من مستويات المغذيات",
+                    confidence=0.80,
+                    based_on=["satellite_imagery", "ndvi_analysis"],
+                )
+            )
 
         # General monitoring recommendation
         if not recommendations:
-            recommendations.append(Recommendation(
-                title="Continue Monitoring",
-                title_ar="استمر في المراقبة",
-                description="All parameters are within acceptable ranges. Continue regular monitoring.",
-                description_ar="جميع المعلمات ضمن النطاقات المقبولة. استمر في المراقبة المنتظمة.",
-                category="monitoring",
-                priority=5,
-                action_required=False,
-                confidence=0.9,
-                based_on=["all_sensors"],
-            ))
+            recommendations.append(
+                Recommendation(
+                    title="Continue Monitoring",
+                    title_ar="استمر في المراقبة",
+                    description="All parameters are within acceptable ranges. Continue regular monitoring.",
+                    description_ar="جميع المعلمات ضمن النطاقات المقبولة. استمر في المراقبة المنتظمة.",
+                    category="monitoring",
+                    priority=5,
+                    action_required=False,
+                    confidence=0.9,
+                    based_on=["all_sensors"],
+                )
+            )
 
         # Sort by priority
         recommendations.sort(key=lambda r: r.priority)
@@ -1067,7 +1013,7 @@ class CloudAILayer:
             "recommendations_generated",
             count=len(recommendations),
             priorities=[r.priority for r in recommendations],
-            message_ar="تم توليد التوصيات"
+            message_ar="تم توليد التوصيات",
         )
 
         return recommendations
@@ -1081,12 +1027,10 @@ class CloudAILayer:
 
         # Trim history
         if len(self._inferences) > self._max_inference_history:
-            self._inferences = self._inferences[-self._max_inference_history:]
+            self._inferences = self._inferences[-self._max_inference_history :]
 
     def get_inference_history(
-        self,
-        model_name: str | None = None,
-        limit: int = 100
+        self, model_name: str | None = None, limit: int = 100
     ) -> list[CloudInference]:
         """
         Get inference history.
@@ -1116,7 +1060,8 @@ class CloudAILayer:
         """
         avg_processing_time = (
             self._total_processing_time_ms / self._total_inferences
-            if self._total_inferences > 0 else 0.0
+            if self._total_inferences > 0
+            else 0.0
         )
 
         return {
@@ -1125,9 +1070,7 @@ class CloudAILayer:
             "inference_by_type": dict(self._inference_by_type),
             "average_processing_time_ms": round(avg_processing_time, 2),
             "training_enabled": self.enable_training,
-            "training_samples": {
-                k: len(v) for k, v in self._training_data.items()
-            },
+            "training_samples": {k: len(v) for k, v in self._training_data.items()},
             "models": {
                 "pest_detection": {
                     "name": self._pest_model.MODEL_NAME,
@@ -1152,10 +1095,7 @@ class CloudAILayer:
 # =============================================================================
 
 
-def get_cloud_layer(
-    farm_id: str,
-    enable_training: bool = True
-) -> CloudAILayer:
+def get_cloud_layer(farm_id: str, enable_training: bool = True) -> CloudAILayer:
     """
     Get a cloud AI layer instance.
     الحصول على مثيل طبقة السحابة

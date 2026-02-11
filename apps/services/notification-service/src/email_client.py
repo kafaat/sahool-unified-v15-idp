@@ -378,12 +378,12 @@ class EmailClient:
 
             if attempt < max_retries - 1:
                 # Mask email for safe logging
-                masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+                masked = f"***@{to.split('@')[-1]}" if to and "@" in to else "***"
                 logger.warning(f"Retry {attempt + 1}/{max_retries} for {masked}...")
                 await asyncio.sleep(retry_delay)
 
         # Mask email for safe logging
-        masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+        masked = f"***@{to.split('@')[-1]}" if to and "@" in to else "***"
         logger.error(f"Failed to send email to {masked} after {max_retries} attempts")
         return None
 
@@ -431,7 +431,7 @@ class EmailClient:
             response = await asyncio.to_thread(self._send_sync, mail=mail)
 
             # Mask email for safe logging
-            masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+            masked = f"***@{to.split('@')[-1]}" if to and "@" in to else "***"
 
             if response:
                 logger.info(f"📧 Template email sent to {masked}: {response}")
@@ -442,7 +442,7 @@ class EmailClient:
 
         except Exception as e:
             # Mask email for safe logging
-            masked = f"***@{to.split('@')[-1]}" if to and '@' in to else "***"
+            masked = f"***@{to.split('@')[-1]}" if to and "@" in to else "***"
             logger.error(f"Error sending template email to {masked}: {e}")
             return None
 

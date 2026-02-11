@@ -153,12 +153,15 @@ class AuditReportGenerator:
             1 for e in user_entries if e.action == AuditActionType.LOGIN_FAILED
         )
         password_changes = sum(
-            1 for e in user_entries
+            1
+            for e in user_entries
             if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
         )
         permission_changes = sum(
-            1 for e in user_entries
-            if e.action in [
+            1
+            for e in user_entries
+            if e.action
+            in [
                 AuditActionType.PERMISSION_GRANTED,
                 AuditActionType.PERMISSION_REVOKED,
                 AuditActionType.ROLE_ASSIGNED,
@@ -170,9 +173,7 @@ class AuditReportGenerator:
         unique_resources = {(e.resource_type, e.resource_id) for e in user_entries}
         unique_resources_accessed = len(unique_resources)
 
-        resource_counts = Counter(
-            f"{e.resource_type}:{e.resource_id}" for e in user_entries
-        )
+        resource_counts = Counter(f"{e.resource_type}:{e.resource_id}" for e in user_entries)
         most_accessed_resources = resource_counts.most_common(10)
 
         access_times = [e.timestamp for e in user_entries]
@@ -180,8 +181,7 @@ class AuditReportGenerator:
         # Risk indicators
         unusual_activity_flags = []
         high_severity_events = sum(
-            1 for e in user_entries
-            if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
+            1 for e in user_entries if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         )
 
         # Check for unusual patterns
@@ -190,9 +190,7 @@ class AuditReportGenerator:
                 "Multiple failed login attempts | محاولات تسجيل دخول فاشلة متعددة"
             )
         if failed_actions > total_actions * 0.3:
-            unusual_activity_flags.append(
-                "High failure rate | معدل فشل مرتفع"
-            )
+            unusual_activity_flags.append("High failure rate | معدل فشل مرتفع")
         if high_severity_events >= 3:
             unusual_activity_flags.append(
                 "Multiple high severity events | أحداث عالية الخطورة متعددة"
@@ -261,23 +259,21 @@ class AuditReportGenerator:
         user_summaries = []
         if include_user_summaries:
             for user_id in unique_users:
-                summary = self.generate_user_activity_summary(
-                    user_id, period_start, period_end
-                )
+                summary = self.generate_user_activity_summary(user_id, period_start, period_end)
                 user_summaries.append(summary)
 
         # Security statistics
-        security_entries = [
-            e for e in entries if e.category == AuditCategory.SECURITY
-        ]
+        security_entries = [e for e in entries if e.category == AuditCategory.SECURITY]
         security_incidents = sum(
-            1 for e in security_entries
+            1
+            for e in security_entries
             if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         )
 
         # High risk events
         high_risk_events = [
-            e.to_dict() for e in entries
+            e.to_dict()
+            for e in entries
             if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         ][:20]  # Limit to 20
 
@@ -292,8 +288,10 @@ class AuditReportGenerator:
             description_ar="تقرير نشاط شامل للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="activity",
-            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start
+            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end
+            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -343,8 +341,7 @@ class AuditReportGenerator:
             entries = [e for e in entries if e.timestamp <= period_end]
 
         compliance_entries = [
-            e for e in entries
-            if e.category in [AuditCategory.COMPLIANCE, AuditCategory.GLOBALGAP]
+            e for e in entries if e.category in [AuditCategory.COMPLIANCE, AuditCategory.GLOBALGAP]
         ]
 
         # Calculate compliance metrics
@@ -354,7 +351,8 @@ class AuditReportGenerator:
 
         # Non-conformances
         nc_entries = [
-            e for e in compliance_entries
+            e
+            for e in compliance_entries
             if e.action in [AuditActionType.NC_RAISED, AuditActionType.NC_CLOSED]
         ]
         non_conformances = [
@@ -381,8 +379,10 @@ class AuditReportGenerator:
             description_ar="تقرير حالة الامتثال للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="compliance",
-            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start
+            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end
+            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -440,8 +440,7 @@ class AuditReportGenerator:
 
         # Control point completion
         control_points_checked = {
-            e.metadata.control_point_id for e in globalgap_entries
-            if e.metadata.control_point_id
+            e.metadata.control_point_id for e in globalgap_entries if e.metadata.control_point_id
         }
 
         # Findings and NCs
@@ -456,9 +455,9 @@ class AuditReportGenerator:
                 "timestamp": e.timestamp.isoformat(),
                 "description": e.action_description,
                 "description_ar": e.action_description_ar,
-                "status": "closed" if any(
-                    nc.resource_id == e.resource_id for nc in ncs_closed
-                ) else "open",
+                "status": "closed"
+                if any(nc.resource_id == e.resource_id for nc in ncs_closed)
+                else "open",
             }
             for e in ncs_raised
         ]
@@ -481,14 +480,18 @@ class AuditReportGenerator:
 
         report = AuditReport(
             id=str(uuid4()),
-            title=f"GlobalGAP Audit Report - {ggn}" if self.language == "en" else f"تقرير تدقيق GlobalGAP - {ggn}",
+            title=f"GlobalGAP Audit Report - {ggn}"
+            if self.language == "en"
+            else f"تقرير تدقيق GlobalGAP - {ggn}",
             title_ar=f"تقرير تدقيق GlobalGAP - {ggn}",
             description=f"GlobalGAP compliance audit report for GGN {ggn}",
             description_ar=f"تقرير تدقيق امتثال GlobalGAP للرقم {ggn}",
             tenant_id=self.tenant_id,
             report_type="globalgap",
-            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start
+            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end
+            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -541,19 +544,17 @@ class AuditReportGenerator:
             entries = [e for e in entries if e.timestamp <= period_end]
 
         # Security-specific entries
-        security_entries = [
-            e for e in entries if e.category == AuditCategory.SECURITY
-        ]
+        security_entries = [e for e in entries if e.category == AuditCategory.SECURITY]
 
         # Failed logins
-        failed_logins = [
-            e for e in security_entries if e.action == AuditActionType.LOGIN_FAILED
-        ]
+        failed_logins = [e for e in security_entries if e.action == AuditActionType.LOGIN_FAILED]
 
         # Permission changes
         permission_changes = [
-            e for e in security_entries
-            if e.action in [
+            e
+            for e in security_entries
+            if e.action
+            in [
                 AuditActionType.PERMISSION_GRANTED,
                 AuditActionType.PERMISSION_REVOKED,
                 AuditActionType.ROLE_ASSIGNED,
@@ -563,19 +564,22 @@ class AuditReportGenerator:
 
         # Password changes
         password_changes = [
-            e for e in security_entries
+            e
+            for e in security_entries
             if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
         ]
 
         # 2FA changes
         twofa_changes = [
-            e for e in security_entries
+            e
+            for e in security_entries
             if e.action in [AuditActionType.TWOFA_ENABLED, AuditActionType.TWOFA_DISABLED]
         ]
 
         # High risk events
         high_risk_events = [
-            e.to_dict() for e in entries
+            e.to_dict()
+            for e in entries
             if e.severity in [AuditSeverity.ERROR, AuditSeverity.CRITICAL]
         ]
 
@@ -597,9 +601,7 @@ class AuditReportGenerator:
         # User summaries for suspicious users
         user_summaries = []
         for user_id in suspicious_users:
-            summary = self.generate_user_activity_summary(
-                user_id, period_start, period_end
-            )
+            summary = self.generate_user_activity_summary(user_id, period_start, period_end)
             user_summaries.append(summary)
 
         report = AuditReport(
@@ -610,8 +612,10 @@ class AuditReportGenerator:
             description_ar="تقرير تدقيق الأمان للفترة المحددة",
             tenant_id=self.tenant_id,
             report_type="security",
-            period_start=period_start or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
-            period_end=period_end or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_start=period_start
+            or (min(e.timestamp for e in entries) if entries else datetime.now(UTC)),
+            period_end=period_end
+            or (max(e.timestamp for e in entries) if entries else datetime.now(UTC)),
             generated_at=datetime.now(UTC),
             total_entries=len(entries),
             entries_by_category=dict(entries_by_category),
@@ -724,11 +728,17 @@ class AuditReportGenerator:
                 "actor_type": entry.actor_type.value,
                 "actor_name": entry.actor_name or entry.actor_name_ar,
                 "action": entry.action.value,
-                "action_label": ACTION_LABELS.get(entry.action, {}).get(self.language, entry.action.value),
+                "action_label": ACTION_LABELS.get(entry.action, {}).get(
+                    self.language, entry.action.value
+                ),
                 "category": entry.category.value,
-                "category_label": CATEGORY_LABELS.get(entry.category, {}).get(self.language, entry.category.value),
+                "category_label": CATEGORY_LABELS.get(entry.category, {}).get(
+                    self.language, entry.category.value
+                ),
                 "severity": entry.severity.value,
-                "severity_label": SEVERITY_LABELS.get(entry.severity, {}).get(self.language, entry.severity.value),
+                "severity_label": SEVERITY_LABELS.get(entry.severity, {}).get(
+                    self.language, entry.severity.value
+                ),
                 "resource_type": entry.resource_type,
                 "resource_id": entry.resource_id,
                 "resource_name": entry.resource_name or entry.resource_name_ar,
@@ -810,16 +820,23 @@ class AuditReportGenerator:
             ws_entries.cell(row=row, column=2, value=entry.timestamp.isoformat())
             ws_entries.cell(row=row, column=3, value=entry.actor_name or entry.actor_id)
             ws_entries.cell(
-                row=row, column=4,
-                value=ACTION_LABELS.get(entry.action, {}).get(self.language, entry.action.value)
+                row=row,
+                column=4,
+                value=ACTION_LABELS.get(entry.action, {}).get(self.language, entry.action.value),
             )
             ws_entries.cell(
-                row=row, column=5,
-                value=CATEGORY_LABELS.get(entry.category, {}).get(self.language, entry.category.value)
+                row=row,
+                column=5,
+                value=CATEGORY_LABELS.get(entry.category, {}).get(
+                    self.language, entry.category.value
+                ),
             )
             ws_entries.cell(
-                row=row, column=6,
-                value=SEVERITY_LABELS.get(entry.severity, {}).get(self.language, entry.severity.value)
+                row=row,
+                column=6,
+                value=SEVERITY_LABELS.get(entry.severity, {}).get(
+                    self.language, entry.severity.value
+                ),
             )
             ws_entries.cell(row=row, column=7, value=entry.resource_type)
             ws_entries.cell(row=row, column=8, value=entry.resource_id)
@@ -832,19 +849,38 @@ class AuditReportGenerator:
 
         # Summary sheet if report provided
         if report:
-            ws_summary = wb.create_sheet(
-                title="Summary" if self.language == "en" else "ملخص"
-            )
+            ws_summary = wb.create_sheet(title="Summary" if self.language == "en" else "ملخص")
 
             summary_data = [
                 ("Report ID" if self.language == "en" else "معرف التقرير", report.id),
-                ("Title" if self.language == "en" else "العنوان", report.title if self.language == "en" else report.title_ar),
-                ("Period Start" if self.language == "en" else "بداية الفترة", report.period_start.isoformat()),
-                ("Period End" if self.language == "en" else "نهاية الفترة", report.period_end.isoformat()),
-                ("Total Entries" if self.language == "en" else "إجمالي الإدخالات", report.total_entries),
-                ("Unique Users" if self.language == "en" else "المستخدمون الفريدون", report.unique_users),
-                ("Compliance Score" if self.language == "en" else "درجة الامتثال", f"{report.compliance_score}%" if report.compliance_score else "N/A"),
-                ("Security Incidents" if self.language == "en" else "الحوادث الأمنية", report.security_incidents),
+                (
+                    "Title" if self.language == "en" else "العنوان",
+                    report.title if self.language == "en" else report.title_ar,
+                ),
+                (
+                    "Period Start" if self.language == "en" else "بداية الفترة",
+                    report.period_start.isoformat(),
+                ),
+                (
+                    "Period End" if self.language == "en" else "نهاية الفترة",
+                    report.period_end.isoformat(),
+                ),
+                (
+                    "Total Entries" if self.language == "en" else "إجمالي الإدخالات",
+                    report.total_entries,
+                ),
+                (
+                    "Unique Users" if self.language == "en" else "المستخدمون الفريدون",
+                    report.unique_users,
+                ),
+                (
+                    "Compliance Score" if self.language == "en" else "درجة الامتثال",
+                    f"{report.compliance_score}%" if report.compliance_score else "N/A",
+                ),
+                (
+                    "Security Incidents" if self.language == "en" else "الحوادث الأمنية",
+                    report.security_incidents,
+                ),
             ]
 
             for row, (label, value) in enumerate(summary_data, 1):
@@ -902,31 +938,31 @@ class AuditReportGenerator:
         entries = entries or self.entries
 
         xml_lines = ['<?xml version="1.0" encoding="UTF-8"?>']
-        xml_lines.append('<audit_trail>')
-        xml_lines.append(f'  <exported_at>{datetime.now(UTC).isoformat()}</exported_at>')
-        xml_lines.append(f'  <total_entries>{len(entries)}</total_entries>')
-        xml_lines.append('  <entries>')
+        xml_lines.append("<audit_trail>")
+        xml_lines.append(f"  <exported_at>{datetime.now(UTC).isoformat()}</exported_at>")
+        xml_lines.append(f"  <total_entries>{len(entries)}</total_entries>")
+        xml_lines.append("  <entries>")
 
         for entry in entries:
-            xml_lines.append('    <entry>')
-            xml_lines.append(f'      <id>{entry.id}</id>')
-            xml_lines.append(f'      <timestamp>{entry.timestamp.isoformat()}</timestamp>')
-            xml_lines.append(f'      <tenant_id>{entry.tenant_id}</tenant_id>')
-            xml_lines.append(f'      <actor_id>{entry.actor_id or ""}</actor_id>')
-            xml_lines.append(f'      <action>{entry.action.value}</action>')
-            xml_lines.append(f'      <category>{entry.category.value}</category>')
-            xml_lines.append(f'      <severity>{entry.severity.value}</severity>')
-            xml_lines.append(f'      <resource_type>{entry.resource_type}</resource_type>')
-            xml_lines.append(f'      <resource_id>{entry.resource_id}</resource_id>')
-            xml_lines.append(f'      <success>{str(entry.success).lower()}</success>')
+            xml_lines.append("    <entry>")
+            xml_lines.append(f"      <id>{entry.id}</id>")
+            xml_lines.append(f"      <timestamp>{entry.timestamp.isoformat()}</timestamp>")
+            xml_lines.append(f"      <tenant_id>{entry.tenant_id}</tenant_id>")
+            xml_lines.append(f"      <actor_id>{entry.actor_id or ''}</actor_id>")
+            xml_lines.append(f"      <action>{entry.action.value}</action>")
+            xml_lines.append(f"      <category>{entry.category.value}</category>")
+            xml_lines.append(f"      <severity>{entry.severity.value}</severity>")
+            xml_lines.append(f"      <resource_type>{entry.resource_type}</resource_type>")
+            xml_lines.append(f"      <resource_id>{entry.resource_id}</resource_id>")
+            xml_lines.append(f"      <success>{str(entry.success).lower()}</success>")
             if entry.metadata.ggn:
-                xml_lines.append(f'      <ggn>{entry.metadata.ggn}</ggn>')
-            xml_lines.append('    </entry>')
+                xml_lines.append(f"      <ggn>{entry.metadata.ggn}</ggn>")
+            xml_lines.append("    </entry>")
 
-        xml_lines.append('  </entries>')
-        xml_lines.append('</audit_trail>')
+        xml_lines.append("  </entries>")
+        xml_lines.append("</audit_trail>")
 
-        return '\n'.join(xml_lines)
+        return "\n".join(xml_lines)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -978,9 +1014,7 @@ def generate_globalgap_report(
     دالة مساعدة لإنشاء تقرير GlobalGAP
     """
     generator = AuditReportGenerator(entries, tenant_id, language)
-    return generator.generate_globalgap_report(
-        ggn, audit_session_id, period_start, period_end
-    )
+    return generator.generate_globalgap_report(ggn, audit_session_id, period_start, period_end)
 
 
 def export_entries(

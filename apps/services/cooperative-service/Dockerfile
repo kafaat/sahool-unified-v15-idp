@@ -24,7 +24,7 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8127/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8127/healthz || exit 1
 
 EXPOSE 8127
 

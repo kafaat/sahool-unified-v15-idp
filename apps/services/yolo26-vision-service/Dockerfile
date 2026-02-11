@@ -136,7 +136,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8150/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8150/healthz || exit 1
 
 # Expose port
 EXPOSE 8150
@@ -258,7 +258,7 @@ ENV ENABLE_TENSORRT=false
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:8150/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8150/healthz || exit 1
 
 # Expose port
 EXPOSE 8150

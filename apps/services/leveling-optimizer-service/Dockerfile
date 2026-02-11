@@ -63,7 +63,7 @@ EXPOSE 8170
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8170/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8170/healthz || exit 1
 
 # Labels
 LABEL org.opencontainers.image.title="Leveling Optimizer Service" \

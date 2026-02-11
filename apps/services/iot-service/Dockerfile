@@ -9,9 +9,8 @@
 # ───────────────────────────────────────────
 FROM node:20-alpine AS builder
 
-# Install OpenSSL 3.0.x for Prisma compatibility
-# Update package index first to fix TLS errors
-RUN apk update && apk add --no-cache openssl-dev
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed
+# WORKDIR setup
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -60,9 +59,8 @@ LABEL service="iot-service"
 LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
-# Install curl for healthcheck and OpenSSL 3.0.x for Prisma compatibility
-# Update package index first to fix TLS errors
-RUN apk update && apk add --no-cache curl openssl-dev
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed  
+# wget is already available in node:20-alpine for health checks
 
 WORKDIR /app
 
@@ -110,7 +108,7 @@ EXPOSE 8117
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8117/api/v1/health || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8117/api/v1/health || exit 1
 
 # Run application
 CMD ["node", "dist/main.js"]

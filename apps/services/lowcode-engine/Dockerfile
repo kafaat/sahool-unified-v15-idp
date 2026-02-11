@@ -41,7 +41,7 @@ EXPOSE 8132
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD curl -f http://localhost:8132/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8132/healthz || exit 1
 
 # Run the application
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8132"]

@@ -81,7 +81,7 @@ EXPOSE 8180
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8180/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8180/healthz || exit 1
 
 # Switch to non-root user
 USER sahool

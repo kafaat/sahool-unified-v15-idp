@@ -52,7 +52,7 @@ EXPOSE 8088
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:8088/healthz || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8088/healthz || exit 1
 
 # Set Python path
 ENV PYTHONPATH=/app

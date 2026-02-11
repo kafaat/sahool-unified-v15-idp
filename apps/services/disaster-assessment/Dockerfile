@@ -41,8 +41,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL for Prisma runtime
-RUN apk update && apk add --no-cache curl openssl
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed
+# wget is already available in node:20-alpine for health checks
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
@@ -71,7 +71,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3020/api/v1/disasters/health || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:3020/api/v1/disasters/health || exit 1
 
 # Run database migrations and start the application
 # Note: In production, migrations should ideally be run as a separate init container

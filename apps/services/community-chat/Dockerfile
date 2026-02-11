@@ -40,9 +40,8 @@ LABEL service="community-chat"
 LABEL version="1.0.0"
 LABEL description="Real-time chat service for Yemeni farmers community"
 
-# Install curl for healthcheck and openssl for Prisma
-# Update package index first to fix TLS errors
-RUN apk update && apk add --no-cache curl openssl-dev
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed
+# wget is already available in node:20-alpine for health checks
 
 WORKDIR /app
 

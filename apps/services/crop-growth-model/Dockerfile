@@ -60,7 +60,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3023/api/v1/simulation/health || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:3023/api/v1/simulation/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

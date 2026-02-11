@@ -8,9 +8,8 @@ LABEL maintainer="SAHOOL Team"
 LABEL service="chat-service"
 LABEL version="16.0.0"
 
-# Install OpenSSL 3.0.x for Prisma compatibility
-# Update package index first to fix TLS errors
-RUN apk update && apk add --no-cache openssl-dev
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed
+# WORKDIR setup
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -54,9 +53,8 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
-# Update package index first to fix TLS errors
-RUN apk update && apk add --no-cache curl openssl-dev
+# Prisma 5.22+ bundles its own OpenSSL, no system installation needed
+# wget is already available in node:20-alpine for health checks
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds with package-lock.json
@@ -106,7 +104,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD curl -f http://localhost:8000/api/v1/health || exit 1
+    CMD wget --spider --quiet --timeout=5 http://localhost:8000/api/v1/health || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

@@ -28,6 +28,7 @@ from .models import (
 
 class QRFormat(str, Enum):
     """QR code output formats"""
+
     PNG = "png"
     SVG = "svg"
     BASE64_PNG = "base64_png"
@@ -36,6 +37,7 @@ class QRFormat(str, Enum):
 
 class QRSize(str, Enum):
     """QR code size presets"""
+
     SMALL = "small"  # 128x128 - for labels
     MEDIUM = "medium"  # 256x256 - for boxes
     LARGE = "large"  # 512x512 - for posters
@@ -54,6 +56,7 @@ QR_SIZE_PIXELS = {
 @dataclass
 class QRGenerationConfig:
     """Configuration for QR code generation - إعدادات إنشاء رمز QR"""
+
     # Base URL for verification endpoint
     base_url: str = "https://trace.sahool.app"
 
@@ -78,6 +81,7 @@ class QRGenerationConfig:
 @dataclass
 class GeneratedQRCode:
     """Result of QR code generation - نتيجة إنشاء رمز QR"""
+
     batch_id: str
     batch_code: str
 
@@ -121,6 +125,7 @@ class QRCodeGenerator:
         """Check if qrcode library is available"""
         try:
             import qrcode  # noqa: F401
+
             return True
         except ImportError:
             return False
@@ -245,10 +250,12 @@ class QRCodeGenerator:
         """Build the verification URL for a batch"""
         # URL format: https://trace.sahool.app/verify/{batch_code}?sig={signature}
         signature = self._generate_signature(batch)
-        params = urlencode({
-            "sig": signature,
-            "lang": "ar",  # Default to Arabic
-        })
+        params = urlencode(
+            {
+                "sig": signature,
+                "lang": "ar",  # Default to Arabic
+            }
+        )
         return f"{config.base_url}/verify/{batch.batch_code}?{params}"
 
     def _build_qr_data(
@@ -276,7 +283,12 @@ class QRCodeGenerator:
         """Generate the actual QR code image"""
         try:
             import qrcode
-            from qrcode.constants import ERROR_CORRECT_L, ERROR_CORRECT_M, ERROR_CORRECT_Q, ERROR_CORRECT_H
+            from qrcode.constants import (
+                ERROR_CORRECT_L,
+                ERROR_CORRECT_M,
+                ERROR_CORRECT_Q,
+                ERROR_CORRECT_H,
+            )
         except ImportError:
             return b"", ""
 
@@ -306,6 +318,7 @@ class QRCodeGenerator:
             # SVG output
             try:
                 from qrcode.image.svg import SvgImage
+
                 img = qr.make_image(
                     image_factory=SvgImage,
                     fill_color=config.foreground_color,
@@ -367,6 +380,7 @@ class QRCodeGenerator:
 @dataclass
 class LabelData:
     """Data for printing product labels - بيانات طباعة ملصقات المنتج"""
+
     batch_code: str
     product_name_en: str
     product_name_ar: str
@@ -451,7 +465,9 @@ class LabelGenerator:
         """
         qr_img = ""
         if label_data.qr_code_base64:
-            qr_img = f'<img src="data:image/png;base64,{label_data.qr_code_base64}" alt="QR Code" />'
+            qr_img = (
+                f'<img src="data:image/png;base64,{label_data.qr_code_base64}" alt="QR Code" />'
+            )
 
         expiry_html = ""
         if label_data.expiry_date:

@@ -28,6 +28,7 @@ from typing import Any, AsyncIterator
 
 try:
     import httpx
+
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False

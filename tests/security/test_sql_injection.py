@@ -151,11 +151,7 @@ class TestParameterizedQueries:
 
     def test_update_with_safe_params(self, query_builder):
         """Test UPDATE query uses parameterized values."""
-        query, params = query_builder.build_update(
-            "fields",
-            {"name": "Updated Field"},
-            {"id": 1}
-        )
+        query, params = query_builder.build_update("fields", {"name": "Updated Field"}, {"id": 1})
 
         assert "Updated Field" not in query
         assert "$1" in query
@@ -191,11 +187,7 @@ class TestSQLInjectionPrevention:
     @pytest.mark.parametrize("payload", SQL_INJECTION_PAYLOADS)
     def test_injection_in_update_value(self, query_builder, payload):
         """Test SQL injection payloads are safely parameterized in UPDATE."""
-        query, params = query_builder.build_update(
-            "fields",
-            {"name": payload},
-            {"id": 1}
-        )
+        query, params = query_builder.build_update("fields", {"name": payload}, {"id": 1})
 
         assert payload not in query
         assert payload in params
@@ -343,6 +335,7 @@ class TestPostGISSQLInjection:
         valid_geojson = '{"type": "Polygon", "coordinates": [[[0,0],[1,0],[1,1],[0,1],[0,0]]]}'
 
         import json
+
         try:
             geom = json.loads(valid_geojson)
             assert geom["type"] == "Polygon"

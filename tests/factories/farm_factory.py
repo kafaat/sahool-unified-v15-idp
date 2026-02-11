@@ -200,16 +200,12 @@ class FarmFactory:
     @classmethod
     def create_small_farm(cls, **kwargs) -> FarmData:
         """Create a small farm (< 50 hectares)."""
-        return cls.create(
-            total_area_hectares=round(random.uniform(5, 50), 2), **kwargs
-        )
+        return cls.create(total_area_hectares=round(random.uniform(5, 50), 2), **kwargs)
 
     @classmethod
     def create_large_farm(cls, **kwargs) -> FarmData:
         """Create a large farm (> 200 hectares)."""
-        return cls.create(
-            total_area_hectares=round(random.uniform(200, 1000), 2), **kwargs
-        )
+        return cls.create(total_area_hectares=round(random.uniform(200, 1000), 2), **kwargs)
 
     @classmethod
     def _generate_saudi_location(cls) -> dict:

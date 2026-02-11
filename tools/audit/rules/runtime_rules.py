@@ -26,7 +26,7 @@ def check_healthchecks_defined(repo_root: Path) -> list:
     if not compose_file.exists():
         return findings
 
-    content = compose_file.read_text(encoding='utf-8')
+    content = compose_file.read_text(encoding="utf-8")
 
     # Find services without healthchecks
     # Simple regex to find service blocks
@@ -101,7 +101,7 @@ def check_startup_order(repo_root: Path) -> list:
     if not compose_file.exists():
         return findings
 
-    content = compose_file.read_text(encoding='utf-8')
+    content = compose_file.read_text(encoding="utf-8")
 
     # Services that typically need database
     db_dependent_keywords = ["DATABASE_URL", "POSTGRES", "asyncpg", "sqlalchemy"]
@@ -119,7 +119,7 @@ def check_startup_order(repo_root: Path) -> list:
             uses_db = False
             for py_file in service_dir.rglob("*.py"):
                 try:
-                    py_content = py_file.read_text(encoding='utf-8')
+                    py_content = py_file.read_text(encoding="utf-8")
                     if any(kw in py_content for kw in db_dependent_keywords):
                         uses_db = True
                         break
@@ -129,9 +129,7 @@ def check_startup_order(repo_root: Path) -> list:
             if uses_db:
                 # Check if service has depends_on postgres in compose
                 service_block_pattern = rf"{service_name}:.*?(?=^\s{{2}}\w|\Z)"
-                service_match = re.search(
-                    service_block_pattern, content, re.MULTILINE | re.DOTALL
-                )
+                service_match = re.search(service_block_pattern, content, re.MULTILINE | re.DOTALL)
 
                 if service_match:
                     service_block = service_match.group(0)
@@ -160,7 +158,7 @@ def check_port_conflicts(repo_root: Path) -> list:
     if not compose_file.exists():
         return findings
 
-    content = compose_file.read_text(encoding='utf-8')
+    content = compose_file.read_text(encoding="utf-8")
 
     # Extract port mappings
     port_pattern = r'"(\d+):(\d+)"'
@@ -200,7 +198,7 @@ def check_entrypoints(repo_root: Path) -> list:
         if not dockerfile.exists():
             continue
 
-        content = dockerfile.read_text(encoding='utf-8')
+        content = dockerfile.read_text(encoding="utf-8")
 
         # Check for CMD or ENTRYPOINT
         has_cmd = "CMD " in content or "CMD[" in content

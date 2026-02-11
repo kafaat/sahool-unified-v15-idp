@@ -40,11 +40,14 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 # Import authentication dependencies
 try:
@@ -966,7 +969,9 @@ async def lifespan(app: FastAPI):
         if whatsapp_client._initialized:
             logger.info("✅ WhatsApp client initialized")
         else:
-            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
+            logger.info(
+                "ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
 

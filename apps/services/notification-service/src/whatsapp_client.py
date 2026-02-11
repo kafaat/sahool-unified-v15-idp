@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 class WhatsAppProvider(str, Enum):
     """مزودي خدمة واتساب"""
+
     TWILIO = "twilio"
     META_CLOUD = "meta_cloud"
     ULTRAMSG = "ultramsg"  # Local provider example
@@ -39,6 +40,7 @@ class WhatsAppProvider(str, Enum):
 @dataclass
 class WhatsAppMessage:
     """رسالة واتساب"""
+
     to: str  # Phone number in E.164 format
     body: str
     body_ar: str | None = None
@@ -136,7 +138,11 @@ class TwilioWhatsAppProvider(BaseWhatsAppProvider):
         try:
             # Ensure proper WhatsApp format
             whatsapp_to = f"whatsapp:{to}" if not to.startswith("whatsapp:") else to
-            whatsapp_from = f"whatsapp:{self._from_number}" if not self._from_number.startswith("whatsapp:") else self._from_number
+            whatsapp_from = (
+                f"whatsapp:{self._from_number}"
+                if not self._from_number.startswith("whatsapp:")
+                else self._from_number
+            )
 
             message = await asyncio.to_thread(
                 self._client.messages.create,
@@ -257,13 +263,15 @@ class MetaCloudWhatsAppProvider(BaseWhatsAppProvider):
             # Build template components
             components = []
             if "body_params" in template_params:
-                components.append({
-                    "type": "body",
-                    "parameters": [
-                        {"type": "text", "text": param}
-                        for param in template_params["body_params"]
-                    ],
-                })
+                components.append(
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {"type": "text", "text": param}
+                            for param in template_params["body_params"]
+                        ],
+                    }
+                )
 
             payload = {
                 "messaging_product": "whatsapp",
@@ -400,14 +408,20 @@ class WhatsAppClient:
 
         if providers_initialized:
             # Set primary provider (prefer Twilio, then Meta, then local)
-            priority = [WhatsAppProvider.TWILIO, WhatsAppProvider.META_CLOUD, WhatsAppProvider.ULTRAMSG]
+            priority = [
+                WhatsAppProvider.TWILIO,
+                WhatsAppProvider.META_CLOUD,
+                WhatsAppProvider.ULTRAMSG,
+            ]
             for provider in priority:
                 if provider in providers_initialized:
                     self._primary_provider = provider
                     break
 
             self._initialized = True
-            logger.info(f"✅ WhatsApp client initialized with {len(providers_initialized)} provider(s). Primary: {self._primary_provider}")
+            logger.info(
+                f"✅ WhatsApp client initialized with {len(providers_initialized)} provider(s). Primary: {self._primary_provider}"
+            )
             return True
 
         logger.warning("⚠️ No WhatsApp providers configured")

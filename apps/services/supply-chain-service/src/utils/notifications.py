@@ -166,10 +166,7 @@ class NotificationService:
             order_id=str(order_id),
         )
 
-        message_ar = (
-            f"تم شحن طلبك رقم #{str(order_id)[:8]}. "
-            f"تتبع شحنتك: {tracking_url}"
-        )
+        message_ar = f"تم شحن طلبك رقم #{str(order_id)[:8]}. تتبع شحنتك: {tracking_url}"
 
         results = {
             "sms": None,
@@ -214,10 +211,7 @@ class NotificationService:
             order_id=str(order_id),
         )
 
-        message_ar = (
-            f"تم توصيل طلبك رقم #{str(order_id)[:8]} بنجاح. "
-            f"شكراً لتعاملك معنا!"
-        )
+        message_ar = f"تم توصيل طلبك رقم #{str(order_id)[:8]} بنجاح. شكراً لتعاملك معنا!"
 
         results = {
             "sms": None,

@@ -79,6 +79,7 @@ ignore = [
     "B904",   # raise without from inside except
     "SIM102", # nested if - intentional for readability
     "ARG001", # unused function argument
+    "UP042",  # str, Enum pattern - StrEnum is Python 3.11+, current pattern works
 ]
 
 [tool.ruff.lint.isort]

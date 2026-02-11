@@ -33,12 +33,14 @@ logger = logging.getLogger(__name__)
 
 class LoginRequest(BaseModel):
     """Login request schema"""
+
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
 
 
 class RegisterRequest(BaseModel):
     """Registration request schema"""
+
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., min_length=8, description="User password")
     full_name: str = Field(..., min_length=2, max_length=100, description="Full name")
@@ -47,22 +49,26 @@ class RegisterRequest(BaseModel):
 
 class ForgotPasswordRequest(BaseModel):
     """Forgot password request schema"""
+
     email: EmailStr = Field(..., description="User email address")
 
 
 class ResetPasswordRequest(BaseModel):
     """Reset password request schema"""
+
     token: str = Field(..., description="Password reset token")
     new_password: str = Field(..., min_length=8, description="New password")
 
 
 class RefreshTokenRequest(BaseModel):
     """Token refresh request schema"""
+
     refresh_token: str = Field(..., description="Refresh token")
 
 
 class AuthResponse(BaseModel):
     """Authentication response schema"""
+
     access_token: str
     refresh_token: str
     token_type: str = "bearer"
@@ -71,12 +77,14 @@ class AuthResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     """Generic message response"""
+
     message: str
     message_ar: str | None = None
 
 
 class UserResponse(BaseModel):
     """User info response"""
+
     id: str
     email: str
     full_name: str
@@ -134,7 +142,9 @@ class InMemoryAuthStore:
                 return user
         return None
 
-    def create_user(self, email: str, password_hash: str, full_name: str, phone: str | None = None) -> dict:
+    def create_user(
+        self, email: str, password_hash: str, full_name: str, phone: str | None = None
+    ) -> dict:
         """Create a new user"""
         user_id = f"user_{secrets.token_hex(8)}"
         user = {

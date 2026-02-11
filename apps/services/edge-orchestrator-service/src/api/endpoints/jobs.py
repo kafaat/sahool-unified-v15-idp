@@ -383,7 +383,8 @@ async def list_device_jobs(
 
     # Get jobs for device
     device_jobs = [
-        job for job in _jobs_store.values()
+        job
+        for job in _jobs_store.values()
         if job.device_id == device_id and job.tenant_id == tenant_id
     ]
 

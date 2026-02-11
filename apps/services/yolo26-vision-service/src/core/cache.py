@@ -565,12 +565,11 @@ def cached_inference(
         async def detect(image):
             return await model.predict(image)
     """
+
     def decorator(func: Callable) -> Callable:
         async def wrapper(image: np.ndarray | Image.Image | bytes, *args, **kwargs):
             # Try cache first
-            cached = await cache.get(
-                image, task, variant, confidence, iou, image_size
-            )
+            cached = await cache.get(image, task, variant, confidence, iou, image_size)
             if cached is not None:
                 return cached
 
@@ -578,14 +577,12 @@ def cached_inference(
             result = await func(image, *args, **kwargs)
 
             # Cache result
-            await cache.set(
-                image, task, variant, confidence, iou, image_size,
-                result, ttl_seconds
-            )
+            await cache.set(image, task, variant, confidence, iou, image_size, result, ttl_seconds)
 
             return result
 
         return wrapper
+
     return decorator
 
 

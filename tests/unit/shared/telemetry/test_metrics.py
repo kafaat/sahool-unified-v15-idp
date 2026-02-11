@@ -13,6 +13,7 @@ import time
 @dataclass
 class MetricPoint:
     """Single metric data point."""
+
     name: str
     value: float
     labels: dict[str, str] = field(default_factory=dict)
@@ -22,9 +23,10 @@ class MetricPoint:
 @dataclass
 class SpanContext:
     """Tracing span context."""
+
     trace_id: str
     span_id: str
-    parent_span_id: Optional[str] = None
+    parent_span_id: str | None = None
 
 
 class MetricsCollector:
@@ -85,14 +87,13 @@ class TracingSpan:
     def __init__(self, name: str, context: SpanContext = None):
         self.name = name
         self.context = context or SpanContext(
-            trace_id=f"trace-{time.time_ns()}",
-            span_id=f"span-{time.time_ns()}"
+            trace_id=f"trace-{time.time_ns()}", span_id=f"span-{time.time_ns()}"
         )
         self.attributes: dict[str, Any] = {}
         self.events: list[dict[str, Any]] = []
         self.status: str = "OK"
         self.start_time: float = time.time()
-        self.end_time: Optional[float] = None
+        self.end_time: float | None = None
 
     def set_attribute(self, key: str, value: Any):
         """Set span attribute."""
@@ -100,11 +101,7 @@ class TracingSpan:
 
     def add_event(self, name: str, attributes: dict[str, Any] = None):
         """Add event to span."""
-        self.events.append({
-            "name": name,
-            "timestamp": time.time(),
-            "attributes": attributes or {}
-        })
+        self.events.append({"name": name, "timestamp": time.time(), "attributes": attributes or {}})
 
     def set_status(self, status: str, description: str = None):
         """Set span status."""
@@ -256,26 +253,24 @@ class TestAgriculturalMetrics:
     def test_field_operation_metrics(self, metrics_collector):
         """Test field operation metrics."""
         metrics_collector.increment_counter(
-            "field_operations_total",
-            labels={"operation": "create", "tenant_id": "tenant-123"}
+            "field_operations_total", labels={"operation": "create", "tenant_id": "tenant-123"}
         )
 
-        assert metrics_collector.get_counter(
-            "field_operations_total",
-            {"operation": "create", "tenant_id": "tenant-123"}
-        ) == 1
+        assert (
+            metrics_collector.get_counter(
+                "field_operations_total", {"operation": "create", "tenant_id": "tenant-123"}
+            )
+            == 1
+        )
 
     def test_ndvi_processing_metrics(self, metrics_collector):
         """Test NDVI processing metrics."""
         metrics_collector.record_histogram(
-            "ndvi_processing_duration_seconds",
-            2.5,
-            labels={"field_id": "field-456"}
+            "ndvi_processing_duration_seconds", 2.5, labels={"field_id": "field-456"}
         )
 
         values = metrics_collector.get_histogram_values(
-            "ndvi_processing_duration_seconds",
-            {"field_id": "field-456"}
+            "ndvi_processing_duration_seconds", {"field_id": "field-456"}
         )
         assert 2.5 in values
 
@@ -284,13 +279,15 @@ class TestAgriculturalMetrics:
         metrics_collector.set_gauge(
             "soil_moisture_percent",
             45.5,
-            labels={"sensor_id": "sensor-789", "field_id": "field-123"}
+            labels={"sensor_id": "sensor-789", "field_id": "field-123"},
         )
 
-        assert metrics_collector.get_gauge(
-            "soil_moisture_percent",
-            {"sensor_id": "sensor-789", "field_id": "field-123"}
-        ) == 45.5
+        assert (
+            metrics_collector.get_gauge(
+                "soil_moisture_percent", {"sensor_id": "sensor-789", "field_id": "field-123"}
+            )
+            == 45.5
+        )
 
 
 class TestServiceHealthMetrics:
@@ -300,28 +297,27 @@ class TestServiceHealthMetrics:
         """Test health check metrics."""
         for _ in range(10):
             metrics_collector.increment_counter(
-                "health_checks_total",
-                labels={"service": "field-service", "status": "healthy"}
+                "health_checks_total", labels={"service": "field-service", "status": "healthy"}
             )
 
-        assert metrics_collector.get_counter(
-            "health_checks_total",
-            {"service": "field-service", "status": "healthy"}
-        ) == 10
+        assert (
+            metrics_collector.get_counter(
+                "health_checks_total", {"service": "field-service", "status": "healthy"}
+            )
+            == 10
+        )
 
     def test_uptime_gauge(self, metrics_collector):
         """Test service uptime gauge."""
         uptime_seconds = 86400
         metrics_collector.set_gauge(
-            "service_uptime_seconds",
-            uptime_seconds,
-            labels={"service": "advisory-service"}
+            "service_uptime_seconds", uptime_seconds, labels={"service": "advisory-service"}
         )
 
-        assert metrics_collector.get_gauge(
-            "service_uptime_seconds",
-            {"service": "advisory-service"}
-        ) == 86400
+        assert (
+            metrics_collector.get_gauge("service_uptime_seconds", {"service": "advisory-service"})
+            == 86400
+        )
 
 
 class TestDistributedTracing:
@@ -329,18 +325,15 @@ class TestDistributedTracing:
 
     def test_trace_context_propagation(self):
         """Test trace context propagation."""
-        parent_context = SpanContext(
-            trace_id="trace-parent-123",
-            span_id="span-parent-456"
-        )
+        parent_context = SpanContext(trace_id="trace-parent-123", span_id="span-parent-456")
 
         child_span = TracingSpan(
             "child-operation",
             SpanContext(
                 trace_id=parent_context.trace_id,
                 span_id="span-child-789",
-                parent_span_id=parent_context.span_id
-            )
+                parent_span_id=parent_context.span_id,
+            ),
         )
 
         assert child_span.context.trace_id == parent_context.trace_id
@@ -364,17 +357,18 @@ class TestMetricLabels:
 
         for i in range(max_cardinality + 50):
             metrics_collector.increment_counter(
-                "high_cardinality_metric",
-                labels={"user_id": f"user-{i}"}
+                "high_cardinality_metric", labels={"user_id": f"user-{i}"}
             )
 
-        unique_keys = len([k for k in metrics_collector.counters.keys()
-                          if k.startswith("high_cardinality_metric")])
+        unique_keys = len(
+            [k for k in metrics_collector.counters if k.startswith("high_cardinality_metric")]
+        )
 
         assert unique_keys <= max_cardinality + 50
 
     def test_label_value_sanitization(self):
         """Test label values are sanitized."""
+
         def sanitize_label(value: str) -> str:
             sanitized = "".join(c if c.isalnum() or c in "-_." else "_" for c in value)
             return sanitized[:64]

@@ -30,8 +30,10 @@ if str(SHARED_PATH) not in sys.path:
 try:
     from config.cors_config import setup_cors_middleware
 except ImportError:
+
     def setup_cors_middleware(app):
         pass
+
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
@@ -59,6 +61,7 @@ def sanitize_log_input(value: str) -> str:
 
 class AuditLogResponse(BaseModel):
     """Audit log entry response"""
+
     id: str
     tenant_id: str
     user_id: str
@@ -81,6 +84,7 @@ class AuditLogResponse(BaseModel):
 
 class AuditLogQuery(BaseModel):
     """Query parameters for audit logs"""
+
     user_id: str | None = None
     action: str | None = None
     category: str | None = None
@@ -95,6 +99,7 @@ class AuditLogQuery(BaseModel):
 
 class HashChainValidationResponse(BaseModel):
     """Hash chain validation result"""
+
     valid: bool
     total_entries: int
     validated_entries: int
@@ -104,6 +109,7 @@ class HashChainValidationResponse(BaseModel):
 
 class ComplianceReportResponse(BaseModel):
     """Compliance report response"""
+
     tenant_id: str
     report_generated: str
     period: dict
@@ -116,6 +122,7 @@ class ComplianceReportResponse(BaseModel):
 
 class AuditStatsResponse(BaseModel):
     """Audit statistics response"""
+
     total_events: int
     events_by_category: dict
     events_by_severity: dict
@@ -126,6 +133,7 @@ class AuditStatsResponse(BaseModel):
 
 class PaginatedResponse(BaseModel):
     """Paginated response wrapper"""
+
     items: list
     total: int
     skip: int
@@ -196,6 +204,7 @@ async def lifespan(app: FastAPI):
         nats_url = os.getenv("NATS_URL")
         if nats_url:
             import nats
+
             nc = await nats.connect(nats_url)
             app.state.nc = nc
             logger.info("NATS connected")
@@ -330,9 +339,13 @@ async def get_audit_logs(
     if success is not None:
         filtered = [entry for entry in filtered if entry.get("success") == success]
     if start_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
+        filtered = [
+            entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()
+        ]
     if end_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
+        filtered = [
+            entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()
+        ]
 
     total = len(filtered)
     items = filtered[skip : skip + limit]
@@ -363,7 +376,9 @@ async def get_audit_log(
     raise HTTPException(status_code=404, detail="Audit log not found")
 
 
-@app.get("/api/v1/audit/users/{user_id}/trail", response_model=PaginatedResponse, tags=["Audit Logs"])
+@app.get(
+    "/api/v1/audit/users/{user_id}/trail", response_model=PaginatedResponse, tags=["Audit Logs"]
+)
 async def get_user_audit_trail(
     user_id: str = Path(..., description="User ID"),
     category: str | None = Query(None, description="Filter by category"),
@@ -397,7 +412,11 @@ async def get_user_audit_trail(
     }
 
 
-@app.get("/api/v1/audit/resources/{resource_type}/{resource_id}/trail", response_model=PaginatedResponse, tags=["Audit Logs"])
+@app.get(
+    "/api/v1/audit/resources/{resource_type}/{resource_id}/trail",
+    response_model=PaginatedResponse,
+    tags=["Audit Logs"],
+)
 async def get_resource_audit_trail(
     resource_type: str = Path(..., description="Resource type"),
     resource_id: str = Path(..., description="Resource ID"),
@@ -412,7 +431,8 @@ async def get_resource_audit_trail(
     """
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [
-        entry for entry in logs
+        entry
+        for entry in logs
         if entry.get("resource_type") == resource_type and entry.get("resource_id") == resource_id
     ]
 
@@ -436,7 +456,9 @@ async def get_resource_audit_trail(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/api/v1/audit/chain/validate", response_model=HashChainValidationResponse, tags=["Hash Chain"])
+@app.get(
+    "/api/v1/audit/chain/validate", response_model=HashChainValidationResponse, tags=["Hash Chain"]
+)
 async def validate_hash_chain(
     start_date: datetime | None = Query(None, description="Start date for validation"),
     end_date: datetime | None = Query(None, description="End date for validation"),
@@ -452,9 +474,13 @@ async def validate_hash_chain(
     # Filter by date range
     filtered = logs
     if start_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
+        filtered = [
+            entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()
+        ]
     if end_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
+        filtered = [
+            entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()
+        ]
 
     # Sort by created_at
     filtered.sort(key=lambda x: x.get("created_at", ""))
@@ -515,11 +541,15 @@ async def get_chain_summary(tenant_id: str = Depends(get_tenant_id)):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-@app.get("/api/v1/audit/compliance/report", response_model=ComplianceReportResponse, tags=["Compliance"])
+@app.get(
+    "/api/v1/audit/compliance/report", response_model=ComplianceReportResponse, tags=["Compliance"]
+)
 async def get_compliance_report(
     start_date: datetime = Query(..., description="Report start date"),
     end_date: datetime = Query(..., description="Report end date"),
-    framework: Literal["general", "GDPR", "SOC2", "ISO27001"] = Query("general", description="Compliance framework"),
+    framework: Literal["general", "GDPR", "SOC2", "ISO27001"] = Query(
+        "general", description="Compliance framework"
+    ),
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -531,7 +561,8 @@ async def get_compliance_report(
 
     # Filter by date range
     filtered = [
-        entry for entry in logs
+        entry
+        for entry in logs
         if start_date.isoformat() <= entry.get("created_at", "") <= end_date.isoformat()
     ]
 
@@ -681,9 +712,9 @@ async def get_failed_logins(
     cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
     filtered = [
-        entry for entry in logs
-        if entry.get("action") == "auth.login.failed"
-        and entry.get("created_at", "") >= cutoff
+        entry
+        for entry in logs
+        if entry.get("action") == "auth.login.failed" and entry.get("created_at", "") >= cutoff
     ]
 
     # Sort by created_at descending
@@ -724,7 +755,8 @@ async def export_audit_logs(
 
     # Filter by date range
     filtered = [
-        entry for entry in logs
+        entry
+        for entry in logs
         if start_date.isoformat() <= entry.get("created_at", "") <= end_date.isoformat()
     ]
 
@@ -733,6 +765,7 @@ async def export_audit_logs(
 
     if format == "json":
         from fastapi.responses import JSONResponse
+
         return JSONResponse(content=filtered)
     elif format == "csv":
         import csv

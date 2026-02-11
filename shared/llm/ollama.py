@@ -231,9 +231,7 @@ class OllamaProvider(LLMProvider):
                 response.raise_for_status()
                 data = response.json()
 
-                latency_ms = (
-                    datetime.now(UTC) - start_time
-                ).total_seconds() * 1000
+                latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
                 # Calculate tokens per second
                 tokens_per_second = None
@@ -322,9 +320,7 @@ class OllamaProvider(LLMProvider):
             response.raise_for_status()
             data = response.json()
 
-            latency_ms = (
-                datetime.now(UTC) - start_time
-            ).total_seconds() * 1000
+            latency_ms = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
             # Extract assistant message
             text = data.get("message", {}).get("content", "")

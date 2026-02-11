@@ -381,18 +381,14 @@ class AIMetricsCollector:
         lines.append(f"# TYPE {ns}_llm_calls_total counter")
         for key, count in self._llm_calls.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_llm_calls_total{{provider="{provider}",model="{model}"}} {count}'
-            )
+            lines.append(f'{ns}_llm_calls_total{{provider="{provider}",model="{model}"}} {count}')
 
         # LLM errors
         lines.append(f"# HELP {ns}_llm_errors_total Total LLM API errors")
         lines.append(f"# TYPE {ns}_llm_errors_total counter")
         for key, count in self._llm_errors.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_llm_errors_total{{provider="{provider}",model="{model}"}} {count}'
-            )
+            lines.append(f'{ns}_llm_errors_total{{provider="{provider}",model="{model}"}} {count}')
 
         # Tokens
         lines.append(f"# HELP {ns}_tokens_total Total tokens used")
@@ -413,9 +409,7 @@ class AIMetricsCollector:
         lines.append(f"# TYPE {ns}_cost_usd_total counter")
         for key, cost in self._costs.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_cost_usd_total{{provider="{provider}",model="{model}"}} {cost:.6f}'
-            )
+            lines.append(f'{ns}_cost_usd_total{{provider="{provider}",model="{model}"}} {cost:.6f}')
 
         # Safety violations
         lines.append(f"# HELP {ns}_safety_violations_total Total safety violations")
@@ -424,7 +418,9 @@ class AIMetricsCollector:
             lines.append(f'{ns}_safety_violations_total{{type="{key}"}} {count}')
 
         # Circuit breaker states
-        lines.append(f"# HELP {ns}_circuit_breaker_state Circuit breaker state (0=closed, 1=open, 2=half_open)")
+        lines.append(
+            f"# HELP {ns}_circuit_breaker_state Circuit breaker state (0=closed, 1=open, 2=half_open)"
+        )
         lines.append(f"# TYPE {ns}_circuit_breaker_state gauge")
         for name, state in self._circuit_breaker_states.items():
             lines.append(f'{ns}_circuit_breaker_state{{name="{name}"}} {state}')

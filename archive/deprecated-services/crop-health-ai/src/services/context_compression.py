@@ -191,8 +191,7 @@ class ContextCompressionService:
 
             # 4. Calculate average confidence
             confidences = [
-                r.get("confidence", 0.5)
-                for r in disease_history[-self.max_history_records :]
+                r.get("confidence", 0.5) for r in disease_history[-self.max_history_records :]
             ]
             avg_confidence = np.mean(confidences) if confidences else 0.5
 
@@ -203,9 +202,7 @@ class ContextCompressionService:
             if disease_history:
                 last_timestamp = disease_history[0].get("timestamp")
                 if isinstance(last_timestamp, str):
-                    last_timestamp = datetime.fromisoformat(
-                        last_timestamp.replace("Z", "+00:00")
-                    )
+                    last_timestamp = datetime.fromisoformat(last_timestamp.replace("Z", "+00:00"))
                 days_ago = (datetime.utcnow() - last_timestamp).days
             else:
                 days_ago = 999
@@ -233,9 +230,7 @@ class ContextCompressionService:
             uncompressed_size = len(json.dumps(disease_history))
             compressed_size = len(compressed_json)
             compression_ratio = (
-                (1 - compressed_size / uncompressed_size) * 100
-                if uncompressed_size > 0
-                else 0
+                (1 - compressed_size / uncompressed_size) * 100 if uncompressed_size > 0 else 0
             )
 
             # 9. Create metadata hash
@@ -371,9 +366,7 @@ class ContextCompressionService:
         try:
             # Count disease occurrence in recent history
             recent = disease_history[:20]  # Last 20 diagnoses
-            disease_count = sum(
-                1 for r in recent if r.get("disease_id") != "healthy"
-            )
+            disease_count = sum(1 for r in recent if r.get("disease_id") != "healthy")
 
             # Analyze dates if available
             timestamps = []

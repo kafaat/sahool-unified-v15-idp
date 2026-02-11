@@ -14,10 +14,7 @@ from typing import AsyncGenerator
 logger = logging.getLogger(__name__)
 
 # Database configuration
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://sahool:sahool@localhost:5432/sahool"
-)
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://sahool:sahool@localhost:5432/sahool")
 
 # Connection pool
 _pool = None

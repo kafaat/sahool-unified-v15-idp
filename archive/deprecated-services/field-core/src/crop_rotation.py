@@ -1006,7 +1006,7 @@ class CropRotationPlanner:
             import logging
 
             logger = logging.getLogger(__name__)
-            safe_field_id = str(field_id).replace('\n', '').replace('\r', '')[:100]
+            safe_field_id = str(field_id).replace("\n", "").replace("\r", "")[:100]
             logger.warning("Failed to fetch field history for %s", safe_field_id)
             return []
 

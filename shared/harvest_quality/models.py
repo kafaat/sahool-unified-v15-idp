@@ -31,6 +31,7 @@ import json
 
 class CropCategory(str, Enum):
     """Crop category for quality standards | فئة المحصول لمعايير الجودة"""
+
     GRAIN = "grain"  # حبوب (wheat, barley, corn)
     DATE = "date"  # تمور
     VEGETABLE = "vegetable"  # خضروات
@@ -40,6 +41,7 @@ class CropCategory(str, Enum):
 
 class QualityGrade(str, Enum):
     """Quality grade classification | تصنيف درجة الجودة"""
+
     PREMIUM = "premium"  # ممتاز - Highest quality
     GRADE_A = "grade_a"  # درجة أولى - High quality
     GRADE_B = "grade_b"  # درجة ثانية - Standard quality
@@ -50,6 +52,7 @@ class QualityGrade(str, Enum):
 
 class GrainType(str, Enum):
     """Types of grains | أنواع الحبوب"""
+
     WHEAT = "wheat"  # قمح
     BARLEY = "barley"  # شعير
     CORN = "corn"  # ذرة
@@ -60,6 +63,7 @@ class GrainType(str, Enum):
 
 class DateVariety(str, Enum):
     """Date palm varieties | أصناف التمور"""
+
     SUKKARI = "sukkari"  # سكري
     KHALAS = "khalas"  # خلاص
     AJWA = "ajwa"  # عجوة
@@ -76,6 +80,7 @@ class DateVariety(str, Enum):
 
 class DateStage(str, Enum):
     """Date ripening stages | مراحل نضج التمر"""
+
     KIMRI = "kimri"  # خلال - Unripe green
     KHALAL = "khalal"  # بسر - Full size, crisp
     RUTAB = "rutab"  # رطب - Soft, ripe
@@ -84,6 +89,7 @@ class DateStage(str, Enum):
 
 class VegetableType(str, Enum):
     """Types of vegetables | أنواع الخضروات"""
+
     TOMATO = "tomato"  # طماطم
     CUCUMBER = "cucumber"  # خيار
     ONION = "onion"  # بصل
@@ -99,6 +105,7 @@ class VegetableType(str, Enum):
 
 class TestType(str, Enum):
     """Types of quality tests | أنواع اختبارات الجودة"""
+
     # Grain tests
     MOISTURE = "moisture"  # الرطوبة
     PROTEIN = "protein"  # البروتين
@@ -133,6 +140,7 @@ class TestType(str, Enum):
 
 class TestStatus(str, Enum):
     """Test status | حالة الاختبار"""
+
     PENDING = "pending"  # قيد الانتظار
     IN_PROGRESS = "in_progress"  # جارٍ
     COMPLETED = "completed"  # مكتمل
@@ -142,6 +150,7 @@ class TestStatus(str, Enum):
 
 class TestResult(str, Enum):
     """Test result classification | تصنيف نتيجة الاختبار"""
+
     PASS = "pass"  # ناجح
     MARGINAL = "marginal"  # حدي
     FAIL = "fail"  # راسب
@@ -150,6 +159,7 @@ class TestResult(str, Enum):
 
 class BuyerType(str, Enum):
     """Buyer type classification | تصنيف نوع المشتري"""
+
     RETAIL = "retail"  # تجزئة
     WHOLESALE = "wholesale"  # جملة
     PROCESSOR = "processor"  # مصنع
@@ -160,6 +170,7 @@ class BuyerType(str, Enum):
 
 class TrendDirection(str, Enum):
     """Quality trend direction | اتجاه الجودة"""
+
     IMPROVING = "improving"  # يتحسن
     STABLE = "stable"  # مستقر
     DECLINING = "declining"  # يتراجع
@@ -168,6 +179,7 @@ class TrendDirection(str, Enum):
 
 class Currency(str, Enum):
     """Supported currencies | العملات المدعومة"""
+
     SAR = "SAR"  # Saudi Riyal | ريال سعودي
     YER = "YER"  # Yemeni Rial | ريال يمني
     USD = "USD"  # US Dollar | دولار أمريكي
@@ -175,6 +187,7 @@ class Currency(str, Enum):
 
 class PriceUnit(str, Enum):
     """Price measurement units | وحدات قياس السعر"""
+
     KG = "kg"  # Kilogram | كيلوجرام
     TON = "ton"  # Metric ton | طن
     QUINTAL = "quintal"  # 100 kg | قنطار
@@ -192,6 +205,7 @@ class QualityParameter:
     Single quality parameter with thresholds
     معيار جودة واحد مع الحدود
     """
+
     parameter_name: str
     parameter_name_ar: str
     unit: str
@@ -228,7 +242,12 @@ class QualityParameter:
         """Determine grade based on measured value"""
         # Check rejection first
         if self.rejection_threshold is not None:
-            if self.lower_is_better and value > self.rejection_threshold or not self.lower_is_better and value < self.rejection_threshold:
+            if (
+                self.lower_is_better
+                and value > self.rejection_threshold
+                or not self.lower_is_better
+                and value < self.rejection_threshold
+            ):
                 return QualityGrade.REJECTED
 
         # Check each grade level
@@ -245,9 +264,7 @@ class QualityParameter:
         else:
             return QualityGrade.REJECTED
 
-    def _in_range(
-        self, value: float, min_val: float | None, max_val: float | None
-    ) -> bool:
+    def _in_range(self, value: float, min_val: float | None, max_val: float | None) -> bool:
         """Check if value is in range"""
         if min_val is None and max_val is None:
             return False
@@ -288,6 +305,7 @@ class QualityStandard:
     Complete quality standard for a crop type
     معيار الجودة الكامل لنوع المحصول
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = ""
     name_ar: str = ""
@@ -370,6 +388,7 @@ class QualityTestResult:
     Single quality test measurement
     قياس اختبار جودة واحد
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     test_type: TestType = TestType.VISUAL_INSPECTION
     parameter_name: str = ""
@@ -434,6 +453,7 @@ class QualityTestRecord:
     Complete quality test record for a batch
     سجل اختبار الجودة الكامل لدفعة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     test_record_number: str = ""
 
@@ -545,7 +565,9 @@ class QualityTestRecord:
             "harvest_location": self.harvest_location,
             "sample_id": self.sample_id,
             "sample_size_kg": self.sample_size_kg,
-            "sample_collected_at": self.sample_collected_at.isoformat() if self.sample_collected_at else None,
+            "sample_collected_at": self.sample_collected_at.isoformat()
+            if self.sample_collected_at
+            else None,
             "sample_collector_id": self.sample_collector_id,
             "sample_collector_name": self.sample_collector_name,
             "status": self.status.value,
@@ -594,6 +616,7 @@ class BuyerRequirement:
     Buyer quality requirements
     متطلبات جودة المشتري
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Buyer information
@@ -740,6 +763,7 @@ class BuyerMatch:
     Match result between harvest and buyer
     نتيجة المطابقة بين المحصول والمشتري
     """
+
     buyer_requirement_id: str
     buyer_id: str
     buyer_name: str
@@ -812,6 +836,7 @@ class BuyerMatch:
 @dataclass
 class QualityTrendPoint:
     """Single point in quality trend | نقطة واحدة في اتجاه الجودة"""
+
     date: date
     grade: QualityGrade
     grade_score: float
@@ -828,6 +853,7 @@ class QualityTrendAnalysis:
     Quality trend analysis result
     نتيجة تحليل اتجاه الجودة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Scope
@@ -940,6 +966,7 @@ class GradePriceMatrix:
     Price matrix for different quality grades
     مصفوفة الأسعار لدرجات الجودة المختلفة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Crop information
@@ -1002,7 +1029,9 @@ class GradePriceMatrix:
         elif grade == QualityGrade.GRADE_C:
             return self.grade_c_price or self.base_price * Decimal(str(self.grade_c_multiplier))
         elif grade == QualityGrade.INDUSTRIAL:
-            return self.industrial_price or self.base_price * Decimal(str(self.industrial_multiplier))
+            return self.industrial_price or self.base_price * Decimal(
+                str(self.industrial_multiplier)
+            )
         else:
             return Decimal("0")  # Rejected
 
@@ -1050,6 +1079,7 @@ class PriceCalculation:
     Detailed price calculation for a batch
     حساب السعر التفصيلي لدفعة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Batch information
@@ -1095,9 +1125,7 @@ class PriceCalculation:
     def calculate(self) -> Decimal:
         """Calculate final price"""
         self.subtotal = self.grade_price_per_unit * Decimal(str(self.quantity))
-        self.total_adjustments = sum(
-            Decimal(str(adj.get("amount", 0))) for adj in self.adjustments
-        )
+        self.total_adjustments = sum(Decimal(str(adj.get("amount", 0))) for adj in self.adjustments)
         self.final_price = self.subtotal + self.total_adjustments
         if self.quantity > 0:
             self.final_price_per_unit = self.final_price / Decimal(str(self.quantity))
@@ -1142,6 +1170,7 @@ class PriceCalculation:
 @dataclass
 class QualityError:
     """Quality module error message | رسالة خطأ وحدة الجودة"""
+
     code: str
     message: str
     message_ar: str

@@ -28,6 +28,7 @@ import json
 
 class NutrientStatus(str, Enum):
     """Nutrient level interpretation status - حالة تفسير مستوى العنصر"""
+
     VERY_DEFICIENT = "very_deficient"  # نقص شديد جداً
     DEFICIENT = "deficient"  # نقص
     LOW = "low"  # منخفض
@@ -40,6 +41,7 @@ class NutrientStatus(str, Enum):
 
 class SoilTextureClass(str, Enum):
     """USDA Soil texture classification - تصنيف قوام التربة"""
+
     SAND = "sand"  # رمل
     LOAMY_SAND = "loamy_sand"  # رمل طميي
     SANDY_LOAM = "sandy_loam"  # طمي رملي
@@ -56,6 +58,7 @@ class SoilTextureClass(str, Enum):
 
 class SoilType(str, Enum):
     """Local soil types common in Middle East - أنواع التربة المحلية"""
+
     ALLUVIAL = "alluvial"  # طمي فيضي
     CALCAREOUS = "calcareous"  # كلسي
     SALINE = "saline"  # ملحي
@@ -70,6 +73,7 @@ class SoilType(str, Enum):
 
 class SampleType(str, Enum):
     """Type of soil sample - نوع عينة التربة"""
+
     COMPOSITE = "composite"  # مركبة
     SINGLE = "single"  # مفردة
     GRID = "grid"  # شبكية
@@ -79,6 +83,7 @@ class SampleType(str, Enum):
 
 class LabStatus(str, Enum):
     """Lab analysis status - حالة التحليل المعملي"""
+
     PENDING = "pending"  # قيد الانتظار
     IN_PROGRESS = "in_progress"  # جاري التحليل
     COMPLETED = "completed"  # مكتمل
@@ -88,6 +93,7 @@ class LabStatus(str, Enum):
 
 class ExtractionMethod(str, Enum):
     """Nutrient extraction methods - طرق استخلاص العناصر"""
+
     MEHLICH_3 = "mehlich_3"  # ميليك-3
     OLSEN = "olsen"  # أولسن (للتربة القلوية)
     BRAY_1 = "bray_1"  # براي-1
@@ -100,6 +106,7 @@ class ExtractionMethod(str, Enum):
 @dataclass
 class SampleLocation:
     """GPS location and depth of soil sample - موقع وعمق عينة التربة"""
+
     latitude: float
     longitude: float
     depth_cm_start: int = 0
@@ -123,6 +130,7 @@ class SampleLocation:
 @dataclass
 class LabInfo:
     """Laboratory information - معلومات المختبر"""
+
     lab_id: str
     lab_name: str
     lab_name_ar: str
@@ -150,6 +158,7 @@ class MacronutrientResults:
     Macronutrient test results - نتائج العناصر الكبرى
     Values in ppm (mg/kg) unless otherwise noted
     """
+
     # Primary macronutrients
     nitrogen_total_percent: float = 0.0  # نيتروجين كلي %
     nitrogen_nitrate_ppm: float = 0.0  # نترات النيتروجين
@@ -200,6 +209,7 @@ class MicronutrientResults:
     Micronutrient test results - نتائج العناصر الصغرى
     Values in ppm (mg/kg)
     """
+
     iron_ppm: float = 0.0  # حديد Fe
     zinc_ppm: float = 0.0  # زنك Zn
     manganese_ppm: float = 0.0  # منجنيز Mn
@@ -231,6 +241,7 @@ class SoilProperties:
     """
     Physical and chemical soil properties - خواص التربة الفيزيائية والكيميائية
     """
+
     # Acidity/Alkalinity
     ph: float = 7.0  # درجة الحموضة
     ph_buffer: float | None = None  # pH buffer for lime requirement
@@ -304,6 +315,7 @@ class SoilProperties:
 @dataclass
 class SoilTexture:
     """Soil texture analysis - تحليل قوام التربة"""
+
     sand_percent: float = 0.0  # رمل %
     silt_percent: float = 0.0  # طمي %
     clay_percent: float = 0.0  # صلصال %
@@ -342,6 +354,7 @@ class SoilTexture:
 @dataclass
 class HeavyMetals:
     """Heavy metal content - محتوى المعادن الثقيلة"""
+
     lead_ppm: float = 0.0  # رصاص Pb
     cadmium_ppm: float = 0.0  # كادميوم Cd
     chromium_ppm: float = 0.0  # كروم Cr
@@ -387,6 +400,7 @@ class SoilTestResult:
     This is the main data model for a complete soil test including
     all nutrient analyses, soil properties, and metadata.
     """
+
     # Identification
     id: str
     tenant_id: str
@@ -547,6 +561,7 @@ class NutrientInterpretation:
 
     Used to communicate the meaning of a soil test value to farmers.
     """
+
     nutrient_code: str  # N, P, K, Fe, etc.
     nutrient_name: str
     nutrient_name_ar: str
@@ -601,6 +616,7 @@ class InterpretationReport:
     """
     Complete interpretation report for a soil test - تقرير تفسير كامل لتحليل التربة
     """
+
     # Reference
     soil_test_id: str
     field_id: str
@@ -665,6 +681,7 @@ class AmendmentRecommendation:
     """
     Single soil amendment recommendation - توصية تعديل تربة واحدة
     """
+
     # Amendment identification
     amendment_id: str
     amendment_type: str  # fertilizer, lime, gypsum, organic, etc.
@@ -741,6 +758,7 @@ class AmendmentPlan:
     """
     Complete amendment plan based on soil test - خطة تعديل التربة الكاملة
     """
+
     # Reference
     plan_id: str
     soil_test_id: str
@@ -815,6 +833,7 @@ class AmendmentPlan:
 @dataclass
 class TrendDataPoint:
     """Single data point for trend analysis - نقطة بيانات واحدة لتحليل الاتجاهات"""
+
     date: datetime
     value: float
     soil_test_id: str
@@ -826,6 +845,7 @@ class NutrientTrend:
     """
     Trend analysis for a single nutrient - تحليل اتجاه لعنصر غذائي واحد
     """
+
     nutrient_code: str
     nutrient_name: str
     nutrient_name_ar: str
@@ -865,8 +885,7 @@ class NutrientTrend:
             "nutrient_name_ar": self.nutrient_name_ar,
             "unit": self.unit,
             "data_points": [
-                {"date": dp.date.isoformat(), "value": dp.value}
-                for dp in self.data_points
+                {"date": dp.date.isoformat(), "value": dp.value} for dp in self.data_points
             ],
             "statistics": {
                 "min": self.min_value,
@@ -890,6 +909,7 @@ class TrendReport:
     """
     Complete trend analysis report - تقرير تحليل الاتجاهات الكامل
     """
+
     # Identification
     field_id: str
     tenant_id: str

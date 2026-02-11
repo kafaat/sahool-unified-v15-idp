@@ -5,6 +5,7 @@ Tortoise ORM models for security audit trail
 
 from enum import Enum
 
+
 # Enums are defined first (no dependencies)
 class AuditSeverity(str, Enum):
     """Audit event severity levels"""
@@ -82,7 +83,9 @@ try:
         # Metadata (for extensibility)
         metadata = fields.JSONField(null=True)
         source_system = fields.CharField(max_length=64, null=True)
-        user_role_snapshot = fields.CharField(max_length=128, null=True)  # User role at time of event
+        user_role_snapshot = fields.CharField(
+            max_length=128, null=True
+        )  # User role at time of event
 
         # Timestamp
         created_at = fields.DatetimeField(auto_now_add=True, index=True)
@@ -99,7 +102,6 @@ try:
 
         def __str__(self):
             return f"AuditLog({self.action} by {self.user_id})"
-
 
     class AuditLogSummary(Model):
         """
@@ -130,7 +132,6 @@ try:
         class Meta:
             table = "security_audit_summaries"
             unique_together = ("tenant_id", "date")
-
 
     class SessionLog(Model):
         """

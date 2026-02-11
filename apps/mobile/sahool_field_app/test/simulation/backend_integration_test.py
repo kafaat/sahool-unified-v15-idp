@@ -38,7 +38,9 @@ SERVICES = {
     "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig("Crop Intelligence Service", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
+    "crop_health": ServiceConfig(
+        "Crop Intelligence Service", "صحة المحاصيل بالذكاء الاصطناعي", 8095
+    ),
     "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8119),
     "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
     "yield_engine": ServiceConfig("Yield Prediction Service", "محرك الإنتاجية", 8098),

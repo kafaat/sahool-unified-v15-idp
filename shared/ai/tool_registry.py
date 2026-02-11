@@ -159,13 +159,9 @@ class QualityConfig:
     """Project-level quality configuration - إعدادات الجودة على مستوى المشروع"""
 
     # Enabled tools per language
-    python_tools: list[str] = field(
-        default_factory=lambda: ["ruff", "mypy", "bandit"]
-    )
+    python_tools: list[str] = field(default_factory=lambda: ["ruff", "mypy", "bandit"])
     typescript_tools: list[str] = field(default_factory=lambda: ["eslint", "tsc"])
-    dart_tools: list[str] = field(
-        default_factory=lambda: ["dart_analyze", "dart_format"]
-    )
+    dart_tools: list[str] = field(default_factory=lambda: ["dart_analyze", "dart_format"])
 
     # Global settings
     fail_on_warning: bool = False
@@ -202,9 +198,7 @@ class QualityConfig:
 
         return cls(
             python_tools=data.get("python", {}).get("tools", cls().python_tools),
-            typescript_tools=data.get("typescript", {}).get(
-                "tools", cls().typescript_tools
-            ),
+            typescript_tools=data.get("typescript", {}).get("tools", cls().typescript_tools),
             dart_tools=data.get("dart", {}).get("tools", cls().dart_tools),
             fail_on_warning=data.get("fail_on_warning", False),
             auto_fix=data.get("auto_fix", True),
@@ -570,9 +564,7 @@ class ToolRegistry:
             # Try to find .sahool-quality.yaml in current directory
             default_path = Path(".sahool-quality.yaml")
             self._config = (
-                QualityConfig.from_yaml(default_path)
-                if default_path.exists()
-                else QualityConfig()
+                QualityConfig.from_yaml(default_path) if default_path.exists() else QualityConfig()
             )
 
         # Register default tools
@@ -686,9 +678,7 @@ class ToolRegistry:
         Returns:
             Dict of tool_id -> available
         """
-        tools_to_check = (
-            [self._tools[tool_id]] if tool_id else list(self._tools.values())
-        )
+        tools_to_check = [self._tools[tool_id]] if tool_id else list(self._tools.values())
         results: dict[str, bool] = {}
 
         for tool in tools_to_check:
@@ -834,9 +824,7 @@ class ToolRegistry:
             exit_code = process.returncode or 0
 
             # Parse issues count (tool-specific)
-            issues_count = self._parse_issues_count(
-                tool_id, stdout.decode(), stderr.decode()
-            )
+            issues_count = self._parse_issues_count(tool_id, stdout.decode(), stderr.decode())
 
             result = ToolResult(
                 tool_id=tool_id,
@@ -951,9 +939,7 @@ class ToolRegistry:
             return []
 
         # Execute tools
-        should_parallel = (
-            parallel if parallel is not None else self._config.parallel_execution
-        )
+        should_parallel = parallel if parallel is not None else self._config.parallel_execution
 
         if should_parallel and len(tools_to_run) > 1:
             # Run in parallel with semaphore
@@ -963,9 +949,7 @@ class ToolRegistry:
                 async with semaphore:
                     return await self.run_tool(tool.id, target)
 
-            results = await asyncio.gather(
-                *[run_with_semaphore(tool) for tool in tools_to_run]
-            )
+            results = await asyncio.gather(*[run_with_semaphore(tool) for tool in tools_to_run])
             return list(results)
         else:
             # Run sequentially
@@ -1000,9 +984,7 @@ class ToolRegistry:
         مسح ذاكرة التخزين المؤقت للنتائج.
         """
         if tool_id:
-            self._cache = {
-                k: v for k, v in self._cache.items() if not k.startswith(f"{tool_id}:")
-            }
+            self._cache = {k: v for k, v in self._cache.items() if not k.startswith(f"{tool_id}:")}
         else:
             self._cache.clear()
 
@@ -1011,9 +993,7 @@ class ToolRegistry:
         for cb in self._circuit_breakers.values():
             cb.reset()
 
-    def _get_cache_key(
-        self, tool_id: str, target: str, extra_args: list[str] | None
-    ) -> str:
+    def _get_cache_key(self, tool_id: str, target: str, extra_args: list[str] | None) -> str:
         """Generate cache key - توليد مفتاح التخزين المؤقت"""
         args_str = ":".join(extra_args) if extra_args else ""
         content = f"{tool_id}:{target}:{args_str}"
@@ -1058,11 +1038,7 @@ class ToolRegistry:
                 return len(data) if isinstance(data, list) else 0
             elif tool_id == "eslint":
                 data = json.loads(stdout) if stdout else []
-                return sum(
-                    len(f.get("messages", []))
-                    for f in data
-                    if isinstance(f, dict)
-                )
+                return sum(len(f.get("messages", [])) for f in data if isinstance(f, dict))
             elif tool_id == "bandit":
                 data = json.loads(stdout) if stdout else {}
                 return len(data.get("results", []))

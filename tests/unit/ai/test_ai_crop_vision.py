@@ -45,6 +45,7 @@ from shared.ai.crop_vision import (
 # Enum Tests
 # ============================================================================
 
+
 class TestEnums:
     """Tests for enumeration types"""
 
@@ -103,6 +104,7 @@ class TestEnums:
 # ============================================================================
 # Data Class Tests
 # ============================================================================
+
 
 class TestBoundingBox:
     """Tests for BoundingBox data class"""
@@ -383,6 +385,7 @@ class TestVisionAnalysisResult:
 # Image Preprocessor Tests
 # ============================================================================
 
+
 class TestImagePreprocessor:
     """Tests for ImagePreprocessor class"""
 
@@ -445,6 +448,7 @@ class TestImagePreprocessor:
 # ============================================================================
 # Analyzer Tests
 # ============================================================================
+
 
 class TestCropVisionAnalyzer:
     """Tests for CropVisionAnalyzer class"""
@@ -522,6 +526,7 @@ class TestCropVisionAnalyzer:
 # Singleton Tests
 # ============================================================================
 
+
 class TestSingleton:
     """Tests for singleton instance and convenience functions"""
 
@@ -537,6 +542,7 @@ class TestSingleton:
 # ============================================================================
 # Convenience Function Tests
 # ============================================================================
+
 
 class TestConvenienceFunctions:
     """Tests for convenience functions"""
@@ -597,6 +603,7 @@ class TestConvenienceFunctions:
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestIntegration:
     """Integration tests for crop vision module"""
@@ -675,6 +682,7 @@ class TestIntegration:
 # Batch Analysis Tests
 # ============================================================================
 
+
 class TestBatchAnalysis:
     """Tests for batch image analysis"""
 
@@ -726,6 +734,7 @@ class TestBatchAnalysis:
 # ============================================================================
 # Edge Case Tests
 # ============================================================================
+
 
 class TestEdgeCases:
     """Tests for edge cases and error handling"""

@@ -11,6 +11,7 @@ from enum import Enum
 
 class ComplianceStatus(str, Enum):
     """Compliance check status"""
+
     COMPLIANT = "compliant"  # آمن
     WARNING = "warning"  # تحذير
     VIOLATION = "violation"  # مخالفة
@@ -19,6 +20,7 @@ class ComplianceStatus(str, Enum):
 
 class PesticideCategory(str, Enum):
     """Pesticide category types"""
+
     INSECTICIDE = "insecticide"  # مبيد حشري
     FUNGICIDE = "fungicide"  # مبيد فطري
     HERBICIDE = "herbicide"  # مبيد أعشاب
@@ -32,6 +34,7 @@ class PesticideCategory(str, Enum):
 
 class ToxicityClass(str, Enum):
     """WHO toxicity classification"""
+
     IA = "Ia"  # شديد الخطورة
     IB = "Ib"  # خطير جداً
     II = "II"  # خطير متوسط
@@ -41,6 +44,7 @@ class ToxicityClass(str, Enum):
 
 class PPELevel(str, Enum):
     """Personal Protective Equipment levels"""
+
     MINIMAL = "minimal"  # الحد الأدنى
     STANDARD = "standard"  # قياسي
     ENHANCED = "enhanced"  # معزز
@@ -49,6 +53,7 @@ class PPELevel(str, Enum):
 
 class MixCompatibility(str, Enum):
     """Tank mix compatibility status"""
+
     COMPATIBLE = "compatible"  # متوافق
     CAUTION = "caution"  # يحتاج حذر
     INCOMPATIBLE = "incompatible"  # غير متوافق
@@ -58,6 +63,7 @@ class MixCompatibility(str, Enum):
 @dataclass
 class PPERequirement:
     """Personal Protective Equipment requirements - متطلبات الحماية الشخصية"""
+
     level: PPELevel
     gloves: str  # نوع القفازات
     gloves_ar: str
@@ -76,6 +82,7 @@ class PPERequirement:
 @dataclass
 class Pesticide:
     """Pesticide product information - معلومات منتج المبيد"""
+
     id: str
     trade_name: str
     trade_name_ar: str
@@ -114,6 +121,7 @@ class Pesticide:
 @dataclass
 class PesticideApplication:
     """Record of pesticide application - سجل تطبيق المبيد"""
+
     application_id: str
     tenant_id: str
     field_id: str
@@ -157,6 +165,7 @@ class PesticideApplication:
 @dataclass
 class PHIViolation:
     """Pre-Harvest Interval violation - انتهاك فترة ما قبل الحصاد"""
+
     field_id: str
     pesticide_id: str
     pesticide_name: str
@@ -180,6 +189,7 @@ class PHIViolation:
 @dataclass
 class REIViolation:
     """Re-Entry Interval violation - انتهاك فترة إعادة الدخول"""
+
     field_id: str
     pesticide_id: str
     pesticide_name: str
@@ -200,6 +210,7 @@ class REIViolation:
 @dataclass
 class TankMixCompatibility:
     """Tank mix compatibility check result - نتيجة فحص توافق الخلط"""
+
     product_a_id: str
     product_a_name: str
     product_b_id: str
@@ -221,6 +232,7 @@ class TankMixCompatibility:
 @dataclass
 class SprayDriftRisk:
     """Spray drift risk assessment - تقييم مخاطر انجراف الرش"""
+
     field_id: str
     assessment_time: datetime
 
@@ -250,6 +262,7 @@ class SprayDriftRisk:
 @dataclass
 class ComplianceCheck:
     """Overall compliance check result - نتيجة فحص الامتثال الشاملة"""
+
     field_id: str
     check_date: datetime
 

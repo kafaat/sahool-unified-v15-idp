@@ -34,6 +34,7 @@ _field_id: ContextVar[str | None] = ContextVar("field_id", default=None)
 @dataclass
 class IrrigationLogContext:
     """Context for irrigation-specific logging."""
+
     field_id: str | None = None
     crop: str | None = None
     water_amount_m3: float | None = None
@@ -77,12 +78,28 @@ class StructuredFormatter(logging.Formatter):
         # Add extra fields from record
         for key, value in record.__dict__.items():
             if key not in (
-                "name", "msg", "args", "created", "filename",
-                "funcName", "levelname", "levelno", "lineno",
-                "module", "msecs", "pathname", "process",
-                "processName", "relativeCreated", "stack_info",
-                "exc_info", "exc_text", "thread", "threadName",
-                "message", "asctime",
+                "name",
+                "msg",
+                "args",
+                "created",
+                "filename",
+                "funcName",
+                "levelname",
+                "levelno",
+                "lineno",
+                "module",
+                "msecs",
+                "pathname",
+                "process",
+                "processName",
+                "relativeCreated",
+                "stack_info",
+                "exc_info",
+                "exc_text",
+                "thread",
+                "threadName",
+                "message",
+                "asctime",
             ) and not key.startswith("_"):
                 log_entry[key] = value
 
@@ -113,9 +130,9 @@ class IrrigationLogger:
         if use_json:
             handler.setFormatter(StructuredFormatter(name))
         else:
-            handler.setFormatter(logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            ))
+            handler.setFormatter(
+                logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+            )
 
         self._logger.addHandler(handler)
         self._logger.propagate = False
@@ -299,6 +316,7 @@ def get_irrigation_logger() -> IrrigationLogger:
 
 def log_performance(operation_name: str, warn_threshold_ms: float = 500):
     """Decorator for logging function performance."""
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -344,6 +362,7 @@ def log_performance(operation_name: str, warn_threshold_ms: float = 500):
                     )
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper

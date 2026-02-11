@@ -53,6 +53,7 @@ PORT = int(os.getenv("PORT", "8253"))
 
 class DTLevel(str, Enum):
     """Digital Twin maturity levels per ACS review (2024)."""
+
     L1_MONITORING = "l1_monitoring"  # Real-time visualization
     L2_ANALYSIS = "l2_analysis"  # Historical analysis + trends
     L3_PREDICTION = "l3_prediction"  # Prediction + decision support (TARGET)
@@ -84,6 +85,7 @@ class OptimizationObjective(str, Enum):
 
 class FieldState(BaseModel):
     """Current state of a field's digital twin."""
+
     field_id: str
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     # Soil state
@@ -112,22 +114,24 @@ class FieldState(BaseModel):
 
 class SimulationRequest(BaseModel):
     """Request to simulate field state over time."""
+
     field_state: FieldState
     days_to_simulate: int = Field(default=30, ge=1, le=365)
-    irrigation_schedule: Optional[list[dict]] = Field(
+    irrigation_schedule: list[dict] | None = Field(
         None,
         description="List of {day: int, amount_mm: float} irrigation events",
     )
-    rainfall_forecast: Optional[list[dict]] = Field(
+    rainfall_forecast: list[dict] | None = Field(
         None,
         description="List of {day: int, amount_mm: float} rainfall events",
     )
-    climate_zone: Optional[str] = None
-    soil_profile: Optional[str] = None
+    climate_zone: str | None = None
+    soil_profile: str | None = None
 
 
 class SimulationDay(BaseModel):
     """Simulated state for a single day."""
+
     day: int
     date: date
     soil_moisture_pct: float
@@ -147,6 +151,7 @@ class SimulationDay(BaseModel):
 
 class SimulationResult(BaseModel):
     """Complete simulation result."""
+
     field_id: str
     crop: str
     simulation_days: int
@@ -165,17 +170,19 @@ class SimulationResult(BaseModel):
 
 class ScenarioRequest(BaseModel):
     """Request to compare multiple scenarios."""
+
     field_state: FieldState
     days: int = Field(default=90, ge=1, le=365)
     scenarios: list[dict] = Field(
         ...,
         description="List of {name, irrigation_schedule, description}",
     )
-    climate_zone: Optional[str] = None
+    climate_zone: str | None = None
 
 
 class ScenarioComparison(BaseModel):
     """Comparison result of multiple scenarios."""
+
     field_id: str
     crop: str
     scenarios: list[dict]
@@ -189,6 +196,7 @@ class ScenarioComparison(BaseModel):
 
 class OptimizationRequest(BaseModel):
     """Multi-objective optimization request."""
+
     field_state: FieldState
     days: int = Field(default=90, ge=1, le=365)
     objectives: list[OptimizationObjective] = Field(
@@ -202,11 +210,12 @@ class OptimizationRequest(BaseModel):
             "max_ec_dsm": 4.0,
         },
     )
-    climate_zone: Optional[str] = None
+    climate_zone: str | None = None
 
 
 class OptimizationResult(BaseModel):
     """Optimization result."""
+
     field_id: str
     crop: str
     objectives: list[str]
@@ -258,7 +267,7 @@ class KalmanStateEstimator:
             if measurements[i] is not None:
                 kg = self.covariance[i] / (self.covariance[i] + self.measurement_noise[i])
                 self.state[i] += kg * (measurements[i] - self.state[i])
-                self.covariance[i] *= (1.0 - kg)
+                self.covariance[i] *= 1.0 - kg
         return self.state
 
 
@@ -282,6 +291,7 @@ class DigitalTwinEngine:
             from shared.yemen.climate import YEMEN_CLIMATE_ZONES
             from shared.yemen.soils import YEMEN_SOIL_PROFILES
             from shared.salinity import SalinityModule
+
             self._yemen_crops = YEMEN_CROPS
             self._yemen_climate = YEMEN_CLIMATE_ZONES
             self._yemen_soils = YEMEN_SOIL_PROFILES
@@ -367,7 +377,9 @@ class DigitalTwinEngine:
 
             # Water balance
             water_input = irr + rain
-            sm_change = (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
+            sm_change = (
+                (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
+            )
 
             sm += sm_change
 
@@ -390,7 +402,9 @@ class DigitalTwinEngine:
             sal_stress = 0.0
             if self._salinity_module and crop_data:
                 yr = self._salinity_module.assess(
-                    ec_water=ec, crop=state.crop, kc=kc,
+                    ec_water=ec,
+                    crop=state.crop,
+                    kc=kc,
                 ).yield_reduction_pct
                 sal_stress = min(1.0, yr / 50.0)  # Normalize to 0-1
 
@@ -407,7 +421,7 @@ class DigitalTwinEngine:
             peak_lai = max(peak_lai, lai)
 
             # Cumulative yield estimate (based on accumulated stress over season)
-            cum_stress_factor += (1.0 - growth_factor)
+            cum_stress_factor += 1.0 - growth_factor
             avg_stress = cum_stress_factor / day
             yield_pct = max(0, min(100, 100 * (1.0 - avg_stress * 0.5)))
 
@@ -419,23 +433,25 @@ class DigitalTwinEngine:
             cum_et += etc
             cum_drain += drainage
 
-            daily_states.append(SimulationDay(
-                day=day,
-                date=current_date,
-                soil_moisture_pct=round(sm, 1),
-                soil_ec_dsm=round(ec, 2),
-                etc_mm=round(etc, 2),
-                irrigation_mm=round(irr, 1),
-                rainfall_mm=round(rain, 1),
-                drainage_mm=round(drainage, 1),
-                lai=round(lai, 2),
-                biomass_kg_ha=round(biomass, 1),
-                canopy_cover_pct=round(cc, 1),
-                water_stress=round(water_stress, 3),
-                salinity_stress=round(sal_stress, 3),
-                cumulative_water_mm=round(cum_water, 1),
-                yield_estimate_pct=round(yield_pct, 1),
-            ))
+            daily_states.append(
+                SimulationDay(
+                    day=day,
+                    date=current_date,
+                    soil_moisture_pct=round(sm, 1),
+                    soil_ec_dsm=round(ec, 2),
+                    etc_mm=round(etc, 2),
+                    irrigation_mm=round(irr, 1),
+                    rainfall_mm=round(rain, 1),
+                    drainage_mm=round(drainage, 1),
+                    lai=round(lai, 2),
+                    biomass_kg_ha=round(biomass, 1),
+                    canopy_cover_pct=round(cc, 1),
+                    water_stress=round(water_stress, 3),
+                    salinity_stress=round(sal_stress, 3),
+                    cumulative_water_mm=round(cum_water, 1),
+                    yield_estimate_pct=round(yield_pct, 1),
+                )
+            )
 
         total_water_m3 = (cum_water + cum_rain) * 10  # mm to m³/ha
         wue = biomass / max(total_water_m3, 1.0)
@@ -473,18 +489,20 @@ class DigitalTwinEngine:
             # Estimate cost (simplified: 0.5 SAR/m³ water)
             cost = sim.total_irrigation_mm * 10 * 0.5  # mm → m³/ha × cost
 
-            results.append({
-                "name": scenario.get("name", "Unnamed"),
-                "description": scenario.get("description", ""),
-                "total_water_mm": sim.total_irrigation_mm,
-                "total_water_m3_ha": round(sim.total_irrigation_mm * 10, 1),
-                "yield_pct": sim.final_yield_pct,
-                "wue": sim.water_use_efficiency,
-                "cost_sar_ha": round(cost, 0),
-                "max_water_stress": sim.max_water_stress,
-                "peak_lai": sim.peak_lai,
-                "drainage_mm": sim.total_drainage_mm,
-            })
+            results.append(
+                {
+                    "name": scenario.get("name", "Unnamed"),
+                    "description": scenario.get("description", ""),
+                    "total_water_mm": sim.total_irrigation_mm,
+                    "total_water_m3_ha": round(sim.total_irrigation_mm * 10, 1),
+                    "yield_pct": sim.final_yield_pct,
+                    "wue": sim.water_use_efficiency,
+                    "cost_sar_ha": round(cost, 0),
+                    "max_water_stress": sim.max_water_stress,
+                    "peak_lai": sim.peak_lai,
+                    "drainage_mm": sim.total_drainage_mm,
+                }
+            )
 
         # Find bests
         best_water = min(results, key=lambda r: r["total_water_mm"])["name"]
@@ -541,16 +559,18 @@ class DigitalTwinEngine:
                 constraints=req.constraints,
             )
 
-            pareto.append({
-                "name": sched["name"],
-                "schedule": sched["schedule"],
-                "water_mm": round(sim.total_irrigation_mm, 1),
-                "yield_pct": round(sim.final_yield_pct, 1),
-                "cost_sar": round(cost, 0),
-                "drainage_mm": round(sim.total_drainage_mm, 1),
-                "wue": round(sim.water_use_efficiency, 2),
-                "score": round(score, 3),
-            })
+            pareto.append(
+                {
+                    "name": sched["name"],
+                    "schedule": sched["schedule"],
+                    "water_mm": round(sim.total_irrigation_mm, 1),
+                    "yield_pct": round(sim.final_yield_pct, 1),
+                    "cost_sar": round(cost, 0),
+                    "drainage_mm": round(sim.total_drainage_mm, 1),
+                    "wue": round(sim.water_use_efficiency, 2),
+                    "score": round(score, 3),
+                }
+            )
 
         # Sort by score
         pareto.sort(key=lambda x: x["score"], reverse=True)
@@ -580,22 +600,30 @@ class DigitalTwinEngine:
         )
 
     def _generate_candidate_schedules(
-        self, days: int, constraints: dict,
+        self,
+        days: int,
+        constraints: dict,
     ) -> list[dict]:
         """Generate candidate irrigation schedules for optimization."""
         max_water = constraints.get("max_water_mm", 500)
         candidates = []
 
         # Strategy 1: Fixed interval (every 7 days)
-        sched_7 = [{"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)]
+        sched_7 = [
+            {"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)
+        ]
         candidates.append({"name": "Fixed 7-day cycle", "schedule": sched_7})
 
         # Strategy 2: Fixed interval (every 5 days)
-        sched_5 = [{"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)]
+        sched_5 = [
+            {"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)
+        ]
         candidates.append({"name": "Fixed 5-day cycle", "schedule": sched_5})
 
         # Strategy 3: Fixed interval (every 10 days)
-        sched_10 = [{"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)]
+        sched_10 = [
+            {"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)
+        ]
         candidates.append({"name": "Fixed 10-day cycle", "schedule": sched_10})
 
         # Strategy 4: Front-loaded (more water early)
@@ -606,15 +634,21 @@ class DigitalTwinEngine:
         candidates.append({"name": "Front-loaded", "schedule": sched_fl})
 
         # Strategy 5: Minimal water (conservation)
-        sched_min = [{"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)} for d in range(7, days + 1, 7)]
+        sched_min = [
+            {"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)}
+            for d in range(7, days + 1, 7)
+        ]
         candidates.append({"name": "Conservation (60%)", "schedule": sched_min})
 
         return candidates
 
     def _calculate_score(
         self,
-        water: float, yield_pct: float, cost: float,
-        drainage: float, objectives: list[OptimizationObjective],
+        water: float,
+        yield_pct: float,
+        cost: float,
+        drainage: float,
+        objectives: list[OptimizationObjective],
         constraints: dict,
     ) -> float:
         """Calculate weighted score for a solution."""
@@ -662,6 +696,7 @@ dt_engine = DigitalTwinEngine()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import logging
+
     logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 
@@ -669,6 +704,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats as nats_lib
+
             app.state.nc = await nats_lib.connect(nats_url)
         except Exception as e:
             logger.warning(f"NATS connection failed: {e}")
@@ -691,6 +727,7 @@ app = FastAPI(
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
@@ -733,13 +770,15 @@ async def simulate_field(req: SimulationRequest):
             tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.digital_twin.simulation_complete",
-                json.dumps({
-                    "field_id": req.field_state.field_id,
-                    "crop": req.field_state.crop,
-                    "days": req.days_to_simulate,
-                    "yield_pct": result.final_yield_pct,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }).encode(),
+                json.dumps(
+                    {
+                        "field_id": req.field_state.field_id,
+                        "crop": req.field_state.crop,
+                        "days": req.days_to_simulate,
+                        "yield_pct": result.final_yield_pct,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -784,11 +823,13 @@ async def update_field_state(state: FieldState):
         dt_engine.estimators[state.field_id] = KalmanStateEstimator()
 
     estimator = dt_engine.estimators[state.field_id]
-    estimated = estimator.update([
-        state.soil_moisture_pct,
-        state.soil_ec_dsm,
-        state.lai,
-    ])
+    estimated = estimator.update(
+        [
+            state.soil_moisture_pct,
+            state.soil_ec_dsm,
+            state.lai,
+        ]
+    )
 
     return {
         "field_id": state.field_id,
@@ -822,11 +863,14 @@ async def get_dt_info():
             "closed_loop": "Simulate → decide → execute → feedback",
         },
         "supported_crops": list(dt_engine._yemen_crops.keys()) if dt_engine._yemen_crops else [],
-        "supported_climate_zones": list(dt_engine._yemen_climate.keys()) if dt_engine._yemen_climate else [],
+        "supported_climate_zones": list(dt_engine._yemen_climate.keys())
+        if dt_engine._yemen_climate
+        else [],
         "active_twins": len(dt_engine.estimators),
     }
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)

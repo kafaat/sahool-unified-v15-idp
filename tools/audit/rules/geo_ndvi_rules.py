@@ -29,7 +29,7 @@ def check_postgis_usage(repo_root: Path) -> list:
 
     for sql_file in sql_files:
         try:
-            content = sql_file.read_text(encoding='utf-8').lower()
+            content = sql_file.read_text(encoding="utf-8").lower()
             if "postgis" in content or "create extension" in content:
                 has_postgis = True
                 break
@@ -56,7 +56,7 @@ def check_postgis_usage(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
             if any(pattern in content for pattern in geo_patterns):
                 has_geo_code = True
                 break
@@ -89,7 +89,7 @@ def check_srid_configuration(repo_root: Path) -> list:
 
     for py_file in repo_root.rglob("*.py"):
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
             matches = re.findall(srid_pattern, content, re.IGNORECASE)
             found_srids.update(matches)
         except Exception:
@@ -97,7 +97,7 @@ def check_srid_configuration(repo_root: Path) -> list:
 
     for sql_file in repo_root.rglob("*.sql"):
         try:
-            content = sql_file.read_text(encoding='utf-8')
+            content = sql_file.read_text(encoding="utf-8")
             matches = re.findall(srid_pattern, content, re.IGNORECASE)
             found_srids.update(matches)
         except Exception:
@@ -132,7 +132,7 @@ def check_ndvi_async_processing(repo_root: Path) -> list:
             continue
 
         try:
-            content = ndvi_file.read_text(encoding='utf-8')
+            content = ndvi_file.read_text(encoding="utf-8")
         except Exception:
             continue
 
@@ -172,16 +172,14 @@ def check_tenant_field_isolation(repo_root: Path) -> list:
     findings = []
 
     # Check models have tenant_id
-    model_files = list(repo_root.rglob("**/models*.py")) + list(
-        repo_root.rglob("**/models/*.py")
-    )
+    model_files = list(repo_root.rglob("**/models*.py")) + list(repo_root.rglob("**/models/*.py"))
 
     for model_file in model_files:
         if "test" in str(model_file).lower():
             continue
 
         try:
-            content = model_file.read_text(encoding='utf-8')
+            content = model_file.read_text(encoding="utf-8")
         except Exception:
             continue
 
@@ -218,7 +216,7 @@ def check_sentinel_integration(repo_root: Path) -> list:
     has_satellite = False
     for py_file in repo_root.rglob("*.py"):
         try:
-            content = py_file.read_text(encoding='utf-8').lower()
+            content = py_file.read_text(encoding="utf-8").lower()
             if any(pattern in content for pattern in satellite_patterns):
                 has_satellite = True
                 break

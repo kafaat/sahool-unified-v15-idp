@@ -171,9 +171,7 @@ class LRUCache:
             Number of entries removed
         """
         now = time.time()
-        expired_keys = [
-            k for k, v in self._cache.items() if v.expires_at < now
-        ]
+        expired_keys = [k for k, v in self._cache.items() if v.expires_at < now]
         for key in expired_keys:
             del self._cache[key]
         return len(expired_keys)
@@ -210,6 +208,7 @@ class RedisCache:
         if self._client is None and self.redis_url:
             try:
                 import redis.asyncio as redis
+
                 self._client = redis.from_url(self.redis_url)
                 self._connected = True
             except ImportError:
@@ -404,10 +403,7 @@ class TerrainCache:
         prefix = f"{self.namespace}:{field_id}"
 
         # Clean memory cache
-        keys_to_delete = [
-            k for k in self._memory_cache._cache.keys()
-            if k.startswith(prefix)
-        ]
+        keys_to_delete = [k for k in self._memory_cache._cache if k.startswith(prefix)]
         for key in keys_to_delete:
             del self._memory_cache._cache[key]
             count += 1

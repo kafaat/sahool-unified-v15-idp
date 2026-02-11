@@ -95,7 +95,7 @@ class SessionInfo:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "SessionInfo":
+    def from_dict(cls, data: dict) -> SessionInfo:
         """Create from dictionary"""
         return cls(
             session_id=data["session_id"],
@@ -410,11 +410,7 @@ class SessionManager:
             return False, "Session idle timeout"
 
         # Check fingerprint if enabled
-        if (
-            self._enable_fingerprint_binding
-            and session.fingerprint_hash
-            and fingerprint_hash
-        ):
+        if self._enable_fingerprint_binding and session.fingerprint_hash and fingerprint_hash:
             if fingerprint_hash != session.fingerprint_hash:
                 logger.warning(
                     f"Session {session_id[:8]}... fingerprint mismatch. "
@@ -645,9 +641,7 @@ class SessionManager:
             # Sort by last activity and terminate oldest
             active_sessions.sort(key=lambda s: s.last_activity_at)
 
-            sessions_to_terminate = (
-                len(active_sessions) - self._max_concurrent_sessions + 1
-            )
+            sessions_to_terminate = len(active_sessions) - self._max_concurrent_sessions + 1
 
             for session in active_sessions[:sessions_to_terminate]:
                 await self.terminate_session(

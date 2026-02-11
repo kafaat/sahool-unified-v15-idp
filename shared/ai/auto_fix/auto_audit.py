@@ -32,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class AuditAction(str, Enum):
     """Audit action types | أنواع إجراءات التدقيق"""
+
     DIAGNOSE = "diagnose"
     FIX_APPLY = "fix_apply"
     FIX_ROLLBACK = "fix_rollback"
@@ -46,6 +47,7 @@ class AuditAction(str, Enum):
 
 class AuditSeverity(str, Enum):
     """Audit entry severity levels | مستويات خطورة التدقيق"""
+
     INFO = "info"
     WARNING = "warning"
     ERROR = "error"
@@ -58,6 +60,7 @@ class AuditLogEntry:
     Audit log entry with full context.
     إدخال سجل التدقيق مع السياق الكامل.
     """
+
     id: str
     timestamp: datetime
     action: AuditAction
@@ -98,6 +101,7 @@ class AuditLogEntry:
 @dataclass
 class AuditSummary:
     """Summary of audit entries | ملخص إدخالات التدقيق"""
+
     total_entries: int = 0
     by_action: dict[str, int] = field(default_factory=dict)
     by_severity: dict[str, int] = field(default_factory=dict)
@@ -347,12 +351,12 @@ class AutoAudit:
         """Generate unified diff | توليد فرق موحد"""
         try:
             import difflib
+
             old_lines = old.splitlines(keepends=True)
             new_lines = new.splitlines(keepends=True)
-            diff = list(difflib.unified_diff(
-                old_lines, new_lines,
-                fromfile="before", tofile="after"
-            ))
+            diff = list(
+                difflib.unified_diff(old_lines, new_lines, fromfile="before", tofile="after")
+            )
             return "".join(diff[:max_lines])
         except Exception:
             return ""
@@ -469,18 +473,18 @@ class AutoAudit:
         summary = report["summary"]
         content = f"""# Audit Report | تقرير التدقيق
 
-**Session ID**: {report['session_id']}
-**Generated**: {report['generated_at']}
+**Session ID**: {report["session_id"]}
+**Generated**: {report["generated_at"]}
 
 ## Summary | الملخص
 
 | Metric | Value |
 |--------|-------|
-| Total Entries | {summary['total_entries']} |
-| Files Modified | {summary['files_modified']} |
-| Fixes Applied | {summary['fixes_applied']} |
-| Errors | {summary['errors_encountered']} |
-| Duration | {summary.get('duration_seconds', 'N/A')}s |
+| Total Entries | {summary["total_entries"]} |
+| Files Modified | {summary["files_modified"]} |
+| Fixes Applied | {summary["fixes_applied"]} |
+| Errors | {summary["errors_encountered"]} |
+| Duration | {summary.get("duration_seconds", "N/A")}s |
 
 ## By Action | حسب الإجراء
 
@@ -500,12 +504,12 @@ class AutoAudit:
                 "critical": "🚨",
             }.get(entry["severity"], "")
 
-            content += f"""### {severity_icon} {entry['action']}
+            content += f"""### {severity_icon} {entry["action"]}
 
-- **Time**: {entry['timestamp']}
-- **Description**: {entry['description']}
-- **Description (AR)**: {entry['description_ar']}
-- **Component**: {entry.get('component', 'N/A')}
+- **Time**: {entry["timestamp"]}
+- **Description**: {entry["description"]}
+- **Description (AR)**: {entry["description_ar"]}
+- **Component**: {entry.get("component", "N/A")}
 
 ---
 

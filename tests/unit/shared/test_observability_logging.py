@@ -14,7 +14,7 @@ from pathlib import Path
 # Direct import to avoid FastAPI dependency in __init__.py
 spec = importlib.util.spec_from_file_location(
     "logging_module",
-    Path(__file__).parent.parent.parent.parent / "shared" / "observability" / "logging.py"
+    Path(__file__).parent.parent.parent.parent / "shared" / "observability" / "logging.py",
 )
 logging_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(logging_module)
@@ -122,10 +122,7 @@ class TestSensitiveDataMasker:
 
     def test_sensitive_fields_list(self):
         """Test SENSITIVE_FIELDS contains expected fields"""
-        expected_fields = {
-            "password", "secret", "api_key", "token",
-            "authorization", "credential"
-        }
+        expected_fields = {"password", "secret", "api_key", "token", "authorization", "credential"}
         for field in expected_fields:
             assert field in SensitiveDataMasker.SENSITIVE_FIELDS
 
@@ -199,7 +196,7 @@ class TestPatternMatching:
         """Test various API key formats"""
         variations = [
             'api_key="abc123456789012345678901"',
-            'apikey: abc123456789012345678901',
+            "apikey: abc123456789012345678901",
             'API_KEY = "abc123456789012345678901"',
         ]
         for text in variations:
@@ -210,7 +207,7 @@ class TestPatternMatching:
         """Test various password formats"""
         variations = [
             'password="secret"',
-            'passwd: mysecret',
+            "passwd: mysecret",
             'pwd = "hidden"',
         ]
         for text in variations:
@@ -241,9 +238,9 @@ class TestEdgeCases:
 
     def test_very_long_string(self):
         """Test masking very long strings"""
-        text = 'api_key="' + 'a' * 1000 + '"'
+        text = 'api_key="' + "a" * 1000 + '"'
         result = SensitiveDataMasker.mask_string(text)
-        assert 'a' * 1000 not in result
+        assert "a" * 1000 not in result
 
     def test_special_characters(self):
         """Test masking with special characters"""

@@ -8,6 +8,7 @@ from httpx import AsyncClient
 
 # Set test environment before importing app
 import os
+
 os.environ["ENVIRONMENT"] = "test"
 os.environ["NATS_URL"] = ""
 os.environ["REDIS_URL"] = ""

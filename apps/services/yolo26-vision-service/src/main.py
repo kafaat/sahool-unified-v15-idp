@@ -38,7 +38,9 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if settings.is_production else structlog.dev.ConsoleRenderer(),
+        structlog.processors.JSONRenderer()
+        if settings.is_production
+        else structlog.dev.ConsoleRenderer(),
     ],
     wrapper_class=structlog.stdlib.BoundLogger,
     context_class=dict,
@@ -97,7 +99,9 @@ async def lifespan(app: FastAPI):
             logger.info("preloading_default_models")
             try:
                 await manager.load_model(ModelTask.PEST_DETECTION, settings.default_model_variant)
-                await manager.load_model(ModelTask.DISEASE_DETECTION, settings.default_model_variant)
+                await manager.load_model(
+                    ModelTask.DISEASE_DETECTION, settings.default_model_variant
+                )
                 logger.info("default_models_preloaded")
             except Exception as e:
                 logger.warning("model_preload_failed", error=str(e))

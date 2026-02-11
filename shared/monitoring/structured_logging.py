@@ -19,7 +19,7 @@ import sys
 import traceback
 from contextvars import ContextVar
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import Enum
 from functools import wraps
 from typing import Any, Callable
@@ -142,7 +142,7 @@ class LogContext:
         return result
 
     @classmethod
-    def from_context_vars(cls) -> "LogContext":
+    def from_context_vars(cls) -> LogContext:
         """Create context from context variables."""
         return cls(
             trace_id=trace_id_var.get(),
@@ -259,7 +259,7 @@ class StructuredJSONFormatter(logging.Formatter):
 
         # Base log entry
         log_entry = {
-            "@timestamp": datetime.now(timezone.utc).isoformat(),
+            "@timestamp": datetime.now(UTC).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -319,11 +319,11 @@ class ColoredConsoleFormatter(logging.Formatter):
     """
 
     COLORS = {
-        "DEBUG": "\033[36m",    # Cyan
-        "INFO": "\033[32m",     # Green
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Green
         "WARNING": "\033[33m",  # Yellow
-        "ERROR": "\033[31m",    # Red
-        "CRITICAL": "\033[35m", # Magenta
+        "ERROR": "\033[31m",  # Red
+        "CRITICAL": "\033[35m",  # Magenta
     }
     RESET = "\033[0m"
     BOLD = "\033[1m"
@@ -333,7 +333,7 @@ class ColoredConsoleFormatter(logging.Formatter):
         color = self.COLORS.get(record.levelname, self.RESET)
 
         # Format timestamp
-        timestamp = datetime.now(timezone.utc).strftime("%H:%M:%S.%f")[:-3]
+        timestamp = datetime.now(UTC).strftime("%H:%M:%S.%f")[:-3]
 
         # Build parts
         parts = [
@@ -389,11 +389,13 @@ class StructuredLogger:
         handler.setLevel(getattr(logging, level.upper()))
 
         if json_output:
-            handler.setFormatter(StructuredJSONFormatter(
-                service_name=self.service_name,
-                service_version=service_version,
-                environment=environment,
-            ))
+            handler.setFormatter(
+                StructuredJSONFormatter(
+                    service_name=self.service_name,
+                    service_version=service_version,
+                    environment=environment,
+                )
+            )
         else:
             handler.setFormatter(ColoredConsoleFormatter())
 
@@ -428,15 +430,21 @@ class StructuredLogger:
 
         self.logger.handle(record)
 
-    def debug(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
+    def debug(
+        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
+    ) -> None:
         """Log debug message."""
         self._log(logging.DEBUG, message, category, **kwargs)
 
-    def info(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
+    def info(
+        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
+    ) -> None:
         """Log info message."""
         self._log(logging.INFO, message, category, **kwargs)
 
-    def warning(self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any) -> None:
+    def warning(
+        self, message: str, category: LogCategory = LogCategory.GENERAL, **kwargs: Any
+    ) -> None:
         """Log warning message."""
         self._log(logging.WARNING, message, category, **kwargs)
 
@@ -556,6 +564,7 @@ class StructuredLogger:
 # Context Management | إدارة السياق
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def set_log_context(
     trace_id: str | None = None,
     span_id: str | None = None,
@@ -604,10 +613,12 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
     Decorator to log function execution with timing.
     مزخرف لتسجيل تنفيذ الدالة مع التوقيت.
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
             import time
+
             operation_var.set(operation)
             start = time.perf_counter()
 
@@ -631,6 +642,7 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
             import time
+
             operation_var.set(operation)
             start = time.perf_counter()
 
@@ -652,6 +664,7 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
                 operation_var.set("")
 
         import asyncio
+
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper
@@ -662,6 +675,7 @@ def log_operation(operation: str, category: LogCategory = LogCategory.GENERAL):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Factory Functions | دوال المصنع
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_structured_logger(
     name: str,

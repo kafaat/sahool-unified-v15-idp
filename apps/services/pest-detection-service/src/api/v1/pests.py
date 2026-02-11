@@ -26,6 +26,7 @@ router = APIRouter()
 
 class PestCategory(str, Enum):
     """Pest categories."""
+
     INSECT = "insect"
     MITE = "mite"
     NEMATODE = "nematode"
@@ -36,6 +37,7 @@ class PestCategory(str, Enum):
 
 class SeverityLevel(str, Enum):
     """Infestation severity levels."""
+
     NONE = "none"
     LOW = "low"
     MEDIUM = "medium"
@@ -45,6 +47,7 @@ class SeverityLevel(str, Enum):
 
 class LifeStage(str, Enum):
     """Pest life stages."""
+
     EGG = "egg"
     LARVA = "larva"
     PUPA = "pupa"
@@ -59,6 +62,7 @@ class LifeStage(str, Enum):
 
 class Pest(BaseModel):
     """Pest information model."""
+
     id: str
     name_en: str = Field(..., description="English name")
     name_ar: str = Field(..., description="Arabic name")
@@ -75,6 +79,7 @@ class Pest(BaseModel):
 
 class DetectionResult(BaseModel):
     """AI pest detection result."""
+
     pest_id: str
     pest_name_en: str
     pest_name_ar: str
@@ -88,6 +93,7 @@ class DetectionResult(BaseModel):
 
 class IdentifyRequest(BaseModel):
     """Request for symptom-based identification."""
+
     crop: str
     symptoms: list[str]
     region: str | None = "middle_east"
@@ -389,8 +395,7 @@ async def get_pests_by_crop(crop: str):
     الحصول على الآفات التي تصيب محصولاً معيناً.
     """
     pests = [
-        p for p in PEST_DATABASE.values()
-        if crop.lower() in [c.lower() for c in p.affected_crops]
+        p for p in PEST_DATABASE.values() if crop.lower() in [c.lower() for c in p.affected_crops]
     ]
     return pests
 
@@ -513,11 +518,13 @@ async def identify_by_symptoms(request_body: IdentifyRequest):
 
         if symptom_matches > 0:
             confidence = min(symptom_matches / len(request_body.symptoms), 1.0)
-            matches.append({
-                "pest": pest,
-                "confidence": confidence,
-                "matched_symptoms": symptom_matches,
-            })
+            matches.append(
+                {
+                    "pest": pest,
+                    "confidence": confidence,
+                    "matched_symptoms": symptom_matches,
+                }
+            )
 
     # Sort by confidence
     matches.sort(key=lambda x: x["confidence"], reverse=True)
@@ -567,16 +574,11 @@ async def get_seasonal_predictions(
     else:
         season = "summer"  # Default
 
-    predicted_pests = [
-        PEST_DATABASE[pid]
-        for pid in seasonal_risks[season]
-        if pid in PEST_DATABASE
-    ]
+    predicted_pests = [PEST_DATABASE[pid] for pid in seasonal_risks[season] if pid in PEST_DATABASE]
 
     if crop:
         predicted_pests = [
-            p for p in predicted_pests
-            if crop.lower() in [c.lower() for c in p.affected_crops]
+            p for p in predicted_pests if crop.lower() in [c.lower() for c in p.affected_crops]
         ]
 
     return {

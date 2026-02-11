@@ -28,6 +28,7 @@ import uuid
 
 class FeedbackType(str, Enum):
     """Types of feedback | أنواع التغذية الراجعة"""
+
     RATING = "rating"  # Numeric rating (1-5)
     THUMBS = "thumbs"  # Thumbs up/down
     CORRECTION = "correction"  # User provides correction
@@ -38,6 +39,7 @@ class FeedbackType(str, Enum):
 
 class FeedbackSentiment(str, Enum):
     """Feedback sentiment | المشاعر تجاه التغذية الراجعة"""
+
     POSITIVE = "positive"  # إيجابي
     NEGATIVE = "negative"  # سلبي
     NEUTRAL = "neutral"  # محايد
@@ -46,6 +48,7 @@ class FeedbackSentiment(str, Enum):
 
 class RecommendationType(str, Enum):
     """Types of recommendations | أنواع التوصيات"""
+
     IRRIGATION = "irrigation"  # الري
     FERTILIZER = "fertilizer"  # التسميد
     PEST_CONTROL = "pest_control"  # مكافحة الآفات
@@ -57,6 +60,7 @@ class RecommendationType(str, Enum):
 
 class OutcomeStatus(str, Enum):
     """Outcome of following recommendation | نتيجة اتباع التوصية"""
+
     SUCCESS = "success"  # نجاح
     PARTIAL_SUCCESS = "partial_success"  # نجاح جزئي
     FAILURE = "failure"  # فشل
@@ -167,8 +171,12 @@ class FeedbackItem:
             context=data.get("context", {}),
             sentiment=FeedbackSentiment(data.get("sentiment", "neutral")),
             sentiment_score=data.get("sentiment_score", 0.0),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
             source=data.get("source", "mobile_app"),
             tags=data.get("tags", []),
         )
@@ -189,7 +197,9 @@ class FeedbackSummary:
 
     # Ratings
     average_rating: float = 0.0
-    rating_distribution: dict[int, int] = field(default_factory=lambda: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0})
+    rating_distribution: dict[int, int] = field(
+        default_factory=lambda: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+    )
 
     # Thumbs
     thumbs_up_count: int = 0
@@ -240,11 +250,9 @@ class FeedbackStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         import tempfile
+
         default_path = os.path.join(tempfile.gettempdir(), "sahool_feedback")
-        self.storage_path = Path(storage_path or os.getenv(
-            "FEEDBACK_STORAGE_PATH",
-            default_path
-        ))
+        self.storage_path = Path(storage_path or os.getenv("FEEDBACK_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -295,6 +303,7 @@ class FeedbackStorage:
     ) -> list[FeedbackItem]:
         """Load recent feedback"""
         from datetime import timedelta
+
         cutoff = datetime.now(UTC) - timedelta(days=days)
         all_feedback = await self.load_all(tenant_id)
         return [f for f in all_feedback if f.created_at >= cutoff]
@@ -479,9 +488,7 @@ class FeedbackCollector:
             OutcomeStatus.NOT_APPLICABLE: (FeedbackSentiment.NEUTRAL, 0.0),
             OutcomeStatus.PENDING: (FeedbackSentiment.NEUTRAL, 0.0),
         }
-        sentiment, sentiment_score = sentiment_map.get(
-            outcome, (FeedbackSentiment.NEUTRAL, 0.0)
-        )
+        sentiment, sentiment_score = sentiment_map.get(outcome, (FeedbackSentiment.NEUTRAL, 0.0))
 
         feedback = FeedbackItem(
             recommendation_id=recommendation_id,
@@ -571,8 +578,7 @@ class FeedbackCollector:
         # Filter by type if specified
         if recommendation_type:
             feedback_list = [
-                f for f in feedback_list
-                if f.recommendation_type == recommendation_type
+                f for f in feedback_list if f.recommendation_type == recommendation_type
             ]
 
         if not feedback_list:
@@ -610,7 +616,9 @@ class FeedbackCollector:
         outcomes = [f.outcome for f in feedback_list if f.outcome is not None]
         if outcomes:
             for o in outcomes:
-                summary.outcome_distribution[o.value] = summary.outcome_distribution.get(o.value, 0) + 1
+                summary.outcome_distribution[o.value] = (
+                    summary.outcome_distribution.get(o.value, 0) + 1
+                )
             success_count = sum(1 for o in outcomes if o == OutcomeStatus.SUCCESS)
             applicable = sum(1 for o in outcomes if o != OutcomeStatus.NOT_APPLICABLE)
             summary.success_rate = success_count / applicable if applicable > 0 else 0.0
@@ -676,37 +684,43 @@ class FeedbackCollector:
         for f in feedback_list:
             # Include high-rated recommendations as positive examples
             if f.rating and f.rating >= min_rating:
-                training_data.append({
-                    "type": "positive_example",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "rating": f.rating,
-                    "outcome": f.outcome.value if f.outcome else None,
-                })
+                training_data.append(
+                    {
+                        "type": "positive_example",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "rating": f.rating,
+                        "outcome": f.outcome.value if f.outcome else None,
+                    }
+                )
 
             # Include corrections for negative examples and improvements
             if include_corrections and f.correction:
-                training_data.append({
-                    "type": "correction",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "original_response": f.context.get("original_recommendation"),
-                    "corrected_response": f.correction,
-                    "comment": f.comment or f.comment_ar,
-                })
+                training_data.append(
+                    {
+                        "type": "correction",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "original_response": f.context.get("original_recommendation"),
+                        "corrected_response": f.correction,
+                        "comment": f.comment or f.comment_ar,
+                    }
+                )
 
             # Include successful outcomes
             if f.outcome == OutcomeStatus.SUCCESS and f.yield_impact and f.yield_impact > 0:
-                training_data.append({
-                    "type": "successful_outcome",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "yield_impact": f.yield_impact,
-                    "cost_impact": f.cost_impact,
-                })
+                training_data.append(
+                    {
+                        "type": "successful_outcome",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "yield_impact": f.yield_impact,
+                        "cost_impact": f.cost_impact,
+                    }
+                )
 
         return training_data
 

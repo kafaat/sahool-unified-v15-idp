@@ -349,11 +349,9 @@ class SwarmCoordinator:
         # Filter by capabilities if needed
         if task.required_capabilities:
             agents = [
-                agent for agent in agents
-                if any(
-                    cap in agent.capabilities
-                    for cap in task.required_capabilities
-                )
+                agent
+                for agent in agents
+                if any(cap in agent.capabilities for cap in task.required_capabilities)
             ]
 
         # Check minimum agents
@@ -499,9 +497,7 @@ class SwarmCoordinator:
             timeout_seconds=task.timeout_seconds,
         )
 
-        subordinate_results = await self._execute_parallel(
-            config, enriched_task, subordinates
-        )
+        subordinate_results = await self._execute_parallel(config, enriched_task, subordinates)
 
         return [leader_result] + subordinate_results
 
@@ -601,10 +597,7 @@ class SwarmCoordinator:
         agent_ids: list[str],
     ) -> list[TaskResult]:
         """Execute task on multiple agents in parallel."""
-        tasks = [
-            self._execute_single(config, task, agent_id)
-            for agent_id in agent_ids
-        ]
+        tasks = [self._execute_single(config, task, agent_id) for agent_id in agent_ids]
 
         # Execute with timeout
         try:
@@ -655,18 +648,14 @@ class SwarmCoordinator:
                 if asyncio.iscoroutinefunction(executor):
                     result = await executor(task)
                 else:
-                    result = await asyncio.get_event_loop().run_in_executor(
-                        None, executor, task
-                    )
+                    result = await asyncio.get_event_loop().run_in_executor(None, executor, task)
             else:
                 # Simulated execution (for testing)
                 result = await self._simulate_execution(task, agent_id)
 
             result.started_at = started_at
             result.completed_at = datetime.now(UTC)
-            result.execution_time_ms = (
-                result.completed_at - started_at
-            ).total_seconds() * 1000
+            result.execution_time_ms = (result.completed_at - started_at).total_seconds() * 1000
 
             return result
 
@@ -764,9 +753,7 @@ class SwarmCoordinator:
             swarm_state.is_coordinating = True
 
             # Coordinate and execute
-            agent_results = await self.coordinate_agents(
-                config, task, active_agents
-            )
+            agent_results = await self.coordinate_agents(config, task, active_agents)
 
             # Aggregate results
             aggregated_result, confidence = await self.aggregate_results(
@@ -793,9 +780,7 @@ class SwarmCoordinator:
             swarm_state.pending_tasks = 0
 
             # Generate summary
-            summary, summary_ar = self._generate_summary(
-                agent_results, success, execution_time_ms
-            )
+            summary, summary_ar = self._generate_summary(agent_results, success, execution_time_ms)
 
             result = SwarmResult(
                 swarm_id=config.swarm_id,
@@ -904,10 +889,7 @@ class SwarmCoordinator:
         to_remove = []
 
         for swarm_id, state in self._swarms.items():
-            if (
-                not state.is_coordinating
-                and state.last_activity < cutoff
-            ):
+            if not state.is_coordinating and state.last_activity < cutoff:
                 to_remove.append(swarm_id)
 
         for swarm_id in to_remove:

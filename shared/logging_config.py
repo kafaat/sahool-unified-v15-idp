@@ -36,6 +36,7 @@ from uuid import uuid4
 
 try:
     import structlog
+
     STRUCTLOG_AVAILABLE = True
 except ImportError:
     STRUCTLOG_AVAILABLE = False

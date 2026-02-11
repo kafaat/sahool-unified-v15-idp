@@ -50,14 +50,12 @@ CROP_NAMES_AR: dict[CropType, str] = {
     CropType.MILLET: "دخن",
     CropType.MAIZE: "ذرة",
     CropType.RICE: "أرز",
-
     # Legumes
     CropType.ALFALFA: "برسيم",
     CropType.FABA_BEAN: "فول",
     CropType.CHICKPEA: "حمص",
     CropType.LENTIL: "عدس",
     CropType.COWPEA: "لوبيا",
-
     # Vegetables
     CropType.TOMATO: "طماطم",
     CropType.POTATO: "بطاطس",
@@ -73,7 +71,6 @@ CROP_NAMES_AR: dict[CropType, str] = {
     CropType.CARROT: "جزر",
     CropType.CABBAGE: "ملفوف",
     CropType.LETTUCE: "خس",
-
     # Fruits
     CropType.DATE_PALM: "نخيل",
     CropType.GRAPE: "عنب",
@@ -83,13 +80,11 @@ CROP_NAMES_AR: dict[CropType, str] = {
     CropType.BANANA: "موز",
     CropType.POMEGRANATE: "رمان",
     CropType.FIG: "تين",
-
     # Industrial/Cash
     CropType.COFFEE: "قهوة",
     CropType.QAT: "قات",
     CropType.COTTON: "قطن",
     CropType.SESAME: "سمسم",
-
     # Fodder
     CropType.RHODES_GRASS: "حشيشة رودس",
     CropType.SUDAN_GRASS: "حشيشة السودان",
@@ -659,9 +654,7 @@ class PlantingRecommendationEngine:
                 crop_type, region, target_date, field_id, tenant_id
             )
 
-        return self._generate_recommendation_from_window(
-            window, target_date, field_id, tenant_id
-        )
+        return self._generate_recommendation_from_window(window, target_date, field_id, tenant_id)
 
     def get_planting_windows_for_region(
         self,
@@ -672,16 +665,10 @@ class PlantingRecommendationEngine:
         Get all planting windows for a region, optionally filtered by month
         الحصول على جميع نوافذ الزراعة لمنطقة
         """
-        windows = [
-            w for (crop, reg), w in PLANTING_WINDOWS.items()
-            if reg == region
-        ]
+        windows = [w for (crop, reg), w in PLANTING_WINDOWS.items() if reg == region]
 
         if month:
-            windows = [
-                w for w in windows
-                if self._month_in_window(month, w)
-            ]
+            windows = [w for w in windows if self._month_in_window(month, w)]
 
         return windows
 
@@ -703,16 +690,18 @@ class PlantingRecommendationEngine:
         for window in windows:
             if window.is_date_optimal(check_date):
                 urgency = self._calculate_urgency(window, check_date)
-                results.append({
-                    "crop_type": window.crop_type.value,
-                    "crop_name_ar": CROP_NAMES_AR.get(window.crop_type, ""),
-                    "urgency": urgency,
-                    "days_remaining": self._days_until_window_end(window, check_date),
-                    "expected_harvest": window.calculate_harvest_date(check_date),
-                    "traditional_guidance_ar": window.traditional_guidance_ar,
-                    "traditional_guidance_en": window.traditional_guidance_en,
-                    "notes_ar": window.notes_ar,
-                })
+                results.append(
+                    {
+                        "crop_type": window.crop_type.value,
+                        "crop_name_ar": CROP_NAMES_AR.get(window.crop_type, ""),
+                        "urgency": urgency,
+                        "days_remaining": self._days_until_window_end(window, check_date),
+                        "expected_harvest": window.calculate_harvest_date(check_date),
+                        "traditional_guidance_ar": window.traditional_guidance_ar,
+                        "traditional_guidance_en": window.traditional_guidance_en,
+                        "notes_ar": window.notes_ar,
+                    }
+                )
 
         # Sort by urgency (high first)
         results.sort(key=lambda x: x["urgency"], reverse=True)
@@ -738,44 +727,48 @@ class PlantingRecommendationEngine:
             # Planting start event
             planting_start, planting_end = window.get_optimal_window(year)
 
-            events.append(CalendarEvent(
-                event_type=PlantingEventType.PLANTING_START,
-                crop_type=window.crop_type,
-                region=region,
-                title_en=f"Start planting {window.crop_type.value.replace('_', ' ').title()}",
-                title_ar=f"بداية زراعة {CROP_NAMES_AR.get(window.crop_type, '')}",
-                description_en=f"Optimal planting window starts. {window.traditional_guidance_en}",
-                description_ar=f"بداية نافذة الزراعة المثلى. {window.traditional_guidance_ar}",
-                date_gregorian=planting_start,
-                priority=EventPriority.HIGH,
-                traditional_season=window.traditional_season,
-                recommended_actions_en=[
-                    "Prepare seedbed or transplant area",
-                    f"Ensure soil temperature above {window.min_soil_temp_c}°C",
-                    "Check seed/seedling availability",
-                ],
-                recommended_actions_ar=[
-                    "تجهيز المشتل أو منطقة الشتل",
-                    f"التأكد من درجة حرارة التربة أعلى من {window.min_soil_temp_c} درجة",
-                    "التحقق من توفر البذور/الشتلات",
-                ],
-                reminder_days_before=[14, 7, 3],
-            ))
+            events.append(
+                CalendarEvent(
+                    event_type=PlantingEventType.PLANTING_START,
+                    crop_type=window.crop_type,
+                    region=region,
+                    title_en=f"Start planting {window.crop_type.value.replace('_', ' ').title()}",
+                    title_ar=f"بداية زراعة {CROP_NAMES_AR.get(window.crop_type, '')}",
+                    description_en=f"Optimal planting window starts. {window.traditional_guidance_en}",
+                    description_ar=f"بداية نافذة الزراعة المثلى. {window.traditional_guidance_ar}",
+                    date_gregorian=planting_start,
+                    priority=EventPriority.HIGH,
+                    traditional_season=window.traditional_season,
+                    recommended_actions_en=[
+                        "Prepare seedbed or transplant area",
+                        f"Ensure soil temperature above {window.min_soil_temp_c}°C",
+                        "Check seed/seedling availability",
+                    ],
+                    recommended_actions_ar=[
+                        "تجهيز المشتل أو منطقة الشتل",
+                        f"التأكد من درجة حرارة التربة أعلى من {window.min_soil_temp_c} درجة",
+                        "التحقق من توفر البذور/الشتلات",
+                    ],
+                    reminder_days_before=[14, 7, 3],
+                )
+            )
 
             # Planting end event
-            events.append(CalendarEvent(
-                event_type=PlantingEventType.PLANTING_END,
-                crop_type=window.crop_type,
-                region=region,
-                title_en=f"Last chance to plant {window.crop_type.value.replace('_', ' ').title()}",
-                title_ar=f"آخر فرصة لزراعة {CROP_NAMES_AR.get(window.crop_type, '')}",
-                description_en="Optimal planting window ending soon",
-                description_ar="نافذة الزراعة المثلى تنتهي قريباً",
-                date_gregorian=planting_end,
-                priority=EventPriority.CRITICAL,
-                traditional_season=window.traditional_season,
-                reminder_days_before=[7, 3, 1],
-            ))
+            events.append(
+                CalendarEvent(
+                    event_type=PlantingEventType.PLANTING_END,
+                    crop_type=window.crop_type,
+                    region=region,
+                    title_en=f"Last chance to plant {window.crop_type.value.replace('_', ' ').title()}",
+                    title_ar=f"آخر فرصة لزراعة {CROP_NAMES_AR.get(window.crop_type, '')}",
+                    description_en="Optimal planting window ending soon",
+                    description_ar="نافذة الزراعة المثلى تنتهي قريباً",
+                    date_gregorian=planting_end,
+                    priority=EventPriority.CRITICAL,
+                    traditional_season=window.traditional_season,
+                    reminder_days_before=[7, 3, 1],
+                )
+            )
 
             # Harvest event
             if window.harvest_start_month:
@@ -784,28 +777,30 @@ class PlantingRecommendationEngine:
                 if window.harvest_start_month < window.optimal_start_month:
                     harvest_start = date(year + 1, window.harvest_start_month, 1)
 
-                events.append(CalendarEvent(
-                    event_type=PlantingEventType.HARVEST_START,
-                    crop_type=window.crop_type,
-                    region=region,
-                    title_en=f"Harvest {window.crop_type.value.replace('_', ' ').title()}",
-                    title_ar=f"حصاد {CROP_NAMES_AR.get(window.crop_type, '')}",
-                    description_en="Expected harvest period begins",
-                    description_ar="بداية فترة الحصاد المتوقعة",
-                    date_gregorian=harvest_start,
-                    priority=EventPriority.HIGH,
-                    recommended_actions_en=[
-                        "Check crop maturity",
-                        "Prepare harvesting equipment",
-                        "Arrange storage/market",
-                    ],
-                    recommended_actions_ar=[
-                        "فحص نضج المحصول",
-                        "تجهيز معدات الحصاد",
-                        "ترتيب التخزين/التسويق",
-                    ],
-                    reminder_days_before=[14, 7, 3],
-                ))
+                events.append(
+                    CalendarEvent(
+                        event_type=PlantingEventType.HARVEST_START,
+                        crop_type=window.crop_type,
+                        region=region,
+                        title_en=f"Harvest {window.crop_type.value.replace('_', ' ').title()}",
+                        title_ar=f"حصاد {CROP_NAMES_AR.get(window.crop_type, '')}",
+                        description_en="Expected harvest period begins",
+                        description_ar="بداية فترة الحصاد المتوقعة",
+                        date_gregorian=harvest_start,
+                        priority=EventPriority.HIGH,
+                        recommended_actions_en=[
+                            "Check crop maturity",
+                            "Prepare harvesting equipment",
+                            "Arrange storage/market",
+                        ],
+                        recommended_actions_ar=[
+                            "فحص نضج المحصول",
+                            "تجهيز معدات الحصاد",
+                            "ترتيب التخزين/التسويق",
+                        ],
+                        reminder_days_before=[14, 7, 3],
+                    )
+                )
 
         # Sort by date
         events.sort(key=lambda e: e.date_gregorian or date.max)
@@ -949,7 +944,8 @@ class PlantingRecommendationEngine:
 
         # Find regions with same climate zone
         similar_regions = [
-            r for r, meta in REGION_METADATA.items()
+            r
+            for r, meta in REGION_METADATA.items()
             if meta.climate_zone == region_meta.climate_zone and r != region
         ]
 

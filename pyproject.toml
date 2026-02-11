@@ -106,12 +106,13 @@ ignore = [
     "E731",   # Lambda assignment - sometimes cleaner
     "F841",   # Unused variable - often intentional placeholders
     "UP035",  # Deprecated typing imports - backwards compat
+    "UP042",  # str, Enum pattern - StrEnum is Python 3.11+, current pattern works
     "I001",   # Import sorting - auto-formatter handles this
 ]
 fixable = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
-"**/tests/*" = ["E402", "B017", "F401", "F821", "F841"]
+"**/tests/*" = ["E402", "B017", "F401", "F821", "F841", "N817"]
 "**/__init__.py" = ["F401"]
 "**/main.py" = ["E402", "F401", "F821"]  # Allow imports after sys.path modifications
 "**/examples/*" = ["F401", "F821", "E402"]  # Example code may have unused imports
@@ -137,13 +138,19 @@ fixable = ["ALL"]
 "shared/ai/grpo_trainer.py" = ["F401"]  # Conditional torch import
 "shared/ai/observability.py" = ["F401", "F811"]  # Re-exports and conditional pytest
 "**/verify*.py" = ["F401", "F821"]  # Verification scripts
-"**/test_*.py" = ["F401", "F821", "E402"]  # Test files outside tests folder
+"**/test_*.py" = ["F401", "F821", "E402", "N801", "N817"]  # Test files outside tests folder
 "apps/services/vegetation-analysis-service/test_*.py" = ["E402"]  # Tests with path manipulation
 "apps/services/edge-orchestrator-service/**" = ["SIM102"]  # Nested if for clarity
+"apps/services/edge-orchestrator-service/src/**" = ["UP042"]  # str+Enum pattern
+"apps/services/edge-orchestrator-service/src/api/schemas.py" = ["UP042"]  # str+Enum pattern
 "apps/mobile/**/scripts/*" = ["F401"]  # Mobile scripts
 "apps/mobile/**/test/*" = ["F401", "F402"]  # Mobile test simulations
 "apps/services/shared/**" = ["F401"]  # Services shared code
 "packages/sahool-eo/**" = ["N999", "N803"]  # Package naming and scientific notation vars
+"shared/monitoring/**" = ["F401", "F402"]  # Optional imports in monitoring
+"shared/salinity/**" = ["SIM401"]  # Style preference for clarity
+"shared/service_enhancements/**" = ["E402", "F401"]  # Conditional imports
+"tools/fixops/**" = ["E402"]  # Path manipulation before imports
 
 [tool.ruff.format]
 quote-style = "double"

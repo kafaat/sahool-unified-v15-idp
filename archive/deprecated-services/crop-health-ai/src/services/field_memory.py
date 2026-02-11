@@ -281,12 +281,8 @@ class FieldMemory:
 
         # Infection trend (compare first half vs second half)
         mid = total // 2
-        first_half_healthy = sum(
-            1 for r in history[-mid:] if r.disease_id == "healthy"
-        )
-        second_half_healthy = sum(
-            1 for r in history[:mid] if r.disease_id == "healthy"
-        )
+        first_half_healthy = sum(1 for r in history[-mid:] if r.disease_id == "healthy")
+        second_half_healthy = sum(1 for r in history[:mid] if r.disease_id == "healthy")
         first_ratio = first_half_healthy / mid if mid > 0 else 0
         second_ratio = second_half_healthy / mid if mid > 0 else 0
 
@@ -522,13 +518,9 @@ class FieldMemory:
                     recovery_times.append(recovery_days)
 
         effectiveness_rate = (
-            successful_treatments / len(treated_diagnoses)
-            if treated_diagnoses
-            else 0.0
+            successful_treatments / len(treated_diagnoses) if treated_diagnoses else 0.0
         )
-        avg_recovery = (
-            sum(recovery_times) / len(recovery_times) if recovery_times else 0
-        )
+        avg_recovery = sum(recovery_times) / len(recovery_times) if recovery_times else 0
 
         return {
             "field_id": field_id,
@@ -551,9 +543,7 @@ class FieldMemory:
 
     def get_all_fields_summary(self) -> dict[str, Any]:
         """Get summary statistics across all fields"""
-        all_metrics = [
-            self.calculate_field_metrics(field_id) for field_id in self.field_histories
-        ]
+        all_metrics = [self.calculate_field_metrics(field_id) for field_id in self.field_histories]
 
         if not all_metrics:
             return {

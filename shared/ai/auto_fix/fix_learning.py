@@ -51,6 +51,7 @@ class FixPattern:
     A learned fix pattern.
     نمط إصلاح متعلَّم
     """
+
     pattern_id: str
     rule_id: str
     tool: ToolType
@@ -90,6 +91,7 @@ class FixFeedback:
     Feedback on a fix application.
     ملاحظات على تطبيق إصلاح
     """
+
     feedback_id: str
     fix_id: str
     rule_id: str
@@ -118,6 +120,7 @@ class DeveloperPreferences:
     Learned developer preferences.
     تفضيلات المطور المتعلَّمة
     """
+
     developer_id: str
 
     # Style preferences
@@ -144,6 +147,7 @@ class LearnedFix:
     A fix suggestion enhanced with learning.
     اقتراح إصلاح معزز بالتعلم
     """
+
     original_fix: CodeFix
     confidence: float
     pattern_id: str | None = None
@@ -250,11 +254,13 @@ class FixLearningSystem:
                 existing.last_used = datetime.now(UTC)
                 # Add example if we have few
                 if len(existing.examples) < 10:
-                    existing.examples.append({
-                        "original": fix.original_code,
-                        "fixed": fix.new_code,
-                        "file": diagnostic.location.file_path,
-                    })
+                    existing.examples.append(
+                        {
+                            "original": fix.original_code,
+                            "fixed": fix.new_code,
+                            "file": diagnostic.location.file_path,
+                        }
+                    )
             else:
                 pattern.success_count = 1
                 pattern.total_applications = 1
@@ -511,29 +517,33 @@ class FixLearningSystem:
         # Export from feedback
         for fb in self._feedback:
             if fb.accepted and fb.original_code and fb.fixed_code:
-                examples.append({
-                    "type": "code_fix",
-                    "rule_id": fb.rule_id,
-                    "tool": fb.tool.value,
-                    "original": fb.original_code,
-                    "fixed": fb.fixed_code,
-                    "file_path": fb.file_path,
-                })
+                examples.append(
+                    {
+                        "type": "code_fix",
+                        "rule_id": fb.rule_id,
+                        "tool": fb.tool.value,
+                        "original": fb.original_code,
+                        "fixed": fb.fixed_code,
+                        "file_path": fb.file_path,
+                    }
+                )
 
         # Export from patterns with examples
         for pattern in self._patterns.values():
             if pattern.total_applications >= min_samples:
                 for example in pattern.examples:
-                    examples.append({
-                        "type": "pattern_fix",
-                        "pattern_id": pattern.pattern_id,
-                        "rule_id": pattern.rule_id,
-                        "tool": pattern.tool.value,
-                        "category": pattern.category.value,
-                        "original": example["original"],
-                        "fixed": example["fixed"],
-                        "confidence": pattern.confidence,
-                    })
+                    examples.append(
+                        {
+                            "type": "pattern_fix",
+                            "pattern_id": pattern.pattern_id,
+                            "rule_id": pattern.rule_id,
+                            "tool": pattern.tool.value,
+                            "category": pattern.category.value,
+                            "original": example["original"],
+                            "fixed": example["fixed"],
+                            "confidence": pattern.confidence,
+                        }
+                    )
 
         # Write JSONL
         with open(output_path, "w") as f:
@@ -562,11 +572,13 @@ class FixLearningSystem:
             original_pattern=original_pattern,
             fix_pattern=fix_pattern,
             context_lines=3,
-            examples=[{
-                "original": fix.original_code,
-                "fixed": fix.new_code,
-                "file": diagnostic.location.file_path,
-            }],
+            examples=[
+                {
+                    "original": fix.original_code,
+                    "fixed": fix.new_code,
+                    "file": diagnostic.location.file_path,
+                }
+            ],
         )
 
     def _compute_pattern_id(self, fix: CodeFix, diagnostic: Diagnostic) -> str:
@@ -594,9 +606,7 @@ class FixLearningSystem:
     ) -> None:
         """Update developer preferences."""
         if developer_id not in self._developer_prefs:
-            self._developer_prefs[developer_id] = DeveloperPreferences(
-                developer_id=developer_id
-            )
+            self._developer_prefs[developer_id] = DeveloperPreferences(developer_id=developer_id)
 
         prefs = self._developer_prefs[developer_id]
 
@@ -617,13 +627,19 @@ class FixLearningSystem:
         parts = []
 
         if pattern:
-            parts.append(f"Based on {pattern.total_applications} similar fixes with {pattern.success_rate:.0%} success rate")
+            parts.append(
+                f"Based on {pattern.total_applications} similar fixes with {pattern.success_rate:.0%} success rate"
+            )
 
         rule_rate = self.get_rule_success_rate(diagnostic.rule_id or "unknown")
         if rule_rate > 0.8:
-            parts.append(f"Rule {diagnostic.rule_id} fixes have high success rate ({rule_rate:.0%})")
+            parts.append(
+                f"Rule {diagnostic.rule_id} fixes have high success rate ({rule_rate:.0%})"
+            )
         elif rule_rate < 0.5:
-            parts.append(f"Caution: Rule {diagnostic.rule_id} fixes have low success rate ({rule_rate:.0%})")
+            parts.append(
+                f"Caution: Rule {diagnostic.rule_id} fixes have low success rate ({rule_rate:.0%})"
+            )
 
         return ". ".join(parts) if parts else "Standard fix suggestion"
 
@@ -637,13 +653,19 @@ class FixLearningSystem:
         parts = []
 
         if pattern:
-            parts.append(f"بناءً على {pattern.total_applications} إصلاحات مماثلة بمعدل نجاح {pattern.success_rate:.0%}")
+            parts.append(
+                f"بناءً على {pattern.total_applications} إصلاحات مماثلة بمعدل نجاح {pattern.success_rate:.0%}"
+            )
 
         rule_rate = self.get_rule_success_rate(diagnostic.rule_id or "unknown")
         if rule_rate > 0.8:
-            parts.append(f"إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح عالي ({rule_rate:.0%})")
+            parts.append(
+                f"إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح عالي ({rule_rate:.0%})"
+            )
         elif rule_rate < 0.5:
-            parts.append(f"تحذير: إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح منخفض ({rule_rate:.0%})")
+            parts.append(
+                f"تحذير: إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح منخفض ({rule_rate:.0%})"
+            )
 
         return ". ".join(parts) if parts else "اقتراح إصلاح قياسي"
 
@@ -714,9 +736,13 @@ class FixLearningSystem:
         # Save statistics
         stats_path = os.path.join(self._data_dir, "stats.json")
         with open(stats_path, "w") as f:
-            json.dump({
-                "rule_stats": dict(self._rule_stats),
-            }, f, indent=2)
+            json.dump(
+                {
+                    "rule_stats": dict(self._rule_stats),
+                },
+                f,
+                indent=2,
+            )
 
         logger.debug("learning_data_saved")
 

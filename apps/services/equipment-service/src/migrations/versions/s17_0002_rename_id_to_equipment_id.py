@@ -44,7 +44,7 @@ def upgrade() -> None:
             op.drop_constraint(
                 "equipment_maintenance_equipment_id_fkey",
                 "equipment_maintenance",
-                type_="foreignkey"
+                type_="foreignkey",
             )
             print("✅ Dropped foreign key constraint equipment_maintenance_equipment_id_fkey")
         except Exception as e:
@@ -58,7 +58,7 @@ def upgrade() -> None:
             existing_type=sa.dialects.postgresql.UUID(),
             type_=sa.String(length=50),
             existing_nullable=False,
-            postgresql_using="id::text"  # Cast UUID to text during conversion
+            postgresql_using="id::text",  # Cast UUID to text during conversion
         )
         print("✅ Renamed equipment.id to equipment.equipment_id")
 
@@ -70,7 +70,7 @@ def upgrade() -> None:
                 existing_type=sa.dialects.postgresql.UUID(),
                 type_=sa.String(length=50),
                 existing_nullable=False,
-                postgresql_using="equipment_id::text"
+                postgresql_using="equipment_id::text",
             )
             print("✅ Changed equipment_maintenance.equipment_id type to String(50)")
         except Exception as e:
@@ -84,7 +84,7 @@ def upgrade() -> None:
                 "equipment",
                 ["equipment_id"],
                 ["equipment_id"],
-                ondelete="CASCADE"
+                ondelete="CASCADE",
             )
             print("✅ Recreated foreign key constraint")
         except Exception as e:

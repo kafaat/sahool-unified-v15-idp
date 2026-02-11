@@ -370,15 +370,9 @@ class TestPriceAlertModel:
             status=AlertStatus.ACTIVE,
         )
         # 10% increase should trigger
-        assert alert.check_trigger(
-            Decimal("2200"),
-            Decimal("2000")
-        ) is True
+        assert alert.check_trigger(Decimal("2200"), Decimal("2000")) is True
         # 5% increase should not trigger
-        assert alert.check_trigger(
-            Decimal("2100"),
-            Decimal("2000")
-        ) is False
+        assert alert.check_trigger(Decimal("2100"), Decimal("2000")) is False
 
     def test_price_alert_check_trigger_price_drop(self):
         """Test trigger check for PRICE_DROP alert"""
@@ -731,7 +725,11 @@ class TestPriceAnalyzer:
 
         assert trend.crop_id == "wheat"
         # Trend can be RISING, STABLE, or VOLATILE depending on price variation
-        assert trend.direction in [TrendDirection.RISING, TrendDirection.STABLE, TrendDirection.VOLATILE]
+        assert trend.direction in [
+            TrendDirection.RISING,
+            TrendDirection.STABLE,
+            TrendDirection.VOLATILE,
+        ]
         # Current should be higher than previous due to rising pattern
         assert trend.current_price > trend.previous_price
         # Should have positive price change

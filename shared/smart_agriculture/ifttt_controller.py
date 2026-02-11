@@ -544,14 +544,16 @@ class IFTTTEnvironmentController:
                 self._total_energy_baseline += rule.energy_cost * 1.25  # 20% saving
 
                 # Log action
-                self._action_history.append({
-                    "timestamp": datetime.now().isoformat(),
-                    "rule_id": rule_id,
-                    "rule_name": rule.name,
-                    "action": action.action_type.value,
-                    "parameters": action.parameters,
-                    "energy_cost": rule.energy_cost,
-                })
+                self._action_history.append(
+                    {
+                        "timestamp": datetime.now().isoformat(),
+                        "rule_id": rule_id,
+                        "rule_name": rule.name,
+                        "action": action.action_type.value,
+                        "parameters": action.parameters,
+                        "energy_cost": rule.energy_cost,
+                    }
+                )
 
         # Sort by priority (highest first)
         triggered_actions.sort(key=lambda a: a.priority, reverse=True)
@@ -607,43 +609,51 @@ class IFTTTEnvironmentController:
             if rule.trigger_count > 10:
                 # High-frequency rule - suggest longer cooldown
                 if rule.cooldown_seconds < 120:
-                    recommendations.append({
-                        "type": "increase_cooldown",
-                        "current": rule.cooldown_seconds,
-                        "suggested": rule.cooldown_seconds * 2,
-                        "energy_saving_pct": 15,
-                        "type_ar": "زيادة فترة الراحة",
-                    })
+                    recommendations.append(
+                        {
+                            "type": "increase_cooldown",
+                            "current": rule.cooldown_seconds,
+                            "suggested": rule.cooldown_seconds * 2,
+                            "energy_saving_pct": 15,
+                            "type_ar": "زيادة فترة الراحة",
+                        }
+                    )
 
             # Time window optimization
             if rule.time_window is None and rule.action.action_type in (
                 ActionType.TURN_ON_LIGHTS,
                 ActionType.START_HEATING,
             ):
-                recommendations.append({
-                    "type": "add_time_window",
-                    "suggested": "06:00-22:00",
-                    "energy_saving_pct": 25,
-                    "type_ar": "إضافة نافذة زمنية",
-                })
+                recommendations.append(
+                    {
+                        "type": "add_time_window",
+                        "suggested": "06:00-22:00",
+                        "energy_saving_pct": 25,
+                        "type_ar": "إضافة نافذة زمنية",
+                    }
+                )
 
             # Action duration optimization
             if rule.action.duration_seconds and rule.action.duration_seconds > 300:
-                recommendations.append({
-                    "type": "reduce_duration",
-                    "current": rule.action.duration_seconds,
-                    "suggested": int(rule.action.duration_seconds * 0.8),
-                    "energy_saving_pct": 10,
-                    "type_ar": "تقليل المدة",
-                })
+                recommendations.append(
+                    {
+                        "type": "reduce_duration",
+                        "current": rule.action.duration_seconds,
+                        "suggested": int(rule.action.duration_seconds * 0.8),
+                        "energy_saving_pct": 10,
+                        "type_ar": "تقليل المدة",
+                    }
+                )
 
             if recommendations:
-                optimization_results["recommendations"].append({
-                    "rule_id": rule_id,
-                    "rule_name": rule.name,
-                    "rule_name_ar": rule.name_ar,
-                    "suggestions": recommendations,
-                })
+                optimization_results["recommendations"].append(
+                    {
+                        "rule_id": rule_id,
+                        "rule_name": rule.name,
+                        "rule_name_ar": rule.name_ar,
+                        "suggestions": recommendations,
+                    }
+                )
 
             # Calculate projected savings
             optimization_results["projected_energy_saving"] += (
@@ -670,7 +680,8 @@ class IFTTTEnvironmentController:
         if self._total_energy_baseline > 0:
             energy_saving = (
                 (self._total_energy_baseline - self._total_energy_used)
-                / self._total_energy_baseline * 100
+                / self._total_energy_baseline
+                * 100
             )
         else:
             energy_saving = 20.0  # Default documented value
@@ -726,10 +737,7 @@ class IFTTTEnvironmentController:
         history = self._action_history[-limit:]
 
         if action_type:
-            history = [
-                h for h in history
-                if h["action"] == action_type.value
-            ]
+            history = [h for h in history if h["action"] == action_type.value]
 
         return history
 

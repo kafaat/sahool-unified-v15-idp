@@ -70,7 +70,7 @@ class SatinBowerbirdOptimizer:
         population_size: int = 30,
         max_iterations: int = 100,
         alpha: float = 0.94,  # Probability of accepting worse solution
-        beta: float = 2.0,    # Levy flight parameter
+        beta: float = 2.0,  # Levy flight parameter
         verbose: bool = True,
     ):
         """
@@ -159,9 +159,9 @@ class SatinBowerbirdOptimizer:
 
                 # Update position based on elite and Levy flight
                 new_position = (
-                    population[i] +
-                    self.alpha * (population[elite_idx] - population[i]) +
-                    (1 - self.alpha) * levy_step * (best_position - population[i])
+                    population[i]
+                    + self.alpha * (population[elite_idx] - population[i])
+                    + (1 - self.alpha) * levy_step * (best_position - population[i])
                 )
 
                 # Bound checking
@@ -175,7 +175,7 @@ class SatinBowerbirdOptimizer:
                     new_fitness = -new_fitness
 
                 # Accept if better (or with probability based on alpha)
-                if new_fitness > fitness[i] or np.random.rand() < self.alpha ** iteration:
+                if new_fitness > fitness[i] or np.random.rand() < self.alpha**iteration:
                     population[i] = new_position
                     fitness[i] = new_fitness
 
@@ -236,7 +236,7 @@ class SatinBowerbirdOptimizer:
             value = position[i]
 
             # Round integer parameters
-            if param_name in ['n_layers', 'n_neurons', 'batch_size', 'epochs']:
+            if param_name in ["n_layers", "n_neurons", "batch_size", "epochs"]:
                 value = int(round(value))
 
             params[param_name] = value

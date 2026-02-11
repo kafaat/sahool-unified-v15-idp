@@ -231,7 +231,9 @@ class TestLoginEndpoint:
         data = response.json()
         assert "disabled" in data["detail"].lower()
 
-    def test_login_failure_account_not_verified(self, client, mock_unverified_user, mock_user_service):
+    def test_login_failure_account_not_verified(
+        self, client, mock_unverified_user, mock_user_service
+    ):
         """Test login fails when account is not verified"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_unverified_user
@@ -444,7 +446,9 @@ class TestTwoFALoginEndpoint:
         assert data["user"]["id"] == "user-456"
         mock_user_service.update_last_login.assert_called_once_with("user-456")
 
-    def test_2fa_login_failure_invalid_temp_token(self, client, mock_user_service, mock_twofa_service):
+    def test_2fa_login_failure_invalid_temp_token(
+        self, client, mock_user_service, mock_twofa_service
+    ):
         """Test 2FA login fails with invalid temp token"""
         set_user_service(mock_user_service)
 
@@ -461,7 +465,9 @@ class TestTwoFALoginEndpoint:
         data = response.json()
         assert "token" in data["detail"].lower()
 
-    def test_2fa_login_failure_expired_temp_token(self, client, mock_user_service, mock_twofa_service):
+    def test_2fa_login_failure_expired_temp_token(
+        self, client, mock_user_service, mock_twofa_service
+    ):
         """Test 2FA login fails with expired temp token"""
         set_user_service(mock_user_service)
 
@@ -544,9 +550,7 @@ class TestTwoFALoginEndpoint:
         data = response.json()
         assert "two-factor" in data["detail"].lower() or "authentication" in data["detail"].lower()
 
-    def test_2fa_login_failure_user_not_found(
-        self, client, mock_user_service, mock_twofa_service
-    ):
+    def test_2fa_login_failure_user_not_found(self, client, mock_user_service, mock_twofa_service):
         """Test 2FA login fails when user not found"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = None
@@ -617,9 +621,7 @@ class TestCurrentUserEndpoint:
         assert data["data"]["tenant_id"] == "tenant-001"
         assert data["data"]["twofa_enabled"] is False
 
-    def test_get_current_user_with_2fa_enabled(
-        self, client, mock_user_with_2fa, mock_user_service
-    ):
+    def test_get_current_user_with_2fa_enabled(self, client, mock_user_with_2fa, mock_user_service):
         """Test get current user info when 2FA is enabled"""
         set_user_service(mock_user_service)
         mock_user_service.get_user.return_value = mock_user_with_2fa
@@ -698,9 +700,7 @@ class TestTokenRefresh:
         user_id = "user-123"
 
         # Create a refresh token with very short expiry
-        refresh_token = create_refresh_token(
-            user_id, tenant_id="tenant-001"
-        )
+        refresh_token = create_refresh_token(user_id, tenant_id="tenant-001")
 
         # Manually modify token to have past expiration
         import jwt
@@ -716,9 +716,7 @@ class TestTokenRefresh:
         # Set expiration to past
         payload["exp"] = datetime.now(UTC) - timedelta(hours=1)
 
-        expired_token = jwt.encode(
-            payload, config.get_signing_key(), algorithm="HS256"
-        )
+        expired_token = jwt.encode(payload, config.get_signing_key(), algorithm="HS256")
 
         # Should raise exception when trying to refresh
         with pytest.raises(AuthException):

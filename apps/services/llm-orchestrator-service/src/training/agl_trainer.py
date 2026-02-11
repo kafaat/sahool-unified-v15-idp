@@ -21,6 +21,7 @@ logger = structlog.get_logger()
 
 class OptimizationAlgorithm(str, Enum):
     """Supported optimization algorithms."""
+
     REINFORCE = "reinforce"  # Policy Gradient
     PPO = "ppo"  # Proximal Policy Optimization
     DPO = "dpo"  # Direct Preference Optimization
@@ -30,6 +31,7 @@ class OptimizationAlgorithm(str, Enum):
 
 class TrainingStatus(str, Enum):
     """Training job status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -116,7 +118,9 @@ class AGLTrainer:
     ):
         self.enabled = enabled and os.getenv("AGL_ENABLED", "false").lower() == "true"
         self.store_url = store_url or os.getenv("AGL_STORE_URL", "http://localhost:8300")
-        self.llm_proxy_url = llm_proxy_url or os.getenv("AGL_LLM_PROXY_URL", "http://localhost:8301")
+        self.llm_proxy_url = llm_proxy_url or os.getenv(
+            "AGL_LLM_PROXY_URL", "http://localhost:8301"
+        )
 
         self._training_jobs: dict[str, TrainingResult] = {}
         self._agl_available = False
@@ -136,6 +140,7 @@ class AGLTrainer:
         try:
             # Try to import agl
             import importlib
+
             agl_spec = importlib.util.find_spec("agl")
             self._agl_available = agl_spec is not None
 
@@ -192,9 +197,7 @@ class AGLTrainer:
                 return result
 
         # Start training in background
-        asyncio.create_task(
-            self._run_training(job_id, config, feedback_data)
-        )
+        asyncio.create_task(self._run_training(job_id, config, feedback_data))
 
         result.status = TrainingStatus.RUNNING
         logger.info(
@@ -227,9 +230,7 @@ class AGLTrainer:
 
             result.status = TrainingStatus.COMPLETED
             result.completed_at = datetime.now(UTC)
-            result.duration_seconds = (
-                result.completed_at - result.started_at
-            ).total_seconds()
+            result.duration_seconds = (result.completed_at - result.started_at).total_seconds()
 
             logger.info(
                 "Training completed",
@@ -272,11 +273,13 @@ class AGLTrainer:
             current_reward = initial_reward + (iteration / config.num_iterations) * 0.25
 
             result.iterations_completed = iteration + 1
-            result.metrics_history.append({
-                "iteration": iteration,
-                "reward": current_reward,
-                "timestamp": datetime.now(UTC).isoformat(),
-            })
+            result.metrics_history.append(
+                {
+                    "iteration": iteration,
+                    "reward": current_reward,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            )
 
             if iteration % config.checkpoint_interval == 0:
                 logger.debug(
@@ -341,13 +344,18 @@ class AGLTrainer:
             await asyncio.sleep(0.1)
             # Simulate policy gradient with variance
             import random
+
             noise = random.uniform(-0.02, 0.05)
-            current_reward = result.initial_reward + (iteration / config.num_iterations) * 0.35 + noise
+            current_reward = (
+                result.initial_reward + (iteration / config.num_iterations) * 0.35 + noise
+            )
             result.iterations_completed = iteration + 1
-            result.metrics_history.append({
-                "iteration": iteration,
-                "reward": current_reward,
-            })
+            result.metrics_history.append(
+                {
+                    "iteration": iteration,
+                    "reward": current_reward,
+                }
+            )
 
         result.final_reward = max(m["reward"] for m in result.metrics_history)
         result.improvement_percent = (
@@ -397,7 +405,6 @@ When analyzing crop issues:
 - Consider seasonal factors
 - Check for common regional diseases
 - Provide specific treatment recommendations with dosages""",
-
             "advisory": """أنت مستشار زراعي شامل.
 You are a comprehensive agricultural advisor.
 
@@ -412,7 +419,6 @@ Always provide:
 - Expected outcomes
 - Cost estimates in SAR
 - Timeline for results""",
-
             "default": """You are a helpful agricultural AI assistant for SAHOOL platform.
 أنت مساعد ذكاء اصطناعي زراعي مفيد لمنصة سهول.
 

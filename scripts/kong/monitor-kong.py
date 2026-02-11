@@ -39,7 +39,7 @@ import sys
 import time
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from enum import Enum
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
@@ -48,6 +48,7 @@ from typing import Callable
 
 try:
     import aiohttp
+
     ASYNC_MODE = True
 except ImportError:
     ASYNC_MODE = False
@@ -64,14 +65,15 @@ DEFAULT_LOG_FILE = "kong-monitor.log"
 # Logging configuration
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
 
 class ServiceStatus(Enum):
     """Service health status."""
+
     HEALTHY = "healthy"
     UNHEALTHY = "unhealthy"
     UNREACHABLE = "unreachable"
@@ -81,6 +83,7 @@ class ServiceStatus(Enum):
 @dataclass
 class ServiceMetrics:
     """Metrics for a single service."""
+
     name: str
     name_ar: str
     category: str
@@ -104,6 +107,7 @@ class ServiceMetrics:
 @dataclass
 class AlertConfig:
     """Alert configuration."""
+
     webhook_url: str | None = None
     email: str | None = None
     slack_webhook: str | None = None
@@ -143,7 +147,9 @@ class PrometheusMetricsHandler(BaseHTTPRequestHandler):
         lines.append("# HELP sahool_kong_service_up Service health status (1=up, 0=down)")
         lines.append("# TYPE sahool_kong_service_up gauge")
 
-        lines.append("# HELP sahool_kong_service_response_time_ms Service response time in milliseconds")
+        lines.append(
+            "# HELP sahool_kong_service_response_time_ms Service response time in milliseconds"
+        )
         lines.append("# TYPE sahool_kong_service_response_time_ms gauge")
 
         lines.append("# HELP sahool_kong_service_uptime_percent Service uptime percentage")
@@ -163,24 +169,24 @@ class PrometheusMetricsHandler(BaseHTTPRequestHandler):
         # Summary metrics
         total = metrics.get("total_services", 0)
         healthy = metrics.get("healthy_services", 0)
-        lines.append(f'sahool_kong_total_services {total}')
-        lines.append(f'sahool_kong_healthy_services {healthy}')
+        lines.append(f"sahool_kong_total_services {total}")
+        lines.append(f"sahool_kong_healthy_services {healthy}")
 
         # Per-service metrics
         for service_name, data in metrics.get("services", {}).items():
             labels = f'service="{service_name}",category="{data.get("category", "")}",critical="{data.get("critical", False)}"'
 
             status_value = 1 if data.get("status") == "healthy" else 0
-            lines.append(f'sahool_kong_service_up{{{labels}}} {status_value}')
+            lines.append(f"sahool_kong_service_up{{{labels}}} {status_value}")
 
             response_time = data.get("response_time_ms", 0)
-            lines.append(f'sahool_kong_service_response_time_ms{{{labels}}} {response_time:.2f}')
+            lines.append(f"sahool_kong_service_response_time_ms{{{labels}}} {response_time:.2f}")
 
             uptime = data.get("uptime_percentage", 100)
-            lines.append(f'sahool_kong_service_uptime_percent{{{labels}}} {uptime:.2f}')
+            lines.append(f"sahool_kong_service_uptime_percent{{{labels}}} {uptime:.2f}")
 
             failures = data.get("consecutive_failures", 0)
-            lines.append(f'sahool_kong_service_consecutive_failures{{{labels}}} {failures}')
+            lines.append(f"sahool_kong_service_consecutive_failures{{{labels}}} {failures}")
 
         return "\n".join(lines) + "\n"
 
@@ -198,14 +204,14 @@ class KongMonitor:
         metrics_port: int = DEFAULT_METRICS_PORT,
         alert_config: AlertConfig | None = None,
         critical_only: bool = False,
-        kong_url: str = "http://localhost:8000"
+        kong_url: str = "http://localhost:8000",
     ):
         self.interval = interval
         self.log_file = Path(log_file)
         self.metrics_port = metrics_port
         self.alert_config = alert_config or AlertConfig()
         self.critical_only = critical_only
-        self.kong_url = kong_url.rstrip('/')
+        self.kong_url = kong_url.rstrip("/")
 
         self.script_dir = Path(__file__).parent
         self.services_json_path = self.script_dir / "kong-services.json"
@@ -220,12 +226,13 @@ class KongMonitor:
 
     def _setup_file_logging(self):
         """Setup file-based logging."""
-        file_handler = logging.FileHandler(self.log_file, encoding='utf-8')
+        file_handler = logging.FileHandler(self.log_file, encoding="utf-8")
         file_handler.setLevel(logging.INFO)
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s [%(levelname)s] %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        ))
+        file_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s [%(levelname)s] %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            )
+        )
         logger.addHandler(file_handler)
 
     def load_services(self) -> bool:
@@ -249,7 +256,7 @@ class KongMonitor:
                 name=name,
                 name_ar=svc.get("name_ar", name),
                 category=svc.get("category", "unknown"),
-                critical=svc.get("critical", False)
+                critical=svc.get("critical", False),
             )
 
         logger.info(f"Loaded {len(self.services)} services for monitoring")
@@ -275,8 +282,7 @@ class KongMonitor:
             if ASYNC_MODE:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(
-                        url,
-                        timeout=aiohttp.ClientTimeout(total=timeout_sec)
+                        url, timeout=aiohttp.ClientTimeout(total=timeout_sec)
                     ) as response:
                         duration = (time.time() - start_time) * 1000
                         if response.status == expected_status:
@@ -291,7 +297,7 @@ class KongMonitor:
                 else:
                     return ServiceStatus.UNHEALTHY, duration, f"Status {response.status_code}"
 
-        except asyncio.TimeoutError:
+        except TimeoutError:
             duration = (time.time() - start_time) * 1000
             return ServiceStatus.UNREACHABLE, duration, "Timeout"
         except Exception as e:
@@ -313,7 +319,7 @@ class KongMonitor:
 
             # Update metrics
             metrics.total_checks += 1
-            metrics.last_check = datetime.now(timezone.utc).isoformat()
+            metrics.last_check = datetime.now(UTC).isoformat()
             metrics.response_time_ms = response_time
             metrics.status = status
 
@@ -353,10 +359,10 @@ class KongMonitor:
                     "critical": m.critical,
                     "response_time_ms": m.response_time_ms,
                     "uptime_percentage": m.uptime_percentage,
-                    "consecutive_failures": m.consecutive_failures
+                    "consecutive_failures": m.consecutive_failures,
                 }
                 for name, m in self.service_metrics.items()
-            }
+            },
         }
 
     async def _send_alert(self, metrics: ServiceMetrics):
@@ -369,10 +375,10 @@ class KongMonitor:
             "last_error": metrics.last_error,
             "category": metrics.category,
             "critical": metrics.critical,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "platform": "SAHOOL",
             "message": f"Service {metrics.name} has failed {metrics.consecutive_failures} consecutive times",
-            "message_ar": f"الخدمة {metrics.name_ar} فشلت {metrics.consecutive_failures} مرات متتالية"
+            "message_ar": f"الخدمة {metrics.name_ar} فشلت {metrics.consecutive_failures} مرات متتالية",
         }
 
         logger.warning(f"ALERT: {alert_data['message']}")
@@ -385,14 +391,10 @@ class KongMonitor:
                         await session.post(
                             self.alert_config.webhook_url,
                             json=alert_data,
-                            timeout=aiohttp.ClientTimeout(total=10)
+                            timeout=aiohttp.ClientTimeout(total=10),
                         )
                 else:
-                    requests.post(
-                        self.alert_config.webhook_url,
-                        json=alert_data,
-                        timeout=10
-                    )
+                    requests.post(self.alert_config.webhook_url, json=alert_data, timeout=10)
                 logger.info(f"Alert sent to webhook for {metrics.name}")
             except Exception as e:
                 logger.error(f"Failed to send webhook alert: {e}")
@@ -400,19 +402,26 @@ class KongMonitor:
         # Send Slack alert
         if self.alert_config.slack_webhook:
             slack_payload = {
-                "text": f":warning: *SAHOOL Alert* - Service Down",
+                "text": ":warning: *SAHOOL Alert* - Service Down",
                 "attachments": [
                     {
                         "color": "danger",
                         "fields": [
                             {"title": "Service", "value": metrics.name, "short": True},
                             {"title": "Status", "value": metrics.status.value, "short": True},
-                            {"title": "Failures", "value": str(metrics.consecutive_failures), "short": True},
+                            {
+                                "title": "Failures",
+                                "value": str(metrics.consecutive_failures),
+                                "short": True,
+                            },
                             {"title": "Category", "value": metrics.category, "short": True},
-                            {"title": "Error", "value": metrics.last_error[:100] if metrics.last_error else "N/A"}
-                        ]
+                            {
+                                "title": "Error",
+                                "value": metrics.last_error[:100] if metrics.last_error else "N/A",
+                            },
+                        ],
                     }
-                ]
+                ],
             }
             try:
                 if ASYNC_MODE:
@@ -420,14 +429,10 @@ class KongMonitor:
                         await session.post(
                             self.alert_config.slack_webhook,
                             json=slack_payload,
-                            timeout=aiohttp.ClientTimeout(total=10)
+                            timeout=aiohttp.ClientTimeout(total=10),
                         )
                 else:
-                    requests.post(
-                        self.alert_config.slack_webhook,
-                        json=slack_payload,
-                        timeout=10
-                    )
+                    requests.post(self.alert_config.slack_webhook, json=slack_payload, timeout=10)
                 logger.info(f"Slack alert sent for {metrics.name}")
             except Exception as e:
                 logger.error(f"Failed to send Slack alert: {e}")
@@ -436,8 +441,7 @@ class KongMonitor:
         """Start the Prometheus metrics HTTP server."""
         try:
             self.metrics_server = HTTPServer(
-                ("0.0.0.0", self.metrics_port),
-                PrometheusMetricsHandler
+                ("0.0.0.0", self.metrics_port), PrometheusMetricsHandler
             )
             logger.info(f"Prometheus metrics server started on port {self.metrics_port}")
             self.metrics_server.serve_forever()
@@ -470,14 +474,20 @@ class KongMonitor:
         while self.running:
             try:
                 logger.info("-" * 60)
-                logger.info(f"Health check started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+                logger.info(
+                    f"Health check started at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+                )
 
                 await self.check_all_services()
 
                 # Summary
                 total = len(self.services)
-                healthy = sum(1 for m in self.service_metrics.values() if m.status == ServiceStatus.HEALTHY)
-                logger.info(f"Summary: {healthy}/{total} services healthy ({healthy*100//total}%)")
+                healthy = sum(
+                    1 for m in self.service_metrics.values() if m.status == ServiceStatus.HEALTHY
+                )
+                logger.info(
+                    f"Summary: {healthy}/{total} services healthy ({healthy * 100 // total}%)"
+                )
 
                 # Wait for next interval
                 await asyncio.sleep(self.interval)
@@ -506,51 +516,47 @@ Environment Variables:
   KONG_GATEWAY_URL     Kong gateway URL (default: http://localhost:8000)
   ALERT_WEBHOOK_URL    Webhook URL for alerts
   SLACK_WEBHOOK_URL    Slack webhook URL for alerts
-        """
+        """,
     )
 
     parser.add_argument(
         "--interval",
         type=int,
         default=DEFAULT_INTERVAL,
-        help=f"Polling interval in seconds (default: {DEFAULT_INTERVAL})"
+        help=f"Polling interval in seconds (default: {DEFAULT_INTERVAL})",
     )
     parser.add_argument(
-        "--log-file",
-        default=DEFAULT_LOG_FILE,
-        help=f"Log file path (default: {DEFAULT_LOG_FILE})"
+        "--log-file", default=DEFAULT_LOG_FILE, help=f"Log file path (default: {DEFAULT_LOG_FILE})"
     )
     parser.add_argument(
         "--metrics-port",
         type=int,
         default=DEFAULT_METRICS_PORT,
-        help=f"Prometheus metrics port (default: {DEFAULT_METRICS_PORT})"
+        help=f"Prometheus metrics port (default: {DEFAULT_METRICS_PORT})",
     )
     parser.add_argument(
         "--kong-url",
         default=os.environ.get("KONG_GATEWAY_URL", "http://localhost:8000"),
-        help="Kong gateway URL"
+        help="Kong gateway URL",
     )
     parser.add_argument(
         "--alert-webhook",
         default=os.environ.get("ALERT_WEBHOOK_URL"),
-        help="Webhook URL for alerts"
+        help="Webhook URL for alerts",
     )
     parser.add_argument(
         "--slack-webhook",
         default=os.environ.get("SLACK_WEBHOOK_URL"),
-        help="Slack webhook URL for alerts"
+        help="Slack webhook URL for alerts",
     )
     parser.add_argument(
         "--failure-threshold",
         type=int,
         default=3,
-        help="Consecutive failures before alert (default: 3)"
+        help="Consecutive failures before alert (default: 3)",
     )
     parser.add_argument(
-        "--critical-only",
-        action="store_true",
-        help="Monitor only critical services"
+        "--critical-only", action="store_true", help="Monitor only critical services"
     )
 
     return parser.parse_args()
@@ -580,7 +586,7 @@ def main():
     alert_config = AlertConfig(
         webhook_url=args.alert_webhook,
         slack_webhook=args.slack_webhook,
-        failure_threshold=args.failure_threshold
+        failure_threshold=args.failure_threshold,
     )
 
     monitor = KongMonitor(
@@ -589,7 +595,7 @@ def main():
         metrics_port=args.metrics_port,
         alert_config=alert_config,
         critical_only=args.critical_only,
-        kong_url=args.kong_url
+        kong_url=args.kong_url,
     )
 
     # Handle graceful shutdown

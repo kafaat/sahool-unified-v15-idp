@@ -271,9 +271,7 @@ class BlockchainTraceability:
             ValueError: If batch_id is not found
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         operation_id = f"OP-{uuid.uuid4().hex[:8].upper()}"
 
@@ -339,9 +337,7 @@ class BlockchainTraceability:
             ValueError: If batch_id is not found
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         report_id = f"TEST-{uuid.uuid4().hex[:8].upper()}"
         test_date = test_date or datetime.now()
@@ -393,9 +389,7 @@ class BlockchainTraceability:
             str: Certification ID
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         cert_id = f"CERT-{uuid.uuid4().hex[:8].upper()}"
 
@@ -441,9 +435,7 @@ class BlockchainTraceability:
             ValueError: If batch_id is not found
         """
         if batch_id not in self._blockchain:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         # Combine all block hashes
         chain = self._blockchain[batch_id]
@@ -480,9 +472,7 @@ class BlockchainTraceability:
             ValueError: If batch_id is not found
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         # Ensure hash is up to date
         self.generate_hash(batch_id)
@@ -507,9 +497,7 @@ class BlockchainTraceability:
             ValueError: If batch_id is not found
         """
         if batch_id not in self._blockchain:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         chain = self._blockchain[batch_id]
 
@@ -549,9 +537,7 @@ class BlockchainTraceability:
         Returns:
             PremiumValue: Premium value metrics | مقاييس القيمة المميزة
         """
-        total_certs = sum(
-            len(batch.certifications) for batch in self._batches.values()
-        )
+        total_certs = sum(len(batch.certifications) for batch in self._batches.values())
 
         # Calculate trust score based on verified batches and certifications
         if self._batches:
@@ -583,9 +569,7 @@ class BlockchainTraceability:
             dict: QR code data including trace URL and verification hash
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         batch = self._batches[batch_id]
         final_hash = self.generate_hash(batch_id)
@@ -613,9 +597,7 @@ class BlockchainTraceability:
             list: List of block data dictionaries
         """
         if batch_id not in self._blockchain:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         return [block.to_dict() for block in self._blockchain[batch_id]]
 
@@ -624,12 +606,8 @@ class BlockchainTraceability:
         Get system-wide statistics.
         الحصول على إحصائيات النظام الشاملة.
         """
-        total_operations = sum(
-            len(batch.operations) for batch in self._batches.values()
-        )
-        total_blocks = sum(
-            len(chain) for chain in self._blockchain.values()
-        )
+        total_operations = sum(len(batch.operations) for batch in self._batches.values())
+        total_blocks = sum(len(chain) for chain in self._blockchain.values())
 
         return {
             "chain_id": self.chain_id,
@@ -654,9 +632,7 @@ class BlockchainTraceability:
             str: Exported data
         """
         if batch_id not in self._batches:
-            raise ValueError(
-                f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة"
-            )
+            raise ValueError(f"Batch {batch_id} not found | الدفعة {batch_id} غير موجودة")
 
         batch = self._batches[batch_id]
 

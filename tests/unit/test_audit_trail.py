@@ -1034,9 +1034,7 @@ class TestRetentionPolicies:
     def test_globalgap_policy(self):
         """Test GlobalGAP retention policy."""
         policies = get_default_policies()
-        ggap_policy = next(
-            p for p in policies if p.category == AuditCategory.GLOBALGAP
-        )
+        ggap_policy = next(p for p in policies if p.category == AuditCategory.GLOBALGAP)
 
         assert ggap_policy.retention_period == RetentionPeriod.GLOBALGAP
         assert ggap_policy.retention_days == 1825
@@ -1045,9 +1043,7 @@ class TestRetentionPolicies:
     def test_field_ops_policy(self):
         """Test field operations retention policy."""
         policies = get_default_policies()
-        ops_policy = next(
-            p for p in policies if p.category == AuditCategory.FIELD_OPS
-        )
+        ops_policy = next(p for p in policies if p.category == AuditCategory.FIELD_OPS)
 
         assert ops_policy.retention_period == RetentionPeriod.GLOBALGAP
         assert ops_policy.retention_days == 1825
@@ -1055,9 +1051,7 @@ class TestRetentionPolicies:
     def test_security_policy(self):
         """Test security retention policy."""
         policies = get_default_policies()
-        sec_policy = next(
-            p for p in policies if p.category == AuditCategory.SECURITY
-        )
+        sec_policy = next(p for p in policies if p.category == AuditCategory.SECURITY)
 
         assert sec_policy.retention_period == RetentionPeriod.LONG
         assert sec_policy.retention_days == 1095

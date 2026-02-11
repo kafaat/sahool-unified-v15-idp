@@ -240,9 +240,7 @@ class Task(BaseModel):
         description="Unique task identifier | معرف المهمة الفريد",
     )
     description: str = Field(description="Task description (English)")
-    description_ar: str = Field(
-        description="Task description (Arabic) | وصف المهمة بالعربية"
-    )
+    description_ar: str = Field(description="Task description (Arabic) | وصف المهمة بالعربية")
     required_capabilities: list[AgentCapability] = Field(
         default_factory=list,
         description="Required agent capabilities | القدرات المطلوبة",
@@ -528,9 +526,7 @@ class MemoryEntry(BaseModel):
         default_factory=lambda: str(uuid4()),
         description="Unique entry identifier",
     )
-    namespace: MemoryNamespace = Field(
-        description="Memory namespace | مساحة اسم الذاكرة"
-    )
+    namespace: MemoryNamespace = Field(description="Memory namespace | مساحة اسم الذاكرة")
     key: str = Field(description="Entry key | مفتاح الإدخال")
     value: Any = Field(description="Entry value | قيمة الإدخال")
     metadata: dict[str, Any] = Field(default_factory=dict)

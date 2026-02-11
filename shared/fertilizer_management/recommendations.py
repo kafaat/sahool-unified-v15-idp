@@ -194,6 +194,7 @@ class NutrientRecommendation:
     """
     Single nutrient recommendation - توصية لعنصر غذائي واحد
     """
+
     nutrient: str
     nutrient_ar: str
     current_level_ppm: float
@@ -216,6 +217,7 @@ class FertilizerRecommendation:
     """
     Complete fertilizer recommendation - توصية تسميد كاملة
     """
+
     id: str
     tenant_id: str
     field_id: str
@@ -248,9 +250,7 @@ class FertilizerRecommendation:
     k_remaining_kg_ha: float = 0.0
 
     # Individual nutrient recommendations
-    nutrient_recommendations: list[NutrientRecommendation] = field(
-        default_factory=list
-    )
+    nutrient_recommendations: list[NutrientRecommendation] = field(default_factory=list)
 
     # Fertilizer products recommended
     recommended_products: list[dict] = field(default_factory=list)
@@ -487,20 +487,14 @@ class FertilizerRecommendationEngine:
         growth_stage_ar = growth_stage_translations.get(growth_stage or "", "")
 
         # Calculate requirements
-        total_requirements = self.calculate_crop_requirements(
-            crop, target_yield_tons_ha
-        )
+        total_requirements = self.calculate_crop_requirements(crop, target_yield_tons_ha)
         soil_contribution = self.soil_contribution(soil_test, crop)
 
         # Net requirements
-        n_required = max(
-            0, total_requirements["N"] - soil_contribution["N"] - already_applied_n
-        )
+        n_required = max(0, total_requirements["N"] - soil_contribution["N"] - already_applied_n)
         p_required = max(
             0,
-            total_requirements["P2O5"]
-            - soil_contribution["P2O5"]
-            - already_applied_p,
+            total_requirements["P2O5"] - soil_contribution["P2O5"] - already_applied_p,
         )
         k_required = max(
             0, total_requirements["K2O"] - soil_contribution["K2O"] - already_applied_k
@@ -510,9 +504,7 @@ class FertilizerRecommendationEngine:
         nutrient_recs = []
 
         # Nitrogen
-        n_status, n_desc_en, n_desc_ar = self.get_nutrient_status(
-            "N", soil_test.nitrogen_ppm
-        )
+        n_status, n_desc_en, n_desc_ar = self.get_nutrient_status("N", soil_test.nitrogen_ppm)
         if n_required > 0:
             nutrient_recs.append(
                 NutrientRecommendation(
@@ -531,9 +523,7 @@ class FertilizerRecommendationEngine:
             )
 
         # Phosphorus
-        p_status, p_desc_en, p_desc_ar = self.get_nutrient_status(
-            "P", soil_test.phosphorus_ppm
-        )
+        p_status, p_desc_en, p_desc_ar = self.get_nutrient_status("P", soil_test.phosphorus_ppm)
         if p_required > 0:
             nutrient_recs.append(
                 NutrientRecommendation(
@@ -552,9 +542,7 @@ class FertilizerRecommendationEngine:
             )
 
         # Potassium
-        k_status, k_desc_en, k_desc_ar = self.get_nutrient_status(
-            "K", soil_test.potassium_ppm
-        )
+        k_status, k_desc_en, k_desc_ar = self.get_nutrient_status("K", soil_test.potassium_ppm)
         if k_required > 0:
             nutrient_recs.append(
                 NutrientRecommendation(
@@ -600,9 +588,7 @@ class FertilizerRecommendationEngine:
                 )
 
         # Generate product recommendations
-        recommended_products = self._select_fertilizer_products(
-            n_required, p_required, k_required
-        )
+        recommended_products = self._select_fertilizer_products(n_required, p_required, k_required)
 
         # Calculate estimated cost
         estimated_cost = Decimal("0.00")
@@ -624,16 +610,10 @@ class FertilizerRecommendationEngine:
             env_notes_en.append(
                 "High nitrogen rate - consider split applications to reduce leaching"
             )
-            env_notes_ar.append(
-                "معدل نيتروجين مرتفع - يُنصح بتقسيم الجرعات لتقليل الغسيل"
-            )
+            env_notes_ar.append("معدل نيتروجين مرتفع - يُنصح بتقسيم الجرعات لتقليل الغسيل")
         if soil_test.ec_ds_m > 4.0:
-            env_notes_en.append(
-                "High soil salinity - avoid chloride-containing fertilizers"
-            )
-            env_notes_ar.append(
-                "ملوحة تربة مرتفعة - تجنب الأسمدة المحتوية على الكلوريد"
-            )
+            env_notes_en.append("High soil salinity - avoid chloride-containing fertilizers")
+            env_notes_ar.append("ملوحة تربة مرتفعة - تجنب الأسمدة المحتوية على الكلوريد")
 
         return FertilizerRecommendation(
             id=recommendation_id,
@@ -643,8 +623,7 @@ class FertilizerRecommendationEngine:
             crop_ar=crop_ar,
             growth_stage=growth_stage or "",
             growth_stage_ar=growth_stage_ar,
-            target_yield_tons_ha=target_yield_tons_ha
-            or crop_data.get("typical_yield", 5.0),
+            target_yield_tons_ha=target_yield_tons_ha or crop_data.get("typical_yield", 5.0),
             soil_test_id=soil_test.id,
             soil_test_date=soil_test.sample_date,
             total_n_required_kg_ha=total_requirements["N"],
@@ -766,9 +745,7 @@ class FertilizerRecommendationEngine:
         if not any([n_required, p_required, k_required]):
             return f"Soil nutrient levels are adequate for {crop}. No fertilizer application recommended at this time."
 
-        deficiencies = [
-            rec for rec in nutrient_recs if rec.status == NutrientStatus.DEFICIENT
-        ]
+        deficiencies = [rec for rec in nutrient_recs if rec.status == NutrientStatus.DEFICIENT]
         if deficiencies:
             nutrients = ", ".join([rec.nutrient for rec in deficiencies])
             return f"Critical deficiencies detected: {nutrients}. Immediate fertilizer application recommended for {crop} with {n_required:.0f} kg N, {p_required:.0f} kg P2O5, {k_required:.0f} kg K2O per hectare."
@@ -787,9 +764,7 @@ class FertilizerRecommendationEngine:
         if not any([n_required, p_required, k_required]):
             return f"مستويات العناصر الغذائية في التربة كافية لمحصول {crop_ar}. لا يُنصح بتطبيق الأسمدة في هذا الوقت."
 
-        deficiencies = [
-            rec for rec in nutrient_recs if rec.status == NutrientStatus.DEFICIENT
-        ]
+        deficiencies = [rec for rec in nutrient_recs if rec.status == NutrientStatus.DEFICIENT]
         if deficiencies:
             nutrients = "، ".join([rec.nutrient_ar for rec in deficiencies])
             return f"تم اكتشاف نقص حرج: {nutrients}. يُنصح بتطبيق الأسمدة فوراً لمحصول {crop_ar} بمعدل {n_required:.0f} كجم نيتروجين، {p_required:.0f} كجم فسفور، {k_required:.0f} كجم بوتاسيوم للهكتار."

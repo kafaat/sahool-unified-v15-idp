@@ -24,6 +24,7 @@ import json
 
 class ExplanationType(str, Enum):
     """Types of explanations | أنواع التفسيرات"""
+
     FACTOR_BASED = "factor_based"  # Based on input factors
     RULE_BASED = "rule_based"  # Based on agronomic rules
     DATA_DRIVEN = "data_driven"  # Based on historical data
@@ -33,6 +34,7 @@ class ExplanationType(str, Enum):
 
 class FactorType(str, Enum):
     """Types of contributing factors | أنواع العوامل المساهمة"""
+
     WEATHER = "weather"  # الطقس
     SOIL = "soil"  # التربة
     CROP_STAGE = "crop_stage"  # مرحلة المحصول
@@ -46,6 +48,7 @@ class FactorType(str, Enum):
 
 class ImpactLevel(str, Enum):
     """Impact level of a factor | مستوى تأثير العامل"""
+
     CRITICAL = "critical"  # حرج - must have
     HIGH = "high"  # عالي - strongly influences
     MEDIUM = "medium"  # متوسط - moderately influences
@@ -226,10 +229,7 @@ class Explanation:
     @property
     def primary_factors(self) -> list[ContributingFactor]:
         """Get factors with HIGH or CRITICAL impact"""
-        return [
-            f for f in self.factors
-            if f.impact in [ImpactLevel.CRITICAL, ImpactLevel.HIGH]
-        ]
+        return [f for f in self.factors if f.impact in [ImpactLevel.CRITICAL, ImpactLevel.HIGH]]
 
     @property
     def factor_summary(self) -> str:
@@ -454,79 +454,89 @@ class ExplainabilityEngine:
 
         # Soil moisture factor
         moisture_impact = ImpactLevel.HIGH if soil_moisture < 40 else ImpactLevel.MEDIUM
-        factors.append(ContributingFactor(
-            factor_type=FactorType.SOIL,
-            name="Soil Moisture",
-            name_ar="رطوبة التربة",
-            value=f"{soil_moisture}%",
-            description=f"Current soil moisture is {soil_moisture}%",
-            description_ar=f"رطوبة التربة الحالية {soil_moisture}%",
-            impact=moisture_impact,
-            weight=0.35,
-            direction="supports" if soil_moisture < 50 else "opposes",
-            evidence=f"Sensor reading: {soil_moisture}%",
-            evidence_ar=f"قراءة الحساس: {soil_moisture}%",
-            source="IoT Sensors",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.SOIL,
+                name="Soil Moisture",
+                name_ar="رطوبة التربة",
+                value=f"{soil_moisture}%",
+                description=f"Current soil moisture is {soil_moisture}%",
+                description_ar=f"رطوبة التربة الحالية {soil_moisture}%",
+                impact=moisture_impact,
+                weight=0.35,
+                direction="supports" if soil_moisture < 50 else "opposes",
+                evidence=f"Sensor reading: {soil_moisture}%",
+                evidence_ar=f"قراءة الحساس: {soil_moisture}%",
+                source="IoT Sensors",
+            )
+        )
 
         # Weather factor
         rain_expected = weather_forecast.get("rain_probability", 0) > 50
         temp = weather_forecast.get("temperature", 25)
-        factors.append(ContributingFactor(
-            factor_type=FactorType.WEATHER,
-            name="Weather Forecast",
-            name_ar="توقعات الطقس",
-            value=f"Rain: {weather_forecast.get('rain_probability', 0)}%, Temp: {temp}°C",
-            description=f"{'Rain expected, irrigation may be delayed' if rain_expected else 'No rain expected, irrigation needed'}",
-            description_ar=f"{'أمطار متوقعة، قد يتأخر الري' if rain_expected else 'لا أمطار متوقعة، الري مطلوب'}",
-            impact=ImpactLevel.HIGH,
-            weight=0.25,
-            direction="opposes" if rain_expected else "supports",
-            source="Weather Service",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.WEATHER,
+                name="Weather Forecast",
+                name_ar="توقعات الطقس",
+                value=f"Rain: {weather_forecast.get('rain_probability', 0)}%, Temp: {temp}°C",
+                description=f"{'Rain expected, irrigation may be delayed' if rain_expected else 'No rain expected, irrigation needed'}",
+                description_ar=f"{'أمطار متوقعة، قد يتأخر الري' if rain_expected else 'لا أمطار متوقعة، الري مطلوب'}",
+                impact=ImpactLevel.HIGH,
+                weight=0.25,
+                direction="opposes" if rain_expected else "supports",
+                source="Weather Service",
+            )
+        )
 
         # Crop stage factor
-        factors.append(ContributingFactor(
-            factor_type=FactorType.CROP_STAGE,
-            name="Crop Growth Stage",
-            name_ar="مرحلة نمو المحصول",
-            value=crop_stage,
-            description=f"Crop is in {crop_stage} stage with specific water needs",
-            description_ar=f"المحصول في مرحلة {crop_stage} مع احتياجات مائية محددة",
-            impact=ImpactLevel.MEDIUM,
-            weight=0.20,
-            direction="supports",
-            source="Field Observation",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.CROP_STAGE,
+                name="Crop Growth Stage",
+                name_ar="مرحلة نمو المحصول",
+                value=crop_stage,
+                description=f"Crop is in {crop_stage} stage with specific water needs",
+                description_ar=f"المحصول في مرحلة {crop_stage} مع احتياجات مائية محددة",
+                impact=ImpactLevel.MEDIUM,
+                weight=0.20,
+                direction="supports",
+                source="Field Observation",
+            )
+        )
 
         # ET factor
-        factors.append(ContributingFactor(
-            factor_type=FactorType.SENSOR,
-            name="Evapotranspiration",
-            name_ar="النتح والتبخر",
-            value=f"{et_value} mm/day",
-            description=f"ET rate indicates daily water loss of {et_value}mm",
-            description_ar=f"معدل التبخر يشير إلى فقدان مائي يومي {et_value}مم",
-            impact=ImpactLevel.MEDIUM,
-            weight=0.20,
-            direction="supports",
-            source="Calculated from weather data",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.SENSOR,
+                name="Evapotranspiration",
+                name_ar="النتح والتبخر",
+                value=f"{et_value} mm/day",
+                description=f"ET rate indicates daily water loss of {et_value}mm",
+                description_ar=f"معدل التبخر يشير إلى فقدان مائي يومي {et_value}مم",
+                impact=ImpactLevel.MEDIUM,
+                weight=0.20,
+                direction="supports",
+                source="Calculated from weather data",
+            )
+        )
 
         # Create alternatives
         alt_recommendations = []
         if alternatives:
             for i, alt in enumerate(alternatives):
-                alt_recommendations.append(AlternativeRecommendation(
-                    title=alt.get("title", f"Alternative {i+1}"),
-                    title_ar=alt.get("title_ar", f"البديل {i+1}"),
-                    description=alt.get("description", ""),
-                    description_ar=alt.get("description_ar", ""),
-                    score=alt.get("score", 50),
-                    rank=i + 2,
-                    rejection_reasons=alt.get("rejection_reasons", []),
-                    rejection_reasons_ar=alt.get("rejection_reasons_ar", []),
-                ))
+                alt_recommendations.append(
+                    AlternativeRecommendation(
+                        title=alt.get("title", f"Alternative {i + 1}"),
+                        title_ar=alt.get("title_ar", f"البديل {i + 1}"),
+                        description=alt.get("description", ""),
+                        description_ar=alt.get("description_ar", ""),
+                        score=alt.get("score", 50),
+                        rank=i + 2,
+                        rejection_reasons=alt.get("rejection_reasons", []),
+                        rejection_reasons_ar=alt.get("rejection_reasons_ar", []),
+                    )
+                )
 
         return self.explain(
             recommendation_id=recommendation_id,
@@ -564,46 +574,52 @@ class ExplainabilityEngine:
         _p_level = soil_test.get("phosphorus", 0)  # Reserved for future P factor
         _k_level = soil_test.get("potassium", 0)  # Reserved for future K factor
 
-        factors.append(ContributingFactor(
-            factor_type=FactorType.SOIL,
-            name="Soil Nitrogen",
-            name_ar="نيتروجين التربة",
-            value=f"{n_level} ppm",
-            description=f"Nitrogen level is {'deficient' if n_level < 25 else 'adequate'}",
-            description_ar=f"مستوى النيتروجين {'منخفض' if n_level < 25 else 'كافي'}",
-            impact=ImpactLevel.CRITICAL if n_level < 25 else ImpactLevel.LOW,
-            weight=0.40,
-            direction="supports" if n_level < 25 else "neutral",
-            source="Soil Test Results",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.SOIL,
+                name="Soil Nitrogen",
+                name_ar="نيتروجين التربة",
+                value=f"{n_level} ppm",
+                description=f"Nitrogen level is {'deficient' if n_level < 25 else 'adequate'}",
+                description_ar=f"مستوى النيتروجين {'منخفض' if n_level < 25 else 'كافي'}",
+                impact=ImpactLevel.CRITICAL if n_level < 25 else ImpactLevel.LOW,
+                weight=0.40,
+                direction="supports" if n_level < 25 else "neutral",
+                source="Soil Test Results",
+            )
+        )
 
-        factors.append(ContributingFactor(
-            factor_type=FactorType.CROP_STAGE,
-            name="Growth Stage Requirements",
-            name_ar="متطلبات مرحلة النمو",
-            value=crop_stage,
-            description=f"{crop_type} in {crop_stage} has high nutrient demand",
-            description_ar=f"{crop_type} في مرحلة {crop_stage} يحتاج تغذية عالية",
-            impact=ImpactLevel.HIGH,
-            weight=0.30,
-            direction="supports",
-            source="Crop Science Guidelines",
-        ))
+        factors.append(
+            ContributingFactor(
+                factor_type=FactorType.CROP_STAGE,
+                name="Growth Stage Requirements",
+                name_ar="متطلبات مرحلة النمو",
+                value=crop_stage,
+                description=f"{crop_type} in {crop_stage} has high nutrient demand",
+                description_ar=f"{crop_type} في مرحلة {crop_stage} يحتاج تغذية عالية",
+                impact=ImpactLevel.HIGH,
+                weight=0.30,
+                direction="supports",
+                source="Crop Science Guidelines",
+            )
+        )
 
         # Rule for fertilizer application
-        rules = [RuleExplanation(
-            rule_id="FERT_001",
-            rule_name="Nitrogen Application Rule",
-            rule_name_ar="قاعدة تطبيق النيتروجين",
-            condition="Soil N < 25 ppm AND crop in active growth",
-            condition_ar="نيتروجين التربة < 25 جزء بالمليون والمحصول في نمو نشط",
-            action=f"Apply {recommended_fertilizer} at {recommended_rate} kg/ha",
-            action_ar=f"تطبيق {recommended_fertilizer} بمعدل {recommended_rate} كجم/هـ",
-            matched=True,
-            match_details=f"Soil N={n_level}ppm, Stage={crop_stage}",
-            match_details_ar=f"نيتروجين التربة={n_level}، المرحلة={crop_stage}",
-            category="fertilizer",
-        )]
+        rules = [
+            RuleExplanation(
+                rule_id="FERT_001",
+                rule_name="Nitrogen Application Rule",
+                rule_name_ar="قاعدة تطبيق النيتروجين",
+                condition="Soil N < 25 ppm AND crop in active growth",
+                condition_ar="نيتروجين التربة < 25 جزء بالمليون والمحصول في نمو نشط",
+                action=f"Apply {recommended_fertilizer} at {recommended_rate} kg/ha",
+                action_ar=f"تطبيق {recommended_fertilizer} بمعدل {recommended_rate} كجم/هـ",
+                matched=True,
+                match_details=f"Soil N={n_level}ppm, Stage={crop_stage}",
+                match_details_ar=f"نيتروجين التربة={n_level}، المرحلة={crop_stage}",
+                category="fertilizer",
+            )
+        ]
 
         return self.explain(
             recommendation_id=recommendation_id,
@@ -648,7 +664,9 @@ class ExplainabilityEngine:
             factor_names_en = ", ".join(f.name for f in primary[:3])
             factor_names_ar = ", ".join(f.name_ar for f in primary[:3])
 
-            summary_en = f"This {recommendation_type} recommendation is based on {factor_names_en}. "
+            summary_en = (
+                f"This {recommendation_type} recommendation is based on {factor_names_en}. "
+            )
             summary_ar = f"هذه التوصية بشأن {recommendation_type} مبنية على {factor_names_ar}. "
 
             if confidence >= 0.8:
@@ -661,7 +679,9 @@ class ExplainabilityEngine:
                 summary_en += "Lower confidence; consider additional verification."
                 summary_ar += "ثقة منخفضة؛ يُنصح بالتحقق الإضافي."
         else:
-            summary_en = f"This {recommendation_type} recommendation is based on general guidelines."
+            summary_en = (
+                f"This {recommendation_type} recommendation is based on general guidelines."
+            )
             summary_ar = f"هذه التوصية بشأن {recommendation_type} مبنية على إرشادات عامة."
 
         return summary_en, summary_ar
@@ -706,11 +726,19 @@ class ExplainabilityEngine:
             detailed_ar.append("\n## البدائل المدروسة\n")
 
             for alt in alternatives:
-                reasons = ", ".join(alt.rejection_reasons) if alt.rejection_reasons else "Lower score"
-                reasons_ar = ", ".join(alt.rejection_reasons_ar) if alt.rejection_reasons_ar else "درجة أقل"
+                reasons = (
+                    ", ".join(alt.rejection_reasons) if alt.rejection_reasons else "Lower score"
+                )
+                reasons_ar = (
+                    ", ".join(alt.rejection_reasons_ar) if alt.rejection_reasons_ar else "درجة أقل"
+                )
 
-                detailed_en.append(f"- **{alt.title}** (Score: {alt.score}): Not selected because {reasons}")
-                detailed_ar.append(f"- **{alt.title_ar}** (الدرجة: {alt.score}): لم يُختر لأن {reasons_ar}")
+                detailed_en.append(
+                    f"- **{alt.title}** (Score: {alt.score}): Not selected because {reasons}"
+                )
+                detailed_ar.append(
+                    f"- **{alt.title_ar}** (الدرجة: {alt.score}): لم يُختر لأن {reasons_ar}"
+                )
 
         return "\n".join(detailed_en), "\n".join(detailed_ar)
 
@@ -727,8 +755,12 @@ class ExplainabilityEngine:
         low_confidence_factors = [f for f in factors if f.confidence < 0.7]
         if low_confidence_factors:
             for f in low_confidence_factors:
-                uncertainties_en.append(f"Uncertainty in {f.name} data (confidence: {f.confidence:.0%})")
-                uncertainties_ar.append(f"عدم يقين في بيانات {f.name_ar} (الثقة: {f.confidence:.0%})")
+                uncertainties_en.append(
+                    f"Uncertainty in {f.name} data (confidence: {f.confidence:.0%})"
+                )
+                uncertainties_ar.append(
+                    f"عدم يقين في بيانات {f.name_ar} (الثقة: {f.confidence:.0%})"
+                )
 
         # Missing data
         if confidence < 0.7:

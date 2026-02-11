@@ -29,6 +29,7 @@ class BoundaryStatus(str, Enum):
         DISPUTED: Conflict detected | متنازع عليه
         ARCHIVED: No longer active | مؤرشف
     """
+
     DRAFT = "draft"
     PENDING_APPROVAL = "pending_approval"
     APPROVED = "approved"
@@ -47,6 +48,7 @@ class BoundaryType(str, Enum):
         IRRIGATION_ZONE: Irrigation management zone | منطقة الري
         EXCLUSION_ZONE: No-spray/protected area | منطقة محظورة
     """
+
     FIELD = "field"
     PLOT = "plot"
     FARM = "farm"
@@ -64,6 +66,7 @@ class CoordinateAccuracy(str, Enum):
         LOW: > 5m accuracy (standard GPS) | دقة منخفضة
         UNKNOWN: Accuracy not determined | غير محدد
     """
+
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -80,6 +83,7 @@ class ConflictType(str, Enum):
         ENCROACHMENT: Boundary extends into neighbor's land | تجاوز
         DISPUTED_LINE: Disagreement on boundary line | خط متنازع عليه
     """
+
     OVERLAP = "overlap"
     GAP = "gap"
     ENCROACHMENT = "encroachment"
@@ -93,10 +97,10 @@ class Point(BaseModel):
     Represents a single geographic coordinate point.
     يمثل نقطة إحداثية جغرافية واحدة.
     """
+
     type: Literal["Point"] = "Point"
     coordinates: tuple[float, float] = Field(
-        ...,
-        description="[longitude, latitude] | [خط الطول، خط العرض]"
+        ..., description="[longitude, latitude] | [خط الطول، خط العرض]"
     )
 
     @field_validator("coordinates")
@@ -128,10 +132,10 @@ class Polygon(BaseModel):
     Represents a closed polygon with optional holes.
     يمثل مضلعاً مغلقاً مع إمكانية وجود فتحات داخلية.
     """
+
     type: Literal["Polygon"] = "Polygon"
     coordinates: list[list[tuple[float, float]]] = Field(
-        ...,
-        description="Array of linear rings [exterior, ...holes]"
+        ..., description="Array of linear rings [exterior, ...holes]"
     )
 
     @field_validator("coordinates")
@@ -142,8 +146,7 @@ class Polygon(BaseModel):
         """Validate polygon structure | التحقق من بنية المضلع"""
         if not v:
             raise ValueError(
-                "Polygon must have at least one ring | "
-                "يجب أن يحتوي المضلع على حلقة واحدة على الأقل"
+                "Polygon must have at least one ring | يجب أن يحتوي المضلع على حلقة واحدة على الأقل"
             )
 
         for ring_idx, ring in enumerate(v):
@@ -193,10 +196,10 @@ class MultiPolygon(BaseModel):
     Represents multiple polygons as a single geometry.
     يمثل عدة مضلعات كهندسة واحدة.
     """
+
     type: Literal["MultiPolygon"] = "MultiPolygon"
     coordinates: list[list[list[tuple[float, float]]]] = Field(
-        ...,
-        description="Array of polygon coordinates | مصفوفة إحداثيات المضلعات"
+        ..., description="Array of polygon coordinates | مصفوفة إحداثيات المضلعات"
     )
 
 
@@ -207,25 +210,21 @@ class BoundaryPoint(BaseModel):
     Includes GPS accuracy and timestamp information.
     تتضمن معلومات دقة GPS والطابع الزمني.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     coordinates: tuple[float, float] = Field(
-        ...,
-        description="[longitude, latitude] | [خط الطول، خط العرض]"
+        ..., description="[longitude, latitude] | [خط الطول، خط العرض]"
     )
     accuracy_m: float = Field(
-        default=5.0,
-        ge=0,
-        description="GPS accuracy in meters | دقة GPS بالمتر"
+        default=5.0, ge=0, description="GPS accuracy in meters | دقة GPS بالمتر"
     )
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
     altitude_m: float | None = Field(
-        default=None,
-        description="Altitude in meters | الارتفاع بالمتر"
+        default=None, description="Altitude in meters | الارتفاع بالمتر"
     )
     captured_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
     device_id: str | None = Field(
-        default=None,
-        description="Device that captured the point | الجهاز الذي التقط النقطة"
+        default=None, description="Device that captured the point | الجهاز الذي التقط النقطة"
     )
     notes: str | None = Field(default=None)
     notes_ar: str | None = Field(default=None)
@@ -245,6 +244,7 @@ class FieldBoundary(BaseModel):
     نموذج شامل لإدارة حدود الحقول الزراعية مع دعم الإصدارات
     والمشاركة واكتشاف التعارضات.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     field_id: str = Field(..., description="Associated field ID | معرف الحقل المرتبط")
     tenant_id: str = Field(..., description="Tenant/organization ID | معرف المستأجر")
@@ -260,12 +260,10 @@ class FieldBoundary(BaseModel):
 
     # Geometry | الهندسة
     geometry: Polygon | MultiPolygon = Field(
-        ...,
-        description="Boundary geometry in GeoJSON format | هندسة الحدود بتنسيق GeoJSON"
+        ..., description="Boundary geometry in GeoJSON format | هندسة الحدود بتنسيق GeoJSON"
     )
     boundary_points: list[BoundaryPoint] = Field(
-        default_factory=list,
-        description="Original GPS points | نقاط GPS الأصلية"
+        default_factory=list, description="Original GPS points | نقاط GPS الأصلية"
     )
 
     # Calculated properties | الخصائص المحسوبة
@@ -284,11 +282,10 @@ class FieldBoundary(BaseModel):
     # Sharing | المشاركة
     shared_with: list[str] = Field(
         default_factory=list,
-        description="User IDs with access | معرفات المستخدمين الذين لهم حق الوصول"
+        description="User IDs with access | معرفات المستخدمين الذين لهم حق الوصول",
     )
     neighbor_field_ids: list[str] = Field(
-        default_factory=list,
-        description="Adjacent field IDs | معرفات الحقول المجاورة"
+        default_factory=list, description="Adjacent field IDs | معرفات الحقول المجاورة"
     )
 
     # Timestamps | الطوابع الزمنية
@@ -301,6 +298,7 @@ class FieldBoundary(BaseModel):
 
     class Config:
         """Pydantic configuration"""
+
         json_encoders = {
             datetime: lambda v: v.isoformat(),
         }
@@ -326,7 +324,7 @@ class FieldBoundary(BaseModel):
                 "perimeter_meters": self.perimeter_meters,
                 "accuracy_level": self.accuracy_level.value,
                 "version": self.version,
-            }
+            },
         }
 
     def to_postgis_insert(self, table_name: str = "field_boundaries") -> str:
@@ -362,6 +360,7 @@ class BoundaryConflict(BaseModel):
     Represents a detected conflict between two field boundaries.
     يمثل تعارضاً مكتشفاً بين حدين للحقول.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
 
     # Involved boundaries | الحدود المعنية
@@ -375,18 +374,15 @@ class BoundaryConflict(BaseModel):
     # Conflict details | تفاصيل التعارض
     conflict_type: ConflictType = Field(...)
     conflict_geometry: Polygon | MultiPolygon | None = Field(
-        default=None,
-        description="Geometry of conflict area | هندسة منطقة التعارض"
+        default=None, description="Geometry of conflict area | هندسة منطقة التعارض"
     )
     overlap_area_sqm: float | None = Field(
         default=None,
         ge=0,
-        description="Overlap area in square meters | مساحة التداخل بالمتر المربع"
+        description="Overlap area in square meters | مساحة التداخل بالمتر المربع",
     )
     gap_distance_m: float | None = Field(
-        default=None,
-        ge=0,
-        description="Gap distance in meters | مسافة الفجوة بالمتر"
+        default=None, ge=0, description="Gap distance in meters | مسافة الفجوة بالمتر"
     )
 
     # Status | الحالة
@@ -401,8 +397,7 @@ class BoundaryConflict(BaseModel):
 
     # Severity | الخطورة
     severity: str = Field(
-        default="medium",
-        description="Conflict severity: low, medium, high | خطورة التعارض"
+        default="medium", description="Conflict severity: low, medium, high | خطورة التعارض"
     )
 
     def get_description(self, language: str = "en") -> str:
@@ -418,20 +413,20 @@ class BoundaryConflict(BaseModel):
         descriptions = {
             ConflictType.OVERLAP: {
                 "en": f"Boundary overlap detected: {self.overlap_area_sqm:.2f} m²",
-                "ar": f"تم اكتشاف تداخل في الحدود: {self.overlap_area_sqm:.2f} م²"
+                "ar": f"تم اكتشاف تداخل في الحدود: {self.overlap_area_sqm:.2f} م²",
             },
             ConflictType.GAP: {
                 "en": f"Gap between boundaries: {self.gap_distance_m:.2f} m",
-                "ar": f"فجوة بين الحدود: {self.gap_distance_m:.2f} م"
+                "ar": f"فجوة بين الحدود: {self.gap_distance_m:.2f} م",
             },
             ConflictType.ENCROACHMENT: {
                 "en": "Boundary encroaches on neighbor's land",
-                "ar": "الحد يتجاوز أرض الجار"
+                "ar": "الحد يتجاوز أرض الجار",
             },
             ConflictType.DISPUTED_LINE: {
                 "en": "Disputed boundary line between fields",
-                "ar": "خط حدود متنازع عليه بين الحقول"
-            }
+                "ar": "خط حدود متنازع عليه بين الحقول",
+            },
         }
         return descriptions.get(self.conflict_type, {}).get(language, "Unknown conflict")
 
@@ -443,6 +438,7 @@ class BoundaryShareRequest(BaseModel):
     Request to share boundary with another user/neighbor.
     طلب لمشاركة الحدود مع مستخدم/جار آخر.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     boundary_id: str = Field(..., description="Boundary to share | الحد للمشاركة")
     requester_id: str = Field(..., description="User requesting share | المستخدم الطالب")
@@ -452,14 +448,12 @@ class BoundaryShareRequest(BaseModel):
     message: str | None = Field(default=None)
     message_ar: str | None = Field(default=None)
     permission_level: str = Field(
-        default="view",
-        description="Permission: view, edit, approve | الصلاحية: عرض، تعديل، موافقة"
+        default="view", description="Permission: view, edit, approve | الصلاحية: عرض، تعديل، موافقة"
     )
 
     # Status | الحالة
     status: str = Field(
-        default="pending",
-        description="Status: pending, accepted, rejected, expired | الحالة"
+        default="pending", description="Status: pending, accepted, rejected, expired | الحالة"
     )
     response_message: str | None = Field(default=None)
     response_message_ar: str | None = Field(default=None)
@@ -477,6 +471,7 @@ class GPSTrack(BaseModel):
     Collection of GPS points recorded during field boundary mapping.
     مجموعة نقاط GPS المسجلة أثناء رسم حدود الحقل.
     """
+
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     field_id: str | None = Field(default=None)
     user_id: str = Field(..., description="User who recorded track | المستخدم الذي سجل المسار")
@@ -484,12 +479,10 @@ class GPSTrack(BaseModel):
 
     # Track data | بيانات المسار
     points: list[BoundaryPoint] = Field(
-        default_factory=list,
-        description="GPS points in order | نقاط GPS بالترتيب"
+        default_factory=list, description="GPS points in order | نقاط GPS بالترتيب"
     )
     is_closed: bool = Field(
-        default=False,
-        description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة"
+        default=False, description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة"
     )
 
     # Metadata | البيانات الوصفية

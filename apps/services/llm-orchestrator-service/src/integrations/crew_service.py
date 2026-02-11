@@ -129,8 +129,7 @@ class CrewService:
                 "Please describe your crop and the issue you're facing."
             )
             answer_ar = (
-                "أنا هنا للمساعدة في أسئلتك الزراعية. "
-                "يرجى وصف محصولك والمشكلة التي تواجهها."
+                "أنا هنا للمساعدة في أسئلتك الزراعية. يرجى وصف محصولك والمشكلة التي تواجهها."
             )
 
         return {

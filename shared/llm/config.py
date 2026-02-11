@@ -60,16 +60,10 @@ class OpenAICompatConfig:
     """Configuration for OpenAI-compatible endpoints (Ollama, vLLM, LM Studio)."""
 
     base_url: str = field(
-        default_factory=lambda: os.getenv(
-            "OPENAI_COMPAT_BASE_URL", "http://localhost:11434/v1"
-        )
+        default_factory=lambda: os.getenv("OPENAI_COMPAT_BASE_URL", "http://localhost:11434/v1")
     )
-    api_key: str = field(
-        default_factory=lambda: os.getenv("OPENAI_COMPAT_API_KEY", "ollama")
-    )
-    default_model: str = field(
-        default_factory=lambda: os.getenv("OPENAI_COMPAT_MODEL", "llama3.2")
-    )
+    api_key: str = field(default_factory=lambda: os.getenv("OPENAI_COMPAT_API_KEY", "ollama"))
+    default_model: str = field(default_factory=lambda: os.getenv("OPENAI_COMPAT_MODEL", "llama3.2"))
     timeout: float = 120.0
     organization: str | None = None
 
@@ -79,18 +73,12 @@ class CloudConfig:
     """Configuration for cloud LLM providers (OpenAI, Anthropic, etc.)."""
 
     # OpenAI
-    openai_api_key: str | None = field(
-        default_factory=lambda: os.getenv("OPENAI_API_KEY")
-    )
-    openai_model: str = field(
-        default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    )
+    openai_api_key: str | None = field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))
+    openai_model: str = field(default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
     openai_base_url: str = "https://api.openai.com/v1"
 
     # Anthropic
-    anthropic_api_key: str | None = field(
-        default_factory=lambda: os.getenv("ANTHROPIC_API_KEY")
-    )
+    anthropic_api_key: str | None = field(default_factory=lambda: os.getenv("ANTHROPIC_API_KEY"))
     anthropic_model: str = field(
         default_factory=lambda: os.getenv("ANTHROPIC_MODEL", "claude-3-haiku-20240307")
     )
@@ -118,9 +106,7 @@ class LLMConfig:
     """
 
     environment: Environment = field(
-        default_factory=lambda: Environment(
-            os.getenv("ENVIRONMENT", "development").lower()
-        )
+        default_factory=lambda: Environment(os.getenv("ENVIRONMENT", "development").lower())
     )
     development_mode: bool = field(
         default_factory=lambda: os.getenv("DEVELOPMENT_MODE", "true").lower() == "true"
@@ -325,11 +311,7 @@ def get_local_models() -> list[str]:
 
     الحصول على جميع النماذج المحلية
     """
-    return [
-        model
-        for model, info in MODEL_REGISTRY.items()
-        if info.get("provider") == "ollama"
-    ]
+    return [model for model, info in MODEL_REGISTRY.items() if info.get("provider") == "ollama"]
 
 
 # Default global config

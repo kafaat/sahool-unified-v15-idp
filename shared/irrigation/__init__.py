@@ -205,7 +205,6 @@ __all__ = [
     # Version info
     "__version__",
     "__author__",
-
     # === Enums ===
     "IrrigationGoalType",
     "ExperienceSource",
@@ -215,7 +214,6 @@ __all__ = [
     "ChecklistDimension",
     "CalibrationMethod",
     "SessionStatus",
-
     # === Core Models ===
     "BilingualLabel",
     "IrrigationGoal",
@@ -230,23 +228,19 @@ __all__ = [
     "ValidationReport",
     "SessionOutcome",
     "DecisionSession",
-
     # === Error Models ===
     "HMCError",
     "HMCErrors",
-
     # === Dimensions ===
     "HMCDimension",
     "GoalAnchoringDimension",
     "ExperienceInjectionDimension",
     "SupervisionCalibrationDimension",
     "ValueUpgradeDimension",
-
     # === Engine ===
     "HMCIrrigationEngine",
     "ProgramGenerator",
     "DefaultProgramGenerator",
-
     # === Exceptions ===
     "HMCEngineError",
     "SessionNotFoundError",
@@ -254,23 +248,19 @@ __all__ = [
     "ProgramNotGeneratedError",
     "ChecklistIncompleteError",
     "MaxIterationsReachedError",
-
     # === Checklist ===
     "CollaborativeChecklist",
     "GOAL_ANCHORING_ITEMS",
     "EXPERIENCE_INJECTION_ITEMS",
     "SUPERVISION_CALIBRATION_ITEMS",
     "VALUE_UPGRADE_ITEMS",
-
     # === Integration Protocols ===
     "FarmAdvisorAgent",
     "IrrigationSubAgent",
     "WeatherService",
     "FertilizationService",
-
     # === Integration Manager ===
     "HMCIntegrationManager",
-
     # === Factory Functions ===
     "create_hmc_engine",
     "get_hmc_engine",
@@ -278,7 +268,6 @@ __all__ = [
     "get_checklist",
     "get_integration_manager",
     "reset_integration_manager",
-
     # === Helper Functions ===
     "integrate_with_farm_advisor",
     "integrate_with_irrigation_agent",
@@ -373,7 +362,9 @@ def get_framework_info() -> dict:
 
 
 # Add to __all__
-__all__.extend([
-    "quick_start",
-    "get_framework_info",
-])
+__all__.extend(
+    [
+        "quick_start",
+        "get_framework_info",
+    ]
+)

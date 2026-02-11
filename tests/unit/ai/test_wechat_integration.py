@@ -28,6 +28,7 @@ import pytest
 
 class MessageType(str, Enum):
     """WeChat message types | أنواع رسائل WeChat"""
+
     TEXT = "text"
     IMAGE = "image"
     VOICE = "voice"
@@ -40,6 +41,7 @@ class MessageType(str, Enum):
 
 class ConnectionState(str, Enum):
     """WeChat connection states | حالات اتصال WeChat"""
+
     DISCONNECTED = "disconnected"
     CONNECTING = "connecting"
     CONNECTED = "connected"
@@ -50,6 +52,7 @@ class ConnectionState(str, Enum):
 @dataclass
 class WeChatMessage:
     """WeChat message | رسالة WeChat"""
+
     message_id: str
     chat_id: str
     sender_id: str
@@ -67,6 +70,7 @@ class WeChatMessage:
 @dataclass
 class WeChatChat:
     """WeChat chat (individual or group) | محادثة WeChat"""
+
     chat_id: str
     name: str
     is_group: bool = False
@@ -79,6 +83,7 @@ class WeChatChat:
 @dataclass
 class ChatSummary:
     """Summary of a chat conversation | ملخص محادثة"""
+
     chat_id: str
     summary: str
     summary_ar: str | None = None
@@ -94,6 +99,7 @@ class ChatSummary:
 @dataclass
 class AutoReplyRule:
     """Rule for auto-reply | قاعدة الرد التلقائي"""
+
     rule_id: str
     name: str
     pattern: str  # Regex or keyword pattern
@@ -224,7 +230,7 @@ class WeChatClient:
             # Find index of after_id and return messages after it
             for i, msg in enumerate(messages):
                 if msg.message_id == after_id:
-                    messages = messages[i + 1:]
+                    messages = messages[i + 1 :]
                     break
 
         if before_id:
@@ -386,10 +392,7 @@ class ChatSummarizerAgent:
 
         # Filter by time
         cutoff = datetime.now(UTC).timestamp() - (hours * 3600)
-        recent_messages = [
-            m for m in messages
-            if m.timestamp.timestamp() > cutoff
-        ]
+        recent_messages = [m for m in messages if m.timestamp.timestamp() > cutoff]
 
         if not recent_messages:
             recent_messages = messages  # Use all if none in time range
@@ -418,7 +421,7 @@ class ChatSummarizerAgent:
         chat_id = messages[0].chat_id
 
         # Extract participants
-        participants = list(set(m.sender_name for m in messages))
+        participants = list({m.sender_name for m in messages})
 
         # Extract text content
         text_messages = [m for m in messages if m.message_type == MessageType.TEXT]
@@ -578,6 +581,7 @@ class AutoReplierAgent:
 
         if rule.is_regex:
             import re
+
             return bool(re.search(pattern, content))
         else:
             # Simple keyword matching
@@ -634,12 +638,14 @@ class AutoReplierAgent:
         )
 
         # Record in history
-        self._reply_history.append({
-            "original_message_id": original_message.message_id,
-            "reply_message_id": reply.message_id,
-            "rule_id": rule.rule_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-        })
+        self._reply_history.append(
+            {
+                "original_message_id": original_message.message_id,
+                "reply_message_id": reply.message_id,
+                "rule_id": rule.rule_id,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }
+        )
 
         return reply
 
@@ -648,7 +654,10 @@ class AutoReplierAgent:
         await self._handle_message(message)
 
         # Check if a reply was sent
-        if self._reply_history and self._reply_history[-1]["original_message_id"] == message.message_id:
+        if (
+            self._reply_history
+            and self._reply_history[-1]["original_message_id"] == message.message_id
+        ):
             reply_id = self._reply_history[-1]["reply_message_id"]
             messages = self.client._messages.get(message.chat_id, [])
             for msg in messages:
@@ -1152,12 +1161,14 @@ class TestAutoReplierAgent:
         connected_client.add_chat(sample_chat)
 
         replier = AutoReplierAgent(connected_client)
-        replier.add_rule(AutoReplyRule(
-            rule_id="test_rule",
-            name="Test",
-            pattern="irrigation",
-            response="Irrigation advice incoming!",
-        ))
+        replier.add_rule(
+            AutoReplyRule(
+                rule_id="test_rule",
+                name="Test",
+                pattern="irrigation",
+                response="Irrigation advice incoming!",
+            )
+        )
 
         message = WeChatMessage(
             message_id="msg_test",
@@ -1185,22 +1196,26 @@ class TestAutoReplierAgent:
         replier = AutoReplierAgent(connected_client)
 
         # Add low priority rule first
-        replier.add_rule(AutoReplyRule(
-            rule_id="low",
-            name="Low Priority",
-            pattern="help",
-            response="Low priority response",
-            priority=1,
-        ))
+        replier.add_rule(
+            AutoReplyRule(
+                rule_id="low",
+                name="Low Priority",
+                pattern="help",
+                response="Low priority response",
+                priority=1,
+            )
+        )
 
         # Add high priority rule
-        replier.add_rule(AutoReplyRule(
-            rule_id="high",
-            name="High Priority",
-            pattern="help",
-            response="High priority response",
-            priority=10,
-        ))
+        replier.add_rule(
+            AutoReplyRule(
+                rule_id="high",
+                name="High Priority",
+                pattern="help",
+                response="High priority response",
+                priority=10,
+            )
+        )
 
         message = WeChatMessage(
             message_id="msg_test",
@@ -1279,13 +1294,15 @@ class TestAutoReplierAgent:
         connected_client.add_chat(sample_chat)
 
         replier = AutoReplierAgent(connected_client)
-        replier.add_rule(AutoReplyRule(
-            rule_id="bilingual",
-            name="Bilingual",
-            pattern="help",
-            response="English help",
-            response_ar="مساعدة بالعربية",
-        ))
+        replier.add_rule(
+            AutoReplyRule(
+                rule_id="bilingual",
+                name="Bilingual",
+                pattern="help",
+                response="English help",
+                response_ar="مساعدة بالعربية",
+            )
+        )
 
         # Arabic message
         message = WeChatMessage(

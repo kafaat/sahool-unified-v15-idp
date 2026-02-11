@@ -25,6 +25,7 @@ import uuid
 
 class IrrigationUrgency(str, Enum):
     """Urgency level for irrigation | مستوى إلحاح الري"""
+
     CRITICAL = "critical"  # حرج - irrigate immediately
     HIGH = "high"  # عالي - irrigate within 6 hours
     MEDIUM = "medium"  # متوسط - irrigate within 24 hours
@@ -34,6 +35,7 @@ class IrrigationUrgency(str, Enum):
 
 class CropStage(str, Enum):
     """Crop growth stages | مراحل نمو المحصول"""
+
     GERMINATION = "germination"  # الإنبات
     SEEDLING = "seedling"  # الشتلة
     VEGETATIVE = "vegetative"  # النمو الخضري
@@ -46,6 +48,7 @@ class CropStage(str, Enum):
 
 class SoilType(str, Enum):
     """Soil types | أنواع التربة"""
+
     SANDY = "sandy"  # رملية
     LOAMY = "loamy"  # طفلية
     CLAY = "clay"  # طينية
@@ -56,6 +59,7 @@ class SoilType(str, Enum):
 
 class IrrigationType(str, Enum):
     """Irrigation system types | أنواع أنظمة الري"""
+
     DRIP = "drip"  # تنقيط
     SPRINKLER = "sprinkler"  # رش
     FLOOD = "flood"  # غمر
@@ -66,6 +70,7 @@ class IrrigationType(str, Enum):
 
 class AnomalyType(str, Enum):
     """Types of irrigation system anomalies | أنواع شذوذ نظام الري"""
+
     LEAK = "leak"  # تسرب
     BLOCKAGE = "blockage"  # انسداد
     PRESSURE_DROP = "pressure_drop"  # انخفاض الضغط
@@ -78,6 +83,7 @@ class AnomalyType(str, Enum):
 
 class AnomalySeverity(str, Enum):
     """Severity of detected anomalies | شدة الشذوذ المكتشف"""
+
     CRITICAL = "critical"  # حرج
     HIGH = "high"  # عالي
     MEDIUM = "medium"  # متوسط
@@ -86,6 +92,7 @@ class AnomalySeverity(str, Enum):
 
 class PredictionConfidence(str, Enum):
     """Confidence level of predictions | مستوى ثقة التنبؤات"""
+
     VERY_HIGH = "very_high"  # عالي جداً (>90%)
     HIGH = "high"  # عالي (75-90%)
     MEDIUM = "medium"  # متوسط (60-75%)
@@ -435,7 +442,9 @@ class IrrigationFeatures:
             "crop": self.crop.to_dict(),
             "irrigation_type": self.irrigation_type.value,
             "system_efficiency": self.system_efficiency,
-            "last_irrigation_date": self.last_irrigation_date.isoformat() if self.last_irrigation_date else None,
+            "last_irrigation_date": self.last_irrigation_date.isoformat()
+            if self.last_irrigation_date
+            else None,
             "last_irrigation_amount_mm": self.last_irrigation_amount_mm,
             "days_since_irrigation": self.days_since_irrigation,
             "request_id": self.request_id,
@@ -446,14 +455,16 @@ class IrrigationFeatures:
 
     def to_feature_vector(self) -> list[float]:
         """Convert to numerical feature vector for ML models"""
-        irrigation_type_encoding = list(IrrigationType).index(self.irrigation_type) / len(IrrigationType)
+        irrigation_type_encoding = list(IrrigationType).index(self.irrigation_type) / len(
+            IrrigationType
+        )
         days_since = self.days_since_irrigation if self.days_since_irrigation else 7.0
 
         return (
-            self.weather.to_feature_vector() +
-            self.soil.to_feature_vector() +
-            self.crop.to_feature_vector() +
-            [
+            self.weather.to_feature_vector()
+            + self.soil.to_feature_vector()
+            + self.crop.to_feature_vector()
+            + [
                 irrigation_type_encoding,
                 self.system_efficiency,
                 min(days_since / 14.0, 1.0),  # Normalize by 2 weeks
@@ -667,7 +678,9 @@ class IrrigationAnomaly:
             "confidence": self.confidence,
             "detection_method": self.detection_method,
             "detected_at": self.detected_at.isoformat(),
-            "first_occurrence": self.first_occurrence.isoformat() if self.first_occurrence else None,
+            "first_occurrence": self.first_occurrence.isoformat()
+            if self.first_occurrence
+            else None,
             "acknowledged": self.acknowledged,
             "resolved": self.resolved,
             "resolved_at": self.resolved_at.isoformat() if self.resolved_at else None,

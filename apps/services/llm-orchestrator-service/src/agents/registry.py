@@ -366,11 +366,7 @@ class AgentRegistry:
 
     def get_agents_by_capability(self, capability: AgentCapability) -> list[AgentInfo]:
         """Get agents that have a specific capability."""
-        return [
-            a
-            for a in self._agents.values()
-            if capability in a.capabilities and a.active
-        ]
+        return [a for a in self._agents.values() if capability in a.capabilities and a.active]
 
     def get_agents_for_intent(self, intent_type: str) -> list[AgentInfo]:
         """

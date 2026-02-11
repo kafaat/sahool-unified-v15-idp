@@ -15,11 +15,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 
 class YemenClimateZone(str, Enum):
     """Major agro-ecological zones of Yemen."""
+
     TIHAMA = "tihama"  # Coastal plain (Red Sea)
     HIGHLANDS = "highlands"  # Central highlands (Sana'a, Ibb)
     NORTHERN_HIGHLANDS = "northern_highlands"  # Sa'dah, Amran
@@ -32,6 +32,7 @@ class YemenClimateZone(str, Enum):
 @dataclass
 class MonthlyClimate:
     """Monthly climate data."""
+
     month: int  # 1-12
     temp_min_c: float
     temp_max_c: float
@@ -45,6 +46,7 @@ class MonthlyClimate:
 @dataclass
 class YemenClimateData:
     """Complete climate data for a Yemen zone."""
+
     zone: YemenClimateZone
     name: str
     name_ar: str
@@ -97,7 +99,16 @@ YEMEN_CLIMATE_ZONES: dict[str, YemenClimateData] = {
         et0_range_mm_day=(3.5, 6.0),
         groundwater_decline_m_year=4.0,
         ec_groundwater_dsm=(0.5, 2.5),
-        major_crops=["wheat", "barley", "qat", "coffee_arabica", "grape", "alfalfa", "tomato", "onion"],
+        major_crops=[
+            "wheat",
+            "barley",
+            "qat",
+            "coffee_arabica",
+            "grape",
+            "alfalfa",
+            "tomato",
+            "onion",
+        ],
         monthly_data=[
             MonthlyClimate(1, 3, 22, 5, 3.5, 45, 1.5, 16.0),
             MonthlyClimate(2, 4, 23, 8, 4.0, 42, 1.8, 18.0),
@@ -113,9 +124,9 @@ YEMEN_CLIMATE_ZONES: dict[str, YemenClimateData] = {
             MonthlyClimate(12, 3, 22, 5, 3.5, 45, 1.5, 15.0),
         ],
         notes="Most productive zone. Severe groundwater depletion (2-6 m/year in Sana'a basin). "
-              "Qat consumes 30% of Sana'a basin water.",
+        "Qat consumes 30% of Sana'a basin water.",
         notes_ar="أكثر المناطق إنتاجية. استنزاف شديد للمياه الجوفية (2-6 م/سنة في حوض صنعاء). "
-                 "القات يستهلك 30% من مياه حوض صنعاء.",
+        "القات يستهلك 30% من مياه حوض صنعاء.",
     ),
     "northern_highlands": YemenClimateData(
         zone=YemenClimateZone.NORTHERN_HIGHLANDS,
@@ -196,9 +207,9 @@ YEMEN_CLIMATE_ZONES: dict[str, YemenClimateData] = {
             MonthlyClimate(12, 13, 28, 2, 5.0, 45, 2.0, 15.5),
         ],
         notes="Major date palm region. UNDP SIERY drip trials: 40-60% water savings. "
-              "5,456m pipes installed for 31 farms in Tarim.",
+        "5,456m pipes installed for 31 farms in Tarim.",
         notes_ar="منطقة رئيسية لزراعة النخيل. تجارب UNDP للتنقيط: 40-60% توفير مياه. "
-                 "5,456م أنابيب مُركبة لـ 31 مزرعة في تريم.",
+        "5,456م أنابيب مُركبة لـ 31 مزرعة في تريم.",
     ),
     "southern_coast": YemenClimateData(
         zone=YemenClimateZone.SOUTHERN_COAST,
@@ -230,12 +241,12 @@ YEMEN_CLIMATE_ZONES: dict[str, YemenClimateData] = {
 }
 
 
-def get_climate_zone(zone: str) -> Optional[YemenClimateData]:
+def get_climate_zone(zone: str) -> YemenClimateData | None:
     """Get climate data by zone name (case-insensitive)."""
     return YEMEN_CLIMATE_ZONES.get(zone.lower())
 
 
-def get_et0_range(zone: str) -> Optional[tuple[float, float]]:
+def get_et0_range(zone: str) -> tuple[float, float] | None:
     """Get ET0 range for a climate zone."""
     data = get_climate_zone(zone)
     return data.et0_range_mm_day if data else None

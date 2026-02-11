@@ -100,7 +100,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Systemic insecticide for sucking insects",
         notes_ar="مبيد حشري جهازي للحشرات الماصة",
     ),
-
     "lambda_cyhalothrin_5ec": Pesticide(
         id="lambda_cyhalothrin_5ec",
         trade_name="Karate Zeon 5 EC",
@@ -121,7 +120,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Contact and stomach poison for lepidopteran pests",
         notes_ar="سم تلامسي ومعدي لآفات حرشفية الأجنحة",
     ),
-
     "chlorpyrifos_48ec": Pesticide(
         id="chlorpyrifos_48ec",
         trade_name="Dursban 48 EC",
@@ -143,7 +141,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Organophosphate - restricted use",
         notes_ar="مركب فسفوري عضوي - مقيد الاستخدام",
     ),
-
     "emamectin_benzoate_5sg": Pesticide(
         id="emamectin_benzoate_5sg",
         trade_name="Proclaim 5 SG",
@@ -164,7 +161,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="For caterpillars and leaf miners",
         notes_ar="ليرقات وصانعات الأنفاق",
     ),
-
     "spinosad_480sc": Pesticide(
         id="spinosad_480sc",
         trade_name="Tracer 480 SC",
@@ -186,7 +182,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="OMRI approved for organic farming",
         notes_ar="معتمد للزراعة العضوية",
     ),
-
     # ============== FUNGICIDES - مبيدات فطرية ==============
     "mancozeb_80wp": Pesticide(
         id="mancozeb_80wp",
@@ -208,7 +203,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Protectant fungicide, multi-site activity",
         notes_ar="مبيد فطري وقائي، متعدد مواقع التأثير",
     ),
-
     "azoxystrobin_250sc": Pesticide(
         id="azoxystrobin_250sc",
         trade_name="Amistar 250 SC",
@@ -229,7 +223,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Strobilurin fungicide, systemic and translaminar",
         notes_ar="مبيد فطري ستروبيلورين، جهازي وعابر للأوراق",
     ),
-
     "tebuconazole_250ew": Pesticide(
         id="tebuconazole_250ew",
         trade_name="Folicur 250 EW",
@@ -250,7 +243,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Triazole fungicide, curative and protectant",
         notes_ar="مبيد فطري ترايازول، علاجي ووقائي",
     ),
-
     "copper_hydroxide_50wp": Pesticide(
         id="copper_hydroxide_50wp",
         trade_name="Kocide 3000",
@@ -272,7 +264,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="OMRI approved copper fungicide",
         notes_ar="مبيد فطري نحاسي معتمد للزراعة العضوية",
     ),
-
     # ============== HERBICIDES - مبيدات أعشاب ==============
     "glyphosate_480sl": Pesticide(
         id="glyphosate_480sl",
@@ -294,7 +285,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Non-selective post-emergence herbicide",
         notes_ar="مبيد أعشاب غير انتقائي بعد الإنبات",
     ),
-
     "2_4_d_amine_720sl": Pesticide(
         id="2_4_d_amine_720sl",
         trade_name="Weedar 64",
@@ -315,7 +305,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Selective broadleaf herbicide for cereals",
         notes_ar="مبيد أعشاب عريضة الأوراق انتقائي للحبوب",
     ),
-
     "pendimethalin_455cs": Pesticide(
         id="pendimethalin_455cs",
         trade_name="Prowl H2O",
@@ -336,7 +325,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="Pre-emergence grass and broadleaf control",
         notes_ar="مبيد ما قبل الإنبات للحشائش والأعشاب العريضة",
     ),
-
     # ============== ACARICIDES - مبيدات عناكب ==============
     "abamectin_18ec": Pesticide(
         id="abamectin_18ec",
@@ -358,7 +346,6 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
         notes="For mites and leaf miners",
         notes_ar="للعناكب وصانعات الأنفاق",
     ),
-
     "spiromesifen_240sc": Pesticide(
         id="spiromesifen_240sc",
         trade_name="Oberon 240 SC",
@@ -384,7 +371,9 @@ PESTICIDE_DATABASE: dict[str, Pesticide] = {
 
 # Tank Mix Compatibility Matrix - مصفوفة توافق الخلط
 # Format: (product_a, product_b) -> (compatibility, warnings_en, warnings_ar, mixing_order)
-TANK_MIX_COMPATIBILITY: dict[tuple[str, str], tuple[MixCompatibility, list[str], list[str], list[str]]] = {
+TANK_MIX_COMPATIBILITY: dict[
+    tuple[str, str], tuple[MixCompatibility, list[str], list[str], list[str]]
+] = {
     # Fungicide + Insecticide combinations
     ("mancozeb_80wp", "imidacloprid_200sl"): (
         MixCompatibility.COMPATIBLE,
@@ -404,7 +393,6 @@ TANK_MIX_COMPATIBILITY: dict[tuple[str, str], tuple[MixCompatibility, list[str],
         ["توافق جيد"],
         ["tebuconazole_250ew", "emamectin_benzoate_5sg"],
     ),
-
     # Problematic combinations
     ("copper_hydroxide_50wp", "mancozeb_80wp"): (
         MixCompatibility.CAUTION,
@@ -418,11 +406,13 @@ TANK_MIX_COMPATIBILITY: dict[tuple[str, str], tuple[MixCompatibility, list[str],
         ["قد يقلل من فعالية الغليفوسات", "طبق بالتتابع إن أمكن"],
         ["2_4_d_amine_720sl", "glyphosate_480sl"],
     ),
-
     # Incompatible combinations
     ("copper_hydroxide_50wp", "chlorpyrifos_48ec"): (
         MixCompatibility.INCOMPATIBLE,
-        ["Copper products are incompatible with most organophosphates", "May cause chemical breakdown"],
+        [
+            "Copper products are incompatible with most organophosphates",
+            "May cause chemical breakdown",
+        ],
         ["منتجات النحاس غير متوافقة مع معظم المركبات الفسفورية العضوية", "قد يسبب تحلل كيميائي"],
         [],
     ),

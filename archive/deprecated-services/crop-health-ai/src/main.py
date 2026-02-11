@@ -498,8 +498,7 @@ async def get_field_disease_patterns(field_id: str):
                 "severity_levels": pattern.severity_levels,
                 "last_occurred": pattern.last_occurred.isoformat(),
                 "avg_days_between": (
-                    sum(pattern.days_between_occurrences)
-                    / len(pattern.days_between_occurrences)
+                    sum(pattern.days_between_occurrences) / len(pattern.days_between_occurrences)
                     if pattern.days_between_occurrences
                     else 0
                 ),
@@ -607,14 +606,12 @@ async def record_evaluation_outcome(
             "message": "Outcome recorded for evaluation",
         }
     else:
-        raise HTTPException(
-            status_code=404, detail=f"Diagnosis {diagnosis_id} not found"
-        )
+        raise HTTPException(status_code=404, detail=f"Diagnosis {diagnosis_id} not found")
 
 
 @app.get("/v1/evaluation/accuracy-metrics")
 async def get_accuracy_metrics(
-    days_back: int = Query(30, ge=1, le=365, description="Days to include")
+    days_back: int = Query(30, ge=1, le=365, description="Days to include"),
 ):
     """
     📊 Get accuracy metrics
@@ -642,7 +639,7 @@ async def get_accuracy_metrics(
 
 @app.get("/v1/evaluation/per-disease-metrics")
 async def get_per_disease_metrics(
-    days_back: int = Query(30, ge=1, le=365, description="Days to include")
+    days_back: int = Query(30, ge=1, le=365, description="Days to include"),
 ):
     """
     🔬 Get accuracy metrics per disease
@@ -662,9 +659,7 @@ async def get_per_disease_metrics(
 
 @app.get("/v1/evaluation/model-drift")
 async def detect_model_drift(
-    recent_days: int = Query(
-        7, ge=1, le=30, description="Recent period for comparison (days)"
-    )
+    recent_days: int = Query(7, ge=1, le=30, description="Recent period for comparison (days)"),
 ):
     """
     🔴 Detect model drift
@@ -695,7 +690,7 @@ async def detect_model_drift(
 
 @app.get("/v1/evaluation/report")
 async def get_evaluation_report(
-    days_back: int = Query(30, ge=1, le=365, description="Report period (days)")
+    days_back: int = Query(30, ge=1, le=365, description="Report period (days)"),
 ):
     """
     📑 Get comprehensive evaluation report

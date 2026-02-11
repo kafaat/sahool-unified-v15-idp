@@ -23,6 +23,7 @@ import json
 
 class Currency(str, Enum):
     """Supported currencies | العملات المدعومة"""
+
     SAR = "SAR"  # Saudi Riyal | ريال سعودي
     YER = "YER"  # Yemeni Rial | ريال يمني
     USD = "USD"  # US Dollar | دولار أمريكي
@@ -30,6 +31,7 @@ class Currency(str, Enum):
 
 class PriceUnit(str, Enum):
     """Price measurement units | وحدات قياس السعر"""
+
     KG = "kg"  # Kilogram | كيلوجرام
     TON = "ton"  # Metric ton | طن
     QUINTAL = "quintal"  # 100 kg | قنطار
@@ -40,6 +42,7 @@ class PriceUnit(str, Enum):
 
 class PriceQuality(str, Enum):
     """Quality grade for pricing | درجة الجودة للتسعير"""
+
     PREMIUM = "premium"  # ممتاز
     GRADE_A = "grade_a"  # درجة أولى
     GRADE_B = "grade_b"  # درجة ثانية
@@ -50,6 +53,7 @@ class PriceQuality(str, Enum):
 
 class MarketType(str, Enum):
     """Type of market | نوع السوق"""
+
     WHOLESALE = "wholesale"  # سوق الجملة
     RETAIL = "retail"  # سوق التجزئة
     FARM_GATE = "farm_gate"  # سعر المزرعة
@@ -60,6 +64,7 @@ class MarketType(str, Enum):
 
 class AlertType(str, Enum):
     """Type of price alert | نوع تنبيه السعر"""
+
     PRICE_ABOVE = "price_above"  # السعر فوق الحد
     PRICE_BELOW = "price_below"  # السعر تحت الحد
     PRICE_CHANGE_PCT = "price_change_pct"  # تغير نسبة السعر
@@ -71,6 +76,7 @@ class AlertType(str, Enum):
 
 class AlertStatus(str, Enum):
     """Alert status | حالة التنبيه"""
+
     ACTIVE = "active"  # نشط
     TRIGGERED = "triggered"  # تم تفعيله
     EXPIRED = "expired"  # منتهي
@@ -80,6 +86,7 @@ class AlertStatus(str, Enum):
 
 class TrendDirection(str, Enum):
     """Price trend direction | اتجاه الاتجاه السعري"""
+
     RISING = "rising"  # صاعد
     FALLING = "falling"  # هابط
     STABLE = "stable"  # مستقر
@@ -89,6 +96,7 @@ class TrendDirection(str, Enum):
 
 class Season(str, Enum):
     """Agricultural season | الموسم الزراعي"""
+
     WINTER = "winter"  # شتوي
     SUMMER = "summer"  # صيفي
     SPRING = "spring"  # ربيعي
@@ -98,6 +106,7 @@ class Season(str, Enum):
 
 class Country(str, Enum):
     """Supported countries | الدول المدعومة"""
+
     SAUDI_ARABIA = "SA"  # المملكة العربية السعودية
     YEMEN = "YE"  # اليمن
 
@@ -105,6 +114,7 @@ class Country(str, Enum):
 @dataclass
 class Region:
     """Geographic region | المنطقة الجغرافية"""
+
     id: str
     name: str
     name_ar: str
@@ -296,6 +306,7 @@ ALL_REGIONS: dict[str, Region] = {**SAUDI_REGIONS, **YEMEN_REGIONS}
 @dataclass
 class Market:
     """Agricultural market | السوق الزراعي"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = ""
     name_ar: str = ""
@@ -317,7 +328,9 @@ class Market:
     # Operating hours
     opening_time: str = "06:00"
     closing_time: str = "18:00"
-    operating_days: list[str] = field(default_factory=lambda: ["sat", "sun", "mon", "tue", "wed", "thu"])
+    operating_days: list[str] = field(
+        default_factory=lambda: ["sat", "sun", "mon", "tue", "wed", "thu"]
+    )
 
     # Supported crops
     supported_crops: list[str] = field(default_factory=list)
@@ -352,7 +365,9 @@ class Market:
             "supported_crops": self.supported_crops,
             "is_active": self.is_active,
             "data_source": self.data_source,
-            "last_price_update": self.last_price_update.isoformat() if self.last_price_update else None,
+            "last_price_update": self.last_price_update.isoformat()
+            if self.last_price_update
+            else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -440,6 +455,7 @@ MAJOR_MARKETS: dict[str, Market] = {
 @dataclass
 class CropType:
     """Crop type information | معلومات نوع المحصول"""
+
     id: str
     name: str
     name_ar: str
@@ -608,6 +624,7 @@ class CropPrice:
     Crop price record
     سجل سعر المحصول
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Crop identification
@@ -707,8 +724,12 @@ class CropPrice:
             max_price=Decimal(str(data["max_price"])) if data.get("max_price") else None,
             available_quantity=data.get("available_quantity"),
             quantity_unit=PriceUnit(data.get("quantity_unit", "ton")),
-            price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else date.today(),
-            recorded_at=datetime.fromisoformat(data["recorded_at"]) if data.get("recorded_at") else datetime.now(UTC),
+            price_date=date.fromisoformat(data["price_date"])
+            if data.get("price_date")
+            else date.today(),
+            recorded_at=datetime.fromisoformat(data["recorded_at"])
+            if data.get("recorded_at")
+            else datetime.now(UTC),
             source=data.get("source", "market_report"),
             source_id=data.get("source_id"),
             verified=data.get("verified", False),
@@ -725,6 +746,7 @@ class PriceAlert:
     Price alert configuration
     تكوين تنبيه السعر
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Owner
@@ -853,9 +875,13 @@ class PriceAlert:
             "notify_push": self.notify_push,
             "phone_number": self.phone_number[-4:] if self.phone_number else "",  # Masked
             "email": self.email,
-            "last_triggered_at": self.last_triggered_at.isoformat() if self.last_triggered_at else None,
+            "last_triggered_at": self.last_triggered_at.isoformat()
+            if self.last_triggered_at
+            else None,
             "trigger_count": self.trigger_count,
-            "last_triggered_price": str(self.last_triggered_price) if self.last_triggered_price else None,
+            "last_triggered_price": str(self.last_triggered_price)
+            if self.last_triggered_price
+            else None,
             "last_triggered_market_id": self.last_triggered_market_id,
             "valid_from": self.valid_from.isoformat(),
             "valid_until": self.valid_until.isoformat() if self.valid_until else None,
@@ -876,6 +902,7 @@ class PriceTrend:
     Price trend analysis result
     نتيجة تحليل اتجاه السعر
     """
+
     crop_id: str = ""
     crop_name: str = ""
     crop_name_ar: str = ""
@@ -944,7 +971,9 @@ class PriceTrend:
             "data_points": self.data_points,
             "volatility_score": self.volatility_score,
             "is_volatile": self.is_volatile,
-            "predicted_direction": self.predicted_direction.value if self.predicted_direction else None,
+            "predicted_direction": self.predicted_direction.value
+            if self.predicted_direction
+            else None,
             "predicted_price": str(self.predicted_price) if self.predicted_price else None,
             "prediction_confidence": self.prediction_confidence,
             "is_seasonal_peak": self.is_seasonal_peak,
@@ -960,6 +989,7 @@ class MarketComparison:
     Market price comparison result
     نتيجة مقارنة أسعار السوق
     """
+
     crop_id: str = ""
     crop_name: str = ""
     crop_name_ar: str = ""
@@ -1036,6 +1066,7 @@ class SellingRecommendation:
     Best selling time recommendation
     توصية أفضل وقت للبيع
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Target
@@ -1103,17 +1134,27 @@ class SellingRecommendation:
             "action": self.action,
             "action_ar": self.action_ar,
             "confidence": self.confidence,
-            "recommended_date": self.recommended_date.isoformat() if self.recommended_date else None,
-            "recommended_date_range_start": self.recommended_date_range_start.isoformat() if self.recommended_date_range_start else None,
-            "recommended_date_range_end": self.recommended_date_range_end.isoformat() if self.recommended_date_range_end else None,
+            "recommended_date": self.recommended_date.isoformat()
+            if self.recommended_date
+            else None,
+            "recommended_date_range_start": self.recommended_date_range_start.isoformat()
+            if self.recommended_date_range_start
+            else None,
+            "recommended_date_range_end": self.recommended_date_range_end.isoformat()
+            if self.recommended_date_range_end
+            else None,
             "urgency": self.urgency,
             "urgency_ar": self.urgency_ar,
             "recommended_market_id": self.recommended_market_id,
             "recommended_market_name": self.recommended_market_name,
             "recommended_market_name_ar": self.recommended_market_name_ar,
             "expected_price": str(self.expected_price),
-            "expected_price_range_low": str(self.expected_price_range_low) if self.expected_price_range_low else None,
-            "expected_price_range_high": str(self.expected_price_range_high) if self.expected_price_range_high else None,
+            "expected_price_range_low": str(self.expected_price_range_low)
+            if self.expected_price_range_low
+            else None,
+            "expected_price_range_high": str(self.expected_price_range_high)
+            if self.expected_price_range_high
+            else None,
             "current_price": str(self.current_price),
             "price_unit": self.price_unit.value,
             "currency": self.currency.value,
@@ -1135,6 +1176,7 @@ class SellingRecommendation:
 @dataclass
 class MarketPriceError:
     """Error message for market price operations"""
+
     code: str
     message: str
     message_ar: str

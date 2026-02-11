@@ -435,7 +435,9 @@ class WaterEfficiencyScore(BaseModel):
         if v is None or v == 0:
             if info.data.get("rainwater_harvested_m3") and info.data.get("total_water_used_m3"):
                 if info.data["total_water_used_m3"] > 0:
-                    return (info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]) * 100
+                    return (
+                        info.data["rainwater_harvested_m3"] / info.data["total_water_used_m3"]
+                    ) * 100
         return v
 
     class Config:

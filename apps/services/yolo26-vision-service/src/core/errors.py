@@ -123,7 +123,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Invalid bounding box coordinates",
         "إحداثيات المربع المحيط غير صالحة",
     ),
-
     # Model
     ErrorCode.MODEL_NOT_FOUND: (
         "Model not found: {model}",
@@ -145,7 +144,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "TensorRT optimization error: {details}",
         "خطأ في تحسين TensorRT: {details}",
     ),
-
     # Processing
     ErrorCode.IMAGE_DECODE_FAILED: (
         "Failed to decode image. The image may be corrupted",
@@ -163,7 +161,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Batch processing failed: {count} of {total} images failed",
         "فشلت معالجة الدفعة: {count} من {total} صورة فشلت",
     ),
-
     # Resource
     ErrorCode.GPU_OUT_OF_MEMORY: (
         "GPU out of memory. Try reducing image size or batch size",
@@ -181,7 +178,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Maximum concurrent requests exceeded. Please retry later",
         "تم تجاوز الحد الأقصى للطلبات المتزامنة. يرجى المحاولة لاحقاً",
     ),
-
     # External
     ErrorCode.DATABASE_ERROR: (
         "Database error: {details}",
@@ -195,7 +191,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Message queue error: {details}",
         "خطأ في قائمة الرسائل: {details}",
     ),
-
     # Rate limit
     ErrorCode.RATE_LIMIT_EXCEEDED: (
         "Rate limit exceeded. Retry after {retry_after} seconds",
@@ -205,7 +200,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "API quota exceeded for this billing period",
         "تم تجاوز حصة API لفترة الفوترة هذه",
     ),
-
     # Timeout
     ErrorCode.INFERENCE_TIMEOUT: (
         "Inference timed out after {timeout}s",
@@ -215,7 +209,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Request timed out",
         "انتهت مهلة الطلب",
     ),
-
     # Auth
     ErrorCode.INVALID_TOKEN: (
         "Invalid authentication token",
@@ -229,7 +222,6 @@ ERROR_MESSAGES: dict[ErrorCode, tuple[str, str]] = {
         "Permission denied for this operation",
         "تم رفض الإذن لهذه العملية",
     ),
-
     # General
     ErrorCode.UNKNOWN_ERROR: (
         "An unexpected error occurred",
@@ -448,6 +440,7 @@ def with_retry(
         async def unstable_operation():
             ...
     """
+
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> T:
@@ -474,6 +467,7 @@ def with_retry(
             raise last_exception
 
         return wrapper
+
     return decorator
 
 
@@ -572,6 +566,7 @@ class CircuitBreaker:
             async def inference():
                 ...
         """
+
         def decorator(func: Callable[..., T]) -> Callable[..., T]:
             @wraps(func)
             async def wrapper(*args, **kwargs) -> T:
@@ -591,6 +586,7 @@ class CircuitBreaker:
                     raise
 
             return wrapper
+
         return decorator
 
     def get_status(self) -> dict[str, Any]:

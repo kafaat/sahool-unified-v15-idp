@@ -36,6 +36,7 @@ os.environ["NATS_URL"] = ""
 # Mock Classes for Testing FarmerQueryBot
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class FarmerStatus(str, Enum):
     LEAD = "lead"
     REGISTERED = "registered"
@@ -64,6 +65,7 @@ class InteractionType(str, Enum):
 
 class Farmer:
     """Mock Farmer for query bot tests."""
+
     def __init__(
         self,
         farmer_id: str,
@@ -107,6 +109,7 @@ class Farmer:
 
 class HarvestDeal:
     """Mock HarvestDeal for query bot tests."""
+
     def __init__(
         self,
         deal_id: str,
@@ -145,6 +148,7 @@ class HarvestDeal:
 
 class Interaction:
     """Mock Interaction for query bot tests."""
+
     def __init__(
         self,
         interaction_id: str,
@@ -173,6 +177,7 @@ class Interaction:
 
 class FarmerCRMService:
     """Mock FarmerCRMService for testing."""
+
     def __init__(self, tenant_id: str = "sahool"):
         self.tenant_id = tenant_id
         self._farmers: dict[str, Farmer] = {}
@@ -191,9 +196,7 @@ class FarmerCRMService:
             "pipeline": pipeline,
             "total_deals": len(self._deals),
             "total_value": sum(d.expected_value for d in self._deals.values()),
-            "weighted_value": sum(
-                d.expected_value * d.probability for d in self._deals.values()
-            ),
+            "weighted_value": sum(d.expected_value * d.probability for d in self._deals.values()),
         }
 
 
@@ -271,6 +274,7 @@ class FarmerQueryBot:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture
 def crm_service():
@@ -387,6 +391,7 @@ def query_bot(crm_service):
 # Active Farmers Query Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestQueryActiveFarmers:
     """Tests for querying active farmers."""
 
@@ -440,6 +445,7 @@ class TestQueryActiveFarmers:
 # Farmers by Crop Query Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestQueryFarmersByCrop:
     """Tests for querying farmers by crop type."""
 
@@ -447,30 +453,21 @@ class TestQueryFarmersByCrop:
     async def test_query_wheat_farmers(self, crm_service):
         """Test querying farmers growing wheat."""
         # Simulate crop-based query filtering
-        farmers = [
-            f for f in crm_service._farmers.values()
-            if "wheat" in f.primary_crops
-        ]
+        farmers = [f for f in crm_service._farmers.values() if "wheat" in f.primary_crops]
 
         assert len(farmers) == 2  # Ahmed and Mohammed
 
     @pytest.mark.asyncio
     async def test_query_dates_farmers(self, crm_service):
         """Test querying farmers growing dates."""
-        farmers = [
-            f for f in crm_service._farmers.values()
-            if "dates" in f.primary_crops
-        ]
+        farmers = [f for f in crm_service._farmers.values() if "dates" in f.primary_crops]
 
         assert len(farmers) == 2  # Khalid and Saeed
 
     @pytest.mark.asyncio
     async def test_query_farmers_multiple_crops(self, crm_service):
         """Test querying farmers with multiple crops."""
-        farmers = [
-            f for f in crm_service._farmers.values()
-            if len(f.primary_crops) > 1
-        ]
+        farmers = [f for f in crm_service._farmers.values() if len(f.primary_crops) > 1]
 
         assert len(farmers) == 2  # Ahmed (wheat, barley) and Saeed (dates, vegetables)
 
@@ -478,6 +475,7 @@ class TestQueryFarmersByCrop:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Deals by Stage Query Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestQueryDealsByStage:
     """Tests for querying deals by stage."""
@@ -528,8 +526,7 @@ class TestQueryDealsByStage:
     async def test_query_deals_prospecting(self, crm_service):
         """Test filtering deals in prospecting stage."""
         prospecting_deals = [
-            d for d in crm_service._deals.values()
-            if d.stage == DealStage.PROSPECTING
+            d for d in crm_service._deals.values() if d.stage == DealStage.PROSPECTING
         ]
 
         assert len(prospecting_deals) == 1
@@ -539,8 +536,7 @@ class TestQueryDealsByStage:
     async def test_query_deals_negotiation(self, crm_service):
         """Test filtering deals in negotiation stage."""
         negotiation_deals = [
-            d for d in crm_service._deals.values()
-            if d.stage == DealStage.NEGOTIATION
+            d for d in crm_service._deals.values() if d.stage == DealStage.NEGOTIATION
         ]
 
         assert len(negotiation_deals) == 1
@@ -549,10 +545,7 @@ class TestQueryDealsByStage:
     @pytest.mark.asyncio
     async def test_query_closed_deals(self, crm_service):
         """Test filtering closed (paid) deals."""
-        closed_deals = [
-            d for d in crm_service._deals.values()
-            if d.stage == DealStage.PAID
-        ]
+        closed_deals = [d for d in crm_service._deals.values() if d.stage == DealStage.PAID]
 
         assert len(closed_deals) == 1
         assert closed_deals[0].deal_id == "deal-004"
@@ -561,6 +554,7 @@ class TestQueryDealsByStage:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Top Farmers Query Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestQueryTopFarmers:
     """Tests for querying top farmers."""
@@ -604,6 +598,7 @@ class TestQueryTopFarmers:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Invalid Query Handling Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestInvalidQueryHandling:
     """Tests for invalid query handling."""
@@ -651,6 +646,7 @@ class TestInvalidQueryHandling:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Query Pattern Matching Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestQueryPatternMatching:
     """Tests for query pattern matching."""
@@ -701,6 +697,7 @@ class TestQueryPatternMatching:
 # Weighted Value Calculation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestWeightedValueCalculation:
     """Tests for weighted value calculations in pipeline."""
 
@@ -735,6 +732,7 @@ class TestWeightedValueCalculation:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Edge Cases Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestQueryBotEdgeCases:
     """Tests for query bot edge cases."""

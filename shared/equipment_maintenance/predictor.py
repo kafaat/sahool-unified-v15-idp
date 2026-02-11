@@ -41,6 +41,7 @@ from .models import (
 
 class RiskLevel(str, Enum):
     """Risk level for equipment failure - مستوى خطر فشل المعدات"""
+
     MINIMAL = "minimal"  # الحد الأدنى
     LOW = "low"  # منخفض
     MODERATE = "moderate"  # متوسط
@@ -50,6 +51,7 @@ class RiskLevel(str, Enum):
 
 class ComponentType(str, Enum):
     """Equipment component type - نوع مكون المعدات"""
+
     ENGINE = "engine"  # المحرك
     TRANSMISSION = "transmission"  # ناقل الحركة
     HYDRAULIC_SYSTEM = "hydraulic_system"  # النظام الهيدروليكي
@@ -71,6 +73,7 @@ class ComponentType(str, Enum):
 
 class FailureMode(str, Enum):
     """Common failure modes - أوضاع الفشل الشائعة"""
+
     WEAR = "wear"  # تآكل
     FATIGUE = "fatigue"  # إجهاد
     CORROSION = "corrosion"  # تآكل كيميائي
@@ -91,6 +94,7 @@ class FailureMode(str, Enum):
 @dataclass
 class UsageMetrics:
     """Usage metrics for an equipment - مقاييس الاستخدام للمعدات"""
+
     equipment_id: str
     period_start: datetime
     period_end: datetime
@@ -141,6 +145,7 @@ class UsageMetrics:
 @dataclass
 class ComponentHealth:
     """Health status of an equipment component - حالة صحة مكون المعدات"""
+
     component_type: ComponentType
     equipment_id: str
 
@@ -200,6 +205,7 @@ class ComponentHealth:
 @dataclass
 class PredictiveInsight:
     """Predictive maintenance insight - رؤية الصيانة التنبؤية"""
+
     id: str
     equipment_id: str
     tenant_id: str
@@ -273,6 +279,7 @@ class PredictiveInsight:
 @dataclass
 class FailurePrediction:
     """Failure prediction for equipment - تنبؤ الفشل للمعدات"""
+
     equipment_id: str
     component: ComponentType
     failure_mode: FailureMode
@@ -304,8 +311,12 @@ class FailurePrediction:
             "failure_mode": self.failure_mode.value,
             "probability": self.probability,
             "confidence": self.confidence,
-            "earliest_failure": self.earliest_failure.isoformat() if self.earliest_failure else None,
-            "most_likely_failure": self.most_likely_failure.isoformat() if self.most_likely_failure else None,
+            "earliest_failure": self.earliest_failure.isoformat()
+            if self.earliest_failure
+            else None,
+            "most_likely_failure": self.most_likely_failure.isoformat()
+            if self.most_likely_failure
+            else None,
             "severity": self.severity.value,
             "estimated_repair_hours": self.estimated_repair_hours,
             "estimated_cost": str(self.estimated_cost),
@@ -315,6 +326,7 @@ class FailurePrediction:
 @dataclass
 class CostOptimizationRecommendation:
     """Cost optimization recommendation - توصية تحسين التكلفة"""
+
     equipment_id: str
     recommendation_type: str  # timing, bundling, parts, outsourcing
 
@@ -540,13 +552,12 @@ class PredictiveMaintenanceEngine:
 
         # Get service records in period
         records = self._service_history.get(equipment_id, [])
-        period_records = [
-            r for r in records
-            if start_date <= r.service_date <= end_date
-        ]
+        period_records = [r for r in records if start_date <= r.service_date <= end_date]
 
         # Calculate metrics (simplified - real implementation would use telemetry)
-        avg_daily_hours = equipment.total_hours / max((datetime.now(UTC) - (equipment.created_at or datetime.now(UTC))).days, 1)
+        avg_daily_hours = equipment.total_hours / max(
+            (datetime.now(UTC) - (equipment.created_at or datetime.now(UTC))).days, 1
+        )
 
         metrics = UsageMetrics(
             equipment_id=equipment_id,
@@ -557,7 +568,9 @@ class PredictiveMaintenanceEngine:
             max_daily_hours=avg_daily_hours * 1.5,  # Estimate
             operating_days=int(period_days * 0.7),  # Estimate 70% utilization
             idle_days=int(period_days * 0.3),
-            total_hectares=equipment.total_hectares / max((datetime.now(UTC) - (equipment.created_at or datetime.now(UTC))).days, 1) * period_days,
+            total_hectares=equipment.total_hectares
+            / max((datetime.now(UTC) - (equipment.created_at or datetime.now(UTC))).days, 1)
+            * period_days,
         )
 
         return metrics
@@ -596,7 +609,9 @@ class PredictiveMaintenanceEngine:
             # Calculate from service history
             sorted_records = sorted(service_records, key=lambda r: r.hours_at_service)
             if len(sorted_records) >= 2:
-                hours_diff = sorted_records[-1].hours_at_service - sorted_records[0].hours_at_service
+                hours_diff = (
+                    sorted_records[-1].hours_at_service - sorted_records[0].hours_at_service
+                )
                 if hours_diff > 0:
                     degradation_rate = (100 - health_score) / (hours_diff / 100)
                 else:
@@ -647,13 +662,19 @@ class PredictiveMaintenanceEngine:
         # Generate recommendations
         if risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
             recommended_action = f"Immediate inspection of {component.value} recommended"
-            recommended_action_ar = f"يوصى بالفحص الفوري لـ {self._get_component_name_ar(component)}"
+            recommended_action_ar = (
+                f"يوصى بالفحص الفوري لـ {self._get_component_name_ar(component)}"
+            )
         elif risk_level == RiskLevel.MODERATE:
             recommended_action = f"Schedule {component.value} inspection within 2 weeks"
-            recommended_action_ar = f"جدولة فحص {self._get_component_name_ar(component)} خلال أسبوعين"
+            recommended_action_ar = (
+                f"جدولة فحص {self._get_component_name_ar(component)} خلال أسبوعين"
+            )
         else:
             recommended_action = f"Continue normal monitoring of {component.value}"
-            recommended_action_ar = f"استمر في المراقبة العادية لـ {self._get_component_name_ar(component)}"
+            recommended_action_ar = (
+                f"استمر في المراقبة العادية لـ {self._get_component_name_ar(component)}"
+            )
 
         return ComponentHealth(
             component_type=component,
@@ -670,7 +691,9 @@ class PredictiveMaintenanceEngine:
             failure_probability_30d=round(failure_prob_30d, 3),
             failure_probability_90d=round(failure_prob_90d, 3),
             primary_failure_modes=failure_modes,
-            failure_mode_probabilities={fm.value: round(p, 2) for fm, p in failure_mode_probs.items()},
+            failure_mode_probabilities={
+                fm.value: round(p, 2) for fm, p in failure_mode_probs.items()
+            },
             recommended_action=recommended_action,
             recommended_action_ar=recommended_action_ar,
             urgency=urgency,
@@ -780,9 +803,7 @@ class PredictiveMaintenanceEngine:
             if health.failure_probability_90d > 0.1:  # At least 10% probability
                 # Get most likely failure modes
                 for failure_mode in health.primary_failure_modes[:2]:
-                    mode_prob = health.failure_mode_probabilities.get(
-                        failure_mode.value, 0.3
-                    )
+                    mode_prob = health.failure_mode_probabilities.get(failure_mode.value, 0.3)
 
                     # Estimate timing
                     if health.estimated_rul_hours:
@@ -818,7 +839,9 @@ class PredictiveMaintenanceEngine:
                         most_likely_failure=most_likely,
                         latest_failure=latest,
                         severity=severity,
-                        estimated_repair_hours=self._get_repair_hours(health.component_type, health.risk_level),
+                        estimated_repair_hours=self._get_repair_hours(
+                            health.component_type, health.risk_level
+                        ),
                         estimated_cost=estimated_cost,
                         contributing_factors=[
                             f"Current wear: {health.current_wear_percent:.0f}%",
@@ -882,12 +905,20 @@ class PredictiveMaintenanceEngine:
         now = datetime.now(UTC)
 
         # Insight 1: Overall equipment health
-        avg_health = statistics.mean([h.health_score for h in health_assessments]) if health_assessments else 100
-        critical_components = [h for h in health_assessments if h.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]]
+        avg_health = (
+            statistics.mean([h.health_score for h in health_assessments])
+            if health_assessments
+            else 100
+        )
+        critical_components = [
+            h for h in health_assessments if h.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]
+        ]
 
         if critical_components:
             component_names = ", ".join([c.component_type.value for c in critical_components])
-            component_names_ar = ", ".join([self._get_component_name_ar(c.component_type) for c in critical_components])
+            component_names_ar = ", ".join(
+                [self._get_component_name_ar(c.component_type) for c in critical_components]
+            )
 
             insight = PredictiveInsight(
                 id=generate_id("insight"),
@@ -900,18 +931,33 @@ class PredictiveMaintenanceEngine:
                 insight_type="prediction",
                 components=[c.component_type for c in critical_components],
                 component_health=critical_components,
-                risk_level=RiskLevel.HIGH if any(h.risk_level == RiskLevel.CRITICAL for h in critical_components) else RiskLevel.MODERATE,
-                potential_downtime_hours=sum(self._get_repair_hours(c.component_type, c.risk_level) for c in critical_components),
-                estimated_repair_cost=Decimal(str(sum(
-                    REPAIR_COST_SAR.get(c.component_type, {}).get("moderate", 2000)
+                risk_level=RiskLevel.HIGH
+                if any(h.risk_level == RiskLevel.CRITICAL for h in critical_components)
+                else RiskLevel.MODERATE,
+                potential_downtime_hours=sum(
+                    self._get_repair_hours(c.component_type, c.risk_level)
                     for c in critical_components
-                ))),
+                ),
+                estimated_repair_cost=Decimal(
+                    str(
+                        sum(
+                            REPAIR_COST_SAR.get(c.component_type, {}).get("moderate", 2000)
+                            for c in critical_components
+                        )
+                    )
+                ),
                 recommended_action="Schedule comprehensive inspection and preventive maintenance",
                 recommended_action_ar="جدولة فحص شامل وصيانة وقائية",
                 action_deadline=now + timedelta(days=14),
                 priority=MaintenancePriority.HIGH,
-                supporting_factors=[f"Avg health: {avg_health:.0f}%", f"Critical components: {len(critical_components)}"],
-                supporting_factors_ar=[f"متوسط الصحة: {avg_health:.0f}%", f"المكونات الحرجة: {len(critical_components)}"],
+                supporting_factors=[
+                    f"Avg health: {avg_health:.0f}%",
+                    f"Critical components: {len(critical_components)}",
+                ],
+                supporting_factors_ar=[
+                    f"متوسط الصحة: {avg_health:.0f}%",
+                    f"المكونات الحرجة: {len(critical_components)}",
+                ],
                 valid_until=now + timedelta(days=30),
             )
             insights.append(insight)
@@ -926,8 +972,8 @@ class PredictiveMaintenanceEngine:
                 tenant_id=self.tenant_id,
                 title=f"High Probability of {top_failure.failure_mode.value.replace('_', ' ').title()} Failure",
                 title_ar=f"احتمالية عالية لفشل {self._get_failure_mode_ar(top_failure.failure_mode)}",
-                description=f"There is a {top_failure.probability*100:.0f}% probability of {top_failure.failure_mode.value} failure in the {top_failure.component.value}.",
-                description_ar=f"هناك احتمالية {top_failure.probability*100:.0f}% لفشل {self._get_failure_mode_ar(top_failure.failure_mode)} في {self._get_component_name_ar(top_failure.component)}.",
+                description=f"There is a {top_failure.probability * 100:.0f}% probability of {top_failure.failure_mode.value} failure in the {top_failure.component.value}.",
+                description_ar=f"هناك احتمالية {top_failure.probability * 100:.0f}% لفشل {self._get_failure_mode_ar(top_failure.failure_mode)} في {self._get_component_name_ar(top_failure.component)}.",
                 insight_type="prediction",
                 components=[top_failure.component],
                 predicted_event=f"{top_failure.failure_mode.value} failure",
@@ -935,12 +981,16 @@ class PredictiveMaintenanceEngine:
                 probability=top_failure.probability,
                 confidence=top_failure.confidence,
                 time_horizon_days=90,
-                risk_level=RiskLevel.HIGH if top_failure.severity == AlertSeverity.CRITICAL else RiskLevel.MODERATE,
+                risk_level=RiskLevel.HIGH
+                if top_failure.severity == AlertSeverity.CRITICAL
+                else RiskLevel.MODERATE,
                 potential_downtime_hours=top_failure.estimated_repair_hours,
                 estimated_repair_cost=top_failure.estimated_cost,
                 recommended_action=f"Inspect {top_failure.component.value} and consider preventive replacement",
                 recommended_action_ar=f"فحص {self._get_component_name_ar(top_failure.component)} والنظر في الاستبدال الوقائي",
-                priority=MaintenancePriority.HIGH if top_failure.probability > 0.4 else MaintenancePriority.MEDIUM,
+                priority=MaintenancePriority.HIGH
+                if top_failure.probability > 0.4
+                else MaintenancePriority.MEDIUM,
                 supporting_factors=top_failure.contributing_factors,
                 supporting_factors_ar=top_failure.contributing_factors_ar,
                 valid_until=now + timedelta(days=30),
@@ -1013,7 +1063,9 @@ class PredictiveMaintenanceEngine:
 
         # Recommendation 1: Bundling maintenance tasks
         # Check if multiple components need service around the same time
-        components_due_soon = [h for h in health_assessments if h.risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH]]
+        components_due_soon = [
+            h for h in health_assessments if h.risk_level in [RiskLevel.MODERATE, RiskLevel.HIGH]
+        ]
         if len(components_due_soon) >= 2:
             individual_cost = sum(
                 REPAIR_COST_SAR.get(h.component_type, {}).get("minor", 500)
@@ -1036,7 +1088,7 @@ class PredictiveMaintenanceEngine:
                 current_cost=Decimal(str(individual_cost)),
                 recommended_cost=Decimal(str(int(bundled_cost))),
                 potential_savings=Decimal(str(int(individual_cost - bundled_cost))),
-                savings_percent=round((1 - bundled_cost/individual_cost) * 100, 1),
+                savings_percent=round((1 - bundled_cost / individual_cost) * 100, 1),
                 implementation_effort="low",
                 implementation_steps=[
                     "Identify all components due for service",
@@ -1055,7 +1107,9 @@ class PredictiveMaintenanceEngine:
 
         # Recommendation 2: Preventive vs Corrective timing
         # If equipment has had emergency repairs, suggest better preventive timing
-        emergency_records = [r for r in service_records if r.service_type == MaintenanceType.EMERGENCY]
+        emergency_records = [
+            r for r in service_records if r.service_type == MaintenanceType.EMERGENCY
+        ]
         if len(emergency_records) >= 1:
             # Estimate cost savings from prevention
             emergency_cost = sum(float(r.total_cost) for r in emergency_records)
@@ -1075,7 +1129,9 @@ class PredictiveMaintenanceEngine:
                 current_cost=Decimal(str(int(emergency_cost))),
                 recommended_cost=Decimal(str(int(preventive_cost))),
                 potential_savings=Decimal(str(int(emergency_cost - preventive_cost))),
-                savings_percent=round((1 - preventive_cost/emergency_cost) * 100 if emergency_cost > 0 else 0, 1),
+                savings_percent=round(
+                    (1 - preventive_cost / emergency_cost) * 100 if emergency_cost > 0 else 0, 1
+                ),
                 implementation_effort="medium",
                 implementation_steps=[
                     "Enable telemetry monitoring if available",
@@ -1153,7 +1209,11 @@ class PredictiveMaintenanceEngine:
 
             for health in health_assessments:
                 if health.risk_level in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
-                    severity = AlertSeverity.CRITICAL if health.risk_level == RiskLevel.CRITICAL else AlertSeverity.WARNING
+                    severity = (
+                        AlertSeverity.CRITICAL
+                        if health.risk_level == RiskLevel.CRITICAL
+                        else AlertSeverity.WARNING
+                    )
 
                     alert = MaintenanceAlert(
                         id=generate_id("alert"),
@@ -1163,8 +1223,8 @@ class PredictiveMaintenanceEngine:
                         severity=severity,
                         title=f"Predictive Alert: {health.component_type.value.replace('_', ' ').title()}",
                         title_ar=f"تنبيه تنبؤي: {self._get_component_name_ar(health.component_type)}",
-                        message=f"Component health score: {health.health_score:.0f}%. Failure probability (30d): {health.failure_probability_30d*100:.0f}%",
-                        message_ar=f"درجة صحة المكون: {health.health_score:.0f}%. احتمالية الفشل (30 يوم): {health.failure_probability_30d*100:.0f}%",
+                        message=f"Component health score: {health.health_score:.0f}%. Failure probability (30d): {health.failure_probability_30d * 100:.0f}%",
+                        message_ar=f"درجة صحة المكون: {health.health_score:.0f}%. احتمالية الفشل (30 يوم): {health.failure_probability_30d * 100:.0f}%",
                         triggered_by="predictive_analysis",
                         trigger_value=f"Health: {health.health_score:.0f}%",
                         threshold_value="Health < 50%",

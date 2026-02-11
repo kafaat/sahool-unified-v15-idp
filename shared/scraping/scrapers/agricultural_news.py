@@ -44,44 +44,132 @@ class NewsCategory(Enum):
 # Category keywords for classification
 CATEGORY_KEYWORDS: dict[NewsCategory, list[str]] = {
     NewsCategory.CROPS: [
-        "crop", "wheat", "barley", "rice", "harvest", "planting",
-        "محصول", "قمح", "شعير", "أرز", "حصاد", "زراعة",
+        "crop",
+        "wheat",
+        "barley",
+        "rice",
+        "harvest",
+        "planting",
+        "محصول",
+        "قمح",
+        "شعير",
+        "أرز",
+        "حصاد",
+        "زراعة",
     ],
     NewsCategory.LIVESTOCK: [
-        "livestock", "cattle", "sheep", "goat", "poultry", "dairy",
-        "ماشية", "أبقار", "أغنام", "ماعز", "دواجن", "ألبان",
+        "livestock",
+        "cattle",
+        "sheep",
+        "goat",
+        "poultry",
+        "dairy",
+        "ماشية",
+        "أبقار",
+        "أغنام",
+        "ماعز",
+        "دواجن",
+        "ألبان",
     ],
     NewsCategory.TECHNOLOGY: [
-        "technology", "drone", "ai", "sensor", "smart", "automation",
-        "تقنية", "طائرة", "ذكاء اصطناعي", "استشعار", "ذكي",
+        "technology",
+        "drone",
+        "ai",
+        "sensor",
+        "smart",
+        "automation",
+        "تقنية",
+        "طائرة",
+        "ذكاء اصطناعي",
+        "استشعار",
+        "ذكي",
     ],
     NewsCategory.MARKET: [
-        "market", "price", "export", "import", "trade", "sales",
-        "سوق", "سعر", "تصدير", "استيراد", "تجارة", "مبيعات",
+        "market",
+        "price",
+        "export",
+        "import",
+        "trade",
+        "sales",
+        "سوق",
+        "سعر",
+        "تصدير",
+        "استيراد",
+        "تجارة",
+        "مبيعات",
     ],
     NewsCategory.POLICY: [
-        "policy", "government", "ministry", "regulation", "subsidy",
-        "سياسة", "حكومة", "وزارة", "تنظيم", "دعم",
+        "policy",
+        "government",
+        "ministry",
+        "regulation",
+        "subsidy",
+        "سياسة",
+        "حكومة",
+        "وزارة",
+        "تنظيم",
+        "دعم",
     ],
     NewsCategory.WEATHER: [
-        "weather", "rain", "drought", "temperature", "climate",
-        "طقس", "مطر", "جفاف", "حرارة", "مناخ",
+        "weather",
+        "rain",
+        "drought",
+        "temperature",
+        "climate",
+        "طقس",
+        "مطر",
+        "جفاف",
+        "حرارة",
+        "مناخ",
     ],
     NewsCategory.RESEARCH: [
-        "research", "study", "university", "science", "innovation",
-        "بحث", "دراسة", "جامعة", "علم", "ابتكار",
+        "research",
+        "study",
+        "university",
+        "science",
+        "innovation",
+        "بحث",
+        "دراسة",
+        "جامعة",
+        "علم",
+        "ابتكار",
     ],
     NewsCategory.IRRIGATION: [
-        "irrigation", "water", "drip", "sprinkler", "groundwater",
-        "ري", "مياه", "تنقيط", "رشاش", "مياه جوفية",
+        "irrigation",
+        "water",
+        "drip",
+        "sprinkler",
+        "groundwater",
+        "ري",
+        "مياه",
+        "تنقيط",
+        "رشاش",
+        "مياه جوفية",
     ],
     NewsCategory.PESTS: [
-        "pest", "disease", "insect", "fungus", "weed", "control",
-        "آفة", "مرض", "حشرة", "فطر", "أعشاب", "مكافحة",
+        "pest",
+        "disease",
+        "insect",
+        "fungus",
+        "weed",
+        "control",
+        "آفة",
+        "مرض",
+        "حشرة",
+        "فطر",
+        "أعشاب",
+        "مكافحة",
     ],
     NewsCategory.EVENTS: [
-        "event", "conference", "exhibition", "fair", "workshop",
-        "حدث", "مؤتمر", "معرض", "ورشة",
+        "event",
+        "conference",
+        "exhibition",
+        "fair",
+        "workshop",
+        "حدث",
+        "مؤتمر",
+        "معرض",
+        "ورشة",
     ],
 }
 
@@ -121,9 +209,7 @@ class NewsArticle:
             "source_ar": self.source_ar,
             "category": self.category,
             "tags": self.tags,
-            "published_date": (
-                self.published_date.isoformat() if self.published_date else None
-            ),
+            "published_date": (self.published_date.isoformat() if self.published_date else None),
             "scraped_at": self.scraped_at.isoformat(),
             "language": self.language,
         }
@@ -293,9 +379,7 @@ class AgriculturalNewsScraper(BaseScraper):
 
         try:
             # Select sources to scrape
-            sources_to_scrape = (
-                [source] if source else list(self.SOURCES.keys())
-            )
+            sources_to_scrape = [source] if source else list(self.SOURCES.keys())
 
             for src in sources_to_scrape:
                 if src not in self.SOURCES:
@@ -323,7 +407,8 @@ class AgriculturalNewsScraper(BaseScraper):
             # Filter by category if specified
             if category:
                 articles = [
-                    a for a in articles
+                    a
+                    for a in articles
                     if a.category == category or self._classify_category(a.title) == category
                 ]
 
@@ -346,9 +431,7 @@ class AgriculturalNewsScraper(BaseScraper):
             )
 
             duration_ms = (time.time() - start_time) * 1000
-            logger.info(
-                f"News scraped: {len(articles)} articles in {duration_ms:.0f}ms"
-            )
+            logger.info(f"News scraped: {len(articles)} articles in {duration_ms:.0f}ms")
 
             return ScrapingResult(
                 status=ScrapingStatus.SUCCESS,
@@ -415,9 +498,7 @@ class AgriculturalNewsScraper(BaseScraper):
 
                 for element in elements[:limit]:
                     try:
-                        article = await self._extract_article(
-                            element, source_config
-                        )
+                        article = await self._extract_article(element, source_config)
                         if article and article.title:
                             articles.append(article)
                             if len(articles) >= limit:
@@ -433,9 +514,7 @@ class AgriculturalNewsScraper(BaseScraper):
 
         # If no articles found with specific selectors, try generic extraction
         if not articles:
-            articles = await self._extract_generic_articles(
-                source_config, limit
-            )
+            articles = await self._extract_generic_articles(source_config, limit)
 
         return articles
 
@@ -491,9 +570,7 @@ class AgriculturalNewsScraper(BaseScraper):
             image_url = await img_element.get_attribute("src")
 
         # Date
-        date_element = await element.query_selector(
-            "time, .date, .published, [class*='date']"
-        )
+        date_element = await element.query_selector("time, .date, .published, [class*='date']")
         published_date = None
         if date_element:
             date_text = await date_element.text_content()
@@ -550,7 +627,7 @@ class AgriculturalNewsScraper(BaseScraper):
         # Get all links with potential news content
         links = await self._page.query_selector_all("a[href]")
 
-        for link in links[:limit * 3]:  # Check more links than needed
+        for link in links[: limit * 3]:  # Check more links than needed
             try:
                 href = await link.get_attribute("href")
                 text = await link.text_content()
@@ -564,8 +641,7 @@ class AgriculturalNewsScraper(BaseScraper):
                 if len(text) < 20:
                     continue
                 if any(
-                    skip in text.lower()
-                    for skip in ["menu", "home", "about", "contact", "login"]
+                    skip in text.lower() for skip in ["menu", "home", "about", "contact", "login"]
                 ):
                     continue
 
@@ -633,10 +709,7 @@ class AgriculturalNewsScraper(BaseScraper):
             reverse=True,
         )
 
-        return [
-            {"topic": tag, "count": count}
-            for tag, count in sorted_tags[:limit]
-        ]
+        return [{"topic": tag, "count": count} for tag, count in sorted_tags[:limit]]
 
     async def get_news_by_crop(
         self,

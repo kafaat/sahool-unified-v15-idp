@@ -553,7 +553,12 @@ PEST_DATABASE = {
         "favorable_temp_range": (22, 32),
         "favorable_humidity_min": 50,
         "favorable_humidity_max": 80,
-        "damage_symptoms_en": ["White cottony masses", "Honeydew", "Sooty mold", "Distorted growth"],
+        "damage_symptoms_en": [
+            "White cottony masses",
+            "Honeydew",
+            "Sooty mold",
+            "Distorted growth",
+        ],
         "damage_symptoms_ar": ["كتل قطنية بيضاء", "ندوة عسلية", "عفن أسود", "نمو مشوه"],
         "controls": [
             PestControl(

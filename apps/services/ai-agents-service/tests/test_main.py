@@ -479,7 +479,9 @@ class TestQuickAnalysis:
         assert response.json()["analysis_type"] == "yield"
 
     @pytest.mark.unit
-    def test_quick_analyze_recommendations_structure(self, client: TestClient, sample_quick_analysis_request):
+    def test_quick_analyze_recommendations_structure(
+        self, client: TestClient, sample_quick_analysis_request
+    ):
         """Test that recommendations have correct structure."""
         response = client.post("/api/v1/agents/quick/analyze", json=sample_quick_analysis_request)
 
@@ -583,7 +585,7 @@ class TestCORSHeaders:
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
-            }
+            },
         )
 
         # CORS preflight should succeed
@@ -639,7 +641,7 @@ class TestRequestValidation:
         response = client.post(
             "/api/v1/agents/execute",
             content="not valid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
 
         assert response.status_code == 422
@@ -715,10 +717,7 @@ class TestEdgeCases:
         }
 
         # Make multiple requests
-        responses = [
-            client.post("/api/v1/agents/execute", json=request)
-            for _ in range(5)
-        ]
+        responses = [client.post("/api/v1/agents/execute", json=request) for _ in range(5)]
 
         # All should succeed
         for response in responses:
@@ -904,6 +903,7 @@ class TestAdditionalCoverage:
         """Test listing executions when empty."""
         # Clear executions first
         import src.main as main_module
+
         main_module.executions.clear()
 
         response = client.get("/api/v1/agents/executions?tenant_id=test-tenant")

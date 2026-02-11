@@ -36,15 +36,11 @@ async def lifespan(app: FastAPI):
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url,
-                min_size=2,
-                max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             logger.info("Connected to database")
             # Create table if not exists
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS field_indicators (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         field_id VARCHAR(255) NOT NULL,
@@ -54,16 +50,16 @@ async def lifespan(app: FastAPI):
                         tenant_id VARCHAR(255),
                         UNIQUE(field_id, indicator_type)
                     )
-                ''')
+                """)
                 # Create index for faster lookups
-                await conn.execute('''
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_field_indicators_field_id
                     ON field_indicators(field_id)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_field_indicators_tenant_id
                     ON field_indicators(tenant_id)
-                ''')
+                """)
             logger.info("Database tables initialized")
         except Exception as e:
             logger.warning("Failed to connect to database", error=str(e))
@@ -113,10 +109,7 @@ async def publish_event(subject: str, data: dict):
     """Publish event to NATS if connected."""
     if hasattr(app.state, "nc") and app.state.nc:
         try:
-            await app.state.nc.publish(
-                subject,
-                json.dumps(data).encode()
-            )
+            await app.state.nc.publish(subject, json.dumps(data).encode())
             logger.debug("Published event", subject=subject, data=data)
         except Exception as e:
             logger.warning("Failed to publish event", subject=subject, error=str(e))
@@ -128,10 +121,7 @@ async def publish_event(subject: str, data: dict):
 
 
 async def save_indicator(
-    field_id: str,
-    indicator_type: str,
-    value: dict,
-    tenant_id: str | None = None
+    field_id: str, indicator_type: str, value: dict, tenant_id: str | None = None
 ) -> bool:
     """Save indicator value to database.
 
@@ -147,33 +137,32 @@ async def save_indicator(
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute(
+                    """
                     INSERT INTO field_indicators (field_id, indicator_type, value, tenant_id)
                     VALUES ($1, $2, $3, $4)
                     ON CONFLICT (field_id, indicator_type)
                     DO UPDATE SET value = $3, calculated_at = NOW()
-                ''', field_id, indicator_type, json.dumps(value), tenant_id)
-            logger.debug(
-                "Saved indicator",
-                field_id=field_id,
-                indicator_type=indicator_type
-            )
+                """,
+                    field_id,
+                    indicator_type,
+                    json.dumps(value),
+                    tenant_id,
+                )
+            logger.debug("Saved indicator", field_id=field_id, indicator_type=indicator_type)
             return True
         except Exception as e:
             logger.warning(
                 "Failed to save indicator",
                 field_id=field_id,
                 indicator_type=indicator_type,
-                error=str(e)
+                error=str(e),
             )
             return False
     return False
 
 
-async def get_indicator(
-    field_id: str,
-    indicator_type: str
-) -> dict | None:
+async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
     """Retrieve indicator value from database.
 
     Args:
@@ -186,20 +175,24 @@ async def get_indicator(
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                row = await conn.fetchrow('''
+                row = await conn.fetchrow(
+                    """
                     SELECT value, calculated_at FROM field_indicators
                     WHERE field_id = $1 AND indicator_type = $2
-                ''', field_id, indicator_type)
+                """,
+                    field_id,
+                    indicator_type,
+                )
                 if row:
-                    data = json.loads(row['value'])
-                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    data = json.loads(row["value"])
+                    data["calculated_at"] = row["calculated_at"].isoformat()
                     return data
         except Exception as e:
             logger.warning(
                 "Failed to get indicator",
                 field_id=field_id,
                 indicator_type=indicator_type,
-                error=str(e)
+                error=str(e),
             )
     return None
 
@@ -216,24 +209,23 @@ async def get_all_field_indicators(field_id: str) -> list[dict]:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                rows = await conn.fetch('''
+                rows = await conn.fetch(
+                    """
                     SELECT indicator_type, value, calculated_at FROM field_indicators
                     WHERE field_id = $1
                     ORDER BY indicator_type
-                ''', field_id)
+                """,
+                    field_id,
+                )
                 result = []
                 for row in rows:
-                    data = json.loads(row['value'])
-                    data['indicator_type'] = row['indicator_type']
-                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    data = json.loads(row["value"])
+                    data["indicator_type"] = row["indicator_type"]
+                    data["calculated_at"] = row["calculated_at"].isoformat()
                     result.append(data)
                 return result
         except Exception as e:
-            logger.warning(
-                "Failed to get field indicators",
-                field_id=field_id,
-                error=str(e)
-            )
+            logger.warning("Failed to get field indicators", field_id=field_id, error=str(e))
     return []
 
 
@@ -250,27 +242,27 @@ async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                rows = await conn.fetch('''
+                rows = await conn.fetch(
+                    """
                     SELECT field_id, indicator_type, value, calculated_at
                     FROM field_indicators
                     WHERE tenant_id = $1
                     ORDER BY calculated_at DESC
                     LIMIT $2
-                ''', tenant_id, limit)
+                """,
+                    tenant_id,
+                    limit,
+                )
                 result = []
                 for row in rows:
-                    data = json.loads(row['value'])
-                    data['field_id'] = row['field_id']
-                    data['indicator_type'] = row['indicator_type']
-                    data['calculated_at'] = row['calculated_at'].isoformat()
+                    data = json.loads(row["value"])
+                    data["field_id"] = row["field_id"]
+                    data["indicator_type"] = row["indicator_type"]
+                    data["calculated_at"] = row["calculated_at"].isoformat()
                     result.append(data)
                 return result
         except Exception as e:
-            logger.warning(
-                "Failed to get tenant indicators",
-                tenant_id=tenant_id,
-                error=str(e)
-            )
+            logger.warning("Failed to get tenant indicators", tenant_id=tenant_id, error=str(e))
     return []
 
 
@@ -286,17 +278,16 @@ async def delete_field_indicators(field_id: str) -> bool:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute(
+                    """
                     DELETE FROM field_indicators WHERE field_id = $1
-                ''', field_id)
+                """,
+                    field_id,
+                )
             logger.info("Deleted field indicators", field_id=field_id)
             return True
         except Exception as e:
-            logger.warning(
-                "Failed to delete field indicators",
-                field_id=field_id,
-                error=str(e)
-            )
+            logger.warning("Failed to delete field indicators", field_id=field_id, error=str(e))
             return False
     return False
 
@@ -800,14 +791,14 @@ async def get_field_indicators(
 
     # Try to load existing indicators from database
     stored_indicators = await get_all_field_indicators(field_id) if not force_refresh else []
-    stored_map = {ind['indicator_type']: ind for ind in stored_indicators}
+    stored_map = {ind["indicator_type"]: ind for ind in stored_indicators}
 
     # Check if we have fresh data (less than 1 hour old)
     use_stored = False
     if stored_indicators and not force_refresh:
         try:
             first_calc = datetime.fromisoformat(
-                stored_indicators[0].get('calculated_at', '').replace('Z', '+00:00')
+                stored_indicators[0].get("calculated_at", "").replace("Z", "+00:00")
             )
             age = datetime.now(UTC).replace(tzinfo=first_calc.tzinfo) - first_calc
             use_stored = age.total_seconds() < 3600  # Use if less than 1 hour old
@@ -824,12 +815,12 @@ async def get_field_indicators(
         # Check if we have stored data for this indicator
         if use_stored and ind_id in stored_map:
             stored = stored_map[ind_id]
-            value = stored.get('value', 0)
-            trend = TrendDirection(stored.get('trend', 'stable'))
-            trend_percent = stored.get('trend_percent', 0)
-            status = stored.get('status', 'info')
+            value = stored.get("value", 0)
+            trend = TrendDirection(stored.get("trend", "stable"))
+            trend_percent = stored.get("trend_percent", 0)
+            status = stored.get("status", "info")
             last_updated = datetime.fromisoformat(
-                stored.get('calculated_at', timestamp).replace('Z', '+00:00')
+                stored.get("calculated_at", timestamp).replace("Z", "+00:00")
             ).replace(tzinfo=None)
         else:
             # Generate new indicator value
@@ -862,7 +853,7 @@ async def get_field_indicators(
                     "status": status,
                     "trend": trend.value,
                     "timestamp": timestamp,
-                }
+                },
             )
 
         indicator = Indicator(
@@ -901,7 +892,7 @@ async def get_field_indicators(
             "overall_score": round(overall_score, 1),
             "alerts_count": len(alerts),
             "timestamp": timestamp,
-        }
+        },
     )
 
     return FieldIndicators(
@@ -917,6 +908,7 @@ async def get_field_indicators(
 
 class IndicatorInput(BaseModel):
     """Input model for storing indicator values"""
+
     indicator_type: str
     value: float
     trend: TrendDirection | None = None
@@ -935,8 +927,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     # Validate indicator type
     if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(
-            status_code=400,
-            detail=f"Invalid indicator type: {indicator_input.indicator_type}"
+            status_code=400, detail=f"Invalid indicator type: {indicator_input.indicator_type}"
         )
 
     defn = INDICATOR_DEFINITIONS[indicator_input.indicator_type]
@@ -945,7 +936,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     if not (defn["min"] <= indicator_input.value <= defn["max"]):
         raise HTTPException(
             status_code=400,
-            detail=f"Value {indicator_input.value} is outside valid range [{defn['min']}, {defn['max']}]"
+            detail=f"Value {indicator_input.value} is outside valid range [{defn['min']}, {defn['max']}]",
         )
 
     # Calculate status
@@ -960,23 +951,21 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     # Prepare indicator data
     indicator_data = {
         "value": indicator_input.value,
-        "trend": indicator_input.trend.value if indicator_input.trend else TrendDirection.STABLE.value,
+        "trend": indicator_input.trend.value
+        if indicator_input.trend
+        else TrendDirection.STABLE.value,
         "trend_percent": indicator_input.trend_percent or 0.0,
         "status": status,
     }
 
     # Save to database
     success = await save_indicator(
-        field_id,
-        indicator_input.indicator_type,
-        indicator_data,
-        indicator_input.tenant_id
+        field_id, indicator_input.indicator_type, indicator_data, indicator_input.tenant_id
     )
 
     if not success:
         raise HTTPException(
-            status_code=503,
-            detail="Failed to save indicator. Database may not be available."
+            status_code=503, detail="Failed to save indicator. Database may not be available."
         )
 
     # Publish event
@@ -989,14 +978,14 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
             "value": indicator_input.value,
             "status": status,
             "timestamp": timestamp,
-        }
+        },
     )
 
     logger.info(
         "Indicator stored",
         field_id=field_id,
         indicator_type=indicator_input.indicator_type,
-        value=indicator_input.value
+        value=indicator_input.value,
     )
 
     return {
@@ -1016,17 +1005,14 @@ async def get_single_indicator(field_id: str, indicator_type: str):
     Retrieve a single indicator value from the database.
     """
     if indicator_type not in INDICATOR_DEFINITIONS:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid indicator type: {indicator_type}"
-        )
+        raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_type}")
 
     indicator_data = await get_indicator(field_id, indicator_type)
 
     if not indicator_data:
         raise HTTPException(
             status_code=404,
-            detail=f"No stored indicator '{indicator_type}' found for field '{field_id}'"
+            detail=f"No stored indicator '{indicator_type}' found for field '{field_id}'",
         )
 
     defn = INDICATOR_DEFINITIONS[indicator_type]
@@ -1059,8 +1045,7 @@ async def delete_field_indicators_endpoint(field_id: str):
 
     if not success:
         raise HTTPException(
-            status_code=503,
-            detail="Failed to delete indicators. Database may not be available."
+            status_code=503, detail="Failed to delete indicators. Database may not be available."
         )
 
     # Publish event
@@ -1070,7 +1055,7 @@ async def delete_field_indicators_endpoint(field_id: str):
         {
             "field_id": field_id,
             "timestamp": timestamp,
-        }
+        },
     )
 
     logger.info("Field indicators deleted", field_id=field_id)
@@ -1137,7 +1122,7 @@ async def get_dashboard_summary(tenant_id: str, num_fields: int = Query(default=
             "active_alerts": len(all_alerts),
             "critical_alerts": critical_alerts,
             "timestamp": datetime.now(UTC).isoformat(),
-        }
+        },
     )
 
     return DashboardSummary(
@@ -1215,7 +1200,7 @@ async def get_tenant_alerts(
             "critical_count": critical_count,
             "warning_count": warning_count,
             "timestamp": datetime.now(UTC).isoformat(),
-        }
+        },
     )
 
     return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
@@ -1267,9 +1252,7 @@ async def get_indicator_trends(
     overall_trend = (
         TrendDirection.UP.value
         if values[-1] > values[0]
-        else (
-            TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value
-        )
+        else (TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value)
     )
 
     # Publish trend analysis event
@@ -1283,7 +1266,7 @@ async def get_indicator_trends(
             "current_value": round(values[-1], 2),
             "overall_trend": overall_trend,
             "timestamp": datetime.now(UTC).isoformat(),
-        }
+        },
     )
 
     return {

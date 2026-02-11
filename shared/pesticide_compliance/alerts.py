@@ -30,35 +30,29 @@ def generate_phi_alert(violation: PHIViolation) -> dict[str, Any]:
         "alert_type_ar": "انتهاك فترة ما قبل الحصاد",
         "priority": priority,
         "timestamp": datetime.now(UTC).isoformat(),
-
         # Violation details
         "field_id": violation.field_id,
         "pesticide_id": violation.pesticide_id,
         "pesticide_name": violation.pesticide_name,
         "pesticide_name_ar": violation.pesticide_name_ar,
-
         # Dates
         "application_date": violation.application_date.isoformat(),
         "earliest_harvest_date": violation.earliest_harvest_date.isoformat(),
         "planned_harvest_date": violation.planned_harvest_date.isoformat(),
         "days_remaining": violation.days_remaining,
         "phi_days": violation.phi_days,
-
         # Messages
         "title_en": "⚠️ Pre-Harvest Interval Violation",
         "title_ar": "⚠️ انتهاك فترة ما قبل الحصاد",
         "message_en": violation.message_en,
         "message_ar": violation.message_ar,
-
         # Recommendations
         "recommendations_en": violation.recommendations_en,
         "recommendations_ar": violation.recommendations_ar,
-
         # Action required
         "action_required": True,
         "action_en": f"Delay harvest until {violation.earliest_harvest_date.strftime('%Y-%m-%d')}",
         "action_ar": f"أجّل الحصاد حتى {violation.earliest_harvest_date.strftime('%Y-%m-%d')}",
-
         # Compliance
         "compliance_status": violation.status.value,
         "food_safety_risk": True,
@@ -78,29 +72,24 @@ def generate_rei_alert(violation: REIViolation) -> dict[str, Any]:
         "alert_type_ar": "انتهاك فترة إعادة الدخول",
         "priority": priority,
         "timestamp": datetime.now(UTC).isoformat(),
-
         # Violation details
         "field_id": violation.field_id,
         "pesticide_id": violation.pesticide_id,
         "pesticide_name": violation.pesticide_name,
         "pesticide_name_ar": violation.pesticide_name_ar,
-
         # Times
         "application_date": violation.application_date.isoformat(),
         "safe_entry_time": violation.safe_entry_time.isoformat(),
         "rei_hours": violation.rei_hours,
-
         # Messages
         "title_en": "⚠️ Re-Entry Interval Violation - Worker Safety Risk",
         "title_ar": "⚠️ انتهاك فترة إعادة الدخول - خطر على سلامة العمال",
         "message_en": violation.message_en,
         "message_ar": violation.message_ar,
-
         # Action required
         "action_required": True,
         "action_en": f"Restrict field access until {violation.safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
         "action_ar": f"قيّد الوصول للحقل حتى {violation.safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
-
         # Compliance
         "compliance_status": violation.status.value,
         "worker_safety_risk": True,
@@ -154,26 +143,21 @@ def generate_tank_mix_alert(compatibility: TankMixCompatibility) -> dict[str, An
         "alert_type_ar": "توافق خلط المبيدات",
         "priority": priority,
         "timestamp": datetime.now(UTC).isoformat(),
-
         # Products
         "product_a_id": compatibility.product_a_id,
         "product_a_name": compatibility.product_a_name,
         "product_b_id": compatibility.product_b_id,
         "product_b_name": compatibility.product_b_name,
-
         # Compatibility
         "compatibility": compatibility.compatibility.value,
-
         # Messages
         "title_en": title_en,
         "title_ar": title_ar,
         "message_en": compatibility.message_en,
         "message_ar": compatibility.message_ar,
-
         # Warnings
         "warnings_en": compatibility.warnings_en,
         "warnings_ar": compatibility.warnings_ar,
-
         # Mixing order (if compatible)
         "mixing_order": compatibility.mixing_order,
     }
@@ -222,29 +206,23 @@ def generate_spray_drift_alert(
         "alert_type_ar": "خطر انجراف الرش",
         "priority": priority,
         "timestamp": datetime.now(UTC).isoformat(),
-
         # Field
         "field_id": field_id,
-
         # Weather conditions
         "wind_speed_kmh": wind_speed_kmh,
         "wind_direction": wind_direction,
         "risk_level": risk_level,
-
         # Decision
         "can_spray": can_spray,
         "recommended_buffer_m": recommended_buffer_m,
-
         # Messages
         "title_en": title_en,
         "title_ar": title_ar,
         "message_en": f"Wind: {wind_speed_kmh} km/h from {wind_direction}. Buffer zone: {recommended_buffer_m}m",
         "message_ar": f"الرياح: {wind_speed_kmh} كم/س من {wind_direction}. المنطقة العازلة: {recommended_buffer_m}م",
-
         # Recommendations
         "recommendations_en": recommendations_en,
         "recommendations_ar": recommendations_ar,
-
         # Action
         "action_required": not can_spray,
         "action_en": "Wait for better conditions" if not can_spray else "Proceed with caution",
@@ -287,27 +265,23 @@ def generate_compliance_summary_alert(
         "alert_type_ar": "ملخص الامتثال",
         "priority": priority,
         "timestamp": datetime.now(UTC).isoformat(),
-
         # Field
         "field_id": field_id,
-
         # Status
         "overall_status": overall_status.value,
-
         # Violation counts
         "phi_violations": phi_count,
         "rei_violations": rei_count,
         "tank_mix_issues": tank_mix_count,
         "drift_risk": drift_risk,
-
         # Messages
         "title_en": title_en,
         "title_ar": title_ar,
         "message_en": summary_en,
         "message_ar": summary_ar,
-
         # Flags
-        "action_required": overall_status in [ComplianceStatus.CRITICAL, ComplianceStatus.VIOLATION],
+        "action_required": overall_status
+        in [ComplianceStatus.CRITICAL, ComplianceStatus.VIOLATION],
         "food_safety_risk": phi_count > 0,
         "worker_safety_risk": rei_count > 0,
     }

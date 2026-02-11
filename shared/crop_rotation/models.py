@@ -33,6 +33,7 @@ import uuid
 
 class CropFamily(str, Enum):
     """Botanical crop families for rotation planning"""
+
     POACEAE = "poaceae"  # النجيليات (Grasses: wheat, barley, rice, maize)
     FABACEAE = "fabaceae"  # البقوليات (Legumes: alfalfa, clover, beans)
     SOLANACEAE = "solanaceae"  # الباذنجانيات (Nightshades: tomato, pepper, eggplant)
@@ -48,6 +49,7 @@ class CropFamily(str, Enum):
 
 class CropType(str, Enum):
     """Common crop types in Middle East agriculture"""
+
     # Cereals - الحبوب
     WHEAT = "wheat"  # قمح
     BARLEY = "barley"  # شعير
@@ -102,6 +104,7 @@ class CropType(str, Enum):
 
 class Season(str, Enum):
     """Growing seasons in Middle East"""
+
     WINTER = "winter"  # شتوي (Oct-Apr)
     SUMMER = "summer"  # صيفي (Apr-Oct)
     SPRING = "spring"  # ربيعي
@@ -112,6 +115,7 @@ class Season(str, Enum):
 
 class RotationBenefit(str, Enum):
     """Benefits of crop rotation"""
+
     NITROGEN_FIXATION = "nitrogen_fixation"  # تثبيت النيتروجين
     PEST_BREAK = "pest_break"  # كسر دورة الآفات
     DISEASE_BREAK = "disease_break"  # كسر دورة الأمراض
@@ -126,6 +130,7 @@ class RotationBenefit(str, Enum):
 
 class SoilHealthIndicator(str, Enum):
     """Soil health indicators"""
+
     ORGANIC_MATTER = "organic_matter"  # المادة العضوية
     NITROGEN = "nitrogen"  # النيتروجين
     PHOSPHORUS = "phosphorus"  # الفسفور
@@ -140,6 +145,7 @@ class SoilHealthIndicator(str, Enum):
 
 class RecommendationPriority(str, Enum):
     """Priority level for recommendations"""
+
     CRITICAL = "critical"  # حرج
     HIGH = "high"  # عالي
     MEDIUM = "medium"  # متوسط
@@ -149,6 +155,7 @@ class RecommendationPriority(str, Enum):
 
 class PlanStatus(str, Enum):
     """Status of rotation plan"""
+
     DRAFT = "draft"  # مسودة
     ACTIVE = "active"  # نشط
     COMPLETED = "completed"  # مكتمل
@@ -167,6 +174,7 @@ class CropCharacteristics:
     Agronomic characteristics of a crop
     الخصائص الزراعية للمحصول
     """
+
     crop_type: CropType
     crop_family: CropFamily
 
@@ -242,6 +250,7 @@ class RotationSlot:
     Single slot in a rotation sequence
     خانة واحدة في تسلسل الدورة الزراعية
     """
+
     slot_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Crop assignment
@@ -282,8 +291,12 @@ class RotationSlot:
             "crop_variety": self.crop_variety,
             "season": self.season.value,
             "year": self.year,
-            "planned_planting_date": self.planned_planting_date.isoformat() if self.planned_planting_date else None,
-            "planned_harvest_date": self.planned_harvest_date.isoformat() if self.planned_harvest_date else None,
+            "planned_planting_date": self.planned_planting_date.isoformat()
+            if self.planned_planting_date
+            else None,
+            "planned_harvest_date": self.planned_harvest_date.isoformat()
+            if self.planned_harvest_date
+            else None,
             "area_ha": self.area_ha,
             "expected_yield_tons_ha": self.expected_yield_tons_ha,
             "expected_nitrogen_contribution_kg_ha": self.expected_nitrogen_contribution_kg_ha,
@@ -300,6 +313,7 @@ class RotationSequence:
     Multi-year crop rotation sequence
     تسلسل الدورة الزراعية متعدد السنوات
     """
+
     sequence_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Identification
@@ -366,6 +380,7 @@ class RotationPlan:
     Complete rotation plan for a field
     خطة الدورة الزراعية الكاملة للحقل
     """
+
     plan_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Identification
@@ -450,6 +465,7 @@ class PestDiseaseRisk:
     Pest or disease risk assessment for rotation planning
     تقييم مخاطر الآفات أو الأمراض لتخطيط الدورة
     """
+
     risk_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Identification
@@ -512,6 +528,7 @@ class PestBreakRecommendation:
     Recommendation for pest/disease break through rotation
     توصية لكسر دورة الآفات/الأمراض من خلال الدورة الزراعية
     """
+
     recommendation_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -569,6 +586,7 @@ class SoilHealthMeasurement:
     Single soil health measurement
     قياس واحد لصحة التربة
     """
+
     measurement_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Location
@@ -651,6 +669,7 @@ class SoilHealthTrend:
     Soil health trend over multiple measurements
     اتجاه صحة التربة عبر قياسات متعددة
     """
+
     trend_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -714,6 +733,7 @@ class SoilHealthReport:
     Comprehensive soil health report
     تقرير شامل عن صحة التربة
     """
+
     report_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -772,7 +792,9 @@ class SoilHealthReport:
             "field_name_ar": self.field_name_ar,
             "report_date": self.report_date.isoformat(),
             "reporting_period_years": self.reporting_period_years,
-            "latest_measurement": self.latest_measurement.to_dict() if self.latest_measurement else None,
+            "latest_measurement": self.latest_measurement.to_dict()
+            if self.latest_measurement
+            else None,
             "trends": [t.to_dict() for t in self.trends],
             "overall_score": self.overall_score,
             "overall_rating": self.overall_rating,
@@ -801,6 +823,7 @@ class NutrientBalance:
     Nutrient balance calculation for rotation
     حساب توازن المغذيات للدورة الزراعية
     """
+
     balance_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -880,6 +903,7 @@ class RotationRecommendation:
     AI-generated rotation recommendation
     توصية الدورة الزراعية المولدة بالذكاء الاصطناعي
     """
+
     recommendation_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -979,6 +1003,7 @@ class MultiYearPlan:
     Multi-year rotation and planning analysis
     تحليل الدورة الزراعية والتخطيط متعدد السنوات
     """
+
     plan_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -1080,6 +1105,7 @@ class CropHistoryRecord:
     Historical record of a crop grown in a field
     سجل تاريخي لمحصول زُرع في حقل
     """
+
     record_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Context
@@ -1158,6 +1184,7 @@ class FieldRotationHistory:
     Complete rotation history for a field
     سجل الدورة الزراعية الكامل للحقل
     """
+
     history_id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Field info
@@ -1193,11 +1220,7 @@ class FieldRotationHistory:
 
     def get_last_n_crops(self, n: int = 5) -> list[CropType]:
         """Get the last N crops grown"""
-        sorted_records = sorted(
-            self.records,
-            key=lambda r: (r.year, r.season.value),
-            reverse=True
-        )
+        sorted_records = sorted(self.records, key=lambda r: (r.year, r.season.value), reverse=True)
         return [r.crop_type for r in sorted_records[:n]]
 
     def get_years_since_crop(self, crop_type: CropType) -> int | None:
@@ -1205,6 +1228,7 @@ class FieldRotationHistory:
         for record in sorted(self.records, key=lambda r: r.year, reverse=True):
             if record.crop_type == crop_type:
                 from datetime import date
+
                 current_year = date.today().year
                 return current_year - record.year
         return None

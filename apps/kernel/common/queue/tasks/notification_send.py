@@ -14,7 +14,6 @@ import logging
 import os
 
 
-
 from datetime import datetime, timezone, UTC
 
 from enum import Enum
@@ -294,8 +293,7 @@ def _send_multicast_push(
             logger.warning(f"Failed to send to {len(failed_tokens)} tokens")
 
         logger.info(
-            f"Multicast sent: {response.success_count} success, "
-            f"{response.failure_count} failed"
+            f"Multicast sent: {response.success_count} success, {response.failure_count} failed"
         )
 
         return {
@@ -353,8 +351,7 @@ def _log_delivery_status(
         )
     else:
         logger.info(
-            f"Notification status: {status} | "
-            f"id={notification_id} channel={channel} user={user_id}"
+            f"Notification status: {status} | id={notification_id} channel={channel} user={user_id}"
         )
 
     return log_entry

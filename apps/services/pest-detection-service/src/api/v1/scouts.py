@@ -26,6 +26,7 @@ router = APIRouter()
 
 class InfestationLevel(str, Enum):
     """Infestation level assessment."""
+
     NONE = "none"
     TRACE = "trace"
     LOW = "low"
@@ -36,6 +37,7 @@ class InfestationLevel(str, Enum):
 
 class ReportStatus(str, Enum):
     """Scout report status."""
+
     DRAFT = "draft"
     SUBMITTED = "submitted"
     REVIEWED = "reviewed"
@@ -50,6 +52,7 @@ class ReportStatus(str, Enum):
 
 class GPSLocation(BaseModel):
     """GPS coordinates."""
+
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     accuracy_m: float | None = None
@@ -57,6 +60,7 @@ class GPSLocation(BaseModel):
 
 class Observation(BaseModel):
     """Single pest observation."""
+
     id: str = Field(default_factory=lambda: str(uuid4()))
     pest_id: str
     pest_name_en: str | None = None
@@ -74,6 +78,7 @@ class Observation(BaseModel):
 
 class ScoutReportCreate(BaseModel):
     """Create scout report request."""
+
     field_id: str
     crop: str
     growth_stage: str | None = None
@@ -86,6 +91,7 @@ class ScoutReportCreate(BaseModel):
 
 class ScoutReport(BaseModel):
     """Scout report model."""
+
     id: str = Field(default_factory=lambda: str(uuid4()))
     field_id: str
     crop: str
@@ -104,6 +110,7 @@ class ScoutReport(BaseModel):
 
 class ObservationCreate(BaseModel):
     """Add observation to report."""
+
     pest_id: str
     location: GPSLocation | None = None
     infestation_level: InfestationLevel
@@ -336,10 +343,7 @@ async def get_scouting_statistics(
 
     cutoff = datetime.utcnow() - timedelta(days=days)
 
-    reports = [
-        r for r in REPORTS_DB.values()
-        if r.created_at >= cutoff
-    ]
+    reports = [r for r in REPORTS_DB.values() if r.created_at >= cutoff]
 
     if field_id:
         reports = [r for r in reports if r.field_id == field_id]
@@ -362,7 +366,6 @@ async def get_scouting_statistics(
         "total_observations": total_observations,
         "top_pests": [{"pest_id": p[0], "count": p[1]} for p in top_pests],
         "reports_by_status": {
-            status.value: len([r for r in reports if r.status == status])
-            for status in ReportStatus
+            status.value: len([r for r in reports if r.status == status]) for status in ReportStatus
         },
     }

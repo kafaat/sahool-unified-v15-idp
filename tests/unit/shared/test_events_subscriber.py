@@ -649,9 +649,7 @@ class TestSingletonSubscriber:
                     mock_nc = AsyncMock()
                     mock_nats.connect = AsyncMock(return_value=mock_nc)
 
-                    subscriber = await get_subscriber(
-                        service_name="test", service_version="1.0"
-                    )
+                    subscriber = await get_subscriber(service_name="test", service_version="1.0")
 
                     assert subscriber is not None
 

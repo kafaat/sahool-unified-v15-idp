@@ -157,21 +157,23 @@ class HMCChecklist:
         """Initialize checklist items for session"""
         for category, items in self.CHECKLIST_ITEMS.items():
             for item in items:
-                self.items.append({
-                    "item_id": str(uuid.uuid4()),
-                    "session_id": self.session_id,
-                    "category": category,
-                    "order": item["order"],
-                    "title_en": item["title_en"],
-                    "title_ar": item["title_ar"],
-                    "description_en": item.get("description_en"),
-                    "description_ar": item.get("description_ar"),
-                    "is_required": item["is_required"],
-                    "is_completed": False,
-                    "completed_at": None,
-                    "completed_by": None,
-                    "validation_data": None,
-                })
+                self.items.append(
+                    {
+                        "item_id": str(uuid.uuid4()),
+                        "session_id": self.session_id,
+                        "category": category,
+                        "order": item["order"],
+                        "title_en": item["title_en"],
+                        "title_ar": item["title_ar"],
+                        "description_en": item.get("description_en"),
+                        "description_ar": item.get("description_ar"),
+                        "is_required": item["is_required"],
+                        "is_completed": False,
+                        "completed_at": None,
+                        "completed_by": None,
+                        "validation_data": None,
+                    }
+                )
 
     def get_items_by_category(self, category: str) -> list[dict[str, Any]]:
         """Get checklist items by category"""
@@ -201,10 +203,7 @@ class HMCChecklist:
     def get_incomplete_items(self, required_only: bool = True) -> list[dict[str, Any]]:
         """Get list of incomplete items"""
         if required_only:
-            return [
-                item for item in self.items
-                if item["is_required"] and not item["is_completed"]
-            ]
+            return [item for item in self.items if item["is_required"] and not item["is_completed"]]
         return [item for item in self.items if not item["is_completed"]]
 
     def get_completion_status(self) -> dict[str, Any]:
@@ -212,10 +211,9 @@ class HMCChecklist:
         total = len(self.items)
         completed = len([item for item in self.items if item["is_completed"]])
         required_total = len([item for item in self.items if item["is_required"]])
-        required_completed = len([
-            item for item in self.items
-            if item["is_required"] and item["is_completed"]
-        ])
+        required_completed = len(
+            [item for item in self.items if item["is_required"] and item["is_completed"]]
+        )
 
         return {
             "total_items": total,
@@ -224,8 +222,7 @@ class HMCChecklist:
             "required_items": required_total,
             "required_completed": required_completed,
             "required_completion_percent": (
-                (required_completed / required_total * 100)
-                if required_total > 0 else 0
+                (required_completed / required_total * 100) if required_total > 0 else 0
             ),
             "is_complete": self.is_complete(),
         }
@@ -256,8 +253,7 @@ class TestGoalAnchoringChecklistItems:
         items = checklist.get_items_by_category("goal_anchoring")
 
         water_savings_items = [
-            item for item in items
-            if "water savings" in item["title_en"].lower()
+            item for item in items if "water savings" in item["title_en"].lower()
         ]
         assert len(water_savings_items) == 1
         assert water_savings_items[0]["is_required"] is True
@@ -267,10 +263,7 @@ class TestGoalAnchoringChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("goal_anchoring")
 
-        yield_items = [
-            item for item in items
-            if "yield threshold" in item["title_en"].lower()
-        ]
+        yield_items = [item for item in items if "yield threshold" in item["title_en"].lower()]
         assert len(yield_items) == 1
         assert yield_items[0]["is_required"] is True
 
@@ -279,10 +272,7 @@ class TestGoalAnchoringChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("goal_anchoring")
 
-        ecological_items = [
-            item for item in items
-            if "ecological" in item["title_en"].lower()
-        ]
+        ecological_items = [item for item in items if "ecological" in item["title_en"].lower()]
         assert len(ecological_items) == 1
 
     def test_goal_anchoring_items_have_arabic_titles(self):
@@ -320,8 +310,7 @@ class TestExperienceInjectionChecklistItems:
         items = checklist.get_items_by_category("experience_injection")
 
         farmer_exp_items = [
-            item for item in items
-            if "farmer experience" in item["title_en"].lower()
+            item for item in items if "farmer experience" in item["title_en"].lower()
         ]
         assert len(farmer_exp_items) == 1
 
@@ -330,10 +319,7 @@ class TestExperienceInjectionChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("experience_injection")
 
-        reward_items = [
-            item for item in items
-            if "reward" in item["title_en"].lower()
-        ]
+        reward_items = [item for item in items if "reward" in item["title_en"].lower()]
         assert len(reward_items) == 1
         assert reward_items[0]["is_required"] is True
 
@@ -371,10 +357,7 @@ class TestSupervisionChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("supervision")
 
-        simulation_items = [
-            item for item in items
-            if "simulation" in item["title_en"].lower()
-        ]
+        simulation_items = [item for item in items if "simulation" in item["title_en"].lower()]
         assert len(simulation_items) == 1
         assert simulation_items[0]["is_required"] is True
 
@@ -383,10 +366,7 @@ class TestSupervisionChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("supervision")
 
-        emergency_items = [
-            item for item in items
-            if "emergency" in item["title_en"].lower()
-        ]
+        emergency_items = [item for item in items if "emergency" in item["title_en"].lower()]
         assert len(emergency_items) == 1
         assert emergency_items[0]["is_required"] is True
 
@@ -395,10 +375,7 @@ class TestSupervisionChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("supervision")
 
-        sensor_items = [
-            item for item in items
-            if "sensor" in item["title_en"].lower()
-        ]
+        sensor_items = [item for item in items if "sensor" in item["title_en"].lower()]
         assert len(sensor_items) == 1
 
     def test_all_supervision_items_are_required(self):
@@ -434,10 +411,7 @@ class TestValueUpgradeChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("value_upgrade")
 
-        weather_items = [
-            item for item in items
-            if "weather" in item["title_en"].lower()
-        ]
+        weather_items = [item for item in items if "weather" in item["title_en"].lower()]
         assert len(weather_items) == 1
         assert weather_items[0]["is_required"] is True
 
@@ -446,10 +420,7 @@ class TestValueUpgradeChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("value_upgrade")
 
-        fert_items = [
-            item for item in items
-            if "fertilization" in item["title_en"].lower()
-        ]
+        fert_items = [item for item in items if "fertilization" in item["title_en"].lower()]
         assert len(fert_items) == 1
 
     def test_value_upgrade_has_carbon_impact_item(self):
@@ -457,10 +428,7 @@ class TestValueUpgradeChecklistItems:
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
         items = checklist.get_items_by_category("value_upgrade")
 
-        carbon_items = [
-            item for item in items
-            if "carbon" in item["title_en"].lower()
-        ]
+        carbon_items = [item for item in items if "carbon" in item["title_en"].lower()]
         assert len(carbon_items) == 1
 
 
@@ -530,10 +498,7 @@ class TestChecklistValidation:
 
         # Verify there are incomplete optional items
         incomplete = checklist.get_incomplete_items(required_only=False)
-        optional_incomplete = [
-            item for item in incomplete
-            if not item["is_required"]
-        ]
+        optional_incomplete = [item for item in incomplete if not item["is_required"]]
         assert len(optional_incomplete) > 0
 
 
@@ -559,10 +524,7 @@ class TestGetIncompleteItems:
         """Test getting only required incomplete items"""
         checklist = HMCChecklist(session_id=str(uuid.uuid4()))
 
-        required_count = len([
-            item for item in checklist.items
-            if item["is_required"]
-        ])
+        required_count = len([item for item in checklist.items if item["is_required"]])
 
         incomplete = checklist.get_incomplete_items(required_only=True)
         assert len(incomplete) == required_count
@@ -613,7 +575,7 @@ class TestArabicLabels:
             assert item["title_ar"] is not None
             assert len(item["title_ar"]) > 0
             # Verify it contains Arabic characters
-            assert any("\u0600" <= char <= "\u06FF" for char in item["title_ar"])
+            assert any("\u0600" <= char <= "\u06ff" for char in item["title_ar"])
 
     def test_all_items_have_arabic_descriptions(self):
         """Test all items have Arabic descriptions"""
@@ -623,7 +585,7 @@ class TestArabicLabels:
             if item["description_ar"] is not None:
                 assert len(item["description_ar"]) > 0
                 # Verify it contains Arabic characters
-                assert any("\u0600" <= char <= "\u06FF" for char in item["description_ar"])
+                assert any("\u0600" <= char <= "\u06ff" for char in item["description_ar"])
 
     def test_arabic_title_not_same_as_english(self):
         """Test Arabic titles are different from English"""
@@ -638,18 +600,14 @@ class TestArabicLabels:
 
         # Check water savings goal translation
         water_items = [
-            item for item in checklist.items
-            if "water savings" in item["title_en"].lower()
+            item for item in checklist.items if "water savings" in item["title_en"].lower()
         ]
         assert len(water_items) > 0
         # Should contain "مياه" (water) in Arabic
         assert "مياه" in water_items[0]["title_ar"]
 
         # Check simulation translation
-        sim_items = [
-            item for item in checklist.items
-            if "simulation" in item["title_en"].lower()
-        ]
+        sim_items = [item for item in checklist.items if "simulation" in item["title_en"].lower()]
         assert len(sim_items) > 0
         # Should contain "محاكاة" (simulation) in Arabic
         assert "محاكاة" in sim_items[0]["title_ar"]

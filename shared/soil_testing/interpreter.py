@@ -307,28 +307,67 @@ STATUS_TRANSLATIONS: dict[NutrientStatus, dict] = {
 # Multipliers for threshold adjustments by crop
 CROP_SENSITIVITY: dict[str, dict[str, float]] = {
     "wheat": {
-        "N": 1.0, "P": 1.0, "K": 1.0, "Fe": 0.8, "Zn": 1.2, "B": 0.9,
+        "N": 1.0,
+        "P": 1.0,
+        "K": 1.0,
+        "Fe": 0.8,
+        "Zn": 1.2,
+        "B": 0.9,
     },
     "barley": {
-        "N": 0.9, "P": 1.0, "K": 1.0, "Fe": 0.8, "Zn": 1.0, "B": 0.8,
+        "N": 0.9,
+        "P": 1.0,
+        "K": 1.0,
+        "Fe": 0.8,
+        "Zn": 1.0,
+        "B": 0.8,
     },
     "tomato": {
-        "N": 1.2, "P": 1.1, "K": 1.3, "Ca": 1.5, "Mg": 1.2, "B": 1.3,
+        "N": 1.2,
+        "P": 1.1,
+        "K": 1.3,
+        "Ca": 1.5,
+        "Mg": 1.2,
+        "B": 1.3,
     },
     "cucumber": {
-        "N": 1.1, "P": 1.0, "K": 1.2, "Ca": 1.2, "Mg": 1.1, "B": 1.2,
+        "N": 1.1,
+        "P": 1.0,
+        "K": 1.2,
+        "Ca": 1.2,
+        "Mg": 1.1,
+        "B": 1.2,
     },
     "date_palm": {
-        "N": 0.8, "P": 0.9, "K": 1.3, "Fe": 1.5, "Mn": 1.3, "Zn": 1.4,
+        "N": 0.8,
+        "P": 0.9,
+        "K": 1.3,
+        "Fe": 1.5,
+        "Mn": 1.3,
+        "Zn": 1.4,
     },
     "alfalfa": {
-        "N": 0.3, "P": 1.2, "K": 1.4, "B": 1.5, "Mo": 1.5,
+        "N": 0.3,
+        "P": 1.2,
+        "K": 1.4,
+        "B": 1.5,
+        "Mo": 1.5,
     },
     "potato": {
-        "N": 1.1, "P": 1.2, "K": 1.4, "Ca": 1.0, "Mg": 1.1, "B": 1.0,
+        "N": 1.1,
+        "P": 1.2,
+        "K": 1.4,
+        "Ca": 1.0,
+        "Mg": 1.1,
+        "B": 1.0,
     },
     "onion": {
-        "N": 1.0, "P": 1.0, "K": 1.1, "S": 1.5, "Cu": 1.2, "Zn": 1.1,
+        "N": 1.0,
+        "P": 1.0,
+        "K": 1.1,
+        "S": 1.5,
+        "Cu": 1.2,
+        "Zn": 1.1,
     },
 }
 
@@ -336,6 +375,7 @@ CROP_SENSITIVITY: dict[str, dict[str, float]] = {
 @dataclass
 class InterpretationConfig:
     """Configuration for soil test interpretation - إعدادات تفسير تحليل التربة"""
+
     # Regional adjustments
     region: str = "middle_east"
     soil_type: SoilType | None = None
@@ -448,9 +488,7 @@ class SoilTestInterpreter:
         salinity_status, salinity_status_ar = "", ""
 
         if soil_test.soil_properties:
-            ec_status, ec_status_ar = self._interpret_ec(
-                soil_test.soil_properties.ec_ds_m
-            )
+            ec_status, ec_status_ar = self._interpret_ec(soil_test.soil_properties.ec_ds_m)
             salinity_status = ec_status
             salinity_status_ar = ec_status_ar
             om_status, om_status_ar = self._interpret_om(
@@ -471,8 +509,7 @@ class SoilTestInterpreter:
 
         # Generate summary
         summary_en, summary_ar = self._generate_summary(
-            deficiencies, excesses, ph_status, ec_status, om_status,
-            fertility_score, crop
+            deficiencies, excesses, ph_status, ec_status, om_status, fertility_score, crop
         )
 
         # Generate immediate actions
@@ -541,9 +578,7 @@ class SoilTestInterpreter:
 
         # Apply pH corrections for availability
         if self.config.apply_ph_corrections:
-            adjusted_value = self._apply_ph_correction(
-                nutrient_code, adjusted_value, ph
-            )
+            adjusted_value = self._apply_ph_correction(nutrient_code, adjusted_value, ph)
 
         # Determine status
         status = self._value_to_status(adjusted_value, thresholds)
@@ -577,9 +612,7 @@ class SoilTestInterpreter:
         )
 
         # Generate crop impact
-        crop_impact, crop_impact_ar = self._generate_crop_impact(
-            nutrient_code, status, crop
-        )
+        crop_impact, crop_impact_ar = self._generate_crop_impact(nutrient_code, status, crop)
 
         return NutrientInterpretation(
             nutrient_code=nutrient_code,
@@ -617,19 +650,13 @@ class SoilTestInterpreter:
         n_value = macros.available_nitrogen_ppm
         if n_value == 0:
             n_value = macros.nitrogen_total_percent * 10000 * 0.02  # Rough estimate
-        interpretations.append(
-            self.interpret_single_nutrient("N", n_value, ph, crop)
-        )
+        interpretations.append(self.interpret_single_nutrient("N", n_value, ph, crop))
 
         # Phosphorus
-        interpretations.append(
-            self.interpret_single_nutrient("P", macros.phosphorus_ppm, ph, crop)
-        )
+        interpretations.append(self.interpret_single_nutrient("P", macros.phosphorus_ppm, ph, crop))
 
         # Potassium
-        interpretations.append(
-            self.interpret_single_nutrient("K", macros.potassium_ppm, ph, crop)
-        )
+        interpretations.append(self.interpret_single_nutrient("K", macros.potassium_ppm, ph, crop))
 
         # Calcium
         if macros.calcium_ppm > 0:
@@ -645,9 +672,7 @@ class SoilTestInterpreter:
 
         # Sulfur
         if macros.sulfur_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("S", macros.sulfur_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("S", macros.sulfur_ppm, ph, crop))
 
         return interpretations
 
@@ -662,15 +687,11 @@ class SoilTestInterpreter:
 
         # Iron
         if micros.iron_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Fe", micros.iron_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Fe", micros.iron_ppm, ph, crop))
 
         # Zinc
         if micros.zinc_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("Zn", micros.zinc_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("Zn", micros.zinc_ppm, ph, crop))
 
         # Manganese
         if micros.manganese_ppm > 0:
@@ -686,9 +707,7 @@ class SoilTestInterpreter:
 
         # Boron
         if micros.boron_ppm > 0:
-            interpretations.append(
-                self.interpret_single_nutrient("B", micros.boron_ppm, ph, crop)
-            )
+            interpretations.append(self.interpret_single_nutrient("B", micros.boron_ppm, ph, crop))
 
         # Molybdenum
         if micros.molybdenum_ppm > 0:
@@ -783,7 +802,10 @@ class SoilTestInterpreter:
         elif ph <= thresholds["alkaline"]:
             return "Alkaline - monitor micronutrients", "قلوية - راقب العناصر الصغرى"
         else:
-            return "Very alkaline - may need sulfur or acidifiers", "قلوية جداً - قد يحتاج كبريت أو محمضات"
+            return (
+                "Very alkaline - may need sulfur or acidifiers",
+                "قلوية جداً - قد يحتاج كبريت أو محمضات",
+            )
 
     def _interpret_ec(self, ec: float) -> tuple[str, str]:
         """Interpret electrical conductivity (salinity)"""
@@ -794,7 +816,10 @@ class SoilTestInterpreter:
         elif ec < thresholds["slightly_saline"]:
             return "Slightly saline", "ملحي قليلاً"
         elif ec < thresholds["moderately_saline"]:
-            return "Moderately saline - sensitive crops affected", "ملحي بشكل معتدل - يؤثر على المحاصيل الحساسة"
+            return (
+                "Moderately saline - sensitive crops affected",
+                "ملحي بشكل معتدل - يؤثر على المحاصيل الحساسة",
+            )
         elif ec < thresholds["strongly_saline"]:
             return "Strongly saline - most crops affected", "ملحي بشدة - يؤثر على معظم المحاصيل"
         else:
@@ -805,7 +830,10 @@ class SoilTestInterpreter:
         thresholds = self.property_thresholds["OM"]
 
         if om < thresholds["very_low"]:
-            return "Very low - add organic matter urgently", "منخفض جداً - أضف المادة العضوية بشكل عاجل"
+            return (
+                "Very low - add organic matter urgently",
+                "منخفض جداً - أضف المادة العضوية بشكل عاجل",
+            )
         elif om < thresholds["low"]:
             return "Low - increase organic inputs", "منخفض - زد من المدخلات العضوية"
         elif om < thresholds["moderate"]:
@@ -845,11 +873,17 @@ class SoilTestInterpreter:
         summary_en_parts = []
 
         if fertility_score >= 80:
-            summary_en_parts.append(f"Overall soil fertility is good (score: {fertility_score:.0f}/100).")
+            summary_en_parts.append(
+                f"Overall soil fertility is good (score: {fertility_score:.0f}/100)."
+            )
         elif fertility_score >= 60:
-            summary_en_parts.append(f"Soil fertility is moderate (score: {fertility_score:.0f}/100).")
+            summary_en_parts.append(
+                f"Soil fertility is moderate (score: {fertility_score:.0f}/100)."
+            )
         else:
-            summary_en_parts.append(f"Soil fertility needs improvement (score: {fertility_score:.0f}/100).")
+            summary_en_parts.append(
+                f"Soil fertility needs improvement (score: {fertility_score:.0f}/100)."
+            )
 
         if deficiencies:
             summary_en_parts.append(f"Deficient nutrients: {', '.join(deficiencies)}.")
@@ -870,11 +904,15 @@ class SoilTestInterpreter:
         summary_ar_parts = []
 
         if fertility_score >= 80:
-            summary_ar_parts.append(f"خصوبة التربة العامة جيدة (الدرجة: {fertility_score:.0f}/100).")
+            summary_ar_parts.append(
+                f"خصوبة التربة العامة جيدة (الدرجة: {fertility_score:.0f}/100)."
+            )
         elif fertility_score >= 60:
             summary_ar_parts.append(f"خصوبة التربة متوسطة (الدرجة: {fertility_score:.0f}/100).")
         else:
-            summary_ar_parts.append(f"خصوبة التربة تحتاج تحسين (الدرجة: {fertility_score:.0f}/100).")
+            summary_ar_parts.append(
+                f"خصوبة التربة تحتاج تحسين (الدرجة: {fertility_score:.0f}/100)."
+            )
 
         if deficiencies:
             deficiencies_ar_text = self._translate_nutrient_list(deficiencies)
@@ -978,36 +1016,71 @@ class SoilTestInterpreter:
         """Generate crop-specific impact description"""
         impacts = {
             "N": {
-                "deficient": ("Yellowing leaves, stunted growth, reduced yield", "اصفرار الأوراق، تقزم النمو، انخفاض الإنتاجية"),
-                "excessive": ("Excessive vegetative growth, delayed maturity, disease susceptibility", "نمو خضري مفرط، تأخر النضج، قابلية للأمراض"),
+                "deficient": (
+                    "Yellowing leaves, stunted growth, reduced yield",
+                    "اصفرار الأوراق، تقزم النمو، انخفاض الإنتاجية",
+                ),
+                "excessive": (
+                    "Excessive vegetative growth, delayed maturity, disease susceptibility",
+                    "نمو خضري مفرط، تأخر النضج، قابلية للأمراض",
+                ),
             },
             "P": {
-                "deficient": ("Purple discoloration, poor root development, delayed maturity", "تلون أرجواني، ضعف نمو الجذور، تأخر النضج"),
-                "excessive": ("May induce micronutrient deficiencies (Zn, Fe)", "قد يسبب نقص العناصر الصغرى (زنك، حديد)"),
+                "deficient": (
+                    "Purple discoloration, poor root development, delayed maturity",
+                    "تلون أرجواني، ضعف نمو الجذور، تأخر النضج",
+                ),
+                "excessive": (
+                    "May induce micronutrient deficiencies (Zn, Fe)",
+                    "قد يسبب نقص العناصر الصغرى (زنك، حديد)",
+                ),
             },
             "K": {
-                "deficient": ("Leaf edge scorch, weak stems, poor fruit quality", "احتراق حواف الأوراق، سيقان ضعيفة، جودة ثمار منخفضة"),
-                "excessive": ("May inhibit Ca and Mg uptake", "قد يثبط امتصاص الكالسيوم والمغنيسيوم"),
+                "deficient": (
+                    "Leaf edge scorch, weak stems, poor fruit quality",
+                    "احتراق حواف الأوراق، سيقان ضعيفة، جودة ثمار منخفضة",
+                ),
+                "excessive": (
+                    "May inhibit Ca and Mg uptake",
+                    "قد يثبط امتصاص الكالسيوم والمغنيسيوم",
+                ),
             },
             "Fe": {
-                "deficient": ("Interveinal chlorosis on young leaves", "اصفرار بين العروق في الأوراق الحديثة"),
+                "deficient": (
+                    "Interveinal chlorosis on young leaves",
+                    "اصفرار بين العروق في الأوراق الحديثة",
+                ),
                 "excessive": ("Rare in field conditions", "نادر في ظروف الحقل"),
             },
             "Zn": {
-                "deficient": ("Small leaves, shortened internodes, mottled appearance", "أوراق صغيرة، سلاميات قصيرة، مظهر مرقط"),
-                "excessive": ("Stunted growth, Fe deficiency symptoms", "تقزم النمو، أعراض نقص الحديد"),
+                "deficient": (
+                    "Small leaves, shortened internodes, mottled appearance",
+                    "أوراق صغيرة، سلاميات قصيرة، مظهر مرقط",
+                ),
+                "excessive": (
+                    "Stunted growth, Fe deficiency symptoms",
+                    "تقزم النمو، أعراض نقص الحديد",
+                ),
             },
             "B": {
-                "deficient": ("Hollow stems, cracked fruits, poor pollination", "سيقان جوفاء، ثمار متشققة، تلقيح ضعيف"),
+                "deficient": (
+                    "Hollow stems, cracked fruits, poor pollination",
+                    "سيقان جوفاء، ثمار متشققة، تلقيح ضعيف",
+                ),
                 "excessive": ("Leaf tip and edge burn", "احتراق أطراف وحواف الأوراق"),
             },
         }
 
-        status_key = "deficient" if status in [
-            NutrientStatus.VERY_DEFICIENT,
-            NutrientStatus.DEFICIENT,
-            NutrientStatus.LOW,
-        ] else "excessive"
+        status_key = (
+            "deficient"
+            if status
+            in [
+                NutrientStatus.VERY_DEFICIENT,
+                NutrientStatus.DEFICIENT,
+                NutrientStatus.LOW,
+            ]
+            else "excessive"
+        )
 
         if nutrient in impacts and status_key in impacts[nutrient]:
             return impacts[nutrient][status_key]

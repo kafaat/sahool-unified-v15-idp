@@ -290,9 +290,7 @@ class YOLO26ModelManager:
 
                 # Load in thread pool to avoid blocking
                 loop = asyncio.get_event_loop()
-                model = await loop.run_in_executor(
-                    None, self._load_model_sync, model_path
-                )
+                model = await loop.run_in_executor(None, self._load_model_sync, model_path)
 
                 # Apply TensorRT optimization if enabled
                 if self.enable_tensorrt:
@@ -345,6 +343,7 @@ class YOLO26ModelManager:
             if engine_path.exists():
                 logger.info("loading_tensorrt_engine", path=str(engine_path))
                 from ultralytics import YOLO
+
                 return YOLO(str(engine_path))
 
             logger.info("exporting_tensorrt_engine", path=str(engine_path))
@@ -360,6 +359,7 @@ class YOLO26ModelManager:
 
             if engine_path.exists():
                 from ultralytics import YOLO
+
                 return YOLO(str(engine_path))
 
             logger.warning("tensorrt_export_failed", falling_back_to="pytorch")

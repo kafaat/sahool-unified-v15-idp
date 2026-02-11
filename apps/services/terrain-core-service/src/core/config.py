@@ -49,9 +49,7 @@ class Settings(BaseSettings):
     VERSION: str = "16.0.0"
     DEBUG: bool = Field(default=False, description="Debug mode | وضع التصحيح")
     PORT: int = Field(default=8185, description="Service port | منفذ الخدمة")
-    ENVIRONMENT: str = Field(
-        default="development", description="Environment | البيئة"
-    )
+    ENVIRONMENT: str = Field(default="development", description="Environment | البيئة")
 
     # Database Configuration
     DATABASE_URL: str | None = Field(
@@ -62,17 +60,11 @@ class Settings(BaseSettings):
     DB_POOL_MAX_SIZE: int = Field(default=10, description="Max pool size")
 
     # NATS Configuration
-    NATS_URL: str | None = Field(
-        default=None, description="NATS server URL | رابط خادم NATS"
-    )
-    NATS_SUBJECT_PREFIX: str = Field(
-        default="sahool.terrain", description="NATS subject prefix"
-    )
+    NATS_URL: str | None = Field(default=None, description="NATS server URL | رابط خادم NATS")
+    NATS_SUBJECT_PREFIX: str = Field(default="sahool.terrain", description="NATS subject prefix")
 
     # Redis Configuration
-    REDIS_URL: str | None = Field(
-        default=None, description="Redis URL | رابط Redis"
-    )
+    REDIS_URL: str | None = Field(default=None, description="Redis URL | رابط Redis")
     CACHE_TTL_SECONDS: int = Field(
         default=3600, description="Cache TTL in seconds | مدة التخزين المؤقت"
     )
@@ -125,9 +117,7 @@ class Settings(BaseSettings):
     )
 
     # Storage Configuration
-    TEMP_DIR: str = Field(
-        default="/tmp/terrain", description="Temporary directory | المجلد المؤقت"
-    )
+    TEMP_DIR: str = Field(default="/tmp/terrain", description="Temporary directory | المجلد المؤقت")
     MAX_UPLOAD_SIZE_MB: int = Field(
         default=500, description="Maximum upload size in MB | أقصى حجم للرفع"
     )
@@ -137,17 +127,13 @@ class Settings(BaseSettings):
     )
 
     # S3 Configuration (for DEM storage)
-    S3_BUCKET: str | None = Field(
-        default=None, description="S3 bucket for DEM files"
-    )
+    S3_BUCKET: str | None = Field(default=None, description="S3 bucket for DEM files")
     AWS_ACCESS_KEY_ID: str | None = Field(default=None)
     AWS_SECRET_ACCESS_KEY: str | None = Field(default=None)
     AWS_REGION: str = Field(default="me-south-1", description="AWS region")
 
     # Logging
-    LOG_LEVEL: str = Field(
-        default="INFO", description="Logging level | مستوى التسجيل"
-    )
+    LOG_LEVEL: str = Field(default="INFO", description="Logging level | مستوى التسجيل")
 
     model_config = SettingsConfigDict(
         env_file=".env",

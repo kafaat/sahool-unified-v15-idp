@@ -37,6 +37,7 @@ from .models import (
 
 class SchedulingStrategy(str, Enum):
     """Scheduling strategy options - خيارات استراتيجية الجدولة"""
+
     SKILL_PRIORITY = "skill_priority"  # أولوية المهارات - Assign most skilled workers first
     WORKLOAD_BALANCE = "workload_balance"  # توازن العبء - Distribute work evenly
     AVAILABILITY_FIRST = "availability_first"  # الإتاحة أولاً - Assign available workers
@@ -46,6 +47,7 @@ class SchedulingStrategy(str, Enum):
 
 class SchedulingConflictType(str, Enum):
     """Types of scheduling conflicts - أنواع تعارضات الجدولة"""
+
     WORKER_UNAVAILABLE = "worker_unavailable"  # العامل غير متاح
     SKILL_MISMATCH = "skill_mismatch"  # عدم تطابق المهارات
     CERTIFICATION_MISSING = "certification_missing"  # الشهادة مفقودة
@@ -60,6 +62,7 @@ class SchedulingConflictType(str, Enum):
 @dataclass
 class SchedulingConflict:
     """Scheduling conflict details - تفاصيل تعارض الجدولة"""
+
     conflict_type: SchedulingConflictType
     worker_id: str | None = None
     task_id: str | None = None
@@ -77,6 +80,7 @@ class SchedulingConflict:
 @dataclass
 class WorkerAvailability:
     """Worker availability status - حالة إتاحة العامل"""
+
     worker_id: str
     worker_name: str
     worker_name_ar: str
@@ -104,6 +108,7 @@ class WorkerAvailability:
 @dataclass
 class TaskAssignment:
     """Task assignment result - نتيجة تعيين المهمة"""
+
     task_id: str
     worker_ids: list[str]
 
@@ -127,6 +132,7 @@ class TaskAssignment:
 @dataclass
 class SchedulingResult:
     """Overall scheduling result - نتيجة الجدولة الشاملة"""
+
     # Assignments
     assignments: list[TaskAssignment] = field(default_factory=list)
 
@@ -153,6 +159,7 @@ class SchedulingResult:
 @dataclass
 class WorkerScore:
     """Scoring result for worker-task matching - نتيجة تسجيل تطابق العامل والمهمة"""
+
     worker_id: str
     task_id: str
     total_score: float = 0.0
@@ -254,37 +261,45 @@ class LaborScheduler:
                 worker_name_ar="غير معروف",
                 is_available=False,
                 availability_date=check_date,
-                conflicts=[SchedulingConflict(
-                    conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
-                    worker_id=worker_id,
-                    message_en="Worker not found",
-                    message_ar="العامل غير موجود",
-                )],
+                conflicts=[
+                    SchedulingConflict(
+                        conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
+                        worker_id=worker_id,
+                        message_en="Worker not found",
+                        message_ar="العامل غير موجود",
+                    )
+                ],
             )
 
         conflicts = []
 
         # Check worker status
         if worker.status != WorkerStatus.ACTIVE:
-            conflicts.append(SchedulingConflict(
-                conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
-                worker_id=worker_id,
-                message_en=f"Worker status is {worker.status.value}",
-                message_ar=f"حالة العامل {worker.status.value}",
-            ))
+            conflicts.append(
+                SchedulingConflict(
+                    conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
+                    worker_id=worker_id,
+                    message_en=f"Worker status is {worker.status.value}",
+                    message_ar=f"حالة العامل {worker.status.value}",
+                )
+            )
 
         # Check leave requests
         for leave in self.leave_requests:
-            if (leave.worker_id == worker_id and
-                leave.status == "approved" and
-                leave.start_date <= check_date <= leave.end_date):
-                conflicts.append(SchedulingConflict(
-                    conflict_type=SchedulingConflictType.ON_LEAVE,
-                    worker_id=worker_id,
-                    message_en=f"Worker on {leave.leave_type.value} leave",
-                    message_ar=f"العامل في إجازة {leave.leave_type.value}",
-                    details={"leave_type": leave.leave_type.value},
-                ))
+            if (
+                leave.worker_id == worker_id
+                and leave.status == "approved"
+                and leave.start_date <= check_date <= leave.end_date
+            ):
+                conflicts.append(
+                    SchedulingConflict(
+                        conflict_type=SchedulingConflictType.ON_LEAVE,
+                        worker_id=worker_id,
+                        message_en=f"Worker on {leave.leave_type.value} leave",
+                        message_ar=f"العامل في إجازة {leave.leave_type.value}",
+                        details={"leave_type": leave.leave_type.value},
+                    )
+                )
 
         # Get scheduled hours for the day
         scheduled_hours = 0.0
@@ -294,8 +309,10 @@ class LaborScheduler:
         shift_end = None
 
         for schedule in self.schedules:
-            if (schedule.worker_id == worker_id and
-                schedule.start_date <= check_date <= schedule.end_date):
+            if (
+                schedule.worker_id == worker_id
+                and schedule.start_date <= check_date <= schedule.end_date
+            ):
                 shift_id = schedule.shift_id
                 shift = self._shifts_by_id.get(shift_id)
                 if shift:
@@ -312,7 +329,9 @@ class LaborScheduler:
         )
         remaining_hours = max(0, scheduled_hours - task_hours)
 
-        is_available = len(conflicts) == 0 and (scheduled_hours > 0 or worker.worker_type.value in ["daily", "seasonal"])
+        is_available = len(conflicts) == 0 and (
+            scheduled_hours > 0 or worker.worker_type.value in ["daily", "seasonal"]
+        )
 
         return WorkerAvailability(
             worker_id=worker_id,
@@ -362,24 +381,28 @@ class LaborScheduler:
                 for skill_cat, min_level in required_skills:
                     if not worker.has_skill(skill_cat, min_level):
                         availability.is_available = False
-                        availability.conflicts.append(SchedulingConflict(
-                            conflict_type=SchedulingConflictType.SKILL_MISMATCH,
-                            worker_id=worker.worker_id,
-                            message_en=f"Missing required skill: {skill_cat.value}",
-                            message_ar=f"مهارة مطلوبة مفقودة: {skill_cat.value}",
-                        ))
+                        availability.conflicts.append(
+                            SchedulingConflict(
+                                conflict_type=SchedulingConflictType.SKILL_MISMATCH,
+                                worker_id=worker.worker_id,
+                                message_en=f"Missing required skill: {skill_cat.value}",
+                                message_ar=f"مهارة مطلوبة مفقودة: {skill_cat.value}",
+                            )
+                        )
 
             # Certification filter
             if required_certifications:
                 for cert_type in required_certifications:
                     if not worker.has_valid_certification(cert_type, check_date):
                         availability.is_available = False
-                        availability.conflicts.append(SchedulingConflict(
-                            conflict_type=SchedulingConflictType.CERTIFICATION_MISSING,
-                            worker_id=worker.worker_id,
-                            message_en=f"Missing certification: {cert_type.value}",
-                            message_ar=f"شهادة مفقودة: {cert_type.value}",
-                        ))
+                        availability.conflicts.append(
+                            SchedulingConflict(
+                                conflict_type=SchedulingConflictType.CERTIFICATION_MISSING,
+                                worker_id=worker.worker_id,
+                                message_en=f"Missing certification: {cert_type.value}",
+                                message_ar=f"شهادة مفقودة: {cert_type.value}",
+                            )
+                        )
 
             if availability.is_available:
                 available.append(availability)
@@ -426,11 +449,17 @@ class LaborScheduler:
 
         worker = self._workers_by_id.get(worker_id)
         if not worker:
-            return False, [SchedulingConflict(
-                conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
-                message_en="Worker not found",
-                message_ar="العامل غير موجود",
-            )], []
+            return (
+                False,
+                [
+                    SchedulingConflict(
+                        conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
+                        message_en="Worker not found",
+                        message_ar="العامل غير موجود",
+                    )
+                ],
+                [],
+            )
 
         active_zones = self.check_rei_restrictions(field_id, check)
 
@@ -442,22 +471,24 @@ class LaborScheduler:
             else:
                 # Entry not allowed
                 remaining_hours = zone.get_remaining_hours(check)
-                conflicts.append(SchedulingConflict(
-                    conflict_type=SchedulingConflictType.REI_RESTRICTION,
-                    worker_id=worker_id,
-                    message_en=f"REI restriction active for {zone.pesticide_name}. "
-                              f"Entry allowed after {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
-                              f"({remaining_hours:.1f}h remaining)",
-                    message_ar=f"قيد فترة إعادة الدخول نشط لـ {zone.pesticide_name_ar}. "
-                              f"يُسمح بالدخول بعد {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
-                              f"(متبقي {remaining_hours:.1f} ساعة)",
-                    details={
-                        "zone_id": zone.zone_id,
-                        "pesticide_id": zone.pesticide_id,
-                        "rei_expiry": zone.rei_expiry_time.isoformat(),
-                        "remaining_hours": remaining_hours,
-                    },
-                ))
+                conflicts.append(
+                    SchedulingConflict(
+                        conflict_type=SchedulingConflictType.REI_RESTRICTION,
+                        worker_id=worker_id,
+                        message_en=f"REI restriction active for {zone.pesticide_name}. "
+                        f"Entry allowed after {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
+                        f"({remaining_hours:.1f}h remaining)",
+                        message_ar=f"قيد فترة إعادة الدخول نشط لـ {zone.pesticide_name_ar}. "
+                        f"يُسمح بالدخول بعد {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')} "
+                        f"(متبقي {remaining_hours:.1f} ساعة)",
+                        details={
+                            "zone_id": zone.zone_id,
+                            "pesticide_id": zone.pesticide_id,
+                            "rei_expiry": zone.rei_expiry_time.isoformat(),
+                            "remaining_hours": remaining_hours,
+                        },
+                    )
+                )
 
         can_enter = len(conflicts) == 0
         return can_enter, conflicts, list(set(required_ppe))
@@ -485,9 +516,7 @@ class LaborScheduler:
         availability = self.check_worker_availability(worker.worker_id, check_date)
         if not availability.is_available:
             score.is_eligible = False
-            score.ineligibility_reasons.extend(
-                [c.message_en for c in availability.conflicts]
-            )
+            score.ineligibility_reasons.extend([c.message_en for c in availability.conflicts])
             return score
 
         # Check REI restrictions if task has a field
@@ -497,9 +526,7 @@ class LaborScheduler:
             )
             if not can_enter:
                 score.is_eligible = False
-                score.ineligibility_reasons.extend(
-                    [c.message_en for c in rei_conflicts]
-                )
+                score.ineligibility_reasons.extend([c.message_en for c in rei_conflicts])
                 return score
 
         # Check requirements
@@ -516,9 +543,7 @@ class LaborScheduler:
             for cert_type in task.requirements.required_certifications:
                 if not worker.has_valid_certification(cert_type, check_date):
                     score.is_eligible = False
-                    score.ineligibility_reasons.append(
-                        f"Missing certification: {cert_type.value}"
-                    )
+                    score.ineligibility_reasons.append(f"Missing certification: {cert_type.value}")
 
         if not score.is_eligible:
             return score
@@ -545,11 +570,11 @@ class LaborScheduler:
 
         # Calculate weighted total
         score.total_score = (
-            score.skill_score * weights["skill"] +
-            score.availability_score * weights["availability"] +
-            score.certification_score * weights["certification"] +
-            score.workload_score * weights["workload"] +
-            score.cost_score * weights["cost"]
+            score.skill_score * weights["skill"]
+            + score.availability_score * weights["availability"]
+            + score.certification_score * weights["certification"]
+            + score.workload_score * weights["workload"]
+            + score.cost_score * weights["cost"]
         )
 
         return score
@@ -558,24 +583,39 @@ class LaborScheduler:
         """Get scoring weights for scheduling strategy"""
         weights = {
             SchedulingStrategy.SKILL_PRIORITY: {
-                "skill": 0.40, "availability": 0.20, "certification": 0.20,
-                "workload": 0.10, "cost": 0.10
+                "skill": 0.40,
+                "availability": 0.20,
+                "certification": 0.20,
+                "workload": 0.10,
+                "cost": 0.10,
             },
             SchedulingStrategy.WORKLOAD_BALANCE: {
-                "skill": 0.15, "availability": 0.15, "certification": 0.15,
-                "workload": 0.45, "cost": 0.10
+                "skill": 0.15,
+                "availability": 0.15,
+                "certification": 0.15,
+                "workload": 0.45,
+                "cost": 0.10,
             },
             SchedulingStrategy.AVAILABILITY_FIRST: {
-                "skill": 0.15, "availability": 0.45, "certification": 0.15,
-                "workload": 0.15, "cost": 0.10
+                "skill": 0.15,
+                "availability": 0.45,
+                "certification": 0.15,
+                "workload": 0.15,
+                "cost": 0.10,
             },
             SchedulingStrategy.COST_OPTIMIZED: {
-                "skill": 0.15, "availability": 0.15, "certification": 0.15,
-                "workload": 0.10, "cost": 0.45
+                "skill": 0.15,
+                "availability": 0.15,
+                "certification": 0.15,
+                "workload": 0.10,
+                "cost": 0.45,
             },
             SchedulingStrategy.SAFETY_PRIORITY: {
-                "skill": 0.20, "availability": 0.15, "certification": 0.45,
-                "workload": 0.10, "cost": 0.10
+                "skill": 0.20,
+                "availability": 0.15,
+                "certification": 0.45,
+                "workload": 0.10,
+                "cost": 0.10,
             },
         }
         return weights.get(strategy, weights[SchedulingStrategy.SKILL_PRIORITY])
@@ -585,8 +625,13 @@ class LaborScheduler:
         if not task.requirements or not task.requirements.required_skills:
             return 50.0  # Neutral score if no requirements
 
-        skill_order = [SkillLevel.NONE, SkillLevel.BEGINNER, SkillLevel.INTERMEDIATE,
-                      SkillLevel.ADVANCED, SkillLevel.EXPERT]
+        skill_order = [
+            SkillLevel.NONE,
+            SkillLevel.BEGINNER,
+            SkillLevel.INTERMEDIATE,
+            SkillLevel.ADVANCED,
+            SkillLevel.EXPERT,
+        ]
 
         total_score = 0.0
         for skill_cat, min_level in task.requirements.required_skills:
@@ -630,7 +675,8 @@ class LaborScheduler:
             return 50.0  # Neutral if no requirements
 
         valid_certs = sum(
-            1 for cert_type in task.requirements.required_certifications
+            1
+            for cert_type in task.requirements.required_certifications
             if worker.has_valid_certification(cert_type)
         )
 
@@ -704,12 +750,14 @@ class LaborScheduler:
                 task_id=task_id,
                 worker_ids=[],
                 is_successful=False,
-                conflicts=[SchedulingConflict(
-                    conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
-                    task_id=task_id,
-                    message_en="Task not found",
-                    message_ar="المهمة غير موجودة",
-                )],
+                conflicts=[
+                    SchedulingConflict(
+                        conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
+                        task_id=task_id,
+                        message_en="Task not found",
+                        message_ar="المهمة غير موجودة",
+                    )
+                ],
             )
 
         check_date = check_date or date.today()
@@ -754,18 +802,23 @@ class LaborScheduler:
 
         # Check if we have enough workers
         if len(selected_workers) < min_workers:
-            conflicts.append(SchedulingConflict(
-                conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
-                task_id=task_id,
-                message_en=f"Only {len(selected_workers)} of {min_workers} required workers available",
-                message_ar=f"فقط {len(selected_workers)} من {min_workers} عمال مطلوبين متاحين",
-            ))
+            conflicts.append(
+                SchedulingConflict(
+                    conflict_type=SchedulingConflictType.WORKER_UNAVAILABLE,
+                    task_id=task_id,
+                    message_en=f"Only {len(selected_workers)} of {min_workers} required workers available",
+                    message_ar=f"فقط {len(selected_workers)} من {min_workers} عمال مطلوبين متاحين",
+                )
+            )
 
         # Check REI restrictions
         if task.field_id:
             active_rei_zones = self.check_rei_restrictions(task.field_id)
             for zone in active_rei_zones:
-                if zone.early_entry_allowed and task.category.value in zone.early_entry_tasks_allowed:
+                if (
+                    zone.early_entry_allowed
+                    and task.category.value in zone.early_entry_tasks_allowed
+                ):
                     warnings_en.append(
                         f"Field has active REI zone ({zone.pesticide_name}). "
                         f"Early entry allowed with PPE: {', '.join(p.value for p in zone.early_entry_ppe_required)}"
@@ -775,14 +828,16 @@ class LaborScheduler:
                         f"يُسمح بالدخول المبكر مع: {', '.join(p.value for p in zone.early_entry_ppe_required)}"
                     )
                 else:
-                    conflicts.append(SchedulingConflict(
-                        conflict_type=SchedulingConflictType.REI_RESTRICTION,
-                        task_id=task_id,
-                        message_en=f"Field blocked by REI ({zone.pesticide_name}). "
-                                  f"Access allowed after {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')}",
-                        message_ar=f"الحقل محظور بسبب REI ({zone.pesticide_name_ar}). "
-                                  f"يُسمح بالوصول بعد {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')}",
-                    ))
+                    conflicts.append(
+                        SchedulingConflict(
+                            conflict_type=SchedulingConflictType.REI_RESTRICTION,
+                            task_id=task_id,
+                            message_en=f"Field blocked by REI ({zone.pesticide_name}). "
+                            f"Access allowed after {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')}",
+                            message_ar=f"الحقل محظور بسبب REI ({zone.pesticide_name_ar}). "
+                            f"يُسمح بالوصول بعد {zone.rei_expiry_time.strftime('%Y-%m-%d %H:%M')}",
+                        )
+                    )
 
         is_successful = len(selected_workers) >= min_workers and not any(
             c.conflict_type == SchedulingConflictType.REI_RESTRICTION for c in conflicts
@@ -825,13 +880,11 @@ class LaborScheduler:
         # Get tasks to schedule
         if task_ids:
             tasks_to_schedule = [
-                self._tasks_by_id[tid] for tid in task_ids
-                if tid in self._tasks_by_id
+                self._tasks_by_id[tid] for tid in task_ids if tid in self._tasks_by_id
             ]
         else:
             tasks_to_schedule = [
-                t for t in self.tasks
-                if t.status in [TaskStatus.PENDING, TaskStatus.ASSIGNED]
+                t for t in self.tasks if t.status in [TaskStatus.PENDING, TaskStatus.ASSIGNED]
             ]
 
         # Sort by priority if requested
@@ -853,7 +906,8 @@ class LaborScheduler:
         for task in tasks_to_schedule:
             # Get already assigned workers
             exclude = [
-                wid for wid, tids in assigned_worker_tasks.items()
+                wid
+                for wid, tids in assigned_worker_tasks.items()
                 if len(tids) >= 3  # Max 3 tasks per worker per day
             ]
 
@@ -952,8 +1006,7 @@ class LaborScheduler:
                             check_date=schedule_date,
                             strategy=strategy,
                         )
-                        if (new_assignment.is_successful and
-                            not assignment.is_successful):
+                        if new_assignment.is_successful and not assignment.is_successful:
                             assignment.worker_ids = new_assignment.worker_ids
                             assignment.is_successful = True
                             assignment.conflicts = new_assignment.conflicts
@@ -1008,14 +1061,16 @@ class LaborScheduler:
                     worker, task, check_date, SchedulingStrategy.SKILL_PRIORITY
                 )
                 if score.is_eligible:
-                    worker_scores.append({
-                        "worker_id": worker.worker_id,
-                        "worker_name": worker.full_name,
-                        "worker_name_ar": worker.full_name_ar,
-                        "score": score.total_score,
-                        "skill_score": score.skill_score,
-                        "availability_score": score.availability_score,
-                    })
+                    worker_scores.append(
+                        {
+                            "worker_id": worker.worker_id,
+                            "worker_name": worker.full_name,
+                            "worker_name_ar": worker.full_name_ar,
+                            "score": score.total_score,
+                            "skill_score": score.skill_score,
+                            "availability_score": score.availability_score,
+                        }
+                    )
 
         worker_scores.sort(key=lambda x: x["score"], reverse=True)
         recommendations["recommended_workers"] = worker_scores[:5]

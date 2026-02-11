@@ -327,10 +327,7 @@ class DiagnosisRepository:
                     ORDER BY date
                     """
                 )
-                daily_trend = {
-                    row["date"].isoformat(): row["count"]
-                    for row in trend_rows
-                }
+                daily_trend = {row["date"].isoformat(): row["count"] for row in trend_rows}
 
                 return {
                     "total": total,

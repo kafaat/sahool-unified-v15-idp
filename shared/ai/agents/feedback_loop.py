@@ -35,40 +35,44 @@ logger = structlog.get_logger()
 
 class FeedbackType(str, Enum):
     """أنواع التغذية الراجعة"""
-    LLM_JUDGE = "llm_judge"         # Automatic LLM evaluation
-    HUMAN_RATING = "human_rating"   # Human star rating
-    HUMAN_THUMBS = "human_thumbs"   # Human thumbs up/down
-    HUMAN_TEXT = "human_text"       # Human text feedback
-    OUTCOME = "outcome"             # Measured outcome
-    CORRECTION = "correction"       # User correction
+
+    LLM_JUDGE = "llm_judge"  # Automatic LLM evaluation
+    HUMAN_RATING = "human_rating"  # Human star rating
+    HUMAN_THUMBS = "human_thumbs"  # Human thumbs up/down
+    HUMAN_TEXT = "human_text"  # Human text feedback
+    OUTCOME = "outcome"  # Measured outcome
+    CORRECTION = "correction"  # User correction
 
 
 class QualityDimension(str, Enum):
     """أبعاد الجودة"""
-    ACCURACY = "accuracy"           # Technical correctness
-    RELEVANCE = "relevance"         # Contextual appropriateness
-    ACTIONABILITY = "actionability" # Can the advice be acted upon
-    TIMELINESS = "timeliness"       # Is the timing right
-    SAFETY = "safety"               # Risk awareness
-    CLARITY = "clarity"             # Clear communication
-    COMPLETENESS = "completeness"   # Nothing important missing
+
+    ACCURACY = "accuracy"  # Technical correctness
+    RELEVANCE = "relevance"  # Contextual appropriateness
+    ACTIONABILITY = "actionability"  # Can the advice be acted upon
+    TIMELINESS = "timeliness"  # Is the timing right
+    SAFETY = "safety"  # Risk awareness
+    CLARITY = "clarity"  # Clear communication
+    COMPLETENESS = "completeness"  # Nothing important missing
 
 
 class OutcomeStatus(str, Enum):
     """حالة النتيجة"""
-    SUCCESS = "success"             # Advice worked
-    PARTIAL_SUCCESS = "partial"     # Partially worked
-    FAILURE = "failure"             # Did not work
-    UNKNOWN = "unknown"             # Not measured
-    NOT_APPLIED = "not_applied"     # User didn't apply
+
+    SUCCESS = "success"  # Advice worked
+    PARTIAL_SUCCESS = "partial"  # Partially worked
+    FAILURE = "failure"  # Did not work
+    UNKNOWN = "unknown"  # Not measured
+    NOT_APPLIED = "not_applied"  # User didn't apply
 
 
 class EscalationLevel(str, Enum):
     """مستوى التصعيد"""
-    NONE = "none"                   # No escalation needed
-    EXPERT_REVIEW = "expert"        # Needs expert review
-    HUMAN_REQUIRED = "human"        # Human decision required
-    RETRAINING = "retraining"       # Model needs retraining
+
+    NONE = "none"  # No escalation needed
+    EXPERT_REVIEW = "expert"  # Needs expert review
+    HUMAN_REQUIRED = "human"  # Human decision required
+    RETRAINING = "retraining"  # Model needs retraining
 
 
 # ============================================================================
@@ -82,10 +86,11 @@ class DimensionScore:
     Score for a single quality dimension.
     درجة لبُعد جودة واحد
     """
+
     dimension: QualityDimension
-    score: int                      # 1-5 scale
+    score: int  # 1-5 scale
     max_score: int = 5
-    weight: float = 1.0             # Weight in overall score
+    weight: float = 1.0  # Weight in overall score
     explanation: str = ""
     explanation_ar: str = ""
     improvement_suggestions: list[str] = field(default_factory=list)
@@ -114,6 +119,7 @@ class QualityRubric:
     Evaluation rubric for quality assessment.
     معيار التقييم لتقييم الجودة
     """
+
     rubric_id: str
     name: str
     name_ar: str
@@ -195,13 +201,14 @@ class JudgeEvaluation:
     LLM-as-Judge evaluation result.
     نتيجة تقييم القاضي LLM
     """
+
     evaluation_id: str
-    execution_id: str               # What was evaluated
+    execution_id: str  # What was evaluated
     rubric: QualityRubric
     dimension_scores: list[DimensionScore]
-    overall_score: float            # Weighted average (0-1)
-    grade: str                      # Letter grade (A/B/C/D/F)
-    summary: str                    # Summary explanation
+    overall_score: float  # Weighted average (0-1)
+    grade: str  # Letter grade (A/B/C/D/F)
+    summary: str  # Summary explanation
     summary_ar: str
     strengths: list[str] = field(default_factory=list)
     weaknesses: list[str] = field(default_factory=list)
@@ -239,15 +246,16 @@ class HumanFeedback:
     Human feedback entry.
     إدخال تغذية راجعة بشرية
     """
+
     feedback_id: str
-    execution_id: str               # What was evaluated
+    execution_id: str  # What was evaluated
     feedback_type: FeedbackType
     user_id: str | None = None
-    rating: int | None = None       # 1-5 stars
-    thumbs_up: bool | None = None   # True = positive
+    rating: int | None = None  # 1-5 stars
+    thumbs_up: bool | None = None  # True = positive
     comment: str = ""
     comment_ar: str = ""
-    correction: str | None = None   # User's correction
+    correction: str | None = None  # User's correction
     metadata: dict[str, Any] = field(default_factory=dict)
     received_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -273,8 +281,9 @@ class OutcomeFeedback:
     Measured outcome feedback.
     تغذية راجعة للنتائج المقاسة
     """
+
     outcome_id: str
-    execution_id: str               # What was executed
+    execution_id: str  # What was executed
     outcome_status: OutcomeStatus
     metrics: dict[str, float] = field(default_factory=dict)  # e.g., yield_improvement, cost_savings
     details: str = ""
@@ -301,15 +310,16 @@ class FeedbackRecord:
     Complete feedback record for an execution.
     سجل التغذية الراجعة الكامل للتنفيذ
     """
+
     record_id: str
     execution_id: str
     agent_id: str
-    task_type: str                  # Type of task (code_fix, advisory, etc.)
+    task_type: str  # Type of task (code_fix, advisory, etc.)
     judge_evaluation: JudgeEvaluation | None = None
     human_feedback: list[HumanFeedback] = field(default_factory=list)
     outcome: OutcomeFeedback | None = None
-    combined_score: float = 0.0     # Weighted combination of all feedback
-    reward: float = 0.0             # Reward signal for learning
+    combined_score: float = 0.0  # Weighted combination of all feedback
+    reward: float = 0.0  # Reward signal for learning
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -482,10 +492,9 @@ Respond in JSON format:
         تقييم مخرجات الوكيل مقابل المعيار
         """
         # Build prompt
-        dimensions_text = "\n".join([
-            f"- {d.value}: {self._get_dimension_description(d)}"
-            for d in rubric.dimensions
-        ])
+        dimensions_text = "\n".join(
+            [f"- {d.value}: {self._get_dimension_description(d)}" for d in rubric.dimensions]
+        )
 
         prompt = self.JUDGE_PROMPT_TEMPLATE.format(
             task_description=task_description,
@@ -553,7 +562,8 @@ Respond in JSON format:
         try:
             # Extract JSON from response
             import re
-            json_match = re.search(r'```json\s*(.*?)\s*```', response, re.DOTALL)
+
+            json_match = re.search(r"```json\s*(.*?)\s*```", response, re.DOTALL)
             if json_match:
                 data = json.loads(json_match.group(1))
             else:
@@ -563,13 +573,17 @@ Respond in JSON format:
             dimension_scores = []
             for ds in data.get("dimension_scores", []):
                 dim = QualityDimension(ds["dimension"])
-                dimension_scores.append(DimensionScore(
-                    dimension=dim,
-                    score=ds["score"],
-                    weight=rubric.dimension_weights.get(dim.value, 0.25),
-                    explanation=ds.get("explanation", ""),
-                    improvement_suggestions=[ds.get("suggestion")] if ds.get("suggestion") else [],
-                ))
+                dimension_scores.append(
+                    DimensionScore(
+                        dimension=dim,
+                        score=ds["score"],
+                        weight=rubric.dimension_weights.get(dim.value, 0.25),
+                        explanation=ds.get("explanation", ""),
+                        improvement_suggestions=[ds.get("suggestion")]
+                        if ds.get("suggestion")
+                        else [],
+                    )
+                )
 
             return {
                 "dimension_scores": dimension_scores,
@@ -586,6 +600,7 @@ Respond in JSON format:
     def _mock_evaluation(self, rubric: QualityRubric) -> dict[str, Any]:
         """Generate mock evaluation for testing."""
         import random
+
         return {
             "dimension_scores": [
                 DimensionScore(
@@ -853,9 +868,7 @@ class AgentFeedbackLoop:
         record = self.records.get(execution_id)
         time_to_measure = 0.0
         if record:
-            time_to_measure = (
-                datetime.now(UTC) - record.created_at
-            ).total_seconds() / 3600
+            time_to_measure = (datetime.now(UTC) - record.created_at).total_seconds() / 3600
 
         outcome = OutcomeFeedback(
             outcome_id=str(uuid.uuid4()),
@@ -961,17 +974,12 @@ class AgentFeedbackLoop:
             # Add judge scores
             if record.judge_evaluation:
                 entry["judge_scores"] = {
-                    s.dimension.value: s.score
-                    for s in record.judge_evaluation.dimension_scores
+                    s.dimension.value: s.score for s in record.judge_evaluation.dimension_scores
                 }
 
             # Add corrections if available
             if include_corrections:
-                corrections = [
-                    hf.correction
-                    for hf in record.human_feedback
-                    if hf.correction
-                ]
+                corrections = [hf.correction for hf in record.human_feedback if hf.correction]
                 if corrections:
                     entry["corrections"] = corrections
 
@@ -996,8 +1004,10 @@ class AgentFeedbackLoop:
             "high_score_count": sum(1 for s in scores if s >= 0.8),
             "low_score_count": sum(1 for s in scores if s < 0.5),
             "escalation_count": sum(
-                1 for r in self.records.values()
-                if r.judge_evaluation and r.judge_evaluation.escalation_level != EscalationLevel.NONE
+                1
+                for r in self.records.values()
+                if r.judge_evaluation
+                and r.judge_evaluation.escalation_level != EscalationLevel.NONE
             ),
         }
 

@@ -40,8 +40,10 @@ logger = structlog.get_logger(__name__)
 # Enums - التعدادات
 # ===============================================================================
 
+
 class SatelliteSource(str, Enum):
     """مصادر الأقمار الصناعية - Satellite data sources"""
+
     SENTINEL_2 = "sentinel_2"
     LANDSAT_8 = "landsat_8"
     LANDSAT_9 = "landsat_9"
@@ -51,18 +53,20 @@ class SatelliteSource(str, Enum):
 
 class VegetationIndex(str, Enum):
     """مؤشرات الغطاء النباتي - Vegetation indices"""
+
     NDVI = "ndvi"  # Normalized Difference Vegetation Index
-    EVI = "evi"    # Enhanced Vegetation Index
+    EVI = "evi"  # Enhanced Vegetation Index
     SAVI = "savi"  # Soil Adjusted Vegetation Index
     NDWI = "ndwi"  # Normalized Difference Water Index
     NDMI = "ndmi"  # Normalized Difference Moisture Index
-    LAI = "lai"    # Leaf Area Index
+    LAI = "lai"  # Leaf Area Index
     GNDVI = "gndvi"  # Green NDVI
     MSAVI = "msavi"  # Modified SAVI
 
 
 class LandCoverClass(str, Enum):
     """فئات الغطاء الأرضي - Land cover classes"""
+
     CROPLAND = "cropland"  # أرض زراعية
     FOREST = "forest"  # غابة
     GRASSLAND = "grassland"  # مراعي
@@ -75,6 +79,7 @@ class LandCoverClass(str, Enum):
 
 class ChangeType(str, Enum):
     """أنواع التغيرات - Types of changes"""
+
     VEGETATION_INCREASE = "vegetation_increase"
     VEGETATION_DECREASE = "vegetation_decrease"
     WATER_STRESS = "water_stress"
@@ -87,6 +92,7 @@ class ChangeType(str, Enum):
 
 class AnalysisType(str, Enum):
     """أنواع التحليل - Analysis types"""
+
     TIME_SERIES = "time_series"
     CHANGE_DETECTION = "change_detection"
     LAND_COVER = "land_cover"
@@ -98,9 +104,11 @@ class AnalysisType(str, Enum):
 # Data Models - نماذج البيانات
 # ===============================================================================
 
+
 @dataclass
 class GEEQueryContext:
     """سياق استعلام صور الأقمار الصناعية"""
+
     field_id: str | None = None
     latitude: float | None = None
     longitude: float | None = None
@@ -117,6 +125,7 @@ class GEEQueryContext:
 @dataclass
 class TimeSeriesPoint:
     """نقطة في السلسلة الزمنية"""
+
     date: date
     value: float
     index_type: VegetationIndex
@@ -138,6 +147,7 @@ class TimeSeriesPoint:
 @dataclass
 class TimeSeriesAnalysis:
     """نتيجة تحليل السلسلة الزمنية"""
+
     field_id: str
     index_type: VegetationIndex
     start_date: date
@@ -183,6 +193,7 @@ class TimeSeriesAnalysis:
 @dataclass
 class ChangeDetectionResult:
     """نتيجة كشف التغيرات"""
+
     field_id: str
     date1: date
     date2: date
@@ -226,6 +237,7 @@ class ChangeDetectionResult:
 @dataclass
 class LandCoverResult:
     """نتيجة تصنيف الغطاء الأرضي"""
+
     field_id: str
     analysis_date: date
     classification: dict[LandCoverClass, float]  # Class -> percentage
@@ -241,9 +253,7 @@ class LandCoverResult:
         return {
             "field_id": self.field_id,
             "analysis_date": self.analysis_date.isoformat(),
-            "classification": {
-                k.value: round(v, 2) for k, v in self.classification.items()
-            },
+            "classification": {k.value: round(v, 2) for k, v in self.classification.items()},
             "dominant_class": self.dominant_class.value,
             "fractions": {
                 "vegetation": round(self.vegetation_fraction, 2),
@@ -259,6 +269,7 @@ class LandCoverResult:
 @dataclass
 class GEEAnalysisResult:
     """نتيجة تحليل شاملة"""
+
     query: str
     analysis_type: AnalysisType
     time_series: TimeSeriesAnalysis | None = None
@@ -273,6 +284,7 @@ class GEEAnalysisResult:
 # ===============================================================================
 # GEERAGProvider - مزود RAG للأقمار الصناعية
 # ===============================================================================
+
 
 class GEERAGProvider:
     """
@@ -318,10 +330,7 @@ class GEERAGProvider:
 
         # Initialize dense/sparse retrievers if services available
         if self.vector_store and self.embedding_service:
-            self._dense_retriever = DenseRetriever(
-                self.vector_store,
-                self.embedding_service
-            )
+            self._dense_retriever = DenseRetriever(self.vector_store, self.embedding_service)
             self._sparse_retriever = SparseRetriever(self.vector_store)
         else:
             # Use mock for testing
@@ -659,58 +668,120 @@ class GEERAGProvider:
         # ===================================================================
         relations = [
             # Satellite-Index relations
-            {"source_id": "sat_sentinel2", "target_id": "idx_ndvi",
-             "relation_type": RelationType.PROVIDES.value},
-            {"source_id": "sat_sentinel2", "target_id": "idx_evi",
-             "relation_type": RelationType.PROVIDES.value},
-            {"source_id": "sat_sentinel2", "target_id": "idx_ndwi",
-             "relation_type": RelationType.PROVIDES.value},
-            {"source_id": "sat_landsat8", "target_id": "idx_ndvi",
-             "relation_type": RelationType.PROVIDES.value},
-            {"source_id": "sat_landsat8", "target_id": "idx_ndmi",
-             "relation_type": RelationType.PROVIDES.value},
-            {"source_id": "sat_modis", "target_id": "idx_ndvi",
-             "relation_type": RelationType.PROVIDES.value},
-
+            {
+                "source_id": "sat_sentinel2",
+                "target_id": "idx_ndvi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
+            {
+                "source_id": "sat_sentinel2",
+                "target_id": "idx_evi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
+            {
+                "source_id": "sat_sentinel2",
+                "target_id": "idx_ndwi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
+            {
+                "source_id": "sat_landsat8",
+                "target_id": "idx_ndvi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
+            {
+                "source_id": "sat_landsat8",
+                "target_id": "idx_ndmi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
+            {
+                "source_id": "sat_modis",
+                "target_id": "idx_ndvi",
+                "relation_type": RelationType.PROVIDES.value,
+            },
             # Index-LandCover relations
-            {"source_id": "idx_ndvi", "target_id": "lc_cropland",
-             "relation_type": RelationType.INDICATES.value},
-            {"source_id": "idx_ndvi", "target_id": "lc_forest",
-             "relation_type": RelationType.INDICATES.value},
-            {"source_id": "idx_ndwi", "target_id": "lc_water",
-             "relation_type": RelationType.INDICATES.value},
-            {"source_id": "idx_savi", "target_id": "lc_bare_soil",
-             "relation_type": RelationType.INDICATES.value},
-
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "lc_cropland",
+                "relation_type": RelationType.INDICATES.value,
+            },
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "lc_forest",
+                "relation_type": RelationType.INDICATES.value,
+            },
+            {
+                "source_id": "idx_ndwi",
+                "target_id": "lc_water",
+                "relation_type": RelationType.INDICATES.value,
+            },
+            {
+                "source_id": "idx_savi",
+                "target_id": "lc_bare_soil",
+                "relation_type": RelationType.INDICATES.value,
+            },
             # Index-Change relations
-            {"source_id": "idx_ndvi", "target_id": "chg_veg_increase",
-             "relation_type": RelationType.DETECTS.value},
-            {"source_id": "idx_ndvi", "target_id": "chg_veg_decrease",
-             "relation_type": RelationType.DETECTS.value},
-            {"source_id": "idx_ndwi", "target_id": "chg_water_stress",
-             "relation_type": RelationType.DETECTS.value},
-            {"source_id": "idx_ndvi", "target_id": "chg_drought",
-             "relation_type": RelationType.DETECTS.value},
-            {"source_id": "idx_ndvi", "target_id": "chg_harvest",
-             "relation_type": RelationType.DETECTS.value},
-
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "chg_veg_increase",
+                "relation_type": RelationType.DETECTS.value,
+            },
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "chg_veg_decrease",
+                "relation_type": RelationType.DETECTS.value,
+            },
+            {
+                "source_id": "idx_ndwi",
+                "target_id": "chg_water_stress",
+                "relation_type": RelationType.DETECTS.value,
+            },
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "chg_drought",
+                "relation_type": RelationType.DETECTS.value,
+            },
+            {
+                "source_id": "idx_ndvi",
+                "target_id": "chg_harvest",
+                "relation_type": RelationType.DETECTS.value,
+            },
             # Method-Analysis relations
-            {"source_id": "meth_time_series", "target_id": "idx_ndvi",
-             "relation_type": RelationType.ANALYZES.value},
-            {"source_id": "meth_change_detect", "target_id": "chg_veg_decrease",
-             "relation_type": RelationType.PRODUCES.value},
-            {"source_id": "meth_classification", "target_id": "lc_cropland",
-             "relation_type": RelationType.CLASSIFIES.value},
-            {"source_id": "meth_phenology", "target_id": "lc_cropland",
-             "relation_type": RelationType.ANALYZES.value},
-
+            {
+                "source_id": "meth_time_series",
+                "target_id": "idx_ndvi",
+                "relation_type": RelationType.ANALYZES.value,
+            },
+            {
+                "source_id": "meth_change_detect",
+                "target_id": "chg_veg_decrease",
+                "relation_type": RelationType.PRODUCES.value,
+            },
+            {
+                "source_id": "meth_classification",
+                "target_id": "lc_cropland",
+                "relation_type": RelationType.CLASSIFIES.value,
+            },
+            {
+                "source_id": "meth_phenology",
+                "target_id": "lc_cropland",
+                "relation_type": RelationType.ANALYZES.value,
+            },
             # LandCover-Change relations
-            {"source_id": "lc_cropland", "target_id": "chg_harvest",
-             "relation_type": RelationType.EXHIBITS.value},
-            {"source_id": "lc_cropland", "target_id": "chg_planting",
-             "relation_type": RelationType.EXHIBITS.value},
-            {"source_id": "lc_cropland", "target_id": "chg_water_stress",
-             "relation_type": RelationType.EXHIBITS.value},
+            {
+                "source_id": "lc_cropland",
+                "target_id": "chg_harvest",
+                "relation_type": RelationType.EXHIBITS.value,
+            },
+            {
+                "source_id": "lc_cropland",
+                "target_id": "chg_planting",
+                "relation_type": RelationType.EXHIBITS.value,
+            },
+            {
+                "source_id": "lc_cropland",
+                "target_id": "chg_water_stress",
+                "relation_type": RelationType.EXHIBITS.value,
+            },
         ]
 
         for relation in relations:
@@ -764,9 +835,7 @@ class GEERAGProvider:
 
         # If no data points provided, generate sample data
         if not data_points:
-            data_points = self._generate_sample_timeseries(
-                start_date, end_date, index_type
-            )
+            data_points = self._generate_sample_timeseries(start_date, end_date, index_type)
 
         # Calculate statistics
         values = [p.value for p in data_points]
@@ -774,6 +843,7 @@ class GEERAGProvider:
             values = [0.0]
 
         import statistics as stats
+
         mean = stats.mean(values) if values else 0.0
         std = stats.stdev(values) if len(values) > 1 else 0.0
         min_val = min(values)
@@ -956,12 +1026,18 @@ class GEERAGProvider:
         dominant_class = max(classification, key=classification.get)
 
         # Calculate fractions
-        vegetation_classes = [LandCoverClass.CROPLAND, LandCoverClass.FOREST, LandCoverClass.GRASSLAND]
+        vegetation_classes = [
+            LandCoverClass.CROPLAND,
+            LandCoverClass.FOREST,
+            LandCoverClass.GRASSLAND,
+        ]
         vegetation_fraction = sum(classification.get(c, 0) for c in vegetation_classes)
-        bare_soil_fraction = classification.get(LandCoverClass.BARE_SOIL, 0) + \
-                            classification.get(LandCoverClass.DESERT, 0)
-        water_fraction = classification.get(LandCoverClass.WATER, 0) + \
-                        classification.get(LandCoverClass.WETLAND, 0)
+        bare_soil_fraction = classification.get(LandCoverClass.BARE_SOIL, 0) + classification.get(
+            LandCoverClass.DESERT, 0
+        )
+        water_fraction = classification.get(LandCoverClass.WATER, 0) + classification.get(
+            LandCoverClass.WETLAND, 0
+        )
 
         land_cover = LandCoverResult(
             field_id=field_id,
@@ -1012,11 +1088,13 @@ class GEERAGProvider:
         related = []
         for r in results:
             if r.chunk.metadata.get("entity_type"):
-                related.append({
-                    "name": r.chunk.text,
-                    "type": r.chunk.metadata.get("entity_type"),
-                    "score": r.score,
-                })
+                related.append(
+                    {
+                        "name": r.chunk.text,
+                        "type": r.chunk.metadata.get("entity_type"),
+                        "score": r.score,
+                    }
+                )
 
         return GEEAnalysisResult(
             query=query,
@@ -1051,13 +1129,15 @@ class GEERAGProvider:
             noise = random.gauss(0, 0.03)
             value = max(0, min(1, seasonal + noise))
 
-            points.append(TimeSeriesPoint(
-                date=current,
-                value=value,
-                index_type=index_type,
-                quality=random.uniform(0.8, 1.0),
-                cloud_cover=random.uniform(0, 30),
-            ))
+            points.append(
+                TimeSeriesPoint(
+                    date=current,
+                    value=value,
+                    index_type=index_type,
+                    quality=random.uniform(0.8, 1.0),
+                    cloud_cover=random.uniform(0, 30),
+                )
+            )
 
             current += timedelta(days=8)  # ~weekly
             day_index += 8
@@ -1075,9 +1155,9 @@ class GEERAGProvider:
         sum_x = sum(x)
         sum_y = sum(values)
         sum_xy = sum(xi * yi for xi, yi in zip(x, values))
-        sum_x2 = sum(xi ** 2 for xi in x)
+        sum_x2 = sum(xi**2 for xi in x)
 
-        denominator = n * sum_x2 - sum_x ** 2
+        denominator = n * sum_x2 - sum_x**2
         if denominator == 0:
             return 0.0
 
@@ -1103,14 +1183,16 @@ class GEERAGProvider:
             z_score = abs((point.value - mean) / std) if std > 0 else 0
 
             if z_score > threshold:
-                anomalies.append({
-                    "index": i,
-                    "date": point.date.isoformat(),
-                    "value": point.value,
-                    "z_score": round(z_score, 2),
-                    "deviation": round(point.value - mean, 4),
-                    "type": "high" if point.value > mean else "low",
-                })
+                anomalies.append(
+                    {
+                        "index": i,
+                        "date": point.date.isoformat(),
+                        "value": point.value,
+                        "z_score": round(z_score, 2),
+                        "deviation": round(point.value - mean, 4),
+                        "type": "high" if point.value > mean else "low",
+                    }
+                )
 
         return anomalies
 

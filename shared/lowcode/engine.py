@@ -31,29 +31,33 @@ import json
 # Core Types & Enums
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ComponentCategory(str, Enum):
     """Component categories for the material system."""
-    LAYOUT = "layout"              # تخطيط - Grid, Flex, Container
-    FORM = "form"                  # نموذج - Input, Select, Date
-    DATA = "data"                  # بيانات - Table, List, Cards
-    CHART = "chart"                # رسم بياني - Line, Bar, Pie
-    MAP = "map"                    # خريطة - Field Map, Satellite
-    AGRICULTURE = "agriculture"   # زراعي - Crop, Field, Sensor
-    AI = "ai"                      # ذكاء اصطناعي - Advisor, Predictor
-    ACTION = "action"              # إجراء - Button, Link, Modal
+
+    LAYOUT = "layout"  # تخطيط - Grid, Flex, Container
+    FORM = "form"  # نموذج - Input, Select, Date
+    DATA = "data"  # بيانات - Table, List, Cards
+    CHART = "chart"  # رسم بياني - Line, Bar, Pie
+    MAP = "map"  # خريطة - Field Map, Satellite
+    AGRICULTURE = "agriculture"  # زراعي - Crop, Field, Sensor
+    AI = "ai"  # ذكاء اصطناعي - Advisor, Predictor
+    ACTION = "action"  # إجراء - Button, Link, Modal
 
 
 class DataSourceType(str, Enum):
     """Data source types."""
-    DATABASE = "database"          # قاعدة بيانات
-    API = "api"                    # واجهة برمجية
-    STATIC = "static"              # ثابت
-    COMPUTED = "computed"          # محسوب
+
+    DATABASE = "database"  # قاعدة بيانات
+    API = "api"  # واجهة برمجية
+    STATIC = "static"  # ثابت
+    COMPUTED = "computed"  # محسوب
     AI_GENERATED = "ai_generated"  # مولد بالذكاء الاصطناعي
 
 
 class FieldType(str, Enum):
     """Field types for data models."""
+
     STRING = "string"
     NUMBER = "number"
     BOOLEAN = "boolean"
@@ -62,10 +66,10 @@ class FieldType(str, Enum):
     ENUM = "enum"
     ARRAY = "array"
     OBJECT = "object"
-    GEOJSON = "geojson"           # For field boundaries
+    GEOJSON = "geojson"  # For field boundaries
     IMAGE = "image"
     FILE = "file"
-    RELATION = "relation"          # Foreign key
+    RELATION = "relation"  # Foreign key
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -73,23 +77,26 @@ class FieldType(str, Enum):
 # نظام المواد (البروتوكول المكوني)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class PropDefinition:
     """Property definition for a component."""
+
     name: str
     name_ar: str
-    type: str                      # string, number, boolean, enum, etc.
+    type: str  # string, number, boolean, enum, etc.
     default: Any = None
     required: bool = False
     description: str = ""
     description_ar: str = ""
     enum_values: list[str] | None = None
-    setter: str | None = None      # Custom setter component
+    setter: str | None = None  # Custom setter component
 
 
 @dataclass
 class SlotDefinition:
     """Slot definition for nested components."""
+
     name: str
     name_ar: str
     description: str = ""
@@ -100,6 +107,7 @@ class SlotDefinition:
 @dataclass
 class EventDefinition:
     """Event definition for component interactions."""
+
     name: str
     name_ar: str
     description: str = ""
@@ -114,6 +122,7 @@ class ComponentMaterial:
 
     This defines how a component appears and behaves in the low-code editor.
     """
+
     # Identity
     component_id: str
     name: str
@@ -139,7 +148,9 @@ class ComponentMaterial:
     is_container: bool = False
     is_draggable: bool = True
     is_resizable: bool = True
-    default_size: dict[str, Any] = field(default_factory=lambda: {"width": "100%", "height": "auto"})
+    default_size: dict[str, Any] = field(
+        default_factory=lambda: {"width": "100%", "height": "auto"}
+    )
 
     # Data binding
     supports_data_binding: bool = True
@@ -167,9 +178,11 @@ class ComponentMaterial:
 # نظام نموذج البيانات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class FieldDefinition:
     """Field definition in a data model."""
+
     name: str
     name_ar: str
     type: FieldType
@@ -204,6 +217,7 @@ class DataModel:
 
     Represents a collection/table structure.
     """
+
     model_id: str
     name: str
     name_ar: str
@@ -238,9 +252,11 @@ class DataModel:
 # نظام الصفحات والكتل
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class BlockConfig:
     """Configuration for a page block."""
+
     block_id: str
     component_id: str
     props: dict[str, Any] = field(default_factory=dict)
@@ -262,6 +278,7 @@ class PageDefinition:
 
     A page is a composition of blocks.
     """
+
     page_id: str
     name: str
     name_ar: str
@@ -289,24 +306,30 @@ class PageDefinition:
 
     def to_json(self) -> str:
         """Export page as JSON schema."""
-        return json.dumps({
-            "pageId": self.page_id,
-            "name": self.name,
-            "nameAr": self.name_ar,
-            "path": self.path,
-            "layout": self.layout,
-            "blocks": self._blocks_to_dict(self.blocks),
-        }, ensure_ascii=False, indent=2)
+        return json.dumps(
+            {
+                "pageId": self.page_id,
+                "name": self.name,
+                "nameAr": self.name_ar,
+                "path": self.path,
+                "layout": self.layout,
+                "blocks": self._blocks_to_dict(self.blocks),
+            },
+            ensure_ascii=False,
+            indent=2,
+        )
 
     def _blocks_to_dict(self, blocks: list[BlockConfig]) -> list[dict]:
         result = []
         for block in blocks:
-            result.append({
-                "blockId": block.block_id,
-                "componentId": block.component_id,
-                "props": block.props,
-                "children": self._blocks_to_dict(block.children),
-            })
+            result.append(
+                {
+                    "blockId": block.block_id,
+                    "componentId": block.component_id,
+                    "props": block.props,
+                    "children": self._blocks_to_dict(block.children),
+                }
+            )
         return result
 
 
@@ -314,6 +337,7 @@ class PageDefinition:
 # Plugin System (WordPress-style, NocoBase-inspired)
 # نظام الإضافات
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class PluginBase(ABC):
     """
@@ -378,6 +402,7 @@ class PluginBase(ABC):
 # نواة محرك Low-Code
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class LowCodeEngine:
     """
     SAHOOL Low-Code Engine.
@@ -433,120 +458,151 @@ class LowCodeEngine:
     def _register_builtin_components(self) -> None:
         """Register built-in components."""
         # Layout components
-        self.register_component(ComponentMaterial(
-            component_id="container",
-            name="Container",
-            name_ar="حاوية",
-            category=ComponentCategory.LAYOUT,
-            icon="📦",
-            is_container=True,
-            props=[
-                PropDefinition(name="padding", name_ar="الحشو", type="string", default="16px"),
-                PropDefinition(name="direction", name_ar="الاتجاه", type="enum",
-                             enum_values=["row", "column"], default="column"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="container",
+                name="Container",
+                name_ar="حاوية",
+                category=ComponentCategory.LAYOUT,
+                icon="📦",
+                is_container=True,
+                props=[
+                    PropDefinition(name="padding", name_ar="الحشو", type="string", default="16px"),
+                    PropDefinition(
+                        name="direction",
+                        name_ar="الاتجاه",
+                        type="enum",
+                        enum_values=["row", "column"],
+                        default="column",
+                    ),
+                ],
+            )
+        )
 
-        self.register_component(ComponentMaterial(
-            component_id="grid",
-            name="Grid",
-            name_ar="شبكة",
-            category=ComponentCategory.LAYOUT,
-            icon="⊞",
-            is_container=True,
-            props=[
-                PropDefinition(name="columns", name_ar="الأعمدة", type="number", default=2),
-                PropDefinition(name="gap", name_ar="الفجوة", type="string", default="16px"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="grid",
+                name="Grid",
+                name_ar="شبكة",
+                category=ComponentCategory.LAYOUT,
+                icon="⊞",
+                is_container=True,
+                props=[
+                    PropDefinition(name="columns", name_ar="الأعمدة", type="number", default=2),
+                    PropDefinition(name="gap", name_ar="الفجوة", type="string", default="16px"),
+                ],
+            )
+        )
 
         # Form components
-        self.register_component(ComponentMaterial(
-            component_id="text_input",
-            name="Text Input",
-            name_ar="حقل نصي",
-            category=ComponentCategory.FORM,
-            icon="✏️",
-            props=[
-                PropDefinition(name="label", name_ar="التسمية", type="string"),
-                PropDefinition(name="placeholder", name_ar="نص توضيحي", type="string"),
-                PropDefinition(name="required", name_ar="مطلوب", type="boolean", default=False),
-            ],
-            events=[
-                EventDefinition(name="onChange", name_ar="عند التغيير"),
-                EventDefinition(name="onBlur", name_ar="عند فقد التركيز"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="text_input",
+                name="Text Input",
+                name_ar="حقل نصي",
+                category=ComponentCategory.FORM,
+                icon="✏️",
+                props=[
+                    PropDefinition(name="label", name_ar="التسمية", type="string"),
+                    PropDefinition(name="placeholder", name_ar="نص توضيحي", type="string"),
+                    PropDefinition(name="required", name_ar="مطلوب", type="boolean", default=False),
+                ],
+                events=[
+                    EventDefinition(name="onChange", name_ar="عند التغيير"),
+                    EventDefinition(name="onBlur", name_ar="عند فقد التركيز"),
+                ],
+            )
+        )
 
-        self.register_component(ComponentMaterial(
-            component_id="number_input",
-            name="Number Input",
-            name_ar="حقل رقمي",
-            category=ComponentCategory.FORM,
-            icon="🔢",
-            props=[
-                PropDefinition(name="label", name_ar="التسمية", type="string"),
-                PropDefinition(name="min", name_ar="الحد الأدنى", type="number"),
-                PropDefinition(name="max", name_ar="الحد الأقصى", type="number"),
-                PropDefinition(name="unit", name_ar="الوحدة", type="string"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="number_input",
+                name="Number Input",
+                name_ar="حقل رقمي",
+                category=ComponentCategory.FORM,
+                icon="🔢",
+                props=[
+                    PropDefinition(name="label", name_ar="التسمية", type="string"),
+                    PropDefinition(name="min", name_ar="الحد الأدنى", type="number"),
+                    PropDefinition(name="max", name_ar="الحد الأقصى", type="number"),
+                    PropDefinition(name="unit", name_ar="الوحدة", type="string"),
+                ],
+            )
+        )
 
-        self.register_component(ComponentMaterial(
-            component_id="select",
-            name="Select",
-            name_ar="قائمة منسدلة",
-            category=ComponentCategory.FORM,
-            icon="📋",
-            props=[
-                PropDefinition(name="label", name_ar="التسمية", type="string"),
-                PropDefinition(name="options", name_ar="الخيارات", type="array"),
-                PropDefinition(name="multiple", name_ar="متعدد", type="boolean", default=False),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="select",
+                name="Select",
+                name_ar="قائمة منسدلة",
+                category=ComponentCategory.FORM,
+                icon="📋",
+                props=[
+                    PropDefinition(name="label", name_ar="التسمية", type="string"),
+                    PropDefinition(name="options", name_ar="الخيارات", type="array"),
+                    PropDefinition(name="multiple", name_ar="متعدد", type="boolean", default=False),
+                ],
+            )
+        )
 
-        self.register_component(ComponentMaterial(
-            component_id="date_picker",
-            name="Date Picker",
-            name_ar="منتقي التاريخ",
-            category=ComponentCategory.FORM,
-            icon="📅",
-            props=[
-                PropDefinition(name="label", name_ar="التسمية", type="string"),
-                PropDefinition(name="format", name_ar="التنسيق", type="string", default="YYYY-MM-DD"),
-                PropDefinition(name="use_hijri", name_ar="استخدام الهجري", type="boolean", default=False),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="date_picker",
+                name="Date Picker",
+                name_ar="منتقي التاريخ",
+                category=ComponentCategory.FORM,
+                icon="📅",
+                props=[
+                    PropDefinition(name="label", name_ar="التسمية", type="string"),
+                    PropDefinition(
+                        name="format", name_ar="التنسيق", type="string", default="YYYY-MM-DD"
+                    ),
+                    PropDefinition(
+                        name="use_hijri", name_ar="استخدام الهجري", type="boolean", default=False
+                    ),
+                ],
+            )
+        )
 
         # Data components
-        self.register_component(ComponentMaterial(
-            component_id="data_table",
-            name="Data Table",
-            name_ar="جدول البيانات",
-            category=ComponentCategory.DATA,
-            icon="📊",
-            props=[
-                PropDefinition(name="columns", name_ar="الأعمدة", type="array"),
-                PropDefinition(name="pagination", name_ar="ترقيم الصفحات", type="boolean", default=True),
-                PropDefinition(name="page_size", name_ar="حجم الصفحة", type="number", default=10),
-                PropDefinition(name="sortable", name_ar="قابل للفرز", type="boolean", default=True),
-            ],
-            supports_data_binding=True,
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="data_table",
+                name="Data Table",
+                name_ar="جدول البيانات",
+                category=ComponentCategory.DATA,
+                icon="📊",
+                props=[
+                    PropDefinition(name="columns", name_ar="الأعمدة", type="array"),
+                    PropDefinition(
+                        name="pagination", name_ar="ترقيم الصفحات", type="boolean", default=True
+                    ),
+                    PropDefinition(
+                        name="page_size", name_ar="حجم الصفحة", type="number", default=10
+                    ),
+                    PropDefinition(
+                        name="sortable", name_ar="قابل للفرز", type="boolean", default=True
+                    ),
+                ],
+                supports_data_binding=True,
+            )
+        )
 
         # Chart components
-        self.register_component(ComponentMaterial(
-            component_id="line_chart",
-            name="Line Chart",
-            name_ar="رسم بياني خطي",
-            category=ComponentCategory.CHART,
-            icon="📈",
-            props=[
-                PropDefinition(name="title", name_ar="العنوان", type="string"),
-                PropDefinition(name="x_axis", name_ar="المحور السيني", type="string"),
-                PropDefinition(name="y_axis", name_ar="المحور الصادي", type="string"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="line_chart",
+                name="Line Chart",
+                name_ar="رسم بياني خطي",
+                category=ComponentCategory.CHART,
+                icon="📈",
+                props=[
+                    PropDefinition(name="title", name_ar="العنوان", type="string"),
+                    PropDefinition(name="x_axis", name_ar="المحور السيني", type="string"),
+                    PropDefinition(name="y_axis", name_ar="المحور الصادي", type="string"),
+                ],
+            )
+        )
 
         # Agricultural components
         self._register_agricultural_components()
@@ -555,112 +611,173 @@ class LowCodeEngine:
         """Register SAHOOL-specific agricultural components."""
 
         # Field Map
-        self.register_component(ComponentMaterial(
-            component_id="field_map",
-            name="Field Map",
-            name_ar="خريطة الحقل",
-            category=ComponentCategory.MAP,
-            icon="🗺️",
-            description="Interactive map showing field boundaries and health",
-            description_ar="خريطة تفاعلية تظهر حدود الحقل وصحته",
-            props=[
-                PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                PropDefinition(name="show_ndvi", name_ar="إظهار NDVI", type="boolean", default=True),
-                PropDefinition(name="show_sensors", name_ar="إظهار المستشعرات", type="boolean", default=True),
-                PropDefinition(name="satellite_layer", name_ar="طبقة الأقمار", type="enum",
-                             enum_values=["satellite", "ndvi", "moisture"], default="satellite"),
-            ],
-            events=[
-                EventDefinition(name="onFieldClick", name_ar="عند النقر على الحقل"),
-                EventDefinition(name="onZoneSelect", name_ar="عند اختيار منطقة"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="field_map",
+                name="Field Map",
+                name_ar="خريطة الحقل",
+                category=ComponentCategory.MAP,
+                icon="🗺️",
+                description="Interactive map showing field boundaries and health",
+                description_ar="خريطة تفاعلية تظهر حدود الحقل وصحته",
+                props=[
+                    PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
+                    PropDefinition(
+                        name="show_ndvi", name_ar="إظهار NDVI", type="boolean", default=True
+                    ),
+                    PropDefinition(
+                        name="show_sensors",
+                        name_ar="إظهار المستشعرات",
+                        type="boolean",
+                        default=True,
+                    ),
+                    PropDefinition(
+                        name="satellite_layer",
+                        name_ar="طبقة الأقمار",
+                        type="enum",
+                        enum_values=["satellite", "ndvi", "moisture"],
+                        default="satellite",
+                    ),
+                ],
+                events=[
+                    EventDefinition(name="onFieldClick", name_ar="عند النقر على الحقل"),
+                    EventDefinition(name="onZoneSelect", name_ar="عند اختيار منطقة"),
+                ],
+            )
+        )
 
         # Crop Selector
-        self.register_component(ComponentMaterial(
-            component_id="crop_selector",
-            name="Crop Selector",
-            name_ar="منتقي المحصول",
-            category=ComponentCategory.AGRICULTURE,
-            icon="🌾",
-            props=[
-                PropDefinition(name="label", name_ar="التسمية", type="string"),
-                PropDefinition(name="region", name_ar="المنطقة", type="string"),
-                PropDefinition(name="season", name_ar="الموسم", type="enum",
-                             enum_values=["winter", "summer", "spring"], default="winter"),
-                PropDefinition(name="show_recommendations", name_ar="إظهار التوصيات", type="boolean", default=True),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="crop_selector",
+                name="Crop Selector",
+                name_ar="منتقي المحصول",
+                category=ComponentCategory.AGRICULTURE,
+                icon="🌾",
+                props=[
+                    PropDefinition(name="label", name_ar="التسمية", type="string"),
+                    PropDefinition(name="region", name_ar="المنطقة", type="string"),
+                    PropDefinition(
+                        name="season",
+                        name_ar="الموسم",
+                        type="enum",
+                        enum_values=["winter", "summer", "spring"],
+                        default="winter",
+                    ),
+                    PropDefinition(
+                        name="show_recommendations",
+                        name_ar="إظهار التوصيات",
+                        type="boolean",
+                        default=True,
+                    ),
+                ],
+            )
+        )
 
         # Irrigation Scheduler
-        self.register_component(ComponentMaterial(
-            component_id="irrigation_scheduler",
-            name="Irrigation Scheduler",
-            name_ar="جدولة الري",
-            category=ComponentCategory.AGRICULTURE,
-            icon="💧",
-            props=[
-                PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                PropDefinition(name="auto_schedule", name_ar="جدولة تلقائية", type="boolean", default=False),
-                PropDefinition(name="show_forecast", name_ar="إظهار التوقعات", type="boolean", default=True),
-            ],
-            events=[
-                EventDefinition(name="onScheduleCreate", name_ar="عند إنشاء جدول"),
-                EventDefinition(name="onIrrigationStart", name_ar="عند بدء الري"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="irrigation_scheduler",
+                name="Irrigation Scheduler",
+                name_ar="جدولة الري",
+                category=ComponentCategory.AGRICULTURE,
+                icon="💧",
+                props=[
+                    PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
+                    PropDefinition(
+                        name="auto_schedule", name_ar="جدولة تلقائية", type="boolean", default=False
+                    ),
+                    PropDefinition(
+                        name="show_forecast", name_ar="إظهار التوقعات", type="boolean", default=True
+                    ),
+                ],
+                events=[
+                    EventDefinition(name="onScheduleCreate", name_ar="عند إنشاء جدول"),
+                    EventDefinition(name="onIrrigationStart", name_ar="عند بدء الري"),
+                ],
+            )
+        )
 
         # Sensor Display
-        self.register_component(ComponentMaterial(
-            component_id="sensor_display",
-            name="Sensor Display",
-            name_ar="عرض المستشعر",
-            category=ComponentCategory.AGRICULTURE,
-            icon="📡",
-            props=[
-                PropDefinition(name="sensor_id", name_ar="معرف المستشعر", type="string"),
-                PropDefinition(name="sensor_type", name_ar="نوع المستشعر", type="enum",
-                             enum_values=["soil_moisture", "temperature", "humidity", "ec"]),
-                PropDefinition(name="show_history", name_ar="إظهار السجل", type="boolean", default=True),
-                PropDefinition(name="alert_threshold", name_ar="حد التنبيه", type="number"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="sensor_display",
+                name="Sensor Display",
+                name_ar="عرض المستشعر",
+                category=ComponentCategory.AGRICULTURE,
+                icon="📡",
+                props=[
+                    PropDefinition(name="sensor_id", name_ar="معرف المستشعر", type="string"),
+                    PropDefinition(
+                        name="sensor_type",
+                        name_ar="نوع المستشعر",
+                        type="enum",
+                        enum_values=["soil_moisture", "temperature", "humidity", "ec"],
+                    ),
+                    PropDefinition(
+                        name="show_history", name_ar="إظهار السجل", type="boolean", default=True
+                    ),
+                    PropDefinition(name="alert_threshold", name_ar="حد التنبيه", type="number"),
+                ],
+            )
+        )
 
         # Crop Health Card
-        self.register_component(ComponentMaterial(
-            component_id="crop_health_card",
-            name="Crop Health Card",
-            name_ar="بطاقة صحة المحصول",
-            category=ComponentCategory.AGRICULTURE,
-            icon="🌱",
-            props=[
-                PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
-                PropDefinition(name="show_score", name_ar="إظهار الدرجة", type="boolean", default=True),
-                PropDefinition(name="show_recommendations", name_ar="إظهار التوصيات", type="boolean", default=True),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="crop_health_card",
+                name="Crop Health Card",
+                name_ar="بطاقة صحة المحصول",
+                category=ComponentCategory.AGRICULTURE,
+                icon="🌱",
+                props=[
+                    PropDefinition(name="field_id", name_ar="معرف الحقل", type="string"),
+                    PropDefinition(
+                        name="show_score", name_ar="إظهار الدرجة", type="boolean", default=True
+                    ),
+                    PropDefinition(
+                        name="show_recommendations",
+                        name_ar="إظهار التوصيات",
+                        type="boolean",
+                        default=True,
+                    ),
+                ],
+            )
+        )
 
         # AI Advisor Widget
-        self.register_component(ComponentMaterial(
-            component_id="ai_advisor",
-            name="AI Advisor",
-            name_ar="مستشار الذكاء الاصطناعي",
-            category=ComponentCategory.AI,
-            icon="🤖",
-            description="AI-powered agricultural advisor",
-            description_ar="مستشار زراعي مدعوم بالذكاء الاصطناعي",
-            props=[
-                PropDefinition(name="context", name_ar="السياق", type="object"),
-                PropDefinition(name="language", name_ar="اللغة", type="enum",
-                             enum_values=["ar", "en"], default="ar"),
-                PropDefinition(name="agent_type", name_ar="نوع الوكيل", type="enum",
-                             enum_values=["research", "advisor", "planner"], default="advisor"),
-            ],
-            events=[
-                EventDefinition(name="onRecommendation", name_ar="عند التوصية"),
-                EventDefinition(name="onQuery", name_ar="عند الاستعلام"),
-            ],
-        ))
+        self.register_component(
+            ComponentMaterial(
+                component_id="ai_advisor",
+                name="AI Advisor",
+                name_ar="مستشار الذكاء الاصطناعي",
+                category=ComponentCategory.AI,
+                icon="🤖",
+                description="AI-powered agricultural advisor",
+                description_ar="مستشار زراعي مدعوم بالذكاء الاصطناعي",
+                props=[
+                    PropDefinition(name="context", name_ar="السياق", type="object"),
+                    PropDefinition(
+                        name="language",
+                        name_ar="اللغة",
+                        type="enum",
+                        enum_values=["ar", "en"],
+                        default="ar",
+                    ),
+                    PropDefinition(
+                        name="agent_type",
+                        name_ar="نوع الوكيل",
+                        type="enum",
+                        enum_values=["research", "advisor", "planner"],
+                        default="advisor",
+                    ),
+                ],
+                events=[
+                    EventDefinition(name="onRecommendation", name_ar="عند التوصية"),
+                    EventDefinition(name="onQuery", name_ar="عند الاستعلام"),
+                ],
+            )
+        )
 
     def register_component(self, component: ComponentMaterial) -> None:
         """Register a component in the material system."""
@@ -811,6 +928,7 @@ class LowCodeEngine:
 # AI-Powered Features
 # ميزات مدعومة بالذكاء الاصطناعي
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class AIComponentSuggester:
     """

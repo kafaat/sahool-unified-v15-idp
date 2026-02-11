@@ -110,7 +110,7 @@ class TwoFAConfig:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "TwoFAConfig":
+    def from_dict(cls, data: dict) -> TwoFAConfig:
         """Create from dictionary"""
         return cls(
             user_id=data["user_id"],

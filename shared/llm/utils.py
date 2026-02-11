@@ -223,9 +223,7 @@ def extract_json(text: str) -> JSONExtractionResult:
                 if balanced:
                     try:
                         data = json.loads(balanced)
-                        return JSONExtractionResult(
-                            success=True, data=data, raw_text=text
-                        )
+                        return JSONExtractionResult(success=True, data=data, raw_text=text)
                     except json.JSONDecodeError:
                         pass
 

@@ -425,9 +425,7 @@ class KnowledgeGraphService:
                         id=f"{curr}-->{next_node}",
                         source=curr,
                         target=next_node,
-                        relationship_type=RelationshipType(
-                            edge_data.get("relationship_type")
-                        ),
+                        relationship_type=RelationshipType(edge_data.get("relationship_type")),
                         confidence=edge_data.get("confidence", 1.0),
                     )
                 )
@@ -537,12 +535,8 @@ class KnowledgeGraphService:
     async def get_graph_stats(self) -> dict[str, Any]:
         """Get graph statistics"""
         crop_count = sum(1 for node in self.graph.nodes() if node.startswith("crop:"))
-        disease_count = sum(
-            1 for node in self.graph.nodes() if node.startswith("disease:")
-        )
-        treatment_count = sum(
-            1 for node in self.graph.nodes() if node.startswith("treatment:")
-        )
+        disease_count = sum(1 for node in self.graph.nodes() if node.startswith("disease:"))
+        treatment_count = sum(1 for node in self.graph.nodes() if node.startswith("treatment:"))
 
         return {
             "total_nodes": self.graph.number_of_nodes(),

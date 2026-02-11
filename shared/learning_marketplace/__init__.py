@@ -147,7 +147,6 @@ __version__ = "1.0.0"
 __all__ = [
     # Version
     "__version__",
-
     # === Models ===
     # Enums
     "ContentType",
@@ -171,7 +170,6 @@ __all__ = [
     "FarmerCertification",
     "FarmerSkill",
     "FarmerProfile",
-
     # === Progress Tracking ===
     # Enums
     "ProgressEventType",
@@ -192,7 +190,6 @@ __all__ = [
     "complete_lesson",
     "submit_quiz",
     "get_progress_summary",
-
     # === Recommendations ===
     # Enums
     "RecommendationReason",

@@ -135,9 +135,7 @@ def parse_geojson_geometry(data: dict[str, Any]) -> GeoJSONGeometry:
             geometry.centroid = calculate_linestring_centroid(coordinates)
         elif geom_type == "MultiPolygon":
             geometry.bbox = calculate_bbox_multipolygon(coordinates)
-            geometry.area_sqm = sum(
-                calculate_polygon_area_geodesic(poly) for poly in coordinates
-            )
+            geometry.area_sqm = sum(calculate_polygon_area_geodesic(poly) for poly in coordinates)
 
         geometry.is_valid = True
     except Exception as e:
@@ -171,9 +169,7 @@ def parse_geojson_feature(data: dict[str, Any]) -> GeoJSONFeature:
     )
 
 
-def parse_geojson_feature_collection(
-    data: dict[str, Any]
-) -> GeoJSONFeatureCollection:
+def parse_geojson_feature_collection(data: dict[str, Any]) -> GeoJSONFeatureCollection:
     """
     Parse a GeoJSON feature collection.
     تحليل مجموعة ميزات GeoJSON.
@@ -184,9 +180,7 @@ def parse_geojson_feature_collection(
     Returns:
         GeoJSONFeatureCollection with parsed features
     """
-    features = [
-        parse_geojson_feature(f) for f in data.get("features", [])
-    ]
+    features = [parse_geojson_feature(f) for f in data.get("features", [])]
 
     # Calculate overall bounding box
     bbox = None
@@ -258,8 +252,7 @@ def create_linestring(
         GeoJSON Feature dictionary
     """
     coords = [
-        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)]
-        for lon, lat in coordinates
+        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates
     ]
     feature = {
         "type": "Feature",
@@ -294,8 +287,7 @@ def create_polygon(
         GeoJSON Feature dictionary
     """
     coords = [
-        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)]
-        for lon, lat in coordinates
+        [round(lon, DEFAULT_PRECISION), round(lat, DEFAULT_PRECISION)] for lon, lat in coordinates
     ]
 
     # Ensure the polygon is closed
@@ -365,9 +357,7 @@ def degrees_to_radians(degrees: float) -> float:
     return degrees * math.pi / 180.0
 
 
-def haversine_distance(
-    lon1: float, lat1: float, lon2: float, lat2: float
-) -> float:
+def haversine_distance(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     """
     Calculate great-circle distance using Haversine formula.
     حساب المسافة الدائرية الكبرى باستخدام معادلة هافرساين.
@@ -460,9 +450,7 @@ def calculate_polygon_perimeter(coordinates: list[list[Any]]) -> float:
     return perimeter
 
 
-def calculate_polygon_centroid(
-    coordinates: list[list[Any]]
-) -> tuple[float, float] | None:
+def calculate_polygon_centroid(coordinates: list[list[Any]]) -> tuple[float, float] | None:
     """
     Calculate polygon centroid.
     حساب مركز المضلع.
@@ -511,9 +499,7 @@ def calculate_linestring_length(coordinates: list[list[float]]) -> float:
     return length
 
 
-def calculate_linestring_centroid(
-    coordinates: list[list[float]]
-) -> tuple[float, float] | None:
+def calculate_linestring_centroid(coordinates: list[list[float]]) -> tuple[float, float] | None:
     """
     Calculate LineString centroid (midpoint).
     حساب مركز الخط.
@@ -539,9 +525,7 @@ def calculate_linestring_centroid(
 # =============================================================================
 
 
-def calculate_bbox_polygon(
-    coordinates: list[list[Any]]
-) -> tuple[float, float, float, float]:
+def calculate_bbox_polygon(coordinates: list[list[Any]]) -> tuple[float, float, float, float]:
     """
     Calculate bounding box for a polygon.
     حساب الإطار المحيط بالمضلع.
@@ -562,9 +546,7 @@ def calculate_bbox_polygon(
     return (min(lons), min(lats), max(lons), max(lats))
 
 
-def calculate_bbox_linestring(
-    coordinates: list[list[float]]
-) -> tuple[float, float, float, float]:
+def calculate_bbox_linestring(coordinates: list[list[float]]) -> tuple[float, float, float, float]:
     """
     Calculate bounding box for a LineString.
     حساب الإطار المحيط بالخط.
@@ -585,7 +567,7 @@ def calculate_bbox_linestring(
 
 
 def calculate_bbox_multipolygon(
-    coordinates: list[list[list[Any]]]
+    coordinates: list[list[list[Any]]],
 ) -> tuple[float, float, float, float]:
     """
     Calculate bounding box for a MultiPolygon.
@@ -605,7 +587,7 @@ def calculate_bbox_multipolygon(
 
 
 def merge_bboxes(
-    bboxes: list[tuple[float, float, float, float]]
+    bboxes: list[tuple[float, float, float, float]],
 ) -> tuple[float, float, float, float]:
     """
     Merge multiple bounding boxes into one.
@@ -675,9 +657,7 @@ def simplify_coordinates(
         dx = (x2 - x1) * m_per_deg_lon
         dy = (y2 - y1) * m_per_deg_lat
 
-        numerator = abs(
-            (x - x1) * m_per_deg_lon * dy - (y - y1) * m_per_deg_lat * dx
-        )
+        numerator = abs((x - x1) * m_per_deg_lon * dy - (y - y1) * m_per_deg_lat * dx)
         denominator = math.sqrt(dx * dx + dy * dy)
 
         if denominator == 0:
@@ -685,9 +665,7 @@ def simplify_coordinates(
 
         return numerator / denominator
 
-    def douglas_peucker(
-        points: list[list[float]], tolerance: float
-    ) -> list[list[float]]:
+    def douglas_peucker(points: list[list[float]], tolerance: float) -> list[list[float]]:
         """Recursive Douglas-Peucker implementation."""
         if len(points) <= 2:
             return points

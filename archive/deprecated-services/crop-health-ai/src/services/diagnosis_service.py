@@ -28,6 +28,7 @@ from .prediction_service import prediction_service
 # Database imports for PostgreSQL migration
 try:
     from ..repository import DiagnosisRepository
+
     _diagnosis_repository = DiagnosisRepository()
     DB_AVAILABLE = True
 except ImportError:
@@ -229,18 +230,21 @@ class DiagnosisService:
         # Try PostgreSQL first
         if self._use_db and _diagnosis_repository:
             import asyncio
+
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
                     # Cannot await in sync context, use fallback
                     pass
                 else:
-                    return asyncio.run(_diagnosis_repository.get_history(
-                        limit=limit,
-                        offset=offset,
-                        status=status,
-                        governorate=governorate,
-                    ))
+                    return asyncio.run(
+                        _diagnosis_repository.get_history(
+                            limit=limit,
+                            offset=offset,
+                            status=status,
+                            governorate=governorate,
+                        )
+                    )
             except Exception as e:
                 logger.warning("PostgreSQL query failed, using fallback: %s", str(e))
 
@@ -263,6 +267,7 @@ class DiagnosisService:
         # Try PostgreSQL first
         if self._use_db and _diagnosis_repository:
             import asyncio
+
             try:
                 loop = asyncio.get_event_loop()
                 if not loop.is_running():
@@ -281,9 +286,7 @@ class DiagnosisService:
             disease_key = record.get("disease_id")
             disease_info = disease_service.get_disease(disease_key)
             if disease_info:
-                record["treatments"] = [
-                    t.model_dump() for t in disease_info.get("treatments", [])
-                ]
+                record["treatments"] = [t.model_dump() for t in disease_info.get("treatments", [])]
                 record["prevention_tips_ar"] = disease_info.get("prevention_ar", [])
 
         return record
@@ -300,6 +303,7 @@ class DiagnosisService:
         # Try PostgreSQL first
         if self._use_db and _diagnosis_repository:
             import asyncio
+
             try:
                 loop = asyncio.get_event_loop()
                 if not loop.is_running():
@@ -330,6 +334,7 @@ class DiagnosisService:
         # Try PostgreSQL first
         if self._use_db and _diagnosis_repository:
             import asyncio
+
             try:
                 loop = asyncio.get_event_loop()
                 if not loop.is_running():
@@ -474,6 +479,7 @@ class DiagnosisService:
         # Try to save to PostgreSQL first
         if self._use_db and _diagnosis_repository:
             import asyncio
+
             try:
                 # Run async operation in sync context
                 loop = asyncio.get_event_loop()

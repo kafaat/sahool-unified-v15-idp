@@ -66,7 +66,7 @@ async def run_tool(request: ToolCallRequest) -> ToolCallResponse:
                 "reason": decision.reason,
                 "reason_ar": decision.reason_ar,
                 "layer": decision.layer,
-            }
+            },
         )
 
     # Execute tool
@@ -122,7 +122,7 @@ async def check_guard(request: ToolCallRequest) -> GuardDecisionSchema:
         details={
             "reason_ar": decision.reason_ar,
             "layer": decision.layer,
-        }
+        },
     )
 
 
@@ -136,11 +136,13 @@ async def list_tools():
 
     for tool in sorted(TOOL_ALLOWLIST):
         category = tool.split(".")[0] if "." in tool else "general"
-        tools.append({
-            "name": tool,
-            "category": category,
-            "allowed": True,
-        })
+        tools.append(
+            {
+                "name": tool,
+                "category": category,
+                "allowed": True,
+            }
+        )
 
     return {
         "tools": tools,

@@ -114,9 +114,7 @@ class TimeSeriesNDVI:
 
         values = [m.mean_value for m in self.measurements]
         first_half = sum(values[: len(values) // 2]) / (len(values) // 2)
-        second_half = sum(values[len(values) // 2 :]) / (
-            len(values) - len(values) // 2
-        )
+        second_half = sum(values[len(values) // 2 :]) / (len(values) - len(values) // 2)
 
         diff = second_half - first_half
         if diff > 0.05:
@@ -238,9 +236,7 @@ class SentinelNDVIAnalyzer:
             return True
 
         except ImportError:
-            logger.warning(
-                "sentinelhub-py not installed. Install with: pip install sentinelhub"
-            )
+            logger.warning("sentinelhub-py not installed. Install with: pip install sentinelhub")
             return False
         except Exception as e:
             logger.error("Failed to initialize Sentinel Hub", error=str(e))
@@ -309,9 +305,7 @@ class SentinelNDVIAnalyzer:
                 logger.warning("All pixels are cloudy")
                 return None
 
-            cloud_coverage = (
-                1 - len(valid_pixels) / ndvi_array.size
-            ) * 100
+            cloud_coverage = (1 - len(valid_pixels) / ndvi_array.size) * 100
 
             return NDVIResult(
                 field_id=field.field_id,
@@ -408,9 +402,7 @@ class SentinelNDVIAnalyzer:
             pixel_count=ndvi_result.pixel_count,
         )
 
-    def _get_mock_ndvi(
-        self, field: FieldBoundary, date: datetime | None = None
-    ) -> NDVIResult:
+    def _get_mock_ndvi(self, field: FieldBoundary, date: datetime | None = None) -> NDVIResult:
         """
         Generate mock NDVI data for testing/demo.
         توليد بيانات NDVI وهمية للاختبار

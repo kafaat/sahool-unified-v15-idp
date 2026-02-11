@@ -33,27 +33,30 @@ logger = structlog.get_logger()
 
 class MemoryType(str, Enum):
     """أنواع الذاكرة"""
-    WORKING = "working"           # Current task state
-    EPISODIC = "episodic"         # Specific events
-    SEMANTIC = "semantic"         # Factual knowledge
-    PROCEDURAL = "procedural"     # Skills & procedures
+
+    WORKING = "working"  # Current task state
+    EPISODIC = "episodic"  # Specific events
+    SEMANTIC = "semantic"  # Factual knowledge
+    PROCEDURAL = "procedural"  # Skills & procedures
 
 
 class MemoryPriority(str, Enum):
     """أولوية الذاكرة"""
-    CRITICAL = "critical"         # Never forget
-    HIGH = "high"                 # Keep for long time
-    MEDIUM = "medium"             # Standard retention
-    LOW = "low"                   # Can be forgotten
+
+    CRITICAL = "critical"  # Never forget
+    HIGH = "high"  # Keep for long time
+    MEDIUM = "medium"  # Standard retention
+    LOW = "low"  # Can be forgotten
 
 
 class RetrievalStrategy(str, Enum):
     """استراتيجية الاسترجاع"""
-    EXACT = "exact"               # Exact match
-    SIMILARITY = "similarity"     # Semantic similarity
-    RECENCY = "recency"           # Most recent first
-    RELEVANCE = "relevance"       # Most relevant to context
-    COMBINED = "combined"         # Combine multiple strategies
+
+    EXACT = "exact"  # Exact match
+    SIMILARITY = "similarity"  # Semantic similarity
+    RECENCY = "recency"  # Most recent first
+    RELEVANCE = "relevance"  # Most relevant to context
+    COMBINED = "combined"  # Combine multiple strategies
 
 
 # ============================================================================
@@ -67,6 +70,7 @@ class MemoryEntry:
     Base class for all memory entries.
     الفئة الأساسية لجميع إدخالات الذاكرة
     """
+
     memory_id: str
     memory_type: MemoryType
     content: Any
@@ -122,12 +126,13 @@ class EpisodicMemory(MemoryEntry):
     - What was the outcome
     - Emotional valence (positive/negative)
     """
-    event_type: str = ""           # Type of event
+
+    event_type: str = ""  # Type of event
     context: dict[str, Any] = field(default_factory=dict)  # Situational context
     actors: list[str] = field(default_factory=list)  # Who was involved
-    outcome: str = ""              # What happened
+    outcome: str = ""  # What happened
     outcome_ar: str = ""
-    success: bool = True           # Was it successful
+    success: bool = True  # Was it successful
     emotional_valence: float = 0.0  # -1 (negative) to 1 (positive)
     lessons_learned: list[str] = field(default_factory=list)
 
@@ -147,12 +152,13 @@ class SemanticMemory(MemoryEntry):
     - Patterns observed over time
     - Statistical information
     """
-    category: str = ""             # Knowledge category
+
+    category: str = ""  # Knowledge category
     concepts: list[str] = field(default_factory=list)  # Related concepts
     relationships: list[dict[str, str]] = field(default_factory=list)  # Concept relationships
-    confidence: float = 0.8        # How confident in this knowledge
-    source: str = ""               # Where this knowledge came from
-    verified: bool = False         # Has it been verified
+    confidence: float = 0.8  # How confident in this knowledge
+    source: str = ""  # Where this knowledge came from
+    verified: bool = False  # Has it been verified
 
     def __post_init__(self):
         self.memory_type = MemoryType.SEMANTIC
@@ -170,13 +176,14 @@ class ProceduralMemory(MemoryEntry):
     - Success rate history
     - Variations and alternatives
     """
-    skill_name: str = ""           # Name of the skill/procedure
+
+    skill_name: str = ""  # Name of the skill/procedure
     skill_name_ar: str = ""
     steps: list[dict[str, Any]] = field(default_factory=list)  # Procedure steps
     preconditions: list[str] = field(default_factory=list)  # When to apply
     postconditions: list[str] = field(default_factory=list)  # Expected outcomes
-    success_rate: float = 0.0      # Historical success rate
-    execution_count: int = 0       # How many times executed
+    success_rate: float = 0.0  # Historical success rate
+    execution_count: int = 0  # How many times executed
     average_duration_ms: float = 0.0
     variations: list[str] = field(default_factory=list)  # Alternative approaches
 
@@ -202,6 +209,7 @@ class WorkingMemory:
     Short-term storage for active processing.
     Limited capacity, regularly updated.
     """
+
     task_id: str = ""
     task_description: str = ""
     task_description_ar: str = ""
@@ -528,9 +536,7 @@ class MemoryStore:
         score += memory.access_count * 5
 
         # Recency (hours since last access)
-        hours_since_access = (
-            datetime.now(UTC) - memory.last_accessed
-        ).total_seconds() / 3600
+        hours_since_access = (datetime.now(UTC) - memory.last_accessed).total_seconds() / 3600
         score -= hours_since_access * 0.5
 
         return score
@@ -702,7 +708,8 @@ class AgentMemorySystem:
         if not self._embedding_fn:
             # Fallback to tag-based retrieval
             return [
-                m for m in self.store.query(
+                m
+                for m in self.store.query(
                     memory_type=MemoryType.EPISODIC,
                     limit=top_k,
                 )
@@ -736,10 +743,7 @@ class AgentMemorySystem:
         similar = self.recall_similar_episodes(problem_description, top_k=top_k * 2)
 
         # Filter for successful ones
-        successful = [
-            ep for ep in similar
-            if ep.success and ep.emotional_valence >= 0
-        ]
+        successful = [ep for ep in similar if ep.success and ep.emotional_valence >= 0]
 
         # Sort by success and recency
         successful.sort(
@@ -881,7 +885,8 @@ class AgentMemorySystem:
 
         # Filter by success rate
         applicable = [
-            p for p in all_procedures
+            p
+            for p in all_procedures
             if isinstance(p, ProceduralMemory) and p.success_rate >= min_success_rate
         ]
 
@@ -995,7 +1000,7 @@ class AgentMemorySystem:
 
         # Truncate if too long (rough estimate)
         if len(result) > max_tokens * 4:  # Rough char to token ratio
-            result = result[:max_tokens * 4] + "\n...[truncated]"
+            result = result[: max_tokens * 4] + "\n...[truncated]"
 
         return result
 

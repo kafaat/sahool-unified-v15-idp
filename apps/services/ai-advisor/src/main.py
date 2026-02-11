@@ -641,7 +641,9 @@ async def get_recommendations(request: RecommendationRequest):
         evaluation_info = None
         if CONTEXT_ENGINEERING_AVAILABLE and recommendation_evaluator and result:
             try:
-                recommendation_text = str(result).split("\n")[0] if isinstance(result, dict) else str(result)
+                recommendation_text = (
+                    str(result).split("\n")[0] if isinstance(result, dict) else str(result)
+                )
 
                 # Map recommendation type to evaluation type | تعيين نوع التوصية إلى نوع التقييم
                 type_mapping = {
@@ -649,7 +651,9 @@ async def get_recommendations(request: RecommendationRequest):
                     "fertilizer": RecommendationType.FERTILIZATION,
                     "pest": RecommendationType.PEST_CONTROL,
                 }
-                eval_type = type_mapping.get(request.recommendation_type, RecommendationType.GENERAL)
+                eval_type = type_mapping.get(
+                    request.recommendation_type, RecommendationType.GENERAL
+                )
 
                 eval_result = recommendation_evaluator.evaluate(
                     recommendation=recommendation_text,
@@ -664,9 +668,7 @@ async def get_recommendations(request: RecommendationRequest):
                     is_approved=eval_result.is_approved,
                     feedback=eval_result.feedback,
                     improvements=eval_result.improvements,
-                    criteria_scores={
-                        k.value: v.score for k, v in eval_result.scores.items()
-                    },
+                    criteria_scores={k.value: v.score for k, v in eval_result.scores.items()},
                 )
 
                 logger.info(
@@ -683,7 +685,11 @@ async def get_recommendations(request: RecommendationRequest):
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
             try:
-                tenant_id = request.field_data.get("tenant_id", "default") if request.field_data else "default"
+                tenant_id = (
+                    request.field_data.get("tenant_id", "default")
+                    if request.field_data
+                    else "default"
+                )
                 field_id = request.field_data.get("field_id") if request.field_data else None
 
                 # Determine relevance based on evaluation
@@ -834,8 +840,12 @@ async def analyze_field(request: FieldAnalysisRequest):
                     tenant_id="default",
                     content={
                         "crop_type": request.crop_type,
-                        "ndvi": satellite_data.get("ndvi") if isinstance(satellite_data, dict) else None,
-                        "analysis_summary": str(field_analysis).split("\n")[0][:200] if field_analysis else "",
+                        "ndvi": satellite_data.get("ndvi")
+                        if isinstance(satellite_data, dict)
+                        else None,
+                        "analysis_summary": str(field_analysis).split("\n")[0][:200]
+                        if field_analysis
+                        else "",
                         "disease_risk_present": "disease_risk" in results,
                     },
                     memory_type=MemoryType.FIELD_STATE,

@@ -51,13 +51,16 @@ class Block:
 
     def calculate_hash(self) -> str:
         """Calculate block hash"""
-        block_data = json.dumps({
-            "index": self.index,
-            "data": self.data,
-            "previous_hash": self.previous_hash,
-            "timestamp": self.timestamp.isoformat(),
-            "nonce": self.nonce,
-        }, sort_keys=True)
+        block_data = json.dumps(
+            {
+                "index": self.index,
+                "data": self.data,
+                "previous_hash": self.previous_hash,
+                "timestamp": self.timestamp.isoformat(),
+                "nonce": self.nonce,
+            },
+            sort_keys=True,
+        )
         return hashlib.sha256(block_data.encode()).hexdigest()
 
 
@@ -109,12 +112,14 @@ class TraceabilityChain:
         self._batches[batch_id] = batch
 
         # Record batch creation on chain
-        self._add_block({
-            "type": "batch_created",
-            "batch_id": batch_id,
-            "product_type": batch["product_type"],
-            "quantity_kg": batch["quantity_kg"],
-        })
+        self._add_block(
+            {
+                "type": "batch_created",
+                "batch_id": batch_id,
+                "product_type": batch["product_type"],
+                "quantity_kg": batch["quantity_kg"],
+            }
+        )
 
         return {
             "success": True,
@@ -151,13 +156,15 @@ class TraceabilityChain:
         batch["operations"].append(record)
 
         # Add to blockchain
-        self._add_block({
-            "type": "operation_recorded",
-            "record_id": record["record_id"],
-            "batch_id": batch_id,
-            "operation_type": record["operation_type"],
-            "data_hash": self._hash_data(record["data"]),
-        })
+        self._add_block(
+            {
+                "type": "operation_recorded",
+                "record_id": record["record_id"],
+                "batch_id": batch_id,
+                "operation_type": record["operation_type"],
+                "data_hash": self._hash_data(record["data"]),
+            }
+        )
 
         record["verified"] = True
         record["block_hash"] = self._chain[-1].hash
@@ -181,9 +188,7 @@ class TraceabilityChain:
 
     def _hash_data(self, data: dict[str, Any]) -> str:
         """Hash operation data"""
-        return hashlib.sha256(
-            json.dumps(data, sort_keys=True).encode()
-        ).hexdigest()
+        return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
 
     def generate_hash(self, data: Any) -> str:
         """
@@ -215,20 +220,24 @@ class TraceabilityChain:
 
             # Verify hash link
             if current.previous_hash != previous.hash:
-                errors.append({
-                    "block_index": i,
-                    "error": "hash_mismatch",
-                    "expected": previous.hash,
-                    "actual": current.previous_hash,
-                })
+                errors.append(
+                    {
+                        "block_index": i,
+                        "error": "hash_mismatch",
+                        "expected": previous.hash,
+                        "actual": current.previous_hash,
+                    }
+                )
 
             # Verify block hash
             calculated_hash = current.calculate_hash()
             if calculated_hash != current.hash:
-                errors.append({
-                    "block_index": i,
-                    "error": "invalid_block_hash",
-                })
+                errors.append(
+                    {
+                        "block_index": i,
+                        "error": "invalid_block_hash",
+                    }
+                )
 
         return {
             "valid": len(errors) == 0,
@@ -294,10 +303,12 @@ class TraceabilityChain:
         trace = []
         for op in operations:
             verification = self.verify_operation(op["record_id"])
-            trace.append({
-                **op,
-                "verified": verification["valid"],
-            })
+            trace.append(
+                {
+                    **op,
+                    "verified": verification["valid"],
+                }
+            )
 
         return {
             "batch_id": batch_id,
@@ -363,11 +374,13 @@ class TestCreateBatch:
     def test_create_batch_with_custom_id(self, chain: TraceabilityChain):
         """Test batch creation with custom ID"""
         custom_id = "BATCH-2024-001"
-        result = chain.create_batch({
-            "batch_id": custom_id,
-            "product_type": "wheat",
-            "quantity_kg": 1000,
-        })
+        result = chain.create_batch(
+            {
+                "batch_id": custom_id,
+                "product_type": "wheat",
+                "quantity_kg": 1000,
+            }
+        )
 
         assert result["batch_id"] == custom_id
 
@@ -375,19 +388,23 @@ class TestCreateBatch:
         """Test batch creation adds a block to chain"""
         initial_length = chain.get_chain_length()
 
-        chain.create_batch({
-            "product_type": "barley",
-            "quantity_kg": 500,
-        })
+        chain.create_batch(
+            {
+                "product_type": "barley",
+                "quantity_kg": 500,
+            }
+        )
 
         assert chain.get_chain_length() == initial_length + 1
 
     def test_batch_initial_status(self, chain: TraceabilityChain):
         """Test batch has initial status of active"""
-        result = chain.create_batch({
-            "product_type": "wheat",
-            "quantity_kg": 1000,
-        })
+        result = chain.create_batch(
+            {
+                "product_type": "wheat",
+                "quantity_kg": 1000,
+            }
+        )
 
         batch = chain.get_batch(result["batch_id"])
         assert batch["status"] == "active"
@@ -411,14 +428,17 @@ class TestRecordOperation:
         batch_id: str,
     ):
         """Test successful operation recording"""
-        result = chain.record_operation(batch_id, {
-            "operation_type": OperationType.IRRIGATION.value,
-            "data": {
-                "water_amount_mm": 25,
-                "method": "drip",
+        result = chain.record_operation(
+            batch_id,
+            {
+                "operation_type": OperationType.IRRIGATION.value,
+                "data": {
+                    "water_amount_mm": 25,
+                    "method": "drip",
+                },
+                "operator_id": "farmer-001",
             },
-            "operator_id": "farmer-001",
-        })
+        )
 
         assert result["success"] is True
         assert result["record"]["verified"] is True
@@ -445,9 +465,12 @@ class TestRecordOperation:
     def test_record_operation_invalid_batch(self, chain: TraceabilityChain):
         """Test recording operation for invalid batch fails"""
         with pytest.raises(ValueError, match="Batch not found"):
-            chain.record_operation("invalid-batch-id", {
-                "operation_type": OperationType.IRRIGATION.value,
-            })
+            chain.record_operation(
+                "invalid-batch-id",
+                {
+                    "operation_type": OperationType.IRRIGATION.value,
+                },
+            )
 
     def test_operation_includes_timestamp(
         self,
@@ -455,10 +478,13 @@ class TestRecordOperation:
         batch_id: str,
     ):
         """Test operation record includes timestamp"""
-        result = chain.record_operation(batch_id, {
-            "operation_type": OperationType.PLANTING.value,
-            "data": {"seed_rate": 120},
-        })
+        result = chain.record_operation(
+            batch_id,
+            {
+                "operation_type": OperationType.PLANTING.value,
+                "data": {"seed_rate": 120},
+            },
+        )
 
         assert "timestamp" in result["record"]
 
@@ -526,10 +552,13 @@ class TestVerifyIntegrity:
         batch_id = batch_result["batch_id"]
 
         for i in range(5):
-            chain.record_operation(batch_id, {
-                "operation_type": OperationType.IRRIGATION.value,
-                "data": {"iteration": i},
-            })
+            chain.record_operation(
+                batch_id,
+                {
+                    "operation_type": OperationType.IRRIGATION.value,
+                    "data": {"iteration": i},
+                },
+            )
 
         result = chain.verify_integrity()
 
@@ -545,10 +574,13 @@ class TestVerifyIntegrity:
         batch_result = chain.create_batch(sample_batch)
         batch_id = batch_result["batch_id"]
 
-        op_result = chain.record_operation(batch_id, {
-            "operation_type": OperationType.HARVEST.value,
-            "data": {"yield_kg": 5000},
-        })
+        op_result = chain.record_operation(
+            batch_id,
+            {
+                "operation_type": OperationType.HARVEST.value,
+                "data": {"yield_kg": 5000},
+            },
+        )
 
         record_id = op_result["record"]["record_id"]
         verification = chain.verify_operation(record_id)
@@ -601,10 +633,13 @@ class TestFullTrace:
         batch_result = chain.create_batch(sample_batch)
         batch_id = batch_result["batch_id"]
 
-        chain.record_operation(batch_id, {
-            "operation_type": OperationType.PLANTING.value,
-            "data": {"seed_rate": 120},
-        })
+        chain.record_operation(
+            batch_id,
+            {
+                "operation_type": OperationType.PLANTING.value,
+                "data": {"seed_rate": 120},
+            },
+        )
 
         trace = chain.get_full_trace(batch_id)
 
@@ -659,10 +694,13 @@ class TestImmutability:
         batch_result = chain.create_batch(sample_batch)
         batch_id = batch_result["batch_id"]
 
-        chain.record_operation(batch_id, {
-            "operation_type": OperationType.HARVEST.value,
-            "data": {"yield_kg": 5000},
-        })
+        chain.record_operation(
+            batch_id,
+            {
+                "operation_type": OperationType.HARVEST.value,
+                "data": {"yield_kg": 5000},
+            },
+        )
 
         # Verify integrity before tampering
         result_before = chain.verify_integrity()
@@ -687,10 +725,13 @@ class TestImmutability:
 
         # Add multiple blocks
         for i in range(5):
-            chain.record_operation(batch_id, {
-                "operation_type": OperationType.IRRIGATION.value,
-                "data": {"iteration": i},
-            })
+            chain.record_operation(
+                batch_id,
+                {
+                    "operation_type": OperationType.IRRIGATION.value,
+                    "data": {"iteration": i},
+                },
+            )
 
         # Verify each block links to previous
         for i in range(1, len(chain._chain)):

@@ -91,7 +91,9 @@ logger = get_logger(__name__)
     # This is service-specific and would need careful handling
     new_content = re.sub(
         r'print\("(.+?)"\)',
-        lambda m: f'logger.info("{m.group(1).lower().replace(" ", "_").replace("!", "").replace("...", "").strip()}")',
+        lambda m: (
+            f'logger.info("{m.group(1).lower().replace(" ", "_").replace("!", "").replace("...", "").strip()}")'
+        ),
         new_content,
     )
 

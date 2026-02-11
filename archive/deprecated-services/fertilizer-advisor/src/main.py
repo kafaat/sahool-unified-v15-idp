@@ -33,6 +33,7 @@ try:
         FertilizerRecommendationMemory,
         evaluate_fertilizer_recommendation,
     )
+
     CONTEXT_ENGINEERING_AVAILABLE = True
 except ImportError:
     CONTEXT_ENGINEERING_AVAILABLE = False
@@ -49,6 +50,7 @@ try:
     ACTION_TEMPLATE_AVAILABLE = True
 except ImportError:
     ACTION_TEMPLATE_AVAILABLE = False
+
 
 def create_app():
     """Create and configure the FastAPI application."""
@@ -69,9 +71,8 @@ def create_app():
             app.state.context_engineering_enabled = True
         except Exception as e:
             import logging
-            logging.getLogger(__name__).warning(
-                f"Failed to initialize recommendation memory: {e}"
-            )
+
+            logging.getLogger(__name__).warning(f"Failed to initialize recommendation memory: {e}")
             app.state.context_engineering_enabled = False
     else:
         app.state.context_engineering_enabled = False
@@ -689,6 +690,7 @@ def get_recommendation(request: FertilizerRequest):
             compress_crop_data(request.crop, request.area_hectares, request.target_yield_kg_ha)
         except Exception as e:
             import logging
+
             logging.getLogger(__name__).warning(f"Context compression failed: {e}")
 
     # Calculate NPK needs
@@ -762,6 +764,7 @@ def get_recommendation(request: FertilizerRequest):
             app.state.recommendation_memory.store_plan(plan, compression_metadata)
         except Exception as e:
             import logging
+
             logging.getLogger(__name__).warning(f"Failed to store recommendation in memory: {e}")
 
     return plan
@@ -1126,6 +1129,7 @@ def evaluate_recommendation(plan: FertilizationPlan):
         }
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Recommendation evaluation failed: {e}")
         return {
@@ -1172,6 +1176,7 @@ def get_recent_recommendations(field_id: str | None = None, limit: int = 5):
         }
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Failed to retrieve recommendations: {e}")
         return {
@@ -1208,6 +1213,7 @@ def compress_soil_endpoint(analysis: SoilAnalysis):
         }
     except Exception as e:
         import logging
+
         logger = logging.getLogger(__name__)
         logger.error(f"Soil compression failed: {e}")
         return {

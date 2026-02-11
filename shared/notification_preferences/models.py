@@ -24,11 +24,12 @@ class NotificationChannel(str, Enum):
     Notification delivery channels
     قنوات تسليم الإشعارات
     """
-    PUSH = "push"          # إشعار فوري - Firebase/APNs
-    SMS = "sms"            # رسالة نصية
-    EMAIL = "email"        # بريد إلكتروني
+
+    PUSH = "push"  # إشعار فوري - Firebase/APNs
+    SMS = "sms"  # رسالة نصية
+    EMAIL = "email"  # بريد إلكتروني
     WHATSAPP = "whatsapp"  # واتساب
-    IN_APP = "in_app"      # داخل التطبيق
+    IN_APP = "in_app"  # داخل التطبيق
     TELEGRAM = "telegram"  # تيليجرام
 
 
@@ -37,37 +38,38 @@ class AlertType(str, Enum):
     Types of alerts/notifications
     أنواع التنبيهات والإشعارات
     """
+
     # Weather alerts | تنبيهات الطقس
-    WEATHER_FROST = "weather_frost"          # صقيع
-    WEATHER_HEAT = "weather_heat"            # موجة حر
-    WEATHER_STORM = "weather_storm"          # عاصفة
-    WEATHER_RAIN = "weather_rain"            # أمطار
-    WEATHER_WIND = "weather_wind"            # رياح
-    WEATHER_GENERAL = "weather_general"      # عام
+    WEATHER_FROST = "weather_frost"  # صقيع
+    WEATHER_HEAT = "weather_heat"  # موجة حر
+    WEATHER_STORM = "weather_storm"  # عاصفة
+    WEATHER_RAIN = "weather_rain"  # أمطار
+    WEATHER_WIND = "weather_wind"  # رياح
+    WEATHER_GENERAL = "weather_general"  # عام
 
     # Agricultural alerts | تنبيهات زراعية
-    CROP_HEALTH = "crop_health"              # صحة المحصول
-    PEST_OUTBREAK = "pest_outbreak"          # انتشار آفات
-    DISEASE_DETECTED = "disease_detected"    # مرض مكتشف
+    CROP_HEALTH = "crop_health"  # صحة المحصول
+    PEST_OUTBREAK = "pest_outbreak"  # انتشار آفات
+    DISEASE_DETECTED = "disease_detected"  # مرض مكتشف
     IRRIGATION_REMINDER = "irrigation_reminder"  # تذكير ري
-    SPRAY_WINDOW = "spray_window"            # وقت الرش
-    HARVEST_REMINDER = "harvest_reminder"    # تذكير حصاد
+    SPRAY_WINDOW = "spray_window"  # وقت الرش
+    HARVEST_REMINDER = "harvest_reminder"  # تذكير حصاد
     FERTILIZER_REMINDER = "fertilizer_reminder"  # تذكير سماد
 
     # Business alerts | تنبيهات تجارية
-    MARKET_PRICE = "market_price"            # أسعار السوق
-    PAYMENT_DUE = "payment_due"              # دفعة مستحقة
-    LOW_STOCK = "low_stock"                  # نقص مخزون
+    MARKET_PRICE = "market_price"  # أسعار السوق
+    PAYMENT_DUE = "payment_due"  # دفعة مستحقة
+    LOW_STOCK = "low_stock"  # نقص مخزون
 
     # System alerts | تنبيهات النظام
-    SATELLITE_READY = "satellite_ready"      # صور أقمار جاهزة
-    FIELD_UPDATE = "field_update"            # تحديث حقل
-    TASK_REMINDER = "task_reminder"          # تذكير مهمة
-    SYSTEM = "system"                        # نظام
+    SATELLITE_READY = "satellite_ready"  # صور أقمار جاهزة
+    FIELD_UPDATE = "field_update"  # تحديث حقل
+    TASK_REMINDER = "task_reminder"  # تذكير مهمة
+    SYSTEM = "system"  # نظام
 
     # Critical alerts | تنبيهات حرجة
-    EMERGENCY = "emergency"                  # طوارئ
-    RPW_DETECTION = "rpw_detection"          # اكتشاف سوسة النخيل
+    EMERGENCY = "emergency"  # طوارئ
+    RPW_DETECTION = "rpw_detection"  # اكتشاف سوسة النخيل
 
 
 class AlertUrgency(str, Enum):
@@ -75,11 +77,12 @@ class AlertUrgency(str, Enum):
     Alert urgency levels
     مستويات إلحاح التنبيهات
     """
-    CRITICAL = "critical"    # حرج - فوري، يتجاوز الساعات الهادئة
-    HIGH = "high"            # عالي - خلال ساعة
-    MEDIUM = "medium"        # متوسط - خلال يوم
-    LOW = "low"              # منخفض - تجميعي
-    INFORMATIONAL = "info"   # معلوماتي - غير إلزامي
+
+    CRITICAL = "critical"  # حرج - فوري، يتجاوز الساعات الهادئة
+    HIGH = "high"  # عالي - خلال ساعة
+    MEDIUM = "medium"  # متوسط - خلال يوم
+    LOW = "low"  # منخفض - تجميعي
+    INFORMATIONAL = "info"  # معلوماتي - غير إلزامي
 
 
 class Language(str, Enum):
@@ -87,13 +90,15 @@ class Language(str, Enum):
     Supported languages
     اللغات المدعومة
     """
-    ARABIC = "ar"     # العربية
-    ENGLISH = "en"    # English
-    BOTH = "both"     # كلاهما
+
+    ARABIC = "ar"  # العربية
+    ENGLISH = "en"  # English
+    BOTH = "both"  # كلاهما
 
 
 class DayOfWeek(str, Enum):
     """Days of the week for scheduling | أيام الأسبوع"""
+
     MONDAY = "monday"
     TUESDAY = "tuesday"
     WEDNESDAY = "wednesday"
@@ -112,9 +117,10 @@ class QuietHours:
     During quiet hours, non-critical notifications are held until the quiet period ends.
     خلال الساعات الهادئة، يتم تأجيل الإشعارات غير الحرجة حتى انتهاء الفترة.
     """
+
     enabled: bool = True
     start_time: time = field(default_factory=lambda: time(22, 0))  # 10:00 PM
-    end_time: time = field(default_factory=lambda: time(6, 0))     # 6:00 AM
+    end_time: time = field(default_factory=lambda: time(6, 0))  # 6:00 AM
 
     # Timezone for quiet hours calculation
     timezone: str = "Asia/Riyadh"
@@ -145,7 +151,9 @@ class QuietHours:
         """Create from dictionary"""
         return cls(
             enabled=data.get("enabled", True),
-            start_time=time.fromisoformat(data["start_time"]) if data.get("start_time") else time(22, 0),
+            start_time=time.fromisoformat(data["start_time"])
+            if data.get("start_time")
+            else time(22, 0),
             end_time=time.fromisoformat(data["end_time"]) if data.get("end_time") else time(6, 0),
             timezone=data.get("timezone", "Asia/Riyadh"),
             days=[DayOfWeek(d) for d in data.get("days", [])],
@@ -160,6 +168,7 @@ class ChannelConfig:
     Channel-specific configuration
     إعدادات خاصة بالقناة
     """
+
     channel: NotificationChannel
     enabled: bool = True
 
@@ -206,8 +215,12 @@ class ChannelConfig:
             enabled=data.get("enabled", True),
             address=data.get("address"),
             verified=data.get("verified", False),
-            verified_at=datetime.fromisoformat(data["verified_at"]) if data.get("verified_at") else None,
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else None,
+            verified_at=datetime.fromisoformat(data["verified_at"])
+            if data.get("verified_at")
+            else None,
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
+            if data.get("quiet_hours")
+            else None,
             max_per_hour=data.get("max_per_hour", 10),
             batch_urgency=AlertUrgency(data.get("batch_urgency", "low")),
             batch_interval_minutes=data.get("batch_interval_minutes", 60),
@@ -221,6 +234,7 @@ class AlertTypePreference:
     Preference for a specific alert type
     تفضيلات لنوع تنبيه معين
     """
+
     alert_type: AlertType
     enabled: bool = True
 
@@ -269,7 +283,9 @@ class AlertTypePreference:
             enabled=data.get("enabled", True),
             channels=[NotificationChannel(c) for c in data.get("channels", [])],
             min_urgency=AlertUrgency(data.get("min_urgency", "low")),
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else None,
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
+            if data.get("quiet_hours")
+            else None,
             batch_enabled=data.get("batch_enabled", False),
             batch_interval_minutes=data.get("batch_interval_minutes", 60),
             sound_enabled=data.get("sound_enabled", True),
@@ -288,6 +304,7 @@ class TimeBasedRule:
     Example: "No SMS between 10 PM and 6 AM"
     مثال: "لا رسائل نصية بين الساعة 10 مساءً و6 صباحاً"
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     name: str = ""
     name_ar: str = ""
@@ -345,13 +362,17 @@ class TimeBasedRule:
             name=data.get("name", ""),
             name_ar=data.get("name_ar", ""),
             enabled=data.get("enabled", True),
-            start_time=time.fromisoformat(data["start_time"]) if data.get("start_time") else time(22, 0),
+            start_time=time.fromisoformat(data["start_time"])
+            if data.get("start_time")
+            else time(22, 0),
             end_time=time.fromisoformat(data["end_time"]) if data.get("end_time") else time(6, 0),
             days=[DayOfWeek(d) for d in data.get("days", [])],
             channels=[NotificationChannel(c) for c in data.get("channels", [])],
             alert_types=[AlertType(a) for a in data.get("alert_types", [])],
             action=data.get("action", "hold"),
-            fallback_channel=NotificationChannel(data["fallback_channel"]) if data.get("fallback_channel") else None,
+            fallback_channel=NotificationChannel(data["fallback_channel"])
+            if data.get("fallback_channel")
+            else None,
             exempt_urgencies=[AlertUrgency(u) for u in data.get("exempt_urgencies", ["critical"])],
             priority=data.get("priority", 0),
         )
@@ -366,6 +387,7 @@ class UrgencyOverride:
     Allows bypassing preferences for certain urgency levels.
     يسمح بتجاوز التفضيلات لمستويات إلحاح معينة.
     """
+
     urgency: AlertUrgency
 
     # Channels to always use for this urgency
@@ -416,6 +438,7 @@ class UserNotificationPreferences:
     Complete notification preferences for a user
     تفضيلات الإشعارات الكاملة للمستخدم
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str = ""
@@ -514,14 +537,24 @@ class UserNotificationPreferences:
             tenant_id=data.get("tenant_id"),
             language=Language(data.get("language", "ar")),
             notifications_enabled=data.get("notifications_enabled", True),
-            default_channels=[NotificationChannel(c) for c in data.get("default_channels", ["push", "in_app"])],
+            default_channels=[
+                NotificationChannel(c) for c in data.get("default_channels", ["push", "in_app"])
+            ],
             channel_configs=[ChannelConfig.from_dict(c) for c in data.get("channel_configs", [])],
-            quiet_hours=QuietHours.from_dict(data["quiet_hours"]) if data.get("quiet_hours") else QuietHours(),
-            alert_preferences=[AlertTypePreference.from_dict(p) for p in data.get("alert_preferences", [])],
+            quiet_hours=QuietHours.from_dict(data["quiet_hours"])
+            if data.get("quiet_hours")
+            else QuietHours(),
+            alert_preferences=[
+                AlertTypePreference.from_dict(p) for p in data.get("alert_preferences", [])
+            ],
             time_rules=[TimeBasedRule.from_dict(r) for r in data.get("time_rules", [])],
-            urgency_overrides=[UrgencyOverride.from_dict(o) for o in data.get("urgency_overrides", [])],
+            urgency_overrides=[
+                UrgencyOverride.from_dict(o) for o in data.get("urgency_overrides", [])
+            ],
             digest_enabled=data.get("digest_enabled", False),
-            digest_time=time.fromisoformat(data["digest_time"]) if data.get("digest_time") else None,
+            digest_time=time.fromisoformat(data["digest_time"])
+            if data.get("digest_time")
+            else None,
             digest_days=[DayOfWeek(d) for d in data.get("digest_days", [])],
             digest_channel=NotificationChannel(data.get("digest_channel", "email")),
             summary_enabled=data.get("summary_enabled", True),
@@ -531,8 +564,12 @@ class UserNotificationPreferences:
             show_badge_count=data.get("show_badge_count", True),
             show_preview=data.get("show_preview", True),
             show_preview_on_lock_screen=data.get("show_preview_on_lock_screen", False),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
             version=data.get("version", 1),
         )
 
@@ -564,6 +601,7 @@ class NotificationRequest:
     A notification request to be routed
     طلب إشعار للتوجيه
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Target user
@@ -627,6 +665,7 @@ class RoutingDecision:
     Decision about how to route a notification
     قرار حول كيفية توجيه الإشعار
     """
+
     # Original request
     request_id: str = ""
 
@@ -681,7 +720,10 @@ class RoutingDecision:
 # Default Preferences Templates
 # =============================================================================
 
-def create_default_preferences(user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences:
+
+def create_default_preferences(
+    user_id: str, tenant_id: str | None = None
+) -> UserNotificationPreferences:
     """
     Create default notification preferences for a new user
     إنشاء تفضيلات إشعارات افتراضية لمستخدم جديد
@@ -733,7 +775,9 @@ def create_default_preferences(user_id: str, tenant_id: str | None = None) -> Us
     )
 
 
-def create_minimal_preferences(user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences:
+def create_minimal_preferences(
+    user_id: str, tenant_id: str | None = None
+) -> UserNotificationPreferences:
     """
     Create minimal notification preferences (critical only)
     إنشاء تفضيلات إشعارات بسيطة (حرجة فقط)

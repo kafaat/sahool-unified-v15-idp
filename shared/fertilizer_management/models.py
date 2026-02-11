@@ -14,6 +14,7 @@ from enum import Enum
 
 class FertilizerType(str, Enum):
     """Type of fertilizer - نوع السماد"""
+
     NITROGEN = "nitrogen"  # نيتروجيني
     PHOSPHORUS = "phosphorus"  # فسفوري
     POTASSIUM = "potassium"  # بوتاسي
@@ -27,6 +28,7 @@ class FertilizerType(str, Enum):
 
 class FertilizerForm(str, Enum):
     """Physical form of fertilizer - الشكل الفيزيائي للسماد"""
+
     GRANULAR = "granular"  # حبيبي
     PRILLED = "prilled"  # حبيبات مكورة
     POWDER = "powder"  # مسحوق
@@ -38,6 +40,7 @@ class FertilizerForm(str, Enum):
 
 class ApplicationMethod(str, Enum):
     """Method of fertilizer application - طريقة التطبيق"""
+
     BROADCAST = "broadcast"  # نثر
     BANDING = "banding"  # شريطي
     SIDE_DRESS = "side_dress"  # تسميد جانبي
@@ -50,6 +53,7 @@ class ApplicationMethod(str, Enum):
 
 class NutrientStatus(str, Enum):
     """Nutrient level status - حالة مستوى العنصر"""
+
     DEFICIENT = "deficient"  # نقص
     LOW = "low"  # منخفض
     OPTIMAL = "optimal"  # مثالي
@@ -59,6 +63,7 @@ class NutrientStatus(str, Enum):
 
 class InventoryStatus(str, Enum):
     """Inventory status - حالة المخزون"""
+
     IN_STOCK = "in_stock"  # متوفر
     LOW_STOCK = "low_stock"  # مخزون منخفض
     OUT_OF_STOCK = "out_of_stock"  # نفد المخزون
@@ -68,6 +73,7 @@ class InventoryStatus(str, Enum):
 
 class ComplianceLevel(str, Enum):
     """Environmental compliance level - مستوى الامتثال البيئي"""
+
     COMPLIANT = "compliant"  # ممتثل
     WARNING = "warning"  # تحذير
     VIOLATION = "violation"  # مخالفة
@@ -80,6 +86,7 @@ class NutrientComposition:
     Nutrient composition of a fertilizer - التركيب الغذائي للسماد
     Values in percentage (%)
     """
+
     nitrogen_n: float = 0.0  # نيتروجين N
     phosphorus_p2o5: float = 0.0  # فسفور P2O5
     potassium_k2o: float = 0.0  # بوتاسيوم K2O
@@ -123,6 +130,7 @@ class Fertilizer:
     """
     Fertilizer product definition - تعريف منتج السماد
     """
+
     id: str
     name: str
     name_ar: str
@@ -191,6 +199,7 @@ class InventoryItem:
     """
     Fertilizer inventory item - عنصر مخزون السماد
     """
+
     id: str
     tenant_id: str
     fertilizer_id: str
@@ -274,6 +283,7 @@ class FertilizerApplication:
     """
     Record of fertilizer application - سجل تطبيق السماد
     """
+
     id: str
     tenant_id: str
     field_id: str
@@ -356,6 +366,7 @@ class SoilTest:
     """
     Soil test results - نتائج تحليل التربة
     """
+
     id: str
     tenant_id: str
     field_id: str
@@ -441,6 +452,7 @@ class NutrientBalance:
     """
     Nutrient balance for a field - ميزان العناصر الغذائية للحقل
     """
+
     field_id: str
     season: str
     crop: str
@@ -506,6 +518,7 @@ class EnvironmentalCompliance:
     """
     Environmental compliance assessment - تقييم الامتثال البيئي
     """
+
     field_id: str
     assessment_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))
 
@@ -571,6 +584,7 @@ class CostAnalysis:
     """
     Fertilizer cost analysis - تحليل تكلفة الأسمدة
     """
+
     field_id: str
     season: str
     analysis_date: datetime = field(default_factory=datetime.now(UTC).replace(tzinfo=None))

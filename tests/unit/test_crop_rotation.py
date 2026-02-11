@@ -82,7 +82,7 @@ def planner_config():
         consider_economic=True,
         consider_water=True,
         consider_soil_health=True,
-        climate_zone="arid"
+        climate_zone="arid",
     )
 
 
@@ -179,7 +179,7 @@ def sample_crop_history():
                 cost_per_ha=6000,
                 profit_per_ha=6000,
             ),
-        ]
+        ],
     )
 
 
@@ -357,8 +357,11 @@ class TestMultiYearPlanning:
 
         # Should recommend legume or high-compatibility crop
         assert rec.recommended_crop in [
-            CropType.ALFALFA, CropType.CLOVER, CropType.FABA_BEAN,
-            CropType.CHICKPEA, CropType.GREEN_MANURE
+            CropType.ALFALFA,
+            CropType.CLOVER,
+            CropType.FABA_BEAN,
+            CropType.CHICKPEA,
+            CropType.GREEN_MANURE,
         ]
 
     def test_recommendation_includes_alternatives(self, planner):
@@ -422,7 +425,7 @@ class TestMultiYearPlanning:
         )
 
         assert plan.nutrient_balance is not None
-        assert hasattr(plan.nutrient_balance, 'nitrogen_balance')
+        assert hasattr(plan.nutrient_balance, "nitrogen_balance")
 
     def test_multi_year_plan_risk_assessment(self, planner):
         """Test that multi-year plan includes risk assessment"""
@@ -574,9 +577,9 @@ class TestSoilHealthTracking:
         for i in range(3):
             m = SoilHealthMeasurement(
                 field_id="FIELD-001",
-                measurement_date=date(2025, 1, 1) + timedelta(days=i*180),
-                organic_matter_percent=2.0 + i*0.3,
-                nitrogen_available_kg_ha=40 + i*10,
+                measurement_date=date(2025, 1, 1) + timedelta(days=i * 180),
+                organic_matter_percent=2.0 + i * 0.3,
+                nitrogen_available_kg_ha=40 + i * 10,
             )
             soil_tracker.add_measurement(m)
 
@@ -588,7 +591,11 @@ class TestSoilHealthTracking:
 
         assert trend.field_id == "FIELD-001"
         assert trend.measurement_count >= 2
-        assert trend.trend_direction in [TrendDirection.IMPROVING.value, TrendDirection.STABLE.value, TrendDirection.DECLINING.value]
+        assert trend.trend_direction in [
+            TrendDirection.IMPROVING.value,
+            TrendDirection.STABLE.value,
+            TrendDirection.DECLINING.value,
+        ]
 
     def test_soil_health_score_calculation(self, soil_tracker, sample_soil_measurement):
         """Test calculating overall soil health score"""
@@ -793,7 +800,7 @@ class TestFieldHistoryAnalysis:
                 CropHistoryRecord(crop_type=CropType.WHEAT, year=2023, season=Season.WINTER),
                 CropHistoryRecord(crop_type=CropType.ALFALFA, year=2023, season=Season.SUMMER),
                 CropHistoryRecord(crop_type=CropType.WHEAT, year=2024, season=Season.WINTER),
-            ]
+            ],
         )
 
         analysis = planner.analyze_field_history(history)
@@ -972,7 +979,7 @@ class TestIntegration:
             field_id="FIELD-001",
             records=[
                 CropHistoryRecord(crop_type=CropType.WHEAT, year=2024, season=Season.WINTER),
-            ]
+            ],
         )
 
         analysis = planner.analyze_field_history(history)
@@ -1027,8 +1034,7 @@ class TestIntegration:
         estimate = soil_tracker.estimate_rotation_impact(
             field_id="FIELD-001",
             planned_crops=[
-                rec.recommended_crop for rec in plan.yearly_recommendations
-                if rec.recommended_crop
+                rec.recommended_crop for rec in plan.yearly_recommendations if rec.recommended_crop
             ][:6],
         )
 

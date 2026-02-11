@@ -2762,7 +2762,9 @@ async def get_yield_history(
     # Import shared crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        _proj_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+        )
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
@@ -2874,7 +2876,9 @@ async def get_regional_yields(
     # Import crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        _proj_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+        )
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS

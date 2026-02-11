@@ -248,10 +248,7 @@ class LLMProviderManager:
     @property
     def available_providers(self) -> list[LLMProvider]:
         """Get list of available providers in priority order."""
-        return [
-            p for p in self._provider_order
-            if not self._circuit_breakers[p].is_open
-        ]
+        return [p for p in self._provider_order if not self._circuit_breakers[p].is_open]
 
     def get_provider_status(self) -> dict[str, Any]:
         """Get status of all providers."""

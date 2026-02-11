@@ -245,9 +245,7 @@ class WaterLevelMonitor:
 
         return reading
 
-    def check_alerts(
-        self, source: WaterSource, reading: WaterLevelReading
-    ) -> list[WaterAlert]:
+    def check_alerts(self, source: WaterSource, reading: WaterLevelReading) -> list[WaterAlert]:
         """
         Check reading against thresholds and generate alerts.
         فحص القراءة مقابل العتبات وإنشاء التنبيهات
@@ -274,8 +272,7 @@ class WaterLevelMonitor:
                         unit="%",
                         recommended_action_en="Reduce water usage immediately and "
                         "arrange for water delivery",
-                        recommended_action_ar="قلل استخدام المياه فوراً ورتب "
-                        "لتوصيل المياه",
+                        recommended_action_ar="قلل استخدام المياه فوراً ورتب لتوصيل المياه",
                     )
                 )
             # Warning low level
@@ -289,15 +286,13 @@ class WaterLevelMonitor:
                         title_ar="تحذير انخفاض مستوى المياه",
                         message_en=f"Water level at {reading.level_percent:.1f}% - "
                         f"plan for replenishment",
-                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - "
-                        f"خطط للتجديد",
+                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - خطط للتجديد",
                         triggered_value=reading.level_percent,
                         threshold_value=self.WARNING_LOW_PERCENT,
                         unit="%",
                         recommended_action_en="Schedule water replenishment within "
                         "the next 2-3 days",
-                        recommended_action_ar="جدول تجديد المياه خلال "
-                        "يومين إلى ثلاثة أيام",
+                        recommended_action_ar="جدول تجديد المياه خلال يومين إلى ثلاثة أيام",
                     )
                 )
             # Warning high level (overflow risk)
@@ -311,15 +306,12 @@ class WaterLevelMonitor:
                         title_ar="مستوى مياه مرتفع حرج - خطر فيضان",
                         message_en=f"Water level at {reading.level_percent:.1f}% - "
                         f"risk of overflow",
-                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - "
-                        f"خطر فيضان",
+                        message_ar=f"مستوى المياه عند {reading.level_percent:.1f}% - خطر فيضان",
                         triggered_value=reading.level_percent,
                         threshold_value=self.CRITICAL_HIGH_PERCENT,
                         unit="%",
-                        recommended_action_en="Stop inflow and increase water usage "
-                        "or drainage",
-                        recommended_action_ar="أوقف التدفق وزد استخدام المياه "
-                        "أو التصريف",
+                        recommended_action_en="Stop inflow and increase water usage or drainage",
+                        recommended_action_ar="أوقف التدفق وزد استخدام المياه أو التصريف",
                     )
                 )
 
@@ -335,15 +327,12 @@ class WaterLevelMonitor:
                         title_ar="انخفاض حرج في مستوى البئر",
                         message_en=f"Well drawdown at {reading.drawdown_m:.1f}m - "
                         f"reduce pumping immediately",
-                        message_ar=f"انخفاض البئر عند {reading.drawdown_m:.1f}م - "
-                        f"قلل الضخ فوراً",
+                        message_ar=f"انخفاض البئر عند {reading.drawdown_m:.1f}م - قلل الضخ فوراً",
                         triggered_value=reading.drawdown_m,
                         threshold_value=self.DRAWDOWN_CRITICAL_M,
                         unit="m",
-                        recommended_action_en="Reduce pump rate or allow well "
-                        "to recover",
-                        recommended_action_ar="قلل معدل الضخ أو اسمح للبئر "
-                        "بالتعافي",
+                        recommended_action_en="Reduce pump rate or allow well to recover",
+                        recommended_action_ar="قلل معدل الضخ أو اسمح للبئر بالتعافي",
                     )
                 )
             elif reading.drawdown_m >= self.DRAWDOWN_WARNING_M:
@@ -354,17 +343,13 @@ class WaterLevelMonitor:
                         severity=AlertSeverity.MEDIUM,
                         title_en="Well Drawdown Warning",
                         title_ar="تحذير انخفاض مستوى البئر",
-                        message_en=f"Well drawdown at {reading.drawdown_m:.1f}m - "
-                        f"monitor closely",
-                        message_ar=f"انخفاض البئر عند {reading.drawdown_m:.1f}م - "
-                        f"راقب عن كثب",
+                        message_en=f"Well drawdown at {reading.drawdown_m:.1f}m - monitor closely",
+                        message_ar=f"انخفاض البئر عند {reading.drawdown_m:.1f}م - راقب عن كثب",
                         triggered_value=reading.drawdown_m,
                         threshold_value=self.DRAWDOWN_WARNING_M,
                         unit="m",
-                        recommended_action_en="Consider reducing pump operating "
-                        "hours",
-                        recommended_action_ar="فكر في تقليل ساعات تشغيل "
-                        "المضخة",
+                        recommended_action_en="Consider reducing pump operating hours",
+                        recommended_action_ar="فكر في تقليل ساعات تشغيل المضخة",
                     )
                 )
 
@@ -383,9 +368,7 @@ class WaterLevelMonitor:
         period_start = now - timedelta(hours=hours)
 
         readings = self._readings_cache.get(source_id, [])
-        period_readings = [
-            r for r in readings if r.timestamp >= period_start and r.is_valid
-        ]
+        period_readings = [r for r in readings if r.timestamp >= period_start and r.is_valid]
 
         trend = WaterLevelTrend(
             source_id=source_id,
@@ -400,9 +383,7 @@ class WaterLevelMonitor:
 
         # Calculate statistics
         levels_m3 = [r.level_m3 for r in period_readings if r.level_m3 is not None]
-        levels_percent = [
-            r.level_percent for r in period_readings if r.level_percent is not None
-        ]
+        levels_percent = [r.level_percent for r in period_readings if r.level_percent is not None]
 
         if levels_m3:
             trend.avg_level_m3 = statistics.mean(levels_m3)
@@ -633,9 +614,7 @@ class WaterQualityMonitor:
 
         return quality_class, issues
 
-    def check_quality_alerts(
-        self, source: WaterSource, test: WaterQualityTest
-    ) -> list[WaterAlert]:
+    def check_quality_alerts(self, source: WaterSource, test: WaterQualityTest) -> list[WaterAlert]:
         """
         Check quality test results and generate alerts.
         فحص نتائج اختبار الجودة وإنشاء التنبيهات
@@ -660,8 +639,7 @@ class WaterQualityMonitor:
                     title_ar="مياه غير صالحة للري",
                     message_en="Water quality test indicates water is unfit "
                     "for any agricultural use",
-                    message_ar="يشير اختبار جودة المياه إلى أن المياه غير صالحة "
-                    "لأي استخدام زراعي",
+                    message_ar="يشير اختبار جودة المياه إلى أن المياه غير صالحة لأي استخدام زراعي",
                     recommended_action_en="Stop using this water source. "
                     "Consult water treatment specialist",
                     recommended_action_ar="توقف عن استخدام مصدر المياه هذا. "
@@ -671,7 +649,9 @@ class WaterQualityMonitor:
 
         # Alert for specific parameter issues
         for issue in issues:
-            severity = AlertSeverity.HIGH if issue.parameter in ("EC", "SAR") else AlertSeverity.MEDIUM
+            severity = (
+                AlertSeverity.HIGH if issue.parameter in ("EC", "SAR") else AlertSeverity.MEDIUM
+            )
 
             alerts.append(
                 WaterAlert(
@@ -690,20 +670,14 @@ class WaterQualityMonitor:
                     triggered_value=issue.value,
                     threshold_value=issue.max_acceptable or 0,
                     unit=issue.unit,
-                    recommended_action_en=self._get_parameter_recommendation_en(
-                        issue.parameter
-                    ),
-                    recommended_action_ar=self._get_parameter_recommendation_ar(
-                        issue.parameter
-                    ),
+                    recommended_action_en=self._get_parameter_recommendation_en(issue.parameter),
+                    recommended_action_ar=self._get_parameter_recommendation_ar(issue.parameter),
                 )
             )
 
         return alerts
 
-    def get_suitable_crops(
-        self, quality_class: WaterQualityClass
-    ) -> tuple[list[str], list[str]]:
+    def get_suitable_crops(self, quality_class: WaterQualityClass) -> tuple[list[str], list[str]]:
         """
         Get suitable and unsuitable crops based on water quality.
         الحصول على المحاصيل المناسبة وغير المناسبة بناءً على جودة المياه
@@ -757,9 +731,7 @@ class WaterQualityMonitor:
 
         return suitable[0], unsuitable[0]  # Return English lists
 
-    def analyze_quality_trend(
-        self, source_id: str, months: int = 12
-    ) -> dict[str, Any]:
+    def analyze_quality_trend(self, source_id: str, months: int = 12) -> dict[str, Any]:
         """
         Analyze water quality trend over specified period.
         تحليل اتجاه جودة المياه خلال الفترة المحددة
@@ -782,9 +754,7 @@ class WaterQualityMonitor:
 
         # Track key parameters
         ec_values = [
-            t.electrical_conductivity_ds_m
-            for t in period_tests
-            if t.electrical_conductivity_ds_m
+            t.electrical_conductivity_ds_m for t in period_tests if t.electrical_conductivity_ds_m
         ]
         tds_values = [t.tds_ppm for t in period_tests if t.tds_ppm]
         ph_values = [t.ph for t in period_tests if t.ph]
@@ -834,10 +804,8 @@ class WaterQualityMonitor:
     def _get_parameter_recommendation_en(self, parameter: str) -> str:
         """Get recommendation for parameter issue (English)"""
         recommendations = {
-            "EC": "Consider blending with lower-salinity water or use "
-            "salt-tolerant crops",
-            "SAR": "Apply gypsum to improve soil structure and reduce "
-            "sodium hazard",
+            "EC": "Consider blending with lower-salinity water or use salt-tolerant crops",
+            "SAR": "Apply gypsum to improve soil structure and reduce sodium hazard",
             "Boron": "Use boron-tolerant crops or blend with low-boron water",
             "Chloride": "Avoid foliar irrigation and use chloride-tolerant crops",
             "Sodium": "Improve drainage and apply calcium amendments",
@@ -849,10 +817,8 @@ class WaterQualityMonitor:
     def _get_parameter_recommendation_ar(self, parameter: str) -> str:
         """Get recommendation for parameter issue (Arabic)"""
         recommendations = {
-            "EC": "فكر في خلط المياه مع مياه أقل ملوحة أو استخدم "
-            "محاصيل متحملة للملوحة",
-            "SAR": "أضف الجبس لتحسين بنية التربة وتقليل "
-            "خطر الصوديوم",
+            "EC": "فكر في خلط المياه مع مياه أقل ملوحة أو استخدم محاصيل متحملة للملوحة",
+            "SAR": "أضف الجبس لتحسين بنية التربة وتقليل خطر الصوديوم",
             "Boron": "استخدم محاصيل متحملة للبورون أو اخلط مع مياه منخفضة البورون",
             "Chloride": "تجنب الري الورقي واستخدم محاصيل متحملة للكلوريد",
             "Sodium": "حسّن الصرف وأضف تعديلات الكالسيوم",
@@ -986,24 +952,18 @@ class GroundwaterMonitor:
             status = "over_extraction"
             status_ar = "استخراج مفرط"
             recommendations_en.append(
-                f"Reduce extraction by {utilization - 100:.0f}% "
-                "to comply with regional limits"
+                f"Reduce extraction by {utilization - 100:.0f}% to comply with regional limits"
             )
             recommendations_ar.append(
-                f"قلل الاستخراج بنسبة {utilization - 100:.0f}% "
-                "للامتثال للحدود الإقليمية"
+                f"قلل الاستخراج بنسبة {utilization - 100:.0f}% للامتثال للحدود الإقليمية"
             )
         elif utilization > 80:
             status = "high_utilization"
             status_ar = "استخدام عالي"
             recommendations_en.append(
-                "Monitor extraction closely and plan for "
-                "efficiency improvements"
+                "Monitor extraction closely and plan for efficiency improvements"
             )
-            recommendations_ar.append(
-                "راقب الاستخراج عن كثب وخطط "
-                "لتحسينات الكفاءة"
-            )
+            recommendations_ar.append("راقب الاستخراج عن كثب وخطط لتحسينات الكفاءة")
 
         if level_change_m_year is not None and level_change_m_year < -0.5:
             recommendations_en.append(
@@ -1011,8 +971,7 @@ class GroundwaterMonitor:
                 "Consider reducing pumping"
             )
             recommendations_ar.append(
-                f"منسوب المياه ينخفض بمعدل {abs(level_change_m_year):.1f}م/سنة. "
-                "فكر في تقليل الضخ"
+                f"منسوب المياه ينخفض بمعدل {abs(level_change_m_year):.1f}م/سنة. فكر في تقليل الضخ"
             )
 
         return {
@@ -1048,8 +1007,7 @@ class GroundwaterMonitor:
 
         # Check meter requirement
         if (
-            source.source_type
-            in (WaterSourceType.WELL, WaterSourceType.ARTESIAN_WELL)
+            source.source_type in (WaterSourceType.WELL, WaterSourceType.ARTESIAN_WELL)
             and source.well_depth_m
             and source.well_depth_m > self.standards.METER_REQUIRED_WELL_DEPTH_M
             and not source.has_meter

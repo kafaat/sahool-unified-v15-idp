@@ -37,6 +37,7 @@ _DOMAIN_RE = re.compile(r"^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a
 @dataclass
 class GuardDecision:
     """Result of a guard check | نتيجة فحص الحماية"""
+
     allowed: bool
     reason: str
     reason_ar: str = ""
@@ -58,6 +59,7 @@ class GuardDecision:
 @dataclass
 class ToolCallContext:
     """Context for a tool call | سياق استدعاء الأداة"""
+
     tool: str
     args: dict[str, Any]
     session_id: str | None = None
@@ -164,12 +166,22 @@ class ToolGuard:
         tool = context.tool
 
         if tool in self.tool_allowlist:
-            return GuardDecision(allowed=True, reason="Tool is allowed", reason_ar="الأداة مسموحة", layer="tool_allowlist")
+            return GuardDecision(
+                allowed=True,
+                reason="Tool is allowed",
+                reason_ar="الأداة مسموحة",
+                layer="tool_allowlist",
+            )
 
         # Check wildcard patterns
         tool_prefix = tool.rsplit(".", 1)[0] + ".*" if "." in tool else tool + ".*"
         if tool_prefix in self.tool_allowlist:
-            return GuardDecision(allowed=True, reason="Tool matches wildcard", reason_ar="الأداة تطابق نمط عام", layer="tool_allowlist")
+            return GuardDecision(
+                allowed=True,
+                reason="Tool matches wildcard",
+                reason_ar="الأداة تطابق نمط عام",
+                layer="tool_allowlist",
+            )
 
         return GuardDecision(
             allowed=False,
@@ -193,7 +205,9 @@ class ToolGuard:
                     details={"size": size, "max_size": MAX_ARGS_SIZE},
                 )
 
-            return GuardDecision(allowed=True, reason="Size OK", reason_ar="الحجم مقبول", layer="size_limits")
+            return GuardDecision(
+                allowed=True, reason="Size OK", reason_ar="الحجم مقبول", layer="size_limits"
+            )
 
         except (TypeError, ValueError) as e:
             return GuardDecision(
@@ -228,7 +242,12 @@ class ToolGuard:
                             details={"path": path, "pattern": pattern},
                         )
 
-        return GuardDecision(allowed=True, reason="No blocked patterns", reason_ar="لا أنماط محظورة", layer="blocked_patterns")
+        return GuardDecision(
+            allowed=True,
+            reason="No blocked patterns",
+            reason_ar="لا أنماط محظورة",
+            layer="blocked_patterns",
+        )
 
     def _check_external_access(self, context: ToolCallContext) -> GuardDecision:
         if context.tool.startswith("external.") and not self.enable_external:
@@ -244,6 +263,7 @@ class ToolGuard:
                 host = str(context.args[key]).lower().strip()
                 if "://" in host:
                     from urllib.parse import urlparse
+
                     host = urlparse(host).hostname or ""
 
                 if host and not self._is_domain_allowed(host):
@@ -255,7 +275,12 @@ class ToolGuard:
                         details={"domain": host},
                     )
 
-        return GuardDecision(allowed=True, reason="External access OK", reason_ar="الوصول الخارجي مقبول", layer="external_access")
+        return GuardDecision(
+            allowed=True,
+            reason="External access OK",
+            reason_ar="الوصول الخارجي مقبول",
+            layer="external_access",
+        )
 
     def _check_dangerous_commands(self, context: ToolCallContext) -> GuardDecision:
         args_str = json.dumps(context.args, ensure_ascii=False).lower()
@@ -270,7 +295,12 @@ class ToolGuard:
                     details={"command": dangerous},
                 )
 
-        return GuardDecision(allowed=True, reason="No dangerous commands", reason_ar="لا أوامر خطيرة", layer="dangerous_commands")
+        return GuardDecision(
+            allowed=True,
+            reason="No dangerous commands",
+            reason_ar="لا أوامر خطيرة",
+            layer="dangerous_commands",
+        )
 
     def _is_domain_allowed(self, host: str) -> bool:
         host = host.lower().strip()
@@ -280,7 +310,9 @@ class ToolGuard:
             return True
         if not _DOMAIN_RE.match(host):
             return False
-        return any(host == domain or host.endswith("." + domain) for domain in self.domain_allowlist)
+        return any(
+            host == domain or host.endswith("." + domain) for domain in self.domain_allowlist
+        )
 
     def _record_block(self, layer: str, context: ToolCallContext, decision: GuardDecision) -> None:
         self._stats["blocked"] += 1
@@ -307,6 +339,8 @@ def get_guard() -> ToolGuard:
     return _global_guard
 
 
-def guard_tool_call(tool: str, args: dict[str, Any], session_id: str | None = None) -> GuardDecision:
+def guard_tool_call(
+    tool: str, args: dict[str, Any], session_id: str | None = None
+) -> GuardDecision:
     context = ToolCallContext(tool=tool, args=args, session_id=session_id)
     return get_guard().check(context)

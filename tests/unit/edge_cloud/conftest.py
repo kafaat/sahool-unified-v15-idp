@@ -32,6 +32,7 @@ import pytest
 
 class DeviceProtocol(str, Enum):
     """Supported device communication protocols"""
+
     MQTT = "mqtt"
     MODBUS = "modbus"
     LORA = "lora"
@@ -41,6 +42,7 @@ class DeviceProtocol(str, Enum):
 
 class SensorType(str, Enum):
     """Types of sensors in the system"""
+
     SOIL_MOISTURE = "soil_moisture"
     TEMPERATURE = "temperature"
     HUMIDITY = "humidity"
@@ -55,6 +57,7 @@ class SensorType(str, Enum):
 
 class DeviceStatus(str, Enum):
     """Device operational status"""
+
     ONLINE = "online"
     OFFLINE = "offline"
     ERROR = "error"
@@ -64,6 +67,7 @@ class DeviceStatus(str, Enum):
 
 class DataQuality(str, Enum):
     """Quality assessment of sensor data"""
+
     EXCELLENT = "excellent"
     GOOD = "good"
     ACCEPTABLE = "acceptable"
@@ -73,6 +77,7 @@ class DataQuality(str, Enum):
 
 class InferenceMode(str, Enum):
     """Inference execution mode"""
+
     EDGE = "edge"
     CLOUD = "cloud"
     HYBRID = "hybrid"
@@ -80,6 +85,7 @@ class InferenceMode(str, Enum):
 
 class SyncStatus(str, Enum):
     """Edge-cloud synchronization status"""
+
     SYNCED = "synced"
     PENDING = "pending"
     FAILED = "failed"
@@ -328,21 +334,23 @@ def sample_sensor_readings() -> list[dict[str, Any]]:
     readings = []
     for i in range(10):
         timestamp = base_time - timedelta(minutes=5 * i)
-        readings.append({
-            "reading_id": str(uuid.uuid4()),
-            "device_id": device_id,
-            "sensor_id": f"{device_id}_sm",
-            "sensor_type": SensorType.SOIL_MOISTURE.value,
-            "value": 42.5 + (i * 0.5),  # Slightly varying values
-            "unit": "%",
-            "timestamp": timestamp.isoformat(),
-            "quality": DataQuality.GOOD.value,
-            "quality_score": 0.95,
-            "metadata": {
-                "battery_level": 85 - (i * 0.1),
-                "signal_strength": -65 - (i * 0.5),
-            },
-        })
+        readings.append(
+            {
+                "reading_id": str(uuid.uuid4()),
+                "device_id": device_id,
+                "sensor_id": f"{device_id}_sm",
+                "sensor_type": SensorType.SOIL_MOISTURE.value,
+                "value": 42.5 + (i * 0.5),  # Slightly varying values
+                "unit": "%",
+                "timestamp": timestamp.isoformat(),
+                "quality": DataQuality.GOOD.value,
+                "quality_score": 0.95,
+                "metadata": {
+                    "battery_level": 85 - (i * 0.1),
+                    "signal_strength": -65 - (i * 0.5),
+                },
+            }
+        )
 
     return readings
 
@@ -446,31 +454,43 @@ def mock_edge_gateway() -> MagicMock:
     gateway.last_cloud_sync = datetime.now(UTC).isoformat()
 
     # Configure async methods
-    gateway.register_device = AsyncMock(return_value={"success": True, "device_id": str(uuid.uuid4())})
+    gateway.register_device = AsyncMock(
+        return_value={"success": True, "device_id": str(uuid.uuid4())}
+    )
     gateway.unregister_device = AsyncMock(return_value={"success": True})
-    gateway.collect_data = AsyncMock(return_value={
-        "readings_count": 100,
-        "devices_polled": 15,
-        "errors": [],
-    })
-    gateway.run_local_inference = AsyncMock(return_value={
-        "inference_id": str(uuid.uuid4()),
-        "predictions": [{"field_id": str(uuid.uuid4()), "irrigation_needed": True, "confidence": 0.87}],
-        "latency_ms": 150,
-        "model_version": "edge-1.2.0",
-    })
-    gateway.sync_to_cloud = AsyncMock(return_value={
-        "records_synced": 500,
-        "sync_duration_ms": 2500,
-        "status": "completed",
-    })
+    gateway.collect_data = AsyncMock(
+        return_value={
+            "readings_count": 100,
+            "devices_polled": 15,
+            "errors": [],
+        }
+    )
+    gateway.run_local_inference = AsyncMock(
+        return_value={
+            "inference_id": str(uuid.uuid4()),
+            "predictions": [
+                {"field_id": str(uuid.uuid4()), "irrigation_needed": True, "confidence": 0.87}
+            ],
+            "latency_ms": 150,
+            "model_version": "edge-1.2.0",
+        }
+    )
+    gateway.sync_to_cloud = AsyncMock(
+        return_value={
+            "records_synced": 500,
+            "sync_duration_ms": 2500,
+            "status": "completed",
+        }
+    )
     gateway.get_offline_queue_size = MagicMock(return_value=0)
-    gateway.trigger_auto_irrigation = AsyncMock(return_value={
-        "action_id": str(uuid.uuid4()),
-        "zone_id": str(uuid.uuid4()),
-        "water_amount_mm": 15,
-        "triggered_at": datetime.now(UTC).isoformat(),
-    })
+    gateway.trigger_auto_irrigation = AsyncMock(
+        return_value={
+            "action_id": str(uuid.uuid4()),
+            "zone_id": str(uuid.uuid4()),
+            "water_amount_mm": 15,
+            "triggered_at": datetime.now(UTC).isoformat(),
+        }
+    )
 
     return gateway
 
@@ -490,15 +510,19 @@ def mock_edge_model() -> MagicMock:
     model.size_kb = 256
     model.inference_time_ms = 50
 
-    model.predict = MagicMock(return_value={
-        "prediction": "irrigate",
-        "confidence": 0.92,
-        "probabilities": {"irrigate": 0.92, "wait": 0.06, "reduce": 0.02},
-    })
-    model.predict_batch = MagicMock(return_value=[
-        {"prediction": "irrigate", "confidence": 0.92},
-        {"prediction": "wait", "confidence": 0.85},
-    ])
+    model.predict = MagicMock(
+        return_value={
+            "prediction": "irrigate",
+            "confidence": 0.92,
+            "probabilities": {"irrigate": 0.92, "wait": 0.06, "reduce": 0.02},
+        }
+    )
+    model.predict_batch = MagicMock(
+        return_value=[
+            {"prediction": "irrigate", "confidence": 0.92},
+            {"prediction": "wait", "confidence": 0.85},
+        ]
+    )
     model.validate_input = MagicMock(return_value=True)
 
     return model
@@ -578,74 +602,82 @@ def mock_cloud_ai_service() -> MagicMock:
     service = MagicMock()
 
     # Pest detection
-    service.detect_pest = AsyncMock(return_value={
-        "detection_id": str(uuid.uuid4()),
-        "pest_detected": True,
-        "pest_type": "aphid",
-        "confidence": 0.94,
-        "severity": "moderate",
-        "affected_area_percent": 15.0,
-        "recommendations": [
-            "Apply neem oil spray",
-            "Introduce beneficial insects (ladybugs)",
-        ],
-        "recommendations_ar": [
-            "رش زيت النيم",
-            "إدخال الحشرات المفيدة (الدعسوقة)",
-        ],
-        "processing_time_ms": 850,
-    })
+    service.detect_pest = AsyncMock(
+        return_value={
+            "detection_id": str(uuid.uuid4()),
+            "pest_detected": True,
+            "pest_type": "aphid",
+            "confidence": 0.94,
+            "severity": "moderate",
+            "affected_area_percent": 15.0,
+            "recommendations": [
+                "Apply neem oil spray",
+                "Introduce beneficial insects (ladybugs)",
+            ],
+            "recommendations_ar": [
+                "رش زيت النيم",
+                "إدخال الحشرات المفيدة (الدعسوقة)",
+            ],
+            "processing_time_ms": 850,
+        }
+    )
 
     # Moisture prediction
-    service.predict_moisture = AsyncMock(return_value={
-        "prediction_id": str(uuid.uuid4()),
-        "field_id": str(uuid.uuid4()),
-        "predictions": [
-            {"hours_ahead": 6, "moisture_percent": 38.5, "confidence": 0.92},
-            {"hours_ahead": 12, "moisture_percent": 35.2, "confidence": 0.88},
-            {"hours_ahead": 24, "moisture_percent": 31.0, "confidence": 0.82},
-            {"hours_ahead": 48, "moisture_percent": 28.5, "confidence": 0.75},
-        ],
-        "irrigation_needed_within_hours": 24,
-        "model_version": "moisture-lstm-v2.1",
-    })
+    service.predict_moisture = AsyncMock(
+        return_value={
+            "prediction_id": str(uuid.uuid4()),
+            "field_id": str(uuid.uuid4()),
+            "predictions": [
+                {"hours_ahead": 6, "moisture_percent": 38.5, "confidence": 0.92},
+                {"hours_ahead": 12, "moisture_percent": 35.2, "confidence": 0.88},
+                {"hours_ahead": 24, "moisture_percent": 31.0, "confidence": 0.82},
+                {"hours_ahead": 48, "moisture_percent": 28.5, "confidence": 0.75},
+            ],
+            "irrigation_needed_within_hours": 24,
+            "model_version": "moisture-lstm-v2.1",
+        }
+    )
 
     # Yield estimation
-    service.estimate_yield = AsyncMock(return_value={
-        "estimation_id": str(uuid.uuid4()),
-        "field_id": str(uuid.uuid4()),
-        "crop_type": "wheat",
-        "estimated_yield_kg_ha": 5250,
-        "yield_range": {"min": 4800, "max": 5700},
-        "confidence": 0.85,
-        "factors": {
-            "soil_health": 0.88,
-            "weather_favorability": 0.82,
-            "irrigation_efficiency": 0.91,
-            "pest_pressure": 0.95,
-        },
-        "comparison_to_historical": {
-            "vs_last_season": "+8.5%",
-            "vs_5_year_avg": "+12.2%",
-        },
-        "model_version": "yield-xgboost-v3.0",
-    })
+    service.estimate_yield = AsyncMock(
+        return_value={
+            "estimation_id": str(uuid.uuid4()),
+            "field_id": str(uuid.uuid4()),
+            "crop_type": "wheat",
+            "estimated_yield_kg_ha": 5250,
+            "yield_range": {"min": 4800, "max": 5700},
+            "confidence": 0.85,
+            "factors": {
+                "soil_health": 0.88,
+                "weather_favorability": 0.82,
+                "irrigation_efficiency": 0.91,
+                "pest_pressure": 0.95,
+            },
+            "comparison_to_historical": {
+                "vs_last_season": "+8.5%",
+                "vs_5_year_avg": "+12.2%",
+            },
+            "model_version": "yield-xgboost-v3.0",
+        }
+    )
 
     # Model training
-    service.train_model = AsyncMock(return_value={
-        "training_job_id": str(uuid.uuid4()),
-        "model_type": "pest_detection",
-        "status": "completed",
-        "metrics": {
-            "accuracy": 0.94,
-            "precision": 0.92,
-            "recall": 0.95,
-            "f1_score": 0.935,
-        },
-        "training_duration_minutes": 45,
-        "data_samples": 15000,
-        "model_version": "pest-detection-v2.1",
-    })
+    service.train_model = AsyncMock(
+        return_value={
+            "training_job_id": str(uuid.uuid4()),
+            "model_type": "pest_detection",
+            "status": "completed",
+            "metrics": {
+                "accuracy": 0.94,
+                "precision": 0.92,
+                "recall": 0.95,
+                "f1_score": 0.935,
+            },
+            "training_duration_minutes": 45,
+            "data_samples": 15000,
+            "model_version": "pest-detection-v2.1",
+        }
+    )
 
     return service
 
@@ -658,22 +690,28 @@ def mock_cloud_storage() -> MagicMock:
     """
     storage = MagicMock()
 
-    storage.upload_sensor_data = AsyncMock(return_value={
-        "upload_id": str(uuid.uuid4()),
-        "records_uploaded": 1000,
-        "bytes_transferred": 256000,
-        "duration_ms": 1500,
-    })
-    storage.download_model = AsyncMock(return_value={
-        "model_id": "pest-detection-v2.1",
-        "size_bytes": 52428800,
-        "checksum": "sha256:abc123...",
-    })
-    storage.sync_historical_data = AsyncMock(return_value={
-        "sync_id": str(uuid.uuid4()),
-        "records_synced": 50000,
-        "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
-    })
+    storage.upload_sensor_data = AsyncMock(
+        return_value={
+            "upload_id": str(uuid.uuid4()),
+            "records_uploaded": 1000,
+            "bytes_transferred": 256000,
+            "duration_ms": 1500,
+        }
+    )
+    storage.download_model = AsyncMock(
+        return_value={
+            "model_id": "pest-detection-v2.1",
+            "size_bytes": 52428800,
+            "checksum": "sha256:abc123...",
+        }
+    )
+    storage.sync_historical_data = AsyncMock(
+        return_value={
+            "sync_id": str(uuid.uuid4()),
+            "records_synced": 50000,
+            "date_range": {"start": "2024-01-01", "end": "2024-12-31"},
+        }
+    )
 
     return storage
 
@@ -734,31 +772,39 @@ def mock_cooperative_orchestrator() -> MagicMock:
     orchestrator.edge_status = "online"
     orchestrator.cloud_status = "connected"
 
-    orchestrator.route_inference = AsyncMock(return_value={
-        "execution_layer": "edge",
-        "reason": "latency_requirement",
-        "fallback_available": True,
-    })
-    orchestrator.sync_data = AsyncMock(return_value={
-        "sync_id": str(uuid.uuid4()),
-        "records_synced": 5000,
-        "direction": "edge_to_cloud",
-        "status": "completed",
-    })
-    orchestrator.update_edge_model = AsyncMock(return_value={
-        "model_id": "irrigation-edge-v1.3",
-        "update_status": "success",
-        "previous_version": "1.2.0",
-        "new_version": "1.3.0",
-    })
-    orchestrator.get_system_metrics = MagicMock(return_value={
-        "edge_inference_count_24h": 5000,
-        "cloud_inference_count_24h": 500,
-        "avg_edge_latency_ms": 85,
-        "avg_cloud_latency_ms": 450,
-        "sync_success_rate": 0.998,
-        "data_freshness_seconds": 120,
-    })
+    orchestrator.route_inference = AsyncMock(
+        return_value={
+            "execution_layer": "edge",
+            "reason": "latency_requirement",
+            "fallback_available": True,
+        }
+    )
+    orchestrator.sync_data = AsyncMock(
+        return_value={
+            "sync_id": str(uuid.uuid4()),
+            "records_synced": 5000,
+            "direction": "edge_to_cloud",
+            "status": "completed",
+        }
+    )
+    orchestrator.update_edge_model = AsyncMock(
+        return_value={
+            "model_id": "irrigation-edge-v1.3",
+            "update_status": "success",
+            "previous_version": "1.2.0",
+            "new_version": "1.3.0",
+        }
+    )
+    orchestrator.get_system_metrics = MagicMock(
+        return_value={
+            "edge_inference_count_24h": 5000,
+            "cloud_inference_count_24h": 500,
+            "avg_edge_latency_ms": 85,
+            "avg_cloud_latency_ms": 450,
+            "sync_success_rate": 0.998,
+            "data_freshness_seconds": 120,
+        }
+    )
 
     return orchestrator
 

@@ -26,6 +26,7 @@ router = APIRouter()
 
 class ThresholdStatus(str, Enum):
     """Threshold status."""
+
     BELOW = "below"
     APPROACHING = "approaching"
     AT_THRESHOLD = "at_threshold"
@@ -34,6 +35,7 @@ class ThresholdStatus(str, Enum):
 
 class AlertPriority(str, Enum):
     """Alert priority levels."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -42,6 +44,7 @@ class AlertPriority(str, Enum):
 
 class AlertStatus(str, Enum):
     """Alert status."""
+
     ACTIVE = "active"
     ACKNOWLEDGED = "acknowledged"
     RESOLVED = "resolved"
@@ -55,6 +58,7 @@ class AlertStatus(str, Enum):
 
 class EconomicThreshold(BaseModel):
     """Economic threshold for pest."""
+
     id: str
     pest_id: str
     pest_name_en: str
@@ -73,6 +77,7 @@ class EconomicThreshold(BaseModel):
 
 class ThresholdAssessment(BaseModel):
     """Request to assess threshold status."""
+
     pest_id: str
     crop: str
     current_value: float
@@ -82,6 +87,7 @@ class ThresholdAssessment(BaseModel):
 
 class ThresholdResult(BaseModel):
     """Threshold assessment result."""
+
     pest_id: str
     crop: str
     current_value: float
@@ -97,6 +103,7 @@ class ThresholdResult(BaseModel):
 
 class Alert(BaseModel):
     """Pest alert."""
+
     id: str = Field(default_factory=lambda: str(uuid4()))
     field_id: str
     pest_id: str

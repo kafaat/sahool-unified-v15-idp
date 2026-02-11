@@ -456,9 +456,7 @@ class AuditEntry:
             entry_hash=data.get("entry_hash"),
             retention_period=RetentionPeriod(data.get("retention_period", "globalgap")),
             expires_at=(
-                datetime.fromisoformat(data["expires_at"])
-                if data.get("expires_at")
-                else None
+                datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
             ),
         )
 
@@ -830,7 +828,10 @@ ACTION_LABELS = {
     AuditActionType.HARVEST: {"en": "Harvest", "ar": "حصاد"},
     AuditActionType.SOIL_TEST: {"en": "Soil Test", "ar": "اختبار التربة"},
     AuditActionType.CROP_PLANTING: {"en": "Crop Planting", "ar": "زراعة المحصول"},
-    AuditActionType.SYSTEM_CONFIG_CHANGE: {"en": "System Config Change", "ar": "تغيير تكوين النظام"},
+    AuditActionType.SYSTEM_CONFIG_CHANGE: {
+        "en": "System Config Change",
+        "ar": "تغيير تكوين النظام",
+    },
     AuditActionType.SCHEDULED_TASK: {"en": "Scheduled Task", "ar": "مهمة مجدولة"},
     AuditActionType.INTEGRATION_SYNC: {"en": "Integration Sync", "ar": "مزامنة التكامل"},
 }

@@ -114,14 +114,12 @@ class HuggingfaceConfig:
 
         if self.cache_dir is None:
             self.cache_dir = os.getenv(
-                "HUGGINGFACE_CACHE_DIR",
-                str(Path.home() / ".cache" / "huggingface" / "sahool")
+                "HUGGINGFACE_CACHE_DIR", str(Path.home() / ".cache" / "huggingface" / "sahool")
             )
 
         if self.local_model_dir is None:
             self.local_model_dir = os.getenv(
-                "HUGGINGFACE_MODEL_DIR",
-                str(Path.home() / ".cache" / "huggingface" / "models")
+                "HUGGINGFACE_MODEL_DIR", str(Path.home() / ".cache" / "huggingface" / "models")
             )
 
 
@@ -229,7 +227,6 @@ EMBEDDING_MODELS: dict[str, ModelInfo] = {
         arabic_quality="good",
         download_size_mb=970,
     ),
-
     # Arabic-specific models
     "aubmindlab/bert-base-arabertv02": ModelInfo(
         model_id="aubmindlab/bert-base-arabertv02",
@@ -253,7 +250,6 @@ EMBEDDING_MODELS: dict[str, ModelInfo] = {
         arabic_quality="excellent",
         download_size_mb=680,
     ),
-
     # English models (faster, smaller)
     "sentence-transformers/all-MiniLM-L6-v2": ModelInfo(
         model_id="sentence-transformers/all-MiniLM-L6-v2",
@@ -294,13 +290,10 @@ EMBEDDING_MODELS: dict[str, ModelInfo] = {
 AGRICULTURAL_MODELS: dict[str, str] = {
     # Best for Arabic agricultural texts
     "arabic_agriculture": "intfloat/multilingual-e5-large",
-
     # Best for English agricultural texts
     "english_agriculture": "BAAI/bge-large-en-v1.5",
-
     # Best for mixed Arabic/English
     "bilingual_agriculture": "intfloat/multilingual-e5-base",
-
     # Best for fast inference
     "fast_agriculture": "sentence-transformers/all-MiniLM-L6-v2",
 }
@@ -414,10 +407,14 @@ class HuggingfaceProvider:
         self.config = config or HuggingfaceConfig()
 
         # Cache
-        self._cache = EmbeddingCache(
-            cache_dir=self.config.cache_dir,
-            ttl_seconds=self.config.cache_ttl_seconds,
-        ) if self.config.cache_enabled else None
+        self._cache = (
+            EmbeddingCache(
+                cache_dir=self.config.cache_dir,
+                ttl_seconds=self.config.cache_ttl_seconds,
+            )
+            if self.config.cache_enabled
+            else None
+        )
 
         # Model instances (lazy loaded)
         self._models: dict[str, Any] = {}
@@ -442,11 +439,12 @@ class HuggingfaceProvider:
         if self._http_client is None:
             try:
                 import httpx
+
                 self._http_client = httpx.AsyncClient(
                     timeout=self.config.timeout_seconds,
-                    headers={
-                        "Authorization": f"Bearer {self.config.api_token}"
-                    } if self.config.api_token else {},
+                    headers={"Authorization": f"Bearer {self.config.api_token}"}
+                    if self.config.api_token
+                    else {},
                 )
             except ImportError:
                 logger.warning("httpx not available, API calls will fail")
@@ -460,6 +458,7 @@ class HuggingfaceProvider:
 
         try:
             import torch
+
             if torch.cuda.is_available():
                 return "cuda"
             elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
@@ -547,14 +546,12 @@ class HuggingfaceProvider:
                 token_embeddings = outputs.last_hidden_state
 
                 input_mask_expanded = (
-                    attention_mask.unsqueeze(-1)
-                    .expand(token_embeddings.size())
-                    .float()
+                    attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
                 )
 
-                embeddings = torch.sum(
-                    token_embeddings * input_mask_expanded, 1
-                ) / torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+                embeddings = torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
+                    input_mask_expanded.sum(1), min=1e-9
+                )
 
                 # Normalize if configured
                 if self.config.normalize_embeddings:
@@ -730,7 +727,7 @@ class HuggingfaceProvider:
             # Process in batches
             all_new_embeddings: list[list[float]] = []
             for i in range(0, len(uncached_texts), self.config.batch_size):
-                batch = uncached_texts[i:i + self.config.batch_size]
+                batch = uncached_texts[i : i + self.config.batch_size]
 
                 if self.config.use_local_models:
                     batch_embeddings = await self._embed_local(batch, model_id)
@@ -989,26 +986,20 @@ def get_best_arabic_model() -> str:
 __all__ = [
     # Config
     "HuggingfaceConfig",
-
     # Enums
     "HuggingfaceModelType",
     "EmbeddingModelFamily",
-
     # Results
     "EmbeddingResult",
     "BatchEmbeddingResult",
     "ModelInfo",
-
     # Cache
     "EmbeddingCache",
-
     # Provider
     "HuggingfaceProvider",
-
     # Constants
     "EMBEDDING_MODELS",
     "AGRICULTURAL_MODELS",
-
     # Convenience functions
     "get_huggingface_provider",
     "embed_text",

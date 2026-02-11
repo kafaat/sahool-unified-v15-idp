@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 class SMSProvider(str, Enum):
     """مزودي خدمة SMS"""
+
     TWILIO = "twilio"
     VONAGE = "vonage"
     LOCAL_YEMENMOBILE = "yemenmobile"  # Yemen Mobile
@@ -39,6 +40,7 @@ class SMSProvider(str, Enum):
 @dataclass
 class SMSResult:
     """نتيجة إرسال SMS"""
+
     success: bool
     message_id: str | None = None
     provider: str | None = None
@@ -268,7 +270,7 @@ class MsegatSMSProvider(BaseSMSProvider):
             "+968",  # Oman
             "+973",  # Bahrain
             "+974",  # Qatar
-            "+20",   # Egypt
+            "+20",  # Egypt
             "+962",  # Jordan
             "+961",  # Lebanon
             "+963",  # Syria
@@ -489,7 +491,9 @@ class MultiProviderSMSClient:
                 result = await provider.send_sms(to, content, sender_id)
                 if result.success:
                     return result
-                logger.warning(f"Preferred provider {preferred_provider.value} failed: {result.error}")
+                logger.warning(
+                    f"Preferred provider {preferred_provider.value} failed: {result.error}"
+                )
 
         # Get best provider for the number
         provider = self._get_best_provider_for_number(to)

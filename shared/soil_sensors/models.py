@@ -11,6 +11,7 @@ from enum import Enum
 
 class SensorType(str, Enum):
     """Type of soil sensor"""
+
     MOISTURE = "moisture"  # رطوبة التربة
     TEMPERATURE = "temperature"  # حرارة التربة
     EC = "electrical_conductivity"  # الموصلية الكهربائية
@@ -23,6 +24,7 @@ class SensorType(str, Enum):
 
 class SensorProtocol(str, Enum):
     """Communication protocol"""
+
     MQTT = "mqtt"
     LORAWAN = "lorawan"
     HTTP = "http"
@@ -33,6 +35,7 @@ class SensorProtocol(str, Enum):
 
 class SensorStatus(str, Enum):
     """Sensor operational status"""
+
     ACTIVE = "active"  # يعمل
     OFFLINE = "offline"  # غير متصل
     LOW_BATTERY = "low_battery"  # بطارية منخفضة
@@ -43,6 +46,7 @@ class SensorStatus(str, Enum):
 
 class AlertSeverity(str, Enum):
     """Alert severity level"""
+
     INFO = "info"
     LOW = "low"
     MEDIUM = "medium"
@@ -55,6 +59,7 @@ class SensorReading:
     """
     Single sensor reading - قراءة مجس واحدة
     """
+
     sensor_id: str
     timestamp: datetime
     reading_type: SensorType
@@ -86,6 +91,7 @@ class SoilSensor:
     """
     Soil sensor device - جهاز مجس التربة
     """
+
     id: str
     tenant_id: str
     field_id: str
@@ -167,6 +173,7 @@ class SensorCalibration:
     """
     Sensor calibration data - بيانات معايرة المجس
     """
+
     sensor_id: str
     calibrated_at: datetime
     calibrated_by: str
@@ -196,7 +203,9 @@ class SensorCalibration:
             return raw_value
 
         normalized = (raw_value - self.dry_value) / (self.wet_value - self.dry_value)
-        calibrated = self.known_dry_percent + normalized * (self.known_wet_percent - self.known_dry_percent)
+        calibrated = self.known_dry_percent + normalized * (
+            self.known_wet_percent - self.known_dry_percent
+        )
 
         # Apply offset and scale
         calibrated = (calibrated * self.scale) + self.offset
@@ -210,6 +219,7 @@ class SensorAlert:
     """
     Sensor alert - تنبيه المجس
     """
+
     alert_id: str
     sensor_id: str
     field_id: str
@@ -266,6 +276,7 @@ class FieldMoistureMap:
     Field moisture map from sensor interpolation
     خريطة رطوبة الحقل من استيفاء المجسات
     """
+
     field_id: str
     timestamp: datetime
 
@@ -300,6 +311,7 @@ class SensorAggregation:
     Aggregated sensor readings over time period
     قراءات المجس المجمعة خلال فترة زمنية
     """
+
     sensor_id: str
     field_id: str
     period_start: datetime

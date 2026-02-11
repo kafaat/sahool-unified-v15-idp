@@ -31,6 +31,7 @@ import uuid
 
 class PestCategory(str, Enum):
     """Pest category classification | تصنيف فئة الآفة"""
+
     INSECT = "insect"  # حشرة
     MITE = "mite"  # عنكبوت/أكاروس
     NEMATODE = "nematode"  # نيماتودا
@@ -44,6 +45,7 @@ class PestCategory(str, Enum):
 
 class PestLifeStage(str, Enum):
     """Pest life stage | مرحلة حياة الآفة"""
+
     EGG = "egg"  # بيضة
     LARVA = "larva"  # يرقة
     NYMPH = "nymph"  # حورية
@@ -56,6 +58,7 @@ class PestLifeStage(str, Enum):
 
 class InfestationLevel(str, Enum):
     """Infestation severity level | مستوى شدة الإصابة"""
+
     NONE = "none"  # لا إصابة
     TRACE = "trace"  # آثار بسيطة
     LOW = "low"  # منخفض
@@ -67,6 +70,7 @@ class InfestationLevel(str, Enum):
 
 class AlertPriority(str, Enum):
     """Alert priority levels | مستويات أولوية التنبيه"""
+
     CRITICAL = "critical"  # حرج - فوري <6 ساعات
     HIGH = "high"  # عالي - 24-48 ساعة
     MEDIUM = "medium"  # متوسط - أسبوع
@@ -76,6 +80,7 @@ class AlertPriority(str, Enum):
 
 class ScoutingMethod(str, Enum):
     """Scouting methodology | طريقة المسح"""
+
     VISUAL_INSPECTION = "visual_inspection"  # فحص بصري
     TRAP_MONITORING = "trap_monitoring"  # مراقبة مصائد
     PHEROMONE_TRAP = "pheromone_trap"  # مصيدة فرمونية
@@ -91,6 +96,7 @@ class ScoutingMethod(str, Enum):
 
 class TreatmentType(str, Enum):
     """Treatment approach type | نوع أسلوب العلاج"""
+
     CHEMICAL = "chemical"  # كيميائي
     BIOLOGICAL = "biological"  # حيوي
     CULTURAL = "cultural"  # زراعي
@@ -102,6 +108,7 @@ class TreatmentType(str, Enum):
 
 class TreatmentUrgency(str, Enum):
     """Treatment urgency level | مستوى استعجال العلاج"""
+
     IMMEDIATE = "immediate"  # فوري - خلال 24 ساعة
     URGENT = "urgent"  # عاجل - خلال 48 ساعة
     SOON = "soon"  # قريب - خلال أسبوع
@@ -112,6 +119,7 @@ class TreatmentUrgency(str, Enum):
 
 class CropType(str, Enum):
     """Supported crop types | أنواع المحاصيل المدعومة"""
+
     DATE_PALM = "date_palm"  # نخيل التمر
     WHEAT = "wheat"  # قمح
     BARLEY = "barley"  # شعير
@@ -135,6 +143,7 @@ class PestIdentification:
     Pest species identification information
     معلومات تعريف نوع الآفة
     """
+
     # Identification
     id: str
     scientific_name: str  # الاسم العلمي
@@ -230,7 +239,9 @@ class PestIdentification:
             "secondary_hosts": [h.value for h in self.secondary_hosts],
             "life_cycle_days": self.life_cycle_days,
             "generations_per_year": self.generations_per_year,
-            "overwintering_stage": self.overwintering_stage.value if self.overwintering_stage else None,
+            "overwintering_stage": self.overwintering_stage.value
+            if self.overwintering_stage
+            else None,
             "optimal_temperature_c": self.optimal_temperature_c,
             "optimal_humidity_pct": self.optimal_humidity_pct,
             "is_quarantine_pest": self.is_quarantine_pest,
@@ -251,6 +262,7 @@ class ScoutObservation:
     Single pest observation during scouting
     ملاحظة آفة واحدة أثناء المسح
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     pest_id: str = ""  # Reference to PestIdentification
     pest_name: str = ""
@@ -324,6 +336,7 @@ class ScoutReport:
     Complete scouting report for a field
     تقرير مسح كامل للحقل
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     tenant_id: str = ""
@@ -453,9 +466,12 @@ class PestAlert:
     Pest alert notification
     تنبيه آفة
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    alert_type: str = "threshold_exceeded"  # threshold_exceeded, new_detection, outbreak, quarantine
+    alert_type: str = (
+        "threshold_exceeded"  # threshold_exceeded, new_detection, outbreak, quarantine
+    )
 
     # Priority
     priority: AlertPriority = AlertPriority.MEDIUM
@@ -549,7 +565,9 @@ class PestAlert:
             "growth_stage": self.growth_stage,
             "area_affected_ha": self.area_affected_ha,
             "detected_at": self.detected_at.isoformat(),
-            "response_deadline": self.response_deadline.isoformat() if self.response_deadline else None,
+            "response_deadline": self.response_deadline.isoformat()
+            if self.response_deadline
+            else None,
             "is_active": self.is_active,
             "acknowledged_at": self.acknowledged_at.isoformat() if self.acknowledged_at else None,
             "acknowledged_by": self.acknowledged_by,
@@ -578,6 +596,7 @@ class OutbreakRecord:
     Historical outbreak record for tracking and analysis
     سجل تفشي تاريخي للتتبع والتحليل
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     tenant_id: str = ""
@@ -667,7 +686,9 @@ class OutbreakRecord:
             "field_ids": self.field_ids,
             "affected_crops": [c.value for c in self.affected_crops],
             "primary_crop": self.primary_crop.value,
-            "first_detection_date": self.first_detection_date.isoformat() if self.first_detection_date else None,
+            "first_detection_date": self.first_detection_date.isoformat()
+            if self.first_detection_date
+            else None,
             "peak_date": self.peak_date.isoformat() if self.peak_date else None,
             "end_date": self.end_date.isoformat() if self.end_date else None,
             "duration_days": self.duration_days,
@@ -712,6 +733,7 @@ class TreatmentRecommendation:
     Treatment recommendation for pest control
     توصية علاج لمكافحة الآفة
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     scout_report_id: str | None = None
@@ -830,8 +852,12 @@ class TreatmentRecommendation:
             "expected_yield_saved_pct": self.expected_yield_saved_pct,
             "roi_estimate": self.roi_estimate,
             "currency": self.currency,
-            "optimal_window_start": self.optimal_window_start.isoformat() if self.optimal_window_start else None,
-            "optimal_window_end": self.optimal_window_end.isoformat() if self.optimal_window_end else None,
+            "optimal_window_start": self.optimal_window_start.isoformat()
+            if self.optimal_window_start
+            else None,
+            "optimal_window_end": self.optimal_window_end.isoformat()
+            if self.optimal_window_end
+            else None,
             "weather_requirements": self.weather_requirements,
             "weather_requirements_ar": self.weather_requirements_ar,
             "follow_up_scouting_days": self.follow_up_scouting_days,
@@ -856,6 +882,7 @@ class EconomicThreshold:
     Economic/action threshold for a pest
     العتبة الاقتصادية/عتبة التدخل للآفة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     pest_id: str = ""
     pest_name: str = ""

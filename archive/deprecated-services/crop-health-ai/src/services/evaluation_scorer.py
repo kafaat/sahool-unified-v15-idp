@@ -153,8 +153,7 @@ class EvaluationScorer:
                 score.actual_disease = actual_disease
                 score.correct = score.predicted_disease == actual_disease
                 score.confidence_error = abs(
-                    score.predicted_confidence
-                    - (1.0 if score.correct else 0.0)
+                    score.predicted_confidence - (1.0 if score.correct else 0.0)
                 )
 
                 # Invalidate cache
@@ -213,11 +212,11 @@ class EvaluationScorer:
         medium_conf = [s for s in scores if 0.5 <= s.predicted_confidence <= 0.7]
         low_conf = [s for s in scores if s.predicted_confidence < 0.5]
 
-        high_conf_acc = sum(1 for s in high_conf if s.correct) / len(high_conf) if high_conf else 0.0
+        high_conf_acc = (
+            sum(1 for s in high_conf if s.correct) / len(high_conf) if high_conf else 0.0
+        )
         medium_conf_acc = (
-            sum(1 for s in medium_conf if s.correct) / len(medium_conf)
-            if medium_conf
-            else 0.0
+            sum(1 for s in medium_conf if s.correct) / len(medium_conf) if medium_conf else 0.0
         )
         low_conf_acc = sum(1 for s in low_conf if s.correct) / len(low_conf) if low_conf else 0.0
 
@@ -281,9 +280,7 @@ class EvaluationScorer:
                 "accuracy": accuracy,
                 "avg_confidence": np.mean(confidences),
                 "std_confidence": np.std(confidences),
-                "false_positive_rate": self._calculate_fpr_for_disease(
-                    disease_id, disease_scores
-                ),
+                "false_positive_rate": self._calculate_fpr_for_disease(disease_id, disease_scores),
             }
 
         self.per_disease_cache[cache_key] = metrics
@@ -346,19 +343,13 @@ class EvaluationScorer:
 
         # Detect confidence trend
         recent_scores = self._filter_evaluated_scores(days_back=days_back)
-        older_scores = self._filter_evaluated_scores(
-            days_back=30, start_days_back=days_back
-        )
+        older_scores = self._filter_evaluated_scores(days_back=30, start_days_back=days_back)
 
         recent_conf = (
-            np.mean([s.predicted_confidence for s in recent_scores])
-            if recent_scores
-            else 0.5
+            np.mean([s.predicted_confidence for s in recent_scores]) if recent_scores else 0.5
         )
         older_conf = (
-            np.mean([s.predicted_confidence for s in older_scores])
-            if older_scores
-            else 0.5
+            np.mean([s.predicted_confidence for s in older_scores]) if older_scores else 0.5
         )
 
         if recent_conf > older_conf + 0.05:
@@ -399,8 +390,7 @@ class EvaluationScorer:
 
         if drift_detected:
             logger.warning(
-                f"⚠️  Model drift detected ({severity}): "
-                f"Accuracy changed {accuracy_change:+.1f}%"
+                f"⚠️  Model drift detected ({severity}): Accuracy changed {accuracy_change:+.1f}%"
             )
 
         return indicators
@@ -533,25 +523,28 @@ class EvaluationScorer:
             return 0.0
 
         # Bin predictions by confidence
-        bins = [(0.0, 0.1), (0.1, 0.2), (0.2, 0.3), (0.3, 0.4), (0.4, 0.5),
-                (0.5, 0.6), (0.6, 0.7), (0.7, 0.8), (0.8, 0.9), (0.9, 1.0)]
+        bins = [
+            (0.0, 0.1),
+            (0.1, 0.2),
+            (0.2, 0.3),
+            (0.3, 0.4),
+            (0.4, 0.5),
+            (0.5, 0.6),
+            (0.6, 0.7),
+            (0.7, 0.8),
+            (0.8, 0.9),
+            (0.9, 1.0),
+        ]
 
         ece = 0.0
         total = len(scores)
 
         for bin_min, bin_max in bins:
-            bin_scores = [
-                s for s in scores
-                if bin_min <= s.predicted_confidence < bin_max
-            ]
+            bin_scores = [s for s in scores if bin_min <= s.predicted_confidence < bin_max]
 
             if bin_scores:
-                bin_accuracy = sum(1 for s in bin_scores if s.correct) / len(
-                    bin_scores
-                )
-                bin_confidence = np.mean(
-                    [s.predicted_confidence for s in bin_scores]
-                )
+                bin_accuracy = sum(1 for s in bin_scores if s.correct) / len(bin_scores)
+                bin_confidence = np.mean([s.predicted_confidence for s in bin_scores])
                 bin_size = len(bin_scores) / total
 
                 ece += abs(bin_accuracy - bin_confidence) * bin_size
@@ -567,7 +560,8 @@ class EvaluationScorer:
     ) -> float:
         """False positive rate for a disease"""
         fp = sum(
-            1 for s in scores
+            1
+            for s in scores
             if s.predicted_disease == disease_id and s.actual_disease != disease_id
         )
         neg = sum(1 for s in scores if s.actual_disease != disease_id)
@@ -576,17 +570,14 @@ class EvaluationScorer:
     def _calculate_overall_fpr(self, scores: list[PredictionScore]) -> float:
         """Overall false positive rate"""
         fp = sum(
-            1 for s in scores
-            if s.predicted_disease != "healthy" and s.actual_disease == "healthy"
+            1 for s in scores if s.predicted_disease != "healthy" and s.actual_disease == "healthy"
         )
         return fp / len(scores) if scores else 0.0
 
     def _calculate_overall_fnr(self, scores: list[PredictionScore]) -> float:
         """Overall false negative rate"""
         fn = sum(
-            1 for s in scores
-            if s.predicted_disease == "healthy"
-            and s.actual_disease != "healthy"
+            1 for s in scores if s.predicted_disease == "healthy" and s.actual_disease != "healthy"
         )
         diseased = sum(1 for s in scores if s.actual_disease != "healthy")
         return fn / diseased if diseased > 0 else 0.0
@@ -601,9 +592,7 @@ class EvaluationScorer:
         recommendations = []
 
         if metrics.accuracy < 0.7:
-            recommendations.append(
-                "Overall accuracy below 70%. Consider model retraining."
-            )
+            recommendations.append("Overall accuracy below 70%. Consider model retraining.")
 
         if drift.drift_detected:
             recommendations.append(
@@ -616,7 +605,9 @@ class EvaluationScorer:
             )
 
         if metrics.high_confidence_accuracy < 0.5:
-            recommendations.append("High-confidence predictions are often wrong. Reduce confidence thresholds or retrain.")
+            recommendations.append(
+                "High-confidence predictions are often wrong. Reduce confidence thresholds or retrain."
+            )
 
         if disease_metrics:
             worst = min(disease_metrics.items(), key=lambda x: x[1]["accuracy"])
@@ -636,8 +627,7 @@ class EvaluationScorer:
             "total_predictions": len(self.prediction_scores),
             "evaluated_predictions": len(self._filter_evaluated_scores()),
             "unevaluated_predictions": (
-                len(self.prediction_scores)
-                - len(self._filter_evaluated_scores())
+                len(self.prediction_scores) - len(self._filter_evaluated_scores())
             ),
             "evaluation_rate": (
                 len(self._filter_evaluated_scores()) / len(self.prediction_scores)

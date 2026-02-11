@@ -40,7 +40,14 @@ except ImportError:
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
-from .registry import DeviceRegistry, DeviceStatus, RedisDeviceRegistry, get_registry, get_redis_registry, set_registry
+from .registry import (
+    DeviceRegistry,
+    DeviceStatus,
+    RedisDeviceRegistry,
+    get_registry,
+    get_redis_registry,
+    set_registry,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -51,6 +58,7 @@ logger = logging.getLogger("iot-gateway")
 # Redis imports
 try:
     import redis.asyncio as redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

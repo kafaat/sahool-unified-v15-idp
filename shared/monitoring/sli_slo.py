@@ -18,23 +18,23 @@ from typing import Any
 class ServiceTier(str, Enum):
     """Service tier classification | تصنيف مستوى الخدمة"""
 
-    CRITICAL = "critical"      # Core infrastructure (Postgres, Redis, NATS)
-    ESSENTIAL = "essential"    # Core services (field-management, user-service)
-    STANDARD = "standard"      # Application services (advisory, notifications)
-    ANALYTICS = "analytics"    # Analytics/ML services (NDVI, AI)
-    EDGE = "edge"             # Edge/IoT services
+    CRITICAL = "critical"  # Core infrastructure (Postgres, Redis, NATS)
+    ESSENTIAL = "essential"  # Core services (field-management, user-service)
+    STANDARD = "standard"  # Application services (advisory, notifications)
+    ANALYTICS = "analytics"  # Analytics/ML services (NDVI, AI)
+    EDGE = "edge"  # Edge/IoT services
 
 
 class SLIType(str, Enum):
     """SLI measurement type | نوع قياس مؤشر الخدمة"""
 
-    AVAILABILITY = "availability"           # Service uptime
-    LATENCY = "latency"                    # Response time
-    ERROR_RATE = "error_rate"              # Error percentage
-    THROUGHPUT = "throughput"              # Requests per second
-    SATURATION = "saturation"              # Resource usage
-    FRESHNESS = "freshness"                # Data age
-    CORRECTNESS = "correctness"            # Data accuracy
+    AVAILABILITY = "availability"  # Service uptime
+    LATENCY = "latency"  # Response time
+    ERROR_RATE = "error_rate"  # Error percentage
+    THROUGHPUT = "throughput"  # Requests per second
+    SATURATION = "saturation"  # Resource usage
+    FRESHNESS = "freshness"  # Data age
+    CORRECTNESS = "correctness"  # Data accuracy
 
 
 @dataclass
@@ -79,8 +79,8 @@ class SLO:
     window: str  # e.g., "30d", "7d", "1d"
     tier: ServiceTier
     alert_burn_rate_1h: float = 14.4  # 1h burn rate for critical alert
-    alert_burn_rate_6h: float = 6.0   # 6h burn rate for warning alert
-    alert_burn_rate_3d: float = 1.0   # 3d burn rate for ticket
+    alert_burn_rate_6h: float = 6.0  # 6h burn rate for warning alert
+    alert_burn_rate_3d: float = 1.0  # 3d burn rate for ticket
 
     @property
     def error_budget(self) -> float:
@@ -153,13 +153,13 @@ LATENCY_P50_SLI = SLI(
     type=SLIType.LATENCY,
     description="50th percentile request latency",
     description_ar="زمن الاستجابة في النسبة المئوية 50",
-    prometheus_query='''
+    prometheus_query="""
         histogram_quantile(0.50,
             sum by (le) (
                 rate(http_request_duration_seconds_bucket{{job="{service}"}}[{window}])
             )
         )
-    ''',
+    """,
     unit="seconds",
 )
 
@@ -169,20 +169,20 @@ LATENCY_P95_SLI = SLI(
     type=SLIType.LATENCY,
     description="95th percentile request latency",
     description_ar="زمن الاستجابة في النسبة المئوية 95",
-    prometheus_query='''
+    prometheus_query="""
         histogram_quantile(0.95,
             sum by (le) (
                 rate(http_request_duration_seconds_bucket{{job="{service}"}}[{window}])
             )
         )
-    ''',
+    """,
     unit="seconds",
-    good_events_query='''
+    good_events_query="""
         sum(rate(http_request_duration_seconds_bucket{{job="{service}",le="0.5"}}[{window}]))
-    ''',
-    total_events_query='''
+    """,
+    total_events_query="""
         sum(rate(http_request_duration_seconds_count{{job="{service}"}}[{window}]))
-    ''',
+    """,
 )
 
 LATENCY_P99_SLI = SLI(
@@ -191,13 +191,13 @@ LATENCY_P99_SLI = SLI(
     type=SLIType.LATENCY,
     description="99th percentile request latency",
     description_ar="زمن الاستجابة في النسبة المئوية 99",
-    prometheus_query='''
+    prometheus_query="""
         histogram_quantile(0.99,
             sum by (le) (
                 rate(http_request_duration_seconds_bucket{{job="{service}"}}[{window}])
             )
         )
-    ''',
+    """,
     unit="seconds",
 )
 
@@ -208,20 +208,20 @@ ERROR_RATE_SLI = SLI(
     type=SLIType.ERROR_RATE,
     description="Percentage of requests resulting in errors (5xx)",
     description_ar="نسبة الطلبات التي تنتج أخطاء (5xx)",
-    prometheus_query='''
+    prometheus_query="""
         (
             sum(rate(http_requests_total{{job="{service}",status=~"5.."}}[{window}]))
             /
             sum(rate(http_requests_total{{job="{service}"}}[{window}]))
         )
-    ''',
+    """,
     unit="ratio",
-    good_events_query='''
+    good_events_query="""
         sum(rate(http_requests_total{{job="{service}",status!~"5.."}}[{window}]))
-    ''',
-    total_events_query='''
+    """,
+    total_events_query="""
         sum(rate(http_requests_total{{job="{service}"}}[{window}]))
-    ''',
+    """,
 )
 
 # Throughput SLI
@@ -242,9 +242,9 @@ CPU_SATURATION_SLI = SLI(
     type=SLIType.SATURATION,
     description="CPU utilization percentage",
     description_ar="نسبة استخدام المعالج",
-    prometheus_query='''
+    prometheus_query="""
         avg(rate(process_cpu_seconds_total{{job="{service}"}}[{window}])) * 100
-    ''',
+    """,
     unit="percent",
 )
 
@@ -254,13 +254,13 @@ MEMORY_SATURATION_SLI = SLI(
     type=SLIType.SATURATION,
     description="Memory utilization percentage",
     description_ar="نسبة استخدام الذاكرة",
-    prometheus_query='''
+    prometheus_query="""
         (
             process_resident_memory_bytes{{job="{service}"}}
             /
             machine_memory_bytes
         ) * 100
-    ''',
+    """,
     unit="percent",
 )
 
@@ -275,9 +275,9 @@ NDVI_FRESHNESS_SLI = SLI(
     type=SLIType.FRESHNESS,
     description="Age of latest NDVI data in hours",
     description_ar="عمر أحدث بيانات NDVI بالساعات",
-    prometheus_query='''
+    prometheus_query="""
         (time() - ndvi_last_update_timestamp_seconds) / 3600
-    ''',
+    """,
     unit="hours",
 )
 
@@ -288,9 +288,9 @@ WEATHER_FRESHNESS_SLI = SLI(
     type=SLIType.FRESHNESS,
     description="Age of latest weather data in minutes",
     description_ar="عمر أحدث بيانات الطقس بالدقائق",
-    prometheus_query='''
+    prometheus_query="""
         (time() - weather_last_update_timestamp_seconds) / 60
-    ''',
+    """,
     unit="minutes",
 )
 
@@ -301,13 +301,13 @@ ADVISORY_CORRECTNESS_SLI = SLI(
     type=SLIType.CORRECTNESS,
     description="Percentage of accurate advisory recommendations",
     description_ar="نسبة التوصيات الاستشارية الدقيقة",
-    prometheus_query='''
+    prometheus_query="""
         (
             sum(advisory_feedback_positive_total)
             /
             sum(advisory_feedback_total)
         )
-    ''',
+    """,
     unit="ratio",
 )
 
@@ -318,9 +318,9 @@ SENSOR_FRESHNESS_SLI = SLI(
     type=SLIType.FRESHNESS,
     description="Age of latest sensor readings in minutes",
     description_ar="عمر أحدث قراءات المستشعرات بالدقائق",
-    prometheus_query='''
+    prometheus_query="""
         avg(time() - iot_sensor_last_reading_timestamp_seconds) / 60
-    ''',
+    """,
     unit="minutes",
 )
 
@@ -331,13 +331,13 @@ AI_INFERENCE_LATENCY_SLI = SLI(
     type=SLIType.LATENCY,
     description="AI model inference latency (P95)",
     description_ar="زمن استدلال نموذج الذكاء الاصطناعي (P95)",
-    prometheus_query='''
+    prometheus_query="""
         histogram_quantile(0.95,
             sum by (le) (
                 rate(ai_inference_duration_seconds_bucket{{job="{service}"}}[{window}])
             )
         )
-    ''',
+    """,
     unit="seconds",
 )
 
@@ -345,6 +345,7 @@ AI_INFERENCE_LATENCY_SLI = SLI(
 # ═══════════════════════════════════════════════════════════════════════════════
 # SLO Definitions by Service Tier | تعريفات أهداف الخدمة حسب المستوى
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def create_critical_service_slos(service_name: str, service_name_ar: str) -> ServiceSLOs:
     """
@@ -360,34 +361,40 @@ def create_critical_service_slos(service_name: str, service_name_ar: str) -> Ser
     )
 
     # 99.9% Availability (3 nines)
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_availability",
-        name_ar=f"توفر {service_name_ar}",
-        sli=AVAILABILITY_SLI,
-        target=0.999,
-        window="30d",
-        tier=ServiceTier.CRITICAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_availability",
+            name_ar=f"توفر {service_name_ar}",
+            sli=AVAILABILITY_SLI,
+            target=0.999,
+            window="30d",
+            tier=ServiceTier.CRITICAL,
+        )
+    )
 
     # P95 Latency < 100ms
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_latency_p95",
-        name_ar=f"زمن استجابة {service_name_ar} P95",
-        sli=LATENCY_P95_SLI,
-        target=0.999,  # 99.9% of requests < 100ms
-        window="30d",
-        tier=ServiceTier.CRITICAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_latency_p95",
+            name_ar=f"زمن استجابة {service_name_ar} P95",
+            sli=LATENCY_P95_SLI,
+            target=0.999,  # 99.9% of requests < 100ms
+            window="30d",
+            tier=ServiceTier.CRITICAL,
+        )
+    )
 
     # Error Rate < 0.1%
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_error_rate",
-        name_ar=f"معدل أخطاء {service_name_ar}",
-        sli=ERROR_RATE_SLI,
-        target=0.999,  # < 0.1% errors
-        window="30d",
-        tier=ServiceTier.CRITICAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_error_rate",
+            name_ar=f"معدل أخطاء {service_name_ar}",
+            sli=ERROR_RATE_SLI,
+            target=0.999,  # < 0.1% errors
+            window="30d",
+            tier=ServiceTier.CRITICAL,
+        )
+    )
 
     return service_slos
 
@@ -406,34 +413,40 @@ def create_essential_service_slos(service_name: str, service_name_ar: str) -> Se
     )
 
     # 99.5% Availability
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_availability",
-        name_ar=f"توفر {service_name_ar}",
-        sli=AVAILABILITY_SLI,
-        target=0.995,
-        window="30d",
-        tier=ServiceTier.ESSENTIAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_availability",
+            name_ar=f"توفر {service_name_ar}",
+            sli=AVAILABILITY_SLI,
+            target=0.995,
+            window="30d",
+            tier=ServiceTier.ESSENTIAL,
+        )
+    )
 
     # P95 Latency < 300ms
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_latency_p95",
-        name_ar=f"زمن استجابة {service_name_ar} P95",
-        sli=LATENCY_P95_SLI,
-        target=0.99,  # 99% of requests < 300ms
-        window="30d",
-        tier=ServiceTier.ESSENTIAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_latency_p95",
+            name_ar=f"زمن استجابة {service_name_ar} P95",
+            sli=LATENCY_P95_SLI,
+            target=0.99,  # 99% of requests < 300ms
+            window="30d",
+            tier=ServiceTier.ESSENTIAL,
+        )
+    )
 
     # Error Rate < 0.5%
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_error_rate",
-        name_ar=f"معدل أخطاء {service_name_ar}",
-        sli=ERROR_RATE_SLI,
-        target=0.995,
-        window="30d",
-        tier=ServiceTier.ESSENTIAL,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_error_rate",
+            name_ar=f"معدل أخطاء {service_name_ar}",
+            sli=ERROR_RATE_SLI,
+            target=0.995,
+            window="30d",
+            tier=ServiceTier.ESSENTIAL,
+        )
+    )
 
     return service_slos
 
@@ -452,34 +465,40 @@ def create_standard_service_slos(service_name: str, service_name_ar: str) -> Ser
     )
 
     # 99% Availability (2 nines)
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_availability",
-        name_ar=f"توفر {service_name_ar}",
-        sli=AVAILABILITY_SLI,
-        target=0.99,
-        window="30d",
-        tier=ServiceTier.STANDARD,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_availability",
+            name_ar=f"توفر {service_name_ar}",
+            sli=AVAILABILITY_SLI,
+            target=0.99,
+            window="30d",
+            tier=ServiceTier.STANDARD,
+        )
+    )
 
     # P95 Latency < 500ms
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_latency_p95",
-        name_ar=f"زمن استجابة {service_name_ar} P95",
-        sli=LATENCY_P95_SLI,
-        target=0.95,  # 95% of requests < 500ms
-        window="30d",
-        tier=ServiceTier.STANDARD,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_latency_p95",
+            name_ar=f"زمن استجابة {service_name_ar} P95",
+            sli=LATENCY_P95_SLI,
+            target=0.95,  # 95% of requests < 500ms
+            window="30d",
+            tier=ServiceTier.STANDARD,
+        )
+    )
 
     # Error Rate < 1%
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_error_rate",
-        name_ar=f"معدل أخطاء {service_name_ar}",
-        sli=ERROR_RATE_SLI,
-        target=0.99,
-        window="30d",
-        tier=ServiceTier.STANDARD,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_error_rate",
+            name_ar=f"معدل أخطاء {service_name_ar}",
+            sli=ERROR_RATE_SLI,
+            target=0.99,
+            window="30d",
+            tier=ServiceTier.STANDARD,
+        )
+    )
 
     return service_slos
 
@@ -498,34 +517,40 @@ def create_analytics_service_slos(service_name: str, service_name_ar: str) -> Se
     )
 
     # 95% Availability
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_availability",
-        name_ar=f"توفر {service_name_ar}",
-        sli=AVAILABILITY_SLI,
-        target=0.95,
-        window="30d",
-        tier=ServiceTier.ANALYTICS,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_availability",
+            name_ar=f"توفر {service_name_ar}",
+            sli=AVAILABILITY_SLI,
+            target=0.95,
+            window="30d",
+            tier=ServiceTier.ANALYTICS,
+        )
+    )
 
     # P95 Latency < 5s (ML inference can be slow)
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_latency_p95",
-        name_ar=f"زمن استجابة {service_name_ar} P95",
-        sli=LATENCY_P95_SLI,
-        target=0.90,  # 90% of requests < 5s
-        window="30d",
-        tier=ServiceTier.ANALYTICS,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_latency_p95",
+            name_ar=f"زمن استجابة {service_name_ar} P95",
+            sli=LATENCY_P95_SLI,
+            target=0.90,  # 90% of requests < 5s
+            window="30d",
+            tier=ServiceTier.ANALYTICS,
+        )
+    )
 
     # Error Rate < 2%
-    service_slos.add_slo(SLO(
-        name=f"{service_name}_error_rate",
-        name_ar=f"معدل أخطاء {service_name_ar}",
-        sli=ERROR_RATE_SLI,
-        target=0.98,
-        window="30d",
-        tier=ServiceTier.ANALYTICS,
-    ))
+    service_slos.add_slo(
+        SLO(
+            name=f"{service_name}_error_rate",
+            name_ar=f"معدل أخطاء {service_name_ar}",
+            sli=ERROR_RATE_SLI,
+            target=0.98,
+            window="30d",
+            tier=ServiceTier.ANALYTICS,
+        )
+    )
 
     return service_slos
 
@@ -533,6 +558,7 @@ def create_analytics_service_slos(service_name: str, service_name_ar: str) -> Se
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Platform SLO Registry | سجل أهداف الخدمة لمنصة سهول
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class SAHOOLSLORegistry:
     """
@@ -551,12 +577,8 @@ class SAHOOLSLORegistry:
         self.services["postgres"] = create_critical_service_slos(
             "postgres", "قاعدة البيانات PostgreSQL"
         )
-        self.services["redis"] = create_critical_service_slos(
-            "redis", "ذاكرة التخزين المؤقت Redis"
-        )
-        self.services["nats"] = create_critical_service_slos(
-            "nats", "نظام الرسائل NATS"
-        )
+        self.services["redis"] = create_critical_service_slos("redis", "ذاكرة التخزين المؤقت Redis")
+        self.services["nats"] = create_critical_service_slos("nats", "نظام الرسائل NATS")
 
         # Essential Services
         self.services["field-management-service"] = create_essential_service_slos(
@@ -565,9 +587,7 @@ class SAHOOLSLORegistry:
         self.services["user-service"] = create_essential_service_slos(
             "user-service", "خدمة المستخدمين"
         )
-        self.services["kong"] = create_essential_service_slos(
-            "kong", "بوابة API"
-        )
+        self.services["kong"] = create_essential_service_slos("kong", "بوابة API")
 
         # Standard Application Services
         self.services["weather-service"] = create_standard_service_slos(
@@ -582,9 +602,7 @@ class SAHOOLSLORegistry:
         self.services["irrigation-smart"] = create_standard_service_slos(
             "irrigation-smart", "خدمة الري الذكي"
         )
-        self.services["task-service"] = create_standard_service_slos(
-            "task-service", "خدمة المهام"
-        )
+        self.services["task-service"] = create_standard_service_slos("task-service", "خدمة المهام")
 
         # Analytics/ML Services
         self.services["vegetation-analysis-service"] = create_analytics_service_slos(
@@ -616,10 +634,7 @@ class SAHOOLSLORegistry:
 
     def get_slos_by_tier(self, tier: ServiceTier) -> list[ServiceSLOs]:
         """Get all SLOs for a specific tier."""
-        return [
-            slo for slo in self.services.values()
-            if slo.tier == tier
-        ]
+        return [slo for slo in self.services.values() if slo.tier == tier]
 
     def export_prometheus_rules(self) -> str:
         """
@@ -639,7 +654,9 @@ class SAHOOLSLORegistry:
                 rules.append(f"      - alert: SLOBurnRateCritical_{service_name.replace('-', '_')}")
                 rules.append("        expr: |")
                 rules.append(f"          # 1h burn rate > {slo.alert_burn_rate_1h}")
-                rules.append(f"          (1 - {slo.sli.prometheus_query.format(service=service_name, window='1h')})")
+                rules.append(
+                    f"          (1 - {slo.sli.prometheus_query.format(service=service_name, window='1h')})"
+                )
                 rules.append(f"          / {slo.error_budget}")
                 rules.append(f"          > {slo.alert_burn_rate_1h}")
                 rules.append("        for: 2m")
@@ -649,7 +666,9 @@ class SAHOOLSLORegistry:
                 rules.append(f"          slo: {slo.name}")
                 rules.append("        annotations:")
                 rules.append(f'          summary: "SLO burn rate critical for {service_name}"')
-                rules.append(f'          summary_ar: "معدل حرق SLO حرج لـ {service_slos.service_name_ar}"')
+                rules.append(
+                    f'          summary_ar: "معدل حرق SLO حرج لـ {service_slos.service_name_ar}"'
+                )
                 rules.append("")
 
         return "\n".join(rules)

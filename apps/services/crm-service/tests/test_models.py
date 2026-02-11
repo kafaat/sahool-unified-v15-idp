@@ -37,6 +37,7 @@ os.environ["NATS_URL"] = ""
 # Mock Classes for shared.crm Module
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class FarmerStatus(str, Enum):
     LEAD = "lead"
     REGISTERED = "registered"
@@ -102,9 +103,11 @@ mock_crm.DealStage = DealStage
 mock_crm.Interaction = Interaction
 mock_crm.InteractionType = InteractionType
 
+
 # Mock auth module with proper async function
 class MockUser:
     """Mock User model."""
+
     id: str = "test-user-id"
     email: str = "test@example.com"
     tenant_id: str = "test-tenant"
@@ -158,6 +161,7 @@ PipelineStatsResponse = main_module.PipelineStatsResponse
 # ═══════════════════════════════════════════════════════════════════════════════
 # Farmer Model Validation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestFarmerModelValidation:
     """Tests for farmer Pydantic model validation."""
@@ -245,7 +249,9 @@ class TestFarmerModelValidation:
                 FarmerCreateRequest(**data)
 
             errors = exc_info.value.errors()
-            assert any(e["loc"] == ("phone",) for e in errors), f"Expected phone validation error for: {phone}"
+            assert any(e["loc"] == ("phone",) for e in errors), (
+                f"Expected phone validation error for: {phone}"
+            )
 
     def test_farmer_create_request_valid_phone_formats(self):
         """Test valid phone number formats."""
@@ -283,7 +289,9 @@ class TestFarmerModelValidation:
                 FarmerCreateRequest(**data)
 
             errors = exc_info.value.errors()
-            assert any(e["loc"] == ("email",) for e in errors), f"Expected email validation error for: {email}"
+            assert any(e["loc"] == ("email",) for e in errors), (
+                f"Expected email validation error for: {email}"
+            )
 
     def test_farmer_create_request_valid_email(self):
         """Test valid email formats."""
@@ -378,6 +386,7 @@ class TestFarmerModelValidation:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Deal Model Validation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestDealModelValidation:
     """Tests for harvest deal Pydantic model validation."""
@@ -504,6 +513,7 @@ class TestDealModelValidation:
 # Interaction Model Validation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestInteractionModelValidation:
     """Tests for interaction Pydantic model validation."""
 
@@ -579,6 +589,7 @@ class TestInteractionModelValidation:
 # Query Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestQueryModels:
     """Tests for query request/response models."""
 
@@ -625,6 +636,7 @@ class TestQueryModels:
 # Pipeline Stats Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestPipelineStatsModel:
     """Tests for pipeline statistics model."""
 
@@ -667,6 +679,7 @@ class TestPipelineStatsModel:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Engagement Score Calculation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestEngagementScoreCalculation:
     """Tests for engagement score calculation logic."""
@@ -757,6 +770,7 @@ class TestEngagementScoreCalculation:
 
     def test_engagement_score_recency_brackets(self):
         """Test engagement score recency brackets."""
+
         def recency_score(days: int | None) -> int:
             if days is None:
                 return 0
@@ -779,6 +793,7 @@ class TestEngagementScoreCalculation:
 
     def test_engagement_score_interaction_cap(self):
         """Test engagement score interaction points are capped."""
+
         def interaction_score(num: int) -> int:
             return min(25, num * 5)
 
@@ -790,6 +805,7 @@ class TestEngagementScoreCalculation:
 
     def test_engagement_score_active_deals_cap(self):
         """Test engagement score active deals points are capped."""
+
         def deal_score(num: int) -> int:
             return min(25, num * 10)
 
@@ -802,6 +818,7 @@ class TestEngagementScoreCalculation:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Serialization Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestModelSerialization:
     """Tests for model serialization."""

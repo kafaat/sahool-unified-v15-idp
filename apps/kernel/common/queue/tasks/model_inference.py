@@ -43,7 +43,14 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     },
     "yield_prediction": {
         "type": "regression",
-        "input_features": ["ndvi", "soil_moisture", "temperature", "rainfall", "growth_stage", "area_ha"],
+        "input_features": [
+            "ndvi",
+            "soil_moisture",
+            "temperature",
+            "rainfall",
+            "growth_stage",
+            "area_ha",
+        ],
         "output_unit": "kg/ha",
         "framework": "onnx",
         "filename": "yield_prediction_v3.onnx",
@@ -52,7 +59,14 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     "growth_stage": {
         "type": "classification",
         "input_shape": (224, 224, 3),
-        "output_classes": ["germination", "seedling", "vegetative", "flowering", "fruiting", "maturity"],
+        "output_classes": [
+            "germination",
+            "seedling",
+            "vegetative",
+            "flowering",
+            "fruiting",
+            "maturity",
+        ],
         "output_classes_ar": ["إنبات", "شتلة", "نمو خضري", "إزهار", "إثمار", "نضج"],
         "framework": "tensorflow",
         "filename": "growth_stage_v1.onnx",
@@ -62,8 +76,22 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     "pest_detection": {
         "type": "object_detection",
         "input_shape": (640, 640, 3),
-        "output_classes": ["cotton_worm", "aphid", "locust", "red_palm_weevil", "whitefly", "thrips"],
-        "output_classes_ar": ["دودة القطن", "المن", "جراد", "سوسة النخيل الحمراء", "الذبابة البيضاء", "التربس"],
+        "output_classes": [
+            "cotton_worm",
+            "aphid",
+            "locust",
+            "red_palm_weevil",
+            "whitefly",
+            "thrips",
+        ],
+        "output_classes_ar": [
+            "دودة القطن",
+            "المن",
+            "جراد",
+            "سوسة النخيل الحمراء",
+            "الذبابة البيضاء",
+            "التربس",
+        ],
         "framework": "onnx",
         "filename": "pest_detection_yolov8.onnx",
         "version": "1.2.0",
@@ -71,8 +99,22 @@ MODEL_REGISTRY: dict[str, dict[str, Any]] = {
     "disease_detection": {
         "type": "classification",
         "input_shape": (224, 224, 3),
-        "output_classes": ["healthy", "leaf_blight", "rust", "powdery_mildew", "bacterial_spot", "viral_mosaic"],
-        "output_classes_ar": ["سليم", "لفحة الأوراق", "صدأ", "بياض دقيقي", "بقع بكتيرية", "فيروس الفسيفساء"],
+        "output_classes": [
+            "healthy",
+            "leaf_blight",
+            "rust",
+            "powdery_mildew",
+            "bacterial_spot",
+            "viral_mosaic",
+        ],
+        "output_classes_ar": [
+            "سليم",
+            "لفحة الأوراق",
+            "صدأ",
+            "بياض دقيقي",
+            "بقع بكتيرية",
+            "فيروس الفسيفساء",
+        ],
         "framework": "tensorflow",
         "filename": "disease_detection_v2.onnx",
         "version": "2.1.0",
@@ -507,7 +549,9 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
                 "model_type": model_type,
                 "framework": framework if use_real_model else "simulated",
                 "input_shape": list(input_shape) if isinstance(input_shape, tuple) else input_shape,
-                "output_classes": len(output_classes) if output_classes else len(filtered_predictions),
+                "output_classes": len(output_classes)
+                if output_classes
+                else len(filtered_predictions),
                 "trained_on": "SAHOOL Dataset v2.3",
                 "is_real_model": use_real_model,
             },
@@ -515,7 +559,9 @@ def handle_model_inference(payload: dict[str, Any]) -> dict[str, Any]:
             "confidence_scores": confidence_scores,
             "statistics": {
                 "total_predictions": len(filtered_predictions),
-                "high_confidence_count": len([p for p in filtered_predictions if p.get("confidence", 0) > 0.9]),
+                "high_confidence_count": len(
+                    [p for p in filtered_predictions if p.get("confidence", 0) > 0.9]
+                ),
                 "average_confidence": round(avg_confidence, 3),
                 "below_threshold_count": below_threshold_count,
             },
@@ -598,14 +644,18 @@ def _run_image_inference(
                     if class_idx < len(output_classes):
                         confidence = float(probs[class_idx])
                         if confidence >= confidence_threshold:
-                            predictions.append({
-                                "class": output_classes_ar[class_idx] if class_idx < len(output_classes_ar) else output_classes[class_idx],
-                                "class_en": output_classes[class_idx],
-                                "confidence": round(confidence, 3),
-                                "rank": rank + 1,
-                                "image_index": idx,
-                                "image_url": url,
-                            })
+                            predictions.append(
+                                {
+                                    "class": output_classes_ar[class_idx]
+                                    if class_idx < len(output_classes_ar)
+                                    else output_classes[class_idx],
+                                    "class_en": output_classes[class_idx],
+                                    "confidence": round(confidence, 3),
+                                    "rank": rank + 1,
+                                    "image_index": idx,
+                                    "image_url": url,
+                                }
+                            )
 
             elif model_type == "object_detection":
                 # YOLO-style output processing - معالجة مخرجات نمط YOLO
@@ -632,12 +682,16 @@ def _run_image_inference(
 
             top_idx = np.argmax(probs)
             if top_idx < len(output_classes):
-                predictions.append({
-                    "class": output_classes_ar[top_idx] if top_idx < len(output_classes_ar) else output_classes[top_idx],
-                    "class_en": output_classes[top_idx],
-                    "confidence": round(float(probs[top_idx]), 3),
-                    "rank": 1,
-                })
+                predictions.append(
+                    {
+                        "class": output_classes_ar[top_idx]
+                        if top_idx < len(output_classes_ar)
+                        else output_classes[top_idx],
+                        "class_en": output_classes[top_idx],
+                        "confidence": round(float(probs[top_idx]), 3),
+                        "rank": 1,
+                    }
+                )
         except Exception as e:
             logger.warning(f"Error processing input_data image: {e}")
 
@@ -683,19 +737,23 @@ def _process_detection_output(
                 continue
 
             if class_idx < len(output_classes):
-                detections.append({
-                    "class": output_classes_ar[class_idx] if class_idx < len(output_classes_ar) else output_classes[class_idx],
-                    "class_en": output_classes[class_idx],
-                    "confidence": round(confidence, 3),
-                    "bounding_box": {
-                        "x": float(detection[0]),
-                        "y": float(detection[1]),
-                        "width": float(detection[2]),
-                        "height": float(detection[3]),
-                    },
-                    "image_index": image_idx,
-                    "image_url": image_url,
-                })
+                detections.append(
+                    {
+                        "class": output_classes_ar[class_idx]
+                        if class_idx < len(output_classes_ar)
+                        else output_classes[class_idx],
+                        "class_en": output_classes[class_idx],
+                        "confidence": round(confidence, 3),
+                        "bounding_box": {
+                            "x": float(detection[0]),
+                            "y": float(detection[1]),
+                            "width": float(detection[2]),
+                            "height": float(detection[3]),
+                        },
+                        "image_index": image_idx,
+                        "image_url": image_url,
+                    }
+                )
 
     except Exception as e:
         logger.warning(f"Error processing detection output: {e}")
@@ -724,50 +782,66 @@ def _run_tabular_inference(
 
         # Process based on model type - معالجة حسب نوع النموذج
         if "yield_prediction" in model_name:
-            predicted_value = float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
+            predicted_value = (
+                float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
+            )
 
             # Calculate confidence interval (simple approximation)
             std_dev = predicted_value * 0.08  # 8% standard deviation
-            predictions.append({
-                "predicted_yield_kg": round(predicted_value, 2),
-                "confidence": 0.91,  # Model confidence from validation
-                "confidence_interval": {
-                    "lower": round(predicted_value - 1.96 * std_dev, 2),
-                    "upper": round(predicted_value + 1.96 * std_dev, 2),
-                },
-                "factors": {
-                    "ndvi_score": input_data.get("ndvi", 0),
-                    "soil_moisture": input_data.get("soil_moisture", 0),
-                    "temperature": input_data.get("temperature", 0),
-                    "rainfall": input_data.get("rainfall", 0),
-                },
-                "unit": "kg/ha",
-            })
+            predictions.append(
+                {
+                    "predicted_yield_kg": round(predicted_value, 2),
+                    "confidence": 0.91,  # Model confidence from validation
+                    "confidence_interval": {
+                        "lower": round(predicted_value - 1.96 * std_dev, 2),
+                        "upper": round(predicted_value + 1.96 * std_dev, 2),
+                    },
+                    "factors": {
+                        "ndvi_score": input_data.get("ndvi", 0),
+                        "soil_moisture": input_data.get("soil_moisture", 0),
+                        "temperature": input_data.get("temperature", 0),
+                        "rainfall": input_data.get("rainfall", 0),
+                    },
+                    "unit": "kg/ha",
+                }
+            )
 
         elif "soil_analysis" in model_name:
             # Soil analysis predictions
             output_values = raw_output[0] if len(raw_output.shape) > 1 else raw_output
-            predictions.append({
-                "fertilizer_recommendation": {
-                    "nitrogen_needed_kg": round(float(output_values[0]) if len(output_values) > 0 else 0, 2),
-                    "phosphorus_needed_kg": round(float(output_values[1]) if len(output_values) > 1 else 0, 2),
-                    "potassium_needed_kg": round(float(output_values[2]) if len(output_values) > 2 else 0, 2),
-                },
-                "confidence": 0.85,
-                "input_analysis": {
-                    "ph": input_data.get("ph", 0),
-                    "ec": input_data.get("ec", 0),
-                    "organic_matter": input_data.get("organic_matter", 0),
-                },
-            })
+            predictions.append(
+                {
+                    "fertilizer_recommendation": {
+                        "nitrogen_needed_kg": round(
+                            float(output_values[0]) if len(output_values) > 0 else 0, 2
+                        ),
+                        "phosphorus_needed_kg": round(
+                            float(output_values[1]) if len(output_values) > 1 else 0, 2
+                        ),
+                        "potassium_needed_kg": round(
+                            float(output_values[2]) if len(output_values) > 2 else 0, 2
+                        ),
+                    },
+                    "confidence": 0.85,
+                    "input_analysis": {
+                        "ph": input_data.get("ph", 0),
+                        "ec": input_data.get("ec", 0),
+                        "organic_matter": input_data.get("organic_matter", 0),
+                    },
+                }
+            )
 
         else:
             # Generic regression output - مخرجات انحدار عامة
-            output_value = float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
-            predictions.append({
-                "predicted_value": round(output_value, 4),
-                "confidence": 0.85,
-            })
+            output_value = (
+                float(raw_output[0][0]) if len(raw_output.shape) > 1 else float(raw_output[0])
+            )
+            predictions.append(
+                {
+                    "predicted_value": round(output_value, 4),
+                    "confidence": 0.85,
+                }
+            )
 
     except Exception as e:
         logger.warning(f"Error in tabular inference: {e}")
@@ -859,7 +933,9 @@ def _generate_simulated_predictions(
                 "class": diseases_ar[disease_idx],
                 "class_en": diseases[disease_idx],
                 "confidence": round(0.78 + np.random.random() * 0.17, 3),
-                "severity": "none" if disease_idx == 0 else ["low", "medium", "high"][np.random.randint(0, 3)],
+                "severity": "none"
+                if disease_idx == 0
+                else ["low", "medium", "high"][np.random.randint(0, 3)],
             }
         ]
 

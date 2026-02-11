@@ -31,6 +31,7 @@ except ImportError:
 
 class QueuePriority(str, Enum):
     """أولوية الطابور"""
+
     CRITICAL = "critical"  # Immediate processing
     HIGH = "high"  # Process within 1 minute
     MEDIUM = "medium"  # Standard processing
@@ -39,6 +40,7 @@ class QueuePriority(str, Enum):
 
 class NotificationStatus(str, Enum):
     """حالة الإشعار في الطابور"""
+
     QUEUED = "queued"
     PROCESSING = "processing"
     SENT = "sent"
@@ -49,6 +51,7 @@ class NotificationStatus(str, Enum):
 @dataclass
 class QueuedNotification:
     """إشعار في الطابور"""
+
     id: str
     user_id: str
     title: str
@@ -104,8 +107,12 @@ class QueuedNotification:
             status=NotificationStatus(data.get("status", "queued")),
             retry_count=data.get("retry_count", 0),
             max_retries=data.get("max_retries", 3),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            scheduled_at=datetime.fromisoformat(data["scheduled_at"]) if data.get("scheduled_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            scheduled_at=datetime.fromisoformat(data["scheduled_at"])
+            if data.get("scheduled_at")
+            else None,
             tenant_id=data.get("tenant_id"),
         )
 
@@ -266,8 +273,7 @@ class NotificationQueueProcessor:
         if scheduled_at and scheduled_at > datetime.now(UTC):
             # Add to scheduled set with score as timestamp
             await self._redis.zadd(
-                self.SCHEDULED_SET,
-                {notification_json: scheduled_at.timestamp()}
+                self.SCHEDULED_SET, {notification_json: scheduled_at.timestamp()}
             )
             logger.debug(f"Scheduled notification {notification.id} for {scheduled_at}")
         else:
@@ -341,7 +347,12 @@ class NotificationQueueProcessor:
             return None
 
         # Try queues in priority order
-        for priority in [QueuePriority.CRITICAL, QueuePriority.HIGH, QueuePriority.MEDIUM, QueuePriority.LOW]:
+        for priority in [
+            QueuePriority.CRITICAL,
+            QueuePriority.HIGH,
+            QueuePriority.MEDIUM,
+            QueuePriority.LOW,
+        ]:
             queue_key = self.PRIORITY_QUEUES[priority]
 
             # Move from queue to processing set atomically
@@ -405,17 +416,16 @@ class NotificationQueueProcessor:
         if notification.retry_count < notification.max_retries:
             # Schedule retry with exponential backoff
             notification.status = NotificationStatus.RETRYING
-            delay = 2 ** notification.retry_count * 60  # 2, 4, 8 minutes
+            delay = 2**notification.retry_count * 60  # 2, 4, 8 minutes
             retry_at = datetime.now(UTC) + timedelta(seconds=delay)
 
             notification_json = json.dumps(notification.to_dict())
-            await self._redis.zadd(
-                self.SCHEDULED_SET,
-                {notification_json: retry_at.timestamp()}
-            )
+            await self._redis.zadd(self.SCHEDULED_SET, {notification_json: retry_at.timestamp()})
 
             await self._increment_stat("retries")
-            logger.info(f"Scheduled retry {notification.retry_count}/{notification.max_retries} for {notification.id}")
+            logger.info(
+                f"Scheduled retry {notification.retry_count}/{notification.max_retries} for {notification.id}"
+            )
 
         else:
             # Move to dead letter queue
@@ -435,11 +445,7 @@ class NotificationQueueProcessor:
 
         # Get scheduled notifications that are due
         due_notifications = await self._redis.zrangebyscore(
-            self.SCHEDULED_SET,
-            "-inf",
-            now,
-            start=0,
-            num=self.batch_size
+            self.SCHEDULED_SET, "-inf", now, start=0, num=self.batch_size
         )
 
         if due_notifications:
@@ -585,10 +591,7 @@ class NotificationQueueProcessor:
 
         notifications_json = await self._redis.lrange(self.DEAD_LETTER_QUEUE, 0, limit - 1)
 
-        return [
-            QueuedNotification.from_dict(json.loads(n))
-            for n in notifications_json
-        ]
+        return [QueuedNotification.from_dict(json.loads(n)) for n in notifications_json]
 
     async def requeue_dead_letter(self, notification_id: str) -> bool:
         """

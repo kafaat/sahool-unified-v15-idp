@@ -41,6 +41,7 @@ try:
     from rasterio.warp import calculate_default_transform, reproject
     from rasterio.mask import mask as rasterio_mask
     from shapely.geometry import box, mapping, shape
+
     RASTERIO_AVAILABLE = True
 except ImportError:
     RASTERIO_AVAILABLE = False
@@ -299,9 +300,7 @@ class DEMProcessor:
 
         # Acquire based on source
         if source == DEMSource.LOCAL:
-            raise ValueError(
-                "LOCAL source requires a file path. Use load_local_dem() method."
-            )
+            raise ValueError("LOCAL source requires a file path. Use load_local_dem() method.")
 
         # For demo/testing, generate synthetic DEM
         # In production, this would call actual DEM APIs
@@ -359,21 +358,26 @@ class DEMProcessor:
         # Add a valley/drainage feature
         valley_center_x = width // 2
         distance_from_center = np.abs(np.arange(width) - valley_center_x)
-        valley_depth = 50 * np.exp(-distance_from_center**2 / (width**2 / 16))
+        valley_depth = 50 * np.exp(-(distance_from_center**2) / (width**2 / 16))
         terrain -= valley_depth[np.newaxis, :]
 
         # Ensure no negative elevations
         terrain = np.maximum(terrain, 0).astype(np.float32)
 
         # Create transform
-        transform = Affine(
-            resolution_m / meters_per_degree_lon,  # pixel width in degrees
-            0.0,
-            bounds.min_lon,
-            0.0,
-            -resolution_m / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
-            bounds.max_lat,
-        ) if RASTERIO_AVAILABLE else None
+        transform = (
+            Affine(
+                resolution_m / meters_per_degree_lon,  # pixel width in degrees
+                0.0,
+                bounds.min_lon,
+                0.0,
+                -resolution_m
+                / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
+                bounds.max_lat,
+            )
+            if RASTERIO_AVAILABLE
+            else None
+        )
 
         # Create metadata
         source_config = self.SOURCE_CONFIGS[source]
@@ -550,6 +554,7 @@ class DEMProcessor:
         else:
             # Simple interpolation fallback
             from scipy.ndimage import zoom
+
             resampled = zoom(dem_data.data, scale_factor, order=1).astype(np.float32)
             new_transform = dem_data.transform
 
@@ -570,9 +575,10 @@ class DEMProcessor:
         nodata_mask = np.zeros((new_height, new_width), dtype=np.bool_)
         if np.any(dem_data.nodata_mask):
             from scipy.ndimage import zoom as zoom_mask
-            nodata_mask = zoom_mask(
-                dem_data.nodata_mask.astype(np.float32), scale_factor, order=0
-            ) > 0.5
+
+            nodata_mask = (
+                zoom_mask(dem_data.nodata_mask.astype(np.float32), scale_factor, order=0) > 0.5
+            )
 
         return DEMData(
             data=resampled,

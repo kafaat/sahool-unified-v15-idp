@@ -187,11 +187,13 @@ def mock_nats_client():
     published_events = []
 
     async def mock_publish(subject: str, data: bytes):
-        published_events.append({
-            "subject": subject,
-            "data": json.loads(data.decode()),
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        published_events.append(
+            {
+                "subject": subject,
+                "data": json.loads(data.decode()),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
 
     mock_nats.publish = AsyncMock(side_effect=mock_publish)
     mock_nats.published_events = published_events
@@ -329,9 +331,7 @@ class VisionPipeline:
         result["events_published"].append(event)
 
         result["completed_at"] = datetime.utcnow().isoformat()
-        result["processing_time_ms"] = (
-            datetime.utcnow() - start_time
-        ).total_seconds() * 1000
+        result["processing_time_ms"] = (datetime.utcnow() - start_time).total_seconds() * 1000
 
         return result
 
@@ -387,7 +387,10 @@ class TestVisionPipelineIntegration:
 
         # Verify event was published
         assert len(mock_nats_client.published_events) == 1
-        assert mock_nats_client.published_events[0]["data"]["event_type"] == "vision.detection.completed"
+        assert (
+            mock_nats_client.published_events[0]["data"]["event_type"]
+            == "vision.detection.completed"
+        )
 
     @pytest.mark.asyncio
     async def test_pipeline_with_multiple_detection_types(
@@ -689,10 +692,7 @@ class TestVisionPipelinePerformance:
         )
 
         # Process multiple images concurrently
-        contexts = [
-            {**sample_field_context, "field_id": str(uuid.uuid4())}
-            for _ in range(3)
-        ]
+        contexts = [{**sample_field_context, "field_id": str(uuid.uuid4())} for _ in range(3)]
 
         tasks = [
             pipeline.process_image(

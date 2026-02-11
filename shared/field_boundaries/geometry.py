@@ -34,6 +34,7 @@ class GeometryMetrics:
     Contains calculated geometric properties of a boundary.
     تحتوي على الخصائص الهندسية المحسوبة للحدود.
     """
+
     area_sqm: float
     area_hectares: float
     area_dunams: float
@@ -72,12 +73,7 @@ def radians_to_degrees(radians: float) -> float:
     return radians * 180.0 / math.pi
 
 
-def haversine_distance(
-    lon1: float,
-    lat1: float,
-    lon2: float,
-    lat2: float
-) -> float:
+def haversine_distance(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     """
     Calculate great-circle distance using Haversine formula.
     حساب المسافة الدائرية الكبرى باستخدام معادلة هافرساين.
@@ -97,17 +93,15 @@ def haversine_distance(
     delta_lon = degrees_to_radians(lon2 - lon1)
 
     a = (
-        math.sin(delta_lat / 2) ** 2 +
-        math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
+        math.sin(delta_lat / 2) ** 2
+        + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(delta_lon / 2) ** 2
     )
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
     return EARTH_RADIUS_M * c
 
 
-def calculate_polygon_area_geodesic(
-    coordinates: list[tuple[float, float]]
-) -> float:
+def calculate_polygon_area_geodesic(coordinates: list[tuple[float, float]]) -> float:
     """
     Calculate polygon area using geodesic (spherical) formula.
     حساب مساحة المضلع باستخدام المعادلة الجيوديسية (الكروية).
@@ -146,13 +140,12 @@ def calculate_polygon_area_geodesic(
 
         total += delta_lon * (2 + math.sin(lat1_rad) + math.sin(lat2_rad))
 
-    area = abs(total * EARTH_RADIUS_M ** 2 / 2)
+    area = abs(total * EARTH_RADIUS_M**2 / 2)
     return area
 
 
 def calculate_polygon_area_projected(
-    coordinates: list[tuple[float, float]],
-    reference_lat: float | None = None
+    coordinates: list[tuple[float, float]], reference_lat: float | None = None
 ) -> float:
     """
     Calculate polygon area using local projection (faster, less accurate).
@@ -202,9 +195,7 @@ def calculate_polygon_area_projected(
     return abs(area) / 2.0
 
 
-def calculate_perimeter(
-    coordinates: list[tuple[float, float]]
-) -> float:
+def calculate_perimeter(coordinates: list[tuple[float, float]]) -> float:
     """
     Calculate polygon perimeter using geodesic distances.
     حساب محيط المضلع باستخدام المسافات الجيوديسية.
@@ -230,9 +221,7 @@ def calculate_perimeter(
     return perimeter
 
 
-def calculate_centroid(
-    coordinates: list[tuple[float, float]]
-) -> tuple[float, float]:
+def calculate_centroid(coordinates: list[tuple[float, float]]) -> tuple[float, float]:
     """
     Calculate polygon centroid (geometric center).
     حساب مركز المضلع (المركز الهندسي).
@@ -283,14 +272,14 @@ def calculate_centroid(
         avg_lat = sum(lat for _, lat in coordinates) / len(coordinates)
         return (avg_lon, avg_lat)
 
-    cx /= (6.0 * signed_area)
-    cy /= (6.0 * signed_area)
+    cx /= 6.0 * signed_area
+    cy /= 6.0 * signed_area
 
     return (cx, cy)
 
 
 def calculate_bounding_box(
-    coordinates: list[tuple[float, float]]
+    coordinates: list[tuple[float, float]],
 ) -> tuple[float, float, float, float]:
     """
     Calculate bounding box of polygon.
@@ -311,10 +300,7 @@ def calculate_bounding_box(
     return (min(lons), min(lats), max(lons), max(lats))
 
 
-def is_point_in_polygon(
-    point: tuple[float, float],
-    polygon: list[tuple[float, float]]
-) -> bool:
+def is_point_in_polygon(point: tuple[float, float], polygon: list[tuple[float, float]]) -> bool:
     """
     Check if point is inside polygon using ray casting algorithm.
     التحقق مما إذا كانت النقطة داخل المضلع باستخدام خوارزمية إطلاق الشعاع.
@@ -344,8 +330,7 @@ def is_point_in_polygon(
 
 
 def polygons_overlap(
-    polygon1: list[tuple[float, float]],
-    polygon2: list[tuple[float, float]]
+    polygon1: list[tuple[float, float]], polygon2: list[tuple[float, float]]
 ) -> bool:
     """
     Check if two polygons overlap.
@@ -387,7 +372,7 @@ def polygons_overlap(
 
 def edges_intersect(
     edge1: tuple[tuple[float, float], tuple[float, float]],
-    edge2: tuple[tuple[float, float], tuple[float, float]]
+    edge2: tuple[tuple[float, float], tuple[float, float]],
 ) -> bool:
     """
     Check if two line segments intersect.
@@ -406,15 +391,13 @@ def edges_intersect(
     def ccw(ax: float, ay: float, bx: float, by: float, cx: float, cy: float) -> bool:
         return (cy - ay) * (bx - ax) > (by - ay) * (cx - ax)
 
-    return (
-        ccw(x1, y1, x3, y3, x4, y4) != ccw(x2, y2, x3, y3, x4, y4) and
-        ccw(x1, y1, x2, y2, x3, y3) != ccw(x1, y1, x2, y2, x4, y4)
-    )
+    return ccw(x1, y1, x3, y3, x4, y4) != ccw(x2, y2, x3, y3, x4, y4) and ccw(
+        x1, y1, x2, y2, x3, y3
+    ) != ccw(x1, y1, x2, y2, x4, y4)
 
 
 def calculate_overlap_area(
-    polygon1: list[tuple[float, float]],
-    polygon2: list[tuple[float, float]]
+    polygon1: list[tuple[float, float]], polygon2: list[tuple[float, float]]
 ) -> float:
     """
     Estimate overlap area between two polygons (simplified).
@@ -453,9 +436,7 @@ def calculate_overlap_area(
     return estimated_overlap
 
 
-def validate_polygon(
-    coordinates: list[tuple[float, float]]
-) -> tuple[bool, list[str]]:
+def validate_polygon(coordinates: list[tuple[float, float]]) -> tuple[bool, list[str]]:
     """
     Validate polygon geometry.
     التحقق من صحة هندسة المضلع.
@@ -520,8 +501,7 @@ def validate_polygon(
 
 
 def calculate_geometry_metrics(
-    coordinates: list[tuple[float, float]],
-    use_geodesic: bool = True
+    coordinates: list[tuple[float, float]], use_geodesic: bool = True
 ) -> GeometryMetrics:
     """
     Calculate comprehensive geometry metrics for a polygon.
@@ -547,7 +527,7 @@ def calculate_geometry_metrics(
             centroid_lat=0.0,
             bounding_box=(0.0, 0.0, 0.0, 0.0),
             is_valid=False,
-            validation_errors=validation_errors
+            validation_errors=validation_errors,
         )
 
     # Calculate area
@@ -571,13 +551,12 @@ def calculate_geometry_metrics(
         centroid_lat=centroid_lat,
         bounding_box=bounding_box,
         is_valid=is_valid,
-        validation_errors=validation_errors
+        validation_errors=validation_errors,
     )
 
 
 def simplify_polygon(
-    coordinates: list[tuple[float, float]],
-    tolerance_m: float = 1.0
+    coordinates: list[tuple[float, float]], tolerance_m: float = 1.0
 ) -> list[tuple[float, float]]:
     """
     Simplify polygon using Douglas-Peucker algorithm.
@@ -597,9 +576,7 @@ def simplify_polygon(
         return coordinates
 
     def perpendicular_distance(
-        point: tuple[float, float],
-        line_start: tuple[float, float],
-        line_end: tuple[float, float]
+        point: tuple[float, float], line_start: tuple[float, float], line_end: tuple[float, float]
     ) -> float:
         """Calculate perpendicular distance from point to line."""
         x, y = point
@@ -630,8 +607,7 @@ def simplify_polygon(
         return haversine_distance(x, y, proj_x, proj_y)
 
     def douglas_peucker(
-        points: list[tuple[float, float]],
-        tolerance: float
+        points: list[tuple[float, float]], tolerance: float
     ) -> list[tuple[float, float]]:
         """Recursive Douglas-Peucker implementation."""
         if len(points) <= 2:
@@ -649,7 +625,7 @@ def simplify_polygon(
 
         # If max distance > tolerance, recursively simplify
         if max_dist > tolerance:
-            left = douglas_peucker(points[:max_idx + 1], tolerance)
+            left = douglas_peucker(points[: max_idx + 1], tolerance)
             right = douglas_peucker(points[max_idx:], tolerance)
             return left[:-1] + right
         else:
@@ -671,9 +647,9 @@ def simplify_polygon(
 
 # PostGIS helper functions | وظائف مساعدة لـ PostGIS
 
+
 def generate_postgis_area_query(
-    geometry_column: str = "geometry",
-    use_spheroid: bool = True
+    geometry_column: str = "geometry", use_spheroid: bool = True
 ) -> str:
     """
     Generate PostGIS query for area calculation.
@@ -692,9 +668,7 @@ def generate_postgis_area_query(
         return f"ST_Area(ST_Transform({geometry_column}, 3857))"
 
 
-def generate_postgis_centroid_query(
-    geometry_column: str = "geometry"
-) -> str:
+def generate_postgis_centroid_query(geometry_column: str = "geometry") -> str:
     """
     Generate PostGIS query for centroid calculation.
     إنشاء استعلام PostGIS لحساب المركز.
@@ -703,9 +677,7 @@ def generate_postgis_centroid_query(
 
 
 def generate_postgis_overlap_query(
-    table1: str,
-    table2: str,
-    geometry_column: str = "geometry"
+    table1: str, table2: str, geometry_column: str = "geometry"
 ) -> str:
     """
     Generate PostGIS query to find overlapping polygons.
@@ -730,10 +702,7 @@ def generate_postgis_overlap_query(
 
 
 def generate_postgis_neighbors_query(
-    table: str,
-    boundary_id: str,
-    geometry_column: str = "geometry",
-    buffer_m: float = 10.0
+    table: str, boundary_id: str, geometry_column: str = "geometry", buffer_m: float = 10.0
 ) -> str:
     """
     Generate PostGIS query to find neighboring boundaries.

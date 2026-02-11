@@ -33,9 +33,7 @@ ARABIC_NORMALIZATIONS = {
 }
 
 # Common Arabic diacritics to remove
-ARABIC_DIACRITICS = re.compile(
-    r"[\u064B-\u065F\u0670]"
-)  # Fathatan to Sukun, Superscript Alef
+ARABIC_DIACRITICS = re.compile(r"[\u064B-\u065F\u0670]")  # Fathatan to Sukun, Superscript Alef
 
 
 class AgriculturalIntent(str, Enum):
@@ -83,9 +81,7 @@ class IntentResult:
 
     intent: AgriculturalIntent
     confidence: float
-    secondary_intents: list[tuple[AgriculturalIntent, float]] = field(
-        default_factory=list
-    )
+    secondary_intents: list[tuple[AgriculturalIntent, float]] = field(default_factory=list)
 
 
 @dataclass
@@ -289,9 +285,7 @@ class IntentClassifier:
             # Pin revision for security - prevents supply chain attacks
             model_revision = os.getenv("ARABERT_REVISION", "main")
 
-            self._tokenizer = AutoTokenizer.from_pretrained(
-                model_name, revision=model_revision
-            )
+            self._tokenizer = AutoTokenizer.from_pretrained(model_name, revision=model_revision)
             self._model = AutoModelForSequenceClassification.from_pretrained(
                 model_name,
                 num_labels=len(AgriculturalIntent),
@@ -338,9 +332,7 @@ class IntentClassifier:
         primary_confidence = sorted_intents[0][1] / total_score if total_score else 0.5
 
         secondary = [
-            (intent, score / total_score)
-            for intent, score in sorted_intents[1:3]
-            if score > 0
+            (intent, score / total_score) for intent, score in sorted_intents[1:3] if score > 0
         ]
 
         return IntentResult(
@@ -621,8 +613,7 @@ class ArabicNLPProcessor:
                 "primary": intent_result.intent.value,
                 "confidence": intent_result.confidence,
                 "secondary": [
-                    {"intent": i.value, "confidence": c}
-                    for i, c in intent_result.secondary_intents
+                    {"intent": i.value, "confidence": c} for i, c in intent_result.secondary_intents
                 ],
             },
             "entities": [

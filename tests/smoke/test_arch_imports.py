@@ -55,6 +55,7 @@ class TestLegacyCompatibility:
         """legacy.auth re-exports kernel_domain.auth"""
         try:
             import kernel_domain.auth
+
             # Verify the module can be imported
             assert kernel_domain.auth is not None
         except ImportError as e:
@@ -64,6 +65,7 @@ class TestLegacyCompatibility:
         """legacy.tenancy re-exports kernel_domain.tenancy"""
         try:
             import kernel_domain.tenancy
+
             # Verify the module can be imported
             assert kernel_domain.tenancy is not None
         except ImportError as e:
@@ -73,6 +75,7 @@ class TestLegacyCompatibility:
         """legacy.users re-exports kernel_domain.users"""
         try:
             import kernel_domain.users
+
             # Verify the module can be imported
             assert kernel_domain.users is not None
         except ImportError as e:
@@ -82,6 +85,7 @@ class TestLegacyCompatibility:
         """legacy.field re-exports field_suite"""
         try:
             import field_suite
+
             # Verify the module can be imported
             assert field_suite is not None
         except ImportError as e:
@@ -91,6 +95,7 @@ class TestLegacyCompatibility:
         """legacy.advisor re-exports advisor"""
         try:
             import advisor
+
             # Verify the module can be imported
             assert advisor is not None
         except ImportError as e:

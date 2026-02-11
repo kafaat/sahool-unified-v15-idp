@@ -27,6 +27,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 # NATS messaging
 try:
     import nats
+
     NATS_AVAILABLE = True
 except ImportError:
     NATS_AVAILABLE = False
@@ -45,11 +46,14 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 try:
     from shared.contracts.actions import (
@@ -295,6 +299,7 @@ class WaterBalance(BaseModel):
 
 class IrrigationExecution(BaseModel):
     """تنفيذ الري - Record actual irrigation event"""
+
     field_id: str
     schedule_id: str | None = None
     plan_id: str | None = None
@@ -642,9 +647,7 @@ def health():
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
     nats_connected = (
-        hasattr(app.state, "nc")
-        and app.state.nc is not None
-        and app.state.nc.is_connected
+        hasattr(app.state, "nc") and app.state.nc is not None and app.state.nc.is_connected
     )
     return {
         "status": "ready",

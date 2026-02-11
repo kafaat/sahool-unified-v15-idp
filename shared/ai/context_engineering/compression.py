@@ -553,9 +553,7 @@ class ContextCompressor:
 
         return json.dumps(data, ensure_ascii=False, indent=2)
 
-    def _selective_compress_fields(
-        self, fields: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def _selective_compress_fields(self, fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Select only priority fields"""
         compressed = []
         for field_data in fields:
@@ -582,9 +580,7 @@ class ContextCompressor:
 
         return compressed
 
-    def _abstractive_compress_fields(
-        self, fields: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def _abstractive_compress_fields(self, fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Create summaries of field data"""
         compressed = []
         for field_data in fields:
@@ -633,8 +629,7 @@ class ContextCompressor:
         # Include limited forecast
         if "forecast" in weather and isinstance(weather["forecast"], list):
             compressed["forecast"] = [
-                self._extract_key_weather_fields(day)
-                for day in weather["forecast"][:forecast_days]
+                self._extract_key_weather_fields(day) for day in weather["forecast"][:forecast_days]
             ]
 
         # Always include alerts

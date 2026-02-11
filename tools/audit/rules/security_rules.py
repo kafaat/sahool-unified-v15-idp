@@ -41,7 +41,7 @@ def check_hardcoded_secrets(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
         except Exception:
             continue
 
@@ -80,7 +80,7 @@ def check_jwt_configuration(repo_root: Path) -> list:
     jwt_files = []
     for py_file in repo_root.rglob("*.py"):
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
             if "jwt" in content.lower() or "jose" in content.lower():
                 jwt_files.append((py_file, content))
         except Exception:
@@ -141,7 +141,7 @@ def check_rbac_implementation(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text(encoding='utf-8').lower()
+            content = py_file.read_text(encoding="utf-8").lower()
             if any(pattern in content for pattern in rbac_patterns):
                 has_rbac = True
                 break
@@ -177,14 +177,13 @@ def check_tenant_isolation(repo_root: Path) -> list:
             continue
 
         try:
-            content = repo_file.read_text(encoding='utf-8')
+            content = repo_file.read_text(encoding="utf-8")
         except Exception:
             continue
 
         # Check if file has database queries
         has_queries = any(
-            pattern in content
-            for pattern in ["query", "select", "filter", "where", "execute"]
+            pattern in content for pattern in ["query", "select", "filter", "where", "execute"]
         )
 
         if has_queries:
@@ -214,7 +213,7 @@ def check_input_validation(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text(encoding='utf-8')
+            content = main_py.read_text(encoding="utf-8")
         except Exception:
             continue
 
@@ -247,7 +246,7 @@ def check_sql_injection(repo_root: Path) -> list:
     risky_patterns = [
         r'execute\s*\(\s*f["\']',  # f-string in execute
         r'execute\s*\(\s*["\'].*\+',  # String concatenation in execute
-        r'execute\s*\(\s*%',  # % formatting in execute
+        r"execute\s*\(\s*%",  # % formatting in execute
     ]
 
     for py_file in repo_root.rglob("*.py"):
@@ -255,7 +254,7 @@ def check_sql_injection(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
         except Exception:
             continue
 

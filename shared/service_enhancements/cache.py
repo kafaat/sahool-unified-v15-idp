@@ -40,7 +40,7 @@ import os
 import pickle
 import time
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Callable, TypeVar
 
@@ -62,7 +62,7 @@ class CacheConfig:
     serialize_method: str = "json"  # "json" or "pickle"
 
     @classmethod
-    def from_env(cls) -> "CacheConfig":
+    def from_env(cls) -> CacheConfig:
         """Create config from environment variables."""
         return cls(
             redis_url=os.getenv("REDIS_URL"),
@@ -419,6 +419,7 @@ def cache(
         async def get_weather(location_id: str):
             ...
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -448,6 +449,7 @@ def cache(
             return result
 
         return wrapper
+
     return decorator
 
 
@@ -471,6 +473,7 @@ def cache_response(
         async def list_fields(request: Request):
             ...
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -519,6 +522,7 @@ def cache_response(
             return result
 
         return wrapper
+
     return decorator
 
 

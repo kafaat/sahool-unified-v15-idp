@@ -108,9 +108,7 @@ class SimpleAgentRouter:
             matched_keywords = []
             confidence = 0.9  # High confidence if intent provided
         else:
-            detected_intent, matched_keywords, confidence = self._detect_intent(
-                text, has_image
-            )
+            detected_intent, matched_keywords, confidence = self._detect_intent(text, has_image)
 
         # Step 3: Get routing rule for intent
         rule = get_rule(detected_intent)
@@ -158,9 +156,7 @@ class SimpleAgentRouter:
             fallback_used=False,
         )
 
-    def _detect_intent(
-        self, text: str, has_image: bool
-    ) -> tuple[str, list[str], float]:
+    def _detect_intent(self, text: str, has_image: bool) -> tuple[str, list[str], float]:
         """
         Detect intent from text using keyword matching.
 
@@ -293,11 +289,7 @@ class SimpleAgentRouter:
             }
 
         agents = self._select_agents(rule, has_image, has_field_id)
-        would_use_fallback = (
-            rule.requires_image
-            and not has_image
-            and bool(rule.fallback_agents)
-        )
+        would_use_fallback = rule.requires_image and not has_image and bool(rule.fallback_agents)
 
         return {
             "intent": intent,
@@ -344,7 +336,5 @@ def get_router(enable_quick_responses: bool = True) -> SimpleAgentRouter:
     """
     global _router_instance
     if _router_instance is None:
-        _router_instance = SimpleAgentRouter(
-            enable_quick_responses=enable_quick_responses
-        )
+        _router_instance = SimpleAgentRouter(enable_quick_responses=enable_quick_responses)
     return _router_instance

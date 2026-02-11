@@ -5,7 +5,7 @@ Tests the fix learning functionality for pattern extraction and success tracking
 """
 
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import uuid4
 
 
@@ -50,7 +50,7 @@ class TestFixFeedback:
             "success": True,
             "developer_id": "dev-001",
             "feedback_text": "Good fix",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         assert feedback["fix_id"] == "fix-123"
         assert feedback["success"] is True
@@ -64,7 +64,7 @@ class TestFixFeedback:
             "success": False,
             "developer_id": "dev-001",
             "feedback_text": "Fix broke the code",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         assert feedback["success"] is False
 
@@ -111,7 +111,7 @@ class TestLearnedFix:
             "fixed_code": "x = 1",
             "rule_id": "E225",
             "tool": "ruff",
-            "learned_at": datetime.now(timezone.utc).isoformat(),
+            "learned_at": datetime.now(UTC).isoformat(),
         }
         assert learned["fix_id"] == "fix-123"
         assert learned["original_code"] == "x=1"
@@ -167,7 +167,7 @@ class TestFixLearningSystemLogic:
             "rule_id": "E225",
             "tool": "ruff",
             "success": True,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         fixes.append(fix)
 
@@ -186,7 +186,7 @@ class TestFixLearningSystemLogic:
             "tool": "ruff",
             "success": False,
             "error": "Syntax error after fix",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
         }
         fixes.append(fix)
 
@@ -286,7 +286,7 @@ class TestFixLearningSystemLogic:
 
         export = {
             "patterns": patterns,
-            "exported_at": datetime.now(timezone.utc).isoformat(),
+            "exported_at": datetime.now(UTC).isoformat(),
             "version": "1.0.0",
         }
 

@@ -257,8 +257,7 @@ async def create_device(
     # Check device limit per farm
     all_devices = await device_manager.get_all_devices()
     farm_devices = [
-        d for d in all_devices
-        if d.farm_id == device_data.farm_id and d.tenant_id == tenant_id
+        d for d in all_devices if d.farm_id == device_data.farm_id and d.tenant_id == tenant_id
     ]
 
     if len(farm_devices) >= settings.max_devices_per_farm:

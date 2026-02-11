@@ -137,53 +137,58 @@ ALERT_THRESHOLDS: dict[str, dict] = {
 
 class SensorReading(BaseModel):
     """Single sensor reading from a node."""
+
     node_id: str = Field(..., description="Node identifier")
     sensor_type: SensorType
     value: float
     unit: str = ""
     timestamp: datetime = Field(default_factory=datetime.utcnow)
     quality: float = Field(default=1.0, ge=0.0, le=1.0, description="Data quality 0-1")
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: float | None = None
+    longitude: float | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 
 class SensorReadingBatch(BaseModel):
     """Batch of sensor readings from one or more nodes."""
+
     readings: list[SensorReading]
-    field_id: Optional[str] = None
-    tenant_id: Optional[str] = None
+    field_id: str | None = None
+    tenant_id: str | None = None
 
 
 class NodeRegistration(BaseModel):
     """Register a new IoT node."""
+
     node_id: str
     node_type: NodeType
     name: str
-    name_ar: Optional[str] = None
+    name_ar: str | None = None
     field_id: str
     sensors: list[SensorType]
     latitude: float
     longitude: float
-    firmware_version: Optional[str] = None
-    battery_level: Optional[float] = None
+    firmware_version: str | None = None
+    battery_level: float | None = None
 
 
 class NodeStatus(BaseModel):
     """Current status of a registered node."""
+
     node_id: str
     name: str
     node_type: str
     field_id: str
     online: bool
-    last_seen: Optional[datetime]
-    battery_level: Optional[float]
+    last_seen: datetime | None
+    battery_level: float | None
     readings_count: int
     sensors: list[str]
 
 
 class WDIRequest(BaseModel):
     """Weighted Decision Index calculation request."""
+
     field_id: str
     soil_moisture: float = Field(..., description="Current soil moisture (%)")
     soil_moisture_threshold: float = Field(default=40.0, description="Moisture threshold (%)")
@@ -202,6 +207,7 @@ class WDIRequest(BaseModel):
 
 class WDIResponse(BaseModel):
     """Weighted Decision Index result."""
+
     field_id: str
     wdi: float = Field(..., description="WDI value (0-1, higher = more stress)")
     decision: str
@@ -214,11 +220,12 @@ class WDIResponse(BaseModel):
 
 class Alert(BaseModel):
     """IoT-generated alert."""
+
     alert_id: str
     severity: AlertSeverity
     sensor_type: str
     node_id: str
-    field_id: Optional[str]
+    field_id: str | None
     value: float
     threshold: float
     message: str
@@ -469,7 +476,9 @@ class IoTSensorEngine:
         """
         # Normalize factors to 0-1 (higher = more stress)
         # Soil moisture: lower = more stress
-        sm_stress = max(0.0, min(1.0, 1.0 - (req.soil_moisture / max(req.soil_moisture_threshold * 2, 1.0))))
+        sm_stress = max(
+            0.0, min(1.0, 1.0 - (req.soil_moisture / max(req.soil_moisture_threshold * 2, 1.0)))
+        )
 
         # Temperature stress: deviation from optimal
         temp_stress = min(1.0, abs(req.temperature - req.temperature_optimal) / 20.0)
@@ -543,6 +552,7 @@ iot_engine = IoTSensorEngine()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     import logging
+
     logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 
@@ -551,6 +561,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats as nats_lib
+
             app.state.nc = await nats_lib.connect(nats_url)
             logger.info(f"Connected to NATS: {nats_url}")
         except Exception as e:
@@ -575,6 +586,7 @@ app = FastAPI(
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
     setup_exception_handlers(app)
     add_request_id_middleware(app)
 except ImportError:
@@ -608,7 +620,7 @@ async def register_node(reg: NodeRegistration):
 
 
 @app.get("/api/v1/iot/nodes")
-async def list_nodes(field_id: Optional[str] = Query(None)):
+async def list_nodes(field_id: str | None = Query(None)):
     """List registered IoT nodes."""
     nodes = list(iot_engine.nodes.values())
     if field_id:
@@ -639,12 +651,14 @@ async def ingest_reading(reading: SensorReading):
         try:
             await nc.publish(
                 f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
-                json.dumps({
-                    "node_id": reading.node_id,
-                    "sensor_type": reading.sensor_type.value,
-                    "value": result["filtered_value"],
-                    "timestamp": reading.timestamp.isoformat(),
-                }).encode(),
+                json.dumps(
+                    {
+                        "node_id": reading.node_id,
+                        "sensor_type": reading.sensor_type.value,
+                        "value": result["filtered_value"],
+                        "timestamp": reading.timestamp.isoformat(),
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -668,12 +682,14 @@ async def ingest_batch(batch: SensorReadingBatch):
             try:
                 await nc.publish(
                     f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
-                    json.dumps({
-                        "node_id": reading.node_id,
-                        "sensor_type": reading.sensor_type.value,
-                        "value": result["filtered_value"],
-                        "timestamp": reading.timestamp.isoformat(),
-                    }).encode(),
+                    json.dumps(
+                        {
+                            "node_id": reading.node_id,
+                            "sensor_type": reading.sensor_type.value,
+                            "value": result["filtered_value"],
+                            "timestamp": reading.timestamp.isoformat(),
+                        }
+                    ).encode(),
                 )
             except Exception:
                 pass
@@ -705,12 +721,14 @@ async def calculate_wdi(req: WDIRequest):
             tenant_id = os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.iot.wdi_calculated",
-                json.dumps({
-                    "field_id": req.field_id,
-                    "wdi": result.wdi,
-                    "irrigate": result.irrigate,
-                    "timestamp": result.timestamp.isoformat(),
-                }).encode(),
+                json.dumps(
+                    {
+                        "field_id": req.field_id,
+                        "wdi": result.wdi,
+                        "irrigate": result.irrigate,
+                        "timestamp": result.timestamp.isoformat(),
+                    }
+                ).encode(),
             )
         except Exception:
             pass
@@ -721,8 +739,8 @@ async def calculate_wdi(req: WDIRequest):
 # Alerts
 @app.get("/api/v1/iot/alerts")
 async def get_alerts(
-    severity: Optional[AlertSeverity] = Query(None),
-    field_id: Optional[str] = Query(None),
+    severity: AlertSeverity | None = Query(None),
+    field_id: str | None = Query(None),
     limit: int = Query(default=50, le=500),
 ):
     """Get recent IoT alerts."""
@@ -800,4 +818,5 @@ async def list_sensor_types():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=PORT)

@@ -31,6 +31,7 @@ import numpy as np
 @dataclass
 class DEMData:
     """Digital Elevation Model data structure."""
+
     elevation: np.ndarray  # 2D elevation array
     resolution: float  # Cell resolution in meters
     nodata_value: float = -9999.0
@@ -53,6 +54,7 @@ class DEMData:
 @dataclass
 class FlowData:
     """Flow direction and accumulation data."""
+
     direction: np.ndarray  # D8 flow direction (1-8, 0=pit)
     accumulation: np.ndarray  # Flow accumulation (cell count)
     slope: np.ndarray  # Slope in degrees
@@ -61,6 +63,7 @@ class FlowData:
 @dataclass
 class DrainageSegmentData:
     """Data for a drainage segment."""
+
     segment_id: str
     cells: list[tuple[int, int]]  # List of (row, col) coordinates
     stream_order: int
@@ -70,6 +73,7 @@ class DrainageSegmentData:
 @dataclass
 class DepressionData:
     """Data for a depression/sink."""
+
     depression_id: str
     cells: list[tuple[int, int]]
     depth_m: float
@@ -83,14 +87,14 @@ class DepressionData:
 
 # D8 directions: 1=E, 2=SE, 4=S, 8=SW, 16=W, 32=NW, 64=N, 128=NE
 D8_DIRECTIONS = {
-    1: (0, 1),    # East
-    2: (1, 1),    # Southeast
-    4: (1, 0),    # South
-    8: (1, -1),   # Southwest
+    1: (0, 1),  # East
+    2: (1, 1),  # Southeast
+    4: (1, 0),  # South
+    8: (1, -1),  # Southwest
     16: (0, -1),  # West
-    32: (-1, -1), # Northwest
+    32: (-1, -1),  # Northwest
     64: (-1, 0),  # North
-    128: (-1, 1), # Northeast
+    128: (-1, 1),  # Northeast
 }
 
 # Diagonal distance factor
@@ -113,17 +117,17 @@ def calculate_slope(dem: DEMData) -> np.ndarray:
     res = dem.resolution
 
     # Pad array to handle edges
-    padded = np.pad(elev, 1, mode='edge')
+    padded = np.pad(elev, 1, mode="edge")
 
     # Calculate gradients using Sobel-like operators
     dz_dx = (
-        (padded[:-2, 2:] + 2 * padded[1:-1, 2:] + padded[2:, 2:]) -
-        (padded[:-2, :-2] + 2 * padded[1:-1, :-2] + padded[2:, :-2])
+        (padded[:-2, 2:] + 2 * padded[1:-1, 2:] + padded[2:, 2:])
+        - (padded[:-2, :-2] + 2 * padded[1:-1, :-2] + padded[2:, :-2])
     ) / (8 * res)
 
     dz_dy = (
-        (padded[2:, :-2] + 2 * padded[2:, 1:-1] + padded[2:, 2:]) -
-        (padded[:-2, :-2] + 2 * padded[:-2, 1:-1] + padded[:-2, 2:])
+        (padded[2:, :-2] + 2 * padded[2:, 1:-1] + padded[2:, 2:])
+        - (padded[:-2, :-2] + 2 * padded[:-2, 1:-1] + padded[:-2, 2:])
     ) / (8 * res)
 
     # Calculate slope in degrees
@@ -151,14 +155,14 @@ def calculate_d8_flow_direction(dem: DEMData) -> np.ndarray:
 
     # D8 neighbor offsets and direction codes
     neighbors = [
-        (0, 1, 1, res),           # E
-        (1, 1, 2, res * SQRT2),   # SE
-        (1, 0, 4, res),           # S
+        (0, 1, 1, res),  # E
+        (1, 1, 2, res * SQRT2),  # SE
+        (1, 0, 4, res),  # S
         (1, -1, 8, res * SQRT2),  # SW
-        (0, -1, 16, res),         # W
-        (-1, -1, 32, res * SQRT2), # NW
-        (-1, 0, 64, res),         # N
-        (-1, 1, 128, res * SQRT2), # NE
+        (0, -1, 16, res),  # W
+        (-1, -1, 32, res * SQRT2),  # NW
+        (-1, 0, 64, res),  # N
+        (-1, 1, 128, res * SQRT2),  # NE
     ]
 
     for i in range(rows):
@@ -221,9 +225,7 @@ def calculate_flow_accumulation(dem: DEMData, flow_dir: np.ndarray) -> np.ndarra
 
 
 def calculate_topographic_wetness_index(
-    dem: DEMData,
-    flow_accumulation: np.ndarray,
-    slope: np.ndarray
+    dem: DEMData, flow_accumulation: np.ndarray, slope: np.ndarray
 ) -> np.ndarray:
     """
     Calculate Topographic Wetness Index (TWI).
@@ -255,7 +257,9 @@ def calculate_topographic_wetness_index(
     return twi
 
 
-def fill_depressions(dem: DEMData, max_depth: float = 2.0) -> tuple[np.ndarray, list[DepressionData]]:
+def fill_depressions(
+    dem: DEMData, max_depth: float = 2.0
+) -> tuple[np.ndarray, list[DepressionData]]:
     """
     Fill depressions/sinks in DEM.
     ملء المنخفضات في نموذج الارتفاع
@@ -277,7 +281,7 @@ def fill_depressions(dem: DEMData, max_depth: float = 2.0) -> tuple[np.ndarray, 
                 continue
 
             # Get neighborhood
-            neighborhood = filled[i-1:i+2, j-1:j+2]
+            neighborhood = filled[i - 1 : i + 2, j - 1 : j + 2]
             valid_neighbors = neighborhood[neighborhood != nodata]
 
             if len(valid_neighbors) == 0:
@@ -296,21 +300,21 @@ def fill_depressions(dem: DEMData, max_depth: float = 2.0) -> tuple[np.ndarray, 
 
                     # Record the depression
                     volume = depth * cell_area
-                    depressions.append(DepressionData(
-                        depression_id=str(uuid.uuid4())[:8],
-                        cells=[(i, j)],
-                        depth_m=depth,
-                        volume_m3=volume,
-                        spill_elevation=min_neighbor,
-                    ))
+                    depressions.append(
+                        DepressionData(
+                            depression_id=str(uuid.uuid4())[:8],
+                            cells=[(i, j)],
+                            depth_m=depth,
+                            volume_m3=volume,
+                            spill_elevation=min_neighbor,
+                        )
+                    )
 
     return filled, depressions
 
 
 def calculate_stream_order(
-    flow_accumulation: np.ndarray,
-    flow_dir: np.ndarray,
-    threshold: int = 100
+    flow_accumulation: np.ndarray, flow_dir: np.ndarray, threshold: int = 100
 ) -> np.ndarray:
     """
     Calculate Strahler stream order.
@@ -371,10 +375,7 @@ def calculate_stream_order(
 
 
 def extract_drainage_network(
-    dem: DEMData,
-    flow_dir: np.ndarray,
-    flow_accumulation: np.ndarray,
-    threshold: int = 100
+    dem: DEMData, flow_dir: np.ndarray, flow_accumulation: np.ndarray, threshold: int = 100
 ) -> list[DrainageSegmentData]:
     """
     Extract drainage network as line segments.
@@ -436,21 +437,19 @@ def extract_drainage_network(
                 ci, cj = ni, nj
 
             if len(cells) > 1:
-                segments.append(DrainageSegmentData(
-                    segment_id=str(uuid.uuid4())[:8],
-                    cells=cells,
-                    stream_order=segment_order,
-                    upstream_cells=int(flow_accumulation[cells[0][0], cells[0][1]]),
-                ))
+                segments.append(
+                    DrainageSegmentData(
+                        segment_id=str(uuid.uuid4())[:8],
+                        cells=cells,
+                        stream_order=segment_order,
+                        upstream_cells=int(flow_accumulation[cells[0][0], cells[0][1]]),
+                    )
+                )
 
     return segments
 
 
-def classify_drainage_pattern(
-    dem: DEMData,
-    flow_dir: np.ndarray,
-    slope: np.ndarray
-) -> str:
+def classify_drainage_pattern(dem: DEMData, flow_dir: np.ndarray, slope: np.ndarray) -> str:
     """
     Classify drainage pattern based on flow directions and terrain.
     تصنيف نمط التصريف
@@ -487,10 +486,7 @@ def classify_drainage_pattern(
 
 
 def delineate_basins(
-    dem: DEMData,
-    flow_dir: np.ndarray,
-    flow_accumulation: np.ndarray,
-    min_area_cells: int = 100
+    dem: DEMData, flow_dir: np.ndarray, flow_accumulation: np.ndarray, min_area_cells: int = 100
 ) -> list[dict[str, Any]]:
     """
     Delineate drainage basins/watersheds.
@@ -555,16 +551,18 @@ def delineate_basins(
         elevations = [dem.elevation[c[0], c[1]] for c in cells_list]
 
         basin_id += 1
-        basins.append({
-            "basin_id": f"basin_{basin_id:03d}",
-            "outlet": (oi, oj),
-            "cells": cells_list,
-            "cell_count": len(basin_cells),
-            "area_ha": len(basin_cells) * dem.cell_area / 10000,
-            "mean_elevation": np.mean(elevations),
-            "min_elevation": np.min(elevations),
-            "max_elevation": np.max(elevations),
-        })
+        basins.append(
+            {
+                "basin_id": f"basin_{basin_id:03d}",
+                "outlet": (oi, oj),
+                "cells": cells_list,
+                "cell_count": len(basin_cells),
+                "area_ha": len(basin_cells) * dem.cell_area / 10000,
+                "mean_elevation": np.mean(elevations),
+                "min_elevation": np.min(elevations),
+                "max_elevation": np.max(elevations),
+            }
+        )
 
     return basins
 
@@ -574,10 +572,7 @@ def delineate_basins(
 # ==============================================================================
 
 
-def cells_to_coordinates(
-    cells: list[tuple[int, int]],
-    dem: DEMData
-) -> list[list[float]]:
+def cells_to_coordinates(cells: list[tuple[int, int]], dem: DEMData) -> list[list[float]]:
     """Convert cell indices to geographic coordinates."""
     if dem.bounds is None:
         # Return pixel coordinates if no bounds
@@ -602,7 +597,7 @@ def generate_mock_dem(
     resolution: float = 30.0,
     base_elevation: float = 100.0,
     relief: float = 50.0,
-    bounds: tuple[float, float, float, float] | None = None
+    bounds: tuple[float, float, float, float] | None = None,
 ) -> DEMData:
     """
     Generate a synthetic DEM for testing.
@@ -615,9 +610,9 @@ def generate_mock_dem(
 
     # Base terrain: tilted plane with sine variation
     elevation = base_elevation + relief * (
-        0.5 * (Y / Y.max()) +  # Slope from north to south
-        0.3 * np.sin(X) * np.cos(Y) +  # Hills
-        0.2 * np.random.random((rows, cols))  # Noise
+        0.5 * (Y / Y.max())  # Slope from north to south
+        + 0.3 * np.sin(X) * np.cos(Y)  # Hills
+        + 0.2 * np.random.random((rows, cols))  # Noise
     )
 
     return DEMData(
@@ -638,6 +633,7 @@ class HydrologyAnalyzer:
     High-level hydrology analysis orchestrator.
     محلل الهيدرولوجيا عالي المستوى
     """
+
     dem: DEMData | None = None
     flow_data: FlowData | None = None
     twi: np.ndarray | None = None
@@ -653,7 +649,7 @@ class HydrologyAnalyzer:
         self,
         flow_threshold: int = 100,
         depression_max_depth: float = 2.0,
-        min_basin_cells: int = 100
+        min_basin_cells: int = 100,
     ) -> dict[str, Any]:
         """
         Run complete hydrology analysis.
@@ -663,10 +659,7 @@ class HydrologyAnalyzer:
             raise ValueError("DEM data not loaded")
 
         # Step 1: Fill depressions
-        filled_elev, self.depressions = fill_depressions(
-            self.dem,
-            max_depth=depression_max_depth
-        )
+        filled_elev, self.depressions = fill_depressions(self.dem, max_depth=depression_max_depth)
         filled_dem = DEMData(
             elevation=filled_elev,
             resolution=self.dem.resolution,
@@ -690,33 +683,19 @@ class HydrologyAnalyzer:
         )
 
         # Step 5: Calculate TWI
-        self.twi = calculate_topographic_wetness_index(
-            filled_dem,
-            flow_acc,
-            slope
-        )
+        self.twi = calculate_topographic_wetness_index(filled_dem, flow_acc, slope)
 
         # Step 6: Extract drainage network
         self.drainage_segments = extract_drainage_network(
-            filled_dem,
-            flow_dir,
-            flow_acc,
-            threshold=flow_threshold
+            filled_dem, flow_dir, flow_acc, threshold=flow_threshold
         )
 
         # Step 7: Classify drainage pattern
-        drainage_pattern = classify_drainage_pattern(
-            filled_dem,
-            flow_dir,
-            slope
-        )
+        drainage_pattern = classify_drainage_pattern(filled_dem, flow_dir, slope)
 
         # Step 8: Delineate basins
         self.basins = delineate_basins(
-            filled_dem,
-            flow_dir,
-            flow_acc,
-            min_area_cells=min_basin_cells
+            filled_dem, flow_dir, flow_acc, min_area_cells=min_basin_cells
         )
 
         # Compile results
@@ -725,9 +704,15 @@ class HydrologyAnalyzer:
                 "rows": self.dem.rows,
                 "cols": self.dem.cols,
                 "resolution_m": self.dem.resolution,
-                "mean_elevation": float(np.mean(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
-                "min_elevation": float(np.min(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
-                "max_elevation": float(np.max(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])),
+                "mean_elevation": float(
+                    np.mean(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
+                ),
+                "min_elevation": float(
+                    np.min(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
+                ),
+                "max_elevation": float(
+                    np.max(self.dem.elevation[self.dem.elevation != self.dem.nodata_value])
+                ),
             },
             "slope_stats": {
                 "mean_slope_deg": float(np.mean(slope)),
@@ -754,8 +739,7 @@ class HydrologyAnalyzer:
         }
 
     def get_wetness_zones(
-        self,
-        thresholds: tuple[float, ...] = (5.0, 8.0, 10.0, 12.0, 15.0)
+        self, thresholds: tuple[float, ...] = (5.0, 8.0, 10.0, 12.0, 15.0)
     ) -> list[dict[str, Any]]:
         """
         Classify wetness zones based on TWI thresholds.
@@ -768,9 +752,9 @@ class HydrologyAnalyzer:
         labels = ["very_dry", "dry", "moderate", "wet", "very_wet", "waterlogged"]
         labels_ar = ["جاف جداً", "جاف", "معتدل", "رطب", "رطب جداً", "مشبع"]
 
-        all_thresholds = [-float('inf')] + list(thresholds) + [float('inf')]
+        all_thresholds = [-float("inf")] + list(thresholds) + [float("inf")]
 
-        total_cells = np.sum(self.twi > -float('inf'))
+        total_cells = np.sum(self.twi > -float("inf"))
 
         for i in range(len(labels)):
             lower = all_thresholds[i]
@@ -780,13 +764,17 @@ class HydrologyAnalyzer:
             cell_count = np.sum(mask)
 
             if cell_count > 0:
-                zones.append({
-                    "level": labels[i],
-                    "level_ar": labels_ar[i],
-                    "cell_count": int(cell_count),
-                    "percentage": float(cell_count / total_cells * 100),
-                    "twi_range": (lower, upper),
-                    "area_ha": float(cell_count * self.dem.cell_area / 10000) if self.dem else 0,
-                })
+                zones.append(
+                    {
+                        "level": labels[i],
+                        "level_ar": labels_ar[i],
+                        "cell_count": int(cell_count),
+                        "percentage": float(cell_count / total_cells * 100),
+                        "twi_range": (lower, upper),
+                        "area_ha": float(cell_count * self.dem.cell_area / 10000)
+                        if self.dem
+                        else 0,
+                    }
+                )
 
         return zones

@@ -679,9 +679,7 @@ class TestMultiLLMServiceWithOllama:
                         "eval_count": 100,
                     }
                     mock_chat_response.raise_for_status = MagicMock()
-                    mock_async_client_instance.post = AsyncMock(
-                        return_value=mock_chat_response
-                    )
+                    mock_async_client_instance.post = AsyncMock(return_value=mock_chat_response)
                     mock_async_client_instance.__aenter__ = AsyncMock(
                         return_value=mock_async_client_instance
                     )

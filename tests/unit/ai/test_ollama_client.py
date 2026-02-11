@@ -359,18 +359,20 @@ class TestHelperFunctions:
         """Test code analysis helper function."""
         analysis_response = {
             "model": "codellama:13b",
-            "response": json.dumps({
-                "issues": [
-                    {
-                        "type": "style",
-                        "severity": "warning",
-                        "line": 1,
-                        "message": "Missing docstring",
-                        "suggestion": "Add a docstring",
-                    }
-                ],
-                "summary": "1 issue found",
-            }),
+            "response": json.dumps(
+                {
+                    "issues": [
+                        {
+                            "type": "style",
+                            "severity": "warning",
+                            "line": 1,
+                            "message": "Missing docstring",
+                            "suggestion": "Add a docstring",
+                        }
+                    ],
+                    "summary": "1 issue found",
+                }
+            ),
             "done": True,
             "created_at": datetime.utcnow().isoformat(),
         }

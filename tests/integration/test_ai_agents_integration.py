@@ -228,9 +228,7 @@ class TestAIAgentsIntegration:
         final_status = None
 
         while time.time() - start_time < max_wait_time:
-            status_response = await agent_client.get(
-                f"/api/v1/agents/executions/{execution_id}"
-            )
+            status_response = await agent_client.get(f"/api/v1/agents/executions/{execution_id}")
             assert status_response.status_code == 200
             status_data = status_response.json()
 
@@ -314,9 +312,7 @@ class TestAIAgentsIntegration:
         execution_id = exec_response.json()["execution_id"]
 
         # Get status
-        status_response = await agent_client.get(
-            f"/api/v1/agents/executions/{execution_id}/status"
-        )
+        status_response = await agent_client.get(f"/api/v1/agents/executions/{execution_id}/status")
 
         assert status_response.status_code == 200
         status = status_response.json()
@@ -341,9 +337,7 @@ class TestAIAgentsIntegration:
             await agent_client.post("/api/v1/agents/execute", json=request_data)
 
         # List executions for this tenant
-        response = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_id}"
-        )
+        response = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_id}")
 
         assert response.status_code == 200
         executions = response.json()
@@ -399,18 +393,14 @@ class TestAIAgentsIntegration:
         execution_id = exec_response.json()["execution_id"]
 
         # Cancel the execution
-        cancel_response = await agent_client.delete(
-            f"/api/v1/agents/executions/{execution_id}"
-        )
+        cancel_response = await agent_client.delete(f"/api/v1/agents/executions/{execution_id}")
 
         assert cancel_response.status_code == 200
         cancel_data = cancel_response.json()
         assert "execution_id" in cancel_data
 
         # Verify execution is cancelled
-        status_response = await agent_client.get(
-            f"/api/v1/agents/executions/{execution_id}"
-        )
+        status_response = await agent_client.get(f"/api/v1/agents/executions/{execution_id}")
         if status_response.status_code == 200:
             status = status_response.json()
             # Status could be cancelled or already completed
@@ -498,9 +488,7 @@ class TestAIAgentsIntegration:
         await asyncio.sleep(1)
 
         # Retrieve execution - should be persisted
-        get_response = await agent_client.get(
-            f"/api/v1/agents/executions/{execution_id}"
-        )
+        get_response = await agent_client.get(f"/api/v1/agents/executions/{execution_id}")
 
         assert get_response.status_code == 200
         execution = get_response.json()
@@ -509,9 +497,7 @@ class TestAIAgentsIntegration:
         assert execution["task"] == request_data["task"]
 
         # Verify in list endpoint
-        list_response = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_id}"
-        )
+        list_response = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_id}")
         assert list_response.status_code == 200
         executions = list_response.json()
         execution_ids = [e["execution_id"] for e in executions]
@@ -551,18 +537,14 @@ class TestAIAgentsIntegration:
         assert response_b.status_code == 200
 
         # List executions for tenant A - should only see tenant A's executions
-        list_response_a = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_a}"
-        )
+        list_response_a = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_a}")
         assert list_response_a.status_code == 200
         executions_a = list_response_a.json()
         for execution in executions_a:
             assert execution["tenant_id"] == tenant_a
 
         # List executions for tenant B - should only see tenant B's executions
-        list_response_b = await agent_client.get(
-            f"/api/v1/agents/executions?tenant_id={tenant_b}"
-        )
+        list_response_b = await agent_client.get(f"/api/v1/agents/executions?tenant_id={tenant_b}")
         assert list_response_b.status_code == 200
         executions_b = list_response_b.json()
         for execution in executions_b:
@@ -578,9 +560,7 @@ class TestAIAgentsIntegration:
         agent_factory: AgentExecutionFactory,
     ):
         """Test quick crop health analysis endpoint."""
-        request_data = agent_factory.create_quick_analysis_request(
-            analysis_type="crop_health"
-        )
+        request_data = agent_factory.create_quick_analysis_request(analysis_type="crop_health")
 
         response = await agent_client.post(
             "/api/v1/agents/quick/analyze",
@@ -605,9 +585,7 @@ class TestAIAgentsIntegration:
         agent_factory: AgentExecutionFactory,
     ):
         """Test quick irrigation analysis endpoint."""
-        request_data = agent_factory.create_quick_analysis_request(
-            analysis_type="irrigation"
-        )
+        request_data = agent_factory.create_quick_analysis_request(analysis_type="irrigation")
 
         response = await agent_client.post(
             "/api/v1/agents/quick/analyze",

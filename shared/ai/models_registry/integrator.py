@@ -197,9 +197,7 @@ class ModelIntegrator:
         self._registry = registry or get_registry()
         self._default_language = default_language
         self._connectors: dict[str, Any] = {}  # model_id -> connector
-        self._availability_cache: dict[
-            str, tuple[bool, float]
-        ] = {}  # model_id -> (available, timestamp)
+        self._availability_cache: dict[str, tuple[bool, float]] = {}  # model_id -> (available, timestamp)
         self._cache_ttl = 300  # 5 minutes
 
     # ========================================================================

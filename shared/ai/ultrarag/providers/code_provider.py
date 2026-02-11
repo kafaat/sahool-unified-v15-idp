@@ -520,9 +520,7 @@ class CodeRAGProvider:
                     {
                         "name": r.chunk.text,
                         "name_ar": r.chunk.text_ar,
-                        "severity": r.chunk.metadata.get("properties", {}).get(
-                            "severity", "unknown"
-                        ),
+                        "severity": r.chunk.metadata.get("properties", {}).get("severity", "unknown"),
                     }
                 )
 

@@ -30,9 +30,7 @@ class TestFieldAnalystAgent:
         }
 
         with patch.object(agent, "_query_llm", new=AsyncMock(return_value="Field analysis result")):
-            result = await agent.analyze_field(
-                field_id="test-field-123", satellite_data=satellite_data
-            )
+            result = await agent.analyze_field(field_id="test-field-123", satellite_data=satellite_data)
 
             assert result is not None
             assert isinstance(result, dict | str)
@@ -88,13 +86,9 @@ class TestDiseaseExpertAgent:
             assert "disease_name" in result or isinstance(result, str)
 
     @pytest.mark.asyncio
-    async def test_diagnose_with_image_analysis(
-        self, mock_knowledge_retriever, mock_crop_health_tool
-    ):
+    async def test_diagnose_with_image_analysis(self, mock_knowledge_retriever, mock_crop_health_tool):
         """Test diagnosis with image analysis integration"""
-        agent = DiseaseExpertAgent(
-            tools=[mock_crop_health_tool], retriever=mock_knowledge_retriever
-        )
+        agent = DiseaseExpertAgent(tools=[mock_crop_health_tool], retriever=mock_knowledge_retriever)
 
         image_analysis = {
             "disease_detected": True,
@@ -112,9 +106,7 @@ class TestDiseaseExpertAgent:
                 }
             ),
         ):
-            result = await agent.diagnose(
-                symptoms={}, crop_type="wheat", image_analysis=image_analysis
-            )
+            result = await agent.diagnose(symptoms={}, crop_type="wheat", image_analysis=image_analysis)
 
             assert result is not None
 

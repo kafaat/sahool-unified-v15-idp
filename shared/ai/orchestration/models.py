@@ -199,9 +199,7 @@ class AgentScore(BaseModel):
             return float("inf")  # Encourage exploration of unused agents
 
         exploitation = self.q_value
-        exploration = self.exploration_bonus * math.sqrt(
-            math.log(self.total_tasks + 1) / (self.total_tasks + 1)
-        )
+        exploration = self.exploration_bonus * math.sqrt(math.log(self.total_tasks + 1) / (self.total_tasks + 1))
         return exploitation + exploration
 
 

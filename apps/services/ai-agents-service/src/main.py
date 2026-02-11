@@ -37,11 +37,7 @@ logger = structlog.get_logger()
 # Add project root to path
 sys.path.insert(
     0,
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        )
-    ),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),
 )
 
 from shared.ai.agents import (
@@ -180,9 +176,7 @@ class AgentExecuteRequest(BaseModel):
 
     task: str = Field(..., description="Task description in natural language")
     task_ar: str | None = Field(None, description="Task description in Arabic")
-    agent_type: str = Field(
-        "farm_advisor", description="Agent type: farm_advisor, research, planner"
-    )
+    agent_type: str = Field("farm_advisor", description="Agent type: farm_advisor, research, planner")
     mode: str = Field("hybrid", description="Execution mode: plan, execute, hybrid")
     context: dict[str, Any] | None = Field(None, description="Additional context for the agent")
     tenant_id: str = Field(..., description="Tenant ID for multi-tenancy")
@@ -300,9 +294,7 @@ async def lifespan(app: FastAPI):
         try:
             from shared.events.publisher import get_publisher
 
-            app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
-            )
+            app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
         except Exception as e:
@@ -458,9 +450,7 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 
 
 @app.exception_handler(TenantAccessDeniedError)
-async def tenant_access_denied_handler(
-    request: Request, exc: TenantAccessDeniedError
-) -> JSONResponse:
+async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError) -> JSONResponse:
     """Handle tenant access denied errors (403)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -482,9 +472,7 @@ async def tenant_access_denied_handler(
 
 
 @app.exception_handler(ServiceUnavailableError)
-async def service_unavailable_handler(
-    request: Request, exc: ServiceUnavailableError
-) -> JSONResponse:
+async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError) -> JSONResponse:
     """Handle service unavailable errors (503)"""
     request_id = get_request_id(request)
     logger.error(
@@ -599,9 +587,7 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # Get allowed origins from environment
-cors_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
-).split(",")
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -765,8 +751,7 @@ async def execute_agent(
     # Validate agent type upfront to fail fast
     if agent_request.agent_type not in VALID_AGENT_TYPES:
         raise ValueError(
-            f"Invalid agent_type: '{agent_request.agent_type}'. "
-            f"Must be one of: {', '.join(sorted(VALID_AGENT_TYPES))}"
+            f"Invalid agent_type: '{agent_request.agent_type}'. Must be one of: {', '.join(sorted(VALID_AGENT_TYPES))}"
         )
 
     execution_id = str(uuid4())
@@ -880,9 +865,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
         response.completed_at = datetime.now(UTC)
 
         if response.started_at and response.completed_at:
-            response.total_duration_ms = int(
-                (response.completed_at - response.started_at).total_seconds() * 1000
-            )
+            response.total_duration_ms = int((response.completed_at - response.started_at).total_seconds() * 1000)
 
         # Convert agent steps to response format
         if hasattr(agent, "steps"):
@@ -964,9 +947,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
     finally:
         # Always calculate duration if we have timestamps
         if response.started_at and response.completed_at:
-            response.total_duration_ms = int(
-                (response.completed_at - response.started_at).total_seconds() * 1000
-            )
+            response.total_duration_ms = int((response.completed_at - response.started_at).total_seconds() * 1000)
 
         # Persist final state to database
         if _use_database():
@@ -994,9 +975,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                             status=response.status,
                             total_steps=len(response.steps),
                             duration_ms=response.total_duration_ms or 0,
-                            result_summary=response.final_result.get("summary")
-                            if response.final_result
-                            else None,
+                            result_summary=response.final_result.get("summary") if response.final_result else None,
                         ),
                     )
                 else:
@@ -1017,9 +996,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                 logger.warning("nats_publish_failed", event="completed/failed", error=str(e))
 
 
-@app.get(
-    "/api/v1/agents/executions/{execution_id}", response_model=AgentExecuteResponse, tags=["Agents"]
-)
+@app.get("/api/v1/agents/executions/{execution_id}", response_model=AgentExecuteResponse, tags=["Agents"])
 @limiter.limit("60/minute")
 async def get_execution(
     request: Request,
@@ -1051,9 +1028,7 @@ async def get_execution(
                 task=db_exec.get("goal", ""),
                 status=db_exec.get("status", "unknown"),
                 state=db_exec.get("state", "unknown"),
-                steps=[AgentStep(**s) for s in db_exec.get("steps", [])]
-                if db_exec.get("steps")
-                else [],
+                steps=[AgentStep(**s) for s in db_exec.get("steps", [])] if db_exec.get("steps") else [],
                 final_result=db_exec.get("result"),
                 error=db_exec.get("error"),
                 started_at=db_exec.get("created_at", datetime.now(UTC)),
@@ -1231,9 +1206,7 @@ class QuickAnalysisResponse(BaseModel):
     timestamp: datetime
 
 
-@app.post(
-    "/api/v1/agents/quick/analyze", response_model=QuickAnalysisResponse, tags=["Quick Actions"]
-)
+@app.post("/api/v1/agents/quick/analyze", response_model=QuickAnalysisResponse, tags=["Quick Actions"])
 @limiter.limit("60/minute")
 async def quick_analyze(
     request: Request,

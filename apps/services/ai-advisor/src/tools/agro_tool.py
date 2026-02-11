@@ -76,9 +76,7 @@ class AgroTool:
         """
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.get(
-                    f"{self.base_url}/api/v1/crops/{crop_type}/stages/{growth_stage}"
-                )
+                response = await client.get(f"{self.base_url}/api/v1/crops/{crop_type}/stages/{growth_stage}")
                 response.raise_for_status()
 
                 result = response.json()
@@ -167,9 +165,7 @@ class AgroTool:
                 if infestation_level:
                     data["infestation_level"] = infestation_level
 
-                response = await client.post(
-                    f"{self.base_url}/api/v1/pest-control/advise", json=data
-                )
+                response = await client.post(f"{self.base_url}/api/v1/pest-control/advise", json=data)
                 response.raise_for_status()
 
                 result = response.json()

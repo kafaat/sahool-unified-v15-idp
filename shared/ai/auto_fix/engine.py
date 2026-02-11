@@ -200,11 +200,7 @@ class AutoFixEngine:
         sorted_diagnostics = sorted(
             report.diagnostics,
             key=lambda d: (
-                0
-                if d.severity == DiagnosticSeverity.ERROR
-                else 1
-                if d.severity == DiagnosticSeverity.WARNING
-                else 2
+                0 if d.severity == DiagnosticSeverity.ERROR else 1 if d.severity == DiagnosticSeverity.WARNING else 2
             ),
         )
 
@@ -527,9 +523,7 @@ class AutoFixEngine:
         lines.append("## Issues | المشاكل")
         lines.append("")
 
-        lines.extend(
-            self.diagnostics.format_report_markdown(report, include_arabic).split("\n")[10:]
-        )
+        lines.extend(self.diagnostics.format_report_markdown(report, include_arabic).split("\n")[10:])
 
         # Add fix results
         if results:
@@ -583,9 +577,7 @@ async def quick_diagnose(target: str) -> DiagnosticReport:
     return await engine.diagnose(target)
 
 
-async def quick_fix(
-    target: str, strategy: FixStrategy = FixStrategy.SAFE
-) -> tuple[DiagnosticReport, list[FixResult]]:
+async def quick_fix(target: str, strategy: FixStrategy = FixStrategy.SAFE) -> tuple[DiagnosticReport, list[FixResult]]:
     """
     Quick diagnose and fix.
 

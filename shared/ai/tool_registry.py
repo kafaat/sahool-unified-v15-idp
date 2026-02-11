@@ -563,9 +563,7 @@ class ToolRegistry:
         else:
             # Try to find .sahool-quality.yaml in current directory
             default_path = Path(".sahool-quality.yaml")
-            self._config = (
-                QualityConfig.from_yaml(default_path) if default_path.exists() else QualityConfig()
-            )
+            self._config = QualityConfig.from_yaml(default_path) if default_path.exists() else QualityConfig()
 
         # Register default tools
         for tool in self.DEFAULT_TOOLS:

@@ -632,9 +632,7 @@ class ServiceClient:
                 logger.info(f"✅ {self.service_name}: طلب ناجح إلى {endpoint}")
                 return {"success": True, "data": response.json()}
             else:
-                logger.warning(
-                    f"⚠️ {self.service_name}: استجابة {response.status_code} من {endpoint}"
-                )
+                logger.warning(f"⚠️ {self.service_name}: استجابة {response.status_code} من {endpoint}")
                 return {
                     "success": False,
                     "error": f"HTTP {response.status_code}",
@@ -670,9 +668,7 @@ class ServiceClient:
                 logger.info(f"✅ {self.service_name}: تحديث ناجح - {endpoint}")
                 return {"success": True, "data": response.json() if response.content else {}}
             else:
-                logger.warning(
-                    f"⚠️ {self.service_name}: استجابة {response.status_code} من {endpoint}"
-                )
+                logger.warning(f"⚠️ {self.service_name}: استجابة {response.status_code} من {endpoint}")
                 return {
                     "success": False,
                     "error": f"HTTP {response.status_code}",
@@ -782,10 +778,7 @@ class FieldRulesEngine:
             if action.action_type == ActionType.CREATE_TASK and not action.task_config:
                 return False, "إجراء CREATE_TASK يحتاج إلى task_config"
 
-            if (
-                action.action_type == ActionType.SEND_NOTIFICATION
-                and not action.notification_config
-            ):
+            if action.action_type == ActionType.SEND_NOTIFICATION and not action.notification_config:
                 return False, "إجراء SEND_NOTIFICATION يحتاج إلى notification_config"
 
             if action.action_type == ActionType.CREATE_ALERT and not action.alert_config:
@@ -809,9 +802,7 @@ class FieldRulesEngine:
     # Rule Evaluation - تقييم القواعد
     # ═══════════════════════════════════════════════════════════════════════════
 
-    async def evaluate_rules(
-        self, event: EventResponse, rules: list[Rule]
-    ) -> list[RuleExecutionResult]:
+    async def evaluate_rules(self, event: EventResponse, rules: list[Rule]) -> list[RuleExecutionResult]:
         """
         تقييم قائمة القواعد على حدث معين
         Evaluate list of rules against an event
@@ -869,16 +860,11 @@ class FieldRulesEngine:
                     )
                 )
 
-        logger.info(
-            f"📊 نتائج التقييم: {len(results)} قاعدة نُفذت - "
-            f"Evaluation results: {len(results)} rules executed"
-        )
+        logger.info(f"📊 نتائج التقييم: {len(results)} قاعدة نُفذت - Evaluation results: {len(results)} rules executed")
 
         return results
 
-    async def evaluate_single_rule(
-        self, event: EventResponse, rule: Rule
-    ) -> RuleExecutionResult | None:
+    async def evaluate_single_rule(self, event: EventResponse, rule: Rule) -> RuleExecutionResult | None:
         """
         تقييم قاعدة واحدة ضد حدث
         Evaluate a single rule against an event
@@ -905,9 +891,7 @@ class FieldRulesEngine:
         # التحقق من أنواع الأحداث
         # Check event types
         if rule.event_types and event.event_type.value not in rule.event_types:
-            logger.debug(
-                f"⏭️ القاعدة {rule.rule_id} لا تنطبق على نوع الحدث {event.event_type.value}"
-            )
+            logger.debug(f"⏭️ القاعدة {rule.rule_id} لا تنطبق على نوع الحدث {event.event_type.value}")
             return None
 
         # تقييم الشروط
@@ -916,10 +900,7 @@ class FieldRulesEngine:
             logger.debug(f"⏭️ القاعدة {rule.rule_id} ({rule.name}) - الشروط لم تتحقق")
             return None
 
-        logger.info(
-            f"✅ القاعدة {rule.rule_id} ({rule.name}) طابقت الحدث {event.event_id} - "
-            f"Rule matched event"
-        )
+        logger.info(f"✅ القاعدة {rule.rule_id} ({rule.name}) طابقت الحدث {event.event_id} - Rule matched event")
 
         # تنفيذ الإجراءات
         # Execute actions
@@ -951,15 +932,11 @@ class FieldRulesEngine:
 
         if not can_execute:
             remaining_minutes = (cooldown_end - datetime.now(UTC)).total_seconds() / 60
-            logger.debug(
-                f"⏸️ القاعدة {rule.rule_id} في فترة تهدئة. متبقي {remaining_minutes:.1f} دقيقة"
-            )
+            logger.debug(f"⏸️ القاعدة {rule.rule_id} في فترة تهدئة. متبقي {remaining_minutes:.1f} دقيقة")
 
         return can_execute
 
-    def _evaluate_conditions(
-        self, event: EventResponse, condition_group: RuleConditionGroup
-    ) -> bool:
+    def _evaluate_conditions(self, event: EventResponse, condition_group: RuleConditionGroup) -> bool:
         """
         تقييم مجموعة الشروط
         Evaluate condition group
@@ -978,9 +955,7 @@ class FieldRulesEngine:
         for condition in condition_group.conditions:
             result = self._evaluate_single_condition(event, condition)
             results.append(result)
-            logger.debug(
-                f"  شرط: {condition.field} {condition.operator.value} {condition.value} = {result}"
-            )
+            logger.debug(f"  شرط: {condition.field} {condition.operator.value} {condition.value} = {result}")
 
         # تطبيق المعامل المنطقي (AND/OR)
         # Apply logical operator
@@ -1121,8 +1096,7 @@ class FieldRulesEngine:
                 else:
                     actions_failed += 1
                     logger.warning(
-                        f"  ⚠️ فشل الإجراء {action.action_type.value}: "
-                        f"{action_result.get('error', 'unknown')}"
+                        f"  ⚠️ فشل الإجراء {action.action_type.value}: {action_result.get('error', 'unknown')}"
                     )
 
             except Exception as e:
@@ -1149,9 +1123,7 @@ class FieldRulesEngine:
             execution_details=execution_details,
         )
 
-    async def _execute_single_action(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _execute_single_action(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         تنفيذ إجراء واحد
         Execute single action
@@ -1196,9 +1168,7 @@ class FieldRulesEngine:
     # Action: Create Task - إنشاء مهمة
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _create_task(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _create_task(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         إنشاء مهمة تلقائية في خدمة المهام
         Create automated task in task service
@@ -1304,9 +1274,7 @@ class FieldRulesEngine:
     # Action: Send Notification - إرسال إشعار
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _send_notification(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _send_notification(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         إرسال إشعار عبر خدمة الإشعارات
         Send notification via notification service
@@ -1373,9 +1341,7 @@ class FieldRulesEngine:
     # Action: Create Alert - إنشاء تنبيه
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _create_alert(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _create_alert(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         إنشاء تنبيه في خدمة التنبيهات
         Create alert in alert service
@@ -1450,9 +1416,7 @@ class FieldRulesEngine:
     # Action: Call Webhook - استدعاء Webhook
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _call_webhook(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _call_webhook(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         استدعاء Webhook خارجي
         Call external webhook
@@ -1545,9 +1509,7 @@ class FieldRulesEngine:
         Returns:
             نتيجة التسجيل
         """
-        logger.info(
-            f"📝 تسجيل حدث: [{event.event_type.value}] {event.title} - القاعدة: {rule.name}"
-        )
+        logger.info(f"📝 تسجيل حدث: [{event.event_type.value}] {event.title} - القاعدة: {rule.name}")
 
         logger.info(f"   الحقل: {event.field_id}")
         logger.info(f"   الخطورة: {event.severity.value}")
@@ -1566,9 +1528,7 @@ class FieldRulesEngine:
     # Action: Update Field - تحديث حقل
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _update_field(
-        self, event: EventResponse, rule: Rule, action: ActionConfig
-    ) -> dict[str, Any]:
+    async def _update_field(self, event: EventResponse, rule: Rule, action: ActionConfig) -> dict[str, Any]:
         """
         تحديث بيانات الحقل (placeholder)
         Update field data (placeholder for future implementation)

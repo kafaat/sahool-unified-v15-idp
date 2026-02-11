@@ -118,12 +118,8 @@ class EventResponse(BaseModel):
     acknowledged_at: datetime | None = None
     resolved_at: datetime | None = None
     correlation_id: str | None = None
-    triggered_rules: list[str] = Field(
-        default_factory=list, description="معرفات القواعد التي تم تفعيلها"
-    )
-    created_tasks: list[str] = Field(
-        default_factory=list, description="معرفات المهام التي تم إنشاؤها"
-    )
+    triggered_rules: list[str] = Field(default_factory=list, description="معرفات القواعد التي تم تفعيلها")
+    created_tasks: list[str] = Field(default_factory=list, description="معرفات المهام التي تم إنشاؤها")
     notifications_sent: int = Field(default=0, description="عدد الإشعارات المرسلة")
 
 

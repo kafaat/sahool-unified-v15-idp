@@ -499,9 +499,7 @@ class AIValidator:
         for item in PII_PATTERNS:
             pattern = item[0]
             pii_type = item[2] if len(item) > 2 else "PII"
-            redacted = re.sub(
-                pattern, f"[{pii_type.upper()}_REDACTED]", redacted, flags=re.IGNORECASE
-            )
+            redacted = re.sub(pattern, f"[{pii_type.upper()}_REDACTED]", redacted, flags=re.IGNORECASE)
 
         return redacted
 
@@ -523,9 +521,7 @@ def get_validator(level: ValidationLevel = ValidationLevel.MODERATE) -> AIValida
 
 
 # Convenience functions
-def validate_prompt(
-    text: str, level: ValidationLevel = ValidationLevel.MODERATE
-) -> ValidationResult:
+def validate_prompt(text: str, level: ValidationLevel = ValidationLevel.MODERATE) -> ValidationResult:
     """
     Validate a user prompt.
 

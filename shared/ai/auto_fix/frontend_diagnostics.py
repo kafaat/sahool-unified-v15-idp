@@ -132,9 +132,7 @@ class FrontendDiagnosticRunner:
                         file_path = file_result.get("filePath", "")
                         for message in file_result.get("messages", []):
                             severity = (
-                                DiagnosticSeverity.ERROR
-                                if message.get("severity") == 2
-                                else DiagnosticSeverity.WARNING
+                                DiagnosticSeverity.ERROR if message.get("severity") == 2 else DiagnosticSeverity.WARNING
                             )
 
                             diagnostics.append(
@@ -142,18 +140,14 @@ class FrontendDiagnosticRunner:
                                     tool="eslint",
                                     code=message.get("ruleId", "unknown"),
                                     message=message.get("message", ""),
-                                    message_ar=self._translate_eslint_message(
-                                        message.get("message", "")
-                                    ),
+                                    message_ar=self._translate_eslint_message(message.get("message", "")),
                                     file_path=file_path,
                                     line=message.get("line", 0),
                                     column=message.get("column", 0),
                                     severity=severity,
                                     category=DiagnosticCategory.STYLE,
                                     fixable=message.get("fix") is not None,
-                                    fix_confidence=FixConfidence.HIGH
-                                    if message.get("fix")
-                                    else FixConfidence.LOW,
+                                    fix_confidence=FixConfidence.HIGH if message.get("fix") else FixConfidence.LOW,
                                 )
                             )
                 except json.JSONDecodeError:

@@ -492,9 +492,7 @@ Respond in JSON format:
         تقييم مخرجات الوكيل مقابل المعيار
         """
         # Build prompt
-        dimensions_text = "\n".join(
-            [f"- {d.value}: {self._get_dimension_description(d)}" for d in rubric.dimensions]
-        )
+        dimensions_text = "\n".join([f"- {d.value}: {self._get_dimension_description(d)}" for d in rubric.dimensions])
 
         prompt = self.JUDGE_PROMPT_TEMPLATE.format(
             task_description=task_description,
@@ -523,9 +521,7 @@ Respond in JSON format:
             grade = self._score_to_grade(overall_score)
 
             # Check for escalation
-            escalation_level, escalation_reason = self._check_escalation(
-                result["dimension_scores"], overall_score
-            )
+            escalation_level, escalation_reason = self._check_escalation(result["dimension_scores"], overall_score)
 
             return JudgeEvaluation(
                 evaluation_id=str(uuid.uuid4()),
@@ -579,9 +575,7 @@ Respond in JSON format:
                         score=ds["score"],
                         weight=rubric.dimension_weights.get(dim.value, 0.25),
                         explanation=ds.get("explanation", ""),
-                        improvement_suggestions=[ds.get("suggestion")]
-                        if ds.get("suggestion")
-                        else [],
+                        improvement_suggestions=[ds.get("suggestion")] if ds.get("suggestion") else [],
                     )
                 )
 
@@ -973,9 +967,7 @@ class AgentFeedbackLoop:
 
             # Add judge scores
             if record.judge_evaluation:
-                entry["judge_scores"] = {
-                    s.dimension.value: s.score for s in record.judge_evaluation.dimension_scores
-                }
+                entry["judge_scores"] = {s.dimension.value: s.score for s in record.judge_evaluation.dimension_scores}
 
             # Add corrections if available
             if include_corrections:
@@ -1006,8 +998,7 @@ class AgentFeedbackLoop:
             "escalation_count": sum(
                 1
                 for r in self.records.values()
-                if r.judge_evaluation
-                and r.judge_evaluation.escalation_level != EscalationLevel.NONE
+                if r.judge_evaluation and r.judge_evaluation.escalation_level != EscalationLevel.NONE
             ),
         }
 

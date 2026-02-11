@@ -434,9 +434,7 @@ class AutoAudit:
 
             output = io.StringIO()
             writer = csv.writer(output)
-            writer.writerow(
-                ["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"]
-            )
+            writer.writerow(["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"])
             for entry in self.entries:
                 writer.writerow(
                     [
@@ -654,9 +652,7 @@ class QualityOrchestrator:
 
                 if self._audit:
                     self._audit.log(
-                        AuditAction.QUALITY_GATE_PASSED
-                        if report.gates_passed
-                        else AuditAction.QUALITY_GATE_FAILED,
+                        AuditAction.QUALITY_GATE_PASSED if report.gates_passed else AuditAction.QUALITY_GATE_FAILED,
                         {
                             "gates_passed": report.gates_passed,
                             "quality_score": report.quality_score,
@@ -750,9 +746,7 @@ class QualityOrchestrator:
     def _get_tools(self, languages: list[str], specific_tools: list[str] | None) -> list:
         """Get tools to run based on config and languages"""
         if specific_tools:
-            return [
-                self._registry.get_tool(t) for t in specific_tools if self._registry.get_tool(t)
-            ]
+            return [self._registry.get_tool(t) for t in specific_tools if self._registry.get_tool(t)]
 
         tools = []
         for lang in languages:
@@ -856,9 +850,7 @@ class QualityOrchestrator:
                                 file_path=file_result.get("filePath", ""),
                                 line=msg.get("line"),
                                 column=msg.get("column"),
-                                severity=IssueSeverity.HIGH
-                                if msg.get("severity") == 2
-                                else IssueSeverity.MEDIUM,
+                                severity=IssueSeverity.HIGH if msg.get("severity") == 2 else IssueSeverity.MEDIUM,
                                 category="lint",
                                 message=msg.get("message", ""),
                                 code=msg.get("ruleId"),
@@ -897,9 +889,7 @@ class QualityOrchestrator:
                                 file_path=match.group(1),
                                 line=int(match.group(2)),
                                 column=int(match.group(3)) if match.group(3) else None,
-                                severity=IssueSeverity.HIGH
-                                if match.group(4) == "error"
-                                else IssueSeverity.MEDIUM,
+                                severity=IssueSeverity.HIGH if match.group(4) == "error" else IssueSeverity.MEDIUM,
                                 category="type",
                                 message=match.group(5),
                                 auto_fixable=False,
@@ -970,10 +960,7 @@ class QualityOrchestrator:
 
         # Weighted issue penalties
         penalties = (
-            report.critical_issues * 20
-            + report.high_issues * 10
-            + report.medium_issues * 3
-            + report.low_issues * 1
+            report.critical_issues * 20 + report.high_issues * 10 + report.medium_issues * 3 + report.low_issues * 1
         )
 
         # Bonus for fixes

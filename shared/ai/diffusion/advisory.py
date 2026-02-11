@@ -409,9 +409,7 @@ class DiffusionAdvisoryGenerator:
 
         # Parse template into tokens
         tokens = template.split()
-        mask_positions = [
-            i for i, t in enumerate(tokens) if t == self.MASK_TOKEN or self.MASK_TOKEN in t
-        ]
+        mask_positions = [i for i, t in enumerate(tokens) if t == self.MASK_TOKEN or self.MASK_TOKEN in t]
 
         if not mask_positions:
             # No masks to fill

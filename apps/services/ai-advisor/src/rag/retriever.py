@@ -156,9 +156,7 @@ class KnowledgeRetriever:
                         **metadata,
                     },
                 )
-                for doc_id, document, embedding, metadata in zip(
-                    ids, documents, embeddings, metadatas, strict=False
-                )
+                for doc_id, document, embedding, metadata in zip(ids, documents, embeddings, metadatas, strict=False)
             ]
 
             # Upsert to Qdrant

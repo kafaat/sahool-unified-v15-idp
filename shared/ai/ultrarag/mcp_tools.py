@@ -812,9 +812,7 @@ class RAGMCPTools:
             # Map index type
             index_str = args.get("index_type", "ndvi").upper()
             index_type = (
-                VegetationIndex[index_str]
-                if index_str in VegetationIndex.__members__
-                else VegetationIndex.NDVI
+                VegetationIndex[index_str] if index_str in VegetationIndex.__members__ else VegetationIndex.NDVI
             )
 
             result = await provider.analyze_time_series(

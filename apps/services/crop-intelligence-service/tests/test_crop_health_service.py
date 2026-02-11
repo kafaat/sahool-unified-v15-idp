@@ -95,9 +95,7 @@ class TestObservationsIngest:
             },
         }
 
-        response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
-        )
+        response = client.post("/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data)
 
         assert response.status_code == 422  # Validation error
 
@@ -145,9 +143,7 @@ class TestFieldDiagnosis:
 
     def test_diagnosis_invalid_date(self, client):
         """Test diagnosis with invalid date format"""
-        response = client.get(
-            "/api/v1/fields/field_demo/diagnosis", params={"date": "invalid-date"}
-        )
+        response = client.get("/api/v1/fields/field_demo/diagnosis", params={"date": "invalid-date"})
 
         assert response.status_code == 400
 
@@ -313,9 +309,7 @@ class TestDecisionEngine:
             savi=0.35,
         )
 
-        obs = ZoneObservation(
-            zone_id="stressed_zone", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="stressed_zone", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -368,9 +362,7 @@ class TestCompleteWorkflow:
         assert obs_response.status_code == 200
 
         # Step 3: Get diagnosis
-        diagnosis_response = client.get(
-            f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-27"}
-        )
+        diagnosis_response = client.get(f"/api/v1/fields/{field_id}/diagnosis", params={"date": "2025-12-27"})
         assert diagnosis_response.status_code == 200
 
         # Step 4: Get timeline

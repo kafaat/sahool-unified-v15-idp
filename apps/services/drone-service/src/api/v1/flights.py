@@ -21,7 +21,7 @@ class SprayFlightRequest(BaseModel):
     """Spray flight plan request"""
 
     field_id: str
-    boundary: List[Coordinate]
+    boundary: list[Coordinate]
     spray_rate_l_ha: float = 10.0
     swath_width_m: float = 5.0
     altitude_m: float = 3.0

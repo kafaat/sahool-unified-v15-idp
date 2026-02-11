@@ -36,9 +36,7 @@ class TestMultiProviderLLM:
         ):
             llm = MultiProviderLLM(default_provider="anthropic")
 
-            response = await llm.generate(
-                prompt="What is the best time to plant wheat?", max_tokens=500
-            )
+            response = await llm.generate(prompt="What is the best time to plant wheat?", max_tokens=500)
 
             assert response is not None
             assert "text" in response
@@ -51,9 +49,7 @@ class TestMultiProviderLLM:
         with patch("src.llm.multi_provider.openai.AsyncOpenAI", return_value=mock_openai_client):
             llm = MultiProviderLLM(default_provider="openai")
 
-            response = await llm.generate(
-                prompt="What is the best fertilizer for tomatoes?", max_tokens=500
-            )
+            response = await llm.generate(prompt="What is the best fertilizer for tomatoes?", max_tokens=500)
 
             assert response is not None
             assert "text" in response
@@ -74,9 +70,7 @@ class TestMultiProviderLLM:
                 {"role": "assistant", "content": "Hi, how can I help you?"},
             ]
 
-            response = await llm.generate(
-                prompt="Tell me about wheat diseases", context=context, max_tokens=500
-            )
+            response = await llm.generate(prompt="Tell me about wheat diseases", context=context, max_tokens=500)
 
             assert response is not None
             assert "text" in response
@@ -163,9 +157,7 @@ class TestMultiProviderLLM:
             llm = MultiProviderLLM()
 
             chunks = []
-            async for chunk in llm.generate_stream(
-                prompt="Tell me about agriculture", max_tokens=500
-            ):
+            async for chunk in llm.generate_stream(prompt="Tell me about agriculture", max_tokens=500):
                 chunks.append(chunk)
 
             assert len(chunks) > 0

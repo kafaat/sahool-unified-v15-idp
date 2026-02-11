@@ -480,9 +480,7 @@ class TestQuickAnalysis:
         assert response.json()["analysis_type"] == "yield"
 
     @pytest.mark.unit
-    def test_quick_analyze_recommendations_structure(
-        self, client: TestClient, sample_quick_analysis_request
-    ):
+    def test_quick_analyze_recommendations_structure(self, client: TestClient, sample_quick_analysis_request):
         """Test that recommendations have correct structure."""
         response = client.post("/api/v1/agents/quick/analyze", json=sample_quick_analysis_request)
 

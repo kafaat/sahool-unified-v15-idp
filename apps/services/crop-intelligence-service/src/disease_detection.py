@@ -330,11 +330,7 @@ def detect_diseases(
     # Nitrogen deficiency detection
     if ndre <= 0.22 and ndvi >= 0.4:
         severity = (
-            DiseaseSeverity.HIGH
-            if ndre <= 0.15
-            else DiseaseSeverity.MEDIUM
-            if ndre <= 0.18
-            else DiseaseSeverity.LOW
+            DiseaseSeverity.HIGH if ndre <= 0.15 else DiseaseSeverity.MEDIUM if ndre <= 0.18 else DiseaseSeverity.LOW
         )
         confidence = min(1.0, (0.22 - ndre) * 10)
 

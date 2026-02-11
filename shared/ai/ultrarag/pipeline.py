@@ -484,9 +484,7 @@ class RAGPipelineBuilder:
         self._config.llm_provider = provider
         return self
 
-    def with_embedding(
-        self, model: str, provider: str = "sentence_transformers"
-    ) -> "RAGPipelineBuilder":
+    def with_embedding(self, model: str, provider: str = "sentence_transformers") -> "RAGPipelineBuilder":
         self._config.embedding_model = model
         self._config.embedding_provider = provider
         return self

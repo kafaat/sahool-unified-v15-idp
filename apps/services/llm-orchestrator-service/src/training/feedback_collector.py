@@ -313,7 +313,5 @@ class FeedbackCollector:
             "corrections_count": sum(1 for f in feedbacks if f.correction),
             "with_outcomes": len(with_outcomes),
             "success_rate": round(successes / len(with_outcomes) * 100, 1) if with_outcomes else 0,
-            "by_type": {
-                ft.value: sum(1 for f in feedbacks if f.feedback_type == ft) for ft in FeedbackType
-            },
+            "by_type": {ft.value: sum(1 for f in feedbacks if f.feedback_type == ft) for ft in FeedbackType},
         }

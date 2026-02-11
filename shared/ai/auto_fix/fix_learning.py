@@ -202,9 +202,7 @@ class FixLearningSystem:
         self._developer_prefs: dict[str, DeveloperPreferences] = {}
 
         # Statistics
-        self._rule_stats: dict[str, dict[str, int]] = defaultdict(
-            lambda: {"success": 0, "failure": 0, "total": 0}
-        )
+        self._rule_stats: dict[str, dict[str, int]] = defaultdict(lambda: {"success": 0, "failure": 0, "total": 0})
         self._category_stats: dict[DiagnosticCategory, dict[str, int]] = defaultdict(
             lambda: {"success": 0, "failure": 0, "total": 0}
         )
@@ -633,13 +631,9 @@ class FixLearningSystem:
 
         rule_rate = self.get_rule_success_rate(diagnostic.rule_id or "unknown")
         if rule_rate > 0.8:
-            parts.append(
-                f"Rule {diagnostic.rule_id} fixes have high success rate ({rule_rate:.0%})"
-            )
+            parts.append(f"Rule {diagnostic.rule_id} fixes have high success rate ({rule_rate:.0%})")
         elif rule_rate < 0.5:
-            parts.append(
-                f"Caution: Rule {diagnostic.rule_id} fixes have low success rate ({rule_rate:.0%})"
-            )
+            parts.append(f"Caution: Rule {diagnostic.rule_id} fixes have low success rate ({rule_rate:.0%})")
 
         return ". ".join(parts) if parts else "Standard fix suggestion"
 
@@ -653,19 +647,13 @@ class FixLearningSystem:
         parts = []
 
         if pattern:
-            parts.append(
-                f"بناءً على {pattern.total_applications} إصلاحات مماثلة بمعدل نجاح {pattern.success_rate:.0%}"
-            )
+            parts.append(f"بناءً على {pattern.total_applications} إصلاحات مماثلة بمعدل نجاح {pattern.success_rate:.0%}")
 
         rule_rate = self.get_rule_success_rate(diagnostic.rule_id or "unknown")
         if rule_rate > 0.8:
-            parts.append(
-                f"إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح عالي ({rule_rate:.0%})"
-            )
+            parts.append(f"إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح عالي ({rule_rate:.0%})")
         elif rule_rate < 0.5:
-            parts.append(
-                f"تحذير: إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح منخفض ({rule_rate:.0%})"
-            )
+            parts.append(f"تحذير: إصلاحات القاعدة {diagnostic.rule_id} لديها معدل نجاح منخفض ({rule_rate:.0%})")
 
         return ". ".join(parts) if parts else "اقتراح إصلاح قياسي"
 

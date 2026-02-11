@@ -11,9 +11,7 @@ from uuid import uuid4
 import httpx
 
 # Service URL configuration
-ASTRONOMICAL_SERVICE_URL = os.getenv(
-    "ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111"
-)
+ASTRONOMICAL_SERVICE_URL = os.getenv("ASTRONOMICAL_SERVICE_URL", "http://astronomical-calendar:8111")
 
 from ..models.events import (
     AstronomicalEvent,
@@ -87,9 +85,7 @@ class EventProcessor:
             logger.info(f"⚡ معالجة حدث جديد: {event.event_type.value} للحقل {event.field_id}")
 
             # تقييم القواعد
-            execution_results = await self.rules_engine.evaluate_rules(
-                event_response, available_rules
-            )
+            execution_results = await self.rules_engine.evaluate_rules(event_response, available_rules)
 
             # تجميع نتائج التنفيذ
             triggered_rules = []
@@ -104,9 +100,7 @@ class EventProcessor:
                     for detail in result.execution_details:
                         if detail.get("action_type") == "create_task" and detail.get("success"):
                             created_tasks.append(detail.get("task_id", "unknown"))
-                        elif detail.get("action_type") == "send_notification" and detail.get(
-                            "success"
-                        ):
+                        elif detail.get("action_type") == "send_notification" and detail.get("success"):
                             notifications_sent += detail.get("recipients_count", 1)
 
             # تحديث استجابة الحدث
@@ -130,9 +124,7 @@ class EventProcessor:
             )
             raise
 
-    async def process_ndvi_drop(
-        self, field_id: str, tenant_id: str, ndvi_data: NDVIDropEvent
-    ) -> EventResponse:
+    async def process_ndvi_drop(self, field_id: str, tenant_id: str, ndvi_data: NDVIDropEvent) -> EventResponse:
         """
         معالجة حدث انخفاض NDVI
         Process NDVI drop event
@@ -259,11 +251,7 @@ class EventProcessor:
         # تحديد نوع الحدث والخطورة
         if current < moisture_data.optimal_min:
             event_type = EventType.SOIL_MOISTURE_LOW
-            severity = (
-                EventSeverity.HIGH
-                if current < moisture_data.optimal_min * 0.7
-                else EventSeverity.MEDIUM
-            )
+            severity = EventSeverity.HIGH if current < moisture_data.optimal_min * 0.7 else EventSeverity.MEDIUM
             title = "Low Soil Moisture Detected"
             title_ar = "انخفاض في رطوبة التربة"
         elif current > moisture_data.optimal_max:
@@ -329,12 +317,10 @@ class EventProcessor:
             title=astro_data.event_name,
             title_ar=astro_data.event_name_ar,
             description=(
-                f"{astro_data.event_name} - {astro_data.event_category.title()} "
-                f"({astro_data.moon_phase or 'N/A'})"
+                f"{astro_data.event_name} - {astro_data.event_category.title()} ({astro_data.moon_phase or 'N/A'})"
             ),
             description_ar=(
-                f"{astro_data.event_name_ar} - {astro_data.event_category} "
-                f"({astro_data.moon_phase_ar or 'غير محدد'})"
+                f"{astro_data.event_name_ar} - {astro_data.event_category} ({astro_data.moon_phase_ar or 'غير محدد'})"
             ),
             source_service="astronomical-calendar",
             metadata={

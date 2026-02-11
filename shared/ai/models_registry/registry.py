@@ -1873,9 +1873,7 @@ class AgriculturalAIRegistry:
             models = [m for m in models if m.license == license_type]
 
         if country and any(m.developer for m in models):
-            models = [
-                m for m in models if m.developer and m.developer.country.lower() == country.lower()
-            ]
+            models = [m for m in models if m.developer and m.developer.country.lower() == country.lower()]
 
         if query:
             query_lower = query.lower()

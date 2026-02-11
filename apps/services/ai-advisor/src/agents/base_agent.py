@@ -156,9 +156,7 @@ class BaseAgent(ABC):
             logger.error("rag_retrieval_failed", error=str(e))
             return ""
 
-    async def think(
-        self, query: str, context: dict[str, Any] | None = None, use_rag: bool = True
-    ) -> dict[str, Any]:
+    async def think(self, query: str, context: dict[str, Any] | None = None, use_rag: bool = True) -> dict[str, Any]:
         """
         Process a query and generate a response
         معالجة استعلام وإنشاء استجابة

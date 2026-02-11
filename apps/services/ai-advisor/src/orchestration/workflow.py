@@ -168,8 +168,7 @@ class Workflow:
                 ready_steps = [
                     step
                     for step_name, step in self.steps.items()
-                    if step_name not in executed_steps
-                    and all(dep in executed_steps for dep in step.depends_on)
+                    if step_name not in executed_steps and all(dep in executed_steps for dep in step.depends_on)
                 ]
 
                 if not ready_steps:
@@ -285,12 +284,8 @@ class Workflow:
             "description": self.description,
             "status": self.status.value,
             "total_steps": len(self.steps),
-            "completed_steps": sum(
-                1 for step in self.steps.values() if step.status == WorkflowStatus.COMPLETED
-            ),
-            "failed_steps": sum(
-                1 for step in self.steps.values() if step.status == WorkflowStatus.FAILED
-            ),
+            "completed_steps": sum(1 for step in self.steps.values() if step.status == WorkflowStatus.COMPLETED),
+            "failed_steps": sum(1 for step in self.steps.values() if step.status == WorkflowStatus.FAILED),
             "steps": [
                 {
                     "name": step.name,

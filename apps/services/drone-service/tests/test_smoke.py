@@ -30,7 +30,7 @@ def test_main_module_structure():
 def test_api_routers_exist():
     """Test that API router files exist"""
     api_path = Path(__file__).parent.parent / "src" / "api" / "v1"
-    
+
     assert (api_path / "drones.py").exists()
     assert (api_path / "flights.py").exists()
     assert (api_path / "missions.py").exists()

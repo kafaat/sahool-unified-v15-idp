@@ -132,9 +132,7 @@ class ReActObservation:
             "type": "observation",
             "action_id": self.action_id,
             "success": self.success,
-            "result": self.result
-            if isinstance(self.result, (str, int, float, bool, list, dict))
-            else str(self.result),
+            "result": self.result if isinstance(self.result, (str, int, float, bool, list, dict)) else str(self.result),
             "summary": self.summary,
             "summary_ar": self.summary_ar,
             "execution_time_ms": self.execution_time_ms,
@@ -763,9 +761,7 @@ class ReActAgent(BaseAutonomousAgent):
 
                 # Reflection
                 yield {"type": "reflection_start", "step": step_number}
-                reflection = await self.reflect_on_observation(
-                    observation, task, history + [react_step]
-                )
+                reflection = await self.reflect_on_observation(observation, task, history + [react_step])
                 react_step.reflection = reflection
                 yield {
                     "type": "reflection_complete",
@@ -876,9 +872,7 @@ class ReActAgent(BaseAutonomousAgent):
             if step.action:
                 lines.append(f"  Action: {step.action.action_type}")
             if step.observation:
-                lines.append(
-                    f"  Result: {'✓' if step.observation.success else '✗'} {step.observation.summary}"
-                )
+                lines.append(f"  Result: {'✓' if step.observation.success else '✗'} {step.observation.summary}")
             if step.reflection:
                 lines.append(f"  Reflection: {step.reflection.assessment}")
 
@@ -926,9 +920,7 @@ class ReActAgent(BaseAutonomousAgent):
                     tool_name=react_step.action.action_type,
                     tool_input=react_step.action.action_input,
                     reasoning=react_step.thought.content,
-                    status="completed"
-                    if react_step.observation and react_step.observation.success
-                    else "failed",
+                    status="completed" if react_step.observation and react_step.observation.success else "failed",
                 )
                 agent_steps.append(agent_step)
 

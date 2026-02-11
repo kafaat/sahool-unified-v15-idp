@@ -418,9 +418,7 @@ class GRPOTrainer:
             "policy_loss": total_loss,
             "clip_fraction": clipped_count / len(batch.samples) if batch.samples else 0,
             "masked_count": masked_count,
-            "mean_advantage": sum(batch.advantages) / len(batch.advantages)
-            if batch.advantages
-            else 0,
+            "mean_advantage": sum(batch.advantages) / len(batch.advantages) if batch.advantages else 0,
         }
 
         return total_loss, metrics
@@ -539,9 +537,7 @@ class GRPOTrainer:
             policy_loss=policy_loss,
             kl_loss=kl_loss,
             entropy_loss=entropy_loss,
-            mean_reward=sum(s.reward for s in batch.samples) / len(batch.samples)
-            if batch.samples
-            else 0,
+            mean_reward=sum(s.reward for s in batch.samples) / len(batch.samples) if batch.samples else 0,
             mean_advantage=policy_metrics.get("mean_advantage", 0),
             clip_fraction=policy_metrics.get("clip_fraction", 0),
         )
@@ -565,13 +561,10 @@ class GRPOTrainer:
             "skip_rate": skipped_batches / total_batches if total_batches > 0 else 0,
             "masked_sequences": masked_sequences,
             "avg_loss": sum(s.total_loss for s in self._stats_history) / len(self._stats_history),
-            "avg_policy_loss": sum(s.policy_loss for s in self._stats_history)
-            / len(self._stats_history),
+            "avg_policy_loss": sum(s.policy_loss for s in self._stats_history) / len(self._stats_history),
             "avg_kl_loss": sum(s.kl_loss for s in self._stats_history) / len(self._stats_history),
-            "avg_reward": sum(s.mean_reward for s in self._stats_history)
-            / len(self._stats_history),
-            "avg_clip_fraction": sum(s.clip_fraction for s in self._stats_history)
-            / len(self._stats_history),
+            "avg_reward": sum(s.mean_reward for s in self._stats_history) / len(self._stats_history),
+            "avg_clip_fraction": sum(s.clip_fraction for s in self._stats_history) / len(self._stats_history),
         }
 
     def reset_stats(self) -> None:

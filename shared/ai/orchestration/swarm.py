@@ -338,21 +338,13 @@ class SwarmCoordinator:
         """
         # Get available agents
         if agent_ids:
-            agents = [
-                self.router.get_agent(aid)
-                for aid in agent_ids
-                if self.router.get_agent(aid) is not None
-            ]
+            agents = [self.router.get_agent(aid) for aid in agent_ids if self.router.get_agent(aid) is not None]
         else:
             agents = self.router.get_available_agents()
 
         # Filter by capabilities if needed
         if task.required_capabilities:
-            agents = [
-                agent
-                for agent in agents
-                if any(cap in agent.capabilities for cap in task.required_capabilities)
-            ]
+            agents = [agent for agent in agents if any(cap in agent.capabilities for cap in task.required_capabilities)]
 
         # Check minimum agents
         if len(agents) < config.min_agents:
@@ -756,9 +748,7 @@ class SwarmCoordinator:
             agent_results = await self.coordinate_agents(config, task, active_agents)
 
             # Aggregate results
-            aggregated_result, confidence = await self.aggregate_results(
-                agent_results, task, aggregation_strategy
-            )
+            aggregated_result, confidence = await self.aggregate_results(agent_results, task, aggregation_strategy)
 
             # Calculate success
             successful_count = sum(1 for r in agent_results if r.success)

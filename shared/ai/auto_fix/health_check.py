@@ -155,9 +155,7 @@ class HealthChecker:
         except Exception:
             return False, 0
 
-    async def check_postgresql(
-        self, host: str = "localhost", port: int = 5432
-    ) -> HealthCheckResult:
+    async def check_postgresql(self, host: str = "localhost", port: int = 5432) -> HealthCheckResult:
         """Check PostgreSQL health | فحص صحة PostgreSQL"""
         is_open, latency = await self._check_port(host, port)
 

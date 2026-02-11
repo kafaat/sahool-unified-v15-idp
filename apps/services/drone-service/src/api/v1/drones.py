@@ -32,7 +32,7 @@ class DroneResponse(BaseModel):
     status: str = "active"
 
 
-@router.get("/", response_model=List[DroneResponse])
+@router.get("/", response_model=list[DroneResponse])
 async def list_drones():
     """
     List all registered drones - قائمة بجميع الطائرات المسجلة

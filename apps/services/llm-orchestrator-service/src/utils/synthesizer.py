@@ -123,9 +123,7 @@ class ResponseSynthesizer:
         summary_en, summary_ar = self._generate_summary(intent, successful_results, agent_results)
 
         # Extract recommendations
-        recommendations_en, recommendations_ar = self._extract_recommendations(
-            intent, successful_results
-        )
+        recommendations_en, recommendations_ar = self._extract_recommendations(intent, successful_results)
 
         # Generate actions
         actions = self._generate_actions(intent, successful_results)
@@ -174,9 +172,7 @@ class ResponseSynthesizer:
         all_results: list[AgentResult],
     ) -> tuple[str, str]:
         """Generate bilingual summary."""
-        templates = SUMMARY_TEMPLATES.get(
-            intent.intent_type, SUMMARY_TEMPLATES[IntentType.GENERAL_ADVISORY]
-        )
+        templates = SUMMARY_TEMPLATES.get(intent.intent_type, SUMMARY_TEMPLATES[IntentType.GENERAL_ADVISORY])
 
         # Extract values for template filling
         values = self._extract_summary_values(intent, successful_results)
@@ -186,10 +182,10 @@ class ResponseSynthesizer:
             summary_ar = templates["ar"].format(**values)
         except KeyError:
             # Fallback if template variables missing
-            summary_en = f"Analysis completed. {len(successful_results)} of {len(all_results)} agents responded successfully."
-            summary_ar = (
-                f"اكتمل التحليل. {len(successful_results)} من {len(all_results)} وكيل استجاب بنجاح."
+            summary_en = (
+                f"Analysis completed. {len(successful_results)} of {len(all_results)} agents responded successfully."
             )
+            summary_ar = f"اكتمل التحليل. {len(successful_results)} من {len(all_results)} وكيل استجاب بنجاح."
 
         return summary_en, summary_ar
 

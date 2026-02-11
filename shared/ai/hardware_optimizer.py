@@ -591,8 +591,7 @@ class HardwareAwareOptimizer:
             "total_tokens": total_tokens,
             "total_time_ms": total_time,
             "avg_tokens_per_second": total_tokens / (total_time / 1000) if total_time > 0 else 0,
-            "avg_peak_memory_gb": sum(s.peak_memory_gb for s in self._stats_history)
-            / len(self._stats_history),
+            "avg_peak_memory_gb": sum(s.peak_memory_gb for s in self._stats_history) / len(self._stats_history),
         }
 
     def get_hardware_recommendations(self) -> list[dict[str, str]]:

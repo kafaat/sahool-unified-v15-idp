@@ -171,12 +171,8 @@ class FeedbackItem:
             context=data.get("context", {}),
             sentiment=FeedbackSentiment(data.get("sentiment", "neutral")),
             sentiment_score=data.get("sentiment_score", 0.0),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if data.get("created_at")
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if data.get("updated_at")
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
             source=data.get("source", "mobile_app"),
             tags=data.get("tags", []),
         )
@@ -197,9 +193,7 @@ class FeedbackSummary:
 
     # Ratings
     average_rating: float = 0.0
-    rating_distribution: dict[int, int] = field(
-        default_factory=lambda: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-    )
+    rating_distribution: dict[int, int] = field(default_factory=lambda: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0})
 
     # Thumbs
     thumbs_up_count: int = 0
@@ -577,9 +571,7 @@ class FeedbackCollector:
 
         # Filter by type if specified
         if recommendation_type:
-            feedback_list = [
-                f for f in feedback_list if f.recommendation_type == recommendation_type
-            ]
+            feedback_list = [f for f in feedback_list if f.recommendation_type == recommendation_type]
 
         if not feedback_list:
             return FeedbackSummary()
@@ -616,9 +608,7 @@ class FeedbackCollector:
         outcomes = [f.outcome for f in feedback_list if f.outcome is not None]
         if outcomes:
             for o in outcomes:
-                summary.outcome_distribution[o.value] = (
-                    summary.outcome_distribution.get(o.value, 0) + 1
-                )
+                summary.outcome_distribution[o.value] = summary.outcome_distribution.get(o.value, 0) + 1
             success_count = sum(1 for o in outcomes if o == OutcomeStatus.SUCCESS)
             applicable = sum(1 for o in outcomes if o != OutcomeStatus.NOT_APPLICABLE)
             summary.success_rate = success_count / applicable if applicable > 0 else 0.0

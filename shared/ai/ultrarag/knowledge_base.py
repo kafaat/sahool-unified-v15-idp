@@ -121,9 +121,7 @@ class Chunker:
         """Sentence-based chunking"""
         chunks = []
         sentences = self._split_sentences(document.content, config.language)
-        sentences_ar = (
-            self._split_sentences(document.content_ar, "ar") if document.content_ar else []
-        )
+        sentences_ar = self._split_sentences(document.content_ar, "ar") if document.content_ar else []
 
         current_chunk = []
         current_length = 0
@@ -136,9 +134,7 @@ class Chunker:
             if current_length + sentence_len > config.chunk_size and current_chunk:
                 # Create chunk from accumulated sentences
                 chunk_text = " ".join(current_chunk)
-                chunk_text_ar = (
-                    " ".join(sentences_ar[: len(current_chunk)]) if sentences_ar else None
-                )
+                chunk_text_ar = " ".join(sentences_ar[: len(current_chunk)]) if sentences_ar else None
 
                 chunk = KnowledgeChunk(
                     id=f"{document.id}_c{chunk_index}",
@@ -713,9 +709,7 @@ class KnowledgeBase:
 
     async def clear_collection(self, collection: str) -> int:
         """Clear all documents in a collection"""
-        to_delete = [
-            doc_id for doc_id, doc in self._documents.items() if doc.collection == collection
-        ]
+        to_delete = [doc_id for doc_id, doc in self._documents.items() if doc.collection == collection]
 
         for doc_id in to_delete:
             await self.delete_document(doc_id)

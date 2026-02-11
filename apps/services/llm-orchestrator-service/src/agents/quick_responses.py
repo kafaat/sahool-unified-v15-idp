@@ -152,8 +152,7 @@ QUICK_RESPONSES: dict[str, QuickResponse] = {
     ),
     "ما هو ndvi": QuickResponse(
         response_en=(
-            "NDVI measures plant health from satellite imagery. "
-            "Higher values (0.6-0.9) indicate healthy crops."
+            "NDVI measures plant health from satellite imagery. Higher values (0.6-0.9) indicate healthy crops."
         ),
         response_ar=(
             "NDVI (مؤشر الاختلاف النباتي الطبيعي) هو مقياس لصحة النبات "

@@ -885,9 +885,7 @@ class AgentMemorySystem:
 
         # Filter by success rate
         applicable = [
-            p
-            for p in all_procedures
-            if isinstance(p, ProceduralMemory) and p.success_rate >= min_success_rate
+            p for p in all_procedures if isinstance(p, ProceduralMemory) and p.success_rate >= min_success_rate
         ]
 
         # Sort by success rate and execution count

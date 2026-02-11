@@ -693,9 +693,7 @@ class BaseAutonomousAgent(ABC):
                     )
 
                 # Self-validation (inspired by Dexter)
-                is_valid, validation_msg = await self.validate_step_result(
-                    step, tool_result, context
-                )
+                is_valid, validation_msg = await self.validate_step_result(step, tool_result, context)
 
                 if not is_valid:
                     retry_count = self._retry_counts.get(step.step_id, 0)

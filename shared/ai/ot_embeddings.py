@@ -240,10 +240,7 @@ class OTEmbeddingMatcher:
                 for i in range(n):
                     # log(sum_j(K[i,j] * v[j])) - log(mu[i])
                     max_val = max(log_K[i][j] + g[j] for j in range(m))
-                    log_sum = (
-                        math.log(sum(math.exp(log_K[i][j] + g[j] - max_val) for j in range(m)))
-                        + max_val
-                    )
+                    log_sum = math.log(sum(math.exp(log_K[i][j] + g[j] - max_val) for j in range(m))) + max_val
                     f_new.append(math.log(mu[i]) - log_sum)
                 f = f_new
 
@@ -251,10 +248,7 @@ class OTEmbeddingMatcher:
                 g_new = []
                 for j in range(m):
                     max_val = max(log_K[i][j] + f[i] for i in range(n))
-                    log_sum = (
-                        math.log(sum(math.exp(log_K[i][j] + f[i] - max_val) for i in range(n)))
-                        + max_val
-                    )
+                    log_sum = math.log(sum(math.exp(log_K[i][j] + f[i] - max_val) for i in range(n))) + max_val
                     g_new.append(math.log(nu[j]) - log_sum)
 
                 # Check convergence
@@ -269,9 +263,7 @@ class OTEmbeddingMatcher:
             # Compute transport plan: P[i,j] = exp(f[i] + log_K[i,j] + g[j])
             transport_plan = None
             if return_plan:
-                transport_plan = [
-                    [math.exp(f[i] + log_K[i][j] + g[j]) for j in range(m)] for i in range(n)
-                ]
+                transport_plan = [[math.exp(f[i] + log_K[i][j] + g[j]) for j in range(m)] for i in range(n)]
 
             # Compute Sinkhorn distance: sum(P * C)
             sinkhorn_dist = 0.0

@@ -29,7 +29,7 @@ class MissionResponse(BaseModel):
     status: str  # "planned", "active", "paused", "completed", "aborted"
 
 
-@router.get("/", response_model=List[MissionResponse])
+@router.get("/", response_model=list[MissionResponse])
 async def list_missions():
     """List all missions - قائمة بجميع المهام"""
     return []

@@ -360,9 +360,7 @@ class EventsRepository(BaseRepository):
             WHERE event_id = $1 AND tenant_id = $2
             RETURNING *
         """
-        row = await self._fetchrow(
-            query, event_id, tenant_id, new_status, acknowledged_at, resolved_at
-        )
+        row = await self._fetchrow(query, event_id, tenant_id, new_status, acknowledged_at, resolved_at)
         return self._row_to_dict(row) if row else None
 
     async def get_field_stats(

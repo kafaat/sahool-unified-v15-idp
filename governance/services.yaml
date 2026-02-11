@@ -214,7 +214,7 @@ services:
     path: "apps/services/disaster-assessment"
     port: 3020
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data

@@ -71,7 +71,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3020/api/v1/disasters/health || exit 1
+    CMD curl -f http://localhost:3020/healthz || exit 1
 
 # Run database migrations and start the application
 # Note: In production, migrations should ideally be run as a separate init container

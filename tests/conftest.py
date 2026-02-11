@@ -244,6 +244,7 @@ def mock_redis() -> Generator[MagicMock, None, None]:
 def field_factory():
     """Field factory fixture."""
     from tests.factories.field_factory import FieldFactory
+
     return FieldFactory
 
 
@@ -251,6 +252,7 @@ def field_factory():
 def user_factory():
     """User factory fixture."""
     from tests.factories.user_factory import UserFactory
+
     return UserFactory
 
 
@@ -258,6 +260,7 @@ def user_factory():
 def farm_factory():
     """Farm factory fixture."""
     from tests.factories.farm_factory import FarmFactory
+
     return FarmFactory
 
 
@@ -265,6 +268,7 @@ def farm_factory():
 def crop_factory():
     """Crop factory fixture."""
     from tests.factories.crop_factory import CropFactory
+
     return CropFactory
 
 
@@ -277,6 +281,7 @@ def crop_factory():
 def mock_event_publisher():
     """Mock event publisher for testing."""
     from tests.utils.mocks import MockEventPublisher
+
     return MockEventPublisher()
 
 
@@ -284,6 +289,7 @@ def mock_event_publisher():
 def mock_database():
     """Mock database for testing."""
     from tests.utils.mocks import MockDatabase
+
     return MockDatabase()
 
 
@@ -291,6 +297,7 @@ def mock_database():
 def mock_redis_client():
     """Mock Redis client with full functionality."""
     from tests.utils.mocks import MockRedisClient
+
     return MockRedisClient()
 
 
@@ -298,6 +305,7 @@ def mock_redis_client():
 def mock_nats_client():
     """Mock NATS client with full functionality."""
     from tests.utils.mocks import MockNATSClient
+
     return MockNATSClient()
 
 

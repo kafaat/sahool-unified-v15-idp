@@ -187,24 +187,30 @@ class TestKnowledgeGraphRetriever:
     async def test_retrieve_with_entities(self, kg_retriever):
         """Test retrieval with populated graph"""
         # Add entities
-        await kg_retriever.add_entity({
-            "id": "entity_wheat",
-            "name": "wheat",
-            "entity_type": "crop",
-            "description": "A major cereal grain",
-        })
-        await kg_retriever.add_entity({
-            "id": "entity_rust",
-            "name": "rust",
-            "entity_type": "disease",
-            "description": "A fungal disease",
-        })
-        await kg_retriever.add_relation({
-            "id": "rel_001",
-            "source_id": "entity_wheat",
-            "target_id": "entity_rust",
-            "relation_type": "affects",
-        })
+        await kg_retriever.add_entity(
+            {
+                "id": "entity_wheat",
+                "name": "wheat",
+                "entity_type": "crop",
+                "description": "A major cereal grain",
+            }
+        )
+        await kg_retriever.add_entity(
+            {
+                "id": "entity_rust",
+                "name": "rust",
+                "entity_type": "disease",
+                "description": "A fungal disease",
+            }
+        )
+        await kg_retriever.add_relation(
+            {
+                "id": "rel_001",
+                "source_id": "entity_wheat",
+                "target_id": "entity_rust",
+                "relation_type": "affects",
+            }
+        )
 
         config = RetrievalConfig(top_k=5)
         results = await kg_retriever.retrieve("wheat disease", config)
@@ -232,14 +238,16 @@ class TestTriRAGRetriever:
     def mock_dense_retriever(self):
         """Create mock dense retriever"""
         retriever = MagicMock(spec=DenseRetriever)
-        retriever.retrieve = AsyncMock(return_value=[
-            RetrievalResult(
-                chunk=KnowledgeChunk(id="d1", text="Dense result 1"),
-                score=0.9,
-                rank=1,
-                retrieval_method="dense",
-            ),
-        ])
+        retriever.retrieve = AsyncMock(
+            return_value=[
+                RetrievalResult(
+                    chunk=KnowledgeChunk(id="d1", text="Dense result 1"),
+                    score=0.9,
+                    rank=1,
+                    retrieval_method="dense",
+                ),
+            ]
+        )
         retriever.add_documents = AsyncMock(return_value=True)
         return retriever
 
@@ -247,14 +255,16 @@ class TestTriRAGRetriever:
     def mock_sparse_retriever(self):
         """Create mock sparse retriever"""
         retriever = MagicMock(spec=SparseRetriever)
-        retriever.retrieve = AsyncMock(return_value=[
-            RetrievalResult(
-                chunk=KnowledgeChunk(id="s1", text="Sparse result 1"),
-                score=0.8,
-                rank=1,
-                retrieval_method="sparse",
-            ),
-        ])
+        retriever.retrieve = AsyncMock(
+            return_value=[
+                RetrievalResult(
+                    chunk=KnowledgeChunk(id="s1", text="Sparse result 1"),
+                    score=0.8,
+                    rank=1,
+                    retrieval_method="sparse",
+                ),
+            ]
+        )
         retriever.add_documents = AsyncMock(return_value=True)
         return retriever
 
@@ -262,14 +272,16 @@ class TestTriRAGRetriever:
     def mock_kg_retriever(self):
         """Create mock KG retriever"""
         retriever = MagicMock(spec=KnowledgeGraphRetriever)
-        retriever.retrieve = AsyncMock(return_value=[
-            RetrievalResult(
-                chunk=KnowledgeChunk(id="kg1", text="KG result 1"),
-                score=0.7,
-                rank=1,
-                retrieval_method="knowledge_graph",
-            ),
-        ])
+        retriever.retrieve = AsyncMock(
+            return_value=[
+                RetrievalResult(
+                    chunk=KnowledgeChunk(id="kg1", text="KG result 1"),
+                    score=0.7,
+                    rank=1,
+                    retrieval_method="knowledge_graph",
+                ),
+            ]
+        )
         retriever.add_documents = AsyncMock(return_value=True)
         return retriever
 

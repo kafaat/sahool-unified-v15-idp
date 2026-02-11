@@ -30,7 +30,7 @@ class JWTAuthenticator:
         user_id: str,
         tenant_id: str,
         roles: list,
-        expires_delta: timedelta = timedelta(hours=1)
+        expires_delta: timedelta = timedelta(hours=1),
     ) -> str:
         """Create a JWT token."""
         now = datetime.utcnow()
@@ -51,7 +51,7 @@ class JWTAuthenticator:
                 token,
                 self.secret_key,
                 algorithms=[self.algorithm],
-                options={"require": ["exp", "sub", "tenant_id"]}
+                options={"require": ["exp", "sub", "tenant_id"]},
             )
 
             if payload.get("jti") in self.revoked_tokens:
@@ -77,11 +77,7 @@ def authenticator():
 @pytest.fixture
 def valid_token(authenticator):
     """Create a valid JWT token."""
-    return authenticator.create_token(
-        user_id="user123",
-        tenant_id="tenant456",
-        roles=["farmer"]
-    )
+    return authenticator.create_token(user_id="user123", tenant_id="tenant456", roles=["farmer"])
 
 
 class TestJWTAlgorithmSecurity:
@@ -117,7 +113,19 @@ class TestJWTAlgorithmSecurity:
 
     def test_weak_algorithm_rejected(self):
         """Test weak algorithms are not accepted."""
-        weak_algorithms = ["HS384", "HS512", "RS256", "RS384", "RS512", "ES256", "ES384", "ES512", "PS256", "PS384", "PS512"]
+        weak_algorithms = [
+            "HS384",
+            "HS512",
+            "RS256",
+            "RS384",
+            "RS512",
+            "ES256",
+            "ES384",
+            "ES512",
+            "PS256",
+            "PS384",
+            "PS512",
+        ]
         authenticator = JWTAuthenticator(TEST_SECRET_KEY, "HS256")
 
         payload = {
@@ -144,7 +152,7 @@ class TestTokenExpiration:
             user_id="user123",
             tenant_id="tenant456",
             roles=["farmer"],
-            expires_delta=timedelta(seconds=-1)
+            expires_delta=timedelta(seconds=-1),
         )
 
         result = authenticator.verify_token(token)
@@ -187,9 +195,7 @@ class TestTokenRevocation:
     def test_revoked_token_rejected(self, authenticator):
         """Test revoked tokens are rejected."""
         token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant456",
-            roles=["farmer"]
+            user_id="user123", tenant_id="tenant456", roles=["farmer"]
         )
 
         payload = jwt.decode(token, TEST_SECRET_KEY, algorithms=["HS256"])
@@ -204,9 +210,7 @@ class TestTokenRevocation:
     def test_revocation_persists(self, authenticator):
         """Test token revocation persists across verifications."""
         token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant456",
-            roles=["farmer"]
+            user_id="user123", tenant_id="tenant456", roles=["farmer"]
         )
 
         payload = jwt.decode(token, TEST_SECRET_KEY, algorithms=["HS256"])
@@ -226,9 +230,9 @@ class TestTokenTampering:
         payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
         payload["roles"] = ["admin"]
 
-        modified_payload = base64.urlsafe_b64encode(
-            json.dumps(payload).encode()
-        ).rstrip(b"=").decode()
+        modified_payload = (
+            base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
+        )
 
         tampered_token = f"{parts[0]}.{modified_payload}.{parts[2]}"
 
@@ -240,9 +244,9 @@ class TestTokenTampering:
         parts = valid_token.split(".")
 
         header = {"alg": "HS256", "typ": "JWT", "kid": "malicious-key"}
-        modified_header = base64.urlsafe_b64encode(
-            json.dumps(header).encode()
-        ).rstrip(b"=").decode()
+        modified_header = (
+            base64.urlsafe_b64encode(json.dumps(header).encode()).rstrip(b"=").decode()
+        )
 
         tampered_token = f"{modified_header}.{parts[1]}.{parts[2]}"
 
@@ -290,9 +294,7 @@ class TestClaimValidation:
     def test_invalid_tenant_format(self, authenticator):
         """Test tokens with invalid tenant format are flagged."""
         token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="'; DROP TABLE tenants;--",
-            roles=["farmer"]
+            user_id="user123", tenant_id="'; DROP TABLE tenants;--", roles=["farmer"]
         )
 
         result = authenticator.verify_token(token)
@@ -340,15 +342,11 @@ class TestSessionFixation:
     def test_token_regeneration_on_privilege_change(self, authenticator):
         """Test token is regenerated on privilege escalation."""
         old_token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant456",
-            roles=["farmer"]
+            user_id="user123", tenant_id="tenant456", roles=["farmer"]
         )
 
         new_token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant456",
-            roles=["farmer", "admin"]
+            user_id="user123", tenant_id="tenant456", roles=["farmer", "admin"]
         )
 
         assert old_token != new_token
@@ -366,15 +364,11 @@ class TestCrossTenantAccess:
     def test_tenant_isolation_in_token(self, authenticator):
         """Test tenant isolation is enforced in tokens."""
         tenant1_token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant1",
-            roles=["farmer"]
+            user_id="user123", tenant_id="tenant1", roles=["farmer"]
         )
 
         tenant2_token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant2",
-            roles=["farmer"]
+            user_id="user123", tenant_id="tenant2", roles=["farmer"]
         )
 
         payload1 = authenticator.verify_token(tenant1_token)
@@ -386,19 +380,15 @@ class TestCrossTenantAccess:
 
     def test_tenant_id_cannot_be_modified(self, authenticator):
         """Test tenant_id cannot be modified in token."""
-        token = authenticator.create_token(
-            user_id="user123",
-            tenant_id="tenant1",
-            roles=["farmer"]
-        )
+        token = authenticator.create_token(user_id="user123", tenant_id="tenant1", roles=["farmer"])
 
         parts = token.split(".")
         payload = json.loads(base64.urlsafe_b64decode(parts[1] + "=="))
         payload["tenant_id"] = "tenant2"
 
-        modified_payload = base64.urlsafe_b64encode(
-            json.dumps(payload).encode()
-        ).rstrip(b"=").decode()
+        modified_payload = (
+            base64.urlsafe_b64encode(json.dumps(payload).encode()).rstrip(b"=").decode()
+        )
 
         tampered_token = f"{parts[0]}.{modified_payload}.{parts[2]}"
 
@@ -469,14 +459,14 @@ class TestRefreshTokenSecurity:
             user_id="user123",
             tenant_id="tenant456",
             roles=["farmer"],
-            expires_delta=timedelta(minutes=15)
+            expires_delta=timedelta(minutes=15),
         )
 
         refresh_token = authenticator.create_token(
             user_id="user123",
             tenant_id="tenant456",
             roles=["refresh"],
-            expires_delta=timedelta(days=7)
+            expires_delta=timedelta(days=7),
         )
 
         assert access_token != refresh_token
@@ -494,14 +484,14 @@ class TestRefreshTokenSecurity:
             user_id="user123",
             tenant_id="tenant456",
             roles=["refresh"],
-            expires_delta=timedelta(days=7)
+            expires_delta=timedelta(days=7),
         )
 
         new_refresh = authenticator.create_token(
             user_id="user123",
             tenant_id="tenant456",
             roles=["refresh"],
-            expires_delta=timedelta(days=7)
+            expires_delta=timedelta(days=7),
         )
 
         old_payload = jwt.decode(old_refresh, TEST_SECRET_KEY, algorithms=["HS256"])

@@ -261,6 +261,7 @@ class TestTenantAuditLogging:
 
     def test_audit_log_tenant_cannot_be_null(self):
         """Test audit log tenant cannot be null."""
+
         def validate_audit_entry(entry: dict[str, Any]) -> bool:
             return entry.get("tenant_id") is not None
 

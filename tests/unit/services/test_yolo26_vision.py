@@ -593,7 +593,7 @@ class TestBilingualClassNames:
             assert "en" in names
             assert "ar" in names
             # Arabic text should contain Arabic characters
-            assert any("\u0600" <= c <= "\u06FF" for c in names["ar"])
+            assert any("\u0600" <= c <= "\u06ff" for c in names["ar"])
 
     def test_weed_class_names(self):
         """Test weed class names in both languages."""

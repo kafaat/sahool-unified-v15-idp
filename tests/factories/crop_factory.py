@@ -34,9 +34,7 @@ class CropData:
     variety: str = "Sakha 95"
     variety_ar: str = "سخا 95"
     planting_date: date = field(default_factory=lambda: date.today())
-    expected_harvest_date: date = field(
-        default_factory=lambda: date.today() + timedelta(days=120)
-    )
+    expected_harvest_date: date = field(default_factory=lambda: date.today() + timedelta(days=120))
     growth_stage: str = "vegetative"
     growth_stage_ar: str = "مرحلة النمو الخضري"
     area_hectares: float = 10.0
@@ -222,9 +220,7 @@ class CropFactory:
             planting_date = date.today() - timedelta(days=random.randint(0, 60))
 
         # Calculate expected harvest date
-        expected_harvest_date = planting_date + timedelta(
-            days=crop_info["growth_days"]
-        )
+        expected_harvest_date = planting_date + timedelta(days=crop_info["growth_days"])
 
         # Select growth stage
         if growth_stage is None:

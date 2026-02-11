@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class FarmStatus(str, Enum):
+class FarmStatus(StrEnum):
     """Farm operational status"""
 
     ACTIVE = "active"

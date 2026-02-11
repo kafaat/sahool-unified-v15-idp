@@ -72,7 +72,7 @@ class FileValidator:
         if not magic:
             return True
 
-        return content[:len(magic)] == magic
+        return content[: len(magic)] == magic
 
     @classmethod
     def validate_file_size(cls, size: int, file_type: str) -> bool:
@@ -97,7 +97,7 @@ class FileValidator:
 
         if len(filename) > 255:
             name, ext = filename.rsplit(".", 1) if "." in filename else (filename, "")
-            filename = name[:255 - len(ext) - 1] + "." + ext if ext else name[:255]
+            filename = name[: 255 - len(ext) - 1] + "." + ext if ext else name[:255]
 
         return filename
 
@@ -316,9 +316,9 @@ class TestGeoJSONValidation:
             "type": "Feature",
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+                "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]],
             },
-            "properties": {"name": "Test Field"}
+            "properties": {"name": "Test Field"},
         }
 
         content = json.dumps(geojson).encode()

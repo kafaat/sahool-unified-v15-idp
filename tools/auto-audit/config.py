@@ -8,11 +8,11 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 
-class Environment(str, Enum):
+class Environment(StrEnum):
     """Deployment environment"""
 
     DEVELOPMENT = "development"

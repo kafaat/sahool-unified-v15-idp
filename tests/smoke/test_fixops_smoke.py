@@ -442,8 +442,7 @@ class TestCopilotApiImports:
 
         # Handle dash in directory name
         spec = importlib.util.spec_from_file_location(
-            "copilot_main",
-            "apps/services/copilot-api/src/main.py"
+            "copilot_main", "apps/services/copilot-api/src/main.py"
         )
         if spec and spec.loader:
             module = importlib.util.module_from_spec(spec)
@@ -462,8 +461,7 @@ class TestCopilotApiImports:
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "copilot_config",
-            "apps/services/copilot-api/src/core/config.py"
+            "copilot_config", "apps/services/copilot-api/src/core/config.py"
         )
         if spec and spec.loader:
             module = importlib.util.module_from_spec(spec)

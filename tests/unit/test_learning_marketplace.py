@@ -69,10 +69,7 @@ from shared.learning_marketplace.recommendations import (
 @pytest.fixture
 def bilingual_text():
     """Create a sample bilingual text"""
-    return BilingualText(
-        en="Irrigation Basics",
-        ar="أساسيات الري"
-    )
+    return BilingualText(en="Irrigation Basics", ar="أساسيات الري")
 
 
 @pytest.fixture
@@ -82,8 +79,7 @@ def sample_quiz_question():
         id="q1",
         question_type=QuizQuestionType.MULTIPLE_CHOICE,
         question=BilingualText(
-            en="How often should wheat be irrigated?",
-            ar="كم مرة يجب ري القمح؟"
+            en="How often should wheat be irrigated?", ar="كم مرة يجب ري القمح؟"
         ),
         options=[
             BilingualText(en="Every day", ar="كل يوم"),
@@ -94,7 +90,7 @@ def sample_quiz_question():
         points=10,
         explanation=BilingualText(
             en="Wheat typically needs irrigation every 7-10 days",
-            ar="يحتاج القمح عادة للري كل 7-10 أيام"
+            ar="يحتاج القمح عادة للري كل 7-10 أيام",
         ),
     )
 
@@ -829,9 +825,7 @@ class TestCertificationEligibility:
     @pytest.mark.asyncio
     async def test_award_certification(self, tracker, sample_certification):
         """Test awarding certification"""
-        farmer_cert = await tracker.award_certification(
-            "farmer1", sample_certification, score=85
-        )
+        farmer_cert = await tracker.award_certification("farmer1", sample_certification, score=85)
 
         assert farmer_cert.farmer_id == "farmer1"
         assert farmer_cert.certification_id == "cert1"
@@ -840,9 +834,7 @@ class TestCertificationEligibility:
     @pytest.mark.asyncio
     async def test_award_certification_sets_expiry(self, tracker, sample_certification):
         """Test certification expiry is set correctly"""
-        farmer_cert = await tracker.award_certification(
-            "farmer1", sample_certification, score=80
-        )
+        farmer_cert = await tracker.award_certification("farmer1", sample_certification, score=80)
 
         assert farmer_cert.expires_at is not None
         # Should be about 365 days from now
@@ -908,17 +900,21 @@ class TestFarmerProfile:
 
     def test_overall_level_beginner(self):
         """Test overall level calculation - beginner"""
-        profile = FarmerProfile(skills=[
-            FarmerSkill(experience_points=100),
-        ])
+        profile = FarmerProfile(
+            skills=[
+                FarmerSkill(experience_points=100),
+            ]
+        )
         assert profile.overall_level == DifficultyLevel.BEGINNER
 
     def test_overall_level_intermediate(self):
         """Test overall level calculation - intermediate"""
-        profile = FarmerProfile(skills=[
-            FarmerSkill(experience_points=500),
-            FarmerSkill(experience_points=600),
-        ])
+        profile = FarmerProfile(
+            skills=[
+                FarmerSkill(experience_points=500),
+                FarmerSkill(experience_points=600),
+            ]
+        )
         assert profile.overall_level == DifficultyLevel.INTERMEDIATE
 
     def test_overall_level_no_skills(self):
@@ -1026,7 +1022,9 @@ class TestContentRecommender:
         assert all(isinstance(r, CourseRecommendation) for r in recommendations)
 
     @pytest.mark.asyncio
-    async def test_recommendations_sorted_by_score(self, recommender, sample_farmer_profile, course_catalog):
+    async def test_recommendations_sorted_by_score(
+        self, recommender, sample_farmer_profile, course_catalog
+    ):
         """Test recommendations are sorted by score"""
         recommendations = await recommender.get_recommendations(
             sample_farmer_profile,
@@ -1263,7 +1261,7 @@ class TestBilingualContentHandling:
             name=BilingualText(en="Dr. Ahmed", ar="د. أحمد"),
             credentials=[
                 BilingualText(en="PhD in Agriculture", ar="دكتوراه في الزراعة"),
-            ]
+            ],
         )
         assert expert.name.get("ar") == "د. أحمد"
         assert expert.credentials[0].get("en") == "PhD in Agriculture"
@@ -1377,9 +1375,9 @@ class TestQuizRetakes:
                         ],
                         passing_score=70,
                         attempts_allowed=3,
-                    )
+                    ),
                 )
-            ]
+            ],
         )
         lesson = course.lessons[0]
 
@@ -1419,7 +1417,7 @@ class TestIncompleteCourses:
                 Lesson(id="lesson1", course_id="course1"),
                 Lesson(id="lesson2", course_id="course1"),
                 Lesson(id="lesson3", course_id="course1"),
-            ]
+            ],
         )
 
         await tracker.enroll_course("farmer1", course)

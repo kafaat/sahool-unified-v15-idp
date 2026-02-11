@@ -35,7 +35,7 @@ MOCK_MODE = os.environ.get("EVALUATION_MOCK_MODE", "true").lower() == "true"
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     MOCK_MODE,
-    reason="Golden dataset tests require real AI agent service. Set EVALUATION_MOCK_MODE=false to run."
+    reason="Golden dataset tests require real AI agent service. Set EVALUATION_MOCK_MODE=false to run.",
 )
 class TestGoldenDataset:
     """

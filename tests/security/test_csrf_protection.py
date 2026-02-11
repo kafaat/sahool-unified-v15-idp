@@ -24,11 +24,7 @@ class CSRFTokenManager:
         timestamp = str(int(time.time()))
         random_part = secrets.token_hex(16)
         message = f"{session_id}:{timestamp}:{random_part}"
-        signature = hmac.new(
-            self.secret_key.encode(),
-            message.encode(),
-            hashlib.sha256
-        ).hexdigest()
+        signature = hmac.new(self.secret_key.encode(), message.encode(), hashlib.sha256).hexdigest()
         return f"{message}:{signature}"
 
     def validate_token(self, token: str, session_id: str) -> bool:
@@ -39,9 +35,7 @@ class CSRFTokenManager:
                 return False
             message, signature = parts
             expected_signature = hmac.new(
-                self.secret_key.encode(),
-                message.encode(),
-                hashlib.sha256
+                self.secret_key.encode(), message.encode(), hashlib.sha256
             ).hexdigest()
             if not hmac.compare_digest(signature, expected_signature):
                 return False
@@ -62,10 +56,7 @@ class CSRFTokenManager:
 @pytest.fixture
 def csrf_manager():
     """Create CSRF manager with test secret."""
-    return CSRFTokenManager(
-        secret_key="test-secret-key-for-csrf-32chars!",
-        token_expiry=3600
-    )
+    return CSRFTokenManager(secret_key="test-secret-key-for-csrf-32chars!", token_expiry=3600)
 
 
 @pytest.fixture
@@ -145,10 +136,7 @@ class TestCSRFTokenValidation:
 
     def test_validate_expired_token(self):
         """Test validation fails for expired token."""
-        manager = CSRFTokenManager(
-            secret_key="test-secret-key-for-csrf-32chars!",
-            token_expiry=1
-        )
+        manager = CSRFTokenManager(secret_key="test-secret-key-for-csrf-32chars!", token_expiry=1)
         session_id = "session123"
         token = manager.generate_token(session_id)
         time.sleep(2)

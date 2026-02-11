@@ -35,7 +35,7 @@ def check_database_indexes(repo_root: Path) -> list:
 
     for migration in migration_files:
         try:
-            content = migration.read_text(encoding='utf-8').lower()
+            content = migration.read_text(encoding="utf-8").lower()
             for col in index_columns:
                 if "index" in content and col in content:
                     found_indexes.add(col)
@@ -78,7 +78,7 @@ def check_pagination(repo_root: Path) -> list:
                 continue
 
             try:
-                content = py_file.read_text(encoding='utf-8')
+                content = py_file.read_text(encoding="utf-8")
             except Exception:
                 continue
 
@@ -86,13 +86,11 @@ def check_pagination(repo_root: Path) -> list:
             list_patterns = [
                 r'@\w+\.get\s*\(\s*["\'][^"\']*list',
                 r'@\w+\.get\s*\(\s*["\'][^"\']*all',
-                r'def\s+list_\w+',
-                r'def\s+get_all',
+                r"def\s+list_\w+",
+                r"def\s+get_all",
             ]
 
-            has_list_endpoint = any(
-                re.search(p, content, re.IGNORECASE) for p in list_patterns
-            )
+            has_list_endpoint = any(re.search(p, content, re.IGNORECASE) for p in list_patterns)
 
             if has_list_endpoint:
                 has_pagination = any(p in content.lower() for p in pagination_patterns)
@@ -125,7 +123,7 @@ def check_caching(repo_root: Path) -> list:
         if "test" in str(py_file).lower():
             continue
         try:
-            content = py_file.read_text(encoding='utf-8').lower()
+            content = py_file.read_text(encoding="utf-8").lower()
             if any(pattern in content for pattern in cache_patterns):
                 has_caching = True
                 break
@@ -164,7 +162,7 @@ def check_async_patterns(repo_root: Path) -> list:
             continue
 
         try:
-            content = main_py.read_text(encoding='utf-8')
+            content = main_py.read_text(encoding="utf-8")
         except Exception:
             continue
 
@@ -208,7 +206,7 @@ def check_n_plus_one(repo_root: Path) -> list:
             continue
 
         try:
-            content = py_file.read_text(encoding='utf-8')
+            content = py_file.read_text(encoding="utf-8")
         except Exception:
             continue
 

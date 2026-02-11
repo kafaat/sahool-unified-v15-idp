@@ -24,11 +24,11 @@ import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 
-class AnomalyType(str, Enum):
+class AnomalyType(StrEnum):
     """Types of detected anomalies"""
 
     VOLUME_SPIKE = "volume_spike"
@@ -45,7 +45,7 @@ class AnomalyType(str, Enum):
     DATA_EXFILTRATION = "data_exfiltration"
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """Anomaly severity levels"""
 
     INFO = "info"

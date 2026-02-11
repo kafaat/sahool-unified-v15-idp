@@ -26,6 +26,7 @@ import pytest
 @dataclass
 class LanguageTestResult:
     """Result of a language support test"""
+
     test_id: str
     language: str
     passed: bool
@@ -42,13 +43,13 @@ class LanguageSupportEvaluator:
     def is_arabic_text(text: str) -> bool:
         """Check if text contains Arabic characters"""
         # Arabic Unicode range: 0x0600-0x06FF
-        arabic_chars = sum(1 for char in text if '\u0600' <= char <= '\u06FF')
+        arabic_chars = sum(1 for char in text if "\u0600" <= char <= "\u06ff")
         return arabic_chars >= len(text) * 0.3  # At least 30% Arabic
 
     @staticmethod
     def is_english_text(text: str) -> bool:
         """Check if text contains English characters"""
-        english_chars = sum(1 for char in text if 'a' <= char.lower() <= 'z')
+        english_chars = sum(1 for char in text if "a" <= char.lower() <= "z")
         return english_chars >= len(text) * 0.3  # At least 30% English
 
     @staticmethod
@@ -63,8 +64,8 @@ class LanguageSupportEvaluator:
     def calculate_lexical_similarity(text1: str, text2: str) -> float:
         """Calculate lexical similarity (Jaccard index)"""
         # Tokenize
-        tokens1 = set(re.sub(r'[^\w\s]', ' ', text1.lower()).split())
-        tokens2 = set(re.sub(r'[^\w\s]', ' ', text2.lower()).split())
+        tokens1 = set(re.sub(r"[^\w\s]", " ", text1.lower()).split())
+        tokens2 = set(re.sub(r"[^\w\s]", " ", text2.lower()).split())
 
         if not tokens1 or not tokens2:
             return 0.0
@@ -89,7 +90,7 @@ ARABIC_TEST_CASES = [
         "query": "البقع الصفراء على أوراق القمح، ما المشكلة؟",
         "expected_keywords": ["مرض", "فطري", "صدأ", "علاج"],
         "expected_response_pattern": ".*مرض.*فطري.*|.*صدأ.*أوراق.*",
-        "mock_response": "البقع الصفراء على أوراق القمح تشير عادة إلى مرض فطري مثل صدأ الأوراق. ننصح بفحص الحقل والنظر في استخدام مبيد فطري مناسب."
+        "mock_response": "البقع الصفراء على أوراق القمح تشير عادة إلى مرض فطري مثل صدأ الأوراق. ننصح بفحص الحقل والنظر في استخدام مبيد فطري مناسب.",
     },
     {
         "id": "ar-irrigation-001",
@@ -98,7 +99,7 @@ ARABIC_TEST_CASES = [
         "query": "متى أسقي نباتات الطماطم في الصيف؟",
         "expected_keywords": ["ري", "رطوبة", "التربة", "صباح"],
         "expected_response_pattern": ".*ري.*|.*رطوبة.*",
-        "mock_response": "في فصل الصيف، يُنصح بري نباتات الطماطم في الصباح الباكر أو المساء. راقب رطوبة التربة وأضف الماء عندما تنخفض عن 50%."
+        "mock_response": "في فصل الصيف، يُنصح بري نباتات الطماطم في الصباح الباكر أو المساء. راقب رطوبة التربة وأضف الماء عندما تنخفض عن 50%.",
     },
     {
         "id": "ar-fertilizer-001",
@@ -107,7 +108,7 @@ ARABIC_TEST_CASES = [
         "query": "ما نوع السماد المناسب للقمح؟",
         "expected_keywords": ["سماد", "نيتروجين", "NPK", "معدل"],
         "expected_response_pattern": ".*سماد.*|.*NPK.*",
-        "mock_response": "للقمح في مرحلة النمو الخضري، استخدم سماد NPK متوازن مع التركيز على النيتروجين بمعدل 100-120 كجم للهكتار."
+        "mock_response": "للقمح في مرحلة النمو الخضري، استخدم سماد NPK متوازن مع التركيز على النيتروجين بمعدل 100-120 كجم للهكتار.",
     },
     {
         "id": "ar-pest-001",
@@ -116,7 +117,7 @@ ARABIC_TEST_CASES = [
         "query": "كيف أكافح المن على الفلفل؟",
         "expected_keywords": ["مكافحة", "مبيد", "عضوي", "نيم"],
         "expected_response_pattern": ".*مكافحة.*|.*مبيد.*",
-        "mock_response": "لمكافحة المن على الفلفل، يمكنك استخدام مبيد عضوي مثل زيت النيم أو محلول الصابون الحشري. الرش يكون في الصباح الباكر."
+        "mock_response": "لمكافحة المن على الفلفل، يمكنك استخدام مبيد عضوي مثل زيت النيم أو محلول الصابون الحشري. الرش يكون في الصباح الباكر.",
     },
     {
         "id": "ar-yield-001",
@@ -125,7 +126,7 @@ ARABIC_TEST_CASES = [
         "query": "ما الإنتاج المتوقع لحقل القمح؟",
         "expected_keywords": ["إنتاج", "طن", "هكتار", "توقع"],
         "expected_response_pattern": ".*إنتاج.*طن.*|.*توقع.*",
-        "mock_response": "بناءً على الظروف الحالية، نتوقع إنتاجية 4-5 طن للهكتار. هذا التوقع يعتمد على استمرار الرعاية المناسبة."
+        "mock_response": "بناءً على الظروف الحالية، نتوقع إنتاجية 4-5 طن للهكتار. هذا التوقع يعتمد على استمرار الرعاية المناسبة.",
     },
     {
         "id": "ar-weather-001",
@@ -134,7 +135,7 @@ ARABIC_TEST_CASES = [
         "query": "هل هناك خطر صقيع الليلة؟",
         "expected_keywords": ["صقيع", "درجة", "حرارة", "حماية"],
         "expected_response_pattern": ".*صقيع.*|.*حرارة.*",
-        "mock_response": "نعم، هناك خطر صقيع الليلة مع توقع انخفاض درجة الحرارة إلى 2 درجة مئوية. ننصح بتغطية النباتات الحساسة للحماية."
+        "mock_response": "نعم، هناك خطر صقيع الليلة مع توقع انخفاض درجة الحرارة إلى 2 درجة مئوية. ننصح بتغطية النباتات الحساسة للحماية.",
     },
     {
         "id": "ar-soil-001",
@@ -143,7 +144,7 @@ ARABIC_TEST_CASES = [
         "query": "تربتي ملحية، ماذا أزرع؟",
         "expected_keywords": ["ملوحة", "تحمل", "شعير", "نخيل"],
         "expected_response_pattern": ".*ملوحة.*|.*تحمل.*",
-        "mock_response": "للتربة الملحية، ننصح بزراعة محاصيل متحملة للملوحة مثل الشعير أو النخيل أو بعض أنواع الخضروات المتحملة."
+        "mock_response": "للتربة الملحية، ننصح بزراعة محاصيل متحملة للملوحة مثل الشعير أو النخيل أو بعض أنواع الخضروات المتحملة.",
     },
     {
         "id": "ar-field-001",
@@ -152,7 +153,7 @@ ARABIC_TEST_CASES = [
         "query": "حقلي يظهر مؤشر NDVI منخفض",
         "expected_keywords": ["NDVI", "صحة", "نباتي", "تحسين"],
         "expected_response_pattern": ".*NDVI.*|.*صحة.*نبات.*",
-        "mock_response": "مؤشر NDVI المنخفض يشير إلى إجهاد نباتي. قد يكون السبب نقص الري أو العناصر الغذائية. ننصح بفحص رطوبة التربة وتحسين التسميد."
+        "mock_response": "مؤشر NDVI المنخفض يشير إلى إجهاد نباتي. قد يكون السبب نقص الري أو العناصر الغذائية. ننصح بفحص رطوبة التربة وتحسين التسميد.",
     },
 ]
 
@@ -165,7 +166,7 @@ ENGLISH_TEST_CASES = [
         "query": "Yellow spots on wheat leaves, what's the problem?",
         "expected_keywords": ["disease", "fungal", "rust", "treatment"],
         "expected_response_pattern": ".*disease.*|.*fungal.*",
-        "mock_response": "Yellow spots on wheat leaves typically indicate a fungal disease such as leaf rust or septoria. We recommend inspecting the field and considering appropriate fungicide treatment."
+        "mock_response": "Yellow spots on wheat leaves typically indicate a fungal disease such as leaf rust or septoria. We recommend inspecting the field and considering appropriate fungicide treatment.",
     },
     {
         "id": "en-irrigation-001",
@@ -174,7 +175,7 @@ ENGLISH_TEST_CASES = [
         "query": "When should I irrigate tomato plants in summer?",
         "expected_keywords": ["irrigation", "moisture", "soil", "morning"],
         "expected_response_pattern": ".*irrigat.*|.*moisture.*",
-        "mock_response": "In summer, irrigate tomato plants in the early morning or evening. Monitor soil moisture and add water when it drops below 50%."
+        "mock_response": "In summer, irrigate tomato plants in the early morning or evening. Monitor soil moisture and add water when it drops below 50%.",
     },
     {
         "id": "en-fertilizer-001",
@@ -183,7 +184,7 @@ ENGLISH_TEST_CASES = [
         "query": "What fertilizer is suitable for wheat?",
         "expected_keywords": ["fertilizer", "nitrogen", "NPK", "rate"],
         "expected_response_pattern": ".*fertilizer.*|.*NPK.*",
-        "mock_response": "For wheat during vegetative growth, use balanced NPK fertilizer with emphasis on nitrogen at 100-120 kg per hectare rate."
+        "mock_response": "For wheat during vegetative growth, use balanced NPK fertilizer with emphasis on nitrogen at 100-120 kg per hectare rate.",
     },
     {
         "id": "en-pest-001",
@@ -192,7 +193,7 @@ ENGLISH_TEST_CASES = [
         "query": "How do I control aphids on pepper?",
         "expected_keywords": ["control", "pesticide", "organic", "neem"],
         "expected_response_pattern": ".*control.*|.*pesticide.*",
-        "mock_response": "To control aphids on pepper, you can use organic pesticides like neem oil or insecticidal soap solution. Spray in the early morning."
+        "mock_response": "To control aphids on pepper, you can use organic pesticides like neem oil or insecticidal soap solution. Spray in the early morning.",
     },
     {
         "id": "en-yield-001",
@@ -201,7 +202,7 @@ ENGLISH_TEST_CASES = [
         "query": "What is the expected yield for wheat field?",
         "expected_keywords": ["yield", "tons", "hectare", "expected"],
         "expected_response_pattern": ".*yield.*tons.*|.*expect.*",
-        "mock_response": "Based on current conditions, we expect a yield of 4-5 tons per hectare. This prediction depends on continued proper care."
+        "mock_response": "Based on current conditions, we expect a yield of 4-5 tons per hectare. This prediction depends on continued proper care.",
     },
     {
         "id": "en-weather-001",
@@ -210,7 +211,7 @@ ENGLISH_TEST_CASES = [
         "query": "Is there frost risk tonight?",
         "expected_keywords": ["frost", "temperature", "degrees", "protection"],
         "expected_response_pattern": ".*frost.*|.*temperature.*",
-        "mock_response": "Yes, there is frost risk tonight with expected temperature drop to 2 degrees Celsius. We recommend covering sensitive plants for protection."
+        "mock_response": "Yes, there is frost risk tonight with expected temperature drop to 2 degrees Celsius. We recommend covering sensitive plants for protection.",
     },
     {
         "id": "en-soil-001",
@@ -219,7 +220,7 @@ ENGLISH_TEST_CASES = [
         "query": "My soil is saline, what can I grow?",
         "expected_keywords": ["salinity", "tolerant", "barley", "palm"],
         "expected_response_pattern": ".*salin.*|.*tolerant.*",
-        "mock_response": "For saline soil, we recommend growing salt-tolerant crops such as barley, date palms, or some tolerant vegetables."
+        "mock_response": "For saline soil, we recommend growing salt-tolerant crops such as barley, date palms, or some tolerant vegetables.",
     },
     {
         "id": "en-field-001",
@@ -228,7 +229,7 @@ ENGLISH_TEST_CASES = [
         "query": "My field shows low NDVI index",
         "expected_keywords": ["NDVI", "health", "vegetation", "improve"],
         "expected_response_pattern": ".*NDVI.*|.*health.*plant.*",
-        "mock_response": "Low NDVI indicates plant stress. The cause may be lack of irrigation or nutrients. We recommend checking soil moisture and improving fertilization."
+        "mock_response": "Low NDVI indicates plant stress. The cause may be lack of irrigation or nutrients. We recommend checking soil moisture and improving fertilization.",
     },
 ]
 
@@ -259,6 +260,7 @@ def english_test_cases():
 @pytest.fixture
 def language_results_tracker():
     """Track language test results"""
+
     class ResultsTracker:
         def __init__(self):
             self.results: list[dict[str, Any]] = []
@@ -279,12 +281,17 @@ def language_results_tracker():
             return sum(1 for r in en_results if r.get("passed")) / len(en_results) * 100
 
         def save_results(self, path: Path):
-            with open(path, 'w', encoding='utf-8') as f:
-                json.dump({
-                    "results": self.results,
-                    "arabic_pass_rate": self.get_arabic_pass_rate(),
-                    "english_pass_rate": self.get_english_pass_rate(),
-                }, f, ensure_ascii=False, indent=2)
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(
+                    {
+                        "results": self.results,
+                        "arabic_pass_rate": self.get_arabic_pass_rate(),
+                        "english_pass_rate": self.get_english_pass_rate(),
+                    },
+                    f,
+                    ensure_ascii=False,
+                    indent=2,
+                )
 
     return ResultsTracker()
 
@@ -330,30 +337,30 @@ class TestArabicLanguageSupport:
 
             # Calculate keyword match
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             # Calculate similarity
-            similarity = evaluator.calculate_lexical_similarity(
-                mock_response,
-                test_case["query"]
-            )
+            similarity = evaluator.calculate_lexical_similarity(mock_response, test_case["query"])
 
             passed = is_arabic and keyword_score >= 0.5
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "ar",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_arabic,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "ar",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_arabic,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
             assert is_arabic, f"Response should be in Arabic for {test_case['id']}"
-            assert keyword_score >= 0.25, f"Should match at least 25% keywords for {test_case['id']}"
+            assert keyword_score >= 0.25, (
+                f"Should match at least 25% keywords for {test_case['id']}"
+            )
 
     def test_arabic_irrigation_advice(
         self,
@@ -368,21 +375,22 @@ class TestArabicLanguageSupport:
             mock_response = test_case["mock_response"]
             is_arabic = evaluator.is_arabic_text(mock_response)
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             passed = is_arabic and keyword_score >= 0.5
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "ar",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_arabic,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "ar",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_arabic,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
             assert is_arabic, f"Response should be in Arabic for {test_case['id']}"
 
@@ -399,23 +407,24 @@ class TestArabicLanguageSupport:
             mock_response = test_case["mock_response"]
             is_arabic = evaluator.is_arabic_text(mock_response)
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             passed = is_arabic and keyword_score >= 0.25
             if passed:
                 passed_count += 1
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "ar",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_arabic,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "ar",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_arabic,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
         pass_rate = passed_count / len(arabic_test_cases)
         assert pass_rate >= 0.75, f"Arabic pass rate {pass_rate:.0%} should be at least 75%"
@@ -456,24 +465,27 @@ class TestEnglishLanguageSupport:
 
             is_english = evaluator.is_english_text(mock_response)
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             passed = is_english and keyword_score >= 0.5
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "en",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_english,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "en",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_english,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
             assert is_english, f"Response should be in English for {test_case['id']}"
-            assert keyword_score >= 0.25, f"Should match at least 25% keywords for {test_case['id']}"
+            assert keyword_score >= 0.25, (
+                f"Should match at least 25% keywords for {test_case['id']}"
+            )
 
     def test_english_irrigation_advice(
         self,
@@ -488,21 +500,22 @@ class TestEnglishLanguageSupport:
             mock_response = test_case["mock_response"]
             is_english = evaluator.is_english_text(mock_response)
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             passed = is_english and keyword_score >= 0.5
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "en",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_english,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "en",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_english,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
             assert is_english, f"Response should be in English for {test_case['id']}"
 
@@ -519,23 +532,24 @@ class TestEnglishLanguageSupport:
             mock_response = test_case["mock_response"]
             is_english = evaluator.is_english_text(mock_response)
             keyword_score, matched_keywords = evaluator.calculate_keyword_match(
-                mock_response,
-                test_case["expected_keywords"]
+                mock_response, test_case["expected_keywords"]
             )
 
             passed = is_english and keyword_score >= 0.25
             if passed:
                 passed_count += 1
 
-            language_results_tracker.add_result({
-                "test_id": test_case["id"],
-                "language": "en",
-                "category": test_case["category"],
-                "passed": passed,
-                "accuracy_score": keyword_score,
-                "has_correct_language": is_english,
-                "keyword_matches": matched_keywords,
-            })
+            language_results_tracker.add_result(
+                {
+                    "test_id": test_case["id"],
+                    "language": "en",
+                    "category": test_case["category"],
+                    "passed": passed,
+                    "accuracy_score": keyword_score,
+                    "has_correct_language": is_english,
+                    "keyword_matches": matched_keywords,
+                }
+            )
 
         pass_rate = passed_count / len(english_test_cases)
         assert pass_rate >= 0.75, f"English pass rate {pass_rate:.0%} should be at least 75%"
@@ -559,8 +573,8 @@ class TestBilingualConsistency:
         english_test_cases,
     ):
         """Test that both languages cover same categories"""
-        ar_categories = set(tc["category"] for tc in arabic_test_cases)
-        en_categories = set(tc["category"] for tc in english_test_cases)
+        ar_categories = {tc["category"] for tc in arabic_test_cases}
+        en_categories = {tc["category"] for tc in english_test_cases}
 
         assert ar_categories == en_categories, (
             f"Both languages should cover same categories. "
@@ -587,7 +601,11 @@ class TestBilingualConsistency:
             en_words = len(en_response.split())
 
             # Word counts should be within 3x of each other
-            ratio = max(ar_words, en_words) / min(ar_words, en_words) if min(ar_words, en_words) > 0 else float('inf')
+            ratio = (
+                max(ar_words, en_words) / min(ar_words, en_words)
+                if min(ar_words, en_words) > 0
+                else float("inf")
+            )
             assert ratio <= 3.0, f"Word count ratio for {category} should be reasonable"
 
     def test_keyword_translation_coverage(
@@ -650,7 +668,9 @@ class TestArabicDialectSupport:
         for test_case in self.DIALECT_TEST_CASES:
             query = test_case["query"]
             # Should contain interrogative markers
-            has_question = any(marker in query for marker in ["ما", "إيش", "شلون", "كيف", "متى", "أين", "؟"])
+            has_question = any(
+                marker in query for marker in ["ما", "إيش", "شلون", "كيف", "متى", "أين", "؟"]
+            )
             assert has_question, f"Query '{query}' should be a question"
 
     def test_dialect_agricultural_context(self):
@@ -687,8 +707,7 @@ class TestLanguageSupportSummary:
         for tc in arabic_test_cases:
             if evaluator.is_arabic_text(tc["mock_response"]):
                 keyword_score, _ = evaluator.calculate_keyword_match(
-                    tc["mock_response"],
-                    tc["expected_keywords"]
+                    tc["mock_response"], tc["expected_keywords"]
                 )
                 if keyword_score >= 0.25:
                     ar_passed += 1
@@ -698,8 +717,7 @@ class TestLanguageSupportSummary:
         for tc in english_test_cases:
             if evaluator.is_english_text(tc["mock_response"]):
                 keyword_score, _ = evaluator.calculate_keyword_match(
-                    tc["mock_response"],
-                    tc["expected_keywords"]
+                    tc["mock_response"], tc["expected_keywords"]
                 )
                 if keyword_score >= 0.25:
                     en_passed += 1
@@ -707,12 +725,12 @@ class TestLanguageSupportSummary:
         ar_rate = ar_passed / len(arabic_test_cases) * 100
         en_rate = en_passed / len(english_test_cases) * 100
 
-        print(f"\n{'='*60}")
+        print(f"\n{'=' * 60}")
         print("Language Support Summary | ملخص دعم اللغات")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Arabic (العربية):  {ar_rate:.1f}% ({ar_passed}/{len(arabic_test_cases)} passed)")
         print(f"English:           {en_rate:.1f}% ({en_passed}/{len(english_test_cases)} passed)")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         # Both should pass at least 75%
         assert ar_rate >= 75.0, f"Arabic pass rate {ar_rate:.1f}% below 75% threshold"
@@ -720,15 +738,20 @@ class TestLanguageSupportSummary:
 
         # Save results
         results_path = Path(__file__).parent / "language-support-results.json"
-        with open(results_path, 'w', encoding='utf-8') as f:
-            json.dump({
-                "arabic_pass_rate": ar_rate,
-                "english_pass_rate": en_rate,
-                "arabic_passed": ar_passed,
-                "arabic_total": len(arabic_test_cases),
-                "english_passed": en_passed,
-                "english_total": len(english_test_cases),
-                "status": "PASSED" if ar_rate >= 75 and en_rate >= 75 else "NEEDS_IMPROVEMENT",
-            }, f, ensure_ascii=False, indent=2)
+        with open(results_path, "w", encoding="utf-8") as f:
+            json.dump(
+                {
+                    "arabic_pass_rate": ar_rate,
+                    "english_pass_rate": en_rate,
+                    "arabic_passed": ar_passed,
+                    "arabic_total": len(arabic_test_cases),
+                    "english_passed": en_passed,
+                    "english_total": len(english_test_cases),
+                    "status": "PASSED" if ar_rate >= 75 and en_rate >= 75 else "NEEDS_IMPROVEMENT",
+                },
+                f,
+                ensure_ascii=False,
+                indent=2,
+            )
 
         print(f"Results saved to: {results_path}")

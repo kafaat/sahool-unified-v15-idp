@@ -632,11 +632,11 @@ class TestRiskCalculator:
         )
 
         assert result["base_premium"] == Decimal("3500.00")  # 100000 * 0.035
-        assert result["admin_fee"] == Decimal("2000.00")     # 100000 * 0.02
-        assert result["subtotal"] == Decimal("5500.00")      # 3500 + 2000
-        assert result["tax"] == Decimal("825.00")           # 5500 * 0.15
-        assert result["gross_premium"] == Decimal("6325.00") # 5500 + 825
-        assert result["subsidy"] == Decimal("1265.00")      # 6325 * 0.20
+        assert result["admin_fee"] == Decimal("2000.00")  # 100000 * 0.02
+        assert result["subtotal"] == Decimal("5500.00")  # 3500 + 2000
+        assert result["tax"] == Decimal("825.00")  # 5500 * 0.15
+        assert result["gross_premium"] == Decimal("6325.00")  # 5500 + 825
+        assert result["subsidy"] == Decimal("1265.00")  # 6325 * 0.20
         assert result["net_premium"] == Decimal("5060.00")  # 6325 - 1265
 
     def test_calculate_deductible(self):
@@ -901,9 +901,7 @@ class TestRiskAssessmentEngine:
         assert profile.location_risk_score >= 0
 
     @pytest.mark.asyncio
-    async def test_assess_field_generates_recommendations(
-        self, weather_history, crop_profile
-    ):
+    async def test_assess_field_generates_recommendations(self, weather_history, crop_profile):
         """Test that assessment generates recommendations."""
         engine = RiskAssessmentEngine(region="saudi_arabia")
 
@@ -1115,10 +1113,12 @@ class TestClaimValidator:
         """Test validation of a valid claim."""
         validator = ClaimValidator()
         # Add second evidence to meet minimum requirement
-        sample_claim.evidence.append(ClaimEvidence(
-            evidence_type="document",
-            title="Damage Assessment Report",
-        ))
+        sample_claim.evidence.append(
+            ClaimEvidence(
+                evidence_type="document",
+                title="Damage Assessment Report",
+            )
+        )
 
         result = validator.validate(sample_claim, sample_policy)
 
@@ -1677,9 +1677,7 @@ class TestEdgeCases:
         result = sample_claim.to_dict()
         assert result["payout"] is None
 
-    def test_parametric_claim_on_traditional_policy(
-        self, sample_claim, sample_policy
-    ):
+    def test_parametric_claim_on_traditional_policy(self, sample_claim, sample_policy):
         """Test parametric claim rejected for traditional policy."""
         validator = ClaimValidator()
 
@@ -1732,9 +1730,7 @@ class TestClaimProcessor:
         assert claim.policy_id == sample_policy.id
 
     @pytest.mark.asyncio
-    async def test_add_evidence_to_claim(
-        self, sample_policy, sample_evidence, temp_storage_path
-    ):
+    async def test_add_evidence_to_claim(self, sample_policy, sample_evidence, temp_storage_path):
         """Test adding evidence to a draft claim."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(
@@ -1756,9 +1752,7 @@ class TestClaimProcessor:
         assert updated_claim.evidence[0].id == sample_evidence.id
 
     @pytest.mark.asyncio
-    async def test_submit_claim(
-        self, sample_policy, sample_evidence, temp_storage_path
-    ):
+    async def test_submit_claim(self, sample_policy, sample_evidence, temp_storage_path):
         """Test submitting a claim."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(
@@ -1780,9 +1774,7 @@ class TestClaimProcessor:
         assert claim.submitted_at is not None
 
     @pytest.mark.asyncio
-    async def test_process_parametric_trigger(
-        self, parametric_policy, temp_storage_path
-    ):
+    async def test_process_parametric_trigger(self, parametric_policy, temp_storage_path):
         """Test automatic parametric trigger processing."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(
@@ -1804,9 +1796,7 @@ class TestClaimProcessor:
         assert payout.is_approved is True
 
     @pytest.mark.asyncio
-    async def test_parametric_trigger_not_met(
-        self, parametric_policy, temp_storage_path
-    ):
+    async def test_parametric_trigger_not_met(self, parametric_policy, temp_storage_path):
         """Test parametric trigger when condition not met."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(
@@ -1826,9 +1816,7 @@ class TestClaimProcessor:
         assert payout is None
 
     @pytest.mark.asyncio
-    async def test_review_claim_approve(
-        self, sample_policy, sample_evidence, temp_storage_path
-    ):
+    async def test_review_claim_approve(self, sample_policy, sample_evidence, temp_storage_path):
         """Test reviewing and approving a claim."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(
@@ -1859,9 +1847,7 @@ class TestClaimProcessor:
         assert reviewed_claim.verified_loss_percentage == 28.0
 
     @pytest.mark.asyncio
-    async def test_review_claim_reject(
-        self, sample_policy, sample_evidence, temp_storage_path
-    ):
+    async def test_review_claim_reject(self, sample_policy, sample_evidence, temp_storage_path):
         """Test reviewing and rejecting a claim."""
         storage = ClaimStorage(temp_storage_path)
         processor = ClaimProcessor(

@@ -255,8 +255,7 @@ class TestDatasetBuilder:
         builder = DatasetBuilder()
 
         dataset = (
-            builder
-            .add_code_fix_example("x=1", "x = 1", "E225")
+            builder.add_code_fix_example("x=1", "x = 1", "E225")
             .add_code_fix_example("y=2", "y = 2", "E225")
             .build("chained", "متسلسل")
         )
@@ -518,10 +517,10 @@ class TestModelTrainer:
         trainer = ModelTrainer()
 
         # Test with higher token overlap (>70%)
-        assert trainer._check_similarity(
-            "def hello world print message",
-            "def hello world print"
-        ) is True
+        assert (
+            trainer._check_similarity("def hello world print message", "def hello world print")
+            is True
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -9,11 +9,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class ZoneType(str, Enum):
+class ZoneType(StrEnum):
     """Zone classification type"""
 
     IRRIGATION = "irrigation"

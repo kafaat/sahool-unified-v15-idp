@@ -126,9 +126,7 @@ def sample_weather_data():
                 "precipitation": 20,
             },
         ],
-        "alerts": [
-            {"type": "frost_warning", "severity": "low", "date": "2025-01-16"}
-        ],
+        "alerts": [{"type": "frost_warning", "severity": "low", "date": "2025-01-16"}],
     }
 
 
@@ -377,12 +375,8 @@ class TestCompressFieldData:
 
     def test_target_ratio_parameter(self, compressor, sample_field_data):
         """Target ratio should influence compression"""
-        result_loose = compressor.compress_field_data(
-            sample_field_data, target_ratio=0.8
-        )
-        result_tight = compressor.compress_field_data(
-            sample_field_data, target_ratio=0.2
-        )
+        result_loose = compressor.compress_field_data(sample_field_data, target_ratio=0.8)
+        result_tight = compressor.compress_field_data(sample_field_data, target_ratio=0.2)
 
         # Tight compression should generally result in smaller output
         assert result_tight.compression_ratio <= result_loose.compression_ratio
@@ -416,9 +410,7 @@ class TestCompressWeatherData:
         result_3days = compressor.compress_weather_data(
             sample_weather_data, include_forecast_days=3
         )
-        result_1day = compressor.compress_weather_data(
-            sample_weather_data, include_forecast_days=1
-        )
+        result_1day = compressor.compress_weather_data(sample_weather_data, include_forecast_days=1)
 
         # More forecast days should result in larger output
         assert result_3days.compressed_tokens >= result_1day.compressed_tokens
@@ -433,7 +425,9 @@ class TestCompressWeatherData:
         """Should include current weather conditions"""
         result = compressor.compress_weather_data(sample_weather_data)
 
-        assert "current" in result.compressed_text or "temperature" in result.compressed_text.lower()
+        assert (
+            "current" in result.compressed_text or "temperature" in result.compressed_text.lower()
+        )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -463,9 +457,7 @@ class TestCompressHistory:
     def test_preserve_recent_entries(self, compressor, sample_history):
         """Should preserve recent entries fully"""
         preserve_count = 2
-        result = compressor.compress_history(
-            sample_history, preserve_recent=preserve_count
-        )
+        result = compressor.compress_history(sample_history, preserve_recent=preserve_count)
 
         assert result.metadata["recent_preserved"] == preserve_count
 
@@ -560,12 +552,8 @@ class TestCompressArabicText:
         ري الحقل بانتظام مهم جداً. لا تترك الحقل بدون ماء لفترات طويلة.
         استخدم تقنيات الري الحديثة للحصول على أفضل النتائج.
         """
-        result_preserve = compressor.compress_arabic_text(
-            arabic_text, preserve_meaning=True
-        )
-        result_aggressive = compressor.compress_arabic_text(
-            arabic_text, preserve_meaning=False
-        )
+        result_preserve = compressor.compress_arabic_text(arabic_text, preserve_meaning=True)
+        result_aggressive = compressor.compress_arabic_text(arabic_text, preserve_meaning=False)
 
         assert result_preserve.metadata["meaning_preserved"] is True
         assert result_aggressive.metadata["meaning_preserved"] is False
@@ -697,9 +685,7 @@ class TestCompressionEdgeCases:
         ]
 
         for strategy in strategies:
-            result = compressor.compress_field_data(
-                sample_field_data, strategy=strategy
-            )
+            result = compressor.compress_field_data(sample_field_data, strategy=strategy)
             assert result.strategy == strategy
             assert result.original_tokens > 0
 
@@ -756,9 +742,7 @@ class TestCompressionRatios:
         )
         assert result.compression_ratio <= 1.0
 
-    def test_compression_never_increases_beyond_original(
-        self, compressor, sample_field_data
-    ):
+    def test_compression_never_increases_beyond_original(self, compressor, sample_field_data):
         """Compressed should never exceed original"""
         result = compressor.compress_field_data(sample_field_data)
         assert result.compressed_tokens <= result.original_tokens

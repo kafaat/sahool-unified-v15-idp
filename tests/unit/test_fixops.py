@@ -102,7 +102,7 @@ class TestSignalCollector:
             collector = SignalCollector(repo_root=Path(tmpdir))
             assert collector.repo_root == Path(tmpdir)
 
-    @patch.dict('os.environ', {'GITHUB_ACTIONS': 'true', 'GITHUB_RUN_ID': '12345'})
+    @patch.dict("os.environ", {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ID": "12345"})
     def test_collect_github_actions_signal(self):
         """Test GitHub Actions signal collection."""
         from tools.fixops.signals import SignalCollector
@@ -139,9 +139,7 @@ class TestSignalCollector:
         from tools.fixops.signals import SignalCollector, LocalSignal
 
         collector = SignalCollector()
-        collector._local_signals.append(
-            LocalSignal(tool="test", issues=[])
-        )
+        collector._local_signals.append(LocalSignal(tool="test", issues=[]))
 
         assert len(collector._local_signals) == 1
 

@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class RecommendationType(str, Enum):
+class RecommendationType(StrEnum):
     """Type of recommendation"""
 
     IRRIGATION = "irrigation"
@@ -24,7 +24,7 @@ class RecommendationType(str, Enum):
     GENERAL = "general"
 
 
-class ConfidenceLevel(str, Enum):
+class ConfidenceLevel(StrEnum):
     """AI confidence level"""
 
     HIGH = "high"

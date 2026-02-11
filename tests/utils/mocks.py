@@ -77,9 +77,7 @@ class MockDatabase:
         del self._store[table][record_id]
         return True
 
-    async def query(
-        self, table: str, filters: dict | None = None, limit: int = 100
-    ) -> list[dict]:
+    async def query(self, table: str, filters: dict | None = None, limit: int = 100) -> list[dict]:
         """Query records with optional filters."""
         if table not in self._store:
             return []
@@ -139,17 +137,13 @@ class MockEventPublisher:
         self._published_events.append((subject, event))
         return True
 
-    async def _mock_publish_batch(
-        self, events: list[tuple[str, Any]], **kwargs
-    ) -> int:
+    async def _mock_publish_batch(self, events: list[tuple[str, Any]], **kwargs) -> int:
         """Mock batch publish."""
         for subject, event in events:
             self._published_events.append((subject, event))
         return len(events)
 
-    async def _mock_publish_json(
-        self, subject: str, data: dict, **kwargs
-    ) -> bool:
+    async def _mock_publish_json(self, subject: str, data: dict, **kwargs) -> bool:
         """Mock publish JSON."""
         self._published_events.append((subject, data))
         return True
@@ -216,9 +210,11 @@ class MockRedisClient:
 
         if ex:
             import time
+
             self._expiry[key] = time.time() + ex
         elif px:
             import time
+
             self._expiry[key] = time.time() + (px / 1000)
 
         return True
@@ -247,6 +243,7 @@ class MockRedisClient:
         if key not in self._store:
             return False
         import time
+
         self._expiry[key] = time.time() + seconds
         return True
 
@@ -257,6 +254,7 @@ class MockRedisClient:
         if key not in self._expiry:
             return -1
         import time
+
         remaining = int(self._expiry[key] - time.time())
         return max(0, remaining)
 
@@ -349,6 +347,7 @@ class MockRedisClient:
         """Check and remove expired keys."""
         if key in self._expiry:
             import time
+
             if time.time() > self._expiry[key]:
                 del self._store[key]
                 del self._expiry[key]

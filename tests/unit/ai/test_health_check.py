@@ -240,6 +240,7 @@ class TestHealthChecker:
     def test_create_checker(self):
         """Test creating a health checker."""
         from pathlib import Path
+
         checker = HealthChecker(working_dir="/tmp")
 
         assert checker.working_dir == Path("/tmp")
@@ -345,10 +346,14 @@ class TestHealthChecker:
         with patch.object(checker, "_check_port", new_callable=AsyncMock) as mock_port:
             mock_port.return_value = (True, 5.0)
 
-            with patch.object(checker, "check_docker_containers", new_callable=AsyncMock) as mock_docker:
+            with patch.object(
+                checker, "check_docker_containers", new_callable=AsyncMock
+            ) as mock_docker:
                 mock_docker.return_value = []
 
-                with patch.object(checker, "check_python_dependencies", new_callable=AsyncMock) as mock_py:
+                with patch.object(
+                    checker, "check_python_dependencies", new_callable=AsyncMock
+                ) as mock_py:
                     mock_py.return_value = HealthCheckResult(
                         component="Python Dependencies",
                         component_type=ComponentType.DEPENDENCY,
@@ -357,7 +362,9 @@ class TestHealthChecker:
                         message_ar="تمام",
                     )
 
-                    with patch.object(checker, "check_node_dependencies", new_callable=AsyncMock) as mock_node:
+                    with patch.object(
+                        checker, "check_node_dependencies", new_callable=AsyncMock
+                    ) as mock_node:
                         mock_node.return_value = HealthCheckResult(
                             component="Node.js Dependencies",
                             component_type=ComponentType.DEPENDENCY,
@@ -378,10 +385,12 @@ class TestHealthChecker:
 
         with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
-            mock_process.communicate = AsyncMock(return_value=(
-                b'{"Name":"postgres","State":"running","Health":""}\n{"Name":"redis","State":"running","Health":""}',
-                b""
-            ))
+            mock_process.communicate = AsyncMock(
+                return_value=(
+                    b'{"Name":"postgres","State":"running","Health":""}\n{"Name":"redis","State":"running","Health":""}',
+                    b"",
+                )
+            )
             mock_proc.return_value = mock_process
 
             results = await checker.check_docker_containers()
@@ -418,15 +427,17 @@ class TestQuickHealthCheck:
             "run_full_health_check",
             new_callable=AsyncMock,
         ) as mock_check:
-            mock_check.return_value = HealthReport(results=[
-                HealthCheckResult(
-                    component="test",
-                    component_type=ComponentType.SERVICE,
-                    status=HealthStatus.HEALTHY,
-                    message="OK",
-                    message_ar="تمام",
-                ),
-            ])
+            mock_check.return_value = HealthReport(
+                results=[
+                    HealthCheckResult(
+                        component="test",
+                        component_type=ComponentType.SERVICE,
+                        status=HealthStatus.HEALTHY,
+                        message="OK",
+                        message_ar="تمام",
+                    ),
+                ]
+            )
 
             report = await quick_health_check()
 

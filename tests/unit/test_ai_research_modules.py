@@ -22,6 +22,7 @@ from unittest.mock import MagicMock, patch
 # GRPO Trainer Tests
 # =============================================================================
 
+
 class TestGRPOConfig:
     """Tests for GRPO configuration."""
 
@@ -133,10 +134,12 @@ class TestGRPOTrainer:
         """Test DeepSeek V3.2 off-policy sequence masking."""
         from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOSample
 
-        trainer = GRPOTrainer(GRPOConfig(
-            off_policy_masking=True,
-            off_policy_threshold=0.5,
-        ))
+        trainer = GRPOTrainer(
+            GRPOConfig(
+                off_policy_masking=True,
+                off_policy_threshold=0.5,
+            )
+        )
 
         # Sample with negative advantage and high divergence
         sample = GRPOSample(
@@ -160,10 +163,12 @@ class TestGRPOTrainer:
         """Test Dr.GRPO: normalize by mean abs, not std."""
         from shared.ai.grpo_trainer import GRPOTrainer, GRPOConfig, GRPOBatch, GRPOSample
 
-        trainer = GRPOTrainer(GRPOConfig(
-            normalize_advantages=True,
-            normalize_by_std=False,  # Dr.GRPO
-        ))
+        trainer = GRPOTrainer(
+            GRPOConfig(
+                normalize_advantages=True,
+                normalize_by_std=False,  # Dr.GRPO
+            )
+        )
 
         samples = [
             GRPOSample(prompt="test", response="r1", reward=1.0, log_prob=-1.0, ref_log_prob=-1.0),
@@ -232,6 +237,7 @@ class TestSAHOOLGRPOTrainer:
 # =============================================================================
 # Diffusion Advisory Generator Tests
 # =============================================================================
+
 
 class TestDiffusionConfig:
     """Tests for Diffusion configuration."""
@@ -360,6 +366,7 @@ class TestDiffusionAdvisoryGenerator:
 # OT Embeddings Tests
 # =============================================================================
 
+
 class TestOTConfig:
     """Tests for OT configuration."""
 
@@ -481,6 +488,7 @@ class TestBilingualOTMatcher:
 # Hardware Optimizer Tests
 # =============================================================================
 
+
 class TestHardwareProfile:
     """Tests for Hardware Profile."""
 
@@ -600,6 +608,7 @@ class TestHardwareAwareOptimizer:
 # =============================================================================
 # Integration Tests
 # =============================================================================
+
 
 class TestIntegration:
     """Integration tests across modules."""

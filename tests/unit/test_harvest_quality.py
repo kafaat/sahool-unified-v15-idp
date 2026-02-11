@@ -1329,9 +1329,7 @@ class TestIntegrationScenarios:
 
         # Calculate price
         pricing_engine = QualityPricingEngine()
-        price_calc = pricing_engine.calculate_price_for_test_record(
-            graded_record, 1000
-        )
+        price_calc = pricing_engine.calculate_price_for_test_record(graded_record, 1000)
 
         assert price_calc.final_price > 0
         assert price_calc.quantity == 1000

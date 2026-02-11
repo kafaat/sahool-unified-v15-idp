@@ -153,9 +153,7 @@ class TestTaskExecution:
 
     def test_create_execution(self):
         """Test creating task execution"""
-        from shared.ai.experience_learning import (
-            TaskExecution, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
 
         steps = [
             ExecutionStep(step_number=1, action="step1", duration_ms=100),
@@ -183,9 +181,7 @@ class TestTaskExecution:
 
     def test_execution_to_dict(self):
         """Test execution serialization to dict"""
-        from shared.ai.experience_learning import (
-            TaskExecution, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
 
         execution = TaskExecution(
             id="exec-002",
@@ -379,14 +375,14 @@ class TestExperienceStore:
     def store(self):
         """Create a fresh store for each test"""
         from shared.ai.experience_learning import ExperienceStore
+
         return ExperienceStore()
 
     @pytest.fixture
     def sample_execution(self):
         """Create a sample execution"""
-        from shared.ai.experience_learning import (
-            TaskExecution, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
+
         return TaskExecution(
             id="test-exec-001",
             task_type="irrigation_advisory",
@@ -419,9 +415,7 @@ class TestExperienceStore:
     @pytest.mark.asyncio
     async def test_get_executions_by_type(self, store):
         """Test getting executions by task type"""
-        from shared.ai.experience_learning import (
-            TaskExecution, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
 
         # Store multiple executions
         for i in range(3):
@@ -446,9 +440,7 @@ class TestExperienceStore:
     @pytest.mark.asyncio
     async def test_get_executions_by_type_with_status_filter(self, store):
         """Test filtering executions by status"""
-        from shared.ai.experience_learning import (
-            TaskExecution, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import TaskExecution, ExecutionStep, ExecutionStatus
 
         # Store success and failure
         success_exec = TaskExecution(
@@ -581,6 +573,7 @@ class TestExperienceLearner:
     def learner(self):
         """Create a fresh learner for each test"""
         from shared.ai.experience_learning import ExperienceLearner
+
         return ExperienceLearner()
 
     @pytest.mark.asyncio
@@ -704,9 +697,7 @@ class TestExperienceLearner:
     @pytest.mark.asyncio
     async def test_failed_execution_updates_sop(self, learner):
         """Test that failed execution updates SOP statistics"""
-        from shared.ai.experience_learning import (
-            ExecutionStep, ExecutionStatus, SOPConfidence
-        )
+        from shared.ai.experience_learning import ExecutionStep, ExecutionStatus, SOPConfidence
 
         # Create successful executions to generate SOP
         for i in range(5):
@@ -794,7 +785,10 @@ class TestSOPConfidenceProgression:
     async def test_confidence_increases_with_successes(self):
         """Test SOP confidence increases with more successes"""
         from shared.ai.experience_learning import (
-            ExperienceLearner, ExecutionStep, ExecutionStatus, SOPConfidence
+            ExperienceLearner,
+            ExecutionStep,
+            ExecutionStatus,
+            SOPConfidence,
         )
 
         learner = ExperienceLearner()
@@ -835,7 +829,7 @@ class TestSOPConfidenceProgression:
             steps = [ExecutionStep(step_number=1, action="test", duration_ms=100)]
             await learner.record_execution(
                 task_type="confidence_test",
-                task_description=f"Test {i+4}",
+                task_description=f"Test {i + 4}",
                 steps=steps,
                 status=ExecutionStatus.SUCCESS,
                 context={},
@@ -853,18 +847,13 @@ class TestArabicSupport:
     @pytest.mark.asyncio
     async def test_arabic_task_description(self):
         """Test storing and retrieving Arabic task descriptions"""
-        from shared.ai.experience_learning import (
-            ExperienceLearner, ExecutionStep, ExecutionStatus
-        )
+        from shared.ai.experience_learning import ExperienceLearner, ExecutionStep, ExecutionStatus
 
         learner = ExperienceLearner()
 
         steps = [
             ExecutionStep(
-                step_number=1,
-                action="check_soil",
-                action_ar="فحص التربة",
-                duration_ms=100
+                step_number=1, action="check_soil", action_ar="فحص التربة", duration_ms=100
             )
         ]
 

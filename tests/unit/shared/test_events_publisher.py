@@ -465,9 +465,7 @@ class TestSingletonPublisher:
                     mock_nc = AsyncMock()
                     mock_nats.connect = AsyncMock(return_value=mock_nc)
 
-                    publisher = await get_publisher(
-                        service_name="test", service_version="1.0"
-                    )
+                    publisher = await get_publisher(service_name="test", service_version="1.0")
 
                     assert publisher is not None
 

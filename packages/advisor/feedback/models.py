@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from uuid import uuid4
 
 
-class FeedbackType(str, Enum):
+class FeedbackType(StrEnum):
     """Type of feedback"""
 
     HELPFUL = "helpful"

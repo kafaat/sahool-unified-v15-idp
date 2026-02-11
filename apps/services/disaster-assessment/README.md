@@ -259,9 +259,23 @@ GET /healthz
 
 Response:
 {
-    "status": "healthy",
+    "status": "ok",
     "service": "disaster-assessment",
-    "version": "16.0.0"
+    "version": "16.0.0",
+    "timestamp": "2024-01-15T10:30:00.000Z"
+}
+
+GET /readyz
+
+Response:
+{
+    "status": "ready",
+    "service": "disaster-assessment",
+    "version": "16.0.0",
+    "checks": {
+        "database": "connected"
+    },
+    "timestamp": "2024-01-15T10:30:00.000Z"
 }
 ```
 

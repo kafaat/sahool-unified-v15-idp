@@ -12,7 +12,6 @@ Updated: January 2026
 from __future__ import annotations
 
 import json
-import os
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -22,7 +21,7 @@ from typing import Any, Optional
 
 import structlog
 
-from .signals import CISignal, LocalSignal, SignalCollector
+from .signals import SignalCollector
 
 # Import Auto-Fix Engine for integration
 try:

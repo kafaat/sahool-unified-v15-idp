@@ -546,7 +546,7 @@ class SoilTrendAnalyzer:
         if mean == 0:
             return "stable", "مستقر"
 
-        cv = (std_dev / mean) * 100 if mean != 0 else 0
+        (std_dev / mean) * 100 if mean != 0 else 0
         slope_percent = (slope / mean) * 100 if mean != 0 else 0
 
         if abs(slope_percent) < 2 or abs(slope) < self.config.slope_threshold:

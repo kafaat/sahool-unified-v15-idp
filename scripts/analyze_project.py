@@ -305,7 +305,7 @@ async def main():
         print(f"❌ المسار غير موجود: {root_path}")
         sys.exit(1)
 
-    results = await analyzer.scan_directory(root_path, max_files=args.max_files)
+    await analyzer.scan_directory(root_path, max_files=args.max_files)
     report = analyzer.generate_report(args.output)
 
     print(report)

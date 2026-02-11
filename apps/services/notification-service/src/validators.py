@@ -357,8 +357,8 @@ class ValidatedPreferences(BaseModel):
     def validate_quiet_hours(self) -> ValidatedPreferences:
         """Validate quiet hours range."""
         if self.quiet_hours_start and self.quiet_hours_end:
-            start = datetime.strptime(self.quiet_hours_start, "%H:%M").time()
-            end = datetime.strptime(self.quiet_hours_end, "%H:%M").time()
+            datetime.strptime(self.quiet_hours_start, "%H:%M").time()
+            datetime.strptime(self.quiet_hours_end, "%H:%M").time()
 
             # Quiet hours can span midnight (e.g., 22:00 to 06:00)
             # This is valid, so no additional validation needed

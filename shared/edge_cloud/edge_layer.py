@@ -728,7 +728,7 @@ class EdgeComputingLayer:
                 # Execute irrigation
                 pass
         """
-        start_time = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Convert readings to dict format
         if isinstance(data, list):

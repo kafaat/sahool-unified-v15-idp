@@ -198,7 +198,7 @@ class SensorDataProcessor:
         z_score = abs(reading.value - avg) / std if std > 0 else 0
 
         if z_score > 3:
-            sensor = self._sensors.get(reading.sensor_id)
+            self._sensors.get(reading.sensor_id)
             return SensorAlert(
                 alert_id=f"anomaly_{uuid.uuid4().hex[:8]}",
                 sensor_id=reading.sensor_id,

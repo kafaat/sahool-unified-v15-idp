@@ -275,8 +275,8 @@ def _compute_list_delta(
     changes: list[DeltaChange] = []
 
     # For simple values, track additions and removals
-    old_set = {str(item) for item in old_list if not isinstance(item, (dict, list))}
-    new_set = {str(item) for item in new_list if not isinstance(item, (dict, list))}
+    {str(item) for item in old_list if not isinstance(item, (dict, list))}
+    {str(item) for item in new_list if not isinstance(item, (dict, list))}
 
     # Determine if we should use full replacement or incremental
     if len(old_list) > 100 or len(new_list) > 100:
@@ -698,7 +698,7 @@ class DeltaSyncManager:
             )
 
         # Verify checksum of base
-        current_checksum = compute_checksum(current_data)
+        compute_checksum(current_data)
 
         try:
             # Apply delta

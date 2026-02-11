@@ -241,7 +241,7 @@ class WeChatMCPClient:
         """
         try:
             start = time.time()
-            result = await self._send_mcp_request("ping", {})
+            await self._send_mcp_request("ping", {})
             latency = (time.time() - start) * 1000
 
             return {

@@ -645,7 +645,7 @@ class KongConnectivityTester:
             if output_file:
                 # Save text report
                 with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(f"SAHOOL Kong Connectivity Test Report\n")
+                    f.write("SAHOOL Kong Connectivity Test Report\n")
                     f.write(f"{'=' * 40}\n\n")
                     f.write(f"Timestamp: {self.report.timestamp}\n")
                     f.write(f"Total: {self.report.total_tests}, Passed: {self.report.passed}, ")

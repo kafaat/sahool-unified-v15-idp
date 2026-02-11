@@ -439,7 +439,6 @@ class TestCopilotApiImports:
     def test_import_main(self):
         """Test main app imports."""
         import importlib.util
-        import sys
 
         # Handle dash in directory name
         spec = importlib.util.spec_from_file_location(
@@ -461,7 +460,6 @@ class TestCopilotApiImports:
     def test_import_config(self):
         """Test config imports."""
         import importlib.util
-        import sys
 
         spec = importlib.util.spec_from_file_location(
             "copilot_config",

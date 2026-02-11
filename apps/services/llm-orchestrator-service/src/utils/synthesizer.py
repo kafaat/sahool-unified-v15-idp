@@ -111,7 +111,7 @@ class ResponseSynthesizer:
         تجميع استجابة كاملة من نتائج الوكلاء.
         """
         request_id = request_id or str(uuid.uuid4())
-        start_time = datetime.utcnow()
+        datetime.utcnow()
 
         # Calculate totals
         successful_results = [r for r in agent_results if r.success]

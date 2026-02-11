@@ -632,7 +632,6 @@ class HashChainValidator:
 def generate_markdown_report(report: ValidationReport) -> str:
     """Generate markdown validation report"""
     status_icon = "VALID" if report.is_valid else "INTEGRITY ISSUES DETECTED"
-    status_color = "green" if report.is_valid else "red"
 
     lines = [
         "# SAHOOL Hash Chain Validation Report",

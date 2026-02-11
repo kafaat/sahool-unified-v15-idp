@@ -12,7 +12,6 @@ Usage:
     python fix_python_dockerfiles.py
 """
 
-import os
 import re
 from pathlib import Path
 from typing import List, Tuple
@@ -144,7 +143,7 @@ def main():
             original_content = f.read()
         
         if not needs_update(original_content):
-            print(f"   ⏭️  Already has resilient pattern, skipping.\n")
+            print("   ⏭️  Already has resilient pattern, skipping.\n")
             skipped_count += 1
             continue
         
@@ -153,14 +152,14 @@ def main():
         if modified:
             with open(dockerfile, 'w', encoding='utf-8') as f:
                 f.write(updated_content)
-            print(f"   ✅ Updated with resilient fallback pattern\n")
+            print("   ✅ Updated with resilient fallback pattern\n")
             updated_count += 1
         else:
-            print(f"   ⚠️  No matching patterns found, skipping.\n")
+            print("   ⚠️  No matching patterns found, skipping.\n")
             skipped_count += 1
     
     print("=" * 60)
-    print(f"📊 Summary:")
+    print("📊 Summary:")
     print(f"   Updated: {updated_count}")
     print(f"   Skipped: {skipped_count}")
     print(f"   Total:   {len(dockerfiles)}")

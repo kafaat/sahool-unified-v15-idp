@@ -276,7 +276,7 @@ def _collect_field_data(
                 metadata = exporter._get_field_metadata(field_id)
                 ndvi_history = exporter._get_ndvi_history(field_id, date_range)
                 sensor_readings = exporter._get_sensor_readings(field_id, date_range)
-                weather_data = exporter._get_weather_data(field_id, date_range)
+                exporter._get_weather_data(field_id, date_range)
 
                 # Combine into exportable records
                 # دمج في سجلات قابلة للتصدير
@@ -1038,7 +1038,7 @@ def _upload_to_storage(
     """
     # Get storage configuration from environment
     storage_bucket = os.environ.get("SAHOOL_EXPORTS_BUCKET", "sahool-exports")
-    storage_region = os.environ.get("SAHOOL_AWS_REGION", "me-south-1")
+    os.environ.get("SAHOOL_AWS_REGION", "me-south-1")
 
     # Generate storage path with date-based partitioning
     date_partition = datetime.utcnow().strftime("%Y/%m/%d")

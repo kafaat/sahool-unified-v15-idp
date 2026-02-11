@@ -526,7 +526,7 @@ class AdaptiveRetriever(Retriever):
         has_question_word = any(w.lower() in question_words for w in words)
 
         # Check for technical terms or specific patterns
-        has_special_chars = bool(re.search(r"[:\-_/\\.]", query))
+        bool(re.search(r"[:\-_/\\.]", query))
 
         if num_words <= 3 and not has_question_word:
             return "keyword"

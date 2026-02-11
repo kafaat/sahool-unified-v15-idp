@@ -768,7 +768,7 @@ class RetentionManager:
         Get summary of retention status.
         الحصول على ملخص حالة الاحتفاظ
         """
-        now = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Count entries by retention status
         total = len(self._entries)

@@ -476,7 +476,7 @@ class FertigationEngine:
         remaining_n = n_kg * area_ha
         remaining_p = p_kg * area_ha
         remaining_k = k_kg * area_ha
-        ec_budget = max_ec - ec_water
+        max_ec - ec_water
 
         # Helper: pick preferred fertilizer with nutrient, or fallback to default
         def _pick_fert(nutrient: str, default: FertilizerType) -> FertilizerType:

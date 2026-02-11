@@ -421,7 +421,7 @@ class WorkflowEngine:
         items = loop_config.get("items") or ctx.variables.get(
             loop_config.get("items_var", "items"), []
         )
-        body_step = loop_config.get("body_step")
+        loop_config.get("body_step")
         max_iterations = loop_config.get("max_iterations", 100)
 
         results = []

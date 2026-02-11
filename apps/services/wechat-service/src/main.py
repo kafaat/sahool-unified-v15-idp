@@ -987,7 +987,7 @@ async def fetch_messages(
 
     # Try cache first
     cache_key = f"wechat:messages:{fetch_request.tenant_id}:{chat_id}"
-    cached = await cache_get(cache_key)
+    await cache_get(cache_key)
 
     # Simulate fetching messages (in production, call WeChat API)
     if chat_id not in messages:

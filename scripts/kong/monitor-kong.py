@@ -400,7 +400,7 @@ class KongMonitor:
         # Send Slack alert
         if self.alert_config.slack_webhook:
             slack_payload = {
-                "text": f":warning: *SAHOOL Alert* - Service Down",
+                "text": ":warning: *SAHOOL Alert* - Service Down",
                 "attachments": [
                     {
                         "color": "danger",

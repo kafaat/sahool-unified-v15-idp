@@ -1746,7 +1746,7 @@ Create an advisory plan as JSON array."""
         logger.info("generating_report", farm_id=farm_id)
 
         # Gather all gathered data from steps
-        gathered_data = getattr(self, "_gathered_data", {})
+        getattr(self, "_gathered_data", {})
 
         report = {
             "report_id": str(uuid.uuid4()),

@@ -309,7 +309,7 @@ async def ussd_callback(request: Request):
 
     session_id = data.get("sessionId", data.get("session_id", ""))
     phone_number = data.get("phoneNumber", data.get("msisdn", ""))
-    service_code = data.get("serviceCode", data.get("service_code", "*384#"))
+    data.get("serviceCode", data.get("service_code", "*384#"))
     text = data.get("text", "")
 
     logger.info(f"USSD request: phone={phone_number}, text={text}")
@@ -439,7 +439,7 @@ async def send_bulk_sms(request: Request):
     phone_numbers = data.get("phone_numbers", [])
     message = data.get("message")
     message_ar = data.get("message_ar")
-    tenant_id = data.get("tenant_id")
+    data.get("tenant_id")
 
     if not phone_numbers or not (message or message_ar):
         return {"success": False, "error": "Missing phone_numbers or message"}
@@ -726,7 +726,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
 
         # Get phone number from tenant/user
         tenant_id = data.get("tenant_id")
-        equipment_id = data.get("equipment_id")
+        data.get("equipment_id")
 
         # Build SMS message
         title_ar = data.get("title_ar", "تنبيه من سهول")

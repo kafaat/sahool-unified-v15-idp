@@ -998,8 +998,8 @@ class WeatherAlertGenerator:
 
         # Simple ET calculation (more sophisticated in real implementation)
         avg_temp = sum(f.temperature for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        avg_humidity = sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        avg_wind = sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
 
         # Simplified Hargreaves ET (reference ET)
         expected_et_mm = max(0.0023 * (avg_temp + 17.8) * 7, 0) * 3  # 3 days

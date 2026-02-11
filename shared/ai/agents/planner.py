@@ -860,7 +860,7 @@ class PlannerAgent(BaseAutonomousAgent):
         logger.info("generating_plan_document", title=title)
 
         # Gather data from previous steps
-        gathered = getattr(self, "gathered_data", {})
+        getattr(self, "gathered_data", {})
 
         plan = ExecutionPlan(
             plan_id=str(uuid.uuid4()),

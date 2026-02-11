@@ -4,7 +4,6 @@ Add 'from __future__ import annotations' to Python files that need it.
 This script scans for files using PEP 604 union syntax (X | Y) without the required import.
 """
 
-import os
 import re
 from pathlib import Path
 

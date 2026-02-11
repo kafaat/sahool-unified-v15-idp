@@ -233,7 +233,7 @@ Type "عربي" to switch to Arabic.""",
                 "label_ar" if is_arabic else "label", detection.get("label", "Unknown")
             )
             confidence = detection.get("confidence", 0) * 100
-            category = detection.get("category", "")
+            detection.get("category", "")
 
             if is_arabic:
                 response_parts.append(f"{i}. **{label}** (ثقة: {confidence:.0f}%)")

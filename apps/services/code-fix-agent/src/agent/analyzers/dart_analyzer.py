@@ -342,7 +342,7 @@ class DartAnalyzer(BaseAnalyzer):
     async def check_flutter_patterns(self, code: str) -> list[AnalysisIssue]:
         """التحقق من أنماط Flutter"""
         issues: list[AnalysisIssue] = []
-        lines = code.split("\n")
+        code.split("\n")
 
         # Check if this is a Flutter file
         if "flutter" not in code.lower() and "widget" not in code.lower():

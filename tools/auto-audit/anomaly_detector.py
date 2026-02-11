@@ -563,7 +563,7 @@ class AuditAnomalyDetector:
 
             # Check for suspicious sequences
             for pattern in self.SUSPICIOUS_ACTION_SEQUENCES:
-                pattern_str = "->".join(pattern)
+                "->".join(pattern)
                 for i in range(len(actions) - len(pattern) + 1):
                     window = actions[i : i + len(pattern)]
                     # Fuzzy match - check if actions contain the pattern

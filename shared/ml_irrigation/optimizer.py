@@ -344,7 +344,7 @@ class WaterOptimizer:
         # Calculate statistics from historical data
         amounts = [r.amount_mm for r in records]
         mean_amount = statistics.mean(amounts)
-        std_amount = statistics.stdev(amounts) if len(amounts) > 1 else 0
+        statistics.stdev(amounts) if len(amounts) > 1 else 0
 
         # Detect consumption anomalies
         if current_reading is not None and mean_amount > 0:

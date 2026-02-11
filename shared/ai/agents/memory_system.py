@@ -470,13 +470,13 @@ class MemoryStore:
         deleted = False
 
         if memory_id in self.episodic:
-            memory = self.episodic.pop(memory_id)
+            self.episodic.pop(memory_id)
             deleted = True
         elif memory_id in self.semantic:
-            memory = self.semantic.pop(memory_id)
+            self.semantic.pop(memory_id)
             deleted = True
         elif memory_id in self.procedural:
-            memory = self.procedural.pop(memory_id)
+            self.procedural.pop(memory_id)
             deleted = True
 
         if deleted:

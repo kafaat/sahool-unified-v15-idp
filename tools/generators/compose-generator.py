@@ -44,7 +44,7 @@ def generate_service_compose(name: str, config: dict) -> dict:
                 "CMD",
                 "curl",
                 "-f",
-                f"http://localhost:{port}{config.get('health_endpoint', '/health')}",
+                f"http://localhost:{port}{config.get('health_endpoint', '/healthz')}",
             ],
             "interval": "30s",
             "timeout": "10s",

@@ -60,6 +60,14 @@ dev = [
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+exclude = [
+    "idp/templates/**",  # Jinja2 templates, not valid Python
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "*.egg-info",
+]
 
 [tool.ruff.lint]
 select = ["E","F","I","UP","B","SIM","N","W","C4"]

@@ -895,7 +895,9 @@ All endpoints (except health checks) require JWT authentication.
 | `GET` | `/api/v1/disasters/risk/flood` | Flood risk | Yes |
 | `GET` | `/api/v1/disasters/risk/drought` | Drought risk | Yes |
 | `GET` | `/api/v1/disasters/stats/summary` | Get stats summary | Yes |
-| `GET` | `/api/v1/disasters/health` | Health check | No |
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/api/v1/disasters/health` | Health check (legacy) | No |
 | `GET` | `/api/v1/alerts` | List alerts | Yes |
 | `GET` | `/api/v1/alerts/weather` | Weather alerts | Yes |
 | `GET` | `/api/v1/alerts/pest-disease` | Pest/disease alerts | Yes |

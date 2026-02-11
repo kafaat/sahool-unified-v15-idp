@@ -359,7 +359,42 @@ GET /api/v1/disasters/stats/summary?year=2024&governorate=hadramaut
 
 ---
 
-#### 8. Health Check
+#### 8. Health Checks
+
+**Kubernetes-Standard Endpoints:**
+
+```http
+GET /healthz
+```
+
+**Response Schema:**
+```json
+{
+  "status": "ok",
+  "service": "disaster-assessment",
+  "version": "16.0.0",
+  "timestamp": "2024-12-18T10:00:00.000Z"
+}
+```
+
+```http
+GET /readyz
+```
+
+**Response Schema:**
+```json
+{
+  "status": "ready",
+  "service": "disaster-assessment",
+  "version": "16.0.0",
+  "checks": {
+    "database": "connected"
+  },
+  "timestamp": "2024-12-18T10:00:00.000Z"
+}
+```
+
+**Legacy Health Endpoint (backward compatibility):**
 
 ```http
 GET /api/v1/disasters/health
@@ -370,7 +405,7 @@ GET /api/v1/disasters/health
 {
   "status": "ok",
   "service": "disaster-assessment",
-  "timestamp": "2024-12-18T10:00:00Z"
+  "timestamp": "2024-12-18T10:00:00.000Z"
 }
 ```
 
@@ -876,21 +911,28 @@ async subscribeToAlerts(
 
 ---
 
-#### 9. Health Endpoint Path Inconsistency
+#### 9. Health Endpoint Path Inconsistency ✅ FIXED
 
-**Issue:** Multiple health endpoints exist with different paths.
+**Status:** ✅ **RESOLVED** (2026-02-11)
 
-**Paths:**
+**Issue:** Multiple health endpoints existed with different paths causing confusion.
+
+**Previous Paths:**
 - `/api/v1/disasters/health` (in controller)
 - `/healthz` (expected by K8s)
-- `/health` (specified in governance)
+- `/health` (specified in governance - incorrect)
 
-**Recommendation:** Add standard health endpoints at root level:
-```typescript
-@Get('/healthz')
-@Get('/readyz')
-@Get('/health')
-```
+**Fix Applied:**
+- ✅ Updated Dockerfile health check to use `/healthz` (Kubernetes standard)
+- ✅ Updated `governance/services.yaml` to specify `/healthz`
+- ✅ Updated `docker-compose.yml` health check to use `/healthz`
+- ✅ Updated documentation to reflect all three endpoints:
+  - `/healthz` - Liveness probe (Kubernetes standard)
+  - `/readyz` - Readiness probe with database check
+  - `/api/v1/disasters/health` - Legacy endpoint (kept for backward compatibility)
+
+**Implementation:**
+The service now has a proper HealthController at root level with `/healthz` and `/readyz` endpoints following Kubernetes best practices, aligning with other SAHOOL services (astronomical-calendar, traceability-service, skills-service, agro-advisor).
 
 ---
 

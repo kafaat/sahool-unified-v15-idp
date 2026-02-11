@@ -954,7 +954,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3020/api/v1/disasters/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3020/healthz"]
       interval: 30s
       timeout: 10s
       retries: 3

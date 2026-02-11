@@ -627,7 +627,10 @@ start_period: 30s
 
 **Dependencies**: `postgres` (healthy), `redis` (healthy), `nats` (healthy)
 
-**Health Check Endpoint**: `GET /api/v1/disasters/health`
+**Health Check Endpoints**: 
+- Liveness: `GET /healthz`
+- Readiness: `GET /readyz`
+- Legacy: `GET /api/v1/disasters/health`
 
 **Resource Limits**:
 | Resource | Limit | Reservation |

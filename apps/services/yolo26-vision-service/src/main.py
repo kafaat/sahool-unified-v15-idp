@@ -22,7 +22,7 @@ from fastapi.responses import JSONResponse
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.api.endpoints import analysis, detection
+from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
 from src.core.config import settings
 from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
@@ -477,6 +477,8 @@ async def root() -> dict:
 
 app.include_router(detection.router)
 app.include_router(analysis.router)
+app.include_router(batch.router)
+app.include_router(models.router)
 
 
 # =============================================================================

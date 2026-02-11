@@ -11,12 +11,9 @@ ARG SERVICE_NAME=field-management-service
 ARG SERVICE_VERSION=16.0.0
 
 # Stage 1: Build
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 WORKDIR /app
-
-# Install OpenSSL for Prisma (Alpine 3.17+ uses OpenSSL 3.x)
-RUN apk add --no-cache openssl
 
 # Upgrade npm to latest version for better dependency resolution
 RUN npm install -g npm@11.7.0
@@ -50,7 +47,7 @@ COPY apps/services/field-management-service/src ./src
 RUN npm run build
 
 # Stage 2: Production
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-bookworm-slim
 
 # Re-declare ARGs for this stage
 ARG SERVICE_NAME=field-management-service
@@ -62,11 +59,13 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 WORKDIR /app
 
 # Create non-root user for security
-RUN addgroup --system sahool && \
-    adduser --system --ingroup sahool --disabled-password --gecos "" sahool
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash sahool
 
-# Install curl for healthcheck and OpenSSL for Prisma
-RUN apk add --no-cache curl ca-certificates openssl
+# Install curl for healthcheck and ca-certificates
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0

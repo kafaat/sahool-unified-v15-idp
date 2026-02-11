@@ -2,14 +2,11 @@
 # سوق سهول والخدمات المالية
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
 LABEL version="16.0.0"
-
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk update && apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -36,14 +33,14 @@ RUN npx prisma generate || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-bookworm-slim AS production
 
 WORKDIR /app
 
-# Install OpenSSL runtime for Prisma engine detection (openssl-dev NOT needed at runtime)
-# Falls back gracefully if network unavailable — Prisma schema includes linux-musl target as backup
-RUN apk update && apk add --no-cache openssl || \
-    echo "WARN: openssl install failed — Prisma will use linux-musl target"
+# Install curl for healthcheck (not using fetch as it requires Node.js 18+)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
@@ -69,9 +66,9 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check (using Node.js built-in fetch instead of curl)
+# Health check (using curl instead of Node.js fetch)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD node -e "fetch('http://localhost:3010/api/v1/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+    CMD curl -f http://localhost:3010/api/v1/healthz || exit 1
 
 # Run the application
 CMD ["node", "dist/src/main.js"]

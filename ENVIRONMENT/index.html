@@ -1471,6 +1471,73 @@ make<span class="w"> </span>env-check
 </tr>
 </tbody>
 </table>
+<h3 id="10-mobile-sync-configuration">10. Mobile Sync Configuration<a class="headerlink" href="#10-mobile-sync-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Required</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CONNECT_TIMEOUT_SECONDS</code></td>
+<td>No</td>
+<td><code>60</code></td>
+<td>Mobile API connection timeout</td>
+</tr>
+<tr>
+<td><code>SEND_TIMEOUT_SECONDS</code></td>
+<td>No</td>
+<td><code>90</code></td>
+<td>Mobile API send timeout for large batches</td>
+</tr>
+<tr>
+<td><code>RECEIVE_TIMEOUT_SECONDS</code></td>
+<td>No</td>
+<td><code>90</code></td>
+<td>Mobile API receive timeout</td>
+</tr>
+<tr>
+<td><code>SYNC_INTERVAL_SECONDS</code></td>
+<td>No</td>
+<td><code>30</code></td>
+<td>Foreground sync interval</td>
+</tr>
+<tr>
+<td><code>BG_SYNC_INTERVAL_MINUTES</code></td>
+<td>No</td>
+<td><code>15</code></td>
+<td>Background sync interval</td>
+</tr>
+<tr>
+<td><code>MAX_RETRY_COUNT</code></td>
+<td>No</td>
+<td><code>5</code></td>
+<td>Failed sync retry attempts</td>
+</tr>
+<tr>
+<td><code>OUTBOX_BATCH_SIZE</code></td>
+<td>No</td>
+<td><code>50</code></td>
+<td>Bulk sync batch size</td>
+</tr>
+<tr>
+<td><code>ENABLE_OFFLINE_MODE</code></td>
+<td>No</td>
+<td><code>true</code></td>
+<td>Enable offline-first operation</td>
+</tr>
+<tr>
+<td><code>ENABLE_BACKGROUND_SYNC</code></td>
+<td>No</td>
+<td><code>true</code></td>
+<td>Enable background synchronization</td>
+</tr>
+</tbody>
+</table>
 <h2 id="environment-specific-settings">Environment-Specific Settings<a class="headerlink" href="#environment-specific-settings" title="Permanent link">&para;</a></h2>
 <h3 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h3>
 <div class="codehilite"><pre><span></span><code><span class="nv">APP_ENV</span><span class="o">=</span>development

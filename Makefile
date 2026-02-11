@@ -15,6 +15,7 @@
 .PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full
 .PHONY: service-health check-services db-migrate-all db-generate logs-all
 .PHONY: dev-ai dev-agents build-ai test-ai
+.PHONY: pr-merge pr-merge-all pr-status pr-monitor pr-help
 .DEFAULT_GOAL := help
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -73,6 +74,9 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "$(BOLD)$(BLUE)AI & Agents - الذكاء الاصطناعي والوكلاء:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^(dev-ai|dev-agents|build-ai|test-ai|dev-mcp):.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
+	@echo "$(BOLD)$(BLUE)PR Automation - أتمتة طلبات السحب:$(RESET)"
+	@awk 'BEGIN {FS = ":.*?## "} /^pr-[a-zA-Z_-]+:.*?## / {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
 	@echo "$(BOLD)$(BLUE)Utilities - الأدوات المساعدة:$(RESET)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## .*(clean|status|health|shell|script)/ {printf "  $(BLUE)%-25s$(RESET) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
@@ -84,6 +88,7 @@ help: ## عرض قائمة الأوامر المتاحة - Show available comman
 	@echo "  $(GREEN)make test-python$(RESET)              - تشغيل اختبارات Python"
 	@echo "  $(GREEN)make service-health$(RESET)           - فحص صحة جميع الخدمات"
 	@echo "  $(GREEN)make dev-ai$(RESET)                   - تشغيل خدمات الذكاء الاصطناعي"
+	@echo "  $(GREEN)make pr-merge PR=123$(RESET)          - دمج طلب سحب محدد"
 	@echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1111,6 +1116,76 @@ scripts-fix: ## إصلاح أذونات السكربتات - Fix script permissi
 	@find scripts -name "*.sh" -exec chmod +x {} \;
 	@find scripts -name "*.py" -exec chmod +x {} \;
 	@echo "$(GREEN)✅ تم إصلاح الأذونات - Permissions fixed!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Pull Request Automation - أتمتة طلبات السحب
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: pr-merge pr-merge-all pr-status pr-monitor pr-help
+
+pr-merge: ## دمج PR محدد - Merge specific PR (usage: make pr-merge PR=123)
+	@if [ -z "$(PR)" ]; then \
+		echo "$(RED)❌ Error: PR number required$(RESET)"; \
+		echo "$(YELLOW)Usage: make pr-merge PR=123$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)🔀 دمج PR #$(PR) - Merging PR #$(PR)...$(RESET)"
+	@./scripts/auto-merge-prs.sh --pr $(PR) $(if $(DRY_RUN),--dry-run,)
+	@echo "$(GREEN)✅ PR merge complete!$(RESET)"
+
+pr-merge-all: ## دمج جميع PRs المفتوحة - Merge all open PRs (dry-run first!)
+	@echo "$(YELLOW)⚠️  Warning: This will merge ALL open PRs$(RESET)"
+	@echo "$(YELLOW)Starting dry-run first...$(RESET)"
+	@./scripts/auto-merge-prs.sh --all --dry-run
+	@echo ""
+	@echo "$(YELLOW)To actually merge, run:$(RESET)"
+	@echo "$(GREEN)  make pr-merge-all DRY_RUN=false$(RESET)"
+	@if [ "$(DRY_RUN)" = "false" ]; then \
+		echo "$(BLUE)🔀 Merging all PRs...$(RESET)"; \
+		./scripts/auto-merge-prs.sh --all; \
+	fi
+
+pr-status: ## فحص حالة PRs المفتوحة - Check status of open PRs
+	@echo "$(BLUE)📊 حالة PRs - PR Status:$(RESET)"
+	@gh pr list --state open --json number,title,state,mergeable,statusCheckRollup \
+		--template '{{range .}}PR #{{.number}}: {{.title}} - {{if eq .mergeable "MERGEABLE"}}✅ Ready{{else if eq .mergeable "CONFLICTING"}}❌ Conflicts{{else}}⚠️  Unknown{{end}}{{"\n"}}{{end}}' \
+		2>/dev/null || echo "$(RED)Error: gh CLI not available or not authenticated$(RESET)"
+
+pr-monitor: ## مراقبة صحة PRs - Monitor PR health
+	@echo "$(BLUE)🔍 مراقبة PRs - Monitoring PRs...$(RESET)"
+	@echo "$(YELLOW)Checking conflicts...$(RESET)"
+	@./scripts/resolve-pr-conflicts.sh check 2>/dev/null || echo "Run: chmod +x scripts/resolve-pr-conflicts.sh"
+	@echo ""
+	@echo "$(YELLOW)For detailed monitoring, use GitHub Actions:$(RESET)"
+	@echo "$(GREEN)  gh workflow run pr-status-monitor.yml$(RESET)"
+
+pr-help: ## عرض مساعدة أتمتة PR - Show PR automation help
+	@echo ""
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo "$(BOLD)  Pull Request Automation - أتمتة طلبات السحب$(RESET)"
+	@echo "$(BOLD)═══════════════════════════════════════════════════════════════════$(RESET)"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Quick Commands:$(RESET)"
+	@echo "  $(GREEN)make pr-merge PR=123$(RESET)          Merge specific PR"
+	@echo "  $(GREEN)make pr-merge-all$(RESET)             Test merge all PRs (dry-run)"
+	@echo "  $(GREEN)make pr-status$(RESET)                Show PR status"
+	@echo "  $(GREEN)make pr-monitor$(RESET)               Monitor PR health"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Advanced Usage:$(RESET)"
+	@echo "  $(GREEN)make pr-merge PR=123 DRY_RUN=true$(RESET)     Test merge (no actual merge)"
+	@echo "  $(GREEN)make pr-merge-all DRY_RUN=false$(RESET)       Actually merge all PRs"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Script Usage:$(RESET)"
+	@echo "  $(GREEN)./scripts/auto-merge-prs.sh --help$(RESET)"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)Documentation:$(RESET)"
+	@echo "  📚 Full guide: $(YELLOW)docs/PR_AUTOMATION.md$(RESET)"
+	@echo "  🚀 Quick start: $(YELLOW)docs/PR_AUTOMATION_QUICKSTART.md$(RESET)"
+	@echo ""
+	@echo "$(BOLD)$(BLUE)GitHub Actions:$(RESET)"
+	@echo "  Go to: $(YELLOW)Actions → Auto-Merge PRs → Run workflow$(RESET)"
+	@echo "  Or run: $(GREEN)gh workflow run auto-merge-prs.yml$(RESET)"
+	@echo ""
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف

@@ -1,0 +1,320 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Pull Request Status Monitor
+# Monitors open PRs for conflicts, CI status, and auto-updates branches
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# FEATURES:
+#   - Monitor all open PRs for conflicts
+#   - Auto-update PR branches from base branch
+#   - Check CI status and approvals
+#   - Send notifications for PR status changes
+#   - Generate daily PR health reports
+#
+# TRIGGERS:
+#   - Scheduled (daily or on-demand)
+#   - Manual trigger
+#   - On push to main/develop
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: PR Status Monitor
+
+on:
+  # Scheduled monitoring (daily at 9 AM UTC)
+  schedule:
+    - cron: '0 9 * * *'
+  
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      auto_update:
+        description: 'Automatically update PR branches'
+        required: true
+        type: boolean
+        default: false
+      send_notifications:
+        description: 'Send notifications for issues'
+        required: true
+        type: boolean
+        default: true
+
+  # Run when main/develop is updated
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  PYTHON_VERSION: "3.11"
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Monitor: Check status of all open PRs
+  # ─────────────────────────────────────────────────────────────────────────────
+  monitor-prs:
+    name: Monitor Open PRs
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      total_prs: ${{ steps.check-prs.outputs.total_prs }}
+      conflicted_prs: ${{ steps.check-prs.outputs.conflicted_prs }}
+      failing_ci_prs: ${{ steps.check-prs.outputs.failing_ci_prs }}
+      stale_prs: ${{ steps.check-prs.outputs.stale_prs }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR status
+        id: check-prs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Fetch all open PRs
+          PR_DATA=$(gh pr list --state open --json number,title,headRefName,baseRefName,mergeable,statusCheckRollup,updatedAt,createdAt)
+          
+          TOTAL_PRS=$(echo "$PR_DATA" | jq 'length')
+          echo "total_prs=$TOTAL_PRS" >> $GITHUB_OUTPUT
+          
+          # Count PRs with conflicts
+          CONFLICTED=$(echo "$PR_DATA" | jq '[.[] | select(.mergeable == "CONFLICTING")] | length')
+          echo "conflicted_prs=$CONFLICTED" >> $GITHUB_OUTPUT
+          
+          # Count PRs with failing CI
+          FAILING_CI=$(echo "$PR_DATA" | jq '[.[] | select(.statusCheckRollup[]?.conclusion == "FAILURE")] | length')
+          echo "failing_ci_prs=$FAILING_CI" >> $GITHUB_OUTPUT
+          
+          # Count stale PRs (not updated in 7+ days)
+          STALE=$(echo "$PR_DATA" | jq --arg cutoff "$(date -d '7 days ago' -u +%Y-%m-%dT%H:%M:%SZ)" '[.[] | select(.updatedAt < $cutoff)] | length')
+          echo "stale_prs=$STALE" >> $GITHUB_OUTPUT
+          
+          echo "📊 PR Status Summary:"
+          echo "  Total: $TOTAL_PRS"
+          echo "  Conflicted: $CONFLICTED"
+          echo "  Failing CI: $FAILING_CI"
+          echo "  Stale: $STALE"
+          
+          # Save full PR data for next jobs
+          echo "$PR_DATA" > pr-data.json
+
+      - name: Upload PR data
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-data
+          path: pr-data.json
+          retention-days: 7
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Auto-Update: Update PR branches from base branch
+  # ─────────────────────────────────────────────────────────────────────────────
+  auto-update-prs:
+    name: Auto-Update PR Branches
+    runs-on: ubuntu-latest
+    needs: monitor-prs
+    if: |
+      github.event.inputs.auto_update == 'true' && 
+      needs.monitor-prs.outputs.total_prs > 0
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Download PR data
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-data
+
+      - name: Update PR branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Read PR data
+          PR_DATA=$(cat pr-data.json)
+          
+          # Process each PR
+          echo "$PR_DATA" | jq -c '.[]' | while read -r pr; do
+            PR_NUMBER=$(echo "$pr" | jq -r '.number')
+            HEAD_REF=$(echo "$pr" | jq -r '.headRefName')
+            BASE_REF=$(echo "$pr" | jq -r '.baseRefName')
+            MERGEABLE=$(echo "$pr" | jq -r '.mergeable')
+            
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "PR #$PR_NUMBER: Updating $HEAD_REF from $BASE_REF"
+            
+            # Skip if already mergeable
+            if [[ "$MERGEABLE" == "MERGEABLE" ]]; then
+              echo "✅ Already mergeable, skipping"
+              continue
+            fi
+            
+            # Fetch and update
+            git fetch origin "$HEAD_REF:$HEAD_REF" || continue
+            git fetch origin "$BASE_REF:$BASE_REF" || continue
+            
+            git checkout "$HEAD_REF"
+            
+            # Try to merge base branch
+            if git merge "origin/$BASE_REF" --no-edit; then
+              echo "✅ Merged $BASE_REF into $HEAD_REF"
+              git push origin "$HEAD_REF" || echo "⚠️ Failed to push"
+            else
+              echo "⚠️ Conflicts detected, skipping auto-update"
+              git merge --abort
+            fi
+            
+            git checkout main
+          done
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Report: Generate PR health report
+  # ─────────────────────────────────────────────────────────────────────────────
+  generate-report:
+    name: Generate PR Health Report
+    runs-on: ubuntu-latest
+    needs: monitor-prs
+    if: needs.monitor-prs.outputs.total_prs > 0
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download PR data
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-data
+
+      - name: Generate report
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_DATA=$(cat pr-data.json)
+          REPORT_FILE="pr-health-report-$(date +%Y%m%d).md"
+          
+          cat > "$REPORT_FILE" << 'EOF'
+          # Pull Request Health Report
+          
+          **Generated**: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Total Open PRs**: ${{ needs.monitor-prs.outputs.total_prs }}
+          
+          ## Summary
+          
+          - 🔴 **Conflicted PRs**: ${{ needs.monitor-prs.outputs.conflicted_prs }}
+          - 🟠 **Failing CI**: ${{ needs.monitor-prs.outputs.failing_ci_prs }}
+          - 🟡 **Stale PRs**: ${{ needs.monitor-prs.outputs.stale_prs }}
+          - 🟢 **Ready to Merge**: $(( ${{ needs.monitor-prs.outputs.total_prs }} - ${{ needs.monitor-prs.outputs.conflicted_prs }} - ${{ needs.monitor-prs.outputs.failing_ci_prs }} ))
+          
+          ## Detailed Status
+          
+          EOF
+          
+          # Add details for each PR
+          echo "$PR_DATA" | jq -c '.[]' | while read -r pr; do
+            PR_NUMBER=$(echo "$pr" | jq -r '.number')
+            TITLE=$(echo "$pr" | jq -r '.title')
+            HEAD_REF=$(echo "$pr" | jq -r '.headRefName')
+            BASE_REF=$(echo "$pr" | jq -r '.baseRefName')
+            MERGEABLE=$(echo "$pr" | jq -r '.mergeable')
+            
+            # Determine status icon
+            if [[ "$MERGEABLE" == "CONFLICTING" ]]; then
+              STATUS="🔴 Conflicts"
+            elif [[ "$MERGEABLE" == "MERGEABLE" ]]; then
+              STATUS="🟢 Ready"
+            else
+              STATUS="🟡 Unknown"
+            fi
+            
+            cat >> "$REPORT_FILE" << PREOF
+          ### PR #$PR_NUMBER - $TITLE
+          
+          - **Status**: $STATUS
+          - **Branch**: $HEAD_REF → $BASE_REF
+          - **Link**: [View PR](https://github.com/${{ github.repository }}/pull/$PR_NUMBER)
+          
+          PREOF
+          done
+          
+          cat "$REPORT_FILE"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-health-report
+          path: pr-health-report-*.md
+          retention-days: 30
+
+      - name: Post summary
+        run: |
+          REPORT_FILE="pr-health-report-$(date +%Y%m%d).md"
+          
+          if [[ -f "$REPORT_FILE" ]]; then
+            cat "$REPORT_FILE" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Notify: Send notifications for issues
+  # ─────────────────────────────────────────────────────────────────────────────
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: monitor-prs
+    if: |
+      github.event.inputs.send_notifications == 'true' &&
+      (needs.monitor-prs.outputs.conflicted_prs > 0 || needs.monitor-prs.outputs.failing_ci_prs > 0)
+    timeout-minutes: 5
+    steps:
+      - name: Download PR data
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-data
+
+      - name: Create issue for conflicts
+        if: needs.monitor-prs.outputs.conflicted_prs > 0
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PR_DATA=$(cat pr-data.json)
+          
+          # Create list of conflicted PRs
+          CONFLICTED_LIST=$(echo "$PR_DATA" | jq -r '.[] | select(.mergeable == "CONFLICTING") | "- PR #\(.number): \(.title)"')
+          
+          # Check if issue already exists
+          EXISTING_ISSUE=$(gh issue list --label "auto-merge,conflicts" --state open --json number --jq '.[0].number' || echo "")
+          
+          ISSUE_BODY="## Conflicted Pull Requests
+
+          The following PRs have merge conflicts that need to be resolved:
+
+          $CONFLICTED_LIST
+
+          **Action Required**: Please resolve conflicts in these PRs.
+
+          ---
+          *This issue was automatically created by the PR Status Monitor workflow.*
+          *Date: $(date -u +"%Y-%m-%d %H:%M:%S UTC")*"
+          
+          if [[ -n "$EXISTING_ISSUE" ]]; then
+            # Update existing issue
+            gh issue comment "$EXISTING_ISSUE" --body "$ISSUE_BODY"
+            echo "📝 Updated issue #$EXISTING_ISSUE"
+          else
+            # Create new issue
+            gh issue create \
+              --title "⚠️ PRs with Merge Conflicts" \
+              --body "$ISSUE_BODY" \
+              --label "auto-merge,conflicts,automated"
+            echo "📝 Created new issue"
+          fi

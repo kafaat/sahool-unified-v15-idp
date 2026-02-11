@@ -15,7 +15,7 @@
 
 3. **Restart the dev server**:
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 ## How It Works
@@ -23,8 +23,38 @@
 The admin app verifies JWT tokens from the user-service using:
 - **Secret**: `JWT_SECRET` or `JWT_SECRET_KEY` environment variable
 - **Algorithm**: HS256 (HMAC with SHA-256)
-- **Issuer**: `sahool-platform`
-- **Audience**: `sahool-api`
+- **Issuer**: `sahool-platform` (via `JWT_ISSUER`)
+- **Audience**: `sahool-users` (via `JWT_AUDIENCE`)
+
+## Token Payload
+
+The middleware handles both legacy and current JWT formats:
+
+```typescript
+// Current format (user-service)
+{
+  sub: "user-id",
+  email: "user@example.com",
+  roles: ["ADMIN"],       // Array — mapped to admin/supervisor/viewer
+  tid: "tenant-id"        // Alternative tenant ID field
+}
+
+// Legacy format (still supported)
+{
+  sub: "user-id",
+  email: "user@example.com",
+  role: "admin",           // Singular string
+  tenant_id: "tenant-id"
+}
+```
+
+### Role Mapping
+
+| Backend Value               | Admin Panel Role |
+| --------------------------- | ---------------- |
+| `ADMIN`, `ADMINISTRATOR`   | `admin`          |
+| `SUPERVISOR`, `MANAGER`    | `supervisor`     |
+| `FARMER`, `VIEWER`, others | `viewer`         |
 
 ## Troubleshooting
 
@@ -34,12 +64,13 @@ The admin app verifies JWT tokens from the user-service using:
 - Restart the Next.js dev server
 
 ### "Token verification failed" Error
-- Check that JWT_SECRET matches between admin app and user-service
-- Verify the token issuer is "sahool-platform"
-- Verify the token audience is "sahool-api"
+- Check that `JWT_SECRET` matches between admin app and user-service
+- Verify the token issuer is `sahool-platform`
+- Verify the token audience is `sahool-users`
 - Check browser console and server logs for detailed error messages
 
-### Token Payload Mismatch
-If you see errors about missing fields (`role`, `tenant_id`), the user-service may need updates:
-- User-service should generate tokens with `role` (string) not `roles` (array)
-- User-service should use `tenant_id` not `tid`
+### Unauthorized Redirects After Login
+If users are redirected to `/dashboard?error=unauthorized` after login:
+- Most likely cause: JWT uses `roles` array but middleware expected `role` string
+- This has been fixed — middleware now handles both `roles` (array) and `role` (string)
+- Clear browser cookies and try again

@@ -2,6 +2,108 @@
 
 All notable changes to the SAHOOL Field mobile application.
 
+## [16.2.0] - 2026-02-11 - Mobile Sync Engine Improvements 🔄
+
+### 🔄 Sync Engine Enhancements
+
+#### Endpoint Validation
+- **Empty endpoint detection** - Prevents crashes from malformed sync data
+- **Format validation** - Validates API endpoint structure before processing
+- **Error logging** - Invalid items logged with `outbox_invalid_endpoint` type
+- **Graceful degradation** - Failed items marked and skipped without crashing
+
+#### Network Configuration
+- **Extended timeouts for mobile** - Connection: 60s, Send/Receive: 90s
+- **forMobileSync() factory** - Optimized configuration for poor connectivity
+- **Increased retry attempts** - Up to 5 retries with exponential backoff
+- **Max backoff delay** - Up to 5 minutes for connection recovery
+- **Rate limiting** - 30 requests/minute per endpoint
+
+#### Sync Priority System
+- **Priority-based ordering** - Critical (30) > High (20) > Normal (10) > Low (0)
+- **Scheduled sync support** - `scheduled_at` field for delayed operations
+- **Error tracking** - `last_error` field captures sync failures
+- **Batch processing** - 50 items per batch for optimal performance
+
+### 🗄️ Database Improvements
+
+#### Migration V5
+- **migration_history table** - Full audit trail of all schema changes
+- **fields table enhancements**:
+  - `last_sync_at` - Track last successful sync timestamp
+  - `sync_error` - Store detailed error messages
+  - `sync_attempts` - Counter for retry logic
+- **outbox table enhancements**:
+  - `sync_priority` - Priority-based sync ordering (0-30)
+  - `scheduled_at` - Delayed sync support
+  - `last_error` - Error message storage
+- **Performance indices** - Optimized lookups for priority and scheduling
+
+### 🛡️ Build & Release Fixes
+
+#### ProGuard Configuration
+- **flutter_local_notifications** - Prevents crashes in release builds
+- **mobile_scanner** - QR/Barcode scanning code preservation
+- **Google ML Kit Vision** - Computer vision library rules
+- **Android compatibility** - NotificationCompat rules added
+
+### 📚 Documentation
+
+#### New Documentation Files
+- **MOBILE_SYNC_API.md** - Complete API contract specification
+  - Base URLs for production/staging/development
+  - Required headers (Authorization, X-Tenant-ID, X-Device-ID)
+  - Timeout recommendations for mobile devices
+  - Rate limiting configuration
+- **SETUP.md** - Comprehensive setup guide
+  - Prerequisites and installation steps
+  - Build instructions for debug and release
+  - Common issues and solutions
+  - Security checklist
+- **MOBILE_INTEGRATION_FIX_SUMMARY.md** - Detailed fix documentation
+- **Integration test templates** - 11 test groups covering all sync scenarios
+
+### 🧪 Testing Infrastructure
+
+#### Integration Tests (mobile_sync_test.dart)
+- **Endpoint validation tests** - Empty and malformed endpoint handling
+- **Network timeout tests** - Verify extended mobile timeouts
+- **Conflict resolution tests** - 409 status code handling
+- **Rate limiting tests** - 30 requests/minute enforcement
+- **Exponential backoff tests** - Retry delay verification
+- **Batch processing tests** - 10+ items batch handling
+- **Offline recovery tests** - Outbox processing after reconnection
+- **Sync health checks** - Status monitoring and error tracking
+
+### ⚙️ Environment Configuration
+
+#### New Environment Variables
+- `CONNECT_TIMEOUT_SECONDS` - Mobile API connection timeout (default: 60)
+- `SEND_TIMEOUT_SECONDS` - Large batch send timeout (default: 90)
+- `RECEIVE_TIMEOUT_SECONDS` - Response receive timeout (default: 90)
+- `SYNC_INTERVAL_SECONDS` - Foreground sync interval (default: 30)
+- `BG_SYNC_INTERVAL_MINUTES` - Background sync interval (default: 15)
+- `MAX_RETRY_COUNT` - Failed sync retry attempts (default: 5)
+- `OUTBOX_BATCH_SIZE` - Bulk sync batch size (default: 50)
+- `ENABLE_OFFLINE_MODE` - Offline-first operation (default: true)
+- `ENABLE_BACKGROUND_SYNC` - Background synchronization (default: true)
+
+### 📊 Impact Summary
+
+- **Improved reliability** - Endpoint validation prevents crashes
+- **Better connectivity** - Extended timeouts for rural/low-connectivity areas
+- **Production-ready** - ProGuard rules ensure release build stability
+- **Comprehensive testing** - 11 test groups with bilingual test names
+- **Full documentation** - API contract, setup guide, and troubleshooting
+
+### 🔜 Remaining Work (Out of Scope)
+
+- Generate `pubspec.lock` - Requires Flutter SDK in CI/CD environment
+- Backend sync endpoints - Implementation per API contract specification
+- Certificate pinning - Replace placeholder fingerprints before production
+
+---
+
 ## [16.1.0] - 2024-12-22 - Performance & Compatibility Release 🚀
 
 ### ⚡ Performance Improvements

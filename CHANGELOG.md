@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Mobile Sync Engine Improvements** (February 2026)
+  - Endpoint validation with empty endpoint detection to prevent crashes
+  - Outbox table with sync_priority support (low/normal/high/critical levels)
+  - Extended network timeouts for poor connectivity (60s connect, 90s send/receive)
+  - Migration history tracking with full audit trail
+  - 5-retry exponential backoff mechanism (2x multiplier, max 5 minutes)
+  - Rate limiting: 30 requests/minute per endpoint
+  - Comprehensive integration test suite (11 test groups covering validation, timeouts, conflicts, rate limiting)
+  - Mobile Sync API documentation with bilingual support (Arabic/English)
+  - Setup guide with Flutter SDK prerequisites and build instructions
+  - ProGuard rules for flutter_local_notifications and mobile_scanner plugins
+
 - **Documentation Improvements** (February 2026)
   - Added `CONTRIBUTING.md` with comprehensive contribution guidelines (bilingual AR/EN)
   - Added `docs/TROUBLESHOOTING.md` with common issues and solutions
@@ -16,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `docs/ARCHITECTURE_DIAGRAMS.md` with ASCII architecture diagrams
   - Updated `docs/DEPLOYMENT.md` with detailed deployment steps for Docker and Kubernetes
   - Updated `docs/README.md` with new documentation index entries
+  - Added `docs/ENVIRONMENT.md` mobile sync configuration section
 
 ### Fixed
 

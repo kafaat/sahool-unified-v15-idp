@@ -102,6 +102,20 @@ make env-check
 | `FEATURE_MARKETPLACE`  | No       | `true`  | Enable Marketplace feature  |
 | `FEATURE_OFFLINE_SYNC` | No       | `true`  | Enable offline sync feature |
 
+### 10. Mobile Sync Configuration
+
+| Variable                     | Required | Default | Description                               |
+| ---------------------------- | -------- | ------- | ----------------------------------------- |
+| `CONNECT_TIMEOUT_SECONDS`    | No       | `60`    | Mobile API connection timeout             |
+| `SEND_TIMEOUT_SECONDS`       | No       | `90`    | Mobile API send timeout for large batches |
+| `RECEIVE_TIMEOUT_SECONDS`    | No       | `90`    | Mobile API receive timeout                |
+| `SYNC_INTERVAL_SECONDS`      | No       | `30`    | Foreground sync interval                  |
+| `BG_SYNC_INTERVAL_MINUTES`   | No       | `15`    | Background sync interval                  |
+| `MAX_RETRY_COUNT`            | No       | `5`     | Failed sync retry attempts                |
+| `OUTBOX_BATCH_SIZE`          | No       | `50`    | Bulk sync batch size                      |
+| `ENABLE_OFFLINE_MODE`        | No       | `true`  | Enable offline-first operation            |
+| `ENABLE_BACKGROUND_SYNC`     | No       | `true`  | Enable background synchronization         |
+
 ## Environment-Specific Settings
 
 ### Development

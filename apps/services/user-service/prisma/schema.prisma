@@ -77,7 +77,8 @@ model User {
   @@index([tenantId, status], name: "idx_user_tenant_status")
   @@index([tenantId, email], name: "idx_user_tenant_email")
   @@index([tenantId, role], name: "idx_user_tenant_role")
-  @@index([passwordResetToken], name: "idx_user_password_reset_token")
+  // SECURITY: Do not index passwordResetToken to prevent token enumeration attacks
+  // Use hash lookups in application code instead
   @@index([lockoutUntil], name: "idx_user_lockout_until")
   @@map("users")
 }

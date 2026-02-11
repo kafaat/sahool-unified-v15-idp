@@ -29,7 +29,7 @@ class MissionResponse(BaseModel):
     status: str  # "planned", "active", "paused", "completed", "aborted"
 
 
-@router.get("/", response_model=List[MissionResponse])
+@router.get("/", response_model=list[MissionResponse])
 async def list_missions():
     """List all missions - قائمة بجميع المهام"""
     return []
@@ -38,9 +38,7 @@ async def list_missions():
 @router.post("/", response_model=MissionResponse, status_code=201)
 async def create_mission(mission: MissionCreate):
     """Create a new mission - إنشاء مهمة جديدة"""
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.get("/{mission_id}", response_model=MissionResponse)
@@ -52,30 +50,22 @@ async def get_mission(mission_id: str):
 @router.post("/{mission_id}/start")
 async def start_mission(mission_id: str):
     """Start mission execution - بدء تنفيذ المهمة"""
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.post("/{mission_id}/pause")
 async def pause_mission(mission_id: str):
     """Pause mission - إيقاف المهمة مؤقتاً"""
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.post("/{mission_id}/resume")
 async def resume_mission(mission_id: str):
     """Resume mission - استئناف المهمة"""
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.post("/{mission_id}/abort")
 async def abort_mission(mission_id: str):
     """Abort mission - إلغاء المهمة"""
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")

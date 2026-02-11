@@ -162,7 +162,8 @@ class AISuggestionFactory:
     ) -> dict[str, Any]:
         """Create an AI suggestion request."""
         return {
-            "description": description or "I need a page to monitor field irrigation and view sensor data",
+            "description": description
+            or "I need a page to monitor field irrigation and view sensor data",
             "description_ar": "أحتاج صفحة لمراقبة ري الحقل وعرض بيانات المستشعرات",
             "context": {
                 "crop_type": "wheat",
@@ -275,9 +276,7 @@ class TestLowCodeIntegration:
         # Note: This endpoint might return 405 if it conflicts with component_name param
 
         # Filter by agricultural category
-        response = await lowcode_client.get(
-            "/api/v1/components?category=agricultural"
-        )
+        response = await lowcode_client.get("/api/v1/components?category=agricultural")
 
         assert response.status_code == 200
         components = response.json()
@@ -360,15 +359,11 @@ class TestLowCodeIntegration:
 
         # Create multiple models
         for _ in range(3):
-            request_data = data_model_factory.create_data_model_request(
-                tenant_id=tenant_id
-            )
+            request_data = data_model_factory.create_data_model_request(tenant_id=tenant_id)
             await lowcode_client.post("/api/v1/models", json=request_data)
 
         # List models
-        response = await lowcode_client.get(
-            f"/api/v1/models?tenant_id={tenant_id}"
-        )
+        response = await lowcode_client.get(f"/api/v1/models?tenant_id={tenant_id}")
 
         assert response.status_code == 200
         models = response.json()
@@ -448,9 +443,7 @@ class TestLowCodeIntegration:
         assert len(updated_page["blocks"]) == len(update_request["blocks"])
 
         # Step 3: Publish the page
-        publish_response = await lowcode_client.post(
-            f"/api/v1/pages/{page_id}/publish"
-        )
+        publish_response = await lowcode_client.post(f"/api/v1/pages/{page_id}/publish")
 
         assert publish_response.status_code == 200
         published_page = publish_response.json()
@@ -467,18 +460,14 @@ class TestLowCodeIntegration:
         assert page_id in page_ids
 
         # Step 5: Unpublish the page
-        unpublish_response = await lowcode_client.post(
-            f"/api/v1/pages/{page_id}/unpublish"
-        )
+        unpublish_response = await lowcode_client.post(f"/api/v1/pages/{page_id}/unpublish")
 
         assert unpublish_response.status_code == 200
         unpublished_page = unpublish_response.json()
         assert unpublished_page["is_published"] is False
 
         # Step 6: Render the page
-        render_response = await lowcode_client.get(
-            f"/api/v1/pages/{page_id}/render"
-        )
+        render_response = await lowcode_client.get(f"/api/v1/pages/{page_id}/render")
 
         assert render_response.status_code == 200
         rendered = render_response.json()
@@ -568,9 +557,7 @@ class TestLowCodeIntegration:
         assert retrieved_page["data_model_id"] == data_model_id
 
         # Step 4: Render page (should work even with data model)
-        render_response = await lowcode_client.get(
-            f"/api/v1/pages/{page['id']}/render"
-        )
+        render_response = await lowcode_client.get(f"/api/v1/pages/{page['id']}/render")
         assert render_response.status_code == 200
         rendered = render_response.json()
         assert rendered["page_id"] == page["id"]
@@ -630,8 +617,7 @@ class TestLowCodeIntegration:
         suggested_ids = [s["component_id"] for s in suggestions.get("suggestions", [])]
         # At least one irrigation-related suggestion expected
         irrigation_related = any(
-            "irrigation" in cid.lower() or "water" in cid.lower()
-            for cid in suggested_ids
+            "irrigation" in cid.lower() or "water" in cid.lower() for cid in suggested_ids
         )
         # Note: Depends on available components in the engine
 
@@ -708,9 +694,7 @@ class TestLowCodeIntegration:
             await lowcode_client.post("/api/v1/pages", json=request_data)
 
         # List pages
-        response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}"
-        )
+        response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}")
 
         assert response.status_code == 200
         pages = response.json()
@@ -769,9 +753,7 @@ class TestLowCodeIntegration:
             await lowcode_client.post("/api/v1/pages", json=request_data)
 
         # Get first page
-        page1_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}&limit=10"
-        )
+        page1_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}&limit=10")
         assert page1_response.status_code == 200
         page1 = page1_response.json()
         assert len(page1) == 10
@@ -834,18 +816,14 @@ class TestLowCodeIntegration:
         page_b = page_b_response.json()
 
         # List for tenant A
-        list_a_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_a}"
-        )
+        list_a_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_a}")
         pages_a = list_a_response.json()
         page_ids_a = [p["id"] for p in pages_a]
         assert page_a["id"] in page_ids_a
         assert page_b["id"] not in page_ids_a
 
         # List for tenant B
-        list_b_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_b}"
-        )
+        list_b_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_b}")
         pages_b = list_b_response.json()
         page_ids_b = [p["id"] for p in pages_b]
         assert page_b["id"] in page_ids_b
@@ -861,9 +839,7 @@ class TestLowCodeIntegration:
         tenant_b = f"tenant-b-model-{uuid4().hex[:8]}"
 
         # Create model for tenant A
-        model_a_request = data_model_factory.create_data_model_request(
-            tenant_id=tenant_a
-        )
+        model_a_request = data_model_factory.create_data_model_request(tenant_id=tenant_a)
         model_a_response = await lowcode_client.post(
             "/api/v1/models",
             json=model_a_request,
@@ -871,9 +847,7 @@ class TestLowCodeIntegration:
         model_a = model_a_response.json()
 
         # Create model for tenant B
-        model_b_request = data_model_factory.create_data_model_request(
-            tenant_id=tenant_b
-        )
+        model_b_request = data_model_factory.create_data_model_request(tenant_id=tenant_b)
         model_b_response = await lowcode_client.post(
             "/api/v1/models",
             json=model_b_request,
@@ -881,9 +855,7 @@ class TestLowCodeIntegration:
         model_b = model_b_response.json()
 
         # List for tenant A
-        list_a_response = await lowcode_client.get(
-            f"/api/v1/models?tenant_id={tenant_a}"
-        )
+        list_a_response = await lowcode_client.get(f"/api/v1/models?tenant_id={tenant_a}")
         models_a = list_a_response.json()
         model_ids_a = [m["id"] for m in models_a]
         assert model_a["id"] in model_ids_a
@@ -956,9 +928,7 @@ class TestLowCodeIntegration:
         page = create_response.json()
 
         # Render page
-        render_response = await lowcode_client.get(
-            f"/api/v1/pages/{page['id']}/render"
-        )
+        render_response = await lowcode_client.get(f"/api/v1/pages/{page['id']}/render")
 
         assert render_response.status_code == 200
         rendered = render_response.json()
@@ -1022,8 +992,6 @@ class TestLowCodeIntegration:
         assert len(set(page_ids)) == num_pages
 
         # List should show all pages
-        list_response = await lowcode_client.get(
-            f"/api/v1/pages?tenant_id={tenant_id}&limit=100"
-        )
+        list_response = await lowcode_client.get(f"/api/v1/pages?tenant_id={tenant_id}&limit=100")
         pages = list_response.json()
         assert len(pages) >= num_pages

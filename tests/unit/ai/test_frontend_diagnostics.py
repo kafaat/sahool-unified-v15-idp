@@ -149,10 +149,9 @@ class TestFrontendDiagnosticRunner:
 
         with patch("asyncio.create_subprocess_exec", new_callable=AsyncMock) as mock_proc:
             mock_process = MagicMock()
-            mock_process.communicate = AsyncMock(return_value=(
-                b'[{"filePath":"/test.js","messages":[]}]',
-                b""
-            ))
+            mock_process.communicate = AsyncMock(
+                return_value=(b'[{"filePath":"/test.js","messages":[]}]', b"")
+            )
             mock_process.returncode = 0
             mock_proc.return_value = mock_process
 

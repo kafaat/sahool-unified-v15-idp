@@ -249,9 +249,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_generate_text_function(self):
         """Test generate_text convenience function."""
-        with patch(
-            "shared.ai.llm_provider.get_llm_manager"
-        ) as mock_get_manager:
+        with patch("shared.ai.llm_provider.get_llm_manager") as mock_get_manager:
             mock_manager = MagicMock()
             mock_manager.generate = AsyncMock(
                 return_value=LLMResponse(
@@ -273,9 +271,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_generate_with_ollama_fallback(self):
         """Test generate_with_ollama_fallback function."""
-        with patch(
-            "shared.ai.llm_provider.get_llm_manager"
-        ) as mock_get_manager:
+        with patch("shared.ai.llm_provider.get_llm_manager") as mock_get_manager:
             mock_manager = MagicMock()
             mock_manager.generate = AsyncMock(
                 return_value=LLMResponse(

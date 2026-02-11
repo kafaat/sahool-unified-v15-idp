@@ -14,10 +14,10 @@ from __future__ import annotations
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import datetime, UTC
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import structlog
 
@@ -27,6 +27,7 @@ from .signals import SignalCollector
 try:
     from shared.ai.auto_fix.engine import AutoFixEngine
     from shared.ai.auto_fix.models import FixStrategy as AutoFixStrategy
+
     HAS_AUTO_FIX = True
 except ImportError:
     HAS_AUTO_FIX = False
@@ -36,6 +37,7 @@ except ImportError:
 # Import AI Audit for logging
 try:
     from shared.ai.audit import AIAuditLogger, get_audit_logger
+
     HAS_AUDIT = True
 except ImportError:
     HAS_AUDIT = False
@@ -44,8 +46,9 @@ except ImportError:
 logger = structlog.get_logger(__name__)
 
 
-class SignalSource(str, Enum):
+class SignalSource(StrEnum):
     """Signal sources | مصادر الإشارات"""
+
     CI = "ci"
     LOCAL = "local"
     MANUAL = "manual"
@@ -55,14 +58,15 @@ class SignalSource(str, Enum):
 @dataclass
 class FixOpsConfig:
     """Configuration for FixOps | تكوين FixOps"""
+
     repo_root: Path = field(default_factory=Path.cwd)
-    artifacts_dir: Optional[Path] = None
+    artifacts_dir: Path | None = None
     output_dir: Path = field(default_factory=lambda: Path.cwd() / ".fixops")
     dry_run: bool = False
     max_files_changed: int = 20
     enable_auto_fix: bool = True
     enable_audit: bool = True
-    policy_path: Optional[Path] = None
+    policy_path: Path | None = None
 
     # Analysis settings
     analyze_python: bool = True
@@ -74,7 +78,7 @@ class FixOpsConfig:
 
     # Integration options
     use_auto_fix_engine: bool = True  # Use shared/ai/auto_fix engine
-    use_audit_logger: bool = True     # Log to AI Audit system
+    use_audit_logger: bool = True  # Log to AI Audit system
 
     def __post_init__(self):
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -83,6 +87,7 @@ class FixOpsConfig:
 @dataclass
 class FixRecommendation:
     """Single fix recommendation | توصية إصلاح واحدة"""
+
     id: str
     priority: str  # "critical", "high", "medium", "low"
     category: str  # "bug", "security", "style", "performance"
@@ -90,11 +95,11 @@ class FixRecommendation:
     title_ar: str
     description: str
     description_ar: str
-    file_path: Optional[str] = None
-    line_number: Optional[int] = None
-    suggested_fix: Optional[str] = None
+    file_path: str | None = None
+    line_number: int | None = None
+    suggested_fix: str | None = None
     auto_fixable: bool = False
-    tool: Optional[str] = None
+    tool: str | None = None
     confidence: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
@@ -118,11 +123,12 @@ class FixRecommendation:
 @dataclass
 class FixOpsSummary:
     """Summary of FixOps run | ملخص تشغيل FixOps"""
+
     id: str
     version: str = "1.0"
     repo_root: str = ""
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    completed_at: Optional[datetime] = None
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
+    completed_at: datetime | None = None
     status: str = "running"  # "running", "completed", "failed"
 
     # Signals
@@ -187,13 +193,13 @@ class FixOpsOrchestrator:
     5. Generate summary report
     """
 
-    def __init__(self, config: Optional[FixOpsConfig] = None):
+    def __init__(self, config: FixOpsConfig | None = None):
         self.config = config or FixOpsConfig()
         self.signal_collector = SignalCollector(self.config.repo_root)
-        self._summary: Optional[FixOpsSummary] = None
+        self._summary: FixOpsSummary | None = None
 
         # Initialize Auto-Fix Engine if available
-        self._auto_fix_engine: Optional[Any] = None
+        self._auto_fix_engine: Any | None = None
         if HAS_AUTO_FIX and self.config.use_auto_fix_engine:
             self._auto_fix_engine = AutoFixEngine(
                 dry_run=self.config.dry_run,
@@ -201,7 +207,7 @@ class FixOpsOrchestrator:
             logger.info("Auto-Fix Engine initialized")
 
         # Initialize Audit Logger if available
-        self._audit_logger: Optional[Any] = None
+        self._audit_logger: Any | None = None
         if HAS_AUDIT and self.config.use_audit_logger:
             try:
                 self._audit_logger = get_audit_logger()
@@ -211,8 +217,8 @@ class FixOpsOrchestrator:
 
     async def run(
         self,
-        paths: Optional[list[str]] = None,
-        sources: Optional[list[SignalSource]] = None,
+        paths: list[str] | None = None,
+        sources: list[SignalSource] | None = None,
     ) -> FixOpsSummary:
         """
         Run complete FixOps workflow.
@@ -260,13 +266,13 @@ class FixOpsOrchestrator:
 
             # Step 5: Finalize
             self._summary.status = "completed"
-            self._summary.completed_at = datetime.now(timezone.utc)
+            self._summary.completed_at = datetime.now(UTC)
 
         except Exception as e:
             logger.error("FixOps run failed", error=str(e))
             self._summary.status = "failed"
             self._summary.errors.append(str(e))
-            self._summary.completed_at = datetime.now(timezone.utc)
+            self._summary.completed_at = datetime.now(UTC)
 
         # Save summary
         await self._save_summary()
@@ -276,15 +282,13 @@ class FixOpsOrchestrator:
     async def _collect_signals(
         self,
         sources: list[SignalSource],
-        paths: Optional[list[str]],
+        paths: list[str] | None,
     ) -> None:
         """Collect signals from specified sources"""
         logger.info("Collecting signals", sources=[s.value for s in sources])
 
         if SignalSource.CI in sources:
-            ci_signals = self.signal_collector.collect_ci_signals(
-                self.config.artifacts_dir
-            )
+            ci_signals = self.signal_collector.collect_ci_signals(self.config.artifacts_dir)
             self._summary.ci_signals = [s.to_dict() for s in ci_signals]
 
         if SignalSource.LOCAL in sources:
@@ -471,7 +475,7 @@ class FixOpsOrchestrator:
         issue: dict,
         tool: str,
         index: int,
-    ) -> Optional[FixRecommendation]:
+    ) -> FixRecommendation | None:
         """Create a fix recommendation from an issue"""
         try:
             severity = self._classify_severity(issue, tool)
@@ -510,7 +514,8 @@ class FixOpsOrchestrator:
         logger.info("Applying fixes", strategy=self.config.fix_strategy)
 
         auto_fixable = [
-            r for r in self._summary.recommendations
+            r
+            for r in self._summary.recommendations
             if r.auto_fixable and r.priority in ("critical", "high")
         ]
 
@@ -553,15 +558,15 @@ class FixOpsOrchestrator:
 
             self._summary.fixes_applied = len(successful_fixes)
             self._summary.fixes_failed = len(failed_fixes)
-            self._summary.files_modified = list(set(
-                r.file_path for r in successful_fixes if r.file_path
-            ))
+            self._summary.files_modified = list(
+                {r.file_path for r in successful_fixes if r.file_path}
+            )
 
             # Log to audit
             if self._audit_logger:
                 await self._audit_logger.log_auto_fix(
                     run_id=self._summary.id,
-                    total_issues=report.total_issues if hasattr(report, 'total_issues') else 0,
+                    total_issues=report.total_issues if hasattr(report, "total_issues") else 0,
                     fixes_applied=self._summary.fixes_applied,
                     fixes_failed=self._summary.fixes_failed,
                     strategy=self.config.fix_strategy,
@@ -666,7 +671,7 @@ class FixOpsOrchestrator:
 
 
 async def run_fixops(
-    repo_root: Optional[Path] = None,
+    repo_root: Path | None = None,
     dry_run: bool = False,
     fix_strategy: str = "safe",
 ) -> FixOpsSummary:

@@ -258,7 +258,15 @@ def mock_hydrology_service(sample_dem_data: np.ndarray):
                         },
                         "geometry": {
                             "type": "Polygon",
-                            "coordinates": [[[44.01, 15.02], [44.02, 15.02], [44.02, 15.03], [44.01, 15.03], [44.01, 15.02]]],
+                            "coordinates": [
+                                [
+                                    [44.01, 15.02],
+                                    [44.02, 15.02],
+                                    [44.02, 15.03],
+                                    [44.01, 15.03],
+                                    [44.01, 15.02],
+                                ]
+                            ],
                         },
                     }
                 ],
@@ -432,11 +440,13 @@ def mock_nats_client():
     published_events = []
 
     async def mock_publish(subject: str, data: bytes):
-        published_events.append({
-            "subject": subject,
-            "data": json.loads(data.decode()),
-            "timestamp": datetime.utcnow().isoformat(),
-        })
+        published_events.append(
+            {
+                "subject": subject,
+                "data": json.loads(data.decode()),
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+        )
 
     mock_nats.publish = AsyncMock(side_effect=mock_publish)
     mock_nats.published_events = published_events
@@ -527,11 +537,13 @@ class TerrainPipeline:
 
             # Add waterlogging recommendations
             for rec in waterlogging_result.get("recommendations", []):
-                result["recommendations"].append({
-                    "category": "hydrology",
-                    "category_ar": "هيدرولوجيا",
-                    **rec,
-                })
+                result["recommendations"].append(
+                    {
+                        "category": "hydrology",
+                        "category_ar": "هيدرولوجيا",
+                        **rec,
+                    }
+                )
 
         # Step 3: Leveling Analysis (if requested)
         if include_leveling:
@@ -543,42 +555,46 @@ class TerrainPipeline:
             cost_result = await self.leveling_service.estimate_cost(leveling_result)
             result["analyses"]["leveling_cost"] = cost_result
 
-            equipment_result = await self.leveling_service.recommend_equipment(
-                leveling_result
-            )
+            equipment_result = await self.leveling_service.recommend_equipment(leveling_result)
             result["analyses"]["equipment"] = equipment_result
 
             # Add leveling recommendations
-            result["recommendations"].append({
-                "category": "leveling",
-                "category_ar": "تسوية",
-                "action": f"Land leveling required: {leveling_result['earthwork']['total_volume_m3']:.0f} m3",
-                "action_ar": f"التسوية مطلوبة: {leveling_result['earthwork']['total_volume_m3']:.0f} م3",
-                "priority": "medium",
-                "estimated_cost_sar": cost_result["total_cost_sar"],
-            })
+            result["recommendations"].append(
+                {
+                    "category": "leveling",
+                    "category_ar": "تسوية",
+                    "action": f"Land leveling required: {leveling_result['earthwork']['total_volume_m3']:.0f} m3",
+                    "action_ar": f"التسوية مطلوبة: {leveling_result['earthwork']['total_volume_m3']:.0f} م3",
+                    "priority": "medium",
+                    "estimated_cost_sar": cost_result["total_cost_sar"],
+                }
+            )
 
         # Step 4: Generate summary recommendations based on terrain analysis
         terrain_data = terrain_result
         if terrain_data["slope"]["mean_degrees"] > 5:
-            result["recommendations"].append({
-                "category": "erosion",
-                "category_ar": "انجراف",
-                "action": "Consider contour farming to reduce erosion",
-                "action_ar": "النظر في الزراعة الكنتورية لتقليل الانجراف",
-                "priority": "medium",
-                "estimated_cost_sar": None,
-            })
+            result["recommendations"].append(
+                {
+                    "category": "erosion",
+                    "category_ar": "انجراف",
+                    "action": "Consider contour farming to reduce erosion",
+                    "action_ar": "النظر في الزراعة الكنتورية لتقليل الانجراف",
+                    "priority": "medium",
+                    "estimated_cost_sar": None,
+                }
+            )
 
         if terrain_data["twi"]["high_wetness_area_percent"] > 20:
-            result["recommendations"].append({
-                "category": "drainage",
-                "category_ar": "صرف",
-                "action": "Install drainage in high wetness areas",
-                "action_ar": "تركيب نظام صرف في مناطق الرطوبة العالية",
-                "priority": "high",
-                "estimated_cost_sar": 8000,
-            })
+            result["recommendations"].append(
+                {
+                    "category": "drainage",
+                    "category_ar": "صرف",
+                    "action": "Install drainage in high wetness areas",
+                    "action_ar": "تركيب نظام صرف في مناطق الرطوبة العالية",
+                    "priority": "high",
+                    "estimated_cost_sar": 8000,
+                }
+            )
 
         # Step 5: Publish events
         event = {
@@ -608,9 +624,7 @@ class TerrainPipeline:
         result["events_published"].append(event)
 
         result["completed_at"] = datetime.utcnow().isoformat()
-        result["processing_time_ms"] = (
-            datetime.utcnow() - start_time
-        ).total_seconds() * 1000
+        result["processing_time_ms"] = (datetime.utcnow() - start_time).total_seconds() * 1000
 
         return result
 
@@ -697,7 +711,16 @@ class TestTerrainPipelineIntegration:
 
         # Verify aspect data
         assert "aspect" in terrain
-        assert terrain["aspect"]["dominant_direction"] in ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
+        assert terrain["aspect"]["dominant_direction"] in [
+            "N",
+            "NE",
+            "E",
+            "SE",
+            "S",
+            "SW",
+            "W",
+            "NW",
+        ]
 
         # Verify TWI data
         assert "twi" in terrain

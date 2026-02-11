@@ -24,7 +24,9 @@ import pytest
 # Try to import from ai-advisor service, fallback to pure mocks if not available
 # This allows tests to run in environments without the full service dependencies
 try:
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor"))
+    sys.path.insert(
+        0, str(Path(__file__).parent.parent.parent / "apps" / "services" / "ai-advisor")
+    )
     from src.agents.base_agent import BaseAgent
     from src.orchestration.supervisor import Supervisor
 except ImportError:

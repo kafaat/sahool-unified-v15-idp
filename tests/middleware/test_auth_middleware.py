@@ -38,12 +38,7 @@ class MockResponse:
 class AuthMiddleware:
     """Mock authentication middleware for testing."""
 
-    def __init__(
-        self,
-        secret_key: str,
-        algorithm: str = "HS256",
-        excluded_paths: list = None
-    ):
+    def __init__(self, secret_key: str, algorithm: str = "HS256", excluded_paths: list = None):
         self.secret_key = secret_key
         self.algorithm = algorithm
         self.excluded_paths = excluded_paths or ["/healthz", "/readyz", "/docs"]
@@ -59,11 +54,7 @@ class AuthMiddleware:
     def verify_token(self, token: str) -> dict[str, Any] | None:
         """Verify JWT token and return payload."""
         try:
-            return jwt.decode(
-                token,
-                self.secret_key,
-                algorithms=[self.algorithm]
-            )
+            return jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
         except jwt.InvalidTokenError:
             return None
 
@@ -71,28 +62,18 @@ class AuthMiddleware:
         """Check if path is excluded from authentication."""
         return any(path.startswith(excluded) for excluded in self.excluded_paths)
 
-    async def __call__(
-        self,
-        request: MockRequest,
-        call_next: Callable
-    ) -> MockResponse:
+    async def __call__(self, request: MockRequest, call_next: Callable) -> MockResponse:
         """Process request through middleware."""
         if self.is_excluded_path(request.path):
             return await call_next(request)
 
         token = self.extract_token(request)
         if not token:
-            return MockResponse(
-                status_code=401,
-                body={"detail": "Not authenticated"}
-            )
+            return MockResponse(status_code=401, body={"detail": "Not authenticated"})
 
         payload = self.verify_token(token)
         if not payload:
-            return MockResponse(
-                status_code=401,
-                body={"detail": "Invalid token"}
-            )
+            return MockResponse(status_code=401, body={"detail": "Invalid token"})
 
         request.state.user = payload
         request.state.tenant_id = payload.get("tenant_id")
@@ -104,8 +85,7 @@ class AuthMiddleware:
 def auth_middleware():
     """Create auth middleware instance."""
     return AuthMiddleware(
-        secret_key=TEST_SECRET_KEY,
-        excluded_paths=["/healthz", "/readyz", "/docs", "/openapi.json"]
+        secret_key=TEST_SECRET_KEY, excluded_paths=["/healthz", "/readyz", "/docs", "/openapi.json"]
     )
 
 
@@ -371,8 +351,7 @@ class TestMiddlewareConfiguration:
     def test_custom_excluded_paths(self):
         """Test custom excluded paths configuration."""
         middleware = AuthMiddleware(
-            secret_key=TEST_SECRET_KEY,
-            excluded_paths=["/custom/path", "/another/path"]
+            secret_key=TEST_SECRET_KEY, excluded_paths=["/custom/path", "/another/path"]
         )
 
         assert middleware.is_excluded_path("/custom/path")
@@ -381,10 +360,7 @@ class TestMiddlewareConfiguration:
 
     def test_custom_algorithm(self):
         """Test custom algorithm configuration."""
-        middleware = AuthMiddleware(
-            secret_key=TEST_SECRET_KEY,
-            algorithm="HS384"
-        )
+        middleware = AuthMiddleware(secret_key=TEST_SECRET_KEY, algorithm="HS384")
 
         assert middleware.algorithm == "HS384"
 

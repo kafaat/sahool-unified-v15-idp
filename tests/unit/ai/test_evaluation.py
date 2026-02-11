@@ -374,9 +374,7 @@ class TestHeuristicEvaluation:
         assert result.grade is not None
         assert isinstance(result.is_approved, bool)
 
-    def test_heuristic_accuracy_evaluation(
-        self, evaluator, sample_irrigation_recommendation
-    ):
+    def test_heuristic_accuracy_evaluation(self, evaluator, sample_irrigation_recommendation):
         """Should evaluate accuracy heuristics"""
         result = evaluator.evaluate(
             recommendation=sample_irrigation_recommendation,
@@ -387,9 +385,7 @@ class TestHeuristicEvaluation:
         # Should have accuracy score
         assert EvaluationCriteria.ACCURACY in result.scores
 
-    def test_heuristic_actionability_evaluation(
-        self, evaluator, sample_irrigation_recommendation
-    ):
+    def test_heuristic_actionability_evaluation(self, evaluator, sample_irrigation_recommendation):
         """Should evaluate actionability"""
         result = evaluator.evaluate(
             recommendation=sample_irrigation_recommendation,
@@ -401,9 +397,7 @@ class TestHeuristicEvaluation:
         # Should have action verbs like "water", "apply"
         assert actionability.score > 0
 
-    def test_heuristic_safety_evaluation(
-        self, evaluator, sample_fertilization_recommendation
-    ):
+    def test_heuristic_safety_evaluation(self, evaluator, sample_fertilization_recommendation):
         """Should evaluate safety"""
         result = evaluator.evaluate(
             recommendation=sample_fertilization_recommendation,
@@ -415,9 +409,7 @@ class TestHeuristicEvaluation:
         # Should detect safety warnings
         assert safety.score > 0
 
-    def test_heuristic_relevance_evaluation(
-        self, evaluator, sample_irrigation_recommendation
-    ):
+    def test_heuristic_relevance_evaluation(self, evaluator, sample_irrigation_recommendation):
         """Should evaluate relevance to query"""
         result = evaluator.evaluate(
             recommendation=sample_irrigation_recommendation,
@@ -435,10 +427,13 @@ class TestHeuristicEvaluation:
         # Short recommendation
         short_rec = "Water the field."
         # Long, detailed recommendation
-        long_rec = sample_irrigation_recommendation = """
+        long_rec = sample_irrigation_recommendation = (
+            """
         For optimal irrigation: water every 3-4 days, apply 25-30 mm,
         irrigate in morning, monitor soil moisture, maintain consistent moisture during flowering.
-        """ * 2
+        """
+            * 2
+        )
 
         result_short = evaluator.evaluate(
             recommendation=short_rec,
@@ -460,11 +455,14 @@ class TestHeuristicEvaluation:
     def test_heuristic_clarity_evaluation(self, evaluator):
         """Should evaluate clarity"""
         clear_rec = "Water the field every 3 days in morning. Apply 25mm. Monitor moisture."
-        unclear_rec = """
+        unclear_rec = (
+            """
         It is important to understand that watering is necessary and when you do water
         which should be in the early morning hours generally between six and nine in the morning
         one would apply approximately twenty five to thirty millimeters of water per irrigation event.
-        """ * 3
+        """
+            * 3
+        )
 
         result_clear = evaluator.evaluate(
             recommendation=clear_rec,
@@ -494,25 +492,19 @@ class TestRecommendationTypeDetection:
 
     def test_detect_irrigation_type(self, evaluator, sample_irrigation_recommendation):
         """Should detect irrigation recommendations"""
-        detected_type = evaluator._detect_recommendation_type(
-            sample_irrigation_recommendation
-        )
+        detected_type = evaluator._detect_recommendation_type(sample_irrigation_recommendation)
 
         assert detected_type == RecommendationType.IRRIGATION
 
     def test_detect_fertilization_type(self, evaluator, sample_fertilization_recommendation):
         """Should detect fertilization recommendations"""
-        detected_type = evaluator._detect_recommendation_type(
-            sample_fertilization_recommendation
-        )
+        detected_type = evaluator._detect_recommendation_type(sample_fertilization_recommendation)
 
         assert detected_type == RecommendationType.FERTILIZATION
 
     def test_detect_pest_control_type(self, evaluator, sample_pest_control_recommendation):
         """Should detect pest control recommendations"""
-        detected_type = evaluator._detect_recommendation_type(
-            sample_pest_control_recommendation
-        )
+        detected_type = evaluator._detect_recommendation_type(sample_pest_control_recommendation)
 
         assert detected_type == RecommendationType.PEST_CONTROL
 
@@ -570,9 +562,7 @@ class TestBatchEvaluation:
         assert len(results) == 2
         assert all(isinstance(r, EvaluationResult) for r in results)
 
-    def test_batch_results_independent(
-        self, evaluator, sample_irrigation_recommendation
-    ):
+    def test_batch_results_independent(self, evaluator, sample_irrigation_recommendation):
         """Batch results should be independent"""
         batch = [
             {

@@ -1499,9 +1499,7 @@ class TestCooperativeWorkflow:
 
         # 2. Check availability
         tomorrow = datetime.utcnow() + timedelta(days=1)
-        availability = await resource_pool_service.get_availability(
-            tractor.resource_id, tomorrow
-        )
+        availability = await resource_pool_service.get_availability(tractor.resource_id, tomorrow)
         assert len(availability.available_hours) > 0
 
         # 3. Create booking
@@ -1571,8 +1569,7 @@ class TestCooperativeWorkflow:
 
         # 5. Create distribution plan
         production_data = {
-            sample_members[i].member_id: float((i + 1) * 20)
-            for i in range(len(sample_members))
+            sample_members[i].member_id: float((i + 1) * 20) for i in range(len(sample_members))
         }
 
         plan = await revenue_service.create_distribution_plan(

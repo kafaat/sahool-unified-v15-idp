@@ -20,10 +20,10 @@ import yaml
 # Fix encoding for Windows console
 if sys.platform == "win32":
     try:
-        sys.stdout.reconfigure(encoding='utf-8')
+        sys.stdout.reconfigure(encoding="utf-8")
     except AttributeError:
         # Python < 3.7
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
@@ -97,8 +97,7 @@ def run_audit(repo_root: Path, config: dict) -> dict:
     )
 
     total_penalty = sum(
-        stats["by_severity"].get(sev, 0) * weight
-        for sev, weight in severity_weights.items()
+        stats["by_severity"].get(sev, 0) * weight for sev, weight in severity_weights.items()
     )
 
     # Base score of 10, reduced by penalties (min 0)
@@ -121,9 +120,7 @@ def run_audit(repo_root: Path, config: dict) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description="SAHOOL Audit Engine")
-    parser.add_argument(
-        "--repo", type=str, default=".", help="Path to repository root"
-    )
+    parser.add_argument("--repo", type=str, default=".", help="Path to repository root")
     parser.add_argument(
         "--config",
         type=str,
@@ -176,7 +173,7 @@ def main():
     if args.format in ("markdown", "both"):
         md_output = markdown_report.generate(results)
         if args.output and args.format == "markdown":
-            Path(args.output).write_text(md_output, encoding='utf-8')
+            Path(args.output).write_text(md_output, encoding="utf-8")
             print(f"📄 Report saved to: {args.output}")
         else:
             print(md_output)
@@ -185,7 +182,7 @@ def main():
         json_output = json_report.generate(results)
         output_path = args.output or "audit_report.json"
         if args.format == "json" or args.format == "both":
-            Path(output_path).write_text(json_output, encoding='utf-8')
+            Path(output_path).write_text(json_output, encoding="utf-8")
             print(f"📄 JSON report saved to: {output_path}")
 
     # Exit with appropriate code

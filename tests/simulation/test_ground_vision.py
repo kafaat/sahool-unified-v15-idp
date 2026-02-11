@@ -17,6 +17,7 @@ import json
 # Test Fixtures
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @pytest.fixture
 def sample_frame():
     """Generate a sample image frame for testing."""
@@ -73,6 +74,7 @@ def sample_field_context():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Geo-Projection Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestQuaternionGeoProjector:
     """Tests for Quaternion-based georeferencing."""
@@ -160,6 +162,7 @@ class TestQuaternionGeoProjector:
 # Change Detection Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestChangeDetector:
     """Tests for frame change detection."""
 
@@ -227,6 +230,7 @@ class TestChangeDetector:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Operation Classifier Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestOperationClassifier:
     """Tests for agricultural operation classification."""
@@ -296,6 +300,7 @@ class TestOperationClassifier:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Anomaly Detector Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestAnomalyDetector:
     """Tests for anomaly detection."""
@@ -405,6 +410,7 @@ class TestAnomalyDetector:
 # MLLM Reasoner Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestCropTimelineReasoner:
     """Tests for MLLM crop timeline analysis."""
 
@@ -459,9 +465,7 @@ class TestCropTimelineReasoner:
         ]
 
         # Same frame twice = no significant change
-        should_run = await reasoner.should_analyze(
-            frames, [frame_bytes, frame_bytes]
-        )
+        should_run = await reasoner.should_analyze(frames, [frame_bytes, frame_bytes])
 
         assert should_run is False
 
@@ -469,6 +473,7 @@ class TestCropTimelineReasoner:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Event Publisher Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestGroundVisionPublisher:
     """Tests for NATS event publishing."""
@@ -512,9 +517,7 @@ class TestGroundVisionPublisher:
             operation_type=OperationType.HARVEST,
             confidence=0.92,
             confidence_level=DetectionConfidence.HIGH,
-            bounding_box=BoundingBox(
-                x_min=100, y_min=100, x_max=300, y_max=300
-            ),
+            bounding_box=BoundingBox(x_min=100, y_min=100, x_max=300, y_max=300),
             source_frame_id="frame_001",
             tenant_id="sahool_test",
         )
@@ -533,6 +536,7 @@ class TestGroundVisionPublisher:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Integration Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestGroundVisionPipeline:
     """Integration tests for the complete pipeline."""
@@ -563,9 +567,7 @@ class TestGroundVisionPipeline:
         current_frame[200:300, 200:400] = [139, 90, 43]  # Add brown area
 
         # Step 1: Change detection
-        change_result = await change_detector.compute_change(
-            previous_frame, current_frame
-        )
+        change_result = await change_detector.compute_change(previous_frame, current_frame)
 
         assert change_result is not None
 
@@ -596,6 +598,7 @@ class TestGroundVisionPipeline:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Model Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestModels:
     """Tests for data models."""
@@ -657,9 +660,7 @@ class TestModels:
             operation_type=OperationType.HARVEST,
             confidence=0.92,
             confidence_level=DetectionConfidence.HIGH,
-            bounding_box=BoundingBox(
-                x_min=100, y_min=100, x_max=300, y_max=300
-            ),
+            bounding_box=BoundingBox(x_min=100, y_min=100, x_max=300, y_max=300),
             source_frame_id="frame_001",
             tenant_id="sahool_test",
         )

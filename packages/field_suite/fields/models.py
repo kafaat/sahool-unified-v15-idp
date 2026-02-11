@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class FieldStatus(str, Enum):
+class FieldStatus(StrEnum):
     """Field operational status"""
 
     ACTIVE = "active"
@@ -20,7 +20,7 @@ class FieldStatus(str, Enum):
     HARVESTING = "harvesting"
 
 
-class SoilType(str, Enum):
+class SoilType(StrEnum):
     """Soil classification"""
 
     CLAY = "clay"
@@ -31,7 +31,7 @@ class SoilType(str, Enum):
     CHALKY = "chalky"
 
 
-class IrrigationType(str, Enum):
+class IrrigationType(StrEnum):
     """Irrigation method"""
 
     DRIP = "drip"

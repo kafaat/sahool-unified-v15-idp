@@ -312,7 +312,7 @@ class TestCodeLLMProviderAsync:
             tokens_output=10,
         )
 
-        with patch.object(provider._manager, 'generate', new_callable=AsyncMock) as mock_gen:
+        with patch.object(provider._manager, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             result = await provider.complete_code(
@@ -340,7 +340,7 @@ class TestCodeLLMProviderAsync:
             tokens_output=50,
         )
 
-        with patch.object(provider._manager, 'generate', new_callable=AsyncMock) as mock_gen:
+        with patch.object(provider._manager, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             result = await provider.review_code(
@@ -368,7 +368,7 @@ class TestCodeLLMProviderAsync:
             tokens_output=50,
         )
 
-        with patch.object(provider._manager, 'generate', new_callable=AsyncMock) as mock_gen:
+        with patch.object(provider._manager, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             result = await provider.fix_code(
@@ -395,7 +395,7 @@ class TestCodeLLMProviderAsync:
             tokens_output=50,
         )
 
-        with patch.object(provider._manager, 'generate', new_callable=AsyncMock) as mock_gen:
+        with patch.object(provider._manager, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             result = await provider.generate_tests(
@@ -421,7 +421,7 @@ class TestCodeLLMProviderAsync:
             tokens_output=50,
         )
 
-        with patch.object(provider._manager, 'generate', new_callable=AsyncMock) as mock_gen:
+        with patch.object(provider._manager, "generate", new_callable=AsyncMock) as mock_gen:
             mock_gen.return_value = mock_response
 
             result = await provider.explain_code(

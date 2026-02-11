@@ -1115,7 +1115,9 @@ class HarvestDealFactory:
             "farmer_id": farmer_id,
             "crop_type": crop_type,
             "crop_type_ar": "قمح" if crop_type == "wheat" else crop_type,
-            "expected_quantity_tons": faker_en.pyfloat(min_value=10.0, max_value=100.0, right_digits=1),
+            "expected_quantity_tons": faker_en.pyfloat(
+                min_value=10.0, max_value=100.0, right_digits=1
+            ),
             "expected_harvest_date": (datetime.utcnow() + timedelta(days=90)).strftime("%Y-%m-%d"),
             "price_per_ton": faker_en.pyfloat(min_value=400.0, max_value=600.0, right_digits=2),
             "notes": "Test harvest deal",
@@ -1218,11 +1220,13 @@ class NATSEventCollector:
         async def handler(msg):
             try:
                 data = json.loads(msg.data.decode())
-                self.events.append({
-                    "subject": msg.subject,
-                    "data": data,
-                    "timestamp": datetime.utcnow().isoformat(),
-                })
+                self.events.append(
+                    {
+                        "subject": msg.subject,
+                        "data": data,
+                        "timestamp": datetime.utcnow().isoformat(),
+                    }
+                )
             except Exception:
                 pass
 
@@ -1241,10 +1245,7 @@ class NATSEventCollector:
     def get_events(self, event_type: str | None = None) -> list[dict[str, Any]]:
         """Get collected events, optionally filtered by type."""
         if event_type:
-            return [
-                e for e in self.events
-                if e.get("data", {}).get("event_type") == event_type
-            ]
+            return [e for e in self.events if e.get("data", {}).get("event_type") == event_type]
         return self.events
 
     def clear(self) -> None:
@@ -1306,6 +1307,7 @@ def generate_jwt_token(test_config: TestConfig):
     Factory to generate JWT tokens with custom claims.
     مصنع لتوليد رموز JWT مع مطالبات مخصصة
     """
+
     def _generate(
         user_id: str = "test-user-123",
         tenant_id: str = "test-tenant-123",
@@ -1336,7 +1338,10 @@ def auth_headers_for_tenant(generate_jwt_token):
     Factory to generate auth headers for a specific tenant.
     مصنع لتوليد رؤوس المصادقة لمستأجر محدد
     """
-    def _headers(tenant_id: str, user_id: str | None = None, role: str = "farmer") -> dict[str, str]:
+
+    def _headers(
+        tenant_id: str, user_id: str | None = None, role: str = "farmer"
+    ) -> dict[str, str]:
         token = generate_jwt_token(
             user_id=user_id or f"user-{tenant_id}",
             tenant_id=tenant_id,
@@ -1385,10 +1390,7 @@ async def cleanup_test_tenant(db_cursor):
             ]
             for table in tables:
                 try:
-                    db_cursor.execute(
-                        f"DELETE FROM {table} WHERE tenant_id = %s",
-                        (tenant_id,)
-                    )
+                    db_cursor.execute(f"DELETE FROM {table} WHERE tenant_id = %s", (tenant_id,))
                 except Exception:
                     pass
         except Exception:

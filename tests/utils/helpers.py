@@ -63,9 +63,7 @@ def create_test_token(
     try:
         import jwt
 
-        secret_key = os.environ.get(
-            "JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars"
-        )
+        secret_key = os.environ.get("JWT_SECRET_KEY", "test-secret-key-for-unit-tests-only-32chars")
         algorithm = os.environ.get("JWT_ALGORITHM", "HS256")
 
         payload = {

@@ -19,6 +19,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 import tempfile
 import json
+from datetime import UTC
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.integration, pytest.mark.fixops]
@@ -652,7 +653,7 @@ class TestCheckResult:
         result = CheckResult(
             check_id="test-001",
             check_type=CheckType.PERIODIC,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
             success=True,
             total_issues=5,
             critical_issues=1,
@@ -670,7 +671,7 @@ class TestCheckResult:
         result = CheckResult(
             check_id="test-001",
             check_type=CheckType.PRE_COMMIT,
-            started_at=datetime.now(timezone.utc),
+            started_at=datetime.now(UTC),
         )
 
         data = result.to_dict()

@@ -393,29 +393,35 @@ class TestOptimalGradePlane:
 
         # Option 1: Balanced cut/fill
         balanced_elev = np.mean(dem)
-        plane_options.append({
-            "name": "Balanced",
-            "name_ar": "متوازن",
-            "elevation": balanced_elev,
-            "slope_percent": 0,
-        })
+        plane_options.append(
+            {
+                "name": "Balanced",
+                "name_ar": "متوازن",
+                "elevation": balanced_elev,
+                "slope_percent": 0,
+            }
+        )
 
         # Option 2: Minimize cut
         min_cut_elev = np.percentile(dem, 25)
-        plane_options.append({
-            "name": "Minimize Cut",
-            "name_ar": "تقليل القطع",
-            "elevation": min_cut_elev,
-            "slope_percent": 0,
-        })
+        plane_options.append(
+            {
+                "name": "Minimize Cut",
+                "name_ar": "تقليل القطع",
+                "elevation": min_cut_elev,
+                "slope_percent": 0,
+            }
+        )
 
         # Option 3: Minimum earthwork (best fit plane)
-        plane_options.append({
-            "name": "Minimum Earthwork",
-            "name_ar": "أقل كمية ترابية",
-            "elevation": np.median(dem),
-            "slope_percent": 0.1,
-        })
+        plane_options.append(
+            {
+                "name": "Minimum Earthwork",
+                "name_ar": "أقل كمية ترابية",
+                "elevation": np.median(dem),
+                "slope_percent": 0.1,
+            }
+        )
 
         assert len(plane_options) == 3
 
@@ -525,23 +531,27 @@ class TestCostEstimation:
         flat_target = np.mean(dem)
         diff1 = dem - flat_target
         vol1 = np.sum(np.abs(diff1)) * cell_size**2
-        scenarios.append({
-            "name": "Flat Field",
-            "name_ar": "حقل مستوي",
-            "earthwork_m3": vol1,
-            "estimated_cost_sar": vol1 * 5,  # 5 SAR/m3 estimate
-        })
+        scenarios.append(
+            {
+                "name": "Flat Field",
+                "name_ar": "حقل مستوي",
+                "earthwork_m3": vol1,
+                "estimated_cost_sar": vol1 * 5,  # 5 SAR/m3 estimate
+            }
+        )
 
         # Scenario 2: Sloped (0.1%)
         slope_target = flat_target - np.arange(dem.shape[0])[:, np.newaxis] * cell_size * 0.001
         diff2 = dem - slope_target
         vol2 = np.sum(np.abs(diff2)) * cell_size**2
-        scenarios.append({
-            "name": "Sloped Field (0.1%)",
-            "name_ar": "حقل مائل (0.1%)",
-            "earthwork_m3": vol2,
-            "estimated_cost_sar": vol2 * 5,
-        })
+        scenarios.append(
+            {
+                "name": "Sloped Field (0.1%)",
+                "name_ar": "حقل مائل (0.1%)",
+                "earthwork_m3": vol2,
+                "estimated_cost_sar": vol2 * 5,
+            }
+        )
 
         # Verify scenarios created
         assert len(scenarios) == 2
@@ -555,9 +565,7 @@ class TestCostEstimation:
 class TestEquipmentRecommendations:
     """Tests for equipment selection and recommendations."""
 
-    def test_equipment_selection_by_volume(
-        self, sample_equipment_costs: dict[str, Any]
-    ):
+    def test_equipment_selection_by_volume(self, sample_equipment_costs: dict[str, Any]):
         """Test equipment selection based on earthwork volume."""
         volume_m3 = 5000.0
 
@@ -578,9 +586,7 @@ class TestEquipmentRecommendations:
 
         assert len(recommendations) > 0
 
-    def test_equipment_selection_by_distance(
-        self, sample_equipment_costs: dict[str, Any]
-    ):
+    def test_equipment_selection_by_distance(self, sample_equipment_costs: dict[str, Any]):
         """Test equipment selection based on haul distance."""
         avg_haul_distance_m = 150.0
 
@@ -593,9 +599,7 @@ class TestEquipmentRecommendations:
 
         assert recommended in ["bulldozer", "scraper", "excavator_and_trucks"]
 
-    def test_equipment_combination_recommendation(
-        self, sample_equipment_costs: dict[str, Any]
-    ):
+    def test_equipment_combination_recommendation(self, sample_equipment_costs: dict[str, Any]):
         """Test recommendation of equipment combinations."""
         project_params = {
             "total_volume_m3": 8000,
@@ -622,9 +626,7 @@ class TestEquipmentRecommendations:
         total_days = sum(phase["duration_days"] for phase in equipment_plan.values())
         assert total_days <= project_params["deadline_days"]
 
-    def test_equipment_capacity_validation(
-        self, sample_equipment_costs: dict[str, Any]
-    ):
+    def test_equipment_capacity_validation(self, sample_equipment_costs: dict[str, Any]):
         """Test validation of equipment capacity for project."""
         volume_m3 = 5000.0
         available_days = 5
@@ -721,8 +723,12 @@ class TestLevelingOptimization:
         violation_report = {
             "cut_violations": int(np.sum(cut_violations)),
             "fill_violations": int(np.sum(fill_violations)),
-            "max_cut_exceeded_by": float(np.max(diff) - max_cut_depth) if np.any(cut_violations) else 0,
-            "max_fill_exceeded_by": float(-np.min(diff) - max_fill_depth) if np.any(fill_violations) else 0,
+            "max_cut_exceeded_by": float(np.max(diff) - max_cut_depth)
+            if np.any(cut_violations)
+            else 0,
+            "max_fill_exceeded_by": float(-np.min(diff) - max_fill_depth)
+            if np.any(fill_violations)
+            else 0,
         }
 
         assert "cut_violations" in violation_report

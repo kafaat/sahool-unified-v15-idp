@@ -7,11 +7,11 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import uuid4
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Crop type classification"""
 
     WHEAT = "wheat"
@@ -31,7 +31,7 @@ class CropType(str, Enum):
     OTHER = "other"
 
 
-class GrowthStage(str, Enum):
+class GrowthStage(StrEnum):
     """Crop growth stage"""
 
     PLANTING = "planting"

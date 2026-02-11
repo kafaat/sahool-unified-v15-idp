@@ -460,9 +460,7 @@ class TestRefreshAccessToken:
                 roles=test_roles,
             )
 
-    def test_refresh_preserves_user_id(
-        self, valid_refresh_token, test_user_id, test_roles
-    ):
+    def test_refresh_preserves_user_id(self, valid_refresh_token, test_user_id, test_roles):
         """Test that refresh preserves user ID."""
         new_token = refresh_access_token(
             refresh_token=valid_refresh_token,
@@ -472,9 +470,7 @@ class TestRefreshAccessToken:
         payload = verify_token(new_token)
         assert payload.user_id == test_user_id
 
-    def test_refresh_preserves_tenant_id(
-        self, valid_refresh_token, test_tenant_id, test_roles
-    ):
+    def test_refresh_preserves_tenant_id(self, valid_refresh_token, test_tenant_id, test_roles):
         """Test that refresh preserves tenant ID."""
         new_token = refresh_access_token(
             refresh_token=valid_refresh_token,
@@ -508,9 +504,9 @@ class TestSecurityEdgeCases:
         payload["roles"] = ["super_admin"]  # Attempt privilege escalation
 
         # Re-encode payload
-        modified_payload = base64.urlsafe_b64encode(
-            json.dumps(payload).encode()
-        ).decode().rstrip("=")
+        modified_payload = (
+            base64.urlsafe_b64encode(json.dumps(payload).encode()).decode().rstrip("=")
+        )
 
         # Create modified token
         modified_token = f"{parts[0]}.{modified_payload}.{parts[2]}"

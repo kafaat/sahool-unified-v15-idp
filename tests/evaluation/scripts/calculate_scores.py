@@ -146,7 +146,7 @@ class ScoreCalculator:
         )
 
         # Override with language support test results if available
-        if hasattr(self, '_language_support_data') and self._language_support_data:
+        if hasattr(self, "_language_support_data") and self._language_support_data:
             lang_data = self._language_support_data
             if lang_data.get("arabic_pass_rate", 0) > 0:
                 arabic_support = lang_data["arabic_pass_rate"]

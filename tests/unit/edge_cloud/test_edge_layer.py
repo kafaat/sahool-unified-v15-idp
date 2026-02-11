@@ -70,10 +70,12 @@ class DataCleaner:
                     interpolated_reading["interpolated"] = True
                     interpolated.append(interpolated_reading)
             else:
-                rejected.append({
-                    "reading": reading,
-                    "reason": validation["reason"],
-                })
+                rejected.append(
+                    {
+                        "reading": reading,
+                        "reason": validation["reason"],
+                    }
+                )
 
         return {
             "cleaned": cleaned,
@@ -158,11 +160,13 @@ class DataCleaner:
                     ) * 100
 
                     if change_percent > threshold_percent:
-                        spikes.append({
-                            "reading": curr,
-                            "previous_value": prev["value"],
-                            "change_percent": round(change_percent, 2),
-                        })
+                        spikes.append(
+                            {
+                                "reading": curr,
+                                "previous_value": prev["value"],
+                                "change_percent": round(change_percent, 2),
+                            }
+                        )
 
         return spikes
 
@@ -175,9 +179,7 @@ class EdgeInferenceEngine:
         self._inference_count = 0
         self._total_latency_ms = 0
 
-    async def run_inference(
-        self, model_id: str, input_data: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def run_inference(self, model_id: str, input_data: dict[str, Any]) -> dict[str, Any]:
         """Run inference on edge model"""
         start_time = time.monotonic()
 
@@ -254,10 +256,12 @@ class OfflineManager:
             # Remove oldest entry
             self._buffer.pop(0)
 
-        self._buffer.append({
-            **data,
-            "buffered_at": datetime.now(UTC).isoformat(),
-        })
+        self._buffer.append(
+            {
+                **data,
+                "buffered_at": datetime.now(UTC).isoformat(),
+            }
+        )
 
         return {
             "buffered": True,
@@ -681,10 +685,12 @@ class TestLatencyRequirements:
     @pytest.fixture
     def fast_model(self) -> MagicMock:
         model = MagicMock()
-        model.predict = MagicMock(return_value={
-            "prediction": "irrigate",
-            "confidence": 0.9,
-        })
+        model.predict = MagicMock(
+            return_value={
+                "prediction": "irrigate",
+                "confidence": 0.9,
+            }
+        )
         return model
 
     @pytest.fixture
@@ -761,7 +767,9 @@ class TestAutoIrrigationTrigger:
         assert len(result["reasons"]) > 0
         assert "below threshold" in result["reasons"][0].lower()
 
-    def test_evaluate_normal_conditions_no_trigger(self, irrigation_controller: AutoIrrigationController):
+    def test_evaluate_normal_conditions_no_trigger(
+        self, irrigation_controller: AutoIrrigationController
+    ):
         """Test no irrigation for normal conditions"""
         sensor_data = {
             "soil_moisture": 50.0,  # Within normal range
@@ -773,7 +781,9 @@ class TestAutoIrrigationTrigger:
         assert result["should_irrigate"] is False
         assert len(result["reasons"]) == 0
 
-    def test_evaluate_high_temp_with_low_moisture(self, irrigation_controller: AutoIrrigationController):
+    def test_evaluate_high_temp_with_low_moisture(
+        self, irrigation_controller: AutoIrrigationController
+    ):
         """Test irrigation triggered for high temp + low moisture"""
         sensor_data = {
             "soil_moisture": 45.0,  # Below 50% but above min
@@ -788,26 +798,34 @@ class TestAutoIrrigationTrigger:
     def test_evaluate_urgency_levels(self, irrigation_controller: AutoIrrigationController):
         """Test different urgency levels based on conditions"""
         # Normal urgency (just below threshold)
-        result_normal = irrigation_controller.evaluate_conditions({
-            "soil_moisture": 28.0,
-            "temperature": 25.0,
-        })
+        result_normal = irrigation_controller.evaluate_conditions(
+            {
+                "soil_moisture": 28.0,
+                "temperature": 25.0,
+            }
+        )
         assert result_normal["urgency"] == "normal"
 
         # High urgency (critically low moisture)
-        result_high = irrigation_controller.evaluate_conditions({
-            "soil_moisture": 15.0,  # < 30 * 0.7 = 21
-            "temperature": 25.0,
-        })
+        result_high = irrigation_controller.evaluate_conditions(
+            {
+                "soil_moisture": 15.0,  # < 30 * 0.7 = 21
+                "temperature": 25.0,
+            }
+        )
         assert result_high["urgency"] == "high"
 
     @pytest.mark.asyncio
-    async def test_trigger_irrigation_success(self, irrigation_controller: AutoIrrigationController):
+    async def test_trigger_irrigation_success(
+        self, irrigation_controller: AutoIrrigationController
+    ):
         """Test successful irrigation trigger"""
-        evaluation = irrigation_controller.evaluate_conditions({
-            "soil_moisture": 25.0,
-            "temperature": 30.0,
-        })
+        evaluation = irrigation_controller.evaluate_conditions(
+            {
+                "soil_moisture": 25.0,
+                "temperature": 30.0,
+            }
+        )
 
         result = await irrigation_controller.trigger_irrigation(
             zone_id="zone-001",
@@ -822,7 +840,9 @@ class TestAutoIrrigationTrigger:
         assert result["trigger"]["status"] == "triggered"
 
     @pytest.mark.asyncio
-    async def test_trigger_irrigation_when_disabled(self, irrigation_controller: AutoIrrigationController):
+    async def test_trigger_irrigation_when_disabled(
+        self, irrigation_controller: AutoIrrigationController
+    ):
         """Test irrigation trigger fails when disabled"""
         irrigation_controller.disable()
 

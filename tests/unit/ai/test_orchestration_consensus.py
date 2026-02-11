@@ -14,7 +14,7 @@ import asyncio
 import random
 from dataclasses import dataclass, field
 from datetime import datetime, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Generic, TypeVar
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
@@ -30,23 +30,26 @@ import pytest
 T = TypeVar("T")
 
 
-class VoteType(str, Enum):
+class VoteType(StrEnum):
     """Types of votes | أنواع التصويت"""
+
     APPROVE = "approve"
     REJECT = "reject"
     ABSTAIN = "abstain"
 
 
-class ConsensusState(str, Enum):
+class ConsensusState(StrEnum):
     """Consensus state | حالة التوافق"""
+
     PENDING = "pending"
     ACHIEVED = "achieved"
     FAILED = "failed"
     TIMEOUT = "timeout"
 
 
-class NodeState(str, Enum):
+class NodeState(StrEnum):
     """Raft node states | حالات عقدة Raft"""
+
     FOLLOWER = "follower"
     CANDIDATE = "candidate"
     LEADER = "leader"
@@ -55,6 +58,7 @@ class NodeState(str, Enum):
 @dataclass
 class Vote(Generic[T]):
     """Individual vote | تصويت فردي"""
+
     voter_id: str
     value: T
     vote_type: VoteType = VoteType.APPROVE
@@ -67,6 +71,7 @@ class Vote(Generic[T]):
 @dataclass
 class ConsensusProposal(Generic[T]):
     """Proposal for consensus | اقتراح للتوافق"""
+
     proposal_id: str
     topic: str
     options: list[T]
@@ -80,6 +85,7 @@ class ConsensusProposal(Generic[T]):
 @dataclass
 class ConsensusResult(Generic[T]):
     """Result of consensus process | نتيجة عملية التوافق"""
+
     proposal_id: str
     winner: T | None
     state: ConsensusState
@@ -179,7 +185,11 @@ class MajorityVoting(ConsensusProtocol):
         winning_percentage = winning_count / len(valid_votes)
 
         # Check quorum
-        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
+        state = (
+            ConsensusState.ACHIEVED
+            if winning_percentage >= proposal.quorum_percentage
+            else ConsensusState.FAILED
+        )
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -262,7 +272,11 @@ class WeightedVoting(ConsensusProtocol):
         winning_percentage = winning_score / total_weight
 
         # Check quorum
-        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
+        state = (
+            ConsensusState.ACHIEVED
+            if winning_percentage >= proposal.quorum_percentage
+            else ConsensusState.FAILED
+        )
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -282,6 +296,7 @@ class WeightedVoting(ConsensusProtocol):
 @dataclass
 class RaftNode:
     """Node in Raft consensus cluster | عقدة في مجموعة Raft"""
+
     node_id: str
     state: NodeState = NodeState.FOLLOWER
     current_term: int = 0
@@ -511,7 +526,11 @@ class RaftConsensus(ConsensusProtocol):
         total_valid = sum(vote_counts.values())
         winning_percentage = winning_count / total_valid if total_valid > 0 else 0.0
 
-        state = ConsensusState.ACHIEVED if winning_percentage >= proposal.quorum_percentage else ConsensusState.FAILED
+        state = (
+            ConsensusState.ACHIEVED
+            if winning_percentage >= proposal.quorum_percentage
+            else ConsensusState.FAILED
+        )
 
         result = ConsensusResult(
             proposal_id=proposal.proposal_id,
@@ -642,7 +661,10 @@ class TestMajorityVoting:
 
     @pytest.mark.asyncio
     async def test_majority_voting(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that majority voting selects the option with most votes."""
         result = await majority_voting.reach_consensus(simple_proposal, split_votes)
@@ -653,7 +675,10 @@ class TestMajorityVoting:
 
     @pytest.mark.asyncio
     async def test_majority_voting_unanimous(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, unanimous_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        unanimous_votes: list[Vote],
     ):
         """Test majority voting with unanimous votes."""
         result = await majority_voting.reach_consensus(simple_proposal, unanimous_votes)
@@ -664,7 +689,10 @@ class TestMajorityVoting:
 
     @pytest.mark.asyncio
     async def test_majority_voting_counts_votes(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that vote counts are accurate."""
         result = await majority_voting.reach_consensus(simple_proposal, split_votes)
@@ -675,7 +703,10 @@ class TestMajorityVoting:
 
     @pytest.mark.asyncio
     async def test_majority_voting_tracks_participants(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that participants are tracked."""
         result = await majority_voting.reach_consensus(simple_proposal, split_votes)
@@ -721,9 +752,7 @@ class TestMajorityVoting:
         assert result.winning_percentage == 1.0
 
     @pytest.mark.asyncio
-    async def test_majority_voting_quorum_not_met(
-        self, majority_voting: MajorityVoting
-    ):
+    async def test_majority_voting_quorum_not_met(self, majority_voting: MajorityVoting):
         """Test failure when quorum is not met."""
         # High quorum requirement
         proposal = ConsensusProposal(
@@ -780,7 +809,9 @@ class TestWeightedVoting:
         """Test that confidence affects effective weight."""
         votes = [
             Vote(voter_id="expert_1", value="drip", weight=2.0, confidence=1.0),  # 2.0 effective
-            Vote(voter_id="expert_2", value="sprinkler", weight=4.0, confidence=0.4),  # 1.6 effective
+            Vote(
+                voter_id="expert_2", value="sprinkler", weight=4.0, confidence=0.4
+            ),  # 1.6 effective
             Vote(voter_id="junior", value="drip", weight=1.0, confidence=0.5),  # 0.5 effective
         ]
 
@@ -807,7 +838,10 @@ class TestWeightedVoting:
 
     @pytest.mark.asyncio
     async def test_weighted_voting_with_weighted_votes(
-        self, weighted_voting: WeightedVoting, simple_proposal: ConsensusProposal, weighted_votes: list[Vote]
+        self,
+        weighted_voting: WeightedVoting,
+        simple_proposal: ConsensusProposal,
+        weighted_votes: list[Vote],
     ):
         """Test weighted voting with predefined weighted votes."""
         result = await weighted_voting.reach_consensus(simple_proposal, weighted_votes)
@@ -842,7 +876,10 @@ class TestRaftConsensus:
 
     @pytest.mark.asyncio
     async def test_raft_consensus(
-        self, raft_consensus: RaftConsensus, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        raft_consensus: RaftConsensus,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that Raft consensus achieves agreement."""
         result = await raft_consensus.reach_consensus(simple_proposal, split_votes)
@@ -1034,7 +1071,10 @@ class TestResultHistory:
 
     @pytest.mark.asyncio
     async def test_results_stored_in_history(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that results are stored in history."""
         await majority_voting.reach_consensus(simple_proposal, split_votes)
@@ -1059,7 +1099,10 @@ class TestResultHistory:
 
     @pytest.mark.asyncio
     async def test_execution_time_tracked(
-        self, majority_voting: MajorityVoting, simple_proposal: ConsensusProposal, split_votes: list[Vote]
+        self,
+        majority_voting: MajorityVoting,
+        simple_proposal: ConsensusProposal,
+        split_votes: list[Vote],
     ):
         """Test that execution time is tracked."""
         result = await majority_voting.reach_consensus(simple_proposal, split_votes)
@@ -1147,7 +1190,7 @@ class TestConsensusEdgeCases:
             Vote(
                 voter_id="agent_1",
                 value="drip",
-                metadata={"reason": "Water efficiency", "reason_ar": "كفاءة المياه"}
+                metadata={"reason": "Water efficiency", "reason_ar": "كفاءة المياه"},
             ),
             Vote(voter_id="agent_2", value="drip"),
             Vote(voter_id="agent_3", value="drip"),

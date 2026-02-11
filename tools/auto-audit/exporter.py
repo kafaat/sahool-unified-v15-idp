@@ -25,13 +25,13 @@ import json
 import sys
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from io import StringIO
 from pathlib import Path
 from typing import Any
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """Supported export formats"""
 
     JSON = "json"
@@ -44,7 +44,7 @@ class ExportFormat(str, Enum):
     SYSLOG = "syslog"
 
 
-class RedactionLevel(str, Enum):
+class RedactionLevel(StrEnum):
     """PII redaction levels"""
 
     NONE = "none"

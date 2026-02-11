@@ -241,9 +241,7 @@ class TestEventPublisherPublishing:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_publish_event_success(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_publish_event_success(self, publisher, sample_field_event, mock_nats_client):
         """Test successful event publishing."""
         mock_nc, mock_js = mock_nats_client
         publisher._connected = True
@@ -272,9 +270,7 @@ class TestEventPublisherPublishing:
         assert sample_field_event.source_service == "test-service"
 
     @pytest.mark.asyncio
-    async def test_publish_event_core_nats(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_publish_event_core_nats(self, publisher, sample_field_event, mock_nats_client):
         """Test publishing using core NATS (not JetStream)."""
         mock_nc, _ = mock_nats_client
         publisher._connected = True
@@ -289,9 +285,7 @@ class TestEventPublisherPublishing:
         mock_nc.publish.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_publish_events_batch(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_publish_events_batch(self, publisher, sample_field_event, mock_nats_client):
         """Test batch publishing."""
         mock_nc, mock_js = mock_nats_client
         publisher._connected = True
@@ -385,9 +379,7 @@ class TestRetryLogic:
     """Tests for retry logic."""
 
     @pytest.mark.asyncio
-    async def test_retry_on_publish_failure(
-        self, publisher, sample_field_event, mock_nats_client
-    ):
+    async def test_retry_on_publish_failure(self, publisher, sample_field_event, mock_nats_client):
         """Test retry on publish failure."""
         mock_nc, mock_js = mock_nats_client
         # Fail first time, succeed second time

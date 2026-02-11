@@ -359,18 +359,20 @@ class TestHelperFunctions:
         """Test code analysis helper function."""
         analysis_response = {
             "model": "codellama:13b",
-            "response": json.dumps({
-                "issues": [
-                    {
-                        "type": "style",
-                        "severity": "warning",
-                        "line": 1,
-                        "message": "Missing docstring",
-                        "suggestion": "Add a docstring",
-                    }
-                ],
-                "summary": "1 issue found",
-            }),
+            "response": json.dumps(
+                {
+                    "issues": [
+                        {
+                            "type": "style",
+                            "severity": "warning",
+                            "line": 1,
+                            "message": "Missing docstring",
+                            "suggestion": "Add a docstring",
+                        }
+                    ],
+                    "summary": "1 issue found",
+                }
+            ),
             "done": True,
             "created_at": datetime.utcnow().isoformat(),
         }
@@ -467,13 +469,13 @@ class TestOllamaModel:
     def test_model_string_conversion(self):
         """Test model enum string conversion."""
         model = OllamaModel.CODELLAMA_7B
-        
+
         # Test value access (consistent across Python versions)
         assert model.value == "codellama:7b"
-        
+
         # Test name access
         assert model.name == "CODELLAMA_7B"
-        
+
         # str() behavior varies between Python versions:
         # Python 3.11: returns value ("codellama:7b")
         # Python 3.12+: returns full enum name ("OllamaModel.CODELLAMA_7B")

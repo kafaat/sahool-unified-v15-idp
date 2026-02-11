@@ -148,8 +148,8 @@ class TestHistogram:
         }
         histogram = Histogram(data)
         histogram.observe(0.05)  # Goes to 0.1 bucket
-        histogram.observe(0.3)   # Goes to 0.5 bucket
-        histogram.observe(0.8)   # Goes to 1.0 bucket
+        histogram.observe(0.3)  # Goes to 0.5 bucket
+        histogram.observe(0.8)  # Goes to 1.0 bucket
         assert histogram.count == 3
         assert histogram.sum == pytest.approx(1.15)
 
@@ -179,9 +179,7 @@ class TestMetricsRegistry:
         """Test creating counter with labels"""
         registry = MetricsRegistry()
         counter = registry.counter(
-            "requests_total",
-            "Total requests",
-            labels={"method": "GET", "path": "/api"}
+            "requests_total", "Total requests", labels={"method": "GET", "path": "/api"}
         )
         counter.inc()
         assert counter.value == 1
@@ -197,10 +195,7 @@ class TestMetricsRegistry:
     def test_create_histogram(self):
         """Test creating histogram through registry"""
         registry = MetricsRegistry()
-        histogram = registry.histogram(
-            "request_duration",
-            "Request duration in seconds"
-        )
+        histogram = registry.histogram("request_duration", "Request duration in seconds")
         histogram.observe(0.1)
         assert histogram.count == 1
 
@@ -208,11 +203,7 @@ class TestMetricsRegistry:
         """Test creating histogram with custom buckets"""
         registry = MetricsRegistry()
         buckets = [0.01, 0.05, 0.1, 0.5, 1.0]
-        histogram = registry.histogram(
-            "custom_duration",
-            "Custom duration",
-            buckets=buckets
-        )
+        histogram = registry.histogram("custom_duration", "Custom duration", buckets=buckets)
         histogram.observe(0.03)
         assert histogram.count == 1
 
@@ -238,11 +229,7 @@ class TestMetricsRegistry:
     def test_export_with_labels(self):
         """Test exporting metrics with labels"""
         registry = MetricsRegistry(service_name="test")
-        counter = registry.counter(
-            "requests",
-            "Total requests",
-            labels={"method": "GET"}
-        )
+        counter = registry.counter("requests", "Total requests", labels={"method": "GET"})
         counter.inc()
 
         export = registry.export()
@@ -251,11 +238,7 @@ class TestMetricsRegistry:
     def test_export_histogram(self):
         """Test exporting histogram metrics"""
         registry = MetricsRegistry(service_name="test")
-        histogram = registry.histogram(
-            "duration",
-            "Duration",
-            buckets=[0.1, 0.5, 1.0]
-        )
+        histogram = registry.histogram("duration", "Duration", buckets=[0.1, 0.5, 1.0])
         histogram.observe(0.2)
         histogram.observe(0.8)
 
@@ -299,6 +282,7 @@ class TestGetRegistry:
         """Test get_registry creates singleton"""
         # Reset global registry for test
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         registry1 = get_registry("test")
@@ -308,6 +292,7 @@ class TestGetRegistry:
     def test_get_registry_default_name(self):
         """Test get_registry with default name"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         registry = get_registry()
@@ -321,6 +306,7 @@ class TestTrackDbQuery:
     async def test_track_successful_query(self):
         """Test tracking successful database query"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         @track_db_query
@@ -334,6 +320,7 @@ class TestTrackDbQuery:
     async def test_track_failed_query(self):
         """Test tracking failed database query"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         @track_db_query
@@ -351,6 +338,7 @@ class TestTrackExternalCall:
     async def test_track_successful_call(self):
         """Test tracking successful external call"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         @track_external_call("weather-service")
@@ -364,6 +352,7 @@ class TestTrackExternalCall:
     async def test_track_failed_call(self):
         """Test tracking failed external call"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         @track_external_call("payment-service")
@@ -377,6 +366,7 @@ class TestTrackExternalCall:
     async def test_track_call_with_args(self):
         """Test tracking call with arguments"""
         import shared.monitoring.metrics as metrics_module
+
         metrics_module._registry = None
 
         @track_external_call("notification-service")
@@ -500,11 +490,7 @@ class TestExportGauge:
     def test_export_gauge_with_labels(self):
         """Test exporting gauge with labels"""
         registry = MetricsRegistry(service_name="test")
-        gauge = registry.gauge(
-            "connections",
-            "Active connections",
-            labels={"pool": "main"}
-        )
+        gauge = registry.gauge("connections", "Active connections", labels={"pool": "main"})
         gauge.set(10)
 
         export = registry.export()

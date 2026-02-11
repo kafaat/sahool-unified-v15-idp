@@ -18,7 +18,7 @@ nats-py==2.9.0
 # Logging
 structlog==24.4.0
 # Scientific computing for algorithms
-numpy==2.2.1
+numpy>=1.26.0,<2.5.0  # Compatible with TensorFlow 2.20.0
 # Geospatial (optional, for advanced features)
 # shapely==2.0.6
 # Testing

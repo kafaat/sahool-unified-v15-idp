@@ -30,7 +30,7 @@ pydantic-core>=2.27.0
 # HTTP Clients
 # ─────────────────────────────────────────────────────────────────────────────
 httpx==0.28.1
-aiohttp>=3.11.12  # Security fix for CVE-2025-53643
+aiohttp>=3.13.3  # Security fixes for CVE-2025-53643 and CVE-2025-69223
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Database
@@ -62,7 +62,7 @@ structlog==24.4.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Scientific Computing
-# Note: numpy<2.1.0 required for TensorFlow 2.18.0 compatibility
+# Note: numpy<2.5.0 required for TensorFlow 2.20.0 compatibility
 # ─────────────────────────────────────────────────────────────────────────────
 numpy>=1.26.0,<2.5.0
 scipy>=1.11.0,<1.18.0
@@ -112,12 +112,12 @@ apscheduler==3.11.2
 # Version Upgrade Notes
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# FastAPI: 0.115.6 → 0.126.0 (security fixes, performance improvements)
-# uvicorn: 0.32.1 → 0.34.0 (HTTP/2 improvements)
-# numpy: Pinned to <2.1.0 for TensorFlow compatibility
-# aiohttp: >=3.11.12 for CVE-2025-53643 fix
+# FastAPI: 0.115.6 → 0.128.5 (security fixes, performance improvements)
+# uvicorn: 0.32.1 → 0.40.0 (HTTP/2 improvements)
+# numpy: Pinned to <2.5.0 for TensorFlow 2.20.0 compatibility
+# aiohttp: >=3.13.3 for CVE-2025-53643 and CVE-2025-69223 fixes
 #
 # Next upgrade targets:
-# - TensorFlow 2.19.x (will allow numpy 2.x)
+# - TensorFlow 2.21.x (will allow numpy 2.x)
 # - FastAPI 0.130.x (when stable)
 # ═══════════════════════════════════════════════════════════════════════════════

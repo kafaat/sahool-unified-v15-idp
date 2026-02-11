@@ -592,6 +592,12 @@ jobs:
             path: apps/services/notification-service
           - name: marketplace-service
             path: apps/services/marketplace-service
+          - name: iot-service
+            path: apps/services/iot-service
+          - name: chat-service
+            path: apps/services/chat-service
+          - name: user-service
+            path: apps/services/user-service
           - name: vegetation-analysis-service
             path: apps/services/vegetation-analysis-service
           - name: advisory-service

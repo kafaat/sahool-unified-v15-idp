@@ -11,7 +11,7 @@ plugins {
 android {
     namespace = "io.sahool.sahool_field_app"
     compileSdk = 35  // Android 15 (stable) - avoid Android 16 beta APIs
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.2.13676358"  // Updated to match plugin requirements (integration_test, speech_to_text)
 
     compileOptions {
             isCoreLibraryDesugaringEnabled = true

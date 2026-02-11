@@ -16,7 +16,8 @@ FROM node:${NODE_VERSION}-alpine AS builder
 WORKDIR /app
 
 # Install OpenSSL for Prisma (Alpine 3.17+ uses OpenSSL 3.x)
-RUN apk add --no-cache openssl
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache openssl-dev
 
 # Upgrade npm to latest version for better dependency resolution
 RUN npm install -g npm@11.7.0
@@ -66,7 +67,8 @@ RUN addgroup --system sahool && \
     adduser --system --ingroup sahool --disabled-password --gecos "" sahool
 
 # Install curl for healthcheck and OpenSSL for Prisma
-RUN apk add --no-cache curl ca-certificates openssl
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache curl ca-certificates openssl-dev
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0

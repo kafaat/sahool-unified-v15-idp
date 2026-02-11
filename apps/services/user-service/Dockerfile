@@ -9,7 +9,8 @@ LABEL service="user-service"
 LABEL version="16.0.0"
 
 # Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -47,7 +48,8 @@ WORKDIR /app
 
 # Install curl for health checks and OpenSSL 3.0.x for Prisma runtime compatibility
 # Note: openssl-dev is NOT needed in production - only runtime library required
-RUN apk add --no-cache curl openssl
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache curl openssl-dev
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds

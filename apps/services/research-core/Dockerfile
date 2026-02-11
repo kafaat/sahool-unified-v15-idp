@@ -42,7 +42,8 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 # Install curl for health checks and OpenSSL for Prisma compatibility
-RUN apk add --no-cache curl openssl
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache curl openssl-dev
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds

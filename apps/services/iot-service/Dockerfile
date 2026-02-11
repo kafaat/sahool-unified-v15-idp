@@ -10,7 +10,8 @@
 FROM node:20-alpine AS builder
 
 # Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -60,7 +61,8 @@ LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
 # Install curl for healthcheck and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache curl openssl-dev
 
 WORKDIR /app
 

@@ -41,7 +41,8 @@ LABEL version="1.0.0"
 LABEL description="Real-time chat service for Yemeni farmers community"
 
 # Install curl for healthcheck and openssl for Prisma
-RUN apk add --no-cache curl openssl
+# Update package index first to fix TLS errors
+RUN apk update && apk add --no-cache curl openssl-dev
 
 WORKDIR /app
 

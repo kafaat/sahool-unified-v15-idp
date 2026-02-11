@@ -77,16 +77,17 @@ def readiness():
 #### 4. Middleware Stack
 
 **Added:**
-- CORS middleware with configurable origins
+- CORS middleware with configurable origins via environment
 - Request ID middleware (via shared.errors_py)
 - Exception handlers (via shared.errors_py)
 - Structured logging with structlog
 
 ```python
-# CORS
+# CORS - Configurable via CORS_ORIGINS env var
+cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -257,7 +258,7 @@ Created basic smoke tests for drone-service to verify:
    - Target: 60%+ code coverage
 
 6. **Security Hardening**
-   - Configure CORS with specific origins (not *)
+   - ✅ Configure CORS with environment-based origins
    - Add rate limiting
    - Implement input validation
    - Add SQL injection protection
@@ -304,6 +305,9 @@ DATABASE_URL=postgresql://user:pass@host:5432/db
 
 # NATS
 NATS_URL=nats://nats:4222
+
+# Security - CORS Origins (comma-separated)
+CORS_ORIGINS=https://app.sahool.io,https://admin.sahool.io
 
 # Optional
 LOG_LEVEL=INFO

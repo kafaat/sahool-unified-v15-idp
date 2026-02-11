@@ -326,8 +326,9 @@ jobs:
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
-          cache-from: type=gha,scope=${{ matrix.service }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+          # DISABLED: GitHub Actions Cache service is intermittently unavailable
+          # cache-from: type=gha,scope=${{ matrix.service }}
+          # cache-to: type=gha,mode=max,scope=${{ matrix.service }}
           provenance: true
           sbom: true
 

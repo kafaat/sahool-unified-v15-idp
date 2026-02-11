@@ -1,0 +1,1645 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Pull Request Automation System - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pull-request-automation-system" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pull Request Automation System
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="pull-request-automation-system">Pull Request Automation System<a class="headerlink" href="#pull-request-automation-system" title="Permanent link">&para;</a></h1>
+<p>Comprehensive automation for resolving conflicts, verifying correctness, and merging pull requests in the SAHOOL platform.</p>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The PR Automation System provides:</p>
+<ul>
+<li><strong>Automated Conflict Resolution</strong>: Intelligently resolves merge conflicts using configurable strategies</li>
+<li><strong>Comprehensive Testing</strong>: Runs tests before merging to ensure code quality</li>
+<li><strong>Smart Merge Strategies</strong>: Supports merge, squash, and rebase strategies</li>
+<li><strong>Safety Checks</strong>: Requires CI/CD checks to pass and minimum approvals</li>
+<li><strong>Status Monitoring</strong>: Continuously monitors PR health and sends notifications</li>
+<li><strong>Detailed Reporting</strong>: Generates audit trails for all merge operations</li>
+</ul>
+<h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h2>
+<h3 id="1-auto-merge-workflow-githubworkflowsauto-merge-prsyml">1. Auto-Merge Workflow (<code>.github/workflows/auto-merge-prs.yml</code>)<a class="headerlink" href="#1-auto-merge-workflow-githubworkflowsauto-merge-prsyml" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Automates the entire PR merge process from conflict resolution to final merge.</p>
+<p><strong>Triggers</strong>:
+- Manual dispatch (workflow_dispatch) with PR selection
+- PR labeled with <code>auto-merge</code> or <code>ready-to-merge</code>
+- Optional scheduled runs (disabled by default)</p>
+<p><strong>Features</strong>:
+- Process individual PRs or all open PRs
+- Multiple merge strategies (auto, merge, squash, rebase)
+- Automatic conflict resolution (auto, ours, theirs)
+- Requires all CI checks to pass
+- Optional approval requirements
+- Dry-run mode for testing
+- Detailed merge reports</p>
+<p><strong>Usage</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Via GitHub UI:</span>
+<span class="c1"># 1. Go to Actions → Auto-Merge PRs → Run workflow</span>
+<span class="c1"># 2. Enter PR numbers (e.g., &quot;123,456&quot; or &quot;all&quot;)</span>
+<span class="c1"># 3. Select merge and conflict strategies</span>
+<span class="c1"># 4. Choose dry-run for testing</span>
+<span class="c1"># 5. Click &quot;Run workflow&quot;</span>
+
+<span class="c1"># Via GitHub CLI:</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>auto-merge-prs.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">pr_numbers</span><span class="o">=</span><span class="s2">&quot;123,456&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">merge_strategy</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">conflict_strategy</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">require_approvals</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">dry_run</span><span class="o">=</span><span class="nb">false</span>
+</code></pre></div>
+
+<h3 id="2-auto-merge-script-scriptsauto-merge-prssh">2. Auto-Merge Script (<code>scripts/auto-merge-prs.sh</code>)<a class="headerlink" href="#2-auto-merge-script-scriptsauto-merge-prssh" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Command-line tool for automated PR merging with full control.</p>
+<p><strong>Features</strong>:
+- Fetch and process open PRs
+- Automatic conflict detection and resolution
+- Pre-merge testing
+- Multiple merge strategies
+- Detailed logging and reporting
+- Safety checks</p>
+<p><strong>Usage</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Merge specific PR</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">123</span>
+
+<span class="c1"># Merge all open PRs (dry-run first!)</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--all<span class="w"> </span>--dry-run
+
+<span class="c1"># Merge with squash strategy</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">456</span><span class="w"> </span>--strategy<span class="w"> </span>squash
+
+<span class="c1"># Auto-resolve conflicts keeping PR version</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">789</span><span class="w"> </span>--conflict<span class="w"> </span>ours
+
+<span class="c1"># Merge without requiring approvals</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">101</span><span class="w"> </span>--no-approvals
+</code></pre></div>
+
+<p><strong>Options</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--pr &lt;number&gt;</code></td>
+<td>Merge specific PR number</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--all</code></td>
+<td>Merge all open PRs</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--strategy &lt;type&gt;</code></td>
+<td>Merge strategy: auto|merge|squash|rebase</td>
+<td>auto</td>
+</tr>
+<tr>
+<td><code>--conflict &lt;type&gt;</code></td>
+<td>Conflict resolution: auto|ours|theirs</td>
+<td>auto</td>
+</tr>
+<tr>
+<td><code>--require-approvals</code></td>
+<td>Require approvals before merge</td>
+<td>true</td>
+</tr>
+<tr>
+<td><code>--no-approvals</code></td>
+<td>Don't require approvals</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>--dry-run</code></td>
+<td>Test without actually merging</td>
+<td>false</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>Show help message</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-pr-status-monitor-githubworkflowspr-status-monitoryml">3. PR Status Monitor (<code>.github/workflows/pr-status-monitor.yml</code>)<a class="headerlink" href="#3-pr-status-monitor-githubworkflowspr-status-monitoryml" title="Permanent link">&para;</a></h3>
+<p><strong>Purpose</strong>: Continuously monitors PR health and takes corrective actions.</p>
+<p><strong>Triggers</strong>:
+- Scheduled (daily at 9 AM UTC)
+- Manual dispatch
+- On push to main/develop branches</p>
+<p><strong>Features</strong>:
+- Monitor all open PRs for conflicts
+- Auto-update PR branches from base branch
+- Check CI status and approvals
+- Track stale PRs (not updated in 7+ days)
+- Generate daily PR health reports
+- Create issues for PRs needing attention</p>
+<p><strong>Usage</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Via GitHub UI:</span>
+<span class="c1"># 1. Go to Actions → PR Status Monitor → Run workflow</span>
+<span class="c1"># 2. Choose to auto-update branches</span>
+<span class="c1"># 3. Choose to send notifications</span>
+<span class="c1"># 4. Click &quot;Run workflow&quot;</span>
+
+<span class="c1"># Via GitHub CLI:</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>pr-status-monitor.yml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">auto_update</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-f<span class="w"> </span><span class="nv">send_notifications</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+
+<h2 id="merge-strategies">Merge Strategies<a class="headerlink" href="#merge-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="auto-recommended">Auto (Recommended)<a class="headerlink" href="#auto-recommended" title="Permanent link">&para;</a></h3>
+<p>Automatically selects the best merge strategy based on PR characteristics:
+- Single commit → Rebase
+- Feature branch → Merge commit
+- Hotfix → Squash</p>
+<h3 id="merge">Merge<a class="headerlink" href="#merge" title="Permanent link">&para;</a></h3>
+<p>Creates a merge commit preserving full branch history:
+- ✅ Preserves all commits
+- ✅ Shows branch topology
+- ❌ More verbose history</p>
+<h3 id="squash">Squash<a class="headerlink" href="#squash" title="Permanent link">&para;</a></h3>
+<p>Combines all commits into a single commit:
+- ✅ Clean, linear history
+- ✅ Easy to revert
+- ❌ Loses individual commit history</p>
+<h3 id="rebase">Rebase<a class="headerlink" href="#rebase" title="Permanent link">&para;</a></h3>
+<p>Replays commits on top of base branch:
+- ✅ Linear history
+- ✅ Preserves individual commits
+- ❌ Rewrites history (requires force-push)</p>
+<h2 id="conflict-resolution-strategies">Conflict Resolution Strategies<a class="headerlink" href="#conflict-resolution-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="auto-recommended_1">Auto (Recommended)<a class="headerlink" href="#auto-recommended_1" title="Permanent link">&para;</a></h3>
+<p>Intelligently resolves conflicts based on file types:</p>
+<table>
+<thead>
+<tr>
+<th>File Type</th>
+<th>Strategy</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*.lock</code>, <code>*.json</code>, <code>*.yaml</code></td>
+<td>Keep PR version</td>
+<td>Configuration updates</td>
+</tr>
+<tr>
+<td><code>requirements.txt</code>, <code>package.json</code></td>
+<td>Keep PR version</td>
+<td>Dependency updates</td>
+</tr>
+<tr>
+<td>Other files</td>
+<td>Keep PR version</td>
+<td>Feature changes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ours">Ours<a class="headerlink" href="#ours" title="Permanent link">&para;</a></h3>
+<p>Always keep the PR branch version:
+- ✅ Preserves PR changes
+- ✅ Simple and predictable
+- ⚠️ May discard important base branch updates</p>
+<h3 id="theirs">Theirs<a class="headerlink" href="#theirs" title="Permanent link">&para;</a></h3>
+<p>Always keep the base branch version:
+- ✅ Preserves base branch stability
+- ⚠️ May discard PR changes
+- ⚠️ Use with caution</p>
+<h3 id="manual">Manual<a class="headerlink" href="#manual" title="Permanent link">&para;</a></h3>
+<p>Skip auto-resolution and require manual intervention:
+- ✅ Full control
+- ❌ Requires manual work
+- 👍 Best for complex conflicts</p>
+<h2 id="safety-measures">Safety Measures<a class="headerlink" href="#safety-measures" title="Permanent link">&para;</a></h2>
+<h3 id="cicd-checks">CI/CD Checks<a class="headerlink" href="#cicd-checks" title="Permanent link">&para;</a></h3>
+<p>All CI/CD checks must pass before merge:
+- ✅ Code quality (linting, formatting)
+- ✅ Tests (unit, integration, e2e)
+- ✅ Security scans (CodeQL, Semgrep)
+- ✅ Build verification</p>
+<h3 id="approval-requirements">Approval Requirements<a class="headerlink" href="#approval-requirements" title="Permanent link">&para;</a></h3>
+<p>Configurable minimum approvals:
+- Default: 1 approval required
+- Can be disabled with <code>--no-approvals</code>
+- Respects branch protection rules</p>
+<h3 id="protected-branches">Protected Branches<a class="headerlink" href="#protected-branches" title="Permanent link">&para;</a></h3>
+<p>Extra safety for main/develop branches:
+- Requires all checks to pass
+- Requires approvals
+- No force-push allowed</p>
+<h3 id="rollback-mechanism">Rollback Mechanism<a class="headerlink" href="#rollback-mechanism" title="Permanent link">&para;</a></h3>
+<p>If merge causes issues:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Find the merge commit</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>--merges<span class="w"> </span>-n<span class="w"> </span><span class="m">5</span>
+
+<span class="c1"># Revert the merge</span>
+git<span class="w"> </span>revert<span class="w"> </span>-m<span class="w"> </span><span class="m">1</span><span class="w"> </span>&lt;merge-commit-sha&gt;
+
+<span class="c1"># Push the revert</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main
+</code></pre></div>
+
+<h2 id="reports-and-logging">Reports and Logging<a class="headerlink" href="#reports-and-logging" title="Permanent link">&para;</a></h2>
+<h3 id="merge-reports">Merge Reports<a class="headerlink" href="#merge-reports" title="Permanent link">&para;</a></h3>
+<p>Each PR merge generates a detailed report:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh"># PR #123 Merge Report</span>
+
+<span class="gs">**Date**</span>: 2026-02-11 13:00:00 UTC
+<span class="gs">**PR**</span>: <span class="ni">#123</span> - Add new feature
+<span class="gs">**Status**</span>: ✅ Merged
+
+<span class="gu">## Details</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Head Branch**</span>: feature/new-feature
+<span class="k">-</span><span class="w"> </span><span class="gs">**Base Branch**</span>: main
+<span class="k">-</span><span class="w"> </span><span class="gs">**Merge Strategy**</span>: auto
+<span class="k">-</span><span class="w"> </span><span class="gs">**Conflict Strategy**</span>: auto
+<span class="k">-</span><span class="w"> </span><span class="gs">**Had Conflicts**</span>: true
+<span class="k">-</span><span class="w"> </span><span class="gs">**Conflicts Resolved**</span>: true
+<span class="k">-</span><span class="w"> </span><span class="gs">**Tests Passed**</span>: true
+
+<span class="gu">## Outcome</span>
+
+✅ PR merged successfully
+</code></pre></div>
+
+<p>Reports are saved as artifacts and retained for 30 days.</p>
+<h3 id="pr-health-reports">PR Health Reports<a class="headerlink" href="#pr-health-reports" title="Permanent link">&para;</a></h3>
+<p>Daily reports show overall PR health:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh"># Pull Request Health Report</span>
+
+<span class="gs">**Generated**</span>: 2026-02-11 09:00:00 UTC
+<span class="gs">**Total Open PRs**</span>: 15
+
+<span class="gu">## Summary</span>
+
+<span class="k">-</span><span class="w"> </span>🔴 <span class="gs">**Conflicted PRs**</span>: 3
+<span class="k">-</span><span class="w"> </span>🟠 <span class="gs">**Failing CI**</span>: 2
+<span class="k">-</span><span class="w"> </span>🟡 <span class="gs">**Stale PRs**</span>: 5
+<span class="k">-</span><span class="w"> </span>🟢 <span class="gs">**Ready to Merge**</span>: 5
+</code></pre></div>
+
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">&para;</a></h3>
+<p>All operations are logged:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># View merge logs</span>
+cat<span class="w"> </span>auto-merge-*.log
+
+<span class="c1"># View reports</span>
+ls<span class="w"> </span>-l<span class="w"> </span>merge-reports/
+</code></pre></div>
+
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Minimum approvals required</span>
+<span class="nv">MIN_APPROVALS</span><span class="o">=</span><span class="m">1</span>
+
+<span class="c1"># Protected branches (comma-separated)</span>
+<span class="nv">PROTECTED_BRANCHES</span><span class="o">=</span><span class="s2">&quot;main,develop&quot;</span>
+
+<span class="c1"># GitHub token for authentication</span>
+<span class="nv">GITHUB_TOKEN</span><span class="o">=</span>&lt;your-token&gt;
+</code></pre></div>
+
+<h3 id="workflow-inputs">Workflow Inputs<a class="headerlink" href="#workflow-inputs" title="Permanent link">&para;</a></h3>
+<p>All workflows accept inputs for customization:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Auto-Merge Workflow</span>
+<span class="nt">pr_numbers</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;all&quot;</span><span class="w">           </span><span class="c1"># PR numbers to merge</span>
+<span class="nt">merge_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;auto&quot;</span><span class="w">      </span><span class="c1"># Merge strategy</span>
+<span class="nt">conflict_strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;auto&quot;</span><span class="w">   </span><span class="c1"># Conflict resolution</span>
+<span class="nt">require_approvals</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">     </span><span class="c1"># Require approvals</span>
+<span class="nt">dry_run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">              </span><span class="c1"># Test mode</span>
+
+<span class="c1"># PR Status Monitor</span>
+<span class="nt">auto_update</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">         </span><span class="c1"># Auto-update branches</span>
+<span class="nt">send_notifications</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">   </span><span class="c1"># Send notifications</span>
+</code></pre></div>
+
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<h3 id="before-merging">Before Merging<a class="headerlink" href="#before-merging" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Review PR Changes</strong>: Always review the diff before merging</li>
+<li><strong>Check CI Status</strong>: Ensure all checks pass</li>
+<li><strong>Get Approvals</strong>: Require at least 1 approval</li>
+<li><strong>Test Locally</strong>: For critical changes, test locally first</li>
+<li><strong>Use Dry Run</strong>: Test automation with <code>--dry-run</code> first</li>
+</ol>
+<h3 id="when-conflicts-occur">When Conflicts Occur<a class="headerlink" href="#when-conflicts-occur" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Understand Changes</strong>: Review both sides of the conflict</li>
+<li><strong>Choose Strategy Wisely</strong>: </li>
+<li>Use <code>auto</code> for common cases</li>
+<li>Use <code>ours</code> for feature branches</li>
+<li>Use <code>theirs</code> for hotfixes to main</li>
+<li><strong>Test After Resolution</strong>: Always run tests after resolving conflicts</li>
+<li><strong>Manual Review</strong>: For complex conflicts, resolve manually</li>
+</ol>
+<h3 id="for-production">For Production<a class="headerlink" href="#for-production" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Require Approvals</strong>: Always enable approval requirements</li>
+<li><strong>Protect Branches</strong>: Use branch protection for main/develop</li>
+<li><strong>Monitor Status</strong>: Enable PR status monitoring</li>
+<li><strong>Review Reports</strong>: Check merge reports regularly</li>
+<li><strong>Use Auto-Update</strong>: Keep PR branches up-to-date</li>
+</ol>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="no-prs-to-process">"No PRs to process"<a class="headerlink" href="#no-prs-to-process" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: No open PRs or all PRs filtered out
+<strong>Solution</strong>: Check PR list with <code>gh pr list --state open</code></p>
+<h3 id="insufficient-approvals">"Insufficient approvals"<a class="headerlink" href="#insufficient-approvals" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: PR doesn't have required approvals
+<strong>Solution</strong>: Get approvals or use <code>--no-approvals</code> flag (not recommended for production)</p>
+<h3 id="ci-checks-failed">"CI checks failed"<a class="headerlink" href="#ci-checks-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: One or more CI checks are failing
+<strong>Solution</strong>: Fix issues and re-run checks, or skip with <code>--dry-run</code> for testing</p>
+<h3 id="failed-to-resolve-conflicts">"Failed to resolve conflicts"<a class="headerlink" href="#failed-to-resolve-conflicts" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Automatic conflict resolution failed
+<strong>Solution</strong>: 
+1. Try different conflict strategy (<code>ours</code> or <code>theirs</code>)
+2. Resolve manually and commit
+3. Re-run automation</p>
+<h3 id="merge-failed">"Merge failed"<a class="headerlink" href="#merge-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Cause</strong>: Various reasons (permissions, branch protection, etc.)
+<strong>Solution</strong>: 
+1. Check error message in logs
+2. Verify GitHub token permissions
+3. Check branch protection rules
+4. Ensure PR is in mergeable state</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="scenario-1-merge-single-pr">Scenario 1: Merge Single PR<a class="headerlink" href="#scenario-1-merge-single-pr" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check PR status</span>
+gh<span class="w"> </span>pr<span class="w"> </span>view<span class="w"> </span><span class="m">123</span>
+
+<span class="c1"># 2. Test merge (dry-run)</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">123</span><span class="w"> </span>--dry-run
+
+<span class="c1"># 3. Actual merge</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">123</span>
+</code></pre></div>
+
+<h3 id="scenario-2-batch-merge-multiple-prs">Scenario 2: Batch Merge Multiple PRs<a class="headerlink" href="#scenario-2-batch-merge-multiple-prs" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. List open PRs</span>
+gh<span class="w"> </span>pr<span class="w"> </span>list<span class="w"> </span>--state<span class="w"> </span>open
+
+<span class="c1"># 2. Test all PRs (dry-run)</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--all<span class="w"> </span>--dry-run
+
+<span class="c1"># 3. Merge all ready PRs</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--all
+</code></pre></div>
+
+<h3 id="scenario-3-merge-with-conflicts">Scenario 3: Merge with Conflicts<a class="headerlink" href="#scenario-3-merge-with-conflicts" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. Check for conflicts</span>
+gh<span class="w"> </span>pr<span class="w"> </span>view<span class="w"> </span><span class="m">456</span>
+
+<span class="c1"># 2. Merge with auto-resolution</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">456</span><span class="w"> </span>--conflict<span class="w"> </span>auto
+
+<span class="c1"># 3. Or keep PR version</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">456</span><span class="w"> </span>--conflict<span class="w"> </span>ours
+</code></pre></div>
+
+<h3 id="scenario-4-squash-merge-feature-branch">Scenario 4: Squash Merge Feature Branch<a class="headerlink" href="#scenario-4-squash-merge-feature-branch" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Merge feature branch with squash</span>
+./scripts/auto-merge-prs.sh<span class="w"> </span>--pr<span class="w"> </span><span class="m">789</span><span class="w"> </span>--strategy<span class="w"> </span>squash
+</code></pre></div>
+
+<h3 id="scenario-5-monitor-pr-health">Scenario 5: Monitor PR Health<a class="headerlink" href="#scenario-5-monitor-pr-health" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Via GitHub Actions (manual trigger)</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>pr-status-monitor.yml<span class="w"> </span>-f<span class="w"> </span><span class="nv">auto_update</span><span class="o">=</span><span class="nb">true</span>
+</code></pre></div>
+
+<h2 id="integration-with-cicd">Integration with CI/CD<a class="headerlink" href="#integration-with-cicd" title="Permanent link">&para;</a></h2>
+<p>The automation system integrates with existing CI/CD:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Example: Trigger auto-merge after successful CI</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CI Pipeline</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">types</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">opened</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">synchronize</span><span class="p p-Indicator">]</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">test</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># ... run tests ...</span>
+
+<span class="w">  </span><span class="nt">auto-merge</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">test</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">      </span><span class="no">github.event.pull_request.draft == false &amp;&amp;</span>
+<span class="w">      </span><span class="no">contains(github.event.pull_request.labels.*.name, &#39;auto-merge&#39;)</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Auto-merge PR</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./.github/workflows/auto-merge-prs.yml</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">pr_numbers</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event.pull_request.number }}</span>
+</code></pre></div>
+
+<h2 id="security-considerations">Security Considerations<a class="headerlink" href="#security-considerations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>GitHub Token</strong>: Use fine-grained tokens with minimal permissions</li>
+<li><strong>Branch Protection</strong>: Enable branch protection for main/develop</li>
+<li><strong>Code Review</strong>: Always require code review before merge</li>
+<li><strong>Security Scans</strong>: Ensure CodeQL and other scans pass</li>
+<li><strong>Audit Trail</strong>: All merges are logged and reported</li>
+</ol>
+<h2 id="maintenance">Maintenance<a class="headerlink" href="#maintenance" title="Permanent link">&para;</a></h2>
+<h3 id="regular-tasks">Regular Tasks<a class="headerlink" href="#regular-tasks" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Weekly</strong>: Review PR health reports</li>
+<li><strong>Monthly</strong>: Clean up old merge reports</li>
+<li><strong>Quarterly</strong>: Review and update merge strategies</li>
+</ul>
+<h3 id="updates">Updates<a class="headerlink" href="#updates" title="Permanent link">&para;</a></h3>
+<p>Update workflows and scripts as needed:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Update auto-merge script</span>
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+chmod<span class="w"> </span>+x<span class="w"> </span>scripts/auto-merge-prs.sh
+</code></pre></div>
+
+<h2 id="support">Support<a class="headerlink" href="#support" title="Permanent link">&para;</a></h2>
+<p>For issues or questions:</p>
+<ol>
+<li>Check this documentation</li>
+<li>Review workflow logs in GitHub Actions</li>
+<li>Check merge reports in artifacts</li>
+<li>Create an issue with the <code>auto-merge</code> label</li>
+</ol>
+<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
+<p>Proprietary - KAFAAT © 2026</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

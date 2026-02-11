@@ -467,10 +467,11 @@ class TestOllamaModel:
         assert OllamaModel.MISTRAL_7B.value == "mistral:7b"
 
     def test_model_string_conversion(self):
-        """Test model enum string conversion."""
+        """Test model enum string conversion (StrEnum returns value)."""
         model = OllamaModel.CODELLAMA_7B
-        assert str(model) == "OllamaModel.CODELLAMA_7B"
+        assert str(model) == "codellama:7b"
         assert model.value == "codellama:7b"
+        assert model.name == "CODELLAMA_7B"
 
 
 if __name__ == "__main__":

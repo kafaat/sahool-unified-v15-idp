@@ -454,5 +454,6 @@ class TestProviderEnums:
         assert EmbeddingProvider.GOOGLE.value == "google"
 
     def test_embedding_provider_string_conversion(self):
-        """Test EmbeddingProvider string conversion"""
-        assert str(EmbeddingProvider.OLLAMA) == "EmbeddingProvider.OLLAMA"
+        """Test EmbeddingProvider string conversion (StrEnum returns value)"""
+        assert str(EmbeddingProvider.OLLAMA) == "ollama"
+        assert EmbeddingProvider.OLLAMA.name == "OLLAMA"

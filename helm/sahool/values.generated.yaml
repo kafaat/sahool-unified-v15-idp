@@ -21,7 +21,7 @@ services:
     replicaCount: 2
     port: 3023
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -53,7 +53,7 @@ services:
     replicaCount: 1
     port: 3020
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -85,7 +85,7 @@ services:
     replicaCount: 1
     port: 3022
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -117,7 +117,7 @@ services:
     replicaCount: 1
     port: 3021
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -149,7 +149,7 @@ services:
     replicaCount: 2
     port: 3010
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -181,7 +181,7 @@ services:
     replicaCount: 1
     port: 8097
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -213,7 +213,7 @@ services:
     replicaCount: 2
     port: 8117
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -277,7 +277,7 @@ services:
     replicaCount: 1
     port: 3015
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -309,7 +309,7 @@ services:
     replicaCount: 1
     port: 8089
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -341,7 +341,7 @@ services:
     replicaCount: 1
     port: 9190
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -373,7 +373,7 @@ services:
     replicaCount: 1
     port: 9092
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -405,7 +405,7 @@ services:
     replicaCount: 1
     port: 8091
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -437,7 +437,7 @@ services:
     replicaCount: 1
     port: 9095
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -469,7 +469,7 @@ services:
     replicaCount: 1
     port: 8119
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -501,7 +501,7 @@ services:
     replicaCount: 1
     port: 8098
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -533,7 +533,7 @@ services:
     replicaCount: 1
     port: 9093
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -565,7 +565,7 @@ services:
     replicaCount: 1
     port: 8094
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -597,7 +597,7 @@ services:
     replicaCount: 1
     port: 8110
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -629,7 +629,7 @@ services:
     replicaCount: 1
     port: 8200
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -693,7 +693,7 @@ services:
     replicaCount: 1
     port: 8095
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -725,7 +725,7 @@ services:
     replicaCount: 1
     port: 8101
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -757,7 +757,7 @@ services:
     replicaCount: 1
     port: 8103
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -789,7 +789,7 @@ services:
     replicaCount: 2
     port: 8081
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -821,7 +821,7 @@ services:
     replicaCount: 1
     port: 8118
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -853,7 +853,7 @@ services:
     replicaCount: 1
     port: 8120
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -885,7 +885,7 @@ services:
     replicaCount: 1
     port: 8090
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -917,7 +917,7 @@ services:
     replicaCount: 1
     port: 8092
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -949,7 +949,7 @@ services:
     replicaCount: 1
     port: 8121
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -981,7 +981,7 @@ services:
     replicaCount: 1
     port: 8093
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -1557,7 +1557,7 @@ services:
     replicaCount: 1
     port: 8000
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -1621,7 +1621,7 @@ services:
     replicaCount: 1
     port: 8145
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -1909,7 +1909,7 @@ services:
     replicaCount: 1
     port: 3005
     healthCheck:
-      path: /health
+      path: /healthz
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:

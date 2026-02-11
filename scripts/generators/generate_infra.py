@@ -47,7 +47,7 @@ def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, An
     """Generate a Docker Compose service definition"""
     path = service.get("path", f"apps/services/{name}")
     port = service.get("port", 3000)
-    health_endpoint = service.get("health_endpoint", "/health")
+    health_endpoint = service.get("health_endpoint", "/healthz")
 
     compose_service = {
         "build": {"context": f"./{path}", "dockerfile": "Dockerfile"},
@@ -233,7 +233,7 @@ def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
         "replicaCount": resources.get("replicas", 1),
         "port": service.get("port", 3000),
         "healthCheck": {
-            "path": service.get("health_endpoint", "/health"),
+            "path": service.get("health_endpoint", "/healthz"),
             "initialDelaySeconds": 30,
             "periodSeconds": 10,
         },

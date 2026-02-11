@@ -102,7 +102,7 @@ services:
     path: "apps/services/crop-growth-model"
     port: 3023
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "agro-team@sahool.io"
     team: agro
@@ -214,7 +214,7 @@ services:
     path: "apps/services/disaster-assessment"
     port: 3020
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -251,7 +251,7 @@ services:
     path: "apps/services/lai-estimation"
     port: 3022
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -282,7 +282,7 @@ services:
     path: "apps/services/yield-prediction"
     port: 3021
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -317,7 +317,7 @@ services:
     path: "apps/services/marketplace-service"
     port: 3010
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "frontend-team@sahool.io"
     team: frontend
@@ -351,7 +351,7 @@ services:
     path: "apps/services/community-chat"
     port: 8097
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "frontend-team@sahool.io"
     team: frontend
@@ -384,7 +384,7 @@ services:
     path: "apps/services/iot-service"
     port: 8117
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -504,7 +504,7 @@ services:
     path: "apps/services/research-core"
     port: 3015
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -539,7 +539,7 @@ services:
     path: "apps/services/billing-core"
     port: 8089
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -573,7 +573,7 @@ services:
     path: "archive/deprecated-services/satellite-service"
     port: 9190  # Changed to avoid conflict with vegetation-analysis-service (9090 reserved for prometheus)
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: archived
     owner: "data-team@sahool.io"
     team: data
@@ -619,7 +619,7 @@ services:
     path: "archive/deprecated-services/weather-advanced"
     port: 9092  # Changed to avoid conflict with weather-service
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: archived
     owner: "iot-team@sahool.io"
     team: iot
@@ -658,7 +658,7 @@ services:
     path: "apps/services/indicators-service"
     port: 8091
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -693,7 +693,7 @@ services:
     path: "archive/deprecated-services/crop-health-ai"
     port: 9095  # Changed to avoid conflict with crop-intelligence-service
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: archived
     owner: "data-team@sahool.io"
     team: data
@@ -729,7 +729,7 @@ services:
     path: "apps/services/virtual-sensors"
     port: 8119
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -762,7 +762,7 @@ services:
     path: "apps/services/yield-engine"
     port: 8098
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -795,7 +795,7 @@ services:
     path: "archive/deprecated-services/fertilizer-advisor"
     port: 9093  # Changed to avoid conflict with advisory-service
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: archived
     owner: "platform-team@sahool.io"
     team: platform
@@ -834,7 +834,7 @@ services:
     path: "apps/services/irrigation-smart"
     port: 8094
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -871,7 +871,7 @@ services:
     path: "apps/services/notification-service"
     port: 8110
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -909,7 +909,7 @@ services:
     path: "apps/services/mcp-server"
     port: 8200
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -968,7 +968,7 @@ services:
     path: "apps/services/crop-intelligence-service"
     port: 8095
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "agro-team@sahool.io"
     team: agro
@@ -1000,7 +1000,7 @@ services:
     path: "apps/services/equipment-service"
     port: 8101
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -1031,7 +1031,7 @@ services:
     path: "apps/services/task-service"
     port: 8103
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -1065,7 +1065,7 @@ services:
     path: "apps/services/ws-gateway"
     port: 8081
     protocol: websocket
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -1094,7 +1094,7 @@ services:
     path: "apps/services/ndvi-processor"
     port: 8118
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -1124,7 +1124,7 @@ services:
     path: "apps/services/field-intelligence"
     port: 8120
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -1156,7 +1156,7 @@ services:
     path: "apps/services/vegetation-analysis-service"
     port: 8090
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -1193,7 +1193,7 @@ services:
     path: "apps/services/weather-service"
     port: 8092
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -1229,7 +1229,7 @@ services:
     path: "apps/services/skills-service"
     port: 8121
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     readiness_endpoint: "/readyz"
     status: active
     owner: "agro-team@sahool.io"
@@ -1335,7 +1335,7 @@ services:
     path: "apps/services/advisory-service"
     port: 8093
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -2135,7 +2135,7 @@ services:
     path: "apps/services/chat-service"
     port: 8000  # Matches Dockerfile EXPOSE (Kong config at 8114 is WRONG)
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "frontend-team@sahool.io"
     team: frontend
@@ -2212,7 +2212,7 @@ services:
     path: "apps/services/code-review-agent"
     port: 8145
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -2534,7 +2534,7 @@ services:
     path: "archive/deprecated-services/field-core"
     port: 3005
     protocol: http
-    health_endpoint: "/health"
+    health_endpoint: "/healthz"
     status: archived
     owner: "platform-team@sahool.io"
     team: platform

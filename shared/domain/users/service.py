@@ -5,7 +5,7 @@ Business logic for user management
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from kernel_domain.auth.passwords import hash_password, verify_password
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -35,7 +35,6 @@ from .models import (
     WaterSourceStatus,
     WaterSourceType,
 )
-
 
 # =============================================================================
 # Report Models - نماذج التقارير

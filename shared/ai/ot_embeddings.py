@@ -19,7 +19,7 @@ Updated: January 2026
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 
@@ -490,7 +490,7 @@ class BilingualOTMatcher:
         """Get embedding for text using configured model."""
         # Try to use the embeddings adapter
         try:
-            from .embeddings import EmbeddingsAdapter, EmbeddingConfig, EmbeddingProvider
+            from .embeddings import EmbeddingConfig, EmbeddingProvider, EmbeddingsAdapter
 
             if self._embedder is None:
                 config = EmbeddingConfig(

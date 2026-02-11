@@ -19,20 +19,19 @@ import os
 import re
 import sys
 from contextlib import asynccontextmanager
+from datetime import UTC, date, datetime, timezone
 from typing import Any
-from datetime import datetime, date, timezone, UTC
 from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
-
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
-from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from starlette import status
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
@@ -49,12 +48,12 @@ sys.path.insert(
 )
 
 from shared.crm import (
+    DealStage,
+    Farmer,
     FarmerCRMService,
     FarmerQueryBot,
-    Farmer,
     FarmerStatus,
     HarvestDeal,
-    DealStage,
     Interaction,
     InteractionType,
 )
@@ -445,8 +444,10 @@ async def lifespan(app: FastAPI):
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            import asyncpg
             from pathlib import Path
+
+            import asyncpg
+
             from .db import CRMRepository
 
             app.state.db_pool = await asyncpg.create_pool(

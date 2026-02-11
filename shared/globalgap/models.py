@@ -8,11 +8,11 @@ Pydantic models for IFA v6 compliance management.
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator, ValidationInfo
+from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
 
 from .constants import (
     GGN_FORMAT_PATTERN,

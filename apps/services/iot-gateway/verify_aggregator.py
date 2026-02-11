@@ -8,7 +8,7 @@ Quick test to ensure all components work correctly
 """
 
 import sys
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 
 def verify_imports():

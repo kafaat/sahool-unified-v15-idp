@@ -7,7 +7,7 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 # Use the shared EventPublisher from shared/events/

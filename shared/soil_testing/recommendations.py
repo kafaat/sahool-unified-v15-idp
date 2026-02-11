@@ -17,11 +17,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
-from decimal import Decimal
 import uuid
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
+from .interpreter import SoilTestInterpreter
 from .models import (
     AmendmentPlan,
     AmendmentRecommendation,
@@ -30,8 +31,6 @@ from .models import (
     SoilProperties,
     SoilTestResult,
 )
-from .interpreter import SoilTestInterpreter
-
 
 # Common fertilizer products available in Middle East
 FERTILIZER_PRODUCTS: dict[str, dict] = {

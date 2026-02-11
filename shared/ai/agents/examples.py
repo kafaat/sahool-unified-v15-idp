@@ -56,8 +56,8 @@ async def example_farm_advisor_plan_mode():
 
     Inspired by OpenCode's Plan agent.
     """
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode
+    from .farm_advisor import FarmAdvisorAgent
 
     # Create advisor in PLAN mode (safe, read-only)
     advisor = FarmAdvisorAgent(
@@ -90,8 +90,8 @@ async def example_farm_advisor_execute_mode():
 
     Inspired by OpenCode's Build agent with approval.
     """
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode, AgentStep
+    from .farm_advisor import FarmAdvisorAgent
 
     # Approval callback
     def approve_plan(steps: list[AgentStep]) -> bool:
@@ -208,9 +208,9 @@ async def example_multi_agent_workflow():
 
     Inspired by OpenCode's dual-agent pattern.
     """
-    from .planner import PlannerAgent
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode
+    from .farm_advisor import FarmAdvisorAgent
+    from .planner import PlannerAgent
 
     print("=== Multi-Agent Workflow ===")
 

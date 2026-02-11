@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import uuid
 from collections import defaultdict
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Optional
 
 import jwt

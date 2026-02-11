@@ -6,7 +6,7 @@ Service Client for Inter-Service Communication
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

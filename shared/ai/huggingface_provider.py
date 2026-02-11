@@ -474,8 +474,8 @@ class HuggingfaceProvider:
             return self._models[model_id], self._tokenizers[model_id]
 
         try:
-            from transformers import AutoModel, AutoTokenizer
             import torch as _torch  # noqa: F401 - Required for model operations
+            from transformers import AutoModel, AutoTokenizer
 
             device = self._get_device()
             cache_dir = self.config.local_model_dir

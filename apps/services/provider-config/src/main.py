@@ -9,7 +9,7 @@ Port: 8104
 import json
 import os
 import sys
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 from typing import Any
 
@@ -24,8 +24,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from sqlalchemy.orm import Session
+
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .database_service import CacheManager, ProviderConfigService
 

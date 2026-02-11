@@ -41,8 +41,8 @@ try:
     )
     from shared.ai.context_engineering.evaluation import (
         EvaluationCriteria,
-        RecommendationType,
         RecommendationEvaluator,
+        RecommendationType,
     )
     from shared.ai.context_engineering.memory import (
         FarmMemory,
@@ -59,7 +59,6 @@ except ImportError:
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.errors_py import setup_exception_handlers
-
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,

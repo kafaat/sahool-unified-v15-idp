@@ -18,6 +18,7 @@ from typing import Any
 
 import structlog
 
+from ..mcp_tools import RAGMCPTools
 from ..models import (
     EntityType,
     RelationType,
@@ -25,13 +26,12 @@ from ..models import (
     TriRAGConfig,
 )
 from ..retriever import (
-    RetrievalConfig,
-    KnowledgeGraphRetriever,
-    TriRAGRetriever,
     DenseRetriever,
+    KnowledgeGraphRetriever,
+    RetrievalConfig,
     SparseRetriever,
+    TriRAGRetriever,
 )
-from ..mcp_tools import RAGMCPTools
 
 logger = structlog.get_logger(__name__)
 
@@ -1116,8 +1116,8 @@ class GEERAGProvider:
         index_type: VegetationIndex,
     ) -> list[TimeSeriesPoint]:
         """Generate sample time series data for testing"""
-        import random
         import math
+        import random
 
         points = []
         current = start_date

@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -23,6 +23,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
@@ -83,6 +84,8 @@ from .pest_assessment import (
 )
 from .yield_prediction import (
     CropType as YieldCropType,
+)
+from .yield_prediction import (
     get_crop_parameters,
     predict_yield,
 )

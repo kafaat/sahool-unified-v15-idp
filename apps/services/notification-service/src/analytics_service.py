@@ -8,7 +8,7 @@ delivery metrics, and user engagement tracking.
 
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

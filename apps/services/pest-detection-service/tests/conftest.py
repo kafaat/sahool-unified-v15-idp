@@ -2,12 +2,12 @@
 Test configuration and fixtures for pest-detection-service.
 """
 
+# Set test environment before importing app
+import os
+
 import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
-
-# Set test environment before importing app
-import os
 
 os.environ["ENVIRONMENT"] = "test"
 os.environ["NATS_URL"] = ""

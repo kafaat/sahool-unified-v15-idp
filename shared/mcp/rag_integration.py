@@ -75,13 +75,13 @@ class RAGTools:
         try:
             # Import UltraRAG components
             from shared.ai.ultrarag import (
+                GenerationMode,
+                KnowledgeBase,
                 RAGPipeline,
                 RAGPipelineBuilder,
-                KnowledgeBase,
-                WorkflowEngine,
-                RetrievalStrategy,
                 RerankingMethod,
-                GenerationMode,
+                RetrievalStrategy,
+                WorkflowEngine,
             )
 
             # Initialize if not provided

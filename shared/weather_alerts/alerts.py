@@ -17,12 +17,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from .models import (
+    CROP_FROST_THRESHOLDS,
+    CROP_HEAT_THRESHOLDS,
     AlertSeverity,
     AlertThresholds,
     AlertType,
     CropType,
-    CROP_FROST_THRESHOLDS,
-    CROP_HEAT_THRESHOLDS,
     HarvestCondition,
     HarvestWindow,
     IrrigationRecommendation,
@@ -30,7 +30,6 @@ from .models import (
     WeatherAlert,
     WeatherForecast,
 )
-
 
 # Bilingual alert templates
 ALERT_TEMPLATES: dict[AlertType, dict[str, dict[str, str]]] = {

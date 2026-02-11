@@ -12,32 +12,32 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, date, timedelta, UTC
-from decimal import Decimal
-from pathlib import Path
-from typing import Any
 import asyncio
 import json
 import logging
 import os
 import uuid
+from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
+from pathlib import Path
+from typing import Any
 
 from .models import (
-    CropPrice,
-    PriceAlert,
-    AlertStatus,
-    AlertType,
-    Market,
-    Region,
-    Currency,
-    PriceUnit,
-    PriceQuality,
-    Country,
+    ALL_REGIONS,
     CROP_TYPES,
     MAJOR_MARKETS,
-    ALL_REGIONS,
+    AlertStatus,
+    AlertType,
+    Country,
+    CropPrice,
+    Currency,
+    Market,
     MarketPriceErrors,
     MarketPriceException,
+    PriceAlert,
+    PriceQuality,
+    PriceUnit,
+    Region,
 )
 
 logger = logging.getLogger(__name__)
@@ -842,8 +842,8 @@ class MarketPriceTracker:
         try:
             # Lazy import to avoid circular dependencies
             from shared.libs.events.nats_publisher import (
-                get_publisher,
                 AnalysisEvent,
+                get_publisher,
             )
         except ImportError:
             logger.warning(

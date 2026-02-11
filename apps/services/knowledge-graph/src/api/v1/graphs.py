@@ -3,8 +3,9 @@ Graph API endpoints
 نقاط نهاية API الرسم البياني
 """
 
-from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
 
 from models import RelationshipType
 

@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -31,7 +31,6 @@ from .models import (
     Recommendation,
     YieldEstimation,
 )
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)

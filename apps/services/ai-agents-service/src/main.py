@@ -17,7 +17,9 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timezone
 from typing import Any
+from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
@@ -25,11 +27,9 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Req
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
-from datetime import datetime, timezone, UTC
-from uuid import uuid4
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Initialize structured logger
 logger = structlog.get_logger()
@@ -44,19 +44,18 @@ sys.path.insert(
     ),
 )
 
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
-from shared.events.contracts import (
-    AgentExecutionStartedEvent,
-    AgentExecutionCompletedEvent,
-    AgentExecutionFailedEvent,
-)
-
 from shared.ai.agents import (
+    AgentMode,
     AgriculturalResearchAgent,
     FarmAdvisorAgent,
     PlannerAgent,
-    AgentMode,
+)
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
+from shared.events.contracts import (
+    AgentExecutionCompletedEvent,
+    AgentExecutionFailedEvent,
+    AgentExecutionStartedEvent,
 )
 
 # Database layer

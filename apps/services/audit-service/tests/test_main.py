@@ -3,6 +3,7 @@ Audit Service Tests
 """
 
 import os
+
 import pytest
 from fastapi.testclient import TestClient
 

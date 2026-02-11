@@ -20,7 +20,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
@@ -71,12 +71,17 @@ except ImportError:
 
 # Database imports
 # Multi-channel support
+# New enhanced components (v16.0)
+from .analytics_controller import router as analytics_router
 from .channels_controller import router as channels_router
 from .database import check_db_health, close_db, get_db_stats, init_notification_db
+from .delivery_tracker import get_delivery_tracker
 from .email_client import get_email_client
+from .history_controller import router as history_router
 from .otp_controller import router as otp_router
 from .preferences_controller import router as preferences_router
 from .preferences_service import PreferencesService
+from .queue_processor import get_queue_processor
 from .repository import (
     FarmerProfileRepository,
     NotificationLogRepository,
@@ -86,15 +91,9 @@ from .repository import (
 
 # Notification clients
 from .sms_client import get_sms_client
-from .whatsapp_client import get_whatsapp_client
-from .telegram_client import get_telegram_client
 from .sms_providers import get_multi_sms_client
-
-# New enhanced components (v16.0)
-from .analytics_controller import router as analytics_router
-from .history_controller import router as history_router
-from .delivery_tracker import get_delivery_tracker
-from .queue_processor import get_queue_processor
+from .telegram_client import get_telegram_client
+from .whatsapp_client import get_whatsapp_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

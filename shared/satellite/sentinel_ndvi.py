@@ -15,7 +15,7 @@ Copernicus Open Access Hub: Free registration at https://scihub.copernicus.eu
 
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any
 
@@ -260,8 +260,8 @@ class SentinelNDVIAnalyzer:
 
         try:
             from sentinelhub import (
-                BBox,
                 CRS,
+                BBox,
                 DataCollection,
                 MimeType,
                 SentinelHubRequest,

@@ -25,7 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .api.endpoints import leveling
-from .api.schemas import HealthResponse, ReadinessResponse, ErrorResponse
+from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse
 from .core.config import settings
 
 # Configure structured logging

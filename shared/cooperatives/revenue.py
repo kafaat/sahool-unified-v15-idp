@@ -17,17 +17,17 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from decimal import Decimal, ROUND_HALF_UP
+from datetime import UTC, datetime
+from decimal import ROUND_HALF_UP, Decimal
 from enum import StrEnum
 from typing import Any
-import uuid
 
 from .models import (
     CooperativeMember,
-    RevenueShareMethod,
     MemberStatus,
+    RevenueShareMethod,
 )
 
 

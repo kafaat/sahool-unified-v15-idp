@@ -80,21 +80,56 @@ Updated: January 2026
 """
 
 # Models and Enums
+# Connectors
+from .connector import (
+    AgroGPTConnector,
+    # Base
+    BaseConnector,
+    ConnectorResponse,
+    CropWizardConnector,
+    GenericRESTConnector,
+    PlantGPTConnector,
+    # Model-Specific Connectors
+    ShengNongConnector,
+    # Factory
+    create_connector,
+    get_available_connectors,
+)
+
+# Integrator
+from .integrator import (
+    # Constants
+    TASK_CAPABILITY_MAP,
+    ModelCallResult,
+    # Classes
+    ModelIntegrator,
+    ModelSelection,
+    # Enums
+    TaskType,
+    call_model,
+    compare_models,
+    # Convenience Functions
+    discover_models,
+    get_best_model,
+    # Factory Functions
+    get_integrator,
+    reset_integrator,
+)
 from .models import (
     # Enums
     AIModelCategory,
-    ModelCapability,
-    ModelLicense,
-    ModelStatus,
-    ModelArchitecture,
+    AIModelInfo,
+    DeveloperInfo,
     # Data Classes
     LanguageSupport,
-    ModelEndpoint,
-    DeveloperInfo,
-    ModelPerformance,
-    AIModelInfo,
+    ModelArchitecture,
+    ModelCapability,
     ModelComparison,
     ModelDiscoveryResult,
+    ModelEndpoint,
+    ModelLicense,
+    ModelPerformance,
+    ModelStatus,
 )
 
 # Registry
@@ -102,42 +137,6 @@ from .registry import (
     AgriculturalAIRegistry,
     get_registry,
     reset_registry,
-)
-
-# Integrator
-from .integrator import (
-    # Enums
-    TaskType,
-    # Classes
-    ModelIntegrator,
-    ModelCallResult,
-    ModelSelection,
-    # Factory Functions
-    get_integrator,
-    reset_integrator,
-    # Convenience Functions
-    discover_models,
-    get_best_model,
-    call_model,
-    compare_models,
-    # Constants
-    TASK_CAPABILITY_MAP,
-)
-
-# Connectors
-from .connector import (
-    # Base
-    BaseConnector,
-    ConnectorResponse,
-    # Model-Specific Connectors
-    ShengNongConnector,
-    CropWizardConnector,
-    PlantGPTConnector,
-    AgroGPTConnector,
-    GenericRESTConnector,
-    # Factory
-    create_connector,
-    get_available_connectors,
 )
 
 __version__ = "1.0.0"

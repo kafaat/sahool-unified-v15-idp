@@ -7,7 +7,7 @@ Data access layer for equipment, maintenance records, and alerts
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session

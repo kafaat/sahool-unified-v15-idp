@@ -184,57 +184,58 @@ Updated: January 2026
 # =============================================================================
 # Models
 # =============================================================================
+# =============================================================================
+# Islamic Calendar
+# =============================================================================
+from .islamic import (
+    # Data
+    DAY_NAMES,
+    HIJRI_MONTH_NAMES,
+    ISLAMIC_EVENTS,
+    # Classes
+    HijriCalendar,
+    IslamicEventsManager,
+    # Helper functions
+    format_dual_date,
+    get_current_hijri_date,
+    get_labor_advisory,
+    get_upcoming_islamic_events,
+    gregorian_to_hijri,
+    hijri_to_gregorian,
+)
 from .models import (
     # Enums
     AgriculturalSeason,
+    # Data classes
+    CalendarEvent,
     CalendarType,
     ClimateZone,
     CropType,
     EventPriority,
-    HijriMonth,
-    PlantingEventType,
-    RecommendationConfidence,
-    Region,
-    TraditionalSeason,
-    # Data classes
-    CalendarEvent,
     HijriDate,
+    HijriMonth,
     IslamicEvent,
+    PlantingEventType,
     PlantingRecommendation,
     PlantingWindow,
+    RecommendationConfidence,
+    Region,
     RegionMetadata,
     SeasonalCalendar,
     SeasonDefinition,
+    TraditionalSeason,
     TraditionalSeasonInfo,
-)
-
-# =============================================================================
-# Season Calculations
-# =============================================================================
-from .seasons import (
-    # Classes
-    SeasonCalculator,
-    # Data
-    REGION_METADATA,
-    TRADITIONAL_SEASONS,
-    # Helper functions
-    create_season_definitions,
-    get_current_season,
-    get_current_traditional_season,
-    get_region_info,
-    list_saudi_regions,
-    list_yemen_regions,
 )
 
 # =============================================================================
 # Planting Recommendations
 # =============================================================================
 from .planting import (
-    # Classes
-    PlantingRecommendationEngine,
     # Data
     CROP_NAMES_AR,
     PLANTING_WINDOWS,
+    # Classes
+    PlantingRecommendationEngine,
     # Helper functions
     get_crop_name_ar,
     get_crops_to_plant_now,
@@ -243,23 +244,21 @@ from .planting import (
 )
 
 # =============================================================================
-# Islamic Calendar
+# Season Calculations
 # =============================================================================
-from .islamic import (
-    # Classes
-    HijriCalendar,
-    IslamicEventsManager,
+from .seasons import (
     # Data
-    DAY_NAMES,
-    HIJRI_MONTH_NAMES,
-    ISLAMIC_EVENTS,
+    REGION_METADATA,
+    TRADITIONAL_SEASONS,
+    # Classes
+    SeasonCalculator,
     # Helper functions
-    format_dual_date,
-    get_current_hijri_date,
-    get_labor_advisory,
-    get_upcoming_islamic_events,
-    gregorian_to_hijri,
-    hijri_to_gregorian,
+    create_season_definitions,
+    get_current_season,
+    get_current_traditional_season,
+    get_region_info,
+    list_saudi_regions,
+    list_yemen_regions,
 )
 
 # =============================================================================

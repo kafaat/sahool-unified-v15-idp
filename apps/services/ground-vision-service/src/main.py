@@ -9,9 +9,9 @@ cameras, integrating with SAHOOL's existing satellite and IoT infrastructure.
 import logging
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -116,7 +116,7 @@ async def lifespan(app: FastAPI):
     # Initialize core modules
     try:
         from .core import ChangeDetector, OperationClassifier
-        from .intelligence import CropTimelineReasoner, AnomalyDetector
+        from .intelligence import AnomalyDetector, CropTimelineReasoner
 
         # Change detector
         change_threshold = float(os.getenv("CHANGE_DETECTION_THRESHOLD", "0.15"))

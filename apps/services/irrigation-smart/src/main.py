@@ -15,7 +15,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import date, datetime, time, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, time, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

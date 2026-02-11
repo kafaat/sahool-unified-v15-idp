@@ -9,7 +9,7 @@ Provides automatic optimization of SAHOOL agents using:
 """
 
 from .agl_trainer import AGLTrainer, TrainingConfig, TrainingResult
-from .feedback_collector import FeedbackCollector, AgentFeedback
+from .feedback_collector import AgentFeedback, FeedbackCollector
 
 __all__ = [
     "AGLTrainer",

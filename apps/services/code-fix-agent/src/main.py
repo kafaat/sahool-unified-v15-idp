@@ -8,7 +8,7 @@ Follows SAHOOL service conventions and A2A Protocol.
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog

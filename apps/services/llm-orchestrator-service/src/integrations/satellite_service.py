@@ -7,9 +7,9 @@ Satellite Service Integration
 Wraps the shared Sentinel NDVI module for use in the orchestrator.
 """
 
-import sys
 import os
-from datetime import datetime, UTC
+import sys
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog

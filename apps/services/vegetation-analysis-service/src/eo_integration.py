@@ -11,7 +11,7 @@ real satellite data. Otherwise, it falls back to simulated data.
 
 import logging
 import os
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from typing import Any
 
 logger = logging.getLogger(__name__)

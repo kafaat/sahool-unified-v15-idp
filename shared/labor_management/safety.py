@@ -17,20 +17,20 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 
 from .models import (
-    Worker,
-    Task,
-    TaskCategory,
-    REIZone,
-    SafetyViolation,
-    SafetyViolationType,
-    SafetyCertification,
     PPEType,
     PreTaskSafetyCheck,
+    REIZone,
+    SafetyCertification,
     SafetyChecklistItem,
+    SafetyViolation,
+    SafetyViolationType,
+    Task,
+    TaskCategory,
+    Worker,
     create_rei_zone,
     generate_id,
 )

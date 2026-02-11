@@ -7,8 +7,8 @@ NLP Service Integration
 Wraps the shared Arabic NLP module for use in the orchestrator.
 """
 
-import sys
 import os
+import sys
 from typing import Any
 
 import structlog

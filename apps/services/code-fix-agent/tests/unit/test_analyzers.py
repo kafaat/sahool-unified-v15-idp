@@ -5,20 +5,21 @@ SAHOOL Code Fix Agent - Unit Tests for Analyzers
 Tests for Python, TypeScript, and Dart code analyzers.
 """
 
-import pytest
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from agent.analyzers.python_analyzer import PythonAnalyzer
-from agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
-from agent.analyzers.dart_analyzer import DartAnalyzer
 from agent.analyzers.base_analyzer import (
     AnalysisConfig,
-    IssueSeverity,
     IssueCategory,
+    IssueSeverity,
 )
+from agent.analyzers.dart_analyzer import DartAnalyzer
+from agent.analyzers.python_analyzer import PythonAnalyzer
+from agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
 
 
 class TestPythonAnalyzer:

@@ -7,7 +7,7 @@ Data models for fertilizer inventory, applications, and nutrient tracking.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
 

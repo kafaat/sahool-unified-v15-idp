@@ -17,9 +17,9 @@ from typing import Any, Optional
 
 import structlog
 
-from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
-from shared.ai.ultrarag.models import TriRAGConfig, RetrievalStrategy
 from shared.ai.ultrarag.mcp_tools import RAGMCPTools
+from shared.ai.ultrarag.models import RetrievalStrategy, TriRAGConfig
+from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
 
 from .service import CopilotRAGService, RAGConfig, SearchResult
 

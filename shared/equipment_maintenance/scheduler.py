@@ -15,26 +15,25 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, date, UTC
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 
 from .models import (
+    AlertSeverity,
+    AlertType,
+    ChecklistItem,
     Equipment,
     EquipmentType,
+    MaintenanceAlert,
+    MaintenancePart,
+    MaintenancePriority,
     MaintenanceSchedule,
+    MaintenanceStatus,
     MaintenanceTask,
     MaintenanceType,
-    MaintenanceStatus,
-    MaintenancePriority,
-    MaintenanceAlert,
-    AlertType,
-    AlertSeverity,
-    ChecklistItem,
     PartRequirement,
-    MaintenancePart,
     generate_id,
 )
-
 
 # ==============================================================================
 # Enumerations - التعدادات

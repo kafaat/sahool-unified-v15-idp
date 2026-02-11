@@ -9,23 +9,23 @@ and provide semantic understanding of agricultural operations.
 import base64
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Optional, Protocol
 
 from pydantic import BaseModel, Field
 
+from ..core.change_detection import ChangeDetector
+from ..models.anomaly import AnomalySeverity, AnomalyType
 from ..models.timeline import (
+    CROP_TYPE_AR,
+    GROWTH_STAGE_AR,
     CropTimelineAnalysis,
     CropTimelineEntry,
     CropType,
-    GrowthStage,
     FieldContext,
+    GrowthStage,
     TimeSeriesFrame,
-    CROP_TYPE_AR,
-    GROWTH_STAGE_AR,
 )
-from ..models.anomaly import AnomalyType, AnomalySeverity
-from ..core.change_detection import ChangeDetector
 
 logger = logging.getLogger(__name__)
 
@@ -318,9 +318,10 @@ maturity/نضج, harvest_ready/جاهز للحصاد, harvested/محصود
             return True  # Always analyze first frames
 
         # Convert last two frames to numpy for change detection
+        import io
+
         import numpy as np
         from PIL import Image
-        import io
 
         # Load last two images
         img1 = Image.open(io.BytesIO(frame_images[-2]))

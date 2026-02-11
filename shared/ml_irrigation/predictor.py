@@ -18,22 +18,22 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from typing import Any, Protocol
 import logging
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any, Protocol
 
 from .models import (
+    CropFeatures,
+    CropStage,
     IrrigationFeatures,
     IrrigationPrediction,
+    IrrigationRecord,
+    IrrigationType,
     IrrigationUrgency,
     PredictionConfidence,
-    CropStage,
-    IrrigationType,
-    WeatherFeatures,
     SoilFeatures,
-    CropFeatures,
-    IrrigationRecord,
+    WeatherFeatures,
 )
 
 logger = logging.getLogger(__name__)

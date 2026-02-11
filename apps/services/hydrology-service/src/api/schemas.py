@@ -16,7 +16,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-
 # Validation constants
 # ثوابت التحقق من الصحة
 COORDINATE_PRECISION = 8  # Max decimal places for coordinates

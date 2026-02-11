@@ -3,16 +3,18 @@ Tests for Knowledge Graph Service
 اختبارات خدمة الرسم البياني للمعرفة
 """
 
-import pytest
 import asyncio
-import sys
 import os
+import sys
+
+import pytest
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
 from services import KnowledgeGraphService
-from models import Crop, Disease, Treatment, RelationshipType
+
+from models import Crop, Disease, RelationshipType, Treatment
 
 
 @pytest.mark.asyncio

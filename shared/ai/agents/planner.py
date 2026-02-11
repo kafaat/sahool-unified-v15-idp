@@ -24,15 +24,16 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from typing import Any, TYPE_CHECKING
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
+from typing import TYPE_CHECKING, Any
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
-    AgentMode,
     AgentCapability,
+    AgentMode,
     AgentStep,
     AgentTool,
     BaseAutonomousAgent,
@@ -42,7 +43,6 @@ from .base import (
     MemoryType,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 if TYPE_CHECKING:
     from .farm_advisor import FarmAdvisorAgent

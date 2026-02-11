@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-
 # Common user agents for rotation
 USER_AGENTS: list[str] = [
     # Chrome on Windows

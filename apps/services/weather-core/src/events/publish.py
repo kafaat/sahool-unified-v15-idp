@@ -5,7 +5,7 @@ Event Publisher - SAHOOL Weather Core
 import json
 import os
 import uuid
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 from nats.aio.client import Client as NATS
 

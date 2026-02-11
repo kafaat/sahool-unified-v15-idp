@@ -13,7 +13,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import json
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, AsyncIterator
 
 from .config import OpenAICompatConfig, get_config

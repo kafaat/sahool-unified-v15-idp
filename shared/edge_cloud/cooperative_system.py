@@ -18,12 +18,14 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 from uuid import uuid4
 
 import structlog
 
+from .cloud_layer import get_cloud_layer
+from .edge_layer import get_edge_layer
 from .models import (
     CloudInference,
     DeviceConfig,
@@ -37,9 +39,6 @@ from .models import (
     SystemMetrics,
 )
 from .perception_layer import get_perception_layer
-from .edge_layer import get_edge_layer
-from .cloud_layer import get_cloud_layer
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)

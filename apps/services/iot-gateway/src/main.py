@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Query
 
@@ -44,8 +44,8 @@ from .registry import (
     DeviceRegistry,
     DeviceStatus,
     RedisDeviceRegistry,
-    get_registry,
     get_redis_registry,
+    get_registry,
     set_registry,
 )
 

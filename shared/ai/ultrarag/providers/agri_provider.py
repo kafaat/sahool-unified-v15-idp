@@ -14,6 +14,7 @@ from typing import Any
 
 import structlog
 
+from ..mcp_tools import RAGMCPTools
 from ..models import (
     EntityType,
     RelationType,
@@ -21,13 +22,12 @@ from ..models import (
     TriRAGConfig,
 )
 from ..retriever import (
-    RetrievalConfig,
-    KnowledgeGraphRetriever,
-    TriRAGRetriever,
     DenseRetriever,
+    KnowledgeGraphRetriever,
+    RetrievalConfig,
     SparseRetriever,
+    TriRAGRetriever,
 )
-from ..mcp_tools import RAGMCPTools
 
 logger = structlog.get_logger(__name__)
 

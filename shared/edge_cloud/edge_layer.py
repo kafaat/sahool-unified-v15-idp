@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any, Callable
 from uuid import UUID
 
@@ -39,7 +39,6 @@ from .models import (
     SensorType,
     SystemStatus,
 )
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)

@@ -16,7 +16,7 @@ import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any, Optional
 
 import structlog
@@ -323,7 +323,7 @@ class CopilotRAGService:
             # Build filter
             qdrant_filter = None
             if metadata_filter or tenant_id:
-                from qdrant_client.models import Filter, FieldCondition, MatchValue
+                from qdrant_client.models import FieldCondition, Filter, MatchValue
 
                 conditions = []
                 if tenant_id:

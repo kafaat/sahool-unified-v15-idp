@@ -6,7 +6,7 @@ Business logic for tracking farm compliance against IFA v6 standards.
 منطق العمل لتتبع امتثال المزارع لمعايير IFA v6.
 """
 
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 from ..models import (

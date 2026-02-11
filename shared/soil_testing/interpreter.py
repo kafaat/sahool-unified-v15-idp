@@ -30,7 +30,6 @@ from .models import (
     SoilType,
 )
 
-
 # Nutrient thresholds for interpretation (ppm unless noted)
 # Calibrated for Middle East alkaline calcareous soils
 NUTRIENT_THRESHOLDS: dict[str, dict] = {

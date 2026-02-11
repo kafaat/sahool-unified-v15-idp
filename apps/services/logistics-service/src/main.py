@@ -16,7 +16,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 
@@ -30,10 +30,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 # Import authentication dependencies and error handling
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
-    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
     AUTH_AVAILABLE = True
 except ImportError:

@@ -15,7 +15,7 @@ Based on Open-Meteo free API: https://open-meteo.com
 
 import logging
 from dataclasses import dataclass
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 
 import httpx
 

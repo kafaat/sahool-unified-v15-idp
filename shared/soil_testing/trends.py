@@ -17,11 +17,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import statistics
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
-import statistics
 
+from .interpreter import NUTRIENT_THRESHOLDS, SoilTestInterpreter
 from .models import (
     NutrientStatus,
     NutrientTrend,
@@ -29,7 +30,6 @@ from .models import (
     TrendDataPoint,
     TrendReport,
 )
-from .interpreter import SoilTestInterpreter, NUTRIENT_THRESHOLDS
 
 
 @dataclass

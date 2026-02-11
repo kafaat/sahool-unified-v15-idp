@@ -4,8 +4,9 @@ Configuration settings for Leveling Optimizer Service.
 إعدادات خدمة تحسين التسوية
 """
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):

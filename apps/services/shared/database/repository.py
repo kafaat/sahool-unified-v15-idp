@@ -3,6 +3,7 @@ Base Repository Pattern
 نمط المستودع الأساسي
 """
 
+from datetime import UTC
 from typing import Any, Generic, TypeVar
 from uuid import UUID
 
@@ -10,7 +11,6 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from .base import Base
-from datetime import UTC
 
 # Generic type for models
 ModelType = TypeVar("ModelType", bound=Base)

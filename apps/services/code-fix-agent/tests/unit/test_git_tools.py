@@ -5,19 +5,20 @@ SAHOOL Code Fix Agent - Unit Tests for Git Tools
 Tests for Git integration tools.
 """
 
-import pytest
-import tempfile
 import os
 import sys
+import tempfile
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from tools.git_tools import (
-    GitTools,
-    GitOperationType,
     FileChangeType,
     GitOperationResult,
+    GitOperationType,
+    GitTools,
 )
 
 

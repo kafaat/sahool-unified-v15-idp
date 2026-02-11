@@ -16,21 +16,21 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
-from typing import Any
-from collections import defaultdict
 import logging
 import statistics
+from collections import defaultdict
+from dataclasses import dataclass
+from datetime import UTC, datetime, timedelta
+from typing import Any
 
 from .models import (
-    IrrigationRecord,
-    IrrigationFeatures,
-    WaterOptimizationResult,
-    IrrigationAnomaly,
-    HistoricalPattern,
-    AnomalyType,
     AnomalySeverity,
+    AnomalyType,
+    HistoricalPattern,
+    IrrigationAnomaly,
+    IrrigationFeatures,
+    IrrigationRecord,
+    WaterOptimizationResult,
 )
 
 logger = logging.getLogger(__name__)

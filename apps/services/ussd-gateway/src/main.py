@@ -9,18 +9,18 @@ Features:
 - WhatsApp Business API integration
 """
 
-import os
 import json
+import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 import asyncpg
 import nats
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.observability.logging import get_logger
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
 
 logger = get_logger(__name__)
 

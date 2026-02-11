@@ -20,7 +20,7 @@ from __future__ import annotations
 import statistics
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from .models import (
@@ -34,7 +34,6 @@ from .models import (
     WaterSource,
     WaterSourceType,
 )
-
 
 # =============================================================================
 # Water Level Monitoring - مراقبة مستوى المياه

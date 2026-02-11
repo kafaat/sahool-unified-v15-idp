@@ -24,15 +24,16 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from typing import Any
+from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Any
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
-    AgentMode,
     AgentCapability,
+    AgentMode,
     AgentStep,
     AgentTool,
     BaseAutonomousAgent,
@@ -40,7 +41,6 @@ from .base import (
     MemoryType,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 

@@ -10,7 +10,7 @@ import contextlib
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 
 import httpx

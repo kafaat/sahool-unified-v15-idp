@@ -10,7 +10,7 @@ import hashlib
 import json
 import logging
 import os
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)

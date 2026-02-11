@@ -42,7 +42,7 @@ def basic_usage_example():
 # مثال 2: تسجيل مستخدم جديد
 # ========================================
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 
 class UserRegistrationService:

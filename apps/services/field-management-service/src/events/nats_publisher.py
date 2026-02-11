@@ -6,7 +6,7 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 """
 
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 

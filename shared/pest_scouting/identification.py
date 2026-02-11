@@ -26,14 +26,13 @@ from __future__ import annotations
 from typing import Any
 
 from .models import (
-    PestIdentification,
-    PestCategory,
-    PestLifeStage,
     CropType,
-    ScoutObservation,
     InfestationLevel,
+    PestCategory,
+    PestIdentification,
+    PestLifeStage,
+    ScoutObservation,
 )
-
 
 # =============================================================================
 # PEST DATABASE - قاعدة بيانات الآفات

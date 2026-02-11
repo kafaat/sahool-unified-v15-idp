@@ -5,11 +5,11 @@ Observability Endpoints for Services
 Provides Prometheus metrics and OpenTelemetry integration endpoints.
 """
 
+from datetime import UTC
 from typing import Optional
 
 from fastapi import APIRouter, Response
 from fastapi.responses import PlainTextResponse
-from datetime import UTC
 
 try:
     from prometheus_client import (

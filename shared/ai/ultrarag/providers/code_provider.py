@@ -19,8 +19,8 @@ from ..models import (
     TriRAGConfig,
 )
 from ..retriever import (
-    RetrievalConfig,
     KnowledgeGraphRetriever,
+    RetrievalConfig,
     TriRAGRetriever,
 )
 

@@ -10,7 +10,7 @@ import asyncio
 import json
 import logging
 import sys
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, Request, Response

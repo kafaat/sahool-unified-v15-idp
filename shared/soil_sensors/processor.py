@@ -8,16 +8,16 @@ from __future__ import annotations
 import math
 import uuid
 from collections import defaultdict
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from .models import (
-    SensorReading,
-    SoilSensor,
-    SensorAlert,
-    SensorAggregation,
-    FieldMoistureMap,
-    SensorType,
     AlertSeverity,
+    FieldMoistureMap,
+    SensorAggregation,
+    SensorAlert,
+    SensorReading,
+    SensorType,
+    SoilSensor,
 )
 
 

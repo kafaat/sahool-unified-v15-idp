@@ -5,7 +5,6 @@ Tests for hydrology algorithms.
 
 import numpy as np
 import pytest
-
 from src.utils.hydrology_algorithms import (
     DEMData,
     HydrologyAnalyzer,

@@ -8,14 +8,14 @@ for consumption by other services.
 
 import json
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Optional
 
 from pydantic import BaseModel
 
+from ..models.anomaly import AnomalyAlert, AnomalyDetection
 from ..models.detection import FieldOperationDetection
-from ..models.timeline import CropTimelineEntry, CropTimelineAnalysis
-from ..models.anomaly import AnomalyDetection, AnomalyAlert
+from ..models.timeline import CropTimelineAnalysis, CropTimelineEntry
 
 logger = logging.getLogger(__name__)
 

@@ -8,24 +8,24 @@ including pest/disease outbreaks, water stress, unauthorized activity, etc.
 
 import logging
 import os
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
 
 import numpy as np
 from pydantic import BaseModel, Field
 
+from ..core.change_detection import ChangeDetectionResult, ChangeDetector
 from ..models.anomaly import (
-    AnomalyDetection,
-    AnomalyType,
-    AnomalySeverity,
-    AnomalyLocation,
-    AnomalyAlert,
     ANOMALY_TYPE_AR,
     SEVERITY_AR,
     SEVERITY_RESPONSE_TIME,
+    AnomalyAlert,
+    AnomalyDetection,
+    AnomalyLocation,
+    AnomalySeverity,
+    AnomalyType,
 )
-from ..core.change_detection import ChangeDetector, ChangeDetectionResult
 
 logger = logging.getLogger(__name__)
 

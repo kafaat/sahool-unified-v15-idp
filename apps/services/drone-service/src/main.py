@@ -2,9 +2,10 @@
 drone-service - Drone integration and management - تكامل وإدارة الطائرات المسيرة
 """
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
 import os
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 
 @asynccontextmanager

@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 import structlog
 from fastapi import FastAPI, Request
@@ -42,7 +42,7 @@ except ImportError:
 
 # Import FixOps integration
 try:
-    from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+    from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
     HAS_FIXOPS = True
 except ImportError:

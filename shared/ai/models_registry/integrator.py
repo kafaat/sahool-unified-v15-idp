@@ -22,7 +22,7 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
 
@@ -694,10 +694,10 @@ class ModelIntegrator:
     def _create_connector(self, model: AIModelInfo) -> Any:
         """Create a connector based on model type."""
         from .connector import (
-            GenericRESTConnector,
-            ShengNongConnector,
             CropWizardConnector,
+            GenericRESTConnector,
             PlantGPTConnector,
+            ShengNongConnector,
         )
 
         # Model-specific connectors

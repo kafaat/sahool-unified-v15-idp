@@ -21,17 +21,16 @@ from __future__ import annotations
 import statistics
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, UTC
+from datetime import UTC, date, datetime
 from typing import Any
 
 from .models import (
     AlertSeverity,
     IrrigationEvent,
     IrrigationMethod,
-    WaterAllocation,
     WaterAlert,
+    WaterAllocation,
 )
-
 
 # =============================================================================
 # Efficiency Metrics Models - نماذج مقاييس الكفاءة

@@ -11,7 +11,7 @@ and certification verification functionality.
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 
 import structlog
 
@@ -19,12 +19,12 @@ from .models import (
     Certification,
     CertificationBody,
     CertificationStatus,
+    CertificationSummary,
     CertificationType,
     ComplianceDocument,
     ComplianceRequirement,
     ComplianceStatus,
     ComplianceSummary,
-    CertificationSummary,
     DocumentType,
 )
 

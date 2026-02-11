@@ -3,11 +3,11 @@
 # نماذج البيانات لـ UltraRAG
 # ═══════════════════════════════════════════════════════════════════════════════
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any
-import uuid
 
 
 class RetrievalStrategy(Enum):

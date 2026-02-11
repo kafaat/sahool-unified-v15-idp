@@ -17,13 +17,12 @@ This module provides:
 
 import logging
 import os
+import ssl
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import date, datetime
 from typing import Any
 from uuid import UUID
-
-import ssl
 
 import asyncpg
 from asyncpg.pool import Pool

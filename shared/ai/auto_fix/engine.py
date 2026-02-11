@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import os
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 from .diagnostics import CodeDiagnostics, DiagnosticError

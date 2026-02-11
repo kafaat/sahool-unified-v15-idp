@@ -7,7 +7,7 @@ Storage: PostgreSQL with asyncpg (with in-memory fallback for testing)
 """
 
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -35,7 +35,7 @@ def _sanitize_log_input(value: str, max_length: int = 100) -> str:
 
 # Database imports
 try:
-    from ..database import events_repo, rules_repo, get_pool
+    from ..database import events_repo, get_pool, rules_repo
 
     DB_AVAILABLE = True
 except ImportError:

@@ -5,13 +5,13 @@ Tests for lowcode-engine Pydantic models.
 import os
 import sys
 from datetime import datetime
+
+# Add project root and src path
+from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
-
-# Add project root and src path
-from pathlib import Path
 
 project_root = os.path.dirname(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -44,16 +44,15 @@ if "shared.auth.dependencies" not in sys.modules:
 
 # Import the request/response models from main.py
 from main import (
+    AISuggestionRequest,
+    AISuggestionResponse,
     ComponentResponse,
     DataModelCreateRequest,
     DataModelResponse,
     PageCreateRequest,
-    PageResponse,
     PageRenderResponse,
-    AISuggestionRequest,
-    AISuggestionResponse,
+    PageResponse,
 )
-
 
 # ============================================================================
 # Test DataModel Validation

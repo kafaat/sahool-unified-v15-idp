@@ -8,7 +8,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 from fastapi import APIRouter, Response
 

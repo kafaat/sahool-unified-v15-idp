@@ -287,10 +287,10 @@ class DigitalTwinEngine:
 
     def _load_data(self):
         try:
-            from shared.yemen.crops import YEMEN_CROPS
-            from shared.yemen.climate import YEMEN_CLIMATE_ZONES
-            from shared.yemen.soils import YEMEN_SOIL_PROFILES
             from shared.salinity import SalinityModule
+            from shared.yemen.climate import YEMEN_CLIMATE_ZONES
+            from shared.yemen.crops import YEMEN_CROPS
+            from shared.yemen.soils import YEMEN_SOIL_PROFILES
 
             self._yemen_crops = YEMEN_CROPS
             self._yemen_climate = YEMEN_CLIMATE_ZONES

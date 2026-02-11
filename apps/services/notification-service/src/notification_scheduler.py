@@ -17,7 +17,7 @@ import heapq
 import logging
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, time, timedelta, timezone, UTC
+from datetime import UTC, datetime, time, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

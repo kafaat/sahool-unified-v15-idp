@@ -7,7 +7,7 @@ Port: 8090
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 from fastapi import FastAPI, HTTPException, Query
 
@@ -25,6 +25,7 @@ from profitability_analyzer import (
     CostCategory,
     ProfitabilityAnalyzer,
 )
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging

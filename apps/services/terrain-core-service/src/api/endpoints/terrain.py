@@ -13,12 +13,24 @@ Provides REST API endpoints for terrain analysis:
 import json
 import time
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Optional
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from ...algorithms.dem_processor import DEMBounds, DEMProcessor, DEMSource
+from ...algorithms.terrain_indicators import (
+    CurvatureType as CalcCurvatureType,
+)
+from ...algorithms.terrain_indicators import (
+    FlowMethod,
+    TerrainIndicatorCalculator,
+)
+from ...algorithms.terrain_indicators import (
+    SlopeUnit as CalcSlopeUnit,
+)
+from ...core.config import settings
 from ..schemas import (
     AspectClassification,
     AspectResult,
@@ -32,20 +44,16 @@ from ..schemas import (
     DEMDataBounds,
     DEMDataRequest,
     DEMDataResponse,
-    DEMMetadata as DEMMetadataSchema,
     DEMSourceInfo,
     DEMSourcesResponse,
     DEMSourceType,
     DEMStatistics,
-    FlowAccumulationResult as FlowAccumulationResultSchema,
     FlowAnalysisRequest,
     FlowAnalysisResponse,
     FlowDirectionMethod,
-    FlowDirectionResult as FlowDirectionResultSchema,
     GeoJSONFeatureCollection,
     SlopeAnalysisRequest,
     SlopeAnalysisResponse,
-    SlopeResult as SlopeResultSchema,
     SlopeUnit,
     TerrainAnalysisRequest,
     TerrainAnalysisResponse,
@@ -53,16 +61,22 @@ from ..schemas import (
     TerrainIrrigationRecommendation,
     TWIAnalysisResponse,
     TWIRequest,
+)
+from ..schemas import (
+    DEMMetadata as DEMMetadataSchema,
+)
+from ..schemas import (
+    FlowAccumulationResult as FlowAccumulationResultSchema,
+)
+from ..schemas import (
+    FlowDirectionResult as FlowDirectionResultSchema,
+)
+from ..schemas import (
+    SlopeResult as SlopeResultSchema,
+)
+from ..schemas import (
     TWIResult as TWIResultSchema,
 )
-from ...algorithms.dem_processor import DEMBounds, DEMProcessor, DEMSource
-from ...algorithms.terrain_indicators import (
-    CurvatureType as CalcCurvatureType,
-    FlowMethod,
-    SlopeUnit as CalcSlopeUnit,
-    TerrainIndicatorCalculator,
-)
-from ...core.config import settings
 
 logger = structlog.get_logger()
 

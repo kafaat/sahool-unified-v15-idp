@@ -15,14 +15,14 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import StrEnum
-from typing import Any
 import hashlib
 import os
 import time
-from datetime import datetime, UTC
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 
 class EmbeddingProvider(StrEnum):
@@ -604,8 +604,8 @@ class EmbeddingsAdapter:
         try:
             # Try to use the HuggingfaceProvider from our module
             from .huggingface_provider import (
-                HuggingfaceProvider,
                 HuggingfaceConfig,
+                HuggingfaceProvider,
             )
 
             # Lazy initialize provider

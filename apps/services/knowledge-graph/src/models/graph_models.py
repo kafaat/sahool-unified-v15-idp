@@ -6,6 +6,7 @@ Core Graph Models for Knowledge Graph Service
 from datetime import datetime
 from enum import Enum, StrEnum
 from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 

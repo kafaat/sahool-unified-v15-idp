@@ -17,7 +17,6 @@ from dataclasses import dataclass, field
 from enum import Enum, StrEnum
 from typing import Any
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Common Types
 # ═══════════════════════════════════════════════════════════════════════════

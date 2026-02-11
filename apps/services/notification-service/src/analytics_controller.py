@@ -7,7 +7,7 @@ dashboard data, and performance monitoring.
 """
 
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query

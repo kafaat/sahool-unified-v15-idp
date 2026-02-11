@@ -16,7 +16,7 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any, Callable, Coroutine
 from uuid import uuid4

@@ -11,7 +11,7 @@ Sentinel-1 SAR (Synthetic Aperture Radar) Integration
 import logging
 import math
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, timezone, UTC
+from datetime import UTC, date, datetime, timedelta, timezone
 from typing import Any
 
 import httpx

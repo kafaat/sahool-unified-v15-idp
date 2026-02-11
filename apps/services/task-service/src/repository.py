@@ -6,7 +6,7 @@ Provides database operations for tasks and evidence.
 """
 
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession

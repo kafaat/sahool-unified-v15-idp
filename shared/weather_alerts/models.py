@@ -12,11 +12,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, UTC
+from datetime import UTC, date, datetime, time
 from enum import StrEnum
 from typing import Any
-import uuid
 
 
 class AlertSeverity(StrEnum):

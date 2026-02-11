@@ -5,7 +5,7 @@ Training API Endpoints
 Agent Lightning integration for automatic agent optimization.
 """
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog

@@ -14,25 +14,24 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from decimal import Decimal
-from enum import StrEnum
 import math
 import statistics
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
+from enum import StrEnum
 
 from .models import (
+    AlertSeverity,
+    AlertType,
     Equipment,
     EquipmentType,
-    MaintenanceType,
-    MaintenancePriority,
     MaintenanceAlert,
-    AlertType,
-    AlertSeverity,
+    MaintenancePriority,
+    MaintenanceType,
     ServiceRecord,
     generate_id,
 )
-
 
 # ==============================================================================
 # Enumerations - التعدادات

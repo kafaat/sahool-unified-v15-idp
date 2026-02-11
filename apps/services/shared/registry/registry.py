@@ -8,7 +8,7 @@ Core registry service for agent registration, discovery, and health monitoring.
 
 import asyncio
 import contextlib
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

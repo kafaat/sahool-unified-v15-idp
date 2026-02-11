@@ -4,13 +4,12 @@ Database layer for AI Agents Service
 Provides connection pooling and CRUD operations for agent executions.
 """
 
-import os
 import json
+import os
+import ssl
 from datetime import datetime
 from typing import Any
 from uuid import UUID
-
-import ssl
 
 import asyncpg
 

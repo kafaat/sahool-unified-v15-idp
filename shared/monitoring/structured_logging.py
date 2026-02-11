@@ -19,7 +19,7 @@ import sys
 import traceback
 from contextvars import ContextVar
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from functools import wraps
 from typing import Any, Callable

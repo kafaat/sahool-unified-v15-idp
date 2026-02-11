@@ -22,37 +22,37 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
-from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
+
 import structlog
 
-from .models import (
-    IrrigationGoal,
-    IrrigationGoalType,
-    EcologicalConstraint,
-    ExperienceRule,
-    HumanDecision,
-    DecisionType,
-    CalibrationResult,
-    CalibrationMethod,
-    ZoneConfiguration,
-    IrrigationProgram,
-    IrrigationSchedule,
-    DecisionSession,
-    SessionStatus,
-    SessionOutcome,
-    HMCError,
-    HMCErrors,
-)
+from .checklist import CollaborativeChecklist
 from .dimensions import (
-    GoalAnchoringDimension,
     ExperienceInjectionDimension,
+    GoalAnchoringDimension,
     SupervisionCalibrationDimension,
     ValueUpgradeDimension,
 )
-from .checklist import CollaborativeChecklist
-
+from .models import (
+    CalibrationMethod,
+    CalibrationResult,
+    DecisionSession,
+    DecisionType,
+    EcologicalConstraint,
+    ExperienceRule,
+    HMCError,
+    HMCErrors,
+    HumanDecision,
+    IrrigationGoal,
+    IrrigationGoalType,
+    IrrigationProgram,
+    IrrigationSchedule,
+    SessionOutcome,
+    SessionStatus,
+    ZoneConfiguration,
+)
 
 logger = structlog.get_logger(__name__)
 

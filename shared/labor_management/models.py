@@ -10,10 +10,9 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, time, timedelta, UTC
+from datetime import UTC, date, datetime, time, timedelta
 from enum import StrEnum
 from uuid import uuid4
-
 
 # ==================== Enums ====================
 

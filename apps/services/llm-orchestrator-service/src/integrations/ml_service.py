@@ -7,8 +7,8 @@ ML Service Integration
 Wraps the shared AgML module for use in the orchestrator.
 """
 
-import sys
 import os
+import sys
 from typing import Any
 
 import structlog
@@ -71,7 +71,7 @@ class MLService:
             return []
 
         try:
-            from shared.ml import DatasetType, CropType
+            from shared.ml import CropType, DatasetType
 
             dt = DatasetType(dataset_type) if dataset_type else None
             ct = CropType(crop_type) if crop_type else None

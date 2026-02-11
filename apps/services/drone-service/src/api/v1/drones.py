@@ -32,7 +32,7 @@ class DroneResponse(BaseModel):
     status: str = "active"
 
 
-@router.get("/", response_model=List[DroneResponse])
+@router.get("/", response_model=list[DroneResponse])
 async def list_drones():
     """
     List all registered drones - قائمة بجميع الطائرات المسجلة
@@ -56,9 +56,7 @@ async def register_drone(drone: DroneCreate):
         Created drone
     """
     # TODO: Implement database insertion
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.get("/{drone_id}", response_model=DroneResponse)
@@ -89,9 +87,7 @@ async def update_drone(drone_id: str, drone: DroneCreate):
         Updated drone
     """
     # TODO: Implement database update
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.delete("/{drone_id}", status_code=204)
@@ -103,9 +99,7 @@ async def delete_drone(drone_id: str):
         drone_id: Drone ID
     """
     # TODO: Implement database deletion
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.get("/{drone_id}/status")
@@ -120,9 +114,7 @@ async def get_drone_status(drone_id: str):
         Real-time status including battery, GPS, etc.
     """
     # TODO: Implement telemetry query
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")
 
 
 @router.get("/{drone_id}/telemetry")
@@ -137,6 +129,4 @@ async def get_drone_telemetry(drone_id: str):
         Telemetry history
     """
     # TODO: Implement telemetry history query
-    raise HTTPException(
-        status_code=501, detail="Not implemented - غير منفذ | قيد التطوير"
-    )
+    raise HTTPException(status_code=501, detail="Not implemented - غير منفذ | قيد التطوير")

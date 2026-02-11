@@ -340,9 +340,7 @@ async def count_active_executions() -> int:
 
     try:
         async with _pool.acquire() as conn:
-            result = await conn.fetchval(
-                "SELECT COUNT(*) FROM agent_executions WHERE status = 'running'"
-            )
+            result = await conn.fetchval("SELECT COUNT(*) FROM agent_executions WHERE status = 'running'")
             return result or 0
     except Exception as e:
         print(f"⚠️ Failed to count active executions: {e}")

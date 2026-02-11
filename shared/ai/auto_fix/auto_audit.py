@@ -354,9 +354,7 @@ class AutoAudit:
 
             old_lines = old.splitlines(keepends=True)
             new_lines = new.splitlines(keepends=True)
-            diff = list(
-                difflib.unified_diff(old_lines, new_lines, fromfile="before", tofile="after")
-            )
+            diff = list(difflib.unified_diff(old_lines, new_lines, fromfile="before", tofile="after"))
             return "".join(diff[:max_lines])
         except Exception:
             return ""

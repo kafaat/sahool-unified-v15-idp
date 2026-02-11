@@ -614,9 +614,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
         logger.info("finding_spray_window", field_id=field_id, type=application_type)
 
         # Get forecast first
-        forecast = await self._get_weather_forecast(
-            location={"lat": 24.7136, "lon": 46.6753}, days=days_ahead
-        )
+        forecast = await self._get_weather_forecast(location={"lat": 24.7136, "lon": 46.6753}, days=days_ahead)
 
         suitable_windows = []
 
@@ -626,11 +624,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
             rain_prob = day_forecast.get("rain_probability_percent", 0)
 
             # Check if conditions are suitable
-            if (
-                wind <= self.SPRAY_WIND_MAX_KMH
-                and rain < self.SPRAY_RAIN_THRESHOLD_MM
-                and rain_prob < 30
-            ):
+            if wind <= self.SPRAY_WIND_MAX_KMH and rain < self.SPRAY_RAIN_THRESHOLD_MM and rain_prob < 30:
                 suitable_windows.append(
                     {
                         "day": day_forecast.get("day"),
@@ -687,16 +681,8 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "location": location,
             "days_checked": days_ahead,
             "frost_risk": has_frost_risk,
-            "frost_risk_level": "high"
-            if len(frost_nights) >= 2
-            else "medium"
-            if frost_nights
-            else "low",
-            "frost_risk_level_ar": "مرتفع"
-            if len(frost_nights) >= 2
-            else "متوسط"
-            if frost_nights
-            else "منخفض",
+            "frost_risk_level": "high" if len(frost_nights) >= 2 else "medium" if frost_nights else "low",
+            "frost_risk_level_ar": "مرتفع" if len(frost_nights) >= 2 else "متوسط" if frost_nights else "منخفض",
             "frost_nights": frost_nights,
             "protective_measures": [
                 {"action": "Cover sensitive crops", "action_ar": "تغطية المحاصيل الحساسة"},
@@ -719,14 +705,10 @@ class WeatherSubAgent(BaseAutonomousAgent):
         """Calculate irrigation adjustment based on weather."""
         logger.info("calculating_irrigation_adjustment", field_id=field_id)
 
-        forecast = await self._get_weather_forecast(
-            location={"lat": 24.7136, "lon": 46.6753}, days=3
-        )
+        forecast = await self._get_weather_forecast(location={"lat": 24.7136, "lon": 46.6753}, days=3)
 
         # Calculate expected rainfall
-        total_expected_rain = sum(
-            day.get("precipitation_mm", 0) for day in forecast.get("daily_forecasts", [])
-        )
+        total_expected_rain = sum(day.get("precipitation_mm", 0) for day in forecast.get("daily_forecasts", []))
 
         # Calculate adjustment
         adjustment = 0
@@ -812,9 +794,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
             ]
             if has_heat_risk
             else [],
-            "crop_specific_advice": crop_advice.get(crop_type, "Monitor crop stress signs")
-            if crop_type
-            else None,
+            "crop_specific_advice": crop_advice.get(crop_type, "Monitor crop stress signs") if crop_type else None,
             "crop_specific_advice_ar": crop_advice_ar.get(crop_type, "مراقبة علامات إجهاد المحصول")
             if crop_type
             else None,

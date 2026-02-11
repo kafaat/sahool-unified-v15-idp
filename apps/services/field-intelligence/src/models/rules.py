@@ -58,9 +58,7 @@ class RuleCondition(BaseModel):
     field: str = Field(..., description="الحقل للفحص (e.g., 'event_type', 'severity')")
     operator: ConditionOperator
     value: Any = Field(..., description="القيمة للمقارنة")
-    value_type: str = Field(
-        default="string", description="نوع البيانات: string, number, boolean, list"
-    )
+    value_type: str = Field(default="string", description="نوع البيانات: string, number, boolean, list")
 
 
 class RuleConditionGroup(BaseModel):
@@ -105,9 +103,7 @@ class NotificationConfig(BaseModel):
         default_factory=lambda: ["push"],
         description="قنوات الإشعار: push, sms, email, whatsapp",
     )
-    recipients: list[str] = Field(
-        default_factory=list, description="معرفات المستلمين أو 'field_owner'"
-    )
+    recipients: list[str] = Field(default_factory=list, description="معرفات المستلمين أو 'field_owner'")
     title: str
     title_ar: str | None = None
     message: str
@@ -180,12 +176,8 @@ class Rule(BaseModel):
     description: str | None = None
     description_ar: str | None = None
     status: RuleStatus = RuleStatus.ACTIVE
-    field_ids: list[str] = Field(
-        default_factory=list, description="الحقول المطبقة عليها القاعدة (فارغ = كل الحقول)"
-    )
-    event_types: list[str] = Field(
-        default_factory=list, description="أنواع الأحداث التي تفعل القاعدة"
-    )
+    field_ids: list[str] = Field(default_factory=list, description="الحقول المطبقة عليها القاعدة (فارغ = كل الحقول)")
+    event_types: list[str] = Field(default_factory=list, description="أنواع الأحداث التي تفعل القاعدة")
     conditions: RuleConditionGroup
     actions: list[ActionConfig] = Field(default_factory=list)
     cooldown_minutes: int = Field(

@@ -285,11 +285,7 @@ class EmbeddingsAdapter:
     def __init__(self, config: EmbeddingConfig | None = None):
         """Initialize the embeddings adapter"""
         self.config = config or EmbeddingConfig()
-        self._cache = (
-            EmbeddingCache(ttl_seconds=self.config.cache_ttl_seconds)
-            if self.config.cache_enabled
-            else None
-        )
+        self._cache = EmbeddingCache(ttl_seconds=self.config.cache_ttl_seconds) if self.config.cache_enabled else None
 
         # Provider availability flags
         self._sentence_transformers_available: bool | None = None

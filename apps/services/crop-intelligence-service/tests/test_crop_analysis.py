@@ -59,9 +59,7 @@ class TestVegetationIndicesAnalysis:
             savi=0.28,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_stressed", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_stressed", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -97,9 +95,7 @@ class TestVegetationIndicesAnalysis:
             savi=0.75,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_high_evi", growth_stage=GrowthStage.mid, indices=high_evi_indices
-        )
+        obs = ZoneObservation(zone_id="zone_high_evi", growth_stage=GrowthStage.mid, indices=high_evi_indices)
 
         actions = diagnose_zone(obs)
 
@@ -121,9 +117,7 @@ class TestVegetationIndicesAnalysis:
             savi=0.65,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_nitrogen_deficient", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_nitrogen_deficient", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -132,9 +126,7 @@ class TestVegetationIndicesAnalysis:
         assert len(fert_actions) > 0
 
         # Check for nitrogen-related recommendation
-        assert any(
-            "nitrogen" in a["reason"].lower() or "نيتروجين" in a["reason"] for a in fert_actions
-        )
+        assert any("nitrogen" in a["reason"].lower() or "نيتروجين" in a["reason"] for a in fert_actions)
 
     def test_ndwi_water_stress_detection(self):
         """Test NDWI for water stress detection"""
@@ -150,9 +142,7 @@ class TestVegetationIndicesAnalysis:
             savi=0.45,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_water_stressed", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_water_stressed", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -178,9 +168,7 @@ class TestVegetationIndicesAnalysis:
             savi=0.18,  # Very low for seedlings
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -327,9 +315,7 @@ class TestGrowthStageAnalysis:
             savi=0.18,  # Low SAVI triggers seedling-specific checks
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_seedling", growth_stage=GrowthStage.seedling, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -407,9 +393,7 @@ class TestAPIEndpointsForAnalysis:
             },
         }
 
-        response = client.post(
-            "/api/v1/diagnose", json=observation_data, params={"zone_id": "test_zone"}
-        )
+        response = client.post("/api/v1/diagnose", json=observation_data, params={"zone_id": "test_zone"})
 
         assert response.status_code == 200
         data = response.json()
@@ -481,9 +465,7 @@ class TestDataValidation:
             },
         }
 
-        response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
-        )
+        response = client.post("/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data)
 
         assert response.status_code == 422  # Validation error
 
@@ -503,9 +485,7 @@ class TestDataValidation:
             },
         }
 
-        response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
-        )
+        response = client.post("/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data)
 
         assert response.status_code == 422
 
@@ -522,9 +502,7 @@ class TestDataValidation:
             },
         }
 
-        response = client.post(
-            "/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data
-        )
+        response = client.post("/api/v1/fields/test_field/zones/test_zone/observations", json=invalid_data)
 
         assert response.status_code == 422
 

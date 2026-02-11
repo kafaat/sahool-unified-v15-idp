@@ -200,9 +200,7 @@ class MemoryEntry:
             timestamp=datetime.fromisoformat(data["timestamp"]),
             relevance=RelevanceScore(data["relevance"]),
             embedding=data.get("embedding"),
-            expires_at=(
-                datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-            ),
+            expires_at=(datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None),
         )
 
 
@@ -306,8 +304,7 @@ class FarmMemory:
         }
 
         logger.info(
-            f"FarmMemory initialized with window_size={self.config.window_size}, "
-            f"max_entries={self.config.max_entries}"
+            f"FarmMemory initialized with window_size={self.config.window_size}, max_entries={self.config.max_entries}"
         )
 
     def store(
@@ -372,8 +369,7 @@ class FarmMemory:
         self._stats["stores"] += 1
 
         logger.debug(
-            f"Stored memory entry: tenant={tenant_id}, type={memory_type.value}, "
-            f"field={field_id}, id={entry.id}"
+            f"Stored memory entry: tenant={tenant_id}, type={memory_type.value}, field={field_id}, id={entry.id}"
         )
 
         # Persist if configured
@@ -523,10 +519,7 @@ class FarmMemory:
         self._memory[tenant_id] = entries_to_keep
         self._stats["forgets"] += forgotten_count
 
-        logger.info(
-            f"Forgot {forgotten_count} entries for tenant={tenant_id}, "
-            f"remaining={len(entries_to_keep)}"
-        )
+        logger.info(f"Forgot {forgotten_count} entries for tenant={tenant_id}, remaining={len(entries_to_keep)}")
 
         return forgotten_count
 
@@ -581,9 +574,7 @@ class FarmMemory:
             return ""
 
         # Score entries by relevance to query
-        scored_entries = [
-            (entry, self._calculate_relevance_score(entry, query)) for entry in result.entries
-        ]
+        scored_entries = [(entry, self._calculate_relevance_score(entry, query)) for entry in result.entries]
 
         # Sort by relevance score
         scored_entries.sort(key=lambda x: x[1], reverse=True)
@@ -605,8 +596,7 @@ class FarmMemory:
         context = "\n---\n".join(context_parts)
 
         logger.debug(
-            f"Generated context for tenant={tenant_id}: "
-            f"{len(context_parts)} entries, ~{current_tokens} tokens"
+            f"Generated context for tenant={tenant_id}: {len(context_parts)} entries, ~{current_tokens} tokens"
         )
 
         return context
@@ -748,9 +738,7 @@ class FarmMemory:
 
             self._memory[tenant_id] = entries_to_keep
 
-            logger.debug(
-                f"Enforced limits for tenant={tenant_id}: removed {len(entries_to_remove)}"
-            )
+            logger.debug(f"Enforced limits for tenant={tenant_id}: removed {len(entries_to_remove)}")
 
     def _cleanup_expired(self, tenant_id: str) -> int:
         """Remove expired entries"""

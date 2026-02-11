@@ -171,9 +171,7 @@ class SimpleAgentRouter:
         best_keywords: list[str] = []
 
         for intent_name, rule in self._rules.items():
-            score, keywords = self._calculate_match_score(
-                text_lower, rule.keywords_en, rule.keywords_ar
-            )
+            score, keywords = self._calculate_match_score(text_lower, rule.keywords_en, rule.keywords_ar)
 
             # Boost score if image matches requirement
             if has_image and rule.requires_image:

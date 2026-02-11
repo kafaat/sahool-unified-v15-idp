@@ -125,9 +125,7 @@ class ConsensusProtocol(ABC):
         # Update rolling average
         total = self._stats["consensus_reached"] + self._stats["consensus_failed"]
         old_avg = self._stats["avg_agreement_ratio"]
-        self._stats["avg_agreement_ratio"] = (
-            old_avg * (total - 1) + result.agreement_ratio
-        ) / total
+        self._stats["avg_agreement_ratio"] = (old_avg * (total - 1) + result.agreement_ratio) / total
 
     def get_stats(self) -> dict[str, Any]:
         """Get protocol statistics | الحصول على إحصائيات البروتوكول"""
@@ -314,9 +312,7 @@ class WeightedVoting(ConsensusProtocol):
         # Confidence is the weighted average of winner confidences
         winner_total_weight = sum(v.weight for v in winner_votes)
         confidence = (
-            sum(v.weight * v.confidence for v in winner_votes) / winner_total_weight
-            if winner_total_weight > 0
-            else 0.0
+            sum(v.weight * v.confidence for v in winner_votes) / winner_total_weight if winner_total_weight > 0 else 0.0
         )
 
         # Find dissenting agents
@@ -451,9 +447,7 @@ class RaftConsensus(ConsensusProtocol):
 
             final_decision = proposal
             final_agreement = acceptance_ratio
-            final_confidence = (
-                sum(v.confidence for v in acceptances) / len(acceptances) if acceptances else 0.0
-            )
+            final_confidence = sum(v.confidence for v in acceptances) / len(acceptances) if acceptances else 0.0
 
             # Check if consensus reached
             if acceptance_ratio >= self.threshold:
@@ -476,10 +470,7 @@ class RaftConsensus(ConsensusProtocol):
                         reasoning=f"Aligned with leader in round {round_num}",
                         reasoning_ar=f"تم التوافق مع القائد في الجولة {round_num}",
                     )
-                    current_votes = [
-                        v if v.agent_id != weakest.agent_id else converted_vote
-                        for v in current_votes
-                    ]
+                    current_votes = [v if v.agent_id != weakest.agent_id else converted_vote for v in current_votes]
 
         reached = final_agreement >= self.threshold
         dissenting = [v.agent_id for v in current_votes if str(v.value) != str(final_decision)]
@@ -593,11 +584,7 @@ class UnanimousConsensus(ConsensusProtocol):
             1.0
             if all_agree
             else (
-                max(
-                    sum(1 for v in votes if str(v.value) == val)
-                    for val in {str(v.value) for v in votes}
-                )
-                / len(votes)
+                max(sum(1 for v in votes if str(v.value) == val) for val in {str(v.value) for v in votes}) / len(votes)
             )
         )
 
@@ -690,9 +677,7 @@ class QuorumConsensus(ConsensusProtocol):
                 total_votes=len(votes),
                 agreement_ratio=0.0,
                 reasoning=(f"Quorum not met: {len(votes)}/{self.min_quorum} votes received."),
-                reasoning_ar=(
-                    f"لم يتم الوصول للنصاب: {len(votes)}/{self.min_quorum} صوت تم استلامه."
-                ),
+                reasoning_ar=(f"لم يتم الوصول للنصاب: {len(votes)}/{self.min_quorum} صوت تم استلامه."),
                 duration_ms=(datetime.now(UTC) - start_time).total_seconds() * 1000,
             )
 
@@ -708,9 +693,7 @@ class QuorumConsensus(ConsensusProtocol):
 
         reached = agreement_ratio >= self.threshold
 
-        confidence = (
-            sum(v.confidence for v in winner_votes) / len(winner_votes) if winner_votes else 0.0
-        )
+        confidence = sum(v.confidence for v in winner_votes) / len(winner_votes) if winner_votes else 0.0
 
         dissenting = [v.agent_id for v in votes if str(v.value) != winner_key]
 
@@ -862,10 +845,7 @@ class ConsensusManager:
 
     def get_all_stats(self) -> dict[str, dict[str, Any]]:
         """Get statistics for all protocols | الحصول على إحصائيات جميع البروتوكولات"""
-        return {
-            protocol_type.value: protocol.get_stats()
-            for protocol_type, protocol in self._protocols.items()
-        }
+        return {protocol_type.value: protocol.get_stats() for protocol_type, protocol in self._protocols.items()}
 
 
 # ─────────────────────────────────────────────────────────────────────────────

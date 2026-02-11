@@ -382,9 +382,7 @@ class AIAuditLogger:
         # Calculate cost
         cost_usd = 0.0
         if llm_provider and model_name and token_count_input and token_count_output:
-            cost_usd = calculate_cost(
-                llm_provider, model_name, token_count_input, token_count_output
-            )
+            cost_usd = calculate_cost(llm_provider, model_name, token_count_input, token_count_output)
 
         # Determine safety level from score
         safety_level = SafetyLevel.SAFE

@@ -256,9 +256,7 @@ class TrainingJob:
             "current_step": self.current_step,
             "total_steps": self.total_steps,
             "loss": self.loss,
-            "evaluation_result": self.evaluation_result.to_dict()
-            if self.evaluation_result
-            else None,
+            "evaluation_result": self.evaluation_result.to_dict() if self.evaluation_result else None,
             "error_message": self.error_message,
             "started_at": self.started_at.isoformat() if self.started_at else None,
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,

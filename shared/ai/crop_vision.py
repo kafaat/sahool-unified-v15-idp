@@ -503,9 +503,7 @@ class CropVisionAnalyzer:
         result.overall_health_score = self._calculate_health_score(result)
 
         # Generate priority actions
-        result.priority_actions, result.priority_actions_ar = self._generate_priority_actions(
-            result
-        )
+        result.priority_actions, result.priority_actions_ar = self._generate_priority_actions(result)
 
         return result
 

@@ -70,15 +70,11 @@ async def test_golden_dataset_structure(golden_test_cases):
     for idx, test_case in enumerate(golden_test_cases):
         # Check required fields
         assert "id" in test_case, f"Test case {idx} missing 'id'"
-        assert "input" in test_case or "prompt" in test_case.get("input", {}), (
-            f"Test case {idx} missing input"
-        )
+        assert "input" in test_case or "prompt" in test_case.get("input", {}), f"Test case {idx} missing input"
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-    "test_case", load_golden_datasets(), ids=lambda tc: tc.get("id", "unknown")
-)
+@pytest.mark.parametrize("test_case", load_golden_datasets(), ids=lambda tc: tc.get("id", "unknown"))
 async def test_agent_response_quality(test_case):
     """
     Test agent responses against golden dataset
@@ -109,9 +105,7 @@ async def test_agent_response_quality(test_case):
     min_accuracy = test_case.get("evaluation_criteria", {}).get("min_similarity", 0.75)
     max_latency = test_case.get("evaluation_criteria", {}).get("max_latency_ms", 5000)
 
-    assert accuracy_score >= min_accuracy, (
-        f"Accuracy {accuracy_score} below threshold {min_accuracy}"
-    )
+    assert accuracy_score >= min_accuracy, f"Accuracy {accuracy_score} below threshold {min_accuracy}"
     assert latency_ms <= max_latency, f"Latency {latency_ms}ms exceeds threshold {max_latency}ms"
 
 

@@ -119,9 +119,7 @@ class DiagnosticCLI:
         self.audit = create_audit(enabled=True, audit_dir=str(self.working_dir / ".audit"))
         self.engine = AutoFixEngine()
 
-    async def run_python_diagnostics(
-        self, fix: bool = False, dry_run: bool = True
-    ) -> dict[str, Any]:
+    async def run_python_diagnostics(self, fix: bool = False, dry_run: bool = True) -> dict[str, Any]:
         """Run Python diagnostics | تشغيل تشخيص Python"""
         print_header("Python Diagnostics", "تشخيص Python")
 
@@ -147,9 +145,7 @@ class DiagnosticCLI:
                     severity_counts[sev] = severity_counts.get(sev, 0) + 1
 
                 for sev, count in severity_counts.items():
-                    status = (
-                        "error" if sev == "error" else "warning" if sev == "warning" else "info"
-                    )
+                    status = "error" if sev == "error" else "warning" if sev == "warning" else "info"
                     print_status(f"  {sev.upper()}: {count}", status)
 
                 if fix and report.fixable_count > 0:
@@ -274,11 +270,7 @@ class DiagnosticCLI:
 
             overall_status = report.overall_status.value
             status_type = (
-                "success"
-                if overall_status == "healthy"
-                else "warning"
-                if overall_status == "degraded"
-                else "error"
+                "success" if overall_status == "healthy" else "warning" if overall_status == "degraded" else "error"
             )
             print_status(f"Overall Status: {overall_status.upper()}", status_type)
             print_status(f"صحي: {report.healthy_count}/{report.total_count}", "info")
@@ -330,9 +322,7 @@ class DiagnosticCLI:
 
             total = len(security_issues)
             status_type = "error" if high > 0 else "warning" if medium > 0 else "success"
-            print_status(
-                f"Found {total} security issues (H:{high} M:{medium} L:{low})", status_type
-            )
+            print_status(f"Found {total} security issues (H:{high} M:{medium} L:{low})", status_type)
 
             return {
                 "total": total,
@@ -365,14 +355,10 @@ class DiagnosticCLI:
         print_header("Summary", "الملخص")
 
         total_issues = sum(
-            r.get("total_issues", 0)
-            for r in results.values()
-            if isinstance(r, dict) and "total_issues" in r
+            r.get("total_issues", 0) for r in results.values() if isinstance(r, dict) and "total_issues" in r
         )
 
-        print_status(
-            f"Total issues found: {total_issues}", "info" if total_issues == 0 else "warning"
-        )
+        print_status(f"Total issues found: {total_issues}", "info" if total_issues == 0 else "warning")
         print_status(f"Duration: {duration:.2f}s", "info")
         print_status(f"المدة: {duration:.2f} ثانية", "info")
 
@@ -410,32 +396,18 @@ Examples | أمثلة:
     )
 
     # Diagnostic targets
-    parser.add_argument(
-        "--all", action="store_true", help="Run all diagnostics | تشغيل جميع التشخيصات"
-    )
-    parser.add_argument(
-        "--python", action="store_true", help="Run Python diagnostics | تشخيص Python"
-    )
-    parser.add_argument(
-        "--frontend", action="store_true", help="Run frontend diagnostics | تشخيص الواجهة"
-    )
-    parser.add_argument(
-        "--mobile", action="store_true", help="Run mobile diagnostics | تشخيص الهاتف"
-    )
+    parser.add_argument("--all", action="store_true", help="Run all diagnostics | تشغيل جميع التشخيصات")
+    parser.add_argument("--python", action="store_true", help="Run Python diagnostics | تشخيص Python")
+    parser.add_argument("--frontend", action="store_true", help="Run frontend diagnostics | تشخيص الواجهة")
+    parser.add_argument("--mobile", action="store_true", help="Run mobile diagnostics | تشخيص الهاتف")
     parser.add_argument("--health", action="store_true", help="Run health checks | فحص الصحة")
     parser.add_argument("--security", action="store_true", help="Run security scan | الفحص الأمني")
 
     # Options
     parser.add_argument("--fix", action="store_true", help="Auto-fix issues | إصلاح تلقائي")
-    parser.add_argument(
-        "--dry-run", action="store_true", help="Dry run (no changes) | تشغيل تجريبي"
-    )
-    parser.add_argument(
-        "--audit-report", action="store_true", help="Generate audit report | تقرير التدقيق"
-    )
-    parser.add_argument(
-        "--output", "-o", default="audit_report.md", help="Output file for report | ملف الإخراج"
-    )
+    parser.add_argument("--dry-run", action="store_true", help="Dry run (no changes) | تشغيل تجريبي")
+    parser.add_argument("--audit-report", action="store_true", help="Generate audit report | تقرير التدقيق")
+    parser.add_argument("--output", "-o", default="audit_report.md", help="Output file for report | ملف الإخراج")
     parser.add_argument("--json", action="store_true", help="Output as JSON | إخراج JSON")
     parser.add_argument("--working-dir", "-w", default=".", help="Working directory | مجلد العمل")
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output | إخراج مفصل")
@@ -461,9 +433,7 @@ async def main() -> int:
             results = await cli.run_all_diagnostics(fix=args.fix, dry_run=args.dry_run)
         else:
             if args.python:
-                results["python"] = await cli.run_python_diagnostics(
-                    fix=args.fix, dry_run=args.dry_run
-                )
+                results["python"] = await cli.run_python_diagnostics(fix=args.fix, dry_run=args.dry_run)
             if args.frontend:
                 results["frontend"] = await cli.run_frontend_diagnostics(fix=args.fix)
             if args.mobile:
@@ -482,9 +452,7 @@ async def main() -> int:
 
         # Return code based on results
         has_errors = any(
-            r.get("error") or r.get("total_issues", 0) > 0
-            for r in results.values()
-            if isinstance(r, dict)
+            r.get("error") or r.get("total_issues", 0) > 0 for r in results.values() if isinstance(r, dict)
         )
         return 1 if has_errors else 0
 

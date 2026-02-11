@@ -1,60 +1,111 @@
+# ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL Crop Intelligence Service
-# ===========================
-# Uses shared base image for consistency
+# Multi-stage build with security hardening
 # Version: 16.0.0
+# Updated: February 2026
+# ═══════════════════════════════════════════════════════════════════════════════
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
-# Build arguments
-ARG SERVICE_NAME=crop-intelligence
-ARG SERVICE_VERSION=16.0.0
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
-LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
+ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
+
+USER sahool
+WORKDIR /home/sahool
+
+# Create virtual environment
+ENV VIRTUAL_ENV=/home/sahool/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Configure pip with resilience and fallback
+RUN mkdir -p ~/.pip && \
+    cat > ~/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+[install]
+prefer-binary = true
+EOF
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0
+
+# Copy and install dependencies
+COPY --chown=sahool:sahool apps/services/crop-intelligence-service/requirements.txt /tmp/requirements.txt
+COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
+
+RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Runtime
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
+
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL Crop Intelligence Service" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.description="Crop intelligence and health assessment service"
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
+
+# Copy virtual environment
+COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
+
+# Set environment
+ENV VIRTUAL_ENV=/home/sahool/venv \
+    PATH="/home/sahool/venv/bin:$PATH" \
     PYTHONPATH=/app \
-    PIP_NO_CACHE_DIR=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
     PORT=8095
 
 WORKDIR /app
 
-# Create non-root user
-RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash --create-home sahool
-
-# Configure pip for network resilience with fallback mirrors (before any pip commands)
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
-
-# Upgrade pip with fallback to Aliyun mirror
-RUN pip install --no-cache-dir --upgrade pip || \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
-
-# Install dependencies (using shared requirements)
-COPY apps/services/crop-intelligence-service/requirements.txt .
-
 # Copy shared libraries
-COPY apps/services/shared ./shared/
+COPY --chown=sahool:sahool apps/services/shared ./shared/
 
 # Copy source
-COPY apps/services/crop-intelligence-service/src/ ./src/
+COPY --chown=sahool:sahool apps/services/crop-intelligence-service/src/ ./src/
 
-# Install dependencies with fallback to Aliyun mirror
-RUN (pip install --no-cache-dir -r requirements.txt || \
-     pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt) && \
-    chown -R sahool:sahool /app
-
+# Switch to non-root user
 USER sahool
 
+# Expose port
 EXPOSE 8095
 
+# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')" || exit 1
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT}/healthz')" || exit 1
 
+# Run application
 CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8095}"]

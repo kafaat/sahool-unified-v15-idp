@@ -108,3 +108,24 @@ scripts/
 packages/*/node_modules/
 packages/*/.next/
 packages/*/dist/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# AI/ML Model Files (large files - download at runtime)
+# ─────────────────────────────────────────────────────────────────────────────
+*.pth
+*.pt
+*.onnx
+*.bin
+*.safetensors
+models/*.pth
+models/*.pt
+models/*.onnx
+weights/*.pth
+weights/*.pt
+checkpoints/*.pth
+checkpoints/*.pt
+
+# Vector stores and embeddings
+*.index
+*.faiss
+*.qdrant

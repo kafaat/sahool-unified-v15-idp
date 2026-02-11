@@ -423,9 +423,7 @@ class EnhancedSemanticMemory:
             List of semantic clusters
         """
         # Simple k-means-like clustering
-        entries_with_embeddings = [
-            (eid, entry) for eid, entry in self._memories.items() if entry.embedding
-        ]
+        entries_with_embeddings = [(eid, entry) for eid, entry in self._memories.items() if entry.embedding]
 
         if len(entries_with_embeddings) < num_clusters:
             num_clusters = max(1, len(entries_with_embeddings) // 2)
@@ -536,11 +534,7 @@ class EnhancedSemanticMemory:
             age_days = (datetime.now(UTC) - entry.created_at).days
             recency_factor = max(0.1, 1 - (age_days / 365))
 
-            score = (
-                entry.importance_score * 0.4
-                + min(1.0, entry.access_count / 100) * 0.3
-                + recency_factor * 0.3
-            )
+            score = entry.importance_score * 0.4 + min(1.0, entry.access_count / 100) * 0.3 + recency_factor * 0.3
             scored.append((eid, score))
 
         # Sort by score and remove bottom 20%
@@ -574,13 +568,10 @@ class EnhancedSemanticMemory:
             "total_tags": len(self._tag_index),
             "ot_enabled": self.enable_ot,
             "memories_by_priority": {
-                p.value: sum(1 for m in self._memories.values() if m.priority == p)
-                for p in MemoryPriority
+                p.value: sum(1 for m in self._memories.values() if m.priority == p) for p in MemoryPriority
             },
             "average_access_count": (
-                sum(m.access_count for m in self._memories.values()) / len(self._memories)
-                if self._memories
-                else 0
+                sum(m.access_count for m in self._memories.values()) / len(self._memories) if self._memories else 0
             ),
         }
 

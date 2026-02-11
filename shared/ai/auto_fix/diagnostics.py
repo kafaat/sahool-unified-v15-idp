@@ -991,9 +991,7 @@ class CodeDiagnostics:
                     id=str(uuid.uuid4()),
                     message=message,
                     message_ar=translate_message(message),
-                    severity=get_severity_from_level(
-                        "error" if rule_id.startswith(("E", "F")) else "warning"
-                    ),
+                    severity=get_severity_from_level("error" if rule_id.startswith(("E", "F")) else "warning"),
                     category=get_category_from_rule(rule_id, ToolType.RUFF),
                     location=CodeLocation(
                         file_path=item.get("filename", file_path),
@@ -1057,9 +1055,7 @@ class CodeDiagnostics:
                         ),
                         rule_id=rule_id,
                         tool=ToolType.ESLINT,
-                        suggestion=msg.get("suggestions", [{}])[0].get("desc")
-                        if msg.get("suggestions")
-                        else None,
+                        suggestion=msg.get("suggestions", [{}])[0].get("desc") if msg.get("suggestions") else None,
                     )
                     diagnostics.append(diag)
 

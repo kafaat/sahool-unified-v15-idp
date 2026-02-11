@@ -239,9 +239,7 @@ async def lifespan(app: FastAPI):
         if CONTEXT_ENGINEERING_AVAILABLE:
             try:
                 # Initialize compression | تهيئة الضغط
-                context_compressor = ContextCompressor(
-                    default_strategy=CompressionStrategy.HYBRID, max_tokens=4000
-                )
+                context_compressor = ContextCompressor(default_strategy=CompressionStrategy.HYBRID, max_tokens=4000)
                 logger.info("context_compressor_initialized")
 
                 # Initialize memory with tenant isolation | تهيئة الذاكرة مع عزل المستأجرين
@@ -286,12 +284,8 @@ async def lifespan(app: FastAPI):
         # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
         if A2A_AVAILABLE:
             try:
-                base_url = os.getenv(
-                    "SERVICE_BASE_URL", f"http://localhost:{settings.service_port}"
-                )
-                a2a_agent = create_ai_advisor_a2a_agent(
-                    base_url=base_url, agents=agents, supervisor=supervisor
-                )
+                base_url = os.getenv("SERVICE_BASE_URL", f"http://localhost:{settings.service_port}")
+                a2a_agent = create_ai_advisor_a2a_agent(base_url=base_url, agents=agents, supervisor=supervisor)
                 app_state["a2a_agent"] = a2a_agent
                 logger.info("a2a_agent_initialized", agent_id=a2a_agent.agent_id)
             except Exception as e:
@@ -461,9 +455,7 @@ async def ask_question(request: QuestionRequest):
 
         # Guard against prompt injection at API level (defense in depth)
         # الحماية من حقن الأوامر على مستوى API (دفاع متعدد الطبقات)
-        sanitized_question, is_safe, warnings = PromptGuard.validate_and_sanitize(
-            request.question, strict=False
-        )
+        sanitized_question, is_safe, warnings = PromptGuard.validate_and_sanitize(request.question, strict=False)
 
         if not is_safe:
             logger.warning(
@@ -513,9 +505,7 @@ async def ask_question(request: QuestionRequest):
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory and request.context:
             try:
-                tenant_id = request.context.get(
-                    "tenant_id", request.context.get("field_id", "default")
-                )
+                tenant_id = request.context.get("tenant_id", request.context.get("field_id", "default"))
                 field_id = request.context.get("field_id")
 
                 farm_memory.store(
@@ -640,9 +630,7 @@ async def get_recommendations(request: RecommendationRequest):
         evaluation_info = None
         if CONTEXT_ENGINEERING_AVAILABLE and recommendation_evaluator and result:
             try:
-                recommendation_text = (
-                    str(result).split("\n")[0] if isinstance(result, dict) else str(result)
-                )
+                recommendation_text = str(result).split("\n")[0] if isinstance(result, dict) else str(result)
 
                 # Map recommendation type to evaluation type | تعيين نوع التوصية إلى نوع التقييم
                 type_mapping = {
@@ -650,9 +638,7 @@ async def get_recommendations(request: RecommendationRequest):
                     "fertilizer": RecommendationType.FERTILIZATION,
                     "pest": RecommendationType.PEST_CONTROL,
                 }
-                eval_type = type_mapping.get(
-                    request.recommendation_type, RecommendationType.GENERAL
-                )
+                eval_type = type_mapping.get(request.recommendation_type, RecommendationType.GENERAL)
 
                 eval_result = recommendation_evaluator.evaluate(
                     recommendation=recommendation_text,
@@ -684,11 +670,7 @@ async def get_recommendations(request: RecommendationRequest):
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
             try:
-                tenant_id = (
-                    request.field_data.get("tenant_id", "default")
-                    if request.field_data
-                    else "default"
-                )
+                tenant_id = request.field_data.get("tenant_id", "default") if request.field_data else "default"
                 field_id = request.field_data.get("field_id") if request.field_data else None
 
                 # Determine relevance based on evaluation
@@ -839,12 +821,8 @@ async def analyze_field(request: FieldAnalysisRequest):
                     tenant_id="default",
                     content={
                         "crop_type": request.crop_type,
-                        "ndvi": satellite_data.get("ndvi")
-                        if isinstance(satellite_data, dict)
-                        else None,
-                        "analysis_summary": str(field_analysis).split("\n")[0][:200]
-                        if field_analysis
-                        else "",
+                        "ndvi": satellite_data.get("ndvi") if isinstance(satellite_data, dict) else None,
+                        "analysis_summary": str(field_analysis).split("\n")[0][:200] if field_analysis else "",
                         "disease_risk_present": "disease_risk" in results,
                     },
                     memory_type=MemoryType.FIELD_STATE,
@@ -1100,9 +1078,7 @@ async def get_cost_usage(user_id: str | None = None):
                 "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2)
                 if stats["daily_limit"] > 0
                 else 0,
-                "monthly_usage_percent": round(
-                    (stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2
-                )
+                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2)
                 if stats["monthly_limit"] > 0
                 else 0,
             },

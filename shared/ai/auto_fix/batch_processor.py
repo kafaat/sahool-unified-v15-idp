@@ -384,9 +384,7 @@ class BatchProcessor:
 
         # Finalize
         self._current_batch.completed_at = datetime.now(UTC)
-        self._current_batch.status = (
-            BatchStatus.CANCELLED if self._cancel_requested else BatchStatus.COMPLETED
-        )
+        self._current_batch.status = BatchStatus.CANCELLED if self._cancel_requested else BatchStatus.COMPLETED
         self._is_running = False
 
         # Final checkpoint
@@ -497,10 +495,7 @@ class BatchProcessor:
             elapsed = (datetime.now(UTC) - self._current_batch.progress.start_time).total_seconds()
             if self._current_batch.progress.processed_files > 0:
                 rate = elapsed / self._current_batch.progress.processed_files
-                remaining = (
-                    self._current_batch.progress.total_files
-                    - self._current_batch.progress.processed_files
-                )
+                remaining = self._current_batch.progress.total_files - self._current_batch.progress.processed_files
                 self._current_batch.progress.estimated_remaining_seconds = rate * remaining
 
         # Notify callbacks
@@ -637,9 +632,7 @@ class BatchProcessor:
         if not os.path.exists(self._checkpoint_dir):
             return []
 
-        return [
-            f.replace(".json", "") for f in os.listdir(self._checkpoint_dir) if f.endswith(".json")
-        ]
+        return [f.replace(".json", "") for f in os.listdir(self._checkpoint_dir) if f.endswith(".json")]
 
     def delete_checkpoint(self, batch_id: str) -> bool:
         """Delete a checkpoint."""
@@ -732,8 +725,7 @@ class BatchProcessor:
                     "results": [],
                     "invocations": [
                         {
-                            "executionSuccessful": self._current_batch.status
-                            == BatchStatus.COMPLETED,
+                            "executionSuccessful": self._current_batch.status == BatchStatus.COMPLETED,
                             "startTimeUtc": self._current_batch.started_at.isoformat()
                             if self._current_batch.started_at
                             else None,

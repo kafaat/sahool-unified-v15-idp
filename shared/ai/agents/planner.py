@@ -1289,9 +1289,7 @@ This plan was generated in read-only mode. No changes have been made.
                     "id": str(uuid.uuid4()),
                     "name": "Mid-Season Review",
                     "name_ar": "مراجعة منتصف الموسم",
-                    "date": (
-                        datetime.strptime(first_plant, "%Y-%m-%d") + timedelta(days=75)
-                    ).strftime("%Y-%m-%d"),
+                    "date": (datetime.strptime(first_plant, "%Y-%m-%d") + timedelta(days=75)).strftime("%Y-%m-%d"),
                     "status": "pending",
                 }
             )

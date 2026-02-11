@@ -465,9 +465,7 @@ def track_memory_operation(operation_type: str = "general") -> Callable:
                 metrics.memory_operations.inc()
                 metrics.memory_retrieval_latency.observe(
                     latency
-                ) if operation_type == "retrieve" else metrics.memory_storage_latency.observe(
-                    latency
-                )
+                ) if operation_type == "retrieve" else metrics.memory_storage_latency.observe(latency)
 
                 logger.info(f"memory_{operation_type}_completed: latency={latency:.3f}s")
 
@@ -488,9 +486,7 @@ def track_memory_operation(operation_type: str = "general") -> Callable:
                 metrics.memory_operations.inc()
                 metrics.memory_retrieval_latency.observe(
                     latency
-                ) if operation_type == "retrieve" else metrics.memory_storage_latency.observe(
-                    latency
-                )
+                ) if operation_type == "retrieve" else metrics.memory_storage_latency.observe(latency)
 
                 logger.info(f"memory_{operation_type}_completed: latency={latency:.3f}s")
 

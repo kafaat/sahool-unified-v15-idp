@@ -32,9 +32,7 @@ class TestHealthEndpoints:
 class TestAdvisorEndpoints:
     """Test AI advisor endpoints"""
 
-    async def test_ask_question_success(
-        self, async_client, sample_question_request, mock_supervisor
-    ):
+    async def test_ask_question_success(self, async_client, sample_question_request, mock_supervisor):
         """Test /v1/advisor/ask endpoint with valid request"""
         response = await async_client.post("/v1/advisor/ask", json=sample_question_request)
 
@@ -71,9 +69,7 @@ class TestAdvisorEndpoints:
 
             assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
 
-    async def test_diagnose_disease_success(
-        self, async_client, sample_diagnose_request, mock_disease_expert
-    ):
+    async def test_diagnose_disease_success(self, async_client, sample_diagnose_request, mock_disease_expert):
         """Test /v1/advisor/diagnose endpoint"""
         response = await async_client.post("/v1/advisor/diagnose", json=sample_diagnose_request)
 
@@ -83,9 +79,7 @@ class TestAdvisorEndpoints:
         assert "data" in data
         assert mock_disease_expert.diagnose.called
 
-    async def test_diagnose_disease_with_image(
-        self, async_client, mock_disease_expert, mock_crop_health_tool
-    ):
+    async def test_diagnose_disease_with_image(self, async_client, mock_disease_expert, mock_crop_health_tool):
         """Test disease diagnosis with image analysis"""
         request_data = {
             "crop_type": "tomato",
@@ -115,9 +109,7 @@ class TestAdvisorEndpoints:
         self, async_client, sample_recommendation_request, mock_irrigation_advisor
     ):
         """Test /v1/advisor/recommend endpoint for irrigation"""
-        response = await async_client.post(
-            "/v1/advisor/recommend", json=sample_recommendation_request
-        )
+        response = await async_client.post("/v1/advisor/recommend", json=sample_recommendation_request)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -174,9 +166,7 @@ class TestAdvisorEndpoints:
         mock_satellite_tool,
     ):
         """Test /v1/advisor/analyze-field with all analyses"""
-        response = await async_client.post(
-            "/v1/advisor/analyze-field", json=sample_field_analysis_request
-        )
+        response = await async_client.post("/v1/advisor/analyze-field", json=sample_field_analysis_request)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
@@ -191,9 +181,7 @@ class TestAdvisorEndpoints:
         assert mock_irrigation_advisor.recommend_irrigation.called
         assert mock_yield_predictor.predict_yield.called
 
-    async def test_analyze_field_partial(
-        self, async_client, mock_field_analyst, mock_satellite_tool
-    ):
+    async def test_analyze_field_partial(self, async_client, mock_field_analyst, mock_satellite_tool):
         """Test field analysis with selective analyses"""
         request_data = {
             "field_id": "field_001",
@@ -263,9 +251,7 @@ class TestAdvisorEndpoints:
 class TestRAGEndpoints:
     """Test RAG system endpoints"""
 
-    async def test_get_rag_info_success(
-        self, async_client, mock_knowledge_retriever, mock_embeddings_manager
-    ):
+    async def test_get_rag_info_success(self, async_client, mock_knowledge_retriever, mock_embeddings_manager):
         """Test /v1/advisor/rag/info endpoint"""
         response = await async_client.get("/v1/advisor/rag/info")
 

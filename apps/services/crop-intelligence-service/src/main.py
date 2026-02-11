@@ -123,9 +123,7 @@ class ObservationIn(BaseModel):
     """طلب تسجيل رصد جديد"""
 
     captured_at: datetime = Field(..., description="وقت الالتقاط")
-    source: Literal["sentinel-2", "drone", "planet", "landsat", "other"] = Field(
-        ..., description="مصدر البيانات"
-    )
+    source: Literal["sentinel-2", "drone", "planet", "landsat", "other"] = Field(..., description="مصدر البيانات")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     indices: IndicesIn = Field(..., description="المؤشرات")
     cloud_pct: float = Field(default=0.0, ge=0, le=100, description="نسبة الغيوم")
@@ -336,9 +334,7 @@ async def db_get_observations(
                 observations.append(
                     {
                         "id": str(row["id"]),
-                        "captured_at": row["captured_at"].isoformat()
-                        if row["captured_at"]
-                        else None,
+                        "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
                         "source": row["source"],
                         "growth_stage": row["growth_stage"],
                         "indices": {
@@ -387,9 +383,7 @@ async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, A
                     result[zone_id] = []
                 result[zone_id].append(
                     {
-                        "captured_at": row["captured_at"].isoformat()
-                        if row["captured_at"]
-                        else None,
+                        "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
                         "source": row["source"],
                         "growth_stage": row["growth_stage"],
                         "indices": {
@@ -475,11 +469,7 @@ async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
                 geometry = None
                 if row["geometry"]:
                     try:
-                        geometry = (
-                            json.loads(row["geometry"])
-                            if isinstance(row["geometry"], str)
-                            else row["geometry"]
-                        )
+                        geometry = json.loads(row["geometry"]) if isinstance(row["geometry"], str) else row["geometry"]
                     except (json.JSONDecodeError, TypeError):
                         geometry = None
                 result[row["zone_id"]] = {
@@ -1136,9 +1126,7 @@ async def get_field_diagnosis(
             continue
 
         # اختر آخر رصد في التاريخ المطلوب أو آخر رصد متاح
-        same_day = [
-            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
-        ]
+        same_day = [o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
         # بناء كائن المؤشرات
@@ -1271,9 +1259,7 @@ async def get_zone_timeline(
 async def export_vrt(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    action_type: str | None = Query(
-        default=None, description="نوع الإجراء: irrigation, fertilization, all"
-    ),
+    action_type: str | None = Query(default=None, description="نوع الإجراء: irrigation, fertilization, all"),
 ):
     """
     تصدير VRT للعمليات الزراعية الدقيقة
@@ -1302,9 +1288,7 @@ async def export_vrt(
             continue
 
         # آخر رصد
-        same_day = [
-            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
-        ]
+        same_day = [o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
         idx_in = chosen["indices"]
@@ -1426,9 +1410,7 @@ class DiseaseDetectionRequest(BaseModel):
 @app.post("/api/v1/disease/detect")
 async def detect_crop_diseases(
     body: DiseaseDetectionRequest,
-    field_id: str | None = Query(
-        default=None, description="Optional field ID for event publishing"
-    ),
+    field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
 ):
     """
     كشف الأمراض المحتملة من المؤشرات النباتية
@@ -1839,9 +1821,7 @@ def predict_crop_yield(body: YieldPredictionRequest):
     return {
         "prediction": prediction.to_dict(),
         "field_area_hectares": body.field_area_hectares,
-        "total_predicted_yield_kg": round(
-            prediction.predicted_yield_kg_ha * body.field_area_hectares
-        ),
+        "total_predicted_yield_kg": round(prediction.predicted_yield_kg_ha * body.field_area_hectares),
         "input_indices": {
             "ndvi": body.ndvi,
             "evi": body.evi,
@@ -2035,9 +2015,7 @@ async def comprehensive_analysis(
     temp_c: float = Query(default=25, ge=-50, le=60),
     humidity_pct: float = Query(default=50, ge=0, le=100),
     field_area_hectares: float = Query(default=1.0, gt=0),
-    field_id: str | None = Query(
-        default=None, description="Optional field ID for event publishing"
-    ),
+    field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
 ):
     """تحليل شامل للحقل"""
     try:
@@ -2112,9 +2090,7 @@ async def comprehensive_analysis(
         all_issues = []
         all_issues.extend([d.disease_type.value for d in diseases])
         all_issues.extend([d.nutrient.value for d in deficiencies])
-        all_issues.extend(
-            [r.pest_type for r in pest_risks if r.risk_level.value in ["high", "critical"]]
-        )
+        all_issues.extend([r.pest_type for r in pest_risks if r.risk_level.value in ["high", "critical"]])
 
         await publish_health_assessed(
             field_id=field_id,

@@ -205,9 +205,7 @@ class ToolGuard:
                     details={"size": size, "max_size": MAX_ARGS_SIZE},
                 )
 
-            return GuardDecision(
-                allowed=True, reason="Size OK", reason_ar="الحجم مقبول", layer="size_limits"
-            )
+            return GuardDecision(allowed=True, reason="Size OK", reason_ar="الحجم مقبول", layer="size_limits")
 
         except (TypeError, ValueError) as e:
             return GuardDecision(
@@ -310,9 +308,7 @@ class ToolGuard:
             return True
         if not _DOMAIN_RE.match(host):
             return False
-        return any(
-            host == domain or host.endswith("." + domain) for domain in self.domain_allowlist
-        )
+        return any(host == domain or host.endswith("." + domain) for domain in self.domain_allowlist)
 
     def _record_block(self, layer: str, context: ToolCallContext, decision: GuardDecision) -> None:
         self._stats["blocked"] += 1
@@ -339,8 +335,6 @@ def get_guard() -> ToolGuard:
     return _global_guard
 
 
-def guard_tool_call(
-    tool: str, args: dict[str, Any], session_id: str | None = None
-) -> GuardDecision:
+def guard_tool_call(tool: str, args: dict[str, Any], session_id: str | None = None) -> GuardDecision:
     context = ToolCallContext(tool=tool, args=args, session_id=session_id)
     return get_guard().check(context)

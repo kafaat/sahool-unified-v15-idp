@@ -78,12 +78,8 @@ class WorkflowEngine:
         # Register built-in condition evaluators
         self._condition_evaluators = {
             "has_results": lambda ctx, params: len(ctx.variables.get("results", [])) > 0,
-            "confidence_above": lambda ctx, params: (
-                ctx.variables.get("confidence", 0) > params.get("threshold", 0.5)
-            ),
-            "result_count_above": lambda ctx, params: (
-                len(ctx.variables.get("results", [])) > params.get("count", 0)
-            ),
+            "confidence_above": lambda ctx, params: ctx.variables.get("confidence", 0) > params.get("threshold", 0.5),
+            "result_count_above": lambda ctx, params: len(ctx.variables.get("results", [])) > params.get("count", 0),
             "language_is": lambda ctx, params: ctx.variables.get("language") == params.get("lang"),
         }
 
@@ -418,9 +414,7 @@ class WorkflowEngine:
     ) -> tuple[Any, str | None]:
         """Handle loop step"""
         loop_config = step.loop_config or {}
-        items = loop_config.get("items") or ctx.variables.get(
-            loop_config.get("items_var", "items"), []
-        )
+        items = loop_config.get("items") or ctx.variables.get(loop_config.get("items_var", "items"), [])
         loop_config.get("body_step")
         max_iterations = loop_config.get("max_iterations", 100)
 
@@ -529,9 +523,7 @@ class WorkflowEngine:
             seen = set()
             deduped = []
             for item in aggregated:
-                item_id = getattr(item, "id", None) or (
-                    item.chunk.id if hasattr(item, "chunk") else str(item)
-                )
+                item_id = getattr(item, "id", None) or (item.chunk.id if hasattr(item, "chunk") else str(item))
                 if item_id not in seen:
                     seen.add(item_id)
                     deduped.append(item)
@@ -564,9 +556,7 @@ class WorkflowEngine:
         result = await self.rag_pipeline.run(request)
 
         ctx.variables["rag_result"] = result
-        ctx.variables["answer"] = (
-            result.generation_result.answer if result.generation_result else None
-        )
+        ctx.variables["answer"] = result.generation_result.answer if result.generation_result else None
         ctx.variables["results"] = result.retrieval_results
 
         return result, None

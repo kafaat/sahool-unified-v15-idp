@@ -396,9 +396,9 @@ class ExperienceLearner:
 
         if existing_sops:
             sop = existing_sops[0]  # Update the first one
-            sop.source_executions = list(
-                set(sop.source_executions + [e.id for e in executions[:10]])
-            )[:20]  # Keep last 20 sources
+            sop.source_executions = list(set(sop.source_executions + [e.id for e in executions[:10]]))[
+                :20
+            ]  # Keep last 20 sources
         else:
             sop = SOP(
                 id=str(uuid4()),
@@ -476,9 +476,7 @@ class ExperienceLearner:
                     step_patterns[step.step_number] = {}
 
                 action = step.action
-                step_patterns[step.step_number][action] = (
-                    step_patterns[step.step_number].get(action, 0) + 1
-                )
+                step_patterns[step.step_number][action] = step_patterns[step.step_number].get(action, 0) + 1
 
         # Create generalized steps from most common actions
         generalized = []
@@ -541,18 +539,14 @@ class ExperienceLearner:
 
         return postconditions[:5]  # Limit to 5 postconditions
 
-    async def get_recommended_sop(
-        self, task_type: str, context: dict[str, Any] | None = None
-    ) -> SOP | None:
+    async def get_recommended_sop(self, task_type: str, context: dict[str, Any] | None = None) -> SOP | None:
         """
         Get the recommended SOP for a task type.
         الحصول على إجراء التشغيل القياسي الموصى به لنوع المهمة.
         """
         return await self.store.get_best_sop(task_type)
 
-    async def get_execution_guidance(
-        self, task_type: str, context: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    async def get_execution_guidance(self, task_type: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Get guidance for executing a task based on learned experience.
         الحصول على إرشادات لتنفيذ مهمة بناءً على الخبرة المتعلمة.
@@ -602,9 +596,7 @@ class ExperienceLearner:
             "success_rate": success_count / len(executions) if executions else 0,
             "total_sops": len(sops),
             "high_confidence_sops": len([s for s in sops if s.confidence == SOPConfidence.HIGH]),
-            "medium_confidence_sops": len(
-                [s for s in sops if s.confidence == SOPConfidence.MEDIUM]
-            ),
+            "medium_confidence_sops": len([s for s in sops if s.confidence == SOPConfidence.MEDIUM]),
             "task_types_covered": list({e.task_type for e in executions}),
         }
 
@@ -664,9 +656,7 @@ async def record_task_execution(
     )
 
 
-async def get_task_guidance(
-    task_type: str, context: dict[str, Any] | None = None
-) -> dict[str, Any]:
+async def get_task_guidance(task_type: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     Get guidance for executing a task.
     الحصول على إرشادات لتنفيذ مهمة.

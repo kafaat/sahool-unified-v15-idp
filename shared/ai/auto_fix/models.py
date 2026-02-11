@@ -220,12 +220,8 @@ class DiagnosticReport:
 
     def __post_init__(self):
         """Calculate totals from diagnostics."""
-        self.total_errors = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.ERROR
-        )
-        self.total_warnings = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.WARNING
-        )
+        self.total_errors = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.ERROR)
+        self.total_warnings = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.WARNING)
         self.total_info = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.INFO)
         self.total_hints = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.HINT)
 

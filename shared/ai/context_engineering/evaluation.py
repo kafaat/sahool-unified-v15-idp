@@ -287,15 +287,12 @@ class EvaluationResult:
             safety_score = scores.get(EvaluationCriteria.SAFETY)
             if safety_score and safety_score.score < 0.5:
                 return (
-                    "Recommendation not approved due to safety concerns. "
-                    "Please review safety guidelines.",
-                    "لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. "
-                    "يرجى مراجعة إرشادات السلامة.",
+                    "Recommendation not approved due to safety concerns. Please review safety guidelines.",
+                    "لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. يرجى مراجعة إرشادات السلامة.",
                 )
             else:
                 return (
-                    "Recommendation needs improvement before implementation. "
-                    "Please address the noted concerns.",
+                    "Recommendation needs improvement before implementation. Please address the noted concerns.",
                     "التوصية تحتاج إلى تحسين قبل التنفيذ. يرجى معالجة الملاحظات المذكورة.",
                 )
 
@@ -587,9 +584,7 @@ class RecommendationEvaluator(BaseEvaluator):
         """
         context = context or {}
         query = query or ""
-        recommendation_type = recommendation_type or self._detect_recommendation_type(
-            recommendation
-        )
+        recommendation_type = recommendation_type or self._detect_recommendation_type(recommendation)
 
         self._stats["evaluations"] += 1
 
@@ -777,19 +772,13 @@ class RecommendationEvaluator(BaseEvaluator):
         )
 
         # Actionability heuristics
-        scores[EvaluationCriteria.ACTIONABILITY] = self._evaluate_actionability_heuristic(
-            recommendation
-        )
+        scores[EvaluationCriteria.ACTIONABILITY] = self._evaluate_actionability_heuristic(recommendation)
 
         # Safety heuristics
-        scores[EvaluationCriteria.SAFETY] = self._evaluate_safety_heuristic(
-            recommendation, recommendation_type
-        )
+        scores[EvaluationCriteria.SAFETY] = self._evaluate_safety_heuristic(recommendation, recommendation_type)
 
         # Relevance heuristics
-        scores[EvaluationCriteria.RELEVANCE] = self._evaluate_relevance_heuristic(
-            recommendation, query, context
-        )
+        scores[EvaluationCriteria.RELEVANCE] = self._evaluate_relevance_heuristic(recommendation, query, context)
 
         # Completeness heuristics
         scores[EvaluationCriteria.COMPLETENESS] = self._evaluate_completeness_heuristic(

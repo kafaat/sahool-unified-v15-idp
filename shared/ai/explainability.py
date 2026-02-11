@@ -664,9 +664,7 @@ class ExplainabilityEngine:
             factor_names_en = ", ".join(f.name for f in primary[:3])
             factor_names_ar = ", ".join(f.name_ar for f in primary[:3])
 
-            summary_en = (
-                f"This {recommendation_type} recommendation is based on {factor_names_en}. "
-            )
+            summary_en = f"This {recommendation_type} recommendation is based on {factor_names_en}. "
             summary_ar = f"هذه التوصية بشأن {recommendation_type} مبنية على {factor_names_ar}. "
 
             if confidence >= 0.8:
@@ -679,9 +677,7 @@ class ExplainabilityEngine:
                 summary_en += "Lower confidence; consider additional verification."
                 summary_ar += "ثقة منخفضة؛ يُنصح بالتحقق الإضافي."
         else:
-            summary_en = (
-                f"This {recommendation_type} recommendation is based on general guidelines."
-            )
+            summary_en = f"This {recommendation_type} recommendation is based on general guidelines."
             summary_ar = f"هذه التوصية بشأن {recommendation_type} مبنية على إرشادات عامة."
 
         return summary_en, summary_ar
@@ -703,12 +699,8 @@ class ExplainabilityEngine:
             detailed_ar.append("## العوامل المساهمة\n")
 
             for factor in sorted(factors, key=lambda x: x.weight, reverse=True):
-                detailed_en.append(
-                    f"- **{factor.name}** ({factor.impact.value}): {factor.description}"
-                )
-                detailed_ar.append(
-                    f"- **{factor.name_ar}** ({factor.impact.value}): {factor.description_ar}"
-                )
+                detailed_en.append(f"- **{factor.name}** ({factor.impact.value}): {factor.description}")
+                detailed_ar.append(f"- **{factor.name_ar}** ({factor.impact.value}): {factor.description_ar}")
 
         # Rules section
         if rules:
@@ -726,19 +718,11 @@ class ExplainabilityEngine:
             detailed_ar.append("\n## البدائل المدروسة\n")
 
             for alt in alternatives:
-                reasons = (
-                    ", ".join(alt.rejection_reasons) if alt.rejection_reasons else "Lower score"
-                )
-                reasons_ar = (
-                    ", ".join(alt.rejection_reasons_ar) if alt.rejection_reasons_ar else "درجة أقل"
-                )
+                reasons = ", ".join(alt.rejection_reasons) if alt.rejection_reasons else "Lower score"
+                reasons_ar = ", ".join(alt.rejection_reasons_ar) if alt.rejection_reasons_ar else "درجة أقل"
 
-                detailed_en.append(
-                    f"- **{alt.title}** (Score: {alt.score}): Not selected because {reasons}"
-                )
-                detailed_ar.append(
-                    f"- **{alt.title_ar}** (الدرجة: {alt.score}): لم يُختر لأن {reasons_ar}"
-                )
+                detailed_en.append(f"- **{alt.title}** (Score: {alt.score}): Not selected because {reasons}")
+                detailed_ar.append(f"- **{alt.title_ar}** (الدرجة: {alt.score}): لم يُختر لأن {reasons_ar}")
 
         return "\n".join(detailed_en), "\n".join(detailed_ar)
 
@@ -755,12 +739,8 @@ class ExplainabilityEngine:
         low_confidence_factors = [f for f in factors if f.confidence < 0.7]
         if low_confidence_factors:
             for f in low_confidence_factors:
-                uncertainties_en.append(
-                    f"Uncertainty in {f.name} data (confidence: {f.confidence:.0%})"
-                )
-                uncertainties_ar.append(
-                    f"عدم يقين في بيانات {f.name_ar} (الثقة: {f.confidence:.0%})"
-                )
+                uncertainties_en.append(f"Uncertainty in {f.name} data (confidence: {f.confidence:.0%})")
+                uncertainties_ar.append(f"عدم يقين في بيانات {f.name_ar} (الثقة: {f.confidence:.0%})")
 
         # Missing data
         if confidence < 0.7:

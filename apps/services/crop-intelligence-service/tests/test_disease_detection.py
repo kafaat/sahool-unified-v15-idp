@@ -34,9 +34,7 @@ class TestDiseaseSymptomDetection:
             savi=0.22,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_potential_disease", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_potential_disease", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -61,9 +59,7 @@ class TestDiseaseSymptomDetection:
             savi=0.50,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_chlorosis", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_chlorosis", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -90,9 +86,7 @@ class TestDiseaseSymptomDetection:
             savi=0.60,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_nitrogen_deficiency", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_nitrogen_deficiency", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -117,9 +111,7 @@ class TestDiseaseSymptomDetection:
             savi=0.42,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_water_stress", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_water_stress", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -142,9 +134,7 @@ class TestEarlyWarningSystem:
         # Moderate stress - early warning
         indices = Indices(ndvi=0.58, evi=0.50, ndre=0.24, lci=0.26, ndwi=-0.08, savi=0.52)
 
-        obs = ZoneObservation(
-            zone_id="zone_early_stress", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_early_stress", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -169,9 +159,7 @@ class TestEarlyWarningSystem:
             savi=0.16,  # Very low for seedlings
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_vulnerable_seedlings", growth_stage=GrowthStage.seedling, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_vulnerable_seedlings", growth_stage=GrowthStage.seedling, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -180,9 +168,7 @@ class TestEarlyWarningSystem:
         assert len(scout_actions) > 0
 
         # Should mention seedling or germination issues
-        assert any(
-            "seedling" in a["title_en"].lower() or "شتلات" in a["title"] for a in scout_actions
-        )
+        assert any("seedling" in a["title_en"].lower() or "شتلات" in a["title"] for a in scout_actions)
 
     def test_rapid_decline_detection(self, client, sample_observation_data):
         """Test detection of rapid health decline (disease outbreak)"""
@@ -238,9 +224,7 @@ class TestScoutingRecommendations:
             savi=0.30,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_needs_scouting", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_needs_scouting", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -258,9 +242,7 @@ class TestScoutingRecommendations:
         # Moderate concern - P2 scouting
         moderate_indices = Indices(ndvi=0.33, evi=0.30, ndre=0.20, lci=0.18, ndwi=-0.03, savi=0.32)
 
-        obs = ZoneObservation(
-            zone_id="zone_moderate", growth_stage=GrowthStage.mid, indices=moderate_indices
-        )
+        obs = ZoneObservation(zone_id="zone_moderate", growth_stage=GrowthStage.mid, indices=moderate_indices)
 
         actions = diagnose_zone(obs)
 
@@ -275,9 +257,7 @@ class TestScoutingRecommendations:
 
         indices = Indices(ndvi=0.30, evi=0.26, ndre=0.17, lci=0.14, ndwi=-0.04, savi=0.28)
 
-        obs = ZoneObservation(
-            zone_id="zone_detail_test", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_detail_test", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -370,9 +350,7 @@ class TestDiseaseRiskFactors:
             savi=0.38,
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_multiple_stress", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_multiple_stress", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -397,9 +375,7 @@ class TestDiseaseRiskFactors:
             savi=0.35,  # Low SAVI indicates soil influence
         )
 
-        obs = ZoneObservation(
-            zone_id="zone_env_stress", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="zone_env_stress", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -551,9 +527,7 @@ class TestSeverityClassification:
 
         indices = Indices(ndvi=0.28, evi=0.22, ndre=0.14, lci=0.12, ndwi=-0.16, savi=0.25)
 
-        obs = ZoneObservation(
-            zone_id="severity_test", growth_stage=GrowthStage.mid, indices=indices
-        )
+        obs = ZoneObservation(zone_id="severity_test", growth_stage=GrowthStage.mid, indices=indices)
 
         actions = diagnose_zone(obs)
 
@@ -576,9 +550,7 @@ class TestSeverityClassification:
             savi=0.22,
         )
 
-        obs = ZoneObservation(
-            zone_id="critical_severity", growth_stage=GrowthStage.mid, indices=critical_indices
-        )
+        obs = ZoneObservation(zone_id="critical_severity", growth_stage=GrowthStage.mid, indices=critical_indices)
 
         actions = diagnose_zone(obs)
 

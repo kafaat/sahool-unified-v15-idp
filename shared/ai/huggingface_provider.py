@@ -113,9 +113,7 @@ class HuggingfaceConfig:
             self.api_token = os.getenv("HUGGINGFACE_API_TOKEN")
 
         if self.cache_dir is None:
-            self.cache_dir = os.getenv(
-                "HUGGINGFACE_CACHE_DIR", str(Path.home() / ".cache" / "huggingface" / "sahool")
-            )
+            self.cache_dir = os.getenv("HUGGINGFACE_CACHE_DIR", str(Path.home() / ".cache" / "huggingface" / "sahool"))
 
         if self.local_model_dir is None:
             self.local_model_dir = os.getenv(
@@ -442,9 +440,7 @@ class HuggingfaceProvider:
 
                 self._http_client = httpx.AsyncClient(
                     timeout=self.config.timeout_seconds,
-                    headers={"Authorization": f"Bearer {self.config.api_token}"}
-                    if self.config.api_token
-                    else {},
+                    headers={"Authorization": f"Bearer {self.config.api_token}"} if self.config.api_token else {},
                 )
             except ImportError:
                 logger.warning("httpx not available, API calls will fail")
@@ -505,8 +501,7 @@ class HuggingfaceProvider:
         except ImportError as e:
             logger.error(f"transformers/torch not available: {e}")
             raise RuntimeError(
-                "Local models require transformers and torch. "
-                "Install with: pip install transformers torch"
+                "Local models require transformers and torch. Install with: pip install transformers torch"
             ) from e
         except Exception as e:
             logger.error(f"Failed to load model {model_id}: {e}")
@@ -545,9 +540,7 @@ class HuggingfaceProvider:
                 attention_mask = encoded["attention_mask"]
                 token_embeddings = outputs.last_hidden_state
 
-                input_mask_expanded = (
-                    attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
-                )
+                input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
 
                 embeddings = torch.sum(token_embeddings * input_mask_expanded, 1) / torch.clamp(
                     input_mask_expanded.sum(1), min=1e-9
@@ -591,10 +584,7 @@ class HuggingfaceProvider:
                         # Mean pooling for token-level embeddings
                         result = []
                         for emb in embeddings:
-                            mean_emb = [
-                                sum(token[i] for token in emb) / len(emb)
-                                for i in range(len(emb[0]))
-                            ]
+                            mean_emb = [sum(token[i] for token in emb) / len(emb) for i in range(len(emb[0]))]
                             result.append(mean_emb)
                         return result
 

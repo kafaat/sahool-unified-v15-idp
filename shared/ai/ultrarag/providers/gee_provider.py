@@ -947,9 +947,7 @@ class GEERAGProvider:
         confidence = min(0.5 + abs(change_percent) / 60, 0.95)
 
         # Generate descriptions and recommendations
-        desc_ar, desc_en = self._generate_change_description(
-            change_type, change_magnitude, change_percent
-        )
+        desc_ar, desc_en = self._generate_change_description(change_type, change_magnitude, change_percent)
         rec_ar, rec_en = self._generate_recommendation(change_type, severity)
 
         change_result = ChangeDetectionResult(
@@ -1035,9 +1033,7 @@ class GEERAGProvider:
         bare_soil_fraction = classification.get(LandCoverClass.BARE_SOIL, 0) + classification.get(
             LandCoverClass.DESERT, 0
         )
-        water_fraction = classification.get(LandCoverClass.WATER, 0) + classification.get(
-            LandCoverClass.WETLAND, 0
-        )
+        water_fraction = classification.get(LandCoverClass.WATER, 0) + classification.get(LandCoverClass.WETLAND, 0)
 
         land_cover = LandCoverResult(
             field_id=field_id,

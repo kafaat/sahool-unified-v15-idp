@@ -1,0 +1,141 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL AI Services Base Dockerfile
+# Version: 16.0.0
+# Updated: February 2026
+# 
+# This is a multi-stage base image for all AI/RAG services with:
+# - Security: Non-root user, minimal attack surface
+# - Reproducibility: Pinned versions via constraints file
+# - Performance: Cached dependencies layer, optimized pip configuration
+# - Resilience: Multi-mirror fallback for network issues
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Build Arguments
+# ─────────────────────────────────────────────────────────────────────────────
+ARG PYTHON_VERSION=3.11
+ARG SERVICE_NAME=ai-service
+ARG SERVICE_VERSION=16.0.0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Base - System Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS base
+
+# Prevent interactive prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Python optimizations
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONFAULTHANDLER=1 \
+    PYTHONHASHSEED=random \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+# Install system dependencies (minimal)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user early (UID/GID 1000 for consistency)
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Builder - Python Dependencies
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    gcc \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Switch to non-root user for pip config
+USER sahool
+WORKDIR /home/sahool
+
+# Create virtual environment
+ENV VIRTUAL_ENV=/home/sahool/venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# Configure pip with network resilience and mirror fallback
+RUN mkdir -p ~/.pip && \
+    cat > ~/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+               download.pytorch.org
+
+[install]
+prefer-binary = true
+EOF
+
+# Upgrade pip, setuptools, wheel
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0
+
+# Copy constraints file
+COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
+
+# Install common AI dependencies from constraints
+# This layer is cached and reused across all AI services
+RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt \
+    fastapi \
+    uvicorn[standard] \
+    pydantic \
+    pydantic-settings \
+    httpx \
+    structlog \
+    prometheus-client \
+    python-dotenv \
+    nats-py \
+    redis
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 3: Runtime - Minimal Production Image
+# ─────────────────────────────────────────────────────────────────────────────
+FROM base AS runtime
+
+# Labels for OCI compliance
+ARG SERVICE_NAME
+ARG SERVICE_VERSION
+LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}" \
+      org.opencontainers.image.version="${SERVICE_VERSION}" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.description="AI/RAG Service for SAHOOL Platform" \
+      org.opencontainers.image.licenses="Proprietary"
+
+# Copy virtual environment from builder
+COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
+
+# Set environment
+ENV VIRTUAL_ENV=/home/sahool/venv
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+ENV PYTHONPATH=/app
+
+WORKDIR /app
+
+# Switch to non-root user
+USER sahool
+
+# Health check placeholder (override in derived images)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')" || exit 1
+
+# Default command (override in derived images)
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

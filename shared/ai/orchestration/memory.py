@@ -266,9 +266,7 @@ class CollectiveMemory:
         self._cache = LRUCache(maxsize=max_size)
 
         # Secondary index by namespace
-        self._namespace_index: dict[MemoryNamespace, set[str]] = {
-            ns: set() for ns in MemoryNamespace
-        }
+        self._namespace_index: dict[MemoryNamespace, set[str]] = {ns: set() for ns in MemoryNamespace}
 
         # Pattern index for fast lookup
         self._pattern_index: dict[str, list[str]] = {}  # keyword -> entry_ids

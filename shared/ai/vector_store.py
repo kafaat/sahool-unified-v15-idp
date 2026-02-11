@@ -96,9 +96,7 @@ class VectorStoreConfig:
     def __post_init__(self):
         """Initialize defaults from environment"""
         if self.storage_path is None:
-            self.storage_path = os.getenv(
-                "VECTOR_STORE_PATH", str(Path.home() / ".sahool" / "vector_store")
-            )
+            self.storage_path = os.getenv("VECTOR_STORE_PATH", str(Path.home() / ".sahool" / "vector_store"))
 
 
 @dataclass
@@ -145,12 +143,8 @@ class VectorDocument:
             vector=data["vector"],
             content=data.get("content", ""),
             metadata=data.get("metadata", {}),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if "created_at" in data
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if "updated_at" in data
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
             collection=data.get("collection", "default"),
         )
 

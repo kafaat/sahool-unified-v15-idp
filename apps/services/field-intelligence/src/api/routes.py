@@ -137,9 +137,7 @@ async def create_event(
         else:
             # Fallback to in-memory
             tenant_rules = [
-                r
-                for r in _rules_fallback.values()
-                if r.tenant_id == tenant_id and r.status == RuleStatus.ACTIVE
+                r for r in _rules_fallback.values() if r.tenant_id == tenant_id and r.status == RuleStatus.ACTIVE
             ]
 
         # معالجة الحدث
@@ -359,9 +357,7 @@ async def update_event_status(
         if not event_data:
             raise HTTPException(status_code=404, detail="Event not found")
 
-        logger.info(
-            "✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value
-        )
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value)
 
         return EventResponse(
             event_id=event_data["event_id"],
@@ -406,9 +402,7 @@ async def update_event_status(
 
         _events_fallback[event_id] = event
 
-        logger.info(
-            "✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value
-        )
+        logger.info("✓ تم تحديث حالة الحدث %s إلى %s", _sanitize_log_input(event_id), new_status.value)
 
         return event
 
@@ -437,11 +431,7 @@ async def get_field_event_stats(
     else:
         # Fallback to in-memory
         # فلترة أحداث الحقل
-        field_events = [
-            e
-            for e in _events_fallback.values()
-            if e.tenant_id == tenant_id and e.field_id == field_id
-        ]
+        field_events = [e for e in _events_fallback.values() if e.tenant_id == tenant_id and e.field_id == field_id]
         recent_events = [e for e in field_events if e.created_at >= cutoff]
 
     # إحصائيات
@@ -855,9 +845,7 @@ async def toggle_rule_status(
 
         # Toggle status
         current_status = RuleStatus(rule_data["status"])
-        new_status = (
-            RuleStatus.INACTIVE if current_status == RuleStatus.ACTIVE else RuleStatus.ACTIVE
-        )
+        new_status = RuleStatus.INACTIVE if current_status == RuleStatus.ACTIVE else RuleStatus.ACTIVE
 
         # Update in PostgreSQL
         updated_rule = await rules_repo.update(rule_id, tenant_id, status=new_status.value)
@@ -865,9 +853,7 @@ async def toggle_rule_status(
         if not updated_rule:
             raise HTTPException(status_code=500, detail="Failed to update rule")
 
-        logger.info(
-            "✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), new_status.value
-        )
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), new_status.value)
 
         return RuleResponse(
             rule_id=updated_rule["rule_id"],
@@ -909,9 +895,7 @@ async def toggle_rule_status(
         rule.updated_at = datetime.now(UTC)
         _rules_fallback[rule_id] = rule
 
-        logger.info(
-            "✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), rule.status.value
-        )
+        logger.info("✓ تم تبديل حالة القاعدة %s إلى %s", _sanitize_log_input(rule_id), rule.status.value)
 
         return RuleResponse(**rule.model_dump())
 
@@ -969,9 +953,7 @@ async def get_rule_stats(
             "rule_name": rule.name,
             "status": rule.status.value,
             "trigger_count": rule.trigger_count,
-            "last_triggered_at": rule.last_triggered_at.isoformat()
-            if rule.last_triggered_at
-            else None,
+            "last_triggered_at": rule.last_triggered_at.isoformat() if rule.last_triggered_at else None,
             "cooldown_minutes": rule.cooldown_minutes,
             "actions_count": len(rule.actions),
             "conditions_count": len(rule.conditions.conditions),

@@ -116,11 +116,7 @@ class CrossEncoderReranker(Reranker):
                     result.rank = i + 1
 
                 # Apply threshold and top_k
-                final_results = [
-                    r
-                    for r in scored_results[: config.top_k]
-                    if r.score >= config.min_score_threshold
-                ]
+                final_results = [r for r in scored_results[: config.top_k] if r.score >= config.min_score_threshold]
             else:
                 # Fallback: just use original scores and return top_k
                 final_results = sorted(results, key=lambda x: x.score, reverse=True)

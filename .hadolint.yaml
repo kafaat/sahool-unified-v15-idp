@@ -42,6 +42,10 @@ ignored:
   # Rationale: Files may not exist in build context
   - SC1091
 
+  # SC2261: Multiple redirections compete for stdout
+  # Rationale: False positive for heredoc syntax (cat > file <<'EOF')
+  - SC2261
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # TRUSTED REGISTRIES
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -97,9 +97,7 @@ class SatelliteTool:
                 if date:
                     params["date"] = date
 
-                response = await client.get(
-                    f"{self.base_url}/api/v1/satellite/imagery", params=params
-                )
+                response = await client.get(f"{self.base_url}/api/v1/satellite/imagery", params=params)
                 response.raise_for_status()
 
                 result = response.json()

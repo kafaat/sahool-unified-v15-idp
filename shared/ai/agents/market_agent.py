@@ -742,9 +742,7 @@ class MarketSubAgent(BaseAutonomousAgent):
             if storage_loss > current_price * quantity_tons * 1000 * 0.03:  # More than 3% of value
                 action = "sell_now"
                 action_ar = "البيع الآن"
-                reasoning = (
-                    f"Storage costs ({storage_loss:.0f} SAR for 4 weeks) exceed potential gains"
-                )
+                reasoning = f"Storage costs ({storage_loss:.0f} SAR for 4 weeks) exceed potential gains"
                 reasoning_ar = f"تكاليف التخزين ({storage_loss:.0f} ريال لمدة 4 أسابيع) تتجاوز المكاسب المحتملة"
                 timing = "Within 1-2 weeks"
                 timing_ar = "خلال 1-2 أسبوع"
@@ -757,9 +755,7 @@ class MarketSubAgent(BaseAutonomousAgent):
                 timing_ar = "توزيع على 2-3 أسابيع"
 
         # Best markets
-        best_markets = sorted(
-            prices.get("prices", []), key=lambda x: x["price_per_kg"], reverse=True
-        )[:3]
+        best_markets = sorted(prices.get("prices", []), key=lambda x: x["price_per_kg"], reverse=True)[:3]
 
         return {
             "recommendation_id": str(uuid.uuid4()),
@@ -937,16 +933,8 @@ class MarketSubAgent(BaseAutonomousAgent):
                 "level": demand_level,
                 "level_ar": demand_ar,
                 "growth_percent": data["growth"],
-                "trend": "increasing"
-                if data["growth"] > 0
-                else "decreasing"
-                if data["growth"] < 0
-                else "stable",
-                "trend_ar": "متزايد"
-                if data["growth"] > 0
-                else "متناقص"
-                if data["growth"] < 0
-                else "مستقر",
+                "trend": "increasing" if data["growth"] > 0 else "decreasing" if data["growth"] < 0 else "stable",
+                "trend_ar": "متزايد" if data["growth"] > 0 else "متناقص" if data["growth"] < 0 else "مستقر",
             },
             "supply": {
                 "level": "adequate",

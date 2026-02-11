@@ -130,12 +130,8 @@ class Entity:
             content_ar=data.get("content_ar"),
             properties=data.get("properties", {}),
             embedding=data.get("embedding"),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if "created_at" in data
-            else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"])
-            if "updated_at" in data
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
             tenant_id=data.get("tenant_id", "default"),
             metadata=data.get("metadata", {}),
         )
@@ -190,9 +186,7 @@ class Relationship:
             relation_type=RelationType(data["relation_type"]),
             weight=data.get("weight", 1.0),
             properties=data.get("properties", {}),
-            created_at=datetime.fromisoformat(data["created_at"])
-            if "created_at" in data
-            else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
             metadata=data.get("metadata", {}),
         )
 
@@ -258,9 +252,7 @@ class GraphStore:
         """Get entity by ID"""
         return self._entities.get(entity_id)
 
-    async def get_entities_by_type(
-        self, entity_type: EntityType, tenant_id: str | None = None
-    ) -> list[Entity]:
+    async def get_entities_by_type(self, entity_type: EntityType, tenant_id: str | None = None) -> list[Entity]:
         """Get all entities of a specific type"""
         ids = self._type_index.get(entity_type, set())
         entities = [self._entities[id] for id in ids if id in self._entities]
@@ -396,9 +388,7 @@ class SimpleEmbedder:
 
     def _hash_token(self, token: str) -> int:
         """Hash token to dimension index (not for security, just distribution)"""
-        return (
-            int(hashlib.md5(token.encode(), usedforsecurity=False).hexdigest(), 16) % self.dimension
-        )
+        return int(hashlib.md5(token.encode(), usedforsecurity=False).hexdigest(), 16) % self.dimension
 
     async def embed(self, text: str) -> list[float]:
         """Create embedding for text"""
@@ -490,9 +480,7 @@ class GraphMemory:
         """Register default relationship extractors"""
 
         # Farm-Field relationship
-        async def extract_farm_field(
-            entity: Entity, all_entities: list[Entity]
-        ) -> list[Relationship]:
+        async def extract_farm_field(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.FIELD:
                 farm_id = entity.properties.get("farm_id")
@@ -511,9 +499,7 @@ class GraphMemory:
             return relationships
 
         # Field-Crop relationship
-        async def extract_field_crop(
-            entity: Entity, all_entities: list[Entity]
-        ) -> list[Relationship]:
+        async def extract_field_crop(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.CROP:
                 field_id = entity.properties.get("field_id")
@@ -532,9 +518,7 @@ class GraphMemory:
             return relationships
 
         # Farmer-Farm relationship
-        async def extract_farmer_farm(
-            entity: Entity, all_entities: list[Entity]
-        ) -> list[Relationship]:
+        async def extract_farmer_farm(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
             relationships = []
             if entity.type == EntityType.FARM:
                 farmer_id = entity.properties.get("farmer_id") or entity.properties.get("owner_id")
@@ -553,9 +537,7 @@ class GraphMemory:
             return relationships
 
         # Similarity relationship based on embeddings
-        async def extract_similarity(
-            entity: Entity, all_entities: list[Entity]
-        ) -> list[Relationship]:
+        async def extract_similarity(entity: Entity, all_entities: list[Entity]) -> list[Relationship]:
             relationships = []
             if entity.embedding:
                 for e in all_entities:
@@ -854,9 +836,7 @@ class GraphMemory:
         await self.store.add_relationship(rel)
         return rel
 
-    def add_relationship_extractor(
-        self, extractor: Callable[[Entity, list[Entity]], list[Relationship]]
-    ) -> None:
+    def add_relationship_extractor(self, extractor: Callable[[Entity, list[Entity]], list[Relationship]]) -> None:
         """Add a custom relationship extractor"""
         self._relationship_extractors.append(extractor)
 

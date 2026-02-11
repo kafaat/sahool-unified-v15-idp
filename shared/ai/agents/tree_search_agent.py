@@ -212,9 +212,7 @@ class ThoughtTree:
 
     def get_leaf_nodes(self) -> list[ThoughtNode]:
         """Get all leaf nodes."""
-        return [
-            n for n in self.nodes.values() if not n.children_ids or n.status == NodeStatus.TERMINAL
-        ]
+        return [n for n in self.nodes.values() if not n.children_ids or n.status == NodeStatus.TERMINAL]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -522,8 +520,7 @@ class TreeSearchAgent(BaseAutonomousAgent):
                 agent_id=self.agent_id,
                 task=task[:500],
                 success=self.current_tree.best_path is not None,
-                execution_time_ms=(self.current_tree.completed_at - start_time).total_seconds()
-                * 1000,
+                execution_time_ms=(self.current_tree.completed_at - start_time).total_seconds() * 1000,
                 steps_executed=len(self.current_tree.nodes),
             )
 
@@ -789,9 +786,7 @@ class TreeSearchAgent(BaseAutonomousAgent):
             return None
 
         # Get all terminal (solution) nodes
-        terminal_nodes = [
-            n for n in self.current_tree.nodes.values() if n.status == NodeStatus.TERMINAL
-        ]
+        terminal_nodes = [n for n in self.current_tree.nodes.values() if n.status == NodeStatus.TERMINAL]
 
         if not terminal_nodes:
             return None
@@ -859,12 +854,8 @@ class TreeSearchAgent(BaseAutonomousAgent):
             "summary": {
                 "total_nodes": len(tree.nodes),
                 "max_depth_reached": max(n.depth for n in tree.nodes.values()),
-                "terminal_nodes": sum(
-                    1 for n in tree.nodes.values() if n.status == NodeStatus.TERMINAL
-                ),
-                "pruned_nodes": sum(
-                    1 for n in tree.nodes.values() if n.status == NodeStatus.PRUNED
-                ),
+                "terminal_nodes": sum(1 for n in tree.nodes.values() if n.status == NodeStatus.TERMINAL),
+                "pruned_nodes": sum(1 for n in tree.nodes.values() if n.status == NodeStatus.PRUNED),
                 "has_solution": tree.best_path is not None,
             },
         }

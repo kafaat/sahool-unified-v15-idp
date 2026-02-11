@@ -803,9 +803,7 @@ class PestControlSubAgent(BaseAutonomousAgent):
             "urgency": severity,
             "treatments": [
                 {
-                    "method": "Fungicide application"
-                    if pest_id == "leaf_rust"
-                    else "Cultural control",
+                    "method": "Fungicide application" if pest_id == "leaf_rust" else "Cultural control",
                     "product": "Propiconazole" if pest_id == "leaf_rust" else "N/A",
                 }
             ],
@@ -1390,12 +1388,8 @@ Create an advisory plan as JSON array."""
 
         # Detect question type
         is_irrigation = any(w in task_lower for w in ["water", "irrigation", "ري", "سقي", "ماء"])
-        is_fertilizer = any(
-            w in task_lower for w in ["fertilizer", "nutrient", "سماد", "تسميد", "نيتروجين"]
-        )
-        is_disease = any(
-            w in task_lower for w in ["disease", "pest", "yellow", "مرض", "آفة", "اصفرار"]
-        )
+        is_fertilizer = any(w in task_lower for w in ["fertilizer", "nutrient", "سماد", "تسميد", "نيتروجين"])
+        is_disease = any(w in task_lower for w in ["disease", "pest", "yellow", "مرض", "آفة", "اصفرار"])
 
         steps = [
             AgentStep(
@@ -2041,9 +2035,7 @@ Mode: {self.mode.value} | الوضع: {"تخطيط" if self.mode == AgentMode.PL
 
         # Build final recommendation
         winning_option_idx = consensus_result.get("winning_option", 0)
-        winning_option = (
-            options[winning_option_idx] if winning_option_idx < len(options) else options[0]
-        )
+        winning_option = options[winning_option_idx] if winning_option_idx < len(options) else options[0]
 
         decision = CollaborativeDecision(
             decision_id=proposal.proposal_id,
@@ -2267,12 +2259,9 @@ Mode: {self.mode.value} | الوضع: {"تخطيط" if self.mode == AgentMode.PL
 
         return {
             "total_feedback": len(self.farmer_satisfaction_scores),
-            "average_rating": sum(self.farmer_satisfaction_scores)
-            / len(self.farmer_satisfaction_scores),
+            "average_rating": sum(self.farmer_satisfaction_scores) / len(self.farmer_satisfaction_scores),
             "success_rate": successes / len(outcomes) if outcomes else 0,
-            "rating_distribution": {
-                i: self.farmer_satisfaction_scores.count(i) for i in range(1, 6)
-            },
+            "rating_distribution": {i: self.farmer_satisfaction_scores.count(i) for i in range(1, 6)},
             "outcome_distribution": {
                 "success": successes,
                 "partial": sum(1 for o in outcomes if o.get("outcome") == "partial"),

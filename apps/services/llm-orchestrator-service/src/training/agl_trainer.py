@@ -118,9 +118,7 @@ class AGLTrainer:
     ):
         self.enabled = enabled and os.getenv("AGL_ENABLED", "false").lower() == "true"
         self.store_url = store_url or os.getenv("AGL_STORE_URL", "http://localhost:8300")
-        self.llm_proxy_url = llm_proxy_url or os.getenv(
-            "AGL_LLM_PROXY_URL", "http://localhost:8301"
-        )
+        self.llm_proxy_url = llm_proxy_url or os.getenv("AGL_LLM_PROXY_URL", "http://localhost:8301")
 
         self._training_jobs: dict[str, TrainingResult] = {}
         self._agl_available = False
@@ -289,9 +287,7 @@ class AGLTrainer:
                 )
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
         # Generate optimized prompt
         result.optimized_prompt = self._generate_optimized_prompt(
@@ -321,9 +317,7 @@ class AGLTrainer:
             result.iterations_completed = iteration + 1
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     async def _run_rl_training(
         self,
@@ -346,9 +340,7 @@ class AGLTrainer:
             import random
 
             noise = random.uniform(-0.02, 0.05)
-            current_reward = (
-                result.initial_reward + (iteration / config.num_iterations) * 0.35 + noise
-            )
+            current_reward = result.initial_reward + (iteration / config.num_iterations) * 0.35 + noise
             result.iterations_completed = iteration + 1
             result.metrics_history.append(
                 {
@@ -358,9 +350,7 @@ class AGLTrainer:
             )
 
         result.final_reward = max(m["reward"] for m in result.metrics_history)
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     async def _run_dpo_training(
         self,
@@ -384,9 +374,7 @@ class AGLTrainer:
             result.iterations_completed = iteration + 1
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     def _generate_optimized_prompt(self, agent_name: str) -> str:
         """Generate an optimized system prompt for an agent."""
@@ -465,11 +453,7 @@ Provide accurate, actionable advice for Middle Eastern farmers.""",
             key=lambda j: j.completed_at or datetime.min,
             reverse=True,
         ):
-            if (
-                job.status == TrainingStatus.COMPLETED
-                and agent_name in job.agent_name
-                and job.optimized_prompt
-            ):
+            if job.status == TrainingStatus.COMPLETED and agent_name in job.agent_name and job.optimized_prompt:
                 return job.optimized_prompt
 
         return None

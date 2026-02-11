@@ -152,9 +152,7 @@ class AllProvidersFailedError(LLMProviderError):
 
     def __init__(self, errors: list[tuple[LLMProvider, str]]):
         self.errors = errors
-        message = "All LLM providers failed:\n" + "\n".join(
-            f"  - {p.value}: {e}" for p, e in errors
-        )
+        message = "All LLM providers failed:\n" + "\n".join(f"  - {p.value}: {e}" for p, e in errors)
         super().__init__(message)
 
 

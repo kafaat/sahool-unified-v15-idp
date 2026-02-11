@@ -202,9 +202,7 @@ class SparseRetriever(Retriever):
 
     def __init__(self, vector_store: Any):
         self.vector_store = vector_store
-        self._index: dict[
-            str, dict[str, list[tuple[str, int]]]
-        ] = {}  # collection -> term -> [(doc_id, count)]
+        self._index: dict[str, dict[str, list[tuple[str, int]]]] = {}  # collection -> term -> [(doc_id, count)]
         self._doc_lengths: dict[str, dict[str, int]] = {}  # collection -> doc_id -> length
         self._avg_doc_length: dict[str, float] = {}  # collection -> avg_length
         self._k1 = 1.5
@@ -908,9 +906,7 @@ class TriRAGRetriever(Retriever):
             sparse_task = asyncio.create_task(self.sparse_retriever.retrieve(query, config))
             kg_task = asyncio.create_task(self.kg_retriever.retrieve(query, config))
 
-            dense_results, sparse_results, kg_results = await asyncio.gather(
-                dense_task, sparse_task, kg_task
-            )
+            dense_results, sparse_results, kg_results = await asyncio.gather(dense_task, sparse_task, kg_task)
 
             # Reciprocal Rank Fusion (RRF) across all channels
             fused_scores: dict[str, tuple[float, KnowledgeChunk, str]] = {}
@@ -986,9 +982,7 @@ class TriRAGRetriever(Retriever):
         try:
             # Add to dense and sparse in parallel
             dense_task = asyncio.create_task(self.dense_retriever.add_documents(chunks, collection))
-            sparse_task = asyncio.create_task(
-                self.sparse_retriever.add_documents(chunks, collection)
-            )
+            sparse_task = asyncio.create_task(self.sparse_retriever.add_documents(chunks, collection))
             kg_task = asyncio.create_task(self.kg_retriever.add_documents(chunks, collection))
 
             results = await asyncio.gather(dense_task, sparse_task, kg_task)

@@ -12,7 +12,7 @@ License: MIT
 import io
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import httpx

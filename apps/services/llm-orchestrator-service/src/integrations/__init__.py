@@ -11,10 +11,10 @@ Integrates external tools and libraries:
 - CrewAI for multi-agent orchestration
 """
 
+from .crew_service import CrewService
+from .ml_service import MLService
 from .nlp_service import NLPService
 from .satellite_service import SatelliteService
-from .ml_service import MLService
-from .crew_service import CrewService
 
 __all__ = [
     "NLPService",

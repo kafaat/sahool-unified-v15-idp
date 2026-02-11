@@ -911,6 +911,7 @@ def require_permission(
         ...     pass
     """
     from fastapi import Depends, HTTPException, Request, status
+
     from .dependencies import get_current_active_user
     from .models import User
 

@@ -7,7 +7,7 @@ import json
 import logging
 import os
 from dataclasses import asdict, dataclass
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import nats

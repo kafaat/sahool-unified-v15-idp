@@ -19,20 +19,20 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
-from .memory_system import (
-    MemoryType,
-    MemoryPriority,
-)
+from ..embeddings import EmbeddingConfig, EmbeddingProvider, EmbeddingsAdapter
 from ..ot_embeddings import (
     BilingualOTMatcher,
     OTConfig,
 )
-from ..embeddings import EmbeddingsAdapter, EmbeddingConfig, EmbeddingProvider
+from .memory_system import (
+    MemoryPriority,
+    MemoryType,
+)
 
 logger = structlog.get_logger()
 

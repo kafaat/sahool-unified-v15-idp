@@ -10,8 +10,8 @@ Provides Arabic-first NLP capabilities using AraBERT and other models.
 from .arabic_nlp import (
     ArabicNLPProcessor,
     ArabicTextPreprocessor,
-    IntentClassifier,
     EntityExtractor,
+    IntentClassifier,
     SentimentAnalyzer,
 )
 

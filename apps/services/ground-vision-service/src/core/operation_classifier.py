@@ -7,20 +7,20 @@ from tower camera frames.
 """
 
 import logging
+from datetime import UTC, datetime, timezone
 from typing import Optional
-from datetime import datetime, timezone, UTC
 
 import numpy as np
 from pydantic import BaseModel, Field
 
 from ..models.detection import (
+    EQUIPMENT_TYPE_AR,
+    OPERATION_TYPE_AR,
+    BoundingBox,
+    DetectionConfidence,
+    EquipmentType,
     FieldOperationDetection,
     OperationType,
-    EquipmentType,
-    DetectionConfidence,
-    BoundingBox,
-    OPERATION_TYPE_AR,
-    EQUIPMENT_TYPE_AR,
 )
 
 logger = logging.getLogger(__name__)

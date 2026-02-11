@@ -19,16 +19,15 @@ which is the official calendar used in Saudi Arabia.
 
 from __future__ import annotations
 
+import math
 from datetime import date, timedelta
 from typing import Any
-import math
 
 from .models import (
     HijriDate,
     HijriMonth,
     IslamicEvent,
 )
-
 
 # =============================================================================
 # Hijri Month Information - معلومات الأشهر الهجرية

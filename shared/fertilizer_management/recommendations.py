@@ -7,7 +7,7 @@ Nutrient recommendations based on soil tests, crop requirements, and growth stag
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from decimal import Decimal
 
 from .models import (
@@ -17,7 +17,6 @@ from .models import (
     NutrientStatus,
     SoilTest,
 )
-
 
 # Crop nutrient requirements (kg/ha for target yield)
 # Format: {crop: {nutrient: (requirement_per_ton_yield, typical_yield_tons_ha)}}

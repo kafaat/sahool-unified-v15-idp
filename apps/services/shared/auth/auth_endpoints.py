@@ -14,15 +14,15 @@ Production Note: Replace InMemoryAuthStore with database-backed implementation.
 
 import logging
 import secrets
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
 from shared.auth.jwt_handler import create_token_pair, verify_token
-from shared.auth.password_hasher import hash_password, verify_password, generate_secure_token
 from shared.auth.models import AuthException
+from shared.auth.password_hasher import generate_secure_token, hash_password, verify_password
 
 logger = logging.getLogger(__name__)
 

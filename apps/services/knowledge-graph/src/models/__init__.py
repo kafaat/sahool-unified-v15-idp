@@ -6,13 +6,13 @@ Models for Knowledge Graph Service
 from .graph_models import (
     Crop,
     Disease,
-    Treatment,
+    GraphEdge,
+    GraphNode,
+    HealthCheckResponse,
+    PathResponse,
     Relationship,
     RelationshipType,
-    HealthCheckResponse,
-    GraphNode,
-    GraphEdge,
-    PathResponse,
+    Treatment,
 )
 
 __all__ = [

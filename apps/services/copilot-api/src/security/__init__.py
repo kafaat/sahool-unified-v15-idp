@@ -5,18 +5,18 @@ Copilot Security Module
 Tool guardrails, access control, and security policies.
 """
 
+from .allowlists import (
+    BLOCKED_PATTERNS,
+    DOMAIN_ALLOWLIST,
+    MAX_ARGS_SIZE,
+    MAX_PROMPT_CHARS,
+    TOOL_ALLOWLIST,
+)
 from .guardrails import (
     ToolGuard,
     guard_tool_call,
-    is_tool_allowed,
     is_domain_allowed,
-)
-from .allowlists import (
-    TOOL_ALLOWLIST,
-    DOMAIN_ALLOWLIST,
-    BLOCKED_PATTERNS,
-    MAX_ARGS_SIZE,
-    MAX_PROMPT_CHARS,
+    is_tool_allowed,
 )
 
 __all__ = [

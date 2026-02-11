@@ -21,23 +21,23 @@ Updated: January 2026
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 from uuid import UUID, uuid4
+
 import structlog
 
 from .models import (
-    IrrigationGoal,
-    IrrigationGoalType,
+    CalibrationMethod,
+    CalibrationResult,
+    ChecklistDimension,
     EcologicalConstraint,
     ExperienceRule,
     ExperienceSource,
-    CalibrationResult,
-    CalibrationMethod,
+    IrrigationGoal,
+    IrrigationGoalType,
     IrrigationProgram,
-    ChecklistDimension,
 )
-
 
 logger = structlog.get_logger(__name__)
 

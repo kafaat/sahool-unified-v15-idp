@@ -88,57 +88,57 @@ Updated: January 2026
 
 # Models - Core data structures
 from .models import (
-    # Enums
-    CooperativeType,
-    CooperativeStatus,
-    MemberRole,
-    MemberStatus,
-    ResourceType,
-    ResourceStatus,
-    PurchaseOrderStatus,
-    RevenueShareMethod,
     # Data classes
     Address,
-    CooperativeConfig,
     Cooperative,
+    CooperativeConfig,
     CooperativeMember,
-    SharedResource,
-    ResourceBooking,
+    CooperativeStatus,
+    # Enums
+    CooperativeType,
     GroupPurchaseOrder,
     MemberOrderLine,
+    MemberRole,
+    MemberStatus,
+    PurchaseOrderStatus,
+    ResourceBooking,
+    ResourceStatus,
+    ResourceType,
+    RevenueShareMethod,
+    SharedResource,
 )
 
 # Resource Pool - Equipment and storage management
 from .resource_pool import (
-    # Service
-    ResourcePoolService,
-    # Data classes
-    ResourceAvailability,
-    UsageStatistics,
-    MaintenanceRecord,
     # Exceptions
     BookingConflictError,
-    ResourceNotAvailableError,
     InsufficientPriorityError,
+    MaintenanceRecord,
+    # Data classes
+    ResourceAvailability,
+    ResourceNotAvailableError,
+    # Service
+    ResourcePoolService,
+    UsageStatistics,
     # Convenience functions
     create_resource_pool,
 )
 
 # Revenue - Financial management
 from .revenue import (
-    # Enums
-    TransactionType,
-    PeriodStatus,
-    PaymentStatus,
+    DistributionPlan,
     # Data classes
     FinancialPeriod,
-    Transaction,
-    MemberShare,
-    DistributionPlan,
     MemberPayment,
+    MemberShare,
+    PaymentStatus,
+    PeriodStatus,
+    RevenueService,
     # Services
     RevenueShareCalculator,
-    RevenueService,
+    Transaction,
+    # Enums
+    TransactionType,
     # Convenience functions
     create_revenue_service,
 )

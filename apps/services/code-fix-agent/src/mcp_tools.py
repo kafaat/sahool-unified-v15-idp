@@ -11,7 +11,7 @@ from typing import Any
 
 import structlog
 
-from .agent.code_fix_agent import CodeFixAgent, AgentPercept
+from .agent.code_fix_agent import AgentPercept, CodeFixAgent
 from .tools.sandbox import CodeSandbox, SandboxConfig
 
 logger = structlog.get_logger(__name__)
@@ -460,9 +460,9 @@ class CodeFixMCPTools:
 
     async def _get_code_metrics(self, args: dict[str, Any]) -> dict[str, Any]:
         """حساب المقاييس"""
+        from .agent.analyzers.dart_analyzer import DartAnalyzer
         from .agent.analyzers.python_analyzer import PythonAnalyzer
         from .agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
-        from .agent.analyzers.dart_analyzer import DartAnalyzer
 
         language = args.get("language", "python")
         code = args["code"]

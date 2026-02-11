@@ -7,20 +7,19 @@ from __future__ import annotations
 
 import math
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from .models import (
-    Geofence,
-    GeofenceType,
-    GeofenceAlert,
-    AlertType,
     AlertSeverity,
+    AlertType,
+    EquipmentZoneStatus,
+    Geofence,
+    GeofenceAlert,
+    GeofenceType,
+    LatLng,
     PositionUpdate,
     ZoneStatus,
-    EquipmentZoneStatus,
-    LatLng,
 )
-
 
 # Earth radius in meters
 EARTH_RADIUS_M = 6371000

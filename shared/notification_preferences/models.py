@@ -12,11 +12,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, time, UTC
+from datetime import UTC, datetime, time
 from enum import StrEnum
 from typing import Any
-import uuid
 
 
 class NotificationChannel(StrEnum):

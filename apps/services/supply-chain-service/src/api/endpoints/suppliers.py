@@ -7,13 +7,13 @@ from uuid import UUID, uuid4
 import structlog
 from fastapi import APIRouter, HTTPException, Query
 
+from ...core.config import settings
 from ..schemas import (
     QuoteRequest,
     Supplier,
     SupplierListResponse,
     SupplierQuote,
 )
-from ...core.config import settings
 
 logger = structlog.get_logger()
 

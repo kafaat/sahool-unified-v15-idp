@@ -14,20 +14,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 from .models import (
+    SYNC_ERRORS,
+    SYNC_MESSAGES,
+    BilingualMessage,
+    ConflictResolutionStrategy,
+    ConflictType,
+    EntityType,
     SyncConflict,
     SyncItem,
-    ConflictType,
-    ConflictResolutionStrategy,
-    EntityType,
-    BilingualMessage,
-    SYNC_MESSAGES,
-    SYNC_ERRORS,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Conflict Detection

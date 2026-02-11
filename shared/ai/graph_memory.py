@@ -24,7 +24,7 @@ import hashlib
 import math
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Callable
 from uuid import uuid4
@@ -935,8 +935,8 @@ class PersistentGraphStore(GraphStore):
         try:
             from .vector_store import (
                 VectorStore,
-                VectorStoreConfig,
                 VectorStoreBackend,
+                VectorStoreConfig,
             )
 
             config = VectorStoreConfig(

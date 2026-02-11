@@ -18,8 +18,8 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timezone
 from typing import Any
-from datetime import datetime, timezone, UTC
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -29,8 +29,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
@@ -47,14 +47,14 @@ sys.path.insert(
 )
 
 from shared.lowcode import (
-    LowCodeEngine,
+    AIComponentSuggester,
+    BlockConfig,
     ComponentCategory,
     DataModel,
     FieldDefinition,
     FieldType,
+    LowCodeEngine,
     PageDefinition,
-    BlockConfig,
-    AIComponentSuggester,
 )
 
 # Service configuration
@@ -230,7 +230,8 @@ class AISuggestionResponse(BaseModel):
 # These match the API format (id, field_type, component_name) for easier response handling
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from dataclasses import dataclass as internal_dataclass, field as internal_field
+from dataclasses import dataclass as internal_dataclass
+from dataclasses import field as internal_field
 
 
 @internal_dataclass

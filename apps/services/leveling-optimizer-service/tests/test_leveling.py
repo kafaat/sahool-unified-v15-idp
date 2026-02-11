@@ -6,12 +6,11 @@ Tests for Leveling Optimizer Service.
 
 import pytest
 from fastapi.testclient import TestClient
-
 from src.main import app
 from src.utils.leveling_algorithms import (
     LevelingOptimizer,
-    Point3D,
     PlaneParameters,
+    Point3D,
 )
 
 

@@ -21,11 +21,11 @@ from typing import Any
 
 try:
     from prometheus_client import (
+        REGISTRY,
         CollectorRegistry,
         Counter,
         Gauge,
         Histogram,
-        REGISTRY,
     )
 
     PROMETHEUS_AVAILABLE = True

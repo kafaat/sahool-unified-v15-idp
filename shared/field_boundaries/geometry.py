@@ -15,7 +15,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 
-
 # Earth radius in meters for geodesic calculations
 # نصف قطر الأرض بالمتر للحسابات الجيوديسية
 EARTH_RADIUS_M = 6371000.0

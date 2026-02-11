@@ -10,8 +10,8 @@ import logging
 from typing import Optional
 
 import numpy as np
-from scipy.spatial.transform import Rotation
 from pydantic import BaseModel
+from scipy.spatial.transform import Rotation
 
 logger = logging.getLogger(__name__)
 

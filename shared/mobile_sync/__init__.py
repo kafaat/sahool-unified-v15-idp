@@ -122,86 +122,82 @@ Delta sync for bandwidth efficiency:
 # Models
 # ─────────────────────────────────────────────────────────────────────────────
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Delta Sync
+# ─────────────────────────────────────────────────────────────────────────────
+from .delta import (
+    # Batch operations
+    BatchDeltaResult,
+    # Builder and Manager
+    DeltaPacketBuilder,
+    # Configuration
+    DeltaSyncConfig,
+    DeltaSyncManager,
+    DeltaSyncStats,
+    apply_delta,
+    compute_checksum,
+    # Core functions
+    compute_delta,
+    prepare_batch_upload,
+)
 from .models import (
-    # Enums
-    SyncStatus,
-    SyncPriority,
-    SyncDirection,
-    SyncOperationType,
-    ConflictType,
-    ConflictResolutionStrategy,
-    EntityType,
-    # Data models
-    BilingualMessage,
-    SyncMetadata,
-    SyncItem,
-    SyncConflict,
-    SyncProgress,
-    SyncSession,
-    SyncResult,
-    DeltaChange,
-    DeltaPacket,
+    SYNC_ERRORS,
     # Message dictionaries
     SYNC_MESSAGES,
-    SYNC_ERRORS,
+    # Data models
+    BilingualMessage,
+    ConflictResolutionStrategy,
+    ConflictType,
+    DeltaChange,
+    DeltaPacket,
+    EntityType,
+    SyncConflict,
+    SyncDirection,
+    SyncItem,
+    SyncMetadata,
+    SyncOperationType,
+    SyncPriority,
+    SyncProgress,
+    SyncResult,
+    SyncSession,
+    # Enums
+    SyncStatus,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Queue Management
 # ─────────────────────────────────────────────────────────────────────────────
-
 from .queue import (
+    PRIORITY_WEIGHTS,
+    PriorityQueueItem,
     SyncQueue,
     SyncQueueConfig,
     SyncQueueManager,
-    PriorityQueueItem,
-    PRIORITY_WEIGHTS,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Conflict Resolution
 # ─────────────────────────────────────────────────────────────────────────────
-
 from .resolver import (
+    ClientWinsResolver,
+    ConflictResolutionManager,
+    # Resolvers
+    ConflictResolver,
+    # Factory and Manager
+    ConflictResolverFactory,
+    CustomResolver,
+    FieldLevelMergeResolver,
+    # Supporting classes
+    FieldMergeRule,
+    LastWriteWinsResolver,
+    ManualMergeChoice,
+    ManualMergeResolver,
+    ResolutionConfig,
+    ServerWinsResolver,
     # Detection
     detect_conflict,
     find_conflicting_fields,
     is_auto_resolvable,
-    # Resolvers
-    ConflictResolver,
-    LastWriteWinsResolver,
-    ServerWinsResolver,
-    ClientWinsResolver,
-    FieldLevelMergeResolver,
-    ManualMergeResolver,
-    CustomResolver,
-    # Supporting classes
-    FieldMergeRule,
-    ManualMergeChoice,
-    # Factory and Manager
-    ConflictResolverFactory,
-    ConflictResolutionManager,
-    ResolutionConfig,
-)
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Delta Sync
-# ─────────────────────────────────────────────────────────────────────────────
-
-from .delta import (
-    # Core functions
-    compute_delta,
-    apply_delta,
-    compute_checksum,
-    # Configuration
-    DeltaSyncConfig,
-    # Builder and Manager
-    DeltaPacketBuilder,
-    DeltaSyncManager,
-    DeltaSyncStats,
-    # Batch operations
-    BatchDeltaResult,
-    prepare_batch_upload,
 )
 
 # ─────────────────────────────────────────────────────────────────────────────

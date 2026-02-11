@@ -16,7 +16,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from pathlib import Path as PathLib
 
 from fastapi import FastAPI
@@ -71,7 +71,8 @@ from .services.rules_engine import RulesEngine
 
 # Database module
 try:
-    from .database import init_db as init_database, close_pool, rules_repo
+    from .database import close_pool, rules_repo
+    from .database import init_db as init_database
 
     DB_MODULE_AVAILABLE = True
 except ImportError:

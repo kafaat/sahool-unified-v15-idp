@@ -3,9 +3,10 @@ Traceability Service - خدمة التتبع
 Product traceability and supply chain tracking
 """
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
 import os
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 
 @asynccontextmanager

@@ -10,7 +10,7 @@ This module provides astronomical calendar integration endpoints:
 import logging
 import os
 import sys
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -20,24 +20,24 @@ from sqlalchemy.orm import Session
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from ..database import get_db
-from ..repository import TaskRepository
 from ..exceptions import (
     AstronomicalServiceError,
     AstronomicalServiceTimeoutError,
     InvalidDateFormatError,
 )
-from ..validators import validate_date_string, sanitize_for_log
+from ..repository import TaskRepository
 from ..task_utils import (
-    TaskType,
-    TaskPriority,
     TaskCreateData,
+    TaskPriority,
+    TaskType,
     create_task_model,
     db_task_to_dict,
-    generate_task_id,
-    get_activity_translation,
     fetch_astronomical_best_days,
     fetch_astronomical_daily_data,
+    generate_task_id,
+    get_activity_translation,
 )
+from ..validators import sanitize_for_log, validate_date_string
 
 logger = logging.getLogger(__name__)
 

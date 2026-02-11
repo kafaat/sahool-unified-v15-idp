@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path as PathLib
 from typing import Literal
 from uuid import UUID
@@ -770,6 +770,7 @@ async def export_audit_logs(
     elif format == "csv":
         import csv
         import io
+
         from fastapi.responses import StreamingResponse
 
         output = io.StringIO()

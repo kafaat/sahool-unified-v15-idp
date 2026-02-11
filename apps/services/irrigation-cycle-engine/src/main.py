@@ -209,10 +209,10 @@ class IrrigationCycleEngine:
     def _load_yemen_data(self):
         """Load Yemen-specific data modules."""
         try:
-            from shared.yemen.crops import YEMEN_CROPS, get_yemen_crop
-            from shared.yemen.climate import YEMEN_CLIMATE_ZONES, get_climate_zone
-            from shared.yemen.soils import YEMEN_SOIL_PROFILES, get_soil_profile
             from shared.salinity import SalinityModule
+            from shared.yemen.climate import YEMEN_CLIMATE_ZONES, get_climate_zone
+            from shared.yemen.crops import YEMEN_CROPS, get_yemen_crop
+            from shared.yemen.soils import YEMEN_SOIL_PROFILES, get_soil_profile
 
             self._yemen_crops = YEMEN_CROPS
             self._get_yemen_crop = get_yemen_crop

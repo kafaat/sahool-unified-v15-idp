@@ -15,11 +15,11 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 from typing import Any
-import uuid
 
 import structlog
 

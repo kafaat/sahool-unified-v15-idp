@@ -14,20 +14,19 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import statistics
 from dataclasses import dataclass
 from datetime import date, timedelta
-from typing import Any
 from enum import StrEnum
-import statistics
+from typing import Any
 
 from .models import (
     CropType,
     SoilHealthIndicator,
     SoilHealthMeasurement,
-    SoilHealthTrend,
     SoilHealthReport,
+    SoilHealthTrend,
 )
-
 
 # =============================================================================
 # Enums and Constants - التعدادات والثوابت

@@ -12,23 +12,23 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import math
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import Any
 from statistics import mean, median, stdev
-import math
+from typing import Any
 
 from .models import (
-    PriceTrend,
-    TrendDirection,
-    MarketComparison,
-    SellingRecommendation,
-    Currency,
-    PriceUnit,
-    Country,
     CROP_TYPES,
+    Country,
+    Currency,
+    MarketComparison,
     MarketPriceErrors,
     MarketPriceException,
+    PriceTrend,
+    PriceUnit,
+    SellingRecommendation,
+    TrendDirection,
 )
 from .tracker import MarketPriceTracker, get_price_tracker
 

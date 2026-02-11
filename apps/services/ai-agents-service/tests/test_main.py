@@ -13,9 +13,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 

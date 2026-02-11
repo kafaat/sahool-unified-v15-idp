@@ -13,8 +13,8 @@ Requirements:
     pip install Pillow
 """
 
-import os
 import math
+import os
 from pathlib import Path
 
 try:

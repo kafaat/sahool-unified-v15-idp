@@ -7,8 +7,8 @@ Crew Service Integration
 Wraps the shared CrewAI module for use in the orchestrator.
 """
 
-import sys
 import os
+import sys
 from typing import Any
 
 import structlog

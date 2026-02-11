@@ -27,9 +27,10 @@ from fastapi import BackgroundTasks, FastAPI, Header, HTTPException, Request, st
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from pydantic import BaseModel, Field
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
+
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .agricultural_rules import AgriculturalAnalysis, AgriculturalRulesEngine
 

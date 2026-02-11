@@ -23,7 +23,7 @@ import os
 import tempfile
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -35,10 +35,16 @@ try:
     from shared.ai.auto_fix import (
         AutoFixEngine,
         CodeDiagnostics,
-        DiagnosticCategory as AutoFixCategory,
-        DiagnosticSeverity as AutoFixSeverity,
-        FixStrategy as AutoFixStrategy,
         ToolType,
+    )
+    from shared.ai.auto_fix import (
+        DiagnosticCategory as AutoFixCategory,
+    )
+    from shared.ai.auto_fix import (
+        DiagnosticSeverity as AutoFixSeverity,
+    )
+    from shared.ai.auto_fix import (
+        FixStrategy as AutoFixStrategy,
     )
 
     AUTO_FIX_AVAILABLE = True
@@ -56,9 +62,11 @@ except ImportError:
 # Import Observability integration
 try:
     from shared.ai.observability import (
-        AIAgentObservability,
         AgentContext as ObsContext,
+    )
+    from shared.ai.observability import (
         AgentErrorType,
+        AIAgentObservability,
         create_observability,
     )
 
@@ -69,8 +77,8 @@ except ImportError:
 # Import Tool Registry for dynamic tool management
 try:
     from shared.ai.tool_registry import (
-        ToolRegistry,
         Language,
+        ToolRegistry,
         get_tool_registry,
     )
 

@@ -48,9 +48,51 @@ from .models import (
     TokenPayload,
     User,
 )
+
+# Enhanced RBAC (New)
+from .rbac_enhanced import (
+    DEFAULT_ROLE_PERMISSIONS,
+    ROLE_HIERARCHY,
+    AccessContext,
+    AccessDecision,
+    PermissionAction,
+    RBACManager,
+    ResourceType,
+    SystemRole,
+    get_rbac_manager,
+    require_permission,
+)
 from .revocation_middleware import (
     RevocationCheckDependency,
     TokenRevocationMiddleware,
+)
+
+# Security Audit Logging (New)
+from .security_audit import (
+    SecurityAuditLogger,
+    SecurityEvent,
+    SecurityEventSeverity,
+    SecurityEventType,
+    audit_login_failed,
+    audit_login_success,
+    check_brute_force,
+    get_security_audit_logger,
+)
+
+# Security Enhancements (New)
+from .security_enhancements import (
+    PasswordPepper,
+    RefreshTokenRotationManager,
+    TokenFamily,
+    TokenFamilyStatus,
+    TokenFingerprint,
+    constant_time_compare,
+    create_fingerprint_hash,
+    generate_family_id,
+    generate_secure_jti,
+    generate_secure_token,
+    get_password_pepper,
+    get_rotation_manager,
 )
 from .service_auth import (
     ALLOWED_SERVICES,
@@ -80,11 +122,30 @@ from .service_middleware import (
     require_service_auth,
     verify_service_request,
 )
+
+# Session Management (New)
+from .session_manager import (
+    SessionInfo,
+    SessionManager,
+    SessionSecurityChecker,
+    SessionStatus,
+    generate_session_id,
+    get_session_manager,
+)
 from .token_revocation import (
     RedisTokenRevocationStore,
     is_token_revoked,
     revoke_all_user_tokens,
     revoke_token,
+)
+
+# Enhanced 2FA (New)
+from .twofa_enhanced import (
+    EnhancedTwoFactorAuth,
+    TwoFAConfig,
+    TwoFAMethod,
+    TwoFAStatus,
+    get_enhanced_2fa,
 )
 from .user_cache import (
     UserCache,
@@ -98,67 +159,6 @@ from .user_repository import (
     UserValidationData,
     get_user_repository,
     set_user_repository,
-)
-
-# Security Enhancements (New)
-from .security_enhancements import (
-    TokenFingerprint,
-    TokenFamily,
-    TokenFamilyStatus,
-    RefreshTokenRotationManager,
-    PasswordPepper,
-    get_rotation_manager,
-    get_password_pepper,
-    create_fingerprint_hash,
-    generate_secure_jti,
-    generate_family_id,
-    generate_secure_token,
-    constant_time_compare,
-)
-
-# Session Management (New)
-from .session_manager import (
-    SessionInfo,
-    SessionStatus,
-    SessionManager,
-    SessionSecurityChecker,
-    get_session_manager,
-    generate_session_id,
-)
-
-# Security Audit Logging (New)
-from .security_audit import (
-    SecurityEvent,
-    SecurityEventType,
-    SecurityEventSeverity,
-    SecurityAuditLogger,
-    get_security_audit_logger,
-    audit_login_success,
-    audit_login_failed,
-    check_brute_force,
-)
-
-# Enhanced 2FA (New)
-from .twofa_enhanced import (
-    TwoFAMethod,
-    TwoFAStatus,
-    TwoFAConfig,
-    EnhancedTwoFactorAuth,
-    get_enhanced_2fa,
-)
-
-# Enhanced RBAC (New)
-from .rbac_enhanced import (
-    SystemRole,
-    PermissionAction,
-    ResourceType,
-    AccessContext,
-    AccessDecision,
-    RBACManager,
-    get_rbac_manager,
-    require_permission,
-    ROLE_HIERARCHY,
-    DEFAULT_ROLE_PERMISSIONS,
 )
 
 __all__ = [

@@ -65,35 +65,58 @@ Updated: January 2026
 __version__ = "1.0.0"
 
 # Models
+# Consensus Protocols
+from .consensus import (
+    ConsensusManager,
+    ConsensusProtocol,
+    MajorityVoting,
+    QuorumConsensus,
+    RaftConsensus,
+    UnanimousConsensus,
+    WeightedVoting,
+    get_consensus_manager,
+    reach_consensus,
+)
+
+# Collective Memory
+from .memory import (
+    CollectiveMemory,
+    LRUCache,
+    cosine_similarity,
+    get_collective_memory,
+    jaccard_similarity,
+    reset_collective_memory,
+    text_similarity,
+)
 from .models import (
     # Enums
     AgentCapability,
-    ConsensusType,
-    MemoryNamespace,
-    SwarmTopology,
-    TaskPriority,
-    TaskStatus,
     # Agent Models
     AgentProfile,
     AgentScore,
     AgentState,
-    # Task Models
-    Task,
-    TaskResult,
+    # Consensus Models
+    ConsensusResult,
+    ConsensusType,
+    # Memory Models
+    MemoryEntry,
+    MemoryNamespace,
+    MemoryStats,
+    PatternMatch,
+    RouterStats,
+    # Routing Models
+    RoutingDecision,
     # Swarm Models
     SwarmConfig,
     SwarmResult,
     SwarmState,
-    # Consensus Models
-    ConsensusResult,
+    SwarmTopology,
+    # Task Models
+    Task,
+    TaskPriority,
+    TaskResult,
+    TaskStatus,
     Vote,
-    # Memory Models
-    MemoryEntry,
-    MemoryStats,
-    PatternMatch,
-    # Routing Models
-    RoutingDecision,
-    RouterStats,
 )
 
 # Router
@@ -105,38 +128,14 @@ from .router import (
 
 # Swarm Coordination
 from .swarm import (
-    SwarmCoordinator,
     AggregationStrategy,
-    MajorityVoteAggregation,
-    WeightedAverageAggregation,
-    ConcatenateAggregation,
     BestResultAggregation,
+    ConcatenateAggregation,
+    MajorityVoteAggregation,
+    SwarmCoordinator,
+    WeightedAverageAggregation,
     get_swarm_coordinator,
     reset_swarm_coordinator,
-)
-
-# Consensus Protocols
-from .consensus import (
-    ConsensusProtocol,
-    MajorityVoting,
-    WeightedVoting,
-    RaftConsensus,
-    UnanimousConsensus,
-    QuorumConsensus,
-    ConsensusManager,
-    get_consensus_manager,
-    reach_consensus,
-)
-
-# Collective Memory
-from .memory import (
-    CollectiveMemory,
-    LRUCache,
-    cosine_similarity,
-    jaccard_similarity,
-    text_similarity,
-    get_collective_memory,
-    reset_collective_memory,
 )
 
 __all__ = [

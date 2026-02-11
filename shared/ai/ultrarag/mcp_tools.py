@@ -9,6 +9,7 @@ from typing import Any, Callable
 
 import structlog
 
+from .knowledge_base import KnowledgeBase
 from .models import (
     GenerationMode,
     RAGRequest,
@@ -16,7 +17,6 @@ from .models import (
     RetrievalStrategy,
 )
 from .pipeline import RAGPipeline
-from .knowledge_base import KnowledgeBase
 
 logger = structlog.get_logger(__name__)
 

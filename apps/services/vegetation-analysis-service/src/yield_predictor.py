@@ -17,7 +17,7 @@ import math
 # Import shared crop catalog
 import sys
 from dataclasses import dataclass
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from pathlib import Path
 from typing import Optional
 

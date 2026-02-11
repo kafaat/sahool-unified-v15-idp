@@ -2,9 +2,10 @@
 soil-analysis-service - Soil analysis and recommendations - تحليل التربة والتوصيات
 """
 
-from contextlib import asynccontextmanager
-from fastapi import FastAPI
 import os
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
 
 
 @asynccontextmanager

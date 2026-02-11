@@ -15,19 +15,18 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from .models import (
+    SYNC_MESSAGES,
+    BilingualMessage,
     DeltaChange,
     DeltaPacket,
+    EntityType,
     SyncItem,
     SyncOperationType,
-    EntityType,
-    BilingualMessage,
-    SYNC_MESSAGES,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Delta Configuration

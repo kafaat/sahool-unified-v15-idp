@@ -6,14 +6,13 @@ Contains registered pesticides with PHI/REI information
 from __future__ import annotations
 
 from .models import (
+    MixCompatibility,
     Pesticide,
     PesticideCategory,
-    ToxicityClass,
-    PPERequirement,
     PPELevel,
-    MixCompatibility,
+    PPERequirement,
+    ToxicityClass,
 )
-
 
 # Standard PPE configurations
 PPE_MINIMAL = PPERequirement(

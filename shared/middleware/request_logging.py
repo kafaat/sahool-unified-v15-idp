@@ -28,7 +28,7 @@ import json
 import logging
 import time
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint

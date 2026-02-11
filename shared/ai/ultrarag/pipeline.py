@@ -21,6 +21,11 @@ from .models import (
     RetrievalResult,
     RetrievalStrategy,
 )
+from .reranker import (
+    RerankConfig,
+    Reranker,
+    get_reranker,
+)
 from .retriever import (
     AdaptiveRetriever,
     DenseRetriever,
@@ -30,11 +35,6 @@ from .retriever import (
     Retriever,
     SparseRetriever,
     TriRAGRetriever,
-)
-from .reranker import (
-    get_reranker,
-    RerankConfig,
-    Reranker,
 )
 
 logger = structlog.get_logger(__name__)

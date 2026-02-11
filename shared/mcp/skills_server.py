@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -79,8 +79,8 @@ class SAHOOLSkillsTools:
         """Initialize context compression engine"""
         try:
             from shared.ai.context_engineering.compression import (
-                ContextCompressor,
                 CompressionStrategy,
+                ContextCompressor,
             )
 
             self.compressor = ContextCompressor(

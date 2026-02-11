@@ -18,21 +18,20 @@ sys.path.insert(0, project_root)
 
 # Import from shared.lowcode
 from shared.lowcode import (
-    LowCodeEngine,
+    AIComponentSuggester,
+    BlockConfig,
     ComponentCategory,
     ComponentMaterial,
-    PropDefinition,
-    SlotDefinition,
-    EventDefinition,
     DataModel,
+    EventDefinition,
     FieldDefinition,
     FieldType,
+    LowCodeEngine,
     PageDefinition,
-    BlockConfig,
     PluginBase,
-    AIComponentSuggester,
+    PropDefinition,
+    SlotDefinition,
 )
-
 
 # ============================================================================
 # Test Component Registration

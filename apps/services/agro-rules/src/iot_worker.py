@@ -6,7 +6,7 @@ Subscribes to sensor events and creates tasks
 import asyncio
 import json
 import os
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from nats.aio.client import Client as NATS
 

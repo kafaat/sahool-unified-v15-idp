@@ -35,7 +35,7 @@ try:
 except ImportError:
     SKIMAGE_AVAILABLE = False
 
-from .dem_processor import DEMData, DEMBounds
+from .dem_processor import DEMBounds, DEMData
 
 logger = structlog.get_logger()
 

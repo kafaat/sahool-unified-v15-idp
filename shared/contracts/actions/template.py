@@ -13,7 +13,7 @@ SAHOOL Action Template
 from __future__ import annotations
 
 import uuid
-from datetime import date, datetime, time, UTC
+from datetime import UTC, date, datetime, time
 from typing import Any
 
 from pydantic import BaseModel, Field

@@ -3,7 +3,7 @@ SAHOOL Notification Service - Database Models
 نماذج قاعدة البيانات - Tortoise ORM
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 
 from tortoise import fields

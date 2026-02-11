@@ -16,18 +16,18 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
-import uuid
 
 from .models import (
-    SharedResource,
-    ResourceBooking,
-    ResourceType,
-    ResourceStatus,
     CooperativeMember,
+    ResourceBooking,
+    ResourceStatus,
+    ResourceType,
+    SharedResource,
 )
 
 

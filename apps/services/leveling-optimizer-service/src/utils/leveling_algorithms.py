@@ -11,8 +11,9 @@ This module implements:
 """
 
 import math
-from typing import List, Tuple, Optional, Dict
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 
 

@@ -9,7 +9,7 @@ and comprehensive delivery analytics.
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 from typing import Any, Callable
 from uuid import UUID

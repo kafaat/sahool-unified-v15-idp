@@ -16,12 +16,12 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+from decimal import Decimal
 from enum import StrEnum
 from typing import Any
-from decimal import Decimal
-import uuid
 
 
 class CooperativeType(StrEnum):

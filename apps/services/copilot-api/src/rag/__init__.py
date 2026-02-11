@@ -5,13 +5,13 @@ Copilot RAG Module
 Retrieval-Augmented Generation with Qdrant vector search.
 """
 
-from .service import (
-    CopilotRAGService,
-    get_rag_service,
-)
 from .embeddings import (
     EmbeddingService,
     get_embedding_service,
+)
+from .service import (
+    CopilotRAGService,
+    get_rag_service,
 )
 
 __all__ = [

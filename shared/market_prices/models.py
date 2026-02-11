@@ -12,13 +12,13 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import json
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, UTC
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any
-import uuid
-import json
 
 
 class Currency(StrEnum):

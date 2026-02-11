@@ -14,13 +14,13 @@ Handles:
 import structlog
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request, Response
 
+from ...core.config import settings
 from ..schemas import (
     SendMessageRequest,
     SendMessageResponse,
     SendTemplateRequest,
     WhatsAppWebhookPayload,
 )
-from ...core.config import settings
 
 logger = structlog.get_logger(__name__)
 

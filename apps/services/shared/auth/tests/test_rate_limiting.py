@@ -25,18 +25,17 @@ from fastapi import HTTPException, Request, status
 # Add parent module path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from middleware.rate_limiter import (
+    InMemoryRateLimiter,
+    RateLimitConfig,
+    RateLimiter,
+)
 from rate_limiting import (
     AUTH_RATE_CONFIGS,
     AuthRateLimitConfigs,
     AuthRateLimiter,
     get_auth_rate_limiter,
 )
-from middleware.rate_limiter import (
-    InMemoryRateLimiter,
-    RateLimitConfig,
-    RateLimiter,
-)
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures

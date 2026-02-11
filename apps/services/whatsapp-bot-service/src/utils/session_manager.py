@@ -13,7 +13,7 @@ Handles:
 
 import json
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 
 import structlog

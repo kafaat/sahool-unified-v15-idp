@@ -5,7 +5,7 @@ Processes field events and triggers appropriate rules
 
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import httpx

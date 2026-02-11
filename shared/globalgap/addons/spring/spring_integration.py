@@ -12,7 +12,7 @@ usage alerts, and seasonal pattern tracking.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from enum import StrEnum
 from typing import Any
 
@@ -524,8 +524,8 @@ class SpringIntegration:
         self, start_date: date, end_date: date
     ) -> list[dict[str, Any]]:
         """Generate realistic mock water usage records for the period"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         records = []
         current_date = start_date
@@ -592,8 +592,8 @@ class SpringIntegration:
         self, start_date: date, end_date: date
     ) -> list[dict[str, Any]]:
         """Generate realistic mock soil moisture sensor readings"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         readings = []
         current_date = start_date
@@ -636,8 +636,8 @@ class SpringIntegration:
 
     def _generate_mock_weather_data(self, start_date: date, end_date: date) -> dict[str, Any]:
         """Generate realistic mock weather data for the period"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         weather_records = []
         current_date = start_date
@@ -680,8 +680,8 @@ class SpringIntegration:
         self, start_date: date, end_date: date
     ) -> list[dict[str, Any]]:
         """Generate realistic mock irrigation schedules for planned events"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         schedules = []
         current_date = start_date

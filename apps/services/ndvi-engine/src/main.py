@@ -26,10 +26,9 @@ from pydantic import BaseModel, Field
 # Import authentication dependencies
 try:
     sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
     AUTH_AVAILABLE = True
 except ImportError:

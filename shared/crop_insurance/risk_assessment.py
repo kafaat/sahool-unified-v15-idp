@@ -16,18 +16,18 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from datetime import date
 from decimal import Decimal
 from typing import Any
-import math
 
 from shared.crop_insurance.models import (
-    RiskLevel,
-    RiskFactor,
+    CoverageType,
     FieldRiskProfile,
     InsuranceType,
-    CoverageType,
+    RiskFactor,
+    RiskLevel,
 )
 
 

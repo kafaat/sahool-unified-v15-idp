@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from ...core.config import settings
 from ..schemas import (
     DeliveryStatus,
     DeliveryStatusEnum,
@@ -16,7 +17,6 @@ from ..schemas import (
     OrderListResponse,
     OrderStatus,
 )
-from ...core.config import settings
 
 logger = structlog.get_logger()
 

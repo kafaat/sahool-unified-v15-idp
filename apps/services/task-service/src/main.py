@@ -150,7 +150,7 @@ async def task_service_error_handler(request: Request, exc: TaskServiceError):
 # Route Registration - تسجيل المسارات
 # ═══════════════════════════════════════════════════════════════════════════
 
-from .routes import tasks_router, astronomical_router, ndvi_router
+from .routes import astronomical_router, ndvi_router, tasks_router
 
 # Register routers
 app.include_router(tasks_router)

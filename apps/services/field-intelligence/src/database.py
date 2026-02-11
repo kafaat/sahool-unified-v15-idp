@@ -18,12 +18,11 @@ This module provides:
 import json
 import logging
 import os
+import ssl
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
-
-import ssl
 
 import asyncpg
 from asyncpg.pool import Pool

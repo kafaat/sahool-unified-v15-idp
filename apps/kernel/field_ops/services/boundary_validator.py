@@ -38,7 +38,6 @@ from shapely.geometry import (
 from shapely.ops import unary_union
 from shapely.validation import explain_validity, make_valid
 
-
 # ============== الثوابت - Constants ==============
 
 # حدود اليمن الجغرافية - Yemen geographic bounds

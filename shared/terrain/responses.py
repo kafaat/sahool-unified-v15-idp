@@ -505,7 +505,7 @@ def geojson_collection_response(
 
     if include_bbox and features:
         # Calculate bounding box from features
-        from .geojson_utils import merge_bboxes, calculate_bbox_polygon
+        from .geojson_utils import calculate_bbox_polygon, merge_bboxes
 
         bboxes = []
         for f in features:

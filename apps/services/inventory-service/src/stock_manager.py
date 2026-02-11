@@ -2,7 +2,7 @@
 Stock Manager - Handles FIFO batch consumption and stock operations
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement

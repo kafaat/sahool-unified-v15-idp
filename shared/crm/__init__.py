@@ -18,17 +18,17 @@ Updated: January 2026
 from .farmer_crm import (
     # Enums
     DealStage,
-    FarmerStatus,
-    InteractionType,
     # Models
     Farmer,
-    HarvestDeal,
-    Interaction,
-    Payment,
-    SupplyContract,
     # Services
     FarmerCRMService,
     FarmerQueryBot,
+    FarmerStatus,
+    HarvestDeal,
+    Interaction,
+    InteractionType,
+    Payment,
+    SupplyContract,
 )
 
 __all__ = [

@@ -25,7 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.api.endpoints import analysis, detection
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
 from src.core.config import settings
-from src.models.yolo26_manager import YOLO26ModelManager, ModelTask, get_model_manager
+from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
 
 # Configure structured logging
 structlog.configure(

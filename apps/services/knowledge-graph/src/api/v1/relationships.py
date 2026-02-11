@@ -3,8 +3,9 @@ Relationship API endpoints
 نقاط نهاية API العلاقات
 """
 
+from typing import List, Optional
+
 from fastapi import APIRouter, HTTPException, Query
-from typing import Optional, List
 
 from models import RelationshipType
 

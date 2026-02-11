@@ -18,20 +18,20 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Protocol
 from uuid import UUID
+
 import structlog
 
+from .collaborative_engine import HMCIrrigationEngine
 from .models import (
+    DecisionSession,
     ExperienceRule,
     ExperienceSource,
     IrrigationProgram,
-    DecisionSession,
     SessionOutcome,
 )
-from .collaborative_engine import HMCIrrigationEngine
-
 
 logger = structlog.get_logger(__name__)
 

@@ -10,7 +10,7 @@ for farmers, harvest deals, and interactions.
 from __future__ import annotations
 
 import json
-from datetime import datetime, date, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from typing import Any
 from uuid import UUID
 

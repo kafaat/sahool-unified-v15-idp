@@ -31,7 +31,7 @@ from __future__ import annotations
 import re
 import time
 from collections import OrderedDict
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from threading import RLock
 from typing import Any, Callable, TypeVar
 from uuid import uuid4

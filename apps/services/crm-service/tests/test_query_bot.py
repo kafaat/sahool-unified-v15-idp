@@ -20,7 +20,7 @@ import sys
 from datetime import datetime
 from enum import Enum, StrEnum
 from typing import Any
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 

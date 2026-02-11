@@ -11,32 +11,31 @@ from harvest to consumer, with full event history and verification.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Callable
 from uuid import uuid4
 
 from .models import (
-    ProduceBatch,
     BatchStatus,
-    EventType,
-    QualityGrade,
-    StorageCondition,
-    TransportMode,
-    SupplyChainEvent,
-    HarvestEvent,
-    ProcessingEvent,
-    StorageEvent,
-    TransportEvent,
-    RetailEvent,
-    ConsumerScanEvent,
-    ProductJourney,
-    ProductJourneyStep,
     BatchTraceReport,
     Certification,
-    Producer,
+    ConsumerScanEvent,
+    EventType,
     GeoLocation,
+    HarvestEvent,
+    ProcessingEvent,
+    ProduceBatch,
+    Producer,
+    ProductJourney,
+    ProductJourneyStep,
+    QualityGrade,
+    RetailEvent,
+    StorageCondition,
+    StorageEvent,
+    SupplyChainEvent,
+    TransportEvent,
+    TransportMode,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Type Metadata - بيانات أنواع الأحداث الوصفية

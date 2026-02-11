@@ -37,17 +37,17 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
+
 import structlog
 
 from .models import (
-    CollaborativeChecklistItem,
     ChecklistDimension,
+    CollaborativeChecklistItem,
     ValidationReport,
 )
-
 
 logger = structlog.get_logger(__name__)
 

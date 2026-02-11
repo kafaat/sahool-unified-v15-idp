@@ -23,23 +23,23 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
+    AgentCapability,
     AgentMode,
     AgentStep,
     AgentTool,
-    AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
     ConsensusType,
     MemoryType,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 

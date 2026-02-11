@@ -6,6 +6,7 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+import enum
 import os
 import sys
 from datetime import datetime
@@ -13,7 +14,6 @@ from typing import Any, Generator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-import enum
 
 # Set test environment variables before importing the app
 os.environ["ENVIRONMENT"] = "test"
@@ -107,8 +107,8 @@ def setup_mocks():
 # Create agents module mock separately
 def create_agents_mock():
     """Create mock for shared.ai.agents module."""
-    from enum import Enum
     from dataclasses import dataclass, field
+    from enum import Enum
     from typing import Any
 
     class AgentMode(enum.StrEnum):
@@ -266,11 +266,11 @@ def mock_shared_modules():
 @pytest.fixture
 def client() -> Generator:
     """Create a test client for the FastAPI app."""
-    from fastapi.testclient import TestClient
-
     # Import the app after mocking
     import importlib
+
     import src.main as main_module
+    from fastapi.testclient import TestClient
 
     # Reload the module to apply mocks
     importlib.reload(main_module)

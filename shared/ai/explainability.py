@@ -15,11 +15,11 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
-from datetime import datetime, UTC
-import json
 
 
 class ExplanationType(StrEnum):

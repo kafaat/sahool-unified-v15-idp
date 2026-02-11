@@ -18,14 +18,13 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import json
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Callable
-import uuid
-import json
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Core Types & Enums

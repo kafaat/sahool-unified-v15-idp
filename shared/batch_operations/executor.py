@@ -16,12 +16,12 @@ import asyncio
 import logging
 import time
 from abc import ABC, abstractmethod
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable, Coroutine, Generic, TypeVar
 
 from .models import (
-    AlertAcknowledgment,
     BATCH_MESSAGES,
+    AlertAcknowledgment,
     BatchConfig,
     BatchOperation,
     BatchOperationType,

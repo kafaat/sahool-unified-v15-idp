@@ -18,22 +18,21 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from .models import (
+    AlertPriority,
+    CropType,
+    InfestationLevel,
+    PestAlert,
+    PestLifeStage,
+    ScoutReport,
     TreatmentRecommendation,
     TreatmentType,
     TreatmentUrgency,
-    CropType,
-    PestLifeStage,
-    PestAlert,
-    ScoutReport,
-    InfestationLevel,
-    AlertPriority,
 )
 from .thresholds import ThresholdAssessment
-
 
 # =============================================================================
 # TREATMENT OPTIONS DATABASE - قاعدة بيانات خيارات العلاج

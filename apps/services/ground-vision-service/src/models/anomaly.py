@@ -6,6 +6,7 @@ Based on: Qin et al. (2026) - Unusual event detection in agricultural monitoring
 from datetime import datetime
 from enum import Enum, StrEnum
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 

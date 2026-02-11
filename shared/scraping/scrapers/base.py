@@ -18,7 +18,8 @@ from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, TypeVar
 
-from playwright.async_api import Page, TimeoutError as PlaywrightTimeout
+from playwright.async_api import Page
+from playwright.async_api import TimeoutError as PlaywrightTimeout
 
 from ..browser import BrowserManager
 from ..config import RateLimitConfig, RetryConfig, ScrapingConfig, get_config

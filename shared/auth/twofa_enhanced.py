@@ -37,7 +37,7 @@ except ImportError:
     REDIS_AVAILABLE = False
 
 from .config import config
-from .twofa_service import TwoFactorAuthService, TOTP_INTERVAL
+from .twofa_service import TOTP_INTERVAL, TwoFactorAuthService
 
 logger = logging.getLogger(__name__)
 

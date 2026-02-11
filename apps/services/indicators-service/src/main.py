@@ -8,7 +8,7 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 
@@ -21,6 +21,7 @@ from fastapi import FastAPI, HTTPException, Query
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 logger = structlog.get_logger()

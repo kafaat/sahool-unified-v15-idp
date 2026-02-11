@@ -6,16 +6,16 @@ Track fertilizer inventory, consumption, and reorder alerts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from decimal import Decimal
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 from .models import (
     Fertilizer,
+    FertilizerApplication,
     InventoryItem,
     InventoryStatus,
-    FertilizerApplication,
 )
 
 

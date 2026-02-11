@@ -22,15 +22,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .models import (
-    EconomicThreshold,
-    CropType,
-    InfestationLevel,
     AlertPriority,
+    CropType,
+    EconomicThreshold,
+    InfestationLevel,
     PestAlert,
     ScoutObservation,
     ScoutReport,
 )
-
 
 # =============================================================================
 # THRESHOLD DATABASE - قاعدة بيانات العتبات

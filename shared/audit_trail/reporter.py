@@ -20,7 +20,7 @@ import csv
 import io
 import json
 from collections import Counter
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import structlog

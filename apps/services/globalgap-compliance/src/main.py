@@ -7,7 +7,7 @@ Port: 8120
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import structlog

@@ -37,9 +37,9 @@ try:
     from rasterio.enums import Resampling
     from rasterio.fill import fillnodata
     from rasterio.io import MemoryFile
+    from rasterio.mask import mask as rasterio_mask
     from rasterio.merge import merge
     from rasterio.warp import calculate_default_transform, reproject
-    from rasterio.mask import mask as rasterio_mask
     from shapely.geometry import box, mapping, shape
 
     RASTERIO_AVAILABLE = True

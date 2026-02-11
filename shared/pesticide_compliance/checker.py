@@ -5,23 +5,23 @@ Main compliance checking logic for PHI, REI, tank mix, and drift risk
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
+from .database import (
+    PPE_ENHANCED,
+    PPE_MAXIMUM,
+    get_pesticide,
+)
 from .models import (
-    PesticideApplication,
-    PHIViolation,
-    REIViolation,
-    TankMixCompatibility,
-    PPERequirement,
-    SprayDriftRisk,
     ComplianceCheck,
     ComplianceStatus,
     MixCompatibility,
-)
-from .database import (
-    get_pesticide,
-    PPE_ENHANCED,
-    PPE_MAXIMUM,
+    PesticideApplication,
+    PHIViolation,
+    PPERequirement,
+    REIViolation,
+    SprayDriftRisk,
+    TankMixCompatibility,
 )
 
 

@@ -6,6 +6,7 @@ Based on: Qin et al. (2026) - MLLM-based crop timeline analysis
 from datetime import datetime
 from enum import Enum, StrEnum
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 

@@ -31,7 +31,7 @@ from __future__ import annotations
 import math
 import random
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 import structlog
@@ -41,8 +41,8 @@ from .models import (
     AgentProfile,
     AgentScore,
     AgentState,
-    RoutingDecision,
     RouterStats,
+    RoutingDecision,
     Task,
     TaskResult,
 )

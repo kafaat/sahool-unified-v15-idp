@@ -21,7 +21,7 @@ import re
 import sys
 import traceback
 from contextvars import ContextVar
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 # Context variables for request tracing

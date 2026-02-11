@@ -15,7 +15,7 @@ import base64
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from io import BytesIO
 from urllib.parse import urlencode
@@ -284,10 +284,10 @@ class QRCodeGenerator:
         try:
             import qrcode
             from qrcode.constants import (
+                ERROR_CORRECT_H,
                 ERROR_CORRECT_L,
                 ERROR_CORRECT_M,
                 ERROR_CORRECT_Q,
-                ERROR_CORRECT_H,
             )
         except ImportError:
             return b"", ""

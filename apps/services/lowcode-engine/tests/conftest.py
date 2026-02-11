@@ -56,20 +56,19 @@ sys.modules["shared.auth.models"].User = MagicMock
 # ============================================================================
 
 from shared.lowcode import (
-    LowCodeEngine,
+    AIComponentSuggester,
+    BlockConfig,
     ComponentCategory,
+    ComponentMaterial,
     DataModel,
+    EventDefinition,
     FieldDefinition,
     FieldType,
+    LowCodeEngine,
     PageDefinition,
-    BlockConfig,
-    AIComponentSuggester,
     PropDefinition,
     SlotDefinition,
-    EventDefinition,
-    ComponentMaterial,
 )
-
 
 # ============================================================================
 # Engine Fixtures

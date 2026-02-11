@@ -11,9 +11,9 @@ from typing import Any
 import structlog
 
 from .models import (
-    RetrievalResult,
-    RerankResult,
     RerankingMethod,
+    RerankResult,
+    RetrievalResult,
 )
 
 logger = structlog.get_logger(__name__)

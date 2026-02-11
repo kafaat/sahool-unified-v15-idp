@@ -6,7 +6,7 @@ MIGRATION NOTE: This service now calls field-management-service:3000 instead of 
 """
 
 import os
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 import httpx
 

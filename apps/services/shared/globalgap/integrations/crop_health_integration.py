@@ -10,7 +10,7 @@ Links with crop-health-ai service to:
 
 import logging
 from dataclasses import asdict, dataclass
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

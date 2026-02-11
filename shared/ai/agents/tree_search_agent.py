@@ -18,23 +18,23 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+import math
+import uuid
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
-import uuid
-import math
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
-    BaseAutonomousAgent,
     AgentMode,
     AgentStep,
+    BaseAutonomousAgent,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 

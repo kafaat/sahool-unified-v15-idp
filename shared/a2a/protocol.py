@@ -9,7 +9,7 @@ Core protocol message types, state management, and conversation handling.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
 from typing import Any
 

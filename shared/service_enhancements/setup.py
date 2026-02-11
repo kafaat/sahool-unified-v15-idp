@@ -163,10 +163,11 @@ def _setup_exception_handlers(app: FastAPI) -> None:
 
 def _setup_default_exception_handlers(app: FastAPI) -> None:
     """Setup basic exception handlers when shared module not available."""
+    import uuid
+
     from fastapi import HTTPException, status
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
-    import uuid
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
@@ -286,7 +287,7 @@ def _setup_security_headers(app: FastAPI) -> None:
 
 def _setup_health_endpoints(app: FastAPI, config: ServiceConfig) -> None:
     """Setup standard health check endpoints."""
-    from datetime import datetime, UTC
+    from datetime import UTC, datetime
 
     @app.get(config.health_path, tags=["Health"])
     def health():

@@ -343,13 +343,19 @@ jobs:
 
       - name: Pre-pull BuildKit image
         run: |
-          for i in 1 2 3 4; do
-            if docker pull moby/buildkit:v0.12.5; then
+          for i in 1 2 3 4 5 6; do
+            echo "Attempt $i: Pulling moby/buildkit:v0.12.5..."
+            if timeout 120 docker pull moby/buildkit:v0.12.5; then
               echo "✅ Successfully pulled buildkit image"
               exit 0
             fi
-            sleep $((i * 5))
+            # Exponential backoff: 15s, 30s, 60s, 120s, 240s, 300s
+            WAIT_TIME=$((15 * (2 ** (i - 1))))
+            if [ $WAIT_TIME -gt 300 ]; then WAIT_TIME=300; fi
+            echo "⚠️ Pull failed, waiting ${WAIT_TIME} seconds before retry..."
+            sleep $WAIT_TIME
           done
+          echo "❌ Failed to pull buildkit after 6 attempts, continuing anyway..."
         continue-on-error: true
 
       - name: Set up Docker Buildx
@@ -442,6 +448,8 @@ jobs:
           build-args: |
             BUILD_DATE=${{ github.event.repository.updated_at }}
             VCS_REF=${{ github.sha }}
+        # Continue on transient Docker Hub errors
+        continue-on-error: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Container Security Scan

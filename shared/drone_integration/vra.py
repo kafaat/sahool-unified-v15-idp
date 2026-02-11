@@ -262,7 +262,7 @@ class VRAGenerator:
             PrescriptionMap | خريطة الوصفة
         """
         rows = len(ndvi_data)
-        cols = len(ndvi_data[0]) if rows > 0 else 0
+        len(ndvi_data[0]) if rows > 0 else 0
 
         # Convert to raster data structure
         raster = self._create_raster_from_array(

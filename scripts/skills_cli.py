@@ -149,7 +149,6 @@ def compress_text(
     if level == CompressionLevel.LIGHT:
         # Remove redundant spaces, minimal changes
         compressed = " ".join(text.split())
-        target_ratio = 0.8
     elif level == CompressionLevel.MEDIUM:
         # Remove extra spaces, condense repetitions
         compressed = " ".join(text.split())
@@ -157,13 +156,11 @@ def compress_text(
         import re
 
         compressed = re.sub(r"\b(\w+)\s+\1\b", r"\1", compressed)
-        target_ratio = 0.5
     else:  # HEAVY
         # Extract key terms only (simulated)
         words = text.split()
         # Keep ~25% of words (every 4th word)
         compressed = " ".join(words[::4]) if len(words) > 4 else text
-        target_ratio = 0.25
 
     compressed_tokens = estimate_tokens(compressed)
     actual_ratio = compressed_tokens / max(original_tokens, 1)

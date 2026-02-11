@@ -414,7 +414,7 @@ async def batch_insert(
     num_batches = (len(records) + batch_size - 1) // batch_size
 
     # Build base SQL
-    placeholders = ", ".join(
+    ", ".join(
         f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})"
         for j in range(min(batch_size, len(records)))
     )

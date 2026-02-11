@@ -456,16 +456,13 @@ class IrrigationCycleEngine:
         if soil_data:
             fc = soil_data.field_capacity
             wp = soil_data.wilting_point
-            bd = soil_data.bulk_density
         else:
-            fc, wp, bd = 0.28, 0.12, 1.40
+            fc, wp, _bd = 0.28, 0.12, 1.40
 
         schedule: list[ScheduleDay] = []
         cumulative_water = 0.0
         irrigation_events = 0
         soil_moisture = fc  # Start at field capacity
-        current_stage_idx = 0
-        days_in_stage = 0
 
         for day_offset in range(req.days):
             current_date = req.start_date + timedelta(days=day_offset)

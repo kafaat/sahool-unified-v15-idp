@@ -597,7 +597,7 @@ class ContentRecommender:
 
         # Time availability (based on weekly goal)
         weekly_minutes = profile.weekly_learning_goal_minutes
-        course_weeks = max(1, course.estimated_duration_minutes / 60)  # Assume 1 hour/week
+        max(1, course.estimated_duration_minutes / 60)  # Assume 1 hour/week
 
         if weekly_minutes >= 120:  # 2+ hours/week
             score += 20

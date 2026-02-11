@@ -1272,7 +1272,6 @@ class WaterReportScheduler:
 
         elif report_type == "water_quality":
             # Bi-annual reports (every 6 months)
-            months_since_last = 6
             if last_report_date:
                 months_diff = (today.year - last_report_date.year) * 12 + (
                     today.month - last_report_date.month

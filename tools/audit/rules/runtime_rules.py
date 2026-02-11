@@ -31,12 +31,10 @@ def check_healthchecks_defined(repo_root: Path) -> list:
     # Find services without healthchecks
     # Simple regex to find service blocks
     service_pattern = r"^\s{2}(\w[\w-]*):\s*$"
-    healthcheck_pattern = r"healthcheck:"
 
     lines = content.split("\n")
     current_service = None
     service_has_healthcheck = {}
-    indent_level = 0
 
     for i, line in enumerate(lines):
         # Check for service definition (2 spaces indent)
@@ -44,7 +42,6 @@ def check_healthchecks_defined(repo_root: Path) -> list:
         if service_match and not line.strip().startswith("#"):
             current_service = service_match.group(1)
             service_has_healthcheck[current_service] = False
-            indent_level = 2
 
         # Check for healthcheck in current service
         if current_service and "healthcheck:" in line:

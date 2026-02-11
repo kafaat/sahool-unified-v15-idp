@@ -741,7 +741,6 @@ class MessageHandler:
         session: ConversationState,
     ) -> None:
         """Send greeting message with main menu."""
-        is_arabic = session.language == Language.ARABIC
         name = session.profile.name if session.profile else None
 
         greeting = self.response_builder.build_greeting(

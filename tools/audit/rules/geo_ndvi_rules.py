@@ -137,7 +137,6 @@ def check_ndvi_async_processing(repo_root: Path) -> list:
             continue
 
         # Check for async patterns
-        has_async = "async def" in content or "asyncio" in content
         has_background = (
             "BackgroundTasks" in content
             or "celery" in content.lower()

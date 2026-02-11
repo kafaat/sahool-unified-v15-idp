@@ -729,7 +729,7 @@ class DEMProcessor:
             if num_features > 0:
                 # Get indices of valid data
                 valid_indices = np.where(~mask)
-                valid_values = filled[valid_indices]
+                filled[valid_indices]
 
                 # For each nodata point, find nearest valid point
                 distances, indices = distance_transform_edt(

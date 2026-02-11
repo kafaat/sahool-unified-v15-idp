@@ -463,7 +463,7 @@ class AuditReportGenerator:
         ]
 
         # Field operations for traceability
-        field_ops = [e for e in entries if e.category == AuditCategory.FIELD_OPS]
+        [e for e in entries if e.category == AuditCategory.FIELD_OPS]
 
         # Statistics
         entries_by_category = Counter(e.category.value for e in entries)
@@ -550,7 +550,7 @@ class AuditReportGenerator:
         failed_logins = [e for e in security_entries if e.action == AuditActionType.LOGIN_FAILED]
 
         # Permission changes
-        permission_changes = [
+        [
             e
             for e in security_entries
             if e.action
@@ -563,14 +563,14 @@ class AuditReportGenerator:
         ]
 
         # Password changes
-        password_changes = [
+        [
             e
             for e in security_entries
             if e.action in [AuditActionType.PASSWORD_CHANGE, AuditActionType.PASSWORD_RESET]
         ]
 
         # 2FA changes
-        twofa_changes = [
+        [
             e
             for e in security_entries
             if e.action in [AuditActionType.TWOFA_ENABLED, AuditActionType.TWOFA_DISABLED]

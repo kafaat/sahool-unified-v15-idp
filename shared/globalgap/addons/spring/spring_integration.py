@@ -597,7 +597,6 @@ class SpringIntegration:
 
         readings = []
         current_date = start_date
-        sensor_counter = 1
 
         # Define sensor locations (one per field)
         sensors = [

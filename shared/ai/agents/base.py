@@ -648,7 +648,7 @@ class BaseAutonomousAgent(ABC):
     ) -> StepResult:
         """Execute a single step with validation."""
         step.status = "in_progress"
-        start_time = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Loop detection
         step_hash = f"{step.tool_name}:{hash(str(step.tool_input))}"

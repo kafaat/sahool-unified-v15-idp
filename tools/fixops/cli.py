@@ -32,7 +32,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig, run_fixops
+from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
 
 
 def parse_args() -> argparse.Namespace:

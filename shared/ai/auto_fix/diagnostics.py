@@ -1231,7 +1231,7 @@ class CodeDiagnostics:
         try:
             # Determine language config
             suffix = Path(file_path).suffix.lower()
-            lang_config = {
+            {
                 ".py": "python",
                 ".js": "javascript",
                 ".ts": "typescript",

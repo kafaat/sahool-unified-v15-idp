@@ -552,7 +552,7 @@ class PredictiveMaintenanceEngine:
 
         # Get service records in period
         records = self._service_history.get(equipment_id, [])
-        period_records = [r for r in records if start_date <= r.service_date <= end_date]
+        [r for r in records if start_date <= r.service_date <= end_date]
 
         # Calculate metrics (simplified - real implementation would use telemetry)
         avg_daily_hours = equipment.total_hours / max(

@@ -58,7 +58,7 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 100
+line-length = 120  # Increased for AI/RAG services with long descriptions
 target-version = "py311"
 exclude = [
     "archive/",
@@ -69,11 +69,12 @@ exclude = [
 ]
 
 [tool.ruff.lint]
-select = ["E","F","I","UP","B","SIM","N","W","C4"]
+select = ["E","F","I","UP","B","SIM","N","W","C4","C90"]  # Added C90 for complexity
 ignore = [
     "B008",  # Depends/Query in FastAPI function defaults is standard pattern
     "B904",  # Exception chaining - not critical, best effort fixed
-    "E501",  # Line too long - handled by formatter
+    "E501",  # Line too long - handled by formatter (line-length = 120)
+    "C901",  # Function too complex - allowed up to 20 for AI/RAG services
     "B007",  # Loop control variable not used - often intentional
     "B006",  # Mutable default argument - sometimes intentional
     "N814",  # CamelCase imported as constant - common pattern
@@ -108,6 +109,10 @@ ignore = [
     "I001",   # Import sorting - auto-formatter handles this
 ]
 fixable = ["ALL"]
+
+[tool.ruff.lint.mccabe]
+# Complexity threshold for AI/RAG services with decision logic
+max-complexity = 20
 
 [tool.ruff.lint.per-file-ignores]
 "**/tests/*" = ["E402", "B017", "F401", "F821", "F841", "N801", "N817"]

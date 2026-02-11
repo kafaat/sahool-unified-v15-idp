@@ -2,14 +2,11 @@
 # خدمة إدارة المستخدمين
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="user-service"
 LABEL version="16.0.0"
-
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -41,13 +38,14 @@ RUN npx prisma generate --schema=./prisma/schema.prisma 2>/dev/null || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-bookworm-slim AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma runtime compatibility
-# Note: openssl-dev is NOT needed in production - only runtime library required
-RUN apk add --no-cache curl openssl
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds

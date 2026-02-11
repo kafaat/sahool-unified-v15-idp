@@ -2,7 +2,7 @@
 # نواة البحث العلمي الزراعي
 
 # Build stage
-FROM node:20-alpine AS builder
+FROM node:20-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="research-core"
@@ -37,12 +37,14 @@ RUN npx prisma generate || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:20-bookworm-slim AS production
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL for Prisma compatibility
-RUN apk add --no-cache curl openssl
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds

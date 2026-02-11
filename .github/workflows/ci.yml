@@ -592,6 +592,12 @@ jobs:
             path: apps/services/notification-service
           - name: marketplace-service
             path: apps/services/marketplace-service
+          - name: iot-service
+            path: apps/services/iot-service
+          - name: chat-service
+            path: apps/services/chat-service
+          - name: user-service
+            path: apps/services/user-service
           - name: vegetation-analysis-service
             path: apps/services/vegetation-analysis-service
           - name: advisory-service
@@ -629,7 +635,9 @@ jobs:
 
       # Login to Docker Hub BEFORE setup-buildx to avoid rate limiting when pulling buildkit image
       # Configure DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets for better reliability
+      # Only attempt login if credentials are available
       - name: Login to Docker Hub
+        if: secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != ''
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}

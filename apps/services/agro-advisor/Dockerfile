@@ -54,8 +54,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+    -r requirements.txt
 
 # Copy shared libraries (from repo root)
 COPY shared/ ./shared/

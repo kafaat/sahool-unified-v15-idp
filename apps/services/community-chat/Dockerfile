@@ -37,6 +37,9 @@ COPY apps/services/community-chat/openapi.yaml ./openapi.yaml
 # ───────────────────────────────────────────────────────────────────────────────
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
+
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="community-chat"
 LABEL version="1.0.0"

@@ -52,6 +52,9 @@ RUN npm run build
 # ───────────────────────────────────────────
 FROM node:${NODE_VERSION}-bookworm-slim AS production
 
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
+
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
 LABEL service="iot-service"

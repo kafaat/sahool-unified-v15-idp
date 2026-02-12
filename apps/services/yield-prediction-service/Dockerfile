@@ -33,6 +33,9 @@ RUN npm run build
 # Production stage
 FROM node:${NODE_VERSION}-alpine AS production
 
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
+
 WORKDIR /app
 
 # Install curl for health checks

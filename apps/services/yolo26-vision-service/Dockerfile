@@ -71,6 +71,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
+# Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
+RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+
 # Configure pip for network resilience with fallback mirrors
 # Use non-root pip config location
 RUN mkdir -p ~/.pip && \
@@ -89,13 +92,6 @@ trusted-host = mirrors.aliyun.com
 [install]
 prefer-binary = true
 EOF
-
-# Upgrade pip (use official PyPI to avoid mirror hash mismatches)
-RUN pip install --no-cache-dir --upgrade \
-    -i https://pypi.org/simple/ \
-    pip>=24.0 \
-    setuptools>=75.0 \
-    wheel>=0.44.0
 
 # Copy constraints and requirements files
 COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
@@ -239,6 +235,9 @@ WORKDIR /app
 COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
+# Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
+RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
     cat > /root/.pip/pip.conf <<'EOF'
@@ -253,9 +252,7 @@ prefer-binary = true
 EOF
 
 # Install Python dependencies (CPU only) with constraints
-# Use official PyPI for pip upgrade to avoid mirror hash mismatches
-RUN pip install --no-cache-dir --upgrade -i https://pypi.org/simple/ pip>=24.0 setuptools>=75.0 wheel>=0.44.0 && \
-    pip install --no-cache-dir --timeout=300 --retries=10 \
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt

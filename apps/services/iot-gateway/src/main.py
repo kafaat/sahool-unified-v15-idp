@@ -665,12 +665,13 @@ async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(ge
         sensor_type=req.sensor_type,
         value=req.value,
         unit=req.unit,
-    safe_event_id = sanitize_log_value(event_id)
-    safe_device_id = sanitize_log_value(req.device_id)
-    safe_sensor_type = sanitize_log_value(req.sensor_type)
         timestamp=timestamp,
         metadata=req.metadata,
     )
+
+    safe_event_id = sanitize_log_value(event_id)
+    safe_device_id = sanitize_log_value(req.device_id)
+    safe_sensor_type = sanitize_log_value(req.sensor_type)
 
     logger.info(
         f"Sensor reading published. "

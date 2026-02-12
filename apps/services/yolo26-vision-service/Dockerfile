@@ -3,6 +3,9 @@
 # Multi-stage build with CUDA support for GPU-accelerated inference
 # =============================================================================
 
+# Global ARG must be declared before first FROM to be usable in FROM instructions
+ARG PYTHON_VERSION=3.11
+
 # -----------------------------------------------------------------------------
 # Stage 1: Base image with CUDA
 # -----------------------------------------------------------------------------
@@ -198,8 +201,6 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 # -----------------------------------------------------------------------------
 # Stage 5: CPU-only image (for environments without GPU)
 # -----------------------------------------------------------------------------
-ARG PYTHON_VERSION=3.11
-
 FROM python:${PYTHON_VERSION}-slim-bookworm AS cpu-only
 
 # Prevent interactive prompts

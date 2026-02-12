@@ -90,8 +90,9 @@ trusted-host = mirrors.aliyun.com
 prefer-binary = true
 EOF
 
-# Upgrade pip
+# Upgrade pip (use official PyPI to avoid mirror hash mismatches)
 RUN pip install --no-cache-dir --upgrade \
+    -i https://pypi.org/simple/ \
     pip>=24.0 \
     setuptools>=75.0 \
     wheel>=0.44.0
@@ -252,7 +253,8 @@ prefer-binary = true
 EOF
 
 # Install Python dependencies (CPU only) with constraints
-RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 && \
+# Use official PyPI for pip upgrade to avoid mirror hash mismatches
+RUN pip install --no-cache-dir --upgrade -i https://pypi.org/simple/ pip>=24.0 setuptools>=75.0 wheel>=0.44.0 && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
     pip install --no-cache-dir --timeout=300 --retries=10 \

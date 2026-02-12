@@ -11,7 +11,7 @@
 
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { RequestMethod, ValidationPipe } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import { HttpExceptionFilter } from "./utils/http-exception.filter";
@@ -27,6 +27,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
     }),
   );
@@ -58,8 +59,13 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Global prefix
-  app.setGlobalPrefix("api/v1");
+  // Global prefix — exclude health endpoints for K8s probes and CI container tests
+  app.setGlobalPrefix("api/v1", {
+    exclude: [
+      { path: "healthz", method: RequestMethod.GET },
+      { path: "readyz", method: RequestMethod.GET },
+    ],
+  });
 
   // Swagger/OpenAPI Documentation
   const config = new DocumentBuilder()

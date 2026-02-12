@@ -204,6 +204,11 @@ def from_env() -> VaultClient:
         RuntimeError: If neither token nor AppRole credentials are provided
     """
     addr = os.getenv("VAULT_ADDR", "http://localhost:8200")
+    if addr.startswith("http://") and "localhost" not in addr and "127.0.0.1" not in addr:
+        logger.warning(
+            "VAULT_ADDR uses HTTP for a non-localhost address. "
+            "Use HTTPS in production to protect secrets in transit."
+        )
     token = os.getenv("VAULT_TOKEN")
     namespace = os.getenv("VAULT_NAMESPACE")
     role_id = os.getenv("VAULT_ROLE_ID")

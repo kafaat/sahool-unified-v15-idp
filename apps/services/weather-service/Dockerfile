@@ -33,6 +33,12 @@ ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Upgrade pip and build tools BEFORE configuring mirrors to avoid hash mismatch
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0
+
 # Configure pip for network resilience
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
@@ -45,12 +51,6 @@ trusted-host = mirrors.aliyun.com
 [install]
 prefer-binary = true
 EOF
-
-# Upgrade pip and build tools
-RUN pip install --no-cache-dir --upgrade \
-    pip>=24.0 \
-    setuptools>=75.0 \
-    wheel>=0.44.0
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/weather-service/requirements.txt /tmp/requirements.txt

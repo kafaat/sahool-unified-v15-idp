@@ -158,7 +158,7 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, username)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(
             key, AUTH_RATE_CONFIGS.LOGIN
         )
 
@@ -194,7 +194,7 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(
             key, AUTH_RATE_CONFIGS.PASSWORD_RESET
         )
 
@@ -232,7 +232,7 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, email)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(
             key, AUTH_RATE_CONFIGS.REGISTRATION
         )
 
@@ -268,7 +268,7 @@ class AuthRateLimiter:
             HTTPException: If rate limit exceeded
         """
         key = self._get_auth_key(request, user_id)
-        allowed, remaining, limit, reset = await self._limiter._in_memory.check_rate_limit(
+        allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(
             key, AUTH_RATE_CONFIGS.TOKEN_REFRESH
         )
 

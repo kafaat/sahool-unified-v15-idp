@@ -58,10 +58,22 @@ def mock_daily_forecast():
 
 @pytest.fixture
 def app():
-    """Create FastAPI test app instance"""
+    """Create FastAPI test app instance with auth dependency overridden"""
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
     from src.main import app as weather_app
 
-    return weather_app
+    def fake_current_user():
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            roles=["farmer"],
+            tenant_id="tenant-123",
+        )
+
+    weather_app.dependency_overrides[get_current_user] = fake_current_user
+    yield weather_app
+    weather_app.dependency_overrides.clear()
 
 
 @pytest.fixture

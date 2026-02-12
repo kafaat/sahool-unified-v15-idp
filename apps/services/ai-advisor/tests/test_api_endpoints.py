@@ -109,10 +109,22 @@ def mock_all_dependencies():
 
 @pytest.fixture
 def client(mock_env_vars, mock_all_dependencies):
-    """Create test client with mocked dependencies"""
+    """Create test client with mocked dependencies and auth overridden"""
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
     from src.main import app
 
-    return TestClient(app)
+    def fake_current_user():
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            roles=["farmer"],
+            tenant_id="tenant-test",
+        )
+
+    app.dependency_overrides[get_current_user] = fake_current_user
+    yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
 class TestHealthEndpoint:

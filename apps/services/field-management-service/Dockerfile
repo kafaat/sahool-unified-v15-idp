@@ -23,7 +23,20 @@ COPY packages/field-shared ./packages/field-shared
 
 # Build field-shared package first (needed for TypeScript compilation)
 WORKDIR /app/packages/field-shared
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm run build
+# Use retry loop and npm cache for resilience against network issues
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing field-shared dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && npm run build && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "field-shared build failed after retries" && exit 1)
 
 # Return to app directory and install dependencies
 WORKDIR /app
@@ -32,8 +45,20 @@ COPY apps/services/field-management-service/package.json ./
 # Fix the file: path reference for Docker build context (../../../packages -> ./packages)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
 
-# Install dependencies
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing service dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install failed after retries" && exit 1)
 
 # Copy prisma schema (required for prisma generate)
 COPY apps/services/field-management-service/prisma ./prisma
@@ -80,8 +105,20 @@ COPY --from=builder /app/package.json ./
 # Fix the file: path reference again for production stage
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
 
-# Install production dependencies only
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install production dependencies only with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        npm install --omit=dev --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install production failed after retries" && exit 1)
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

@@ -21,7 +21,7 @@ aerich==0.7.2
 nats-py==2.9.0
 
 # Redis
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Validation
 pydantic==2.12.5

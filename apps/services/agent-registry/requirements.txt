@@ -10,7 +10,7 @@ uvicorn[standard]>=0.30.0,<1.0.0
 httpx==0.28.1
 
 # Redis
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Validation
 pydantic==2.12.5

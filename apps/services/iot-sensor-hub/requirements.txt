@@ -16,7 +16,7 @@ numpy>=1.26.0,<2.1.0
 
 # Messaging & Cache
 nats-py==2.9.0
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Observability
 structlog>=24.1.0

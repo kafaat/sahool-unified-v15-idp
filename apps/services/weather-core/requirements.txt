@@ -13,6 +13,9 @@ python-dotenv==1.0.1
 # Authentication
 PyJWT>=2.8.0,<3.0.0
 
+# Redis (required by shared.auth token revocation)
+redis==5.2.1
+
 # Service-specific dependencies
 nats-py==2.9.0
 python-dateutil==2.8.2

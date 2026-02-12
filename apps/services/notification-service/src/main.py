@@ -51,7 +51,7 @@ except ImportError:
 
 # Import authentication dependencies
 try:
-    from shared.auth.dependencies import get_current_user, get_optional_user
+    from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 
     AUTH_AVAILABLE = True
@@ -61,10 +61,6 @@ except ImportError:
     User = None
 
     def get_current_user():
-        """Placeholder when auth not available"""
-        return None
-
-    def get_optional_user():
         """Placeholder when auth not available"""
         return None
 

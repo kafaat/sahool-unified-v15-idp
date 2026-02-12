@@ -93,13 +93,16 @@ try:
         get_current_active_user,
         require_roles,
     )
-    from shared.auth.models import User
 
     AUTH_AVAILABLE = True
+
+    async def api_key_auth():
+        """Service-to-service API key auth (placeholder when shared auth is available)"""
+        return None
+
 except ImportError:
     # SECURITY: Auth module not available - restrict access in production
     AUTH_AVAILABLE = False
-    User = None
     ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
 
     if ENVIRONMENT not in ("development", "dev", "test", "testing"):

@@ -14,19 +14,19 @@ from pathlib import Path
 
 from fastapi import Depends, FastAPI, Query
 
-# Shared middleware imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+# Add project root first so shared.errors_py resolves to the root shared/ module
+# (not apps/services/shared/errors_py/ which has a different NotFoundException API)
+_service_dir = Path(__file__).resolve().parent.parent  # advisory-service/
+_project_root = _service_dir.parent.parent.parent  # sahool-unified-v15-idp/
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
+
+# Add apps/services/ for local crop/variety modules in shared/
+_services_dir = _service_dir.parent  # apps/services/
+if str(_services_dir) not in sys.path:
+    sys.path.insert(0, str(_services_dir))
 
 from pydantic import BaseModel, Field
-
-# Add shared modules to path
-# In Docker, shared is at /app/shared
-SHARED_PATH = Path("/app/shared")
-if not SHARED_PATH.exists():
-    # Fallback for local development
-    SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
-if str(SHARED_PATH) not in sys.path:
-    sys.path.insert(0, str(SHARED_PATH))
 
 # Import unified error handling
 # Import shared crop catalogs

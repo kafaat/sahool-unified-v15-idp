@@ -38,8 +38,9 @@ sahool-unified-v15-idp/
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
 │   │   ├── leveling-optimizer-service/ # Field leveling optimization
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
+│   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (npm workspaces)
+├── packages/                   # Shared packages (30 npm workspaces)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -134,6 +135,11 @@ sahool-unified-v15-idp/
 │   ├── edge_cloud/             # Edge-cloud architecture
 │   ├── globalgap/              # GlobalGAP compliance (IFA v6)
 │   ├── yemen/                  # Yemen-specific agricultural data
+│   ├── integrations/           # External integrations
+│   ├── notification_preferences/ # Notification preference management
+│   ├── audit_trail/            # Audit trail utilities
+│   ├── crm/                    # Farmer CRM module
+│   ├── db/                     # Database utilities
 │   └── python-lib/             # Python library utilities
 ├── config/                     # Configuration files
 │   ├── certs/                  # TLS certificates
@@ -164,6 +170,7 @@ sahool-unified-v15-idp/
 │   ├── factories/              # Test data factories
 │   ├── snapshots/              # Snapshot comparisons
 │   └── utils/                  # Test utilities
+├── tools/                      # Developer tools (FixOps CLI, Kimi repair agent)
 └── scripts/                    # Utility scripts
 ```
 
@@ -224,7 +231,7 @@ The platform uses a 4-layer event architecture via NATS:
 
 | Layer            | Services                                                                              | Purpose                        |
 | ---------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
-| **Acquisition**  | satellite-service, iot-service, weather-service, virtual-sensors, iot-gateway, edge-orchestrator-service | Data ingestion & normalization |
+| **Acquisition**  | vegetation-analysis-service, iot-service, weather-service, virtual-sensors, iot-gateway, edge-orchestrator-service | Data ingestion & normalization |
 | **Intelligence** | indicators-service, lai-estimation, crop-intelligence-service, vegetation-analysis-service, ndvi-processor, field-intelligence, skills-service, yolo26-vision-service, terrain-core-service | Feature extraction & AI        |
 | **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor, hydrology-service, leveling-optimizer-service | Recommendations & planning     |
 | **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
@@ -557,7 +564,7 @@ lib/
 
 ### Coverage Requirements
 
-- **Minimum**: 60% code coverage (enforced in CI)
+- **Minimum**: 10% code coverage (enforced in CI via `fail_under = 10`)
 - Coverage report: `coverage.xml` and `coverage_html/`
 
 ### Test Environment Variables
@@ -865,22 +872,22 @@ GitHub Workflows (48):
 
 ## Deprecated Services
 
-Some services are deprecated and have been replaced. Check deprecation warnings in service logs:
+Some services are deprecated and have been replaced (or fully removed). Check deprecation warnings in service logs:
 
 ```
 DEPRECATION WARNING: [service] is DEPRECATED
 This service has been migrated to [new-service]
 ```
 
-| Deprecated Service   | Replaced By                   | Deprecation Date |
-| -------------------- | ----------------------------- | ---------------- |
-| `satellite-service`  | `vegetation-analysis-service` | 2026-01-11       |
-| `weather-advanced`   | `weather-service`             | 2026-01-11       |
-| `crop-health-ai`     | `crop-intelligence-service`   | 2026-01-11       |
-| `fertilizer-advisor` | `advisory-service`            | 2026-01-11       |
-| `field-ops`          | `field-management-service`    | Legacy           |
-| `field-core`         | `field-management-service`    | Legacy           |
-| `field-service`      | `field-management-service`    | Legacy           |
+| Deprecated Service   | Replaced By                   | Deprecation Date | Status  |
+| -------------------- | ----------------------------- | ---------------- | ------- |
+| `satellite-service`  | `vegetation-analysis-service` | 2026-01-11       | Removed |
+| `weather-advanced`   | `weather-service`             | 2026-01-11       | Removed |
+| `crop-health-ai`     | `crop-intelligence-service`   | 2026-01-11       | Removed |
+| `fertilizer-advisor` | `advisory-service`            | 2026-01-11       | Removed |
+| `field-ops`          | `field-management-service`    | Legacy           | Removed |
+| `field-core`         | `field-management-service`    | Legacy           | Removed |
+| `field-service`      | `field-management-service`    | Legacy           | Removed |
 
 ---
 
@@ -919,7 +926,6 @@ This service has been migrated to [new-service]
 | crop-growth-model  | Node.js | 3023 | Crop growth simulation       |
 | advisory-service   | Python  | 8093 | Advisory & recommendations   |
 | irrigation-smart   | Python  | 8094 | Smart irrigation             |
-| irrigation-service | Python  | 8094 | Irrigation management        |
 | yield-engine       | Python  | 8098 | Yield estimation             |
 | yield-prediction   | Node.js | 3021 | Yield prediction ML          |
 | agro-advisor       | Python  | 8105 | Agricultural advisory        |
@@ -949,7 +955,7 @@ This service has been migrated to [new-service]
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | field-chat           | Python  | 8099 | Field-level chat         |
 | inventory-service    | Python  | 8116 | Inventory management     |
-| cooperative-service  | Python  | -    | Cooperative management   |
+| cooperative-service  | Python  | 8127 | Cooperative management   |
 | crm-service          | Python  | -    | Farmer CRM               |
 | logistics-service    | Python  | -    | Logistics management     |
 | supply-chain-service | Python  | -    | Supply chain management  |
@@ -961,7 +967,7 @@ This service has been migrated to [new-service]
 | Service               | Type    | Port | Description                 |
 | --------------------- | ------- | ---- | --------------------------- |
 | agent-registry        | Python  | 8160 | Agent registry service      |
-| code-fix-agent        | Python  | 8161 | Code fix AI agent           |
+| code-fix-agent        | Python  | 8162 | Code fix AI agent           |
 | code-review-agent     | Node.js | -    | Code review agent           |
 | code-review-service   | Python  | -    | Code review service         |
 | ai-advisor            | Python  | -    | AI advisory service         |
@@ -969,7 +975,7 @@ This service has been migrated to [new-service]
 | ai-agents-service     | Python  | -    | AI agents service           |
 | ai-chat-assistant     | Python  | -    | AI chat assistant           |
 | llm-orchestrator-service | Python | -  | LLM orchestration           |
-| copilot-api           | Python  | -    | Copilot API                 |
+| copilot-api           | Python  | 8088 | AI copilot (multi-LLM, RAG) |
 | knowledge-graph       | Python  | -    | Knowledge graph service     |
 
 ### Compliance & Traceability
@@ -1335,7 +1341,9 @@ Local LLM hosting for code analysis and generation without external API dependen
 | `codellama:7b` | 7B | Code completion & fixing |
 | `codellama:13b` | 13B | Complex code analysis |
 | `deepseek-coder:6.7b` | 6.7B | Multi-language support |
-| `starcoder2:7b` | 7B | Code generation |
+| `mistral:7b` | 7B | General code tasks |
+| `llama2:7b` | 7B | Code generation |
+| `qwen2.5-coder:7b` | 7B | Multi-language code |
 
 #### Usage Example
 
@@ -2192,16 +2200,131 @@ The `shared/` directory contains 64+ Python modules organized by domain. Beyond 
 
 ---
 
-## Getting Help
+## Platform Documentation Map
 
-- **Documentation**: `docs/` directory (171+ documents)
-- **API Gateway**: `docs/API_GATEWAY.md`
-- **Deployment**: `docs/DEPLOYMENT.md`
-- **Security**: `docs/SECURITY.md`
-- **Observability**: `docs/OBSERVABILITY.md`
-- **Runbooks**: `docs/RUNBOOKS.md`
-- **Service Registry**: `governance/services.yaml`
-- **AI Skills**: `.claude/skills/` directory with context engineering modules
+The platform contains **367+ documentation files** spread across multiple directories. Here is the complete reference:
+
+### Main Documentation (`docs/` - 367+ files)
+
+| Directory | Files | Purpose |
+| --------- | ----- | ------- |
+| `docs/` (root) | 175 | Core platform docs (API, architecture, deployment, security, operations) |
+| `docs/adr/` | 9 | Architectural Decision Records (ADR-001 through ADR-007) |
+| `docs/api/` | 8 | API endpoint documentation (AI, auth, fields, sensors, weather) |
+| `docs/architecture/` | 9 | Architecture proposals, principles, service activation maps |
+| `docs/audits/` | 3 | Audit reports (security, rate limiting, secrets) |
+| `docs/compliance/` | 1 | Compliance checklists |
+| `docs/database/` | 3 | Database audit summaries |
+| `docs/disaster-recovery/` | 3 | DR runbook and implementation guide |
+| `docs/engineering/` | 2 | Engineering recovery plans |
+| `docs/guides/` | 20 | Quick start guides (2FA, build, deployment, MCP, testing) |
+| `docs/implementations/` | 35 | Implementation summaries (caching, DLQ, encryption, NATS, etc.) |
+| `docs/infrastructure/` | 3 | Circuit breaker, Kong HA, PostGIS optimization |
+| `docs/knowledge-base/` | 11 | Agricultural knowledge (crops, diseases, irrigation, monitoring) |
+| `docs/migrations/` | 4 | Service migration summaries |
+| `docs/proposals/` | 1 | AI code agent proposal |
+| `docs/reports/` | 52 | Comprehensive audit and analysis reports |
+| `docs/research/` | 4 | AI landscape, open source exploration, vision integration |
+| `docs/security/` | 2 | Data classification, STRIDE threat model |
+| `docs/summaries/` | 42 | Work summaries (API fixes, CI/CD, security, rate limiting) |
+| `docs/tools/` | 1 | Platform tools reference |
+
+### Key Documents Quick Reference
+
+| Document | Path |
+| -------- | ---- |
+| API Gateway | `docs/API_GATEWAY.md` |
+| Architecture | `docs/ARCHITECTURE_DIAGRAMS.md` |
+| Deployment | `docs/DEPLOYMENT.md` |
+| Security | `docs/SECURITY.md` |
+| Observability | `docs/OBSERVABILITY.md` |
+| Runbooks | `docs/RUNBOOKS.md` |
+| Environment Variables | `docs/ENVIRONMENT_VARIABLES.md` |
+| Services Map | `docs/SERVICES_MAP.md` |
+| Testing | `docs/TESTING.md` |
+| Troubleshooting | `docs/TROUBLESHOOTING.md` |
+| Feature Flags | `docs/FEATURE_FLAGS.md` |
+| Future Roadmap | `docs/FUTURE_ROADMAP.md` |
+| Mobile Architecture | `docs/MOBILE_ARCHITECTURE_ANALYSIS.md` |
+
+### Service Documentation (`apps/services-docs/` - 48 files)
+
+Detailed per-service documentation with API endpoints, architecture, and admin integration guides.
+
+| File | Description |
+| ---- | ----------- |
+| `README.md` | Master index & service registry |
+| `CODING-AGENT-GUIDE.md` | AI coding agent guide for admin portal integration |
+| `BUGS-AND-FIXES.md` | Known bugs and recommended fixes |
+| `infrastructure.md` | PostgreSQL, PgBouncer, NATS, Kong, Redis config |
+| `ollama-infrastructure.md` | Ollama LLM server setup & GPU profiles |
+| `kong-routes.md` | Kong API Gateway routing configuration |
+| `service-dependencies.md` | Service dependency matrix & critical paths |
+| `admin-migration-guide.md` | Admin portal migration guide |
+| `environment-variables.md` | Environment configuration reference |
+| `field-management-service.md` | Largest service doc (42.8 KB) |
+| `user-service.md` | Authentication & user management |
+| `advisory-service.md` | Advisory & recommendations |
+| `weather-service.md` | Weather data service |
+| *...and 35+ more service docs* | One per major service |
+
+> **Note**: Individual services also have `README.md` files (69+ services) with bilingual (EN/AR) docs.
+
+### Governance (`governance/` - 27 files)
+
+| Path | Purpose |
+| ---- | ------- |
+| `services.yaml` | **Source of truth** - Service registry (v3.2.0) |
+| `agents.yaml` | AI agent definitions (v16.0.0, 11 categories) |
+| `events/catalog.yaml` | Event catalog |
+| `events/schemas/` | JSON schemas (alert, field, NDVI, weather events) |
+| `policies/` | Kyverno policies (security, labels, resource limits) |
+| `reliability/slo-definitions.yaml` | SLO definitions |
+| `templates/` | Service scaffolding templates (API, backend, worker) |
+| `design/design-tokens.yaml` | Design system tokens |
+
+### Internal Developer Platform (`idp/` - 31 files)
+
+| Path | Purpose |
+| ---- | ------- |
+| `backstage/app-config.yaml` | Backstage configuration |
+| `backstage/catalog/` | Service catalog & system definitions |
+| `catalog/apis/` | API definitions (vision, terrain, hydrology, leveling, edge) |
+| `templates/python-fastapi/` | Python FastAPI service template |
+| `templates/node-service/` | Node.js NestJS service template |
+| `templates/flutter-mobile/` | Flutter mobile app template |
+| `templates/data-pipeline/` | Data pipeline template |
+| `sahoolctl/README.md` | CLI tool documentation |
+
+### Infrastructure Documentation (`infrastructure/` - 95+ files)
+
+| Path | Purpose |
+| ---- | ------- |
+| `gateway/kong/` | Kong gateway setup, runbook, security (15+ files) |
+| `monitoring/` | Prometheus, Grafana dashboards, alert rules (20+ files) |
+| `monitoring/grafana/dashboards/` | 9 Grafana dashboards (agricultural insights, API gateway, etc.) |
+| `monitoring/prometheus/rules/` | Alert rules (agricultural, DR, NATS, SLO) |
+| `core/postgres/` | PostgreSQL HA with Patroni |
+| `core/pgbouncer/` | PgBouncer connection pooling |
+| `core/redis-ha/` | Redis HA with Sentinel |
+| `core/vault/` | HashiCorp Vault secrets |
+| `core/ollama/` | Ollama local LLM deployment |
+| `core/qdrant/` | Qdrant vector database |
+| `nats/` | NATS cluster & K8s deployment |
+| `terraform/` | Infrastructure as Code |
+| `redis/` | Redis security & deployment checklist |
+
+### AI Skills (`.claude/skills/` - 7 files)
+
+| Path | Purpose |
+| ---- | ------- |
+| `context-engineering/memory.md` | Farm memory & persistent storage |
+| `context-engineering/compression.md` | Token-efficient data compression |
+| `context-engineering/evaluation.md` | LLM-as-Judge advisory evaluation |
+| `sahool/crop-advisor.md` | Crop advisory & recommendations |
+| `sahool/farm-documentation.md` | Farm knowledge base documentation |
+| `obsidian/markdown.md` | Obsidian markdown formatting |
+| `obsidian/canvas.md` | Knowledge graph visualization |
 
 ---
 

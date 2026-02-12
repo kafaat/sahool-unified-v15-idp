@@ -50,6 +50,7 @@ RUN npm run build
 FROM node:${NODE_VERSION}-bookworm-slim
 
 # Re-declare ARGs for this stage
+ARG NODE_VERSION=20
 ARG SERVICE_NAME=field-management-service
 ARG SERVICE_VERSION=16.0.0
 

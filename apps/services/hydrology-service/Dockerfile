@@ -2,7 +2,9 @@
 # خدمة الهيدرولوجيا - ملف Docker
 # Port: 8165
 
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 

@@ -3,7 +3,9 @@
 # Based on: Agricultural Remote Sensing On-Demand Service Model
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-alpine AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="yield-prediction"
@@ -31,7 +33,10 @@ RUN npm config set registry https://registry.npmmirror.com && \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-alpine AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 

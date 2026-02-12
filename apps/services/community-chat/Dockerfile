@@ -8,7 +8,9 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 1: Builder - Install dependencies and generate Prisma client
 # ───────────────────────────────────────────────────────────────────────────────
-FROM node:20-bookworm-slim AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -33,7 +35,10 @@ COPY apps/services/community-chat/openapi.yaml ./openapi.yaml
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
 # ───────────────────────────────────────────────────────────────────────────────
-FROM node:20-bookworm-slim AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="community-chat"

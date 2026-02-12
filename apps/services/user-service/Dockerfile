@@ -2,7 +2,9 @@
 # خدمة إدارة المستخدمين
 
 # Build stage
-FROM node:20-bookworm-slim AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="user-service"
@@ -38,7 +40,10 @@ RUN npx prisma generate --schema=./prisma/schema.prisma 2>/dev/null || \
 RUN npm run build
 
 # Production stage
-FROM node:20-bookworm-slim AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 

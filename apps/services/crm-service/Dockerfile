@@ -3,7 +3,9 @@
 # Port: 8131
 # ═══════════════════════════════════════════════════════════════════════════════
 
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 

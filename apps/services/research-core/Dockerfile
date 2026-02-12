@@ -19,12 +19,20 @@ COPY apps/services/research-core ./research-core/
 
 WORKDIR /workspace/research-core
 
-# Install dependencies with retry for network resilience
-# Use a retry loop to handle network issues
-RUN for i in 1 2 3 4 5; do \
-    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
-    (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
-    done || (echo "npm install failed after 5 attempts" && exit 1)
+# Install dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install failed after 3 attempts" && exit 1)
 
 # Copy prisma schema and generate client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -50,12 +58,29 @@ RUN apt-get update && \
 # NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/research-core/package.json ./
 COPY --from=builder /workspace/research-core/package-lock.json ./
-# Use a retry loop to handle network issues
-RUN for i in 1 2 3 4 5; do \
-    npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && break || \
-    (echo "Attempt $i failed, retrying in 10 seconds..." && sleep 10); \
-    done || (echo "npm install failed after 5 attempts" && exit 1)
+
+# Install production dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+         npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install production failed after retries" && exit 1)
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/research-core/prisma ./prisma/

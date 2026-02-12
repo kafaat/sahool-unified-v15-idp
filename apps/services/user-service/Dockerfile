@@ -19,8 +19,20 @@ COPY apps/services/user-service ./user-service/
 
 WORKDIR /workspace/user-service
 
-# Install dependencies (with retries for network resilience)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install failed after retries" && exit 1)
 
 # Copy prisma schema and generate client
 # Use environment variables to improve Prisma binary download reliability
@@ -51,8 +63,29 @@ RUN apt-get update && \
 # NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/user-service/package.json ./
 COPY --from=builder /workspace/user-service/package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
+# Install production dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+         npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install production failed after retries" && exit 1)
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/user-service/prisma ./prisma/

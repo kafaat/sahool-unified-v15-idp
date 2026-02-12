@@ -27,7 +27,7 @@ nats-py==2.9.0
 
 # Redis (للتخزين المؤقت وإدارة الحالة)
 # Redis for caching and state management
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Utilities
 python-dotenv==1.0.1

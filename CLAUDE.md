@@ -434,7 +434,7 @@ ENV PIP_NO_CACHE_DIR=1 \
 
 ### Pip Mirror Configuration (3 Patterns)
 
-**Pattern A: Multi-Mirror Fallback** (37+ services - recommended)
+**Pattern A: Multi-Mirror Fallback** (42 services - recommended)
 
 ```dockerfile
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -452,13 +452,13 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -r requirements.txt
 ```
 
-**Pattern B: Aliyun Mirror Only** (24+ services)
+**Pattern B: Aliyun Mirror Only** (20 services)
 
 ```dockerfile
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
 ```
 
-**Pattern C: No Mirror** (7+ services - not recommended)
+**Pattern C: No Mirror** (1 service - not recommended)
 
 ```dockerfile
 RUN pip install --no-cache-dir -r requirements.txt

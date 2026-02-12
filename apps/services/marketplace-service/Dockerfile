@@ -73,4 +73,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD node -e "fetch('http://localhost:3010/api/v1/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 # Run the application
-CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]

@@ -1035,26 +1035,82 @@ GitHub Workflows (51):
 
 ## Deprecated Services
 
-Some services are deprecated and have been replaced (or fully removed). Check deprecation warnings in service logs:
+### Overview
+
+Total deprecated: **11 services** (8 archived + 3 active-deprecated).
+All deprecated services emit HTTP headers (RFC 8594): `X-API-Deprecated: true`, `X-API-Sunset`, `Deprecation: true`.
+Active-deprecated services require `--profile deprecated` to start.
 
 ```
 DEPRECATION WARNING: [service] is DEPRECATED
 This service has been migrated to [new-service]
 ```
 
-| Deprecated Service   | Replaced By                   | Deprecation Date | Status  |
-| -------------------- | ----------------------------- | ---------------- | ------- |
-| `satellite-service`  | `vegetation-analysis-service` | 2026-01-11       | Removed |
-| `weather-advanced`   | `weather-service`             | 2026-01-11       | Removed |
-| `crop-health-ai`     | `crop-intelligence-service`   | 2026-01-11       | Removed |
-| `fertilizer-advisor` | `advisory-service`            | 2026-01-11       | Removed |
-| `field-ops`          | `field-management-service`    | Legacy           | Removed |
-| `field-core`         | `field-management-service`    | Legacy           | Removed |
-| `field-service`      | `field-management-service`    | Legacy           | Removed |
+### Archived Services (8) - Moved to `archive/deprecated-services/`
+
+| Deprecated Service   | Replaced By                   | Deprecation Date | Sunset Date |
+| -------------------- | ----------------------------- | ---------------- | ----------- |
+| `satellite-service`  | `vegetation-analysis-service` | 2025-01-01       | 2025-06-01  |
+| `weather-advanced`   | `weather-service`             | 2025-01-01       | 2025-06-01  |
+| `crop-health-ai`     | `crop-intelligence-service`   | 2025-01-01       | 2025-06-01  |
+| `crop-health`        | `crop-intelligence-service`   | 2026-01-06       | 2026-06-01  |
+| `fertilizer-advisor` | `advisory-service`            | 2025-01-01       | 2025-06-01  |
+| `field-ops`          | `field-management-service`    | 2026-01-06       | v17.0.0     |
+| `field-core`         | `field-management-service`    | Legacy           | v17.0.0     |
+| `field-service`      | `field-management-service`    | Legacy           | v17.0.0     |
+
+### Active Deprecated Services (3) - In `apps/services/`, profile: `deprecated`
+
+| Deprecated Service   | Replaced By                   | Deprecation Date | Port |
+| -------------------- | ----------------------------- | ---------------- | ---- |
+| `agro-advisor`       | `advisory-service`            | 2025-01-06       | 8105 |
+| `ndvi-engine`        | `vegetation-analysis-service` | 2026-01-06       | 8107 |
+| `weather-core`       | `weather-service`             | Implicit         | 8108 |
+
+### Migration Documentation
+
+| Guide | Location |
+| ----- | -------- |
+| Field-Ops Migration | `docs/migrations/FIELD_OPS_MIGRATION_SUMMARY.md` |
+| Agro-Advisor Migration | `docs/migrations/AGRO_ADVISOR_MIGRATION_SUMMARY.md` |
+| Deduplication Matrix | `governance/DEDUP_MATRIX.md` |
+| Deprecation Summary | `apps/services/DEPRECATION_SUMMARY.md` |
+| Archive Index | `archive/deprecated-services/README.md` |
+
+### Running Deprecated Services (Testing Only)
+
+```bash
+# Default: deprecated services NOT started
+docker-compose up
+
+# Enable deprecated services for migration testing
+docker-compose --profile deprecated up
+docker-compose --profile legacy up
+```
 
 ---
 
 ## Key Services Overview
+
+**Platform Totals**: 75 microservices (67 active, 5 skeleton, 3 empty) + 4 applications (admin, web, mobile, kernel)
+
+### Service Status Summary
+
+| Status | Count | Description |
+| ------ | ----- | ----------- |
+| Active | 67 | Fully implemented with real code |
+| Skeleton | 5 | Structure exists, minimal code (<500 LOC) |
+| Empty | 3 | No implementation (agro-rules, community-chat, demo-data) |
+| Deprecated | 11 | 8 archived + 3 active-deprecated (see Deprecated Services) |
+
+### Applications
+
+| Application | Type | Framework | Version | LOC | Status |
+| ----------- | ---- | --------- | ------- | --- | ------ |
+| admin | Frontend | React/Next.js | 16.0.0 | 35,367 | Active |
+| web | Frontend | React/Next.js | 16.0.0 | 93,769 | Active |
+| mobile | Mobile | Flutter 3.27.x | 16.0.0+1 | 335,301 | Active |
+| kernel | Backend | Python 3.11 | 16.0.0 | 26,253 | Active |
 
 ### Core Services
 
@@ -1067,6 +1123,8 @@ This service has been migrated to [new-service]
 | task-service               | Python  | 8103 | Task management                  |
 | equipment-service          | Python  | 8101 | Equipment tracking               |
 | alert-service              | Python  | 8113 | Alert management                 |
+| provider-config            | Python  | 8104 | Provider configuration           |
+| audit-service              | Python  | 8114 | Audit logging                    |
 
 ### Analytics & Intelligence
 
@@ -1079,20 +1137,20 @@ This service has been migrated to [new-service]
 | field-intelligence           | Python  | 8120 | Field analytics                |
 | lai-estimation               | Node.js | 3022 | Leaf Area Index estimation     |
 | skills-service               | Python  | 8121 | Farmer skills assessment       |
-| soil-analysis-service        | Python  | 8124 | Soil analysis                  |
+| soil-analysis-service        | Python  | 8124 | Soil analysis (skeleton)       |
 | pest-detection-service       | Python  | 8125 | Pest detection AI              |
 
 ### Decision & Advisory
 
-| Service          | Type    | Port | Description                  |
-| ---------------- | ------- | ---- | ---------------------------- |
-| crop-growth-model  | Node.js | 3023 | Crop growth simulation       |
-| advisory-service   | Python  | 8093 | Advisory & recommendations   |
-| irrigation-smart   | Python  | 8094 | Smart irrigation             |
-| yield-engine       | Python  | 8098 | Yield estimation             |
-| yield-prediction   | Node.js | 3021 | Yield prediction ML          |
-| agro-advisor       | Python  | 8105 | Agricultural advisory        |
-| agro-rules         | Python  | 8151 | Agronomic rules engine       |
+| Service                  | Type    | Port | Description                  |
+| ------------------------ | ------- | ---- | ---------------------------- |
+| crop-growth-model        | Node.js | 3023 | Crop growth simulation       |
+| advisory-service         | Python  | 8093 | Advisory & recommendations   |
+| irrigation-smart         | Python  | 8094 | Smart irrigation             |
+| yield-prediction-service | Python  | 8152 | Yield prediction ML          |
+| yield-prediction         | Node.js | 3021 | Yield prediction (legacy)    |
+| yield-engine             | Python  | 8098 | Yield estimation (legacy)    |
+| agro-rules               | Python  | -    | Agronomic rules engine (empty, worker-only) |
 
 ### Integration & IoT
 
@@ -1100,61 +1158,57 @@ This service has been migrated to [new-service]
 | --------------------- | ------- | ---- | ---------------------------- |
 | iot-service           | Node.js | 8117 | IoT device management        |
 | iot-gateway           | Python  | 8106 | IoT protocol gateway         |
+| iot-sensor-hub        | Python  | 8251 | IoT sensor hub               |
 | weather-service       | Python  | 8092 | Weather data                 |
 | virtual-sensors       | Python  | 8119 | Virtual sensor computation   |
 | ws-gateway            | Python  | 8081 | WebSocket gateway            |
-| mcp-server            | Python  | 8200 | Model Context Protocol       |
+| mcp-server            | Python  | 8200 | Model Context Protocol (skeleton) |
 | astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
-| drone-service         | Python  | 8126 | Drone integration            |
+| drone-service         | Python  | 8126 | Drone integration (skeleton) |
+| ussd-gateway          | Python  | 8183 | USSD gateway                 |
+| whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 
 ### Community & Business
 
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
-| community-chat       | Node.js | 8097 | Community features       |
-| chat-service         | Node.js | -    | Real-time messaging      |
+| community-chat       | Node.js | 8097 | Community features (empty, deprecated) |
+| chat-service         | Node.js | 8000 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
 | field-chat           | Python  | 8099 | Field-level chat         |
 | inventory-service    | Python  | 8116 | Inventory management     |
-| cooperative-service  | Python  | 8127 | Cooperative management   |
-| crm-service          | Python  | -    | Farmer CRM               |
-| logistics-service    | Python  | -    | Logistics management     |
-| supply-chain-service | Python  | -    | Supply chain management  |
-| whatsapp-bot-service | Python  | -    | WhatsApp bot integration |
-| ussd-gateway         | Python  | -    | USSD gateway             |
+| cooperative-service  | Python  | 8127 | Cooperative management (skeleton) |
+| crm-service          | Python  | 8131 | Farmer CRM               |
+| logistics-service    | Python  | 8167 | Logistics management     |
+| supply-chain-service | Python  | 8230 | Supply chain management  |
+| traceability-service | Python  | 8123 | Product traceability (skeleton) |
+| globalgap-compliance | Python  | 8128 | GlobalGAP compliance     |
+| wechat-service       | Python  | 8133 | WeChat integration       |
 
 ### AI & Agents
 
-| Service               | Type    | Port | Description                 |
-| --------------------- | ------- | ---- | --------------------------- |
-| agent-registry        | Python  | 8160 | Agent registry service      |
-| code-fix-agent        | Python  | 8162 | Code fix AI agent           |
-| code-review-agent     | Node.js | -    | Code review agent           |
-| code-review-service   | Python  | -    | Code review service         |
-| ai-advisor            | Python  | -    | AI advisory service         |
-| ai-agents-core        | Python  | -    | AI agents core module       |
-| ai-agents-service     | Python  | -    | AI agents service           |
-| ai-chat-assistant     | Python  | -    | AI chat assistant           |
-| llm-orchestrator-service | Python | -  | LLM orchestration           |
-| copilot-api           | Python  | 8088 | AI copilot (multi-LLM, RAG) |
-| knowledge-graph       | Python  | -    | Knowledge graph service     |
-
-### Compliance & Traceability
-
-| Service               | Type    | Port | Description              |
-| --------------------- | ------- | ---- | ------------------------ |
-| globalgap-compliance  | Python  | 8128 | GlobalGAP compliance     |
-| audit-service         | Python  | 8114 | Audit logging            |
-| traceability-service  | Python  | 8123 | Product traceability     |
+| Service                  | Type    | Port | Description                 |
+| ------------------------ | ------- | ---- | --------------------------- |
+| agent-registry           | Python  | 8160 | Agent registry service      |
+| code-fix-agent           | Python  | 8162 | Code fix AI agent           |
+| code-review-agent        | Python  | 8145 | Code review agent           |
+| code-review-service      | Python  | 8102 | Code review service         |
+| ai-advisor               | Python  | 8112 | AI advisory service         |
+| ai-agents-core           | Python  | 8161 | AI agents core module       |
+| ai-agents-service        | Python  | 8130 | AI agents service           |
+| ai-chat-assistant        | Python  | 8134 | AI chat assistant           |
+| llm-orchestrator-service | Python  | 8164 | LLM orchestration           |
+| copilot-api              | Python  | 8088 | AI copilot (multi-LLM, RAG) |
+| knowledge-graph          | Python  | 8140 | Knowledge graph service     |
 
 ### Vision, Terrain & Edge Services
 
 | Service                    | Type   | Port | Description                                        |
 | -------------------------- | ------ | ---- | -------------------------------------------------- |
 | yolo26-vision-service      | Python | 8150 | YOLO26 computer vision for pest/disease/weed detection |
-| ground-vision-service      | Python | -    | Ground-level vision analysis                       |
+| ground-vision-service      | Python | 8182 | Ground-level vision analysis                       |
 | terrain-core-service       | Python | 8185 | DEM processing and terrain analysis                |
 | hydrology-service          | Python | 8165 | Hydrology and drainage analysis                    |
 | leveling-optimizer-service | Python | 8170 | Field leveling optimization                        |
@@ -1164,15 +1218,177 @@ This service has been migrated to [new-service]
 
 | Service                   | Type    | Port | Description                      |
 | ------------------------- | ------- | ---- | -------------------------------- |
-| fertigation-engine        | Python  | -    | Fertigation management           |
-| irrigation-cycle-engine   | Python  | -    | Irrigation cycle optimization    |
-| ndvi-engine               | Python  | -    | NDVI processing engine           |
-| digital-twin-engine       | Python  | -    | Digital twin simulation          |
-| lowcode-engine            | Python  | -    | Low-code workflow automation     |
-| iot-sensor-hub            | Python  | -    | IoT sensor hub                   |
-| weather-core              | Python  | -    | Weather core service             |
-| demo-data                 | Python  | -    | Demo data generator              |
-| provider-config           | Python  | -    | Provider configuration           |
+| fertigation-engine        | Python  | 8252 | Fertigation management           |
+| irrigation-cycle-engine   | Python  | 8250 | Irrigation cycle optimization    |
+| digital-twin-engine       | Python  | 8253 | Digital twin simulation          |
+| lowcode-engine            | Python  | 8132 | Low-code workflow automation     |
+| demo-data                 | Python  | -    | Demo data generator (empty)      |
+
+---
+
+## YOLO26 Vision Service
+
+The YOLO26 Vision Service (`apps/services/yolo26-vision-service/`) is a production-grade computer vision microservice for agricultural pest, disease, and weed detection. Port **8150**.
+
+### Architecture
+
+```
+FastAPI Application Layer
+├── Detection Endpoints (pest, disease, weed)
+├── Analysis Endpoints (counting, ripeness, segmentation, tracking)
+├── Batch Endpoints (multi-image processing)
+└── Model Management Endpoints (version registry)
+    ↓
+Model Manager & Inference Engine
+├── YOLO26 Model Loader (5 variants: n/s/m/l/x)
+├── LRU Cache (5 models max in-memory)
+├── TensorRT Optimization (optional)
+└── GPU Memory Management (FP16 half-precision)
+    ↓
+External Integrations (Optional)
+├── PostgreSQL (asyncpg), Redis, NATS
+└── NVIDIA GPU (CUDA 12.1)
+```
+
+### Model Variants
+
+| Variant | Size | Parameters | GPU VRAM | Latency (RTX 3090) | mAP@0.5 | Best For |
+| ------- | ---- | ---------- | -------- | ------------------- | ------- | -------- |
+| Nano (n) | 6.5 MB | 3.2M | 512 MB | 2.2 ms | 0.78 | Edge devices, real-time |
+| Small (s) | 22 MB | 11.2M | 1024 MB | 3.6 ms | 0.84 | Balanced |
+| **Medium (m)** | 49 MB | 25.9M | 2048 MB | 5.5 ms | 0.88 | **Default** |
+| Large (l) | 85 MB | 43.7M | 3072 MB | 8.3 ms | 0.91 | High accuracy |
+| XLarge (x) | 131 MB | 68.2M | 4096 MB | 12.5 ms | 0.93 | Research |
+
+### Detection Tasks (7 Total)
+
+| Task | Classes | Description |
+| ---- | ------- | ----------- |
+| Pest Detection | 22 species | Red Palm Weevil, aphid, whitefly, locust, etc. |
+| Disease Detection | 34 diseases | Wheat rust, blight, fusarium, nutrient deficiency, etc. |
+| Weed Detection | 12 species | Wild oat, bermuda grass, bindweed, nutsedge, etc. |
+| Plant Counting | 1 class | Grid-based density mapping with GSD support |
+| Ripeness Classification | 5 stages | Unripe → early ripe → half ripe → ripe → overripe |
+| Leaf Segmentation | 1 class | Instance segmentation, LAI calculation |
+| Object Tracking | Generic | ByteTrack/BoT-SORT with persistent IDs |
+
+### API Endpoints
+
+```
+# Detection (Single Image)
+POST /api/v1/detect/pest       # Pest detection with severity & recommendations
+POST /api/v1/detect/disease    # Disease detection with affected area %
+POST /api/v1/detect/weed       # Weed detection with coverage %
+
+# Analysis
+POST /api/v1/count/plants           # Plant counting with density map
+POST /api/v1/classify/ripeness      # 5-stage fruit ripeness
+POST /api/v1/segment/leaf           # Leaf segmentation + LAI
+POST /api/v1/track/objects          # Object tracking (ByteTrack/BoT-SORT)
+DELETE /api/v1/track/{tracker_id}   # Clear tracking session
+
+# Batch Processing
+POST /api/v1/batch/detect/pest     # Batch pest detection
+POST /api/v1/batch/detect/disease  # Batch disease detection
+GET  /api/v1/batch/status          # Queue status
+GET  /api/v1/batch/cache/stats     # Cache statistics
+
+# Model Management
+GET  /api/v1/models/versions                   # List all model versions
+GET  /api/v1/models/{variant}/info             # Model info
+POST /api/v1/models/warmup                     # Preload models
+GET  /api/v1/models/loaded                     # Currently loaded models
+POST /api/v1/models/register                   # Register new version
+GET  /api/v1/models/compare/{task}/{v1}/{v2}   # Compare versions
+
+# Health & Metrics
+GET  /healthz, /readyz, /health, /metrics
+```
+
+### Key Dependencies
+
+| Package | Version | Purpose |
+| ------- | ------- | ------- |
+| torch | 2.2.0 (CUDA 12.1) | Deep learning framework |
+| torchvision | 0.17.0 | Vision transformations |
+| ultralytics | 8.1.0-9.0.0 | YOLO model framework |
+| opencv-python-headless | 4.8.0-5.0.0 | Image processing |
+| asyncpg | 0.29.0-0.31.0 | PostgreSQL async driver |
+| nats-py | 2.6.0-3.0.0 | NATS event publishing |
+| redis | 7.1.0-8.0.0 | Result caching |
+| tenacity | 8.2.0-9.0.0 | Retry with backoff |
+| onnxruntime-gpu | 1.16.0-2.0.0 | ONNX inference (x86_64) |
+
+### Dockerfile (5 Stages)
+
+| Stage | Base Image | Purpose |
+| ----- | ---------- | ------- |
+| base | `nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04` | CUDA runtime + Python 3.11 |
+| builder | (inherits base) | venv, pip install with 3-tier mirror |
+| **production** | (inherits base) | Runtime, non-root user, healthcheck |
+| development | (inherits production) | Debug tools, hot-reload |
+| cpu-only | `python:3.11-slim-bookworm` | CPU variant (no CUDA) |
+
+### NATS Events Published
+
+| Event Subject | Trigger |
+| ------------- | ------- |
+| `sahool.{tenant_id}.pest.detected.v1` | Pest detection |
+| `sahool.{tenant_id}.disease.detected.v1` | Disease detection |
+| `sahool.{tenant_id}.weed.detected.v1` | Weed detection |
+| `sahool.{tenant_id}.pest.critical.v1` | Critical pest (RPW, locust) |
+| `sahool.{tenant_id}.plants.counted.v1` | Plant counting |
+| `sahool.{tenant_id}.ripeness.analyzed.v1` | Ripeness classification |
+| `sahool.{tenant_id}.leaves.segmented.v1` | Leaf segmentation |
+| `sahool.{tenant_id}.objects.tracked.v1` | Object tracking |
+
+### Error Handling (26 Codes)
+
+| Category | HTTP | Codes | Examples |
+| -------- | ---- | ----- | -------- |
+| Validation | 400 | E1001-E1006 | Invalid format, file too large |
+| Model | 503 | E2001-E2005 | Model not found, inference failed |
+| Processing | 400 | E3001-E3004 | Image decode, batch failed |
+| Resource | 503 | E4001-E4004 | GPU OOM, max concurrent |
+| External | 502 | E5001-E5003 | DB error, cache error |
+| Rate Limit | 429 | E6001-E6002 | Rate/quota exceeded |
+| Timeout | 504 | E7001-E7002 | Inference/request timeout |
+| Auth | 401 | E8001-E8003 | Invalid/expired token |
+
+All error responses are bilingual (Arabic/English) with circuit breaker and retry patterns.
+
+### Environment Variables
+
+```bash
+# Core
+ENVIRONMENT=production          # development|staging|production|test
+PORT=8150
+HOST=0.0.0.0
+
+# GPU
+DEVICE=cuda:0                   # cuda:0|cuda:1|cpu
+HALF_PRECISION=true             # FP16 optimization
+ENABLE_TENSORRT=false
+
+# Model
+MODEL_BASE_PATH=/app/models
+DEFAULT_MODEL_VARIANT=m         # n|s|m|l|x
+MODEL_CACHE_SIZE=5              # Max models in memory
+
+# Inference
+DEFAULT_CONFIDENCE_THRESHOLD=0.25
+DEFAULT_IOU_THRESHOLD=0.45
+MAX_DETECTIONS=300
+DEFAULT_IMAGE_SIZE=640
+
+# Upload
+MAX_UPLOAD_SIZE_MB=50
+
+# Database (optional)
+DATABASE_URL=postgresql://...
+NATS_URL=nats://nats:4222
+REDIS_URL=redis://redis:6379
+```
 
 ---
 

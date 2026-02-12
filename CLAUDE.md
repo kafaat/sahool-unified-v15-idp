@@ -32,7 +32,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 62+ microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 95 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -63,55 +63,107 @@ sahool-unified-v15-idp/
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules
+├── shared/                     # Python shared modules (64+ modules)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
-│   ├── cache/                  # Caching layer
-│   ├── contracts/              # API contracts
-│   ├── domain/                 # Domain models
-│   ├── events/                 # Event definitions
-│   ├── file_validation/        # File upload validation
-│   ├── guardrails/             # Input guardrails
-│   ├── libs/                   # Shared libraries
+│   ├── cache/                  # Caching layer (Redis Sentinel HA)
+│   ├── contracts/              # API contracts & event schemas
+│   ├── domain/                 # Domain models (auth, users, tenancy)
+│   ├── events/                 # NATS event definitions & DLQ
+│   ├── file_validation/        # File upload validation & virus scanning
+│   ├── guardrails/             # AI safety guardrails
+│   ├── libs/                   # Shared libraries (outbox, audit, caching)
 │   ├── mcp/                    # Model Context Protocol
-│   ├── middleware/             # HTTP middleware
-│   ├── monitoring/             # Prometheus metrics
-│   ├── observability/          # Logging, tracing
-│   ├── security/               # Security utilities
-│   ├── secrets/                # Secrets management
-│   ├── telemetry/              # OpenTelemetry
-│   ├── a2a/                    # Agent-to-Agent communication
+│   ├── middleware/             # HTTP middleware (rate limiting, CORS, logging)
+│   ├── monitoring/             # Prometheus metrics & SLI/SLO
+│   ├── observability/          # OpenTelemetry, Jaeger tracing
+│   ├── security/               # RBAC, JWT, policy engine
+│   ├── secrets/                # HashiCorp Vault integration
+│   ├── telemetry/              # Distributed tracing
+│   ├── versioning/             # API versioning utilities
+│   ├── a2a/                    # Agent-to-Agent protocol (Linux Foundation)
 │   ├── ai/                     # AI utilities & Auto-Fix Engine
 │   │   ├── auto_fix/           # Automated code diagnostics & fixing
+│   │   ├── context_engineering/ # Token compression, memory, evaluation
+│   │   ├── agents/             # CrewAI multi-agent orchestration
+│   │   ├── orchestration/      # Multi-agent consensus & swarm intelligence
+│   │   ├── guardrails/         # AI safety (input/output filtering)
+│   │   ├── models_registry/    # Agricultural AI models registry (50+ models)
+│   │   ├── ultrarag/           # Advanced RAG system
+│   │   ├── diffusion/          # Image generation
 │   │   ├── ollama_client.py    # Local LLM hosting via Ollama
+│   │   ├── llm_provider.py     # Multi-provider LLM (Claude, OpenAI, Gemini, DeepSeek)
+│   │   ├── embeddings.py       # Unified embedding providers
+│   │   ├── vector_store.py     # Persistent vector database for RAG
+│   │   ├── crop_vision.py      # Computer vision for disease/pest detection
+│   │   ├── explainability.py   # AI recommendation explanations
+│   │   ├── feedback.py         # User feedback collection
 │   │   └── model_training.py   # Model fine-tuning & evaluation
-│   ├── globalgap/              # GlobalGAP compliance
-│   ├── versioning/             # API versioning utilities
+│   ├── nlp/                    # Arabic NLP (AraBERT)
+│   ├── satellite/              # Sentinel Hub NDVI integration
+│   ├── ml/                     # AgML agricultural datasets
+│   ├── agents/                 # CrewAI multi-agent orchestration
+│   ├── llm/                    # LLM provider config & routing
+│   ├── agri_calendar/          # Agricultural calendar & planting timing
+│   ├── irrigation/             # Smart irrigation management
+│   ├── water_management/       # Water usage monitoring & efficiency
+│   ├── ml_irrigation/          # ML-based irrigation optimization
+│   ├── soil_testing/           # Soil analysis & interpretation
+│   ├── soil_sensors/           # IoT soil sensor integration
+│   ├── salinity/               # Soil salinity management
+│   ├── fertilizer_management/  # Nutrient & fertilizer recommendations
+│   ├── crop_rotation/          # Crop rotation planning
+│   ├── pest_scouting/          # Pest identification & IPM
+│   ├── pesticide_compliance/   # PHI & pesticide compliance
+│   ├── weather_alerts/         # Weather monitoring & alerts
+│   ├── terrain/                # Terrain analysis & DEM processing
+│   ├── field_boundaries/       # Field geometry & geospatial ops
+│   ├── geofencing/             # Geofence alerts & monitoring
+│   ├── harvest_quality/        # Post-harvest quality management
+│   ├── traceability/           # Supply chain traceability & QR codes
+│   ├── market_prices/          # Market price tracking & analysis
+│   ├── mobile_sync/            # Offline-first mobile sync & conflict resolution
+│   ├── batch_operations/       # Async batch processing
+│   ├── labor_management/       # Workforce scheduling & safety
+│   ├── equipment_maintenance/  # Equipment lifecycle & predictive maintenance
+│   ├── cooperatives/           # Multi-farm cooperative management
+│   ├── learning_marketplace/   # Farmer education & progress tracking
+│   ├── drone_integration/      # Drone flight planning & VRA
+│   ├── crop_insurance/         # Crop insurance & risk assessment
+│   ├── farm_documents/         # Farm documentation & compliance
+│   ├── smart_agriculture/      # Blockchain, IFTTT, PID controllers
+│   ├── edge_cloud/             # Edge-cloud architecture
+│   ├── globalgap/              # GlobalGAP compliance (IFA v6)
+│   ├── yemen/                  # Yemen-specific agricultural data
 │   └── python-lib/             # Python library utilities
 ├── config/                     # Configuration files
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (109+ docs)
+├── docs/                       # Technical documentation (171+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
-├── tests/                      # Test suites
-│   ├── unit/                   # Unit tests
-│   ├── integration/            # Integration tests
-│   ├── smoke/                  # Smoke tests
-│   ├── e2e/                    # End-to-end tests
-│   ├── load/                   # Load tests (Locust)
+├── tests/                      # Test suites (17 categories)
+│   ├── unit/                   # Fast unit tests
+│   ├── integration/            # API & database tests
+│   ├── smoke/                  # Import verification
+│   ├── e2e/                    # End-to-end scenarios
+│   ├── load/                   # Load tests (k6, Locust)
 │   ├── evaluation/             # AI agent evaluation
 │   ├── guardrails/             # Input validation tests
 │   ├── a2a/                    # Agent-to-Agent tests
-│   ├── container/              # Container tests
-│   ├── database/               # Database tests
-│   ├── frontend/               # Frontend tests
+│   ├── container/              # Docker container tests
+│   ├── database/               # Database-specific tests
+│   ├── frontend/               # React component tests
 │   ├── middleware/             # Middleware tests
 │   ├── simulation/             # Simulation tests
-│   └── golden-datasets/        # Golden dataset tests
+│   ├── security/               # Security tests
+│   ├── golden-datasets/        # Golden test datasets
+│   ├── factories/              # Test data factories
+│   ├── snapshots/              # Snapshot comparisons
+│   └── utils/                  # Test utilities
 └── scripts/                    # Utility scripts
 ```
 
@@ -123,8 +175,10 @@ sahool-unified-v15-idp/
 
 | Layer                  | Technology                                                            |
 | ---------------------- | --------------------------------------------------------------------- |
-| **Python Services**    | FastAPI 0.126.0, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
-| **Node.js Services**   | NestJS, Prisma ORM, TypeScript 5.7.x                                  |
+| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
+| **Python Version**     | >= 3.11 (target: py311)                                                |
+| **Node.js Services**   | NestJS, Prisma 5.x, TypeScript 5.9.x, React 19.x                     |
+| **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
 | **Message Queue**      | NATS 2.x (event-driven architecture)                                  |
 | **API Gateway**        | Kong (authentication, rate limiting)                                  |
@@ -158,7 +212,7 @@ sahool-unified-v15-idp/
 | -------------- | --------------------------------------- |
 | **Container**  | Docker, Kubernetes (K8s)                |
 | **IaC**        | Terraform, Helm Charts                  |
-| **CI/CD**      | GitHub Actions (37 workflows), Argo CD  |
+| **CI/CD**      | GitHub Actions (48 workflows), Argo CD  |
 | **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
 | **Secrets**    | HashiCorp Vault                         |
 
@@ -276,6 +330,41 @@ make health               # Check health of all services
 make status               # Show service status and URLs
 ```
 
+### AI & Agent Services
+
+```bash
+make dev-ai               # Start AI services
+make dev-agents           # Start agent services
+make build-ai             # Build AI service images
+make test-ai              # Run AI service tests
+make dev-mcp              # Start MCP server
+make test-mcp             # Run MCP server tests
+```
+
+### FixOps (Auto-Fix)
+
+```bash
+make fixops               # Preview issues (dry-run)
+make fixops-run           # Apply safe fixes
+make fixops-comprehensive # Fix all issues
+make fixops-json          # JSON output for CI/CD integration
+```
+
+### Mobile Development
+
+```bash
+make mobile-test          # Run Flutter tests
+make mobile-build         # Build debug APK
+make mobile-build-release # Build release APK
+make mobile-build-aab     # Build Android App Bundle
+make mobile-analyze       # Run Dart analyzer
+make mobile-format        # Format Dart code
+make mobile-clean         # Clean Flutter build artifacts
+make mobile-deps          # Install Flutter dependencies
+make mobile-codegen       # Run code generation
+make mobile-ci            # Full mobile CI pipeline
+```
+
 ### Utilities
 
 ```bash
@@ -285,6 +374,12 @@ make ps                   # List running containers
 make stats                # Show project statistics
 make quickstart           # Quick start for new developers
 make ci                   # Run CI checks (lint + test)
+make ci-full              # Full CI pipeline (lint + test + build)
+make dead-code            # Detect unused code (knip)
+make complexity           # Check code complexity
+make secrets-scan         # Scan for leaked secrets
+make deps-check           # Check dependency health
+make deps-audit           # Security audit of dependencies
 ```
 
 ---
@@ -483,15 +578,20 @@ NATS_URL=""
 | `tests/integration/` | API & database tests       |
 | `tests/smoke/`       | Import verification        |
 | `tests/e2e/`         | End-to-end tests           |
-| `tests/load/`        | Locust load tests          |
+| `tests/load/`        | Load tests (k6, Locust)    |
 | `tests/evaluation/`  | AI agent evaluation        |
 | `tests/guardrails/`  | Input validation tests     |
 | `tests/a2a/`         | Agent-to-Agent tests       |
-| `tests/container/`   | Container tests            |
+| `tests/container/`   | Docker container tests     |
 | `tests/database/`    | Database-specific tests    |
-| `tests/frontend/`    | Frontend component tests   |
-| `tests/middleware/`  | Middleware tests           |
+| `tests/frontend/`    | React component tests      |
+| `tests/middleware/`   | Middleware tests           |
 | `tests/simulation/`  | Simulation tests           |
+| `tests/security/`    | Security-focused tests     |
+| `tests/golden-datasets/` | Golden test datasets   |
+| `tests/factories/`   | Test data factories        |
+| `tests/snapshots/`   | Snapshot comparisons       |
+| `tests/utils/`       | Test helper utilities      |
 
 ---
 
@@ -650,19 +750,65 @@ logger = structlog.get_logger()
 logger.info("event_name", field_id=field_id, action="create")
 ```
 
+### Ruff Configuration
+
+The project uses Ruff for Python linting and formatting (configured in `pyproject.toml`):
+
+- **Line length**: 120 characters
+- **Target**: Python 3.11
+- **Complexity threshold**: 20 (McCabe, relaxed for AI/RAG services)
+- **Selected rules**: `E, F, I, UP, B, SIM, N, W, C4, C90`
+- **Excluded dirs**: `archive/`, `idp/templates/`, `.git`, `.venv`, `__pycache__`
+
 ---
 
 ## Important Files Reference
 
-| File                       | Purpose                               |
-| -------------------------- | ------------------------------------- |
-| `Makefile`                 | All development commands              |
-| `docker-compose.yml`       | Full service stack                    |
-| `pyproject.toml`           | Python project config, linting (Ruff) |
-| `package.json`             | Node.js root workspace                |
-| `.env.example`             | Environment template                  |
-| `governance/services.yaml` | Service registry (source of truth)    |
-| `governance/agents.yaml`   | AI agent definitions                  |
+| File                            | Purpose                                     |
+| ------------------------------- | ------------------------------------------- |
+| `Makefile`                      | All development commands (~115 targets)      |
+| `docker-compose.yml`            | Full service stack (main)                    |
+| `docker-compose.test.yml`       | Testing environment                          |
+| `docker-compose.prod.yml`       | Production configuration                     |
+| `docker-compose.ha.yml`         | High Availability setup                      |
+| `docker-compose.redis-ha.yml`   | Redis Cluster HA                             |
+| `docker-compose.telemetry.yml`  | OpenTelemetry stack                          |
+| `docker-compose.tls.yml`        | TLS/SSL configuration                        |
+| `docker-compose.walg.yml`       | Backup/recovery (WAL-G)                      |
+| `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
+| `package.json`                  | Node.js root workspace (27 workspaces)       |
+| `.env.example`                  | Environment template                         |
+| `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
+| `governance/agents.yaml`        | AI agent definitions (11 categories)         |
+| `shared/errors_py.py`           | Unified error handling for FastAPI            |
+| `shared/logging_config.py`      | Structured logging configuration             |
+
+---
+
+## Governance
+
+The `governance/` directory maintains the platform's service registry and agent definitions:
+
+| File | Version | Purpose |
+|------|---------|---------|
+| `services.yaml` | 3.2.0 | Service registry - single source of truth for all microservices |
+| `agents.yaml` | 16.0.0 | AI agent definitions (11 categories, A2A protocol-compliant) |
+| `credentials.template.yaml` | - | Credential template for service configuration |
+| `DEDUP_MATRIX.md` | - | Service deduplication matrix |
+
+### Agent Categories (defined in `agents.yaml`)
+
+intelligence, advisory, analysis, monitoring, security, iot, precision, sustainability, market, social, operations
+
+### Governance Subdirectories
+
+- `decisions/` - Architecture Decision Records (ADRs)
+- `design/` - Design patterns and standards
+- `events/` - Event definitions and schemas
+- `policies/` - Security and operational policies
+- `reliability/` - Reliability patterns
+- `schemas/` - Data schemas
+- `templates/` - Configuration templates
 
 ---
 
@@ -699,18 +845,21 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (37):
+GitHub Workflows (48):
 
-- `ci.yml` - Main CI pipeline
-- `cd-staging.yml` - Staging deployment
-- `cd-production.yml` - Production deployment
-- `container-tests.yml` - Docker container tests
-- `codeql-analysis.yml` - Security scanning
-- `frontend-tests.yml` - Frontend tests
-- `load-testing.yml` - Performance tests
-- `agent-evaluation.yml` - AI agent evaluation
-- `governance-ci.yml` - Governance checks
-- `security-checks.yml` - Security audits
+- **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`
+- **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`
+- **Deployment**: `cd-production.yml`, `cd-staging.yml`, `cd-new-services.yml`, `canary-deploy.yml`, `blue-green-deploy.yml`
+- **Testing**: `frontend-tests.yml`, `mobile-ci.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-test-validation.yml`
+- **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`
+- **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`
+- **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `skills-tests.yml`
+- **Mobile**: `flutter-apk.yml`, `mobile-release.yml`
+- **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`
+- **AI/Evaluation**: `agent-evaluation.yml`, `skills-tests.yml`
+- **PR Automation**: `auto-merge-prs.yml`, `pr-status-monitor.yml`
+- **Docs/Preview**: `docs.yml`, `lighthouse-ci.yml`, `deploy-preview.yml`, `vercel-preview.yml`, `playwright-e2e.yml`
+- **Other**: `notifications.yml`, `scorecard.yml`, `reusable-setup.yml`, `generator-guard.yml`
 
 ---
 
@@ -791,23 +940,37 @@ This service has been migrated to [new-service]
 
 ### Community & Business
 
-| Service             | Type    | Port | Description              |
-| ------------------- | ------- | ---- | ------------------------ |
-| marketplace-service | Node.js | 3010 | Agricultural marketplace |
-| community-chat      | Node.js | 8097 | Community features       |
-| research-core       | Node.js | 3015 | Research trials          |
-| disaster-assessment | Node.js | 3020 | Disaster risk assessment |
-| field-chat          | Python  | 8099 | Field-level chat         |
-| inventory-service   | Python  | 8116 | Inventory management     |
-| cooperative-service | Python  | 8127 | Cooperative management   |
+| Service              | Type    | Port | Description              |
+| -------------------- | ------- | ---- | ------------------------ |
+| marketplace-service  | Node.js | 3010 | Agricultural marketplace |
+| community-chat       | Node.js | 8097 | Community features       |
+| chat-service         | Node.js | -    | Real-time messaging      |
+| research-core        | Node.js | 3015 | Research trials          |
+| disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
+| field-chat           | Python  | 8099 | Field-level chat         |
+| inventory-service    | Python  | 8116 | Inventory management     |
+| cooperative-service  | Python  | -    | Cooperative management   |
+| crm-service          | Python  | -    | Farmer CRM               |
+| logistics-service    | Python  | -    | Logistics management     |
+| supply-chain-service | Python  | -    | Supply chain management  |
+| whatsapp-bot-service | Python  | -    | WhatsApp bot integration |
+| ussd-gateway         | Python  | -    | USSD gateway             |
 
-### AI Agents
+### AI & Agents
 
-| Service             | Type    | Port | Description              |
-| ------------------- | ------- | ---- | ------------------------ |
-| agent-registry      | Python  | 8160 | Agent registry service   |
-| code-fix-agent      | Python  | 8161 | Code fix AI agent        |
-| code-review-agent   | Python  | 8162 | Code review agent        |
+| Service               | Type    | Port | Description                 |
+| --------------------- | ------- | ---- | --------------------------- |
+| agent-registry        | Python  | 8160 | Agent registry service      |
+| code-fix-agent        | Python  | 8161 | Code fix AI agent           |
+| code-review-agent     | Node.js | -    | Code review agent           |
+| code-review-service   | Python  | -    | Code review service         |
+| ai-advisor            | Python  | -    | AI advisory service         |
+| ai-agents-core        | Python  | -    | AI agents core module       |
+| ai-agents-service     | Python  | -    | AI agents service           |
+| ai-chat-assistant     | Python  | -    | AI chat assistant           |
+| llm-orchestrator-service | Python | -  | LLM orchestration           |
+| copilot-api           | Python  | -    | Copilot API                 |
+| knowledge-graph       | Python  | -    | Knowledge graph service     |
 
 ### Compliance & Traceability
 
@@ -817,15 +980,30 @@ This service has been migrated to [new-service]
 | audit-service         | Python  | 8114 | Audit logging            |
 | traceability-service  | Python  | 8123 | Product traceability     |
 
-### Vision, Terrain & Edge Services (New)
+### Vision, Terrain & Edge Services
 
 | Service                    | Type   | Port | Description                                        |
 | -------------------------- | ------ | ---- | -------------------------------------------------- |
 | yolo26-vision-service      | Python | 8150 | YOLO26 computer vision for pest/disease/weed detection |
+| ground-vision-service      | Python | -    | Ground-level vision analysis                       |
 | terrain-core-service       | Python | 8185 | DEM processing and terrain analysis                |
 | hydrology-service          | Python | 8165 | Hydrology and drainage analysis                    |
 | leveling-optimizer-service | Python | 8170 | Field leveling optimization                        |
 | edge-orchestrator-service  | Python | 8180 | Edge device management (Jetson Orin)               |
+
+### Specialized & Domain Services
+
+| Service                   | Type    | Port | Description                      |
+| ------------------------- | ------- | ---- | -------------------------------- |
+| fertigation-engine        | Python  | -    | Fertigation management           |
+| irrigation-cycle-engine   | Python  | -    | Irrigation cycle optimization    |
+| ndvi-engine               | Python  | -    | NDVI processing engine           |
+| digital-twin-engine       | Python  | -    | Digital twin simulation          |
+| lowcode-engine            | Python  | -    | Low-code workflow automation     |
+| iot-sensor-hub            | Python  | -    | IoT sensor hub                   |
+| weather-core              | Python  | -    | Weather core service             |
+| demo-data                 | Python  | -    | Demo data generator              |
+| provider-config           | Python  | -    | Provider configuration           |
 
 ---
 
@@ -1035,7 +1213,6 @@ The SAHOOL platform includes a comprehensive AI-powered code auto-fix system loc
 ```
 shared/ai/
 ├── auto_fix/                    # Auto-Fix Engine
-│   ├── __init__.py             # Package exports
 │   ├── models.py               # Data models (Diagnostic, CodeFix, AuditEntry)
 │   ├── diagnostics.py          # Multi-tool code analysis
 │   ├── fixers.py               # Automated code fixing
@@ -1044,16 +1221,34 @@ shared/ai/
 │   ├── compression.py          # Token compression
 │   ├── memory.py               # Farm memory management
 │   └── evaluation.py           # LLM-as-Judge evaluation
+├── agents/                      # CrewAI multi-agent orchestration
+├── orchestration/               # Multi-agent consensus & swarm intelligence
+├── guardrails/                  # AI safety (input/output filtering, policy)
+├── models_registry/             # Agricultural AI models registry (50+ models)
+├── ultrarag/                    # Advanced RAG system
+├── diffusion/                   # Image generation capabilities
 ├── ollama_client.py            # Local LLM integration via Ollama
 ├── model_training.py           # Model fine-tuning & evaluation
 ├── audit.py                    # AI audit logging with cost tracking
 ├── circuit_breaker.py          # Resilience pattern for services
 ├── metrics.py                  # Prometheus-compatible metrics
-├── llm_provider.py             # Multi-provider LLM manager
+├── llm_provider.py             # Multi-provider LLM (Ollama, Claude, OpenAI, Gemini, DeepSeek)
+├── code_llm_provider.py        # Code-specialized LLM (completion, review, fix)
+├── huggingface_provider.py     # Arabic & multilingual embeddings
 ├── validation.py               # Input/output validation
 ├── embeddings.py               # Unified embedding providers
+├── ot_embeddings.py            # OpenTelemetry-instrumented embeddings
+├── vector_store.py             # Persistent vector database for RAG
+├── crop_vision.py              # Computer vision for disease/pest detection
 ├── explainability.py           # Recommendation explanations
-└── feedback.py                 # User feedback collection
+├── feedback.py                 # User feedback collection
+├── experience_learning.py      # Self-learning agents with SOP generation
+├── graph_memory.py             # Graph-based memory with ECL pipeline
+├── grpo_trainer.py             # Group Relative Policy Optimization trainer
+├── hardware_optimizer.py       # Hardware resource optimization
+├── quality_orchestrator.py     # Quality assurance orchestration
+├── tool_registry.py            # Tool management and guardrails
+└── observability.py            # AI-specific observability metrics
 ```
 
 ### Auto-Fix Engine (`shared/ai/auto_fix/`)
@@ -1923,9 +2118,83 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ---
 
+## Shared Agricultural Domain Modules
+
+The `shared/` directory contains 64+ Python modules organized by domain. Beyond the core infrastructure (auth, cache, events, middleware, etc.) and AI modules documented above, the platform includes extensive agricultural domain libraries:
+
+### Crop & Field Management
+
+| Module | Purpose |
+|--------|---------|
+| `agri_calendar/` | Agricultural calendar, Islamic calendar integration, planting/harvest timing |
+| `crop_rotation/` | Crop rotation planning for soil health optimization |
+| `field_boundaries/` | Field geometry, geospatial operations (PostGIS, Shapely) |
+| `geofencing/` | Geofence-based alerts and field access monitoring |
+| `terrain/` | DEM processing, terrain analysis, batch processing |
+| `harvest_quality/` | Post-harvest grading, pricing, quality assessment |
+
+### Irrigation & Water
+
+| Module | Purpose |
+|--------|---------|
+| `irrigation/` | Smart irrigation scheduling, collaborative engine, checklists |
+| `water_management/` | Water usage monitoring, efficiency reporting |
+| `ml_irrigation/` | ML-based irrigation optimization and prediction |
+| `salinity/` | Soil salinity monitoring and mitigation |
+
+### Soil & Nutrients
+
+| Module | Purpose |
+|--------|---------|
+| `soil_testing/` | Soil test interpretation and recommendations |
+| `soil_sensors/` | IoT soil sensor data processing and adapters |
+| `fertilizer_management/` | Nutrient recommendations, inventory tracking |
+
+### Pest & Disease
+
+| Module | Purpose |
+|--------|---------|
+| `pest_scouting/` | Pest identification, IPM, threshold-based control |
+| `pesticide_compliance/` | PHI, pesticide registration, safety alerts |
+| `weather_alerts/` | Weather monitoring, spray window optimization |
+
+### Business & Operations
+
+| Module | Purpose |
+|--------|---------|
+| `mobile_sync/` | Offline-first sync, conflict resolution, delta sync |
+| `batch_operations/` | Async batch processing and scheduling |
+| `labor_management/` | Workforce scheduling and safety management |
+| `equipment_maintenance/` | Equipment lifecycle and predictive maintenance |
+| `cooperatives/` | Multi-farm cooperative resource pooling |
+| `market_prices/` | Market price tracking and trend analysis |
+| `traceability/` | Supply chain traceability and QR codes |
+| `drone_integration/` | Drone flight planning and Variable Rate Application |
+| `crop_insurance/` | Crop insurance and risk assessment |
+| `farm_documents/` | Farm documentation, compliance, and alerts |
+| `learning_marketplace/` | Farmer education and progress tracking |
+
+### Advanced Technology
+
+| Module | Purpose |
+|--------|---------|
+| `smart_agriculture/` | Blockchain traceability, IFTTT automation, PID controllers |
+| `edge_cloud/` | Edge-cloud architecture, cooperative systems |
+| `lowcode/` | Low-code/no-code workflow automation engine |
+| `scraping/` | Data scraping for price and weather data |
+
+### Regional
+
+| Module | Purpose |
+|--------|---------|
+| `yemen/` | Yemen-specific crop varieties, climate, and soil data |
+| `globalgap/` | GlobalGAP IFA v6 compliance checklists and API |
+
+---
+
 ## Getting Help
 
-- **Documentation**: `docs/` directory (109+ documents)
+- **Documentation**: `docs/` directory (171+ documents)
 - **API Gateway**: `docs/API_GATEWAY.md`
 - **Deployment**: `docs/DEPLOYMENT.md`
 - **Security**: `docs/SECURITY.md`
@@ -1947,9 +2216,22 @@ make quickstart
 
 # Run Python tests
 pytest apps/services/ -v
+make test-python
 
-# Check code quality
+# Run Node.js tests
+npm run test
+make test-node
+
+# Check code quality (Python)
 ruff check apps/ shared/
+make lint
+
+# Check code quality (Node.js)
+npm run lint
+npm run typecheck
+
+# Auto-fix code issues
+make fixops-run
 
 # View logs
 docker compose logs -f [service_name]
@@ -1959,8 +2241,12 @@ make db-shell
 
 # Service status
 make status
+make health
+
+# Run full CI locally
+make ci
 ```
 
 ---
 
-_Last Updated: January 2026_
+_Last Updated: February 2026_

@@ -12,21 +12,21 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 
-# Add project root first so shared.errors_py resolves to the root shared/ module
-# (not apps/services/shared/errors_py/ which has a different NotFoundException API)
-_service_dir = Path(__file__).resolve().parent.parent  # advisory-service/
-_project_root = _service_dir.parent.parent.parent  # sahool-unified-v15-idp/
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
-# Add apps/services/ for local crop/variety modules in shared/
-_services_dir = _service_dir.parent  # apps/services/
-if str(_services_dir) not in sys.path:
-    sys.path.insert(0, str(_services_dir))
+# Shared middleware imports - add apps/services/ to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field
+
+# Add shared modules to path (for crops, yemen_varieties etc.)
+# In Docker, shared is at /app/shared
+SHARED_PATH = Path("/app/shared")
+if not SHARED_PATH.exists():
+    # Fallback for local development
+    SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
+if str(SHARED_PATH) not in sys.path:
+    sys.path.insert(0, str(SHARED_PATH))
 
 # Import unified error handling
 # Import shared crop catalogs
@@ -45,8 +45,6 @@ from yemen_varieties import (
 )
 
 from shared.errors_py import (
-    NotFoundException,
-    ValidationException,
     add_request_id_middleware,
     create_success_response,
     setup_exception_handlers,
@@ -360,12 +358,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     """Get disease information by ID"""
     disease = get_disease(disease_id)
     if not disease:
-        raise NotFoundException(
-            message=f"Disease not found: {disease_id}",
-            message_ar="لم يتم العثور على المرض",
-            resource_type="disease",
-            resource_id=disease_id,
-        )
+        raise HTTPException(status_code=404, detail=f"Disease not found: {disease_id}")
 
     return create_success_response(
         {
@@ -463,12 +456,7 @@ def get_deficiency_info(deficiency_id: str):
     """Get nutrient deficiency information by ID"""
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
-        raise NotFoundException(
-            message=f"Deficiency not found: {deficiency_id}",
-            message_ar="لم يتم العثور على نقص المغذيات",
-            resource_type="deficiency",
-            resource_id=deficiency_id,
-        )
+        raise HTTPException(status_code=404, detail=f"Deficiency not found: {deficiency_id}")
 
     return create_success_response({"id": deficiency_id, **deficiency})
 
@@ -517,12 +505,7 @@ def get_fertilizer_info(fertilizer_id: str):
     """Get fertilizer information by ID"""
     fert = get_fertilizer(fertilizer_id)
     if not fert:
-        raise NotFoundException(
-            message=f"Fertilizer not found: {fertilizer_id}",
-            message_ar="لم يتم العثور على السماد",
-            resource_type="fertilizer",
-            resource_id=fertilizer_id,
-        )
+        raise HTTPException(status_code=404, detail=f"Fertilizer not found: {fertilizer_id}")
 
     return create_success_response({"id": fertilizer_id, **fert})
 
@@ -563,11 +546,7 @@ def list_categories():
 def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
-        raise ValidationException(
-            message="Query must be at least 2 characters",
-            message_ar="يجب أن يكون الاستعلام حرفين على الأقل",
-            details={"field": "q"},
-        )
+        raise HTTPException(status_code=422, detail="Query must be at least 2 characters")
 
     results = search_crops_catalog(q)
 
@@ -638,12 +617,7 @@ def get_crop_details(crop_code: str):
     """Get single crop details with Yemen varieties"""
     crop = get_crop(crop_code)
     if not crop:
-        raise NotFoundException(
-            message=f"Crop not found: {crop_code}",
-            message_ar="لم يتم العثور على المحصول",
-            resource_type="crop",
-            resource_id=crop_code,
-        )
+        raise HTTPException(status_code=404, detail=f"Crop not found: {crop_code}")
 
     # Get Yemen varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -688,12 +662,7 @@ def get_crop_varieties(crop_code: str):
     # First check if crop exists
     crop = get_crop(crop_code)
     if not crop:
-        raise NotFoundException(
-            message=f"Crop not found: {crop_code}",
-            message_ar="لم يتم العثور على المحصول",
-            resource_type="crop",
-            resource_id=crop_code,
-        )
+        raise HTTPException(status_code=404, detail=f"Crop not found: {crop_code}")
 
     # Get varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -737,12 +706,7 @@ def get_crop_stages(crop: str):
     """Get growth stages for a crop"""
     timeline = get_stage_timeline(crop)
     if not timeline:
-        raise NotFoundException(
-            message=f"Crop not found: {crop}",
-            message_ar="لم يتم العثور على المحصول",
-            resource_type="crop",
-            resource_id=crop,
-        )
+        raise HTTPException(status_code=404, detail=f"Crop not found: {crop}")
 
     return create_success_response({"crop": crop, "stages": timeline})
 
@@ -751,12 +715,7 @@ def get_crop_stages(crop: str):
 def get_crop_requirements_legacy(crop: str):
     """Get nutrient requirements for a crop (legacy endpoint)"""
     if crop not in CROP_REQUIREMENTS:
-        raise NotFoundException(
-            message=f"Crop not found: {crop}",
-            message_ar="لم يتم العثور على المحصول",
-            resource_type="crop",
-            resource_id=crop,
-        )
+        raise HTTPException(status_code=404, detail=f"Crop not found: {crop}")
 
     return create_success_response({"crop": crop, **CROP_REQUIREMENTS[crop]})
 

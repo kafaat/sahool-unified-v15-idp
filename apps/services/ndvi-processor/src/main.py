@@ -8,17 +8,10 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
-from pathlib import Path
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 
-# Add project root first so shared.errors_py resolves to root shared/ module
-# (not apps/services/shared/errors_py/ which has a different API)
-_service_dir = Path(__file__).resolve().parent.parent  # ndvi-processor/
-_project_root = _service_dir.parent.parent.parent  # sahool-unified-v15-idp/
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-# Add apps/services/ for local shared modules
+# Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 

@@ -14,7 +14,6 @@ import os
 import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
-from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -22,14 +21,9 @@ from fastapi.responses import JSONResponse
 # Configure logger early
 logger = logging.getLogger(__name__)
 
-# Add project root first so shared.errors_py resolves to root shared/ module
-# (not apps/services/shared/errors_py/ which has a different API)
-_service_dir = Path(__file__).resolve().parent.parent  # knowledge-graph/
-_project_root = _service_dir.parent.parent.parent  # sahool-unified-v15-idp/
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-# Add apps/services/ for local shared modules
+# Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+sys.path.insert(0, "../../../../shared")
 
 # Import shared middleware
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers

@@ -98,6 +98,8 @@ def create_access_token(
         "sub": user_id,
         "type": "access",
         "jti": jti,
+        "iss": config.issuer,
+        "aud": config.audience,
         "iat": now,
         "exp": expire,
     }
@@ -159,6 +161,8 @@ def create_refresh_token(
         "type": "refresh",
         "jti": jti,
         "family_id": family_id,
+        "iss": config.issuer,
+        "aud": config.audience,
         "iat": now,
         "exp": expire,
     }

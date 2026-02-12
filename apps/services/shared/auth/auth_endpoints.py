@@ -20,9 +20,10 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from pydantic import BaseModel, EmailStr, Field
 
-from shared.auth.jwt_handler import create_token_pair, verify_token
-from shared.auth.models import AuthException
-from shared.auth.password_hasher import generate_secure_token, hash_password, verify_password
+from .config import get_auth_config
+from .jwt import create_access_token, create_refresh_token, decode_token
+from .models import AuthException
+from .password import hash_password, verify_password
 
 logger = logging.getLogger(__name__)
 
@@ -176,7 +177,7 @@ class InMemoryAuthStore:
         if not user:
             return None
 
-        token = generate_secure_token(32)
+        token = secrets.token_urlsafe(32)
         self._reset_tokens[token] = {
             "email": email.lower(),
             "expires_at": datetime.now(UTC) + timedelta(minutes=15),
@@ -275,7 +276,7 @@ async def login(
         )
 
     # Verify password
-    is_valid, needs_rehash = verify_password(credentials.password, user["password_hash"])
+    is_valid = verify_password(credentials.password, user["password_hash"])
 
     if not is_valid:
         logger.warning(f"Login failed - invalid password: {credentials.email}")
@@ -294,25 +295,24 @@ async def login(
         )
 
     # Generate tokens
-    tokens = create_token_pair(
+    config = get_auth_config()
+    access_token, _access_jti = create_access_token(
         user_id=user["id"],
         roles=user.get("roles", ["user"]),
         tenant_id=user.get("tenant_id"),
-        permissions=["farm:read", "farm:write"],  # Default permissions
+        permissions=["farm:read", "farm:write"],
+    )
+    refresh_token, _refresh_jti, _family_id = create_refresh_token(
+        user_id=user["id"],
+        tenant_id=user.get("tenant_id"),
     )
 
     logger.info(f"Login successful: {credentials.email} (IP: {request.client.host})")
 
-    # Rehash password if needed (migration)
-    if needs_rehash:
-        new_hash = hash_password(credentials.password)
-        store.update_password(credentials.email, new_hash)
-        logger.info(f"Password rehashed for user: {credentials.email}")
-
     return AuthResponse(
-        access_token=tokens["access_token"],
-        refresh_token=tokens["refresh_token"],
-        expires_in=tokens["expires_in"],
+        access_token=access_token,
+        refresh_token=refresh_token,
+        expires_in=config.access_token_expire_minutes * 60,
     )
 
 
@@ -450,8 +450,8 @@ async def refresh_token(
     """Token refresh endpoint."""
 
     try:
-        # Verify refresh token
-        payload = verify_token(data.refresh_token)
+        # Decode and verify refresh token
+        payload = decode_token(data.refresh_token, verify_audience=True)
 
         # Check token type
         if payload.token_type != "refresh":
@@ -483,11 +483,16 @@ async def refresh_token(
             )
 
         # Generate new tokens
-        tokens = create_token_pair(
+        config = get_auth_config()
+        access_token, _access_jti = create_access_token(
             user_id=user["id"],
             roles=user.get("roles", ["user"]),
             tenant_id=user.get("tenant_id"),
             permissions=["farm:read", "farm:write"],
+        )
+        new_refresh_token, _refresh_jti, _family_id = create_refresh_token(
+            user_id=user["id"],
+            tenant_id=user.get("tenant_id"),
         )
 
         # Revoke old refresh token (token rotation)
@@ -497,12 +502,12 @@ async def refresh_token(
         logger.info(f"Token refreshed for user: {user['email']}")
 
         return AuthResponse(
-            access_token=tokens["access_token"],
-            refresh_token=tokens["refresh_token"],
-            expires_in=tokens["expires_in"],
+            access_token=access_token,
+            refresh_token=new_refresh_token,
+            expires_in=config.access_token_expire_minutes * 60,
         )
 
-    except AuthException:
+    except (AuthException, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
@@ -527,14 +532,14 @@ async def logout(
     if auth_header and auth_header.startswith("Bearer "):
         token = auth_header[7:]
         try:
-            payload = verify_token(token)
+            payload = decode_token(token, verify_audience=True)
 
             # Revoke the token
             if payload.jti:
                 store.revoke_token(payload.jti)
                 logger.info(f"Token revoked for user: {payload.user_id}")
 
-        except AuthException:
+        except (AuthException, ValueError):
             # Token is invalid/expired, but logout is still successful
             pass
 
@@ -566,7 +571,7 @@ async def get_current_user(
     token = auth_header[7:]
 
     try:
-        payload = verify_token(token)
+        payload = decode_token(token, verify_audience=True)
 
         # Check if token is revoked
         if payload.jti and store.is_token_revoked(payload.jti):
@@ -590,7 +595,7 @@ async def get_current_user(
             is_verified=user.get("is_verified", False),
         )
 
-    except AuthException:
+    except (AuthException, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",

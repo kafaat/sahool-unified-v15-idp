@@ -4,6 +4,7 @@ Password Hashing & Validation
 """
 
 import hashlib
+import hmac
 import logging
 import re
 import secrets
@@ -58,7 +59,7 @@ def verify_password(password: str, hashed_password: str) -> bool:
             computed_hash = hashlib.pbkdf2_hmac(
                 "sha256", password.encode("utf-8"), salt.encode("utf-8"), 100000
             )
-            return computed_hash.hex() == stored_hash
+            return hmac.compare_digest(computed_hash.hex(), stored_hash)
     except Exception as e:
         logger.error(f"Password verification error: {e}")
         return False

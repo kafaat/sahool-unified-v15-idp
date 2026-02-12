@@ -241,8 +241,8 @@ class RedisRateLimiter:
         await self._ensure_connection()
 
         if not self._redis:
-            # Fallback to allowing requests if Redis unavailable
-            return True, config.requests_per_minute, config.requests_per_minute, 60
+            # Redis unavailable - raise so RateLimiter facade falls back to in-memory
+            raise RuntimeError("Redis not available for rate limiting")
 
         now = time.time()
         minute_key = f"ratelimit:{key}:minute"
@@ -276,8 +276,8 @@ class RedisRateLimiter:
 
         except Exception as e:
             logger.error(f"Redis rate limit check failed: {e}")
-            # Fail open - allow request if Redis errors
-            return True, config.requests_per_minute, config.requests_per_minute, 60
+            # Raise so RateLimiter facade falls back to in-memory limiting
+            raise
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

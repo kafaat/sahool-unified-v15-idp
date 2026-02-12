@@ -129,7 +129,11 @@ def _generate_cache_key(func_name: str, *args, **kwargs) -> str:
     """Generate a cache key from function name and arguments."""
     key_data = {
         "func": func_name,
-        "args": [str(arg) for arg in args if not hasattr(arg, "__class__") or str(type(arg).__name__) not in ("Request", "User")],
+        "args": [
+            str(arg)
+            for arg in args
+            if not hasattr(arg, "__class__") or str(type(arg).__name__) not in ("Request", "User")
+        ],
         "kwargs": {k: str(v) for k, v in sorted(kwargs.items()) if k not in ("user", "request")},
     }
     key_str = json.dumps(key_data, sort_keys=True)
@@ -146,6 +150,7 @@ def cache_disease_lookup(ttl: int = 3600):
     Decorator for caching disease lookups.
     Disease data changes infrequently, so longer TTL is appropriate.
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -176,6 +181,7 @@ def cache_disease_lookup(ttl: int = 3600):
             return result
 
         return wrapper
+
     return decorator
 
 
@@ -184,6 +190,7 @@ def cache_fertilizer_plan(ttl: int = 1800):
     Decorator for caching fertilizer plan computations.
     Plans depend on crop/stage, so moderate TTL is appropriate.
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -214,6 +221,7 @@ def cache_fertilizer_plan(ttl: int = 1800):
             return result
 
         return wrapper
+
     return decorator
 
 
@@ -222,6 +230,7 @@ def cache_crop_requirements(ttl: int = 7200):
     Decorator for caching crop requirements.
     Requirements are static, so longer TTL is appropriate.
     """
+
     def decorator(func: F) -> F:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -248,6 +257,7 @@ def cache_crop_requirements(ttl: int = 7200):
             return result
 
         return wrapper
+
     return decorator
 
 

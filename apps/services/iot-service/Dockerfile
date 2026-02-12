@@ -7,10 +7,9 @@
 # ───────────────────────────────────────────
 # Stage 1: Builder
 # ───────────────────────────────────────────
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
 
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -51,7 +50,10 @@ RUN npm run build
 # ───────────────────────────────────────────
 # Stage 2: Production
 # ───────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
@@ -59,8 +61,10 @@ LABEL service="iot-service"
 LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
-# Install curl for healthcheck and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# Install curl for healthcheck
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -93,8 +97,8 @@ COPY --from=builder /workspace/iot-service/node_modules/@prisma/client ./node_mo
 COPY --from=builder /workspace/iot-service/dist ./dist
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
+RUN groupadd -g 1001 nodejs && \
+    useradd -u 1001 -g nodejs -s /bin/bash -m nodejs && \
     chown -R nodejs:nodejs /app
 
 USER nodejs

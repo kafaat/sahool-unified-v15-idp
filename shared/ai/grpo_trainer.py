@@ -20,26 +20,28 @@ Updated: January 2026
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import Enum, StrEnum
 from typing import Any
 
 # Type hints for optional dependencies
 try:
     import torch
     from torch import Tensor
+
     TORCH_AVAILABLE = True
 except ImportError:
     TORCH_AVAILABLE = False
     Tensor = Any
 
 
-class GRPOVariant(str, Enum):
+class GRPOVariant(StrEnum):
     """GRPO algorithm variant."""
-    VANILLA = "vanilla"      # Original GRPO
-    DAPO = "dapo"            # DAPO improvements
-    DR_GRPO = "dr_grpo"      # GRPO Done Right
-    DEEPSEEK = "deepseek"    # DeepSeek V3.2 full improvements
+
+    VANILLA = "vanilla"  # Original GRPO
+    DAPO = "dapo"  # DAPO improvements
+    DR_GRPO = "dr_grpo"  # GRPO Done Right
+    DEEPSEEK = "deepseek"  # DeepSeek V3.2 full improvements
 
 
 @dataclass
@@ -97,12 +99,14 @@ class GRPOConfig:
     preserve_routing: bool = True  # For MoE models
 
     # Domain-specific KL weights
-    domain_kl_weights: dict[str, float] = field(default_factory=lambda: {
-        "math": 0.0,
-        "code": 0.05,
-        "agricultural": 0.0,  # SAHOOL: no KL for agricultural advisory
-        "general": 0.1,
-    })
+    domain_kl_weights: dict[str, float] = field(
+        default_factory=lambda: {
+            "math": 0.0,
+            "code": 0.05,
+            "agricultural": 0.0,  # SAHOOL: no KL for agricultural advisory
+            "general": 0.1,
+        }
+    )
 
     # Training parameters
     batch_size: int = 4

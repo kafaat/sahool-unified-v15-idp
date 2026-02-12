@@ -7,7 +7,7 @@ Port: 8120
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import uuid4
 
 import structlog
@@ -190,7 +190,9 @@ def health():
         nats_status = "connected" if app.state.nats_publisher.connected else "disconnected"
 
     # Check in-memory store status | فحص حالة التخزين المؤقت
-    storage_records = len(_compliance_records) + len(_checklists) + len(_assessments) + len(_certificates)
+    storage_records = (
+        len(_compliance_records) + len(_checklists) + len(_assessments) + len(_certificates)
+    )
 
     return {
         "status": "healthy",

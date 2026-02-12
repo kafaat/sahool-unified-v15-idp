@@ -203,10 +203,16 @@ export async function POST(request: NextRequest) {
  * Handle CORS preflight
  */
 export async function OPTIONS() {
+  // Use configured allowed origins instead of wildcard for security
+  const allowedOrigins =
+    process.env.ALLOWED_ORIGINS ||
+    "https://admin.sahool.app,https://sahool.app";
+  const origin = allowedOrigins.split(",")[0] || "https://admin.sahool.app"; // Use first allowed origin or default
+
   return new NextResponse(null, {
     status: 204,
     headers: {
-      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Origin": origin,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Max-Age": "86400",

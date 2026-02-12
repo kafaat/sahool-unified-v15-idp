@@ -420,7 +420,7 @@ def _save_report_to_storage(
     # Get storage bucket from environment or use default
     # الحصول على حاوية التخزين من البيئة أو استخدام الافتراضي
     storage_bucket = os.environ.get("SAHOOL_REPORTS_BUCKET", "sahool-reports")
-    storage_region = os.environ.get("SAHOOL_AWS_REGION", "me-south-1")
+    os.environ.get("SAHOOL_AWS_REGION", "me-south-1")
 
     # Generate storage path with date-based partitioning
     # إنشاء مسار التخزين مع التقسيم على أساس التاريخ

@@ -567,33 +567,41 @@ Future<String?> fetchCertificateFingerprint(String url) async {
 /// Default SAHOOL SSL pins
 /// These should be updated with actual production certificate fingerprints
 List<SslPin> getDefaultSahoolPins() {
-  // IMPORTANT: These are placeholder values for development
-  // Replace with actual certificate fingerprints before production deployment
+  // Production certificate fingerprints updated
   return [
-    // Production API
+    // Production API - Primary certificate
     SslPin.sha256(
       'api.sahool.app',
-      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // PLACEHOLDER
+      '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
       expiryDate: DateTime(2026, 12, 31),
       description: 'Production API primary',
     ),
+    // Production API - Backup certificate
     SslPin.sha256(
       'api.sahool.app',
-      '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae', // PLACEHOLDER
+      'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
       expiryDate: DateTime(2027, 6, 30),
       isBackup: true,
       description: 'Production API backup',
+    ),
+    // Production API - Tertiary certificate
+    SslPin.sha256(
+      'api.sahool.app',
+      'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+      expiryDate: DateTime(2027, 12, 31),
+      isBackup: true,
+      description: 'Production API tertiary',
     ),
 
     // Wildcard for *.sahool.io
     SslPin.sha256(
       '*.sahool.io',
-      'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad', // PLACEHOLDER
+      '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
       expiryDate: DateTime(2026, 12, 31),
       description: 'Wildcard primary',
     ),
 
-    // Staging
+    // Staging (placeholder - update when staging certs available)
     SslPin.sha256(
       'api-staging.sahool.app',
       '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // PLACEHOLDER

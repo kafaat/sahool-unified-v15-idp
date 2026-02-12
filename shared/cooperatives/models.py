@@ -16,93 +16,101 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
-from typing import Any
-from decimal import Decimal
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from decimal import Decimal
+from enum import StrEnum
+from typing import Any
 
 
-class CooperativeType(str, Enum):
+class CooperativeType(StrEnum):
     """Types of agricultural cooperatives | انواع التعاونيات الزراعية"""
-    PRODUCTION = "production"              # تعاونية انتاجية - Joint farming
-    MARKETING = "marketing"                # تعاونية تسويقية - Joint selling
-    SERVICE = "service"                    # تعاونية خدمية - Shared services
-    MULTI_PURPOSE = "multi_purpose"        # تعاونية متعددة الاغراض
-    CREDIT = "credit"                      # تعاونية ائتمانية - Financing
-    IRRIGATION = "irrigation"              # تعاونية ري - Water management
+
+    PRODUCTION = "production"  # تعاونية انتاجية - Joint farming
+    MARKETING = "marketing"  # تعاونية تسويقية - Joint selling
+    SERVICE = "service"  # تعاونية خدمية - Shared services
+    MULTI_PURPOSE = "multi_purpose"  # تعاونية متعددة الاغراض
+    CREDIT = "credit"  # تعاونية ائتمانية - Financing
+    IRRIGATION = "irrigation"  # تعاونية ري - Water management
 
 
-class CooperativeStatus(str, Enum):
+class CooperativeStatus(StrEnum):
     """Cooperative lifecycle status | حالة دورة حياة التعاونية"""
-    FORMING = "forming"                    # قيد التشكيل - Being established
-    ACTIVE = "active"                      # نشطة - Operating normally
-    SUSPENDED = "suspended"                # معلقة - Temporarily inactive
-    DISSOLVED = "dissolved"                # منحلة - No longer operating
+
+    FORMING = "forming"  # قيد التشكيل - Being established
+    ACTIVE = "active"  # نشطة - Operating normally
+    SUSPENDED = "suspended"  # معلقة - Temporarily inactive
+    DISSOLVED = "dissolved"  # منحلة - No longer operating
 
 
-class MemberRole(str, Enum):
+class MemberRole(StrEnum):
     """Roles within a cooperative | الادوار داخل التعاونية"""
-    CHAIRMAN = "chairman"                  # رئيس - Head of cooperative
-    VICE_CHAIRMAN = "vice_chairman"        # نائب الرئيس
-    TREASURER = "treasurer"                # امين الصندوق - Financial manager
-    SECRETARY = "secretary"                # السكرتير - Administrative
-    BOARD_MEMBER = "board_member"          # عضو مجلس الادارة
-    MEMBER = "member"                      # عضو - Regular member
-    OBSERVER = "observer"                  # مراقب - Non-voting participant
+
+    CHAIRMAN = "chairman"  # رئيس - Head of cooperative
+    VICE_CHAIRMAN = "vice_chairman"  # نائب الرئيس
+    TREASURER = "treasurer"  # امين الصندوق - Financial manager
+    SECRETARY = "secretary"  # السكرتير - Administrative
+    BOARD_MEMBER = "board_member"  # عضو مجلس الادارة
+    MEMBER = "member"  # عضو - Regular member
+    OBSERVER = "observer"  # مراقب - Non-voting participant
 
 
-class MemberStatus(str, Enum):
+class MemberStatus(StrEnum):
     """Member participation status | حالة مشاركة العضو"""
-    PENDING = "pending"                    # معلق - Awaiting approval
-    ACTIVE = "active"                      # نشط - Fully participating
-    SUSPENDED = "suspended"                # موقوف - Temporarily inactive
-    WITHDRAWN = "withdrawn"                # منسحب - Left voluntarily
-    EXPELLED = "expelled"                  # مطرود - Removed
+
+    PENDING = "pending"  # معلق - Awaiting approval
+    ACTIVE = "active"  # نشط - Fully participating
+    SUSPENDED = "suspended"  # موقوف - Temporarily inactive
+    WITHDRAWN = "withdrawn"  # منسحب - Left voluntarily
+    EXPELLED = "expelled"  # مطرود - Removed
 
 
-class ResourceType(str, Enum):
+class ResourceType(StrEnum):
     """Types of shared resources | انواع الموارد المشتركة"""
-    EQUIPMENT = "equipment"                # معدات - Tractors, harvesters
-    STORAGE = "storage"                    # تخزين - Warehouses, silos
-    TRANSPORT = "transport"                # نقل - Trucks, logistics
-    PROCESSING = "processing"              # معالجة - Mills, packhouses
-    IRRIGATION = "irrigation"              # ري - Pumps, pivots
-    LAND = "land"                          # ارض - Shared plots
-    SEEDS = "seeds"                        # بذور - Seed bank
-    FERTILIZER = "fertilizer"              # اسمدة - Bulk fertilizer
-    PESTICIDE = "pesticide"                # مبيدات - Crop protection
+
+    EQUIPMENT = "equipment"  # معدات - Tractors, harvesters
+    STORAGE = "storage"  # تخزين - Warehouses, silos
+    TRANSPORT = "transport"  # نقل - Trucks, logistics
+    PROCESSING = "processing"  # معالجة - Mills, packhouses
+    IRRIGATION = "irrigation"  # ري - Pumps, pivots
+    LAND = "land"  # ارض - Shared plots
+    SEEDS = "seeds"  # بذور - Seed bank
+    FERTILIZER = "fertilizer"  # اسمدة - Bulk fertilizer
+    PESTICIDE = "pesticide"  # مبيدات - Crop protection
 
 
-class ResourceStatus(str, Enum):
+class ResourceStatus(StrEnum):
     """Status of shared resources | حالة الموارد المشتركة"""
-    AVAILABLE = "available"                # متاح - Ready for use
-    IN_USE = "in_use"                      # قيد الاستخدام
-    MAINTENANCE = "maintenance"            # صيانة - Under repair
-    RESERVED = "reserved"                  # محجوز - Booked for future
-    RETIRED = "retired"                    # متقاعد - No longer in service
+
+    AVAILABLE = "available"  # متاح - Ready for use
+    IN_USE = "in_use"  # قيد الاستخدام
+    MAINTENANCE = "maintenance"  # صيانة - Under repair
+    RESERVED = "reserved"  # محجوز - Booked for future
+    RETIRED = "retired"  # متقاعد - No longer in service
 
 
-class PurchaseOrderStatus(str, Enum):
+class PurchaseOrderStatus(StrEnum):
     """Group purchase order status | حالة امر الشراء الجماعي"""
-    DRAFT = "draft"                        # مسودة - Being prepared
-    COLLECTING = "collecting"              # جمع - Collecting orders
-    CONFIRMED = "confirmed"                # مؤكد - Orders finalized
-    ORDERED = "ordered"                    # تم الطلب - Placed with supplier
-    DELIVERED = "delivered"                # تم التسليم
-    DISTRIBUTED = "distributed"            # تم التوزيع - Given to members
-    CANCELLED = "cancelled"                # ملغي
+
+    DRAFT = "draft"  # مسودة - Being prepared
+    COLLECTING = "collecting"  # جمع - Collecting orders
+    CONFIRMED = "confirmed"  # مؤكد - Orders finalized
+    ORDERED = "ordered"  # تم الطلب - Placed with supplier
+    DELIVERED = "delivered"  # تم التسليم
+    DISTRIBUTED = "distributed"  # تم التوزيع - Given to members
+    CANCELLED = "cancelled"  # ملغي
 
 
-class RevenueShareMethod(str, Enum):
+class RevenueShareMethod(StrEnum):
     """Methods for distributing revenue | طرق توزيع الايرادات"""
-    EQUAL = "equal"                        # بالتساوي - Equal shares
-    CONTRIBUTION = "contribution"          # حسب المساهمة - By contribution
-    PRODUCTION = "production"              # حسب الانتاج - By production volume
-    LAND_AREA = "land_area"                # حسب المساحة - By land area
-    WEIGHTED = "weighted"                  # موزون - Custom weights
-    HYBRID = "hybrid"                      # هجين - Multiple methods
+
+    EQUAL = "equal"  # بالتساوي - Equal shares
+    CONTRIBUTION = "contribution"  # حسب المساهمة - By contribution
+    PRODUCTION = "production"  # حسب الانتاج - By production volume
+    LAND_AREA = "land_area"  # حسب المساحة - By land area
+    WEIGHTED = "weighted"  # موزون - Custom weights
+    HYBRID = "hybrid"  # هجين - Multiple methods
 
 
 @dataclass
@@ -111,11 +119,12 @@ class Address:
     Physical address for cooperative or resource.
     العنوان الفعلي للتعاونية او المورد
     """
-    governorate: str                       # المحافظة
-    district: str                          # المركز
-    village: str | None = None             # القرية
-    street: str | None = None              # الشارع
-    postal_code: str | None = None         # الرمز البريدي
+
+    governorate: str  # المحافظة
+    district: str  # المركز
+    village: str | None = None  # القرية
+    street: str | None = None  # الشارع
+    postal_code: str | None = None  # الرمز البريدي
     coordinates: tuple[float, float] | None = None  # الاحداثيات
 
     def to_dict(self) -> dict[str, Any]:
@@ -147,20 +156,21 @@ class CooperativeConfig:
     Configuration for cooperative operations.
     اعدادات عمليات التعاونية
     """
+
     # Membership settings
-    min_members: int = 7                   # Minimum members required
-    max_members: int | None = None         # Maximum members (None = unlimited)
+    min_members: int = 7  # Minimum members required
+    max_members: int | None = None  # Maximum members (None = unlimited)
     membership_fee: Decimal = Decimal("0")  # رسوم العضوية
-    annual_dues: Decimal = Decimal("0")    # الاشتراك السنوي
+    annual_dues: Decimal = Decimal("0")  # الاشتراك السنوي
 
     # Revenue sharing defaults
     default_share_method: RevenueShareMethod = RevenueShareMethod.CONTRIBUTION
     management_fee_percent: Decimal = Decimal("5.0")  # نسبة الرسوم الادارية
-    reserve_fund_percent: Decimal = Decimal("10.0")   # نسبة صندوق الاحتياطي
+    reserve_fund_percent: Decimal = Decimal("10.0")  # نسبة صندوق الاحتياطي
 
     # Resource access rules
     max_equipment_hours_per_member: int | None = None
-    priority_by_seniority: bool = True     # اولوية حسب الاقدمية
+    priority_by_seniority: bool = True  # اولوية حسب الاقدمية
     advance_booking_days: int = 7
 
     # Group purchasing
@@ -192,6 +202,7 @@ class Cooperative:
 
     Supports hierarchical structure with parent-child relationships.
     """
+
     # Identification
     cooperative_id: str
     tenant_id: str
@@ -207,12 +218,12 @@ class Cooperative:
     status: CooperativeStatus = CooperativeStatus.FORMING
 
     # Hierarchy (for federated cooperatives)
-    parent_id: str | None = None           # التعاونية الام
-    level: int = 0                         # 0=primary, 1=regional, 2=national
+    parent_id: str | None = None  # التعاونية الام
+    level: int = 0  # 0=primary, 1=regional, 2=national
 
     # Location
     address: Address | None = None
-    service_area_km: float | None = None   # نطاق الخدمة
+    service_area_km: float | None = None  # نطاق الخدمة
 
     # Registration
     registration_number: str | None = None  # رقم التسجيل
@@ -228,7 +239,7 @@ class Cooperative:
     config: CooperativeConfig = field(default_factory=CooperativeConfig)
 
     # Financial
-    share_capital: Decimal = Decimal("0")   # راس المال
+    share_capital: Decimal = Decimal("0")  # راس المال
     currency: str = "SAR"
 
     # Statistics (denormalized for performance)
@@ -327,10 +338,11 @@ class CooperativeMember:
 
     Tracks membership, contributions, and access rights.
     """
+
     # Identification
     member_id: str
     cooperative_id: str
-    farmer_id: str                         # Reference to farmer entity
+    farmer_id: str  # Reference to farmer entity
 
     # Personal info - bilingual
     name: str
@@ -345,9 +357,9 @@ class CooperativeMember:
     exit_date: datetime | None = None
 
     # Contribution
-    share_count: int = 1                   # عدد الاسهم
-    share_value: Decimal = Decimal("0")    # قيمة الاسهم
-    land_area_ha: float = 0.0              # المساحة المساهمة
+    share_count: int = 1  # عدد الاسهم
+    share_value: Decimal = Decimal("0")  # قيمة الاسهم
+    land_area_ha: float = 0.0  # المساحة المساهمة
     contribution_percent: Decimal = Decimal("0")  # نسبة المساهمة
 
     # Farm details
@@ -357,7 +369,7 @@ class CooperativeMember:
 
     # Access and voting
     voting_rights: bool = True
-    resource_access_level: int = 1         # 1-5 priority level
+    resource_access_level: int = 1  # 1-5 priority level
     access_restrictions: list[str] = field(default_factory=list)
 
     # Financial tracking
@@ -466,6 +478,7 @@ class SharedResource:
 
     Includes equipment, storage, transport, etc.
     """
+
     # Identification
     resource_id: str
     cooperative_id: str
@@ -481,25 +494,25 @@ class SharedResource:
     description: str | None = None
     description_ar: str | None = None
     status: ResourceStatus = ResourceStatus.AVAILABLE
-    category: str | None = None            # Sub-category
+    category: str | None = None  # Sub-category
 
     # Specifications
-    make: str | None = None                # الشركة المصنعة
-    model: str | None = None               # الموديل
-    year: int | None = None                # سنة الصنع
-    serial_number: str | None = None       # الرقم التسلسلي
+    make: str | None = None  # الشركة المصنعة
+    model: str | None = None  # الموديل
+    year: int | None = None  # سنة الصنع
+    serial_number: str | None = None  # الرقم التسلسلي
 
     # Capacity/size
-    capacity: float | None = None          # السعة
-    capacity_unit: str | None = None       # وحدة السعة
-    area_sqm: float | None = None          # المساحة (للتخزين)
+    capacity: float | None = None  # السعة
+    capacity_unit: str | None = None  # وحدة السعة
+    area_sqm: float | None = None  # المساحة (للتخزين)
 
     # Location
     location: Address | None = None
-    is_mobile: bool = False                # Can be moved to fields
+    is_mobile: bool = False  # Can be moved to fields
 
     # Ownership
-    ownership_type: str = "cooperative"    # cooperative, leased, donated
+    ownership_type: str = "cooperative"  # cooperative, leased, donated
     acquisition_date: datetime | None = None
     acquisition_cost: Decimal = Decimal("0")
     current_value: Decimal = Decimal("0")
@@ -508,7 +521,7 @@ class SharedResource:
     total_usage_hours: float = 0.0
     usage_this_season: float = 0.0
     last_used_date: datetime | None = None
-    last_used_by: str | None = None        # member_id
+    last_used_by: str | None = None  # member_id
 
     # Maintenance
     next_maintenance_date: datetime | None = None
@@ -641,6 +654,7 @@ class ResourceBooking:
     Booking record for a shared resource.
     سجل حجز لمورد مشترك
     """
+
     # Identification
     booking_id: str
     resource_id: str
@@ -650,7 +664,7 @@ class ResourceBooking:
     # Booking details
     purpose: str
     purpose_ar: str
-    field_id: str | None = None            # Target field for equipment
+    field_id: str | None = None  # Target field for equipment
 
     # Timing
     start_time: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -658,18 +672,18 @@ class ResourceBooking:
     duration_hours: float = 0.0
 
     # Status
-    status: str = "pending"                # pending, confirmed, in_progress, completed, cancelled
+    status: str = "pending"  # pending, confirmed, in_progress, completed, cancelled
 
     # Usage
     actual_hours: float | None = None
     hectares_covered: float | None = None
-    operator_id: str | None = None         # If different from member
+    operator_id: str | None = None  # If different from member
 
     # Financial
     estimated_fee: Decimal = Decimal("0")
     actual_fee: Decimal = Decimal("0")
     deposit_paid: Decimal = Decimal("0")
-    payment_status: str = "pending"        # pending, paid, refunded
+    payment_status: str = "pending"  # pending, paid, refunded
 
     # Notes
     notes: str | None = None
@@ -733,6 +747,7 @@ class GroupPurchaseOrder:
     Group purchase order for bulk buying.
     امر شراء جماعي للشراء بالجملة
     """
+
     # Identification
     order_id: str
     cooperative_id: str
@@ -742,7 +757,7 @@ class GroupPurchaseOrder:
     title_ar: str
 
     # Product info (required fields)
-    product_type: str                      # seeds, fertilizer, pesticide, equipment
+    product_type: str  # seeds, fertilizer, pesticide, equipment
     product_name: str
     product_name_ar: str
 
@@ -753,9 +768,9 @@ class GroupPurchaseOrder:
     supplier_name: str | None = None
 
     # Quantities and pricing
-    unit: str = "kg"                       # kg, bag, liter, piece
-    unit_price: Decimal = Decimal("0")     # سعر الوحدة
-    bulk_price: Decimal | None = None      # سعر الجملة
+    unit: str = "kg"  # kg, bag, liter, piece
+    unit_price: Decimal = Decimal("0")  # سعر الوحدة
+    bulk_price: Decimal | None = None  # سعر الجملة
     min_order_quantity: float = 0.0
     total_quantity_ordered: float = 0.0
     total_quantity_received: float | None = None
@@ -773,7 +788,7 @@ class GroupPurchaseOrder:
 
     # Status
     status: PurchaseOrderStatus = PurchaseOrderStatus.DRAFT
-    payment_status: str = "pending"        # pending, partial, paid
+    payment_status: str = "pending"  # pending, partial, paid
 
     # Distribution tracking
     distributed_quantity: float = 0.0
@@ -840,7 +855,9 @@ class GroupPurchaseOrder:
             "savings": str(self.calculate_savings()),
             "status": self.status.value,
             "order_deadline": self.order_deadline.isoformat() if self.order_deadline else None,
-            "expected_delivery": self.expected_delivery.isoformat() if self.expected_delivery else None,
+            "expected_delivery": self.expected_delivery.isoformat()
+            if self.expected_delivery
+            else None,
             "created_at": self.created_at.isoformat(),
         }
 
@@ -851,6 +868,7 @@ class MemberOrderLine:
     Individual member's order within a group purchase.
     طلب العضو الفردي ضمن الشراء الجماعي
     """
+
     # Identification
     line_id: str
     order_id: str
@@ -870,7 +888,7 @@ class MemberOrderLine:
     payment_date: datetime | None = None
 
     # Status
-    status: str = "pending"                # pending, confirmed, allocated, delivered
+    status: str = "pending"  # pending, confirmed, allocated, delivered
 
     # Metadata
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))

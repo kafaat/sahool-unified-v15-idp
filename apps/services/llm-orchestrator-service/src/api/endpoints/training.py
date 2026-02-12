@@ -5,7 +5,7 @@ Training API Endpoints
 Agent Lightning integration for automatic agent optimization.
 """
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
@@ -193,9 +193,7 @@ async def start_training(request: TrainingRequest) -> TrainingResponse:
     fc = get_feedback_collector()
 
     # Get training data from feedback
-    training_data = await fc.get_training_data(
-        agent_name=request.agent_names[0] if request.agent_names else None
-    )
+    training_data = await fc.get_training_data(agent_name=request.agent_names[0] if request.agent_names else None)
 
     config = TrainingConfig(
         agent_names=request.agent_names,

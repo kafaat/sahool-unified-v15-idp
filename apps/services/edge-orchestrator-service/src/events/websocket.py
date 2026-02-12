@@ -416,7 +416,9 @@ class WebSocketManager:
             conn = self._connections.get(client_id)
             if conn:
                 conn.last_ping = datetime.utcnow()
-                await conn.send_message({"type": "pong", "timestamp": datetime.utcnow().isoformat()})
+                await conn.send_message(
+                    {"type": "pong", "timestamp": datetime.utcnow().isoformat()}
+                )
 
     async def _ping_loop(self) -> None:
         """Background task to ping clients and cleanup stale connections."""
@@ -444,10 +446,12 @@ class WebSocketManager:
                     continue
 
                 # Send ping
-                await conn.websocket.send_json({
-                    "type": "ping",
-                    "timestamp": now.isoformat(),
-                })
+                await conn.websocket.send_json(
+                    {
+                        "type": "ping",
+                        "timestamp": now.isoformat(),
+                    }
+                )
 
             except Exception:
                 stale_clients.append(client_id)

@@ -8,11 +8,11 @@ Pydantic models for IFA v6 compliance management.
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
-from enum import Enum
+from datetime import UTC, date, datetime
+from enum import StrEnum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, HttpUrl, field_validator, ValidationInfo
+from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
 
 from .constants import (
     GGN_FORMAT_PATTERN,
@@ -175,7 +175,7 @@ class AuditFinding(BaseModel):
         }
 
 
-class NonConformanceSeverity(str, Enum):
+class NonConformanceSeverity(StrEnum):
     """Non-conformance severity / خطورة عدم المطابقة"""
 
     CRITICAL = "CRITICAL"
@@ -225,7 +225,7 @@ class NonConformance(BaseModel):
         use_enum_values = True
 
 
-class CorrectiveActionStatus(str, Enum):
+class CorrectiveActionStatus(StrEnum):
     """Corrective action status / حالة الإجراء التصحيحي"""
 
     PLANNED = "PLANNED"

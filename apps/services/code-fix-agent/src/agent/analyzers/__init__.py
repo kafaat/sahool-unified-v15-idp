@@ -8,10 +8,10 @@ Language-specific code analyzers for:
 - Dart
 """
 
+from .base_analyzer import AnalysisConfig, AnalysisIssue, BaseAnalyzer
+from .dart_analyzer import DartAnalyzer
 from .python_analyzer import PythonAnalyzer
 from .typescript_analyzer import TypeScriptAnalyzer
-from .dart_analyzer import DartAnalyzer
-from .base_analyzer import BaseAnalyzer, AnalysisConfig, AnalysisIssue
 
 __all__ = [
     "BaseAnalyzer",

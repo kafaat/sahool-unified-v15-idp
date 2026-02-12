@@ -13,9 +13,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from datetime import datetime
-from unittest.mock import patch, MagicMock, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 
@@ -583,7 +584,7 @@ class TestCORSHeaders:
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
-            }
+            },
         )
 
         # CORS preflight should succeed
@@ -639,7 +640,7 @@ class TestRequestValidation:
         response = client.post(
             "/api/v1/agents/execute",
             content="not valid json",
-            headers={"Content-Type": "application/json"}
+            headers={"Content-Type": "application/json"},
         )
 
         assert response.status_code == 422
@@ -715,10 +716,7 @@ class TestEdgeCases:
         }
 
         # Make multiple requests
-        responses = [
-            client.post("/api/v1/agents/execute", json=request)
-            for _ in range(5)
-        ]
+        responses = [client.post("/api/v1/agents/execute", json=request) for _ in range(5)]
 
         # All should succeed
         for response in responses:
@@ -904,6 +902,7 @@ class TestAdditionalCoverage:
         """Test listing executions when empty."""
         # Clear executions first
         import src.main as main_module
+
         main_module.executions.clear()
 
         response = client.get("/api/v1/agents/executions?tenant_id=test-tenant")

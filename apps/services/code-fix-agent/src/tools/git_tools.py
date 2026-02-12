@@ -26,6 +26,7 @@ logger = structlog.get_logger(__name__)
 
 class GitOperationType(Enum):
     """أنواع عمليات Git"""
+
     CLONE = "clone"
     CHECKOUT = "checkout"
     COMMIT = "commit"
@@ -41,6 +42,7 @@ class GitOperationType(Enum):
 
 class FileChangeType(Enum):
     """أنواع تغييرات الملفات"""
+
     ADDED = "A"
     MODIFIED = "M"
     DELETED = "D"
@@ -52,6 +54,7 @@ class FileChangeType(Enum):
 @dataclass
 class FileChange:
     """تغيير في ملف"""
+
     path: str
     change_type: FileChangeType
     old_path: str | None = None  # For renames
@@ -63,6 +66,7 @@ class FileChange:
 @dataclass
 class CommitInfo:
     """معلومات الالتزام"""
+
     sha: str
     short_sha: str
     author: str
@@ -75,6 +79,7 @@ class CommitInfo:
 @dataclass
 class BranchInfo:
     """معلومات الفرع"""
+
     name: str
     is_current: bool
     tracking: str | None = None
@@ -86,6 +91,7 @@ class BranchInfo:
 @dataclass
 class DiffHunk:
     """قطعة من الفرق"""
+
     old_start: int
     old_count: int
     new_start: int
@@ -97,6 +103,7 @@ class DiffHunk:
 @dataclass
 class FileDiff:
     """فرق ملف"""
+
     file_path: str
     old_path: str | None
     change_type: FileChangeType
@@ -109,6 +116,7 @@ class FileDiff:
 @dataclass
 class GitOperationResult:
     """نتيجة عملية Git"""
+
     success: bool
     operation: GitOperationType
     message: str
@@ -131,21 +139,35 @@ class GitTools:
 
     # Safe commands that can be run without confirmation
     SAFE_COMMANDS = {
-        "status", "log", "diff", "show", "branch", "remote",
-        "fetch", "ls-files", "rev-parse", "describe", "tag"
+        "status",
+        "log",
+        "diff",
+        "show",
+        "branch",
+        "remote",
+        "fetch",
+        "ls-files",
+        "rev-parse",
+        "describe",
+        "tag",
     }
 
     # Commands that modify state and need caution
     MODIFYING_COMMANDS = {
-        "add", "commit", "push", "pull", "merge", "rebase",
-        "checkout", "reset", "stash", "cherry-pick"
+        "add",
+        "commit",
+        "push",
+        "pull",
+        "merge",
+        "rebase",
+        "checkout",
+        "reset",
+        "stash",
+        "cherry-pick",
     }
 
     # Dangerous commands that should be blocked or require confirmation
-    DANGEROUS_COMMANDS = {
-        "push --force", "reset --hard", "clean -fd",
-        "rebase -i", "filter-branch"
-    }
+    DANGEROUS_COMMANDS = {"push --force", "reset --hard", "clean -fd", "rebase -i", "filter-branch"}
 
     def __init__(
         self,
@@ -287,10 +309,12 @@ class GitTools:
                 elif "?" in status:
                     change_type = FileChangeType.UNTRACKED
 
-                file_changes.append(FileChange(
-                    path=file_path,
-                    change_type=change_type,
-                ))
+                file_changes.append(
+                    FileChange(
+                        path=file_path,
+                        change_type=change_type,
+                    )
+                )
 
             duration = (datetime.now() - start).total_seconds() * 1000
 
@@ -301,8 +325,7 @@ class GitTools:
                 data={
                     "branch": branch_info,
                     "changes": [
-                        {"path": f.path, "type": f.change_type.value}
-                        for f in file_changes
+                        {"path": f.path, "type": f.change_type.value} for f in file_changes
                     ],
                     "clean": len(file_changes) == 0,
                 },
@@ -504,14 +527,16 @@ class GitTools:
                     continue
                 parts = line.split("|")
                 if len(parts) >= 6:
-                    commits.append(CommitInfo(
-                        sha=parts[0],
-                        short_sha=parts[1],
-                        author=parts[2],
-                        author_email=parts[3],
-                        date=datetime.fromisoformat(parts[4]),
-                        message="|".join(parts[5:]),  # Message might contain |
-                    ))
+                    commits.append(
+                        CommitInfo(
+                            sha=parts[0],
+                            short_sha=parts[1],
+                            author=parts[2],
+                            author_email=parts[3],
+                            date=datetime.fromisoformat(parts[4]),
+                            message="|".join(parts[5:]),  # Message might contain |
+                        )
+                    )
 
             duration = (datetime.now() - start).total_seconds() * 1000
 
@@ -554,7 +579,11 @@ class GitTools:
 
         try:
             result = self._run_git_command(
-                ["branch", "-vv", "--format=%(refname:short)|%(upstream:short)|%(HEAD)|%(upstream:track)"],
+                [
+                    "branch",
+                    "-vv",
+                    "--format=%(refname:short)|%(upstream:short)|%(HEAD)|%(upstream:track)",
+                ],
                 cwd=work_path,
                 check_dangerous=False,
             )
@@ -589,13 +618,15 @@ class GitTools:
                         if match:
                             behind = int(match.group(1))
 
-                    branches.append(BranchInfo(
-                        name=name,
-                        is_current=is_current,
-                        tracking=tracking,
-                        ahead=ahead,
-                        behind=behind,
-                    ))
+                    branches.append(
+                        BranchInfo(
+                            name=name,
+                            is_current=is_current,
+                            tracking=tracking,
+                            ahead=ahead,
+                            behind=behind,
+                        )
+                    )
 
             duration = (datetime.now() - start).total_seconds() * 1000
 
@@ -699,17 +730,17 @@ class GitTools:
         """التحقق من صحة اسم الفرع"""
         # Git branch naming rules
         invalid_patterns = [
-            r"^\.",           # Cannot start with .
-            r"\.\.",          # Cannot contain ..
-            r"~",             # Cannot contain ~
-            r"\^",            # Cannot contain ^
-            r":",             # Cannot contain :
-            r"\s",            # Cannot contain whitespace
-            r"@\{",           # Cannot contain @{
-            r"\\",            # Cannot contain \
-            r"^\-",           # Cannot start with -
-            r"\.lock$",       # Cannot end with .lock
-            r"/$",            # Cannot end with /
+            r"^\.",  # Cannot start with .
+            r"\.\.",  # Cannot contain ..
+            r"~",  # Cannot contain ~
+            r"\^",  # Cannot contain ^
+            r":",  # Cannot contain :
+            r"\s",  # Cannot contain whitespace
+            r"@\{",  # Cannot contain @{
+            r"\\",  # Cannot contain \
+            r"^\-",  # Cannot start with -
+            r"\.lock$",  # Cannot end with .lock
+            r"/$",  # Cannot end with /
         ]
 
         for pattern in invalid_patterns:
@@ -975,13 +1006,15 @@ class GitTools:
                     continue
                 parts = line.split("|")
                 if len(parts) >= 5:
-                    commits.append({
-                        "sha": parts[0],
-                        "short_sha": parts[1],
-                        "author": parts[2],
-                        "date": parts[3],
-                        "message": "|".join(parts[4:]),
-                    })
+                    commits.append(
+                        {
+                            "sha": parts[0],
+                            "short_sha": parts[1],
+                            "author": parts[2],
+                            "date": parts[3],
+                            "message": "|".join(parts[4:]),
+                        }
+                    )
 
             duration = (datetime.now() - start).total_seconds() * 1000
 

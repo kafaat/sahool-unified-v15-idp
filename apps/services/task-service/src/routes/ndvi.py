@@ -12,7 +12,7 @@ import logging
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
@@ -22,23 +22,23 @@ from sqlalchemy.orm import Session
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from ..database import get_db
-from ..repository import TaskRepository
 from ..exceptions import NdviServiceError, TaskCreationError
-from ..validators import sanitize_for_log, validate_field_id
+from ..repository import TaskRepository
 from ..task_utils import (
-    TaskType,
+    TaskCreateData,
     TaskPriority,
     TaskStatus,
-    TaskCreateData,
+    TaskType,
+    calculate_ndvi_priority,
     create_task_model,
     db_task_to_dict,
-    generate_task_id,
-    calculate_ndvi_priority,
-    generate_ndvi_task_content,
-    get_due_date_for_priority,
     fetch_field_manager,
+    generate_ndvi_task_content,
+    generate_task_id,
+    get_due_date_for_priority,
     send_task_notification,
 )
+from ..validators import sanitize_for_log, validate_field_id
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ import json
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, UTC
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class SecretAccessType(str, Enum):
+class SecretAccessType(StrEnum):
     """Type of secret access operation"""
 
     READ = "read"
@@ -32,7 +32,7 @@ class SecretAccessType(str, Enum):
     LIST = "list"
 
 
-class AccessResult(str, Enum):
+class AccessResult(StrEnum):
     """Result of secret access attempt"""
 
     SUCCESS = "success"

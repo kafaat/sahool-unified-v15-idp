@@ -38,8 +38,8 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import date, datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, date, datetime, timedelta
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -57,7 +57,7 @@ from .events import (
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class FertilizerType(str, Enum):
+class FertilizerType(StrEnum):
     """
     Fertilizer types
     أنواع الأسمدة
@@ -73,7 +73,7 @@ class FertilizerType(str, Enum):
     CONTROLLED_RELEASE = "CONTROLLED_RELEASE"  # متحكم الإطلاق
 
 
-class ApplicationMethod(str, Enum):
+class ApplicationMethod(StrEnum):
     """
     Application methods
     طرق التطبيق
@@ -89,7 +89,7 @@ class ApplicationMethod(str, Enum):
     INCORPORATION = "INCORPORATION"  # خلط مع التربة
 
 
-class NutrientType(str, Enum):
+class NutrientType(StrEnum):
     """
     Nutrient types
     أنواع العناصر الغذائية

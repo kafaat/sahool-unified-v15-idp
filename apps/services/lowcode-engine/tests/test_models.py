@@ -5,14 +5,17 @@ Tests for lowcode-engine Pydantic models.
 import os
 import sys
 from datetime import datetime
+
+# Add project root and src path
+from pathlib import Path
 from typing import Any
 
 import pytest
 from pydantic import ValidationError
 
-# Add project root and src path
-from pathlib import Path
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+)
 sys.path.insert(0, project_root)
 src_path = Path(__file__).parent.parent / "src"
 sys.path.insert(0, str(src_path))
@@ -41,20 +44,20 @@ if "shared.auth.dependencies" not in sys.modules:
 
 # Import the request/response models from main.py
 from main import (
+    AISuggestionRequest,
+    AISuggestionResponse,
     ComponentResponse,
     DataModelCreateRequest,
     DataModelResponse,
     PageCreateRequest,
-    PageResponse,
     PageRenderResponse,
-    AISuggestionRequest,
-    AISuggestionResponse,
+    PageResponse,
 )
-
 
 # ============================================================================
 # Test DataModel Validation
 # ============================================================================
+
 
 class TestDataModelValidation:
     """Tests for DataModel related Pydantic models."""
@@ -153,6 +156,7 @@ class TestDataModelValidation:
 # ============================================================================
 # Test PageDefinition Validation
 # ============================================================================
+
 
 class TestPageDefinitionValidation:
     """Tests for PageDefinition related Pydantic models."""
@@ -313,6 +317,7 @@ class TestPageDefinitionValidation:
 # Test FieldDefinition Validation
 # ============================================================================
 
+
 class TestFieldDefinitionValidation:
     """Tests for field definition validation."""
 
@@ -381,6 +386,7 @@ class TestFieldDefinitionValidation:
 # ============================================================================
 # Test BlockConfig Validation
 # ============================================================================
+
 
 class TestBlockConfigValidation:
     """Tests for block configuration validation."""
@@ -489,6 +495,7 @@ class TestBlockConfigValidation:
 # Test Component Response Validation
 # ============================================================================
 
+
 class TestComponentResponseValidation:
     """Tests for ComponentResponse model validation."""
 
@@ -541,6 +548,7 @@ class TestComponentResponseValidation:
 # ============================================================================
 # Test AI Suggestion Models
 # ============================================================================
+
 
 class TestAISuggestionValidation:
     """Tests for AI suggestion related models."""
@@ -615,6 +623,7 @@ class TestAISuggestionValidation:
 # Test Model Serialization
 # ============================================================================
 
+
 class TestModelSerialization:
     """Tests for model serialization."""
 
@@ -682,6 +691,7 @@ class TestModelSerialization:
 # Test Edge Cases
 # ============================================================================
 
+
 class TestEdgeCases:
     """Tests for edge cases and boundary conditions."""
 
@@ -729,10 +739,7 @@ class TestEdgeCases:
 
     def test_large_blocks_array(self):
         """Test page with many blocks."""
-        blocks = [
-            {"component_name": f"component_{i}", "props": {"index": i}}
-            for i in range(100)
-        ]
+        blocks = [{"component_name": f"component_{i}", "props": {"index": i}} for i in range(100)]
 
         request = PageCreateRequest(
             name="ManyBlocksPage",

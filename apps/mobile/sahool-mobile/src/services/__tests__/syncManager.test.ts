@@ -12,7 +12,6 @@ import {
   SyncPriority,
   ConflictResolutionStrategy,
   SyncEventType,
-  SyncStatus,
 } from "../../models/syncTypes";
 
 // Mock dependencies
@@ -320,7 +319,7 @@ describe("SyncManager", () => {
 
   describe("Conflict Resolution", () => {
     test("should register custom resolver", () => {
-      const resolver = jest.fn((local, server, base) =>
+      const resolver = jest.fn((local, server, _base) =>
         Promise.resolve({ ...server, custom: true }),
       );
 
@@ -333,7 +332,7 @@ describe("SyncManager", () => {
     });
 
     test("should use custom resolver for conflicts", async () => {
-      const resolver = jest.fn((local, server, base) =>
+      const resolver = jest.fn((local, _server, _base) =>
         Promise.resolve({ ...local, resolved: true }),
       );
 
@@ -471,13 +470,13 @@ describe("SyncManager Integration", () => {
 
   test("should handle complete workflow", async () => {
     // 1. Queue operations
-    const id1 = await syncManager.queueOperation(
+    const _id1 = await syncManager.queueOperation(
       SyncOperationType.CREATE,
       SyncDataType.FIELD_OBSERVATION,
       { fieldId: "field-1", notes: "Test observation" },
     );
 
-    const id2 = await syncManager.queueOperation(
+    const _id2 = await syncManager.queueOperation(
       SyncOperationType.CREATE,
       SyncDataType.SENSOR_READING,
       { sensorId: "sensor-1", value: 45.5 },

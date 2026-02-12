@@ -27,14 +27,14 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .agents.executor import AgentExecutor
+from .api.endpoints import integrations as integrations_module
 from .api.endpoints import router as orchestrator_router
 from .api.endpoints import training as training_module
-from .api.endpoints.training import router as training_router
-from .api.endpoints import integrations as integrations_module
 from .api.endpoints.integrations import router as integrations_router
+from .api.endpoints.training import router as training_router
 from .core.config import settings
+from .integrations import CrewService, MLService, NLPService, SatelliteService
 from .training import AGLTrainer, FeedbackCollector
-from .integrations import NLPService, SatelliteService, MLService, CrewService
 
 # Configure structured logging
 structlog.configure(

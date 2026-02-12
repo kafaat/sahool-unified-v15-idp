@@ -18,7 +18,7 @@ from __future__ import annotations
 import hashlib
 import uuid
 from datetime import UTC, datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
@@ -30,16 +30,18 @@ import pytest
 # ==============================================================================
 
 
-class ControllerType(str, Enum):
+class ControllerType(StrEnum):
     """Types of controllers"""
+
     PID = "pid"
     ON_OFF = "on_off"
     FUZZY = "fuzzy"
     ADAPTIVE = "adaptive"
 
 
-class TriggerType(str, Enum):
+class TriggerType(StrEnum):
     """Types of IFTTT triggers"""
+
     TEMPERATURE = "temperature"
     HUMIDITY = "humidity"
     SOIL_MOISTURE = "soil_moisture"
@@ -49,8 +51,9 @@ class TriggerType(str, Enum):
     CUSTOM = "custom"
 
 
-class ActionType(str, Enum):
+class ActionType(StrEnum):
     """Types of IFTTT actions"""
+
     IRRIGATION = "irrigation"
     VENTILATION = "ventilation"
     LIGHTING = "lighting"
@@ -60,8 +63,9 @@ class ActionType(str, Enum):
     LOG = "log"
 
 
-class OperationType(str, Enum):
+class OperationType(StrEnum):
     """Types of farm operations for traceability"""
+
     PLANTING = "planting"
     IRRIGATION = "irrigation"
     FERTILIZATION = "fertilization"
@@ -72,8 +76,9 @@ class OperationType(str, Enum):
     SALE = "sale"
 
 
-class DeploymentMode(str, Enum):
+class DeploymentMode(StrEnum):
     """Deployment modes"""
+
     SAAS = "saas"
     CUSTOM = "custom"
     HYBRID = "hybrid"
@@ -98,9 +103,9 @@ def pid_config() -> dict[str, Any]:
         "control_variable": "nitrogen_ppm",
         "setpoint": 25.0,
         "coefficients": {
-            "kp": 2.0,      # Proportional gain
-            "ki": 0.5,      # Integral gain
-            "kd": 0.1,      # Derivative gain
+            "kp": 2.0,  # Proportional gain
+            "ki": 0.5,  # Integral gain
+            "kd": 0.1,  # Derivative gain
         },
         "limits": {
             "output_min": 0.0,
@@ -164,8 +169,8 @@ def auto_tune_result() -> dict[str, Any]:
         "method": "ziegler_nichols",
         "performance_improvement": {
             "settling_time_reduction": 15.0,  # percent
-            "overshoot_reduction": 8.0,       # percent
-            "steady_state_error": 0.5,        # ppm
+            "overshoot_reduction": 8.0,  # percent
+            "steady_state_error": 0.5,  # ppm
         },
         "test_duration_minutes": 30,
         "completed_at": datetime.now(UTC).isoformat(),
@@ -629,13 +634,15 @@ def roi_calculation_data() -> dict[str, Any]:
 def mock_sensor_service() -> MagicMock:
     """Mock sensor service"""
     service = MagicMock()
-    service.get_reading = AsyncMock(return_value={
-        "temperature": 28.5,
-        "humidity": 65.0,
-        "soil_moisture": 42.0,
-        "light": 45000,
-        "timestamp": datetime.now(UTC).isoformat(),
-    })
+    service.get_reading = AsyncMock(
+        return_value={
+            "temperature": 28.5,
+            "humidity": 65.0,
+            "soil_moisture": 42.0,
+            "light": 45000,
+            "timestamp": datetime.now(UTC).isoformat(),
+        }
+    )
     service.get_history = AsyncMock(return_value=[])
     return service
 
@@ -644,11 +651,13 @@ def mock_sensor_service() -> MagicMock:
 def mock_actuator_service() -> MagicMock:
     """Mock actuator service"""
     service = MagicMock()
-    service.execute_action = AsyncMock(return_value={
-        "success": True,
-        "action_id": str(uuid.uuid4()),
-        "executed_at": datetime.now(UTC).isoformat(),
-    })
+    service.execute_action = AsyncMock(
+        return_value={
+            "success": True,
+            "action_id": str(uuid.uuid4()),
+            "executed_at": datetime.now(UTC).isoformat(),
+        }
+    )
     service.get_status = AsyncMock(return_value={"status": "ready"})
     return service
 

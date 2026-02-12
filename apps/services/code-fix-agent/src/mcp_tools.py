@@ -11,7 +11,7 @@ from typing import Any
 
 import structlog
 
-from .agent.code_fix_agent import CodeFixAgent, AgentPercept
+from .agent.code_fix_agent import AgentPercept, CodeFixAgent
 from .tools.sandbox import CodeSandbox, SandboxConfig
 
 logger = structlog.get_logger(__name__)
@@ -20,6 +20,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class MCPToolDefinition:
     """تعريف أداة MCP"""
+
     name: str
     description: str
     description_ar: str
@@ -48,10 +49,12 @@ class CodeFixMCPTools:
             agent: وكيل إصلاح الكود (اختياري)
         """
         self.agent = agent or CodeFixAgent()
-        self.sandbox = CodeSandbox(SandboxConfig(
-            timeout_seconds=30,
-            memory_limit_mb=256,
-        ))
+        self.sandbox = CodeSandbox(
+            SandboxConfig(
+                timeout_seconds=30,
+                memory_limit_mb=256,
+            )
+        )
 
     def get_tool_definitions(self) -> list[dict[str, Any]]:
         """
@@ -66,35 +69,32 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Source code to analyze"
-                        },
+                        "code": {"type": "string", "description": "Source code to analyze"},
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
                             "default": "python",
-                            "description": "Programming language"
+                            "description": "Programming language",
                         },
                         "analysis_depth": {
                             "type": "string",
                             "enum": ["quick", "standard", "deep"],
                             "default": "standard",
-                            "description": "Depth of analysis"
+                            "description": "Depth of analysis",
                         },
                         "check_security": {
                             "type": "boolean",
                             "default": True,
-                            "description": "Check for security vulnerabilities"
+                            "description": "Check for security vulnerabilities",
                         },
                         "check_style": {
                             "type": "boolean",
                             "default": False,
-                            "description": "Check code style"
-                        }
+                            "description": "Check code style",
+                        },
                     },
-                    "required": ["code"]
-                }
+                    "required": ["code"],
+                },
             },
             {
                 "name": "fix_bug",
@@ -103,32 +103,29 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code with bug to fix"
-                        },
+                        "code": {"type": "string", "description": "Code with bug to fix"},
                         "bug_description": {
                             "type": "string",
-                            "description": "Description of the bug"
+                            "description": "Description of the bug",
                         },
                         "error_message": {
                             "type": "string",
-                            "description": "Error message if available"
+                            "description": "Error message if available",
                         },
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
-                            "default": "python"
+                            "default": "python",
                         },
                         "fix_strategy": {
                             "type": "string",
                             "enum": ["minimal", "comprehensive", "refactor", "safe"],
                             "default": "minimal",
-                            "description": "Strategy for fixing"
-                        }
+                            "description": "Strategy for fixing",
+                        },
                     },
-                    "required": ["code", "bug_description"]
-                }
+                    "required": ["code", "bug_description"],
+                },
             },
             {
                 "name": "generate_tests",
@@ -137,34 +134,31 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to generate tests for"
-                        },
+                        "code": {"type": "string", "description": "Code to generate tests for"},
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
-                            "default": "python"
+                            "default": "python",
                         },
                         "framework": {
                             "type": "string",
-                            "description": "Test framework (pytest, vitest, flutter_test)"
+                            "description": "Test framework (pytest, vitest, flutter_test)",
                         },
                         "coverage_target": {
                             "type": "number",
                             "default": 80,
                             "minimum": 0,
                             "maximum": 100,
-                            "description": "Target code coverage percentage"
+                            "description": "Target code coverage percentage",
                         },
                         "test_style": {
                             "type": "string",
                             "enum": ["unit", "integration", "both"],
-                            "default": "unit"
-                        }
+                            "default": "unit",
+                        },
                     },
-                    "required": ["code"]
-                }
+                    "required": ["code"],
+                },
             },
             {
                 "name": "review_changes",
@@ -173,27 +167,24 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "diff": {
-                            "type": "string",
-                            "description": "Git diff or code changes"
-                        },
+                        "diff": {"type": "string", "description": "Git diff or code changes"},
                         "context": {
                             "type": "string",
-                            "description": "Additional context about the changes"
+                            "description": "Additional context about the changes",
                         },
                         "review_focus": {
                             "type": "array",
                             "items": {"type": "string"},
-                            "description": "Focus areas: security, performance, style, logic"
+                            "description": "Focus areas: security, performance, style, logic",
                         },
                         "severity_threshold": {
                             "type": "string",
                             "enum": ["all", "warnings", "errors"],
-                            "default": "warnings"
-                        }
+                            "default": "warnings",
+                        },
                     },
-                    "required": ["diff"]
-                }
+                    "required": ["diff"],
+                },
             },
             {
                 "name": "execute_code",
@@ -202,29 +193,23 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to execute"
-                        },
+                        "code": {"type": "string", "description": "Code to execute"},
                         "language": {
                             "type": "string",
                             "enum": ["python"],
                             "default": "python",
-                            "description": "Programming language (currently only Python)"
+                            "description": "Programming language (currently only Python)",
                         },
-                        "inputs": {
-                            "type": "object",
-                            "description": "Input variables for the code"
-                        },
+                        "inputs": {"type": "object", "description": "Input variables for the code"},
                         "timeout_seconds": {
                             "type": "number",
                             "default": 30,
                             "maximum": 60,
-                            "description": "Execution timeout"
-                        }
+                            "description": "Execution timeout",
+                        },
                     },
-                    "required": ["code"]
-                }
+                    "required": ["code"],
+                },
             },
             {
                 "name": "refactor_code",
@@ -233,14 +218,11 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to refactor"
-                        },
+                        "code": {"type": "string", "description": "Code to refactor"},
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
-                            "default": "python"
+                            "default": "python",
                         },
                         "refactor_type": {
                             "type": "string",
@@ -250,17 +232,17 @@ class CodeFixMCPTools:
                                 "rename",
                                 "simplify",
                                 "optimize",
-                                "modernize"
+                                "modernize",
                             ],
-                            "description": "Type of refactoring"
+                            "description": "Type of refactoring",
                         },
                         "target": {
                             "type": "string",
-                            "description": "Specific target for refactoring (function name, line range)"
-                        }
+                            "description": "Specific target for refactoring (function name, line range)",
+                        },
                     },
-                    "required": ["code", "refactor_type"]
-                }
+                    "required": ["code", "refactor_type"],
+                },
             },
             {
                 "name": "explain_code",
@@ -269,29 +251,26 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to explain"
-                        },
+                        "code": {"type": "string", "description": "Code to explain"},
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
-                            "default": "python"
+                            "default": "python",
                         },
                         "detail_level": {
                             "type": "string",
                             "enum": ["brief", "detailed", "comprehensive"],
-                            "default": "detailed"
+                            "default": "detailed",
                         },
                         "output_language": {
                             "type": "string",
                             "enum": ["en", "ar"],
                             "default": "en",
-                            "description": "Language for explanation"
-                        }
+                            "description": "Language for explanation",
+                        },
                     },
-                    "required": ["code"]
-                }
+                    "required": ["code"],
+                },
             },
             {
                 "name": "get_code_metrics",
@@ -300,19 +279,16 @@ class CodeFixMCPTools:
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to analyze"
-                        },
+                        "code": {"type": "string", "description": "Code to analyze"},
                         "language": {
                             "type": "string",
                             "enum": ["python", "typescript", "javascript", "dart"],
-                            "default": "python"
-                        }
+                            "default": "python",
+                        },
                     },
-                    "required": ["code"]
-                }
-            }
+                    "required": ["code"],
+                },
+            },
         ]
 
     async def execute_tool(self, tool_name: str, arguments: dict[str, Any]) -> dict[str, Any]:
@@ -389,23 +365,27 @@ class CodeFixMCPTools:
     async def _fix_bug(self, args: dict[str, Any]) -> dict[str, Any]:
         """إصلاح الخطأ"""
         # First perceive the code
-        await self.agent.perceive(AgentPercept(
-            percept_type="code_snippet",
-            data={
-                "code": args["code"],
-                "language": args.get("language", "python"),
-            },
-            source="mcp",
-        ))
+        await self.agent.perceive(
+            AgentPercept(
+                percept_type="code_snippet",
+                data={
+                    "code": args["code"],
+                    "language": args.get("language", "python"),
+                },
+                source="mcp",
+            )
+        )
 
         # Then perceive the error
         percept = AgentPercept(
             percept_type="error_log",
-            data=[{
-                "type": "bug",
-                "message": args["bug_description"],
-                "error_message": args.get("error_message", ""),
-            }],
+            data=[
+                {
+                    "type": "bug",
+                    "message": args["bug_description"],
+                    "error_message": args.get("error_message", ""),
+                }
+            ],
             source="mcp",
         )
 
@@ -480,9 +460,9 @@ class CodeFixMCPTools:
 
     async def _get_code_metrics(self, args: dict[str, Any]) -> dict[str, Any]:
         """حساب المقاييس"""
+        from .agent.analyzers.dart_analyzer import DartAnalyzer
         from .agent.analyzers.python_analyzer import PythonAnalyzer
         from .agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
-        from .agent.analyzers.dart_analyzer import DartAnalyzer
 
         language = args.get("language", "python")
         code = args["code"]

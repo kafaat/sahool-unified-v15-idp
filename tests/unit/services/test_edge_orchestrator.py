@@ -221,9 +221,7 @@ class TestEdgeOrchestratorConfiguration:
 class TestDeviceRegistration:
     """Tests for edge device registration."""
 
-    def test_device_registration_validation(
-        self, sample_device_registration: dict[str, Any]
-    ):
+    def test_device_registration_validation(self, sample_device_registration: dict[str, Any]):
         """Test device registration request validation."""
         registration = sample_device_registration
 
@@ -277,9 +275,7 @@ class TestDeviceRegistration:
         for mac in invalid_macs:
             assert validate_mac(mac) is False
 
-    def test_device_registration_creates_device(
-        self, sample_device_registration: dict[str, Any]
-    ):
+    def test_device_registration_creates_device(self, sample_device_registration: dict[str, Any]):
         """Test that registration creates a device record."""
         registration = sample_device_registration
 
@@ -484,9 +480,7 @@ class TestJobScheduling:
 
         # Sort by priority (descending)
         priority_order = {"critical": 4, "high": 3, "normal": 2, "low": 1}
-        sorted_queue = sorted(
-            job_queue, key=lambda j: priority_order[j["priority"]], reverse=True
-        )
+        sorted_queue = sorted(job_queue, key=lambda j: priority_order[j["priority"]], reverse=True)
 
         assert sorted_queue[0]["id"] == "job3"  # Critical first
         assert sorted_queue[-1]["id"] == "job1"  # Low last
@@ -600,11 +594,7 @@ class TestSyncOperations:
             {"id": "item3", "modified_at": datetime.utcnow() - timedelta(hours=1)},
         ]
 
-        items_to_sync = [
-            item
-            for item in new_items
-            if item["modified_at"] > last_sync_time
-        ]
+        items_to_sync = [item for item in new_items if item["modified_at"] > last_sync_time]
 
         assert len(items_to_sync) == 3
 
@@ -859,12 +849,7 @@ class TestDeviceMonitoring:
         temp_health = max(0, 100 - (metrics["temperature_celsius"] - 30) * 2)
 
         # Weighted average
-        health_score = (
-            cpu_health * 0.2
-            + gpu_health * 0.3
-            + memory_health * 0.3
-            + temp_health * 0.2
-        )
+        health_score = cpu_health * 0.2 + gpu_health * 0.3 + memory_health * 0.3 + temp_health * 0.2
 
         assert 0 <= health_score <= 100
 

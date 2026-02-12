@@ -7,6 +7,7 @@ from uuid import UUID, uuid4
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 
+from ...core.config import settings
 from ..schemas import (
     DeliveryStatus,
     DeliveryStatusEnum,
@@ -16,7 +17,6 @@ from ..schemas import (
     OrderListResponse,
     OrderStatus,
 )
-from ...core.config import settings
 
 logger = structlog.get_logger()
 
@@ -37,8 +37,7 @@ def _get_current_farmer_id() -> UUID:
     response_model=Order,
     status_code=201,
     summary="Create Order | إنشاء طلب",
-    description="Create a new order from a supplier. "
-    "إنشاء طلب جديد من مورد.",
+    description="Create a new order from a supplier. إنشاء طلب جديد من مورد.",
 )
 async def create_order(
     order_data: OrderCreate,
@@ -127,8 +126,7 @@ async def create_order(
     "",
     response_model=OrderListResponse,
     summary="List Orders | قائمة الطلبات",
-    description="Get a list of the farmer's orders. "
-    "الحصول على قائمة طلبات المزارع.",
+    description="Get a list of the farmer's orders. الحصول على قائمة طلبات المزارع.",
 )
 async def list_orders(
     status: OrderStatus | None = Query(None, description="Filter by status"),
@@ -170,8 +168,7 @@ async def list_orders(
     "/{order_id}",
     response_model=Order,
     summary="Get Order | الحصول على طلب",
-    description="Get details of a specific order. "
-    "الحصول على تفاصيل طلب محدد.",
+    description="Get details of a specific order. الحصول على تفاصيل طلب محدد.",
 )
 async def get_order(
     order_id: UUID,
@@ -206,8 +203,7 @@ async def get_order(
     "/{order_id}/cancel",
     response_model=Order,
     summary="Cancel Order | إلغاء الطلب",
-    description="Cancel a pending order. "
-    "إلغاء طلب قيد الانتظار.",
+    description="Cancel a pending order. إلغاء طلب قيد الانتظار.",
 )
 async def cancel_order(
     order_id: UUID,
@@ -258,8 +254,7 @@ async def cancel_order(
     "/{order_id}/track",
     response_model=DeliveryStatus,
     summary="Track Delivery | تتبع التوصيل",
-    description="Track the delivery status of an order. "
-    "تتبع حالة توصيل الطلب.",
+    description="Track the delivery status of an order. تتبع حالة توصيل الطلب.",
 )
 async def track_order(
     order_id: UUID,
@@ -314,6 +309,10 @@ async def track_order(
         status_ar=status_ar_mapping.get(delivery_status, "غير معروف"),
         eta=order.estimated_delivery,
         tracking_url=f"https://delivery.sahool.local/track/{order_id}",
-        current_location="Warehouse" if delivery_status == DeliveryStatusEnum.PREPARING else "In Transit",
-        current_location_ar="المستودع" if delivery_status == DeliveryStatusEnum.PREPARING else "في الطريق",
+        current_location="Warehouse"
+        if delivery_status == DeliveryStatusEnum.PREPARING
+        else "In Transit",
+        current_location_ar="المستودع"
+        if delivery_status == DeliveryStatusEnum.PREPARING
+        else "في الطريق",
     )

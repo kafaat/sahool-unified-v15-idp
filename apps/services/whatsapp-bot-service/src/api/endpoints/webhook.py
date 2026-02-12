@@ -14,13 +14,13 @@ Handles:
 import structlog
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request, Response
 
+from ...core.config import settings
 from ..schemas import (
     SendMessageRequest,
     SendMessageResponse,
     SendTemplateRequest,
     WhatsAppWebhookPayload,
 )
-from ...core.config import settings
 
 logger = structlog.get_logger(__name__)
 
@@ -126,9 +126,7 @@ async def receive_webhook(
                             for contact in value.contacts:
                                 if contact.wa_id == message.from_:
                                     sender_name = (
-                                        contact.profile.get("name")
-                                        if contact.profile
-                                        else None
+                                        contact.profile.get("name") if contact.profile else None
                                     )
                                     break
 

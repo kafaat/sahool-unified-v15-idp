@@ -19,7 +19,7 @@ from __future__ import annotations
 import asyncio
 import os
 from collections.abc import Callable
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -715,9 +715,7 @@ class AuditTrailLogger:
             AuditActionType.SOIL_TEST: ("Soil test conducted", "تم إجراء اختبار التربة"),
             AuditActionType.CROP_PLANTING: ("Crop planted", "تمت زراعة المحصول"),
         }
-        desc_en, desc_ar = op_descriptions.get(
-            operation_type, ("Field operation", "عملية الحقل")
-        )
+        desc_en, desc_ar = op_descriptions.get(operation_type, ("Field operation", "عملية الحقل"))
 
         return self._create_entry(
             action=operation_type,
@@ -793,14 +791,9 @@ class AuditTrailLogger:
                 e for e in entries if e.metadata.control_point_id == filter_.control_point_id
             ]
         if filter_.correlation_id:
-            entries = [
-                e for e in entries if e.metadata.correlation_id == filter_.correlation_id
-            ]
+            entries = [e for e in entries if e.metadata.correlation_id == filter_.correlation_id]
         if filter_.tags:
-            entries = [
-                e for e in entries
-                if any(tag in e.metadata.tags for tag in filter_.tags)
-            ]
+            entries = [e for e in entries if any(tag in e.metadata.tags for tag in filter_.tags)]
 
         # Sort
         reverse = filter_.order_direction == "desc"
@@ -951,7 +944,11 @@ def get_audit_logger(tenant_id: str = "sahool") -> AuditTrailLogger:
     global _global_logger
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"  # nosec B108
+        default_path = (
+            "/var/lib/sahool/audit_trail"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_audit_trail"
+        )  # nosec B108
         storage_path = os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         _global_logger = AuditTrailLogger(tenant_id=tenant_id, storage_path=storage_path)
     return _global_logger

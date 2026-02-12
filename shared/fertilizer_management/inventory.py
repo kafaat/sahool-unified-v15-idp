@@ -6,16 +6,16 @@ Track fertilizer inventory, consumption, and reorder alerts.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from decimal import Decimal
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 
 from .models import (
     Fertilizer,
+    FertilizerApplication,
     InventoryItem,
     InventoryStatus,
-    FertilizerApplication,
 )
 
 
@@ -24,6 +24,7 @@ class InventoryTransaction:
     """
     Inventory transaction record - سجل حركة المخزون
     """
+
     id: str
     tenant_id: str
     inventory_item_id: str
@@ -74,6 +75,7 @@ class InventoryAlert:
     """
     Inventory alert - تنبيه المخزون
     """
+
     id: str
     tenant_id: str
     inventory_item_id: str
@@ -135,6 +137,7 @@ class InventorySummary:
     """
     Inventory summary report - تقرير ملخص المخزون
     """
+
     tenant_id: str
     report_date: datetime = field(default_factory=lambda: datetime.now(UTC))
 
@@ -247,13 +250,9 @@ class FertilizerInventoryManager:
 
     def get_all_items(self, tenant_id: str) -> list[InventoryItem]:
         """Get all inventory items for a tenant."""
-        return [
-            item for item in self._inventory.values() if item.tenant_id == tenant_id
-        ]
+        return [item for item in self._inventory.values() if item.tenant_id == tenant_id]
 
-    def get_items_by_fertilizer(
-        self, tenant_id: str, fertilizer_id: str
-    ) -> list[InventoryItem]:
+    def get_items_by_fertilizer(self, tenant_id: str, fertilizer_id: str) -> list[InventoryItem]:
         """Get inventory items for a specific fertilizer."""
         return [
             item
@@ -472,9 +471,7 @@ class FertilizerInventoryManager:
             raise ValueError(f"Inventory item not found: {item_id}")
 
         if item.available_kg < quantity_kg:
-            raise ValueError(
-                f"Insufficient available stock. Available: {item.available_kg} kg"
-            )
+            raise ValueError(f"Insufficient available stock. Available: {item.available_kg} kg")
 
         item.reserved_kg += quantity_kg
         item.updated_at = datetime.now(UTC)
@@ -558,8 +555,7 @@ class FertilizerInventoryManager:
                         message_ar=f"المخزون الحالي ({item.quantity_kg:.1f} كجم) أقل من الحد الأدنى ({item.minimum_stock_kg:.1f} كجم)",
                         recommended_action_en="Place order to replenish stock",
                         recommended_action_ar="قم بطلب لتجديد المخزون",
-                        recommended_order_quantity_kg=item.reorder_point_kg
-                        - item.quantity_kg,
+                        recommended_order_quantity_kg=item.reorder_point_kg - item.quantity_kg,
                     )
                 )
 
@@ -694,9 +690,7 @@ class FertilizerInventoryManager:
                 )
 
         # Sort items needing reorder by urgency
-        summary.items_needing_reorder.sort(
-            key=lambda x: x["current_kg"] - x["reorder_point_kg"]
-        )
+        summary.items_needing_reorder.sort(key=lambda x: x["current_kg"] - x["reorder_point_kg"])
 
         # Get top items by value
         items_by_value = sorted(items, key=lambda x: x.total_value, reverse=True)[:5]
@@ -752,9 +746,7 @@ class FertilizerInventoryManager:
             transactions = [t for t in transactions if t.created_at <= end_date]
 
         if transaction_type:
-            transactions = [
-                t for t in transactions if t.transaction_type == transaction_type
-            ]
+            transactions = [t for t in transactions if t.transaction_type == transaction_type]
 
         return sorted(transactions, key=lambda t: t.created_at, reverse=True)
 
@@ -788,9 +780,7 @@ class FertilizerInventoryManager:
         total_issued = sum(abs(t.quantity_kg) for t in transactions)
         daily_rate = total_issued / days if days > 0 else 0
 
-        days_of_stock = (
-            item.available_kg / daily_rate if daily_rate > 0 else float("inf")
-        )
+        days_of_stock = item.available_kg / daily_rate if daily_rate > 0 else float("inf")
 
         return {
             "item_id": item_id,
@@ -846,5 +836,7 @@ def create_inventory_item(
         warehouse_name=warehouse_name,
         minimum_stock_kg=minimum_stock_kg,
         reorder_point_kg=reorder_point_kg,
-        status=InventoryStatus.IN_STOCK if initial_quantity_kg > 0 else InventoryStatus.OUT_OF_STOCK,
+        status=InventoryStatus.IN_STOCK
+        if initial_quantity_kg > 0
+        else InventoryStatus.OUT_OF_STOCK,
     )

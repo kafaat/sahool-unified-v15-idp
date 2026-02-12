@@ -27,13 +27,13 @@ import json
 import os
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable
 
 
-class AuditEventType(str, Enum):
+class AuditEventType(StrEnum):
     """Types of AI audit events."""
 
     # Agent Events
@@ -62,7 +62,7 @@ class AuditEventType(str, Enum):
     AUTO_FIX_ROLLBACK = "auto_fix_rollback"
 
 
-class SafetyLevel(str, Enum):
+class SafetyLevel(StrEnum):
     """Safety levels for AI operations."""
 
     SAFE = "safe"
@@ -382,9 +382,7 @@ class AIAuditLogger:
         # Calculate cost
         cost_usd = 0.0
         if llm_provider and model_name and token_count_input and token_count_output:
-            cost_usd = calculate_cost(
-                llm_provider, model_name, token_count_input, token_count_output
-            )
+            cost_usd = calculate_cost(llm_provider, model_name, token_count_input, token_count_output)
 
         # Determine safety level from score
         safety_level = SafetyLevel.SAFE
@@ -481,9 +479,7 @@ class AIAuditLogger:
 
         تسجيل استجابة LLM
         """
-        cost_usd = calculate_cost(
-            llm_provider, model_name, token_count_input, token_count_output
-        )
+        cost_usd = calculate_cost(llm_provider, model_name, token_count_input, token_count_output)
 
         return self._create_event(
             event_type=AuditEventType.LLM_RESPONSE,
@@ -702,6 +698,7 @@ def get_audit_logger(tenant_id: str = "sahool") -> AIAuditLogger:
     global _global_logger
     if _global_logger is None or _global_logger.tenant_id != tenant_id:
         import tempfile
+
         default_path = os.path.join(tempfile.gettempdir(), "sahool_ai_audit")
         storage_path = os.getenv("AI_AUDIT_STORAGE_PATH", default_path)
         _global_logger = AIAuditLogger(tenant_id=tenant_id, storage_path=storage_path)

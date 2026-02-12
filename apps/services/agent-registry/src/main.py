@@ -25,6 +25,7 @@ from .storage import InMemoryStorage, RedisStorage
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure structured logging

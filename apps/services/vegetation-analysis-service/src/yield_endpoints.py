@@ -36,7 +36,7 @@ except (NameError, ImportError, AttributeError):
 
 import logging
 import uuid
-from datetime import date, timedelta, timezone, UTC
+from datetime import UTC, date, timedelta, timezone
 
 from fastapi import HTTPException, Path, Query
 from pydantic import BaseModel, Field

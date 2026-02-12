@@ -267,7 +267,7 @@ class TestTaskQueueProcessNext:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"disease_detection"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"5",
             b"status": b'"pending"',
             b"created_at": json.dumps(now.isoformat()).encode(),
@@ -294,7 +294,7 @@ class TestTaskQueueCompleteTask:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"ndvi_calculation"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"5",
             b"status": b'"processing"',
             b"created_at": json.dumps(now.isoformat()).encode(),
@@ -333,7 +333,7 @@ class TestTaskQueueFailTask:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"disease_detection"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"5",
             b"status": b'"processing"',
             b"created_at": json.dumps(now.isoformat()).encode(),
@@ -361,7 +361,7 @@ class TestTaskQueueFailTask:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"disease_detection"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"5",
             b"status": b'"processing"',
             b"created_at": json.dumps(now.isoformat()).encode(),
@@ -393,7 +393,7 @@ class TestTaskQueueCancelTask:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"report_generation"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"3",
             b"status": b'"pending"',
             b"created_at": json.dumps(now.isoformat()).encode(),
@@ -417,7 +417,7 @@ class TestTaskQueueCancelTask:
         task_data = {
             b"task_id": b'"task123"',
             b"task_type": b'"ndvi_calculation"',
-            b"payload": b'{}',
+            b"payload": b"{}",
             b"priority": b"5",
             b"status": b'"processing"',
             b"created_at": json.dumps(now.isoformat()).encode(),

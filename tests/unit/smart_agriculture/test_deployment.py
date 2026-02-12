@@ -216,10 +216,7 @@ class LowCodeSetup:
 
     def list_templates(self) -> list[dict[str, Any]]:
         """List available templates"""
-        return [
-            {"id": tid, **tdata}
-            for tid, tdata in self._templates.items()
-        ]
+        return [{"id": tid, **tdata} for tid, tdata in self._templates.items()]
 
     def create_setup(
         self,
@@ -273,10 +270,12 @@ class LowCodeSetup:
         connections = []
         components = template["components"]
         for i in range(len(components) - 1):
-            connections.append({
-                "from": f"component_{i}",
-                "to": f"component_{i + 1}",
-            })
+            connections.append(
+                {
+                    "from": f"component_{i}",
+                    "to": f"component_{i + 1}",
+                }
+            )
         return connections
 
     def validate_setup(self, setup: dict[str, Any]) -> dict[str, Any]:
@@ -563,9 +562,7 @@ class TestLowCodeSetup:
         setup = lowcode.create_setup("smart_irrigation", customizations)
 
         # Find data source component
-        data_source = next(
-            c for c in setup["components"] if c["type"] == "data_source"
-        )
+        data_source = next(c for c in setup["components"] if c["type"] == "data_source")
         assert data_source["config"]["protocol"] == "modbus"
 
     def test_validate_setup_success(self, lowcode: LowCodeSetup):
@@ -638,30 +635,36 @@ class TestROICalculation:
     def test_calculate_roi_zero_investment_fails(self, calculator: ROICalculator):
         """Test ROI calculation fails with zero investment"""
         with pytest.raises(ValueError, match="Investment must be positive"):
-            calculator.calculate({
-                "investment": {"total": 0},
-                "annual_savings": {"total": 100000},
-                "annual_costs": {"total": 10000},
-            })
+            calculator.calculate(
+                {
+                    "investment": {"total": 0},
+                    "annual_savings": {"total": 100000},
+                    "annual_costs": {"total": 10000},
+                }
+            )
 
     def test_roi_recommendation_highly_recommended(self, calculator: ROICalculator):
         """Test highly recommended ROI recommendation"""
-        result = calculator.calculate({
-            "investment": {"total": 100000},
-            "annual_savings": {"total": 200000},
-            "annual_costs": {"total": 20000},
-        })
+        result = calculator.calculate(
+            {
+                "investment": {"total": 100000},
+                "annual_savings": {"total": 200000},
+                "annual_costs": {"total": 20000},
+            }
+        )
 
         # ROI > 100% and payback < 18 months
         assert result["recommendation"] == "highly_recommended"
 
     def test_roi_recommendation_review_costs(self, calculator: ROICalculator):
         """Test review costs ROI recommendation"""
-        result = calculator.calculate({
-            "investment": {"total": 500000},
-            "annual_savings": {"total": 50000},
-            "annual_costs": {"total": 40000},
-        })
+        result = calculator.calculate(
+            {
+                "investment": {"total": 500000},
+                "annual_savings": {"total": 50000},
+                "annual_costs": {"total": 40000},
+            }
+        )
 
         # Low ROI and long payback
         assert result["recommendation"] == "review_costs"

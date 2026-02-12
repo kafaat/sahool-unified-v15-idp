@@ -3,7 +3,7 @@
 
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -162,6 +162,7 @@ model SensorReading {
   @@index([timestamp])
   @@index([sensorId, timestamp])
   @@index([deviceId, timestamp])
+  @@index([deviceId, sensorId, timestamp]) // Optimize historical queries for specific sensor on device
   @@map("sensor_readings")
 }
 

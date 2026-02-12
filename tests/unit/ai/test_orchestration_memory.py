@@ -16,7 +16,7 @@ import os
 import tempfile
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, UTC
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
@@ -29,18 +29,20 @@ import pytest
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """Types of memory entries | أنواع إدخالات الذاكرة"""
-    FACT = "fact"                # Verified facts | حقائق موثقة
+
+    FACT = "fact"  # Verified facts | حقائق موثقة
     OBSERVATION = "observation"  # Observations | ملاحظات
-    DECISION = "decision"        # Past decisions | قرارات سابقة
-    CONTEXT = "context"          # Contextual info | معلومات سياقية
-    PATTERN = "pattern"          # Detected patterns | أنماط مكتشفة
-    EXPERIENCE = "experience"    # Learned experiences | تجارب مكتسبة
+    DECISION = "decision"  # Past decisions | قرارات سابقة
+    CONTEXT = "context"  # Contextual info | معلومات سياقية
+    PATTERN = "pattern"  # Detected patterns | أنماط مكتشفة
+    EXPERIENCE = "experience"  # Learned experiences | تجارب مكتسبة
 
 
-class MemoryPriority(str, Enum):
+class MemoryPriority(StrEnum):
     """Memory entry priority | أولوية إدخال الذاكرة"""
+
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
@@ -50,6 +52,7 @@ class MemoryPriority(str, Enum):
 @dataclass
 class MemoryEntry:
     """Single memory entry | إدخال ذاكرة واحد"""
+
     entry_id: str
     key: str
     value: Any
@@ -101,9 +104,15 @@ class MemoryEntry:
             tags=data.get("tags", []),
             source_agent=data.get("source_agent"),
             confidence=data.get("confidence", 1.0),
-            created_at=datetime.fromisoformat(data["created_at"]) if "created_at" in data else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if "updated_at" in data else datetime.now(UTC),
-            expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if "created_at" in data
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if "updated_at" in data
+            else datetime.now(UTC),
+            expires_at=datetime.fromisoformat(data["expires_at"])
+            if data.get("expires_at")
+            else None,
             access_count=data.get("access_count", 0),
             metadata=data.get("metadata", {}),
         )
@@ -112,6 +121,7 @@ class MemoryEntry:
 @dataclass
 class PatternMatch:
     """Result of pattern matching | نتيجة مطابقة النمط"""
+
     entry: MemoryEntry
     score: float
     matched_tags: list[str]
@@ -465,12 +475,14 @@ class CollectiveMemory:
                 score = 0.1  # Minimal score for unfiltered entries
 
             if score > 0:
-                matches.append(PatternMatch(
-                    entry=entry,
-                    score=score,
-                    matched_tags=matched_tags,
-                    matched_keys=matched_keys,
-                ))
+                matches.append(
+                    PatternMatch(
+                        entry=entry,
+                        score=score,
+                        matched_tags=matched_tags,
+                        matched_keys=matched_keys,
+                    )
+                )
 
         # Sort by score descending
         matches.sort(key=lambda m: m.score, reverse=True)
@@ -599,7 +611,7 @@ class CollectiveMemory:
         if not self.persistence_path or not os.path.exists(self.persistence_path):
             return 0
 
-        with open(self.persistence_path, "r") as f:
+        with open(self.persistence_path) as f:
             data = json.load(f)
 
         entries_loaded = 0
@@ -643,9 +655,7 @@ class CollectiveMemory:
             **cache_stats,
             "total_tags": len(self._tag_index),
             "total_agents": len(self._agent_index),
-            "entries_by_type": {
-                t.value: len(keys) for t, keys in self._type_index.items()
-            },
+            "entries_by_type": {t.value: len(keys) for t, keys in self._type_index.items()},
             "persistence_enabled": self.persistence_path is not None,
         }
 
@@ -1277,13 +1287,15 @@ class TestMemoryStatistics:
     async def test_get_stats(self, memory: CollectiveMemory):
         """Test getting memory statistics."""
         await memory.store(
-            key="e1", value="v1",
+            key="e1",
+            value="v1",
             tags=["tag1", "tag2"],
             source_agent="agent1",
             memory_type=MemoryType.FACT,
         )
         await memory.store(
-            key="e2", value="v2",
+            key="e2",
+            value="v2",
             tags=["tag1"],
             source_agent="agent2",
             memory_type=MemoryType.OBSERVATION,

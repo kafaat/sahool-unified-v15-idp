@@ -3,6 +3,9 @@
 # Multi-stage build with CUDA support for GPU-accelerated inference
 # =============================================================================
 
+# Global ARG must be declared before first FROM to be usable in FROM instructions
+ARG PYTHON_VERSION=3.11
+
 # -----------------------------------------------------------------------------
 # Stage 1: Base image with CUDA
 # -----------------------------------------------------------------------------
@@ -48,8 +51,9 @@ ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:/usr/local/cuda/lib64:/usr/local/cuda/ex
 ENV CUDA_HOME=/usr/local/cuda
 ENV PATH="${PATH}:${CUDA_HOME}/bin"
 
-# Create non-root user for security
-RUN groupadd -r sahool && useradd -r -g sahool sahool
+# Create non-root user for security (UID/GID 1000 for consistency)
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool sahool
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder stage for dependencies
@@ -68,29 +72,44 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Configure pip for network resilience with fallback mirrors
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+# Use non-root pip config location
+RUN mkdir -p ~/.pip && \
+    cat > ~/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://download.pytorch.org/whl/cu121
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+               download.pytorch.org
+[install]
+prefer-binary = true
+EOF
 
 # Upgrade pip
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade pip setuptools wheel
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0
 
-# Copy requirements file
-# Note: Build context is repo root, so use full path
+# Copy constraints and requirements files
+COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
-# Install Python dependencies
-# Install PyTorch with CUDA support first
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 \
+# Install PyTorch with CUDA support first (pinned versions)
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     torch==2.2.0 \
     torchvision==0.17.0 \
     --index-url https://download.pytorch.org/whl/cu121
 
-# Install remaining dependencies with fallback to Tsinghua mirror
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
-    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt
+# Install remaining dependencies with constraints
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    -c /tmp/constraints-ai.txt \
+    -r /tmp/requirements.txt
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production image
@@ -182,7 +201,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 # -----------------------------------------------------------------------------
 # Stage 5: CPU-only image (for environments without GPU)
 # -----------------------------------------------------------------------------
-FROM python:3.11-slim-bookworm AS cpu-only
+FROM python:${PYTHON_VERSION}-slim-bookworm AS cpu-only
 
 # Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -208,28 +227,36 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Create non-root user
-RUN groupadd -r sahool && useradd -r -g sahool sahool
+# Create non-root user (UID/GID 1000 for consistency)
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool sahool
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements
-# Note: Build context is repo root, so use full path
+# Copy constraints and requirements
+COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Configure pip for network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org pypi.tuna.tsinghua.edu.cn download.pytorch.org" >> /root/.pip/pip.conf
+    cat > /root/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+[install]
+prefer-binary = true
+EOF
 
-# Install Python dependencies (CPU only) with fallback to Tsinghua mirror
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
-    (pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements.txt || \
-     pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r /tmp/requirements.txt)
+# Install Python dependencies (CPU only) with constraints
+RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 && \
+    pip install --no-cache-dir --timeout=300 --retries=10 \
+    torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir --timeout=300 --retries=10 \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # Create directories
 RUN mkdir -p /app/src /app/models /app/logs /app/data \

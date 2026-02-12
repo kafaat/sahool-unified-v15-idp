@@ -148,9 +148,16 @@ class TestWorkflowEngine:
     def test_builtin_handlers_registered(self, engine):
         """Test that built-in handlers are registered"""
         expected_handlers = [
-            "retrieve", "rerank", "generate", "condition",
-            "loop", "transform", "filter", "parallel",
-            "aggregate", "call_rag",
+            "retrieve",
+            "rerank",
+            "generate",
+            "condition",
+            "loop",
+            "transform",
+            "filter",
+            "parallel",
+            "aggregate",
+            "call_rag",
         ]
         for handler in expected_handlers:
             assert handler in engine._step_handlers
@@ -158,8 +165,10 @@ class TestWorkflowEngine:
     def test_builtin_conditions_registered(self, engine):
         """Test that built-in conditions are registered"""
         expected_conditions = [
-            "has_results", "confidence_above",
-            "result_count_above", "language_is",
+            "has_results",
+            "confidence_above",
+            "result_count_above",
+            "language_is",
         ]
         for condition in expected_conditions:
             assert condition in engine._condition_evaluators
@@ -172,6 +181,7 @@ class TestWorkflowEngine:
 
     def test_register_custom_handler(self, engine):
         """Test registering custom step handler"""
+
         async def custom_handler(step, ctx):
             return StepExecutionResult(step_id=step.id, success=True)
 
@@ -180,6 +190,7 @@ class TestWorkflowEngine:
 
     def test_register_custom_condition(self, engine):
         """Test registering custom condition"""
+
         def custom_condition(ctx, params):
             return ctx.variables.get("custom_flag", False)
 
@@ -198,9 +209,7 @@ class TestWorkflowEngine:
         engine.register_workflow(simple_workflow)
 
         # Mock the step handlers - handlers return (output, next_step) tuple
-        engine._step_handlers["retrieve"] = AsyncMock(
-            return_value=({"results": []}, "step2")
-        )
+        engine._step_handlers["retrieve"] = AsyncMock(return_value=({"results": []}, "step2"))
         engine._step_handlers["generate"] = AsyncMock(
             return_value=({"answer": "Generated response"}, None)
         )
@@ -233,9 +242,7 @@ class TestWorkflowEngine:
         engine.register_workflow(workflow)
 
         # Handler returns (output, next_step) tuple
-        engine._step_handlers["transform"] = AsyncMock(
-            return_value=({"transformed": True}, None)
-        )
+        engine._step_handlers["transform"] = AsyncMock(return_value=({"transformed": True}, None))
 
         result = await engine.execute(
             "var_wf",
@@ -308,9 +315,7 @@ class TestWorkflowEngine:
         engine._step_handlers["condition"] = AsyncMock(
             return_value=({"condition_result": True}, "success_step")
         )
-        engine._step_handlers["generate"] = AsyncMock(
-            return_value=({"answer": "Generated"}, None)
-        )
+        engine._step_handlers["generate"] = AsyncMock(return_value=({"answer": "Generated"}, None))
 
         result = await engine.execute("branch_wf")
 
@@ -335,9 +340,7 @@ class TestWorkflowEngine:
         engine.register_workflow(workflow)
 
         # Handler returns (output, next_step) - next_step points to nonexistent step
-        engine._step_handlers["retrieve"] = AsyncMock(
-            return_value=({"results": []}, "nonexistent")
-        )
+        engine._step_handlers["retrieve"] = AsyncMock(return_value=({"results": []}, "nonexistent"))
 
         # execute_workflow catches exceptions and returns error in result
         result = await engine.execute("invalid_wf")

@@ -59,38 +59,6 @@ Example usage:
 """
 
 # Models
-from .models import (
-    BlockchainRecord,
-    Certification,
-    CropGrowthStage,
-    EnvironmentThreshold,
-    FertilizerCommand,
-    FertilizerRatio,
-    OperationRecord,
-    TraceabilityReport,
-)
-
-# Module A: Water-Fertilizer PID Controller
-from .pid_controller import (
-    EfficiencyReport,
-    NPKReading,
-    NPKTarget,
-    PIDGains,
-    WaterFertilizerPIDController,
-)
-
-# Module B: IFTTT Environmental Controller
-from .ifttt_controller import (
-    Action,
-    ActionType,
-    Condition,
-    ConditionOperator,
-    ControllerResults,
-    IFTTTEnvironmentController,
-    Rule,
-    SensorData,
-)
-
 # Module C: Blockchain Traceability
 from .blockchain_traceability import (
     BlockchainTraceability,
@@ -109,6 +77,18 @@ from .deployment import (
     ServiceTier,
 )
 
+# Module B: IFTTT Environmental Controller
+from .ifttt_controller import (
+    Action,
+    ActionType,
+    Condition,
+    ConditionOperator,
+    ControllerResults,
+    IFTTTEnvironmentController,
+    Rule,
+    SensorData,
+)
+
 # Operational Metrics
 from .metrics import (
     AIPerformanceMetrics,
@@ -120,6 +100,25 @@ from .metrics import (
     OperationalMetrics,
     QualityMetrics,
     ResponseMetrics,
+)
+from .models import (
+    BlockchainRecord,
+    Certification,
+    CropGrowthStage,
+    EnvironmentThreshold,
+    FertilizerCommand,
+    FertilizerRatio,
+    OperationRecord,
+    TraceabilityReport,
+)
+
+# Module A: Water-Fertilizer PID Controller
+from .pid_controller import (
+    EfficiencyReport,
+    NPKReading,
+    NPKTarget,
+    PIDGains,
+    WaterFertilizerPIDController,
 )
 
 __all__ = [

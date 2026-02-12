@@ -78,6 +78,9 @@ The platform follows a **Domain-Driven Design (DDD)** approach within a Monorepo
 Start the entire backend stack (Postgres, Kong, NATS, Core Services):
 
 ```bash
+# First, create .env file (required for Docker Compose)
+ln -s .env.development .env
+
 # Using Make (recommended)
 make up
 
@@ -429,6 +432,55 @@ kubectl -n backstage port-forward svc/backstage 7007:7007
 - **Backstage**: Developer portal with service catalog
 - **Argo CD**: GitOps-based continuous deployment
 - **Service Templates**: Scaffolding for new microservices
+
+---
+
+## 🔀 Pull Request Automation
+
+SAHOOL includes a comprehensive PR automation system for efficient code review and merging:
+
+### Quick Start
+
+```bash
+# Merge a specific PR
+make pr-merge PR=123
+
+# Check status of all open PRs
+make pr-status
+
+# Monitor PR health
+make pr-monitor
+
+# Get help
+make pr-help
+```
+
+### Features
+
+- **Automated Conflict Resolution**: Intelligently resolves merge conflicts
+- **Multiple Merge Strategies**: Auto, merge, squash, or rebase
+- **Safety Checks**: Requires CI/CD checks and approvals
+- **PR Health Monitoring**: Daily reports on PR status
+- **Detailed Reporting**: Audit trails for all merge operations
+
+### GitHub Actions
+
+The automation system includes two workflows:
+
+1. **Auto-Merge PRs** (`.github/workflows/auto-merge-prs.yml`)
+   - Automates the entire merge process
+   - Supports batch processing
+   - Dry-run mode for testing
+
+2. **PR Status Monitor** (`.github/workflows/pr-status-monitor.yml`)
+   - Monitors open PRs daily
+   - Auto-updates branches
+   - Sends notifications for conflicts
+
+### Documentation
+
+- 📚 **Full Guide**: [docs/PR_AUTOMATION.md](docs/PR_AUTOMATION.md)
+- 🚀 **Quick Start**: [docs/PR_AUTOMATION_QUICKSTART.md](docs/PR_AUTOMATION_QUICKSTART.md)
 
 ---
 

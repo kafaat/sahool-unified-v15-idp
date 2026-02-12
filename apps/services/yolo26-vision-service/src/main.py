@@ -22,10 +22,10 @@ from fastapi.responses import JSONResponse
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.api.endpoints import analysis, detection
+from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
 from src.core.config import settings
-from src.models.yolo26_manager import YOLO26ModelManager, ModelTask, get_model_manager
+from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
 
 # Configure structured logging
 structlog.configure(
@@ -38,7 +38,9 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if settings.is_production else structlog.dev.ConsoleRenderer(),
+        structlog.processors.JSONRenderer()
+        if settings.is_production
+        else structlog.dev.ConsoleRenderer(),
     ],
     wrapper_class=structlog.stdlib.BoundLogger,
     context_class=dict,
@@ -97,7 +99,9 @@ async def lifespan(app: FastAPI):
             logger.info("preloading_default_models")
             try:
                 await manager.load_model(ModelTask.PEST_DETECTION, settings.default_model_variant)
-                await manager.load_model(ModelTask.DISEASE_DETECTION, settings.default_model_variant)
+                await manager.load_model(
+                    ModelTask.DISEASE_DETECTION, settings.default_model_variant
+                )
                 logger.info("default_models_preloaded")
             except Exception as e:
                 logger.warning("model_preload_failed", error=str(e))
@@ -473,6 +477,8 @@ async def root() -> dict:
 
 app.include_router(detection.router)
 app.include_router(analysis.router)
+app.include_router(batch.router)
+app.include_router(models.router)
 
 
 # =============================================================================

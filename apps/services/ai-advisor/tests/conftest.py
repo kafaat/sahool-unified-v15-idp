@@ -136,9 +136,7 @@ def mock_embeddings_manager():
     محاكاة مدير التضمينات
     """
     mock_manager = Mock()
-    mock_manager.get_model_info = Mock(
-        return_value={"model_name": "test-embeddings-model", "dimensions": 384}
-    )
+    mock_manager.get_model_info = Mock(return_value={"model_name": "test-embeddings-model", "dimensions": 384})
     return mock_manager
 
 

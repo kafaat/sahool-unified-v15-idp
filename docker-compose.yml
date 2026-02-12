@@ -93,9 +93,8 @@ services:
       # TLS Certificates
       - ./config/certs:/etc/pgbouncer/certs:ro
 
-    # Use tmpfs for runtime directory (userlist.txt) to avoid permission issues
-    tmpfs:
-      - /etc/pgbouncer/runtime
+      # Persistent volume for userlist.txt (SECURITY: survives container restarts)
+      - pgbouncer-userlist:/etc/pgbouncer/runtime
     ports:
       - "127.0.0.1:6432:6432" # SECURITY: localhost only
     depends_on:
@@ -178,8 +177,8 @@ services:
       # TLS port (REQUIRED for production)
       - "127.0.0.1:6380:6380"
     healthcheck:
-      # Non-TLS health check (TLS can be enabled in production)
-      test: [ "CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG" ]
+      # Non-TLS health check (using --no-auth-warning to suppress password visibility warnings)
+      test: [ "CMD-SHELL", "redis-cli --no-auth-warning -a \"$${REDIS_PASSWORD}\" ping | grep PONG" ]
       # TLS-enabled health check (uncomment when TLS is enabled):
       # test: ["CMD-SHELL", "redis-cli --tls --cert /etc/redis/certs/redis-client.crt --key /etc/redis/certs/redis-client.key --cacert /etc/redis/certs/ca.crt -a $${REDIS_PASSWORD} ping | grep PONG"]
       interval: 30s
@@ -260,10 +259,10 @@ services:
       NATS_CLUSTER_USER: ${NATS_CLUSTER_USER:?NATS_CLUSTER_USER is required}
       NATS_CLUSTER_PASSWORD: ${NATS_CLUSTER_PASSWORD:?NATS_CLUSTER_PASSWORD is required}
       # SECURITY ENHANCEMENT: System account for monitoring
-      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:-nats_system}
-      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD:-change_this_secure_nats_system_password_32_chars}
+      NATS_SYSTEM_USER: ${NATS_SYSTEM_USER:?NATS_SYSTEM_USER is required}
+      NATS_SYSTEM_PASSWORD: ${NATS_SYSTEM_PASSWORD:?NATS_SYSTEM_PASSWORD is required}
       # SECURITY ENHANCEMENT: JetStream encryption key (AES-256)
-      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY:-change_this_generate_32_byte_jetstream_key_with_openssl}
+      NATS_JETSTREAM_KEY: ${NATS_JETSTREAM_KEY:?NATS_JETSTREAM_KEY is required}
     volumes:
       - nats_data:/data
       - ./config/nats/nats-secure.conf:/etc/nats/nats-secure.conf:ro
@@ -826,7 +825,7 @@ services:
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
       # Development: HTTP only on port 8000
       # Production: Uncomment the line below and comment out the HTTP-only line
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
@@ -850,7 +849,7 @@ services:
       KONG_DNS_ERROR_TTL: 30
       # DNS no-sync: Allow Kong to use stale DNS entries when resolution fails
       # This prevents Kong from blocking when services are temporarily unavailable
-      KONG_DNS_NO_SYNC: "off"
+      KONG_DNS_NO_SYNC: "on"
       # DNS not-found TTL: Cache "not found" responses to reduce repeated queries
       KONG_DNS_NOT_FOUND_TTL: 30
 

@@ -351,8 +351,7 @@ class TestFlightPath:
         """Test creating a flight path"""
         waypoints = [
             Waypoint(
-                index=i,
-                coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
+                index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
             )
             for i in range(5)
         ]
@@ -378,8 +377,7 @@ class TestFlightPath:
         """Test exporting flight path to KML format"""
         waypoints = [
             Waypoint(
-                index=i,
-                coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
+                index=i, coordinate=Coordinate(lat=24.7136 + i * 0.001, lng=46.6753, alt_agl_m=3)
             )
             for i in range(3)
         ]
@@ -843,7 +841,8 @@ class TestMappingPath:
         assert result.success is True
         # All waypoints should have photo action
         photo_points = [
-            wp for wp in result.flight_path.waypoints
+            wp
+            for wp in result.flight_path.waypoints
             if wp.is_photo_point or WaypointAction.TAKE_PHOTO in wp.actions
         ]
         assert len(photo_points) > 0
@@ -867,12 +866,8 @@ class TestCrosshatchPath:
         """Test that crosshatch provides double coverage"""
         planner = FlightPlanner()
 
-        parallel_result = planner.generate_parallel_path(
-            boundary=sample_rectangular_field
-        )
-        crosshatch_result = planner.generate_crosshatch_path(
-            boundary=sample_rectangular_field
-        )
+        parallel_result = planner.generate_parallel_path(boundary=sample_rectangular_field)
+        crosshatch_result = planner.generate_crosshatch_path(boundary=sample_rectangular_field)
 
         assert crosshatch_result.success is True
         # Crosshatch should have approximately double the distance/waypoints
@@ -911,10 +906,7 @@ class TestPerimeterPath:
         assert result_1pass.success is True
         assert result_3pass.success is True
         # More passes should have more waypoints
-        assert (
-            len(result_3pass.flight_path.waypoints) >
-            len(result_1pass.flight_path.waypoints)
-        )
+        assert len(result_3pass.flight_path.waypoints) > len(result_1pass.flight_path.waypoints)
 
 
 class TestConvenienceFunctions:
@@ -1022,10 +1014,7 @@ class TestWeatherAssessment:
         )
 
         assert check.can_fly is True
-        assert check.condition in [
-            WeatherCondition.OPTIMAL,
-            WeatherCondition.ACCEPTABLE
-        ]
+        assert check.condition in [WeatherCondition.OPTIMAL, WeatherCondition.ACCEPTABLE]
 
     @pytest.mark.unit
     def test_high_wind_prohibited(self):
@@ -1350,14 +1339,10 @@ class TestFertilizerMap:
         assert prescription is not None
         assert prescription.product_name == "Urea 46%"
         # Low vigor zones should have higher rates (inverse relationship)
-        low_vigor_zones = [
-            z for z in prescription.zones
-            if z.zone_type == VRAZoneType.LOW_VIGOR
-        ]
+        low_vigor_zones = [z for z in prescription.zones if z.zone_type == VRAZoneType.LOW_VIGOR]
         if low_vigor_zones:
             high_vigor_zones = [
-                z for z in prescription.zones
-                if z.zone_type == VRAZoneType.HIGH_VIGOR
+                z for z in prescription.zones if z.zone_type == VRAZoneType.HIGH_VIGOR
             ]
             if high_vigor_zones:
                 assert low_vigor_zones[0].rate_l_ha >= high_vigor_zones[0].rate_l_ha
@@ -1587,7 +1572,7 @@ class TestEdgeCases:
 
         assert prescription is not None
         # Should result in single zone type
-        zone_types = set(z.zone_type for z in prescription.zones)
+        zone_types = {z.zone_type for z in prescription.zones}
         assert len(zone_types) >= 1
 
     @pytest.mark.unit
@@ -1653,8 +1638,20 @@ class TestMAVLinkExport:
 
         # Check first item structure
         first_item = mission[0]
-        required_fields = ["seq", "frame", "command", "current", "autocontinue",
-                          "param1", "param2", "param3", "param4", "x", "y", "z"]
+        required_fields = [
+            "seq",
+            "frame",
+            "command",
+            "current",
+            "autocontinue",
+            "param1",
+            "param2",
+            "param3",
+            "param4",
+            "x",
+            "y",
+            "z",
+        ]
         for field in required_fields:
             assert field in first_item
 
@@ -1802,9 +1799,7 @@ class TestFlightPlanningWorkflow:
         assert resources["total_volume_l"] > 0
 
     @pytest.mark.unit
-    def test_vra_spray_workflow(
-        self, sample_rectangular_field, sample_ndvi_grid, sample_bounds
-    ):
+    def test_vra_spray_workflow(self, sample_rectangular_field, sample_ndvi_grid, sample_bounds):
         """Test VRA prescription to flight plan workflow"""
         # 1. Generate prescription map
         prescription = create_ndvi_prescription(
@@ -1828,9 +1823,7 @@ class TestFlightPlanningWorkflow:
         assert result.total_spray_volume_l > 0
 
     @pytest.mark.unit
-    def test_mapping_mission_workflow(
-        self, sample_rectangular_field, sample_mapping_drone_specs
-    ):
+    def test_mapping_mission_workflow(self, sample_rectangular_field, sample_mapping_drone_specs):
         """Test complete mapping mission workflow"""
         # 1. Check weather
         weather = assess_flight_weather(
@@ -1883,6 +1876,7 @@ class TestPerformance:
         planner = FlightPlanner()
 
         import time
+
         start = time.time()
         result = planner.generate_parallel_path(boundary=boundary)
         elapsed = time.time() - start
@@ -1894,14 +1888,12 @@ class TestPerformance:
     def test_high_resolution_ndvi_performance(self, sample_bounds):
         """Test VRA generation performance for high resolution grid"""
         # Create large NDVI grid (100x100)
-        ndvi_data = [
-            [0.3 + 0.5 * (r + c) / 200 for c in range(100)]
-            for r in range(100)
-        ]
+        ndvi_data = [[0.3 + 0.5 * (r + c) / 200 for c in range(100)] for r in range(100)]
 
         generator = VRAGenerator()
 
         import time
+
         start = time.time()
         prescription = generator.generate_from_ndvi_grid(
             field_id="field_001",

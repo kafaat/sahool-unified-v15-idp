@@ -12,23 +12,23 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import math
 from datetime import date, timedelta
 from decimal import Decimal
-from typing import Any
 from statistics import mean, median, stdev
-import math
+from typing import Any
 
 from .models import (
-    PriceTrend,
-    TrendDirection,
-    MarketComparison,
-    SellingRecommendation,
-    Currency,
-    PriceUnit,
-    Country,
     CROP_TYPES,
+    Country,
+    Currency,
+    MarketComparison,
     MarketPriceErrors,
     MarketPriceException,
+    PriceTrend,
+    PriceUnit,
+    SellingRecommendation,
+    TrendDirection,
 )
 from .tracker import MarketPriceTracker, get_price_tracker
 
@@ -67,24 +67,74 @@ class PriceAnalyzer:
     # Values > 1.0 indicate higher prices, < 1.0 indicate lower prices
     SEASONAL_FACTORS: dict[str, dict[int, float]] = {
         "wheat": {
-            1: 0.95, 2: 0.92, 3: 0.90, 4: 1.05, 5: 1.10, 6: 1.15,
-            7: 1.10, 8: 1.05, 9: 1.00, 10: 0.95, 11: 0.92, 12: 0.95,
+            1: 0.95,
+            2: 0.92,
+            3: 0.90,
+            4: 1.05,
+            5: 1.10,
+            6: 1.15,
+            7: 1.10,
+            8: 1.05,
+            9: 1.00,
+            10: 0.95,
+            11: 0.92,
+            12: 0.95,
         },
         "dates": {
-            1: 0.85, 2: 0.82, 3: 0.80, 4: 0.82, 5: 0.85, 6: 0.90,
-            7: 1.00, 8: 1.15, 9: 1.25, 10: 1.20, 11: 1.10, 12: 0.95,
+            1: 0.85,
+            2: 0.82,
+            3: 0.80,
+            4: 0.82,
+            5: 0.85,
+            6: 0.90,
+            7: 1.00,
+            8: 1.15,
+            9: 1.25,
+            10: 1.20,
+            11: 1.10,
+            12: 0.95,
         },
         "tomatoes": {
-            1: 1.10, 2: 1.05, 3: 0.95, 4: 0.85, 5: 0.80, 6: 0.85,
-            7: 0.95, 8: 1.05, 9: 1.10, 10: 1.15, 11: 1.15, 12: 1.10,
+            1: 1.10,
+            2: 1.05,
+            3: 0.95,
+            4: 0.85,
+            5: 0.80,
+            6: 0.85,
+            7: 0.95,
+            8: 1.05,
+            9: 1.10,
+            10: 1.15,
+            11: 1.15,
+            12: 1.10,
         },
         "potatoes": {
-            1: 1.05, 2: 1.00, 3: 0.95, 4: 0.90, 5: 0.85, 6: 0.85,
-            7: 0.90, 8: 0.95, 9: 1.00, 10: 1.05, 11: 1.10, 12: 1.10,
+            1: 1.05,
+            2: 1.00,
+            3: 0.95,
+            4: 0.90,
+            5: 0.85,
+            6: 0.85,
+            7: 0.90,
+            8: 0.95,
+            9: 1.00,
+            10: 1.05,
+            11: 1.10,
+            12: 1.10,
         },
         "onions": {
-            1: 0.95, 2: 0.90, 3: 0.85, 4: 0.85, 5: 0.90, 6: 0.95,
-            7: 1.00, 8: 1.05, 9: 1.10, 10: 1.15, 11: 1.10, 12: 1.00,
+            1: 0.95,
+            2: 0.90,
+            3: 0.85,
+            4: 0.85,
+            5: 0.90,
+            6: 0.95,
+            7: 1.00,
+            8: 1.05,
+            9: 1.10,
+            10: 1.15,
+            11: 1.10,
+            12: 1.00,
         },
     }
 
@@ -130,10 +180,7 @@ class PriceAnalyzer:
         # Validate crop
         crop_type = CROP_TYPES.get(crop_id)
         if not crop_type:
-            raise MarketPriceException(
-                MarketPriceErrors.CROP_NOT_FOUND,
-                f"Crop ID: {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.CROP_NOT_FOUND, f"Crop ID: {crop_id}")
 
         # Get price history
         prices = await self.tracker.get_price_history(crop_id, market_id, days)
@@ -145,13 +192,13 @@ class PriceAnalyzer:
         if not prices:
             raise MarketPriceException(
                 MarketPriceErrors.NO_PRICE_DATA,
-                f"No data for crop {crop_id} in the last {days} days"
+                f"No data for crop {crop_id} in the last {days} days",
             )
 
         if len(prices) < 2:
             raise MarketPriceException(
                 MarketPriceErrors.INSUFFICIENT_DATA,
-                f"Need at least 2 data points, found {len(prices)}"
+                f"Need at least 2 data points, found {len(prices)}",
             )
 
         # Extract price values (convert to float for statistics)
@@ -194,9 +241,7 @@ class PriceAnalyzer:
             is_low = False
 
         # Simple prediction (extrapolation)
-        predicted_direction, predicted_price, confidence = self._predict_price(
-            price_values, days=7
-        )
+        predicted_direction, predicted_price, confidence = self._predict_price(price_values, days=7)
 
         trend = PriceTrend(
             crop_id=crop_id,
@@ -309,7 +354,7 @@ class PriceAnalyzer:
         max_change = max(daily_changes) if daily_changes else 0
 
         # Combine CV and max change for volatility score
-        volatility = (cv * 0.6 + max_change * 0.4)
+        volatility = cv * 0.6 + max_change * 0.4
 
         return min(volatility, 100)
 
@@ -326,7 +371,7 @@ class PriceAnalyzer:
             return None, None, 0.0
 
         # Use recent prices for prediction
-        recent_prices = prices[:min(14, len(prices))]
+        recent_prices = prices[: min(14, len(prices))]
 
         # Calculate linear regression
         n = len(recent_prices)
@@ -395,10 +440,7 @@ class PriceAnalyzer:
         # Validate crop
         crop_type = CROP_TYPES.get(crop_id)
         if not crop_type:
-            raise MarketPriceException(
-                MarketPriceErrors.CROP_NOT_FOUND,
-                f"Crop ID: {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.CROP_NOT_FOUND, f"Crop ID: {crop_id}")
 
         price_date = price_date or date.today()
 
@@ -414,22 +456,23 @@ class PriceAnalyzer:
         for market in markets:
             latest = await self.tracker.get_latest_price(crop_id, market.id)
             if latest and latest.price_date >= price_date - timedelta(days=7):
-                market_prices.append({
-                    "market_id": market.id,
-                    "market_name": market.name,
-                    "market_name_ar": market.name_ar,
-                    "region_id": market.region_id,
-                    "price": str(latest.price),
-                    "price_decimal": latest.price,
-                    "unit": latest.unit.value,
-                    "currency": latest.currency.value,
-                    "price_date": latest.price_date.isoformat(),
-                })
+                market_prices.append(
+                    {
+                        "market_id": market.id,
+                        "market_name": market.name,
+                        "market_name_ar": market.name_ar,
+                        "region_id": market.region_id,
+                        "price": str(latest.price),
+                        "price_decimal": latest.price,
+                        "unit": latest.unit.value,
+                        "currency": latest.currency.value,
+                        "price_date": latest.price_date.isoformat(),
+                    }
+                )
 
         if not market_prices:
             raise MarketPriceException(
-                MarketPriceErrors.NO_PRICE_DATA,
-                f"No recent price data for {crop_id}"
+                MarketPriceErrors.NO_PRICE_DATA, f"No recent price data for {crop_id}"
             )
 
         # Sort by price (ascending for buying, descending for selling)
@@ -447,7 +490,9 @@ class PriceAnalyzer:
         worst = market_prices[0]  # Lowest price
 
         price_spread = best["price_decimal"] - worst["price_decimal"]
-        price_spread_pct = float(price_spread / worst["price_decimal"] * 100) if worst["price_decimal"] else 0
+        price_spread_pct = (
+            float(price_spread / worst["price_decimal"] * 100) if worst["price_decimal"] else 0
+        )
 
         # Recommendation (best market for selling)
         potential_gain = best["price_decimal"] - avg_price
@@ -528,10 +573,7 @@ class PriceAnalyzer:
         # Validate crop
         crop_type = CROP_TYPES.get(crop_id)
         if not crop_type:
-            raise MarketPriceException(
-                MarketPriceErrors.CROP_NOT_FOUND,
-                f"Crop ID: {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.CROP_NOT_FOUND, f"Crop ID: {crop_id}")
 
         # Analyze current trend
         try:
@@ -622,8 +664,12 @@ class PriceAnalyzer:
                     recommended_date = date.today() + timedelta(days=wait_days)
                     expected_gain_pct = (best_factor - current_seasonal) / current_seasonal * 100
 
-                    reasons.append(f"Seasonal prices typically {expected_gain_pct:.0f}% higher in {wait_days} days")
-                    reasons_ar.append(f"الأسعار الموسمية عادة أعلى بنسبة {expected_gain_pct:.0f}% خلال {wait_days} يومًا")
+                    reasons.append(
+                        f"Seasonal prices typically {expected_gain_pct:.0f}% higher in {wait_days} days"
+                    )
+                    reasons_ar.append(
+                        f"الأسعار الموسمية عادة أعلى بنسبة {expected_gain_pct:.0f}% خلال {wait_days} يومًا"
+                    )
                     confidence += 10
                 else:
                     reasons.append(f"Best seasonal timing too far away ({wait_days} days)")
@@ -658,7 +704,9 @@ class PriceAnalyzer:
             recommended_market_name_ar = comparison.recommended_market_name_ar
 
             if comparison.price_spread_percent > 15:
-                reasons.append(f"Price difference of {comparison.price_spread_percent:.0f}% between markets")
+                reasons.append(
+                    f"Price difference of {comparison.price_spread_percent:.0f}% between markets"
+                )
                 reasons_ar.append(f"فرق سعر {comparison.price_spread_percent:.0f}% بين الأسواق")
 
         elif preferred_region_id:
@@ -817,16 +865,18 @@ class PriceAnalyzer:
         for crop_id in crop_ids:
             try:
                 trend = await self.analyze_trend(crop_id, days=days)
-                results.append({
-                    "crop_id": crop_id,
-                    "crop_name": trend.crop_name,
-                    "crop_name_ar": trend.crop_name_ar,
-                    "volatility_score": trend.volatility_score,
-                    "is_volatile": trend.is_volatile,
-                    "direction": trend.direction.value,
-                    "change_percent": trend.price_change_percent,
-                    "data_points": trend.data_points,
-                })
+                results.append(
+                    {
+                        "crop_id": crop_id,
+                        "crop_name": trend.crop_name,
+                        "crop_name_ar": trend.crop_name_ar,
+                        "volatility_score": trend.volatility_score,
+                        "is_volatile": trend.is_volatile,
+                        "direction": trend.direction.value,
+                        "change_percent": trend.price_change_percent,
+                        "data_points": trend.data_points,
+                    }
+                )
             except MarketPriceException:
                 # Skip crops without data
                 continue

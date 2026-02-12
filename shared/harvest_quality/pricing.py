@@ -15,22 +15,21 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from datetime import datetime, UTC
-from decimal import Decimal, ROUND_HALF_UP
-from typing import Any
 import uuid
+from dataclasses import dataclass
+from datetime import UTC, datetime
+from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 
 from .models import (
-    QualityGrade,
-    QualityTestRecord,
-    GradePriceMatrix,
-    PriceCalculation,
     CropCategory,
     Currency,
+    GradePriceMatrix,
+    PriceCalculation,
     PriceUnit,
+    QualityGrade,
+    QualityTestRecord,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Predefined Price Matrices - مصفوفات الأسعار المحددة مسبقاً
@@ -218,6 +217,7 @@ class PriceAdjustmentRule:
     Rule for adjusting price based on a parameter
     قاعدة لتعديل السعر بناءً على معيار
     """
+
     parameter_name: str
     parameter_name_ar: str
     adjustment_type: str  # "per_unit", "percentage", "fixed"
@@ -391,6 +391,7 @@ DATE_ADJUSTMENT_RULES: list[PriceAdjustmentRule] = [
 @dataclass
 class PricingConfig:
     """Configuration for pricing engine | إعدادات محرك التسعير"""
+
     apply_parameter_adjustments: bool = True
     round_to_decimal_places: int = 2
     currency: Currency = Currency.SAR
@@ -494,9 +495,11 @@ class QualityPricingEngine:
                 moisture_threshold = 13.0  # Standard threshold
                 if test_values["moisture"] > moisture_threshold:
                     excess = test_values["moisture"] - moisture_threshold
-                    adjustment = -matrix.moisture_adjustment_per_percent * Decimal(
-                        str(excess)
-                    ) * Decimal(str(quantity))
+                    adjustment = (
+                        -matrix.moisture_adjustment_per_percent
+                        * Decimal(str(excess))
+                        * Decimal(str(quantity))
+                    )
                     adjustments.append(
                         {
                             "reason": f"Moisture above {moisture_threshold}%: {test_values['moisture']:.1f}%",
@@ -509,9 +512,11 @@ class QualityPricingEngine:
                 protein_threshold = 12.0  # Standard threshold
                 if test_values["protein"] > protein_threshold:
                     excess = test_values["protein"] - protein_threshold
-                    adjustment = matrix.protein_bonus_per_percent * Decimal(
-                        str(excess)
-                    ) * Decimal(str(quantity))
+                    adjustment = (
+                        matrix.protein_bonus_per_percent
+                        * Decimal(str(excess))
+                        * Decimal(str(quantity))
+                    )
                     adjustments.append(
                         {
                             "reason": f"Protein above {protein_threshold}%: {test_values['protein']:.1f}%",
@@ -524,9 +529,11 @@ class QualityPricingEngine:
                 fm_threshold = 1.0  # Standard threshold
                 if test_values["foreign_matter"] > fm_threshold:
                     excess = test_values["foreign_matter"] - fm_threshold
-                    adjustment = -matrix.foreign_matter_deduction_per_percent * Decimal(
-                        str(excess)
-                    ) * Decimal(str(quantity))
+                    adjustment = (
+                        -matrix.foreign_matter_deduction_per_percent
+                        * Decimal(str(excess))
+                        * Decimal(str(quantity))
+                    )
                     adjustments.append(
                         {
                             "reason": f"Foreign matter above {fm_threshold}%: {test_values['foreign_matter']:.1f}%",
@@ -552,9 +559,7 @@ class QualityPricingEngine:
 
         # Apply market and seasonal adjustments
         if self.config.market_adjustment_percent != 0:
-            market_adj = calc.subtotal * Decimal(
-                str(self.config.market_adjustment_percent / 100)
-            )
+            market_adj = calc.subtotal * Decimal(str(self.config.market_adjustment_percent / 100))
             adjustments.append(
                 {
                     "reason": f"Market adjustment: {self.config.market_adjustment_percent:+.1f}%",
@@ -577,9 +582,7 @@ class QualityPricingEngine:
 
         # Store adjustments and calculate totals
         calc.adjustments = adjustments
-        calc.total_adjustments = sum(
-            Decimal(str(adj["amount"])) for adj in adjustments
-        )
+        calc.total_adjustments = sum(Decimal(str(adj["amount"])) for adj in adjustments)
 
         # Calculate final price
         calc.final_price = calc.subtotal + calc.total_adjustments
@@ -605,9 +608,7 @@ class QualityPricingEngine:
 
         # Calculate per-unit final price
         if quantity > 0:
-            calc.final_price_per_unit = (
-                calc.final_price / Decimal(str(quantity))
-            ).quantize(
+            calc.final_price_per_unit = (calc.final_price / Decimal(str(quantity))).quantize(
                 Decimal(f"0.{'0' * self.config.round_to_decimal_places}"),
                 rounding=ROUND_HALF_UP,
             )
@@ -647,9 +648,7 @@ class QualityPricingEngine:
             matrix = self.price_matrix
 
         if not matrix:
-            raise ValueError(
-                f"No price matrix found for crop: {test_record.crop_type}"
-            )
+            raise ValueError(f"No price matrix found for crop: {test_record.crop_type}")
 
         # Extract test values
         test_values: dict[str, float] = {}
@@ -713,7 +712,9 @@ class QualityPricingEngine:
             # Calculate difference from Grade B (standard)
             base_total = matrix.base_price * Decimal(str(quantity))
             difference = total - base_total
-            difference_percent = float((total - base_total) / base_total * 100) if base_total > 0 else 0
+            difference_percent = (
+                float((total - base_total) / base_total * 100) if base_total > 0 else 0
+            )
 
             comparison[grade.value] = {
                 "grade": grade.value,

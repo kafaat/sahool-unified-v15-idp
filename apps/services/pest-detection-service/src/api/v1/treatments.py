@@ -6,7 +6,7 @@ Endpoints for treatment recommendations and IPM calendar.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
 
 import structlog
@@ -23,8 +23,9 @@ router = APIRouter()
 # ============================================================================
 
 
-class TreatmentType(str, Enum):
+class TreatmentType(StrEnum):
     """Treatment type."""
+
     CHEMICAL = "chemical"
     BIOLOGICAL = "biological"
     CULTURAL = "cultural"
@@ -32,8 +33,9 @@ class TreatmentType(str, Enum):
     PHEROMONE = "pheromone"
 
 
-class SafetyLevel(str, Enum):
+class SafetyLevel(StrEnum):
     """Safety classification."""
+
     LOW_RISK = "low_risk"
     MODERATE = "moderate"
     CAUTION = "caution"
@@ -48,6 +50,7 @@ class SafetyLevel(str, Enum):
 
 class TreatmentOption(BaseModel):
     """Single treatment option."""
+
     id: str
     type: TreatmentType
     name_en: str
@@ -73,6 +76,7 @@ class TreatmentOption(BaseModel):
 
 class TreatmentProtocol(BaseModel):
     """Treatment protocol for a pest."""
+
     pest_id: str
     pest_name_en: str
     pest_name_ar: str
@@ -88,6 +92,7 @@ class TreatmentProtocol(BaseModel):
 
 class RecommendationRequest(BaseModel):
     """Request for treatment recommendation."""
+
     pest_id: str
     crop: str
     severity: str  # low, medium, high, critical
@@ -98,6 +103,7 @@ class RecommendationRequest(BaseModel):
 
 class IPMCalendarEntry(BaseModel):
     """IPM calendar entry."""
+
     month: int
     month_name_en: str
     month_name_ar: str
@@ -362,15 +368,11 @@ async def get_recommendations(request: RecommendationRequest):
         options = protocol.chemical_options + protocol.biological_options
     elif request.severity == "high":
         options = (
-            protocol.chemical_options
-            + protocol.biological_options
-            + protocol.cultural_options
+            protocol.chemical_options + protocol.biological_options + protocol.cultural_options
         )
     else:
         options = (
-            protocol.biological_options
-            + protocol.cultural_options
-            + protocol.chemical_options
+            protocol.biological_options + protocol.cultural_options + protocol.chemical_options
         )
 
     # Filter by budget if specified
@@ -419,12 +421,32 @@ async def get_ipm_calendar(
     """
     # Simplified IPM calendar - would be crop-specific in production
     months_en = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     ]
     months_ar = [
-        "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-        "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+        "يناير",
+        "فبراير",
+        "مارس",
+        "أبريل",
+        "مايو",
+        "يونيو",
+        "يوليو",
+        "أغسطس",
+        "سبتمبر",
+        "أكتوبر",
+        "نوفمبر",
+        "ديسمبر",
     ]
 
     calendar = []
@@ -532,15 +554,17 @@ async def get_ipm_calendar(
                 ]
                 target_pests = []
 
-        calendar.append(IPMCalendarEntry(
-            month=month,
-            month_name_en=months_en[i],
-            month_name_ar=months_ar[i],
-            activities_en=activities_en,
-            activities_ar=activities_ar,
-            target_pests=target_pests,
-            monitoring_frequency="weekly" if month in [3, 4, 5, 6, 7, 8] else "bi-weekly",
-        ))
+        calendar.append(
+            IPMCalendarEntry(
+                month=month,
+                month_name_en=months_en[i],
+                month_name_ar=months_ar[i],
+                activities_en=activities_en,
+                activities_ar=activities_ar,
+                target_pests=target_pests,
+                monitoring_frequency="weekly" if month in [3, 4, 5, 6, 7, 8] else "bi-weekly",
+            )
+        )
 
     return {
         "crop": crop,
@@ -580,14 +604,16 @@ async def get_rotation_plan(
     rotation = []
     for i in range(seasons):
         chemical = chemicals[i % len(chemicals)]
-        rotation.append({
-            "season": i + 1,
-            "treatment": chemical.name_en,
-            "treatment_ar": chemical.name_ar,
-            "active_ingredient": chemical.active_ingredient,
-            "reason_en": "Rotation to prevent resistance buildup",
-            "reason_ar": "تناوب لمنع تراكم المقاومة",
-        })
+        rotation.append(
+            {
+                "season": i + 1,
+                "treatment": chemical.name_en,
+                "treatment_ar": chemical.name_ar,
+                "active_ingredient": chemical.active_ingredient,
+                "reason_en": "Rotation to prevent resistance buildup",
+                "reason_ar": "تناوب لمنع تراكم المقاومة",
+            }
+        )
 
     return {
         "pest_id": pest_id,

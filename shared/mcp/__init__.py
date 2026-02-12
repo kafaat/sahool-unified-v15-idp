@@ -34,6 +34,8 @@ from .skills_server import SAHOOLSkillsTools, extend_mcp_server_with_skills
 # Conditional imports for FastAPI-dependent modules
 try:
     # Configuration
+    # Client
+    from .client import MCPClient
     from .config import (
         AgentConfig,
         AgentType,
@@ -80,9 +82,6 @@ try:
         SAHOOLTools,
         ToolResult,
     )
-
-    # Client
-    from .client import MCPClient
 
     __all__ = [
         # Server

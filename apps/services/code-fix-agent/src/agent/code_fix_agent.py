@@ -23,7 +23,7 @@ import os
 import tempfile
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -35,10 +35,16 @@ try:
     from shared.ai.auto_fix import (
         AutoFixEngine,
         CodeDiagnostics,
-        DiagnosticCategory as AutoFixCategory,
-        DiagnosticSeverity as AutoFixSeverity,
-        FixStrategy as AutoFixStrategy,
         ToolType,
+    )
+    from shared.ai.auto_fix import (
+        DiagnosticCategory as AutoFixCategory,
+    )
+    from shared.ai.auto_fix import (
+        DiagnosticSeverity as AutoFixSeverity,
+    )
+    from shared.ai.auto_fix import (
+        FixStrategy as AutoFixStrategy,
     )
 
     AUTO_FIX_AVAILABLE = True
@@ -56,9 +62,11 @@ except ImportError:
 # Import Observability integration
 try:
     from shared.ai.observability import (
-        AIAgentObservability,
         AgentContext as ObsContext,
+    )
+    from shared.ai.observability import (
         AgentErrorType,
+        AIAgentObservability,
         create_observability,
     )
 
@@ -69,8 +77,8 @@ except ImportError:
 # Import Tool Registry for dynamic tool management
 try:
     from shared.ai.tool_registry import (
-        ToolRegistry,
         Language,
+        ToolRegistry,
         get_tool_registry,
     )
 
@@ -691,7 +699,9 @@ class CodeFixAgent:
 
         # Extract context for observability
         file_path = percept.data.get("file_path") if isinstance(percept.data, dict) else None
-        language = percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
+        language = (
+            percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
+        )
 
         # Use observability context if available
         if self._observability and OBSERVABILITY_AVAILABLE:
@@ -976,7 +986,9 @@ class CodeFixAgent:
 
         return issues
 
-    async def _analyze_with_auto_fix(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
+    async def _analyze_with_auto_fix(
+        self, code: str, language: SupportedLanguage
+    ) -> list[CodeIssue]:
         """
         تحليل الكود باستخدام AutoFixEngine
         Analyze code using AutoFixEngine diagnostics
@@ -1404,8 +1416,12 @@ class CodeFixAgent:
                     "datetime.utcnow()", "datetime.now(timezone.utc)"
                 )
                 if fixed_line != original_line:
-                    explanation = "Replace deprecated datetime.utcnow() with datetime.now(timezone.utc)"
-                    explanation_ar = "استبدال datetime.utcnow() المهمل بـ datetime.now(timezone.utc)"
+                    explanation = (
+                        "Replace deprecated datetime.utcnow() with datetime.now(timezone.utc)"
+                    )
+                    explanation_ar = (
+                        "استبدال datetime.utcnow() المهمل بـ datetime.now(timezone.utc)"
+                    )
 
             elif rule.startswith("B006"):  # Mutable default argument
                 # Complex, skip for rule-based
@@ -1472,7 +1488,7 @@ ISSUE:
 - Severity: {issue.severity.value}
 - Description: {issue.description}
 - Line {issue.line_start}: {issue.code_snippet}
-{f'- Suggestion: {issue.suggestion}' if issue.suggestion else ''}
+{f"- Suggestion: {issue.suggestion}" if issue.suggestion else ""}
 
 CODE:
 ```
@@ -1525,7 +1541,9 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
                 changes=[
                     {
                         "type": "llm_generated",
-                        "model": self._ollama_client.config.model if hasattr(self._ollama_client, "config") else "unknown",
+                        "model": self._ollama_client.config.model
+                        if hasattr(self._ollama_client, "config")
+                        else "unknown",
                         "changed_lines": changed_lines,
                     }
                 ],

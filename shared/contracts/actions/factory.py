@@ -7,7 +7,7 @@ SAHOOL Action Template Factory
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from .template import ActionStep, ActionTemplate, Resource
 from .types import ActionType, ResourceType, UrgencyLevel

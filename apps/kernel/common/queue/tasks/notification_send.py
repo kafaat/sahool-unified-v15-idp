@@ -12,12 +12,8 @@ License: MIT
 import json
 import logging
 import os
-
-
-
-from datetime import datetime, timezone, UTC
-
-from enum import Enum
+from datetime import UTC, datetime, timezone
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -37,7 +33,7 @@ except ImportError:
 _firebase_app = None
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     """Notification type mapping to FCM priority and channel"""
 
     ALERT = "alert"  # Critical alerts - high priority
@@ -294,8 +290,7 @@ def _send_multicast_push(
             logger.warning(f"Failed to send to {len(failed_tokens)} tokens")
 
         logger.info(
-            f"Multicast sent: {response.success_count} success, "
-            f"{response.failure_count} failed"
+            f"Multicast sent: {response.success_count} success, {response.failure_count} failed"
         )
 
         return {
@@ -353,8 +348,7 @@ def _log_delivery_status(
         )
     else:
         logger.info(
-            f"Notification status: {status} | "
-            f"id={notification_id} channel={channel} user={user_id}"
+            f"Notification status: {status} | id={notification_id} channel={channel} user={user_id}"
         )
 
     return log_entry

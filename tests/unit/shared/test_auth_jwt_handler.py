@@ -10,6 +10,7 @@ import jwt
 
 # Set test environment before imports
 import os
+
 os.environ["ENVIRONMENT"] = "test"
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 os.environ["JWT_ALGORITHM"] = "HS256"

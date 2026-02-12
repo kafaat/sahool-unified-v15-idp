@@ -29,6 +29,7 @@ class TestUltraRAGImports:
                 WorkflowConfig,
                 WorkflowStep,
             )
+
             assert RetrievalStrategy.HYBRID is not None
         except Exception as e:
             pytest.fail(f"Failed to import models: {type(e).__name__}: {e}")
@@ -43,6 +44,7 @@ class TestUltraRAGImports:
                 HybridRetriever,
                 AdaptiveRetriever,
             )
+
             assert RetrievalConfig is not None
         except Exception as e:
             pytest.fail(f"Failed to import retriever: {type(e).__name__}: {e}")
@@ -58,6 +60,7 @@ class TestUltraRAGImports:
                 NoReranker,
                 get_reranker,
             )
+
             assert get_reranker is not None
         except Exception as e:
             pytest.fail(f"Failed to import reranker: {type(e).__name__}: {e}")
@@ -69,6 +72,7 @@ class TestUltraRAGImports:
                 GeneratorConfig,
                 OllamaGenerator,
             )
+
             assert GeneratorConfig is not None
         except Exception as e:
             pytest.fail(f"Failed to import generator: {type(e).__name__}: {e}")
@@ -82,6 +86,7 @@ class TestUltraRAGImports:
                 StageResult,
                 PipelineContext,
             )
+
             assert RAGPipeline is not None
         except Exception as e:
             pytest.fail(f"Failed to import pipeline: {type(e).__name__}: {e}")
@@ -94,6 +99,7 @@ class TestUltraRAGImports:
                 WorkflowExecutionContext,
                 StepExecutionResult,
             )
+
             assert WorkflowEngine is not None
         except Exception as e:
             pytest.fail(f"Failed to import workflow: {type(e).__name__}: {e}")

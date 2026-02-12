@@ -6,6 +6,7 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+import enum
 import os
 import sys
 from datetime import datetime
@@ -23,13 +24,7 @@ os.environ["JWT_ALGORITHM"] = "HS256"
 
 # Add project root to path for shared imports
 project_root = os.path.dirname(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__))
-            )
-        )
-    )
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 )
 sys.path.insert(0, project_root)
 
@@ -37,6 +32,7 @@ sys.path.insert(0, project_root)
 # Mock all shared modules before any imports
 def setup_mocks():
     """Set up all module mocks."""
+
     # Create mock User class
     class MockUser:
         def __init__(self):
@@ -111,16 +107,16 @@ def setup_mocks():
 # Create agents module mock separately
 def create_agents_mock():
     """Create mock for shared.ai.agents module."""
-    from enum import Enum
     from dataclasses import dataclass, field
+    from enum import Enum
     from typing import Any
 
-    class AgentMode(str, Enum):
+    class AgentMode(enum.StrEnum):
         PLAN = "plan"
         EXECUTE = "execute"
         HYBRID = "hybrid"
 
-    class AgentState(str, Enum):
+    class AgentState(enum.StrEnum):
         IDLE = "idle"
         PLANNING = "planning"
         EXECUTING = "executing"
@@ -270,11 +266,11 @@ def mock_shared_modules():
 @pytest.fixture
 def client() -> Generator:
     """Create a test client for the FastAPI app."""
-    from fastapi.testclient import TestClient
-
     # Import the app after mocking
     import importlib
+
     import src.main as main_module
+    from fastapi.testclient import TestClient
 
     # Reload the module to apply mocks
     importlib.reload(main_module)
@@ -295,6 +291,7 @@ def client() -> Generator:
 
     # Get the get_current_user from the mocked module
     from shared.auth.dependencies import get_current_user
+
     main_module.app.dependency_overrides[get_current_user] = mock_get_current_user
 
     with TestClient(main_module.app) as test_client:
@@ -381,29 +378,33 @@ def mock_agent():
         "total_time_ms": 0,
     }
 
-    agent.run = AsyncMock(return_value={
-        "success": True,
-        "status": "completed",
-        "agent_id": "test-agent-001",
-        "task": "Test task",
-        "execution_time_ms": 100,
-        "steps_total": 1,
-        "steps_completed": 1,
-        "steps_failed": 0,
-        "steps": [],
-        "outputs": [],
-        "summary": "Test completed.",
-    })
+    agent.run = AsyncMock(
+        return_value={
+            "success": True,
+            "status": "completed",
+            "agent_id": "test-agent-001",
+            "task": "Test task",
+            "execution_time_ms": 100,
+            "steps_total": 1,
+            "steps_completed": 1,
+            "steps_failed": 0,
+            "steps": [],
+            "outputs": [],
+            "summary": "Test completed.",
+        }
+    )
 
     agent.decompose_task = AsyncMock(return_value=[])
     agent.validate_step_result = AsyncMock(return_value=(True, None))
-    agent.get_status = MagicMock(return_value={
-        "agent_id": "test-agent-001",
-        "name": "Test Agent",
-        "state": "idle",
-        "current_task": None,
-        "stats": agent.stats,
-    })
+    agent.get_status = MagicMock(
+        return_value={
+            "agent_id": "test-agent-001",
+            "name": "Test Agent",
+            "state": "idle",
+            "current_task": None,
+            "stats": agent.stats,
+        }
+    )
     agent.reset = MagicMock()
 
     return agent

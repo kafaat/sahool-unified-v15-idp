@@ -16,33 +16,36 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
-import uuid
 
 from .models import (
-    SharedResource,
-    ResourceBooking,
-    ResourceType,
-    ResourceStatus,
     CooperativeMember,
+    ResourceBooking,
+    ResourceStatus,
+    ResourceType,
+    SharedResource,
 )
 
 
 class BookingConflictError(Exception):
     """Raised when a booking conflicts with an existing reservation."""
+
     pass
 
 
 class ResourceNotAvailableError(Exception):
     """Raised when a resource is not available for booking."""
+
     pass
 
 
 class InsufficientPriorityError(Exception):
     """Raised when member doesn't have sufficient priority for booking."""
+
     pass
 
 
@@ -52,10 +55,11 @@ class ResourceAvailability:
     Availability window for a resource.
     نافذة توفر المورد
     """
+
     resource_id: str
     date: datetime
-    available_hours: list[int]             # Hours of day (0-23) available
-    booked_slots: list[tuple[int, int]]    # (start_hour, end_hour) pairs
+    available_hours: list[int]  # Hours of day (0-23) available
+    booked_slots: list[tuple[int, int]]  # (start_hour, end_hour) pairs
     maintenance_scheduled: bool = False
 
     def is_available_at(self, hour: int) -> bool:
@@ -102,6 +106,7 @@ class UsageStatistics:
     Usage statistics for a resource or member.
     احصائيات الاستخدام للمورد او العضو
     """
+
     total_bookings: int = 0
     total_hours: float = 0.0
     total_hectares: float = 0.0
@@ -138,11 +143,12 @@ class MaintenanceRecord:
     Maintenance record for a resource.
     سجل صيانة للمورد
     """
+
     record_id: str
     resource_id: str
 
     # Maintenance details
-    type: str                              # scheduled, emergency, preventive
+    type: str  # scheduled, emergency, preventive
     description: str
     description_ar: str
 
@@ -160,7 +166,7 @@ class MaintenanceRecord:
     technician_contact: str | None = None
 
     # Status
-    status: str = "scheduled"              # scheduled, in_progress, completed, cancelled
+    status: str = "scheduled"  # scheduled, in_progress, completed, cancelled
 
     # Metadata
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -383,20 +389,14 @@ class ResourcePoolService:
 
         # Validate booking duration
         if resource.min_booking_hours and duration_hours < resource.min_booking_hours:
-            raise ValueError(
-                f"Minimum booking duration is {resource.min_booking_hours} hours"
-            )
+            raise ValueError(f"Minimum booking duration is {resource.min_booking_hours} hours")
         if resource.max_booking_hours and duration_hours > resource.max_booking_hours:
-            raise ValueError(
-                f"Maximum booking duration is {resource.max_booking_hours} hours"
-            )
+            raise ValueError(f"Maximum booking duration is {resource.max_booking_hours} hours")
 
         # Check for conflicts
         if check_conflicts:
             end_time = start_time + timedelta(hours=duration_hours)
-            conflicts = await self._check_booking_conflicts(
-                resource_id, start_time, end_time
-            )
+            conflicts = await self._check_booking_conflicts(resource_id, start_time, end_time)
             if conflicts:
                 conflict_info = conflicts[0]
                 raise BookingConflictError(
@@ -596,7 +596,9 @@ class ResourcePoolService:
 
             # Check if booking overlaps with this day
             if booking.start_time < day_end and booking_end > day_start:
-                start_hour = max(0, booking.start_time.hour if booking.start_time >= day_start else 0)
+                start_hour = max(
+                    0, booking.start_time.hour if booking.start_time >= day_start else 0
+                )
                 end_hour = min(24, booking_end.hour if booking_end <= day_end else 24)
                 booked_slots.append((start_hour, end_hour))
 
@@ -691,9 +693,7 @@ class ResourcePoolService:
 
         # Check for booking conflicts
         end_time = scheduled_date + timedelta(hours=estimated_duration_hours)
-        conflicts = await self._check_booking_conflicts(
-            resource_id, scheduled_date, end_time
-        )
+        conflicts = await self._check_booking_conflicts(resource_id, scheduled_date, end_time)
 
         if conflicts:
             # Notify about conflicts (in production, would send notifications)
@@ -801,7 +801,9 @@ class ResourcePoolService:
             total_hours=sum(b.actual_hours or 0 for b in completed),
             total_hectares=sum(b.hectares_covered or 0 for b in completed),
             total_fees_collected=sum(b.actual_fee for b in completed if b.payment_status == "paid"),
-            total_fees_outstanding=sum(b.actual_fee for b in completed if b.payment_status != "paid"),
+            total_fees_outstanding=sum(
+                b.actual_fee for b in completed if b.payment_status != "paid"
+            ),
         )
 
         # Usage by period
@@ -816,7 +818,9 @@ class ResourcePoolService:
         # Calculate utilization (simplified - assumes 10 hours/day operating)
         days_in_service = (now - resource.created_at).days or 1
         max_hours = days_in_service * 10
-        stats.average_utilization_percent = (stats.total_hours / max_hours) * 100 if max_hours > 0 else 0
+        stats.average_utilization_percent = (
+            (stats.total_hours / max_hours) * 100 if max_hours > 0 else 0
+        )
 
         return stats
 
@@ -840,7 +844,9 @@ class ResourcePoolService:
             total_hours=sum(b.actual_hours or 0 for b in completed),
             total_hectares=sum(b.hectares_covered or 0 for b in completed),
             total_fees_collected=sum(b.actual_fee for b in completed if b.payment_status == "paid"),
-            total_fees_outstanding=sum(b.actual_fee for b in completed if b.payment_status != "paid"),
+            total_fees_outstanding=sum(
+                b.actual_fee for b in completed if b.payment_status != "paid"
+            ),
         )
 
         # Usage by period
@@ -884,7 +890,14 @@ class ResourcePoolService:
             "cooperative_id": self.cooperative_id,
             "total_resources": len(resources),
             "available_resources": len([r for r in resources if r.is_available()]),
-            "by_type": {k: {"count": v["count"], "available": v["available"], "total_value": str(v["total_value"])} for k, v in by_type.items()},
+            "by_type": {
+                k: {
+                    "count": v["count"],
+                    "available": v["available"],
+                    "total_value": str(v["total_value"]),
+                }
+                for k, v in by_type.items()
+            },
             "total_value": str(sum(r.current_value for r in resources)),
             "pending_bookings": len(pending_bookings),
             "upcoming_bookings": [b.to_dict() for b in upcoming_bookings],

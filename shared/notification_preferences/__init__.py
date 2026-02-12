@@ -219,48 +219,42 @@ Use Language.BOTH to receive content in both languages.
 """
 
 # Enums
-from .models import (
-    NotificationChannel,
-    AlertType,
-    AlertUrgency,
-    Language,
-    DayOfWeek,
+# Manager
+from .manager import (
+    InMemoryStorage,
+    NotificationPreferencesManager,
+    PreferencesStorage,
 )
 
 # Core data models
+# Factory functions
 from .models import (
-    QuietHours,
-    ChannelConfig,
+    AlertType,
     AlertTypePreference,
+    AlertUrgency,
+    ChannelConfig,
+    DayOfWeek,
+    Language,
+    NotificationChannel,
+    NotificationRequest,
+    QuietHours,
+    RoutingDecision,
     TimeBasedRule,
     UrgencyOverride,
     UserNotificationPreferences,
-    NotificationRequest,
-    RoutingDecision,
-)
-
-# Factory functions
-from .models import (
     create_default_preferences,
     create_minimal_preferences,
 )
 
-# Manager
-from .manager import (
-    NotificationPreferencesManager,
-    PreferencesStorage,
-    InMemoryStorage,
-)
-
 # Router
 from .router import (
-    NotificationRouter,
-    route_notification,
-    get_localized_content,
-    should_send_immediately,
-    get_channels_for_urgency,
-    get_routing_message,
     ROUTING_MESSAGES,
+    NotificationRouter,
+    get_channels_for_urgency,
+    get_localized_content,
+    get_routing_message,
+    route_notification,
+    should_send_immediately,
 )
 
 __all__ = [

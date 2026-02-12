@@ -25,6 +25,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class RetrievalConfig:
     """Configuration for retrieval | تكوين الاسترجاع"""
+
     strategy: RetrievalStrategy = RetrievalStrategy.HYBRID
     top_k: int = 10
     dense_weight: float = 0.7
@@ -102,12 +103,14 @@ class DenseRetriever(Retriever):
                     collection=config.collection,
                     metadata=result.metadata or {},
                 )
-                results.append(RetrievalResult(
-                    chunk=chunk,
-                    score=result.score,
-                    retrieval_method="dense",
-                    rank=i + 1,
-                ))
+                results.append(
+                    RetrievalResult(
+                        chunk=chunk,
+                        score=result.score,
+                        retrieval_method="dense",
+                        rank=i + 1,
+                    )
+                )
 
             # Filter by minimum score
             results = [r for r in results if r.score >= config.min_score_threshold]
@@ -250,7 +253,7 @@ class SparseRetriever(Retriever):
 
             # Sort by score and get top_k
             sorted_docs = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-            top_docs = sorted_docs[:config.top_k]
+            top_docs = sorted_docs[: config.top_k]
 
             # Convert to RetrievalResult
             results = []
@@ -269,12 +272,14 @@ class SparseRetriever(Retriever):
                         collection=collection,
                         metadata=doc.metadata or {},
                     )
-                    results.append(RetrievalResult(
-                        chunk=chunk,
-                        score=score,
-                        retrieval_method="sparse",
-                        rank=i + 1,
-                    ))
+                    results.append(
+                        RetrievalResult(
+                            chunk=chunk,
+                            score=score,
+                            retrieval_method="sparse",
+                            rank=i + 1,
+                        )
+                    )
 
             elapsed = (time.time() - start_time) * 1000
             logger.info(
@@ -338,7 +343,7 @@ class SparseRetriever(Retriever):
         # Lowercase and split on non-alphanumeric (preserving Arabic)
         text = text.lower()
         # Pattern that matches word characters including Arabic
-        tokens = re.findall(r'[\w\u0600-\u06FF]+', text)
+        tokens = re.findall(r"[\w\u0600-\u06FF]+", text)
         # Remove stopwords and short tokens
         tokens = [t for t in tokens if len(t) > 2]
         return tokens
@@ -346,6 +351,7 @@ class SparseRetriever(Retriever):
     def _calculate_idf(self, N: int, df: int) -> float:
         """Calculate inverse document frequency"""
         import math
+
         return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
     def _calculate_bm25_score(self, tf: int, idf: float, dl: int, avg_dl: float) -> float:
@@ -376,12 +382,8 @@ class HybridRetriever(Retriever):
 
         try:
             # Run both retrievers in parallel
-            dense_task = asyncio.create_task(
-                self.dense_retriever.retrieve(query, config)
-            )
-            sparse_task = asyncio.create_task(
-                self.sparse_retriever.retrieve(query, config)
-            )
+            dense_task = asyncio.create_task(self.dense_retriever.retrieve(query, config))
+            sparse_task = asyncio.create_task(self.sparse_retriever.retrieve(query, config))
 
             dense_results, sparse_results = await asyncio.gather(dense_task, sparse_task)
 
@@ -410,21 +412,19 @@ class HybridRetriever(Retriever):
                     fused_scores[doc_id] = (current_score + rrf_score, chunk)
 
             # Sort by fused score
-            sorted_results = sorted(
-                fused_scores.items(),
-                key=lambda x: x[1][0],
-                reverse=True
-            )
+            sorted_results = sorted(fused_scores.items(), key=lambda x: x[1][0], reverse=True)
 
             # Create final results
             results = []
-            for i, (doc_id, (score, chunk)) in enumerate(sorted_results[:config.top_k]):
-                results.append(RetrievalResult(
-                    chunk=chunk,
-                    score=score,
-                    retrieval_method="hybrid",
-                    rank=i + 1,
-                ))
+            for i, (doc_id, (score, chunk)) in enumerate(sorted_results[: config.top_k]):
+                results.append(
+                    RetrievalResult(
+                        chunk=chunk,
+                        score=score,
+                        retrieval_method="hybrid",
+                        rank=i + 1,
+                    )
+                )
 
             elapsed = (time.time() - start_time) * 1000
             logger.info(
@@ -506,11 +506,25 @@ class AdaptiveRetriever(Retriever):
         num_words = len(words)
 
         # Check for question words
-        question_words = {"what", "how", "why", "when", "where", "who", "which", "ما", "كيف", "لماذا", "متى", "أين", "من"}
+        question_words = {
+            "what",
+            "how",
+            "why",
+            "when",
+            "where",
+            "who",
+            "which",
+            "ما",
+            "كيف",
+            "لماذا",
+            "متى",
+            "أين",
+            "من",
+        }
         has_question_word = any(w.lower() in question_words for w in words)
 
         # Check for technical terms or specific patterns
-        has_special_chars = bool(re.search(r'[:\-_/\\.]', query))
+        bool(re.search(r"[:\-_/\\.]", query))
 
         if num_words <= 3 and not has_question_word:
             return "keyword"
@@ -586,12 +600,14 @@ class KnowledgeGraphRetriever(Retriever):
                             "hop_distance": context_info.get("hop_distance", 0),
                         },
                     )
-                    results.append(RetrievalResult(
-                        chunk=chunk,
-                        score=context_info.get("relevance_score", 0.5),
-                        retrieval_method="knowledge_graph",
-                        rank=i + 1,
-                    ))
+                    results.append(
+                        RetrievalResult(
+                            chunk=chunk,
+                            score=context_info.get("relevance_score", 0.5),
+                            retrieval_method="knowledge_graph",
+                            rank=i + 1,
+                        )
+                    )
 
             elapsed = (time.time() - start_time) * 1000
             logger.info(
@@ -602,7 +618,7 @@ class KnowledgeGraphRetriever(Retriever):
                 elapsed_ms=elapsed,
             )
 
-            return results[:config.top_k]
+            return results[: config.top_k]
 
         except Exception as e:
             logger.error("kg_retrieval_error", error=str(e))
@@ -674,14 +690,38 @@ class KnowledgeGraphRetriever(Retriever):
         # Simple keyword extraction - can be replaced with NER
         # Agricultural domain keywords
         ag_keywords = {
-            "wheat", "rice", "corn", "tomato", "cotton", "date", "palm",
-            "قمح", "أرز", "ذرة", "طماطم", "قطن", "تمر", "نخيل",
-            "pest", "disease", "fertilizer", "irrigation", "soil",
-            "آفة", "مرض", "سماد", "ري", "تربة",
-            "nitrogen", "phosphorus", "potassium",
-            "نيتروجين", "فوسفور", "بوتاسيوم",
+            "wheat",
+            "rice",
+            "corn",
+            "tomato",
+            "cotton",
+            "date",
+            "palm",
+            "قمح",
+            "أرز",
+            "ذرة",
+            "طماطم",
+            "قطن",
+            "تمر",
+            "نخيل",
+            "pest",
+            "disease",
+            "fertilizer",
+            "irrigation",
+            "soil",
+            "آفة",
+            "مرض",
+            "سماد",
+            "ري",
+            "تربة",
+            "nitrogen",
+            "phosphorus",
+            "potassium",
+            "نيتروجين",
+            "فوسفور",
+            "بوتاسيوم",
         }
-        words = re.findall(r'[\w\u0600-\u06FF]+', query.lower())
+        words = re.findall(r"[\w\u0600-\u06FF]+", query.lower())
         return [w for w in words if w in ag_keywords or len(w) > 4]
 
     async def _extract_entities_from_text(self, text: str) -> list[dict[str, Any]]:
@@ -691,11 +731,13 @@ class KnowledgeGraphRetriever(Retriever):
         words = await self._extract_entities(text)
         for word in set(words):
             entity_id = f"entity_{hash(word) % 1000000:06d}"
-            entities.append({
-                "id": entity_id,
-                "name": word,
-                "entity_type": self._guess_entity_type(word),
-            })
+            entities.append(
+                {
+                    "id": entity_id,
+                    "name": word,
+                    "entity_type": self._guess_entity_type(word),
+                }
+            )
         return entities
 
     async def _extract_relations_from_text(
@@ -708,14 +750,16 @@ class KnowledgeGraphRetriever(Retriever):
         # Simple co-occurrence based relation extraction
         entity_ids = [e["id"] for e in entities]
         for i, e1_id in enumerate(entity_ids):
-            for e2_id in entity_ids[i + 1:]:
-                relations.append({
-                    "id": f"rel_{hash(e1_id + e2_id) % 1000000:06d}",
-                    "source_id": e1_id,
-                    "target_id": e2_id,
-                    "relation_type": "related_to",
-                    "weight": 0.5,
-                })
+            for e2_id in entity_ids[i + 1 :]:
+                relations.append(
+                    {
+                        "id": f"rel_{hash(e1_id + e2_id) % 1000000:06d}",
+                        "source_id": e1_id,
+                        "target_id": e2_id,
+                        "relation_type": "related_to",
+                        "weight": 0.5,
+                    }
+                )
         return relations
 
     async def _match_entities(self, query_entities: list[str]) -> list[str]:
@@ -858,19 +902,11 @@ class TriRAGRetriever(Retriever):
 
         try:
             # Run all three retrievers in parallel
-            dense_task = asyncio.create_task(
-                self.dense_retriever.retrieve(query, config)
-            )
-            sparse_task = asyncio.create_task(
-                self.sparse_retriever.retrieve(query, config)
-            )
-            kg_task = asyncio.create_task(
-                self.kg_retriever.retrieve(query, config)
-            )
+            dense_task = asyncio.create_task(self.dense_retriever.retrieve(query, config))
+            sparse_task = asyncio.create_task(self.sparse_retriever.retrieve(query, config))
+            kg_task = asyncio.create_task(self.kg_retriever.retrieve(query, config))
 
-            dense_results, sparse_results, kg_results = await asyncio.gather(
-                dense_task, sparse_task, kg_task
-            )
+            dense_results, sparse_results, kg_results = await asyncio.gather(dense_task, sparse_task, kg_task)
 
             # Reciprocal Rank Fusion (RRF) across all channels
             fused_scores: dict[str, tuple[float, KnowledgeChunk, str]] = {}
@@ -906,21 +942,19 @@ class TriRAGRetriever(Retriever):
                     fused_scores[doc_id] = (current_score + rrf_score, chunk, f"{method}+kg")
 
             # Sort by fused score
-            sorted_results = sorted(
-                fused_scores.items(),
-                key=lambda x: x[1][0],
-                reverse=True
-            )
+            sorted_results = sorted(fused_scores.items(), key=lambda x: x[1][0], reverse=True)
 
             # Create final results
             results = []
-            for i, (doc_id, (score, chunk, method)) in enumerate(sorted_results[:config.top_k]):
-                results.append(RetrievalResult(
-                    chunk=chunk,
-                    score=score,
-                    retrieval_method=f"tri_rag:{method}",
-                    rank=i + 1,
-                ))
+            for i, (doc_id, (score, chunk, method)) in enumerate(sorted_results[: config.top_k]):
+                results.append(
+                    RetrievalResult(
+                        chunk=chunk,
+                        score=score,
+                        retrieval_method=f"tri_rag:{method}",
+                        rank=i + 1,
+                    )
+                )
 
             elapsed = (time.time() - start_time) * 1000
             logger.info(
@@ -947,15 +981,9 @@ class TriRAGRetriever(Retriever):
         """Add documents to all three retrievers"""
         try:
             # Add to dense and sparse in parallel
-            dense_task = asyncio.create_task(
-                self.dense_retriever.add_documents(chunks, collection)
-            )
-            sparse_task = asyncio.create_task(
-                self.sparse_retriever.add_documents(chunks, collection)
-            )
-            kg_task = asyncio.create_task(
-                self.kg_retriever.add_documents(chunks, collection)
-            )
+            dense_task = asyncio.create_task(self.dense_retriever.add_documents(chunks, collection))
+            sparse_task = asyncio.create_task(self.sparse_retriever.add_documents(chunks, collection))
+            kg_task = asyncio.create_task(self.kg_retriever.add_documents(chunks, collection))
 
             results = await asyncio.gather(dense_task, sparse_task, kg_task)
             return all(results)

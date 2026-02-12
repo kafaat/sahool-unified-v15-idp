@@ -9,11 +9,11 @@ Based on agricultural research for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class PestType(str, Enum):
+class PestType(StrEnum):
     """
     أنواع الآفات الشائعة - Extended pest types database
     Based on Agricultural Sensing Technology Article (50+ types)
@@ -138,7 +138,7 @@ class PestType(str, Enum):
     SLUGS = "slugs"  # البزاقات
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """مستوى المخاطر"""
 
     VERY_LOW = "very_low"  # منخفض جداً
@@ -148,7 +148,7 @@ class RiskLevel(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class ControlMethod(str, Enum):
+class ControlMethod(StrEnum):
     """طريقة المكافحة"""
 
     BIOLOGICAL = "biological"  # حيوية
@@ -553,7 +553,12 @@ PEST_DATABASE = {
         "favorable_temp_range": (22, 32),
         "favorable_humidity_min": 50,
         "favorable_humidity_max": 80,
-        "damage_symptoms_en": ["White cottony masses", "Honeydew", "Sooty mold", "Distorted growth"],
+        "damage_symptoms_en": [
+            "White cottony masses",
+            "Honeydew",
+            "Sooty mold",
+            "Distorted growth",
+        ],
         "damage_symptoms_ar": ["كتل قطنية بيضاء", "ندوة عسلية", "عفن أسود", "نمو مشوه"],
         "controls": [
             PestControl(
@@ -645,16 +650,10 @@ def assess_pest_risks(
         # Temperature factor
         temp_range = pest_data.get("favorable_temp_range", (15, 35))
         if temp_range[0] <= temp_c <= temp_range[1]:
-            temp_factor = 1.0 - abs(temp_c - (temp_range[0] + temp_range[1]) / 2) / (
-                temp_range[1] - temp_range[0]
-            )
+            temp_factor = 1.0 - abs(temp_c - (temp_range[0] + temp_range[1]) / 2) / (temp_range[1] - temp_range[0])
             risk_score += 35 * temp_factor
-            favorable_conditions.append(
-                f"Temperature in favorable range ({temp_range[0]}-{temp_range[1]}°C)"
-            )
-            favorable_conditions_ar.append(
-                f"الحرارة في النطاق الملائم ({temp_range[0]}-{temp_range[1]} °م)"
-            )
+            favorable_conditions.append(f"Temperature in favorable range ({temp_range[0]}-{temp_range[1]}°C)")
+            favorable_conditions_ar.append(f"الحرارة في النطاق الملائم ({temp_range[0]}-{temp_range[1]} °م)")
 
         # Humidity factor
         humidity_min = pest_data.get("favorable_humidity_min", 40)
@@ -664,12 +663,8 @@ def assess_pest_risks(
                 humidity_max - humidity_min
             )
             risk_score += 25 * humidity_factor
-            favorable_conditions.append(
-                f"Humidity in favorable range ({humidity_min}-{humidity_max}%)"
-            )
-            favorable_conditions_ar.append(
-                f"الرطوبة في النطاق الملائم ({humidity_min}-{humidity_max}%)"
-            )
+            favorable_conditions.append(f"Humidity in favorable range ({humidity_min}-{humidity_max}%)")
+            favorable_conditions_ar.append(f"الرطوبة في النطاق الملائم ({humidity_min}-{humidity_max}%)")
 
         # NDVI/canopy factor
         ndvi_max = pest_data.get("ndvi_vulnerability_max", 0.75)

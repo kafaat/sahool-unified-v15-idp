@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 import structlog
 from fastapi import FastAPI, Request
@@ -34,6 +34,7 @@ from .rag import get_rag_service
 # Import AI Audit Logger for comprehensive logging
 try:
     from shared.ai.audit import AIAuditLogger, get_audit_logger
+
     HAS_AUDIT = True
 except ImportError:
     HAS_AUDIT = False
@@ -41,7 +42,8 @@ except ImportError:
 
 # Import FixOps integration
 try:
-    from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+    from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
+
     HAS_FIXOPS = True
 except ImportError:
     HAS_FIXOPS = False
@@ -104,9 +106,11 @@ async def lifespan(app: FastAPI):
     app.state.fixops = None
     if HAS_FIXOPS:
         try:
-            app.state.fixops = FixOpsOrchestrator(FixOpsConfig(
-                dry_run=settings.environment != "production",
-            ))
+            app.state.fixops = FixOpsOrchestrator(
+                FixOpsConfig(
+                    dry_run=settings.environment != "production",
+                )
+            )
             logger.info("FixOps Orchestrator initialized")
         except Exception as e:
             logger.warning("FixOps initialization failed", error=str(e))
@@ -162,6 +166,7 @@ def create_app() -> FastAPI:
     @app.middleware("http")
     async def add_request_id(request: Request, call_next):
         import uuid
+
         request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
         request.state.request_id = request_id
         response = await call_next(request)
@@ -183,7 +188,7 @@ def create_app() -> FastAPI:
                 "error": "Internal server error",
                 "error_ar": "خطأ داخلي في الخادم",
                 "detail": str(exc) if settings.debug else None,
-            }
+            },
         )
 
     # Include routers
@@ -240,53 +245,63 @@ def _get_available_providers(settings: Settings) -> list[dict]:
     providers = []
 
     # Ollama (primary, offline)
-    providers.append({
-        "name": "Ollama",
-        "type": "local",
-        "model": settings.ollama_model,
-        "priority": 1,
-        "available": True,  # Would check connectivity
-    })
+    providers.append(
+        {
+            "name": "Ollama",
+            "type": "local",
+            "model": settings.ollama_model,
+            "priority": 1,
+            "available": True,  # Would check connectivity
+        }
+    )
 
     # Claude (if API key available)
     if os.getenv("ANTHROPIC_API_KEY"):
-        providers.append({
-            "name": "Claude",
-            "type": "cloud",
-            "model": "claude-3-5-sonnet",
-            "priority": 2,
-            "available": settings.enable_external,
-        })
+        providers.append(
+            {
+                "name": "Claude",
+                "type": "cloud",
+                "model": "claude-3-5-sonnet",
+                "priority": 2,
+                "available": settings.enable_external,
+            }
+        )
 
     # OpenAI (if configured)
     if settings.external_llm_api_key and "openai" in (settings.external_llm_base_url or ""):
-        providers.append({
-            "name": "OpenAI",
-            "type": "cloud",
-            "model": settings.external_llm_model,
-            "priority": 3,
-            "available": settings.enable_external,
-        })
+        providers.append(
+            {
+                "name": "OpenAI",
+                "type": "cloud",
+                "model": settings.external_llm_model,
+                "priority": 3,
+                "available": settings.enable_external,
+            }
+        )
 
     # Gemini (if API key available)
     if os.getenv("GOOGLE_API_KEY"):
-        providers.append({
-            "name": "Gemini",
-            "type": "cloud",
-            "model": "gemini-1.5-pro",
-            "priority": 4,
-            "available": settings.enable_external,
-        })
+        providers.append(
+            {
+                "name": "Gemini",
+                "type": "cloud",
+                "model": "gemini-1.5-pro",
+                "priority": 4,
+                "available": settings.enable_external,
+            }
+        )
 
     # DeepSeek (if configured)
     if os.getenv("DEEPSEEK_API_KEY"):
-        providers.append({
-            "name": "DeepSeek",
-            "type": "cloud",
-            "model": "deepseek-coder",
-            "priority": 5,
-            "available": settings.enable_external,
-        })
+        providers.append(
+            {
+                "name": "DeepSeek",
+                "type": "cloud",
+                "model": "deepseek-coder",
+                "priority": 5,
+                "available": settings.enable_external,
+            }
+        )
 
     return providers
 

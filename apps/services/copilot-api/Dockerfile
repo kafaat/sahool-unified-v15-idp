@@ -1,7 +1,9 @@
 # SAHOOL Copilot API Dockerfile
 # Dockerfile لـ Copilot API
 
-FROM python:3.11-slim-bookworm AS base
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \

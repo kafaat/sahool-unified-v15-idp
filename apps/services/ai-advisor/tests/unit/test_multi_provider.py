@@ -389,9 +389,7 @@ class TestOllamaProvider:
             }
             mock_chat_response.raise_for_status = MagicMock()
             mock_async_client_instance.post = AsyncMock(return_value=mock_chat_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -436,9 +434,7 @@ class TestOllamaProvider:
             }
             mock_gen_response.raise_for_status = MagicMock()
             mock_async_client_instance.post = AsyncMock(return_value=mock_gen_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -478,9 +474,7 @@ class TestOllamaProvider:
             }
             mock_list_response.raise_for_status = MagicMock()
             mock_async_client_instance.get = AsyncMock(return_value=mock_list_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -511,9 +505,7 @@ class TestOllamaProvider:
             mock_pull_response.status_code = 200
             mock_pull_response.raise_for_status = MagicMock()
             mock_async_client_instance.post = AsyncMock(return_value=mock_pull_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -546,9 +538,7 @@ class TestOllamaProvider:
             }
             mock_embed_response.raise_for_status = MagicMock()
             mock_async_client_instance.post = AsyncMock(return_value=mock_embed_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -582,9 +572,7 @@ class TestOllamaProvider:
             }
             mock_embed_response.raise_for_status = MagicMock()
             mock_async_client_instance.post = AsyncMock(return_value=mock_embed_response)
-            mock_async_client_instance.__aenter__ = AsyncMock(
-                return_value=mock_async_client_instance
-            )
+            mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
             mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
             mock_async_client.return_value = mock_async_client_instance
 
@@ -661,9 +649,7 @@ class TestMultiLLMServiceWithOllama:
             # Mock Anthropic to fail
             with patch("src.llm.multi_provider.AsyncAnthropic") as mock_anthropic:
                 mock_anthropic_client = AsyncMock()
-                mock_anthropic_client.messages.create = AsyncMock(
-                    side_effect=Exception("Anthropic API error")
-                )
+                mock_anthropic_client.messages.create = AsyncMock(side_effect=Exception("Anthropic API error"))
                 mock_anthropic.return_value = mock_anthropic_client
 
                 # Mock Ollama to succeed
@@ -679,12 +665,8 @@ class TestMultiLLMServiceWithOllama:
                         "eval_count": 100,
                     }
                     mock_chat_response.raise_for_status = MagicMock()
-                    mock_async_client_instance.post = AsyncMock(
-                        return_value=mock_chat_response
-                    )
-                    mock_async_client_instance.__aenter__ = AsyncMock(
-                        return_value=mock_async_client_instance
-                    )
+                    mock_async_client_instance.post = AsyncMock(return_value=mock_chat_response)
+                    mock_async_client_instance.__aenter__ = AsyncMock(return_value=mock_async_client_instance)
                     mock_async_client_instance.__aexit__ = AsyncMock(return_value=None)
                     mock_async_client.return_value = mock_async_client_instance
 

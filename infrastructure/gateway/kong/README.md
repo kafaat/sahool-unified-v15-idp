@@ -2,6 +2,12 @@
 
 # تكوين بوابة Kong API لمنصة سهول الزراعية
 
+> **📖 New Documentation Added (2026-02-11):**
+> - **[RUNBOOK.md](./RUNBOOK.md)** - Comprehensive operations and troubleshooting guide
+> - **[SECURITY_GUIDE.md](./SECURITY_GUIDE.md)** - Security best practices and incident response
+> - **[IMPROVEMENTS_SUMMARY.md](./IMPROVEMENTS_SUMMARY.md)** - Recent security and performance improvements
+> - **[kong-cors-production.yml](./kong-cors-production.yml)** - Production CORS configuration template
+
 ## Overview | نظرة عامة
 
 This directory contains the complete Kong API Gateway configuration for the SAHOOL agricultural platform, managing all 39 microservices with package-based access control and rate limiting.

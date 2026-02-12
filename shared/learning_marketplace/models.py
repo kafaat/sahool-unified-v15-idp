@@ -16,96 +16,105 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
-from typing import Any
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 
-class ContentType(str, Enum):
+class ContentType(StrEnum):
     """Content type for lessons | نوع المحتوى للدروس"""
-    VIDEO = "video"                    # فيديو
-    PDF = "pdf"                        # مستند PDF
-    INTERACTIVE = "interactive"        # تفاعلي
-    QUIZ = "quiz"                      # اختبار
-    ARTICLE = "article"                # مقال
-    INFOGRAPHIC = "infographic"        # إنفوجرافيك
-    AUDIO = "audio"                    # صوتي
-    SIMULATION = "simulation"          # محاكاة
+
+    VIDEO = "video"  # فيديو
+    PDF = "pdf"  # مستند PDF
+    INTERACTIVE = "interactive"  # تفاعلي
+    QUIZ = "quiz"  # اختبار
+    ARTICLE = "article"  # مقال
+    INFOGRAPHIC = "infographic"  # إنفوجرافيك
+    AUDIO = "audio"  # صوتي
+    SIMULATION = "simulation"  # محاكاة
 
 
-class DifficultyLevel(str, Enum):
+class DifficultyLevel(StrEnum):
     """Difficulty level | مستوى الصعوبة"""
-    BEGINNER = "beginner"              # مبتدئ
-    INTERMEDIATE = "intermediate"      # متوسط
-    ADVANCED = "advanced"              # متقدم
-    EXPERT = "expert"                  # خبير
+
+    BEGINNER = "beginner"  # مبتدئ
+    INTERMEDIATE = "intermediate"  # متوسط
+    ADVANCED = "advanced"  # متقدم
+    EXPERT = "expert"  # خبير
 
 
-class CourseStatus(str, Enum):
+class CourseStatus(StrEnum):
     """Course status | حالة الدورة"""
-    DRAFT = "draft"                    # مسودة
-    REVIEW = "review"                  # قيد المراجعة
-    PUBLISHED = "published"            # منشور
-    ARCHIVED = "archived"              # مؤرشف
-    SUSPENDED = "suspended"            # معلق
+
+    DRAFT = "draft"  # مسودة
+    REVIEW = "review"  # قيد المراجعة
+    PUBLISHED = "published"  # منشور
+    ARCHIVED = "archived"  # مؤرشف
+    SUSPENDED = "suspended"  # معلق
 
 
-class CertificationType(str, Enum):
+class CertificationType(StrEnum):
     """Certification type | نوع الشهادة"""
-    COMPLETION = "completion"          # شهادة إتمام
-    COMPETENCY = "competency"          # شهادة كفاءة
-    PROFESSIONAL = "professional"      # شهادة مهنية
-    MASTER = "master"                  # شهادة إتقان
-    SPECIALIST = "specialist"          # شهادة تخصص
+
+    COMPLETION = "completion"  # شهادة إتمام
+    COMPETENCY = "competency"  # شهادة كفاءة
+    PROFESSIONAL = "professional"  # شهادة مهنية
+    MASTER = "master"  # شهادة إتقان
+    SPECIALIST = "specialist"  # شهادة تخصص
 
 
-class SkillCategory(str, Enum):
+class SkillCategory(StrEnum):
     """Skill category | فئة المهارة"""
-    IRRIGATION = "irrigation"          # الري
-    FERTILIZATION = "fertilization"    # التسميد
+
+    IRRIGATION = "irrigation"  # الري
+    FERTILIZATION = "fertilization"  # التسميد
     PEST_MANAGEMENT = "pest_management"  # إدارة الآفات
     CROP_MANAGEMENT = "crop_management"  # إدارة المحاصيل
-    SOIL_HEALTH = "soil_health"        # صحة التربة
-    HARVESTING = "harvesting"          # الحصاد
-    POST_HARVEST = "post_harvest"      # ما بعد الحصاد
-    FARM_PLANNING = "farm_planning"    # تخطيط المزرعة
-    TECHNOLOGY = "technology"          # التقنية
-    BUSINESS = "business"              # الأعمال
+    SOIL_HEALTH = "soil_health"  # صحة التربة
+    HARVESTING = "harvesting"  # الحصاد
+    POST_HARVEST = "post_harvest"  # ما بعد الحصاد
+    FARM_PLANNING = "farm_planning"  # تخطيط المزرعة
+    TECHNOLOGY = "technology"  # التقنية
+    BUSINESS = "business"  # الأعمال
     SUSTAINABILITY = "sustainability"  # الاستدامة
-    SAFETY = "safety"                  # السلامة
-    GLOBALGAP = "globalgap"            # GlobalGAP
+    SAFETY = "safety"  # السلامة
+    GLOBALGAP = "globalgap"  # GlobalGAP
 
 
-class ContentLanguage(str, Enum):
+class ContentLanguage(StrEnum):
     """Content language | لغة المحتوى"""
-    ARABIC = "ar"                      # العربية
-    ENGLISH = "en"                     # الإنجليزية
-    BILINGUAL = "bilingual"            # ثنائي اللغة
+
+    ARABIC = "ar"  # العربية
+    ENGLISH = "en"  # الإنجليزية
+    BILINGUAL = "bilingual"  # ثنائي اللغة
 
 
-class EnrollmentStatus(str, Enum):
+class EnrollmentStatus(StrEnum):
     """Enrollment status | حالة التسجيل"""
-    ENROLLED = "enrolled"              # مسجل
-    IN_PROGRESS = "in_progress"        # قيد التقدم
-    COMPLETED = "completed"            # مكتمل
-    DROPPED = "dropped"                # منسحب
-    EXPIRED = "expired"                # منتهي الصلاحية
+
+    ENROLLED = "enrolled"  # مسجل
+    IN_PROGRESS = "in_progress"  # قيد التقدم
+    COMPLETED = "completed"  # مكتمل
+    DROPPED = "dropped"  # منسحب
+    EXPIRED = "expired"  # منتهي الصلاحية
 
 
-class QuizQuestionType(str, Enum):
+class QuizQuestionType(StrEnum):
     """Quiz question type | نوع سؤال الاختبار"""
-    MULTIPLE_CHOICE = "multiple_choice"    # اختيار من متعدد
-    TRUE_FALSE = "true_false"              # صح أو خطأ
-    FILL_BLANK = "fill_blank"              # ملء الفراغ
-    MATCHING = "matching"                  # مطابقة
-    IMAGE_BASED = "image_based"            # قائم على الصورة
+
+    MULTIPLE_CHOICE = "multiple_choice"  # اختيار من متعدد
+    TRUE_FALSE = "true_false"  # صح أو خطأ
+    FILL_BLANK = "fill_blank"  # ملء الفراغ
+    MATCHING = "matching"  # مطابقة
+    IMAGE_BASED = "image_based"  # قائم على الصورة
 
 
 @dataclass
 class BilingualText:
     """Bilingual text container | حاوية النص ثنائي اللغة"""
+
     en: str = ""
     ar: str = ""
 
@@ -131,6 +140,7 @@ class ContentResource:
     Content resource (video, PDF, etc.)
     مورد المحتوى (فيديو، PDF، إلخ)
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     content_type: ContentType = ContentType.VIDEO
 
@@ -203,8 +213,12 @@ class ContentResource:
             has_captions=data.get("has_captions", False),
             caption_languages=data.get("caption_languages", []),
             has_transcript=data.get("has_transcript", False),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
 
 
@@ -214,6 +228,7 @@ class QuizQuestion:
     Quiz question
     سؤال الاختبار
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     question_type: QuizQuestionType = QuizQuestionType.MULTIPLE_CHOICE
 
@@ -270,6 +285,7 @@ class Quiz:
     Quiz assessment
     اختبار التقييم
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Quiz content
@@ -332,8 +348,12 @@ class Quiz:
             shuffle_questions=data.get("shuffle_questions", True),
             shuffle_options=data.get("shuffle_options", True),
             show_correct_answers=data.get("show_correct_answers", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
         return quiz
 
@@ -344,6 +364,7 @@ class Lesson:
     Individual lesson within a course
     درس فردي ضمن دورة
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     course_id: str = ""
     module_id: str | None = None  # Optional grouping
@@ -416,8 +437,12 @@ class Lesson:
             title=BilingualText.from_dict(data.get("title", {})),
             description=BilingualText.from_dict(data.get("description", {})),
             objectives=[BilingualText.from_dict(obj) for obj in data.get("objectives", [])],
-            primary_content=ContentResource.from_dict(data["primary_content"]) if data.get("primary_content") else None,
-            supplementary_content=[ContentResource.from_dict(c) for c in data.get("supplementary_content", [])],
+            primary_content=ContentResource.from_dict(data["primary_content"])
+            if data.get("primary_content")
+            else None,
+            supplementary_content=[
+                ContentResource.from_dict(c) for c in data.get("supplementary_content", [])
+            ],
             quiz=Quiz.from_dict(data["quiz"]) if data.get("quiz") else None,
             order=data.get("order", 0),
             is_preview=data.get("is_preview", False),
@@ -426,9 +451,15 @@ class Lesson:
             prerequisite_lesson_ids=data.get("prerequisite_lesson_ids", []),
             skills=[SkillCategory(s) for s in data.get("skills", [])],
             status=CourseStatus(data.get("status", "draft")),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
-            published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
+            published_at=datetime.fromisoformat(data["published_at"])
+            if data.get("published_at")
+            else None,
         )
 
 
@@ -438,6 +469,7 @@ class CourseModule:
     Course module (grouping of lessons)
     وحدة الدورة (تجميع الدروس)
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     course_id: str = ""
 
@@ -486,6 +518,7 @@ class Expert:
     Content expert/instructor
     خبير المحتوى/المدرب
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str = ""
 
@@ -561,10 +594,16 @@ class Expert:
             total_students=data.get("total_students", 0),
             average_rating=data.get("average_rating", 0.0),
             is_verified=data.get("is_verified", False),
-            verified_at=datetime.fromisoformat(data["verified_at"]) if data.get("verified_at") else None,
+            verified_at=datetime.fromisoformat(data["verified_at"])
+            if data.get("verified_at")
+            else None,
             is_active=data.get("is_active", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
 
 
@@ -574,6 +613,7 @@ class Course:
     Educational course
     دورة تعليمية
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Basic info
@@ -696,7 +736,9 @@ class Course:
             subtitle=BilingualText.from_dict(data.get("subtitle", {})),
             description=BilingualText.from_dict(data.get("description", {})),
             objectives=[BilingualText.from_dict(obj) for obj in data.get("objectives", [])],
-            prerequisites=[BilingualText.from_dict(prereq) for prereq in data.get("prerequisites", [])],
+            prerequisites=[
+                BilingualText.from_dict(prereq) for prereq in data.get("prerequisites", [])
+            ],
             target_audience=BilingualText.from_dict(data.get("target_audience", {})),
             category=SkillCategory(data.get("category", "crop_management")),
             tags=data.get("tags", []),
@@ -718,9 +760,15 @@ class Course:
             rating_count=data.get("rating_count", 0),
             certification_id=data.get("certification_id"),
             offers_certificate=data.get("offers_certificate", True),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
-            published_at=datetime.fromisoformat(data["published_at"]) if data.get("published_at") else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
+            published_at=datetime.fromisoformat(data["published_at"])
+            if data.get("published_at")
+            else None,
             tenant_id=data.get("tenant_id", ""),
         )
 
@@ -731,6 +779,7 @@ class Certification:
     Certification/credential
     شهادة/اعتماد
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
 
     # Basic info
@@ -801,8 +850,12 @@ class Certification:
             badge_color=data.get("badge_color", "#4CAF50"),
             is_active=data.get("is_active", True),
             total_issued=data.get("total_issued", 0),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
             tenant_id=data.get("tenant_id", ""),
         )
 
@@ -813,6 +866,7 @@ class FarmerCertification:
     Issued certification for a farmer
     شهادة صادرة للمزارع
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     certification_id: str = ""
@@ -876,11 +930,17 @@ class FarmerCertification:
             farmer_id=data.get("farmer_id", ""),
             certification_id=data.get("certification_id", ""),
             certificate_number=data.get("certificate_number", ""),
-            issued_at=datetime.fromisoformat(data["issued_at"]) if data.get("issued_at") else datetime.now(UTC),
-            expires_at=datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None,
+            issued_at=datetime.fromisoformat(data["issued_at"])
+            if data.get("issued_at")
+            else datetime.now(UTC),
+            expires_at=datetime.fromisoformat(data["expires_at"])
+            if data.get("expires_at")
+            else None,
             score=data.get("score", 0),
             is_valid=data.get("is_valid", True),
-            revoked_at=datetime.fromisoformat(data["revoked_at"]) if data.get("revoked_at") else None,
+            revoked_at=datetime.fromisoformat(data["revoked_at"])
+            if data.get("revoked_at")
+            else None,
             revocation_reason=data.get("revocation_reason"),
             verification_url=data.get("verification_url"),
             certificate_pdf_url=data.get("certificate_pdf_url"),
@@ -893,6 +953,7 @@ class FarmerSkill:
     Farmer skill level
     مستوى مهارة المزارع
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
 
@@ -957,7 +1018,9 @@ class FarmerSkill:
             "best_quiz_score": self.best_quiz_score,
             "total_learning_minutes": self.total_learning_minutes,
             "level_progress": self.level_progress,
-            "last_activity_at": self.last_activity_at.isoformat() if self.last_activity_at else None,
+            "last_activity_at": self.last_activity_at.isoformat()
+            if self.last_activity_at
+            else None,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
         }
@@ -976,9 +1039,15 @@ class FarmerSkill:
             average_quiz_score=data.get("average_quiz_score", 0.0),
             best_quiz_score=data.get("best_quiz_score", 0.0),
             total_learning_minutes=data.get("total_learning_minutes", 0),
-            last_activity_at=datetime.fromisoformat(data["last_activity_at"]) if data.get("last_activity_at") else None,
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            last_activity_at=datetime.fromisoformat(data["last_activity_at"])
+            if data.get("last_activity_at")
+            else None,
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )
 
 
@@ -988,6 +1057,7 @@ class FarmerProfile:
     Farmer learning profile
     ملف تعلم المزارع
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     farmer_id: str = ""
     tenant_id: str = ""
@@ -1072,7 +1142,9 @@ class FarmerProfile:
             "overall_level": self.overall_level.value,
             "current_streak_days": self.current_streak_days,
             "longest_streak_days": self.longest_streak_days,
-            "last_learning_date": self.last_learning_date.isoformat() if self.last_learning_date else None,
+            "last_learning_date": self.last_learning_date.isoformat()
+            if self.last_learning_date
+            else None,
             "weekly_learning_goal_minutes": self.weekly_learning_goal_minutes,
             "created_at": self.created_at.isoformat(),
             "updated_at": self.updated_at.isoformat(),
@@ -1086,21 +1158,31 @@ class FarmerProfile:
             farmer_id=data.get("farmer_id", ""),
             tenant_id=data.get("tenant_id", ""),
             preferred_language=ContentLanguage(data.get("preferred_language", "ar")),
-            preferred_content_types=[ContentType(ct) for ct in data.get("preferred_content_types", [])],
+            preferred_content_types=[
+                ContentType(ct) for ct in data.get("preferred_content_types", [])
+            ],
             crop_types=data.get("crop_types", []),
             farm_size_hectares=data.get("farm_size_hectares"),
             farming_experience_years=data.get("farming_experience_years", 0),
             region=data.get("region"),
             skills=[FarmerSkill.from_dict(s) for s in data.get("skills", [])],
-            certifications=[FarmerCertification.from_dict(c) for c in data.get("certifications", [])],
+            certifications=[
+                FarmerCertification.from_dict(c) for c in data.get("certifications", [])
+            ],
             total_courses_enrolled=data.get("total_courses_enrolled", 0),
             total_courses_completed=data.get("total_courses_completed", 0),
             total_learning_minutes=data.get("total_learning_minutes", 0),
             total_xp=data.get("total_xp", 0),
             current_streak_days=data.get("current_streak_days", 0),
             longest_streak_days=data.get("longest_streak_days", 0),
-            last_learning_date=datetime.fromisoformat(data["last_learning_date"]) if data.get("last_learning_date") else None,
+            last_learning_date=datetime.fromisoformat(data["last_learning_date"])
+            if data.get("last_learning_date")
+            else None,
             weekly_learning_goal_minutes=data.get("weekly_learning_goal_minutes", 60),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
         )

@@ -17,6 +17,7 @@ logger = structlog.get_logger(__name__)
 
 class IssueSeverity(Enum):
     """شدة المشكلة"""
+
     ERROR = "error"
     WARNING = "warning"
     INFO = "info"
@@ -25,6 +26,7 @@ class IssueSeverity(Enum):
 
 class IssueCategory(Enum):
     """فئة المشكلة"""
+
     SYNTAX = "syntax"
     TYPE = "type"
     SECURITY = "security"
@@ -41,6 +43,7 @@ class AnalysisConfig:
     إعدادات التحليل
     Analysis configuration
     """
+
     # Severity levels to check
     check_errors: bool = True
     check_warnings: bool = True
@@ -70,6 +73,7 @@ class AnalysisIssue:
     مشكلة في الكود
     Code issue
     """
+
     # Location
     file_path: str
     line_start: int
@@ -126,6 +130,7 @@ class AnalysisResult:
     نتيجة التحليل
     Analysis result
     """
+
     success: bool
     language: str
     file_path: str

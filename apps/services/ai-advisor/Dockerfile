@@ -1,14 +1,23 @@
-# Multi-stage Dockerfile for AI Advisor Service
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL AI Advisor Service Dockerfile
+# Multi-stage build with security hardening
+# Version: 16.0.0
+# Updated: February 2026
 # ملف Docker متعدد المراحل لخدمة المستشار الذكي
+# ═══════════════════════════════════════════════════════════════════════════════
 
-# Stage 1: Builder
-# المرحلة 1: البناء
-FROM python:3.11-slim-bookworm AS builder
+ARG PYTHON_VERSION=3.11
 
-# Set working directory | تعيين مجلد العمل
-WORKDIR /app
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 1: Builder | المرحلة 1: البناء
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-# Install system dependencies | تثبيت تبعيات النظام
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /build
+
+# Install build dependencies | تثبيت تبعيات البناء
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
@@ -16,76 +25,95 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Create virtual environment to avoid pip root user warning
-# إنشاء بيئة افتراضية لتجنب تحذير المستخدم الجذر
-ENV VIRTUAL_ENV=/opt/venv
+# Create non-root user for build | إنشاء مستخدم غير جذر للبناء
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
+
+USER sahool
+WORKDIR /home/sahool
+
+# Create virtual environment | إنشاء بيئة افتراضية
+ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Copy requirements | نسخ المتطلبات
-COPY apps/services/ai-advisor/requirements.txt .
-
-# Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade pip
-
-RUN pip install --no-cache-dir \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade "setuptools>=68.0" wheel build
-
-# Configure pip for better network resilience
+# Configure pip for network resilience | تكوين pip لمرونة الشبكة
 RUN mkdir -p ~/.pip && \
-    echo "[global]" > ~/.pip/pip.conf && \
-    echo "timeout = 300" >> ~/.pip/pip.conf && \
-    echo "retries = 10" >> ~/.pip/pip.conf && \
-    echo "default-timeout = 300" >> ~/.pip/pip.conf && \
-    echo "[install]" >> ~/.pip/pip.conf && \
-    echo "prefer-binary = true" >> ~/.pip/pip.conf
+    cat > ~/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+[install]
+prefer-binary = true
+EOF
+
+# Upgrade pip and build tools
+RUN pip install --no-cache-dir --upgrade \
+    pip>=24.0 \
+    setuptools>=75.0 \
+    wheel>=0.44.0 \
+    build
+
+# Copy requirements and constraints | نسخ المتطلبات والقيود
+COPY --chown=sahool:sahool apps/services/ai-advisor/requirements.txt /tmp/requirements.txt
+COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
 # Install Python dependencies | تثبيت تبعيات Python
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    -c /tmp/constraints-ai.txt \
+    -r /tmp/requirements.txt
 
-# Stage 2: Runtime
-# المرحلة 2: وقت التشغيل
-FROM python:3.11-slim-bookworm
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage 2: Runtime | المرحلة 2: وقت التشغيل
+# ─────────────────────────────────────────────────────────────────────────────
+FROM python:${PYTHON_VERSION}-slim-bookworm AS runtime
 
-# Set working directory | تعيين مجلد العمل
+# Labels
+LABEL org.opencontainers.image.title="SAHOOL AI Advisor Service | خدمة المستشار الذكي" \
+      org.opencontainers.image.version="16.0.0" \
+      org.opencontainers.image.vendor="KAFAAT" \
+      org.opencontainers.image.description="AI-powered agricultural advisor with natural language query support"
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 WORKDIR /app
 
-# No runtime system dependencies needed - using Python for healthcheck
+# Create non-root user | إنشاء مستخدم غير جذر
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --create-home sahool
 
 # Copy virtual environment from builder | نسخ البيئة الافتراضية من البناء
-COPY --from=builder /opt/venv /opt/venv
+COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
 
 # Set virtual environment path | تعيين مسار البيئة الافتراضية
-ENV VIRTUAL_ENV=/opt/venv
+ENV VIRTUAL_ENV=/home/sahool/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Create non-root user | إنشاء مستخدم غير جذر
-RUN useradd -m -u 1000 -s /bin/bash appuser && \
-    chown -R appuser:appuser /app
-
+# Copy shared modules | نسخ الوحدات المشتركة
 # Copy root shared modules first (shared.ai, shared.events, etc.)
-COPY --chown=appuser:appuser shared/ /app/shared/
+COPY --chown=sahool:sahool shared/ /app/shared/
 
 # Copy services shared modules overlay (shared.errors_py, shared.middleware, etc.)
-COPY --chown=appuser:appuser apps/services/shared/ /app/shared/
+COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
 # Copy application code | نسخ كود التطبيق
-COPY --chown=appuser:appuser apps/services/ai-advisor/src /app/src
-
-# Switch to non-root user | التبديل إلى مستخدم غير جذر
-USER appuser
+COPY --chown=sahool:sahool apps/services/ai-advisor/src /app/src
 
 # Set environment variables | تعيين متغيرات البيئة
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     PORT=8112
+
+# Switch to non-root user | التبديل إلى مستخدم غير جذر
+USER sahool
 
 # Expose port | كشف المنفذ
 EXPOSE 8112

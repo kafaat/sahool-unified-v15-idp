@@ -19,20 +19,20 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
-from .memory_system import (
-    MemoryType,
-    MemoryPriority,
-)
+from ..embeddings import EmbeddingConfig, EmbeddingProvider, EmbeddingsAdapter
 from ..ot_embeddings import (
     BilingualOTMatcher,
     OTConfig,
 )
-from ..embeddings import EmbeddingsAdapter, EmbeddingConfig, EmbeddingProvider
+from .memory_system import (
+    MemoryPriority,
+    MemoryType,
+)
 
 logger = structlog.get_logger()
 
@@ -48,6 +48,7 @@ class SemanticMemoryEntry:
     Memory entry with semantic embedding.
     إدخال ذاكرة مع تضمين دلالي
     """
+
     entry_id: str
     content: str
     content_ar: str | None = None
@@ -70,6 +71,7 @@ class SemanticCluster:
     Cluster of semantically related memories.
     مجموعة من الذكريات ذات الصلة الدلالية
     """
+
     cluster_id: str
     name: str
     name_ar: str
@@ -84,6 +86,7 @@ class SemanticSearchResult:
     Result of semantic memory search.
     نتيجة البحث الدلالي في الذاكرة
     """
+
     entry: SemanticMemoryEntry
     similarity_score: float
     match_type: str  # exact, semantic, cross_lingual
@@ -142,11 +145,13 @@ class EnhancedSemanticMemory:
             max_memory_size: Maximum number of memories to store
         """
         # Initialize embeddings adapter
-        self.embeddings = EmbeddingsAdapter(EmbeddingConfig(
-            provider=embedding_provider,
-            model=embedding_model,
-            cache_enabled=True,
-        ))
+        self.embeddings = EmbeddingsAdapter(
+            EmbeddingConfig(
+                provider=embedding_provider,
+                model=embedding_model,
+                cache_enabled=True,
+            )
+        )
 
         # Initialize OT matcher for cross-lingual support
         self.enable_ot = enable_ot_matching
@@ -332,7 +337,7 @@ class EnhancedSemanticMemory:
                     try:
                         ot_result = await self.ot_matcher.match(
                             query,
-                            entry.content if not is_arabic else (entry.content_ar or entry.content)
+                            entry.content if not is_arabic else (entry.content_ar or entry.content),
                         )
                         # Blend cosine and OT similarity
                         similarity = 0.6 * similarity + 0.4 * ot_result.similarity_score
@@ -340,11 +345,13 @@ class EnhancedSemanticMemory:
                         pass
 
                 if similarity >= min_similarity:
-                    results.append(SemanticSearchResult(
-                        entry=entry,
-                        similarity_score=similarity,
-                        match_type=match_type,
-                    ))
+                    results.append(
+                        SemanticSearchResult(
+                            entry=entry,
+                            similarity_score=similarity,
+                            match_type=match_type,
+                        )
+                    )
 
                     # Update access count
                     entry.access_count += 1
@@ -388,11 +395,13 @@ class EnhancedSemanticMemory:
 
             if other.embedding:
                 similarity = self._cosine_similarity(reference.embedding, other.embedding)
-                results.append(SemanticSearchResult(
-                    entry=other,
-                    similarity_score=similarity,
-                    match_type="semantic",
-                ))
+                results.append(
+                    SemanticSearchResult(
+                        entry=other,
+                        similarity_score=similarity,
+                        match_type="semantic",
+                    )
+                )
 
         results.sort(key=lambda x: x.similarity_score, reverse=True)
         return results[:top_k]
@@ -414,10 +423,7 @@ class EnhancedSemanticMemory:
             List of semantic clusters
         """
         # Simple k-means-like clustering
-        entries_with_embeddings = [
-            (eid, entry) for eid, entry in self._memories.items()
-            if entry.embedding
-        ]
+        entries_with_embeddings = [(eid, entry) for eid, entry in self._memories.items() if entry.embedding]
 
         if len(entries_with_embeddings) < num_clusters:
             num_clusters = max(1, len(entries_with_embeddings) // 2)
@@ -427,6 +433,7 @@ class EnhancedSemanticMemory:
 
         # Initialize cluster centroids (pick random entries)
         import random
+
         sample_size = min(num_clusters, len(entries_with_embeddings))
         initial_samples = random.sample(entries_with_embeddings, sample_size)
 
@@ -434,8 +441,8 @@ class EnhancedSemanticMemory:
         for i, (eid, entry) in enumerate(initial_samples):
             cluster = SemanticCluster(
                 cluster_id=str(uuid.uuid4()),
-                name=f"Cluster {i+1}",
-                name_ar=f"المجموعة {i+1}",
+                name=f"Cluster {i + 1}",
+                name_ar=f"المجموعة {i + 1}",
                 centroid=entry.embedding,
                 member_ids=[eid],
             )
@@ -480,11 +487,7 @@ class EnhancedSemanticMemory:
         if tag not in self._tag_index:
             return []
 
-        return [
-            self._memories[eid]
-            for eid in self._tag_index[tag]
-            if eid in self._memories
-        ]
+        return [self._memories[eid] for eid in self._tag_index[tag] if eid in self._memories]
 
     async def get_recent(self, limit: int = 10) -> list[SemanticMemoryEntry]:
         """Get most recently created memories."""
@@ -531,16 +534,12 @@ class EnhancedSemanticMemory:
             age_days = (datetime.now(UTC) - entry.created_at).days
             recency_factor = max(0.1, 1 - (age_days / 365))
 
-            score = (
-                entry.importance_score * 0.4 +
-                min(1.0, entry.access_count / 100) * 0.3 +
-                recency_factor * 0.3
-            )
+            score = entry.importance_score * 0.4 + min(1.0, entry.access_count / 100) * 0.3 + recency_factor * 0.3
             scored.append((eid, score))
 
         # Sort by score and remove bottom 20%
         scored.sort(key=lambda x: x[1])
-        to_remove = scored[:len(scored) // 5]
+        to_remove = scored[: len(scored) // 5]
 
         for eid, _ in to_remove:
             await self.delete(eid)
@@ -569,12 +568,10 @@ class EnhancedSemanticMemory:
             "total_tags": len(self._tag_index),
             "ot_enabled": self.enable_ot,
             "memories_by_priority": {
-                p.value: sum(1 for m in self._memories.values() if m.priority == p)
-                for p in MemoryPriority
+                p.value: sum(1 for m in self._memories.values() if m.priority == p) for p in MemoryPriority
             },
             "average_access_count": (
-                sum(m.access_count for m in self._memories.values()) / len(self._memories)
-                if self._memories else 0
+                sum(m.access_count for m in self._memories.values()) / len(self._memories) if self._memories else 0
             ),
         }
 

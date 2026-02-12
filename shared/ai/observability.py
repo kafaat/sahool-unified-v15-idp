@@ -21,7 +21,7 @@ import os
 import time
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from functools import wraps
 from pathlib import Path
 from typing import Any, Callable
@@ -45,7 +45,7 @@ except ImportError:
     sentry_sdk = None
 
 
-class AgentErrorType(str, Enum):
+class AgentErrorType(StrEnum):
     """Types of agent errors for categorization."""
 
     ANALYSIS_FAILED = "analysis_failed"

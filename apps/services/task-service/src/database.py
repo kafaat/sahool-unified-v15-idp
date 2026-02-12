@@ -19,11 +19,12 @@ shared_path = "/app/apps/services/shared"
 if shared_path not in sys.path:
     sys.path.insert(0, shared_path)
 # Import from the database package (uses __init__.py exports)
+from datetime import UTC
+
 from database import Base
 
 # Import models to ensure they're registered with Base
 from .models import Task
-from datetime import UTC
 
 logger = logging.getLogger(__name__)
 

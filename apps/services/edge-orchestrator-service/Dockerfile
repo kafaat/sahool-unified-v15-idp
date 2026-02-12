@@ -10,7 +10,9 @@
 # =============================================================================
 # Build Stage | مرحلة البناء
 # =============================================================================
-FROM python:3.12-slim AS builder
+ARG PYTHON_VERSION=3.12
+
+FROM python:${PYTHON_VERSION}-slim AS builder
 
 WORKDIR /app
 
@@ -29,7 +31,7 @@ RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upg
 # =============================================================================
 # Production Stage | مرحلة الإنتاج
 # =============================================================================
-FROM python:3.12-slim AS production
+FROM python:${PYTHON_VERSION}-slim AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"

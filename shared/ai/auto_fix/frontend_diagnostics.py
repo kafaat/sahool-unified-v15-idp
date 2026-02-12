@@ -17,7 +17,7 @@ import logging
 import re
 import subprocess
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -32,16 +32,18 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 
-class FrontendTool(str, Enum):
+class FrontendTool(StrEnum):
     """Supported frontend diagnostic tools"""
+
     ESLINT = "eslint"
     TYPESCRIPT = "typescript"
     BIOME = "biome"
     OXLINT = "oxlint"
 
 
-class MobileTool(str, Enum):
+class MobileTool(StrEnum):
     """Supported mobile diagnostic tools"""
+
     DART_ANALYZE = "dart_analyze"
     DART_FORMAT = "dart_format"
     FLUTTER_TEST = "flutter_test"
@@ -57,10 +59,12 @@ class FrontendDiagnosticConfig:
     packages_path: str = "packages"
 
     # Tools to use
-    tools: list[FrontendTool] = field(default_factory=lambda: [
-        FrontendTool.ESLINT,
-        FrontendTool.TYPESCRIPT,
-    ])
+    tools: list[FrontendTool] = field(
+        default_factory=lambda: [
+            FrontendTool.ESLINT,
+            FrontendTool.TYPESCRIPT,
+        ]
+    )
 
     # Options
     auto_fix: bool = False
@@ -77,10 +81,12 @@ class MobileDiagnosticConfig:
     field_app_path: str = "apps/mobile/sahool_field_app"
 
     # Tools to use
-    tools: list[MobileTool] = field(default_factory=lambda: [
-        MobileTool.DART_ANALYZE,
-        MobileTool.DART_FORMAT,
-    ])
+    tools: list[MobileTool] = field(
+        default_factory=lambda: [
+            MobileTool.DART_ANALYZE,
+            MobileTool.DART_FORMAT,
+        ]
+    )
 
     # Options
     auto_fix: bool = False
@@ -125,21 +131,25 @@ class FrontendDiagnosticRunner:
                     for file_result in eslint_output:
                         file_path = file_result.get("filePath", "")
                         for message in file_result.get("messages", []):
-                            severity = DiagnosticSeverity.ERROR if message.get("severity") == 2 else DiagnosticSeverity.WARNING
+                            severity = (
+                                DiagnosticSeverity.ERROR if message.get("severity") == 2 else DiagnosticSeverity.WARNING
+                            )
 
-                            diagnostics.append(Diagnostic(
-                                tool="eslint",
-                                code=message.get("ruleId", "unknown"),
-                                message=message.get("message", ""),
-                                message_ar=self._translate_eslint_message(message.get("message", "")),
-                                file_path=file_path,
-                                line=message.get("line", 0),
-                                column=message.get("column", 0),
-                                severity=severity,
-                                category=DiagnosticCategory.STYLE,
-                                fixable=message.get("fix") is not None,
-                                fix_confidence=FixConfidence.HIGH if message.get("fix") else FixConfidence.LOW,
-                            ))
+                            diagnostics.append(
+                                Diagnostic(
+                                    tool="eslint",
+                                    code=message.get("ruleId", "unknown"),
+                                    message=message.get("message", ""),
+                                    message_ar=self._translate_eslint_message(message.get("message", "")),
+                                    file_path=file_path,
+                                    line=message.get("line", 0),
+                                    column=message.get("column", 0),
+                                    severity=severity,
+                                    category=DiagnosticCategory.STYLE,
+                                    fixable=message.get("fix") is not None,
+                                    fix_confidence=FixConfidence.HIGH if message.get("fix") else FixConfidence.LOW,
+                                )
+                            )
                 except json.JSONDecodeError:
                     logger.warning("Failed to parse ESLint JSON output")
 
@@ -175,19 +185,21 @@ class FrontendDiagnosticRunner:
                 match = re.match(error_pattern, line)
                 if match:
                     file_path, line_num, col, code, message = match.groups()
-                    diagnostics.append(Diagnostic(
-                        tool="typescript",
-                        code=code,
-                        message=message,
-                        message_ar=f"خطأ TypeScript: {message}",
-                        file_path=str(full_path / file_path),
-                        line=int(line_num),
-                        column=int(col),
-                        severity=DiagnosticSeverity.ERROR,
-                        category=DiagnosticCategory.TYPE_ERROR,
-                        fixable=False,
-                        fix_confidence=FixConfidence.LOW,
-                    ))
+                    diagnostics.append(
+                        Diagnostic(
+                            tool="typescript",
+                            code=code,
+                            message=message,
+                            message_ar=f"خطأ TypeScript: {message}",
+                            file_path=str(full_path / file_path),
+                            line=int(line_num),
+                            column=int(col),
+                            severity=DiagnosticSeverity.ERROR,
+                            category=DiagnosticCategory.TYPE_ERROR,
+                            fixable=False,
+                            fix_confidence=FixConfidence.LOW,
+                        )
+                    )
 
         except Exception as e:
             logger.error(f"TypeScript error: {e}")
@@ -214,21 +226,27 @@ class FrontendDiagnosticRunner:
                 try:
                     biome_output = json.loads(result.stdout)
                     for diagnostic in biome_output.get("diagnostics", []):
-                        severity = DiagnosticSeverity.ERROR if diagnostic.get("severity") == "error" else DiagnosticSeverity.WARNING
+                        severity = (
+                            DiagnosticSeverity.ERROR
+                            if diagnostic.get("severity") == "error"
+                            else DiagnosticSeverity.WARNING
+                        )
 
                         location = diagnostic.get("location", {})
-                        diagnostics.append(Diagnostic(
-                            tool="biome",
-                            code=diagnostic.get("category", "unknown"),
-                            message=diagnostic.get("message", ""),
-                            message_ar=f"Biome: {diagnostic.get('message', '')}",
-                            file_path=location.get("path", ""),
-                            line=location.get("span", {}).get("start", {}).get("line", 0),
-                            column=location.get("span", {}).get("start", {}).get("column", 0),
-                            severity=severity,
-                            category=DiagnosticCategory.STYLE,
-                            fixable=diagnostic.get("fixable", False),
-                        ))
+                        diagnostics.append(
+                            Diagnostic(
+                                tool="biome",
+                                code=diagnostic.get("category", "unknown"),
+                                message=diagnostic.get("message", ""),
+                                message_ar=f"Biome: {diagnostic.get('message', '')}",
+                                file_path=location.get("path", ""),
+                                line=location.get("span", {}).get("start", {}).get("line", 0),
+                                column=location.get("span", {}).get("start", {}).get("column", 0),
+                                severity=severity,
+                                category=DiagnosticCategory.STYLE,
+                                fixable=diagnostic.get("fixable", False),
+                            )
+                        )
                 except json.JSONDecodeError:
                     pass
 
@@ -317,19 +335,23 @@ class MobileDiagnosticRunner:
                         "error": DiagnosticSeverity.ERROR,
                     }
 
-                    diagnostics.append(Diagnostic(
-                        tool="dart_analyze",
-                        code=code,
-                        message=message,
-                        message_ar=self._translate_dart_message(message),
-                        file_path=str(full_path / file_path),
-                        line=int(line_num),
-                        column=int(col),
-                        severity=severity_map.get(severity_str, DiagnosticSeverity.INFO),
-                        category=DiagnosticCategory.STYLE,
-                        fixable=code in self._fixable_dart_rules(),
-                        fix_confidence=FixConfidence.HIGH if code in self._fixable_dart_rules() else FixConfidence.LOW,
-                    ))
+                    diagnostics.append(
+                        Diagnostic(
+                            tool="dart_analyze",
+                            code=code,
+                            message=message,
+                            message_ar=self._translate_dart_message(message),
+                            file_path=str(full_path / file_path),
+                            line=int(line_num),
+                            column=int(col),
+                            severity=severity_map.get(severity_str, DiagnosticSeverity.INFO),
+                            category=DiagnosticCategory.STYLE,
+                            fixable=code in self._fixable_dart_rules(),
+                            fix_confidence=FixConfidence.HIGH
+                            if code in self._fixable_dart_rules()
+                            else FixConfidence.LOW,
+                        )
+                    )
 
         except Exception as e:
             logger.error(f"Dart analyze error: {e}")
@@ -359,19 +381,21 @@ class MobileDiagnosticRunner:
                 # Parse unformatted files
                 for line in result.stdout.split("\n"):
                     if line.strip() and not line.startswith("Formatted"):
-                        diagnostics.append(Diagnostic(
-                            tool="dart_format",
-                            code="format_required",
-                            message=f"File needs formatting: {line.strip()}",
-                            message_ar=f"الملف يحتاج تنسيق: {line.strip()}",
-                            file_path=str(full_path / line.strip()),
-                            line=1,
-                            column=1,
-                            severity=DiagnosticSeverity.INFO,
-                            category=DiagnosticCategory.STYLE,
-                            fixable=True,
-                            fix_confidence=FixConfidence.HIGH,
-                        ))
+                        diagnostics.append(
+                            Diagnostic(
+                                tool="dart_format",
+                                code="format_required",
+                                message=f"File needs formatting: {line.strip()}",
+                                message_ar=f"الملف يحتاج تنسيق: {line.strip()}",
+                                file_path=str(full_path / line.strip()),
+                                line=1,
+                                column=1,
+                                severity=DiagnosticSeverity.INFO,
+                                category=DiagnosticCategory.STYLE,
+                                fixable=True,
+                                fix_confidence=FixConfidence.HIGH,
+                            )
+                        )
 
         except Exception as e:
             logger.error(f"Dart format check error: {e}")

@@ -99,8 +99,12 @@ export const SERVICE_PORTS = {
   providerConfig: 8104,
   alerts: 8113,
   reports: 8084,
-  lab: 8097,
-  epidemic: 8098,
+
+  // Research & Health
+  // Note: lab and epidemic services share ports with community services
+  // This is intentional for consolidated service deployment
+  lab: 8097, // Shares port with communityChat (same service instance)
+  epidemic: 8098, // Shares port with yieldEngine (same service instance)
 } as const;
 
 /**

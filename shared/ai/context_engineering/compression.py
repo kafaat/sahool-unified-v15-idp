@@ -23,7 +23,7 @@ import logging
 import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ DEFAULT_HISTORY_COMPRESSION_RATIO = 0.25
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class CompressionStrategy(str, Enum):
+class CompressionStrategy(StrEnum):
     """
     Context compression strategy.
     استراتيجية ضغط السياق
@@ -262,10 +262,7 @@ class ContextCompressor:
             "الأمطار",
         }
 
-        logger.info(
-            f"ContextCompressor initialized with strategy={default_strategy.value}, "
-            f"max_tokens={max_tokens}"
-        )
+        logger.info(f"ContextCompressor initialized with strategy={default_strategy.value}, max_tokens={max_tokens}")
 
     def compress_field_data(
         self,
@@ -314,8 +311,7 @@ class ContextCompressor:
         actual_ratio = compressed_tokens / max(original_tokens, 1)
 
         logger.info(
-            f"Field data compressed: {original_tokens} -> {compressed_tokens} tokens "
-            f"(ratio: {actual_ratio:.2f})"
+            f"Field data compressed: {original_tokens} -> {compressed_tokens} tokens (ratio: {actual_ratio:.2f})"
         )
 
         return CompressionResult(
@@ -373,8 +369,7 @@ class ContextCompressor:
         actual_ratio = compressed_tokens / max(original_tokens, 1)
 
         logger.info(
-            f"Weather data compressed: {original_tokens} -> {compressed_tokens} tokens "
-            f"(ratio: {actual_ratio:.2f})"
+            f"Weather data compressed: {original_tokens} -> {compressed_tokens} tokens (ratio: {actual_ratio:.2f})"
         )
 
         return CompressionResult(
@@ -444,9 +439,7 @@ class ContextCompressor:
         older_entries = sorted_history[preserve_recent:]
 
         # Compress older entries
-        compressed_older = self._compress_older_history(
-            older_entries, max_entries - preserve_recent
-        )
+        compressed_older = self._compress_older_history(older_entries, max_entries - preserve_recent)
 
         # Combine
         compressed_history = recent_entries + compressed_older
@@ -520,9 +513,7 @@ class ContextCompressor:
         # Step 5: Trim to target if still over
         current_tokens = estimate_tokens(compressed_text, language="ar")
         if current_tokens > target_tokens:
-            compressed_text = self._truncate_to_tokens(
-                compressed_text, target_tokens, language="ar"
-            )
+            compressed_text = self._truncate_to_tokens(compressed_text, target_tokens, language="ar")
 
         compressed_tokens = estimate_tokens(compressed_text, language="ar")
         actual_ratio = compressed_tokens / max(original_tokens, 1)
@@ -553,9 +544,7 @@ class ContextCompressor:
 
         return json.dumps(data, ensure_ascii=False, indent=2)
 
-    def _selective_compress_fields(
-        self, fields: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def _selective_compress_fields(self, fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Select only priority fields"""
         compressed = []
         for field_data in fields:
@@ -567,9 +556,7 @@ class ContextCompressor:
             compressed.append(compressed_field)
         return compressed
 
-    def _extractive_compress_fields(
-        self, fields: list[dict[str, Any]], target_ratio: float
-    ) -> list[dict[str, Any]]:
+    def _extractive_compress_fields(self, fields: list[dict[str, Any]], target_ratio: float) -> list[dict[str, Any]]:
         """Extract key information maintaining structure"""
         # Start with selective compression
         compressed = self._selective_compress_fields(fields)
@@ -582,9 +569,7 @@ class ContextCompressor:
 
         return compressed
 
-    def _abstractive_compress_fields(
-        self, fields: list[dict[str, Any]]
-    ) -> list[dict[str, Any]]:
+    def _abstractive_compress_fields(self, fields: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """Create summaries of field data"""
         compressed = []
         for field_data in fields:
@@ -598,9 +583,7 @@ class ContextCompressor:
             compressed.append(summary)
         return compressed
 
-    def _hybrid_compress_fields(
-        self, fields: list[dict[str, Any]], target_ratio: float
-    ) -> list[dict[str, Any]]:
+    def _hybrid_compress_fields(self, fields: list[dict[str, Any]], target_ratio: float) -> list[dict[str, Any]]:
         """Combine selective extraction with summarization"""
         compressed = []
         for field_data in fields:
@@ -620,9 +603,7 @@ class ContextCompressor:
             compressed.append(compressed_field)
         return compressed
 
-    def _compress_single_weather(
-        self, weather: dict[str, Any], forecast_days: int
-    ) -> dict[str, Any]:
+    def _compress_single_weather(self, weather: dict[str, Any], forecast_days: int) -> dict[str, Any]:
         """Compress a single weather data entry"""
         compressed = {}
 
@@ -633,8 +614,7 @@ class ContextCompressor:
         # Include limited forecast
         if "forecast" in weather and isinstance(weather["forecast"], list):
             compressed["forecast"] = [
-                self._extract_key_weather_fields(day)
-                for day in weather["forecast"][:forecast_days]
+                self._extract_key_weather_fields(day) for day in weather["forecast"][:forecast_days]
             ]
 
         # Always include alerts
@@ -682,9 +662,7 @@ class ContextCompressor:
 
         return sorted(history, key=get_date, reverse=True)
 
-    def _compress_older_history(
-        self, history: list[dict[str, Any]], max_entries: int
-    ) -> list[dict[str, Any]]:
+    def _compress_older_history(self, history: list[dict[str, Any]], max_entries: int) -> list[dict[str, Any]]:
         """Compress older history entries"""
         if not history or max_entries <= 0:
             return []

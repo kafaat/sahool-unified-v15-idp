@@ -65,9 +65,7 @@ class TestBaseAgent:
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
     def test_retrieve_context_with_retriever(self, mock_knowledge_retriever):
         """Test context retrieval with RAG retriever"""
-        agent = ConcreteAgent(
-            name="test_agent", role="Test Advisor", retriever=mock_knowledge_retriever
-        )
+        agent = ConcreteAgent(name="test_agent", role="Test Advisor", retriever=mock_knowledge_retriever)
 
         context = agent._retrieve_context("wheat fertilizer")
         assert "nitrogen" in context.lower()
@@ -90,9 +88,7 @@ class TestBaseAgent:
         """Test basic think functionality"""
         with patch("agents.base_agent.ChatAnthropic") as mock_class:
             mock_llm = AsyncMock()
-            mock_llm.ainvoke = AsyncMock(
-                return_value=AIMessage(content="I recommend using nitrogen fertilizer.")
-            )
+            mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="I recommend using nitrogen fertilizer."))
             mock_class.return_value = mock_llm
 
             agent = ConcreteAgent(name="test_agent", role="Test Advisor")
@@ -103,9 +99,7 @@ class TestBaseAgent:
             assert response["role"] == "Test Advisor"
             assert "nitrogen" in response["response"].lower()
             assert 0 <= response["confidence"] <= 1
-            assert (
-                agent.conversation_memory.get_memory_usage()["message_count"] == 2
-            )  # User message + AI response
+            assert agent.conversation_memory.get_memory_usage()["message_count"] == 2  # User message + AI response
 
     @pytest.mark.asyncio
     @patch.dict("os.environ", {"ANTHROPIC_API_KEY": "test_key"})
@@ -136,9 +130,7 @@ class TestBaseAgent:
         """Test think with additional context"""
         with patch("agents.base_agent.ChatAnthropic") as mock_class:
             mock_llm = AsyncMock()
-            mock_llm.ainvoke = AsyncMock(
-                return_value=AIMessage(content="For clay soil, use slow-release fertilizer.")
-            )
+            mock_llm.ainvoke = AsyncMock(return_value=AIMessage(content="For clay soil, use slow-release fertilizer."))
             mock_class.return_value = mock_llm
 
             agent = ConcreteAgent(name="test_agent", role="Test Advisor")

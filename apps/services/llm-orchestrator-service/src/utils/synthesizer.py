@@ -111,7 +111,7 @@ class ResponseSynthesizer:
         تجميع استجابة كاملة من نتائج الوكلاء.
         """
         request_id = request_id or str(uuid.uuid4())
-        start_time = datetime.utcnow()
+        datetime.utcnow()
 
         # Calculate totals
         successful_results = [r for r in agent_results if r.success]
@@ -120,14 +120,10 @@ class ResponseSynthesizer:
         total_latency = sum(r.latency_ms for r in agent_results)
 
         # Generate summary
-        summary_en, summary_ar = self._generate_summary(
-            intent, successful_results, agent_results
-        )
+        summary_en, summary_ar = self._generate_summary(intent, successful_results, agent_results)
 
         # Extract recommendations
-        recommendations_en, recommendations_ar = self._extract_recommendations(
-            intent, successful_results
-        )
+        recommendations_en, recommendations_ar = self._extract_recommendations(intent, successful_results)
 
         # Generate actions
         actions = self._generate_actions(intent, successful_results)
@@ -176,9 +172,7 @@ class ResponseSynthesizer:
         all_results: list[AgentResult],
     ) -> tuple[str, str]:
         """Generate bilingual summary."""
-        templates = SUMMARY_TEMPLATES.get(
-            intent.intent_type, SUMMARY_TEMPLATES[IntentType.GENERAL_ADVISORY]
-        )
+        templates = SUMMARY_TEMPLATES.get(intent.intent_type, SUMMARY_TEMPLATES[IntentType.GENERAL_ADVISORY])
 
         # Extract values for template filling
         values = self._extract_summary_values(intent, successful_results)
@@ -188,7 +182,9 @@ class ResponseSynthesizer:
             summary_ar = templates["ar"].format(**values)
         except KeyError:
             # Fallback if template variables missing
-            summary_en = f"Analysis completed. {len(successful_results)} of {len(all_results)} agents responded successfully."
+            summary_en = (
+                f"Analysis completed. {len(successful_results)} of {len(all_results)} agents responded successfully."
+            )
             summary_ar = f"اكتمل التحليل. {len(successful_results)} من {len(all_results)} وكيل استجاب بنجاح."
 
         return summary_en, summary_ar
@@ -326,13 +322,9 @@ class ResponseSynthesizer:
                             treatment = detection["treatment"]
                             if isinstance(treatment, dict):
                                 if "recommendation_en" in treatment:
-                                    recommendations_en.append(
-                                        treatment["recommendation_en"]
-                                    )
+                                    recommendations_en.append(treatment["recommendation_en"])
                                 if "recommendation_ar" in treatment:
-                                    recommendations_ar.append(
-                                        treatment["recommendation_ar"]
-                                    )
+                                    recommendations_ar.append(treatment["recommendation_ar"])
 
             # Extract from fertilizer plan
             if "fertilizer_plan" in data and isinstance(data["fertilizer_plan"], dict):
@@ -343,12 +335,8 @@ class ResponseSynthesizer:
                             product = app.get("product", "")
                             rate = app.get("rate_kg_ha", "")
                             if product and rate:
-                                recommendations_en.append(
-                                    f"Apply {product} at {rate} kg/ha"
-                                )
-                                recommendations_ar.append(
-                                    f"تطبيق {product} بمعدل {rate} كجم/هكتار"
-                                )
+                                recommendations_en.append(f"Apply {product} at {rate} kg/ha")
+                                recommendations_ar.append(f"تطبيق {product} بمعدل {rate} كجم/هكتار")
 
         # Remove duplicates while preserving order
         recommendations_en = list(dict.fromkeys(recommendations_en))[:10]

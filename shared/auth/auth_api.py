@@ -11,7 +11,7 @@ FastAPI routes for authentication:
 from __future__ import annotations
 
 import logging
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, EmailStr, Field

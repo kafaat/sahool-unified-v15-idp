@@ -9,11 +9,11 @@ Uses regression models calibrated for Yemen crops.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """أنواع المحاصيل للتنبؤ بالمحصول"""
 
     WHEAT = "wheat"  # قمح
@@ -33,7 +33,7 @@ class CropType(str, Enum):
     ALFALFA = "alfalfa"  # برسيم
 
 
-class YieldConfidence(str, Enum):
+class YieldConfidence(StrEnum):
     """مستوى ثقة التنبؤ"""
 
     HIGH = "high"  # مرتفع (>80%)
@@ -41,7 +41,7 @@ class YieldConfidence(str, Enum):
     LOW = "low"  # منخفض (<60%)
 
 
-class YieldTrend(str, Enum):
+class YieldTrend(StrEnum):
     """اتجاه المحصول"""
 
     INCREASING = "increasing"  # متزايد
@@ -223,9 +223,7 @@ class YieldPrediction:
     def to_dict(self) -> dict[str, Any]:
         return {
             "crop_type": self.crop_type.value,
-            "crop_name_ar": CROP_PARAMETERS.get(self.crop_type, {}).get(
-                "name_ar", self.crop_type.value
-            ),
+            "crop_name_ar": CROP_PARAMETERS.get(self.crop_type, {}).get("name_ar", self.crop_type.value),
             "predicted_yield_kg_ha": round(self.predicted_yield_kg_ha),
             "predicted_yield_range": {
                 "min": round(self.predicted_yield_range[0]),
@@ -362,11 +360,7 @@ def predict_yield(
     yield_max = min(max_yield, predicted_yield + uncertainty_range)
 
     # Confidence based on data quality and growth stage
-    data_quality = (
-        (1.0 if 0.3 <= ndvi <= 0.9 else 0.7)
-        * (1.0 if ndwi > -0.2 else 0.8)
-        * (1.0 if ndre > 0.15 else 0.8)
-    )
+    data_quality = (1.0 if 0.3 <= ndvi <= 0.9 else 0.7) * (1.0 if ndwi > -0.2 else 0.8) * (1.0 if ndre > 0.15 else 0.8)
     confidence_pct = min(95, max(30, (1.0 - stage_uncertainty) * data_quality * 100))
 
     if confidence_pct >= 80:
@@ -392,9 +386,7 @@ def predict_yield(
     recommendations, recommendations_ar = _get_yield_recommendations(
         ndvi, evi, ndwi, ndre, lci, savi, water_factor, nitrogen_factor, crop_type
     )
-    limiting_factors, limiting_factors_ar = _get_limiting_factors(
-        ndvi, ndwi, ndre, lci, optimal_ndvi
-    )
+    limiting_factors, limiting_factors_ar = _get_limiting_factors(ndvi, ndwi, ndre, lci, optimal_ndvi)
 
     return YieldPrediction(
         crop_type=crop_type,

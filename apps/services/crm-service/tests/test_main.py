@@ -17,10 +17,10 @@ Author: SAHOOL Platform Team
 
 import os
 import sys
-from datetime import datetime, date
-from enum import Enum
+from datetime import date, datetime
+from enum import Enum, StrEnum
 from typing import Any
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -37,8 +37,10 @@ os.environ["NATS_URL"] = ""
 # Mock Classes for shared.crm Module
 # ═══════════════════════════════════════════════════════════════════════════════
 
-class FarmerStatus(str, Enum):
+
+class FarmerStatus(StrEnum):
     """Mock FarmerStatus enum."""
+
     LEAD = "lead"
     REGISTERED = "registered"
     ACTIVE = "active"
@@ -46,8 +48,9 @@ class FarmerStatus(str, Enum):
     CHURNED = "churned"
 
 
-class DealStage(str, Enum):
+class DealStage(StrEnum):
     """Mock DealStage enum."""
+
     PROSPECTING = "prospecting"
     QUALIFICATION = "qualification"
     NEGOTIATION = "negotiation"
@@ -57,8 +60,9 @@ class DealStage(str, Enum):
     CLOSED_LOST = "closed_lost"
 
 
-class InteractionType(str, Enum):
+class InteractionType(StrEnum):
     """Mock InteractionType enum."""
+
     CALL = "call"
     VISIT = "visit"
     WHATSAPP = "whatsapp"
@@ -70,49 +74,54 @@ class InteractionType(str, Enum):
 
 class Farmer:
     """Mock Farmer model."""
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Set defaults for attributes that might not be passed
-        if not hasattr(self, 'last_interaction_at'):
+        if not hasattr(self, "last_interaction_at"):
             self.last_interaction_at = None
-        if not hasattr(self, 'actual_quantity_tons'):
+        if not hasattr(self, "actual_quantity_tons"):
             self.actual_quantity_tons = None
-        if not hasattr(self, 'total_value'):
+        if not hasattr(self, "total_value"):
             self.total_value = None
 
 
 class HarvestDeal:
     """Mock HarvestDeal model."""
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         # Set defaults
-        if not hasattr(self, 'actual_quantity_tons'):
+        if not hasattr(self, "actual_quantity_tons"):
             self.actual_quantity_tons = None
-        if not hasattr(self, 'actual_harvest_date'):
+        if not hasattr(self, "actual_harvest_date"):
             self.actual_harvest_date = None
-        if not hasattr(self, 'total_value'):
+        if not hasattr(self, "total_value"):
             self.total_value = None
 
 
 class Interaction:
     """Mock Interaction model."""
+
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
-        if not hasattr(self, 'created_by'):
+        if not hasattr(self, "created_by"):
             self.created_by = None
 
 
 class FarmerCRMService:
     """Mock FarmerCRMService."""
+
     def __init__(self, tenant_id: str = "sahool"):
         self.tenant_id = tenant_id
 
 
 class FarmerQueryBot:
     """Mock FarmerQueryBot."""
+
     def __init__(self, crm_service):
         self.crm = crm_service
 
@@ -132,6 +141,7 @@ mock_crm.InteractionType = InteractionType
 # Mock User class with proper attributes
 class MockUser:
     """Mock User model for authentication."""
+
     def __init__(self, tenant_id: str = "test-tenant"):
         self.id = "test-user-id"
         self.email = "test@example.com"
@@ -200,10 +210,10 @@ get_current_user_dep = main_module.get_current_user
 
 from httpx import ASGITransport, AsyncClient
 
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Test Fixtures
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @pytest.fixture(autouse=True)
 def clear_storage():
@@ -228,7 +238,7 @@ def setup_app_state():
     app.state.crm_repo = None
 
     # Disable rate limiting for tests by setting limiter.enabled to False
-    if hasattr(app.state, 'limiter'):
+    if hasattr(app.state, "limiter"):
         original_enabled = app.state.limiter.enabled
         app.state.limiter.enabled = False
     else:
@@ -247,10 +257,7 @@ async def client(setup_app_state):
     # Override the authentication dependency
     app.dependency_overrides[get_current_user_dep] = lambda: MockUser(tenant_id="test-tenant")
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
     # Clear overrides after test
@@ -308,6 +315,7 @@ def sample_interaction_data():
 # Health Endpoint Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestHealthEndpoints:
     """Test health check endpoints."""
 
@@ -361,6 +369,7 @@ class TestHealthEndpoints:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Farmer Endpoint Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestFarmerEndpoints:
     """Test farmer CRUD endpoints."""
@@ -490,11 +499,14 @@ class TestFarmerEndpoints:
         """Test farmers list pagination."""
         # Create multiple farmers
         for i in range(5):
-            await client.post("/api/v1/farmers", json={
-                "name": f"Farmer {i}",
-                "phone": f"+96650123456{i}",
-                "tenant_id": "test-tenant",
-            })
+            await client.post(
+                "/api/v1/farmers",
+                json={
+                    "name": f"Farmer {i}",
+                    "phone": f"+96650123456{i}",
+                    "tenant_id": "test-tenant",
+                },
+            )
 
         # Test limit
         response = await client.get("/api/v1/farmers?tenant_id=test-tenant&limit=2")
@@ -581,6 +593,7 @@ class TestFarmerEndpoints:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Deal Endpoint Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestDealEndpoints:
     """Test harvest deal endpoints."""
@@ -715,7 +728,9 @@ class TestDealEndpoints:
 
         # Create multiple deals in different stages
         deal1 = await client.post("/api/v1/deals", json=sample_deal_data)
-        deal2 = await client.post("/api/v1/deals", json={**sample_deal_data, "price_per_ton": 2000.0})
+        deal2 = await client.post(
+            "/api/v1/deals", json={**sample_deal_data, "price_per_ton": 2000.0}
+        )
 
         # Move one to negotiation
         await client.patch(f"/api/v1/deals/{deal2.json()['id']}/stage?stage=negotiation")
@@ -735,6 +750,7 @@ class TestDealEndpoints:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Interaction Endpoint Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestInteractionEndpoints:
     """Test interaction logging endpoints."""
@@ -767,7 +783,9 @@ class TestInteractionEndpoints:
         assert response.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_log_interaction_updates_farmer_last_interaction(self, client, sample_farmer_data, sample_interaction_data):
+    async def test_log_interaction_updates_farmer_last_interaction(
+        self, client, sample_farmer_data, sample_interaction_data
+    ):
         """Test that logging interaction updates farmer's last_interaction_at."""
         # Create a farmer first
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -786,7 +804,9 @@ class TestInteractionEndpoints:
         assert updated_farmer.json()["last_interaction_at"] is not None
 
     @pytest.mark.asyncio
-    async def test_get_farmer_interactions(self, client, sample_farmer_data, sample_interaction_data):
+    async def test_get_farmer_interactions(
+        self, client, sample_farmer_data, sample_interaction_data
+    ):
         """Test GET /api/v1/interactions."""
         # Create a farmer and interactions
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -795,11 +815,14 @@ class TestInteractionEndpoints:
         # Log multiple interactions
         sample_interaction_data["farmer_id"] = farmer_id
         await client.post("/api/v1/interactions", json=sample_interaction_data)
-        await client.post("/api/v1/interactions", json={
-            **sample_interaction_data,
-            "subject": "Another interaction",
-            "interaction_type": "visit",
-        })
+        await client.post(
+            "/api/v1/interactions",
+            json={
+                **sample_interaction_data,
+                "subject": "Another interaction",
+                "interaction_type": "visit",
+            },
+        )
 
         response = await client.get(f"/api/v1/interactions?farmer_id={farmer_id}")
 
@@ -808,7 +831,9 @@ class TestInteractionEndpoints:
         assert len(data) == 2
 
     @pytest.mark.asyncio
-    async def test_get_farmer_interactions_filter_by_type(self, client, sample_farmer_data, sample_interaction_data):
+    async def test_get_farmer_interactions_filter_by_type(
+        self, client, sample_farmer_data, sample_interaction_data
+    ):
         """Test filtering interactions by type."""
         # Create a farmer and interactions
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -817,13 +842,18 @@ class TestInteractionEndpoints:
         # Log interactions of different types
         sample_interaction_data["farmer_id"] = farmer_id
         await client.post("/api/v1/interactions", json=sample_interaction_data)  # call
-        await client.post("/api/v1/interactions", json={
-            **sample_interaction_data,
-            "interaction_type": "visit",
-        })
+        await client.post(
+            "/api/v1/interactions",
+            json={
+                **sample_interaction_data,
+                "interaction_type": "visit",
+            },
+        )
 
         # Filter by call
-        response = await client.get(f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call")
+        response = await client.get(
+            f"/api/v1/interactions?farmer_id={farmer_id}&interaction_type=call"
+        )
         assert response.status_code == 200
         assert len(response.json()) == 1
 
@@ -831,6 +861,7 @@ class TestInteractionEndpoints:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Natural Language Query Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestNaturalLanguageQuery:
     """Test natural language query endpoint."""
@@ -910,7 +941,9 @@ class TestNaturalLanguageQuery:
         assert data["result_count"] == 1
 
     @pytest.mark.asyncio
-    async def test_natural_language_query_deals_in_negotiation(self, client, sample_farmer_data, sample_deal_data):
+    async def test_natural_language_query_deals_in_negotiation(
+        self, client, sample_farmer_data, sample_deal_data
+    ):
         """Test querying for deals in negotiation stage."""
         # Create farmer and deal
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -965,6 +998,7 @@ class TestNaturalLanguageQuery:
 # Pipeline Summary Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestPipelineSummary:
     """Test pipeline statistics endpoint."""
 
@@ -981,7 +1015,9 @@ class TestPipelineSummary:
         assert data["average_deal_size"] == 0
 
     @pytest.mark.asyncio
-    async def test_get_pipeline_summary_by_stage(self, client, sample_farmer_data, sample_deal_data):
+    async def test_get_pipeline_summary_by_stage(
+        self, client, sample_farmer_data, sample_deal_data
+    ):
         """Test pipeline summary shows correct stage breakdown."""
         # Create farmer
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -1009,7 +1045,9 @@ class TestPipelineSummary:
         assert data["conversion_rate"] > 33 and data["conversion_rate"] < 34
 
     @pytest.mark.asyncio
-    async def test_get_pipeline_summary_arabic_names(self, client, sample_farmer_data, sample_deal_data):
+    async def test_get_pipeline_summary_arabic_names(
+        self, client, sample_farmer_data, sample_deal_data
+    ):
         """Test pipeline summary includes Arabic stage names."""
         # Create farmer and deal
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
@@ -1028,6 +1066,7 @@ class TestPipelineSummary:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Additional Edge Case Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestEdgeCases:
     """Test edge cases and error handling."""
@@ -1147,6 +1186,7 @@ class TestEdgeCases:
 # Security and Validation Tests
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class TestSecurityAndValidation:
     """Tests for security features and input validation."""
 
@@ -1169,7 +1209,9 @@ class TestSecurityAndValidation:
         """Test query complexity validation (max 5 conditions)."""
         # Query with more than 5 and/or conditions
         # The check_query_complexity function counts: and, or, و, أو
-        complex_query = "farmers and wheat and barley and dates and tomatoes and cucumbers and carrots"
+        complex_query = (
+            "farmers and wheat and barley and dates and tomatoes and cucumbers and carrots"
+        )
         query_data = {
             "query": complex_query,
             "tenant_id": "test-tenant",
@@ -1210,7 +1252,9 @@ class TestSecurityAndValidation:
         assert response.status_code == 403
 
     @pytest.mark.asyncio
-    async def test_tenant_access_denied_on_deals_list(self, client, sample_farmer_data, sample_deal_data):
+    async def test_tenant_access_denied_on_deals_list(
+        self, client, sample_farmer_data, sample_deal_data
+    ):
         """Test tenant access validation on deals list."""
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
         farmer_id = farmer_response.json()["id"]
@@ -1244,6 +1288,7 @@ class TestSecurityAndValidation:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Additional Response Format Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestResponseFormats:
     """Tests for API response formats and error responses."""
@@ -1299,10 +1344,21 @@ class TestResponseFormats:
 
         # Check all expected fields
         expected_fields = [
-            "id", "name", "name_ar", "phone", "email", "national_id",
-            "farm_location", "farm_location_ar", "farm_size_hectares",
-            "primary_crops", "status", "tags", "created_at", "updated_at",
-            "last_interaction_at"
+            "id",
+            "name",
+            "name_ar",
+            "phone",
+            "email",
+            "national_id",
+            "farm_location",
+            "farm_location_ar",
+            "farm_size_hectares",
+            "primary_crops",
+            "status",
+            "tags",
+            "created_at",
+            "updated_at",
+            "last_interaction_at",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -1321,17 +1377,29 @@ class TestResponseFormats:
 
         # Check all expected fields
         expected_fields = [
-            "id", "farmer_id", "crop_type", "crop_type_ar",
-            "expected_quantity_tons", "actual_quantity_tons",
-            "expected_harvest_date", "actual_harvest_date",
-            "price_per_ton", "total_value", "stage", "notes", "notes_ar",
-            "created_at", "updated_at"
+            "id",
+            "farmer_id",
+            "crop_type",
+            "crop_type_ar",
+            "expected_quantity_tons",
+            "actual_quantity_tons",
+            "expected_harvest_date",
+            "actual_harvest_date",
+            "price_per_ton",
+            "total_value",
+            "stage",
+            "notes",
+            "notes_ar",
+            "created_at",
+            "updated_at",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
 
     @pytest.mark.asyncio
-    async def test_interaction_response_has_all_fields(self, client, sample_farmer_data, sample_interaction_data):
+    async def test_interaction_response_has_all_fields(
+        self, client, sample_farmer_data, sample_interaction_data
+    ):
         """Test interaction response includes all expected fields."""
         farmer_response = await client.post("/api/v1/farmers", json=sample_farmer_data)
         farmer_id = farmer_response.json()["id"]
@@ -1344,9 +1412,17 @@ class TestResponseFormats:
 
         # Check all expected fields
         expected_fields = [
-            "id", "farmer_id", "interaction_type", "subject", "subject_ar",
-            "notes", "notes_ar", "outcome", "follow_up_date",
-            "created_at", "created_by"
+            "id",
+            "farmer_id",
+            "interaction_type",
+            "subject",
+            "subject_ar",
+            "notes",
+            "notes_ar",
+            "outcome",
+            "follow_up_date",
+            "created_at",
+            "created_by",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -1355,6 +1431,7 @@ class TestResponseFormats:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Additional NLQ Pattern Tests
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 class TestNLQPatterns:
     """Additional tests for NLQ pattern matching."""

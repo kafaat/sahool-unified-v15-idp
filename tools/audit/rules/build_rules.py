@@ -64,7 +64,7 @@ def check_docker_compose(repo_root: Path) -> list:
         )
         return findings
 
-    content = compose_file.read_text(encoding='utf-8')
+    content = compose_file.read_text(encoding="utf-8")
 
     # Check for common issues
     if "version:" not in content and "services:" not in content:
@@ -96,8 +96,7 @@ def check_requirements(repo_root: Path) -> list:
 
         # Check if it's a Python service
         has_python = (
-            (service_dir / "src").exists()
-            and list((service_dir / "src").glob("*.py"))
+            (service_dir / "src").exists() and list((service_dir / "src").glob("*.py"))
         ) or list(service_dir.glob("*.py"))
 
         if has_python:

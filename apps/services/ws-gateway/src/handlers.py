@@ -367,9 +367,7 @@ class WebSocketMessageHandler:
         if topic_type in [RoomType.FIELD, RoomType.FARM]:
             resource_id = parts[1] if len(parts) > 1 else None
             if not resource_id:
-                logger.warning(
-                    f"Invalid {topic_type} topic format: {topic} - missing resource ID"
-                )
+                logger.warning(f"Invalid {topic_type} topic format: {topic} - missing resource ID")
                 return False
 
             # Support tenant-prefixed field IDs (e.g., field:tenant123:field456)

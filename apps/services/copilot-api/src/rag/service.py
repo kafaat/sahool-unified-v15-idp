@@ -16,7 +16,7 @@ import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any, Optional
 
 import structlog
@@ -29,6 +29,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class RAGDocument:
     """RAG document with metadata"""
+
     id: str
     text: str
     text_ar: str | None = None
@@ -50,6 +51,7 @@ class RAGDocument:
 @dataclass
 class SearchResult:
     """Search result with score"""
+
     document: RAGDocument
     score: float
     match_type: str = "semantic"
@@ -58,6 +60,7 @@ class SearchResult:
 @dataclass
 class RAGConfig:
     """Configuration for RAG service"""
+
     # Qdrant settings
     qdrant_host: str = "localhost"
     qdrant_port: int = 6333
@@ -320,7 +323,7 @@ class CopilotRAGService:
             # Build filter
             qdrant_filter = None
             if metadata_filter or tenant_id:
-                from qdrant_client.models import Filter, FieldCondition, MatchValue
+                from qdrant_client.models import FieldCondition, Filter, MatchValue
 
                 conditions = []
                 if tenant_id:
@@ -358,11 +361,13 @@ class CopilotRAGService:
                     text_ar=hit.payload.get("text_ar"),
                     metadata=hit.payload.get("metadata", {}),
                 )
-                results.append(SearchResult(
-                    document=document,
-                    score=hit.score,
-                    match_type="semantic",
-                ))
+                results.append(
+                    SearchResult(
+                        document=document,
+                        score=hit.score,
+                        match_type="semantic",
+                    )
+                )
 
             return results
 
@@ -378,10 +383,7 @@ class CopilotRAGService:
         tenant_id: str | None,
     ) -> list[SearchResult]:
         """Keyword-based fallback search"""
-        query_words = {
-            w.lower() for w in re.findall(r"\w+", query)
-            if len(w) > 2
-        }
+        query_words = {w.lower() for w in re.findall(r"\w+", query) if len(w) > 2}
 
         if not query_words:
             return []
@@ -402,10 +404,7 @@ class CopilotRAGService:
 
             # Calculate keyword overlap score
             doc_text = f"{doc.text} {doc.text_ar or ''}"
-            doc_words = {
-                w.lower() for w in re.findall(r"\w+", doc_text)
-                if len(w) > 2
-            }
+            doc_words = {w.lower() for w in re.findall(r"\w+", doc_text) if len(w) > 2}
 
             intersection = query_words & doc_words
             if not intersection:
@@ -417,11 +416,13 @@ class CopilotRAGService:
             if query.lower() in doc_text.lower():
                 score += 0.3
 
-            scored_results.append(SearchResult(
-                document=doc,
-                score=min(score, 1.0),
-                match_type="keyword",
-            ))
+            scored_results.append(
+                SearchResult(
+                    document=doc,
+                    score=min(score, 1.0),
+                    match_type="keyword",
+                )
+            )
 
         # Sort by score and return top k
         scored_results.sort(key=lambda x: x.score, reverse=True)
@@ -463,12 +464,9 @@ class CopilotRAGService:
         documents = list(self._documents.values())
 
         if tenant_id:
-            documents = [
-                d for d in documents
-                if d.metadata.get("tenant_id") == tenant_id
-            ]
+            documents = [d for d in documents if d.metadata.get("tenant_id") == tenant_id]
 
-        return documents[offset:offset + limit]
+        return documents[offset : offset + limit]
 
     async def get_stats(self) -> dict[str, Any]:
         """Get RAG service statistics"""
@@ -481,9 +479,7 @@ class CopilotRAGService:
 
         if self._qdrant_available and self._qdrant_client:
             try:
-                collection_info = self._qdrant_client.get_collection(
-                    self.config.qdrant_collection
-                )
+                collection_info = self._qdrant_client.get_collection(self.config.qdrant_collection)
                 stats["qdrant_points_count"] = collection_info.points_count
                 stats["qdrant_vectors_count"] = collection_info.vectors_count
             except Exception:
@@ -516,7 +512,7 @@ class CopilotRAGService:
             if len(text) > available_chars:
                 text = text[:available_chars] + "..."
 
-            part = f"[DOC {i+1}] {text}"
+            part = f"[DOC {i + 1}] {text}"
             context_parts.append(part)
             total_chars += len(part)
 

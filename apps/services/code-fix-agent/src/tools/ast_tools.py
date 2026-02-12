@@ -21,6 +21,7 @@ logger = structlog.get_logger(__name__)
 
 class SymbolType(Enum):
     """أنواع الرموز"""
+
     FUNCTION = "function"
     ASYNC_FUNCTION = "async_function"
     CLASS = "class"
@@ -34,6 +35,7 @@ class SymbolType(Enum):
 
 class NodeType(Enum):
     """أنواع العقد"""
+
     MODULE = "module"
     FUNCTION_DEF = "function_def"
     ASYNC_FUNCTION_DEF = "async_function_def"
@@ -56,6 +58,7 @@ class NodeType(Enum):
 @dataclass
 class Symbol:
     """رمز في الكود"""
+
     name: str
     symbol_type: SymbolType
     line_start: int
@@ -74,6 +77,7 @@ class Symbol:
 @dataclass
 class Import:
     """استيراد"""
+
     module: str
     names: list[str]
     alias: str | None = None
@@ -84,6 +88,7 @@ class Import:
 @dataclass
 class Dependency:
     """تبعية"""
+
     source: str
     target: str
     dependency_type: str  # "calls", "inherits", "imports", "uses"
@@ -93,6 +98,7 @@ class Dependency:
 @dataclass
 class ComplexityMetrics:
     """مقاييس التعقيد"""
+
     cyclomatic: int = 1
     cognitive: int = 0
     lines_of_code: int = 0
@@ -105,6 +111,7 @@ class ComplexityMetrics:
 @dataclass
 class ASTAnalysisResult:
     """نتيجة تحليل AST"""
+
     success: bool
     symbols: list[Symbol] = field(default_factory=list)
     imports: list[Import] = field(default_factory=list)
@@ -186,36 +193,44 @@ class ASTAnalyzer:
             elif isinstance(node, ast.Assign):
                 for target in node.targets:
                     if isinstance(target, ast.Name):
-                        symbols.append(Symbol(
-                            name=target.id,
-                            symbol_type=SymbolType.CONSTANT
-                            if target.id.isupper()
-                            else SymbolType.VARIABLE,
-                            line_start=node.lineno,
-                            line_end=node.end_lineno or node.lineno,
-                            column_start=node.col_offset,
-                        ))
+                        symbols.append(
+                            Symbol(
+                                name=target.id,
+                                symbol_type=SymbolType.CONSTANT
+                                if target.id.isupper()
+                                else SymbolType.VARIABLE,
+                                line_start=node.lineno,
+                                line_end=node.end_lineno or node.lineno,
+                                column_start=node.col_offset,
+                            )
+                        )
 
             elif isinstance(node, ast.AnnAssign):
                 if isinstance(node.target, ast.Name):
-                    symbols.append(Symbol(
-                        name=node.target.id,
-                        symbol_type=SymbolType.VARIABLE,
-                        line_start=node.lineno,
-                        line_end=node.end_lineno or node.lineno,
-                        column_start=node.col_offset,
-                        metadata={"annotation": ast.unparse(node.annotation)
-                                  if node.annotation else None},
-                    ))
+                    symbols.append(
+                        Symbol(
+                            name=node.target.id,
+                            symbol_type=SymbolType.VARIABLE,
+                            line_start=node.lineno,
+                            line_end=node.end_lineno or node.lineno,
+                            column_start=node.col_offset,
+                            metadata={
+                                "annotation": ast.unparse(node.annotation)
+                                if node.annotation
+                                else None
+                            },
+                        )
+                    )
 
         return symbols
 
-    def _function_to_symbol(self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool) -> Symbol:
+    def _function_to_symbol(
+        self, node: ast.FunctionDef | ast.AsyncFunctionDef, is_async: bool
+    ) -> Symbol:
         """تحويل دالة إلى رمز"""
         # Get decorators
         decorators = [
-            ast.unparse(d) if hasattr(ast, 'unparse') else str(d)
-            for d in node.decorator_list
+            ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list
         ]
 
         # Get parameters
@@ -229,7 +244,9 @@ class ASTAnalyzer:
         # Get return type
         return_type = None
         if node.returns:
-            return_type = ast.unparse(node.returns) if hasattr(ast, 'unparse') else str(node.returns)
+            return_type = (
+                ast.unparse(node.returns) if hasattr(ast, "unparse") else str(node.returns)
+            )
 
         # Get docstring
         docstring = ast.get_docstring(node)
@@ -255,18 +272,14 @@ class ASTAnalyzer:
         """تحويل فئة إلى رمز"""
         # Get decorators
         decorators = [
-            ast.unparse(d) if hasattr(ast, 'unparse') else str(d)
-            for d in node.decorator_list
+            ast.unparse(d) if hasattr(ast, "unparse") else str(d) for d in node.decorator_list
         ]
 
         # Get docstring
         docstring = ast.get_docstring(node)
 
         # Get base classes
-        bases = [
-            ast.unparse(b) if hasattr(ast, 'unparse') else str(b)
-            for b in node.bases
-        ]
+        bases = [ast.unparse(b) if hasattr(ast, "unparse") else str(b) for b in node.bases]
 
         # Get child methods
         children = []
@@ -293,23 +306,27 @@ class ASTAnalyzer:
         for node in ast.walk(self._tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    imports.append(Import(
-                        module=alias.name,
-                        names=[alias.name],
-                        alias=alias.asname,
-                        is_from=False,
-                        line=node.lineno,
-                    ))
+                    imports.append(
+                        Import(
+                            module=alias.name,
+                            names=[alias.name],
+                            alias=alias.asname,
+                            is_from=False,
+                            line=node.lineno,
+                        )
+                    )
 
             elif isinstance(node, ast.ImportFrom):
                 module = node.module or ""
                 names = [alias.name for alias in node.names]
-                imports.append(Import(
-                    module=module,
-                    names=names,
-                    is_from=True,
-                    line=node.lineno,
-                ))
+                imports.append(
+                    Import(
+                        module=module,
+                        names=names,
+                        is_from=True,
+                        line=node.lineno,
+                    )
+                )
 
         return imports
 
@@ -329,34 +346,40 @@ class ASTAnalyzer:
                 # Inheritance dependencies
                 for base in node.bases:
                     if isinstance(base, ast.Name):
-                        dependencies.append(Dependency(
-                            source=node.name,
-                            target=base.id,
-                            dependency_type="inherits",
-                            line=node.lineno,
-                        ))
+                        dependencies.append(
+                            Dependency(
+                                source=node.name,
+                                target=base.id,
+                                dependency_type="inherits",
+                                line=node.lineno,
+                            )
+                        )
 
             # Track function calls
             elif isinstance(node, ast.Call):
                 source = current_class or current_function or "<module>"
 
                 if isinstance(node.func, ast.Name):
-                    dependencies.append(Dependency(
-                        source=source,
-                        target=node.func.id,
-                        dependency_type="calls",
-                        line=node.lineno,
-                    ))
+                    dependencies.append(
+                        Dependency(
+                            source=source,
+                            target=node.func.id,
+                            dependency_type="calls",
+                            line=node.lineno,
+                        )
+                    )
 
                 elif isinstance(node.func, ast.Attribute):
                     if isinstance(node.func.value, ast.Name):
                         target = f"{node.func.value.id}.{node.func.attr}"
-                        dependencies.append(Dependency(
-                            source=source,
-                            target=target,
-                            dependency_type="calls",
-                            line=node.lineno,
-                        ))
+                        dependencies.append(
+                            Dependency(
+                                source=source,
+                                target=target,
+                                dependency_type="calls",
+                                line=node.lineno,
+                            )
+                        )
 
         return dependencies
 
@@ -367,10 +390,7 @@ class ASTAnalyzer:
         # Lines of code
         metrics.lines_of_code = len([l for l in self._lines if l.strip()])
         metrics.blank_lines = len([l for l in self._lines if not l.strip()])
-        metrics.lines_of_comments = len([
-            l for l in self._lines
-            if l.strip().startswith("#")
-        ])
+        metrics.lines_of_comments = len([l for l in self._lines if l.strip().startswith("#")])
 
         # Cyclomatic complexity
         metrics.cyclomatic = self._calculate_cyclomatic_complexity()
@@ -380,7 +400,7 @@ class ASTAnalyzer:
 
         # Maintainability index (simplified)
         if metrics.lines_of_code > 0:
-            loc_factor = max(0, 171 - 5.2 * (metrics.lines_of_code ** 0.23))
+            loc_factor = max(0, 171 - 5.2 * (metrics.lines_of_code**0.23))
             cc_factor = max(0, 100 - 0.23 * metrics.cyclomatic)
             metrics.maintainability_index = min(100, (loc_factor + cc_factor) / 2)
 
@@ -399,8 +419,13 @@ class ASTAnalyzer:
         complexity = 1  # Base complexity
 
         decision_nodes = (
-            ast.If, ast.For, ast.While, ast.ExceptHandler,
-            ast.With, ast.Assert, ast.comprehension,
+            ast.If,
+            ast.For,
+            ast.While,
+            ast.ExceptHandler,
+            ast.With,
+            ast.Assert,
+            ast.comprehension,
         )
 
         for node in ast.walk(self._tree):
@@ -496,8 +521,7 @@ class ASTAnalyzer:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 if node.name == function_name:
                     return self._function_to_symbol(
-                        node,
-                        is_async=isinstance(node, ast.AsyncFunctionDef)
+                        node, is_async=isinstance(node, ast.AsyncFunctionDef)
                     )
         return None
 
@@ -585,6 +609,7 @@ class ASTAnalyzer:
 
         # Built-in names
         import builtins
+
         builtins_set = set(dir(builtins))
 
         # Collect definitions

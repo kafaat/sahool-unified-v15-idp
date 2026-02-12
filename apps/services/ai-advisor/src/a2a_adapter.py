@@ -449,9 +449,7 @@ class AIAdvisorA2AAgent(A2AAgent):
         }
 
 
-def create_ai_advisor_a2a_agent(
-    base_url: str, agents: dict[str, Any], supervisor: Any
-) -> AIAdvisorA2AAgent:
+def create_ai_advisor_a2a_agent(base_url: str, agents: dict[str, Any], supervisor: Any) -> AIAdvisorA2AAgent:
     """
     Factory function to create AI Advisor A2A agent
     دالة المصنع لإنشاء وكيل A2A للمستشار الذكي

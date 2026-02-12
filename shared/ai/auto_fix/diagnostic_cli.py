@@ -132,7 +132,10 @@ class DiagnosticCLI:
         try:
             report = await self.engine.diagnose(paths=paths)
 
-            print_status(f"Found {report.total_issues} issues", "info" if report.total_issues == 0 else "warning")
+            print_status(
+                f"Found {report.total_issues} issues",
+                "info" if report.total_issues == 0 else "warning",
+            )
 
             if report.total_issues > 0:
                 # Summary by severity
@@ -152,7 +155,10 @@ class DiagnosticCLI:
                         strategy=FixStrategy.SAFE,
                     )
                     successful = sum(1 for r in results if r.success)
-                    print_status(f"Fixed {successful}/{len(results)} issues", "success" if successful > 0 else "warning")
+                    print_status(
+                        f"Fixed {successful}/{len(results)} issues",
+                        "success" if successful > 0 else "warning",
+                    )
 
             self.audit.log_diagnose(
                 paths=paths,
@@ -243,11 +249,13 @@ class DiagnosticCLI:
                     HealthStatus.UNKNOWN: "❓",
                 }.get(result.status, "•")
 
-                results.append({
-                    "Component": result.component,
-                    "Status": f"{status_icon} {result.status.value}",
-                    "Latency": f"{result.latency_ms:.1f}ms" if result.latency_ms else "N/A",
-                })
+                results.append(
+                    {
+                        "Component": result.component,
+                        "Status": f"{status_icon} {result.status.value}",
+                        "Latency": f"{result.latency_ms:.1f}ms" if result.latency_ms else "N/A",
+                    }
+                )
 
                 # Log to audit
                 self.audit.log_health_check(
@@ -261,7 +269,9 @@ class DiagnosticCLI:
             print()
 
             overall_status = report.overall_status.value
-            status_type = "success" if overall_status == "healthy" else "warning" if overall_status == "degraded" else "error"
+            status_type = (
+                "success" if overall_status == "healthy" else "warning" if overall_status == "degraded" else "error"
+            )
             print_status(f"Overall Status: {overall_status.upper()}", status_type)
             print_status(f"صحي: {report.healthy_count}/{report.total_count}", "info")
 
@@ -297,8 +307,10 @@ class DiagnosticCLI:
 
             if security_issues:
                 for issue in security_issues[:10]:  # Show first 10
-                    print_status(f"{issue.message} ({issue.location.file}:{issue.location.line})",
-                               "error" if issue.severity.value == "error" else "warning")
+                    print_status(
+                        f"{issue.message} ({issue.location.file}:{issue.location.line})",
+                        "error" if issue.severity.value == "error" else "warning",
+                    )
 
             self.audit.log_security_scan(
                 paths=paths,
@@ -325,10 +337,7 @@ class DiagnosticCLI:
 
     async def run_all_diagnostics(self, fix: bool = False, dry_run: bool = True) -> dict[str, Any]:
         """Run all diagnostics | تشغيل جميع التشخيصات"""
-        print_header(
-            "SAHOOL Platform Diagnostic Suite",
-            "مجموعة أدوات تشخيص منصة سهول"
-        )
+        print_header("SAHOOL Platform Diagnostic Suite", "مجموعة أدوات تشخيص منصة سهول")
 
         start_time = datetime.now()
         results = {}
@@ -346,9 +355,7 @@ class DiagnosticCLI:
         print_header("Summary", "الملخص")
 
         total_issues = sum(
-            r.get("total_issues", 0)
-            for r in results.values()
-            if isinstance(r, dict) and "total_issues" in r
+            r.get("total_issues", 0) for r in results.values() if isinstance(r, dict) and "total_issues" in r
         )
 
         print_status(f"Total issues found: {total_issues}", "info" if total_issues == 0 else "warning")
@@ -445,9 +452,7 @@ async def main() -> int:
 
         # Return code based on results
         has_errors = any(
-            r.get("error") or r.get("total_issues", 0) > 0
-            for r in results.values()
-            if isinstance(r, dict)
+            r.get("error") or r.get("total_issues", 0) > 0 for r in results.values() if isinstance(r, dict)
         )
         return 1 if has_errors else 0
 

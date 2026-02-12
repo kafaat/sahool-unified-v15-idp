@@ -18,8 +18,8 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timezone
 from typing import Any
-from datetime import datetime, timezone, UTC
 from uuid import uuid4
 
 import redis.asyncio as redis_client
@@ -29,25 +29,32 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+    ),
+)
 
 from shared.lowcode import (
-    LowCodeEngine,
+    AIComponentSuggester,
+    BlockConfig,
     ComponentCategory,
     DataModel,
     FieldDefinition,
     FieldType,
+    LowCodeEngine,
     PageDefinition,
-    BlockConfig,
-    AIComponentSuggester,
 )
 
 # Service configuration
@@ -64,8 +71,10 @@ logger = structlog.get_logger()
 # Error Response Model & Custom Exceptions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ErrorResponse(BaseModel):
     """Standardized error response model"""
+
     error: str
     error_ar: str | None = None
     error_code: str
@@ -75,6 +84,7 @@ class ErrorResponse(BaseModel):
 
 class ServiceUnavailableError(Exception):
     """Raised when a required service (DB, NATS) is unavailable"""
+
     def __init__(self, service: str, message: str = "Service unavailable"):
         self.service = service
         self.message = message
@@ -83,6 +93,7 @@ class ServiceUnavailableError(Exception):
 
 class ResourceNotFoundError(Exception):
     """Raised when a requested resource is not found"""
+
     def __init__(self, resource_type: str, resource_id: str = ""):
         self.resource_type = resource_type
         self.resource_id = resource_id
@@ -92,6 +103,7 @@ class ResourceNotFoundError(Exception):
 
 class TenantAccessDeniedError(Exception):
     """Raised when tenant access is denied"""
+
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
         self.message = "Access denied: tenant mismatch"
@@ -100,6 +112,7 @@ class TenantAccessDeniedError(Exception):
 
 class InvalidBlockConfigError(Exception):
     """Raised when a block configuration is invalid"""
+
     def __init__(self, block_id: str, reason: str):
         self.block_id = block_id
         self.reason = reason
@@ -116,8 +129,10 @@ def get_request_id(request: Request) -> str | None:
 # Request/Response Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ComponentResponse(BaseModel):
     """Component material response"""
+
     component_id: str
     name: str
     name_ar: str | None
@@ -133,6 +148,7 @@ class ComponentResponse(BaseModel):
 
 class DataModelCreateRequest(BaseModel):
     """Request to create a data model"""
+
     name: str = Field(..., min_length=1, max_length=100)
     name_ar: str | None = None
     description: str | None = None
@@ -143,6 +159,7 @@ class DataModelCreateRequest(BaseModel):
 
 class DataModelResponse(BaseModel):
     """Data model response"""
+
     id: str
     name: str
     name_ar: str | None
@@ -155,6 +172,7 @@ class DataModelResponse(BaseModel):
 
 class PageCreateRequest(BaseModel):
     """Request to create a page"""
+
     name: str = Field(..., min_length=1, max_length=100)
     name_ar: str | None = None
     description: str | None = None
@@ -166,6 +184,7 @@ class PageCreateRequest(BaseModel):
 
 class PageResponse(BaseModel):
     """Page response"""
+
     id: str
     name: str
     name_ar: str | None
@@ -181,6 +200,7 @@ class PageResponse(BaseModel):
 
 class PageRenderResponse(BaseModel):
     """Rendered page response"""
+
     page_id: str
     name: str
     route: str
@@ -190,6 +210,7 @@ class PageRenderResponse(BaseModel):
 
 class AISuggestionRequest(BaseModel):
     """Request for AI component suggestions"""
+
     description: str = Field(..., min_length=10, description="Page description in natural language")
     description_ar: str | None = None
     context: dict[str, Any] | None = None
@@ -197,6 +218,7 @@ class AISuggestionRequest(BaseModel):
 
 class AISuggestionResponse(BaseModel):
     """AI suggestion response"""
+
     suggestions: list[dict[str, Any]]
     reasoning: str
     reasoning_ar: str | None
@@ -208,12 +230,14 @@ class AISuggestionResponse(BaseModel):
 # These match the API format (id, field_type, component_name) for easier response handling
 # ═══════════════════════════════════════════════════════════════════════════════
 
-from dataclasses import dataclass as internal_dataclass, field as internal_field
+from dataclasses import dataclass as internal_dataclass
+from dataclasses import field as internal_field
 
 
 @internal_dataclass
 class InternalFieldDefinition:
     """Internal field definition matching API format."""
+
     name: str
     name_ar: str | None = None
     field_type: str = "text"
@@ -226,6 +250,7 @@ class InternalFieldDefinition:
 @internal_dataclass
 class InternalDataModel:
     """Internal data model matching API format (uses 'id' instead of 'model_id')."""
+
     id: str
     name: str
     name_ar: str | None = None
@@ -239,6 +264,7 @@ class InternalDataModel:
 @internal_dataclass
 class InternalBlock:
     """Internal block config matching API format (uses 'id' and 'component_name')."""
+
     id: str
     component_name: str
     props: dict[str, Any] = internal_field(default_factory=dict)
@@ -250,6 +276,7 @@ class InternalBlock:
 @internal_dataclass
 class InternalPage:
     """Internal page definition matching API format (uses 'id' instead of 'page_id')."""
+
     id: str
     name: str
     name_ar: str | None = None
@@ -278,6 +305,7 @@ ai_suggester = AIComponentSuggester(lowcode_engine)
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def get_db_pool():
     """Get database pool from app state."""
@@ -315,11 +343,13 @@ async def db_create_page(
                 route,
                 name,
                 name_ar,
-                json.dumps({
-                    "description": description,
-                    "data_model_id": data_model_id,
-                    "version": version,
-                }),
+                json.dumps(
+                    {
+                        "description": description,
+                        "data_model_id": data_model_id,
+                        "version": version,
+                    }
+                ),
                 json.dumps(blocks),
                 is_published,
                 tenant_id,
@@ -369,27 +399,31 @@ async def db_list_pages(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1 AND is_published = $2
                        ORDER BY created_at DESC LIMIT $3""",
-                    tenant_id, is_published, limit
+                    tenant_id,
+                    is_published,
+                    limit,
                 )
             elif tenant_id:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE tenant_id = $1
                        ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id, limit
+                    tenant_id,
+                    limit,
                 )
             elif is_published is not None:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        WHERE is_published = $1
                        ORDER BY created_at DESC LIMIT $2""",
-                    is_published, limit
+                    is_published,
+                    limit,
                 )
             else:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_pages
                        ORDER BY created_at DESC LIMIT $1""",
-                    limit
+                    limit,
                 )
             return [_row_to_page(row) for row in rows]
     except Exception as e:
@@ -415,21 +449,25 @@ async def db_update_page(
                     """UPDATE lowcode_pages
                        SET is_published = $1, updated_at = $2
                        WHERE id = $3""",
-                    is_published, updated_at, page_id
+                    is_published,
+                    updated_at,
+                    page_id,
                 )
             elif is_published is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET is_published = $1
                        WHERE id = $2""",
-                    is_published, page_id
+                    is_published,
+                    page_id,
                 )
             elif updated_at is not None:
                 await conn.execute(
                     """UPDATE lowcode_pages
                        SET updated_at = $1
                        WHERE id = $2""",
-                    updated_at, page_id
+                    updated_at,
+                    page_id,
                 )
             # If no updates specified, nothing to do
         return True
@@ -441,7 +479,11 @@ async def db_update_page(
 def _row_to_page(row) -> InternalPage:
     """Convert a database row to an InternalPage."""
     layout = row["layout"] if isinstance(row["layout"], dict) else json.loads(row["layout"] or "{}")
-    components = row["components"] if isinstance(row["components"], list) else json.loads(row["components"] or "[]")
+    components = (
+        row["components"]
+        if isinstance(row["components"], list)
+        else json.loads(row["components"] or "[]")
+    )
 
     blocks = []
     for comp in components:
@@ -494,12 +536,14 @@ async def db_create_model(
                 """,
                 model_id,
                 name,
-                json.dumps({
-                    "name_ar": name_ar,
-                    "description": description,
-                    "description_ar": description_ar,
-                    "fields": fields,
-                }),
+                json.dumps(
+                    {
+                        "name_ar": name_ar,
+                        "description": description,
+                        "description_ar": description_ar,
+                        "fields": fields,
+                    }
+                ),
                 tenant_id,
                 created_at,
                 updated_at,
@@ -546,13 +590,14 @@ async def db_list_models(
                     """SELECT * FROM lowcode_models
                        WHERE tenant_id = $1
                        ORDER BY created_at DESC LIMIT $2""",
-                    tenant_id, limit
+                    tenant_id,
+                    limit,
                 )
             else:
                 rows = await conn.fetch(
                     """SELECT * FROM lowcode_models
                        ORDER BY created_at DESC LIMIT $1""",
-                    limit
+                    limit,
                 )
             return [_row_to_model(row) for row in rows]
     except Exception as e:
@@ -562,7 +607,9 @@ async def db_list_models(
 
 def _row_to_model(row) -> InternalDataModel:
     """Convert a database row to an InternalDataModel."""
-    fields_data = row["fields"] if isinstance(row["fields"], dict) else json.loads(row["fields"] or "{}")
+    fields_data = (
+        row["fields"] if isinstance(row["fields"], dict) else json.loads(row["fields"] or "{}")
+    )
 
     return InternalDataModel(
         id=str(row["id"]),
@@ -579,6 +626,7 @@ def _row_to_model(row) -> InternalDataModel:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Lifespan Management
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -606,9 +654,9 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             from shared.events.publisher import get_publisher
+
             app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME,
-                service_version=SERVICE_VERSION
+                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
             )
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
@@ -625,13 +673,14 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             print("✅ Database connected")
 
             # Create tables if they don't exist
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS lowcode_pages (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         slug VARCHAR(255) UNIQUE NOT NULL,
@@ -644,8 +693,8 @@ async def lifespan(app: FastAPI):
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS lowcode_models (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         name VARCHAR(255) UNIQUE NOT NULL,
@@ -654,17 +703,17 @@ async def lifespan(app: FastAPI):
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
-                ''')
+                """)
                 # Create indexes for better query performance
-                await conn.execute('''
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_lowcode_pages_tenant_id ON lowcode_pages(tenant_id)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_lowcode_pages_is_published ON lowcode_pages(is_published)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_lowcode_models_tenant_id ON lowcode_models(tenant_id)
-                ''')
+                """)
             print("✅ Database tables initialized")
         except Exception as e:
             print(f"⚠️ Database connection failed: {e}")
@@ -692,6 +741,7 @@ async def lifespan(app: FastAPI):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def cache_get(key: str) -> dict | None:
     """Get value from Redis cache."""
@@ -786,6 +836,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 # Request ID Middleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.middleware("http")
 async def add_request_id_middleware(request: Request, call_next):
     """Add request ID to all requests for tracing"""
@@ -799,6 +850,7 @@ async def add_request_id_middleware(request: Request, call_next):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Exception Handlers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
@@ -846,7 +898,9 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 
 
 @app.exception_handler(TenantAccessDeniedError)
-async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError) -> JSONResponse:
+async def tenant_access_denied_handler(
+    request: Request, exc: TenantAccessDeniedError
+) -> JSONResponse:
     """Handle tenant access denied errors (403)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -868,7 +922,9 @@ async def tenant_access_denied_handler(request: Request, exc: TenantAccessDenied
 
 
 @app.exception_handler(InvalidBlockConfigError)
-async def invalid_block_config_handler(request: Request, exc: InvalidBlockConfigError) -> JSONResponse:
+async def invalid_block_config_handler(
+    request: Request, exc: InvalidBlockConfigError
+) -> JSONResponse:
     """Handle invalid block configuration errors (400)"""
     request_id = get_request_id(request)
     logger.warning(
@@ -891,7 +947,9 @@ async def invalid_block_config_handler(request: Request, exc: InvalidBlockConfig
 
 
 @app.exception_handler(ServiceUnavailableError)
-async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError) -> JSONResponse:
+async def service_unavailable_handler(
+    request: Request, exc: ServiceUnavailableError
+) -> JSONResponse:
     """Handle service unavailable errors (503)"""
     request_id = get_request_id(request)
     logger.error(
@@ -930,9 +988,21 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
     error_code, error_ar = error_codes.get(exc.status_code, ("ERROR", "خطأ"))
 
     if exc.status_code >= 500:
-        logger.error("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.error(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
     else:
-        logger.warning("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.warning(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -971,7 +1041,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -986,6 +1058,7 @@ app.add_middleware(
 # Tenant Validation Helper
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def validate_tenant_access(user: User, tenant_id: str) -> None:
     """
     Validate that user has access to the specified tenant.
@@ -999,6 +1072,7 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
 # NATS Event Publishing
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def publish_event(subject: str, data: dict) -> None:
     """
     Publish an event to NATS.
@@ -1009,10 +1083,7 @@ async def publish_event(subject: str, data: dict) -> None:
     """
     if hasattr(app.state, "publisher") and app.state.publisher:
         try:
-            await app.state.publisher.publish(
-                subject,
-                json.dumps(data).encode()
-            )
+            await app.state.publisher.publish(subject, json.dumps(data).encode())
             logger.info("event_published", subject=subject)
         except Exception as e:
             logger.error("event_publish_failed", subject=subject, error=str(e))
@@ -1021,6 +1092,7 @@ async def publish_event(subject: str, data: dict) -> None:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz", tags=["Health"])
 def health():
@@ -1081,6 +1153,7 @@ async def health_detailed():
 # ═══════════════════════════════════════════════════════════════════════════════
 # Component Material Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/api/v1/components", response_model=list[ComponentResponse], tags=["Components"])
 async def list_components(
@@ -1143,7 +1216,9 @@ def list_categories():
     ]
 
 
-@app.get("/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"])
+@app.get(
+    "/api/v1/components/{component_name}", response_model=ComponentResponse, tags=["Components"]
+)
 def get_component(component_name: str):
     """Get component by name | الحصول على مكون بالاسم"""
     component = lowcode_engine.get_component(component_name)
@@ -1169,6 +1244,7 @@ def get_component(component_name: str):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Model Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/api/v1/models", response_model=DataModelResponse, tags=["Data Models"])
 async def create_data_model(request: DataModelCreateRequest):
@@ -1229,7 +1305,7 @@ async def create_data_model(request: DataModelCreateRequest):
             "action": "create",
             "tenant_id": request.tenant_id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     return DataModelResponse(
@@ -1302,6 +1378,7 @@ async def get_data_model(model_id: str):
 # Page Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/api/v1/pages", response_model=PageResponse, tags=["Pages"])
 async def create_page(request: PageCreateRequest):
     """Create a page | إنشاء صفحة"""
@@ -1321,14 +1398,16 @@ async def create_page(request: PageCreateRequest):
             loop=block_data.get("loop"),
         )
         blocks.append(block)
-        blocks_for_db.append({
-            "id": block.id,
-            "component_name": block.component_name,
-            "props": block.props,
-            "children": block.children,
-            "conditions": block.conditions,
-            "loop": block.loop,
-        })
+        blocks_for_db.append(
+            {
+                "id": block.id,
+                "component_name": block.component_name,
+                "props": block.props,
+                "children": block.children,
+                "conditions": block.conditions,
+                "loop": block.loop,
+            }
+        )
 
     page = InternalPage(
         id=page_id,
@@ -1375,7 +1454,7 @@ async def create_page(request: PageCreateRequest):
             "action": "create",
             "tenant_id": request.tenant_id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     return PageResponse(
@@ -1384,7 +1463,15 @@ async def create_page(request: PageCreateRequest):
         name_ar=page.name_ar,
         description=page.description,
         route=page.route,
-        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in page.blocks],
+        blocks=[
+            {
+                "id": b.id,
+                "component_name": b.component_name,
+                "props": b.props,
+                "children": b.children,
+            }
+            for b in page.blocks
+        ],
         data_model_id=page.data_model_id,
         is_published=page.is_published,
         version=page.version,
@@ -1419,7 +1506,15 @@ async def list_pages(
             name_ar=p.name_ar,
             description=p.description,
             route=p.route,
-            blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
+            blocks=[
+                {
+                    "id": b.id,
+                    "component_name": b.component_name,
+                    "props": b.props,
+                    "children": b.children,
+                }
+                for b in p.blocks
+            ],
             data_model_id=p.data_model_id,
             is_published=p.is_published,
             version=p.version,
@@ -1455,7 +1550,15 @@ async def get_page(page_id: str):
         name_ar=p.name_ar,
         description=p.description,
         route=p.route,
-        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
+        blocks=[
+            {
+                "id": b.id,
+                "component_name": b.component_name,
+                "props": b.props,
+                "children": b.children,
+            }
+            for b in p.blocks
+        ],
         data_model_id=p.data_model_id,
         is_published=p.is_published,
         version=p.version,
@@ -1511,7 +1614,7 @@ async def publish_page(page_id: str, tenant_id: str = Query(None)):
             "action": "update",
             "tenant_id": tenant_id,
             "timestamp": p.updated_at.isoformat(),
-        }
+        },
     )
 
     return PageResponse(
@@ -1520,7 +1623,15 @@ async def publish_page(page_id: str, tenant_id: str = Query(None)):
         name_ar=p.name_ar,
         description=p.description,
         route=p.route,
-        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in p.blocks],
+        blocks=[
+            {
+                "id": b.id,
+                "component_name": b.component_name,
+                "props": b.props,
+                "children": b.children,
+            }
+            for b in p.blocks
+        ],
         data_model_id=p.data_model_id,
         is_published=p.is_published,
         version=p.version,
@@ -1549,14 +1660,16 @@ async def render_page(page_id: str, data: str | None = Query(None)):
     rendered_blocks = []
     for block in p.blocks:
         component = lowcode_engine.get_component(block.component_name)
-        rendered_blocks.append({
-            "id": block.id,
-            "component_name": block.component_name,
-            "component_title": component.name if component else block.component_name,
-            "component_title_ar": component.name_ar if component else None,
-            "props": block.props,
-            "children": block.children,
-        })
+        rendered_blocks.append(
+            {
+                "id": block.id,
+                "component_name": block.component_name,
+                "component_title": component.name if component else block.component_name,
+                "component_title_ar": component.name_ar if component else None,
+                "props": block.props,
+                "children": block.children,
+            }
+        )
 
     return PageRenderResponse(
         page_id=p.id,
@@ -1570,6 +1683,7 @@ async def render_page(page_id: str, data: str | None = Query(None)):
 # ═══════════════════════════════════════════════════════════════════════════════
 # AI Suggestion Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/api/v1/ai/suggest", response_model=AISuggestionResponse, tags=["AI"])
 async def suggest_components(request: AISuggestionRequest):
@@ -1596,13 +1710,15 @@ async def suggest_components(request: AISuggestionRequest):
         if any(kw in desc_lower or kw in request.description for kw in keywords):
             component = lowcode_engine.get_component(component_id)
             if component:
-                suggestions.append({
-                    "component_id": component_id,
-                    "component_name": component.name,
-                    "component_name_ar": component.name_ar,
-                    "confidence": 0.85,
-                    "reason": "Matches keywords in description",
-                })
+                suggestions.append(
+                    {
+                        "component_id": component_id,
+                        "component_name": component.name,
+                        "component_name_ar": component.name_ar,
+                        "confidence": 0.85,
+                        "reason": "Matches keywords in description",
+                    }
+                )
 
     return AISuggestionResponse(
         suggestions=suggestions,
@@ -1691,14 +1807,16 @@ async def generate_page_from_template(
             children=[],
         )
         blocks.append(block)
-        blocks_for_db.append({
-            "id": block_id,
-            "component_name": comp_name,
-            "props": {},
-            "children": [],
-            "conditions": None,
-            "loop": None,
-        })
+        blocks_for_db.append(
+            {
+                "id": block_id,
+                "component_name": comp_name,
+                "props": {},
+                "children": [],
+                "conditions": None,
+                "loop": None,
+            }
+        )
 
     page = InternalPage(
         id=page_id,
@@ -1744,7 +1862,7 @@ async def generate_page_from_template(
             "action": "create",
             "tenant_id": tenant_id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     return PageResponse(
@@ -1753,7 +1871,15 @@ async def generate_page_from_template(
         name_ar=page.name_ar,
         description=page.description,
         route=page.route,
-        blocks=[{"id": b.id, "component_name": b.component_name, "props": b.props, "children": b.children} for b in page.blocks],
+        blocks=[
+            {
+                "id": b.id,
+                "component_name": b.component_name,
+                "props": b.props,
+                "children": b.children,
+            }
+            for b in page.blocks
+        ],
         data_model_id=page.data_model_id,
         is_published=page.is_published,
         version=page.version,
@@ -1765,6 +1891,7 @@ async def generate_page_from_template(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Metrics Endpoint
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/metrics", tags=["Monitoring"])
 async def metrics():
@@ -1780,7 +1907,9 @@ async def metrics():
             async with pool.acquire() as conn:
                 pages_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_pages")
                 models_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_models")
-                published_row = await conn.fetchrow("SELECT COUNT(*) as count FROM lowcode_pages WHERE is_published = true")
+                published_row = await conn.fetchrow(
+                    "SELECT COUNT(*) as count FROM lowcode_pages WHERE is_published = true"
+                )
                 db_pages_count = pages_row["count"] if pages_row else 0
                 db_models_count = models_row["count"] if models_row else 0
                 db_published_count = published_row["count"] if published_row else 0
@@ -1790,7 +1919,11 @@ async def metrics():
     # Use database counts if available, otherwise fall back to in-memory
     pages_count = db_pages_count if db_pages_count > 0 else len(pages)
     models_count = db_models_count if db_models_count > 0 else len(data_models)
-    published_count = db_published_count if db_published_count > 0 else len([p for p in pages.values() if p.is_published])
+    published_count = (
+        db_published_count
+        if db_published_count > 0
+        else len([p for p in pages.values() if p.is_published])
+    )
 
     return f"""# HELP lowcode_components_total Total number of registered components
 # TYPE lowcode_components_total gauge
@@ -1816,6 +1949,7 @@ lowcode_database_connected {1 if getattr(app.state, "db_connected", False) else 
 
 if __name__ == "__main__":
     import uvicorn
+
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
     host = os.getenv("HOST", "0.0.0.0")
     uvicorn.run(app, host=host, port=SERVICE_PORT)

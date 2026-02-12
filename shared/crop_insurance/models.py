@@ -12,17 +12,18 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, date, UTC
-from decimal import Decimal
-from enum import Enum
-from typing import Any
-import uuid
 import json
+import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, date, datetime
+from decimal import Decimal
+from enum import StrEnum
+from typing import Any
 
 
-class InsuranceType(str, Enum):
+class InsuranceType(StrEnum):
     """Types of crop insurance | أنواع التأمين الزراعي"""
+
     TRADITIONAL = "traditional"  # Traditional indemnity-based | تقليدي قائم على التعويض
     PARAMETRIC = "parametric"  # Index-based/parametric | معياري/قائم على المؤشر
     HYBRID = "hybrid"  # Combination of both | مزيج من الاثنين
@@ -30,8 +31,9 @@ class InsuranceType(str, Enum):
     WEATHER_INDEX = "weather_index"  # Weather index insurance | تأمين مؤشر الطقس
 
 
-class PolicyStatus(str, Enum):
+class PolicyStatus(StrEnum):
     """Policy status | حالة البوليصة"""
+
     DRAFT = "draft"  # مسودة
     PENDING_APPROVAL = "pending_approval"  # بانتظار الموافقة
     ACTIVE = "active"  # نشطة
@@ -41,8 +43,9 @@ class PolicyStatus(str, Enum):
     CLAIMED = "claimed"  # تم المطالبة بها
 
 
-class ClaimStatus(str, Enum):
+class ClaimStatus(StrEnum):
     """Claim status | حالة المطالبة"""
+
     DRAFT = "draft"  # مسودة
     SUBMITTED = "submitted"  # مقدمة
     UNDER_REVIEW = "under_review"  # قيد المراجعة
@@ -55,8 +58,9 @@ class ClaimStatus(str, Enum):
     CLOSED = "closed"  # مغلقة
 
 
-class ClaimType(str, Enum):
+class ClaimType(StrEnum):
     """Type of insurance claim | نوع مطالبة التأمين"""
+
     CROP_LOSS = "crop_loss"  # فقدان المحصول
     YIELD_SHORTFALL = "yield_shortfall"  # نقص الإنتاجية
     WEATHER_EVENT = "weather_event"  # حدث طقسي
@@ -71,8 +75,9 @@ class ClaimType(str, Enum):
     PARAMETRIC_TRIGGER = "parametric_trigger"  # تحفيز معياري
 
 
-class RiskLevel(str, Enum):
+class RiskLevel(StrEnum):
     """Risk level classification | تصنيف مستوى المخاطر"""
+
     VERY_LOW = "very_low"  # منخفض جداً
     LOW = "low"  # منخفض
     MODERATE = "moderate"  # متوسط
@@ -81,8 +86,9 @@ class RiskLevel(str, Enum):
     EXTREME = "extreme"  # شديد
 
 
-class CoverageType(str, Enum):
+class CoverageType(StrEnum):
     """Coverage type | نوع التغطية"""
+
     FULL = "full"  # كاملة
     PARTIAL = "partial"  # جزئية
     BASIC = "basic"  # أساسية
@@ -91,8 +97,9 @@ class CoverageType(str, Enum):
     CUSTOM = "custom"  # مخصصة
 
 
-class PayoutTriggerType(str, Enum):
+class PayoutTriggerType(StrEnum):
     """Payout trigger type for parametric insurance | نوع محفز الدفع للتأمين المعياري"""
+
     RAINFALL_DEFICIT = "rainfall_deficit"  # عجز في هطول الأمطار
     RAINFALL_EXCESS = "rainfall_excess"  # فائض في هطول الأمطار
     TEMPERATURE_HIGH = "temperature_high"  # درجة حرارة عالية
@@ -104,8 +111,9 @@ class PayoutTriggerType(str, Enum):
     GROWING_DEGREE_DAYS = "growing_degree_days"  # أيام درجات النمو
 
 
-class WeatherIndexType(str, Enum):
+class WeatherIndexType(StrEnum):
     """Weather index types | أنواع مؤشرات الطقس"""
+
     CUMULATIVE_RAINFALL = "cumulative_rainfall"  # هطول الأمطار التراكمي
     CONSECUTIVE_DRY_DAYS = "consecutive_dry_days"  # أيام الجفاف المتتالية
     HEAT_WAVE_DURATION = "heat_wave_duration"  # مدة موجة الحر
@@ -118,6 +126,7 @@ class WeatherIndexType(str, Enum):
 @dataclass
 class BilingualText:
     """Bilingual text for Arabic and English | نص ثنائي اللغة للعربية والإنجليزية"""
+
     en: str
     ar: str
 
@@ -132,6 +141,7 @@ class BilingualText:
 @dataclass
 class InsuranceProvider:
     """Insurance provider details | تفاصيل مزود التأمين"""
+
     id: str
     name: str
     name_ar: str
@@ -169,6 +179,7 @@ class InsuranceProvider:
 @dataclass
 class CoverageDetails:
     """Insurance coverage details | تفاصيل تغطية التأمين"""
+
     coverage_type: CoverageType
     sum_insured: Decimal  # المبلغ المؤمن عليه
     currency: str = "SAR"  # العملة
@@ -202,8 +213,12 @@ class CoverageDetails:
             "deductible_percentage": self.deductible_percentage,
             "deductible_amount": str(self.deductible_amount) if self.deductible_amount else None,
             "max_payout": str(self.max_payout) if self.max_payout else None,
-            "coverage_start_date": self.coverage_start_date.isoformat() if self.coverage_start_date else None,
-            "coverage_end_date": self.coverage_end_date.isoformat() if self.coverage_end_date else None,
+            "coverage_start_date": self.coverage_start_date.isoformat()
+            if self.coverage_start_date
+            else None,
+            "coverage_end_date": self.coverage_end_date.isoformat()
+            if self.coverage_end_date
+            else None,
             "drought_coverage": self.drought_coverage,
             "flood_coverage": self.flood_coverage,
             "hail_coverage": self.hail_coverage,
@@ -221,6 +236,7 @@ class CoverageDetails:
 @dataclass
 class WeatherIndex:
     """Weather index for parametric insurance | مؤشر الطقس للتأمين المعياري"""
+
     index_type: WeatherIndexType
     measurement_station_id: str
     measurement_period_start: date
@@ -297,6 +313,7 @@ class WeatherIndex:
 @dataclass
 class ParametricTrigger:
     """Parametric insurance trigger configuration | تكوين محفز التأمين المعياري"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     trigger_type: PayoutTriggerType = PayoutTriggerType.RAINFALL_DEFICIT
     name: str = ""
@@ -354,7 +371,9 @@ class ParametricTrigger:
         if self.graduated_payout and self.payout_tiers:
             # Find applicable tier
             payout_pct = 0.0
-            for tier in sorted(self.payout_tiers, key=lambda x: x.get("threshold", 0), reverse=True):
+            for tier in sorted(
+                self.payout_tiers, key=lambda x: x.get("threshold", 0), reverse=True
+            ):
                 tier_threshold = tier.get("threshold", 0)
                 if self.threshold_operator in ["<", "<="]:
                     if measured_value <= tier_threshold:
@@ -392,6 +411,7 @@ class ParametricTrigger:
 @dataclass
 class PolicyPremium:
     """Insurance policy premium details | تفاصيل قسط التأمين"""
+
     base_premium: Decimal  # القسط الأساسي
     risk_loading: Decimal = Decimal("0")  # تحميل المخاطر
     admin_fee: Decimal = Decimal("0")  # الرسوم الإدارية
@@ -551,8 +571,12 @@ class InsurancePolicy:
 
     def calculate_guaranteed_value(self) -> Decimal:
         """Calculate guaranteed production value"""
-        total_expected_yield = Decimal(str(self.expected_yield_per_hectare * self.field_area_hectares))
-        guaranteed_yield = total_expected_yield * Decimal(str(self.guaranteed_yield_percentage / 100))
+        total_expected_yield = Decimal(
+            str(self.expected_yield_per_hectare * self.field_area_hectares)
+        )
+        guaranteed_yield = total_expected_yield * Decimal(
+            str(self.guaranteed_yield_percentage / 100)
+        )
         return guaranteed_yield * self.price_per_unit
 
     def to_dict(self) -> dict[str, Any]:
@@ -576,7 +600,9 @@ class InsurancePolicy:
             "crop_type_ar": self.crop_type_ar,
             "crop_variety": self.crop_variety,
             "planting_date": self.planting_date.isoformat() if self.planting_date else None,
-            "expected_harvest_date": self.expected_harvest_date.isoformat() if self.expected_harvest_date else None,
+            "expected_harvest_date": self.expected_harvest_date.isoformat()
+            if self.expected_harvest_date
+            else None,
             "latitude": self.latitude,
             "longitude": self.longitude,
             "region": self.region,
@@ -601,7 +627,9 @@ class InsurancePolicy:
             "approved_by": self.approved_by,
             "approved_at": self.approved_at.isoformat() if self.approved_at else None,
             "terms_accepted": self.terms_accepted,
-            "terms_accepted_at": self.terms_accepted_at.isoformat() if self.terms_accepted_at else None,
+            "terms_accepted_at": self.terms_accepted_at.isoformat()
+            if self.terms_accepted_at
+            else None,
             "special_conditions": self.special_conditions,
             "special_conditions_ar": self.special_conditions_ar,
             "documents": self.documents,
@@ -618,6 +646,7 @@ class InsurancePolicy:
 @dataclass
 class ClaimEvidence:
     """Evidence for insurance claim | دليل لمطالبة التأمين"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     evidence_type: str = ""  # photo, document, sensor_data, weather_data, inspection_report
     title: str = ""
@@ -672,6 +701,7 @@ class ClaimEvidence:
 @dataclass
 class ClaimPayout:
     """Payout details for approved claim | تفاصيل الدفع للمطالبة الموافق عليها"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     claim_id: str = ""
 
@@ -823,13 +853,15 @@ class InsuranceClaim:
 
     def add_status_change(self, new_status: ClaimStatus, by: str, notes: str = "") -> None:
         """Record status change in history"""
-        self.status_history.append({
-            "previous_status": self.status.value,
-            "new_status": new_status.value,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "by": by,
-            "notes": notes,
-        })
+        self.status_history.append(
+            {
+                "previous_status": self.status.value,
+                "new_status": new_status.value,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "by": by,
+                "notes": notes,
+            }
+        )
         self.status = new_status
         self.updated_at = datetime.now(UTC)
 
@@ -845,7 +877,11 @@ class InsuranceClaim:
             return False, "Description is required", "الوصف مطلوب"
 
         if self.estimated_loss_percentage <= 0:
-            return False, "Loss percentage must be greater than 0", "يجب أن تكون نسبة الخسارة أكبر من 0"
+            return (
+                False,
+                "Loss percentage must be greater than 0",
+                "يجب أن تكون نسبة الخسارة أكبر من 0",
+            )
 
         if not self.evidence:
             return False, "At least one piece of evidence is required", "مطلوب دليل واحد على الأقل"
@@ -914,6 +950,7 @@ class InsuranceClaim:
 @dataclass
 class RiskFactor:
     """Individual risk factor for assessment | عامل مخاطر فردي للتقييم"""
+
     factor_type: str  # weather, soil, historical, location, crop
     name: str
     name_ar: str
@@ -948,6 +985,7 @@ class RiskFactor:
 @dataclass
 class FieldRiskProfile:
     """Comprehensive risk profile for a field | ملف المخاطر الشامل للحقل"""
+
     field_id: str
     tenant_id: str
 
@@ -1063,6 +1101,7 @@ class FieldRiskProfile:
 @dataclass
 class PremiumQuote:
     """Premium quote for insurance policy | عرض سعر قسط التأمين"""
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     quote_number: str = ""
     tenant_id: str = ""
@@ -1131,6 +1170,7 @@ class PremiumQuote:
 @dataclass
 class InsuranceErrorMessage:
     """Insurance error messages in Arabic and English"""
+
     en: str
     ar: str
     code: str

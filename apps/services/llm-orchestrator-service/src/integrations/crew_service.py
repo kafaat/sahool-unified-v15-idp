@@ -7,8 +7,8 @@ Crew Service Integration
 Wraps the shared CrewAI module for use in the orchestrator.
 """
 
-import sys
 import os
+import sys
 from typing import Any
 
 import structlog
@@ -128,10 +128,7 @@ class CrewService:
                 "I'm here to help with your agricultural questions. "
                 "Please describe your crop and the issue you're facing."
             )
-            answer_ar = (
-                "أنا هنا للمساعدة في أسئلتك الزراعية. "
-                "يرجى وصف محصولك والمشكلة التي تواجهها."
-            )
+            answer_ar = "أنا هنا للمساعدة في أسئلتك الزراعية. يرجى وصف محصولك والمشكلة التي تواجهها."
 
         return {
             "query": query,

@@ -16,18 +16,16 @@ from __future__ import annotations
 import time
 from contextlib import contextmanager
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 try:
     from prometheus_client import (
+        REGISTRY,
         CollectorRegistry,
         Counter,
         Gauge,
         Histogram,
-        Info,
-        Summary,
-        REGISTRY,
     )
 
     PROMETHEUS_AVAILABLE = True
@@ -36,7 +34,7 @@ except ImportError:
     CollectorRegistry = None
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Crop types for metrics labeling | أنواع المحاصيل"""
 
     WHEAT = "wheat"
@@ -50,7 +48,7 @@ class CropType(str, Enum):
     OTHER = "other"
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity levels | مستويات خطورة التنبيه"""
 
     CRITICAL = "critical"

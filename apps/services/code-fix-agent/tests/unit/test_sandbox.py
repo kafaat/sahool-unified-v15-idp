@@ -5,17 +5,18 @@ SAHOOL Code Fix Agent - Unit Tests for Sandbox
 Tests for safe code execution sandbox.
 """
 
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from tools.sandbox import (
     CodeSandbox,
+    ExecutionStatus,
     SandboxConfig,
     SandboxResult,
-    ExecutionStatus,
 )
 
 
@@ -194,7 +195,9 @@ while True:
 
         # Imports should fail when __import__ is blocked
         assert result.status == ExecutionStatus.ERROR
-        assert "__import__" in result.error_message.lower() or "import" in result.error_message.lower()
+        assert (
+            "__import__" in result.error_message.lower() or "import" in result.error_message.lower()
+        )
 
     @pytest.mark.asyncio
     async def test_math_operations_without_import(self, sandbox):

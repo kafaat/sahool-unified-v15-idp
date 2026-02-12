@@ -21,21 +21,21 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
+    AgentCapability,
     AgentMode,
     AgentStep,
     AgentTool,
-    AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 
@@ -51,6 +51,7 @@ class WeatherCondition:
     Current or forecasted weather condition.
     حالة الطقس الحالية أو المتوقعة
     """
+
     timestamp: datetime
     temperature_c: float
     temperature_min_c: float
@@ -71,6 +72,7 @@ class WeatherAlert:
     Weather alert/warning.
     تحذير/إنذار طقس
     """
+
     alert_id: str
     alert_type: str  # frost, heat, storm, rain, wind
     severity: str  # low, medium, high, critical
@@ -92,6 +94,7 @@ class WeatherForecast:
     Multi-day weather forecast.
     توقعات الطقس لعدة أيام
     """
+
     location: str
     location_ar: str
     generated_at: datetime
@@ -107,6 +110,7 @@ class ClimateRiskAssessment:
     Climate risk assessment for agricultural planning.
     تقييم مخاطر المناخ للتخطيط الزراعي
     """
+
     assessment_id: str
     period: str  # weekly, monthly, seasonal
     frost_risk: float  # 0-1
@@ -204,147 +208,163 @@ class WeatherSubAgent(BaseAutonomousAgent):
         """Register weather-specific tools."""
 
         # Tool 1: Get Weather Forecast
-        self.register_tool(AgentTool(
-            name="get_weather_forecast",
-            name_ar="الحصول على توقعات الطقس",
-            description="Get weather forecast for a location",
-            description_ar="الحصول على توقعات الطقس لموقع معين",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "location": {
-                        "type": "object",
-                        "properties": {
-                            "lat": {"type": "number"},
-                            "lon": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="get_weather_forecast",
+                name_ar="الحصول على توقعات الطقس",
+                description="Get weather forecast for a location",
+                description_ar="الحصول على توقعات الطقس لموقع معين",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "location": {
+                            "type": "object",
+                            "properties": {
+                                "lat": {"type": "number"},
+                                "lon": {"type": "number"},
+                            },
                         },
+                        "days": {"type": "integer", "default": 7},
                     },
-                    "days": {"type": "integer", "default": 7},
+                    "required": ["location"],
                 },
-                "required": ["location"]
-            },
-            handler=self._get_weather_forecast,
-            tags=["weather", "forecast"],
-        ))
+                handler=self._get_weather_forecast,
+                tags=["weather", "forecast"],
+            )
+        )
 
         # Tool 2: Assess Climate Risks
-        self.register_tool(AgentTool(
-            name="assess_climate_risks",
-            name_ar="تقييم مخاطر المناخ",
-            description="Assess climate risks for agricultural planning",
-            description_ar="تقييم مخاطر المناخ للتخطيط الزراعي",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "location": {"type": "object"},
-                    "period": {
-                        "type": "string",
-                        "enum": ["weekly", "monthly", "seasonal"],
+        self.register_tool(
+            AgentTool(
+                name="assess_climate_risks",
+                name_ar="تقييم مخاطر المناخ",
+                description="Assess climate risks for agricultural planning",
+                description_ar="تقييم مخاطر المناخ للتخطيط الزراعي",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "object"},
+                        "period": {
+                            "type": "string",
+                            "enum": ["weekly", "monthly", "seasonal"],
+                        },
+                        "crop_type": {"type": "string"},
                     },
-                    "crop_type": {"type": "string"},
+                    "required": ["location"],
                 },
-                "required": ["location"]
-            },
-            handler=self._assess_climate_risks,
-            tags=["weather", "risk"],
-        ))
+                handler=self._assess_climate_risks,
+                tags=["weather", "risk"],
+            )
+        )
 
         # Tool 3: Get Optimal Spray Window
-        self.register_tool(AgentTool(
-            name="get_optimal_spray_window",
-            name_ar="الحصول على نافذة الرش المثلى",
-            description="Find optimal time window for pesticide/herbicide application",
-            description_ar="إيجاد النافذة الزمنية المثلى لتطبيق المبيدات",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "application_type": {
-                        "type": "string",
-                        "enum": ["pesticide", "herbicide", "fungicide", "foliar"],
+        self.register_tool(
+            AgentTool(
+                name="get_optimal_spray_window",
+                name_ar="الحصول على نافذة الرش المثلى",
+                description="Find optimal time window for pesticide/herbicide application",
+                description_ar="إيجاد النافذة الزمنية المثلى لتطبيق المبيدات",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "application_type": {
+                            "type": "string",
+                            "enum": ["pesticide", "herbicide", "fungicide", "foliar"],
+                        },
+                        "days_ahead": {"type": "integer", "default": 5},
                     },
-                    "days_ahead": {"type": "integer", "default": 5},
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._get_optimal_spray_window,
-            tags=["weather", "spray", "timing"],
-        ))
+                handler=self._get_optimal_spray_window,
+                tags=["weather", "spray", "timing"],
+            )
+        )
 
         # Tool 4: Check Frost Risk
-        self.register_tool(AgentTool(
-            name="check_frost_risk",
-            name_ar="فحص خطر الصقيع",
-            description="Check frost risk for upcoming days",
-            description_ar="فحص خطر الصقيع للأيام القادمة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "location": {"type": "object"},
-                    "days_ahead": {"type": "integer", "default": 3},
+        self.register_tool(
+            AgentTool(
+                name="check_frost_risk",
+                name_ar="فحص خطر الصقيع",
+                description="Check frost risk for upcoming days",
+                description_ar="فحص خطر الصقيع للأيام القادمة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "object"},
+                        "days_ahead": {"type": "integer", "default": 3},
+                    },
+                    "required": ["location"],
                 },
-                "required": ["location"]
-            },
-            handler=self._check_frost_risk,
-            tags=["weather", "frost", "alert"],
-        ))
+                handler=self._check_frost_risk,
+                tags=["weather", "frost", "alert"],
+            )
+        )
 
         # Tool 5: Get Irrigation Weather Adjustment
-        self.register_tool(AgentTool(
-            name="get_irrigation_weather_adjustment",
-            name_ar="الحصول على تعديل الري حسب الطقس",
-            description="Calculate irrigation adjustment based on weather forecast",
-            description_ar="حساب تعديل الري بناءً على توقعات الطقس",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "planned_amount_mm": {"type": "number"},
-                    "planned_date": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="get_irrigation_weather_adjustment",
+                name_ar="الحصول على تعديل الري حسب الطقس",
+                description="Calculate irrigation adjustment based on weather forecast",
+                description_ar="حساب تعديل الري بناءً على توقعات الطقس",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "planned_amount_mm": {"type": "number"},
+                        "planned_date": {"type": "string"},
+                    },
+                    "required": ["field_id", "planned_amount_mm"],
                 },
-                "required": ["field_id", "planned_amount_mm"]
-            },
-            handler=self._get_irrigation_weather_adjustment,
-            tags=["weather", "irrigation"],
-        ))
+                handler=self._get_irrigation_weather_adjustment,
+                tags=["weather", "irrigation"],
+            )
+        )
 
         # Tool 6: Get Heat Stress Alert
-        self.register_tool(AgentTool(
-            name="get_heat_stress_alert",
-            name_ar="الحصول على إنذار الإجهاد الحراري",
-            description="Check for heat stress conditions affecting crops",
-            description_ar="فحص ظروف الإجهاد الحراري المؤثرة على المحاصيل",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "location": {"type": "object"},
-                    "crop_type": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="get_heat_stress_alert",
+                name_ar="الحصول على إنذار الإجهاد الحراري",
+                description="Check for heat stress conditions affecting crops",
+                description_ar="فحص ظروف الإجهاد الحراري المؤثرة على المحاصيل",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "object"},
+                        "crop_type": {"type": "string"},
+                    },
+                    "required": ["location"],
                 },
-                "required": ["location"]
-            },
-            handler=self._get_heat_stress_alert,
-            tags=["weather", "heat", "alert"],
-        ))
+                handler=self._get_heat_stress_alert,
+                tags=["weather", "heat", "alert"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register weather capabilities."""
-        self.register_capability(AgentCapability(
-            name="weather_forecasting",
-            name_ar="توقعات الطقس",
-            description="Provide weather forecasts and analysis",
-            description_ar="تقديم توقعات وتحليلات الطقس",
-            domains=["weather", "climate", "forecasting"],
-            skill_level=0.9,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="weather_forecasting",
+                name_ar="توقعات الطقس",
+                description="Provide weather forecasts and analysis",
+                description_ar="تقديم توقعات وتحليلات الطقس",
+                domains=["weather", "climate", "forecasting"],
+                skill_level=0.9,
+            )
+        )
 
-        self.register_capability(AgentCapability(
-            name="climate_risk_assessment",
-            name_ar="تقييم مخاطر المناخ",
-            description="Assess climate-related agricultural risks",
-            description_ar="تقييم المخاطر الزراعية المتعلقة بالمناخ",
-            domains=["weather", "risk", "planning"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="climate_risk_assessment",
+                name_ar="تقييم مخاطر المناخ",
+                description="Assess climate-related agricultural risks",
+                description_ar="تقييم المخاطر الزراعية المتعلقة بالمناخ",
+                domains=["weather", "risk", "planning"],
+                skill_level=0.85,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -466,33 +486,37 @@ class WeatherSubAgent(BaseAutonomousAgent):
         base_temp = 18 if 1 <= datetime.now().month <= 3 else 32
 
         for i in range(days):
-            daily_forecasts.append({
-                "day": i + 1,
-                "date": (datetime.now(UTC)).isoformat(),
-                "temperature_c": base_temp + (i % 3) - 1,
-                "temperature_min_c": base_temp - 5,
-                "temperature_max_c": base_temp + 5,
-                "humidity_percent": 55 + (i % 20),
-                "wind_speed_kmh": 8 + (i % 10),
-                "wind_direction": ["N", "NE", "E", "SE"][i % 4],
-                "precipitation_mm": 0 if i % 5 != 0 else 5,
-                "rain_probability_percent": 10 if i % 5 != 0 else 40,
-                "cloud_cover_percent": 20 + (i % 30),
-                "uv_index": 6 + (i % 4),
-                "condition": "sunny" if i % 3 != 2 else "partly_cloudy",
-                "condition_ar": "مشمس" if i % 3 != 2 else "غائم جزئياً",
-            })
+            daily_forecasts.append(
+                {
+                    "day": i + 1,
+                    "date": (datetime.now(UTC)).isoformat(),
+                    "temperature_c": base_temp + (i % 3) - 1,
+                    "temperature_min_c": base_temp - 5,
+                    "temperature_max_c": base_temp + 5,
+                    "humidity_percent": 55 + (i % 20),
+                    "wind_speed_kmh": 8 + (i % 10),
+                    "wind_direction": ["N", "NE", "E", "SE"][i % 4],
+                    "precipitation_mm": 0 if i % 5 != 0 else 5,
+                    "rain_probability_percent": 10 if i % 5 != 0 else 40,
+                    "cloud_cover_percent": 20 + (i % 30),
+                    "uv_index": 6 + (i % 4),
+                    "condition": "sunny" if i % 3 != 2 else "partly_cloudy",
+                    "condition_ar": "مشمس" if i % 3 != 2 else "غائم جزئياً",
+                }
+            )
 
         alerts = []
         if base_temp > 30:
-            alerts.append({
-                "alert_type": "heat",
-                "severity": "medium",
-                "title": "Heat Advisory",
-                "title_ar": "تحذير من الحرارة",
-                "description": f"High temperatures expected ({base_temp}°C+)",
-                "description_ar": f"متوقع درجات حرارة مرتفعة ({base_temp}°م+)",
-            })
+            alerts.append(
+                {
+                    "alert_type": "heat",
+                    "severity": "medium",
+                    "title": "Heat Advisory",
+                    "title_ar": "تحذير من الحرارة",
+                    "description": f"High temperatures expected ({base_temp}°C+)",
+                    "description_ar": f"متوقع درجات حرارة مرتفعة ({base_temp}°م+)",
+                }
+            )
 
         return {
             "location": {"lat": lat, "lon": lon},
@@ -530,25 +554,31 @@ class WeatherSubAgent(BaseAutonomousAgent):
         recommendations = []
 
         if frost_risk > 0.2:
-            recommendations.append({
-                "risk": "frost",
-                "action": "Consider frost protection for sensitive crops",
-                "action_ar": "النظر في حماية المحاصيل الحساسة من الصقيع",
-            })
+            recommendations.append(
+                {
+                    "risk": "frost",
+                    "action": "Consider frost protection for sensitive crops",
+                    "action_ar": "النظر في حماية المحاصيل الحساسة من الصقيع",
+                }
+            )
 
         if heat_risk > 0.4:
-            recommendations.append({
-                "risk": "heat_stress",
-                "action": "Increase irrigation frequency, apply mulch",
-                "action_ar": "زيادة تكرار الري، تطبيق التغطية",
-            })
+            recommendations.append(
+                {
+                    "risk": "heat_stress",
+                    "action": "Increase irrigation frequency, apply mulch",
+                    "action_ar": "زيادة تكرار الري، تطبيق التغطية",
+                }
+            )
 
         if drought_risk > 0.3:
-            recommendations.append({
-                "risk": "drought",
-                "action": "Ensure water reserves, optimize irrigation efficiency",
-                "action_ar": "ضمان احتياطيات المياه، تحسين كفاءة الري",
-            })
+            recommendations.append(
+                {
+                    "risk": "drought",
+                    "action": "Ensure water reserves, optimize irrigation efficiency",
+                    "action_ar": "ضمان احتياطيات المياه، تحسين كفاءة الري",
+                }
+            )
 
         return {
             "assessment_id": str(uuid.uuid4()),
@@ -557,8 +587,14 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "crop_type": crop_type,
             "risks": {
                 "frost": {"level": frost_risk, "status": "low" if frost_risk < 0.3 else "elevated"},
-                "heat_stress": {"level": heat_risk, "status": "elevated" if heat_risk > 0.4 else "low"},
-                "drought": {"level": drought_risk, "status": "moderate" if drought_risk > 0.3 else "low"},
+                "heat_stress": {
+                    "level": heat_risk,
+                    "status": "elevated" if heat_risk > 0.4 else "low",
+                },
+                "drought": {
+                    "level": drought_risk,
+                    "status": "moderate" if drought_risk > 0.3 else "low",
+                },
                 "flood": {"level": 0.1, "status": "low"},
                 "storm": {"level": 0.15, "status": "low"},
             },
@@ -578,10 +614,7 @@ class WeatherSubAgent(BaseAutonomousAgent):
         logger.info("finding_spray_window", field_id=field_id, type=application_type)
 
         # Get forecast first
-        forecast = await self._get_weather_forecast(
-            location={"lat": 24.7136, "lon": 46.6753},
-            days=days_ahead
-        )
+        forecast = await self._get_weather_forecast(location={"lat": 24.7136, "lon": 46.6753}, days=days_ahead)
 
         suitable_windows = []
 
@@ -592,24 +625,30 @@ class WeatherSubAgent(BaseAutonomousAgent):
 
             # Check if conditions are suitable
             if wind <= self.SPRAY_WIND_MAX_KMH and rain < self.SPRAY_RAIN_THRESHOLD_MM and rain_prob < 30:
-                suitable_windows.append({
-                    "day": day_forecast.get("day"),
-                    "date": day_forecast.get("date"),
-                    "suitability": "excellent" if wind < 10 and rain_prob < 20 else "good",
-                    "suitability_ar": "ممتاز" if wind < 10 and rain_prob < 20 else "جيد",
-                    "optimal_time": "06:00-09:00",
-                    "optimal_time_ar": "06:00-09:00 صباحاً",
-                    "wind_speed_kmh": wind,
-                    "rain_probability": rain_prob,
-                })
+                suitable_windows.append(
+                    {
+                        "day": day_forecast.get("day"),
+                        "date": day_forecast.get("date"),
+                        "suitability": "excellent" if wind < 10 and rain_prob < 20 else "good",
+                        "suitability_ar": "ممتاز" if wind < 10 and rain_prob < 20 else "جيد",
+                        "optimal_time": "06:00-09:00",
+                        "optimal_time_ar": "06:00-09:00 صباحاً",
+                        "wind_speed_kmh": wind,
+                        "rain_probability": rain_prob,
+                    }
+                )
 
         return {
             "field_id": field_id,
             "application_type": application_type,
             "suitable_windows": suitable_windows,
             "best_window": suitable_windows[0] if suitable_windows else None,
-            "recommendation": "Apply early morning when wind is calm and no rain expected" if suitable_windows else "No suitable window found, consider postponing",
-            "recommendation_ar": "الرش في الصباح الباكر عندما يكون الهواء هادئاً ولا يتوقع مطر" if suitable_windows else "لم يتم العثور على نافذة مناسبة، يُنصح بالتأجيل",
+            "recommendation": "Apply early morning when wind is calm and no rain expected"
+            if suitable_windows
+            else "No suitable window found, consider postponing",
+            "recommendation_ar": "الرش في الصباح الباكر عندما يكون الهواء هادئاً ولا يتوقع مطر"
+            if suitable_windows
+            else "لم يتم العثور على نافذة مناسبة، يُنصح بالتأجيل",
         }
 
     async def _check_frost_risk(
@@ -626,13 +665,15 @@ class WeatherSubAgent(BaseAutonomousAgent):
         for day in forecast.get("daily_forecasts", []):
             min_temp = day.get("temperature_min_c", 10)
             if min_temp <= self.FROST_THRESHOLD_C:
-                frost_nights.append({
-                    "day": day.get("day"),
-                    "date": day.get("date"),
-                    "min_temperature_c": min_temp,
-                    "severity": "critical" if min_temp <= 0 else "warning",
-                    "severity_ar": "حرج" if min_temp <= 0 else "تحذير",
-                })
+                frost_nights.append(
+                    {
+                        "day": day.get("day"),
+                        "date": day.get("date"),
+                        "min_temperature_c": min_temp,
+                        "severity": "critical" if min_temp <= 0 else "warning",
+                        "severity_ar": "حرج" if min_temp <= 0 else "تحذير",
+                    }
+                )
 
         has_frost_risk = len(frost_nights) > 0
 
@@ -646,8 +687,13 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "protective_measures": [
                 {"action": "Cover sensitive crops", "action_ar": "تغطية المحاصيل الحساسة"},
                 {"action": "Apply irrigation before frost", "action_ar": "الري قبل الصقيع"},
-                {"action": "Use wind machines if available", "action_ar": "استخدام مراوح الهواء إن وجدت"},
-            ] if has_frost_risk else [],
+                {
+                    "action": "Use wind machines if available",
+                    "action_ar": "استخدام مراوح الهواء إن وجدت",
+                },
+            ]
+            if has_frost_risk
+            else [],
         }
 
     async def _get_irrigation_weather_adjustment(
@@ -659,16 +705,10 @@ class WeatherSubAgent(BaseAutonomousAgent):
         """Calculate irrigation adjustment based on weather."""
         logger.info("calculating_irrigation_adjustment", field_id=field_id)
 
-        forecast = await self._get_weather_forecast(
-            location={"lat": 24.7136, "lon": 46.6753},
-            days=3
-        )
+        forecast = await self._get_weather_forecast(location={"lat": 24.7136, "lon": 46.6753}, days=3)
 
         # Calculate expected rainfall
-        total_expected_rain = sum(
-            day.get("precipitation_mm", 0)
-            for day in forecast.get("daily_forecasts", [])
-        )
+        total_expected_rain = sum(day.get("precipitation_mm", 0) for day in forecast.get("daily_forecasts", []))
 
         # Calculate adjustment
         adjustment = 0
@@ -687,8 +727,12 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "expected_rainfall_mm": total_expected_rain,
             "adjustment_mm": adjustment,
             "adjusted_amount_mm": adjusted_amount,
-            "recommendation": "Proceed as planned" if adjustment == 0 else f"Reduce irrigation by {abs(adjustment):.1f}mm due to expected rainfall",
-            "recommendation_ar": "المتابعة كما هو مخطط" if adjustment == 0 else f"تقليل الري بمقدار {abs(adjustment):.1f} ملم بسبب الأمطار المتوقعة",
+            "recommendation": "Proceed as planned"
+            if adjustment == 0
+            else f"Reduce irrigation by {abs(adjustment):.1f}mm due to expected rainfall",
+            "recommendation_ar": "المتابعة كما هو مخطط"
+            if adjustment == 0
+            else f"تقليل الري بمقدار {abs(adjustment):.1f} ملم بسبب الأمطار المتوقعة",
             "skip_irrigation": adjusted_amount < 5,
         }
 
@@ -706,13 +750,15 @@ class WeatherSubAgent(BaseAutonomousAgent):
         for day in forecast.get("daily_forecasts", []):
             max_temp = day.get("temperature_max_c", 25)
             if max_temp >= self.HEAT_STRESS_THRESHOLD_C:
-                heat_days.append({
-                    "day": day.get("day"),
-                    "date": day.get("date"),
-                    "max_temperature_c": max_temp,
-                    "severity": "critical" if max_temp >= 40 else "warning",
-                    "severity_ar": "حرج" if max_temp >= 40 else "تحذير",
-                })
+                heat_days.append(
+                    {
+                        "day": day.get("day"),
+                        "date": day.get("date"),
+                        "max_temperature_c": max_temp,
+                        "severity": "critical" if max_temp >= 40 else "warning",
+                        "severity_ar": "حرج" if max_temp >= 40 else "تحذير",
+                    }
+                )
 
         has_heat_risk = len(heat_days) > 0
 
@@ -737,11 +783,21 @@ class WeatherSubAgent(BaseAutonomousAgent):
             "heat_days": heat_days,
             "general_measures": [
                 {"action": "Increase irrigation frequency", "action_ar": "زيادة تكرار الري"},
-                {"action": "Irrigate early morning or evening", "action_ar": "الري في الصباح الباكر أو المساء"},
-                {"action": "Apply mulch to reduce soil temperature", "action_ar": "تطبيق التغطية لتقليل حرارة التربة"},
-            ] if has_heat_risk else [],
+                {
+                    "action": "Irrigate early morning or evening",
+                    "action_ar": "الري في الصباح الباكر أو المساء",
+                },
+                {
+                    "action": "Apply mulch to reduce soil temperature",
+                    "action_ar": "تطبيق التغطية لتقليل حرارة التربة",
+                },
+            ]
+            if has_heat_risk
+            else [],
             "crop_specific_advice": crop_advice.get(crop_type, "Monitor crop stress signs") if crop_type else None,
-            "crop_specific_advice_ar": crop_advice_ar.get(crop_type, "مراقبة علامات إجهاد المحصول") if crop_type else None,
+            "crop_specific_advice_ar": crop_advice_ar.get(crop_type, "مراقبة علامات إجهاد المحصول")
+            if crop_type
+            else None,
         }
 
 

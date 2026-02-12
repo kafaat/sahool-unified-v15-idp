@@ -6,7 +6,7 @@ Error Response Models
 @description Standardized error response formats for FastAPI
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any, Generic, TypeVar
 
 from pydantic import BaseModel, Field

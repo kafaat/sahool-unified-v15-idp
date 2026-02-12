@@ -1,4 +1,6 @@
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 
@@ -24,8 +26,8 @@ USER appuser
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8126/healthz || exit 1
+    CMD curl -f http://localhost:8172/healthz || exit 1
 
-EXPOSE 8126
+EXPOSE 8172
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8126"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8172"]

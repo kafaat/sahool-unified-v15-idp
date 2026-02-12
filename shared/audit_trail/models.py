@@ -22,18 +22,17 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums | التعدادات
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class AuditActionType(str, Enum):
+class AuditActionType(StrEnum):
     """
     Types of auditable actions.
     أنواع الإجراءات القابلة للتدقيق
@@ -92,7 +91,7 @@ class AuditActionType(str, Enum):
     INTEGRATION_SYNC = "integration_sync"  # مزامنة التكامل
 
 
-class AuditCategory(str, Enum):
+class AuditCategory(StrEnum):
     """
     Audit event categories for classification.
     فئات أحداث التدقيق للتصنيف
@@ -110,7 +109,7 @@ class AuditCategory(str, Enum):
     GLOBALGAP = "globalgap"  # GlobalGAP
 
 
-class AuditSeverity(str, Enum):
+class AuditSeverity(StrEnum):
     """
     Audit event severity levels.
     مستويات خطورة حدث التدقيق
@@ -123,7 +122,7 @@ class AuditSeverity(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class ActorType(str, Enum):
+class ActorType(StrEnum):
     """
     Types of actors that can perform auditable actions.
     أنواع الفاعلين الذين يمكنهم تنفيذ إجراءات قابلة للتدقيق
@@ -138,7 +137,7 @@ class ActorType(str, Enum):
     AGENT = "agent"  # وكيل ذكاء اصطناعي
 
 
-class ChangeType(str, Enum):
+class ChangeType(StrEnum):
     """
     Types of field-level changes.
     أنواع التغييرات على مستوى الحقل
@@ -149,7 +148,7 @@ class ChangeType(str, Enum):
     DELETED = "deleted"  # محذوف
 
 
-class ExportFormat(str, Enum):
+class ExportFormat(StrEnum):
     """
     Supported export formats for audit data.
     صيغ التصدير المدعومة لبيانات التدقيق
@@ -162,7 +161,7 @@ class ExportFormat(str, Enum):
     XML = "xml"
 
 
-class RetentionPeriod(str, Enum):
+class RetentionPeriod(StrEnum):
     """
     Standard retention periods for audit data.
     فترات الاحتفاظ القياسية لبيانات التدقيق
@@ -456,9 +455,7 @@ class AuditEntry:
             entry_hash=data.get("entry_hash"),
             retention_period=RetentionPeriod(data.get("retention_period", "globalgap")),
             expires_at=(
-                datetime.fromisoformat(data["expires_at"])
-                if data.get("expires_at")
-                else None
+                datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
             ),
         )
 
@@ -830,7 +827,10 @@ ACTION_LABELS = {
     AuditActionType.HARVEST: {"en": "Harvest", "ar": "حصاد"},
     AuditActionType.SOIL_TEST: {"en": "Soil Test", "ar": "اختبار التربة"},
     AuditActionType.CROP_PLANTING: {"en": "Crop Planting", "ar": "زراعة المحصول"},
-    AuditActionType.SYSTEM_CONFIG_CHANGE: {"en": "System Config Change", "ar": "تغيير تكوين النظام"},
+    AuditActionType.SYSTEM_CONFIG_CHANGE: {
+        "en": "System Config Change",
+        "ar": "تغيير تكوين النظام",
+    },
     AuditActionType.SCHEDULED_TASK: {"en": "Scheduled Task", "ar": "مهمة مجدولة"},
     AuditActionType.INTEGRATION_SYNC: {"en": "Integration Sync", "ar": "مزامنة التكامل"},
 }

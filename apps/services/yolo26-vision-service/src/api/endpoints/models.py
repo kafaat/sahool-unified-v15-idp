@@ -503,14 +503,16 @@ async def get_loaded_models(
 
             active_version = registry.get_active_version(task, variant)
 
-            result.append(LoadedModelInfo(
-                model_key=key,
-                task=task,
-                variant=variant,
-                loaded=True,
-                version=active_version.version if active_version else None,
-                status=active_version.status.value if active_version else None,
-            ))
+            result.append(
+                LoadedModelInfo(
+                    model_key=key,
+                    task=task,
+                    variant=variant,
+                    loaded=True,
+                    version=active_version.version if active_version else None,
+                    status=active_version.status.value if active_version else None,
+                )
+            )
 
     return result
 

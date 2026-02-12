@@ -20,20 +20,19 @@ from datetime import date
 from typing import Any
 
 from .models import (
-    CropType,
-    CropFamily,
-    Season,
-    RotationBenefit,
-    RecommendationPriority,
     CropCharacteristics,
-    RotationRecommendation,
-    MultiYearPlan,
-    PestDiseaseRisk,
-    PestBreakRecommendation,
-    NutrientBalance,
+    CropFamily,
+    CropType,
     FieldRotationHistory,
+    MultiYearPlan,
+    NutrientBalance,
+    PestBreakRecommendation,
+    PestDiseaseRisk,
+    RecommendationPriority,
+    RotationBenefit,
+    RotationRecommendation,
+    Season,
 )
-
 
 # =============================================================================
 # Crop Database - قاعدة بيانات المحاصيل
@@ -71,7 +70,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "stem_borer", "armyworm"],
         major_diseases=["rust", "powdery_mildew", "septoria"],
     ),
-
     CropType.BARLEY: CropCharacteristics(
         crop_type=CropType.BARLEY,
         crop_family=CropFamily.POACEAE,
@@ -100,7 +98,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "stem_borer"],
         major_diseases=["rust", "net_blotch", "scald"],
     ),
-
     CropType.MAIZE: CropCharacteristics(
         crop_type=CropType.MAIZE,
         crop_family=CropFamily.POACEAE,
@@ -129,7 +126,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["stem_borer", "fall_armyworm", "rootworm"],
         major_diseases=["rust", "leaf_blight", "stalk_rot"],
     ),
-
     CropType.SORGHUM: CropCharacteristics(
         crop_type=CropType.SORGHUM,
         crop_family=CropFamily.POACEAE,
@@ -158,7 +154,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["stem_borer", "shoot_fly", "midge"],
         major_diseases=["anthracnose", "downy_mildew", "grain_mold"],
     ),
-
     # Legumes - البقوليات
     CropType.ALFALFA: CropCharacteristics(
         crop_type=CropType.ALFALFA,
@@ -188,7 +183,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "weevil", "leafhopper"],
         major_diseases=["wilt", "crown_rot", "leaf_spot"],
     ),
-
     CropType.CLOVER: CropCharacteristics(
         crop_type=CropType.CLOVER,
         crop_family=CropFamily.FABACEAE,
@@ -217,7 +211,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "clover_seed_weevil"],
         major_diseases=["root_rot", "powdery_mildew"],
     ),
-
     CropType.FABA_BEAN: CropCharacteristics(
         crop_type=CropType.FABA_BEAN,
         crop_family=CropFamily.FABACEAE,
@@ -246,7 +239,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "bean_weevil"],
         major_diseases=["chocolate_spot", "rust", "root_rot"],
     ),
-
     CropType.CHICKPEA: CropCharacteristics(
         crop_type=CropType.CHICKPEA,
         crop_family=CropFamily.FABACEAE,
@@ -275,7 +267,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["pod_borer", "leaf_miner"],
         major_diseases=["ascochyta_blight", "fusarium_wilt"],
     ),
-
     # Vegetables - الخضروات
     CropType.TOMATO: CropCharacteristics(
         crop_type=CropType.TOMATO,
@@ -305,7 +296,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["whitefly", "tomato_leafminer", "spider_mites"],
         major_diseases=["early_blight", "late_blight", "fusarium_wilt", "bacterial_wilt"],
     ),
-
     CropType.POTATO: CropCharacteristics(
         crop_type=CropType.POTATO,
         crop_family=CropFamily.SOLANACEAE,
@@ -334,7 +324,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["colorado_beetle", "aphids", "tuber_moth"],
         major_diseases=["late_blight", "early_blight", "bacterial_wilt", "scab"],
     ),
-
     CropType.ONION: CropCharacteristics(
         crop_type=CropType.ONION,
         crop_family=CropFamily.LILIACEAE,
@@ -363,7 +352,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["thrips", "onion_fly"],
         major_diseases=["downy_mildew", "purple_blotch", "white_rot"],
     ),
-
     CropType.CUCUMBER: CropCharacteristics(
         crop_type=CropType.CUCUMBER,
         crop_family=CropFamily.CUCURBITACEAE,
@@ -392,7 +380,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["whitefly", "spider_mites", "aphids"],
         major_diseases=["powdery_mildew", "downy_mildew", "fusarium_wilt"],
     ),
-
     CropType.MELON: CropCharacteristics(
         crop_type=CropType.MELON,
         crop_family=CropFamily.CUCURBITACEAE,
@@ -421,7 +408,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "melon_fly", "spider_mites"],
         major_diseases=["powdery_mildew", "fusarium_wilt", "gummy_stem_blight"],
     ),
-
     CropType.WATERMELON: CropCharacteristics(
         crop_type=CropType.WATERMELON,
         crop_family=CropFamily.CUCURBITACEAE,
@@ -450,7 +436,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["aphids", "whitefly"],
         major_diseases=["fusarium_wilt", "anthracnose", "powdery_mildew"],
     ),
-
     # Fodder - محاصيل العلف
     CropType.RHODES_GRASS: CropCharacteristics(
         crop_type=CropType.RHODES_GRASS,
@@ -480,7 +465,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["armyworm", "stem_borer"],
         major_diseases=["rust", "leaf_blight"],
     ),
-
     # Industrial crops
     CropType.COTTON: CropCharacteristics(
         crop_type=CropType.COTTON,
@@ -510,7 +494,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["bollworm", "whitefly", "aphids", "pink_bollworm"],
         major_diseases=["verticillium_wilt", "fusarium_wilt", "root_rot"],
     ),
-
     # Date Palm
     CropType.DATE_PALM: CropCharacteristics(
         crop_type=CropType.DATE_PALM,
@@ -540,7 +523,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=["red_palm_weevil", "dubas_bug", "scale_insects"],
         major_diseases=["bayoud", "black_scorch", "leaf_spot"],
     ),
-
     # Fallow
     CropType.FALLOW: CropCharacteristics(
         crop_type=CropType.FALLOW,
@@ -570,7 +552,6 @@ CROP_DATABASE: dict[CropType, CropCharacteristics] = {
         major_pests=[],
         major_diseases=[],
     ),
-
     CropType.GREEN_MANURE: CropCharacteristics(
         crop_type=CropType.GREEN_MANURE,
         crop_family=CropFamily.FABACEAE,
@@ -634,7 +615,6 @@ PEST_DISEASE_DATABASE: list[PestDiseaseRisk] = [
             "إزالة القمح المتطوع",
         ],
     ),
-
     # Solanaceae diseases
     PestDiseaseRisk(
         name_en="Fusarium Wilt",
@@ -663,7 +643,6 @@ PEST_DISEASE_DATABASE: list[PestDiseaseRisk] = [
             "تحسين الصرف",
         ],
     ),
-
     # Nematodes
     PestDiseaseRisk(
         name_en="Root-knot Nematode",
@@ -692,7 +671,6 @@ PEST_DISEASE_DATABASE: list[PestDiseaseRisk] = [
             "الحرث العميق",
         ],
     ),
-
     # Cereal pests
     PestDiseaseRisk(
         name_en="Stem Borer",
@@ -722,7 +700,6 @@ PEST_DISEASE_DATABASE: list[PestDiseaseRisk] = [
             "استخدام أصناف مقاومة",
         ],
     ),
-
     # Cucurbit diseases
     PestDiseaseRisk(
         name_en="Powdery Mildew (Cucurbits)",
@@ -751,7 +728,6 @@ PEST_DISEASE_DATABASE: list[PestDiseaseRisk] = [
             "إزالة المواد النباتية المصابة",
         ],
     ),
-
     # Date palm pests
     PestDiseaseRisk(
         name_en="Red Palm Weevil",
@@ -897,6 +873,7 @@ def get_rotation_compatibility(previous: CropType, next_crop: CropType) -> float
 @dataclass
 class RotationPlannerConfig:
     """Configuration for rotation planner"""
+
     # Planning parameters
     planning_horizon_years: int = 5
     consider_economic: bool = True
@@ -918,15 +895,17 @@ class RotationPlannerConfig:
     climate_zone: str = "arid"  # arid, semi-arid, mediterranean
 
     # Default market prices (SAR/ton)
-    default_prices: dict[str, float] = field(default_factory=lambda: {
-        "wheat": 1850,
-        "barley": 1500,
-        "alfalfa": 800,
-        "tomato": 2500,
-        "potato": 2000,
-        "onion": 1800,
-        "maize": 1400,
-    })
+    default_prices: dict[str, float] = field(
+        default_factory=lambda: {
+            "wheat": 1850,
+            "barley": 1500,
+            "alfalfa": 800,
+            "tomato": 2500,
+            "potato": 2000,
+            "onion": 1800,
+            "maize": 1400,
+        }
+    )
 
 
 class CropRotationPlanner:
@@ -953,10 +932,7 @@ class CropRotationPlanner:
         """Get crop characteristics from database"""
         return self.crop_db.get(crop_type)
 
-    def analyze_field_history(
-        self,
-        history: FieldRotationHistory
-    ) -> dict[str, Any]:
+    def analyze_field_history(self, history: FieldRotationHistory) -> dict[str, Any]:
         """
         Analyze field rotation history for patterns and issues
         تحليل سجل دورة الحقل للأنماط والمشاكل
@@ -977,10 +953,7 @@ class CropRotationPlanner:
             return analysis
 
         # Analyze crop sequence
-        sorted_records = sorted(
-            history.records,
-            key=lambda r: (r.year, r.season.value)
-        )
+        sorted_records = sorted(history.records, key=lambda r: (r.year, r.season.value))
 
         # Track consecutive same-family crops
         consecutive_count = 1
@@ -990,12 +963,14 @@ class CropRotationPlanner:
         for record in sorted_records:
             crop_info = self.get_crop_info(record.crop_type)
             if crop_info:
-                analysis["crops_grown"].append({
-                    "crop": record.crop_type.value,
-                    "year": record.year,
-                    "season": record.season.value,
-                    "yield": record.yield_tons_ha,
-                })
+                analysis["crops_grown"].append(
+                    {
+                        "crop": record.crop_type.value,
+                        "year": record.year,
+                        "season": record.season.value,
+                        "yield": record.yield_tons_ha,
+                    }
+                )
 
                 # Track family frequency
                 family = crop_info.crop_family.value
@@ -1013,18 +988,14 @@ class CropRotationPlanner:
 
                 # Track legume frequency
                 if crop_info.is_nitrogen_fixer:
-                    analysis["legume_frequency"] = (
-                        analysis.get("legume_frequency", 0) + 1
-                    )
+                    analysis["legume_frequency"] = analysis.get("legume_frequency", 0) + 1
 
         analysis["same_family_consecutive_max"] = max_consecutive
 
         # Calculate legume percentage
         total_crops = len(sorted_records)
         if total_crops > 0:
-            analysis["legume_frequency"] = (
-                analysis["legume_frequency"] / total_crops * 100
-            )
+            analysis["legume_frequency"] = analysis["legume_frequency"] / total_crops * 100
 
         # Analyze pest/disease pressure from recurring issues
         pest_issues = {}
@@ -1036,23 +1007,23 @@ class CropRotationPlanner:
                 disease_issues[disease] = disease_issues.get(disease, 0) + 1
 
         if pest_issues:
-            analysis["pest_disease_pressure"].append({
-                "type": "pests",
-                "issues": dict(sorted(
-                    pest_issues.items(),
-                    key=lambda x: x[1],
-                    reverse=True
-                )[:5])
-            })
+            analysis["pest_disease_pressure"].append(
+                {
+                    "type": "pests",
+                    "issues": dict(
+                        sorted(pest_issues.items(), key=lambda x: x[1], reverse=True)[:5]
+                    ),
+                }
+            )
         if disease_issues:
-            analysis["pest_disease_pressure"].append({
-                "type": "diseases",
-                "issues": dict(sorted(
-                    disease_issues.items(),
-                    key=lambda x: x[1],
-                    reverse=True
-                )[:5])
-            })
+            analysis["pest_disease_pressure"].append(
+                {
+                    "type": "diseases",
+                    "issues": dict(
+                        sorted(disease_issues.items(), key=lambda x: x[1], reverse=True)[:5]
+                    ),
+                }
+            )
 
         # Generate recommendations based on analysis
         if max_consecutive > 2:
@@ -1067,9 +1038,7 @@ class CropRotationPlanner:
             analysis["recommendations"].append(
                 "Increase legume frequency to improve nitrogen cycling"
             )
-            analysis["recommendations_ar"].append(
-                "زيادة تكرار البقوليات لتحسين دورة النيتروجين"
-            )
+            analysis["recommendations_ar"].append("زيادة تكرار البقوليات لتحسين دورة النيتروجين")
 
         return analysis
 
@@ -1243,7 +1212,7 @@ class CropRotationPlanner:
                 "pest_break": pest_break_score,
                 "economic": economic_score,
                 "water_efficiency": water_score,
-            }
+            },
         )
 
         # Identify factors
@@ -1261,7 +1230,9 @@ class CropRotationPlanner:
         projected_yield = self._estimate_yield(best_crop, conditions)
         projected_revenue = self._estimate_revenue(best_crop, projected_yield, area_ha)
         projected_cost = self._estimate_cost(best_crop, area_ha)
-        projected_profit = projected_revenue - projected_cost if projected_revenue and projected_cost else None
+        projected_profit = (
+            projected_revenue - projected_cost if projected_revenue and projected_cost else None
+        )
 
         # Determine benefits
         expected_benefits = self._determine_benefits(best_crop, previous_crops)
@@ -1290,16 +1261,18 @@ class CropRotationPlanner:
             warnings=warnings,
             warnings_ar=warnings_ar,
             projected_yield_tons_ha=projected_yield,
-            projected_revenue_per_ha=projected_revenue / area_ha if projected_revenue and area_ha else None,
+            projected_revenue_per_ha=projected_revenue / area_ha
+            if projected_revenue and area_ha
+            else None,
             projected_cost_per_ha=projected_cost / area_ha if projected_cost and area_ha else None,
-            projected_profit_per_ha=projected_profit / area_ha if projected_profit and area_ha else None,
+            projected_profit_per_ha=projected_profit / area_ha
+            if projected_profit and area_ha
+            else None,
             confidence=min(0.95, best_score + 0.1),
         )
 
     def _calculate_soil_health_impact(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType]
+        self, crop: CropType, previous_crops: list[CropType]
     ) -> float:
         """Calculate soil health impact score (0-100)"""
         crop_info = self.get_crop_info(crop)
@@ -1331,11 +1304,7 @@ class CropRotationPlanner:
 
         return max(0, min(100, score))
 
-    def _calculate_pest_break_score(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType]
-    ) -> float:
+    def _calculate_pest_break_score(self, crop: CropType, previous_crops: list[CropType]) -> float:
         """Calculate pest/disease break effectiveness score (0-100)"""
         crop_info = self.get_crop_info(crop)
         if not crop_info:
@@ -1368,20 +1337,18 @@ class CropRotationPlanner:
 
         return max(0, min(100, score))
 
-    def _calculate_economic_score(
-        self,
-        crop: CropType,
-        area_ha: float
-    ) -> float:
+    def _calculate_economic_score(self, crop: CropType, area_ha: float) -> float:
         """Calculate economic viability score (0-100)"""
         # Simplified economic scoring - in production, use actual market data
         high_value_crops = [
-            CropType.TOMATO, CropType.POTATO, CropType.MELON,
-            CropType.WATERMELON, CropType.CUCUMBER, CropType.ONION
+            CropType.TOMATO,
+            CropType.POTATO,
+            CropType.MELON,
+            CropType.WATERMELON,
+            CropType.CUCUMBER,
+            CropType.ONION,
         ]
-        medium_value_crops = [
-            CropType.WHEAT, CropType.BARLEY, CropType.COTTON, CropType.ALFALFA
-        ]
+        medium_value_crops = [CropType.WHEAT, CropType.BARLEY, CropType.COTTON, CropType.ALFALFA]
 
         if crop in high_value_crops:
             return 85.0
@@ -1395,9 +1362,7 @@ class CropRotationPlanner:
             return 60.0
 
     def _calculate_water_efficiency_score(
-        self,
-        crop: CropType,
-        water_available: float | None
+        self, crop: CropType, water_available: float | None
     ) -> float:
         """Calculate water efficiency score (0-100)"""
         crop_info = self.get_crop_info(crop)
@@ -1421,16 +1386,15 @@ class CropRotationPlanner:
         return max(0, min(100, score))
 
     def _generate_reasoning(
-        self,
-        recommended_crop: CropType,
-        previous_crops: list[CropType],
-        scores: dict[str, float]
+        self, recommended_crop: CropType, previous_crops: list[CropType], scores: dict[str, float]
     ) -> tuple[str, str]:
         """Generate bilingual reasoning for recommendation"""
         crop_info = self.get_crop_info(recommended_crop)
         if not crop_info:
-            return ("Recommended based on rotation principles.",
-                    "موصى به بناءً على مبادئ الدورة الزراعية.")
+            return (
+                "Recommended based on rotation principles.",
+                "موصى به بناءً على مبادئ الدورة الزراعية.",
+            )
 
         reasons_en = []
         reasons_ar = []
@@ -1463,15 +1427,15 @@ class CropRotationPlanner:
             reasons_en.append("Suitable crop for the planned season and field conditions")
             reasons_ar.append("محصول مناسب للموسم المخطط وظروف الحقل")
 
-        reasoning_en = f"{crop_info.name_en} is recommended because it: " + "; ".join(reasons_en) + "."
+        reasoning_en = (
+            f"{crop_info.name_en} is recommended because it: " + "; ".join(reasons_en) + "."
+        )
         reasoning_ar = f"يوصى بـ {crop_info.name_ar} لأنه: " + "؛ ".join(reasons_ar) + "."
 
         return reasoning_en, reasoning_ar
 
     def _identify_positive_factors(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType]
+        self, crop: CropType, previous_crops: list[CropType]
     ) -> tuple[list[str], list[str]]:
         """Identify positive factors for the recommendation"""
         factors_en = []
@@ -1502,10 +1466,7 @@ class CropRotationPlanner:
         return factors_en, factors_ar
 
     def _identify_negative_factors(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType],
-        conditions: dict[str, Any]
+        self, crop: CropType, previous_crops: list[CropType], conditions: dict[str, Any]
     ) -> tuple[list[str], list[str]]:
         """Identify potential concerns or negative factors"""
         factors_en = []
@@ -1541,9 +1502,7 @@ class CropRotationPlanner:
         return factors_en, factors_ar
 
     def _generate_warnings(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType]
+        self, crop: CropType, previous_crops: list[CropType]
     ) -> tuple[list[str], list[str]]:
         """Generate warnings for the recommendation"""
         warnings_en = []
@@ -1579,11 +1538,7 @@ class CropRotationPlanner:
 
         return warnings_en, warnings_ar
 
-    def _estimate_yield(
-        self,
-        crop: CropType,
-        conditions: dict[str, Any]
-    ) -> float | None:
+    def _estimate_yield(self, crop: CropType, conditions: dict[str, Any]) -> float | None:
         """Estimate expected yield (tons/ha)"""
         # Simplified yield estimates - in production, use regional data
         base_yields = {
@@ -1602,10 +1557,7 @@ class CropRotationPlanner:
         return base_yields.get(crop)
 
     def _estimate_revenue(
-        self,
-        crop: CropType,
-        yield_tons: float | None,
-        area_ha: float
+        self, crop: CropType, yield_tons: float | None, area_ha: float
     ) -> float | None:
         """Estimate revenue"""
         if not yield_tons:
@@ -1613,11 +1565,7 @@ class CropRotationPlanner:
         price = self.config.default_prices.get(crop.value, 1500)
         return yield_tons * price * area_ha
 
-    def _estimate_cost(
-        self,
-        crop: CropType,
-        area_ha: float
-    ) -> float | None:
+    def _estimate_cost(self, crop: CropType, area_ha: float) -> float | None:
         """Estimate production cost"""
         # Simplified cost estimates (SAR/ha)
         base_costs = {
@@ -1634,9 +1582,7 @@ class CropRotationPlanner:
         return cost_per_ha * area_ha
 
     def _determine_benefits(
-        self,
-        crop: CropType,
-        previous_crops: list[CropType]
+        self, crop: CropType, previous_crops: list[CropType]
     ) -> list[RotationBenefit]:
         """Determine rotation benefits provided by crop"""
         benefits = []
@@ -1710,9 +1656,7 @@ class CropRotationPlanner:
                     field_conditions=conditions,
                 )
                 rec.recommended_planting_window_start = date(
-                    current_year,
-                    10 if season == Season.WINTER else 4,
-                    1
+                    current_year, 10 if season == Season.WINTER else 4, 1
                 )
                 yearly_recommendations.append(rec)
 
@@ -1778,8 +1722,7 @@ class CropRotationPlanner:
         )
 
     def _calculate_nutrient_balance(
-        self,
-        recommendations: list[RotationRecommendation]
+        self, recommendations: list[RotationRecommendation]
     ) -> NutrientBalance:
         """Calculate overall nutrient balance for plan"""
         balance = NutrientBalance()
@@ -1812,8 +1755,7 @@ class CropRotationPlanner:
         return balance
 
     def _assess_plan_risks(
-        self,
-        recommendations: list[RotationRecommendation]
+        self, recommendations: list[RotationRecommendation]
     ) -> tuple[str, list[str], list[str], list[str], list[str]]:
         """Assess overall plan risks"""
         risk_factors = []
@@ -1833,7 +1775,7 @@ class CropRotationPlanner:
         max_consecutive = 1
         current_consecutive = 1
         for i in range(1, len(families)):
-            if families[i] == families[i-1]:
+            if families[i] == families[i - 1]:
                 current_consecutive += 1
                 max_consecutive = max(max_consecutive, current_consecutive)
             else:
@@ -1847,10 +1789,11 @@ class CropRotationPlanner:
 
         # Check legume frequency
         legume_count = sum(
-            1 for rec in recommendations
-            if rec.recommended_crop and
-            self.get_crop_info(rec.recommended_crop) and
-            self.get_crop_info(rec.recommended_crop).is_nitrogen_fixer
+            1
+            for rec in recommendations
+            if rec.recommended_crop
+            and self.get_crop_info(rec.recommended_crop)
+            and self.get_crop_info(rec.recommended_crop).is_nitrogen_fixer
         )
         legume_percent = legume_count / len(recommendations) * 100 if recommendations else 0
 
@@ -1875,7 +1818,7 @@ class CropRotationPlanner:
         recommendations: list[RotationRecommendation],
         total_profit: float,
         area_ha: float,
-        years: int
+        years: int,
     ) -> tuple[str, str]:
         """Generate plan summary"""
         crop_names = []
@@ -1905,8 +1848,7 @@ class CropRotationPlanner:
         return summary_en, summary_ar
 
     def _generate_key_recommendations(
-        self,
-        recommendations: list[RotationRecommendation]
+        self, recommendations: list[RotationRecommendation]
     ) -> tuple[list[str], list[str]]:
         """Generate key recommendations for the plan"""
         key_recs = [
@@ -1965,13 +1907,13 @@ class CropRotationPlanner:
 
         # Sort by frequency (how many risks they help with)
         recommended_crops = sorted(
-            break_crops_scores.keys(),
-            key=lambda c: break_crops_scores[c],
-            reverse=True
+            break_crops_scores.keys(), key=lambda c: break_crops_scores[c], reverse=True
         )[:5]
 
         # Calculate expected improvement
-        avg_yield_loss = sum(r.yield_loss_potential_percent for r in relevant_risks) / len(relevant_risks)
+        avg_yield_loss = sum(r.yield_loss_potential_percent for r in relevant_risks) / len(
+            relevant_risks
+        )
         expected_reduction = min(80, avg_yield_loss * 0.7)
 
         # Generate reasoning
@@ -2005,7 +1947,9 @@ class CropRotationPlanner:
             field_id=field_id,
             current_crop=current_crop,
             pest_disease_risks=relevant_risks,
-            priority=RecommendationPriority.HIGH if len(relevant_risks) > 1 else RecommendationPriority.MEDIUM,
+            priority=RecommendationPriority.HIGH
+            if len(relevant_risks) > 1
+            else RecommendationPriority.MEDIUM,
             recommended_break_crops=recommended_crops,
             minimum_break_years=max_break_years,
             reasoning_en=reasoning_en,
@@ -2033,10 +1977,7 @@ def get_crop_arabic_name(crop_type: CropType) -> str:
     return crop_info.name_ar if crop_info else crop_type.value
 
 
-def get_recommended_break_crops(
-    current_crop: CropType,
-    min_score: float = 0.7
-) -> list[CropType]:
+def get_recommended_break_crops(current_crop: CropType, min_score: float = 0.7) -> list[CropType]:
     """Get list of good break crops for a given crop"""
     break_crops = []
     for next_crop in CROP_DATABASE:
@@ -2056,7 +1997,7 @@ def calculate_rotation_score(crop_sequence: list[CropType]) -> float:
 
     scores = []
     for i in range(1, len(crop_sequence)):
-        prev_crop = crop_sequence[i-1]
+        prev_crop = crop_sequence[i - 1]
         next_crop = crop_sequence[i]
         scores.append(get_rotation_compatibility(prev_crop, next_crop))
 

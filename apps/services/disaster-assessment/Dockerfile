@@ -4,14 +4,13 @@
 # With PostgreSQL persistence via Prisma ORM
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="disaster-assessment"
 LABEL version="16.0.0"
-
-# Install OpenSSL for Prisma (required for generating client)
-RUN apk update && apk add --no-cache openssl
 
 WORKDIR /app
 
@@ -37,12 +36,17 @@ COPY apps/services/disaster-assessment/ .
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL for Prisma runtime
-RUN apk update && apk add --no-cache curl openssl
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
@@ -71,7 +75,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3020/api/v1/disasters/health || exit 1
+    CMD curl -f http://localhost:3020/healthz || exit 1
 
 # Run database migrations and start the application
 # Note: In production, migrations should ideally be run as a separate init container

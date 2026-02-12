@@ -25,9 +25,7 @@ def mock_all_dependencies():
                     with patch("src.main.YieldPredictorAgent") as mock_yield:
                         # Create mock agent instances
                         mock_field_instance = AsyncMock()
-                        mock_field_instance.analyze_field = AsyncMock(
-                            return_value={"analysis": "good"}
-                        )
+                        mock_field_instance.analyze_field = AsyncMock(return_value={"analysis": "good"})
                         mock_field.return_value = mock_field_instance
 
                         mock_disease_instance = AsyncMock()
@@ -36,9 +34,7 @@ def mock_all_dependencies():
                         mock_disease.return_value = mock_disease_instance
 
                         mock_irrigation_instance = AsyncMock()
-                        mock_irrigation_instance.recommend_irrigation = AsyncMock(
-                            return_value={"schedule": "daily"}
-                        )
+                        mock_irrigation_instance.recommend_irrigation = AsyncMock(return_value={"schedule": "daily"})
                         mock_irrigation.return_value = mock_irrigation_instance
 
                         mock_yield_instance = AsyncMock()
@@ -56,18 +52,14 @@ def mock_all_dependencies():
                                 with patch("src.main.SatelliteTool") as mock_sat_tool:
                                     with patch("src.main.AgroTool") as mock_agro_tool:
                                         crop_tool_instance = AsyncMock()
-                                        crop_tool_instance.analyze_image = AsyncMock(
-                                            return_value={"healthy": True}
-                                        )
+                                        crop_tool_instance.analyze_image = AsyncMock(return_value={"healthy": True})
                                         mock_crop_tool.return_value = crop_tool_instance
 
                                         weather_tool_instance = AsyncMock()
                                         mock_weather_tool.return_value = weather_tool_instance
 
                                         sat_tool_instance = AsyncMock()
-                                        sat_tool_instance.get_ndvi = AsyncMock(
-                                            return_value={"ndvi": 0.8}
-                                        )
+                                        sat_tool_instance.get_ndvi = AsyncMock(return_value={"ndvi": 0.8})
                                         mock_sat_tool.return_value = sat_tool_instance
 
                                         agro_tool_instance = AsyncMock()
@@ -88,9 +80,7 @@ def mock_all_dependencies():
                                             mock_emb.return_value = emb_instance
 
                                             ret_instance = Mock()
-                                            ret_instance.get_collection_info = Mock(
-                                                return_value={"docs": 100}
-                                            )
+                                            ret_instance.get_collection_info = Mock(return_value={"docs": 100})
                                             mock_ret.return_value = ret_instance
 
                                             sup_instance = AsyncMock()

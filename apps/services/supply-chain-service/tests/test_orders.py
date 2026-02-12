@@ -113,9 +113,7 @@ class TestSupplierEndpoints:
 
     def test_find_nearby_suppliers(self, test_client: TestClient) -> None:
         """Test finding nearby suppliers."""
-        response = test_client.get(
-            "/api/v1/suppliers/nearby?latitude=24.7136&longitude=46.6753"
-        )
+        response = test_client.get("/api/v1/suppliers/nearby?latitude=24.7136&longitude=46.6753")
         assert response.status_code == 200
 
         data = response.json()
@@ -130,9 +128,7 @@ class TestSupplierEndpoints:
 class TestOrderEndpoints:
     """Tests for order endpoints."""
 
-    def test_create_order(
-        self, test_client: TestClient, sample_order_data: dict
-    ) -> None:
+    def test_create_order(self, test_client: TestClient, sample_order_data: dict) -> None:
         """Test creating an order."""
         response = test_client.post("/api/v1/orders", json=sample_order_data)
         assert response.status_code == 201
@@ -168,9 +164,7 @@ class TestOrderEndpoints:
 
     def test_get_order_not_found(self, test_client: TestClient) -> None:
         """Test getting non-existent order."""
-        response = test_client.get(
-            "/api/v1/orders/00000000-0000-0000-0000-000000000000"
-        )
+        response = test_client.get("/api/v1/orders/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404
 
         data = response.json()
@@ -179,25 +173,19 @@ class TestOrderEndpoints:
 
     def test_cancel_order_not_found(self, test_client: TestClient) -> None:
         """Test cancelling non-existent order."""
-        response = test_client.post(
-            "/api/v1/orders/00000000-0000-0000-0000-000000000000/cancel"
-        )
+        response = test_client.post("/api/v1/orders/00000000-0000-0000-0000-000000000000/cancel")
         assert response.status_code == 404
 
     def test_track_order_not_found(self, test_client: TestClient) -> None:
         """Test tracking non-existent order."""
-        response = test_client.get(
-            "/api/v1/orders/00000000-0000-0000-0000-000000000000/track"
-        )
+        response = test_client.get("/api/v1/orders/00000000-0000-0000-0000-000000000000/track")
         assert response.status_code == 404
 
 
 class TestAutoPurchaseEndpoints:
     """Tests for auto-purchase endpoints."""
 
-    def test_compare_suppliers(
-        self, test_client: TestClient, sample_product_id: str
-    ) -> None:
+    def test_compare_suppliers(self, test_client: TestClient, sample_product_id: str) -> None:
         """Test comparing suppliers for a product."""
         response = test_client.post(
             f"/api/v1/auto-purchase/compare?product_id={sample_product_id}&quantity=100"
@@ -209,13 +197,9 @@ class TestAutoPurchaseEndpoints:
         assert "product_id" in data
         assert len(data["quotes"]) > 0
 
-    def test_bulk_purchase(
-        self, test_client: TestClient, sample_bulk_purchase_data: dict
-    ) -> None:
+    def test_bulk_purchase(self, test_client: TestClient, sample_bulk_purchase_data: dict) -> None:
         """Test bulk purchase."""
-        response = test_client.post(
-            "/api/v1/auto-purchase/bulk", json=sample_bulk_purchase_data
-        )
+        response = test_client.post("/api/v1/auto-purchase/bulk", json=sample_bulk_purchase_data)
         assert response.status_code == 201
 
         data = response.json()
@@ -273,9 +257,7 @@ class TestBilingualResponses:
 
     def test_error_responses_are_bilingual(self, test_client: TestClient) -> None:
         """Test that error responses include Arabic messages."""
-        response = test_client.get(
-            "/api/v1/orders/00000000-0000-0000-0000-000000000000"
-        )
+        response = test_client.get("/api/v1/orders/00000000-0000-0000-0000-000000000000")
         assert response.status_code == 404
 
         data = response.json()

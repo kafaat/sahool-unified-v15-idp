@@ -13,6 +13,7 @@ from dataclasses import dataclass
 @dataclass
 class RateLimitConfig:
     """Rate limit configuration."""
+
     requests_per_minute: int = 60
     requests_per_hour: int = 1000
     burst_limit: int = 10
@@ -22,6 +23,7 @@ class RateLimitConfig:
 @dataclass
 class RateLimitState:
     """Rate limit state for a client."""
+
     minute_count: int = 0
     hour_count: int = 0
     minute_reset: float = 0.0
@@ -70,14 +72,15 @@ class RateLimiter:
 
         elapsed = now - state.last_request
         state.burst_tokens = min(
-            self.config.burst_limit,
-            state.burst_tokens + elapsed * (self.config.burst_limit / 60)
+            self.config.burst_limit, state.burst_tokens + elapsed * (self.config.burst_limit / 60)
         )
         state.last_request = now
 
         headers = {
             "X-RateLimit-Limit": str(self.config.requests_per_minute),
-            "X-RateLimit-Remaining": str(max(0, self.config.requests_per_minute - state.minute_count)),
+            "X-RateLimit-Remaining": str(
+                max(0, self.config.requests_per_minute - state.minute_count)
+            ),
             "X-RateLimit-Reset": str(int(state.minute_reset)),
         }
 
@@ -115,23 +118,21 @@ class RateLimiter:
 @pytest.fixture
 def rate_limiter():
     """Create rate limiter instance."""
-    return RateLimiter(RateLimitConfig(
-        requests_per_minute=60,
-        requests_per_hour=1000,
-        burst_limit=10,
-        cooldown_seconds=60
-    ))
+    return RateLimiter(
+        RateLimitConfig(
+            requests_per_minute=60, requests_per_hour=1000, burst_limit=10, cooldown_seconds=60
+        )
+    )
 
 
 @pytest.fixture
 def strict_rate_limiter():
     """Create strict rate limiter for testing limits."""
-    return RateLimiter(RateLimitConfig(
-        requests_per_minute=5,
-        requests_per_hour=50,
-        burst_limit=3,
-        cooldown_seconds=60
-    ))
+    return RateLimiter(
+        RateLimitConfig(
+            requests_per_minute=5, requests_per_hour=50, burst_limit=3, cooldown_seconds=60
+        )
+    )
 
 
 class TestRateLimitBasics:
@@ -174,7 +175,7 @@ class TestMinuteLimit:
 
         for i in range(5):
             allowed, _ = strict_rate_limiter.check_rate_limit(client_key)
-            assert allowed is True, f"Request {i+1} should be allowed"
+            assert allowed is True, f"Request {i + 1} should be allowed"
 
         allowed, headers = strict_rate_limiter.check_rate_limit(client_key)
         assert allowed is False
@@ -199,11 +200,9 @@ class TestHourLimit:
 
     def test_hour_limit_enforced(self):
         """Test per-hour limit is enforced."""
-        limiter = RateLimiter(RateLimitConfig(
-            requests_per_minute=1000,
-            requests_per_hour=5,
-            burst_limit=100
-        ))
+        limiter = RateLimiter(
+            RateLimitConfig(requests_per_minute=1000, requests_per_hour=5, burst_limit=100)
+        )
 
         client_key = "ip:192.168.1.1"
 
@@ -298,10 +297,7 @@ class TestRateLimitTiers:
 
     def test_free_tier_limits(self):
         """Test free tier rate limits."""
-        free_config = RateLimitConfig(
-            requests_per_minute=30,
-            requests_per_hour=500
-        )
+        free_config = RateLimitConfig(requests_per_minute=30, requests_per_hour=500)
         limiter = RateLimiter(free_config)
 
         assert limiter.config.requests_per_minute == 30
@@ -309,10 +305,7 @@ class TestRateLimitTiers:
 
     def test_standard_tier_limits(self):
         """Test standard tier rate limits."""
-        standard_config = RateLimitConfig(
-            requests_per_minute=60,
-            requests_per_hour=2000
-        )
+        standard_config = RateLimitConfig(requests_per_minute=60, requests_per_hour=2000)
         limiter = RateLimiter(standard_config)
 
         assert limiter.config.requests_per_minute == 60
@@ -320,10 +313,7 @@ class TestRateLimitTiers:
 
     def test_premium_tier_limits(self):
         """Test premium tier rate limits."""
-        premium_config = RateLimitConfig(
-            requests_per_minute=120,
-            requests_per_hour=5000
-        )
+        premium_config = RateLimitConfig(requests_per_minute=120, requests_per_hour=5000)
         limiter = RateLimiter(premium_config)
 
         assert limiter.config.requests_per_minute == 120

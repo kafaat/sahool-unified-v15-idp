@@ -1,612 +1,748 @@
 "use client";
 
-// Virtual Sensors Dashboard - المستشعرات الافتراضية
-// AI-powered sensor predictions for Yemen farms
+// IoT Sensors Management Page - Dynamic with Full CRUD
+// صفحة إدارة المستشعرات - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
+import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
-import { API_URLS, apiClient } from "@/lib/api";
-import { cn } from "@/lib/utils";
-import { logger } from "../../lib/logger";
+import { formatDate, cn } from "@/lib/utils";
 import {
   Cpu,
   Thermometer,
   Droplets,
-  Wind,
-  Sun,
-  Leaf,
-  RefreshCw,
-  MapPin,
-  TrendingUp,
-  TrendingDown,
+  Camera,
   Activity,
+  Search,
+  Plus,
+  RefreshCw,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  X,
+  Save,
+  Zap,
+  AlertTriangle,
 } from "lucide-react";
-
-interface VirtualSensor {
-  id: string;
-  type:
-    | "temperature"
-    | "humidity"
-    | "soil_moisture"
-    | "wind_speed"
-    | "solar_radiation"
-    | "ndvi";
-  name: string;
-  nameAr: string;
-  value: number;
-  unit: string;
-  trend: "up" | "down" | "stable";
-  confidence: number;
-  lastUpdated: string;
-  status: "normal" | "warning" | "critical";
-}
-
-interface FarmSensors {
-  farmId: string;
-  farmName: string;
-  governorate: string;
-  sensors: VirtualSensor[];
-}
-
-const SENSOR_ICONS = {
-  temperature: Thermometer,
-  humidity: Droplets,
-  soil_moisture: Droplets,
-  wind_speed: Wind,
-  solar_radiation: Sun,
-  ndvi: Leaf,
-};
-
-const SENSOR_COLORS = {
-  temperature: "text-red-500 bg-red-50",
-  humidity: "text-blue-500 bg-blue-50",
-  soil_moisture: "text-cyan-500 bg-cyan-50",
-  wind_speed: "text-gray-500 bg-gray-50",
-  solar_radiation: "text-yellow-500 bg-yellow-50",
-  ndvi: "text-green-500 bg-green-50",
-};
-
-// Mock data generator
-function generateMockSensors(): FarmSensors[] {
-  const farms = [
-    { id: "farm-1", name: "مزرعة الخير", governorate: "صنعاء" },
-    { id: "farm-2", name: "مزرعة البركة", governorate: "تعز" },
-    { id: "farm-3", name: "مزرعة السعادة", governorate: "إب" },
-    { id: "farm-4", name: "مزرعة الأمل", governorate: "حضرموت" },
-    { id: "farm-5", name: "مزرعة النور", governorate: "الحديدة" },
-  ];
-
-  return farms.map((farm) => ({
-    farmId: farm.id,
-    farmName: farm.name,
-    governorate: farm.governorate,
-    sensors: [
-      {
-        id: `${farm.id}-temp`,
-        type: "temperature",
-        name: "Temperature",
-        nameAr: "درجة الحرارة",
-        value: Math.round(25 + Math.random() * 15),
-        unit: "°C",
-        trend: Math.random() > 0.5 ? "up" : "down",
-        confidence: 85 + Math.random() * 10,
-        lastUpdated: new Date().toISOString(),
-        status: Math.random() > 0.8 ? "warning" : "normal",
-      },
-      {
-        id: `${farm.id}-humidity`,
-        type: "humidity",
-        name: "Humidity",
-        nameAr: "الرطوبة",
-        value: Math.round(40 + Math.random() * 40),
-        unit: "%",
-        trend: Math.random() > 0.5 ? "up" : "stable",
-        confidence: 80 + Math.random() * 15,
-        lastUpdated: new Date().toISOString(),
-        status: "normal",
-      },
-      {
-        id: `${farm.id}-soil`,
-        type: "soil_moisture",
-        name: "Soil Moisture",
-        nameAr: "رطوبة التربة",
-        value: Math.round(20 + Math.random() * 60),
-        unit: "%",
-        trend: Math.random() > 0.6 ? "down" : "stable",
-        confidence: 75 + Math.random() * 20,
-        lastUpdated: new Date().toISOString(),
-        status: Math.random() > 0.7 ? "warning" : "normal",
-      },
-      {
-        id: `${farm.id}-ndvi`,
-        type: "ndvi",
-        name: "NDVI",
-        nameAr: "مؤشر الخضرة",
-        value: parseFloat((0.3 + Math.random() * 0.5).toFixed(2)),
-        unit: "",
-        trend: Math.random() > 0.5 ? "up" : "down",
-        confidence: 90 + Math.random() * 8,
-        lastUpdated: new Date().toISOString(),
-        status: "normal",
-      },
-    ],
-  }));
-}
+import { logger } from "../../lib/logger";
+import { 
+  iotService, 
+  type IoTDevice, 
+  type CreateDeviceData,
+  type SensorReading,
+} from "@/lib/api";
 
 export default function SensorsPage() {
-  const [farmsData, setFarmsData] = useState<FarmSensors[]>([]);
+  const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedFarm, setSelectedFarm] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [selectedDevice, setSelectedDevice] = useState<IoTDevice | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReadingsModal, setShowReadingsModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [readings, setReadings] = useState<SensorReading[]>([]);
+  const [loadingReadings, setLoadingReadings] = useState(false);
 
   useEffect(() => {
-    loadSensorData();
-  }, []);
+    loadDevices();
+  }, [page, typeFilter, statusFilter, searchQuery]);
 
-  async function loadSensorData() {
+  async function loadDevices() {
     setIsLoading(true);
     try {
-      // Try to fetch from API
-      const response = await apiClient.get(
-        `${API_URLS.virtualSensors}/v1/farms/readings`,
-      );
-      setFarmsData(response.data);
-    } catch {
-      // Fallback to mock data
-      logger.log("Using mock sensor data");
-      setFarmsData(generateMockSensors());
+      const response = await iotService.getAll({
+        page,
+        limit: 20,
+        search: searchQuery || undefined,
+        type: typeFilter || undefined,
+        status: statusFilter || undefined,
+      });
+      
+      setDevices(response.data);
+      setTotalPages(response.meta.totalPages);
+    } catch (error) {
+      logger.error("Failed to load IoT devices:", error);
+      setDevices([]);
     } finally {
       setIsLoading(false);
     }
   }
 
-  // Calculate overall stats
-  const stats = {
-    totalFarms: farmsData.length,
-    totalSensors: farmsData.reduce((acc, f) => acc + f.sensors.length, 0),
-    warningCount: farmsData.reduce(
-      (acc, f) => acc + f.sensors.filter((s) => s.status === "warning").length,
-      0,
-    ),
-    avgConfidence:
-      farmsData.length > 0
-        ? Math.round(
-            farmsData.reduce(
-              (acc, f) =>
-                acc +
-                f.sensors.reduce((a, s) => a + s.confidence, 0) /
-                  f.sensors.length,
-              0,
-            ) / farmsData.length,
-          )
-        : 0,
+  async function loadDeviceReadings(deviceId: string) {
+    setLoadingReadings(true);
+    try {
+      const response = await iotService.getReadings(deviceId, {
+        // Last 24 hours
+        from: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+        to: new Date().toISOString(),
+      });
+      setReadings(response.data);
+    } catch (error) {
+      logger.error("Failed to load device readings:", error);
+      setReadings([]);
+    } finally {
+      setLoadingReadings(false);
+    }
+  }
+
+  // CRUD Handlers
+  async function handleCreate(data: CreateDeviceData) {
+    setIsSubmitting(true);
+    try {
+      await iotService.create(data);
+      await loadDevices();
+      setShowCreateModal(false);
+      logger.info("IoT device registered successfully");
+    } catch (error) {
+      logger.error("Failed to register device:", error);
+      alert("فشل تسجيل الجهاز. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleUpdate(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice["status"] }) {
+    setIsSubmitting(true);
+    try {
+      await iotService.update(id, data);
+      await loadDevices();
+      setShowEditModal(false);
+      setSelectedDevice(null);
+      logger.info("IoT device updated successfully");
+    } catch (error) {
+      logger.error("Failed to update device:", error);
+      alert("فشل تحديث الجهاز. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    setIsSubmitting(true);
+    try {
+      await iotService.delete(id);
+      await loadDevices();
+      setShowDeleteModal(false);
+      setSelectedDevice(null);
+      logger.info("IoT device deleted successfully");
+    } catch (error) {
+      logger.error("Failed to delete device:", error);
+      alert("فشل حذف الجهاز. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const stats = useMemo(() => ({
+    total: devices.length,
+    online: devices.filter((d) => d.status === "online").length,
+    offline: devices.filter((d) => d.status === "offline").length,
+    error: devices.filter((d) => d.status === "error").length,
+  }), [devices]);
+
+  const getDeviceIcon = (type: IoTDevice["type"]) => {
+    const icons = {
+      soil_moisture: Droplets,
+      weather_station: Activity,
+      camera: Camera,
+      flow_meter: Thermometer,
+      other: Cpu,
+    };
+    return icons[type] || Cpu;
   };
 
-  const selectedFarmData = selectedFarm
-    ? farmsData.find((f) => f.farmId === selectedFarm)
-    : null;
+  const getDeviceTypeLabel = (type: IoTDevice["type"]) => {
+    const labels = {
+      soil_moisture: "رطوبة التربة",
+      weather_station: "محطة طقس",
+      camera: "كاميرا",
+      flow_meter: "عداد التدفق",
+      other: "أخرى",
+    };
+    return labels[type] || type;
+  };
+
+  const getStatusColor = (status: IoTDevice["status"]) => {
+    const colors = {
+      online: "bg-green-100 text-green-800",
+      offline: "bg-gray-100 text-gray-800",
+      error: "bg-red-100 text-red-800",
+      maintenance: "bg-yellow-100 text-yellow-800",
+    };
+    return colors[status];
+  };
+
+  const getStatusLabel = (status: IoTDevice["status"]) => {
+    const labels = {
+      online: "متصل",
+      offline: "غير متصل",
+      error: "خطأ",
+      maintenance: "صيانة",
+    };
+    return labels[status];
+  };
+
+  const columns = [
+    {
+      key: "name",
+      header: "الجهاز",
+      render: (device: IoTDevice) => {
+        const Icon = getDeviceIcon(device.type);
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-sahool-100 rounded-full flex items-center justify-center">
+              <Icon className="w-5 h-5 text-sahool-600" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900">{device.name}</p>
+              <p className="text-xs text-gray-500">{getDeviceTypeLabel(device.type)}</p>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "serialNumber",
+      header: "الرقم التسلسلي",
+      render: (device: IoTDevice) => (
+        <span className="text-gray-700 text-sm font-mono" dir="ltr">
+          {device.serialNumber}
+        </span>
+      ),
+    },
+    {
+      key: "fieldName",
+      header: "الحقل",
+      render: (device: IoTDevice) => (
+        <span className="text-gray-700">{device.fieldName || "غير محدد"}</span>
+      ),
+    },
+    {
+      key: "status",
+      header: "الحالة",
+      render: (device: IoTDevice) => (
+        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(device.status))}>
+          {getStatusLabel(device.status)}
+        </span>
+      ),
+    },
+    {
+      key: "lastReading",
+      header: "آخر قراءة",
+      render: (device: IoTDevice) => (
+        <div>
+          {device.lastReading ? (
+            <>
+              <p className="text-sm font-medium text-gray-900">
+                {device.lastReadingValue} {device.unit}
+              </p>
+              <p className="text-xs text-gray-500">{formatDate(device.lastReading)}</p>
+            </>
+          ) : (
+            <span className="text-gray-400 text-sm">لا توجد قراءات</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "battery",
+      header: "البطارية",
+      render: (device: IoTDevice) => (
+        <div className="flex items-center gap-2">
+          {device.batteryLevel !== undefined ? (
+            <>
+              <Zap className={cn(
+                "w-4 h-4",
+                device.batteryLevel > 20 ? "text-green-500" : "text-red-500"
+              )} />
+              <span className={cn(
+                "text-sm",
+                device.batteryLevel > 20 ? "text-gray-700" : "text-red-600"
+              )}>
+                {device.batteryLevel}%
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-400 text-sm">-</span>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      render: (device: IoTDevice) => (
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedDevice(device);
+              loadDeviceReadings(device.id);
+              setShowReadingsModal(true);
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="عرض القراءات"
+          >
+            <Activity className="w-4 h-4 text-gray-500" />
+          </button>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedDevice(device);
+              setShowEditModal(true);
+            }}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            title="تعديل"
+          >
+            <Edit className="w-4 h-4 text-blue-500" />
+          </button>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedDevice(device);
+              setShowDeleteModal(true);
+            }}
+            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+            title="حذف"
+          >
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </button>
+        </div>
+      ),
+      className: "w-32",
+    },
+  ];
 
   return (
     <div className="p-6">
-      <Header
-        title="المستشعرات الافتراضية"
-        subtitle="قراءات ذكية مدعومة بالذكاء الاصطناعي"
-      />
+      <Header title="إدارة المستشعرات وأجهزة IoT" subtitle={`${devices.length} جهاز مسجل`} />
 
       {/* Stats */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          title="مزرعة متصلة"
-          value={stats.totalFarms}
-          icon={MapPin}
-          iconColor="text-sahool-600"
-        />
-
-        <StatCard
-          title="مستشعر افتراضي"
-          value={stats.totalSensors}
-          icon={Cpu}
-          iconColor="text-blue-600"
-        />
-
-        <StatCard
-          title="تحذيرات"
-          value={stats.warningCount}
-          icon={Activity}
-          iconColor="text-amber-600"
-        />
-
-        <StatCard
-          title="متوسط الدقة"
-          value={`${stats.avgConfidence}%`}
-          icon={TrendingUp}
-          iconColor="text-green-600"
-        />
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+              <Cpu className="w-5 h-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+              <p className="text-sm text-gray-500">إجمالي الأجهزة</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.online}</p>
+              <p className="text-sm text-gray-500">متصل</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+              <Activity className="w-5 h-5 text-gray-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.offline}</p>
+              <p className="text-sm text-gray-500">غير متصل</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+              <AlertTriangle className="w-5 h-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-gray-900">{stats.error}</p>
+              <p className="text-sm text-gray-500">خطأ</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Refresh Button */}
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={loadSensorData}
-          className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-900 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          <RefreshCw className={cn("w-4 h-4", isLoading && "animate-spin")} />
-          تحديث القراءات
-        </button>
+      {/* Filters */}
+      <div className="mt-6 bg-white rounded-xl p-4 border border-gray-100">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="relative flex-1 min-w-[200px]">
+            <input
+              type="text"
+              placeholder="بحث بالاسم أو الرقم التسلسلي..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+          >
+            <option value="">كل الأنواع</option>
+            <option value="soil_moisture">رطوبة التربة</option>
+            <option value="weather_station">محطة طقس</option>
+            <option value="camera">كاميرا</option>
+            <option value="flow_meter">عداد التدفق</option>
+            <option value="other">أخرى</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sahool-500"
+          >
+            <option value="">كل الحالات</option>
+            <option value="online">متصل</option>
+            <option value="offline">غير متصل</option>
+            <option value="error">خطأ</option>
+            <option value="maintenance">صيانة</option>
+          </select>
+
+          <button
+            onClick={loadDevices}
+            className="p-2 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+            title="تحديث"
+          >
+            <RefreshCw className={cn("w-5 h-5 text-gray-600", isLoading && "animate-spin")} />
+          </button>
+          <button 
+            onClick={() => setShowCreateModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            تسجيل جهاز
+          </button>
+        </div>
       </div>
 
-      {/* Farms Grid */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, i) => (
-              <div
-                key={i}
-                className="bg-gray-100 animate-pulse rounded-xl h-64"
-              />
-            ))
-          : farmsData.map((farm) => (
-              <div
-                key={farm.farmId}
-                className={cn(
-                  "bg-white rounded-xl border-2 transition-all cursor-pointer",
-                  selectedFarm === farm.farmId
-                    ? "border-sahool-500 shadow-lg"
-                    : "border-gray-100 hover:border-gray-200",
-                )}
-                onClick={() =>
-                  setSelectedFarm(
-                    selectedFarm === farm.farmId ? null : farm.farmId,
-                  )
-                }
-              >
-                {/* Farm Header */}
-                <div className="p-4 border-b border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-bold text-gray-900">
-                        {farm.farmName}
-                      </h3>
-                      <p className="text-sm text-gray-500 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {farm.governorate}
-                      </p>
-                    </div>
-                    <div className="flex -space-x-2">
-                      {farm.sensors.slice(0, 3).map((sensor) => {
-                        const Icon = SENSOR_ICONS[sensor.type];
-                        return (
-                          <div
-                            key={sensor.id}
-                            className={cn(
-                              "w-8 h-8 rounded-full flex items-center justify-center border-2 border-white",
-                              SENSOR_COLORS[sensor.type].split(" ")[1],
-                            )}
-                          >
-                            <Icon
-                              className={cn(
-                                "w-4 h-4",
-                                SENSOR_COLORS[sensor.type].split(" ")[0],
-                              )}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sensors */}
-                <div className="p-4 grid grid-cols-2 gap-3">
-                  {farm.sensors.map((sensor) => {
-                    const Icon = SENSOR_ICONS[sensor.type];
-                    const TrendIcon =
-                      sensor.trend === "up"
-                        ? TrendingUp
-                        : sensor.trend === "down"
-                          ? TrendingDown
-                          : Activity;
-
-                    return (
-                      <div
-                        key={sensor.id}
-                        className={cn(
-                          "p-3 rounded-lg",
-                          sensor.status === "warning"
-                            ? "bg-amber-50 border border-amber-200"
-                            : "bg-gray-50",
-                        )}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <Icon
-                            className={cn(
-                              "w-4 h-4",
-                              SENSOR_COLORS[sensor.type].split(" ")[0],
-                            )}
-                          />
-                          <TrendIcon
-                            className={cn(
-                              "w-3 h-3",
-                              sensor.trend === "up"
-                                ? "text-green-500"
-                                : sensor.trend === "down"
-                                  ? "text-red-500"
-                                  : "text-gray-400",
-                            )}
-                          />
-                        </div>
-                        <p className="text-lg font-bold text-gray-900">
-                          {sensor.value}
-                          {sensor.unit}
-                        </p>
-                        <p className="text-xs text-gray-500">{sensor.nameAr}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ))}
-      </div>
-
-      {/* All Sensors Overview */}
+      {/* Table */}
       <div className="mt-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-blue-600" />
-          نظرة عامة على جميع المستشعرات
-        </h3>
-
-        <DataTable
-          columns={[
-            {
-              key: "farm",
-              header: "المزرعة",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => (
-                <div>
-                  <p className="font-medium text-gray-900">{item.farmName}</p>
-                  <p className="text-xs text-gray-500 flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {item.governorate}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "sensor",
-              header: "المستشعر",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => {
-                const Icon = SENSOR_ICONS[item.sensor.type];
-                return (
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={cn(
-                        "w-8 h-8 rounded-lg flex items-center justify-center",
-                        SENSOR_COLORS[item.sensor.type],
-                      )}
-                    >
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="font-medium">{item.sensor.nameAr}</span>
-                  </div>
-                );
-              },
-            },
-            {
-              key: "value",
-              header: "القراءة",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => (
-                <span className="font-bold text-lg">
-                  {item.sensor.value}
-                  {item.sensor.unit}
-                </span>
-              ),
-            },
-            {
-              key: "trend",
-              header: "الاتجاه",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => {
-                const TrendIcon =
-                  item.sensor.trend === "up"
-                    ? TrendingUp
-                    : item.sensor.trend === "down"
-                      ? TrendingDown
-                      : Activity;
-                return (
-                  <div className="flex items-center gap-1">
-                    <TrendIcon
-                      className={cn(
-                        "w-4 h-4",
-                        item.sensor.trend === "up"
-                          ? "text-green-500"
-                          : item.sensor.trend === "down"
-                            ? "text-red-500"
-                            : "text-gray-400",
-                      )}
-                    />
-                    <span className="text-sm">
-                      {item.sensor.trend === "up"
-                        ? "صاعد"
-                        : item.sensor.trend === "down"
-                          ? "هابط"
-                          : "مستقر"}
-                    </span>
-                  </div>
-                );
-              },
-            },
-            {
-              key: "confidence",
-              header: "الدقة",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => (
-                <span className="text-sm font-medium">
-                  {item.sensor.confidence.toFixed(1)}%
-                </span>
-              ),
-            },
-            {
-              key: "status",
-              header: "الحالة",
-              render: (item: {
-                sensor: VirtualSensor;
-                farmName: string;
-                governorate: string;
-              }) => (
-                <span
-                  className={cn(
-                    "px-2 py-1 rounded text-xs font-medium",
-                    item.sensor.status === "warning"
-                      ? "bg-amber-100 text-amber-700"
-                      : item.sensor.status === "critical"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-green-100 text-green-700",
-                  )}
-                >
-                  {item.sensor.status === "warning"
-                    ? "تحذير"
-                    : item.sensor.status === "critical"
-                      ? "حرج"
-                      : "طبيعي"}
-                </span>
-              ),
-            },
-          ]}
-          data={farmsData.flatMap((farm) =>
-            farm.sensors.map((sensor) => ({
-              sensor,
-              farmName: farm.farmName,
-              governorate: farm.governorate,
-            })),
-          )}
-          keyExtractor={(item) => item.sensor.id}
-          isLoading={isLoading}
-          emptyMessage="لا توجد مستشعرات"
-        />
+        {isLoading ? (
+          <div className="bg-white rounded-xl border border-gray-100 p-8">
+            <div className="animate-pulse space-y-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div key={i} className="h-12 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <DataTable
+            columns={columns}
+            data={devices}
+            keyExtractor={(device) => device.id}
+            emptyMessage="لا يوجد أجهزة مطابقة للبحث"
+          />
+        )}
       </div>
 
-      {/* Selected Farm Details */}
-      {selectedFarmData && (
-        <div className="mt-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
-            تفاصيل {selectedFarmData.farmName}
-          </h3>
+      {/* Create Device Modal */}
+      {showCreateModal && (
+        <DeviceFormModal
+          title="تسجيل جهاز جديد"
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreate}
+          isSubmitting={isSubmitting}
+        />
+      )}
 
-          <DataTable
-            columns={[
-              {
-                key: "sensor",
-                header: "المستشعر",
-                render: (sensor: VirtualSensor) => {
-                  const Icon = SENSOR_ICONS[sensor.type];
-                  return (
-                    <div className="flex items-center gap-2">
-                      <Icon
-                        className={cn(
-                          "w-5 h-5",
-                          SENSOR_COLORS[sensor.type].split(" ")[0],
-                        )}
-                      />
-                      <span className="font-medium">{sensor.nameAr}</span>
+      {/* Edit Device Modal */}
+      {showEditModal && selectedDevice && (
+        <DeviceFormModal
+          title="تعديل الجهاز"
+          device={selectedDevice}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedDevice(null);
+          }}
+          onSubmit={(data) => handleUpdate(selectedDevice.id, data)}
+          isSubmitting={isSubmitting}
+        />
+      )}
+
+      {/* Device Readings Modal */}
+      {showReadingsModal && selectedDevice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gray-900">
+                قراءات الجهاز: {selectedDevice.name}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowReadingsModal(false);
+                  setSelectedDevice(null);
+                }}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {loadingReadings ? (
+              <div className="text-center py-8">
+                <RefreshCw className="w-8 h-8 animate-spin text-sahool-600 mx-auto mb-2" />
+                <p className="text-gray-500">جاري تحميل القراءات...</p>
+              </div>
+            ) : readings.length > 0 ? (
+              <div className="space-y-3">
+                {readings.map((reading) => (
+                  <div key={reading.id} className="p-4 border border-gray-200 rounded-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-gray-900">{reading.metric}</p>
+                        <p className="text-2xl font-bold text-sahool-600">
+                          {reading.value} {reading.unit}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm text-gray-500">
+                          {formatDate(reading.timestamp)}
+                        </p>
+                      </div>
                     </div>
-                  );
-                },
-              },
-              {
-                key: "value",
-                header: "القيمة",
-                render: (sensor: VirtualSensor) => (
-                  <span className="font-bold text-lg">
-                    {sensor.value}
-                    {sensor.unit}
-                  </span>
-                ),
-              },
-              {
-                key: "trend",
-                header: "الاتجاه",
-                render: (sensor: VirtualSensor) => (
-                  <span
-                    className={cn(
-                      "px-2 py-1 rounded text-xs font-medium",
-                      sensor.trend === "up"
-                        ? "bg-green-100 text-green-700"
-                        : sensor.trend === "down"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-gray-100 text-gray-700",
-                    )}
-                  >
-                    {sensor.trend === "up"
-                      ? "↑ صاعد"
-                      : sensor.trend === "down"
-                        ? "↓ هابط"
-                        : "— مستقر"}
-                  </span>
-                ),
-              },
-              {
-                key: "confidence",
-                header: "الدقة",
-                render: (sensor: VirtualSensor) => (
-                  <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-green-500 rounded-full"
-                        style={{ width: `${sensor.confidence}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-medium">
-                      {sensor.confidence.toFixed(1)}%
-                    </span>
                   </div>
-                ),
-              },
-              {
-                key: "status",
-                header: "الحالة",
-                render: (sensor: VirtualSensor) => (
-                  <span
-                    className={cn(
-                      "px-2 py-1 rounded text-xs font-medium",
-                      sensor.status === "warning"
-                        ? "bg-amber-100 text-amber-700"
-                        : sensor.status === "critical"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-green-100 text-green-700",
-                    )}
-                  >
-                    {sensor.status === "warning"
-                      ? "⚠ تحذير"
-                      : sensor.status === "critical"
-                        ? "🚨 حرج"
-                        : "✓ طبيعي"}
-                  </span>
-                ),
-              },
-            ]}
-            data={selectedFarmData.sensors}
-            keyExtractor={(sensor) => sensor.id}
-            emptyMessage="لا توجد مستشعرات"
-          />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">لا توجد قراءات متاحة</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedDevice && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">تأكيد الحذف</h3>
+            <p className="text-gray-600 mb-6">
+              هل أنت متأكد من حذف الجهاز <strong>{selectedDevice.name}</strong>؟
+              هذا الإجراء لا يمكن التراجع عنه.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedDevice(null);
+                }}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={() => handleDelete(selectedDevice.id)}
+                disabled={isSubmitting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {isSubmitting ? "جاري الحذف..." : "حذف"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-6 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            السابق
+          </button>
+          <span className="px-4 py-2 text-gray-600">
+            صفحة {page} من {totalPages}
+          </span>
+          <button
+            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            التالي
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Device Form Modal Component
+function DeviceFormModal({
+  title,
+  device,
+  onClose,
+  onSubmit,
+  isSubmitting,
+}: {
+  title: string;
+  device?: IoTDevice;
+  onClose: () => void;
+  onSubmit: (data: CreateDeviceData | (Partial<CreateDeviceData> & { status?: IoTDevice["status"] })) => void;
+  isSubmitting: boolean;
+}) {
+  const [formData, setFormData] = useState({
+    name: device?.name || "",
+    type: device?.type || ("soil_moisture" as IoTDevice["type"]),
+    fieldId: device?.fieldId || "",
+    serialNumber: device?.serialNumber || "",
+    status: device?.status || ("online" as IoTDevice["status"]),
+    config: device?.config || {},
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!device) {
+      // Create mode
+      const createData: CreateDeviceData = {
+        name: formData.name,
+        type: formData.type,
+        fieldId: formData.fieldId,
+        serialNumber: formData.serialNumber,
+        config: formData.config,
+      };
+      onSubmit(createData);
+    } else {
+      // Edit mode
+      const updateData = {
+        name: formData.name,
+        type: formData.type,
+        fieldId: formData.fieldId,
+        serialNumber: formData.serialNumber,
+        status: formData.status,
+        config: formData.config,
+      };
+      onSubmit(updateData);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              اسم الجهاز
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              نوع الجهاز
+            </label>
+            <select
+              value={formData.type}
+              onChange={(e) => setFormData({ ...formData, type: e.target.value as IoTDevice["type"] })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+            >
+              <option value="soil_moisture">رطوبة التربة</option>
+              <option value="weather_station">محطة طقس</option>
+              <option value="camera">كاميرا</option>
+              <option value="flow_meter">عداد التدفق</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              الرقم التسلسلي
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.serialNumber}
+              onChange={(e) => setFormData({ ...formData, serialNumber: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              معرف الحقل
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.fieldId}
+              onChange={(e) => setFormData({ ...formData, fieldId: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              placeholder="field-123"
+            />
+          </div>
+
+          {device && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                الحالة
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as IoTDevice["status"] })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
+              >
+                <option value="online">متصل</option>
+                <option value="offline">غير متصل</option>
+                <option value="error">خطأ</option>
+                <option value="maintenance">صيانة</option>
+              </select>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+            >
+              إلغاء
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {isSubmitting ? "جاري الحفظ..." : device ? "تحديث" : "تسجيل"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

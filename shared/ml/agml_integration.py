@@ -15,7 +15,7 @@ AgML provides standardized access to 30+ agricultural ML datasets.
 
 import os
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -24,7 +24,7 @@ import structlog
 logger = structlog.get_logger()
 
 
-class DatasetType(str, Enum):
+class DatasetType(StrEnum):
     """Types of agricultural datasets."""
 
     CROP_DISEASE = "crop_disease"  # أمراض المحاصيل
@@ -35,7 +35,7 @@ class DatasetType(str, Enum):
     SEMANTIC_SEGMENTATION = "semantic_segmentation"  # التجزئة الدلالية
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Supported crop types."""
 
     WHEAT = "wheat"  # قمح

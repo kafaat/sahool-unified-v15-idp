@@ -12,9 +12,9 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
 import os
+from dataclasses import dataclass, field
+from enum import StrEnum
 from typing import Any
 
 import structlog
@@ -22,31 +22,34 @@ import structlog
 logger = structlog.get_logger()
 
 
-class WeChatEnvironment(str, Enum):
+class WeChatEnvironment(StrEnum):
     """
     WeChat deployment environment.
     بيئة نشر WeChat
     """
+
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
 
 
-class WeChatTransport(str, Enum):
+class WeChatTransport(StrEnum):
     """
     WeChat MCP transport type.
     نوع نقل WeChat MCP
     """
+
     HTTP = "http"
     WEBSOCKET = "websocket"
     STDIO = "stdio"
 
 
-class AgentModel(str, Enum):
+class AgentModel(StrEnum):
     """
     AI model options for WeChat agents.
     خيارات نماذج الذكاء الاصطناعي لوكلاء WeChat
     """
+
     CLAUDE_SONNET = "claude-3-5-sonnet-20241022"
     CLAUDE_HAIKU = "claude-3-5-haiku-20241022"
     GPT_4O = "gpt-4o"
@@ -61,6 +64,7 @@ class RateLimitConfig:
     Rate limiting configuration for WeChat API.
     تكوين تحديد معدل API WeChat
     """
+
     requests_per_minute: int = 60
     requests_per_hour: int = 1000
     burst_limit: int = 10
@@ -73,6 +77,7 @@ class RetryConfig:
     Retry configuration for failed requests.
     تكوين إعادة المحاولة للطلبات الفاشلة
     """
+
     max_retries: int = 3
     base_delay_seconds: float = 1.0
     max_delay_seconds: float = 60.0
@@ -85,6 +90,7 @@ class CacheConfig:
     Cache configuration for WeChat data.
     تكوين ذاكرة التخزين المؤقت لبيانات WeChat
     """
+
     enabled: bool = True
     ttl_seconds: int = 300  # 5 minutes
     max_size: int = 1000
@@ -114,6 +120,7 @@ class WeChatConfig:
         config = WeChatConfig.from_env()
         client = WeChatMCPClient(config)
     """
+
     # Connection settings
     mcp_url: str = "http://localhost:8765"
     api_key: str | None = None
@@ -185,6 +192,7 @@ class WeChatConfig:
         Example:
             config = WeChatConfig.from_env()
         """
+
         def get_bool(key: str, default: bool = False) -> bool:
             return os.getenv(key, str(default)).lower() in ("true", "1", "yes")
 
@@ -202,11 +210,19 @@ class WeChatConfig:
 
         # Parse transport
         transport_str = os.getenv("WECHAT_TRANSPORT", "http").lower()
-        transport = WeChatTransport(transport_str) if transport_str in [t.value for t in WeChatTransport] else WeChatTransport.HTTP
+        transport = (
+            WeChatTransport(transport_str)
+            if transport_str in [t.value for t in WeChatTransport]
+            else WeChatTransport.HTTP
+        )
 
         # Parse environment
         env_str = os.getenv("WECHAT_ENVIRONMENT", "development").lower()
-        environment = WeChatEnvironment(env_str) if env_str in [e.value for e in WeChatEnvironment] else WeChatEnvironment.DEVELOPMENT
+        environment = (
+            WeChatEnvironment(env_str)
+            if env_str in [e.value for e in WeChatEnvironment]
+            else WeChatEnvironment.DEVELOPMENT
+        )
 
         # Parse agent model
         model_str = os.getenv("WECHAT_AGENT_MODEL", "claude-3-5-sonnet-20241022")
@@ -245,45 +261,36 @@ class WeChatConfig:
             mcp_url=os.getenv("WECHAT_MCP_URL", "http://localhost:8765"),
             api_key=os.getenv("WECHAT_MCP_API_KEY"),
             transport=transport,
-
             # WeChat credentials
             app_id=os.getenv("WECHAT_APP_ID"),
             app_secret=os.getenv("WECHAT_APP_SECRET"),
             access_token=os.getenv("WECHAT_ACCESS_TOKEN"),
-
             # Environment
             environment=environment,
             tenant_id=os.getenv("TENANT_ID", "sahool"),
-
             # Timeouts
             connect_timeout=get_float("WECHAT_CONNECT_TIMEOUT", 10.0),
             read_timeout=get_float("WECHAT_READ_TIMEOUT", 30.0),
             write_timeout=get_float("WECHAT_WRITE_TIMEOUT", 30.0),
-
             # Language
             default_language=os.getenv("WECHAT_DEFAULT_LANGUAGE", "ar"),
-
             # Agent settings
             agent_model=agent_model,
             agent_temperature=get_float("WECHAT_AGENT_TEMPERATURE", 0.7),
             agent_max_tokens=get_int("WECHAT_AGENT_MAX_TOKENS", 4096),
-
             # Features
             enable_auto_reply=get_bool("WECHAT_AUTO_REPLY", True),
             enable_message_summary=get_bool("WECHAT_MESSAGE_SUMMARY", True),
             enable_sentiment_analysis=get_bool("WECHAT_SENTIMENT_ANALYSIS", True),
             enable_priority_detection=get_bool("WECHAT_PRIORITY_DETECTION", True),
             enable_agricultural_context=get_bool("WECHAT_AGRICULTURAL_CONTEXT", True),
-
             # Configs
             rate_limit=rate_limit,
             retry=retry,
             cache=cache,
-
             # Logging
             log_level=os.getenv("WECHAT_LOG_LEVEL", "INFO"),
             log_messages=get_bool("WECHAT_LOG_MESSAGES", False),
-
             # Agricultural
             farm_context_enabled=get_bool("WECHAT_FARM_CONTEXT", True),
             crop_vocabulary_enabled=get_bool("WECHAT_CROP_VOCABULARY", True),
@@ -315,9 +322,13 @@ class WeChatConfig:
             if not self.api_key:
                 errors.append("API key required for production | مطلوب مفتاح API للإنتاج")
             if not self.app_id:
-                errors.append("WeChat App ID required for production | مطلوب معرف تطبيق WeChat للإنتاج")
+                errors.append(
+                    "WeChat App ID required for production | مطلوب معرف تطبيق WeChat للإنتاج"
+                )
             if not self.app_secret:
-                errors.append("WeChat App Secret required for production | مطلوب سر تطبيق WeChat للإنتاج")
+                errors.append(
+                    "WeChat App Secret required for production | مطلوب سر تطبيق WeChat للإنتاج"
+                )
 
         # Validate timeouts
         if self.connect_timeout <= 0:
@@ -327,13 +338,19 @@ class WeChatConfig:
 
         # Validate agent settings
         if self.agent_temperature < 0 or self.agent_temperature > 2:
-            errors.append("Agent temperature must be between 0 and 2 | يجب أن تكون درجة حرارة الوكيل بين 0 و 2")
+            errors.append(
+                "Agent temperature must be between 0 and 2 | يجب أن تكون درجة حرارة الوكيل بين 0 و 2"
+            )
         if self.agent_max_tokens < 100:
-            errors.append("Agent max tokens must be at least 100 | يجب أن يكون الحد الأقصى لرموز الوكيل 100 على الأقل")
+            errors.append(
+                "Agent max tokens must be at least 100 | يجب أن يكون الحد الأقصى لرموز الوكيل 100 على الأقل"
+            )
 
         # Validate language
         if self.default_language not in self.supported_languages:
-            errors.append(f"Default language must be one of {self.supported_languages} | يجب أن تكون اللغة الافتراضية واحدة من {self.supported_languages}")
+            errors.append(
+                f"Default language must be one of {self.supported_languages} | يجب أن تكون اللغة الافتراضية واحدة من {self.supported_languages}"
+            )
 
         return errors
 

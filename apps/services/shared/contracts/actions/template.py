@@ -11,7 +11,7 @@ SAHOOL Action Template
 """
 
 import uuid
-from datetime import date, datetime, time, timezone, UTC
+from datetime import UTC, date, datetime, time, timezone
 from typing import Any
 
 from pydantic import BaseModel, Field

@@ -14,8 +14,8 @@ Port: 8098
 import logging
 import os
 import sys
-from datetime import datetime, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timezone
+from enum import Enum, StrEnum
 
 from fastapi import FastAPI, HTTPException
 
@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
@@ -43,7 +44,7 @@ SERVICE_PORT = int(os.getenv("PORT", 8098))
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """المحاصيل المدعومة للتنبؤ"""
 
     # Cereals - الحبوب

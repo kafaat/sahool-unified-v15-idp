@@ -24,8 +24,8 @@ import logging
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -46,7 +46,7 @@ MAX_SCORE = 1.0
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class EvaluationCriteria(str, Enum):
+class EvaluationCriteria(StrEnum):
     """
     Evaluation criteria for recommendations.
     معايير تقييم التوصيات
@@ -68,7 +68,7 @@ class EvaluationCriteria(str, Enum):
     CLARITY = "clarity"  # الوضوح
 
 
-class EvaluationGrade(str, Enum):
+class EvaluationGrade(StrEnum):
     """
     Overall grade for evaluation.
     الدرجة الإجمالية للتقييم
@@ -81,7 +81,7 @@ class EvaluationGrade(str, Enum):
     POOR = "poor"  # ضعيف (< 0.4)
 
 
-class RecommendationType(str, Enum):
+class RecommendationType(StrEnum):
     """
     Type of agricultural recommendation.
     نوع التوصية الزراعية
@@ -287,17 +287,13 @@ class EvaluationResult:
             safety_score = scores.get(EvaluationCriteria.SAFETY)
             if safety_score and safety_score.score < 0.5:
                 return (
-                    "Recommendation not approved due to safety concerns. "
-                    "Please review safety guidelines.",
-                    "لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. "
-                    "يرجى مراجعة إرشادات السلامة.",
+                    "Recommendation not approved due to safety concerns. Please review safety guidelines.",
+                    "لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. يرجى مراجعة إرشادات السلامة.",
                 )
             else:
                 return (
-                    "Recommendation needs improvement before implementation. "
-                    "Please address the noted concerns.",
-                    "التوصية تحتاج إلى تحسين قبل التنفيذ. "
-                    "يرجى معالجة الملاحظات المذكورة.",
+                    "Recommendation needs improvement before implementation. Please address the noted concerns.",
+                    "التوصية تحتاج إلى تحسين قبل التنفيذ. يرجى معالجة الملاحظات المذكورة.",
                 )
 
     @staticmethod
@@ -588,9 +584,7 @@ class RecommendationEvaluator(BaseEvaluator):
         """
         context = context or {}
         query = query or ""
-        recommendation_type = recommendation_type or self._detect_recommendation_type(
-            recommendation
-        )
+        recommendation_type = recommendation_type or self._detect_recommendation_type(recommendation)
 
         self._stats["evaluations"] += 1
 
@@ -778,19 +772,13 @@ class RecommendationEvaluator(BaseEvaluator):
         )
 
         # Actionability heuristics
-        scores[EvaluationCriteria.ACTIONABILITY] = self._evaluate_actionability_heuristic(
-            recommendation
-        )
+        scores[EvaluationCriteria.ACTIONABILITY] = self._evaluate_actionability_heuristic(recommendation)
 
         # Safety heuristics
-        scores[EvaluationCriteria.SAFETY] = self._evaluate_safety_heuristic(
-            recommendation, recommendation_type
-        )
+        scores[EvaluationCriteria.SAFETY] = self._evaluate_safety_heuristic(recommendation, recommendation_type)
 
         # Relevance heuristics
-        scores[EvaluationCriteria.RELEVANCE] = self._evaluate_relevance_heuristic(
-            recommendation, query, context
-        )
+        scores[EvaluationCriteria.RELEVANCE] = self._evaluate_relevance_heuristic(recommendation, query, context)
 
         # Completeness heuristics
         scores[EvaluationCriteria.COMPLETENESS] = self._evaluate_completeness_heuristic(
@@ -901,9 +889,7 @@ class RecommendationEvaluator(BaseEvaluator):
             evidence.append(f"Contains timing guidance: {found_times[:3]}")
 
         # Check for step-by-step indicators
-        step_indicators = re.findall(
-            r"(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)", rec_lower
-        )
+        step_indicators = re.findall(r"(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)", rec_lower)
         if step_indicators:
             score += 0.1
             evidence.append("Contains step-by-step instructions")

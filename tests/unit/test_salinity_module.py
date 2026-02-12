@@ -113,8 +113,12 @@ class TestSalinityModule:
 
     def test_assess_moderate_salinity(self, module):
         result = module.assess(
-            ec_water=2.0, crop="tomato", kc=1.15,
-            na=8.0, ca=4.0, mg=2.0,
+            ec_water=2.0,
+            crop="tomato",
+            kc=1.15,
+            na=8.0,
+            ca=4.0,
+            mg=2.0,
         )
         assert result.risk in [SalinityRisk.SLIGHT_MODERATE, SalinityRisk.SEVERE]
         assert result.sar > 0
@@ -130,7 +134,9 @@ class TestSalinityModule:
 
     def test_leaching_requirement(self, module):
         lr = module.calculate_leaching_requirement(
-            ec_water=3.0, crop="wheat", irrigation_depth_mm=40.0,
+            ec_water=3.0,
+            crop="wheat",
+            irrigation_depth_mm=40.0,
         )
         assert lr.leaching_fraction > 0
         assert lr.extra_water_mm > 0

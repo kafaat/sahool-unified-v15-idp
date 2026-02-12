@@ -14,8 +14,9 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.copilot]
@@ -62,7 +63,7 @@ class TestChatModels:
 
     def test_chat_request_with_context(self):
         """Test ChatRequest with context."""
-        from src.models.schemas import ChatRequest, ChatContext
+        from src.models.schemas import ChatContext, ChatRequest
 
         context = ChatContext(
             file_path="/path/to/file.py",
@@ -105,8 +106,9 @@ class TestToolGuardrails:
 
     def test_blocked_patterns(self):
         """Test blocked patterns are detected."""
-        from src.security.allowlists import BLOCKED_PATTERNS
         import re
+
+        from src.security.allowlists import BLOCKED_PATTERNS
 
         # Test dangerous patterns
         test_cases = [
@@ -116,8 +118,7 @@ class TestToolGuardrails:
         ]
 
         for text, should_block in test_cases:
-            blocked = any(re.search(pattern, text, re.IGNORECASE)
-                         for pattern in BLOCKED_PATTERNS)
+            blocked = any(re.search(pattern, text, re.IGNORECASE) for pattern in BLOCKED_PATTERNS)
             assert blocked == should_block, f"Pattern check failed for: {text}"
 
     def test_dangerous_commands(self):
@@ -130,8 +131,8 @@ class TestToolGuardrails:
 
     def test_guard_decision_allow(self):
         """Test guard allows safe operations."""
-        from src.security.guardrails import ToolGuard
         from src.models.schemas import ToolCallRequest
+        from src.security.guardrails import ToolGuard
 
         guard = ToolGuard()
 
@@ -145,8 +146,8 @@ class TestToolGuardrails:
 
     def test_guard_decision_block_dangerous_tool(self):
         """Test guard blocks dangerous tools."""
-        from src.security.guardrails import ToolGuard
         from src.models.schemas import ToolCallRequest
+        from src.security.guardrails import ToolGuard
 
         guard = ToolGuard()
 
@@ -174,17 +175,15 @@ class TestRAGService:
     @pytest.mark.asyncio
     async def test_search_returns_documents(self):
         """Test search returns relevant documents."""
-        from src.rag.service import CopilotRAGService
         from src.core.config import Settings
+        from src.rag.service import CopilotRAGService
 
         settings = Settings()
         service = CopilotRAGService(settings)
 
         # Mock the search
-        with patch.object(service, '_search_keyword') as mock_search:
-            mock_search.return_value = [
-                {"content": "Test document", "score": 0.9}
-            ]
+        with patch.object(service, "_search_keyword") as mock_search:
+            mock_search.return_value = [{"content": "Test document", "score": 0.9}]
 
             results = await service.search("test query", top_k=5)
             assert len(results) >= 0  # May be empty in unit tests
@@ -240,7 +239,11 @@ class TestMultiLLMProviderDetection:
         settings = Settings()
 
         # Ollama should always be listed
-        providers = settings.get_available_providers() if hasattr(settings, 'get_available_providers') else []
+        providers = (
+            settings.get_available_providers()
+            if hasattr(settings, "get_available_providers")
+            else []
+        )
         # In production, this would check actual providers
 
 

@@ -24,10 +24,9 @@ import sys
 # Add notification-service root to path so 'from src.X import' works
 sys.path.insert(0, os.path.dirname(__file__))
 
-from src.repository import FarmerProfileRepository
-
 from src.database import check_db_health, close_db, init_notification_db
 from src.models import FarmerCrop, FarmerField, FarmerProfile
+from src.repository import FarmerProfileRepository
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("migration")

@@ -1,4 +1,9 @@
 fastapi==0.128.5
 uvicorn[standard]==0.40.0
 pydantic>=2.10.0
+pydantic-settings>=2.6.1
 python-dotenv==1.2.1
+asyncpg==0.30.0
+nats-py==2.10.0
+structlog==25.1.0
+prometheus-client==0.21.1

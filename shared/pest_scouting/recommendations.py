@@ -18,30 +18,31 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from .models import (
+    AlertPriority,
+    CropType,
+    InfestationLevel,
+    PestAlert,
+    PestLifeStage,
+    ScoutReport,
     TreatmentRecommendation,
     TreatmentType,
     TreatmentUrgency,
-    CropType,
-    PestLifeStage,
-    PestAlert,
-    ScoutReport,
-    InfestationLevel,
-    AlertPriority,
 )
 from .thresholds import ThresholdAssessment
-
 
 # =============================================================================
 # TREATMENT OPTIONS DATABASE - قاعدة بيانات خيارات العلاج
 # =============================================================================
 
+
 @dataclass
 class ChemicalOption:
     """Chemical treatment option."""
+
     product_name: str
     product_name_ar: str
     active_ingredient: str
@@ -83,6 +84,7 @@ class ChemicalOption:
 @dataclass
 class BiologicalOption:
     """Biological control option."""
+
     agent_name: str
     agent_name_ar: str
     agent_type: str  # predator, parasitoid, pathogen, biopesticide
@@ -116,6 +118,7 @@ class BiologicalOption:
 @dataclass
 class CulturalPractice:
     """Cultural control practice."""
+
     practice: str
     practice_ar: str
     timing: str
@@ -152,7 +155,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.IMMEDIATE,
         "primary_strategy": "Integrated management combining chemical injection, trapping, and sanitation",
         "primary_strategy_ar": "إدارة متكاملة تجمع بين الحقن الكيميائي والمصائد والصرف الصحي",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Emamectin benzoate 5% SG",
@@ -191,7 +193,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="يُطبق كغمر تربة للعلاج الوقائي، 20-40 لتر لكل شجرة",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Metarhizium anisopliae",
@@ -222,7 +223,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="تطبيق وقائي خلال فترات الخطر العالي",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="Pheromone trap deployment",
@@ -263,7 +263,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 cost="low",
             ),
         ],
-
         "precautions": [
             "Quarantine pest - report detections to agricultural authorities",
             "Wear full PPE during trunk injection",
@@ -277,7 +276,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
             "عالج جميع النخيل ضمن دائرة 500 متر من الاكتشاف",
         ],
     },
-
     # -------------------------------------------------------------------------
     # DUBAS BUG - دوباس النخيل
     # -------------------------------------------------------------------------
@@ -287,7 +285,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.SOON,
         "primary_strategy": "Timed sprays targeting nymphal stages in spring and fall",
         "primary_strategy_ar": "رشات موقوتة تستهدف مراحل الحوريات في الربيع والخريف",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Dimethoate 40% EC",
@@ -326,7 +323,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="جهازي ثنائي الاتجاه - جيد للمراحل المختفية",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Azadirachtin (Neem)",
@@ -343,7 +339,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="تأثير منظم نمو - يعيق الانسلاخ. يتطلب تطبيقات متكررة.",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="High-pressure water spray",
@@ -362,7 +357,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 cost="moderate",
             ),
         ],
-
         "precautions": [
             "Time applications based on pest phenology - target early nymphs",
             "Use high water volume for good coverage (1000+ L/ha)",
@@ -374,7 +368,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
             "راقب الأعداء الطبيعيين قبل الرش",
         ],
     },
-
     # -------------------------------------------------------------------------
     # APHIDS - المن
     # -------------------------------------------------------------------------
@@ -384,7 +377,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.SOON,
         "primary_strategy": "IPM approach: conserve natural enemies, use selective insecticides when needed",
         "primary_strategy_ar": "نهج المكافحة المتكاملة: حافظ على الأعداء الطبيعيين، استخدم مبيدات انتقائية عند الحاجة",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Flonicamid 50% WG",
@@ -441,7 +433,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="يوقف التغذية بسرعة، المن يموت خلال أيام",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Aphidius colemani",
@@ -486,7 +477,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="فعل تلامسي فقط، كرر كل 5-7 أيام",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="Reflective mulches",
@@ -517,7 +507,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="النيتروجين الزائد يعزز النمو الغض الجاذب للمن",
             ),
         ],
-
         "precautions": [
             "Rotate insecticide modes of action to prevent resistance",
             "Preserve natural enemies - avoid broad-spectrum insecticides",
@@ -529,7 +518,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
             "راعِ خطر نقل الفيروسات عند تحديد العتبات",
         ],
     },
-
     # -------------------------------------------------------------------------
     # WHITEFLIES - الذبابة البيضاء
     # -------------------------------------------------------------------------
@@ -539,7 +527,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.URGENT,
         "primary_strategy": "Prevention and early intervention critical. IPM with emphasis on resistance management.",
         "primary_strategy_ar": "الوقاية والتدخل المبكر ضروريان. مكافحة متكاملة مع التركيز على إدارة المقاومة.",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Cyantraniliprole 10% OD",
@@ -596,7 +583,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="منظم نمو - يمنع التحول، يعقم الحشرات الكاملة",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Encarsia formosa",
@@ -627,7 +613,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="أفضل بالتزامن مع تكتيكات أخرى",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="Yellow sticky traps for monitoring and mass trapping",
@@ -668,7 +653,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="50 ثقب في البوصة أو أدق",
             ),
         ],
-
         "precautions": [
             "Strict resistance management - rotate modes of action",
             "TYLCV vector - consider virus transmission in management",
@@ -682,7 +666,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
             "امسح بشكل متكرر، عالج عند الكثافات المنخفضة",
         ],
     },
-
     # -------------------------------------------------------------------------
     # SPIDER MITES - العنكبوت الأحمر
     # -------------------------------------------------------------------------
@@ -692,7 +675,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.URGENT,
         "primary_strategy": "Rapid intervention needed. Acaricide rotation essential due to high resistance risk.",
         "primary_strategy_ar": "تدخل سريع ضروري. تبديل المبيدات الأكاروسية ضروري بسبب خطر المقاومة العالي.",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Abamectin 1.8% EC",
@@ -749,7 +731,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="قاتل للبيض واليرقات، لا نشاط على الحشرات الكاملة",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Phytoseiulus persimilis",
@@ -780,7 +761,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="عام التغذية، يعيش على حبوب اللقاح، أفضل في الظروف الجافة",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="Overhead irrigation / water spraying",
@@ -811,7 +791,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="الغبار يفضل العناكب، يثبط المفترسات",
             ),
         ],
-
         "precautions": [
             "Rotate acaricide modes of action - max 2 applications per mode/season",
             "Avoid broad-spectrum insecticides that kill predatory mites",
@@ -825,7 +804,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
             "التغطية الشاملة ضرورية - خاصة السطح السفلي للأوراق",
         ],
     },
-
     # -------------------------------------------------------------------------
     # TUTA ABSOLUTA - حافرة أنفاق الطماطم
     # -------------------------------------------------------------------------
@@ -835,7 +813,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
         "urgency": TreatmentUrgency.IMMEDIATE,
         "primary_strategy": "Intensive IPM program combining multiple tactics. Early detection critical.",
         "primary_strategy_ar": "برنامج مكافحة متكاملة مكثف يجمع تكتيكات متعددة. الكشف المبكر ضروري.",
-
         "chemical_options": [
             ChemicalOption(
                 product_name="Chlorantraniliprole 20% SC",
@@ -892,7 +869,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="آلية عمل مختلفة للتبديل",
             ),
         ],
-
         "biological_options": [
             BiologicalOption(
                 agent_name="Trichogramma spp.",
@@ -937,7 +913,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 notes_ar="يجب أن يُبتلع، يعمل ببطء",
             ),
         ],
-
         "cultural_practices": [
             CulturalPractice(
                 practice="Pheromone mass trapping",
@@ -978,7 +953,6 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
                 cost="moderate",
             ),
         ],
-
         "precautions": [
             "Quarantine pest in some regions - check regulations",
             "Intensive monitoring essential - check traps 2-3 times/week",
@@ -1000,6 +974,7 @@ TREATMENT_PROTOCOLS: dict[str, dict[str, Any]] = {
 # =============================================================================
 # RECOMMENDATION GENERATOR - مولد التوصيات
 # =============================================================================
+
 
 def get_treatment_protocol(pest_id: str) -> dict[str, Any] | None:
     """
@@ -1056,7 +1031,11 @@ def generate_treatment_recommendation(
         urgency = TreatmentUrgency.IMMEDIATE
     elif infestation_level == InfestationLevel.HIGH:
         urgency = TreatmentUrgency.URGENT
-    elif infestation_level == InfestationLevel.MODERATE or assessment and assessment.exceeds_action_threshold:
+    elif (
+        infestation_level == InfestationLevel.MODERATE
+        or assessment
+        and assessment.exceeds_action_threshold
+    ):
         urgency = TreatmentUrgency.SOON
     else:
         urgency = TreatmentUrgency.MONITOR
@@ -1120,7 +1099,9 @@ def generate_treatment_recommendation(
 
     # Weather requirements
     rec.weather_requirements = "Temperature 15-30C, wind <15 km/h, no rain expected for 4+ hours"
-    rec.weather_requirements_ar = "درجة حرارة 15-30 مئوية، رياح <15 كم/ساعة، لا أمطار متوقعة لـ 4+ ساعات"
+    rec.weather_requirements_ar = (
+        "درجة حرارة 15-30 مئوية، رياح <15 كم/ساعة، لا أمطار متوقعة لـ 4+ ساعات"
+    )
 
     # Set optimal window
     now = datetime.now(UTC)
@@ -1256,6 +1237,7 @@ def generate_recommendations_from_report(
 # ROTATION RECOMMENDATIONS - توصيات التبديل
 # =============================================================================
 
+
 def get_rotation_recommendation(
     pest_id: str,
     recent_treatments: list[str],  # List of recently used active ingredients
@@ -1292,10 +1274,7 @@ def get_rotation_recommendation(
     recent_lower = [ai.lower() for ai in recent_treatments]
     unused_modes: list[str] = []
     for mode, options in mode_groups.items():
-        mode_used = any(
-            opt.active_ingredient.lower() in recent_lower
-            for opt in options
-        )
+        mode_used = any(opt.active_ingredient.lower() in recent_lower for opt in options)
         if not mode_used:
             unused_modes.append(mode)
 

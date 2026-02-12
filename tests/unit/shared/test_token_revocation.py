@@ -369,7 +369,9 @@ class TestUserLevelRevocation:
             assert result is False
 
     @pytest.mark.asyncio
-    async def test_is_user_token_revoked_false_token_issued_after(self, revocation_store, test_user_id):
+    async def test_is_user_token_revoked_false_token_issued_after(
+        self, revocation_store, test_user_id
+    ):
         """Test checking if user tokens are revoked (token issued after revocation)"""
         with patch("redis.asyncio.from_url") as mock_redis_factory:
             mock_redis = AsyncMock()
@@ -497,7 +499,9 @@ class TestTenantLevelRevocation:
             assert result is True
 
     @pytest.mark.asyncio
-    async def test_is_tenant_token_revoked_false_no_revocation(self, revocation_store, test_tenant_id):
+    async def test_is_tenant_token_revoked_false_no_revocation(
+        self, revocation_store, test_tenant_id
+    ):
         """Test checking if tenant tokens are revoked (no revocation entry)"""
         with patch("redis.asyncio.from_url") as mock_redis_factory:
             mock_redis = AsyncMock()
@@ -513,7 +517,9 @@ class TestTenantLevelRevocation:
             assert result is False
 
     @pytest.mark.asyncio
-    async def test_is_tenant_token_revoked_false_token_issued_after(self, revocation_store, test_tenant_id):
+    async def test_is_tenant_token_revoked_false_token_issued_after(
+        self, revocation_store, test_tenant_id
+    ):
         """Test checking if tenant tokens are revoked (token issued after revocation)"""
         with patch("redis.asyncio.from_url") as mock_redis_factory:
             mock_redis = AsyncMock()
@@ -622,7 +628,9 @@ class TestCombinedRevocationCheck:
             assert reason is None
 
     @pytest.mark.asyncio
-    async def test_is_revoked_priority_jti_over_user(self, revocation_store, test_jti, test_user_id):
+    async def test_is_revoked_priority_jti_over_user(
+        self, revocation_store, test_jti, test_user_id
+    ):
         """Test that JTI revocation is checked before user revocation"""
         with patch("redis.asyncio.from_url") as mock_redis_factory:
             mock_redis = AsyncMock()
@@ -656,11 +664,13 @@ class TestStatsAndHealth:
         with patch("redis.asyncio.from_url") as mock_redis_factory:
             mock_redis = AsyncMock()
             mock_redis.ping = AsyncMock(return_value=True)
-            mock_redis.keys = AsyncMock(side_effect=[
-                ["revoked:token:jti1", "revoked:token:jti2"],
-                ["revoked:user:user1"],
-                ["revoked:tenant:tenant1"],
-            ])
+            mock_redis.keys = AsyncMock(
+                side_effect=[
+                    ["revoked:token:jti1", "revoked:token:jti2"],
+                    ["revoked:user:user1"],
+                    ["revoked:tenant:tenant1"],
+                ]
+            )
             mock_redis_factory.return_value = mock_redis
 
             stats = await revocation_store.get_stats()

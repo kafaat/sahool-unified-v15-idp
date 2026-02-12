@@ -20,7 +20,7 @@ import os
 import tempfile
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any, Optional
 
@@ -37,10 +37,11 @@ try:
     from rasterio.enums import Resampling
     from rasterio.fill import fillnodata
     from rasterio.io import MemoryFile
+    from rasterio.mask import mask as rasterio_mask
     from rasterio.merge import merge
     from rasterio.warp import calculate_default_transform, reproject
-    from rasterio.mask import mask as rasterio_mask
     from shapely.geometry import box, mapping, shape
+
     RASTERIO_AVAILABLE = True
 except ImportError:
     RASTERIO_AVAILABLE = False
@@ -48,7 +49,7 @@ except ImportError:
 logger = structlog.get_logger()
 
 
-class DEMSource(str, Enum):
+class DEMSource(StrEnum):
     """Supported DEM data sources | مصادر بيانات الارتفاعات المدعومة"""
 
     COPERNICUS = "copernicus"
@@ -57,7 +58,7 @@ class DEMSource(str, Enum):
     LOCAL = "local"
 
 
-class ResamplingMethod(str, Enum):
+class ResamplingMethod(StrEnum):
     """Resampling methods | طرق إعادة التشكيل"""
 
     BILINEAR = "bilinear"
@@ -299,9 +300,7 @@ class DEMProcessor:
 
         # Acquire based on source
         if source == DEMSource.LOCAL:
-            raise ValueError(
-                "LOCAL source requires a file path. Use load_local_dem() method."
-            )
+            raise ValueError("LOCAL source requires a file path. Use load_local_dem() method.")
 
         # For demo/testing, generate synthetic DEM
         # In production, this would call actual DEM APIs
@@ -359,21 +358,26 @@ class DEMProcessor:
         # Add a valley/drainage feature
         valley_center_x = width // 2
         distance_from_center = np.abs(np.arange(width) - valley_center_x)
-        valley_depth = 50 * np.exp(-distance_from_center**2 / (width**2 / 16))
+        valley_depth = 50 * np.exp(-(distance_from_center**2) / (width**2 / 16))
         terrain -= valley_depth[np.newaxis, :]
 
         # Ensure no negative elevations
         terrain = np.maximum(terrain, 0).astype(np.float32)
 
         # Create transform
-        transform = Affine(
-            resolution_m / meters_per_degree_lon,  # pixel width in degrees
-            0.0,
-            bounds.min_lon,
-            0.0,
-            -resolution_m / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
-            bounds.max_lat,
-        ) if RASTERIO_AVAILABLE else None
+        transform = (
+            Affine(
+                resolution_m / meters_per_degree_lon,  # pixel width in degrees
+                0.0,
+                bounds.min_lon,
+                0.0,
+                -resolution_m
+                / meters_per_degree_lat,  # pixel height in degrees (negative for north-up)
+                bounds.max_lat,
+            )
+            if RASTERIO_AVAILABLE
+            else None
+        )
 
         # Create metadata
         source_config = self.SOURCE_CONFIGS[source]
@@ -550,6 +554,7 @@ class DEMProcessor:
         else:
             # Simple interpolation fallback
             from scipy.ndimage import zoom
+
             resampled = zoom(dem_data.data, scale_factor, order=1).astype(np.float32)
             new_transform = dem_data.transform
 
@@ -570,9 +575,10 @@ class DEMProcessor:
         nodata_mask = np.zeros((new_height, new_width), dtype=np.bool_)
         if np.any(dem_data.nodata_mask):
             from scipy.ndimage import zoom as zoom_mask
-            nodata_mask = zoom_mask(
-                dem_data.nodata_mask.astype(np.float32), scale_factor, order=0
-            ) > 0.5
+
+            nodata_mask = (
+                zoom_mask(dem_data.nodata_mask.astype(np.float32), scale_factor, order=0) > 0.5
+            )
 
         return DEMData(
             data=resampled,
@@ -723,7 +729,7 @@ class DEMProcessor:
             if num_features > 0:
                 # Get indices of valid data
                 valid_indices = np.where(~mask)
-                valid_values = filled[valid_indices]
+                filled[valid_indices]
 
                 # For each nodata point, find nearest valid point
                 distances, indices = distance_transform_edt(

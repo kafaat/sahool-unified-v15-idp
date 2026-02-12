@@ -11,12 +11,9 @@ ARG SERVICE_NAME=field-management-service
 ARG SERVICE_VERSION=16.0.0
 
 # Stage 1: Build
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 WORKDIR /app
-
-# Install OpenSSL for Prisma (Alpine 3.17+ uses OpenSSL 3.x)
-RUN apk add --no-cache openssl
 
 # Upgrade npm to latest version for better dependency resolution
 RUN npm install -g npm@11.7.0
@@ -26,7 +23,20 @@ COPY packages/field-shared ./packages/field-shared
 
 # Build field-shared package first (needed for TypeScript compilation)
 WORKDIR /app/packages/field-shared
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 && npm run build
+# Use retry loop and npm cache for resilience against network issues
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing field-shared dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && npm run build && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "field-shared build failed after retries" && exit 1)
 
 # Return to app directory and install dependencies
 WORKDIR /app
@@ -35,8 +45,20 @@ COPY apps/services/field-management-service/package.json ./
 # Fix the file: path reference for Docker build context (../../../packages -> ./packages)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
 
-# Install dependencies
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing service dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install failed after retries" && exit 1)
 
 # Copy prisma schema (required for prisma generate)
 COPY apps/services/field-management-service/prisma ./prisma
@@ -50,9 +72,10 @@ COPY apps/services/field-management-service/src ./src
 RUN npm run build
 
 # Stage 2: Production
-FROM node:${NODE_VERSION}-alpine
+FROM node:${NODE_VERSION}-bookworm-slim
 
 # Re-declare ARGs for this stage
+ARG NODE_VERSION=20
 ARG SERVICE_NAME=field-management-service
 ARG SERVICE_VERSION=16.0.0
 
@@ -62,11 +85,13 @@ LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
 WORKDIR /app
 
 # Create non-root user for security
-RUN addgroup --system sahool && \
-    adduser --system --ingroup sahool --disabled-password --gecos "" sahool
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash sahool
 
-# Install curl for healthcheck and OpenSSL for Prisma
-RUN apk add --no-cache curl ca-certificates openssl
+# Install curl for healthcheck and ca-certificates
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0
@@ -80,8 +105,20 @@ COPY --from=builder /app/package.json ./
 # Fix the file: path reference again for production stage
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
 
-# Install production dependencies only
-RUN npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install production dependencies only with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        npm install --omit=dev --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install production failed after retries" && exit 1)
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

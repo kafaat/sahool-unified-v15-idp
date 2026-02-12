@@ -22,18 +22,18 @@ import logging
 import os
 import sqlite3
 import struct
+import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable
-import uuid
 
 logger = logging.getLogger(__name__)
 
 
-class VectorStoreBackend(str, Enum):
+class VectorStoreBackend(StrEnum):
     """Supported vector store backends"""
 
     # Local backends (offline-first)
@@ -47,7 +47,7 @@ class VectorStoreBackend(str, Enum):
     # WEAVIATE = "weaviate"
 
 
-class DistanceMetric(str, Enum):
+class DistanceMetric(StrEnum):
     """Distance metrics for similarity search"""
 
     COSINE = "cosine"
@@ -55,7 +55,7 @@ class DistanceMetric(str, Enum):
     DOT_PRODUCT = "dot_product"
 
 
-class IndexType(str, Enum):
+class IndexType(StrEnum):
     """Index types for efficient search"""
 
     FLAT = "flat"  # Exact search (brute force)
@@ -96,10 +96,7 @@ class VectorStoreConfig:
     def __post_init__(self):
         """Initialize defaults from environment"""
         if self.storage_path is None:
-            self.storage_path = os.getenv(
-                "VECTOR_STORE_PATH",
-                str(Path.home() / ".sahool" / "vector_store")
-            )
+            self.storage_path = os.getenv("VECTOR_STORE_PATH", str(Path.home() / ".sahool" / "vector_store"))
 
 
 @dataclass
@@ -196,6 +193,7 @@ class CollectionInfo:
 # ============================================================================
 # Vector Store Backends
 # ============================================================================
+
 
 class VectorStoreBackendBase(ABC):
     """Abstract base class for vector store backends
@@ -410,18 +408,21 @@ class SQLiteBackend(VectorStoreBackendBase):
         now = datetime.now(UTC).isoformat()
 
         cursor = self._conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO collections
             (name, dimension, distance_metric, metadata, created_at, updated_at)
             VALUES (?, ?, ?, ?, ?, ?)
-        """, (
-            name,
-            dimension,
-            distance_metric.value,
-            json.dumps(metadata or {}),
-            now,
-            now,
-        ))
+        """,
+            (
+                name,
+                dimension,
+                distance_metric.value,
+                json.dumps(metadata or {}),
+                now,
+                now,
+            ),
+        )
         self._conn.commit()
 
         return CollectionInfo(
@@ -459,28 +460,33 @@ class SQLiteBackend(VectorStoreBackendBase):
 
         results = []
         for row in cursor.fetchall():
-            results.append(CollectionInfo(
-                name=row["name"],
-                document_count=row["doc_count"],
-                dimension=row["dimension"],
-                distance_metric=DistanceMetric(row["distance_metric"]),
-                created_at=datetime.fromisoformat(row["created_at"]),
-                updated_at=datetime.fromisoformat(row["updated_at"]),
-                metadata=json.loads(row["metadata"]) if row["metadata"] else {},
-            ))
+            results.append(
+                CollectionInfo(
+                    name=row["name"],
+                    document_count=row["doc_count"],
+                    dimension=row["dimension"],
+                    distance_metric=DistanceMetric(row["distance_metric"]),
+                    created_at=datetime.fromisoformat(row["created_at"]),
+                    updated_at=datetime.fromisoformat(row["updated_at"]),
+                    metadata=json.loads(row["metadata"]) if row["metadata"] else {},
+                )
+            )
 
         return results
 
     async def get_collection_info(self, name: str) -> CollectionInfo | None:
         """Get collection information"""
         cursor = self._conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT c.*, COUNT(d.id) as doc_count
             FROM collections c
             LEFT JOIN documents d ON c.name = d.collection
             WHERE c.name = ?
             GROUP BY c.name
-        """, (name,))
+        """,
+            (name,),
+        )
 
         row = cursor.fetchone()
         if not row:
@@ -506,32 +512,41 @@ class SQLiteBackend(VectorStoreBackendBase):
         ids = []
 
         for doc in documents:
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO documents
                 (id, collection, vector, content, metadata, created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (
-                doc.id,
-                collection,
-                self._serialize_vector(doc.vector),
-                doc.content,
-                json.dumps(doc.metadata),
-                doc.created_at.isoformat(),
-                doc.updated_at.isoformat(),
-            ))
+            """,
+                (
+                    doc.id,
+                    collection,
+                    self._serialize_vector(doc.vector),
+                    doc.content,
+                    json.dumps(doc.metadata),
+                    doc.created_at.isoformat(),
+                    doc.updated_at.isoformat(),
+                ),
+            )
             ids.append(doc.id)
 
             # Update FTS
-            cursor.execute("""
+            cursor.execute(
+                """
                 INSERT OR REPLACE INTO documents_fts (id, content)
                 VALUES (?, ?)
-            """, (doc.id, doc.content))
+            """,
+                (doc.id, doc.content),
+            )
 
         # Update collection timestamp
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE collections SET updated_at = ?
             WHERE name = ?
-        """, (datetime.now(UTC).isoformat(), collection))
+        """,
+            (datetime.now(UTC).isoformat(), collection),
+        )
 
         self._conn.commit()
         return ids
@@ -545,24 +560,30 @@ class SQLiteBackend(VectorStoreBackendBase):
         document.updated_at = datetime.now(UTC)
         cursor = self._conn.cursor()
 
-        cursor.execute("""
+        cursor.execute(
+            """
             UPDATE documents
             SET vector = ?, content = ?, metadata = ?, updated_at = ?
             WHERE id = ? AND collection = ?
-        """, (
-            self._serialize_vector(document.vector),
-            document.content,
-            json.dumps(document.metadata),
-            document.updated_at.isoformat(),
-            document.id,
-            collection,
-        ))
+        """,
+            (
+                self._serialize_vector(document.vector),
+                document.content,
+                json.dumps(document.metadata),
+                document.updated_at.isoformat(),
+                document.id,
+                collection,
+            ),
+        )
 
         # Update FTS
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT OR REPLACE INTO documents_fts (id, content)
             VALUES (?, ?)
-        """, (document.id, document.content))
+        """,
+            (document.id, document.content),
+        )
 
         self._conn.commit()
         return cursor.rowcount > 0
@@ -577,16 +598,22 @@ class SQLiteBackend(VectorStoreBackendBase):
 
         # Using parameterized query with ? placeholders - safe from SQL injection
         placeholders = ",".join("?" * len(ids))
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
-        """, (*ids, collection))  # nosec B608 - parameterized query
+        """,
+            (*ids, collection),
+        )  # nosec B608 - parameterized query
 
         # Delete from FTS
-        cursor.execute(f"""
+        cursor.execute(
+            f"""
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
-        """, ids)  # nosec B608 - parameterized query
+        """,
+            ids,
+        )  # nosec B608 - parameterized query
 
         self._conn.commit()
         return cursor.rowcount
@@ -598,10 +625,13 @@ class SQLiteBackend(VectorStoreBackendBase):
     ) -> VectorDocument | None:
         """Get document by ID"""
         cursor = self._conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM documents
             WHERE id = ? AND collection = ?
-        """, (id, collection))
+        """,
+            (id, collection),
+        )
 
         row = cursor.fetchone()
         if not row:
@@ -628,9 +658,12 @@ class SQLiteBackend(VectorStoreBackendBase):
         cursor = self._conn.cursor()
 
         # Get all documents in collection (brute force for FLAT index)
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT * FROM documents WHERE collection = ?
-        """, (collection,))
+        """,
+            (collection,),
+        )
 
         results = []
         for row in cursor.fetchall():
@@ -668,11 +701,13 @@ class SQLiteBackend(VectorStoreBackendBase):
                 collection=row["collection"],
             )
 
-            results.append(SearchResult(
-                document=doc,
-                score=score,
-                distance=distance,
-            ))
+            results.append(
+                SearchResult(
+                    document=doc,
+                    score=score,
+                    distance=distance,
+                )
+            )
 
         # Sort by score (descending) and take top_k
         results.sort(key=lambda x: x.score, reverse=True)
@@ -687,9 +722,12 @@ class SQLiteBackend(VectorStoreBackendBase):
     async def count(self, collection: str) -> int:
         """Count documents in collection"""
         cursor = self._conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT COUNT(*) FROM documents WHERE collection = ?
-        """, (collection,))
+        """,
+            (collection,),
+        )
         return cursor.fetchone()[0]
 
     async def full_text_search(
@@ -703,25 +741,30 @@ class SQLiteBackend(VectorStoreBackendBase):
         بحث نصي كامل في محتوى المستندات
         """
         cursor = self._conn.cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             SELECT d.* FROM documents d
             JOIN documents_fts fts ON d.id = fts.id
             WHERE documents_fts MATCH ? AND d.collection = ?
             ORDER BY rank
             LIMIT ?
-        """, (query, collection, top_k))
+        """,
+            (query, collection, top_k),
+        )
 
         results = []
         for row in cursor.fetchall():
-            results.append(VectorDocument(
-                id=row["id"],
-                vector=self._deserialize_vector(row["vector"]),
-                content=row["content"] or "",
-                metadata=json.loads(row["metadata"]) if row["metadata"] else {},
-                created_at=datetime.fromisoformat(row["created_at"]),
-                updated_at=datetime.fromisoformat(row["updated_at"]),
-                collection=row["collection"],
-            ))
+            results.append(
+                VectorDocument(
+                    id=row["id"],
+                    vector=self._deserialize_vector(row["vector"]),
+                    content=row["content"] or "",
+                    metadata=json.loads(row["metadata"]) if row["metadata"] else {},
+                    created_at=datetime.fromisoformat(row["created_at"]),
+                    updated_at=datetime.fromisoformat(row["updated_at"]),
+                    collection=row["collection"],
+                )
+            )
 
         return results
 
@@ -889,11 +932,13 @@ class MemoryBackend(VectorStoreBackendBase):
                 score = sum(a * b for a, b in zip(vector, doc.vector))
                 distance = -score
 
-            results.append(SearchResult(
-                document=doc,
-                score=score,
-                distance=distance,
-            ))
+            results.append(
+                SearchResult(
+                    document=doc,
+                    score=score,
+                    distance=distance,
+                )
+            )
 
         results.sort(key=lambda x: x.score, reverse=True)
         results = results[:top_k]
@@ -911,6 +956,7 @@ class MemoryBackend(VectorStoreBackendBase):
 # ============================================================================
 # Main Vector Store Class
 # ============================================================================
+
 
 class VectorStore:
     """Main vector store class with high-level operations
@@ -1280,25 +1326,20 @@ async def search_documents(
 __all__ = [
     # Config
     "VectorStoreConfig",
-
     # Enums
     "VectorStoreBackend",
     "DistanceMetric",
     "IndexType",
-
     # Data classes
     "VectorDocument",
     "SearchResult",
     "CollectionInfo",
-
     # Backends
     "VectorStoreBackendBase",
     "SQLiteBackend",
     "MemoryBackend",
-
     # Main class
     "VectorStore",
-
     # Convenience functions
     "get_vector_store",
     "add_documents",

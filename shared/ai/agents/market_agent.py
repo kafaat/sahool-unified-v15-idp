@@ -20,21 +20,21 @@ Created: January 2026
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
+    AgentCapability,
     AgentMode,
     AgentStep,
     AgentTool,
-    AgentCapability,
     BaseAutonomousAgent,
     CollaborationRole,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 
@@ -50,6 +50,7 @@ class MarketPrice:
     Market price information for a commodity.
     معلومات سعر السوق لسلعة
     """
+
     commodity: str
     commodity_ar: str
     price_per_kg: float
@@ -69,6 +70,7 @@ class PriceForcast:
     Price forecast for a commodity.
     توقعات السعر لسلعة
     """
+
     commodity: str
     commodity_ar: str
     current_price: float
@@ -86,6 +88,7 @@ class SellingRecommendation:
     Recommendation for optimal selling.
     توصية للبيع الأمثل
     """
+
     recommendation_id: str
     action: str  # sell_now, hold, sell_partial
     action_ar: str
@@ -106,6 +109,7 @@ class BuyerMatch:
     Potential buyer match.
     مطابقة مشتري محتمل
     """
+
     buyer_id: str
     buyer_name: str
     buyer_type: str  # wholesaler, retailer, exporter, processor
@@ -164,8 +168,16 @@ class MarketSubAgent(BaseAutonomousAgent):
 
     # Market configuration
     SUPPORTED_COMMODITIES = [
-        "wheat", "barley", "dates", "tomatoes", "cucumbers",
-        "potatoes", "onions", "alfalfa", "corn", "sorghum"
+        "wheat",
+        "barley",
+        "dates",
+        "tomatoes",
+        "cucumbers",
+        "potatoes",
+        "onions",
+        "alfalfa",
+        "corn",
+        "sorghum",
     ]
 
     def __init__(
@@ -206,171 +218,189 @@ class MarketSubAgent(BaseAutonomousAgent):
         """Register market-specific tools."""
 
         # Tool 1: Get Market Prices
-        self.register_tool(AgentTool(
-            name="get_market_prices",
-            name_ar="الحصول على أسعار السوق",
-            description="Get current market prices for agricultural commodities",
-            description_ar="الحصول على أسعار السوق الحالية للسلع الزراعية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "region": {"type": "string"},
-                    "quality_grade": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="get_market_prices",
+                name_ar="الحصول على أسعار السوق",
+                description="Get current market prices for agricultural commodities",
+                description_ar="الحصول على أسعار السوق الحالية للسلع الزراعية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "region": {"type": "string"},
+                        "quality_grade": {"type": "string"},
+                    },
+                    "required": ["commodity"],
                 },
-                "required": ["commodity"]
-            },
-            handler=self._get_market_prices,
-            tags=["market", "prices"],
-        ))
+                handler=self._get_market_prices,
+                tags=["market", "prices"],
+            )
+        )
 
         # Tool 2: Get Price Forecast
-        self.register_tool(AgentTool(
-            name="get_price_forecast",
-            name_ar="الحصول على توقعات الأسعار",
-            description="Get price forecast for a commodity",
-            description_ar="الحصول على توقعات أسعار سلعة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "days_ahead": {"type": "integer", "default": 30},
+        self.register_tool(
+            AgentTool(
+                name="get_price_forecast",
+                name_ar="الحصول على توقعات الأسعار",
+                description="Get price forecast for a commodity",
+                description_ar="الحصول على توقعات أسعار سلعة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "days_ahead": {"type": "integer", "default": 30},
+                    },
+                    "required": ["commodity"],
                 },
-                "required": ["commodity"]
-            },
-            handler=self._get_price_forecast,
-            tags=["market", "forecast"],
-        ))
+                handler=self._get_price_forecast,
+                tags=["market", "forecast"],
+            )
+        )
 
         # Tool 3: Get Selling Recommendation
-        self.register_tool(AgentTool(
-            name="get_selling_recommendation",
-            name_ar="الحصول على توصية البيع",
-            description="Get recommendation for optimal selling strategy",
-            description_ar="الحصول على توصية لاستراتيجية البيع المثلى",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "quantity_tons": {"type": "number"},
-                    "quality_grade": {"type": "string"},
-                    "storage_cost_per_day": {"type": "number"},
-                    "urgent": {"type": "boolean", "default": False},
+        self.register_tool(
+            AgentTool(
+                name="get_selling_recommendation",
+                name_ar="الحصول على توصية البيع",
+                description="Get recommendation for optimal selling strategy",
+                description_ar="الحصول على توصية لاستراتيجية البيع المثلى",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "quantity_tons": {"type": "number"},
+                        "quality_grade": {"type": "string"},
+                        "storage_cost_per_day": {"type": "number"},
+                        "urgent": {"type": "boolean", "default": False},
+                    },
+                    "required": ["commodity", "quantity_tons"],
                 },
-                "required": ["commodity", "quantity_tons"]
-            },
-            handler=self._get_selling_recommendation,
-            tags=["market", "selling", "recommendation"],
-        ))
+                handler=self._get_selling_recommendation,
+                tags=["market", "selling", "recommendation"],
+            )
+        )
 
         # Tool 4: Find Buyers
-        self.register_tool(AgentTool(
-            name="find_buyers",
-            name_ar="البحث عن مشترين",
-            description="Find potential buyers for agricultural products",
-            description_ar="البحث عن مشترين محتملين للمنتجات الزراعية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "quantity_tons": {"type": "number"},
-                    "quality_grade": {"type": "string"},
-                    "location": {"type": "string"},
-                    "buyer_type": {
-                        "type": "string",
-                        "enum": ["any", "wholesaler", "retailer", "exporter", "processor"],
+        self.register_tool(
+            AgentTool(
+                name="find_buyers",
+                name_ar="البحث عن مشترين",
+                description="Find potential buyers for agricultural products",
+                description_ar="البحث عن مشترين محتملين للمنتجات الزراعية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "quantity_tons": {"type": "number"},
+                        "quality_grade": {"type": "string"},
+                        "location": {"type": "string"},
+                        "buyer_type": {
+                            "type": "string",
+                            "enum": ["any", "wholesaler", "retailer", "exporter", "processor"],
+                        },
                     },
+                    "required": ["commodity"],
                 },
-                "required": ["commodity"]
-            },
-            handler=self._find_buyers,
-            tags=["market", "buyers"],
-        ))
+                handler=self._find_buyers,
+                tags=["market", "buyers"],
+            )
+        )
 
         # Tool 5: Analyze Market Demand
-        self.register_tool(AgentTool(
-            name="analyze_market_demand",
-            name_ar="تحليل طلب السوق",
-            description="Analyze current and projected market demand",
-            description_ar="تحليل طلب السوق الحالي والمتوقع",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "region": {"type": "string"},
-                    "timeframe": {
-                        "type": "string",
-                        "enum": ["current", "monthly", "seasonal", "annual"],
+        self.register_tool(
+            AgentTool(
+                name="analyze_market_demand",
+                name_ar="تحليل طلب السوق",
+                description="Analyze current and projected market demand",
+                description_ar="تحليل طلب السوق الحالي والمتوقع",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "region": {"type": "string"},
+                        "timeframe": {
+                            "type": "string",
+                            "enum": ["current", "monthly", "seasonal", "annual"],
+                        },
                     },
+                    "required": ["commodity"],
                 },
-                "required": ["commodity"]
-            },
-            handler=self._analyze_market_demand,
-            tags=["market", "demand", "analysis"],
-        ))
+                handler=self._analyze_market_demand,
+                tags=["market", "demand", "analysis"],
+            )
+        )
 
         # Tool 6: Calculate Profit Margin
-        self.register_tool(AgentTool(
-            name="calculate_profit_margin",
-            name_ar="حساب هامش الربح",
-            description="Calculate expected profit margin for a sale",
-            description_ar="حساب هامش الربح المتوقع لعملية بيع",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "quantity_tons": {"type": "number"},
-                    "production_cost_per_kg": {"type": "number"},
-                    "selling_price_per_kg": {"type": "number"},
-                    "transportation_cost": {"type": "number"},
-                    "storage_days": {"type": "integer"},
+        self.register_tool(
+            AgentTool(
+                name="calculate_profit_margin",
+                name_ar="حساب هامش الربح",
+                description="Calculate expected profit margin for a sale",
+                description_ar="حساب هامش الربح المتوقع لعملية بيع",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "quantity_tons": {"type": "number"},
+                        "production_cost_per_kg": {"type": "number"},
+                        "selling_price_per_kg": {"type": "number"},
+                        "transportation_cost": {"type": "number"},
+                        "storage_days": {"type": "integer"},
+                    },
+                    "required": ["commodity", "quantity_tons", "production_cost_per_kg"],
                 },
-                "required": ["commodity", "quantity_tons", "production_cost_per_kg"]
-            },
-            handler=self._calculate_profit_margin,
-            tags=["market", "profit", "calculation"],
-        ))
+                handler=self._calculate_profit_margin,
+                tags=["market", "profit", "calculation"],
+            )
+        )
 
         # Tool 7: Compare Markets
-        self.register_tool(AgentTool(
-            name="compare_markets",
-            name_ar="مقارنة الأسواق",
-            description="Compare prices and conditions across different markets",
-            description_ar="مقارنة الأسعار والظروف عبر أسواق مختلفة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "commodity": {"type": "string"},
-                    "markets": {
-                        "type": "array",
-                        "items": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="compare_markets",
+                name_ar="مقارنة الأسواق",
+                description="Compare prices and conditions across different markets",
+                description_ar="مقارنة الأسعار والظروف عبر أسواق مختلفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "commodity": {"type": "string"},
+                        "markets": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                        },
                     },
+                    "required": ["commodity"],
                 },
-                "required": ["commodity"]
-            },
-            handler=self._compare_markets,
-            tags=["market", "comparison"],
-        ))
+                handler=self._compare_markets,
+                tags=["market", "comparison"],
+            )
+        )
 
     def _register_default_capabilities(self) -> None:
         """Register market capabilities."""
-        self.register_capability(AgentCapability(
-            name="market_analysis",
-            name_ar="تحليل السوق",
-            description="Analyze agricultural market prices and trends",
-            description_ar="تحليل أسعار واتجاهات السوق الزراعي",
-            domains=["market", "pricing", "analysis"],
-            skill_level=0.9,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="market_analysis",
+                name_ar="تحليل السوق",
+                description="Analyze agricultural market prices and trends",
+                description_ar="تحليل أسعار واتجاهات السوق الزراعي",
+                domains=["market", "pricing", "analysis"],
+                skill_level=0.9,
+            )
+        )
 
-        self.register_capability(AgentCapability(
-            name="selling_advisory",
-            name_ar="استشارات البيع",
-            description="Provide selling recommendations and buyer matching",
-            description_ar="تقديم توصيات البيع ومطابقة المشترين",
-            domains=["market", "selling", "negotiation"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="selling_advisory",
+                name_ar="استشارات البيع",
+                description="Provide selling recommendations and buyer matching",
+                description_ar="تقديم توصيات البيع ومطابقة المشترين",
+                domains=["market", "selling", "negotiation"],
+                skill_level=0.85,
+            )
+        )
 
     async def decompose_task(
         self,
@@ -539,17 +569,19 @@ class MarketSubAgent(BaseAutonomousAgent):
             price = base_price * market["factor"]
             change = (hash(commodity + market["name"]) % 10 - 5) / 100  # -5% to +5%
 
-            prices.append({
-                "market": market["name"],
-                "market_ar": market["name_ar"],
-                "price_per_kg": round(price, 2),
-                "currency": "SAR",
-                "change_percent": round(change * 100, 1),
-                "trend": "up" if change > 0.02 else "down" if change < -0.02 else "stable",
-                "trend_ar": "صاعد" if change > 0.02 else "هابط" if change < -0.02 else "مستقر",
-                "quality_grade": quality_grade or "A",
-                "last_updated": datetime.now(UTC).isoformat(),
-            })
+            prices.append(
+                {
+                    "market": market["name"],
+                    "market_ar": market["name_ar"],
+                    "price_per_kg": round(price, 2),
+                    "currency": "SAR",
+                    "change_percent": round(change * 100, 1),
+                    "trend": "up" if change > 0.02 else "down" if change < -0.02 else "stable",
+                    "trend_ar": "صاعد" if change > 0.02 else "هابط" if change < -0.02 else "مستقر",
+                    "quality_grade": quality_grade or "A",
+                    "last_updated": datetime.now(UTC).isoformat(),
+                }
+            )
 
         # Sort by price (highest first)
         prices.sort(key=lambda x: x["price_per_kg"], reverse=True)
@@ -582,8 +614,34 @@ class MarketSubAgent(BaseAutonomousAgent):
 
         # Seasonal factors (simplified)
         seasonal_factors = {
-            "wheat": {1: 1.1, 2: 1.15, 3: 1.1, 4: 0.95, 5: 0.85, 6: 0.9, 7: 0.95, 8: 1.0, 9: 1.05, 10: 1.1, 11: 1.1, 12: 1.1},
-            "dates": {1: 0.9, 2: 0.85, 3: 0.85, 4: 0.9, 5: 0.95, 6: 1.0, 7: 1.1, 8: 1.2, 9: 1.3, 10: 1.2, 11: 1.0, 12: 0.95},
+            "wheat": {
+                1: 1.1,
+                2: 1.15,
+                3: 1.1,
+                4: 0.95,
+                5: 0.85,
+                6: 0.9,
+                7: 0.95,
+                8: 1.0,
+                9: 1.05,
+                10: 1.1,
+                11: 1.1,
+                12: 1.1,
+            },
+            "dates": {
+                1: 0.9,
+                2: 0.85,
+                3: 0.85,
+                4: 0.9,
+                5: 0.95,
+                6: 1.0,
+                7: 1.1,
+                8: 1.2,
+                9: 1.3,
+                10: 1.2,
+                11: 1.0,
+                12: 0.95,
+            },
         }
 
         factors = seasonal_factors.get(commodity.lower(), dict.fromkeys(range(1, 13), 1.0))
@@ -595,13 +653,15 @@ class MarketSubAgent(BaseAutonomousAgent):
             noise = (hash(str(day) + commodity) % 10 - 5) / 100
             forecast_price = current_price * factor * (1 + noise)
 
-            forecasts.append({
-                "days_ahead": day,
-                "price_per_kg": round(forecast_price, 2),
-                "confidence": max(0.5, 0.95 - (day * 0.01)),
-                "range_low": round(forecast_price * 0.95, 2),
-                "range_high": round(forecast_price * 1.05, 2),
-            })
+            forecasts.append(
+                {
+                    "days_ahead": day,
+                    "price_per_kg": round(forecast_price, 2),
+                    "confidence": max(0.5, 0.95 - (day * 0.01)),
+                    "range_low": round(forecast_price * 0.95, 2),
+                    "range_high": round(forecast_price * 1.05, 2),
+                }
+            )
 
         # Determine overall trend
         if forecasts[-1]["price_per_kg"] > current_price * 1.05:
@@ -806,20 +866,22 @@ class MarketSubAgent(BaseAutonomousAgent):
                 score += 0.15
             score += buyer["rating"] / 50  # Rating contribution
 
-            matched.append({
-                "buyer_id": buyer["buyer_id"],
-                "name": buyer["name"],
-                "name_ar": buyer["name_ar"],
-                "type": buyer["type"],
-                "type_ar": buyer["type_ar"],
-                "location": buyer["location"],
-                "location_ar": buyer["location_ar"],
-                "volume_range": buyer["volume_range"],
-                "payment_terms": buyer["payment"],
-                "payment_terms_ar": buyer["payment_ar"],
-                "rating": buyer["rating"],
-                "match_score": round(score, 2),
-            })
+            matched.append(
+                {
+                    "buyer_id": buyer["buyer_id"],
+                    "name": buyer["name"],
+                    "name_ar": buyer["name_ar"],
+                    "type": buyer["type"],
+                    "type_ar": buyer["type_ar"],
+                    "location": buyer["location"],
+                    "location_ar": buyer["location_ar"],
+                    "volume_range": buyer["volume_range"],
+                    "payment_terms": buyer["payment"],
+                    "payment_terms_ar": buyer["payment_ar"],
+                    "rating": buyer["rating"],
+                    "match_score": round(score, 2),
+                }
+            )
 
         # Sort by match score
         matched.sort(key=lambda x: x["match_score"], reverse=True)
@@ -831,8 +893,12 @@ class MarketSubAgent(BaseAutonomousAgent):
             "buyer_type_filter": buyer_type,
             "total_matches": len(matched),
             "buyers": matched[:10],  # Top 10
-            "recommendation": f"Found {len(matched)} potential buyers. Top match: {matched[0]['name']}" if matched else "No matching buyers found",
-            "recommendation_ar": f"تم العثور على {len(matched)} مشترين محتملين. أفضل مطابقة: {matched[0]['name_ar']}" if matched else "لم يتم العثور على مشترين مطابقين",
+            "recommendation": f"Found {len(matched)} potential buyers. Top match: {matched[0]['name']}"
+            if matched
+            else "No matching buyers found",
+            "recommendation_ar": f"تم العثور على {len(matched)} مشترين محتملين. أفضل مطابقة: {matched[0]['name_ar']}"
+            if matched
+            else "لم يتم العثور على مشترين مطابقين",
             "generated_at": datetime.now(UTC).isoformat(),
         }
 
@@ -938,8 +1004,16 @@ class MarketSubAgent(BaseAutonomousAgent):
                 "margin_percent": round(profit_margin_percent, 1),
                 "per_kg": round(gross_profit / quantity_kg, 2) if quantity_kg > 0 else 0,
             },
-            "assessment": "profitable" if profit_margin_percent > 15 else "marginal" if profit_margin_percent > 5 else "low_margin",
-            "assessment_ar": "مربح" if profit_margin_percent > 15 else "هامشي" if profit_margin_percent > 5 else "هامش منخفض",
+            "assessment": "profitable"
+            if profit_margin_percent > 15
+            else "marginal"
+            if profit_margin_percent > 5
+            else "low_margin",
+            "assessment_ar": "مربح"
+            if profit_margin_percent > 15
+            else "هامشي"
+            if profit_margin_percent > 5
+            else "هامش منخفض",
             "currency": "SAR",
             "generated_at": datetime.now(UTC).isoformat(),
         }
@@ -956,14 +1030,16 @@ class MarketSubAgent(BaseAutonomousAgent):
 
         market_comparison = []
         for price_info in prices.get("prices", []):
-            market_comparison.append({
-                "market": price_info["market"],
-                "market_ar": price_info["market_ar"],
-                "price_per_kg": price_info["price_per_kg"],
-                "trend": price_info["trend"],
-                "trend_ar": price_info["trend_ar"],
-                "change_percent": price_info["change_percent"],
-            })
+            market_comparison.append(
+                {
+                    "market": price_info["market"],
+                    "market_ar": price_info["market_ar"],
+                    "price_per_kg": price_info["price_per_kg"],
+                    "trend": price_info["trend"],
+                    "trend_ar": price_info["trend_ar"],
+                    "change_percent": price_info["change_percent"],
+                }
+            )
 
         # Sort by price
         market_comparison.sort(key=lambda x: x["price_per_kg"], reverse=True)
@@ -982,8 +1058,12 @@ class MarketSubAgent(BaseAutonomousAgent):
             "best_market": market_comparison[0] if market_comparison else None,
             "worst_market": market_comparison[-1] if market_comparison else None,
             "price_spread_percent": round(spread, 1),
-            "recommendation": f"Best price at {market_comparison[0]['market']} ({market_comparison[0]['price_per_kg']} SAR/kg)" if market_comparison else "No market data available",
-            "recommendation_ar": f"أفضل سعر في {market_comparison[0]['market_ar']} ({market_comparison[0]['price_per_kg']} ريال/كجم)" if market_comparison else "لا تتوفر بيانات السوق",
+            "recommendation": f"Best price at {market_comparison[0]['market']} ({market_comparison[0]['price_per_kg']} SAR/kg)"
+            if market_comparison
+            else "No market data available",
+            "recommendation_ar": f"أفضل سعر في {market_comparison[0]['market_ar']} ({market_comparison[0]['price_per_kg']} ريال/كجم)"
+            if market_comparison
+            else "لا تتوفر بيانات السوق",
             "generated_at": datetime.now(UTC).isoformat(),
         }
 

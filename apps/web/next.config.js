@@ -137,12 +137,40 @@ const nextConfig = {
     ],
   },
 
-  // Webpack configuration for Leaflet
-  webpack: (config) => {
+  // Webpack configuration for Leaflet and warning suppression
+  webpack: (config, { isServer }) => {
+    // Handle potential module resolution issues
     config.resolve.fallback = {
       ...config.resolve.fallback,
       fs: false,
+      net: false,
+      tls: false,
     };
+
+    // Add parent node_modules to module resolution for workspace dependencies
+    // This allows Next.js to find dependencies hoisted to the root in npm workspaces
+    const path = require("path");
+    const parentNodeModules = path.resolve(__dirname, "../../node_modules");
+    config.resolve.modules = [
+      ...(config.resolve.modules || ["node_modules"]),
+      parentNodeModules,
+    ];
+
+    // Suppress OpenTelemetry critical dependency warnings from @sentry/nextjs
+    // These warnings occur due to dynamic requires in OpenTelemetry instrumentation
+    // and don't affect functionality when Sentry DSN is not configured
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /@opentelemetry\/instrumentation/,
+        message: /Critical dependency/,
+      },
+      {
+        module: /@sentry/,
+        message: /Critical dependency/,
+      },
+    ];
+
     return config;
   },
 };

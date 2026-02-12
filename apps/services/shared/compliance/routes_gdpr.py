@@ -6,7 +6,7 @@ Data export and deletion endpoints for GDPR Article 15, 17, 20
 from __future__ import annotations
 
 import logging
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, status

@@ -10,8 +10,8 @@ import logging
 import os
 import re
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 import httpx
@@ -45,7 +45,7 @@ HTTP_TIMEOUT = 10.0
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class TaskType(str, Enum):
+class TaskType(StrEnum):
     IRRIGATION = "irrigation"
     FERTILIZATION = "fertilization"
     SPRAYING = "spraying"
@@ -57,14 +57,14 @@ class TaskType(str, Enum):
     OTHER = "other"
 
 
-class TaskPriority(str, Enum):
+class TaskPriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     URGENT = "urgent"
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"

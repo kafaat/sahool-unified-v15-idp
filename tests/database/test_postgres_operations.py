@@ -296,7 +296,7 @@ class TestConnectionRetry:
         base_delay = 0.01
 
         for attempt in range(4):
-            delay = base_delay * (2 ** attempt)
+            delay = base_delay * (2**attempt)
             delays.append(delay)
 
         assert delays == [0.01, 0.02, 0.04, 0.08]
@@ -333,9 +333,7 @@ class TestPreparedStatements:
         mock_conn._results = [{"id": 1, "name": "Test Field"}]
 
         row = await mock_conn.fetchrow(
-            "SELECT * FROM fields WHERE tenant_id = $1 AND id = $2",
-            "tenant123",
-            1
+            "SELECT * FROM fields WHERE tenant_id = $1 AND id = $2", "tenant123", 1
         )
 
         assert row is not None
@@ -355,9 +353,7 @@ class TestBatchOperations:
 
         for name, area in records:
             await mock_conn.execute(
-                "INSERT INTO fields (name, area_ha) VALUES ($1, $2)",
-                name,
-                area
+                "INSERT INTO fields (name, area_ha) VALUES ($1, $2)", name, area
             )
 
 
@@ -437,6 +433,7 @@ class TestQueryTimeout:
     @pytest.mark.asyncio
     async def test_long_query_cancelled(self):
         """Test long-running queries are cancelled."""
+
         async def long_query():
             await asyncio.sleep(0.1)
             return "completed"

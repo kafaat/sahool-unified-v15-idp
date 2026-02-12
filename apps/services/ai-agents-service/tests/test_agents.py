@@ -9,9 +9,10 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from datetime import datetime
 from typing import Any
+
+import pytest
 from fastapi.testclient import TestClient
 
 

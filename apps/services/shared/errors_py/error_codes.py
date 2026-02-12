@@ -6,12 +6,12 @@ Error Codes and HTTP Status Mapping
 @description Centralized error code definitions with bilingual messages
 """
 
-from enum import Enum
+from enum import Enum, StrEnum
 from http import HTTPStatus
 from typing import NamedTuple
 
 
-class ErrorCategory(str, Enum):
+class ErrorCategory(StrEnum):
     """Error Code Categories - فئات أكواد الأخطاء"""
 
     VALIDATION = "VALIDATION"  # أخطاء التحقق من صحة البيانات
@@ -26,7 +26,7 @@ class ErrorCategory(str, Enum):
     RATE_LIMIT = "RATE_LIMIT"  # تجاوز الحد المسموح
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     """Application Error Codes - أكواد أخطاء التطبيق"""
 
     # Validation Errors (1000-1999) - أخطاء التحقق

@@ -18,8 +18,8 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 
 from .geometry import (
     calculate_centroid,
@@ -39,7 +39,7 @@ from .models import (
 )
 
 
-class MappingMode(str, Enum):
+class MappingMode(StrEnum):
     """
     GPS mapping mode | وضع رسم الخرائط
 
@@ -49,16 +49,18 @@ class MappingMode(str, Enum):
         POINT_CAPTURE: User captures corner points | التقاط نقاط الزوايا
         AUTO_TRACE: Automatic tracing from imagery | التتبع التلقائي من الصور
     """
+
     WALKING = "walking"
     DRIVING = "driving"
     POINT_CAPTURE = "point_capture"
     AUTO_TRACE = "auto_trace"
 
 
-class FilterMethod(str, Enum):
+class FilterMethod(StrEnum):
     """
     GPS point filtering method | طريقة تصفية نقاط GPS
     """
+
     NONE = "none"
     DISTANCE = "distance"
     ACCURACY = "accuracy"
@@ -72,6 +74,7 @@ class MappingConfig:
     Configuration for GPS mapping session.
     إعدادات جلسة رسم الخرائط بنظام GPS.
     """
+
     # Recording settings | إعدادات التسجيل
     mode: MappingMode = MappingMode.WALKING
     min_point_interval_s: float = 2.0  # Minimum seconds between points
@@ -100,6 +103,7 @@ class MappingSession:
     Active GPS mapping session.
     جلسة رسم خرائط GPS نشطة.
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     field_id: str | None = None
     user_id: str = ""
@@ -134,6 +138,7 @@ class MappingResult:
     Result of GPS mapping session processing.
     نتيجة معالجة جلسة رسم الخرائط.
     """
+
     success: bool
     boundary: FieldBoundary | None = None
 
@@ -179,7 +184,7 @@ class GPSMapper:
         user_id: str,
         field_id: str | None = None,
         device_id: str | None = None,
-        config: MappingConfig | None = None
+        config: MappingConfig | None = None,
     ) -> MappingSession:
         """
         Start a new mapping session.
@@ -218,7 +223,7 @@ class GPSMapper:
         timestamp: datetime | None = None,
         device_id: str | None = None,
         notes: str | None = None,
-        notes_ar: str | None = None
+        notes_ar: str | None = None,
     ) -> tuple[bool, str]:
         """
         Add a GPS point to the mapping session.
@@ -287,9 +292,7 @@ class GPSMapper:
             return CoordinateAccuracy.LOW
 
     def _should_accept_point(
-        self,
-        session: MappingSession,
-        point: BoundaryPoint
+        self, session: MappingSession, point: BoundaryPoint
     ) -> tuple[bool, str]:
         """
         Determine if a point should be accepted.
@@ -302,7 +305,7 @@ class GPSMapper:
             return (
                 False,
                 f"Accuracy {point.accuracy_m:.1f}m exceeds threshold {config.max_accuracy_m}m | "
-                f"الدقة {point.accuracy_m:.1f}م تتجاوز العتبة"
+                f"الدقة {point.accuracy_m:.1f}م تتجاوز العتبة",
             )
 
         # Check max points
@@ -327,16 +330,13 @@ class GPSMapper:
         # Check distance
         last_coords = session.last_accepted_point.coordinates
         new_coords = point.coordinates
-        distance = haversine_distance(
-            last_coords[0], last_coords[1],
-            new_coords[0], new_coords[1]
-        )
+        distance = haversine_distance(last_coords[0], last_coords[1], new_coords[0], new_coords[1])
 
         if distance < config.min_point_distance_m:
             return (
                 False,
                 f"Distance {distance:.1f}m below minimum {config.min_point_distance_m}m | "
-                f"المسافة أقل من الحد الأدنى"
+                f"المسافة أقل من الحد الأدنى",
             )
 
         return (True, "Accepted | مقبولة")
@@ -356,18 +356,11 @@ class GPSMapper:
         first = track.points[0].coordinates
         last = track.points[-1].coordinates
 
-        distance = haversine_distance(
-            last[0], last[1],
-            first[0], first[1]
-        )
+        distance = haversine_distance(last[0], last[1], first[0], first[1])
 
         return distance <= config.auto_close_distance_m
 
-    def end_session(
-        self,
-        session_id: str,
-        force_close: bool = False
-    ) -> MappingResult:
+    def end_session(self, session_id: str, force_close: bool = False) -> MappingResult:
         """
         End mapping session and process track.
         إنهاء جلسة رسم الخرائط ومعالجة المسار.
@@ -382,9 +375,7 @@ class GPSMapper:
         session = self.active_sessions.get(session_id)
         if not session:
             return MappingResult(
-                success=False,
-                errors=["Session not found"],
-                errors_ar=["الجلسة غير موجودة"]
+                success=False, errors=["Session not found"], errors_ar=["الجلسة غير موجودة"]
             )
 
         session.is_active = False
@@ -404,10 +395,7 @@ class GPSMapper:
         return result
 
     def process_track(
-        self,
-        track: GPSTrack,
-        config: MappingConfig | None = None,
-        field_id: str | None = None
+        self, track: GPSTrack, config: MappingConfig | None = None, field_id: str | None = None
     ) -> MappingResult:
         """
         Process a GPS track into a boundary polygon.
@@ -501,7 +489,7 @@ class GPSMapper:
         self,
         coordinates: list[tuple[float, float]],
         points: list[BoundaryPoint],
-        config: MappingConfig
+        config: MappingConfig,
     ) -> list[tuple[float, float]]:
         """
         Filter points based on configured method.
@@ -528,18 +516,15 @@ class GPSMapper:
         self,
         coordinates: list[tuple[float, float]],
         points: list[BoundaryPoint],
-        max_accuracy: float
+        max_accuracy: float,
     ) -> list[tuple[float, float]]:
         """Filter points by accuracy threshold."""
         return [
-            coord for coord, point in zip(coordinates, points)
-            if point.accuracy_m <= max_accuracy
+            coord for coord, point in zip(coordinates, points) if point.accuracy_m <= max_accuracy
         ]
 
     def _filter_by_distance(
-        self,
-        coordinates: list[tuple[float, float]],
-        min_distance: float
+        self, coordinates: list[tuple[float, float]], min_distance: float
     ) -> list[tuple[float, float]]:
         """Filter points by minimum distance between consecutive points."""
         if not coordinates:
@@ -560,10 +545,7 @@ class GPSMapper:
 
         return filtered
 
-    def _filter_kalman(
-        self,
-        coordinates: list[tuple[float, float]]
-    ) -> list[tuple[float, float]]:
+    def _filter_kalman(self, coordinates: list[tuple[float, float]]) -> list[tuple[float, float]]:
         """
         Apply simplified Kalman filter for GPS smoothing.
         تطبيق فلتر كالمان المبسط لتنعيم GPS.
@@ -573,7 +555,7 @@ class GPSMapper:
 
         # Simplified 1D Kalman filter applied to lat/lon separately
         q = 0.00001  # Process variance
-        r = 0.0001   # Measurement variance
+        r = 0.0001  # Measurement variance
 
         filtered = []
 
@@ -603,9 +585,7 @@ class GPSMapper:
         return filtered
 
     def _smooth_points(
-        self,
-        coordinates: list[tuple[float, float]],
-        config: MappingConfig
+        self, coordinates: list[tuple[float, float]], config: MappingConfig
     ) -> list[tuple[float, float]]:
         """
         Apply moving average smoothing.
@@ -653,7 +633,7 @@ def create_boundary_from_coordinates(
     owner_id: str,
     name: str,
     name_ar: str | None = None,
-    boundary_type: BoundaryType = BoundaryType.FIELD
+    boundary_type: BoundaryType = BoundaryType.FIELD,
 ) -> FieldBoundary:
     """
     Create a boundary from a list of coordinates.
@@ -696,9 +676,7 @@ def create_boundary_from_coordinates(
 
 
 def merge_boundaries(
-    boundaries: list[FieldBoundary],
-    name: str,
-    name_ar: str | None = None
+    boundaries: list[FieldBoundary], name: str, name_ar: str | None = None
 ) -> FieldBoundary:
     """
     Merge multiple boundaries into a single boundary.
@@ -752,6 +730,6 @@ def merge_boundaries(
         centroid=Point(coordinates=centroid),
         metadata={
             "merged_from": [b.id for b in boundaries],
-            "merge_note": "Use PostGIS ST_Union for accurate geometry"
-        }
+            "merge_note": "Use PostGIS ST_Union for accurate geometry",
+        },
     )

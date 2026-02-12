@@ -10,12 +10,12 @@ compliance assessment.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 # ==================== Categories ====================
 
 
-class SpringCategory(str, Enum):
+class SpringCategory(StrEnum):
     """SPRING checklist categories / فئات قائمة تحقق SPRING"""
 
     WATER_SOURCES = "WATER_SOURCES"
@@ -81,7 +81,7 @@ SPRING_CATEGORIES = {
 # ==================== Compliance Levels ====================
 
 
-class SpringComplianceLevel(str, Enum):
+class SpringComplianceLevel(StrEnum):
     """SPRING compliance level / مستوى امتثال SPRING"""
 
     MANDATORY = "MANDATORY"  # إلزامي

@@ -10,8 +10,8 @@ Links with crop-health-ai service to:
 
 import logging
 from dataclasses import asdict, dataclass
-from datetime import timezone, datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 from .events import GlobalGAPEventPublisher
@@ -19,7 +19,7 @@ from .events import GlobalGAPEventPublisher
 logger = logging.getLogger(__name__)
 
 
-class ThreatType(str, Enum):
+class ThreatType(StrEnum):
     """نوع التهديد - Threat Type"""
 
     PEST = "pest"  # آفة
@@ -28,7 +28,7 @@ class ThreatType(str, Enum):
     NUTRIENT_DEFICIENCY = "nutrient_deficiency"  # نقص المغذيات
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """مستوى الخطورة - Severity Level"""
 
     LOW = "low"  # منخفض
@@ -37,7 +37,7 @@ class SeverityLevel(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class IPMAction(str, Enum):
+class IPMAction(StrEnum):
     """إجراء الإدارة المتكاملة للآفات - IPM Action"""
 
     MONITORING = "monitoring"  # مراقبة
@@ -47,7 +47,7 @@ class IPMAction(str, Enum):
     CHEMICAL = "chemical"  # كيميائي
 
 
-class PPPType(str, Enum):
+class PPPType(StrEnum):
     """نوع منتج وقاية النبات - PPP Type"""
 
     INSECTICIDE = "insecticide"  # مبيد حشري

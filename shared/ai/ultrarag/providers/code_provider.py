@@ -19,8 +19,8 @@ from ..models import (
     TriRAGConfig,
 )
 from ..retriever import (
-    RetrievalConfig,
     KnowledgeGraphRetriever,
+    RetrievalConfig,
     TriRAGRetriever,
 )
 
@@ -30,6 +30,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class CodeQueryContext:
     """Code query context | سياق استعلام الكود"""
+
     language: str = "python"  # python, typescript, dart
     file_path: str | None = None
     project_type: str | None = None  # fastapi, nestjs, flutter
@@ -40,6 +41,7 @@ class CodeQueryContext:
 @dataclass
 class CodeAnalysisResult:
     """Code analysis result | نتيجة تحليل الكود"""
+
     query: str
     analysis: str
     suggestions: list[str] = field(default_factory=list)
@@ -89,6 +91,7 @@ class CodeRAGProvider:
         # Initialize dense/sparse retrievers
         if self.vector_store and self.embedding_service:
             from ..retriever import DenseRetriever, SparseRetriever
+
             self._dense_retriever = DenseRetriever(self.vector_store, self.embedding_service)
             self._sparse_retriever = SparseRetriever(self.vector_store)
         else:
@@ -117,102 +120,198 @@ class CodeRAGProvider:
         # Language Entities - كيانات اللغات
         # ═══════════════════════════════════════════════════════════════════════
         languages = [
-            {"id": "lang_python", "name": "Python", "name_ar": "بايثون",
-             "entity_type": "language",
-             "properties": {"version": "3.11+", "typing": "optional"}},
-            {"id": "lang_typescript", "name": "TypeScript", "name_ar": "تايب سكريبت",
-             "entity_type": "language",
-             "properties": {"version": "5.x", "typing": "static"}},
-            {"id": "lang_dart", "name": "Dart", "name_ar": "دارت",
-             "entity_type": "language",
-             "properties": {"version": "3.x", "typing": "static"}},
+            {
+                "id": "lang_python",
+                "name": "Python",
+                "name_ar": "بايثون",
+                "entity_type": "language",
+                "properties": {"version": "3.11+", "typing": "optional"},
+            },
+            {
+                "id": "lang_typescript",
+                "name": "TypeScript",
+                "name_ar": "تايب سكريبت",
+                "entity_type": "language",
+                "properties": {"version": "5.x", "typing": "static"},
+            },
+            {
+                "id": "lang_dart",
+                "name": "Dart",
+                "name_ar": "دارت",
+                "entity_type": "language",
+                "properties": {"version": "3.x", "typing": "static"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Framework Entities - كيانات الأطر
         # ═══════════════════════════════════════════════════════════════════════
         frameworks = [
-            {"id": "fw_fastapi", "name": "FastAPI", "name_ar": "فاست إيه بي آي",
-             "entity_type": "framework",
-             "properties": {"language": "python", "type": "web"}},
-            {"id": "fw_nestjs", "name": "NestJS", "name_ar": "نيست جي إس",
-             "entity_type": "framework",
-             "properties": {"language": "typescript", "type": "web"}},
-            {"id": "fw_flutter", "name": "Flutter", "name_ar": "فلاتر",
-             "entity_type": "framework",
-             "properties": {"language": "dart", "type": "mobile"}},
-            {"id": "fw_prisma", "name": "Prisma", "name_ar": "بريزما",
-             "entity_type": "orm",
-             "properties": {"language": "typescript", "type": "database"}},
-            {"id": "fw_tortoise", "name": "Tortoise ORM", "name_ar": "تورتويز",
-             "entity_type": "orm",
-             "properties": {"language": "python", "type": "database"}},
+            {
+                "id": "fw_fastapi",
+                "name": "FastAPI",
+                "name_ar": "فاست إيه بي آي",
+                "entity_type": "framework",
+                "properties": {"language": "python", "type": "web"},
+            },
+            {
+                "id": "fw_nestjs",
+                "name": "NestJS",
+                "name_ar": "نيست جي إس",
+                "entity_type": "framework",
+                "properties": {"language": "typescript", "type": "web"},
+            },
+            {
+                "id": "fw_flutter",
+                "name": "Flutter",
+                "name_ar": "فلاتر",
+                "entity_type": "framework",
+                "properties": {"language": "dart", "type": "mobile"},
+            },
+            {
+                "id": "fw_prisma",
+                "name": "Prisma",
+                "name_ar": "بريزما",
+                "entity_type": "orm",
+                "properties": {"language": "typescript", "type": "database"},
+            },
+            {
+                "id": "fw_tortoise",
+                "name": "Tortoise ORM",
+                "name_ar": "تورتويز",
+                "entity_type": "orm",
+                "properties": {"language": "python", "type": "database"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Error Pattern Entities - كيانات أنماط الأخطاء
         # ═══════════════════════════════════════════════════════════════════════
         error_patterns = [
-            {"id": "err_import", "name": "Import Error", "name_ar": "خطأ الاستيراد",
-             "entity_type": "error_pattern",
-             "properties": {"category": "syntax", "fixable": True}},
-            {"id": "err_type", "name": "Type Error", "name_ar": "خطأ النوع",
-             "entity_type": "error_pattern",
-             "properties": {"category": "type", "fixable": True}},
-            {"id": "err_null", "name": "Null Reference", "name_ar": "مرجع فارغ",
-             "entity_type": "error_pattern",
-             "properties": {"category": "runtime", "fixable": True}},
-            {"id": "err_sql_injection", "name": "SQL Injection", "name_ar": "حقن SQL",
-             "entity_type": "security_issue",
-             "properties": {"category": "security", "severity": "critical"}},
-            {"id": "err_xss", "name": "XSS Vulnerability", "name_ar": "ثغرة XSS",
-             "entity_type": "security_issue",
-             "properties": {"category": "security", "severity": "high"}},
-            {"id": "err_hardcoded_secret", "name": "Hardcoded Secret", "name_ar": "سر مكتوب في الكود",
-             "entity_type": "security_issue",
-             "properties": {"category": "security", "severity": "critical"}},
+            {
+                "id": "err_import",
+                "name": "Import Error",
+                "name_ar": "خطأ الاستيراد",
+                "entity_type": "error_pattern",
+                "properties": {"category": "syntax", "fixable": True},
+            },
+            {
+                "id": "err_type",
+                "name": "Type Error",
+                "name_ar": "خطأ النوع",
+                "entity_type": "error_pattern",
+                "properties": {"category": "type", "fixable": True},
+            },
+            {
+                "id": "err_null",
+                "name": "Null Reference",
+                "name_ar": "مرجع فارغ",
+                "entity_type": "error_pattern",
+                "properties": {"category": "runtime", "fixable": True},
+            },
+            {
+                "id": "err_sql_injection",
+                "name": "SQL Injection",
+                "name_ar": "حقن SQL",
+                "entity_type": "security_issue",
+                "properties": {"category": "security", "severity": "critical"},
+            },
+            {
+                "id": "err_xss",
+                "name": "XSS Vulnerability",
+                "name_ar": "ثغرة XSS",
+                "entity_type": "security_issue",
+                "properties": {"category": "security", "severity": "high"},
+            },
+            {
+                "id": "err_hardcoded_secret",
+                "name": "Hardcoded Secret",
+                "name_ar": "سر مكتوب في الكود",
+                "entity_type": "security_issue",
+                "properties": {"category": "security", "severity": "critical"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Best Practice Entities - كيانات أفضل الممارسات
         # ═══════════════════════════════════════════════════════════════════════
         best_practices = [
-            {"id": "bp_dependency_injection", "name": "Dependency Injection", "name_ar": "حقن التبعيات",
-             "entity_type": "pattern",
-             "properties": {"category": "design_pattern"}},
-            {"id": "bp_error_handling", "name": "Error Handling", "name_ar": "معالجة الأخطاء",
-             "entity_type": "pattern",
-             "properties": {"category": "best_practice"}},
-            {"id": "bp_logging", "name": "Structured Logging", "name_ar": "التسجيل المهيكل",
-             "entity_type": "pattern",
-             "properties": {"category": "observability"}},
-            {"id": "bp_testing", "name": "Unit Testing", "name_ar": "اختبار الوحدات",
-             "entity_type": "pattern",
-             "properties": {"category": "quality"}},
-            {"id": "bp_input_validation", "name": "Input Validation", "name_ar": "التحقق من المدخلات",
-             "entity_type": "pattern",
-             "properties": {"category": "security"}},
+            {
+                "id": "bp_dependency_injection",
+                "name": "Dependency Injection",
+                "name_ar": "حقن التبعيات",
+                "entity_type": "pattern",
+                "properties": {"category": "design_pattern"},
+            },
+            {
+                "id": "bp_error_handling",
+                "name": "Error Handling",
+                "name_ar": "معالجة الأخطاء",
+                "entity_type": "pattern",
+                "properties": {"category": "best_practice"},
+            },
+            {
+                "id": "bp_logging",
+                "name": "Structured Logging",
+                "name_ar": "التسجيل المهيكل",
+                "entity_type": "pattern",
+                "properties": {"category": "observability"},
+            },
+            {
+                "id": "bp_testing",
+                "name": "Unit Testing",
+                "name_ar": "اختبار الوحدات",
+                "entity_type": "pattern",
+                "properties": {"category": "quality"},
+            },
+            {
+                "id": "bp_input_validation",
+                "name": "Input Validation",
+                "name_ar": "التحقق من المدخلات",
+                "entity_type": "pattern",
+                "properties": {"category": "security"},
+            },
         ]
 
         # ═══════════════════════════════════════════════════════════════════════
         # Tool Entities - كيانات الأدوات
         # ═══════════════════════════════════════════════════════════════════════
         tools = [
-            {"id": "tool_ruff", "name": "Ruff", "name_ar": "راف",
-             "entity_type": "linter",
-             "properties": {"language": "python", "type": "linter"}},
-            {"id": "tool_eslint", "name": "ESLint", "name_ar": "إي إس لينت",
-             "entity_type": "linter",
-             "properties": {"language": "typescript", "type": "linter"}},
-            {"id": "tool_mypy", "name": "Mypy", "name_ar": "ماي باي",
-             "entity_type": "type_checker",
-             "properties": {"language": "python", "type": "type_checker"}},
-            {"id": "tool_bandit", "name": "Bandit", "name_ar": "بانديت",
-             "entity_type": "security_scanner",
-             "properties": {"language": "python", "type": "security"}},
-            {"id": "tool_dart_analyze", "name": "Dart Analyze", "name_ar": "تحليل دارت",
-             "entity_type": "linter",
-             "properties": {"language": "dart", "type": "linter"}},
+            {
+                "id": "tool_ruff",
+                "name": "Ruff",
+                "name_ar": "راف",
+                "entity_type": "linter",
+                "properties": {"language": "python", "type": "linter"},
+            },
+            {
+                "id": "tool_eslint",
+                "name": "ESLint",
+                "name_ar": "إي إس لينت",
+                "entity_type": "linter",
+                "properties": {"language": "typescript", "type": "linter"},
+            },
+            {
+                "id": "tool_mypy",
+                "name": "Mypy",
+                "name_ar": "ماي باي",
+                "entity_type": "type_checker",
+                "properties": {"language": "python", "type": "type_checker"},
+            },
+            {
+                "id": "tool_bandit",
+                "name": "Bandit",
+                "name_ar": "بانديت",
+                "entity_type": "security_scanner",
+                "properties": {"language": "python", "type": "security"},
+            },
+            {
+                "id": "tool_dart_analyze",
+                "name": "Dart Analyze",
+                "name_ar": "تحليل دارت",
+                "entity_type": "linter",
+                "properties": {"language": "dart", "type": "linter"},
+            },
         ]
 
         # Add all entities
@@ -224,36 +323,69 @@ class CodeRAGProvider:
         # ═══════════════════════════════════════════════════════════════════════
         relations = [
             # Language-Framework relations
-            {"source_id": "fw_fastapi", "target_id": "lang_python",
-             "relation_type": RelationType.REQUIRES.value},
-            {"source_id": "fw_nestjs", "target_id": "lang_typescript",
-             "relation_type": RelationType.REQUIRES.value},
-            {"source_id": "fw_flutter", "target_id": "lang_dart",
-             "relation_type": RelationType.REQUIRES.value},
-
+            {
+                "source_id": "fw_fastapi",
+                "target_id": "lang_python",
+                "relation_type": RelationType.REQUIRES.value,
+            },
+            {
+                "source_id": "fw_nestjs",
+                "target_id": "lang_typescript",
+                "relation_type": RelationType.REQUIRES.value,
+            },
+            {
+                "source_id": "fw_flutter",
+                "target_id": "lang_dart",
+                "relation_type": RelationType.REQUIRES.value,
+            },
             # Tool-Language relations
-            {"source_id": "tool_ruff", "target_id": "lang_python",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "tool_eslint", "target_id": "lang_typescript",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "tool_mypy", "target_id": "lang_python",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "tool_bandit", "target_id": "lang_python",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "tool_dart_analyze", "target_id": "lang_dart",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-
+            {
+                "source_id": "tool_ruff",
+                "target_id": "lang_python",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "tool_eslint",
+                "target_id": "lang_typescript",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "tool_mypy",
+                "target_id": "lang_python",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "tool_bandit",
+                "target_id": "lang_python",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "tool_dart_analyze",
+                "target_id": "lang_dart",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
             # Pattern-Framework relations
-            {"source_id": "bp_dependency_injection", "target_id": "fw_fastapi",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-            {"source_id": "bp_dependency_injection", "target_id": "fw_nestjs",
-             "relation_type": RelationType.COMPATIBLE_WITH.value},
-
+            {
+                "source_id": "bp_dependency_injection",
+                "target_id": "fw_fastapi",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
+            {
+                "source_id": "bp_dependency_injection",
+                "target_id": "fw_nestjs",
+                "relation_type": RelationType.COMPATIBLE_WITH.value,
+            },
             # Security issue prevention
-            {"source_id": "bp_input_validation", "target_id": "err_sql_injection",
-             "relation_type": RelationType.PREVENTS.value},
-            {"source_id": "bp_input_validation", "target_id": "err_xss",
-             "relation_type": RelationType.PREVENTS.value},
+            {
+                "source_id": "bp_input_validation",
+                "target_id": "err_sql_injection",
+                "relation_type": RelationType.PREVENTS.value,
+            },
+            {
+                "source_id": "bp_input_validation",
+                "target_id": "err_xss",
+                "relation_type": RelationType.PREVENTS.value,
+            },
         ]
 
         for relation in relations:
@@ -299,15 +431,19 @@ class CodeRAGProvider:
         for r in results:
             entity_type = r.chunk.metadata.get("entity_type", "")
             if entity_type == "pattern":
-                patterns.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                })
+                patterns.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                    }
+                )
             elif entity_type in ["linter", "type_checker", "security_scanner"]:
-                tools.append({
-                    "name": r.chunk.text,
-                    "type": entity_type,
-                })
+                tools.append(
+                    {
+                        "name": r.chunk.text,
+                        "type": entity_type,
+                    }
+                )
 
         return CodeAnalysisResult(
             query=query,
@@ -380,16 +516,22 @@ class CodeRAGProvider:
         security_issues = []
         for r in results:
             if r.chunk.metadata.get("entity_type") == "security_issue":
-                security_issues.append({
-                    "name": r.chunk.text,
-                    "name_ar": r.chunk.text_ar,
-                    "severity": r.chunk.metadata.get("properties", {}).get("severity", "unknown"),
-                })
+                security_issues.append(
+                    {
+                        "name": r.chunk.text,
+                        "name_ar": r.chunk.text_ar,
+                        "severity": r.chunk.metadata.get("properties", {}).get("severity", "unknown"),
+                    }
+                )
 
         return CodeAnalysisResult(
             query=query,
             analysis=f"Security scan for {language} code",
-            suggestions=["Use parameterized queries", "Sanitize user input", "Use environment variables for secrets"],
+            suggestions=[
+                "Use parameterized queries",
+                "Sanitize user input",
+                "Use environment variables for secrets",
+            ],
             related_patterns=security_issues,
             confidence=results[0].score if results else 0.0,
             sources=[r.to_dict() for r in results[:5]],

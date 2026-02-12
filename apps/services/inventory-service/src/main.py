@@ -17,16 +17,20 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -35,7 +39,8 @@ from sqlalchemy.orm import declarative_base
 # Create local Base for models (standalone service doesn't need shared module)
 Base = declarative_base()
 
-from .alert_endpoints import router as alert_router, init_alert_manager
+from .alert_endpoints import init_alert_manager
+from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
 from .inventory_analytics import InventoryAnalytics
 from .models.inventory import (

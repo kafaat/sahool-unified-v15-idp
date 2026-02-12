@@ -2,14 +2,13 @@
 # سوق سهول والخدمات المالية
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="marketplace-service"
 LABEL version="16.0.0"
-
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -36,12 +35,17 @@ RUN npx prisma generate || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# Install curl for healthcheck (not using fetch as it requires Node.js 18+)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
@@ -67,7 +71,7 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check
+# Health check (using curl instead of Node.js fetch)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:3010/api/v1/healthz || exit 1
 

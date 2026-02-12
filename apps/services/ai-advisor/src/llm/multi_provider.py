@@ -74,8 +74,7 @@ class CircuitBreaker:
                 self.state = "HALF_OPEN"
             else:
                 raise Exception(
-                    f"Circuit breaker is OPEN. Service unavailable. "
-                    f"Will retry after {self.recovery_timeout}s"
+                    f"Circuit breaker is OPEN. Service unavailable. Will retry after {self.recovery_timeout}s"
                 )
 
         try:
@@ -93,8 +92,7 @@ class CircuitBreaker:
                 self.state = "HALF_OPEN"
             else:
                 raise Exception(
-                    f"Circuit breaker is OPEN. Service unavailable. "
-                    f"Will retry after {self.recovery_timeout}s"
+                    f"Circuit breaker is OPEN. Service unavailable. Will retry after {self.recovery_timeout}s"
                 )
 
         try:
@@ -124,8 +122,7 @@ class CircuitBreaker:
         if self.failure_count >= self.failure_threshold:
             self.state = "OPEN"
             logger.warning(
-                f"Circuit breaker opened after {self.failure_count} failures. "
-                f"Will recover in {self.recovery_timeout}s"
+                f"Circuit breaker opened after {self.failure_count} failures. Will recover in {self.recovery_timeout}s"
             )
 
 
@@ -266,9 +263,7 @@ class AnthropicProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
-        return await self.circuit_breaker.call_async(
-            self._chat_impl, messages, model, max_tokens, temperature
-        )
+        return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
 
     async def _chat_impl(
         self,
@@ -387,9 +382,7 @@ class OpenAIProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
-        return await self.circuit_breaker.call_async(
-            self._chat_impl, messages, model, max_tokens, temperature
-        )
+        return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
 
     async def _chat_impl(
         self,
@@ -501,9 +494,7 @@ class GoogleGeminiProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
-        return await self.circuit_breaker.call_async(
-            self._chat_impl, messages, model, max_tokens, temperature
-        )
+        return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
 
     async def _chat_impl(
         self,
@@ -539,9 +530,7 @@ class GoogleGeminiProvider(LLMProvider):
             if msg.role == "system":
                 system_instruction = msg.content
             elif msg.role == "user":
-                prompt = (
-                    f"{system_instruction}\n\n{msg.content}" if system_instruction else msg.content
-                )
+                prompt = f"{system_instruction}\n\n{msg.content}" if system_instruction else msg.content
                 response = await chat.send_message_async(prompt)
                 system_instruction = ""
 
@@ -646,9 +635,7 @@ class OllamaProvider(LLMProvider):
         max_tokens: int = 4096,
         temperature: float = 0.7,
     ) -> LLMResponse:
-        return await self.circuit_breaker.call_async(
-            self._chat_impl, messages, model, max_tokens, temperature
-        )
+        return await self.circuit_breaker.call_async(self._chat_impl, messages, model, max_tokens, temperature)
 
     async def _chat_impl(
         self,
@@ -973,9 +960,7 @@ class MultiLLMService:
         # Filter providers if specific one requested
         providers_to_try = self.providers
         if specific_provider:
-            providers_to_try = [
-                p for p in self.providers if specific_provider.lower() in p.name.lower()
-            ]
+            providers_to_try = [p for p in self.providers if specific_provider.lower() in p.name.lower()]
 
         for provider in providers_to_try:
             if not provider.is_configured:

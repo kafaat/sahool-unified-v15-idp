@@ -13,63 +13,63 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class DiagnosticSeverity(str, Enum):
+class DiagnosticSeverity(StrEnum):
     """Severity levels for diagnostics."""
 
-    ERROR = "error"          # خطأ - يجب إصلاحه
-    WARNING = "warning"      # تحذير - يُفضل إصلاحه
-    INFO = "info"            # معلومات - للتحسين
-    HINT = "hint"            # تلميح - اختياري
+    ERROR = "error"  # خطأ - يجب إصلاحه
+    WARNING = "warning"  # تحذير - يُفضل إصلاحه
+    INFO = "info"  # معلومات - للتحسين
+    HINT = "hint"  # تلميح - اختياري
 
 
-class DiagnosticCategory(str, Enum):
+class DiagnosticCategory(StrEnum):
     """Categories of code diagnostics."""
 
-    SYNTAX = "syntax"                  # أخطاء بناء الجملة
-    TYPE = "type"                      # أخطاء الأنواع
-    SECURITY = "security"              # ثغرات أمنية
-    PERFORMANCE = "performance"        # مشاكل الأداء
-    STYLE = "style"                    # مشاكل التنسيق
-    BEST_PRACTICE = "best_practice"    # أفضل الممارسات
-    DEPRECATION = "deprecation"        # استخدام مهمل
-    LOGIC = "logic"                    # أخطاء منطقية
-    IMPORT = "import"                  # مشاكل الاستيراد
-    NAMING = "naming"                  # مشاكل التسمية
+    SYNTAX = "syntax"  # أخطاء بناء الجملة
+    TYPE = "type"  # أخطاء الأنواع
+    SECURITY = "security"  # ثغرات أمنية
+    PERFORMANCE = "performance"  # مشاكل الأداء
+    STYLE = "style"  # مشاكل التنسيق
+    BEST_PRACTICE = "best_practice"  # أفضل الممارسات
+    DEPRECATION = "deprecation"  # استخدام مهمل
+    LOGIC = "logic"  # أخطاء منطقية
+    IMPORT = "import"  # مشاكل الاستيراد
+    NAMING = "naming"  # مشاكل التسمية
 
 
-class FixStrategy(str, Enum):
+class FixStrategy(StrEnum):
     """Strategy for applying fixes."""
 
-    MINIMAL = "minimal"            # أقل تغيير ممكن
-    SAFE = "safe"                  # تغييرات آمنة فقط
-    COMPREHENSIVE = "comprehensive" # تغييرات شاملة
-    REFACTOR = "refactor"          # إعادة هيكلة كاملة
+    MINIMAL = "minimal"  # أقل تغيير ممكن
+    SAFE = "safe"  # تغييرات آمنة فقط
+    COMPREHENSIVE = "comprehensive"  # تغييرات شاملة
+    REFACTOR = "refactor"  # إعادة هيكلة كاملة
 
 
-class FixConfidence(str, Enum):
+class FixConfidence(StrEnum):
     """Confidence level for a fix."""
 
-    HIGH = "high"        # ثقة عالية (>90%)
-    MEDIUM = "medium"    # ثقة متوسطة (70-90%)
-    LOW = "low"          # ثقة منخفضة (<70%)
+    HIGH = "high"  # ثقة عالية (>90%)
+    MEDIUM = "medium"  # ثقة متوسطة (70-90%)
+    LOW = "low"  # ثقة منخفضة (<70%)
 
 
-class ToolType(str, Enum):
+class ToolType(StrEnum):
     """Types of linting/analysis tools."""
 
-    RUFF = "ruff"                # Python linter
-    ESLINT = "eslint"            # JavaScript/TypeScript linter
-    MYPY = "mypy"                # Python type checker
-    BANDIT = "bandit"            # Python security linter
-    SEMGREP = "semgrep"          # Pattern-based scanner
-    PYLINT = "pylint"            # Python linter
-    TYPESCRIPT = "typescript"    # TypeScript compiler
-    DART_ANALYZE = "dart_analyze" # Dart/Flutter analyzer
+    RUFF = "ruff"  # Python linter
+    ESLINT = "eslint"  # JavaScript/TypeScript linter
+    MYPY = "mypy"  # Python type checker
+    BANDIT = "bandit"  # Python security linter
+    SEMGREP = "semgrep"  # Pattern-based scanner
+    PYLINT = "pylint"  # Python linter
+    TYPESCRIPT = "typescript"  # TypeScript compiler
+    DART_ANALYZE = "dart_analyze"  # Dart/Flutter analyzer
 
 
 @dataclass
@@ -220,18 +220,10 @@ class DiagnosticReport:
 
     def __post_init__(self):
         """Calculate totals from diagnostics."""
-        self.total_errors = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.ERROR
-        )
-        self.total_warnings = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.WARNING
-        )
-        self.total_info = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.INFO
-        )
-        self.total_hints = sum(
-            1 for d in self.diagnostics if d.severity == DiagnosticSeverity.HINT
-        )
+        self.total_errors = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.ERROR)
+        self.total_warnings = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.WARNING)
+        self.total_info = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.INFO)
+        self.total_hints = sum(1 for d in self.diagnostics if d.severity == DiagnosticSeverity.HINT)
 
     @property
     def has_errors(self) -> bool:

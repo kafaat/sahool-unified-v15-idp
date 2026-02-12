@@ -252,7 +252,9 @@ class FixedWindowLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
+            logger.error(
+                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
+            )
             return False
 
 
@@ -356,7 +358,9 @@ class SlidingWindowLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
+            logger.error(
+                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
+            )
             return False
 
 
@@ -475,7 +479,9 @@ class TokenBucketLimiter(RateLimitStrategy):
             return True
 
         except (ConnectionError, TimeoutError, OSError) as e:
-            logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
+            logger.error(
+                f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
+            )
             return False
 
 
@@ -542,9 +548,7 @@ class RateLimiter:
             )
 
         except ImportError as e:
-            logger.warning(
-                f"⚠ مكتبة Redis غير متاحة - Redis library not available: {e}"
-            )
+            logger.warning(f"⚠ مكتبة Redis غير متاحة - Redis library not available: {e}")
             self.redis = None
         except (ConnectionError, TimeoutError, OSError) as e:
             logger.warning(
@@ -685,7 +689,9 @@ class RateLimiter:
                             if cursor == 0:
                                 break
                 except (ConnectionError, TimeoutError, OSError) as e:
-                    logger.error(f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}")
+                    logger.error(
+                        f"خطأ في الاتصال بـ Redis لإعادة التعيين - Redis reset connection error: {e}"
+                    )
                     success = False
 
             logger.info(f"إعادة تعيين جميع حدود المعدل - All rate limits reset: client={client_id}")

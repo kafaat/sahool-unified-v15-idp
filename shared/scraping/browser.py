@@ -127,9 +127,7 @@ class BrowserManager:
             )
 
         agent = user_agents[self._current_user_agent_index]
-        self._current_user_agent_index = (
-            self._current_user_agent_index + 1
-        ) % len(user_agents)
+        self._current_user_agent_index = (self._current_user_agent_index + 1) % len(user_agents)
         return agent
 
     def _get_browser_args(self) -> list[str]:
@@ -147,11 +145,13 @@ class BrowserManager:
         ]
 
         if self._config.browser.headless:
-            args.extend([
-                "--disable-gpu",
-                "--disable-dev-shm-usage",
-                "--no-sandbox",
-            ])
+            args.extend(
+                [
+                    "--disable-gpu",
+                    "--disable-dev-shm-usage",
+                    "--no-sandbox",
+                ]
+            )
 
         return args
 
@@ -203,9 +203,7 @@ class BrowserManager:
                     slow_mo=browser_config.slow_mo,
                 )
             else:
-                raise BrowserLaunchError(
-                    f"Unsupported browser type: {browser_type}"
-                )
+                raise BrowserLaunchError(f"Unsupported browser type: {browser_type}")
 
             logger.info(
                 "Browser launched",
@@ -365,9 +363,7 @@ class BrowserManager:
         self._pages.append(page)
 
         # Set default navigation timeout
-        page.set_default_navigation_timeout(
-            self._config.timeouts.navigation_timeout
-        )
+        page.set_default_navigation_timeout(self._config.timeouts.navigation_timeout)
         page.set_default_timeout(self._config.timeouts.element_timeout)
 
         return page

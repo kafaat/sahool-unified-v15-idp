@@ -5,7 +5,7 @@ SQLAlchemy models for append-only audit logging with hash chain
 
 from __future__ import annotations
 
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Index, Integer, String, Text

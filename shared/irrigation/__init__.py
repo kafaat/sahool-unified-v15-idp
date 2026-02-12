@@ -94,107 +94,102 @@ __author__ = "SAHOOL Platform Team"
 # Models - النماذج
 # =============================================================================
 
-from .models import (
-    # Enums
-    IrrigationGoalType,
-    ExperienceSource,
-    DecisionType,
-    SoilType,
-    ProductivityLevel,
-    ChecklistDimension,
-    CalibrationMethod,
-    SessionStatus,
-    # Core Models
-    BilingualLabel,
-    IrrigationGoal,
-    EcologicalConstraint,
-    ExperienceRule,
-    HumanDecision,
-    CalibrationResult,
-    ZoneConfiguration,
-    CollaborativeChecklistItem,
-    IrrigationSchedule,
-    IrrigationProgram,
-    ValidationReport,
-    SessionOutcome,
-    DecisionSession,
-    # Error Models
-    HMCError,
-    HMCErrors,
-)
-
-# =============================================================================
-# Dimensions - الأبعاد
-# =============================================================================
-
-from .dimensions import (
-    # Base class
-    HMCDimension,
-    # Four HMC dimensions
-    GoalAnchoringDimension,
-    ExperienceInjectionDimension,
-    SupervisionCalibrationDimension,
-    ValueUpgradeDimension,
-)
-
-# =============================================================================
-# Collaborative Engine - المحرك التعاوني
-# =============================================================================
-
-from .collaborative_engine import (
-    # Main engine
-    HMCIrrigationEngine,
-    # Program generator
-    ProgramGenerator,
-    DefaultProgramGenerator,
-    # Exceptions
-    HMCEngineError,
-    SessionNotFoundError,
-    GoalsNotSetError,
-    ProgramNotGeneratedError,
-    ChecklistIncompleteError,
-    MaxIterationsReachedError,
-    # Factory functions
-    create_hmc_engine,
-    get_hmc_engine,
-)
-
 # =============================================================================
 # Checklist - قائمة التحقق
 # =============================================================================
-
 from .checklist import (
-    CollaborativeChecklist,
+    EXPERIENCE_INJECTION_ITEMS,
     # Item definitions
     GOAL_ANCHORING_ITEMS,
-    EXPERIENCE_INJECTION_ITEMS,
     SUPERVISION_CALIBRATION_ITEMS,
     VALUE_UPGRADE_ITEMS,
+    CollaborativeChecklist,
     # Factory functions
     create_checklist,
     get_checklist,
 )
 
 # =============================================================================
+# Collaborative Engine - المحرك التعاوني
+# =============================================================================
+from .collaborative_engine import (
+    ChecklistIncompleteError,
+    DefaultProgramGenerator,
+    GoalsNotSetError,
+    # Exceptions
+    HMCEngineError,
+    # Main engine
+    HMCIrrigationEngine,
+    MaxIterationsReachedError,
+    # Program generator
+    ProgramGenerator,
+    ProgramNotGeneratedError,
+    SessionNotFoundError,
+    # Factory functions
+    create_hmc_engine,
+    get_hmc_engine,
+)
+
+# =============================================================================
+# Dimensions - الأبعاد
+# =============================================================================
+from .dimensions import (
+    ExperienceInjectionDimension,
+    # Four HMC dimensions
+    GoalAnchoringDimension,
+    # Base class
+    HMCDimension,
+    SupervisionCalibrationDimension,
+    ValueUpgradeDimension,
+)
+
+# =============================================================================
 # Integration - التكامل
 # =============================================================================
-
 from .integration import (
     # Protocols
     FarmAdvisorAgent,
-    IrrigationSubAgent,
-    WeatherService,
     FertilizationService,
     # Integration Manager
     HMCIntegrationManager,
+    IrrigationSubAgent,
+    WeatherService,
+    # Singleton
+    get_integration_manager,
     # Helper functions
     integrate_with_farm_advisor,
     integrate_with_irrigation_agent,
-    sync_with_weather_service,
-    sync_with_fertilization_system,
-    # Singleton
-    get_integration_manager,
     reset_integration_manager,
+    sync_with_fertilization_system,
+    sync_with_weather_service,
+)
+from .models import (
+    # Core Models
+    BilingualLabel,
+    CalibrationMethod,
+    CalibrationResult,
+    ChecklistDimension,
+    CollaborativeChecklistItem,
+    DecisionSession,
+    DecisionType,
+    EcologicalConstraint,
+    ExperienceRule,
+    ExperienceSource,
+    # Error Models
+    HMCError,
+    HMCErrors,
+    HumanDecision,
+    IrrigationGoal,
+    # Enums
+    IrrigationGoalType,
+    IrrigationProgram,
+    IrrigationSchedule,
+    ProductivityLevel,
+    SessionOutcome,
+    SessionStatus,
+    SoilType,
+    ValidationReport,
+    ZoneConfiguration,
 )
 
 # =============================================================================
@@ -205,7 +200,6 @@ __all__ = [
     # Version info
     "__version__",
     "__author__",
-
     # === Enums ===
     "IrrigationGoalType",
     "ExperienceSource",
@@ -215,7 +209,6 @@ __all__ = [
     "ChecklistDimension",
     "CalibrationMethod",
     "SessionStatus",
-
     # === Core Models ===
     "BilingualLabel",
     "IrrigationGoal",
@@ -230,23 +223,19 @@ __all__ = [
     "ValidationReport",
     "SessionOutcome",
     "DecisionSession",
-
     # === Error Models ===
     "HMCError",
     "HMCErrors",
-
     # === Dimensions ===
     "HMCDimension",
     "GoalAnchoringDimension",
     "ExperienceInjectionDimension",
     "SupervisionCalibrationDimension",
     "ValueUpgradeDimension",
-
     # === Engine ===
     "HMCIrrigationEngine",
     "ProgramGenerator",
     "DefaultProgramGenerator",
-
     # === Exceptions ===
     "HMCEngineError",
     "SessionNotFoundError",
@@ -254,23 +243,19 @@ __all__ = [
     "ProgramNotGeneratedError",
     "ChecklistIncompleteError",
     "MaxIterationsReachedError",
-
     # === Checklist ===
     "CollaborativeChecklist",
     "GOAL_ANCHORING_ITEMS",
     "EXPERIENCE_INJECTION_ITEMS",
     "SUPERVISION_CALIBRATION_ITEMS",
     "VALUE_UPGRADE_ITEMS",
-
     # === Integration Protocols ===
     "FarmAdvisorAgent",
     "IrrigationSubAgent",
     "WeatherService",
     "FertilizationService",
-
     # === Integration Manager ===
     "HMCIntegrationManager",
-
     # === Factory Functions ===
     "create_hmc_engine",
     "get_hmc_engine",
@@ -278,7 +263,6 @@ __all__ = [
     "get_checklist",
     "get_integration_manager",
     "reset_integration_manager",
-
     # === Helper Functions ===
     "integrate_with_farm_advisor",
     "integrate_with_irrigation_agent",
@@ -373,7 +357,9 @@ def get_framework_info() -> dict:
 
 
 # Add to __all__
-__all__.extend([
-    "quick_start",
-    "get_framework_info",
-])
+__all__.extend(
+    [
+        "quick_start",
+        "get_framework_info",
+    ]
+)

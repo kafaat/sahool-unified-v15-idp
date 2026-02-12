@@ -6,7 +6,7 @@ Publish events to NATS JetStream
 import json
 import os
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from nats.aio.client import Client as NATS
 

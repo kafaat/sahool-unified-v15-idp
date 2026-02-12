@@ -17,40 +17,43 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
-from typing import Any
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 
-class FarmerStatus(str, Enum):
+class FarmerStatus(StrEnum):
     """Farmer engagement status."""
-    LEAD = "lead"                    # مهتم - Initial contact
-    REGISTERED = "registered"        # مسجل - Completed registration
-    ACTIVE = "active"                # نشط - Using platform
-    PREMIUM = "premium"              # مميز - Premium subscriber
-    CHURNED = "churned"              # متوقف - Stopped using
+
+    LEAD = "lead"  # مهتم - Initial contact
+    REGISTERED = "registered"  # مسجل - Completed registration
+    ACTIVE = "active"  # نشط - Using platform
+    PREMIUM = "premium"  # مميز - Premium subscriber
+    CHURNED = "churned"  # متوقف - Stopped using
 
 
-class DealStage(str, Enum):
+class DealStage(StrEnum):
     """Agricultural deal stages (harvest/supply)."""
-    PROSPECTING = "prospecting"      # استكشاف - Identifying opportunity
+
+    PROSPECTING = "prospecting"  # استكشاف - Identifying opportunity
     QUALIFICATION = "qualification"  # تأهيل - Assessing viability
-    NEGOTIATION = "negotiation"      # تفاوض - Price/terms discussion
-    CONTRACTED = "contracted"        # متعاقد - Agreement signed
-    DELIVERED = "delivered"          # مسلم - Crop delivered
-    PAID = "paid"                    # مدفوع - Payment received
-    CLOSED_LOST = "closed_lost"      # خسارة - Deal fell through
+    NEGOTIATION = "negotiation"  # تفاوض - Price/terms discussion
+    CONTRACTED = "contracted"  # متعاقد - Agreement signed
+    DELIVERED = "delivered"  # مسلم - Crop delivered
+    PAID = "paid"  # مدفوع - Payment received
+    CLOSED_LOST = "closed_lost"  # خسارة - Deal fell through
 
 
-class InteractionType(str, Enum):
+class InteractionType(StrEnum):
     """Types of farmer interactions."""
-    ADVISORY = "advisory"            # استشارة
-    SUPPORT = "support"              # دعم فني
-    SALES = "sales"                  # مبيعات
-    TRAINING = "training"            # تدريب
-    INSPECTION = "inspection"        # فحص ميداني
+
+    ADVISORY = "advisory"  # استشارة
+    SUPPORT = "support"  # دعم فني
+    SALES = "sales"  # مبيعات
+    TRAINING = "training"  # تدريب
+    INSPECTION = "inspection"  # فحص ميداني
 
 
 @dataclass
@@ -59,6 +62,7 @@ class Farmer:
     Farmer entity (equivalent to Customer in CRM).
     كيان المزارع (مكافئ للعميل في CRM)
     """
+
     farmer_id: str
     name: str
     name_ar: str
@@ -116,6 +120,7 @@ class HarvestDeal:
     Harvest/Supply deal (equivalent to Opportunity in CRM).
     صفقة الحصاد/التوريد (مكافئ للفرصة في CRM)
     """
+
     deal_id: str
     farmer_id: str
 
@@ -170,6 +175,7 @@ class Interaction:
     Farmer interaction record (equivalent to Activity in CRM).
     سجل تفاعل المزارع (مكافئ للنشاط في CRM)
     """
+
     interaction_id: str
     farmer_id: str
 
@@ -212,6 +218,7 @@ class SupplyContract:
     Supply contract (equivalent to Contract in CRM).
     عقد التوريد (مكافئ للعقد في CRM)
     """
+
     contract_id: str
     deal_id: str
     farmer_id: str
@@ -252,6 +259,7 @@ class Payment:
     Payment record (equivalent to Payment in CRM).
     سجل الدفع (مكافئ للدفع في CRM)
     """
+
     payment_id: str
     contract_id: str
     farmer_id: str
@@ -441,9 +449,7 @@ class FarmerCRMService:
             "pipeline": pipeline,
             "total_deals": len(self._deals),
             "total_value": sum(d.expected_value for d in self._deals.values()),
-            "weighted_value": sum(
-                d.expected_value * d.probability for d in self._deals.values()
-            ),
+            "weighted_value": sum(d.expected_value * d.probability for d in self._deals.values()),
         }
 
     async def get_farmer_analytics(self, farmer_id: str) -> dict[str, Any]:
@@ -453,17 +459,19 @@ class FarmerCRMService:
             return {}
 
         farmer_deals = [d for d in self._deals.values() if d.farmer_id == farmer_id]
-        farmer_interactions = [
-            i for i in self._interactions.values() if i.farmer_id == farmer_id
-        ]
+        farmer_interactions = [i for i in self._interactions.values() if i.farmer_id == farmer_id]
 
         return {
             "farmer": farmer.to_dict(),
             "deals": {
                 "total": len(farmer_deals),
-                "active": len([d for d in farmer_deals if d.stage not in (
-                    DealStage.PAID, DealStage.CLOSED_LOST
-                )]),
+                "active": len(
+                    [
+                        d
+                        for d in farmer_deals
+                        if d.stage not in (DealStage.PAID, DealStage.CLOSED_LOST)
+                    ]
+                ),
                 "won": len([d for d in farmer_deals if d.stage == DealStage.PAID]),
                 "total_value": sum(d.expected_value for d in farmer_deals),
             },
@@ -502,9 +510,7 @@ class FarmerCRMService:
         score += min(25, len(interactions) * 5)
 
         # Active deals (max 25 points)
-        active_deals = [d for d in deals if d.stage not in (
-            DealStage.PAID, DealStage.CLOSED_LOST
-        )]
+        active_deals = [d for d in deals if d.stage not in (DealStage.PAID, DealStage.CLOSED_LOST)]
         score += min(25, len(active_deals) * 10)
 
         # Profile completeness (max 20 points)

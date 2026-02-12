@@ -9,20 +9,20 @@ Version: 1.0.0
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
-from typing import Any
 import uuid
-
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 # ==============================================================================
 # Enumerations - التعدادات
 # ==============================================================================
 
 
-class DroneType(str, Enum):
+class DroneType(StrEnum):
     """Type of drone platform - نوع منصة الطائرة"""
+
     DJI_AGRAS_T40 = "dji_agras_t40"  # DJI Agras T40
     DJI_AGRAS_T30 = "dji_agras_t30"  # DJI Agras T30
     DJI_AGRAS_T20P = "dji_agras_t20p"  # DJI Agras T20P
@@ -35,8 +35,9 @@ class DroneType(str, Enum):
     CUSTOM = "custom"  # Custom drone platform
 
 
-class FlightMode(str, Enum):
+class FlightMode(StrEnum):
     """Flight operation mode - وضع العملية الجوية"""
+
     MAPPING = "mapping"  # Aerial mapping mission | مهمة رسم الخرائط
     SPRAYING = "spraying"  # Spraying mission | مهمة الرش
     SCOUTING = "scouting"  # Crop scouting | استكشاف المحصول
@@ -46,8 +47,9 @@ class FlightMode(str, Enum):
     INSPECTION = "inspection"  # Infrastructure inspection | التفتيش
 
 
-class FlightStatus(str, Enum):
+class FlightStatus(StrEnum):
     """Flight status - حالة الرحلة"""
+
     PLANNED = "planned"  # مخطط
     READY = "ready"  # جاهز للتنفيذ
     IN_PROGRESS = "in_progress"  # قيد التنفيذ
@@ -57,8 +59,9 @@ class FlightStatus(str, Enum):
     FAILED = "failed"  # فشل
 
 
-class MissionStatus(str, Enum):
+class MissionStatus(StrEnum):
     """Mission status - حالة المهمة"""
+
     DRAFT = "draft"  # مسودة
     PENDING_APPROVAL = "pending_approval"  # بانتظار الموافقة
     APPROVED = "approved"  # موافق عليه
@@ -68,8 +71,9 @@ class MissionStatus(str, Enum):
     CANCELLED = "cancelled"  # ملغى
 
 
-class WaypointAction(str, Enum):
+class WaypointAction(StrEnum):
     """Action at waypoint - الإجراء عند نقطة المسار"""
+
     NONE = "none"  # لا شيء
     HOVER = "hover"  # تحليق ثابت
     TAKE_PHOTO = "take_photo"  # التقاط صورة
@@ -82,8 +86,9 @@ class WaypointAction(str, Enum):
     TILT_CAMERA = "tilt_camera"  # إمالة الكاميرا
 
 
-class FlightPattern(str, Enum):
+class FlightPattern(StrEnum):
     """Flight path pattern - نمط مسار الطيران"""
+
     PARALLEL = "parallel"  # خطوط متوازية
     CROSSHATCH = "crosshatch"  # تقاطع متعامد
     PERIMETER = "perimeter"  # محيط الحقل
@@ -92,16 +97,18 @@ class FlightPattern(str, Enum):
     CUSTOM = "custom"  # مخصص
 
 
-class ApplicationMode(str, Enum):
+class ApplicationMode(StrEnum):
     """Application mode for spraying - وضع التطبيق للرش"""
+
     UNIFORM = "uniform"  # موحد (معدل ثابت)
     VARIABLE_RATE = "variable_rate"  # معدل متغير (VRA)
     SPOT_SPRAY = "spot_spray"  # رش نقطي
     PRESCRIPTION_MAP = "prescription_map"  # خريطة وصفة
 
 
-class SprayStatus(str, Enum):
+class SprayStatus(StrEnum):
     """Spray system status - حالة نظام الرش"""
+
     IDLE = "idle"  # خامل
     PRIMING = "priming"  # تجهيز
     SPRAYING = "spraying"  # رش نشط
@@ -111,8 +118,9 @@ class SprayStatus(str, Enum):
     ERROR = "error"  # خطأ
 
 
-class ImageryType(str, Enum):
+class ImageryType(StrEnum):
     """Type of aerial imagery - نوع الصور الجوية"""
+
     RGB = "rgb"  # صور ملونة
     MULTISPECTRAL = "multispectral"  # متعدد الأطياف
     THERMAL = "thermal"  # حراري
@@ -120,8 +128,9 @@ class ImageryType(str, Enum):
     LIDAR = "lidar"  # ليدار
 
 
-class WeatherCondition(str, Enum):
+class WeatherCondition(StrEnum):
     """Weather suitability for flight - ملاءمة الطقس للطيران"""
+
     OPTIMAL = "optimal"  # أمثل
     ACCEPTABLE = "acceptable"  # مقبول
     MARGINAL = "marginal"  # حدّي
@@ -129,8 +138,9 @@ class WeatherCondition(str, Enum):
     PROHIBITED = "prohibited"  # ممنوع
 
 
-class VRAZoneType(str, Enum):
+class VRAZoneType(StrEnum):
     """Variable Rate Application zone type - نوع منطقة المعدل المتغير"""
+
     HIGH_VIGOR = "high_vigor"  # نمو قوي
     MEDIUM_VIGOR = "medium_vigor"  # نمو متوسط
     LOW_VIGOR = "low_vigor"  # نمو ضعيف
@@ -150,6 +160,7 @@ class VRAZoneType(str, Enum):
 @dataclass
 class Coordinate:
     """Geographic coordinate with altitude - إحداثي جغرافي مع ارتفاع"""
+
     lat: float  # خط العرض
     lng: float  # خط الطول
     alt_m: float | None = None  # الارتفاع (متر)
@@ -172,6 +183,7 @@ class Coordinate:
 @dataclass
 class BoundingBox:
     """Bounding box for a region - مربع الحدود لمنطقة"""
+
     min_lat: float
     max_lat: float
     min_lng: float
@@ -180,8 +192,7 @@ class BoundingBox:
     def center(self) -> Coordinate:
         """Get center coordinate"""
         return Coordinate(
-            lat=(self.min_lat + self.max_lat) / 2,
-            lng=(self.min_lng + self.max_lng) / 2
+            lat=(self.min_lat + self.max_lat) / 2, lng=(self.min_lng + self.max_lng) / 2
         )
 
     def to_dict(self) -> dict:
@@ -202,6 +213,7 @@ class BoundingBox:
 @dataclass
 class DroneSpecs:
     """Drone specifications - مواصفات الطائرة"""
+
     drone_type: DroneType
     model_name: str
     model_name_ar: str
@@ -243,6 +255,7 @@ class DroneSpecs:
 @dataclass
 class Drone:
     """Drone asset - أصل الطائرة"""
+
     id: str
     tenant_id: str
     serial_number: str
@@ -300,6 +313,7 @@ class Drone:
 @dataclass
 class Waypoint:
     """Single waypoint in a flight path - نقطة مسار واحدة في مسار الطيران"""
+
     index: int  # ترتيب النقطة
     coordinate: Coordinate  # الإحداثيات
 
@@ -344,6 +358,7 @@ class Waypoint:
 @dataclass
 class FlightPath:
     """Complete flight path with waypoints - مسار الطيران الكامل مع نقاط المسار"""
+
     id: str
     name: str
     name_ar: str
@@ -442,6 +457,7 @@ class FlightPath:
 @dataclass
 class WeatherCheck:
     """Weather conditions check for flight - فحص ظروف الطقس للطيران"""
+
     check_time: datetime
     condition: WeatherCondition
 
@@ -484,6 +500,7 @@ class WeatherCheck:
 @dataclass
 class SprayMission:
     """Spraying mission definition - تعريف مهمة الرش"""
+
     id: str
     tenant_id: str
     field_id: str
@@ -571,6 +588,7 @@ class SprayMission:
 @dataclass
 class MappingMission:
     """Aerial mapping mission definition - تعريف مهمة رسم الخرائط الجوية"""
+
     id: str
     tenant_id: str
     field_id: str
@@ -650,6 +668,7 @@ class MappingMission:
 @dataclass
 class FlightTelemetry:
     """Real-time flight telemetry data - بيانات القياس عن بعد للطيران"""
+
     timestamp: datetime
     position: Coordinate
 
@@ -706,6 +725,7 @@ class FlightTelemetry:
 @dataclass
 class FlightLog:
     """Complete flight log record - سجل الرحلة الكامل"""
+
     id: str
     tenant_id: str
     drone_id: str
@@ -792,8 +812,7 @@ class FlightLog:
     def get_track_geojson(self) -> dict:
         """Export flight track as GeoJSON"""
         coordinates = [
-            [t.position.lng, t.position.lat, t.position.alt_agl_m or 0]
-            for t in self.telemetry_log
+            [t.position.lng, t.position.lat, t.position.alt_agl_m or 0] for t in self.telemetry_log
         ]
         return {
             "type": "Feature",
@@ -818,6 +837,7 @@ class FlightLog:
 @dataclass
 class VRAZone:
     """Variable Rate Application zone - منطقة التطبيق بالمعدل المتغير"""
+
     id: str
     zone_type: VRAZoneType
 
@@ -876,9 +896,7 @@ class VRAZone:
             },
             "geometry": {
                 "type": "Polygon",
-                "coordinates": [[
-                    [c.lng, c.lat] for c in self.boundary
-                ]],
+                "coordinates": [[[c.lng, c.lat] for c in self.boundary]],
             },
         }
 
@@ -886,6 +904,7 @@ class VRAZone:
 @dataclass
 class PrescriptionMap:
     """Variable Rate Application prescription map - خريطة وصفة المعدل المتغير"""
+
     id: str
     tenant_id: str
     field_id: str
@@ -975,6 +994,7 @@ class PrescriptionMap:
 @dataclass
 class AerialImage:
     """Single aerial image record - سجل صورة جوية واحدة"""
+
     id: str
     flight_id: str
     sequence: int
@@ -1034,6 +1054,7 @@ class AerialImage:
 @dataclass
 class ProcessedImagery:
     """Processed imagery product - منتج صور معالجة"""
+
     id: str
     tenant_id: str
     field_id: str

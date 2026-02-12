@@ -167,7 +167,7 @@ class TypeScriptAnalyzer(BaseAnalyzer):
             # Filter and limit issues
             filtered_issues = [i for i in issues if self._should_include_issue(i)]
             if len(filtered_issues) > self.config.max_issues:
-                filtered_issues = filtered_issues[:self.config.max_issues]
+                filtered_issues = filtered_issues[: self.config.max_issues]
 
             return AnalysisResult(
                 success=True,
@@ -210,41 +210,47 @@ class TypeScriptAnalyzer(BaseAnalyzer):
                     if stack:
                         open_bracket, _ = stack.pop()
                         if brackets[open_bracket] != char:
-                            issues.append(AnalysisIssue(
+                            issues.append(
+                                AnalysisIssue(
+                                    file_path="<string>",
+                                    line_start=i,
+                                    line_end=i,
+                                    column_start=j,
+                                    severity=IssueSeverity.ERROR,
+                                    category=IssueCategory.SYNTAX,
+                                    code="S001",
+                                    message=f"Mismatched bracket: expected '{brackets[open_bracket]}' but found '{char}'",
+                                    message_ar=f"قوس غير متطابق: متوقع '{brackets[open_bracket]}' ولكن وجد '{char}'",
+                                )
+                            )
+                    else:
+                        issues.append(
+                            AnalysisIssue(
                                 file_path="<string>",
                                 line_start=i,
                                 line_end=i,
                                 column_start=j,
                                 severity=IssueSeverity.ERROR,
                                 category=IssueCategory.SYNTAX,
-                                code="S001",
-                                message=f"Mismatched bracket: expected '{brackets[open_bracket]}' but found '{char}'",
-                                message_ar=f"قوس غير متطابق: متوقع '{brackets[open_bracket]}' ولكن وجد '{char}'",
-                            ))
-                    else:
-                        issues.append(AnalysisIssue(
-                            file_path="<string>",
-                            line_start=i,
-                            line_end=i,
-                            column_start=j,
-                            severity=IssueSeverity.ERROR,
-                            category=IssueCategory.SYNTAX,
-                            code="S002",
-                            message=f"Unexpected closing bracket: '{char}'",
-                            message_ar=f"قوس إغلاق غير متوقع: '{char}'",
-                        ))
+                                code="S002",
+                                message=f"Unexpected closing bracket: '{char}'",
+                                message_ar=f"قوس إغلاق غير متوقع: '{char}'",
+                            )
+                        )
 
         for open_bracket, line in stack:
-            issues.append(AnalysisIssue(
-                file_path="<string>",
-                line_start=line,
-                line_end=line,
-                severity=IssueSeverity.ERROR,
-                category=IssueCategory.SYNTAX,
-                code="S003",
-                message=f"Unclosed bracket: '{open_bracket}'",
-                message_ar=f"قوس غير مغلق: '{open_bracket}'",
-            ))
+            issues.append(
+                AnalysisIssue(
+                    file_path="<string>",
+                    line_start=line,
+                    line_end=line,
+                    severity=IssueSeverity.ERROR,
+                    category=IssueCategory.SYNTAX,
+                    code="S003",
+                    message=f"Unclosed bracket: '{open_bracket}'",
+                    message_ar=f"قوس غير مغلق: '{open_bracket}'",
+                )
+            )
 
         return issues
 
@@ -257,17 +263,19 @@ class TypeScriptAnalyzer(BaseAnalyzer):
         any_pattern = re.compile(r":\s*any\b")
         for i, line in enumerate(lines, 1):
             if any_pattern.search(line):
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.WARNING,
-                    category=IssueCategory.TYPE,
-                    code="T101",
-                    message="Explicit 'any' type should be avoided",
-                    message_ar="يجب تجنب نوع 'any' الصريح",
-                    source_code=line.strip(),
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.WARNING,
+                        category=IssueCategory.TYPE,
+                        code="T101",
+                        message="Explicit 'any' type should be avoided",
+                        message_ar="يجب تجنب نوع 'any' الصريح",
+                        source_code=line.strip(),
+                    )
+                )
 
         # Check for missing type annotations on function parameters
         func_pattern = re.compile(r"(?:function|const|let)\s+\w+\s*=?\s*(?:async\s*)?\([^)]*\)")
@@ -279,17 +287,19 @@ class TypeScriptAnalyzer(BaseAnalyzer):
                 if param_match:
                     params = param_match.group(1)
                     if params and ":" not in params and params.strip():
-                        issues.append(AnalysisIssue(
-                            file_path="<string>",
-                            line_start=i,
-                            line_end=i,
-                            severity=IssueSeverity.INFO,
-                            category=IssueCategory.TYPE,
-                            code="T102",
-                            message="Function parameters should have type annotations",
-                            message_ar="يجب أن تحتوي معاملات الدالة على تعليقات توضيحية للنوع",
-                            source_code=line.strip(),
-                        ))
+                        issues.append(
+                            AnalysisIssue(
+                                file_path="<string>",
+                                line_start=i,
+                                line_end=i,
+                                severity=IssueSeverity.INFO,
+                                category=IssueCategory.TYPE,
+                                code="T102",
+                                message="Function parameters should have type annotations",
+                                message_ar="يجب أن تحتوي معاملات الدالة على تعليقات توضيحية للنوع",
+                                source_code=line.strip(),
+                            )
+                        )
 
         return issues
 
@@ -302,18 +312,20 @@ class TypeScriptAnalyzer(BaseAnalyzer):
             pattern = re.compile(pattern_info["pattern"], re.IGNORECASE)
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.SECURITY,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                        confidence=0.9,
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.SECURITY,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                            confidence=0.9,
+                        )
+                    )
 
         return issues
 
@@ -325,33 +337,37 @@ class TypeScriptAnalyzer(BaseAnalyzer):
         # Line length check
         for i, line in enumerate(lines, 1):
             if len(line) > self.config.max_line_length:
-                issues.append(AnalysisIssue(
-                    file_path="<string>",
-                    line_start=i,
-                    line_end=i,
-                    severity=IssueSeverity.INFO,
-                    category=IssueCategory.STYLE,
-                    code="S501",
-                    message=f"Line too long ({len(line)} > {self.config.max_line_length})",
-                    message_ar=f"السطر طويل جداً ({len(line)} > {self.config.max_line_length})",
-                ))
+                issues.append(
+                    AnalysisIssue(
+                        file_path="<string>",
+                        line_start=i,
+                        line_end=i,
+                        severity=IssueSeverity.INFO,
+                        category=IssueCategory.STYLE,
+                        code="S501",
+                        message=f"Line too long ({len(line)} > {self.config.max_line_length})",
+                        message_ar=f"السطر طويل جداً ({len(line)} > {self.config.max_line_length})",
+                    )
+                )
 
         # Pattern-based style checks
         for pattern_info in self.STYLE_PATTERNS:
             pattern = re.compile(pattern_info["pattern"])
             for i, line in enumerate(lines, 1):
                 if pattern.search(line):
-                    issues.append(AnalysisIssue(
-                        file_path="<string>",
-                        line_start=i,
-                        line_end=i,
-                        severity=pattern_info["severity"],
-                        category=IssueCategory.STYLE,
-                        code=pattern_info["code"],
-                        message=pattern_info["message"],
-                        message_ar=pattern_info["message_ar"],
-                        source_code=line.strip(),
-                    ))
+                    issues.append(
+                        AnalysisIssue(
+                            file_path="<string>",
+                            line_start=i,
+                            line_end=i,
+                            severity=pattern_info["severity"],
+                            category=IssueCategory.STYLE,
+                            code=pattern_info["code"],
+                            message=pattern_info["message"],
+                            message_ar=pattern_info["message_ar"],
+                            source_code=line.strip(),
+                        )
+                    )
 
         return issues
 

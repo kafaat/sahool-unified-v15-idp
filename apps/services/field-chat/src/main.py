@@ -39,11 +39,13 @@ logger = logging.getLogger(__name__)
 
 # Database configuration - MUST be set via environment variable in production
 # Set DATABASE_URL in .env file (see .env.example for format)
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
-    # Fallback to in-memory SQLite for testing only
+    if ENVIRONMENT == "production":
+        raise RuntimeError("DATABASE_URL must be set in production")
     DATABASE_URL = "sqlite://:memory:"
-    logging.warning("DATABASE_URL not set - using in-memory SQLite for testing")
+    logging.warning("DATABASE_URL not set - using in-memory SQLite (test/dev only)")
 
 TORTOISE_ORM = {
     "connections": {
@@ -70,29 +72,37 @@ async def lifespan(app: FastAPI):
     # Check if already initialized (e.g., by test fixtures)
     if Tortoise._inited:
         logger.info("Tortoise ORM already initialized (test mode)")
-        yield
-        return
-
-    try:
-        await Tortoise.init(config=TORTOISE_ORM)
-        logger.info("Database connected")
-    except Exception as e:
-        logger.warning(f"Database connection failed (running without DB): {e}")
-        # Initialize with SQLite for testing
+    else:
         try:
+            await Tortoise.init(config=TORTOISE_ORM)
+            logger.info("Database connected")
+        except Exception as e:
+            if ENVIRONMENT == "production":
+                raise
+            logger.warning("Database connection failed (non-production): %s", e)
             await Tortoise.init(
                 db_url="sqlite://:memory:",
                 modules={"models": ["src.models"]},
             )
             await Tortoise.generate_schemas()
-            logger.info("Using in-memory SQLite for testing")
-        except Exception as e2:
-            logger.warning(f"SQLite fallback failed: {e2}")
+            logger.info("Using in-memory SQLite for dev/test")
+
+    # Initialize shared NATS publisher
+    from .events.publish import ChatPublisher
+
+    publisher = ChatPublisher()
+    try:
+        await publisher.connect()
+    except Exception as e:
+        logger.warning("NATS connection failed at startup: %s", e)
+    app.state.publisher = publisher
 
     yield
 
     # Shutdown
     logger.info("Shutting down Field Chat service...")
+    with suppress(Exception):
+        await publisher.close()
     with suppress(Exception):
         await Tortoise.close_connections()
 
@@ -217,6 +227,11 @@ class ConnectionManager:
 manager = ConnectionManager()
 
 
+def _sanitize_for_log(value: str) -> str:
+    """Strip newline/carriage-return to prevent log injection."""
+    return value.replace("\n", "").replace("\r", "")
+
+
 @app.websocket("/ws/chat/{thread_id}")
 async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | None = None):
     """
@@ -239,8 +254,27 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
         await websocket.close(code=4001, reason=str(e))
         return
 
+    # Verify user is a participant in this thread
+    user_id = user.get("sub") or user.get("user_id")
+    tenant_id = user.get("tenant_id")
+    if not user_id or not tenant_id:
+        await websocket.close(code=4003, reason="Missing user_id or tenant_id in token")
+        return
+
+    from .models import ChatParticipant
+
+    participant = await ChatParticipant.get_or_none(
+        thread_id=thread_id,
+        user_id=user_id,
+        tenant_id=tenant_id,
+    )
+    if not participant:
+        await websocket.close(code=4003, reason="Not a participant in this thread")
+        return
+
     await manager.connect(websocket, thread_id)
-    logger.info(f"WebSocket connected: thread={thread_id}, user={user.get('sub', 'unknown')}")
+    safe_thread_id = _sanitize_for_log(thread_id)
+    logger.info("WebSocket connected: thread=%s, user=%s", safe_thread_id, user_id)
 
     try:
         while True:
@@ -250,4 +284,4 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
             await websocket.send_json({"type": "pong", "data": data})
     except WebSocketDisconnect:
         manager.disconnect(websocket, thread_id)
-        logger.info(f"WebSocket disconnected: thread={thread_id}")
+        logger.info("WebSocket disconnected: thread=%s", safe_thread_id)

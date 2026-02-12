@@ -29,12 +29,11 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Vision Subject Constants - ثوابت موضوعات الرؤية
@@ -99,7 +98,7 @@ SAHOOL_VISION_ALL = VisionSubjects.ALL
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class DetectionSeverity(str, Enum):
+class DetectionSeverity(StrEnum):
     """Severity levels for detections"""
 
     LOW = "low"
@@ -108,7 +107,7 @@ class DetectionSeverity(str, Enum):
     CRITICAL = "critical"
 
 
-class DetectionSource(str, Enum):
+class DetectionSource(StrEnum):
     """Source of detection"""
 
     DRONE = "drone"
@@ -118,7 +117,7 @@ class DetectionSource(str, Enum):
     EDGE_DEVICE = "edge_device"
 
 
-class InfestationLevel(str, Enum):
+class InfestationLevel(StrEnum):
     """Infestation/infection level"""
 
     NONE = "none"
@@ -211,9 +210,7 @@ class PestDetectedEvent(BaseVisionEvent):
     حدث يُطلق عند اكتشاف آفة عبر نموذج YOLO26
     """
 
-    detection_id: UUID = Field(
-        default_factory=uuid4, description="Unique detection identifier"
-    )
+    detection_id: UUID = Field(default_factory=uuid4, description="Unique detection identifier")
     field_id: UUID = Field(..., description="Field where pest was detected")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -225,9 +222,7 @@ class PestDetectedEvent(BaseVisionEvent):
 
     # Detection details
     confidence: float = Field(..., ge=0, le=1, description="Model confidence score")
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Severity level"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Severity level")
     infestation_level: str | None = Field(
         None,
         pattern="^(none|light|moderate|severe|critical)$",
@@ -289,9 +284,7 @@ class VisionDiseaseDetectedEvent(BaseVisionEvent):
     Note: Named VisionDiseaseDetectedEvent to distinguish from health.disease_detected
     """
 
-    detection_id: UUID = Field(
-        default_factory=uuid4, description="Unique detection identifier"
-    )
+    detection_id: UUID = Field(default_factory=uuid4, description="Unique detection identifier")
     field_id: UUID = Field(..., description="Field where disease was detected")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -307,9 +300,7 @@ class VisionDiseaseDetectedEvent(BaseVisionEvent):
 
     # Detection details
     confidence: float = Field(..., ge=0, le=1, description="Model confidence score")
-    severity: str = Field(
-        ..., pattern="^(low|medium|high|critical)$", description="Severity level"
-    )
+    severity: str = Field(..., pattern="^(low|medium|high|critical)$", description="Severity level")
     infection_stage: str | None = Field(
         None,
         pattern="^(early|developing|advanced|terminal)$",
@@ -344,9 +335,7 @@ class VisionDiseaseDetectedEvent(BaseVisionEvent):
     )
 
     # Spread estimation
-    affected_plants_count: int | None = Field(
-        None, ge=0, description="Number of affected plants"
-    )
+    affected_plants_count: int | None = Field(None, ge=0, description="Number of affected plants")
     affected_area_sqm: float | None = Field(None, ge=0, description="Affected area in m2")
     affected_area_percentage: float | None = Field(
         None, ge=0, le=100, description="Percentage of field affected"
@@ -357,16 +346,12 @@ class VisionDiseaseDetectedEvent(BaseVisionEvent):
 
     # Symptoms observed
     symptoms: list[str] = Field(default_factory=list, description="Observed symptoms")
-    symptoms_ar: list[str] = Field(
-        default_factory=list, description="Arabic symptoms list"
-    )
+    symptoms_ar: list[str] = Field(default_factory=list, description="Arabic symptoms list")
 
     # Recommendations
     treatment_recommendation: str | None = Field(None, description="Treatment recommendation")
     treatment_recommendation_ar: str | None = Field(None, description="Arabic treatment")
-    preventive_measures: list[str] = Field(
-        default_factory=list, description="Preventive measures"
-    )
+    preventive_measures: list[str] = Field(default_factory=list, description="Preventive measures")
     urgency_hours: int | None = Field(None, ge=0, description="Action urgency in hours")
 
     # Economic impact
@@ -386,9 +371,7 @@ class WeedDetectedEvent(BaseVisionEvent):
     حدث يُطلق عند اكتشاف أعشاب ضارة عبر نموذج YOLO26
     """
 
-    detection_id: UUID = Field(
-        default_factory=uuid4, description="Unique detection identifier"
-    )
+    detection_id: UUID = Field(default_factory=uuid4, description="Unique detection identifier")
     field_id: UUID = Field(..., description="Field where weeds were detected")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -455,17 +438,13 @@ class WeedDetectedEvent(BaseVisionEvent):
     herbicide_recommendation_ar: str | None = Field(
         None, description="Arabic herbicide recommendation"
     )
-    optimal_control_window: str | None = Field(
-        None, description="Optimal time window for control"
-    )
+    optimal_control_window: str | None = Field(None, description="Optimal time window for control")
 
     # Economic impact
     estimated_yield_loss_percentage: float | None = Field(
         None, ge=0, le=100, description="Estimated yield loss if untreated"
     )
-    control_cost_estimate: float | None = Field(
-        None, ge=0, description="Estimated control cost"
-    )
+    control_cost_estimate: float | None = Field(None, ge=0, description="Estimated control cost")
     currency: str = Field(default="SAR", description="Currency code")
 
 
@@ -480,9 +459,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     حدث يُطلق عند اكتمال تحليل إحصاء النباتات
     """
 
-    analysis_id: UUID = Field(
-        default_factory=uuid4, description="Unique analysis identifier"
-    )
+    analysis_id: UUID = Field(default_factory=uuid4, description="Unique analysis identifier")
     field_id: UUID = Field(..., description="Analyzed field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -494,9 +471,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
 
     # Density metrics
     plants_per_sqm: float | None = Field(None, ge=0, description="Plant density per m2")
-    plants_per_hectare: float | None = Field(
-        None, ge=0, description="Plant density per hectare"
-    )
+    plants_per_hectare: float | None = Field(None, ge=0, description="Plant density per hectare")
     expected_plants_per_hectare: float | None = Field(
         None, ge=0, description="Expected plants per hectare"
     )
@@ -526,9 +501,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     images_processed: int | None = Field(None, ge=0, description="Number of images processed")
 
     # Image data
-    source_image_urls: list[str] = Field(
-        default_factory=list, description="Source image URLs"
-    )
+    source_image_urls: list[str] = Field(default_factory=list, description="Source image URLs")
     heatmap_url: str | None = Field(None, description="Plant density heatmap URL")
     annotated_mosaic_url: str | None = Field(None, description="Annotated mosaic URL")
 
@@ -536,14 +509,10 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     gap_locations: list[GeoLocation] = Field(
         default_factory=list, description="Locations of gaps/missing plants"
     )
-    gap_percentage: float | None = Field(
-        None, ge=0, le=100, description="Percentage of gaps"
-    )
+    gap_percentage: float | None = Field(None, ge=0, le=100, description="Percentage of gaps")
 
     # Uniformity metrics
-    uniformity_score: float | None = Field(
-        None, ge=0, le=1, description="Plant uniformity score"
-    )
+    uniformity_score: float | None = Field(None, ge=0, le=1, description="Plant uniformity score")
     row_spacing_cm: float | None = Field(None, ge=0, description="Average row spacing")
     plant_spacing_cm: float | None = Field(None, ge=0, description="Average plant spacing")
 
@@ -551,9 +520,7 @@ class PlantCountCompletedEvent(BaseVisionEvent):
     reseeding_recommended: bool = Field(
         default=False, description="Whether reseeding is recommended"
     )
-    reseeding_area_sqm: float | None = Field(
-        None, ge=0, description="Area needing reseeding"
-    )
+    reseeding_area_sqm: float | None = Field(None, ge=0, description="Area needing reseeding")
     recommendation: str | None = Field(None, description="Action recommendation")
     recommendation_ar: str | None = Field(None, description="Arabic recommendation")
 
@@ -611,9 +578,7 @@ class VisionCriticalAlertEvent(BaseVisionEvent):
     estimated_loss_percentage: float | None = Field(
         None, ge=0, le=100, description="Estimated crop loss percentage"
     )
-    estimated_loss_value: float | None = Field(
-        None, ge=0, description="Estimated monetary loss"
-    )
+    estimated_loss_value: float | None = Field(None, ge=0, description="Estimated monetary loss")
     currency: str = Field(default="SAR", description="Currency code")
 
     # Response required
@@ -626,17 +591,11 @@ class VisionCriticalAlertEvent(BaseVisionEvent):
     )
 
     # Escalation
-    auto_notify_agronomist: bool = Field(
-        default=True, description="Auto-notify farm agronomist"
-    )
-    escalation_level: int = Field(
-        default=1, ge=1, le=3, description="Escalation level"
-    )
+    auto_notify_agronomist: bool = Field(default=True, description="Auto-notify farm agronomist")
+    escalation_level: int = Field(default=1, ge=1, le=3, description="Escalation level")
 
     # Evidence
-    evidence_image_urls: list[str] = Field(
-        default_factory=list, description="Evidence image URLs"
-    )
+    evidence_image_urls: list[str] = Field(default_factory=list, description="Evidence image URLs")
     report_url: str | None = Field(None, description="Detailed report URL")
 
 
@@ -651,9 +610,7 @@ class VisionAnalysisStartedEvent(BaseVisionEvent):
     حدث يُطلق عند بدء مهمة تحليل الرؤية
     """
 
-    analysis_id: UUID = Field(
-        default_factory=uuid4, description="Analysis job identifier"
-    )
+    analysis_id: UUID = Field(default_factory=uuid4, description="Analysis job identifier")
     field_id: UUID = Field(..., description="Target field identifier")
     tenant_id: UUID = Field(..., description="Tenant identifier")
 
@@ -697,9 +654,7 @@ class VisionAnalysisCompletedEvent(BaseVisionEvent):
     images_processed: int = Field(..., ge=0, description="Images successfully processed")
     images_failed: int = Field(default=0, ge=0, description="Images that failed processing")
     total_detections: int = Field(default=0, ge=0, description="Total detections found")
-    critical_detections: int = Field(
-        default=0, ge=0, description="Critical severity detections"
-    )
+    critical_detections: int = Field(default=0, ge=0, description="Critical severity detections")
 
     # Timing
     started_at: datetime = Field(..., description="Analysis start time")
@@ -710,9 +665,7 @@ class VisionAnalysisCompletedEvent(BaseVisionEvent):
 
     # Output
     report_url: str | None = Field(None, description="Analysis report URL")
-    detection_summary: dict | None = Field(
-        None, description="Summary of detections by type"
-    )
+    detection_summary: dict | None = Field(None, description="Summary of detections by type")
 
 
 class VisionAnalysisFailedEvent(BaseVisionEvent):

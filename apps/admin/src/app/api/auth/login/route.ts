@@ -1,17 +1,39 @@
 /**
  * Server-side login API route
  * Sets httpOnly cookies for security
+ * Now includes rate limiting to prevent brute-force attacks
+ * 
+ * يتضمن الآن حماية ضد هجمات القوة الغاشمة
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { logger } from "@/lib/logger";
 import { API_URL, API_ENDPOINTS } from "@/config/api";
+import { checkRateLimit, resetRateLimit } from "@/lib/rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password, totp_code } = body;
+
+    // Rate limiting check by email (prevent brute-force)
+    const rateLimit = checkRateLimit(`login:${email}`, {
+      maxAttempts: 5,
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      lockoutDurationMs: 30 * 60 * 1000, // 30 minutes lockout
+    });
+
+    if (!rateLimit.allowed) {
+      logger.warn(`Rate limit exceeded for email: ${email}`);
+      return NextResponse.json(
+        {
+          error: rateLimit.message || "Too many login attempts",
+          resetTime: rateLimit.resetTime,
+        },
+        { status: 429 }
+      );
+    }
 
     // Forward to backend auth API
     const response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
@@ -74,6 +96,9 @@ export async function POST(request: NextRequest) {
       maxAge: 86400, // 1 day
       path: "/",
     });
+
+    // Reset rate limit on successful login
+    resetRateLimit(`login:${email}`);
 
     return NextResponse.json({
       success: true,

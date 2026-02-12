@@ -4,7 +4,7 @@ Tests data normalization, format conversion, validation, and edge cases
 """
 
 import json
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 import pytest
 from apps.services.iot_gateway.src.normalizer import (

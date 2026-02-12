@@ -6,6 +6,8 @@ from uuid import UUID, uuid4
 import structlog
 from fastapi import APIRouter, Depends, HTTPException
 
+from ...core.config import settings
+from ...suppliers.finder import SupplierFinder
 from ..schemas import (
     AutoPurchaseRequest,
     BulkPurchaseRequest,
@@ -17,8 +19,6 @@ from ..schemas import (
     SupplierComparison,
     SupplierQuote,
 )
-from ...core.config import settings
-from ...suppliers.finder import SupplierFinder
 
 logger = structlog.get_logger()
 

@@ -22,8 +22,8 @@ import asyncio
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from .models import (
@@ -39,7 +39,7 @@ from .registry import AgriculturalAIRegistry, get_registry
 logger = logging.getLogger(__name__)
 
 
-class TaskType(str, Enum):
+class TaskType(StrEnum):
     """Types of agricultural tasks.
 
     أنواع المهام الزراعية
@@ -47,32 +47,32 @@ class TaskType(str, Enum):
     """
 
     # Advisory Tasks | المهام الاستشارية | 咨询任务
-    CROP_ADVISORY = "crop_advisory"                 # Crop management advice
-    PEST_IDENTIFICATION = "pest_identification"     # Pest identification
-    DISEASE_DIAGNOSIS = "disease_diagnosis"         # Disease diagnosis
+    CROP_ADVISORY = "crop_advisory"  # Crop management advice
+    PEST_IDENTIFICATION = "pest_identification"  # Pest identification
+    DISEASE_DIAGNOSIS = "disease_diagnosis"  # Disease diagnosis
     FERTILIZER_RECOMMENDATION = "fertilizer_recommendation"  # Fertilizer advice
-    IRRIGATION_SCHEDULING = "irrigation_scheduling" # Irrigation planning
+    IRRIGATION_SCHEDULING = "irrigation_scheduling"  # Irrigation planning
 
     # Analysis Tasks | مهام التحليل | 分析任务
-    YIELD_PREDICTION = "yield_prediction"           # Yield prediction
-    SATELLITE_ANALYSIS = "satellite_analysis"       # Satellite image analysis
-    SOIL_ANALYSIS = "soil_analysis"                 # Soil analysis
-    WEATHER_IMPACT = "weather_impact"               # Weather impact assessment
+    YIELD_PREDICTION = "yield_prediction"  # Yield prediction
+    SATELLITE_ANALYSIS = "satellite_analysis"  # Satellite image analysis
+    SOIL_ANALYSIS = "soil_analysis"  # Soil analysis
+    WEATHER_IMPACT = "weather_impact"  # Weather impact assessment
 
     # Breeding Tasks | مهام التربية | 育种任务
     BREEDING_RECOMMENDATION = "breeding_recommendation"  # Breeding advice
-    GENOMICS_ANALYSIS = "genomics_analysis"         # Genomics analysis
-    PHENOTYPE_PREDICTION = "phenotype_prediction"   # Phenotype prediction
+    GENOMICS_ANALYSIS = "genomics_analysis"  # Genomics analysis
+    PHENOTYPE_PREDICTION = "phenotype_prediction"  # Phenotype prediction
 
     # Livestock Tasks | مهام الثروة الحيوانية | 畜牧任务
-    ANIMAL_HEALTH = "animal_health"                 # Animal health
-    VETERINARY_QA = "veterinary_qa"                 # Veterinary Q&A
-    FEED_OPTIMIZATION = "feed_optimization"         # Feed optimization
+    ANIMAL_HEALTH = "animal_health"  # Animal health
+    VETERINARY_QA = "veterinary_qa"  # Veterinary Q&A
+    FEED_OPTIMIZATION = "feed_optimization"  # Feed optimization
 
     # Specialty Tasks | المهام المتخصصة | 专业任务
-    FORESTRY_MANAGEMENT = "forestry_management"     # Forestry
-    TEA_CULTIVATION = "tea_cultivation"             # Tea cultivation
-    LEGAL_QA = "legal_qa"                           # Agricultural law
+    FORESTRY_MANAGEMENT = "forestry_management"  # Forestry
+    TEA_CULTIVATION = "tea_cultivation"  # Tea cultivation
+    LEGAL_QA = "legal_qa"  # Agricultural law
 
 
 # Task to capability mapping
@@ -83,7 +83,10 @@ TASK_CAPABILITY_MAP: dict[TaskType, list[ModelCapability]] = {
     TaskType.FERTILIZER_RECOMMENDATION: [ModelCapability.DECISION_SUPPORT],
     TaskType.IRRIGATION_SCHEDULING: [ModelCapability.DECISION_SUPPORT],
     TaskType.YIELD_PREDICTION: [ModelCapability.YIELD_PREDICTION],
-    TaskType.SATELLITE_ANALYSIS: [ModelCapability.SATELLITE_ANALYSIS, ModelCapability.NDVI_ANALYSIS],
+    TaskType.SATELLITE_ANALYSIS: [
+        ModelCapability.SATELLITE_ANALYSIS,
+        ModelCapability.NDVI_ANALYSIS,
+    ],
     TaskType.SOIL_ANALYSIS: [ModelCapability.SOIL_ANALYSIS],
     TaskType.WEATHER_IMPACT: [ModelCapability.WEATHER_FORECAST, ModelCapability.CLIMATE_MODELING],
     TaskType.BREEDING_RECOMMENDATION: [ModelCapability.BREEDING],
@@ -334,9 +337,7 @@ class ModelIntegrator:
         best_score, best_model = scored_models[0]
         alternatives = [m for _, m in scored_models[1:5]]  # Top 4 alternatives
 
-        explanation = self._generate_selection_explanation(
-            best_model, task_type, language
-        )
+        explanation = self._generate_selection_explanation(best_model, task_type, language)
 
         return ModelSelection(
             recommended_model=best_model,
@@ -381,6 +382,7 @@ class ModelIntegrator:
 
         # Open source preference (10%)
         from .models import ModelLicense
+
         if prefer_open_source and model.license == ModelLicense.OPEN_SOURCE:
             score += 10
 
@@ -612,10 +614,7 @@ class ModelIntegrator:
             raise ValueError("No valid models found for comparison")
 
         # Call all models concurrently
-        tasks = [
-            self.call_model(model.model_id, query, context, timeout)
-            for model in models
-        ]
+        tasks = [self.call_model(model.model_id, query, context, timeout) for model in models]
         results = await asyncio.gather(*tasks, return_exceptions=True)
 
         # Process results
@@ -693,10 +692,10 @@ class ModelIntegrator:
     def _create_connector(self, model: AIModelInfo) -> Any:
         """Create a connector based on model type."""
         from .connector import (
-            GenericRESTConnector,
-            ShengNongConnector,
             CropWizardConnector,
+            GenericRESTConnector,
             PlantGPTConnector,
+            ShengNongConnector,
         )
 
         # Model-specific connectors
@@ -791,6 +790,7 @@ def reset_integrator() -> None:
 # Convenience Functions
 # ========================================================================
 
+
 def discover_models(
     category: AIModelCategory | None = None,
     capability: ModelCapability | None = None,
@@ -806,9 +806,7 @@ def get_best_model(
     prefer_open_source: bool = False,
 ) -> ModelSelection:
     """Get the best model for a task type."""
-    return get_integrator().get_best_model_for_task(
-        task_type, language, prefer_open_source
-    )
+    return get_integrator().get_best_model_for_task(task_type, language, prefer_open_source)
 
 
 async def call_model(

@@ -83,11 +83,7 @@ class ProjectAnalyzer:
                 return True
 
         # Skip files
-        for skip_file in SKIP_FILES:
-            if path.match(skip_file):
-                return True
-
-        return False
+        return any(path.match(skip_file) for skip_file in SKIP_FILES)
 
     def get_language(self, path: Path) -> str | None:
         """Get language from file extension"""
@@ -247,9 +243,7 @@ class ProjectAnalyzer:
 
         if self.results["files_with_issues"] > 0:
             report.append("\n📄 الملفات التي تحتاج مراجعة:")
-            for file_info in sorted(
-                self.results["files"], key=lambda x: -x["issues_count"]
-            )[:20]:
+            for file_info in sorted(self.results["files"], key=lambda x: -x["issues_count"])[:20]:
                 report.append(f"   - {file_info['path']} ({file_info['issues_count']} مشكلة)")
 
         report.append("\n" + "=" * 60)
@@ -305,7 +299,7 @@ async def main():
         print(f"❌ المسار غير موجود: {root_path}")
         sys.exit(1)
 
-    results = await analyzer.scan_directory(root_path, max_files=args.max_files)
+    await analyzer.scan_directory(root_path, max_files=args.max_files)
     report = analyzer.generate_report(args.output)
 
     print(report)

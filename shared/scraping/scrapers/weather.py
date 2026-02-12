@@ -57,9 +57,7 @@ class WeatherData:
             "condition": self.condition,
             "condition_ar": self.condition_ar,
             "observation_time": (
-                self.observation_time.isoformat()
-                if self.observation_time
-                else None
+                self.observation_time.isoformat() if self.observation_time else None
             ),
         }
 
@@ -250,14 +248,10 @@ class WeatherScraper(BaseScraper):
 
         try:
             if source == "timeanddate":
-                forecast = await self._scrape_timeanddate(
-                    location_normalized, lat, lon, days
-                )
+                forecast = await self._scrape_timeanddate(location_normalized, lat, lon, days)
             else:
                 # Default fallback
-                forecast = await self._scrape_timeanddate(
-                    location_normalized, lat, lon, days
-                )
+                forecast = await self._scrape_timeanddate(location_normalized, lat, lon, days)
 
             # Cache result
             self.set_cached(
@@ -267,10 +261,7 @@ class WeatherScraper(BaseScraper):
             )
 
             duration_ms = (time.time() - start_time) * 1000
-            logger.info(
-                f"Weather data scraped for {location_normalized} "
-                f"in {duration_ms:.0f}ms"
-            )
+            logger.info(f"Weather data scraped for {location_normalized} in {duration_ms:.0f}ms")
 
             return ScrapingResult(
                 status=ScrapingStatus.SUCCESS,

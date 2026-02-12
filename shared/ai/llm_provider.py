@@ -24,8 +24,8 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 from .audit import calculate_cost, get_audit_logger
@@ -38,7 +38,7 @@ from .circuit_breaker import (
 from .metrics import get_metrics_collector
 
 
-class LLMProvider(str, Enum):
+class LLMProvider(StrEnum):
     """Supported LLM providers."""
 
     OLLAMA = "ollama"
@@ -152,9 +152,7 @@ class AllProvidersFailedError(LLMProviderError):
 
     def __init__(self, errors: list[tuple[LLMProvider, str]]):
         self.errors = errors
-        message = "All LLM providers failed:\n" + "\n".join(
-            f"  - {p.value}: {e}" for p, e in errors
-        )
+        message = "All LLM providers failed:\n" + "\n".join(f"  - {p.value}: {e}" for p, e in errors)
         super().__init__(message)
 
 
@@ -248,10 +246,7 @@ class LLMProviderManager:
     @property
     def available_providers(self) -> list[LLMProvider]:
         """Get list of available providers in priority order."""
-        return [
-            p for p in self._provider_order
-            if not self._circuit_breakers[p].is_open
-        ]
+        return [p for p in self._provider_order if not self._circuit_breakers[p].is_open]
 
     def get_provider_status(self) -> dict[str, Any]:
         """Get status of all providers."""

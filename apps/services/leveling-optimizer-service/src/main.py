@@ -25,7 +25,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .api.endpoints import leveling
-from .api.schemas import HealthResponse, ReadinessResponse, ErrorResponse
+from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse
 from .core.config import settings
 
 # Configure structured logging
@@ -71,11 +71,8 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url,
-                min_size=2,
-                max_size=10
-            )
+
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("database_connected", url=db_url[:20] + "...")
         except Exception as e:
@@ -92,6 +89,7 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             import nats
+
             app.state.nc = await nats.connect(nats_url)
             app.state.nats_connected = True
             logger.info("nats_connected", url=nats_url)
@@ -180,6 +178,7 @@ app.add_middleware(
 async def add_request_id(request: Request, call_next):
     """Add request ID to all requests for tracing."""
     import uuid
+
     request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
     request.state.request_id = request_id
 

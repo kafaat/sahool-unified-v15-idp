@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 
 class RAGToolResult(BaseModel):
     """Standard result format for RAG tool execution"""
+
     success: bool
     data: dict[str, Any] | None = None
     error: str | None = None
@@ -74,13 +75,13 @@ class RAGTools:
         try:
             # Import UltraRAG components
             from shared.ai.ultrarag import (
+                GenerationMode,
+                KnowledgeBase,
                 RAGPipeline,
                 RAGPipelineBuilder,
-                KnowledgeBase,
-                WorkflowEngine,
-                RetrievalStrategy,
                 RerankingMethod,
-                GenerationMode,
+                RetrievalStrategy,
+                WorkflowEngine,
             )
 
             # Initialize if not provided
@@ -449,7 +450,9 @@ class RAGTools:
             response_data = {
                 "query": query,
                 "answer": result.generation_result.answer if result.generation_result else None,
-                "confidence": result.generation_result.confidence if result.generation_result else 0.0,
+                "confidence": result.generation_result.confidence
+                if result.generation_result
+                else 0.0,
             }
 
             if language in ["ar", "both"] and result.generation_result:
@@ -458,8 +461,12 @@ class RAGTools:
             if include_sources:
                 response_data["sources"] = [
                     {
-                        "text": r.chunk.text[:300] + "..." if len(r.chunk.text) > 300 else r.chunk.text,
-                        "text_ar": r.chunk.text_ar[:300] + "..." if r.chunk.text_ar and len(r.chunk.text_ar) > 300 else r.chunk.text_ar,
+                        "text": r.chunk.text[:300] + "..."
+                        if len(r.chunk.text) > 300
+                        else r.chunk.text,
+                        "text_ar": r.chunk.text_ar[:300] + "..."
+                        if r.chunk.text_ar and len(r.chunk.text_ar) > 300
+                        else r.chunk.text_ar,
                         "score": round(r.score, 3),
                         "document_id": r.chunk.document_id,
                     }

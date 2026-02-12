@@ -11,15 +11,15 @@ References:
 """
 
 from shared.salinity.module import (
-    SalinityModule,
-    SalinityAssessment,
-    SalinityRisk,
     LeachingRequirement,
+    SalinityAssessment,
+    SalinityModule,
+    SalinityRisk,
+    adjust_kc_for_salinity,
     calculate_leaching_fraction,
     calculate_sar,
-    classify_salinity_risk,
-    adjust_kc_for_salinity,
     calculate_yield_reduction,
+    classify_salinity_risk,
 )
 
 __all__ = [

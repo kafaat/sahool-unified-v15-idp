@@ -156,6 +156,26 @@ class NetworkConfig {
     }
   }
 
+  /// Mobile sync configuration with extended timeouts
+  /// تكوين المزامنة المحمولة مع مهل ممتدة
+  ///
+  /// Optimized for mobile sync operations in low-connectivity areas:
+  /// - Extended timeouts for slow/unstable connections
+  /// - More aggressive retries for reliability
+  /// - Larger batch processing support
+  static NetworkConfig forMobileSync() {
+    final base = NetworkConfig.fromEnvironment();
+    return base.copyWith(
+      connectTimeout: const Duration(seconds: 60), // Increased from 10-30s
+      sendTimeout: const Duration(seconds: 90),    // For large sync batches
+      receiveTimeout: const Duration(seconds: 90), // For large server responses
+      maxRetries: 5,                               // More retries for reliability
+      initialRetryDelay: const Duration(seconds: 1),
+      maxRetryDelay: const Duration(minutes: 5),   // Up to 5 minutes backoff
+      retryBackoffMultiplier: 2.0,
+    );
+  }
+
   /// Create copy with updated values
   NetworkConfig copyWith({
     Duration? connectTimeout,

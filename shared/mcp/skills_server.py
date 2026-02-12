@@ -22,7 +22,7 @@ from __future__ import annotations
 import json
 import logging
 import os
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
@@ -79,8 +79,8 @@ class SAHOOLSkillsTools:
         """Initialize context compression engine"""
         try:
             from shared.ai.context_engineering.compression import (
-                ContextCompressor,
                 CompressionStrategy,
+                ContextCompressor,
             )
 
             self.compressor = ContextCompressor(
@@ -461,9 +461,7 @@ class SAHOOLSkillsTools:
                     data, strategy=strategy, target_ratio=target_ratio
                 )
             elif data_type == "weather":
-                result = self.compressor.compress_weather_data(
-                    data, strategy=strategy
-                )
+                result = self.compressor.compress_weather_data(data, strategy=strategy)
             elif data_type == "history":
                 result = self.compressor.compress_history(
                     data if isinstance(data, list) else [data],
@@ -646,9 +644,7 @@ class SAHOOLSkillsTools:
             logger.info(f"Invoking skill tool: {tool_name} with args: {arguments}")
             return await tool_map[tool_name](**arguments)
         except TypeError as e:
-            return ToolResult(
-                success=False, error=f"Invalid arguments for {tool_name}: {str(e)}"
-            )
+            return ToolResult(success=False, error=f"Invalid arguments for {tool_name}: {str(e)}")
         except Exception as e:
             logger.error(f"Tool execution error: {str(e)}", exc_info=True)
             return ToolResult(success=False, error=f"Tool execution error: {str(e)}")

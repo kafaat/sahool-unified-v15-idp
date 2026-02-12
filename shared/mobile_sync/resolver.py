@@ -14,20 +14,19 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 
 from .models import (
+    SYNC_ERRORS,
+    SYNC_MESSAGES,
+    BilingualMessage,
+    ConflictResolutionStrategy,
+    ConflictType,
+    EntityType,
     SyncConflict,
     SyncItem,
-    ConflictType,
-    ConflictResolutionStrategy,
-    EntityType,
-    BilingualMessage,
-    SYNC_MESSAGES,
-    SYNC_ERRORS,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Conflict Detection
@@ -611,8 +610,7 @@ class ConflictResolverFactory:
         elif strategy == ConflictResolutionStrategy.CUSTOM:
             if not custom_func:
                 raise ValueError(
-                    "Custom resolver requires a resolver function | "
-                    "المحلل المخصص يتطلب وظيفة حل"
+                    "Custom resolver requires a resolver function | المحلل المخصص يتطلب وظيفة حل"
                 )
             return CustomResolver(custom_func)
 
@@ -631,20 +629,18 @@ class ResolutionConfig:
     """Configuration for conflict resolution."""
 
     default_strategy: ConflictResolutionStrategy = ConflictResolutionStrategy.LAST_WRITE_WINS
-    auto_resolve_simple: bool = True           # تلقائي للبسيط
-    auto_resolve_non_critical: bool = True     # تلقائي لغير الحرج
-    notify_on_conflict: bool = True            # إشعار عند التعارض
-    log_resolutions: bool = True               # تسجيل الحلول
+    auto_resolve_simple: bool = True  # تلقائي للبسيط
+    auto_resolve_non_critical: bool = True  # تلقائي لغير الحرج
+    notify_on_conflict: bool = True  # إشعار عند التعارض
+    log_resolutions: bool = True  # تسجيل الحلول
 
     # Entity-specific strategies
-    entity_strategies: dict[EntityType, ConflictResolutionStrategy] = field(
-        default_factory=dict
-    )
+    entity_strategies: dict[EntityType, ConflictResolutionStrategy] = field(default_factory=dict)
 
     # Field criticality (fields that always require manual merge)
-    critical_fields: set[str] = field(default_factory=lambda: {
-        "boundary", "geometry", "financial_data", "legal_status"
-    })
+    critical_fields: set[str] = field(
+        default_factory=lambda: {"boundary", "geometry", "financial_data", "legal_status"}
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -654,9 +650,7 @@ class ResolutionConfig:
             "auto_resolve_non_critical": self.auto_resolve_non_critical,
             "notify_on_conflict": self.notify_on_conflict,
             "log_resolutions": self.log_resolutions,
-            "entity_strategies": {
-                k.value: v.value for k, v in self.entity_strategies.items()
-            },
+            "entity_strategies": {k.value: v.value for k, v in self.entity_strategies.items()},
             "critical_fields": list(self.critical_fields),
         }
 
@@ -811,9 +805,13 @@ class ConflictResolutionManager:
         # Check if complete
         if not resolver.is_complete(conflict):
             pending = resolver.get_pending_fields(conflict)
-            return conflict, False, BilingualMessage(
-                en=f"Missing choices for fields: {pending}",
-                ar=f"خيارات مفقودة للحقول: {pending}",
+            return (
+                conflict,
+                False,
+                BilingualMessage(
+                    en=f"Missing choices for fields: {pending}",
+                    ar=f"خيارات مفقودة للحقول: {pending}",
+                ),
             )
 
         try:
@@ -834,9 +832,13 @@ class ConflictResolutionManager:
             return resolved_conflict, True, SYNC_MESSAGES["conflict_resolved"]
 
         except ValueError as e:
-            return conflict, False, BilingualMessage(
-                en=str(e),
-                ar=str(e),
+            return (
+                conflict,
+                False,
+                BilingualMessage(
+                    en=str(e),
+                    ar=str(e),
+                ),
             )
 
     def get_pending_conflicts(self) -> list[SyncConflict]:
@@ -880,14 +882,18 @@ class ConflictResolutionManager:
 
     def _log_resolution(self, conflict: SyncConflict) -> None:
         """Log a resolution."""
-        self._resolution_history.append({
-            "conflict_id": conflict.id,
-            "entity_id": conflict.entity_id,
-            "entity_type": conflict.entity_type.value,
-            "conflict_type": conflict.conflict_type.value,
-            "strategy": conflict.resolution_strategy.value if conflict.resolution_strategy else None,
-            "conflicting_fields": conflict.conflicting_fields,
-            "resolved_by": conflict.resolved_by,
-            "resolved_at": conflict.resolved_at.isoformat() if conflict.resolved_at else None,
-            "note": conflict.resolution_note,
-        })
+        self._resolution_history.append(
+            {
+                "conflict_id": conflict.id,
+                "entity_id": conflict.entity_id,
+                "entity_type": conflict.entity_type.value,
+                "conflict_type": conflict.conflict_type.value,
+                "strategy": conflict.resolution_strategy.value
+                if conflict.resolution_strategy
+                else None,
+                "conflicting_fields": conflict.conflicting_fields,
+                "resolved_by": conflict.resolved_by,
+                "resolved_at": conflict.resolved_at.isoformat() if conflict.resolved_at else None,
+                "note": conflict.resolution_note,
+            }
+        )

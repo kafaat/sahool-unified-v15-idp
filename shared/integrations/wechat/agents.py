@@ -24,7 +24,7 @@ import re
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import structlog
@@ -54,12 +54,14 @@ logger = structlog.get_logger()
 # Base Agent
 # =============================================================================
 
+
 @dataclass
 class AgentContext:
     """
     Context for agent execution.
     سياق تنفيذ الوكيل
     """
+
     tenant_id: str = "sahool"
     farmer_id: str | None = None
     farm_id: str | None = None
@@ -158,10 +160,10 @@ class BaseWeChatAgent(ABC):
     def _detect_language(self, text: str) -> str:
         """Detect text language (ar, en, zh)."""
         # Arabic characters
-        if re.search(r'[\u0600-\u06FF]', text):
+        if re.search(r"[\u0600-\u06FF]", text):
             return "ar"
         # Chinese characters
-        if re.search(r'[\u4e00-\u9fff]', text):
+        if re.search(r"[\u4e00-\u9fff]", text):
             return "zh"
         return "en"
 
@@ -176,17 +178,45 @@ class BaseWeChatAgent(ABC):
             topics.append(TopicCategory.IRRIGATION)
 
         # Fertilizer keywords
-        fertilizer_keywords = ["fertilizer", "nutrient", "nitrogen", "سماد", "تسميد", "نيتروجين", "فوسفور"]
+        fertilizer_keywords = [
+            "fertilizer",
+            "nutrient",
+            "nitrogen",
+            "سماد",
+            "تسميد",
+            "نيتروجين",
+            "فوسفور",
+        ]
         if any(kw in text_lower for kw in fertilizer_keywords):
             topics.append(TopicCategory.FERTILIZER)
 
         # Pest/disease keywords
-        pest_keywords = ["pest", "disease", "yellow", "آفة", "مرض", "اصفرار", "حشرة", "fungus", "فطر"]
+        pest_keywords = [
+            "pest",
+            "disease",
+            "yellow",
+            "آفة",
+            "مرض",
+            "اصفرار",
+            "حشرة",
+            "fungus",
+            "فطر",
+        ]
         if any(kw in text_lower for kw in pest_keywords):
             topics.append(TopicCategory.PEST_DISEASE)
 
         # Weather keywords
-        weather_keywords = ["weather", "rain", "temperature", "طقس", "مطر", "درجة", "حرارة", "frost", "صقيع"]
+        weather_keywords = [
+            "weather",
+            "rain",
+            "temperature",
+            "طقس",
+            "مطر",
+            "درجة",
+            "حرارة",
+            "frost",
+            "صقيع",
+        ]
         if any(kw in text_lower for kw in weather_keywords):
             topics.append(TopicCategory.WEATHER)
 
@@ -206,7 +236,16 @@ class BaseWeChatAgent(ABC):
             topics.append(TopicCategory.EQUIPMENT)
 
         # Urgent keywords
-        urgent_keywords = ["urgent", "emergency", "immediately", "عاجل", "طوارئ", "فوراً", "critical", "حرج"]
+        urgent_keywords = [
+            "urgent",
+            "emergency",
+            "immediately",
+            "عاجل",
+            "طوارئ",
+            "فوراً",
+            "critical",
+            "حرج",
+        ]
         if any(kw in text_lower for kw in urgent_keywords):
             topics.append(TopicCategory.URGENT)
 
@@ -217,11 +256,33 @@ class BaseWeChatAgent(ABC):
         text_lower = text.lower()
 
         # Positive indicators
-        positive_words = ["good", "great", "excellent", "thanks", "happy", "جيد", "ممتاز", "شكراً", "سعيد", "نجاح"]
+        positive_words = [
+            "good",
+            "great",
+            "excellent",
+            "thanks",
+            "happy",
+            "جيد",
+            "ممتاز",
+            "شكراً",
+            "سعيد",
+            "نجاح",
+        ]
         positive_count = sum(1 for w in positive_words if w in text_lower)
 
         # Negative indicators
-        negative_words = ["bad", "problem", "issue", "worry", "fail", "سيء", "مشكلة", "قلق", "فشل", "خطر"]
+        negative_words = [
+            "bad",
+            "problem",
+            "issue",
+            "worry",
+            "fail",
+            "سيء",
+            "مشكلة",
+            "قلق",
+            "فشل",
+            "خطر",
+        ]
         negative_count = sum(1 for w in negative_words if w in text_lower)
 
         if positive_count > negative_count:
@@ -241,7 +302,16 @@ class BaseWeChatAgent(ABC):
         if TopicCategory.URGENT in topics:
             return PriorityLevel.CRITICAL
 
-        critical_words = ["urgent", "emergency", "immediately", "dying", "عاجل", "طوارئ", "يموت", "critical"]
+        critical_words = [
+            "urgent",
+            "emergency",
+            "immediately",
+            "dying",
+            "عاجل",
+            "طوارئ",
+            "يموت",
+            "critical",
+        ]
         if any(w in text_lower for w in critical_words):
             return PriorityLevel.CRITICAL
 
@@ -263,6 +333,7 @@ class BaseWeChatAgent(ABC):
 # =============================================================================
 # ChatSummarizerAgent
 # =============================================================================
+
 
 class ChatSummarizerAgent(BaseWeChatAgent):
     """
@@ -382,17 +453,28 @@ class ChatSummarizerAgent(BaseWeChatAgent):
                 sentiments.append(sentiment)
 
                 # Extract crops mentioned
-                crop_keywords = ["wheat", "قمح", "barley", "شعير", "tomato", "طماطم", "date palm", "نخيل"]
+                crop_keywords = [
+                    "wheat",
+                    "قمح",
+                    "barley",
+                    "شعير",
+                    "tomato",
+                    "طماطم",
+                    "date palm",
+                    "نخيل",
+                ]
                 for crop in crop_keywords:
                     if crop.lower() in msg.content.lower():
                         crops_mentioned.add(crop)
 
                 # Extract field IDs
-                field_matches = re.findall(r'[Ff]ield[- ]?(\d+|[A-Z]-?\d+)', msg.content)
+                field_matches = re.findall(r"[Ff]ield[- ]?(\d+|[A-Z]-?\d+)", msg.content)
                 fields_mentioned.update(field_matches)
 
                 # Simple key point extraction (messages with questions or important info)
-                if "?" in msg.content or any(kw in msg.content.lower() for kw in ["important", "مهم", "need", "احتاج"]):
+                if "?" in msg.content or any(
+                    kw in msg.content.lower() for kw in ["important", "مهم", "need", "احتاج"]
+                ):
                     key_points.append(msg.content[:100])
 
             # Calculate overall sentiment
@@ -535,6 +617,7 @@ class ChatSummarizerAgent(BaseWeChatAgent):
 # AutoReplierAgent
 # =============================================================================
 
+
 class AutoReplierAgent(BaseWeChatAgent):
     """
     Auto-Replier Agent.
@@ -651,13 +734,15 @@ class AutoReplierAgent(BaseWeChatAgent):
 
             # Check if human escalation needed
             requires_human = (
-                priority == PriorityLevel.CRITICAL or
-                TopicCategory.URGENT in topics or
-                self._contains_complex_question(message)
+                priority == PriorityLevel.CRITICAL
+                or TopicCategory.URGENT in topics
+                or self._contains_complex_question(message)
             )
 
             # Get response template
-            template = self.RESPONSE_TEMPLATES.get(main_topic, self.RESPONSE_TEMPLATES[TopicCategory.GENERAL])
+            template = self.RESPONSE_TEMPLATES.get(
+                main_topic, self.RESPONSE_TEMPLATES[TopicCategory.GENERAL]
+            )
 
             # Generate reply
             reply_text = template["en"]
@@ -718,7 +803,9 @@ class AutoReplierAgent(BaseWeChatAgent):
         text_lower = text.lower()
 
         # Question intents
-        if "?" in text or any(w in text_lower for w in ["when", "how", "what", "متى", "كيف", "ماذا"]):
+        if "?" in text or any(
+            w in text_lower for w in ["when", "how", "what", "متى", "كيف", "ماذا"]
+        ):
             if any(w in text_lower for w in ["water", "irrigation", "ري", "سقي"]):
                 return "irrigation_query", "استفسار عن الري"
             if any(w in text_lower for w in ["fertilizer", "سماد"]):
@@ -738,11 +825,16 @@ class AutoReplierAgent(BaseWeChatAgent):
     def _contains_complex_question(self, text: str) -> bool:
         """Check if message contains complex question requiring expert."""
         complex_indicators = [
-            "chemical", "كيميائي",
-            "dosage", "جرعة",
-            "prescription", "وصفة",
-            "multiple", "متعدد",
-            "combination", "تركيبة",
+            "chemical",
+            "كيميائي",
+            "dosage",
+            "جرعة",
+            "prescription",
+            "وصفة",
+            "multiple",
+            "متعدد",
+            "combination",
+            "تركيبة",
         ]
         return any(ind in text.lower() for ind in complex_indicators)
 
@@ -776,14 +868,20 @@ class AutoReplierAgent(BaseWeChatAgent):
         }
 
         topic_alts = alternatives.get(topic, {})
-        return topic_alts.get(language, [
-            "Would you like more information?" if language == "en" else "هل تريد مزيداً من المعلومات؟"
-        ])
+        return topic_alts.get(
+            language,
+            [
+                "Would you like more information?"
+                if language == "en"
+                else "هل تريد مزيداً من المعلومات؟"
+            ],
+        )
 
 
 # =============================================================================
 # MessageSearcherAgent
 # =============================================================================
+
 
 class MessageSearcherAgent(BaseWeChatAgent):
     """
@@ -895,7 +993,8 @@ class MessageSearcherAgent(BaseWeChatAgent):
             # Apply topic filter if specified
             if topics:
                 scored_results = [
-                    (msg, score) for msg, score in scored_results
+                    (msg, score)
+                    for msg, score in scored_results
                     if any(t in self._detect_topics(msg.content) for t in topics)
                 ]
 
@@ -951,10 +1050,32 @@ class MessageSearcherAgent(BaseWeChatAgent):
     def _extract_keywords(self, query: str) -> list[str]:
         """Extract keywords from search query."""
         # Simple keyword extraction - remove common words
-        stop_words = {"the", "a", "an", "is", "are", "was", "were", "in", "on", "at", "to", "for",
-                      "من", "في", "على", "إلى", "عن", "مع", "هل", "ما", "كيف", "متى"}
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "is",
+            "are",
+            "was",
+            "were",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+            "من",
+            "في",
+            "على",
+            "إلى",
+            "عن",
+            "مع",
+            "هل",
+            "ما",
+            "كيف",
+            "متى",
+        }
 
-        words = re.findall(r'\b\w+\b', query.lower())
+        words = re.findall(r"\b\w+\b", query.lower())
         keywords = [w for w in words if w not in stop_words and len(w) > 2]
 
         return keywords
@@ -995,6 +1116,7 @@ class MessageSearcherAgent(BaseWeChatAgent):
 # =============================================================================
 # MultiChatCheckerAgent
 # =============================================================================
+
 
 class MultiChatCheckerAgent(BaseWeChatAgent):
     """
@@ -1182,18 +1304,18 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
 
                 # Check for agricultural alerts
                 if TopicCategory.URGENT in topics or TopicCategory.PEST_DISEASE in topics:
-                    agricultural_alerts.append({
-                        "message_id": msg.id,
-                        "content": msg.content[:100],
-                        "topics": [t.value for t in topics],
-                        "timestamp": msg.timestamp.isoformat(),
-                    })
+                    agricultural_alerts.append(
+                        {
+                            "message_id": msg.id,
+                            "content": msg.content[:100],
+                            "topics": [t.value for t in topics],
+                            "timestamp": msg.timestamp.isoformat(),
+                        }
+                    )
 
             # Check if response needed
             needs_response = (
-                last_message and
-                last_message.sender_id != "self" and
-                not last_message.is_read
+                last_message and last_message.sender_id != "self" and not last_message.is_read
             )
 
             return {
@@ -1223,7 +1345,9 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         elif pending_count > 0:
             return f"You have {pending_count} pending response(s) across {total_chats} chats. No urgent items."
         else:
-            return f"All clear! {total_chats} chats checked with no urgent items or pending responses."
+            return (
+                f"All clear! {total_chats} chats checked with no urgent items or pending responses."
+            )
 
     def _generate_status_summary_ar(
         self,
@@ -1237,7 +1361,9 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         elif pending_count > 0:
             return f"لديك {pending_count} رد معلق عبر {total_chats} محادثة. لا توجد عناصر عاجلة."
         else:
-            return f"كل شيء على ما يرام! تم فحص {total_chats} محادثة بدون عناصر عاجلة أو ردود معلقة."
+            return (
+                f"كل شيء على ما يرام! تم فحص {total_chats} محادثة بدون عناصر عاجلة أو ردود معلقة."
+            )
 
     def _generate_recommendations(
         self,
@@ -1249,28 +1375,36 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
         recommendations = []
 
         if urgent_chats:
-            recommendations.append({
-                "en": f"Respond to {len(urgent_chats)} urgent chat(s) immediately",
-                "ar": f"الرد على {len(urgent_chats)} محادثة عاجلة فوراً",
-            })
+            recommendations.append(
+                {
+                    "en": f"Respond to {len(urgent_chats)} urgent chat(s) immediately",
+                    "ar": f"الرد على {len(urgent_chats)} محادثة عاجلة فوراً",
+                }
+            )
 
         if agricultural_alerts:
-            recommendations.append({
-                "en": f"Review {len(agricultural_alerts)} agricultural alert(s) - potential crop issues detected",
-                "ar": f"مراجعة {len(agricultural_alerts)} تنبيه زراعي - تم اكتشاف مشاكل محتملة في المحاصيل",
-            })
+            recommendations.append(
+                {
+                    "en": f"Review {len(agricultural_alerts)} agricultural alert(s) - potential crop issues detected",
+                    "ar": f"مراجعة {len(agricultural_alerts)} تنبيه زراعي - تم اكتشاف مشاكل محتملة في المحاصيل",
+                }
+            )
 
         if high_priority_chats:
-            recommendations.append({
-                "en": f"Follow up on {len(high_priority_chats)} high-priority conversation(s)",
-                "ar": f"متابعة {len(high_priority_chats)} محادثة ذات أولوية عالية",
-            })
+            recommendations.append(
+                {
+                    "en": f"Follow up on {len(high_priority_chats)} high-priority conversation(s)",
+                    "ar": f"متابعة {len(high_priority_chats)} محادثة ذات أولوية عالية",
+                }
+            )
 
         if not recommendations:
-            recommendations.append({
-                "en": "All caught up! Consider sharing helpful tips with your farmers.",
-                "ar": "كل شيء تحت السيطرة! فكر في مشاركة نصائح مفيدة مع مزارعيك.",
-            })
+            recommendations.append(
+                {
+                    "en": "All caught up! Consider sharing helpful tips with your farmers.",
+                    "ar": "كل شيء تحت السيطرة! فكر في مشاركة نصائح مفيدة مع مزارعيك.",
+                }
+            )
 
         return recommendations
 
@@ -1278,6 +1412,7 @@ class MultiChatCheckerAgent(BaseWeChatAgent):
 # =============================================================================
 # ChatInsightsAgent
 # =============================================================================
+
 
 class ChatInsightsAgent(BaseWeChatAgent):
     """
@@ -1370,7 +1505,9 @@ class ChatInsightsAgent(BaseWeChatAgent):
 
             # Response time analysis
             response_times = self._calculate_response_times(messages)
-            avg_response_time = sum(response_times) / len(response_times) if response_times else None
+            avg_response_time = (
+                sum(response_times) / len(response_times) if response_times else None
+            )
 
             # Sentiment analysis
             sentiments = [self._detect_sentiment(m.content)[0] for m in messages]
@@ -1378,9 +1515,11 @@ class ChatInsightsAgent(BaseWeChatAgent):
             positive_rate = positive_count / len(sentiments) if sentiments else 0.5
 
             overall_sentiment = (
-                SentimentType.POSITIVE if positive_rate > 0.6 else
-                SentimentType.NEGATIVE if positive_rate < 0.3 else
-                SentimentType.NEUTRAL
+                SentimentType.POSITIVE
+                if positive_rate > 0.6
+                else SentimentType.NEGATIVE
+                if positive_rate < 0.3
+                else SentimentType.NEUTRAL
             )
 
             # Topic analysis
@@ -1393,14 +1532,12 @@ class ChatInsightsAgent(BaseWeChatAgent):
                 topic_counts[topic.value] = topic_counts.get(topic.value, 0) + 1
 
             total_topics = sum(topic_counts.values())
-            topic_distribution = {
-                k: v / total_topics for k, v in topic_counts.items()
-            } if total_topics > 0 else {}
+            topic_distribution = (
+                {k: v / total_topics for k, v in topic_counts.items()} if total_topics > 0 else {}
+            )
 
             frequent_topics = sorted(
-                topic_counts.keys(),
-                key=lambda t: topic_counts[t],
-                reverse=True
+                topic_counts.keys(), key=lambda t: topic_counts[t], reverse=True
             )[:5]
 
             # Activity analysis
@@ -1514,11 +1651,7 @@ class ChatInsightsAgent(BaseWeChatAgent):
         sentiment_score = positive_rate
 
         # Weighted combination
-        strength = (
-            frequency_score * 0.3 +
-            response_score * 0.3 +
-            sentiment_score * 0.4
-        )
+        strength = frequency_score * 0.3 + response_score * 0.3 + sentiment_score * 0.4
 
         return round(strength, 2)
 
@@ -1543,11 +1676,16 @@ class ChatInsightsAgent(BaseWeChatAgent):
         """Extract crops mentioned in messages."""
         crops = set()
         crop_keywords = {
-            "wheat": "wheat", "قمح": "wheat",
-            "barley": "barley", "شعير": "barley",
-            "tomato": "tomato", "طماطم": "tomato",
-            "date": "date palm", "نخيل": "date palm",
-            "corn": "corn", "ذرة": "corn",
+            "wheat": "wheat",
+            "قمح": "wheat",
+            "barley": "barley",
+            "شعير": "barley",
+            "tomato": "tomato",
+            "طماطم": "tomato",
+            "date": "date palm",
+            "نخيل": "date palm",
+            "corn": "corn",
+            "ذرة": "corn",
         }
 
         for msg in messages:
@@ -1568,34 +1706,44 @@ class ChatInsightsAgent(BaseWeChatAgent):
         suggestions = []
 
         if relationship_strength < 0.3:
-            suggestions.append({
-                "en": "Consider reaching out more frequently to strengthen this relationship.",
-                "ar": "فكر في التواصل بشكل أكثر تكراراً لتعزيز هذه العلاقة.",
-            })
+            suggestions.append(
+                {
+                    "en": "Consider reaching out more frequently to strengthen this relationship.",
+                    "ar": "فكر في التواصل بشكل أكثر تكراراً لتعزيز هذه العلاقة.",
+                }
+            )
 
         if avg_response_time and avg_response_time > 120:
-            suggestions.append({
-                "en": "Try to respond faster to messages - currently averaging 2+ hours.",
-                "ar": "حاول الرد بشكل أسرع على الرسائل - حالياً المتوسط أكثر من ساعتين.",
-            })
+            suggestions.append(
+                {
+                    "en": "Try to respond faster to messages - currently averaging 2+ hours.",
+                    "ar": "حاول الرد بشكل أسرع على الرسائل - حالياً المتوسط أكثر من ساعتين.",
+                }
+            )
 
         if TopicCategory.IRRIGATION in frequent_topics:
-            suggestions.append({
-                "en": "This contact is interested in irrigation - share water-saving tips.",
-                "ar": "جهة الاتصال هذه مهتمة بالري - شارك نصائح توفير المياه.",
-            })
+            suggestions.append(
+                {
+                    "en": "This contact is interested in irrigation - share water-saving tips.",
+                    "ar": "جهة الاتصال هذه مهتمة بالري - شارك نصائح توفير المياه.",
+                }
+            )
 
         if TopicCategory.PEST_DISEASE in frequent_topics:
-            suggestions.append({
-                "en": "They often ask about pest/disease issues - consider proactive alerts.",
-                "ar": "غالباً ما يسألون عن مشاكل الآفات/الأمراض - فكر في التنبيهات الاستباقية.",
-            })
+            suggestions.append(
+                {
+                    "en": "They often ask about pest/disease issues - consider proactive alerts.",
+                    "ar": "غالباً ما يسألون عن مشاكل الآفات/الأمراض - فكر في التنبيهات الاستباقية.",
+                }
+            )
 
         if not suggestions:
-            suggestions.append({
-                "en": "Good relationship! Keep up the regular communication.",
-                "ar": "علاقة جيدة! استمر في التواصل المنتظم.",
-            })
+            suggestions.append(
+                {
+                    "en": "Good relationship! Keep up the regular communication.",
+                    "ar": "علاقة جيدة! استمر في التواصل المنتظم.",
+                }
+            )
 
         return suggestions
 
@@ -1603,6 +1751,7 @@ class ChatInsightsAgent(BaseWeChatAgent):
 # =============================================================================
 # Agent Factory
 # =============================================================================
+
 
 def create_wechat_agent(
     agent_type: AgentType,

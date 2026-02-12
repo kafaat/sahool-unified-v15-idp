@@ -19,9 +19,7 @@ async def test_cost_tracker():
     print("-" * 50)
 
     # Test 1: Calculate cost
-    cost = tracker.calculate_cost(
-        model="claude-3-5-sonnet-20241022", input_tokens=1000, output_tokens=500
-    )
+    cost = tracker.calculate_cost(model="claude-3-5-sonnet-20241022", input_tokens=1000, output_tokens=500)
     print("Test 1 - Cost Calculation:")
     print("  Model: claude-3-5-sonnet-20241022")
     print("  Input tokens: 1000, Output tokens: 500")
@@ -64,9 +62,7 @@ async def test_cost_tracker():
     # Test 5: Multiple requests
     print("Test 5 - Multiple Requests:")
     for i in range(3):
-        await tracker.record_usage(
-            model="gpt-4o", input_tokens=500, output_tokens=300, user_id="test_user"
-        )
+        await tracker.record_usage(model="gpt-4o", input_tokens=500, output_tokens=300, user_id="test_user")
         print(f"  Request {i + 1} recorded")
 
     stats = tracker.get_usage_stats(user_id="test_user")

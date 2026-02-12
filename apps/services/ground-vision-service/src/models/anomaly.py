@@ -4,27 +4,29 @@ Based on: Qin et al. (2026) - Unusual event detection in agricultural monitoring
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
-class AnomalyType(str, Enum):
+class AnomalyType(StrEnum):
     """Types of anomalies that can be detected - أنواع الشذوذ"""
+
     # Biological threats
-    PEST_INFESTATION = "pest_infestation"     # إصابة آفات
-    DISEASE_OUTBREAK = "disease_outbreak"      # تفشي مرض
-    WEED_GROWTH = "weed_growth"                # نمو أعشاب ضارة
-    WILDLIFE_DAMAGE = "wildlife_damage"        # ضرر من الحيوانات البرية
+    PEST_INFESTATION = "pest_infestation"  # إصابة آفات
+    DISEASE_OUTBREAK = "disease_outbreak"  # تفشي مرض
+    WEED_GROWTH = "weed_growth"  # نمو أعشاب ضارة
+    WILDLIFE_DAMAGE = "wildlife_damage"  # ضرر من الحيوانات البرية
 
     # Environmental stress
-    WATER_STRESS = "water_stress"              # إجهاد مائي
+    WATER_STRESS = "water_stress"  # إجهاد مائي
     NUTRIENT_DEFICIENCY = "nutrient_deficiency"  # نقص عناصر غذائية
-    HEAT_STRESS = "heat_stress"                # إجهاد حراري
-    COLD_DAMAGE = "cold_damage"                # ضرر برد
-    FLOOD_DAMAGE = "flood_damage"              # ضرر فيضان
-    WIND_DAMAGE = "wind_damage"                # ضرر رياح
-    SALINITY_STRESS = "salinity_stress"        # إجهاد ملوحة
+    HEAT_STRESS = "heat_stress"  # إجهاد حراري
+    COLD_DAMAGE = "cold_damage"  # ضرر برد
+    FLOOD_DAMAGE = "flood_damage"  # ضرر فيضان
+    WIND_DAMAGE = "wind_damage"  # ضرر رياح
+    SALINITY_STRESS = "salinity_stress"  # إجهاد ملوحة
 
     # Infrastructure issues
     IRRIGATION_FAILURE = "irrigation_failure"  # عطل نظام الري
@@ -32,19 +34,19 @@ class AnomalyType(str, Enum):
 
     # Security/Unauthorized
     UNAUTHORIZED_ACTIVITY = "unauthorized_activity"  # نشاط غير مصرح
-    TRESPASSING = "trespassing"                # تعدي
-    THEFT = "theft"                            # سرقة
-    VANDALISM = "vandalism"                    # تخريب
+    TRESPASSING = "trespassing"  # تعدي
+    THEFT = "theft"  # سرقة
+    VANDALISM = "vandalism"  # تخريب
 
     # Fire/Safety
-    FIRE_DETECTED = "fire_detected"            # حريق مكتشف
-    SMOKE_DETECTED = "smoke_detected"          # دخان مكتشف
+    FIRE_DETECTED = "fire_detected"  # حريق مكتشف
+    SMOKE_DETECTED = "smoke_detected"  # دخان مكتشف
 
     # Other
-    CROP_LODGING = "crop_lodging"              # رقاد المحصول
-    UNEVEN_GROWTH = "uneven_growth"            # نمو غير متساوي
+    CROP_LODGING = "crop_lodging"  # رقاد المحصول
+    UNEVEN_GROWTH = "uneven_growth"  # نمو غير متساوي
     FIELD_BOUNDARY_ENCROACHMENT = "boundary_encroachment"  # تعدي على حدود الحقل
-    UNKNOWN = "unknown"                        # غير معروف
+    UNKNOWN = "unknown"  # غير معروف
 
 
 ANOMALY_TYPE_AR = {
@@ -74,12 +76,13 @@ ANOMALY_TYPE_AR = {
 }
 
 
-class AnomalySeverity(str, Enum):
+class AnomalySeverity(StrEnum):
     """Severity levels for anomalies - مستويات خطورة الشذوذ"""
+
     CRITICAL = "critical"  # حرج - استجابة فورية (< 6 ساعات)
-    HIGH = "high"          # عالي - استجابة خلال 24 ساعة
-    MEDIUM = "medium"      # متوسط - استجابة خلال أسبوع
-    LOW = "low"            # منخفض - للمتابعة
+    HIGH = "high"  # عالي - استجابة خلال 24 ساعة
+    MEDIUM = "medium"  # متوسط - استجابة خلال أسبوع
+    LOW = "low"  # منخفض - للمتابعة
 
 
 SEVERITY_AR = {
@@ -91,33 +94,31 @@ SEVERITY_AR = {
 
 # Response time guidelines (hours)
 SEVERITY_RESPONSE_TIME = {
-    AnomalySeverity.CRITICAL: 6,    # < 6 hours
-    AnomalySeverity.HIGH: 24,       # < 24 hours
-    AnomalySeverity.MEDIUM: 168,    # < 1 week
-    AnomalySeverity.LOW: 336,       # < 2 weeks
+    AnomalySeverity.CRITICAL: 6,  # < 6 hours
+    AnomalySeverity.HIGH: 24,  # < 24 hours
+    AnomalySeverity.MEDIUM: 168,  # < 1 week
+    AnomalySeverity.LOW: 336,  # < 2 weeks
 }
 
 
 class AnomalyLocation(BaseModel):
     """Geographic location of detected anomaly"""
+
     # Geographic coordinates
     lat: float = Field(..., ge=-90, le=90)
     lon: float = Field(..., ge=-180, le=180)
 
     # Optional bounding box for area anomalies
     bbox_coords: list[dict] | None = Field(
-        default=None,
-        description="List of {lat, lon} for anomaly boundary"
+        default=None, description="List of {lat, lon} for anomaly boundary"
     )
 
     # Affected area
     affected_area_hectares: float | None = Field(
-        default=None, ge=0,
-        description="Estimated affected area in hectares"
+        default=None, ge=0, description="Estimated affected area in hectares"
     )
     affected_area_percent: float | None = Field(
-        default=None, ge=0, le=100,
-        description="Percentage of field affected"
+        default=None, ge=0, le=100, description="Percentage of field affected"
     )
 
 
@@ -125,6 +126,7 @@ class AnomalyDetection(BaseModel):
     """
     Detected anomaly in a field - شذوذ مكتشف في الحقل
     """
+
     anomaly_id: str = Field(..., description="Unique anomaly identifier")
     field_id: str = Field(..., description="Field where anomaly was detected")
     camera_id: str = Field(..., description="Camera that detected the anomaly")
@@ -133,16 +135,14 @@ class AnomalyDetection(BaseModel):
     anomaly_type: AnomalyType
     anomaly_type_ar: str = Field(default="", description="Anomaly type in Arabic")
     sub_type: str | None = Field(
-        default=None,
-        description="More specific classification (e.g., pest species)"
+        default=None, description="More specific classification (e.g., pest species)"
     )
 
     # Severity
     severity: AnomalySeverity
     severity_ar: str = Field(default="", description="Severity in Arabic")
     response_deadline_hours: int = Field(
-        default=168,
-        description="Recommended response time in hours"
+        default=168, description="Recommended response time in hours"
     )
 
     # Confidence
@@ -159,33 +159,28 @@ class AnomalyDetection(BaseModel):
     source_frame_id: str = Field(..., description="Frame where first detected")
     source_frame_url: str | None = None
     additional_frames: list[str] = Field(
-        default_factory=list,
-        description="Additional supporting frame IDs"
+        default_factory=list, description="Additional supporting frame IDs"
     )
 
     # Detection details
     detection_method: str = Field(
-        default="mllm",
-        description="Method: mllm, cv_model, change_detection"
+        default="mllm", description="Method: mllm, cv_model, change_detection"
     )
     model_version: str | None = None
 
     # Timestamps
     detected_at: datetime = Field(default_factory=datetime.utcnow)
     first_observed_at: datetime | None = Field(
-        default=None,
-        description="When anomaly was first observed (may differ from detected_at)"
+        default=None, description="When anomaly was first observed (may differ from detected_at)"
     )
 
     # Progression tracking
     is_recurring: bool = Field(
-        default=False,
-        description="Whether this anomaly has occurred before"
+        default=False, description="Whether this anomaly has occurred before"
     )
     previous_occurrence_id: str | None = None
     progression_status: str = Field(
-        default="new",
-        description="new, spreading, stable, improving, resolved"
+        default="new", description="new, spreading, stable, improving, resolved"
     )
 
     # Multi-tenancy
@@ -193,8 +188,7 @@ class AnomalyDetection(BaseModel):
 
     # Resolution tracking
     status: str = Field(
-        default="open",
-        description="open, acknowledged, investigating, resolved, false_positive"
+        default="open", description="open, acknowledged, investigating, resolved, false_positive"
     )
     acknowledged_by: str | None = None
     acknowledged_at: datetime | None = None
@@ -207,15 +201,11 @@ class AnomalyDetection(BaseModel):
         super().__init__(**data)
         # Auto-fill Arabic translations and response deadline
         if not self.anomaly_type_ar:
-            self.anomaly_type_ar = ANOMALY_TYPE_AR.get(
-                self.anomaly_type, "غير معروف"
-            )
+            self.anomaly_type_ar = ANOMALY_TYPE_AR.get(self.anomaly_type, "غير معروف")
         if not self.severity_ar:
             self.severity_ar = SEVERITY_AR.get(self.severity, "غير معروف")
         if self.response_deadline_hours == 168:  # Default value
-            self.response_deadline_hours = SEVERITY_RESPONSE_TIME.get(
-                self.severity, 168
-            )
+            self.response_deadline_hours = SEVERITY_RESPONSE_TIME.get(self.severity, 168)
 
     class Config:
         json_schema_extra = {
@@ -237,6 +227,7 @@ class AnomalyDetection(BaseModel):
 
 class AnomalyAlert(BaseModel):
     """Alert generated from anomaly detection"""
+
     alert_id: str
     anomaly_id: str
     field_id: str
@@ -262,11 +253,10 @@ class AnomalyAlert(BaseModel):
     # Distribution
     notify_roles: list[str] = Field(
         default_factory=lambda: ["field_manager"],
-        description="Roles to notify: field_manager, agronomist, owner"
+        description="Roles to notify: field_manager, agronomist, owner",
     )
     notification_channels: list[str] = Field(
-        default_factory=lambda: ["push", "sms"],
-        description="Channels: push, sms, email, whatsapp"
+        default_factory=lambda: ["push", "sms"], description="Channels: push, sms, email, whatsapp"
     )
 
     # Timestamps
@@ -284,6 +274,7 @@ class AnomalyAlert(BaseModel):
 
 class AnomalySummary(BaseModel):
     """Summary of anomalies for a field or time period"""
+
     field_id: str
     period_start: datetime
     period_end: datetime
@@ -302,11 +293,7 @@ class AnomalySummary(BaseModel):
     average_resolution_time_hours: float | None = None
 
     # Trends
-    trend: str = Field(
-        default="stable",
-        description="increasing, decreasing, stable"
-    )
+    trend: str = Field(default="stable", description="increasing, decreasing, stable")
     comparison_to_previous: float | None = Field(
-        default=None,
-        description="Percentage change from previous period"
+        default=None, description="Percentage change from previous period"
     )

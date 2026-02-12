@@ -11,7 +11,7 @@ and certification verification functionality.
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 
 import structlog
 
@@ -19,12 +19,12 @@ from .models import (
     Certification,
     CertificationBody,
     CertificationStatus,
+    CertificationSummary,
     CertificationType,
     ComplianceDocument,
     ComplianceRequirement,
     ComplianceStatus,
     ComplianceSummary,
-    CertificationSummary,
     DocumentType,
 )
 
@@ -306,7 +306,9 @@ class ComplianceService:
         Create a new certification record
         إنشاء سجل شهادة جديد
         """
-        cert_body = self._certification_bodies.get(certification_body_id) if certification_body_id else None
+        cert_body = (
+            self._certification_bodies.get(certification_body_id) if certification_body_id else None
+        )
 
         certification = Certification(
             tenant_id=tenant_id,
@@ -465,8 +467,12 @@ class ComplianceService:
 
         summary = CertificationSummary(
             total_certifications=len(certs),
-            active_certifications=sum(1 for c in certs if c.status == CertificationStatus.ACTIVE and c.is_valid),
-            expired_certifications=sum(1 for c in certs if c.status == CertificationStatus.EXPIRED or not c.is_valid),
+            active_certifications=sum(
+                1 for c in certs if c.status == CertificationStatus.ACTIVE and c.is_valid
+            ),
+            expired_certifications=sum(
+                1 for c in certs if c.status == CertificationStatus.EXPIRED or not c.is_valid
+            ),
             pending_certifications=sum(1 for c in certs if c.status == CertificationStatus.PENDING),
         )
 
@@ -479,17 +485,21 @@ class ComplianceService:
         today = date.today()
         for cert in certs:
             if cert.is_valid and cert.days_until_expiry <= 90:
-                summary.expiring_soon.append({
-                    "certification_id": cert.id,
-                    "certification_type": cert.certification_type.value,
-                    "name_en": cert.name_en,
-                    "name_ar": cert.name_ar,
-                    "expiry_date": cert.expiry_date.isoformat(),
-                    "days_until_expiry": cert.days_until_expiry,
-                })
+                summary.expiring_soon.append(
+                    {
+                        "certification_id": cert.id,
+                        "certification_type": cert.certification_type.value,
+                        "name_en": cert.name_en,
+                        "name_ar": cert.name_ar,
+                        "expiry_date": cert.expiry_date.isoformat(),
+                        "days_until_expiry": cert.days_until_expiry,
+                    }
+                )
 
         # Next audit date
-        next_audits = [c.next_audit_date for c in certs if c.next_audit_date and c.next_audit_date >= today]
+        next_audits = [
+            c.next_audit_date for c in certs if c.next_audit_date and c.next_audit_date >= today
+        ]
         if next_audits:
             summary.next_audit_date = min(next_audits)
 
@@ -625,7 +635,8 @@ class ComplianceService:
         for req in requirements:
             # Find linked compliance documents
             linked_docs = [
-                doc for doc in self._compliance_docs.values()
+                doc
+                for doc in self._compliance_docs.values()
                 if doc.tenant_id == tenant_id
                 and doc.farm_id == farm_id
                 and doc.requirement_id == req.id
@@ -645,17 +656,19 @@ class ComplianceService:
                     status = "NON_COMPLIANT"
                 document_status = latest_doc.status.value
 
-            status_list.append({
-                "requirement_id": req.id,
-                "requirement_code": req.code,
-                "title_en": req.title_en,
-                "title_ar": req.title_ar,
-                "is_mandatory": req.is_mandatory,
-                "compliance_level": req.compliance_level,
-                "status": status,
-                "document_status": document_status,
-                "linked_documents": len(linked_docs),
-            })
+            status_list.append(
+                {
+                    "requirement_id": req.id,
+                    "requirement_code": req.code,
+                    "title_en": req.title_en,
+                    "title_ar": req.title_ar,
+                    "is_mandatory": req.is_mandatory,
+                    "compliance_level": req.compliance_level,
+                    "status": status,
+                    "document_status": document_status,
+                    "linked_documents": len(linked_docs),
+                }
+            )
 
         return status_list
 
@@ -685,19 +698,19 @@ class ComplianceService:
 
         # Calculate compliance percentage
         if summary.total_requirements > 0:
-            summary.compliance_percentage = (
-                summary.compliant / summary.total_requirements
-            ) * 100
+            summary.compliance_percentage = (summary.compliant / summary.total_requirements) * 100
 
         # Missing documents
         for status in status_list:
             if status["status"] == "MISSING" and status["is_mandatory"]:
-                summary.missing_documents.append({
-                    "requirement_id": status["requirement_id"],
-                    "requirement_code": status["requirement_code"],
-                    "title_en": status["title_en"],
-                    "title_ar": status["title_ar"],
-                })
+                summary.missing_documents.append(
+                    {
+                        "requirement_id": status["requirement_id"],
+                        "requirement_code": status["requirement_code"],
+                        "title_en": status["title_en"],
+                        "title_ar": status["title_ar"],
+                    }
+                )
 
         return summary
 
@@ -739,13 +752,15 @@ class ComplianceService:
                 if is_compliant:
                     mandatory_compliant += 1
                 else:
-                    issues.append({
-                        "requirement_code": req.code,
-                        "title_en": req.title_en,
-                        "title_ar": req.title_ar,
-                        "compliance_level": req.compliance_level,
-                        "status": status["status"],
-                    })
+                    issues.append(
+                        {
+                            "requirement_code": req.code,
+                            "title_en": req.title_en,
+                            "title_ar": req.title_ar,
+                            "compliance_level": req.compliance_level,
+                            "status": status["status"],
+                        }
+                    )
 
             if req.compliance_level == "MAJOR_MUST":
                 major_must_total += 1

@@ -13,7 +13,7 @@ import asyncio
 import json
 import logging
 import traceback
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from .dlq_config import DLQMessageMetadata, is_retriable_error, should_retry

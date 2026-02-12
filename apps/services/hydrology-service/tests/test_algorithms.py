@@ -5,7 +5,6 @@ Tests for hydrology algorithms.
 
 import numpy as np
 import pytest
-
 from src.utils.hydrology_algorithms import (
     DEMData,
     HydrologyAnalyzer,
@@ -76,11 +75,14 @@ class TestFlowDirection:
     def test_simple_flow_direction(self):
         """Test flow direction on simple sloped terrain."""
         # Terrain sloping to south
-        elevation = np.array([
-            [120, 120, 120],
-            [110, 110, 110],
-            [100, 100, 100],
-        ], dtype=np.float32)
+        elevation = np.array(
+            [
+                [120, 120, 120],
+                [110, 110, 110],
+                [100, 100, 100],
+            ],
+            dtype=np.float32,
+        )
 
         dem = DEMData(elevation=elevation, resolution=30.0)
         flow_dir = calculate_d8_flow_direction(dem)
@@ -91,11 +93,14 @@ class TestFlowDirection:
     def test_pit_detection(self):
         """Test that pits (depressions) are detected."""
         # Central pit
-        elevation = np.array([
-            [110, 110, 110],
-            [110, 100, 110],
-            [110, 110, 110],
-        ], dtype=np.float32)
+        elevation = np.array(
+            [
+                [110, 110, 110],
+                [110, 100, 110],
+                [110, 110, 110],
+            ],
+            dtype=np.float32,
+        )
 
         dem = DEMData(elevation=elevation, resolution=30.0)
         flow_dir = calculate_d8_flow_direction(dem)
@@ -142,11 +147,14 @@ class TestDepressionFilling:
 
     def test_fill_single_depression(self):
         """Test filling a single depression."""
-        elevation = np.array([
-            [110, 110, 110],
-            [110, 100, 110],
-            [110, 110, 110],
-        ], dtype=np.float32)
+        elevation = np.array(
+            [
+                [110, 110, 110],
+                [110, 100, 110],
+                [110, 110, 110],
+            ],
+            dtype=np.float32,
+        )
 
         dem = DEMData(elevation=elevation, resolution=30.0)
         filled, depressions = fill_depressions(dem, max_depth=20.0)
@@ -158,11 +166,14 @@ class TestDepressionFilling:
 
     def test_no_fill_deep_depression(self):
         """Test that deep depressions are not filled beyond max_depth."""
-        elevation = np.array([
-            [150, 150, 150],
-            [150, 100, 150],
-            [150, 150, 150],
-        ], dtype=np.float32)
+        elevation = np.array(
+            [
+                [150, 150, 150],
+                [150, 100, 150],
+                [150, 150, 150],
+            ],
+            dtype=np.float32,
+        )
 
         dem = DEMData(elevation=elevation, resolution=30.0)
         filled, depressions = fill_depressions(dem, max_depth=10.0)
@@ -197,9 +208,7 @@ class TestHydrologyAnalyzer:
         analyzer = HydrologyAnalyzer()
         analyzer.load_dem(dem)
         results = analyzer.run_full_analysis(
-            flow_threshold=50,
-            depression_max_depth=2.0,
-            min_basin_cells=50
+            flow_threshold=50, depression_max_depth=2.0, min_basin_cells=50
         )
 
         # Check that all expected keys are present
@@ -249,11 +258,14 @@ class TestEdgeCases:
 
     def test_nodata_handling(self):
         """Test handling of nodata values."""
-        elevation = np.array([
-            [100, 110, -9999],
-            [95, 105, 100],
-            [90, 100, 95],
-        ], dtype=np.float32)
+        elevation = np.array(
+            [
+                [100, 110, -9999],
+                [95, 105, 100],
+                [90, 100, 95],
+            ],
+            dtype=np.float32,
+        )
 
         dem = DEMData(elevation=elevation, resolution=30.0, nodata_value=-9999)
         flow_dir = calculate_d8_flow_direction(dem)

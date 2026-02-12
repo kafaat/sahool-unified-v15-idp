@@ -17,22 +17,21 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from .models import (
-    Coordinate,
     BoundingBox,
-    Waypoint,
-    WaypointAction,
+    Coordinate,
+    DroneSpecs,
+    FlightMode,
     FlightPath,
     FlightPattern,
-    FlightMode,
-    DroneSpecs,
+    Waypoint,
+    WaypointAction,
     WeatherCheck,
     WeatherCondition,
     generate_id,
 )
-
 
 # ==============================================================================
 # Constants - الثوابت
@@ -65,6 +64,7 @@ MIN_VISIBILITY_KM = 3.0
 @dataclass
 class FlightPlanConfig:
     """Configuration for flight path generation - تكوين إنشاء مسار الطيران"""
+
     # Flight mode - وضع الطيران
     mode: FlightMode = FlightMode.SPRAYING
 
@@ -105,6 +105,7 @@ class FlightPlanConfig:
 @dataclass
 class FlightPlanResult:
     """Result of flight path generation - نتيجة إنشاء مسار الطيران"""
+
     success: bool
     flight_path: FlightPath | None = None
 
@@ -229,14 +230,10 @@ def destination_point(start: Coordinate, bearing_deg: float, distance_m: float) 
     )
     lng2 = lng1 + math.atan2(
         math.sin(bearing) * math.sin(d) * math.cos(lat1),
-        math.cos(d) - math.sin(lat1) * math.sin(lat2)
+        math.cos(d) - math.sin(lat1) * math.sin(lat2),
     )
 
-    return Coordinate(
-        lat=math.degrees(lat2),
-        lng=math.degrees(lng2),
-        alt_agl_m=start.alt_agl_m
-    )
+    return Coordinate(lat=math.degrees(lat2), lng=math.degrees(lng2), alt_agl_m=start.alt_agl_m)
 
 
 def calculate_polygon_area(boundary: list[Coordinate]) -> float:
@@ -313,12 +310,7 @@ def get_bounding_box(boundary: list[Coordinate]) -> BoundingBox:
     lats = [c.lat for c in boundary]
     lngs = [c.lng for c in boundary]
 
-    return BoundingBox(
-        min_lat=min(lats),
-        max_lat=max(lats),
-        min_lng=min(lngs),
-        max_lng=max(lngs)
-    )
+    return BoundingBox(min_lat=min(lats), max_lat=max(lats), min_lng=min(lngs), max_lng=max(lngs))
 
 
 def point_in_polygon(point: Coordinate, boundary: list[Coordinate]) -> bool:
@@ -338,9 +330,13 @@ def point_in_polygon(point: Coordinate, boundary: list[Coordinate]) -> bool:
 
     j = n - 1
     for i in range(n):
-        if ((boundary[i].lat > point.lat) != (boundary[j].lat > point.lat)) and \
-           (point.lng < (boundary[j].lng - boundary[i].lng) *
-            (point.lat - boundary[i].lat) / (boundary[j].lat - boundary[i].lat) + boundary[i].lng):
+        if ((boundary[i].lat > point.lat) != (boundary[j].lat > point.lat)) and (
+            point.lng
+            < (boundary[j].lng - boundary[i].lng)
+            * (point.lat - boundary[i].lat)
+            / (boundary[j].lat - boundary[i].lat)
+            + boundary[i].lng
+        ):
             inside = not inside
         j = i
 
@@ -434,7 +430,7 @@ class FlightPlanner:
         boundary: list[Coordinate],
         name: str = "Flight Path",
         name_ar: str = "مسار الطيران",
-        home_location: Coordinate | None = None
+        home_location: Coordinate | None = None,
     ) -> FlightPlanResult:
         """
         Generate parallel (boustrophedon) flight path.
@@ -489,11 +485,11 @@ class FlightPlanner:
         # Use bounding box diagonal as reference
         bbox_width = haversine_distance(
             Coordinate(lat=bbox.min_lat, lng=bbox.min_lng),
-            Coordinate(lat=bbox.min_lat, lng=bbox.max_lng)
+            Coordinate(lat=bbox.min_lat, lng=bbox.max_lng),
         )
         bbox_height = haversine_distance(
             Coordinate(lat=bbox.min_lat, lng=bbox.min_lng),
-            Coordinate(lat=bbox.max_lat, lng=bbox.min_lng)
+            Coordinate(lat=bbox.max_lat, lng=bbox.min_lng),
         )
         field_extent = math.sqrt(bbox_width**2 + bbox_height**2)
 
@@ -544,7 +540,9 @@ class FlightPlanner:
                     heading_deg=heading if pass_idx % 2 == 0 else (heading + 180) % 360,
                     spray_on=True if self.config.mode == FlightMode.SPRAYING else False,
                     spray_rate_l_ha=self.config.spray_rate_l_ha,
-                    actions=[WaypointAction.START_SPRAY] if self.config.mode == FlightMode.SPRAYING else [],
+                    actions=[WaypointAction.START_SPRAY]
+                    if self.config.mode == FlightMode.SPRAYING
+                    else [],
                     is_turn_point=wp_index > 0,
                 )
                 waypoints.append(wp_start)
@@ -557,7 +555,9 @@ class FlightPlanner:
                     speed_ms=self.config.cruise_speed_ms,
                     heading_deg=heading if pass_idx % 2 == 0 else (heading + 180) % 360,
                     spray_on=False,
-                    actions=[WaypointAction.STOP_SPRAY] if self.config.mode == FlightMode.SPRAYING else [],
+                    actions=[WaypointAction.STOP_SPRAY]
+                    if self.config.mode == FlightMode.SPRAYING
+                    else [],
                     is_turn_point=True,
                 )
                 waypoints.append(wp_end)
@@ -579,8 +579,7 @@ class FlightPlanner:
         # Add distance between passes (turn distances)
         for i in range(1, len(waypoints)):
             total_distance += haversine_distance(
-                waypoints[i-1].coordinate,
-                waypoints[i].coordinate
+                waypoints[i - 1].coordinate, waypoints[i].coordinate
             )
 
         # Calculate timing
@@ -637,7 +636,7 @@ class FlightPlanner:
         image_height_px: int = 3648,
         name: str = "Mapping Mission",
         name_ar: str = "مهمة التصوير",
-        home_location: Coordinate | None = None
+        home_location: Coordinate | None = None,
     ) -> FlightPlanResult:
         """
         Generate mapping flight path with photo overlap calculation.
@@ -673,7 +672,9 @@ class FlightPlanner:
 
         # Validate altitude
         if altitude_m > MAX_FLIGHT_ALTITUDE_M:
-            result.error_en = f"Required altitude ({altitude_m:.1f}m) exceeds maximum ({MAX_FLIGHT_ALTITUDE_M}m)"
+            result.error_en = (
+                f"Required altitude ({altitude_m:.1f}m) exceeds maximum ({MAX_FLIGHT_ALTITUDE_M}m)"
+            )
             result.error_ar = f"الارتفاع المطلوب ({altitude_m:.1f}م) يتجاوز الحد الأقصى ({MAX_FLIGHT_ALTITUDE_M}م)"
             return result
 
@@ -682,16 +683,20 @@ class FlightPlanner:
 
         # Calculate ground coverage per image
         ground_width_m = (camera_sensor_width_mm * altitude_m) / camera_focal_length_mm
-        ground_height_m = (
-            camera_sensor_width_mm * altitude_m * image_height_px
-        ) / (camera_focal_length_mm * image_width_px)
+        ground_height_m = (camera_sensor_width_mm * altitude_m * image_height_px) / (
+            camera_focal_length_mm * image_width_px
+        )
 
         # Calculate photo spacing based on overlap
-        frontal_overlap = self.config.overlap_percent / 100 if self.config.overlap_percent > 50 else DEFAULT_PHOTO_OVERLAP_PERCENT / 100
+        frontal_overlap = (
+            self.config.overlap_percent / 100
+            if self.config.overlap_percent > 50
+            else DEFAULT_PHOTO_OVERLAP_PERCENT / 100
+        )
         side_overlap = self.config.side_overlap_percent / 100
 
         photo_spacing_m = ground_height_m * (1 - frontal_overlap)
-        line_spacing_m = ground_width_m * (1 - side_overlap)
+        ground_width_m * (1 - side_overlap)
 
         # Update config for path generation
         mapping_config = FlightPlanConfig(
@@ -710,10 +715,7 @@ class FlightPlanner:
         self.config = mapping_config
 
         path_result = self.generate_parallel_path(
-            boundary=boundary,
-            name=name,
-            name_ar=name_ar,
-            home_location=home_location
+            boundary=boundary, name=name, name_ar=name_ar, home_location=home_location
         )
 
         self.config = original_config
@@ -744,9 +746,11 @@ class FlightPlanner:
             for j in range(num_photos + 1):
                 progress = j / max(1, num_photos)
                 photo_coord = Coordinate(
-                    lat=start_wp.coordinate.lat + progress * (end_wp.coordinate.lat - start_wp.coordinate.lat),
-                    lng=start_wp.coordinate.lng + progress * (end_wp.coordinate.lng - start_wp.coordinate.lng),
-                    alt_agl_m=altitude_m
+                    lat=start_wp.coordinate.lat
+                    + progress * (end_wp.coordinate.lat - start_wp.coordinate.lat),
+                    lng=start_wp.coordinate.lng
+                    + progress * (end_wp.coordinate.lng - start_wp.coordinate.lng),
+                    alt_agl_m=altitude_m,
                 )
 
                 photo_wp = Waypoint(
@@ -780,7 +784,7 @@ class FlightPlanner:
         boundary: list[Coordinate],
         name: str = "Crosshatch Path",
         name_ar: str = "مسار متقاطع",
-        home_location: Coordinate | None = None
+        home_location: Coordinate | None = None,
     ) -> FlightPlanResult:
         """
         Generate crosshatch (perpendicular double coverage) flight path.
@@ -805,7 +809,7 @@ class FlightPlanner:
             boundary=boundary,
             name=f"{name} Pass 1",
             name_ar=f"{name_ar} - المرور 1",
-            home_location=home_location
+            home_location=home_location,
         )
 
         if not result1.success:
@@ -817,7 +821,7 @@ class FlightPlanner:
             boundary=boundary,
             name=f"{name} Pass 2",
             name_ar=f"{name_ar} - المرور 2",
-            home_location=home_location
+            home_location=home_location,
         )
 
         # Reset config
@@ -877,7 +881,7 @@ class FlightPlanner:
         passes: int = 2,
         name: str = "Perimeter Path",
         name_ar: str = "مسار المحيط",
-        home_location: Coordinate | None = None
+        home_location: Coordinate | None = None,
     ) -> FlightPlanResult:
         """
         Generate perimeter (boundary following) flight path.
@@ -934,15 +938,11 @@ class FlightPlanner:
 
                 # Calculate distance
                 if i > 0:
-                    total_distance += haversine_distance(
-                        pass_boundary[i - 1], coord
-                    )
+                    total_distance += haversine_distance(pass_boundary[i - 1], coord)
 
             # Close the loop
             if len(pass_boundary) > 0:
-                total_distance += haversine_distance(
-                    pass_boundary[-1], pass_boundary[0]
-                )
+                total_distance += haversine_distance(pass_boundary[-1], pass_boundary[0])
 
         if len(waypoints) == 0:
             result.error_en = "Could not generate perimeter path"
@@ -987,10 +987,7 @@ class FlightPlanner:
         return result
 
     def _clip_line_to_polygon(
-        self,
-        line_start: Coordinate,
-        line_end: Coordinate,
-        polygon: list[Coordinate]
+        self, line_start: Coordinate, line_end: Coordinate, polygon: list[Coordinate]
     ) -> list[tuple[Coordinate, Coordinate]]:
         """
         Clip line segment to polygon boundary.
@@ -1009,10 +1006,7 @@ class FlightPlanner:
         intersections = []
         for i in range(len(polygon)):
             j = (i + 1) % len(polygon)
-            intersection = self._line_intersection(
-                line_start, line_end,
-                polygon[i], polygon[j]
-            )
+            intersection = self._line_intersection(line_start, line_end, polygon[i], polygon[j])
             if intersection:
                 intersections.append(intersection)
 
@@ -1032,27 +1026,23 @@ class FlightPlanner:
             midpoint = Coordinate(
                 lat=(points[i].lat + points[i + 1].lat) / 2,
                 lng=(points[i].lng + points[i + 1].lng) / 2,
-                alt_agl_m=self.config.cruise_altitude_m
+                alt_agl_m=self.config.cruise_altitude_m,
             )
             if point_in_polygon(midpoint, polygon):
                 seg_start = Coordinate(
-                    lat=points[i].lat,
-                    lng=points[i].lng,
-                    alt_agl_m=self.config.cruise_altitude_m
+                    lat=points[i].lat, lng=points[i].lng, alt_agl_m=self.config.cruise_altitude_m
                 )
                 seg_end = Coordinate(
                     lat=points[i + 1].lat,
                     lng=points[i + 1].lng,
-                    alt_agl_m=self.config.cruise_altitude_m
+                    alt_agl_m=self.config.cruise_altitude_m,
                 )
                 segments.append((seg_start, seg_end))
 
         return segments
 
     def _line_intersection(
-        self,
-        p1: Coordinate, p2: Coordinate,
-        p3: Coordinate, p4: Coordinate
+        self, p1: Coordinate, p2: Coordinate, p3: Coordinate, p4: Coordinate
     ) -> Coordinate | None:
         """
         Find intersection point of two line segments.
@@ -1090,7 +1080,7 @@ def assess_flight_weather(
     wind_direction_deg: float,
     precipitation_mm: float = 0,
     visibility_km: float = 10,
-    drone_specs: DroneSpecs | None = None
+    drone_specs: DroneSpecs | None = None,
 ) -> WeatherCheck:
     """
     Assess weather conditions for drone flight.
@@ -1132,8 +1122,12 @@ def assess_flight_weather(
     if wind_speed_ms > max_wind:
         check.condition = WeatherCondition.PROHIBITED
         check.can_fly = False
-        check.message_en = f"Wind speed ({wind_speed_ms:.1f} m/s) exceeds safe limit ({max_wind} m/s)"
-        check.message_ar = f"سرعة الرياح ({wind_speed_ms:.1f} م/ث) تتجاوز الحد الآمن ({max_wind} م/ث)"
+        check.message_en = (
+            f"Wind speed ({wind_speed_ms:.1f} m/s) exceeds safe limit ({max_wind} m/s)"
+        )
+        check.message_ar = (
+            f"سرعة الرياح ({wind_speed_ms:.1f} م/ث) تتجاوز الحد الآمن ({max_wind} م/ث)"
+        )
         return check
     elif wind_speed_ms > max_wind * 0.75:
         check.condition = WeatherCondition.MARGINAL
@@ -1225,7 +1219,7 @@ def create_spray_flight_plan(
     pattern: FlightPattern = FlightPattern.PARALLEL,
     name: str = "Spray Mission",
     name_ar: str = "مهمة الرش",
-    home_location: Coordinate | None = None
+    home_location: Coordinate | None = None,
 ) -> FlightPlanResult:
     """
     Create a spray mission flight plan.
@@ -1259,24 +1253,15 @@ def create_spray_flight_plan(
 
     if pattern == FlightPattern.CROSSHATCH:
         return planner.generate_crosshatch_path(
-            boundary=boundary,
-            name=name,
-            name_ar=name_ar,
-            home_location=home_location
+            boundary=boundary, name=name, name_ar=name_ar, home_location=home_location
         )
     elif pattern == FlightPattern.PERIMETER:
         return planner.generate_perimeter_path(
-            boundary=boundary,
-            name=name,
-            name_ar=name_ar,
-            home_location=home_location
+            boundary=boundary, name=name, name_ar=name_ar, home_location=home_location
         )
     else:
         return planner.generate_parallel_path(
-            boundary=boundary,
-            name=name,
-            name_ar=name_ar,
-            home_location=home_location
+            boundary=boundary, name=name, name_ar=name_ar, home_location=home_location
         )
 
 
@@ -1287,7 +1272,7 @@ def create_mapping_flight_plan(
     side_overlap: float = 70.0,
     name: str = "Mapping Mission",
     name_ar: str = "مهمة التصوير",
-    home_location: Coordinate | None = None
+    home_location: Coordinate | None = None,
 ) -> FlightPlanResult:
     """
     Create a mapping mission flight plan.
@@ -1319,7 +1304,7 @@ def create_mapping_flight_plan(
         gsd_cm_px=gsd_cm_px,
         name=name,
         name_ar=name_ar,
-        home_location=home_location
+        home_location=home_location,
     )
 
 
@@ -1327,7 +1312,7 @@ def estimate_flight_resources(
     area_ha: float,
     spray_rate_l_ha: float,
     tank_capacity_l: float,
-    flight_time_per_tank_min: float = 15.0
+    flight_time_per_tank_min: float = 15.0,
 ) -> dict:
     """
     Estimate resources needed for a spray mission.

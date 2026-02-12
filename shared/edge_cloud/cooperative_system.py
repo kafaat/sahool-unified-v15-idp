@@ -18,12 +18,14 @@ from __future__ import annotations
 
 import asyncio
 from collections import defaultdict
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 from uuid import uuid4
 
 import structlog
 
+from .cloud_layer import get_cloud_layer
+from .edge_layer import get_edge_layer
 from .models import (
     CloudInference,
     DeviceConfig,
@@ -37,9 +39,6 @@ from .models import (
     SystemMetrics,
 )
 from .perception_layer import get_perception_layer
-from .edge_layer import get_edge_layer
-from .cloud_layer import get_cloud_layer
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)
@@ -72,9 +71,7 @@ class SyncManager:
         self._logger = structlog.get_logger(__name__).bind(component="sync_manager")
 
     async def sync_edge_to_cloud(
-        self,
-        readings: list[SensorReading],
-        decisions: list[EdgeDecision]
+        self, readings: list[SensorReading], decisions: list[EdgeDecision]
     ) -> dict[str, Any]:
         """
         Sync edge data to cloud.
@@ -106,7 +103,7 @@ class SyncManager:
                 "edge_to_cloud_sync_completed",
                 readings=len(readings),
                 decisions=len(decisions),
-                message_ar="اكتملت مزامنة الحافة إلى السحابة"
+                message_ar="اكتملت مزامنة الحافة إلى السحابة",
             )
 
             return sync_result
@@ -121,9 +118,7 @@ class SyncManager:
             }
 
     async def sync_cloud_to_edge(
-        self,
-        models: list[dict[str, Any]] | None = None,
-        rules: list[IFTTTRule] | None = None
+        self, models: list[dict[str, Any]] | None = None, rules: list[IFTTTRule] | None = None
     ) -> dict[str, Any]:
         """
         Sync cloud updates to edge.
@@ -158,7 +153,7 @@ class SyncManager:
                 "cloud_to_edge_sync_completed",
                 models=len(models),
                 rules=len(rules),
-                message_ar="اكتملت مزامنة السحابة إلى الحافة"
+                message_ar="اكتملت مزامنة السحابة إلى الحافة",
             )
 
             return sync_result
@@ -236,7 +231,7 @@ class EdgeCloudCooperativeSystem:
         location: str = "",
         sampling_interval_minutes: int = 15,
         offline_autonomy: bool = True,
-        enable_cloud_training: bool = True
+        enable_cloud_training: bool = True,
     ):
         """
         Initialize the Edge-Cloud Cooperative System.
@@ -260,7 +255,7 @@ class EdgeCloudCooperativeSystem:
             sampling_config=SamplingConfig(
                 interval_minutes=sampling_interval_minutes,
                 min_interval=10,
-            )
+            ),
         )
 
         self._edge_layer = get_edge_layer(
@@ -303,9 +298,7 @@ class EdgeCloudCooperativeSystem:
 
         # Logger
         self._logger = structlog.get_logger(__name__).bind(
-            farm_id=farm_id,
-            gateway_id=self.gateway_id,
-            system="edge_cloud_cooperative"
+            farm_id=farm_id, gateway_id=self.gateway_id, system="edge_cloud_cooperative"
         )
 
         self._logger.info(
@@ -314,7 +307,7 @@ class EdgeCloudCooperativeSystem:
             gateway_id=self.gateway_id,
             location=location,
             offline_autonomy=offline_autonomy,
-            message_ar="تم تهيئة نظام التعاون"
+            message_ar="تم تهيئة نظام التعاون",
         )
 
     # =========================================================================
@@ -322,10 +315,7 @@ class EdgeCloudCooperativeSystem:
     # =========================================================================
 
     async def register_device(
-        self,
-        device_id: str,
-        protocol: DeviceProtocol,
-        config: DeviceConfig | dict[str, Any]
+        self, device_id: str, protocol: DeviceProtocol, config: DeviceConfig | dict[str, Any]
     ) -> bool:
         """
         Register an IoT device with the system.
@@ -352,9 +342,7 @@ class EdgeCloudCooperativeSystem:
             )
         """
         return await self._perception_layer.register_device(
-            device_id=device_id,
-            protocol=protocol,
-            config=config
+            device_id=device_id, protocol=protocol, config=config
         )
 
     async def unregister_device(self, device_id: str) -> bool:
@@ -385,9 +373,7 @@ class EdgeCloudCooperativeSystem:
     # =========================================================================
 
     async def start_data_collection(
-        self,
-        interval_seconds: int | None = None,
-        continuous: bool = True
+        self, interval_seconds: int | None = None, continuous: bool = True
     ) -> None:
         """
         Start continuous data collection from devices.
@@ -408,15 +394,13 @@ class EdgeCloudCooperativeSystem:
         self._start_time = datetime.now(UTC)
 
         if interval_seconds is None:
-            interval_seconds = (
-                self._perception_layer.default_sampling_config.interval_minutes * 60
-            )
+            interval_seconds = self._perception_layer.default_sampling_config.interval_minutes * 60
 
         self._logger.info(
             "data_collection_starting",
             interval_seconds=interval_seconds,
             continuous=continuous,
-            message_ar="بدء جمع البيانات"
+            message_ar="بدء جمع البيانات",
         )
 
         if continuous:
@@ -444,7 +428,7 @@ class EdgeCloudCooperativeSystem:
         self._logger.info(
             "data_collection_stopped",
             total_readings=self._total_readings,
-            message_ar="تم إيقاف جمع البيانات"
+            message_ar="تم إيقاف جمع البيانات",
         )
 
     async def _continuous_collection(self, interval_seconds: int) -> None:
@@ -492,9 +476,7 @@ class EdgeCloudCooperativeSystem:
     # =========================================================================
 
     async def process_realtime(
-        self,
-        use_edge: bool = True,
-        fallback_to_cloud: bool = True
+        self, use_edge: bool = True, fallback_to_cloud: bool = True
     ) -> dict[str, Any]:
         """
         Process data in real-time with edge-first strategy.
@@ -522,9 +504,9 @@ class EdgeCloudCooperativeSystem:
         start_time = datetime.now(UTC)
         results: dict[str, Any] = {
             "timestamp": start_time.isoformat(),
-            "processing_mode": "hybrid" if use_edge and fallback_to_cloud else (
-                "edge" if use_edge else "cloud"
-            ),
+            "processing_mode": "hybrid"
+            if use_edge and fallback_to_cloud
+            else ("edge" if use_edge else "cloud"),
             "edge_decisions": [],
             "cloud_inferences": [],
             "recommendations": [],
@@ -537,19 +519,14 @@ class EdgeCloudCooperativeSystem:
         recent_readings = self._readings_buffer[-100:] if self._readings_buffer else []
 
         if not recent_readings:
-            self._logger.warning(
-                "no_readings_for_processing",
-                message_ar="لا توجد قراءات للمعالجة"
-            )
+            self._logger.warning("no_readings_for_processing", message_ar="لا توجد قراءات للمعالجة")
             return results
 
         # Edge processing
         if use_edge:
             try:
                 # Run local inference
-                edge_decision = await self._edge_layer.run_local_inference(
-                    recent_readings
-                )
+                edge_decision = await self._edge_layer.run_local_inference(recent_readings)
                 results["edge_decisions"].append(edge_decision)
                 results["used_edge"] = True
                 self._total_edge_decisions += 1
@@ -581,9 +558,7 @@ class EdgeCloudCooperativeSystem:
                 context = self._prepare_context(recent_readings)
 
                 # Get cloud recommendations
-                recommendations = await self._cloud_layer.get_decision_recommendations(
-                    context
-                )
+                recommendations = await self._cloud_layer.get_decision_recommendations(context)
                 results["recommendations"] = recommendations
                 results["used_cloud"] = True
 
@@ -617,7 +592,7 @@ class EdgeCloudCooperativeSystem:
             latency_ms=results["latency_ms"],
             used_edge=results["used_edge"],
             used_cloud=results["used_cloud"],
-            message_ar="اكتملت المعالجة الآنية"
+            message_ar="اكتملت المعالجة الآنية",
         )
 
         return results
@@ -684,13 +659,12 @@ class EdgeCloudCooperativeSystem:
         # Sync cloud to edge (model/rule updates)
         cloud_result = await self._sync_manager.sync_cloud_to_edge(
             models=[],  # Would contain actual model updates
-            rules=[],   # Would contain rule updates
+            rules=[],  # Would contain rule updates
         )
         results["cloud_to_edge"] = cloud_result
 
-        results["success"] = (
-            edge_result.get("success", False) and
-            cloud_result.get("success", False)
+        results["success"] = edge_result.get("success", False) and cloud_result.get(
+            "success", False
         )
 
         self._logger.info(
@@ -698,7 +672,7 @@ class EdgeCloudCooperativeSystem:
             success=results["success"],
             readings_synced=edge_result.get("readings_synced", 0),
             decisions_synced=edge_result.get("decisions_synced", 0),
-            message_ar="اكتملت المزامنة بين الحافة والسحابة"
+            message_ar="اكتملت المزامنة بين الحافة والسحابة",
         )
 
         return results
@@ -708,9 +682,7 @@ class EdgeCloudCooperativeSystem:
     # =========================================================================
 
     async def detect_pests(
-        self,
-        image: bytes | str,
-        confidence_threshold: float = 0.5
+        self, image: bytes | str, confidence_threshold: float = 0.5
     ) -> tuple[str, float]:
         """
         Detect pests in crop image using cloud AI.
@@ -733,9 +705,7 @@ class EdgeCloudCooperativeSystem:
         return await self._cloud_layer.pest_detection(image, confidence_threshold)
 
     async def predict_moisture(
-        self,
-        days: int = 3,
-        weather_forecast: dict[str, Any] | None = None
+        self, days: int = 3, weather_forecast: dict[str, Any] | None = None
     ) -> list[float]:
         """
         Predict soil moisture for upcoming days.
@@ -756,8 +726,7 @@ class EdgeCloudCooperativeSystem:
         """
         # Get moisture history from readings
         moisture_readings = [
-            r.value for r in self._readings_buffer
-            if r.sensor_type == SensorType.SOIL_MOISTURE
+            r.value for r in self._readings_buffer if r.sensor_type == SensorType.SOIL_MOISTURE
         ][-100:]  # Last 100 readings
 
         if not moisture_readings:
@@ -773,7 +742,7 @@ class EdgeCloudCooperativeSystem:
         self,
         field_data: dict[str, Any],
         weather_forecast: dict[str, Any] | None = None,
-        days: int = 15
+        days: int = 15,
     ) -> list[float]:
         """
         Estimate crop yield with 15-day yield curve.
@@ -834,55 +803,49 @@ class EdgeCloudCooperativeSystem:
         # Calculate sync success rate
         total_syncs = sync_status.get("total_syncs", 0)
         sync_failures = sync_status.get("sync_failures", 0)
-        sync_success_rate = (
-            (total_syncs - sync_failures) / total_syncs
-            if total_syncs > 0 else 1.0
-        )
+        sync_success_rate = (total_syncs - sync_failures) / total_syncs if total_syncs > 0 else 1.0
 
         metrics = SystemMetrics(
             # Latency
             edge_latency_ms=edge_stats.get("average_latency_ms", 0.0),
             cloud_latency_ms=cloud_stats.get("average_processing_time_ms", 0.0),
             total_latency_ms=(
-                edge_stats.get("average_latency_ms", 0.0) +
-                cloud_stats.get("average_processing_time_ms", 0.0)
+                edge_stats.get("average_latency_ms", 0.0)
+                + cloud_stats.get("average_processing_time_ms", 0.0)
             ),
-
             # Accuracy (estimated based on model specs)
             edge_accuracy=0.88,  # Local inference accuracy
             cloud_accuracy=0.95,  # Cloud model accuracy
             moisture_prediction_error=0.03,  # 3% error rate
-
             # Availability
             uptime_percent=uptime_percent,
             edge_uptime_percent=100.0 if self._edge_layer.offline_autonomy else uptime_percent,
             cloud_uptime_percent=100.0 if self._cloud_available else 0.0,
-
             # Throughput
             readings_per_minute=(
-                self._total_readings / max(1, uptime_seconds / 60)
-                if self._start_time else 0.0
+                self._total_readings / max(1, uptime_seconds / 60) if self._start_time else 0.0
             ),
             decisions_per_minute=(
                 self._total_edge_decisions / max(1, uptime_seconds / 60)
-                if self._start_time else 0.0
+                if self._start_time
+                else 0.0
             ),
             inferences_per_minute=(
                 self._total_cloud_inferences / max(1, uptime_seconds / 60)
-                if self._start_time else 0.0
+                if self._start_time
+                else 0.0
             ),
-
             # Devices
             total_devices=perception_stats.get("total_devices", 0),
             active_devices=perception_stats.get("online_devices", 0),
             offline_devices=perception_stats.get("offline_devices", 0),
-
             # Sync
             sync_success_rate=sync_success_rate,
             pending_sync_count=edge_stats.get("pending_sync_count", 0),
             last_sync_at=(
                 datetime.fromisoformat(sync_status["last_sync"])
-                if sync_status.get("last_sync") else None
+                if sync_status.get("last_sync")
+                else None
             ),
         )
 
@@ -939,9 +902,7 @@ class EdgeCloudCooperativeSystem:
         return len(loaded_rules) > 0
 
     def setup_auto_irrigation(
-        self,
-        soil_moisture_threshold: float = 30.0,
-        zone_id: str | None = None
+        self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None
     ) -> IFTTTRule:
         """
         Set up automatic irrigation based on soil moisture.
@@ -958,8 +919,7 @@ class EdgeCloudCooperativeSystem:
             rule = system.setup_auto_irrigation(soil_moisture_threshold=30)
         """
         return self._edge_layer.auto_irrigation_trigger(
-            soil_moisture_threshold=soil_moisture_threshold,
-            zone_id=zone_id
+            soil_moisture_threshold=soil_moisture_threshold, zone_id=zone_id
         )
 
     # =========================================================================
@@ -1000,7 +960,7 @@ class EdgeCloudCooperativeSystem:
             self._logger.info(
                 "cloud_availability_changed",
                 available=available,
-                message_ar="تغيرت حالة توفر السحابة"
+                message_ar="تغيرت حالة توفر السحابة",
             )
 
     async def shutdown(self) -> None:
@@ -1014,8 +974,7 @@ class EdgeCloudCooperativeSystem:
         3. Shutdown all layers
         """
         self._logger.info(
-            "cooperative_system_shutting_down",
-            message_ar="جاري إيقاف النظام التعاوني"
+            "cooperative_system_shutting_down", message_ar="جاري إيقاف النظام التعاوني"
         )
 
         # Stop data collection
@@ -1035,7 +994,7 @@ class EdgeCloudCooperativeSystem:
             "cooperative_system_shutdown_complete",
             total_readings=self._total_readings,
             total_decisions=self._total_edge_decisions,
-            message_ar="اكتمل إيقاف النظام"
+            message_ar="اكتمل إيقاف النظام",
         )
 
 
@@ -1045,10 +1004,7 @@ class EdgeCloudCooperativeSystem:
 
 
 def get_cooperative_system(
-    farm_id: str,
-    gateway_id: str | None = None,
-    location: str = "",
-    **kwargs
+    farm_id: str, gateway_id: str | None = None, location: str = "", **kwargs
 ) -> EdgeCloudCooperativeSystem:
     """
     Get an Edge-Cloud Cooperative System instance.
@@ -1071,8 +1027,5 @@ def get_cooperative_system(
         )
     """
     return EdgeCloudCooperativeSystem(
-        farm_id=farm_id,
-        gateway_id=gateway_id,
-        location=location,
-        **kwargs
+        farm_id=farm_id, gateway_id=gateway_id, location=location, **kwargs
     )

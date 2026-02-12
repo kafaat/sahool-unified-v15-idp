@@ -8,30 +8,31 @@ including pest/disease outbreaks, water stress, unauthorized activity, etc.
 
 import logging
 import os
+import uuid
 from datetime import datetime
 from typing import Optional
-import uuid
 
 import numpy as np
 from pydantic import BaseModel, Field
 
+from ..core.change_detection import ChangeDetectionResult, ChangeDetector
 from ..models.anomaly import (
-    AnomalyDetection,
-    AnomalyType,
-    AnomalySeverity,
-    AnomalyLocation,
-    AnomalyAlert,
     ANOMALY_TYPE_AR,
     SEVERITY_AR,
     SEVERITY_RESPONSE_TIME,
+    AnomalyAlert,
+    AnomalyDetection,
+    AnomalyLocation,
+    AnomalySeverity,
+    AnomalyType,
 )
-from ..core.change_detection import ChangeDetector, ChangeDetectionResult
 
 logger = logging.getLogger(__name__)
 
 
 class AnomalyCandidate(BaseModel):
     """Candidate anomaly before confirmation"""
+
     anomaly_type: AnomalyType
     confidence: float
     location_x: int
@@ -61,8 +62,8 @@ class AnomalyDetector:
     # Color ranges for stress detection (in HSV)
     STRESS_COLOR_RANGES = {
         "yellowing": ((20, 100, 100), (40, 255, 255)),  # Yellow
-        "browning": ((10, 100, 50), (20, 255, 200)),   # Brown
-        "wilting": ((35, 50, 50), (85, 255, 200)),     # Faded green
+        "browning": ((10, 100, 50), (20, 255, 200)),  # Brown
+        "wilting": ((35, 50, 50), (85, 255, 200)),  # Faded green
     }
 
     def __init__(
@@ -79,9 +80,7 @@ class AnomalyDetector:
             enable_motion_detection: Enable motion-based anomaly detection
             enable_stress_detection: Enable crop stress detection
         """
-        self.change_detector = change_detector or ChangeDetector(
-            trigger_threshold=0.15
-        )
+        self.change_detector = change_detector or ChangeDetector(trigger_threshold=0.15)
         self.enable_motion = enable_motion_detection
         self.enable_stress = enable_stress_detection
 
@@ -121,9 +120,7 @@ class AnomalyDetector:
 
         # 1. Change-based detection
         if previous_frame is not None:
-            change_candidates = await self._detect_change_anomalies(
-                frame, previous_frame
-            )
+            change_candidates = await self._detect_change_anomalies(frame, previous_frame)
             candidates.extend(change_candidates)
 
         # 2. Stress detection (color/texture analysis)
@@ -145,9 +142,7 @@ class AnomalyDetector:
                 continue
 
             # Compute geo-location if projector available
-            location = self._compute_location(
-                candidate, frame.shape, geo_projector
-            )
+            location = self._compute_location(candidate, frame.shape, geo_projector)
 
             # Determine severity based on type and confidence
             severity = self._determine_severity(candidate)
@@ -157,9 +152,7 @@ class AnomalyDetector:
                 field_id=field_id,
                 camera_id=camera_id,
                 anomaly_type=candidate.anomaly_type,
-                anomaly_type_ar=ANOMALY_TYPE_AR.get(
-                    candidate.anomaly_type, "غير معروف"
-                ),
+                anomaly_type_ar=ANOMALY_TYPE_AR.get(candidate.anomaly_type, "غير معروف"),
                 severity=severity,
                 severity_ar=SEVERITY_AR.get(severity, "غير معروف"),
                 confidence=candidate.confidence,
@@ -184,36 +177,38 @@ class AnomalyDetector:
         candidates = []
 
         # Run change detection
-        change_result = await self.change_detector.compute_change(
-            previous_frame, frame
-        )
+        change_result = await self.change_detector.compute_change(previous_frame, frame)
 
         # Check for severe sudden change
         if change_result.change_score >= self.SEVERE_CHANGE_THRESHOLD:
-            candidates.append(AnomalyCandidate(
-                anomaly_type=AnomalyType.UNKNOWN,
-                confidence=min(change_result.change_score * 1.5, 0.95),
-                location_x=0,
-                location_y=0,
-                width=frame.shape[1],
-                height=frame.shape[0],
-                description=f"Severe sudden change detected (score: {change_result.change_score:.2f})",
-                evidence_score=change_result.change_score,
-            ))
+            candidates.append(
+                AnomalyCandidate(
+                    anomaly_type=AnomalyType.UNKNOWN,
+                    confidence=min(change_result.change_score * 1.5, 0.95),
+                    location_x=0,
+                    location_y=0,
+                    width=frame.shape[1],
+                    height=frame.shape[0],
+                    description=f"Severe sudden change detected (score: {change_result.change_score:.2f})",
+                    evidence_score=change_result.change_score,
+                )
+            )
 
         # Check individual regions for localized anomalies
         for region in change_result.change_regions:
             if region["change_score"] >= self.SEVERE_CHANGE_THRESHOLD:
-                candidates.append(AnomalyCandidate(
-                    anomaly_type=AnomalyType.UNKNOWN,
-                    confidence=min(region["change_score"] * 1.2, 0.9),
-                    location_x=region["x"],
-                    location_y=region["y"],
-                    width=region["width"],
-                    height=region["height"],
-                    description=f"Localized change in region ({region['x']}, {region['y']})",
-                    evidence_score=region["change_score"],
-                ))
+                candidates.append(
+                    AnomalyCandidate(
+                        anomaly_type=AnomalyType.UNKNOWN,
+                        confidence=min(region["change_score"] * 1.2, 0.9),
+                        location_x=region["x"],
+                        location_y=region["y"],
+                        width=region["width"],
+                        height=region["height"],
+                        description=f"Localized change in region ({region['x']}, {region['y']})",
+                        evidence_score=region["change_score"],
+                    )
+                )
 
         return candidates
 
@@ -240,16 +235,18 @@ class AnomalyDetector:
                     region = self._find_largest_region(mask)
                     if region is not None:
                         x, y, rw, rh = region
-                        candidates.append(AnomalyCandidate(
-                            anomaly_type=self._stress_type_to_anomaly(stress_type),
-                            confidence=min(stress_ratio * 5, 0.9),
-                            location_x=x,
-                            location_y=y,
-                            width=rw,
-                            height=rh,
-                            description=f"Crop {stress_type} detected ({stress_ratio*100:.1f}% of field)",
-                            evidence_score=stress_ratio,
-                        ))
+                        candidates.append(
+                            AnomalyCandidate(
+                                anomaly_type=self._stress_type_to_anomaly(stress_type),
+                                confidence=min(stress_ratio * 5, 0.9),
+                                location_x=x,
+                                location_y=y,
+                                width=rw,
+                                height=rh,
+                                description=f"Crop {stress_type} detected ({stress_ratio * 100:.1f}% of field)",
+                                evidence_score=stress_ratio,
+                            )
+                        )
 
         return candidates
 
@@ -280,16 +277,18 @@ class AnomalyDetector:
             region = self._find_largest_region(motion_mask.astype(np.uint8))
             if region is not None:
                 x, y, rw, rh = region
-                candidates.append(AnomalyCandidate(
-                    anomaly_type=AnomalyType.UNAUTHORIZED_ACTIVITY,
-                    confidence=min(motion_ratio * 3, 0.85),
-                    location_x=x,
-                    location_y=y,
-                    width=rw,
-                    height=rh,
-                    description=f"Significant motion detected ({motion_ratio*100:.1f}% of frame)",
-                    evidence_score=motion_ratio,
-                ))
+                candidates.append(
+                    AnomalyCandidate(
+                        anomaly_type=AnomalyType.UNAUTHORIZED_ACTIVITY,
+                        confidence=min(motion_ratio * 3, 0.85),
+                        location_x=x,
+                        location_y=y,
+                        width=rw,
+                        height=rh,
+                        description=f"Significant motion detected ({motion_ratio * 100:.1f}% of frame)",
+                        evidence_score=motion_ratio,
+                    )
+                )
 
         return candidates
 
@@ -305,9 +304,8 @@ class AnomalyDetector:
         else:
             # Exponential moving average
             self.background_model = (
-                (1 - self.background_alpha) * self.background_model +
-                self.background_alpha * gray
-            )
+                1 - self.background_alpha
+            ) * self.background_model + self.background_alpha * gray
 
     def _rgb_to_hsv(self, rgb: np.ndarray) -> np.ndarray:
         """Convert RGB to HSV color space."""
@@ -350,9 +348,12 @@ class AnomalyDetector:
         h, s, v = hsv[..., 0], hsv[..., 1], hsv[..., 2]
 
         mask = (
-            (h >= lower[0]) & (h <= upper[0]) &
-            (s >= lower[1]) & (s <= upper[1]) &
-            (v >= lower[2]) & (v <= upper[2])
+            (h >= lower[0])
+            & (h <= upper[0])
+            & (s >= lower[1])
+            & (s <= upper[1])
+            & (v >= lower[2])
+            & (v <= upper[2])
         )
 
         return mask.astype(np.uint8)
@@ -516,7 +517,11 @@ class AnomalyDetector:
         """Generate recommended actions for anomaly."""
         actions_map = {
             AnomalyType.WATER_STRESS: (
-                ["Check irrigation system", "Increase watering frequency", "Inspect soil moisture sensors"],
+                [
+                    "Check irrigation system",
+                    "Increase watering frequency",
+                    "Inspect soil moisture sensors",
+                ],
                 ["فحص نظام الري", "زيادة تكرار الري", "فحص مستشعرات رطوبة التربة"],
             ),
             AnomalyType.NUTRIENT_DEFICIENCY: (
@@ -524,7 +529,11 @@ class AnomalyDetector:
                 ["إجراء اختبار التربة", "تطبيق السماد المناسب", "استشارة المهندس الزراعي"],
             ),
             AnomalyType.PEST_INFESTATION: (
-                ["Identify pest species", "Consider biological control", "Apply targeted treatment"],
+                [
+                    "Identify pest species",
+                    "Consider biological control",
+                    "Apply targeted treatment",
+                ],
                 ["تحديد نوع الآفة", "النظر في المكافحة البيولوجية", "تطبيق علاج مستهدف"],
             ),
             AnomalyType.UNAUTHORIZED_ACTIVITY: (
@@ -532,7 +541,11 @@ class AnomalyDetector:
                 ["مراجعة تسجيلات الكاميرا", "الاتصال بالأمن", "تقديم تقرير الحادث"],
             ),
             AnomalyType.FIRE_DETECTED: (
-                ["Call emergency services immediately", "Evacuate personnel", "Activate fire suppression"],
+                [
+                    "Call emergency services immediately",
+                    "Evacuate personnel",
+                    "Activate fire suppression",
+                ],
                 ["الاتصال بخدمات الطوارئ فوراً", "إخلاء الموظفين", "تفعيل نظام إطفاء الحريق"],
             ),
         }

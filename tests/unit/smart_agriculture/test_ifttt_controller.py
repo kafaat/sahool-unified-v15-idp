@@ -130,9 +130,7 @@ class IFTTTController:
             return False
 
         if rule.compound_trigger:
-            return self._evaluate_compound_trigger(
-                rule.compound_trigger, sensor_data, current_time
-            )
+            return self._evaluate_compound_trigger(rule.compound_trigger, sensor_data, current_time)
 
         return self._evaluate_single_trigger(rule.trigger, sensor_data, current_time)
 
@@ -377,7 +375,11 @@ class TestAddRule:
         """Test adding rule without action fails"""
         invalid_rule = {
             "name_en": "Invalid Rule",
-            "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 35},
+            "trigger": {
+                "type": TriggerType.TEMPERATURE.value,
+                "condition": "greater_than",
+                "threshold": 35,
+            },
         }
 
         with pytest.raises(ValueError, match="must have an action"):
@@ -388,18 +390,30 @@ class TestAddRule:
         controller.config["max_rules"] = 3
 
         for i in range(3):
-            controller.add_rule({
-                "name_en": f"Rule {i}",
-                "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 30 + i},
-                "action": {"type": ActionType.ALERT.value},
-            })
+            controller.add_rule(
+                {
+                    "name_en": f"Rule {i}",
+                    "trigger": {
+                        "type": TriggerType.TEMPERATURE.value,
+                        "condition": "greater_than",
+                        "threshold": 30 + i,
+                    },
+                    "action": {"type": ActionType.ALERT.value},
+                }
+            )
 
         with pytest.raises(ValueError, match="Maximum number of rules"):
-            controller.add_rule({
-                "name_en": "Rule 4",
-                "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 40},
-                "action": {"type": ActionType.ALERT.value},
-            })
+            controller.add_rule(
+                {
+                    "name_en": "Rule 4",
+                    "trigger": {
+                        "type": TriggerType.TEMPERATURE.value,
+                        "condition": "greater_than",
+                        "threshold": 40,
+                    },
+                    "action": {"type": ActionType.ALERT.value},
+                }
+            )
 
     def test_remove_rule(
         self,
@@ -416,18 +430,30 @@ class TestAddRule:
 
     def test_list_rules_sorted_by_priority(self, controller: IFTTTController):
         """Test rules are listed sorted by priority"""
-        controller.add_rule({
-            "name_en": "Low Priority",
-            "priority": 10,
-            "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 35},
-            "action": {"type": ActionType.ALERT.value},
-        })
-        controller.add_rule({
-            "name_en": "High Priority",
-            "priority": 1,
-            "trigger": {"type": TriggerType.HUMIDITY.value, "condition": "less_than", "threshold": 30},
-            "action": {"type": ActionType.ALERT.value},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Low Priority",
+                "priority": 10,
+                "trigger": {
+                    "type": TriggerType.TEMPERATURE.value,
+                    "condition": "greater_than",
+                    "threshold": 35,
+                },
+                "action": {"type": ActionType.ALERT.value},
+            }
+        )
+        controller.add_rule(
+            {
+                "name_en": "High Priority",
+                "priority": 1,
+                "trigger": {
+                    "type": TriggerType.HUMIDITY.value,
+                    "condition": "less_than",
+                    "threshold": 30,
+                },
+                "action": {"type": ActionType.ALERT.value},
+            }
+        )
 
         rules = controller.list_rules()
         assert rules[0].name == "High Priority"
@@ -460,15 +486,17 @@ class TestTemperatureTrigger:
 
     def test_temperature_less_than_trigger(self, controller: IFTTTController):
         """Test temperature less than trigger"""
-        controller.add_rule({
-            "name_en": "Cold Alert",
-            "trigger": {
-                "type": TriggerType.TEMPERATURE.value,
-                "condition": "less_than",
-                "threshold": 5.0,
-            },
-            "action": {"type": ActionType.HEATING.value},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Cold Alert",
+                "trigger": {
+                    "type": TriggerType.TEMPERATURE.value,
+                    "condition": "less_than",
+                    "threshold": 5.0,
+                },
+                "action": {"type": ActionType.HEATING.value},
+            }
+        )
         rule = list(controller._rules.values())[0]
 
         assert controller.evaluate_trigger(rule, {"temperature": 3.0}) is True
@@ -568,11 +596,17 @@ class TestEnergyOptimization:
         self, controller: IFTTTController, mock_actuator_service: MagicMock
     ):
         """Test non-critical actions are deferred during peak hours"""
-        controller.add_rule({
-            "name_en": "Ventilation Rule",
-            "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 30},
-            "action": {"type": ActionType.VENTILATION.value, "parameters": {"fan_speed": 50}},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Ventilation Rule",
+                "trigger": {
+                    "type": TriggerType.TEMPERATURE.value,
+                    "condition": "greater_than",
+                    "threshold": 30,
+                },
+                "action": {"type": ActionType.VENTILATION.value, "parameters": {"fan_speed": 50}},
+            }
+        )
         rule = list(controller._rules.values())[0]
 
         # Simulate peak hours
@@ -588,11 +622,17 @@ class TestEnergyOptimization:
         self, controller: IFTTTController, mock_actuator_service: MagicMock
     ):
         """Test critical actions are not deferred during peak hours"""
-        controller.add_rule({
-            "name_en": "Emergency Irrigation",
-            "trigger": {"type": TriggerType.SOIL_MOISTURE.value, "condition": "less_than", "threshold": 20},
-            "action": {"type": ActionType.IRRIGATION.value, "parameters": {"duration": 30}},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Emergency Irrigation",
+                "trigger": {
+                    "type": TriggerType.SOIL_MOISTURE.value,
+                    "condition": "less_than",
+                    "threshold": 20,
+                },
+                "action": {"type": ActionType.IRRIGATION.value, "parameters": {"duration": 30}},
+            }
+        )
         rule = list(controller._rules.values())[0]
 
         # Simulate peak hours
@@ -608,11 +648,17 @@ class TestEnergyOptimization:
         self, controller: IFTTTController, mock_actuator_service: MagicMock
     ):
         """Test actions execute normally outside peak hours"""
-        controller.add_rule({
-            "name_en": "Ventilation Rule",
-            "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 30},
-            "action": {"type": ActionType.VENTILATION.value, "parameters": {"fan_speed": 50}},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Ventilation Rule",
+                "trigger": {
+                    "type": TriggerType.TEMPERATURE.value,
+                    "condition": "greater_than",
+                    "threshold": 30,
+                },
+                "action": {"type": ActionType.VENTILATION.value, "parameters": {"fan_speed": 50}},
+            }
+        )
         rule = list(controller._rules.values())[0]
 
         # Simulate off-peak hours
@@ -641,7 +687,7 @@ class TestMultipleConditions:
 
         sensor_data = {
             "soil_moisture": 30.0,  # Below 35
-            "temperature": 28.0,    # Below 35
+            "temperature": 28.0,  # Below 35
         }
         current_time = datetime(2024, 1, 15, 6, 30, tzinfo=UTC)  # 6:30 AM
 
@@ -658,7 +704,7 @@ class TestMultipleConditions:
 
         sensor_data = {
             "soil_moisture": 30.0,  # Below 35 - MET
-            "temperature": 40.0,    # Above 35 - NOT MET
+            "temperature": 40.0,  # Above 35 - NOT MET
         }
         current_time = datetime(2024, 1, 15, 6, 30, tzinfo=UTC)
 
@@ -666,17 +712,27 @@ class TestMultipleConditions:
 
     def test_or_compound_trigger(self, controller: IFTTTController):
         """Test OR compound trigger"""
-        controller.add_rule({
-            "name_en": "Alert Rule",
-            "compound_trigger": {
-                "operator": "OR",
-                "conditions": [
-                    {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 40},
-                    {"type": TriggerType.HUMIDITY.value, "condition": "greater_than", "threshold": 90},
-                ],
-            },
-            "action": {"type": ActionType.ALERT.value},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Alert Rule",
+                "compound_trigger": {
+                    "operator": "OR",
+                    "conditions": [
+                        {
+                            "type": TriggerType.TEMPERATURE.value,
+                            "condition": "greater_than",
+                            "threshold": 40,
+                        },
+                        {
+                            "type": TriggerType.HUMIDITY.value,
+                            "condition": "greater_than",
+                            "threshold": 90,
+                        },
+                    ],
+                },
+                "action": {"type": ActionType.ALERT.value},
+            }
+        )
         rule = list(controller._rules.values())[0]
 
         # Only temperature high
@@ -728,16 +784,28 @@ class TestMultipleConditions:
 
     def test_evaluate_all_rules(self, controller: IFTTTController):
         """Test evaluating all rules at once"""
-        controller.add_rule({
-            "name_en": "Temp Alert",
-            "trigger": {"type": TriggerType.TEMPERATURE.value, "condition": "greater_than", "threshold": 35},
-            "action": {"type": ActionType.ALERT.value},
-        })
-        controller.add_rule({
-            "name_en": "Humidity Alert",
-            "trigger": {"type": TriggerType.HUMIDITY.value, "condition": "less_than", "threshold": 30},
-            "action": {"type": ActionType.ALERT.value},
-        })
+        controller.add_rule(
+            {
+                "name_en": "Temp Alert",
+                "trigger": {
+                    "type": TriggerType.TEMPERATURE.value,
+                    "condition": "greater_than",
+                    "threshold": 35,
+                },
+                "action": {"type": ActionType.ALERT.value},
+            }
+        )
+        controller.add_rule(
+            {
+                "name_en": "Humidity Alert",
+                "trigger": {
+                    "type": TriggerType.HUMIDITY.value,
+                    "condition": "less_than",
+                    "threshold": 30,
+                },
+                "action": {"type": ActionType.ALERT.value},
+            }
+        )
 
         # Only temperature high
         sensor_data = {"temperature": 40, "humidity": 50}

@@ -30,7 +30,7 @@ import logging
 import sys
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any, Optional
 
@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class CompressionLevel(str, Enum):
+class CompressionLevel(StrEnum):
     """Compression intensity levels"""
 
     LIGHT = "light"  # 80% retention
@@ -57,7 +57,7 @@ class CompressionLevel(str, Enum):
     HEAVY = "heavy"  # 25% retention
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """Types of memory entries"""
 
     CONVERSATION = "conversation"
@@ -69,7 +69,7 @@ class MemoryType(str, Enum):
     SYSTEM = "system"
 
 
-class AdvisoryType(str, Enum):
+class AdvisoryType(StrEnum):
     """Types of agricultural advisories"""
 
     IRRIGATION = "irrigation"
@@ -149,7 +149,6 @@ def compress_text(
     if level == CompressionLevel.LIGHT:
         # Remove redundant spaces, minimal changes
         compressed = " ".join(text.split())
-        target_ratio = 0.8
     elif level == CompressionLevel.MEDIUM:
         # Remove extra spaces, condense repetitions
         compressed = " ".join(text.split())
@@ -157,13 +156,11 @@ def compress_text(
         import re
 
         compressed = re.sub(r"\b(\w+)\s+\1\b", r"\1", compressed)
-        target_ratio = 0.5
     else:  # HEAVY
         # Extract key terms only (simulated)
         words = text.split()
         # Keep ~25% of words (every 4th word)
         compressed = " ".join(words[::4]) if len(words) > 4 else text
-        target_ratio = 0.25
 
     compressed_tokens = estimate_tokens(compressed)
     actual_ratio = compressed_tokens / max(original_tokens, 1)
@@ -199,9 +196,7 @@ def compress_field_data(field_data: dict[str, Any]) -> CompressionResult:
         "soil_type",
     ]
 
-    compressed_data = {
-        k: v for k, v in field_data.items() if k in priority_fields
-    }
+    compressed_data = {k: v for k, v in field_data.items() if k in priority_fields}
     compressed_text = json.dumps(compressed_data, ensure_ascii=False, indent=2)
 
     original_tokens = estimate_tokens(text_repr)
@@ -270,15 +265,37 @@ def evaluate_advisory(
     for dimension in weights:
         # Check for key terms
         if dimension == "accuracy":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["precise", "specific", "based on"])
+                else 3.0
+            )
         elif dimension == "relevance":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["field", "specific", "your"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["field", "specific", "your"])
+                else 3.0
+            )
         elif dimension == "actionability":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]) else 2.0
+            score = (
+                4.0
+                if any(
+                    w in advisory_text.lower() for w in ["apply", "irrigate", "spray", "schedule"]
+                )
+                else 2.0
+            )
         elif dimension == "timeliness":
-            score = 4.0 if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"]) else 3.0
+            score = (
+                4.0
+                if any(w in advisory_text.lower() for w in ["24h", "hours", "immediately", "delay"])
+                else 3.0
+            )
         else:  # safety
-            score = 3.0 if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"]) else 2.0
+            score = (
+                3.0
+                if any(w in advisory_text.lower() for w in ["ppe", "risk", "caution", "warning"])
+                else 2.0
+            )
 
         scores[dimension] = min(5.0, max(1.0, score))
 
@@ -396,7 +413,9 @@ Example:
     type=str,
     help="Output file (JSON format)",
 )
-def compress(text: str | None, json_data: str | None, level: str, language: str, output: str | None):
+def compress(
+    text: str | None, json_data: str | None, level: str, language: str, output: str | None
+):
     """Compress agricultural data"""
 
     result = None
@@ -870,9 +889,18 @@ def generate_doc(list: bool, skill: str | None, format: str, output: str | None)
             "title": "Context Compression Skill",
             "description": "Reduces token usage while preserving critical agricultural data",
             "commands": [
-                {"name": "compress --level light", "description": "Light compression (80% retention)"},
-                {"name": "compress --level medium", "description": "Medium compression (50% retention)"},
-                {"name": "compress --level heavy", "description": "Heavy compression (25% retention)"},
+                {
+                    "name": "compress --level light",
+                    "description": "Light compression (80% retention)",
+                },
+                {
+                    "name": "compress --level medium",
+                    "description": "Medium compression (50% retention)",
+                },
+                {
+                    "name": "compress --level heavy",
+                    "description": "Heavy compression (25% retention)",
+                },
             ],
             "features": [
                 "Agricultural abbreviations support",
@@ -958,9 +986,7 @@ def generate_doc(list: bool, skill: str | None, format: str, output: str | None)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-@cli.command(
-    help="Show practical examples for all commands"
-)
+@cli.command(help="Show practical examples for all commands")
 def examples():
     """Show practical examples"""
 

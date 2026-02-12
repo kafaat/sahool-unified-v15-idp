@@ -5,11 +5,11 @@ This module provides domain-specific exceptions with bilingual support
 and proper error categorization for the task service.
 """
 
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 
-class ErrorCode(str, Enum):
+class ErrorCode(StrEnum):
     """Error codes for task service - رموز الأخطاء"""
 
     # Task errors - أخطاء المهام

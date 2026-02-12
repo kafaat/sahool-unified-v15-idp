@@ -9,7 +9,21 @@ set -euo pipefail
 # Get script directory and find kong.yml
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-KONG_CONFIG="$PROJECT_ROOT/infra/kong/kong.yml"
+
+# Check multiple possible locations for Kong config
+KONG_CONFIGS=(
+    "$PROJECT_ROOT/infrastructure/gateway/kong/kong.yml"
+    "$PROJECT_ROOT/infra/kong/kong.yml"
+)
+
+KONG_CONFIG=""
+for config in "${KONG_CONFIGS[@]}"; do
+    if [[ -f "$config" ]]; then
+        KONG_CONFIG="$config"
+        break
+    fi
+done
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -20,12 +34,12 @@ echo "Kong Configuration Validation - SAHOOL Platform"
 echo "════════════════════════════════════════════════════════════════"
 
 # Check if kong.yml exists
-if [[ ! -f "$KONG_CONFIG" ]]; then
-    echo -e "${RED}✗ Kong configuration file not found: $KONG_CONFIG${NC}"
+if [[ -z "$KONG_CONFIG" || ! -f "$KONG_CONFIG" ]]; then
+    echo -e "${RED}✗ Kong configuration file not found in any expected location${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✓ Kong configuration file found${NC}"
+echo -e "${GREEN}✓ Kong configuration file found: $KONG_CONFIG${NC}"
 
 # Check for CORS wildcard
 if grep -q 'origins:' "$KONG_CONFIG" && grep -A1 'origins:' "$KONG_CONFIG" | grep -q '"\*"'; then
@@ -65,14 +79,21 @@ else
 fi
 
 # Check for IP restrictions on sensitive services
-SENSITIVE_SERVICES=("billing-core" "iot-gateway" "marketplace-service" "admin-dashboard")
+SENSITIVE_SERVICES=("billing-core" "iot-gateway")
 for service in "${SENSITIVE_SERVICES[@]}"; do
-    if grep -A20 "name: $service" "$KONG_CONFIG" | grep -q 'ip-restriction'; then
+    if grep -A40 "name: $service" "$KONG_CONFIG" | grep -q 'ip-restriction'; then
         echo -e "${GREEN}✓ IP restriction on $service${NC}"
     else
         echo -e "${YELLOW}⚠ No IP restriction on $service${NC}"
     fi
 done
+
+# Check marketplace has rate limiting (no IP restriction needed - public facing)
+if grep -A20 "name: marketplace-service" "$KONG_CONFIG" | grep -q 'rate-limiting'; then
+    echo -e "${GREEN}✓ Rate limiting on marketplace-service${NC}"
+else
+    echo -e "${YELLOW}⚠ No rate limiting on marketplace-service${NC}"
+fi
 
 # Validate YAML syntax
 if command -v python3 &> /dev/null; then

@@ -216,7 +216,7 @@ jobs:
       # ─────────────────────────────────────────────────────────────────────────
       - name: Set up Java (for Flutter Android)
         if: inputs.setup-flutter
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'

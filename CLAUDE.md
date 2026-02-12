@@ -182,7 +182,7 @@ sahool-unified-v15-idp/
 
 | Layer                  | Technology                                                            |
 | ---------------------- | --------------------------------------------------------------------- |
-| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
+| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
 | **Python Version**     | >= 3.11 (target: py311)                                                |
 | **Node.js Services**   | NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, React 19.x               |
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
@@ -243,7 +243,12 @@ The platform uses a 4-layer event architecture via NATS:
 | **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor, hydrology-service, leveling-optimizer-service | Recommendations & planning     |
 | **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
 
-Event subject pattern: `sahool.{tenant_id}.{event_type}`
+Event subject patterns:
+- Base: `sahool.{domain}.{action}` (e.g., `sahool.field.created`)
+- Tenant-scoped: `sahool.tenant.{tenant_id}.{domain}.{action}` (via `get_tenant_subject()`)
+- Inline tenant: `sahool.{tenant_id}.{domain}.{action}` (some services)
+
+`tenant_id` is a UUID string, extracted from JWT `tid` claim.
 
 ---
 
@@ -796,10 +801,10 @@ NATS_URL=""
 ### Health Endpoints (Required for all services)
 
 ```
-GET /healthz         # Liveness probe (alias: /health/live)
-GET /readyz          # Readiness probe (alias: /health/ready)
-GET /health          # Combined status
-GET /metrics         # Prometheus metrics
+GET /healthz         # Liveness probe (most services)
+GET /readyz          # Readiness probe (most services)
+GET /health          # Combined status (some services)
+GET /metrics         # Prometheus metrics (some services)
 ```
 
 ### API Versioning
@@ -901,11 +906,17 @@ app.state.db_pool = await asyncpg.create_pool(
 ### NATS Event Publishing
 
 ```python
-# Python
+# Python - using subject constants
+from shared.events.subjects import SAHOOL_FIELD_CREATED
 await app.state.nc.publish(
-    "sahool.fields.created",
+    SAHOOL_FIELD_CREATED,  # "sahool.field.created"
     json.dumps({"field_id": field_id, "tenant_id": tenant_id}).encode()
 )
+
+# Tenant-scoped event
+from shared.events.subjects import get_tenant_subject
+subject = get_tenant_subject(tenant_id, "field", "created")
+await app.state.nc.publish(subject, payload)
 ```
 
 ### Logging (Structured JSON)
@@ -1198,7 +1209,7 @@ docker-compose --profile legacy up
 | ai-advisor               | Python  | 8112 | AI advisory service         |
 | ai-agents-core           | Python  | 8161 | AI agents core module       |
 | ai-agents-service        | Python  | 8130 | AI agents service           |
-| ai-chat-assistant        | Python  | 8134 | AI chat assistant           |
+| ai-chat-assistant        | Python  | 8230 | AI chat assistant (port conflict with supply-chain-service) |
 | llm-orchestrator-service | Python  | 8164 | LLM orchestration           |
 | copilot-api              | Python  | 8088 | AI copilot (multi-LLM, RAG) |
 | knowledge-graph          | Python  | 8140 | Knowledge graph service     |
@@ -1333,14 +1344,14 @@ GET  /healthz, /readyz, /health, /metrics
 
 | Event Subject | Trigger |
 | ------------- | ------- |
-| `sahool.{tenant_id}.pest.detected.v1` | Pest detection |
-| `sahool.{tenant_id}.disease.detected.v1` | Disease detection |
-| `sahool.{tenant_id}.weed.detected.v1` | Weed detection |
-| `sahool.{tenant_id}.pest.critical.v1` | Critical pest (RPW, locust) |
-| `sahool.{tenant_id}.plants.counted.v1` | Plant counting |
-| `sahool.{tenant_id}.ripeness.analyzed.v1` | Ripeness classification |
-| `sahool.{tenant_id}.leaves.segmented.v1` | Leaf segmentation |
-| `sahool.{tenant_id}.objects.tracked.v1` | Object tracking |
+| `sahool.vision.pest_detected` | Pest detection |
+| `sahool.vision.disease_detected` | Disease detection |
+| `sahool.vision.weed_detected` | Weed detection |
+| `sahool.vision.critical_alert` | Critical pest (RPW, locust) |
+| `sahool.vision.plant_count_completed` | Plant counting |
+| `sahool.vision.analysis_completed` | Analysis (ripeness, segmentation) |
+| `sahool.vision.analysis_started` | Analysis started |
+| `sahool.vision.analysis_failed` | Analysis failed |
 
 ### Error Handling (26 Codes)
 

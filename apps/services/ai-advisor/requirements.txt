@@ -62,6 +62,10 @@ pandas==2.2.2
 pytest==8.3.4
 pytest-asyncio==0.24.0
 
+# Authentication
+# المصادقة
+PyJWT>=2.8.0,<3.0.0
+
 # Redis for token revocation
 # Redis لإلغاء الرموز
 redis[hiredis]==7.1.0

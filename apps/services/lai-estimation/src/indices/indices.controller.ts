@@ -2,7 +2,7 @@
 // Vegetation Indices Controller - مراقب مؤشرات الغطاء النباتي
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,

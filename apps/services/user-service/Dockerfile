@@ -2,14 +2,13 @@
 # خدمة إدارة المستخدمين
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="user-service"
 LABEL version="16.0.0"
-
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -22,8 +21,20 @@ COPY apps/services/user-service ./user-service/
 
 WORKDIR /workspace/user-service
 
-# Install dependencies (with retries for network resilience)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install dependencies with resilient retry loop and npm cache
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install failed after retries" && exit 1)
 
 # Copy prisma schema and generate client
 # Use environment variables to improve Prisma binary download reliability
@@ -41,20 +52,45 @@ RUN npx prisma generate --schema=./prisma/schema.prisma 2>/dev/null || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma runtime compatibility
-# Note: openssl-dev is NOT needed in production - only runtime library required
-RUN apk add --no-cache curl openssl
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
 COPY --from=builder /workspace/user-service/package.json ./
 COPY --from=builder /workspace/user-service/package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+
+# Install production dependencies with resilient retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+         npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=300000 \
+            --fetch-timeout=600000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done || (echo "npm install production failed after retries" && exit 1)
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/user-service/prisma ./prisma/

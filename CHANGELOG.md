@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Kong Middleware Security & Performance** (PR #902, February 2026)
+  - Advanced rate limiting middleware with Redis-backed distributed storage
+  - Three limiting strategies: Fixed Window, Sliding Window, Token Bucket
+  - IP restriction middleware with whitelist/blacklist support
+  - Security headers middleware (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
+  - Bot detection middleware with User-Agent pattern matching
+  - Request caching middleware for performance optimization
+  - Comprehensive documentation (README.md, QUICKSTART.md, runbooks)
+  - Full test suite with 657 lines of comprehensive tests
+  - Example usage with 10 practical scenarios
+  - Bilingual support (Arabic/English) in all documentation
+
+- **AI Skills System** (February 2026)
+  - Context engineering modules for agricultural advisory
+  - Memory skill for persistent farm operation history
+  - Compression skill for token-efficient data handling (3 compression levels)
+  - Evaluation skill with LLM-as-Judge for advisory quality assessment
+  - Crop advisor skill with decision trees and bilingual recommendations
+  - Farm documentation skill with Obsidian markdown generation
+  - Canvas skill for knowledge graph visualization
+  - Agricultural abbreviations standardization (NDVI, LAI, ET, etc.)
+
+- **Mobile Sync Engine Improvements** (February 2026)
+  - Endpoint validation with empty endpoint detection to prevent crashes
+  - Outbox table with sync_priority support (low/normal/high/critical levels)
+  - Extended network timeouts for poor connectivity (60s connect, 90s send/receive)
+  - Migration history tracking with full audit trail
+  - 5-retry exponential backoff mechanism (2x multiplier, max 5 minutes)
+  - Rate limiting: 30 requests/minute per endpoint
+  - Comprehensive integration test suite (11 test groups covering validation, timeouts, conflicts, rate limiting)
+  - Mobile Sync API documentation with bilingual support (Arabic/English)
+  - Setup guide with Flutter SDK prerequisites and build instructions
+  - ProGuard rules for flutter_local_notifications and mobile_scanner plugins
+
 - **Documentation Improvements** (February 2026)
   - Added `CONTRIBUTING.md` with comprehensive contribution guidelines (bilingual AR/EN)
   - Added `docs/TROUBLESHOOTING.md` with common issues and solutions
@@ -16,24 +50,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `docs/ARCHITECTURE_DIAGRAMS.md` with ASCII architecture diagrams
   - Updated `docs/DEPLOYMENT.md` with detailed deployment steps for Docker and Kubernetes
   - Updated `docs/README.md` with new documentation index entries
-
-### Fixed
-
-- **CI/CD Pipeline Fixes** (PR #496)
-  - Fixed Flutter integration tests by adding `.env` file creation step
-  - Added `--all` flag to integration test runner script
-  - Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` API changes
-  - Added Android SDK setup step after disk cleanup (was being deleted)
-  - Set `ANDROID_HOME` and `ANDROID_SDK_ROOT` environment variables
-  - Fixed Drift code generation glob patterns (`*.dart` for direct files)
-  - Enabled dependency injection in `SyncEngine` for better testability
-
-- **Security Fixes** (PR #496)
-  - Fixed CodeQL High-severity Log Injection vulnerability in `alert-service`
-  - Added `sanitize_log_input()` helper to escape control characters in user input
-  - Changed unsafe f-string logging to parameterized % formatting
-
-### Added
+  - Added `docs/ENVIRONMENT.md` mobile sync configuration section
+  - Kong middleware comprehensive documentation with implementation summaries
+  - Services audit reports (SERVICES_AUDIT_REPORT_2026-02-11.md)
+  - Web/Admin fix summary (WEB_ADMIN_FIX_SUMMARY_2026-02-11.md)
+  - Kong API comprehensive review (KONG_API_COMPREHENSIVE_REVIEW_AR_EN.md)
+  - Executive summaries with bilingual support (EXECUTIVE_SUMMARY_AR_EN.md)
+  - POST_MERGE_VERIFICATION.md with comprehensive post-merge checklist
+  - Enhanced test documentation in tests/README.md
+  - Load testing guides: tests/load/README.md and QUICKSTART.md
 
 - **Docker Sequential Build Scripts** (PR #315)
   - `docker-one-by-one.ps1`: PowerShell script for sequential container builds
@@ -57,10 +82,74 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Security certificate generators: `tools/security/certs/`
   - IoT sensor simulator: `tools/sensor-simulator/simulator.py`
 
-- **Documentation**
-  - POST_MERGE_VERIFICATION.md: Comprehensive post-merge checklist
-  - Enhanced test documentation in tests/README.md
-  - Load testing guides: tests/load/README.md and QUICKSTART.md
+### Security
+
+- **Kong Gateway & API Security Hardening** (PR #902, February 2026)
+  - Added IP restriction middleware with configurable whitelist/blacklist
+  - Implemented comprehensive security headers (HSTS, CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
+  - Bot detection with customizable User-Agent pattern blocking
+  - Rate limiting with distributed Redis storage (Fixed Window, Sliding Window, Token Bucket strategies)
+  - Protection against common attacks (clickjacking, MIME sniffing, XSS)
+  - Security audit workflows and automated vulnerability scanning
+  - Network security configuration for mobile apps
+  - CSRF protection for admin dashboard
+  - Content Security Policy (CSP) configuration
+
+### Changed
+
+- **Infrastructure & Configuration** (February 2026)
+  - Reorganized middleware modules with clear separation of concerns
+  - Enhanced admin dashboard with security settings page
+  - Improved API middleware with better error handling
+  - Updated pre-commit hooks configuration
+  - Standardized ESLint, PostCSS, and Tailwind configurations across applications
+
+### Fixed
+
+- **Services Comprehensive Audit & Quality Assurance** (February 11, 2026)
+  - Audited 14 Python/FastAPI services with Ruff linter and Bandit security scanner
+  - Audited 5 TypeScript/NestJS services with package validation
+  - All 19 services passed code quality checks (zero linting errors)
+  - All security scans passed (only low-severity acceptable issues)
+  - Verified deprecated services documentation and replacement paths
+  - Validated service port mappings and health endpoints
+
+- **Web & Admin Dashboard Production Readiness** (February 11, 2026)
+  - Fixed all shared packages build issues (i18n, shared-types, shared-utils, shared-ui, api-client, shared-hooks)
+  - Resolved missing JWT environment variables in web application
+  - Clarified intentional TypeScript build error ignoring (dedicated CI typecheck job)
+  - Built all packages with proper dist directories
+  - Verified web application: 100% production-ready
+  - Verified admin dashboard: 100% production-ready
+  - Zero TypeScript errors when running `npm run typecheck`
+  - Zero linting errors in both applications
+  - CORS security properly configured with environment-based whitelisting
+
+- **Docker Base Image Standardization** (February 4, 2026)
+  - Standardized 19 Python services to `python:3.11-slim-bookworm`
+  - Updated all build stages (builder, production, base, cpu-only) for consistency
+  - Improved security with standardized base images
+  - Enhanced container reproducibility and security patching
+
+- **Field Operations Critical Fixes** (February 4, 2026)
+  - Made Shapely a mandatory dependency for field boundary validation
+  - Removed silent failures in geometry validation
+  - Clear error messages when required geospatial libraries are missing
+  - Improved boundary validation reliability
+
+- **CI/CD Pipeline Fixes** (PR #496)
+  - Fixed Flutter integration tests by adding `.env` file creation step
+  - Added `--all` flag to integration test runner script
+  - Fixed `SecureApplicationController` constructor for `secure_application 4.1.0` API changes
+  - Added Android SDK setup step after disk cleanup (was being deleted)
+  - Set `ANDROID_HOME` and `ANDROID_SDK_ROOT` environment variables
+  - Fixed Drift code generation glob patterns (`*.dart` for direct files)
+  - Enabled dependency injection in `SyncEngine` for better testability
+
+- **Security Fixes** (PR #496)
+  - Fixed CodeQL High-severity Log Injection vulnerability in `alert-service`
+  - Added `sanitize_log_input()` helper to escape control characters in user input
+  - Changed unsafe f-string logging to parameterized % formatting
 
 ## [16.0.1] - 2024-12-24
 

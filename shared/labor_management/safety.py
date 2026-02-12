@@ -17,35 +17,37 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta, UTC
-from enum import Enum
+from datetime import UTC, date, datetime, timedelta
+from enum import StrEnum
 
 from .models import (
-    Worker,
-    Task,
-    TaskCategory,
-    REIZone,
-    SafetyViolation,
-    SafetyViolationType,
-    SafetyCertification,
     PPEType,
     PreTaskSafetyCheck,
+    REIZone,
+    SafetyCertification,
     SafetyChecklistItem,
+    SafetyViolation,
+    SafetyViolationType,
+    Task,
+    TaskCategory,
+    Worker,
     create_rei_zone,
     generate_id,
 )
 
 
-class SafetyCheckStatus(str, Enum):
+class SafetyCheckStatus(StrEnum):
     """Safety check status - حالة فحص السلامة"""
+
     PASSED = "passed"  # ناجح
     FAILED = "failed"  # فاشل
     WARNING = "warning"  # تحذير
     PENDING = "pending"  # قيد الانتظار
 
 
-class HeatRiskLevel(str, Enum):
+class HeatRiskLevel(StrEnum):
     """Heat stress risk level - مستوى خطر الإجهاد الحراري"""
+
     LOW = "low"  # منخفض
     MODERATE = "moderate"  # متوسط
     HIGH = "high"  # مرتفع
@@ -55,6 +57,7 @@ class HeatRiskLevel(str, Enum):
 @dataclass
 class PPERequirementSet:
     """PPE requirement set for a task/zone - مجموعة متطلبات الحماية للمهمة/المنطقة"""
+
     required_ppe: list[PPEType]
     task_category: TaskCategory | None = None
     rei_zone_id: str | None = None
@@ -79,6 +82,7 @@ class PPERequirementSet:
 @dataclass
 class SafetyCheckResult:
     """Result of a safety compliance check - نتيجة فحص الامتثال للسلامة"""
+
     check_id: str
     check_type: str
     status: SafetyCheckStatus
@@ -106,6 +110,7 @@ class SafetyCheckResult:
 @dataclass
 class HeatStressAssessment:
     """Heat stress risk assessment - تقييم خطر الإجهاد الحراري"""
+
     assessment_id: str
     farm_id: str
 
@@ -141,6 +146,7 @@ class HeatStressAssessment:
 @dataclass
 class REIComplianceResult:
     """REI compliance check result - نتيجة فحص امتثال فترة إعادة الدخول"""
+
     field_id: str
     check_time: datetime
 
@@ -167,51 +173,31 @@ class REIComplianceResult:
 
 TASK_PPE_REQUIREMENTS: dict[TaskCategory, list[PPEType]] = {
     TaskCategory.PESTICIDE_APPLICATION: [
-        PPEType.GLOVES, PPEType.RESPIRATOR, PPEType.GOGGLES,
-        PPEType.COVERALL, PPEType.BOOTS
+        PPEType.GLOVES,
+        PPEType.RESPIRATOR,
+        PPEType.GOGGLES,
+        PPEType.COVERALL,
+        PPEType.BOOTS,
     ],
-    TaskCategory.FERTILIZATION: [
-        PPEType.GLOVES, PPEType.GOGGLES, PPEType.BOOTS
-    ],
-    TaskCategory.HARVESTING: [
-        PPEType.GLOVES, PPEType.HAT, PPEType.BOOTS
-    ],
-    TaskCategory.PRUNING: [
-        PPEType.GLOVES, PPEType.GOGGLES, PPEType.HAT
-    ],
-    TaskCategory.IRRIGATION: [
-        PPEType.BOOTS, PPEType.HAT
-    ],
+    TaskCategory.FERTILIZATION: [PPEType.GLOVES, PPEType.GOGGLES, PPEType.BOOTS],
+    TaskCategory.HARVESTING: [PPEType.GLOVES, PPEType.HAT, PPEType.BOOTS],
+    TaskCategory.PRUNING: [PPEType.GLOVES, PPEType.GOGGLES, PPEType.HAT],
+    TaskCategory.IRRIGATION: [PPEType.BOOTS, PPEType.HAT],
     TaskCategory.EQUIPMENT_MAINTENANCE: [
-        PPEType.GLOVES, PPEType.GOGGLES, PPEType.EAR_PROTECTION, PPEType.BOOTS
+        PPEType.GLOVES,
+        PPEType.GOGGLES,
+        PPEType.EAR_PROTECTION,
+        PPEType.BOOTS,
     ],
-    TaskCategory.GREENHOUSE_WORK: [
-        PPEType.GLOVES, PPEType.HAT
-    ],
-    TaskCategory.SOIL_PREPARATION: [
-        PPEType.GLOVES, PPEType.BOOTS, PPEType.HAT
-    ],
-    TaskCategory.WEEDING: [
-        PPEType.GLOVES, PPEType.HAT, PPEType.BOOTS
-    ],
-    TaskCategory.SCOUTING: [
-        PPEType.HAT, PPEType.BOOTS
-    ],
-    TaskCategory.PLANTING: [
-        PPEType.GLOVES, PPEType.HAT
-    ],
-    TaskCategory.PACKING: [
-        PPEType.GLOVES, PPEType.APRON
-    ],
-    TaskCategory.QUALITY_CONTROL: [
-        PPEType.GLOVES
-    ],
-    TaskCategory.LIVESTOCK: [
-        PPEType.GLOVES, PPEType.BOOTS, PPEType.COVERALL
-    ],
-    TaskCategory.GENERAL_LABOR: [
-        PPEType.GLOVES, PPEType.HAT
-    ],
+    TaskCategory.GREENHOUSE_WORK: [PPEType.GLOVES, PPEType.HAT],
+    TaskCategory.SOIL_PREPARATION: [PPEType.GLOVES, PPEType.BOOTS, PPEType.HAT],
+    TaskCategory.WEEDING: [PPEType.GLOVES, PPEType.HAT, PPEType.BOOTS],
+    TaskCategory.SCOUTING: [PPEType.HAT, PPEType.BOOTS],
+    TaskCategory.PLANTING: [PPEType.GLOVES, PPEType.HAT],
+    TaskCategory.PACKING: [PPEType.GLOVES, PPEType.APRON],
+    TaskCategory.QUALITY_CONTROL: [PPEType.GLOVES],
+    TaskCategory.LIVESTOCK: [PPEType.GLOVES, PPEType.BOOTS, PPEType.COVERALL],
+    TaskCategory.GENERAL_LABOR: [PPEType.GLOVES, PPEType.HAT],
 }
 
 
@@ -761,8 +747,15 @@ class SafetyComplianceManager:
             R = humidity_percent
 
             heat_index_c = (
-                c1 + c2*T + c3*R + c4*T*R + c5*T*T +
-                c6*R*R + c7*T*T*R + c8*T*R*R + c9*T*T*R*R
+                c1
+                + c2 * T
+                + c3 * R
+                + c4 * T * R
+                + c5 * T * T
+                + c6 * R * R
+                + c7 * T * T * R
+                + c8 * T * R * R
+                + c9 * T * T * R * R
             )
 
         # Adjust for wind (cooling effect)
@@ -805,16 +798,20 @@ class SafetyComplianceManager:
         ]
 
         if risk_level in [HeatRiskLevel.HIGH, HeatRiskLevel.EXTREME]:
-            precautions_en.extend([
-                "Monitor workers for heat stress symptoms",
-                "Consider rescheduling heavy work to cooler hours",
-                "Have emergency cooling measures ready",
-            ])
-            precautions_ar.extend([
-                "راقب العمال بحثاً عن أعراض الإجهاد الحراري",
-                "فكر في إعادة جدولة العمل الشاق لساعات أبرد",
-                "جهّز تدابير تبريد الطوارئ",
-            ])
+            precautions_en.extend(
+                [
+                    "Monitor workers for heat stress symptoms",
+                    "Consider rescheduling heavy work to cooler hours",
+                    "Have emergency cooling measures ready",
+                ]
+            )
+            precautions_ar.extend(
+                [
+                    "راقب العمال بحثاً عن أعراض الإجهاد الحراري",
+                    "فكر في إعادة جدولة العمل الشاق لساعات أبرد",
+                    "جهّز تدابير تبريد الطوارئ",
+                ]
+            )
 
         if risk_level == HeatRiskLevel.EXTREME:
             message_en = (
@@ -949,7 +946,8 @@ class SafetyComplianceManager:
         # Check if all mandatory items completed
         if not check.is_complete():
             incomplete = [
-                i for i in check.checklist_items
+                i
+                for i in check.checklist_items
                 if i.is_mandatory and i.item_id not in check.completed_items
             ]
             for item in incomplete:

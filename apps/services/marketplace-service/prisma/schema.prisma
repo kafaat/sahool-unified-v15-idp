@@ -135,6 +135,7 @@ model Order {
   @@index([buyerId, status]) // Optimize buyer order queries
   @@index([buyerId, createdAt], name: "idx_order_buyer_date") // Optimize buyer order history
   @@index([status, createdAt]) // Optimize order filtering and sorting
+  @@index([paymentStatus]) // Optimize payment status filtering
   @@index([createdAt]) // Optimize time-based queries
   @@index([deletedAt]) // Optimize soft delete queries
 }
@@ -148,8 +149,8 @@ model OrderItem {
   unitPrice   Float    @map("unit_price")
   totalPrice  Float    @map("total_price")
 
-  order       Order    @relation(fields: [orderId], references: [id])
-  product     Product  @relation(fields: [productId], references: [id])
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@map("order_items")
   @@index([orderId])
@@ -562,7 +563,9 @@ model SellerProfile {
   verifiedAt  DateTime? @map("verified_at")
 
   // معلومات الدفع
-  bankAccount Json?    @map("bank_account") // معلومات الحساب البنكي
+  // SECURITY: Sensitive bank account data - should be encrypted at application layer
+  // Use packages/shared-crypto for field-level encryption before storing
+  bankAccount Json?    @map("bank_account") // معلومات الحساب البنكي (مشفرة)
   payoutPreferences Json? @map("payout_preferences") // تفضيلات الدفع
 
   createdAt   DateTime @default(now()) @map("created_at")

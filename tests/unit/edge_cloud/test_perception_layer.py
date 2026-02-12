@@ -146,6 +146,7 @@ class SensorDataCollector:
     def _simulate_reading(self, sensor_type: str) -> float:
         """Simulate sensor reading value"""
         import random
+
         ranges = {
             SensorType.SOIL_MOISTURE.value: (20, 80),
             SensorType.TEMPERATURE.value: (15, 40),
@@ -363,9 +364,7 @@ class TestCollectSensorData:
         assert "quality" in reading
 
     @pytest.mark.asyncio
-    async def test_collect_sensor_data_device_not_found(
-        self, collector: SensorDataCollector
-    ):
+    async def test_collect_sensor_data_device_not_found(self, collector: SensorDataCollector):
         """Test collection fails for non-existent device"""
         with pytest.raises(ValueError, match="Device not found"):
             await collector.collect("non-existent-device-id")

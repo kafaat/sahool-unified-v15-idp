@@ -21,23 +21,23 @@ Updated: January 2026
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
 from uuid import UUID, uuid4
+
 import structlog
 
 from .models import (
-    IrrigationGoal,
-    IrrigationGoalType,
+    CalibrationMethod,
+    CalibrationResult,
+    ChecklistDimension,
     EcologicalConstraint,
     ExperienceRule,
     ExperienceSource,
-    CalibrationResult,
-    CalibrationMethod,
+    IrrigationGoal,
+    IrrigationGoalType,
     IrrigationProgram,
-    ChecklistDimension,
 )
-
 
 logger = structlog.get_logger(__name__)
 
@@ -249,11 +249,14 @@ class GoalAnchoringDimension(HMCDimension):
         self._primary_goal = goal
         self._goal_validated = validate
 
-        self._record_action("set_primary_goal", {
-            "goal_type": goal.goal_type.value,
-            "target_value": goal.target_value,
-            "target_reduction": goal.target_reduction,
-        })
+        self._record_action(
+            "set_primary_goal",
+            {
+                "goal_type": goal.goal_type.value,
+                "target_value": goal.target_value,
+                "target_reduction": goal.target_reduction,
+            },
+        )
 
         logger.info(
             "primary_goal_set",
@@ -346,9 +349,12 @@ class GoalAnchoringDimension(HMCDimension):
         self._ecological_constraints = constraints
         self._constraints_validated = validate
 
-        self._record_action("set_ecological_boundaries", {
-            "constraint_count": len(constraints),
-        })
+        self._record_action(
+            "set_ecological_boundaries",
+            {
+                "constraint_count": len(constraints),
+            },
+        )
 
         logger.info(
             "ecological_boundaries_set",
@@ -397,10 +403,13 @@ class GoalAnchoringDimension(HMCDimension):
         self._human_tasks = human_tasks
         self._ai_tasks = ai_tasks
 
-        self._record_action("define_responsibilities", {
-            "human_task_count": len(human_tasks),
-            "ai_task_count": len(ai_tasks),
-        })
+        self._record_action(
+            "define_responsibilities",
+            {
+                "human_task_count": len(human_tasks),
+                "ai_task_count": len(ai_tasks),
+            },
+        )
 
         logger.info(
             "responsibilities_defined",
@@ -458,10 +467,13 @@ class GoalAnchoringDimension(HMCDimension):
 
         is_aligned = len(issues) == 0
 
-        self._record_action("validate_goal_alignment", {
-            "is_aligned": is_aligned,
-            "issue_count": len(issues),
-        })
+        self._record_action(
+            "validate_goal_alignment",
+            {
+                "is_aligned": is_aligned,
+                "issue_count": len(issues),
+            },
+        )
 
         return is_aligned, issues
 
@@ -507,7 +519,10 @@ class GoalAnchoringDimension(HMCDimension):
         self._action_count = 0
         self._last_action_at = None
 
-        logger.info("goal_anchoring_dimension_reset", session_id=str(self._session_id) if self._session_id else None)
+        logger.info(
+            "goal_anchoring_dimension_reset",
+            session_id=str(self._session_id) if self._session_id else None,
+        )
 
     def _validate_goal(self, goal: IrrigationGoal) -> tuple[bool, list[str]]:
         """Validate a single goal | التحقق من هدف واحد"""
@@ -716,7 +731,7 @@ class ExperienceInjectionDimension(HMCDimension):
         if validate:
             # Check for conflicts among new rules
             for i, rule1 in enumerate(rules):
-                for j, rule2 in enumerate(rules[i + 1:], i + 1):
+                for j, rule2 in enumerate(rules[i + 1 :], i + 1):
                     conflicts = self._check_rule_conflicts(rule1, rule2)
                     if conflicts:
                         warnings.extend(conflicts)
@@ -735,10 +750,13 @@ class ExperienceInjectionDimension(HMCDimension):
         for rule in rules:
             self._categorize_rule(rule)
 
-        self._record_action("inject_local_experience", {
-            "rule_count": len(rules),
-            "sources": list({r.source.value for r in rules}),
-        })
+        self._record_action(
+            "inject_local_experience",
+            {
+                "rule_count": len(rules),
+                "sources": list({r.source.value for r in rules}),
+            },
+        )
 
         logger.info(
             "local_experience_injected",
@@ -800,17 +818,22 @@ class ExperienceInjectionDimension(HMCDimension):
             rule.rationale_ar = ""
 
         # Record translation
-        self._translation_history.append({
-            "original_text": knowledge_text,
-            "language": language,
-            "translated_rule_id": str(rule.id),
-            "translated_at": datetime.now(UTC).isoformat(),
-        })
+        self._translation_history.append(
+            {
+                "original_text": knowledge_text,
+                "language": language,
+                "translated_rule_id": str(rule.id),
+                "translated_at": datetime.now(UTC).isoformat(),
+            }
+        )
 
-        self._record_action("translate_tacit_knowledge", {
-            "language": language,
-            "text_length": len(knowledge_text),
-        })
+        self._record_action(
+            "translate_tacit_knowledge",
+            {
+                "language": language,
+                "text_length": len(knowledge_text),
+            },
+        )
 
         logger.info(
             "tacit_knowledge_translated",
@@ -864,10 +887,13 @@ class ExperienceInjectionDimension(HMCDimension):
 
         self._reward_adjustments.update(adjustments)
 
-        self._record_action("calibrate_reward_function", {
-            "adjustment_count": len(adjustments),
-            "adjustments": adjustments,
-        })
+        self._record_action(
+            "calibrate_reward_function",
+            {
+                "adjustment_count": len(adjustments),
+                "adjustments": adjustments,
+            },
+        )
 
         logger.info(
             "reward_function_calibrated",
@@ -896,19 +922,20 @@ class ExperienceInjectionDimension(HMCDimension):
         for new_rule in new_rules:
             if replace_existing:
                 # Remove existing rule with same ID
-                self._experience_rules = [
-                    r for r in self._experience_rules if r.id != new_rule.id
-                ]
+                self._experience_rules = [r for r in self._experience_rules if r.id != new_rule.id]
 
             # Add new rule
             self._experience_rules.append(new_rule)
             self._categorize_rule(new_rule)
             count += 1
 
-        self._record_action("update_knowledge_base", {
-            "rule_count": count,
-            "replace_existing": replace_existing,
-        })
+        self._record_action(
+            "update_knowledge_base",
+            {
+                "rule_count": count,
+                "replace_existing": replace_existing,
+            },
+        )
 
         return count
 
@@ -1024,7 +1051,7 @@ class ExperienceInjectionDimension(HMCDimension):
                 end = min(start + 100, len(text))
             condition = text[start:end].strip()
         else:
-            condition = text[:min(50, len(text))]
+            condition = text[: min(50, len(text))]
 
         # Extract action (look for imperative verbs)
         action = ""
@@ -1053,7 +1080,10 @@ class ExperienceInjectionDimension(HMCDimension):
 
         if any(crop in condition_lower for crop in ["wheat", "barley", "tomato", "palm"]):
             self._knowledge_base["crop_specific"].append(rule)
-        elif any(weather in condition_lower for weather in ["rain", "wind", "cold", "heat", "temperature"]):
+        elif any(
+            weather in condition_lower
+            for weather in ["rain", "wind", "cold", "heat", "temperature"]
+        ):
             self._knowledge_base["weather_related"].append(rule)
         elif any(soil in condition_lower for soil in ["soil", "salinity", "moisture"]):
             self._knowledge_base["soil_related"].append(rule)
@@ -1221,11 +1251,14 @@ class SupervisionCalibrationDimension(HMCDimension):
 
         self._simulation_results.append(result)
 
-        self._record_action("run_simulation_verification", {
-            "program_id": str(program.id),
-            "passed": result.simulation_passed,
-            "issues_count": len(result.issues_found),
-        })
+        self._record_action(
+            "run_simulation_verification",
+            {
+                "program_id": str(program.id),
+                "passed": result.simulation_passed,
+                "issues_count": len(result.issues_found),
+            },
+        )
 
         logger.info(
             "simulation_verification_completed",
@@ -1294,12 +1327,15 @@ class SupervisionCalibrationDimension(HMCDimension):
 
         self._field_trial_results.append(result)
 
-        self._record_action("run_field_trial", {
-            "program_id": str(program.id),
-            "control_method": control_method,
-            "trial_area_hectares": trial_area_hectares,
-            "duration_days": duration_days,
-        })
+        self._record_action(
+            "run_field_trial",
+            {
+                "program_id": str(program.id),
+                "control_method": control_method,
+                "trial_area_hectares": trial_area_hectares,
+                "duration_days": duration_days,
+            },
+        )
 
         logger.info(
             "field_trial_started",
@@ -1385,10 +1421,13 @@ class SupervisionCalibrationDimension(HMCDimension):
                 f"{strategy['trigger_ar']}: {strategy['action_ar']}"
             )
 
-        self._record_action("check_emergency_strategies", {
-            "program_id": str(program.id),
-            "strategy_count": len(strategies),
-        })
+        self._record_action(
+            "check_emergency_strategies",
+            {
+                "program_id": str(program.id),
+                "strategy_count": len(strategies),
+            },
+        )
 
         return strategies
 
@@ -1432,11 +1471,14 @@ class SupervisionCalibrationDimension(HMCDimension):
 
         self._feedback_history.append(feedback_entry)
 
-        self._record_action("submit_human_feedback", {
-            "feedback_type": feedback_type,
-            "rating": rating,
-            "has_related_program": related_program_id is not None,
-        })
+        self._record_action(
+            "submit_human_feedback",
+            {
+                "feedback_type": feedback_type,
+                "rating": rating,
+                "has_related_program": related_program_id is not None,
+            },
+        )
 
         logger.info(
             "human_feedback_submitted",
@@ -1473,10 +1515,13 @@ class SupervisionCalibrationDimension(HMCDimension):
                 if actual_results.get("issues"):
                     result.issues_found.extend(actual_results["issues"])
 
-                self._record_action("complete_field_trial", {
-                    "trial_id": str(trial_id),
-                    "success": result.field_test_passed,
-                })
+                self._record_action(
+                    "complete_field_trial",
+                    {
+                        "trial_id": str(trial_id),
+                        "success": result.field_test_passed,
+                    },
+                )
 
                 return result
 
@@ -1551,8 +1596,12 @@ class SupervisionCalibrationDimension(HMCDimension):
         # Check schedule timing
         for schedule in program.schedules:
             if schedule.duration_minutes > 180:
-                issues.append(f"Long irrigation duration in zone {schedule.zone_id}: {schedule.duration_minutes} min")
-                issues_ar.append(f"مدة ري طويلة في المنطقة {schedule.zone_id}: {schedule.duration_minutes} دقيقة")
+                issues.append(
+                    f"Long irrigation duration in zone {schedule.zone_id}: {schedule.duration_minutes} min"
+                )
+                issues_ar.append(
+                    f"مدة ري طويلة في المنطقة {schedule.zone_id}: {schedule.duration_minutes} دقيقة"
+                )
 
         result.issues_found = issues
         result.issues_found_ar = issues_ar
@@ -1707,10 +1756,13 @@ class ValueUpgradeDimension(HMCDimension):
 
         self._learning_metrics["rules_extracted"] += len(extracted_rules)
 
-        self._record_action("extract_field_rules", {
-            "observation_count": len(observations),
-            "rules_extracted": len(extracted_rules),
-        })
+        self._record_action(
+            "extract_field_rules",
+            {
+                "observation_count": len(observations),
+                "rules_extracted": len(extracted_rules),
+            },
+        )
 
         logger.info(
             "field_rules_extracted",
@@ -1754,9 +1806,12 @@ class ValueUpgradeDimension(HMCDimension):
 
         self._learning_metrics["integrations_active"] = len(self._active_integrations)
 
-        self._record_action("integrate_with_fertilization_system", {
-            "endpoint": fertilization_endpoint,
-        })
+        self._record_action(
+            "integrate_with_fertilization_system",
+            {
+                "endpoint": fertilization_endpoint,
+            },
+        )
 
         logger.info(
             "fertilization_system_integrated",
@@ -1804,9 +1859,12 @@ class ValueUpgradeDimension(HMCDimension):
 
         self._learning_metrics["integrations_active"] = len(self._active_integrations)
 
-        self._record_action("integrate_with_weather_alerts", {
-            "endpoint": weather_endpoint,
-        })
+        self._record_action(
+            "integrate_with_weather_alerts",
+            {
+                "endpoint": weather_endpoint,
+            },
+        )
 
         logger.info(
             "weather_alerts_integrated",
@@ -1874,10 +1932,13 @@ class ValueUpgradeDimension(HMCDimension):
         self._exploration_goals.append(exploration_result)
         self._learning_metrics["exploration_goals_set"] += 1
 
-        self._record_action("explore_carbon_reduction_goals", {
-            "target_percent": target_reduction_percent,
-            "total_potential": exploration_result["total_potential"],
-        })
+        self._record_action(
+            "explore_carbon_reduction_goals",
+            {
+                "target_percent": target_reduction_percent,
+                "total_potential": exploration_result["total_potential"],
+            },
+        )
 
         logger.info(
             "carbon_reduction_explored",
@@ -1917,10 +1978,13 @@ class ValueUpgradeDimension(HMCDimension):
                     # Increase confidence for validated rules
                     rule.confidence = min(rule.confidence + 0.1, 1.0)
 
-                self._record_action("validate_extracted_rule", {
-                    "rule_id": str(rule_id),
-                    "is_valid": is_valid,
-                })
+                self._record_action(
+                    "validate_extracted_rule",
+                    {
+                        "rule_id": str(rule_id),
+                        "is_valid": is_valid,
+                    },
+                )
 
                 return True
 

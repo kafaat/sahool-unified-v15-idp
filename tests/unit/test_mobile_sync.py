@@ -454,7 +454,9 @@ class TestDeltaCalculations:
         """Test applying simple delta changes."""
         base_data = {"name": "Field A", "area": 5.5}
         changes = [
-            DeltaChange(field_path="name", old_value="Field A", new_value="Field B", operation="set"),
+            DeltaChange(
+                field_path="name", old_value="Field A", new_value="Field B", operation="set"
+            ),
         ]
 
         result = apply_delta(base_data, changes)
@@ -821,21 +823,15 @@ class TestConflictResolution:
     def test_conflict_resolver_factory(self):
         """Test ConflictResolverFactory creates correct resolvers."""
         # Test LAST_WRITE_WINS
-        resolver = ConflictResolverFactory.create(
-            ConflictResolutionStrategy.LAST_WRITE_WINS
-        )
+        resolver = ConflictResolverFactory.create(ConflictResolutionStrategy.LAST_WRITE_WINS)
         assert isinstance(resolver, LastWriteWinsResolver)
 
         # Test SERVER_WINS
-        resolver = ConflictResolverFactory.create(
-            ConflictResolutionStrategy.SERVER_WINS
-        )
+        resolver = ConflictResolverFactory.create(ConflictResolutionStrategy.SERVER_WINS)
         assert isinstance(resolver, ServerWinsResolver)
 
         # Test CLIENT_WINS
-        resolver = ConflictResolverFactory.create(
-            ConflictResolutionStrategy.CLIENT_WINS
-        )
+        resolver = ConflictResolverFactory.create(ConflictResolutionStrategy.CLIENT_WINS)
         assert isinstance(resolver, ClientWinsResolver)
 
         # Test FIELD_LEVEL_MERGE
@@ -1201,9 +1197,7 @@ class TestOfflineHandling:
             expected_retry_time = base_time + timedelta(seconds=backoff_seconds)
 
             # Verify retry time is in reasonable range (within 5 seconds)
-            time_diff = abs(
-                (sample_sync_item.next_retry_at - expected_retry_time).total_seconds()
-            )
+            time_diff = abs((sample_sync_item.next_retry_at - expected_retry_time).total_seconds())
             assert time_diff < 5
 
     @pytest.mark.asyncio
@@ -1489,10 +1483,7 @@ class TestEdgeCases:
 
     def test_sync_item_very_large_data(self):
         """Test sync item with very large data payloads."""
-        large_data = {
-            f"field_{i}": f"value_{i}" * 100
-            for i in range(1000)
-        }
+        large_data = {f"field_{i}": f"value_{i}" * 100 for i in range(1000)}
 
         item = SyncItem(
             entity_id="large_001",

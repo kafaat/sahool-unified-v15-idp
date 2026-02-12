@@ -13,6 +13,7 @@ import json
 @dataclass
 class ContextMessage:
     """Message in context window."""
+
     role: str
     content: str
     metadata: dict[str, Any] | None = None
@@ -21,6 +22,7 @@ class ContextMessage:
 @dataclass
 class ContextWindow:
     """Context window for LLM interactions."""
+
     messages: list[ContextMessage]
     max_tokens: int = 128000
     system_prompt: str | None = None
@@ -78,11 +80,7 @@ class MCPClient:
         self.context = ContextWindow(messages=[])
         self.call_count = 0
 
-    async def send_message(
-        self,
-        content: str,
-        system_prompt: str = None
-    ) -> dict[str, Any]:
+    async def send_message(self, content: str, system_prompt: str = None) -> dict[str, Any]:
         """Send message to model."""
         self.call_count += 1
 
@@ -101,7 +99,7 @@ class MCPClient:
             "usage": {
                 "input_tokens": len(content) // 4,
                 "output_tokens": len(response) // 4,
-            }
+            },
         }
 
     def reset_context(self):
@@ -138,7 +136,7 @@ Based on the above information, provide recommendations for:
 3. Pest monitoring
 
 Response in {language}.""",
-        variables=["field_name", "crop_type", "growth_stage", "ndvi_value", "language"]
+        variables=["field_name", "crop_type", "growth_stage", "ndvi_value", "language"],
     )
 
 
@@ -193,7 +191,7 @@ class TestPromptTemplate:
             crop_type="Wheat",
             growth_stage="Tillering",
             ndvi_value="0.72",
-            language="English"
+            language="English",
         )
 
         assert "Field A" in rendered
@@ -208,20 +206,16 @@ class TestPromptTemplate:
             crop_type="Wheat",
             growth_stage="Tillering",
             ndvi_value="0.72",
-            language="English"
+            language="English",
         )
         assert valid is True
 
-        invalid = crop_advisory_template.validate_variables(
-            field_name="Field A"
-        )
+        invalid = crop_advisory_template.validate_variables(field_name="Field A")
         assert invalid is False
 
     def test_missing_variable_renders_empty(self, crop_advisory_template):
         """Test missing variable renders as empty."""
-        rendered = crop_advisory_template.render(
-            field_name="Field A"
-        )
+        rendered = crop_advisory_template.render(field_name="Field A")
 
         assert "Field A" in rendered
         assert "{crop_type}" not in rendered
@@ -250,10 +244,7 @@ class TestMCPClient:
     @pytest.mark.asyncio
     async def test_system_prompt_set(self, mcp_client):
         """Test system prompt is set."""
-        await mcp_client.send_message(
-            "Hello",
-            system_prompt="You are an agricultural expert."
-        )
+        await mcp_client.send_message("Hello", system_prompt="You are an agricultural expert.")
 
         assert mcp_client.context.system_prompt == "You are an agricultural expert."
 
@@ -317,11 +308,11 @@ class TestAgriculturalContext:
 
         context = f"""
 Field Information:
-- Name: {field_data['name']}
-- Crop: {field_data['crop']}
-- Area: {field_data['area_ha']} hectares
-- NDVI: {field_data['ndvi']}
-- Soil Moisture: {field_data['soil_moisture']}%
+- Name: {field_data["name"]}
+- Crop: {field_data["crop"]}
+- Area: {field_data["area_ha"]} hectares
+- NDVI: {field_data["ndvi"]}
+- Soil Moisture: {field_data["soil_moisture"]}%
 """
 
         assert "North Field" in context
@@ -339,10 +330,10 @@ Field Information:
 
         context = f"""
 Current Weather:
-- Temperature: {weather_data['temperature']}°C
-- Humidity: {weather_data['humidity']}%
-- Wind: {weather_data['wind_speed']} km/h
-- Precipitation: {weather_data['precipitation']} mm
+- Temperature: {weather_data["temperature"]}°C
+- Humidity: {weather_data["humidity"]}%
+- Wind: {weather_data["wind_speed"]} km/h
+- Precipitation: {weather_data["precipitation"]} mm
 """
 
         assert "32°C" in context
@@ -357,7 +348,7 @@ class TestBilingualSupport:
         arabic_prompt = "ما هي توصيات الري للحقل؟"
 
         assert len(arabic_prompt) > 0
-        assert any("\u0600" <= c <= "\u06FF" for c in arabic_prompt)
+        assert any("\u0600" <= c <= "\u06ff" for c in arabic_prompt)
 
     def test_english_prompt_handling(self):
         """Test English prompt is handled correctly."""
@@ -370,7 +361,7 @@ class TestBilingualSupport:
         """Test mixed language content is handled."""
         mixed_content = "Field Name: حقل القمح (Wheat Field)"
 
-        has_arabic = any("\u0600" <= c <= "\u06FF" for c in mixed_content)
+        has_arabic = any("\u0600" <= c <= "\u06ff" for c in mixed_content)
         has_english = any("a" <= c.lower() <= "z" for c in mixed_content)
 
         assert has_arabic
@@ -394,6 +385,7 @@ Here are my recommendations:
 ```
 """
         import re
+
         json_match = re.search(r"```json\s*(.*?)\s*```", response, re.DOTALL)
 
         if json_match:

@@ -6,7 +6,7 @@ Business logic for generating and managing GlobalGAP IFA checklists.
 منطق العمل لإنشاء وإدارة قوائم المراجعة الخاصة بمعايير GlobalGAP IFA.
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 from ..models import (

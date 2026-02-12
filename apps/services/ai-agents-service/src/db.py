@@ -4,13 +4,12 @@ Database layer for AI Agents Service
 Provides connection pooling and CRUD operations for agent executions.
 """
 
-import os
 import json
+import os
+import ssl
 from datetime import datetime
 from typing import Any
 from uuid import UUID
-
-import ssl
 
 import asyncpg
 
@@ -117,6 +116,7 @@ async def ensure_schema() -> bool:
 # CRUD Operations
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 async def create_execution(
     execution_id: str,
     agent_type: str,
@@ -145,7 +145,7 @@ async def create_execution(
                 agent_type,
                 mode,
                 goal,
-                'planning' if mode in ['plan', 'hybrid'] else 'executing',
+                "planning" if mode in ["plan", "hybrid"] else "executing",
                 tenant_id,
                 field_id,
                 farm_id,
@@ -233,7 +233,7 @@ async def update_execution(
 
         query = f"""
             UPDATE agent_executions
-            SET {', '.join(updates)}
+            SET {", ".join(updates)}
             WHERE id = ${param_idx}
             RETURNING *
         """
@@ -277,7 +277,7 @@ async def list_executions(
 
         query = f"""
             SELECT * FROM agent_executions
-            WHERE {' AND '.join(conditions)}
+            WHERE {" AND ".join(conditions)}
             ORDER BY created_at DESC
             LIMIT ${param_idx} OFFSET ${param_idx + 1}
         """
@@ -340,9 +340,7 @@ async def count_active_executions() -> int:
 
     try:
         async with _pool.acquire() as conn:
-            result = await conn.fetchval(
-                "SELECT COUNT(*) FROM agent_executions WHERE status = 'running'"
-            )
+            result = await conn.fetchval("SELECT COUNT(*) FROM agent_executions WHERE status = 'running'")
             return result or 0
     except Exception as e:
         print(f"⚠️ Failed to count active executions: {e}")
@@ -352,6 +350,7 @@ async def count_active_executions() -> int:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def _row_to_dict(row: asyncpg.Record) -> dict[str, Any]:
     """Convert a database row to a dictionary."""

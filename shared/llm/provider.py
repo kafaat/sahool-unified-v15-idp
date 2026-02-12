@@ -14,12 +14,12 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any, AsyncIterator
 
 
-class ProviderType(str, Enum):
+class ProviderType(StrEnum):
     """LLM provider types."""
 
     OLLAMA = "ollama"
@@ -29,7 +29,7 @@ class ProviderType(str, Enum):
     LOCAL = "local"  # Generic local provider
 
 
-class GenerationStatus(str, Enum):
+class GenerationStatus(StrEnum):
     """Status of generation request."""
 
     SUCCESS = "success"

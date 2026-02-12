@@ -13,7 +13,7 @@ Handles:
 
 import json
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 from typing import TYPE_CHECKING
 
 import structlog
@@ -149,7 +149,7 @@ class SessionManager:
 
         # Trim message history if needed
         if len(session.messages) > self.context_limit:
-            session.messages = session.messages[-self.context_limit:]
+            session.messages = session.messages[-self.context_limit :]
 
         try:
             session_dict = session.model_dump(mode="json")

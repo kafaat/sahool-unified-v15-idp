@@ -1,17 +1,17 @@
 """Utilities module for hydrology service."""
 
 from .hydrology_algorithms import (
+    DEMData,
+    DepressionData,
+    DrainageSegmentData,
+    FlowData,
     HydrologyAnalyzer,
-    extract_drainage_network,
-    calculate_topographic_wetness_index,
-    fill_depressions,
-    delineate_basins,
     calculate_flow_accumulation,
     calculate_stream_order,
-    DEMData,
-    FlowData,
-    DrainageSegmentData,
-    DepressionData,
+    calculate_topographic_wetness_index,
+    delineate_basins,
+    extract_drainage_network,
+    fill_depressions,
     generate_mock_dem,
 )
 

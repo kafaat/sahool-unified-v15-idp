@@ -290,8 +290,7 @@ class TestLLMReranker:
     def test_create_scoring_prompt(self, llm_reranker):
         """Test scoring prompt creation"""
         prompt = llm_reranker._create_scoring_prompt(
-            "wheat irrigation",
-            "Wheat requires regular irrigation during growth"
+            "wheat irrigation", "Wheat requires regular irrigation during growth"
         )
         assert "wheat irrigation" in prompt
         assert "Wheat requires regular irrigation" in prompt
@@ -428,21 +427,14 @@ class TestGetReranker:
 
     def test_get_cross_encoder_with_model(self):
         """Test getting cross-encoder with custom model"""
-        reranker = get_reranker(
-            RerankingMethod.CROSS_ENCODER,
-            model="custom-cross-encoder"
-        )
+        reranker = get_reranker(RerankingMethod.CROSS_ENCODER, model="custom-cross-encoder")
         assert isinstance(reranker, CrossEncoderReranker)
         assert reranker.model_name == "custom-cross-encoder"
 
     def test_get_llm_reranker(self):
         """Test getting LLM reranker"""
         mock_client = MagicMock()
-        reranker = get_reranker(
-            RerankingMethod.LLM,
-            llm_client=mock_client,
-            model="codellama:13b"
-        )
+        reranker = get_reranker(RerankingMethod.LLM, llm_client=mock_client, model="codellama:13b")
         assert isinstance(reranker, LLMReranker)
         assert reranker.llm_client == mock_client
         assert reranker.model == "codellama:13b"

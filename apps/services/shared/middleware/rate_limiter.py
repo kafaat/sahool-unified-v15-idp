@@ -18,7 +18,7 @@ import time
 from collections import defaultdict
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class RateLimitTier(str, Enum):
+class RateLimitTier(StrEnum):
     """Rate limit tiers for different user/service types."""
 
     FREE = "free"

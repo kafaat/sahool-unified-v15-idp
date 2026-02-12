@@ -7,20 +7,20 @@ from tower camera frames.
 """
 
 import logging
+from datetime import UTC, datetime, timezone
 from typing import Optional
-from datetime import datetime, timezone, UTC
 
 import numpy as np
 from pydantic import BaseModel, Field
 
 from ..models.detection import (
+    EQUIPMENT_TYPE_AR,
+    OPERATION_TYPE_AR,
+    BoundingBox,
+    DetectionConfidence,
+    EquipmentType,
     FieldOperationDetection,
     OperationType,
-    EquipmentType,
-    DetectionConfidence,
-    BoundingBox,
-    OPERATION_TYPE_AR,
-    EQUIPMENT_TYPE_AR,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 class DetectionBox(BaseModel):
     """Raw detection bounding box from model"""
+
     x_min: int
     y_min: int
     x_max: int
@@ -39,6 +40,7 @@ class DetectionBox(BaseModel):
 
 class ClassificationResult(BaseModel):
     """Result from operation classification"""
+
     detections: list[FieldOperationDetection] = Field(default_factory=list)
     equipment_detected: list[dict] = Field(default_factory=list)
     processing_time_ms: int = 0
@@ -80,10 +82,7 @@ class OperationClassifier:
     }
 
     def __init__(
-        self,
-        model_path: str | None = None,
-        confidence_threshold: float = 0.5,
-        device: str = "cuda"
+        self, model_path: str | None = None, confidence_threshold: float = 0.5, device: str = "cuda"
     ):
         """
         Initialize operation classifier.
@@ -107,13 +106,12 @@ class OperationClassifier:
         try:
             # Using ultralytics YOLO
             from ultralytics import YOLO
+
             self.model = YOLO(self.model_path)
             self.model.to(self.device)
             logger.info(f"Loaded YOLO model from {self.model_path}")
         except ImportError:
-            logger.warning(
-                "ultralytics not installed, using mock classifier"
-            )
+            logger.warning("ultralytics not installed, using mock classifier")
             self.model = None
         except Exception as e:
             logger.error(f"Failed to load YOLO model: {e}")
@@ -143,6 +141,7 @@ class OperationClassifier:
             ClassificationResult with detected operations
         """
         import time
+
         start_time = time.time()
 
         # Run detection
@@ -169,9 +168,7 @@ class OperationClassifier:
                 y_min=det.y_min,
                 x_max=det.x_max,
                 y_max=det.y_max,
-                geo_coords=self._compute_geo_coords(
-                    det, geo_projector
-                ) if geo_projector else None,
+                geo_coords=self._compute_geo_coords(det, geo_projector) if geo_projector else None,
             )
 
             # Compute center coordinates
@@ -179,9 +176,7 @@ class OperationClassifier:
             if geo_projector:
                 center_x = (det.x_min + det.x_max) / 2
                 center_y = (det.y_min + det.y_max) / 2
-                center_lon, center_lat = geo_projector.pixel_to_geo(
-                    center_x, center_y
-                )
+                center_lon, center_lat = geo_projector.pixel_to_geo(center_x, center_y)
 
             # Create detection record
             detection = FieldOperationDetection(
@@ -189,15 +184,11 @@ class OperationClassifier:
                 field_id=field_id,
                 camera_id=camera_id,
                 operation_type=operation_type,
-                operation_type_ar=OPERATION_TYPE_AR.get(
-                    operation_type, "غير معروف"
-                ),
+                operation_type_ar=OPERATION_TYPE_AR.get(operation_type, "غير معروف"),
                 confidence=det.confidence,
                 confidence_level=self._get_confidence_level(det.confidence),
                 equipment_type=equipment_type,
-                equipment_type_ar=EQUIPMENT_TYPE_AR.get(
-                    equipment_type, "غير معروف"
-                ),
+                equipment_type_ar=EQUIPMENT_TYPE_AR.get(equipment_type, "غير معروف"),
                 bounding_box=bbox,
                 center_lat=center_lat,
                 center_lon=center_lon,
@@ -207,12 +198,14 @@ class OperationClassifier:
 
             detections.append(detection)
 
-            equipment_detected.append({
-                "type": equipment_type.value if equipment_type else "unknown",
-                "type_ar": EQUIPMENT_TYPE_AR.get(equipment_type, "غير معروف"),
-                "confidence": det.confidence,
-                "count": 1,
-            })
+            equipment_detected.append(
+                {
+                    "type": equipment_type.value if equipment_type else "unknown",
+                    "type_ar": EQUIPMENT_TYPE_AR.get(equipment_type, "غير معروف"),
+                    "confidence": det.confidence,
+                    "count": 1,
+                }
+            )
 
         processing_time = int((time.time() - start_time) * 1000)
 
@@ -224,10 +217,7 @@ class OperationClassifier:
             frame_id=frame_id,
         )
 
-    async def _run_yolo_detection(
-        self,
-        frame: np.ndarray
-    ) -> list[DetectionBox]:
+    async def _run_yolo_detection(self, frame: np.ndarray) -> list[DetectionBox]:
         """Run actual YOLO detection."""
         results = self.model(frame, verbose=False)
 
@@ -241,22 +231,21 @@ class OperationClassifier:
                 conf = float(box.conf[0].cpu().numpy())
                 cls_id = int(box.cls[0].cpu().numpy())
 
-                detections.append(DetectionBox(
-                    x_min=int(xyxy[0]),
-                    y_min=int(xyxy[1]),
-                    x_max=int(xyxy[2]),
-                    y_max=int(xyxy[3]),
-                    class_id=cls_id,
-                    class_name=result.names.get(cls_id, "unknown"),
-                    confidence=conf,
-                ))
+                detections.append(
+                    DetectionBox(
+                        x_min=int(xyxy[0]),
+                        y_min=int(xyxy[1]),
+                        x_max=int(xyxy[2]),
+                        y_max=int(xyxy[3]),
+                        class_id=cls_id,
+                        class_name=result.names.get(cls_id, "unknown"),
+                        confidence=conf,
+                    )
+                )
 
         return detections
 
-    def _run_mock_detection(
-        self,
-        frame: np.ndarray
-    ) -> list[DetectionBox]:
+    def _run_mock_detection(self, frame: np.ndarray) -> list[DetectionBox]:
         """
         Run mock detection for testing without model.
         Generates synthetic detections based on image properties.
@@ -271,15 +260,17 @@ class OperationClassifier:
         variance = np.var(frame)
         if variance > 1000:  # Only detect if image has content
             # Simulate a tractor detection
-            detections.append(DetectionBox(
-                x_min=int(w * 0.3),
-                y_min=int(h * 0.4),
-                x_max=int(w * 0.5),
-                y_max=int(h * 0.6),
-                class_id=1,  # Tractor
-                class_name="tractor",
-                confidence=0.85,
-            ))
+            detections.append(
+                DetectionBox(
+                    x_min=int(w * 0.3),
+                    y_min=int(h * 0.4),
+                    x_max=int(w * 0.5),
+                    y_max=int(h * 0.6),
+                    class_id=1,  # Tractor
+                    class_name="tractor",
+                    confidence=0.85,
+                )
+            )
 
         return detections
 
@@ -287,16 +278,11 @@ class OperationClassifier:
         """Get equipment type from class ID."""
         return self.EQUIPMENT_CLASS_MAP.get(class_id, EquipmentType.UNKNOWN)
 
-    def _get_operation_type(
-        self,
-        equipment_type: EquipmentType | None
-    ) -> OperationType:
+    def _get_operation_type(self, equipment_type: EquipmentType | None) -> OperationType:
         """Get most likely operation type for equipment."""
         if equipment_type is None:
             return OperationType.UNKNOWN
-        return self.EQUIPMENT_TO_OPERATION.get(
-            equipment_type, OperationType.UNKNOWN
-        )
+        return self.EQUIPMENT_TO_OPERATION.get(equipment_type, OperationType.UNKNOWN)
 
     def _get_confidence_level(self, confidence: float) -> DetectionConfidence:
         """Convert confidence score to confidence level."""
@@ -307,11 +293,7 @@ class OperationClassifier:
         else:
             return DetectionConfidence.LOW
 
-    def _compute_geo_coords(
-        self,
-        detection: DetectionBox,
-        projector
-    ) -> list[dict] | None:
+    def _compute_geo_coords(self, detection: DetectionBox, projector) -> list[dict] | None:
         """Compute geo-coordinates for bounding box corners."""
         if projector is None:
             return None
@@ -330,10 +312,7 @@ class OperationClassifier:
 
         return geo_coords
 
-    def _aggregate_equipment(
-        self,
-        equipment_list: list[dict]
-    ) -> list[dict]:
+    def _aggregate_equipment(self, equipment_list: list[dict]) -> list[dict]:
         """Aggregate equipment detections by type."""
         aggregated = {}
         for eq in equipment_list:
@@ -347,8 +326,7 @@ class OperationClassifier:
                 }
             aggregated[eq_type]["count"] += 1
             aggregated[eq_type]["max_confidence"] = max(
-                aggregated[eq_type]["max_confidence"],
-                eq["confidence"]
+                aggregated[eq_type]["max_confidence"], eq["confidence"]
             )
 
         return list(aggregated.values())
@@ -359,11 +337,7 @@ class OperationTracker:
     Track operations over time to detect start/end and duration.
     """
 
-    def __init__(
-        self,
-        min_detections_for_operation: int = 3,
-        max_gap_seconds: int = 600
-    ):
+    def __init__(self, min_detections_for_operation: int = 3, max_gap_seconds: int = 600):
         """
         Initialize operation tracker.
 
@@ -377,10 +351,7 @@ class OperationTracker:
         # Track ongoing operations
         self.active_operations: dict[str, dict] = {}
 
-    def update(
-        self,
-        detections: list[FieldOperationDetection]
-    ) -> list[dict]:
+    def update(self, detections: list[FieldOperationDetection]) -> list[dict]:
         """
         Update operation tracking with new detections.
 
@@ -427,16 +398,18 @@ class OperationTracker:
             if gap > self.max_gap_seconds:
                 # Operation completed
                 if op["detection_count"] >= self.min_detections:
-                    completed.append({
-                        "field_id": op["field_id"],
-                        "operation_type": op["operation_type"].value,
-                        "started_at": op["started_at"].isoformat(),
-                        "ended_at": op["last_seen_at"].isoformat(),
-                        "duration_minutes": int(
-                            (op["last_seen_at"] - op["started_at"]).total_seconds() / 60
-                        ),
-                        "detection_count": op["detection_count"],
-                    })
+                    completed.append(
+                        {
+                            "field_id": op["field_id"],
+                            "operation_type": op["operation_type"].value,
+                            "started_at": op["started_at"].isoformat(),
+                            "ended_at": op["last_seen_at"].isoformat(),
+                            "duration_minutes": int(
+                                (op["last_seen_at"] - op["started_at"]).total_seconds() / 60
+                            ),
+                            "detection_count": op["detection_count"],
+                        }
+                    )
 
                 del self.active_operations[key]
 

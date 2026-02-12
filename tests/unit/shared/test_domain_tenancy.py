@@ -72,7 +72,7 @@ class TestTenantSettings:
             max_storage_gb=50,
             features={"advanced_analytics": True},
             locale="en",
-            timezone="UTC"
+            timezone="UTC",
         )
 
         assert settings.max_users == 100
@@ -104,7 +104,7 @@ class TestTenantSettings:
             "max_storage_gb": 20,
             "features": {"irrigation": True},
             "locale": "en",
-            "timezone": "Asia/Riyadh"
+            "timezone": "Asia/Riyadh",
         }
 
         settings = TenantSettings.from_dict(data)
@@ -118,10 +118,7 @@ class TestTenantSettings:
         """Test settings roundtrip through dict"""
         from shared.domain.tenancy.models import TenantSettings
 
-        original = TenantSettings(
-            max_users=75,
-            features={"ndvi": True, "weather": True}
-        )
+        original = TenantSettings(max_users=75, features={"ndvi": True, "weather": True})
 
         data = original.to_dict()
         restored = TenantSettings.from_dict(data)
@@ -159,11 +156,7 @@ class TestTenant:
         """Test creating tenant with Arabic name"""
         from shared.domain.tenancy.models import Tenant, TenantPlan
 
-        tenant = Tenant.create(
-            name="Al Rashid Farm",
-            name_ar="مزرعة الراشد",
-            plan=TenantPlan.PRO
-        )
+        tenant = Tenant.create(name="Al Rashid Farm", name_ar="مزرعة الراشد", plan=TenantPlan.PRO)
 
         assert tenant.name == "Al Rashid Farm"
         assert tenant.name_ar == "مزرعة الراشد"
@@ -206,7 +199,7 @@ class TestTenant:
             name="Serialization Test",
             name_ar="اختبار التسلسل",
             plan=TenantPlan.BASIC,
-            owner_id="owner-456"
+            owner_id="owner-456",
         )
 
         result = tenant.to_dict()
@@ -239,7 +232,7 @@ class TestTenant:
 
         tenant = Tenant.create(name="UUID Test")
 
-        uuid_pattern = r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+        uuid_pattern = r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
         assert re.match(uuid_pattern, tenant.id)
 
     def test_multiple_tenants_unique_ids(self):
@@ -261,9 +254,7 @@ class TestTenant:
 
     def test_tenant_status_values_in_dict(self):
         """Test all tenant statuses serialize correctly"""
-        from shared.domain.tenancy.models import (
-            Tenant, TenantStatus, TenantPlan, TenantSettings
-        )
+        from shared.domain.tenancy.models import Tenant, TenantStatus, TenantPlan, TenantSettings
         from datetime import datetime, UTC
 
         now = datetime.now(UTC)
@@ -278,7 +269,7 @@ class TestTenant:
                 settings=TenantSettings(),
                 owner_id=None,
                 created_at=now,
-                updated_at=now
+                updated_at=now,
             )
             result = tenant.to_dict()
             assert result["status"] == status.value
@@ -331,11 +322,9 @@ class TestTenantSettingsFeatures:
         """Test features with boolean values"""
         from shared.domain.tenancy.models import TenantSettings
 
-        settings = TenantSettings(features={
-            "ndvi_analysis": True,
-            "weather_alerts": True,
-            "marketplace": False
-        })
+        settings = TenantSettings(
+            features={"ndvi_analysis": True, "weather_alerts": True, "marketplace": False}
+        )
 
         assert settings.features["ndvi_analysis"] is True
         assert settings.features["marketplace"] is False
@@ -344,11 +333,9 @@ class TestTenantSettingsFeatures:
         """Test features with mixed value types"""
         from shared.domain.tenancy.models import TenantSettings
 
-        settings = TenantSettings(features={
-            "enabled": True,
-            "max_alerts": 100,
-            "channels": ["email", "sms"]
-        })
+        settings = TenantSettings(
+            features={"enabled": True, "max_alerts": 100, "channels": ["email", "sms"]}
+        )
 
         assert settings.features["enabled"] is True
         assert settings.features["max_alerts"] == 100
@@ -360,7 +347,7 @@ class TestTenantSettingsFeatures:
 
         original_features = {
             "irrigation": {"enabled": True, "sensors": 5},
-            "alerts": ["email", "sms", "push"]
+            "alerts": ["email", "sms", "push"],
         }
 
         settings = TenantSettings(features=original_features)
@@ -384,13 +371,7 @@ class TestTenantTimezones:
         """Test custom timezone can be set"""
         from shared.domain.tenancy.models import TenantSettings
 
-        timezones = [
-            "Asia/Riyadh",
-            "Asia/Dubai",
-            "Africa/Cairo",
-            "UTC",
-            "Europe/London"
-        ]
+        timezones = ["Asia/Riyadh", "Asia/Dubai", "Africa/Cairo", "UTC", "Europe/London"]
 
         for tz in timezones:
             settings = TenantSettings(timezone=tz)

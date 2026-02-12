@@ -17,12 +17,12 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class MetricType(str, Enum):
+class MetricType(StrEnum):
     """Types of metrics."""
 
     COUNTER = "counter"
@@ -245,9 +245,7 @@ class AIMetricsCollector:
             "agent_id": agent_id,
             "tenant_id": tenant_id,
             "total_invocations": self._agent_invocations.get(key, 0),
-            "total_errors": sum(
-                v for k, v in self._agent_errors.items() if k.startswith(f"{agent_id}:{tenant_id}")
-            ),
+            "total_errors": sum(v for k, v in self._agent_errors.items() if k.startswith(f"{agent_id}:{tenant_id}")),
             "latency_p50_ms": self._percentile(latencies, 50),
             "latency_p95_ms": self._percentile(latencies, 95),
             "latency_p99_ms": self._percentile(latencies, 99),
@@ -349,9 +347,7 @@ class AIMetricsCollector:
         lines.append(f"# TYPE {ns}_agent_invocations_total counter")
         for key, count in self._agent_invocations.items():
             agent_id, tenant_id = key.split(":", 1)
-            lines.append(
-                f'{ns}_agent_invocations_total{{agent_id="{agent_id}",tenant_id="{tenant_id}"}} {count}'
-            )
+            lines.append(f'{ns}_agent_invocations_total{{agent_id="{agent_id}",tenant_id="{tenant_id}"}} {count}')
 
         # Agent errors
         lines.append(f"# HELP {ns}_agent_errors_total Total agent errors")
@@ -381,41 +377,31 @@ class AIMetricsCollector:
         lines.append(f"# TYPE {ns}_llm_calls_total counter")
         for key, count in self._llm_calls.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_llm_calls_total{{provider="{provider}",model="{model}"}} {count}'
-            )
+            lines.append(f'{ns}_llm_calls_total{{provider="{provider}",model="{model}"}} {count}')
 
         # LLM errors
         lines.append(f"# HELP {ns}_llm_errors_total Total LLM API errors")
         lines.append(f"# TYPE {ns}_llm_errors_total counter")
         for key, count in self._llm_errors.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_llm_errors_total{{provider="{provider}",model="{model}"}} {count}'
-            )
+            lines.append(f'{ns}_llm_errors_total{{provider="{provider}",model="{model}"}} {count}')
 
         # Tokens
         lines.append(f"# HELP {ns}_tokens_total Total tokens used")
         lines.append(f"# TYPE {ns}_tokens_total counter")
         for key, count in self._tokens_input.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_tokens_total{{provider="{provider}",model="{model}",direction="input"}} {count}'
-            )
+            lines.append(f'{ns}_tokens_total{{provider="{provider}",model="{model}",direction="input"}} {count}')
         for key, count in self._tokens_output.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_tokens_total{{provider="{provider}",model="{model}",direction="output"}} {count}'
-            )
+            lines.append(f'{ns}_tokens_total{{provider="{provider}",model="{model}",direction="output"}} {count}')
 
         # Costs
         lines.append(f"# HELP {ns}_cost_usd_total Total cost in USD")
         lines.append(f"# TYPE {ns}_cost_usd_total counter")
         for key, cost in self._costs.items():
             provider, model = key.split(":", 1)
-            lines.append(
-                f'{ns}_cost_usd_total{{provider="{provider}",model="{model}"}} {cost:.6f}'
-            )
+            lines.append(f'{ns}_cost_usd_total{{provider="{provider}",model="{model}"}} {cost:.6f}')
 
         # Safety violations
         lines.append(f"# HELP {ns}_safety_violations_total Total safety violations")

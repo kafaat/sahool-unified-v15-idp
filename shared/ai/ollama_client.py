@@ -22,18 +22,19 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any, AsyncIterator
 
 try:
     import httpx
+
     HTTPX_AVAILABLE = True
 except ImportError:
     HTTPX_AVAILABLE = False
 
 
-class OllamaModel(str, Enum):
+class OllamaModel(StrEnum):
     """Available Ollama models for code tasks."""
 
     CODELLAMA_13B = "codellama:13b"
@@ -48,12 +49,8 @@ class OllamaModel(str, Enum):
 class OllamaConfig:
     """Configuration for Ollama client."""
 
-    base_url: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-    )
-    default_model: str = field(
-        default_factory=lambda: os.getenv("OLLAMA_DEFAULT_MODEL", "codellama:13b")
-    )
+    base_url: str = field(default_factory=lambda: os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"))
+    default_model: str = field(default_factory=lambda: os.getenv("OLLAMA_DEFAULT_MODEL", "codellama:13b"))
     timeout: float = 120.0
     max_retries: int = 3
     retry_delay: float = 1.0
@@ -255,9 +252,7 @@ class OllamaClient:
                     model=data.get("model", model),
                     response=data.get("response", ""),
                     done=data.get("done", True),
-                    created_at=datetime.fromisoformat(
-                        data.get("created_at", datetime.now(UTC).isoformat())
-                    ),
+                    created_at=datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat())),
                     total_duration_ns=data.get("total_duration"),
                     load_duration_ns=data.get("load_duration"),
                     eval_count=data.get("eval_count"),
@@ -366,9 +361,7 @@ class OllamaClient:
                 model=data.get("model", model),
                 response=data.get("message", {}).get("content", ""),
                 done=data.get("done", True),
-                created_at=datetime.fromisoformat(
-                    data.get("created_at", datetime.now(UTC).isoformat())
-                ),
+                created_at=datetime.fromisoformat(data.get("created_at", datetime.now(UTC).isoformat())),
                 total_duration_ns=data.get("total_duration"),
                 eval_count=data.get("eval_count"),
                 eval_duration_ns=data.get("eval_duration"),

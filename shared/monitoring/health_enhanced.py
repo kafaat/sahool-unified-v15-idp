@@ -17,12 +17,12 @@ import os
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 try:
-    from fastapi import APIRouter, Request
+    from fastapi import APIRouter
     from fastapi.responses import JSONResponse
 
     FASTAPI_AVAILABLE = True
@@ -30,16 +30,16 @@ except ImportError:
     FASTAPI_AVAILABLE = False
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Health status values | قيم حالة الصحة"""
 
-    HEALTHY = "healthy"      # صحي - All checks passing
-    DEGRADED = "degraded"    # متدهور - Some non-critical checks failing
+    HEALTHY = "healthy"  # صحي - All checks passing
+    DEGRADED = "degraded"  # متدهور - Some non-critical checks failing
     UNHEALTHY = "unhealthy"  # غير صحي - Critical checks failing
-    UNKNOWN = "unknown"      # غير معروف - Unable to determine
+    UNKNOWN = "unknown"  # غير معروف - Unable to determine
 
 
-class DependencyType(str, Enum):
+class DependencyType(StrEnum):
     """Types of service dependencies | أنواع تبعيات الخدمة"""
 
     DATABASE = "database"
@@ -52,12 +52,12 @@ class DependencyType(str, Enum):
     IOT_DEVICE = "iot_device"
 
 
-class CheckSeverity(str, Enum):
+class CheckSeverity(StrEnum):
     """Severity of health check failure | خطورة فشل فحص الصحة"""
 
-    CRITICAL = "critical"    # حرج - Service cannot function
-    WARNING = "warning"      # تحذير - Service degraded
-    INFO = "info"           # إعلامي - Minor issue
+    CRITICAL = "critical"  # حرج - Service cannot function
+    WARNING = "warning"  # تحذير - Service degraded
+    INFO = "info"  # إعلامي - Minor issue
 
 
 @dataclass
@@ -126,7 +126,7 @@ class ServiceHealthReport:
 
     def __post_init__(self):
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat() + "Z"
+            self.timestamp = datetime.now(UTC).isoformat() + "Z"
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -285,7 +285,9 @@ class EnhancedHealthChecker:
                     name=name,
                     name_ar=name_ar or result.get("name_ar", name),
                     type=dependency_type,
-                    status=HealthStatus(status_str) if status_str in ["healthy", "degraded", "unhealthy"] else HealthStatus.HEALTHY,
+                    status=HealthStatus(status_str)
+                    if status_str in ["healthy", "degraded", "unhealthy"]
+                    else HealthStatus.HEALTHY,
                     severity=severity,
                     message=result.get("message", ""),
                     message_ar=result.get("message_ar", ""),
@@ -327,9 +329,16 @@ class EnhancedHealthChecker:
                 message=f"Check failed: {str(e)}",
                 message_ar=f"الفحص فشل: {str(e)}",
                 latency_ms=latency_ms,
-                consecutive_failures=self._dependencies.get(name, DependencyHealth(
-                    name=name, name_ar=name_ar, type=dependency_type, status=HealthStatus.UNKNOWN
-                )).consecutive_failures + 1,
+                consecutive_failures=self._dependencies.get(
+                    name,
+                    DependencyHealth(
+                        name=name,
+                        name_ar=name_ar,
+                        type=dependency_type,
+                        status=HealthStatus.UNKNOWN,
+                    ),
+                ).consecutive_failures
+                + 1,
             )
 
         # Update cache and dependency registry
@@ -349,14 +358,16 @@ class EnhancedHealthChecker:
 
         for name, (check_func, severity) in self._liveness_checks.items():
             health = await self._run_check(
-                name, check_func,
+                name,
+                check_func,
                 severity=severity,
             )
             dependencies.append(health)
 
         # Liveness fails only if critical checks fail
         critical_failures = [
-            d for d in dependencies
+            d
+            for d in dependencies
             if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
         ]
 
@@ -395,7 +406,8 @@ class EnhancedHealthChecker:
 
         for name, (check_func, dep_type, name_ar, severity) in self._readiness_checks.items():
             health = await self._run_check(
-                name, check_func,
+                name,
+                check_func,
                 dependency_type=dep_type,
                 name_ar=name_ar,
                 severity=severity,
@@ -404,14 +416,12 @@ class EnhancedHealthChecker:
 
         # Readiness fails if any critical dependency is down
         critical_failures = [
-            d for d in dependencies
+            d
+            for d in dependencies
             if d.status == HealthStatus.UNHEALTHY and d.severity == CheckSeverity.CRITICAL
         ]
 
-        if self.graceful_shutdown:
-            status = HealthStatus.UNHEALTHY
-            ready = False
-        elif critical_failures:
+        if self.graceful_shutdown or critical_failures:
             status = HealthStatus.UNHEALTHY
             ready = False
         elif any(d.status == HealthStatus.DEGRADED for d in dependencies):
@@ -453,8 +463,7 @@ class EnhancedHealthChecker:
 
         # Startup complete if all startup checks pass
         all_healthy = all(
-            d.status in [HealthStatus.HEALTHY, HealthStatus.DEGRADED]
-            for d in dependencies
+            d.status in [HealthStatus.HEALTHY, HealthStatus.DEGRADED] for d in dependencies
         )
 
         if all_healthy:
@@ -492,9 +501,7 @@ class EnhancedHealthChecker:
         memory_mb, cpu_percent = await self._collect_performance_metrics()
 
         # Determine overall status
-        if not liveness.live:
-            status = HealthStatus.UNHEALTHY
-        elif not readiness.ready:
+        if not liveness.live or not readiness.ready:
             status = HealthStatus.UNHEALTHY
         elif liveness.status == HealthStatus.DEGRADED or readiness.status == HealthStatus.DEGRADED:
             status = HealthStatus.DEGRADED
@@ -524,6 +531,7 @@ class EnhancedHealthChecker:
 
         try:
             import psutil
+
             process = psutil.Process()
             memory_mb = process.memory_info().rss / (1024 * 1024)
             cpu_percent = process.cpu_percent()
@@ -545,6 +553,7 @@ class EnhancedHealthChecker:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Common Health Check Functions | دوال فحص الصحة الشائعة
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def check_postgres(connection_pool) -> DependencyHealth:
     """
@@ -665,9 +674,10 @@ def check_disk_space(threshold_percent: float = 85.0) -> DependencyHealth:
     """
     try:
         import shutil
+
         disk = shutil.disk_usage("/")
         used_percent = (disk.used / disk.total) * 100
-        free_gb = disk.free / (1024 ** 3)
+        free_gb = disk.free / (1024**3)
 
         if used_percent > 95:
             status = HealthStatus.UNHEALTHY
@@ -711,9 +721,10 @@ def check_memory(threshold_percent: float = 85.0) -> DependencyHealth:
     """
     try:
         import psutil
+
         memory = psutil.virtual_memory()
         used_percent = memory.percent
-        available_gb = memory.available / (1024 ** 3)
+        available_gb = memory.available / (1024**3)
 
         if used_percent > 95:
             status = HealthStatus.UNHEALTHY
@@ -763,6 +774,7 @@ def check_memory(threshold_percent: float = 85.0) -> DependencyHealth:
 # ═══════════════════════════════════════════════════════════════════════════════
 # FastAPI Router Creation | إنشاء موجه FastAPI
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def create_health_router(health_checker: EnhancedHealthChecker) -> APIRouter:
     """

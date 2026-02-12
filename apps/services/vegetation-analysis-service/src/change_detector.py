@@ -20,7 +20,7 @@ import math
 import statistics
 from dataclasses import asdict, dataclass
 from datetime import date
-from enum import Enum
+from enum import Enum, StrEnum
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class ChangeType(Enum):
     NO_CHANGE = "no_change"  # لا تغيير
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """Severity levels for detected changes"""
 
     LOW = "low"  # منخفض
@@ -55,7 +55,7 @@ class SeverityLevel(str, Enum):
     CRITICAL = "critical"  # حرج
 
 
-class TrendDirection(str, Enum):
+class TrendDirection(StrEnum):
     """Overall trend direction"""
 
     IMPROVING = "improving"  # تحسن

@@ -23,8 +23,8 @@ import os
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any, AsyncIterator, Callable
 
@@ -44,8 +44,9 @@ logger = structlog.get_logger()
 # ============================================================================
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Batch processing status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -60,20 +61,23 @@ class BatchConfig:
     Configuration for batch processing.
     تكوين معالجة الدُفعات
     """
+
     # Concurrency settings
     max_concurrent_files: int = 10
     max_concurrent_fixes: int = 5
 
     # File selection
     include_patterns: list[str] = field(default_factory=lambda: ["*.py", "*.ts", "*.tsx", "*.js"])
-    exclude_patterns: list[str] = field(default_factory=lambda: [
-        "**/node_modules/**",
-        "**/.venv/**",
-        "**/__pycache__/**",
-        "**/dist/**",
-        "**/build/**",
-        "**/.git/**",
-    ])
+    exclude_patterns: list[str] = field(
+        default_factory=lambda: [
+            "**/node_modules/**",
+            "**/.venv/**",
+            "**/__pycache__/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**",
+        ]
+    )
     max_file_size_kb: int = 500
 
     # Processing settings
@@ -93,6 +97,7 @@ class BatchConfig:
 @dataclass
 class FileResult:
     """Result for a single file in batch processing."""
+
     file_path: str
     status: str  # success, skipped, error
     diagnostics_count: int = 0
@@ -104,6 +109,7 @@ class FileResult:
 @dataclass
 class BatchProgress:
     """Progress tracking for batch processing."""
+
     total_files: int = 0
     processed_files: int = 0
     successful_files: int = 0
@@ -122,6 +128,7 @@ class BatchResult:
     Result of batch processing.
     نتيجة معالجة الدُفعات
     """
+
     batch_id: str
     status: BatchStatus
     config: BatchConfig
@@ -167,6 +174,7 @@ class BatchResult:
 @dataclass
 class Checkpoint:
     """Checkpoint for resumable processing."""
+
     batch_id: str
     processed_files: list[str]
     last_file: str | None
@@ -343,9 +351,7 @@ class BatchProcessor:
             if self._cancel_requested:
                 break
 
-            task = asyncio.create_task(
-                self._process_file_with_semaphore(file_path, config)
-            )
+            task = asyncio.create_task(self._process_file_with_semaphore(file_path, config))
             tasks.append(task)
 
             # Yield progress periodically
@@ -363,11 +369,7 @@ class BatchProcessor:
                 tasks = list(pending)
 
             # Save checkpoint periodically
-            if (
-                config.enable_checkpoints and
-                i > 0 and
-                i % config.checkpoint_interval == 0
-            ):
+            if config.enable_checkpoints and i > 0 and i % config.checkpoint_interval == 0:
                 self._save_checkpoint()
 
         # Wait for remaining tasks
@@ -382,10 +384,7 @@ class BatchProcessor:
 
         # Finalize
         self._current_batch.completed_at = datetime.now(UTC)
-        self._current_batch.status = (
-            BatchStatus.CANCELLED if self._cancel_requested
-            else BatchStatus.COMPLETED
-        )
+        self._current_batch.status = BatchStatus.CANCELLED if self._cancel_requested else BatchStatus.COMPLETED
         self._is_running = False
 
         # Final checkpoint
@@ -522,9 +521,7 @@ class BatchProcessor:
                     continue
 
                 # Check exclusions
-                excluded = any(
-                    file_path.match(excl) for excl in config.exclude_patterns
-                )
+                excluded = any(file_path.match(excl) for excl in config.exclude_patterns)
                 if excluded:
                     continue
 
@@ -555,21 +552,25 @@ class BatchProcessor:
         )
 
         with open(checkpoint_path, "w") as f:
-            json.dump({
-                "batch_id": checkpoint.batch_id,
-                "processed_files": checkpoint.processed_files,
-                "last_file": checkpoint.last_file,
-                "progress": {
-                    "total_files": checkpoint.progress.total_files,
-                    "processed_files": checkpoint.progress.processed_files,
-                    "successful_files": checkpoint.progress.successful_files,
-                    "failed_files": checkpoint.progress.failed_files,
-                    "skipped_files": checkpoint.progress.skipped_files,
-                    "total_diagnostics": checkpoint.progress.total_diagnostics,
-                    "total_fixes": checkpoint.progress.total_fixes,
+            json.dump(
+                {
+                    "batch_id": checkpoint.batch_id,
+                    "processed_files": checkpoint.processed_files,
+                    "last_file": checkpoint.last_file,
+                    "progress": {
+                        "total_files": checkpoint.progress.total_files,
+                        "processed_files": checkpoint.progress.processed_files,
+                        "successful_files": checkpoint.progress.successful_files,
+                        "failed_files": checkpoint.progress.failed_files,
+                        "skipped_files": checkpoint.progress.skipped_files,
+                        "total_diagnostics": checkpoint.progress.total_diagnostics,
+                        "total_fixes": checkpoint.progress.total_fixes,
+                    },
+                    "timestamp": checkpoint.timestamp.isoformat(),
                 },
-                "timestamp": checkpoint.timestamp.isoformat(),
-            }, f, indent=2)
+                f,
+                indent=2,
+            )
 
         logger.debug("checkpoint_saved", batch_id=checkpoint.batch_id)
 
@@ -631,11 +632,7 @@ class BatchProcessor:
         if not os.path.exists(self._checkpoint_dir):
             return []
 
-        return [
-            f.replace(".json", "")
-            for f in os.listdir(self._checkpoint_dir)
-            if f.endswith(".json")
-        ]
+        return [f.replace(".json", "") for f in os.listdir(self._checkpoint_dir) if f.endswith(".json")]
 
     def delete_checkpoint(self, batch_id: str) -> bool:
         """Delete a checkpoint."""
@@ -716,21 +713,29 @@ class BatchProcessor:
         sarif = {
             "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
             "version": "2.1.0",
-            "runs": [{
-                "tool": {
-                    "driver": {
-                        "name": "SAHOOL AutoFix Batch Processor",
-                        "version": "16.0.0",
-                        "informationUri": "https://sahool.app/docs/auto-fix",
-                    }
-                },
-                "results": [],
-                "invocations": [{
-                    "executionSuccessful": self._current_batch.status == BatchStatus.COMPLETED,
-                    "startTimeUtc": self._current_batch.started_at.isoformat() if self._current_batch.started_at else None,
-                    "endTimeUtc": self._current_batch.completed_at.isoformat() if self._current_batch.completed_at else None,
-                }],
-            }],
+            "runs": [
+                {
+                    "tool": {
+                        "driver": {
+                            "name": "SAHOOL AutoFix Batch Processor",
+                            "version": "16.0.0",
+                            "informationUri": "https://sahool.app/docs/auto-fix",
+                        }
+                    },
+                    "results": [],
+                    "invocations": [
+                        {
+                            "executionSuccessful": self._current_batch.status == BatchStatus.COMPLETED,
+                            "startTimeUtc": self._current_batch.started_at.isoformat()
+                            if self._current_batch.started_at
+                            else None,
+                            "endTimeUtc": self._current_batch.completed_at.isoformat()
+                            if self._current_batch.completed_at
+                            else None,
+                        }
+                    ],
+                }
+            ],
         }
 
         with open(output_path, "w") as f:

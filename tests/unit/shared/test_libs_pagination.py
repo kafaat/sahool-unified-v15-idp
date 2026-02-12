@@ -51,7 +51,7 @@ class TestPageInfo:
             has_previous_page=True,
             start_cursor="cursor1",
             end_cursor="cursor2",
-            total_count=100
+            total_count=100,
         )
 
         assert info.start_cursor == "cursor1"
@@ -90,7 +90,7 @@ class TestPage:
             has_previous_page=False,
             start_cursor="start",
             end_cursor="end",
-            total_count=50
+            total_count=50,
         )
         page = Page(items=["a", "b", "c"], page_info=page_info)
 
@@ -111,13 +111,7 @@ class TestOffsetPage:
         """Test OffsetPage creation"""
         from shared.libs.pagination import OffsetPage
 
-        page = OffsetPage(
-            items=[1, 2, 3],
-            total=100,
-            page=1,
-            page_size=10,
-            total_pages=10
-        )
+        page = OffsetPage(items=[1, 2, 3], total=100, page=1, page_size=10, total_pages=10)
 
         assert page.items == [1, 2, 3]
         assert page.total == 100
@@ -129,13 +123,7 @@ class TestOffsetPage:
         """Test OffsetPage to_dict"""
         from shared.libs.pagination import OffsetPage
 
-        page = OffsetPage(
-            items=["item1", "item2"],
-            total=50,
-            page=2,
-            page_size=10,
-            total_pages=5
-        )
+        page = OffsetPage(items=["item1", "item2"], total=50, page=2, page_size=10, total_pages=5)
 
         result = page.to_dict()
 
@@ -151,13 +139,7 @@ class TestOffsetPage:
         """Test OffsetPage on first page"""
         from shared.libs.pagination import OffsetPage
 
-        page = OffsetPage(
-            items=[],
-            total=50,
-            page=1,
-            page_size=10,
-            total_pages=5
-        )
+        page = OffsetPage(items=[], total=50, page=1, page_size=10, total_pages=5)
 
         result = page.to_dict()
 
@@ -168,13 +150,7 @@ class TestOffsetPage:
         """Test OffsetPage on last page"""
         from shared.libs.pagination import OffsetPage
 
-        page = OffsetPage(
-            items=[],
-            total=50,
-            page=5,
-            page_size=10,
-            total_pages=5
-        )
+        page = OffsetPage(items=[], total=50, page=5, page_size=10, total_pages=5)
 
         result = page.to_dict()
 

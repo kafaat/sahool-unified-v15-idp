@@ -12,7 +12,7 @@ import random
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 # =============================================================================
@@ -20,7 +20,7 @@ from typing import Any
 # =============================================================================
 
 
-class SyncStatus(str, Enum):
+class SyncStatus(StrEnum):
     PENDING = "pending"
     SYNCING = "syncing"
     SYNCED = "synced"

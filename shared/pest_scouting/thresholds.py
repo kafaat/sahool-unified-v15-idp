@@ -22,15 +22,14 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .models import (
-    EconomicThreshold,
-    CropType,
-    InfestationLevel,
     AlertPriority,
+    CropType,
+    EconomicThreshold,
+    InfestationLevel,
     PestAlert,
     ScoutObservation,
     ScoutReport,
 )
-
 
 # =============================================================================
 # THRESHOLD DATABASE - قاعدة بيانات العتبات
@@ -51,9 +50,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=0.0,
         threshold_unit="detection",
         threshold_description="Zero tolerance pest. Any detection (trap catch, acoustic detection, "
-                             "or visual symptoms) requires immediate action.",
+        "or visual symptoms) requires immediate action.",
         threshold_description_ar="آفة لا تحمل أي حد. أي اكتشاف (مصيدة، كشف صوتي، أو أعراض بصرية) "
-                                "يتطلب تدخلاً فورياً.",
+        "يتطلب تدخلاً فورياً.",
         sampling_method="Pheromone traps (5-10/ha), acoustic detection devices, visual inspection",
         sampling_method_ar="مصائد فرمونية (5-10/هكتار)، أجهزة كشف صوتي، فحص بصري",
         sampling_frequency="Weekly trap checks, monthly acoustic surveys",
@@ -67,7 +66,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Critical quarantine pest. Death of infested palm is almost certain without treatment.",
         notes_ar="آفة حجر زراعي حرجة. موت النخلة المصابة شبه مؤكد بدون علاج.",
     ),
-
     # -------------------------------------------------------------------------
     # DUBAS BUG - دوباس النخيل
     # -------------------------------------------------------------------------
@@ -82,9 +80,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=10.0,
         threshold_unit="per_frond",
         threshold_description="Count nymphs and adults on 10 fronds per palm, 5-10 palms per block. "
-                             "Action at 5 per frond average, economic damage at 10+.",
+        "Action at 5 per frond average, economic damage at 10+.",
         threshold_description_ar="عد الحوريات والحشرات الكاملة على 10 سعفات لكل نخلة، 5-10 نخلات لكل قطعة. "
-                                "التدخل عند متوسط 5 لكل سعفة، الضرر الاقتصادي عند 10+.",
+        "التدخل عند متوسط 5 لكل سعفة، الضرر الاقتصادي عند 10+.",
         sampling_method="Visual count on randomly selected fronds",
         sampling_method_ar="عد بصري على سعفات مختارة عشوائياً",
         sampling_frequency="Twice per season (spring generation: March-April, fall: September-October)",
@@ -99,7 +97,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Two generations per year. Spring generation often more damaging.",
         notes_ar="جيلان في السنة. جيل الربيع غالباً أكثر ضرراً.",
     ),
-
     # -------------------------------------------------------------------------
     # APHIDS ON VEGETABLES - المن على الخضروات
     # -------------------------------------------------------------------------
@@ -114,14 +111,19 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=20.0,
         threshold_unit="percentage_plants",
         threshold_description="Sample 20-50 plants per plot. Action threshold at 10% plants with colonies. "
-                             "Consider virus transmission risk - lower threshold if virus present in area.",
+        "Consider virus transmission risk - lower threshold if virus present in area.",
         threshold_description_ar="عينة 20-50 نبات لكل قطعة. عتبة التدخل عند 10% نباتات بمستعمرات. "
-                                "راعِ خطر نقل الفيروسات - عتبة أقل إذا كان الفيروس موجوداً في المنطقة.",
+        "راعِ خطر نقل الفيروسات - عتبة أقل إذا كان الفيروس موجوداً في المنطقة.",
         sampling_method="Visual inspection of growing tips and leaf undersides",
         sampling_method_ar="فحص بصري للقمم النامية والسطح السفلي للأوراق",
         sampling_frequency="Twice weekly during vegetative growth, weekly during fruiting",
         sampling_frequency_ar="مرتين أسبوعياً خلال النمو الخضري، أسبوعياً خلال الإثمار",
-        growth_stage_modifier={"seedling": 0.5, "vegetative": 0.7, "flowering": 0.8, "fruiting": 1.0},
+        growth_stage_modifier={
+            "seedling": 0.5,
+            "vegetative": 0.7,
+            "flowering": 0.8,
+            "fruiting": 1.0,
+        },
         treatment_cost_per_ha=400.0,
         crop_value_per_ha=80000.0,
         expected_loss_per_pest_unit=400.0,  # Per 1% infestation
@@ -131,7 +133,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Virus vector - reduce threshold by 50% if TYLCV or other viruses present.",
         notes_ar="ناقل فيروسات - خفض العتبة 50% إذا كان TYLCV أو فيروسات أخرى موجودة.",
     ),
-
     "THR_APHID001_CUCUMBER": EconomicThreshold(
         id="THR_APHID001_CUCUMBER",
         pest_id="APHID001",
@@ -143,9 +144,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=15.0,
         threshold_unit="percentage_plants",
         threshold_description="Lower threshold than tomato due to high virus susceptibility. "
-                             "Sample 20 plants per greenhouse or 50 per open field plot.",
+        "Sample 20 plants per greenhouse or 50 per open field plot.",
         threshold_description_ar="عتبة أقل من الطماطم بسبب قابلية عالية للفيروسات. "
-                                "عينة 20 نبات لكل بيت محمي أو 50 للحقل المكشوف.",
+        "عينة 20 نبات لكل بيت محمي أو 50 للحقل المكشوف.",
         sampling_method="Visual inspection focusing on young leaves",
         sampling_method_ar="فحص بصري مع التركيز على الأوراق الحديثة",
         sampling_frequency="Twice weekly, especially during vegetative growth",
@@ -159,7 +160,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="CMV transmission can cause severe losses in cucumber.",
         notes_ar="نقل فيروس CMV يمكن أن يسبب خسائر شديدة في الخيار.",
     ),
-
     # -------------------------------------------------------------------------
     # WHITEFLIES - الذبابة البيضاء
     # -------------------------------------------------------------------------
@@ -174,15 +174,20 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=10.0,
         threshold_unit="per_leaf",
         threshold_description="Count adults on upper surface and nymphs on lower surface of middle leaves. "
-                             "CRITICAL: If TYLCV present, threshold is 0.5 per leaf (vector control).",
+        "CRITICAL: If TYLCV present, threshold is 0.5 per leaf (vector control).",
         threshold_description_ar="عد الحشرات الكاملة على السطح العلوي والحوريات على السطح السفلي للأوراق الوسطى. "
-                                "حرج: إذا كان TYLCV موجوداً، العتبة 0.5 لكل ورقة (مكافحة الناقل).",
+        "حرج: إذا كان TYLCV موجوداً، العتبة 0.5 لكل ورقة (مكافحة الناقل).",
         sampling_method="Yellow sticky traps (1/100m2) + leaf samples (10 leaves per 10 plants)",
         sampling_method_ar="مصائد لاصقة صفراء (1/100م2) + عينات أوراق (10 أوراق من 10 نباتات)",
         sampling_frequency="Twice weekly, daily during high pressure periods",
         sampling_frequency_ar="مرتين أسبوعياً، يومياً خلال فترات الضغط العالي",
         temperature_modifier={"hot": 0.7, "optimal": 1.0, "cool": 1.5},
-        growth_stage_modifier={"seedling": 0.3, "vegetative": 0.5, "flowering": 0.8, "fruiting": 1.0},
+        growth_stage_modifier={
+            "seedling": 0.3,
+            "vegetative": 0.5,
+            "flowering": 0.8,
+            "fruiting": 1.0,
+        },
         treatment_cost_per_ha=600.0,
         crop_value_per_ha=80000.0,
         expected_loss_per_pest_unit=800.0,
@@ -192,7 +197,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="TYLCV vector - extremely important in tomato. Use resistant varieties where possible.",
         notes_ar="ناقل TYLCV - مهم للغاية في الطماطم. استخدم أصناف مقاومة حيثما أمكن.",
     ),
-
     # -------------------------------------------------------------------------
     # SPIDER MITES - العنكبوت الأحمر
     # -------------------------------------------------------------------------
@@ -207,9 +211,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=5.0,
         threshold_unit="per_leaf",
         threshold_description="Count motile stages on undersides of leaves using hand lens (10x). "
-                             "Sample lower, middle, and upper leaves. Hot spots often start at field edges.",
+        "Sample lower, middle, and upper leaves. Hot spots often start at field edges.",
         threshold_description_ar="عد المراحل المتحركة على السطح السفلي للأوراق باستخدام عدسة يدوية (10×). "
-                                "عينات من الأوراق السفلى والوسطى والعليا. البؤر الساخنة غالباً تبدأ من حواف الحقل.",
+        "عينات من الأوراق السفلى والوسطى والعليا. البؤر الساخنة غالباً تبدأ من حواف الحقل.",
         sampling_method="10x hand lens, 5 leaves per 10 plants, focus on leaf undersides",
         sampling_method_ar="عدسة يدوية 10×، 5 أوراق من 10 نباتات، ركز على السطح السفلي",
         sampling_frequency="Twice weekly in hot weather, weekly otherwise",
@@ -224,7 +228,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Populations explode in hot, dry conditions. Overhead irrigation can suppress.",
         notes_ar="الأعداد تنفجر في الظروف الحارة والجافة. الري العلوي يمكن أن يثبط.",
     ),
-
     # -------------------------------------------------------------------------
     # TUTA ABSOLUTA - حافرة أنفاق الطماطم
     # -------------------------------------------------------------------------
@@ -239,14 +242,19 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=5.0,
         threshold_unit="per_trap_week",
         threshold_description="Pheromone traps: action at 1 moth/trap/week. Leaf mines: action at 1% leaves mined. "
-                             "Zero tolerance for fruit damage. Very destructive - act early.",
+        "Zero tolerance for fruit damage. Very destructive - act early.",
         threshold_description_ar="مصائد فرمونية: تدخل عند 1 عثة/مصيدة/أسبوع. أنفاق الأوراق: تدخل عند 1% أوراق منقبة. "
-                                "لا تحمل أي ضرر للثمار. مدمرة جداً - تصرف مبكراً.",
+        "لا تحمل أي ضرر للثمار. مدمرة جداً - تصرف مبكراً.",
         sampling_method="Pheromone traps (2-4/ha) + visual inspection for leaf mines and fruit damage",
         sampling_method_ar="مصائد فرمونية (2-4/هكتار) + فحص بصري لأنفاق الأوراق وضرر الثمار",
         sampling_frequency="Traps checked twice weekly, visual inspection weekly",
         sampling_frequency_ar="فحص المصائد مرتين أسبوعياً، الفحص البصري أسبوعياً",
-        growth_stage_modifier={"seedling": 0.5, "vegetative": 0.7, "flowering": 0.8, "fruiting": 0.5},
+        growth_stage_modifier={
+            "seedling": 0.5,
+            "vegetative": 0.7,
+            "flowering": 0.8,
+            "fruiting": 0.5,
+        },
         treatment_cost_per_ha=800.0,
         crop_value_per_ha=80000.0,
         expected_loss_per_pest_unit=1600.0,
@@ -256,7 +264,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Quarantine pest in some regions. Can cause 100% loss if uncontrolled. IPM essential.",
         notes_ar="آفة حجر زراعي في بعض المناطق. يمكن أن تسبب خسارة 100% بدون مكافحة. المكافحة المتكاملة ضرورية.",
     ),
-
     # -------------------------------------------------------------------------
     # DATE MOTH - فراشة التمر
     # -------------------------------------------------------------------------
@@ -271,9 +278,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=5.0,
         threshold_unit="percentage_fruit",
         threshold_description="Sample 100 fruits from 10 bunches per palm, 5 palms per block. "
-                             "Action at 2% infestation. Higher threshold acceptable for processing dates.",
+        "Action at 2% infestation. Higher threshold acceptable for processing dates.",
         threshold_description_ar="عينة 100 ثمرة من 10 عذوق لكل نخلة، 5 نخلات لكل قطعة. "
-                                "التدخل عند 2% إصابة. عتبة أعلى مقبولة لتمور التصنيع.",
+        "التدخل عند 2% إصابة. عتبة أعلى مقبولة لتمور التصنيع.",
         sampling_method="Visual inspection of fruit, pheromone traps (3-5/ha)",
         sampling_method_ar="فحص بصري للثمار، مصائد فرمونية (3-5/هكتار)",
         sampling_frequency="Weekly during fruit development (June-October)",
@@ -288,7 +295,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="Sanitation crucial - remove fallen and infested fruits.",
         notes_ar="الصرف الصحي ضروري - أزل الثمار الساقطة والمصابة.",
     ),
-
     # -------------------------------------------------------------------------
     # THRIPS - التربس
     # -------------------------------------------------------------------------
@@ -303,9 +309,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=10.0,
         threshold_unit="per_flower",
         threshold_description="Tap flowers over white paper and count. Sample 10 flowers per 10 plants. "
-                             "CRITICAL: If TSWV present in area, threshold is 1 per flower.",
+        "CRITICAL: If TSWV present in area, threshold is 1 per flower.",
         threshold_description_ar="اضرب الأزهار فوق ورق أبيض وعد. عينة 10 أزهار من 10 نباتات. "
-                                "حرج: إذا كان TSWV موجوداً في المنطقة، العتبة 1 لكل زهرة.",
+        "حرج: إذا كان TSWV موجوداً في المنطقة، العتبة 1 لكل زهرة.",
         sampling_method="Flower tapping onto white paper, blue sticky traps (1/100m2)",
         sampling_method_ar="ضرب الأزهار على ورق أبيض، مصائد لاصقة زرقاء (1/100م2)",
         sampling_frequency="Twice weekly during flowering",
@@ -319,7 +325,6 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         notes="TSWV vector. Cryptic behavior makes control difficult. Multiple tactics needed.",
         notes_ar="ناقل TSWV. السلوك الخفي يجعل المكافحة صعبة. تكتيكات متعددة ضرورية.",
     ),
-
     # -------------------------------------------------------------------------
     # FRUIT FLY - ذباب الفاكهة
     # -------------------------------------------------------------------------
@@ -334,9 +339,9 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
         economic_threshold=1.0,
         threshold_unit="FTD",  # Flies per Trap per Day
         threshold_description="McPhail traps with protein bait at 1-2 traps/ha. FTD = total flies / (traps x days). "
-                             "Export orchards may require 0 FTD tolerance.",
+        "Export orchards may require 0 FTD tolerance.",
         threshold_description_ar="مصائد ماكفيل بطعم بروتيني بمعدل 1-2 مصيدة/هكتار. FTD = إجمالي الذباب / (المصائد × الأيام). "
-                                "بساتين التصدير قد تتطلب تحمل صفر.",
+        "بساتين التصدير قد تتطلب تحمل صفر.",
         sampling_method="McPhail traps with protein bait, inspected twice weekly",
         sampling_method_ar="مصائد ماكفيل بطعم بروتيني، تُفحص مرتين أسبوعياً",
         sampling_frequency="Twice weekly during fruiting season",
@@ -356,6 +361,7 @@ THRESHOLD_DATABASE: dict[str, EconomicThreshold] = {
 # =============================================================================
 # THRESHOLD LOOKUP FUNCTIONS - دوال البحث عن العتبات
 # =============================================================================
+
 
 def get_threshold(pest_id: str, crop_type: CropType) -> EconomicThreshold | None:
     """
@@ -394,12 +400,14 @@ def get_thresholds_for_pest(pest_id: str) -> list[EconomicThreshold]:
 # THRESHOLD CALCULATION FUNCTIONS - دوال حساب العتبات
 # =============================================================================
 
+
 @dataclass
 class ThresholdAssessment:
     """
     Result of threshold assessment.
     نتيجة تقييم العتبة.
     """
+
     pest_id: str
     pest_name: str
     pest_name_ar: str
@@ -535,8 +543,8 @@ def assess_threshold(
         modifiers_applied["virus_present"] = 0.5
 
     # Calculate percentages
-    pct_action = (observed_value / adj_action * 100) if adj_action > 0 else float('inf')
-    pct_economic = (observed_value / adj_economic * 100) if adj_economic > 0 else float('inf')
+    pct_action = (observed_value / adj_action * 100) if adj_action > 0 else float("inf")
+    pct_economic = (observed_value / adj_economic * 100) if adj_economic > 0 else float("inf")
 
     # Determine if thresholds exceeded
     exceeds_action = observed_value >= adj_action
@@ -655,10 +663,7 @@ def assess_scout_report(
     # Assess each pest
     for pest_key, observations in pest_observations.items():
         # Calculate average count per unit
-        counts = [
-            obs.count_per_unit for obs in observations
-            if obs.count_per_unit is not None
-        ]
+        counts = [obs.count_per_unit for obs in observations if obs.count_per_unit is not None]
         if not counts:
             counts = [float(obs.count or 0) for obs in observations]
 
@@ -780,6 +785,7 @@ def generate_threshold_alert(
 # ECONOMIC CALCULATIONS - الحسابات الاقتصادية
 # =============================================================================
 
+
 def calculate_economic_injury_level(
     control_cost_per_ha: float,
     crop_value_per_ha: float,
@@ -833,7 +839,7 @@ def calculate_gain_threshold(
         return eil
 
     # Work backwards from EIL
-    growth_factor = pest_growth_rate ** days_to_treatment
+    growth_factor = pest_growth_rate**days_to_treatment
     action_threshold = eil / growth_factor
     return action_threshold
 

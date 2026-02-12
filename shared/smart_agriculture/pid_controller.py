@@ -331,18 +331,18 @@ class WaterFertilizerPIDController:
         self._last_error_k = error_k
 
         # Track efficiency metrics
-        self._update_efficiency_tracking(
-            n_amount, p_amount, k_amount, water_volume, area_hectares
-        )
+        self._update_efficiency_tracking(n_amount, p_amount, k_amount, water_volume, area_hectares)
 
         # Store tuning data if auto-tune is enabled
         if self._auto_tune_enabled:
-            self._tuning_data.append({
-                "timestamp": datetime.now(),
-                "error": {"n": error_n, "p": error_p, "k": error_k},
-                "output": {"n": output_n, "p": output_p, "k": output_k},
-                "gains": {"kp": self.kp, "ki": self.ki, "kd": self.kd},
-            })
+            self._tuning_data.append(
+                {
+                    "timestamp": datetime.now(),
+                    "error": {"n": error_n, "p": error_p, "k": error_k},
+                    "output": {"n": output_n, "p": output_p, "k": output_k},
+                    "gains": {"kp": self.kp, "ki": self.ki, "kd": self.kd},
+                }
+            )
 
         command = FertilizerCommand(
             n_amount=round(n_amount, 2),
@@ -366,11 +366,7 @@ class WaterFertilizerPIDController:
         Calculate PID output for a single nutrient.
         حساب إخراج PID لمغذي واحد.
         """
-        output = (
-            self.kp * error +
-            self.ki * integral +
-            self.kd * derivative
-        )
+        output = self.kp * error + self.ki * integral + self.kd * derivative
         return self._clamp_output(output)
 
     def _clamp_output(self, value: float) -> float:
@@ -456,7 +452,7 @@ class WaterFertilizerPIDController:
             # Find zero crossings to estimate oscillation period
             zero_crossings = 0
             for i in range(1, len(errors)):
-                if errors[i-1] * errors[i] < 0:
+                if errors[i - 1] * errors[i] < 0:
                     zero_crossings += 1
 
             if zero_crossings >= 2:
@@ -499,7 +495,8 @@ class WaterFertilizerPIDController:
         if self._total_fertilizer_baseline > 0:
             fertilizer_efficiency = (
                 (self._total_fertilizer_baseline - self._total_fertilizer_actual)
-                / self._total_fertilizer_baseline * 100
+                / self._total_fertilizer_baseline
+                * 100
             )
         else:
             fertilizer_efficiency = 40.0  # Default documented value
@@ -507,7 +504,8 @@ class WaterFertilizerPIDController:
         if self._total_water_baseline > 0:
             water_saving = (
                 (self._total_water_baseline - self._total_water_actual)
-                / self._total_water_baseline * 100
+                / self._total_water_baseline
+                * 100
             )
         else:
             water_saving = 35.0  # Default documented value
@@ -614,14 +612,8 @@ class WaterFertilizerPIDController:
             "date_palm": {"n": 80, "p": 25, "k": 100},
         }
 
-        gains = self.CROP_GAINS.get(
-            crop_type.lower(),
-            PIDGains(kp=1.0, ki=0.1, kd=0.05)
-        )
-        targets = npk_targets.get(
-            crop_type.lower(),
-            {"n": 100, "p": 40, "k": 150}
-        )
+        gains = self.CROP_GAINS.get(crop_type.lower(), PIDGains(kp=1.0, ki=0.1, kd=0.05))
+        targets = npk_targets.get(crop_type.lower(), {"n": 100, "p": 40, "k": 150})
 
         return {
             "crop": crop_type,

@@ -15,19 +15,18 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from .models import (
+    SYNC_MESSAGES,
+    BilingualMessage,
     DeltaChange,
     DeltaPacket,
+    EntityType,
     SyncItem,
     SyncOperationType,
-    EntityType,
-    BilingualMessage,
-    SYNC_MESSAGES,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Delta Configuration
@@ -39,28 +38,39 @@ class DeltaSyncConfig:
     """Configuration for delta sync operations."""
 
     # Delta thresholds
-    min_savings_percent: float = 20.0          # الحد الأدنى للتوفير - Skip delta if savings < 20%
-    max_delta_size_bytes: int = 1024 * 100     # الحد الأقصى لحجم الدلتا - 100KB max delta
-    max_changes_per_packet: int = 1000         # الحد الأقصى للتغييرات لكل حزمة
+    min_savings_percent: float = 20.0  # الحد الأدنى للتوفير - Skip delta if savings < 20%
+    max_delta_size_bytes: int = 1024 * 100  # الحد الأقصى لحجم الدلتا - 100KB max delta
+    max_changes_per_packet: int = 1000  # الحد الأقصى للتغييرات لكل حزمة
 
     # Compression
-    enable_compression: bool = True            # تفعيل الضغط
-    compression_level: int = 6                 # مستوى الضغط (1-9)
+    enable_compression: bool = True  # تفعيل الضغط
+    compression_level: int = 6  # مستوى الضغط (1-9)
 
     # Versioning
-    track_versions: bool = True                # تتبع الإصدارات
-    max_version_history: int = 10              # الحد الأقصى لتاريخ الإصدارات
+    track_versions: bool = True  # تتبع الإصدارات
+    max_version_history: int = 10  # الحد الأقصى لتاريخ الإصدارات
 
     # Fields to exclude from delta
-    excluded_fields: set[str] = field(default_factory=lambda: {
-        "_id", "_version", "_modified_at", "_modified_by",
-        "created_at", "updated_at", "sync_status",
-    })
+    excluded_fields: set[str] = field(
+        default_factory=lambda: {
+            "_id",
+            "_version",
+            "_modified_at",
+            "_modified_by",
+            "created_at",
+            "updated_at",
+            "sync_status",
+        }
+    )
 
     # Fields that should always be sent in full (not delta)
-    full_sync_fields: set[str] = field(default_factory=lambda: {
-        "geometry", "boundary", "coordinates",
-    })
+    full_sync_fields: set[str] = field(
+        default_factory=lambda: {
+            "geometry",
+            "boundary",
+            "coordinates",
+        }
+    )
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -127,22 +137,26 @@ def compute_delta(
 
         # Key removed
         if key not in new_data:
-            changes.append(DeltaChange(
-                field_path=key,
-                old_value=old_value,
-                new_value=None,
-                operation="unset",
-            ))
+            changes.append(
+                DeltaChange(
+                    field_path=key,
+                    old_value=old_value,
+                    new_value=None,
+                    operation="unset",
+                )
+            )
             continue
 
         # Key added
         if key not in old_data:
-            changes.append(DeltaChange(
-                field_path=key,
-                old_value=None,
-                new_value=new_value,
-                operation="set",
-            ))
+            changes.append(
+                DeltaChange(
+                    field_path=key,
+                    old_value=None,
+                    new_value=new_value,
+                    operation="set",
+                )
+            )
             continue
 
         # Value unchanged
@@ -153,25 +167,23 @@ def compute_delta(
         if isinstance(old_value, dict) and isinstance(new_value, dict):
             # Fields that require full sync
             if key in config.full_sync_fields:
-                changes.append(DeltaChange(
-                    field_path=key,
-                    old_value=old_value,
-                    new_value=new_value,
-                    operation="set",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=key,
+                        old_value=old_value,
+                        new_value=new_value,
+                        operation="set",
+                    )
+                )
             else:
                 # Recursively compute nested delta
-                nested_changes = _compute_nested_delta(
-                    old_value, new_value, key, config
-                )
+                nested_changes = _compute_nested_delta(old_value, new_value, key, config)
                 changes.extend(nested_changes)
             continue
 
         # Handle lists
         if isinstance(old_value, list) and isinstance(new_value, list):
-            list_changes = _compute_list_delta(
-                old_value, new_value, key, config
-            )
+            list_changes = _compute_list_delta(old_value, new_value, key, config)
             changes.extend(list_changes)
             continue
 
@@ -179,21 +191,25 @@ def compute_delta(
         if isinstance(old_value, (int, float)) and isinstance(new_value, (int, float)):
             diff = new_value - old_value
             if diff != 0:
-                changes.append(DeltaChange(
-                    field_path=key,
-                    old_value=old_value,
-                    new_value=new_value,
-                    operation="increment" if diff > 0 else "set",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=key,
+                        old_value=old_value,
+                        new_value=new_value,
+                        operation="increment" if diff > 0 else "set",
+                    )
+                )
             continue
 
         # General value change
-        changes.append(DeltaChange(
-            field_path=key,
-            old_value=old_value,
-            new_value=new_value,
-            operation="set",
-        ))
+        changes.append(
+            DeltaChange(
+                field_path=key,
+                old_value=old_value,
+                new_value=new_value,
+                operation="set",
+            )
+        )
 
     return changes
 
@@ -214,30 +230,36 @@ def _compute_nested_delta(
         new_value = new_data.get(key)
 
         if key not in new_data:
-            changes.append(DeltaChange(
-                field_path=field_path,
-                old_value=old_value,
-                new_value=None,
-                operation="unset",
-            ))
+            changes.append(
+                DeltaChange(
+                    field_path=field_path,
+                    old_value=old_value,
+                    new_value=None,
+                    operation="unset",
+                )
+            )
         elif key not in old_data:
-            changes.append(DeltaChange(
-                field_path=field_path,
-                old_value=None,
-                new_value=new_value,
-                operation="set",
-            ))
+            changes.append(
+                DeltaChange(
+                    field_path=field_path,
+                    old_value=None,
+                    new_value=new_value,
+                    operation="set",
+                )
+            )
         elif old_value != new_value:
             if isinstance(old_value, dict) and isinstance(new_value, dict):
                 nested = _compute_nested_delta(old_value, new_value, field_path, config)
                 changes.extend(nested)
             else:
-                changes.append(DeltaChange(
-                    field_path=field_path,
-                    old_value=old_value,
-                    new_value=new_value,
-                    operation="set",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=field_path,
+                        old_value=old_value,
+                        new_value=new_value,
+                        operation="set",
+                    )
+                )
 
     return changes
 
@@ -252,18 +274,20 @@ def _compute_list_delta(
     changes: list[DeltaChange] = []
 
     # For simple values, track additions and removals
-    old_set = {str(item) for item in old_list if not isinstance(item, (dict, list))}
-    new_set = {str(item) for item in new_list if not isinstance(item, (dict, list))}
+    {str(item) for item in old_list if not isinstance(item, (dict, list))}
+    {str(item) for item in new_list if not isinstance(item, (dict, list))}
 
     # Determine if we should use full replacement or incremental
     if len(old_list) > 100 or len(new_list) > 100:
         # Large lists - use full replacement
-        changes.append(DeltaChange(
-            field_path=field_path,
-            old_value=old_list,
-            new_value=new_list,
-            operation="set",
-        ))
+        changes.append(
+            DeltaChange(
+                field_path=field_path,
+                old_value=old_list,
+                new_value=new_list,
+                operation="set",
+            )
+        )
         return changes
 
     # Check for objects with IDs
@@ -283,41 +307,49 @@ def _compute_list_delta(
         # Added items
         for item_id, item in new_by_id.items():
             if item_id not in old_by_id:
-                changes.append(DeltaChange(
-                    field_path=f"{field_path}[{item_id}]",
-                    old_value=None,
-                    new_value=item,
-                    operation="append",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=f"{field_path}[{item_id}]",
+                        old_value=None,
+                        new_value=item,
+                        operation="append",
+                    )
+                )
             elif item != old_by_id[item_id]:
                 # Item modified
-                changes.append(DeltaChange(
-                    field_path=f"{field_path}[{item_id}]",
-                    old_value=old_by_id[item_id],
-                    new_value=item,
-                    operation="set",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=f"{field_path}[{item_id}]",
+                        old_value=old_by_id[item_id],
+                        new_value=item,
+                        operation="set",
+                    )
+                )
 
         # Removed items
         for item_id in old_by_id:
             if item_id not in new_by_id:
-                changes.append(DeltaChange(
-                    field_path=f"{field_path}[{item_id}]",
-                    old_value=old_by_id[item_id],
-                    new_value=None,
-                    operation="remove",
-                ))
+                changes.append(
+                    DeltaChange(
+                        field_path=f"{field_path}[{item_id}]",
+                        old_value=old_by_id[item_id],
+                        new_value=None,
+                        operation="remove",
+                    )
+                )
 
         return changes
 
     # Simple list - full replacement if different
     if old_list != new_list:
-        changes.append(DeltaChange(
-            field_path=field_path,
-            old_value=old_list,
-            new_value=new_list,
-            operation="set",
-        ))
+        changes.append(
+            DeltaChange(
+                field_path=field_path,
+                old_value=old_list,
+                new_value=new_list,
+                operation="set",
+            )
+        )
 
     return changes
 
@@ -392,7 +424,8 @@ def _apply_single_change(data: dict[str, Any], change: DeltaChange) -> None:
         if change.operation == "unset" or change.operation == "remove":
             # Remove item
             current[field_name] = [
-                item for item in current[field_name]
+                item
+                for item in current[field_name]
                 if not (isinstance(item, dict) and str(item.get("id")) == item_id)
             ]
         elif change.operation == "append":
@@ -458,9 +491,7 @@ class DeltaPacketBuilder:
 
         # Calculate sizes
         full_size = len(json.dumps(new_data, default=str).encode())
-        delta_size = len(json.dumps(
-            [c.to_dict() for c in changes], default=str
-        ).encode())
+        delta_size = len(json.dumps([c.to_dict() for c in changes], default=str).encode())
 
         # Check if delta is worth it
         savings_percent = ((full_size - delta_size) / full_size) * 100 if full_size > 0 else 0
@@ -532,7 +563,7 @@ class DeltaSyncStats:
         """Record a delta sync operation."""
         self.total_syncs += 1
         self.delta_syncs += 1
-        self.total_bytes_saved += (full_size - delta_size)
+        self.total_bytes_saved += full_size - delta_size
         self.total_bytes_transferred += delta_size
         self._update_average_savings()
 
@@ -547,8 +578,7 @@ class DeltaSyncStats:
         """Update average savings percentage."""
         if self.total_bytes_transferred + self.total_bytes_saved > 0:
             self.average_savings_percent = (
-                self.total_bytes_saved /
-                (self.total_bytes_transferred + self.total_bytes_saved)
+                self.total_bytes_saved / (self.total_bytes_transferred + self.total_bytes_saved)
             ) * 100
 
     def to_dict(self) -> dict[str, Any]:
@@ -557,7 +587,9 @@ class DeltaSyncStats:
             "total_syncs": self.total_syncs,
             "delta_syncs": self.delta_syncs,
             "full_syncs": self.full_syncs,
-            "delta_rate": round((self.delta_syncs / self.total_syncs * 100) if self.total_syncs > 0 else 0, 2),
+            "delta_rate": round(
+                (self.delta_syncs / self.total_syncs * 100) if self.total_syncs > 0 else 0, 2
+            ),
             "total_bytes_saved": self.total_bytes_saved,
             "total_bytes_transferred": self.total_bytes_transferred,
             "average_savings_percent": round(self.average_savings_percent, 2),
@@ -598,9 +630,7 @@ class DeltaSyncManager:
         # Check if we have base data for delta
         if not item.server_data:
             # No base data - must use full sync
-            self.stats.record_full_sync(
-                len(json.dumps(item.local_data, default=str).encode())
-            )
+            self.stats.record_full_sync(len(json.dumps(item.local_data, default=str).encode()))
             return item, False
 
         # Try to build delta
@@ -638,9 +668,7 @@ class DeltaSyncManager:
         else:
             # Full sync
             item.delta_data = None
-            self.stats.record_full_sync(
-                len(json.dumps(item.local_data, default=str).encode())
-            )
+            self.stats.record_full_sync(len(json.dumps(item.local_data, default=str).encode()))
             return item, False
 
     def apply_download(
@@ -659,13 +687,17 @@ class DeltaSyncManager:
             Tuple of (result data, success, message)
         """
         if current_data is None:
-            return {}, False, BilingualMessage(
-                en="Cannot apply delta without base data",
-                ar="لا يمكن تطبيق الدلتا بدون بيانات أساسية",
+            return (
+                {},
+                False,
+                BilingualMessage(
+                    en="Cannot apply delta without base data",
+                    ar="لا يمكن تطبيق الدلتا بدون بيانات أساسية",
+                ),
             )
 
         # Verify checksum of base
-        current_checksum = compute_checksum(current_data)
+        compute_checksum(current_data)
 
         try:
             # Apply delta
@@ -675,17 +707,25 @@ class DeltaSyncManager:
             if delta_packet.checksum:
                 result_checksum = compute_checksum(result)
                 if result_checksum != delta_packet.checksum:
-                    return current_data, False, BilingualMessage(
-                        en="Checksum mismatch after applying delta",
-                        ar="عدم تطابق مجموع التحقق بعد تطبيق الدلتا",
+                    return (
+                        current_data,
+                        False,
+                        BilingualMessage(
+                            en="Checksum mismatch after applying delta",
+                            ar="عدم تطابق مجموع التحقق بعد تطبيق الدلتا",
+                        ),
                     )
 
             return result, True, SYNC_MESSAGES["download_completed"]
 
         except Exception as e:
-            return current_data, False, BilingualMessage(
-                en=f"Failed to apply delta: {str(e)}",
-                ar=f"فشل تطبيق الدلتا: {str(e)}",
+            return (
+                current_data,
+                False,
+                BilingualMessage(
+                    en=f"Failed to apply delta: {str(e)}",
+                    ar=f"فشل تطبيق الدلتا: {str(e)}",
+                ),
             )
 
     def get_sync_token(self, device_id: str) -> str | None:
@@ -752,9 +792,7 @@ class DeltaSyncManager:
 
         # Estimate savings
         full_size = len(json.dumps(item.local_data, default=str).encode())
-        delta_size = len(json.dumps(
-            [c.to_dict() for c in changes], default=str
-        ).encode())
+        delta_size = len(json.dumps([c.to_dict() for c in changes], default=str).encode())
 
         savings = ((full_size - delta_size) / full_size) * 100 if full_size > 0 else 0
 
@@ -775,18 +813,19 @@ class DeltaSyncManager:
         if entity_key not in self._version_history:
             self._version_history[entity_key] = []
 
-        self._version_history[entity_key].append({
-            "version": packet.target_version,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "checksum": packet.checksum,
-            "change_count": len(packet.changes),
-        })
+        self._version_history[entity_key].append(
+            {
+                "version": packet.target_version,
+                "timestamp": datetime.now(UTC).isoformat(),
+                "checksum": packet.checksum,
+                "change_count": len(packet.changes),
+            }
+        )
 
         # Trim history
         max_history = self.config.max_version_history
         if len(self._version_history[entity_key]) > max_history:
-            self._version_history[entity_key] = \
-                self._version_history[entity_key][-max_history:]
+            self._version_history[entity_key] = self._version_history[entity_key][-max_history:]
 
     def get_version_history(
         self,
@@ -822,7 +861,9 @@ class BatchDeltaResult:
             "total_items": self.total_items,
             "delta_items": self.delta_items,
             "full_sync_items": self.full_sync_items,
-            "delta_rate": round((self.delta_items / self.total_items * 100) if self.total_items > 0 else 0, 2),
+            "delta_rate": round(
+                (self.delta_items / self.total_items * 100) if self.total_items > 0 else 0, 2
+            ),
             "total_bytes_original": self.total_bytes_original,
             "total_bytes_transferred": self.total_bytes_transferred,
             "savings_bytes": self.savings_bytes,

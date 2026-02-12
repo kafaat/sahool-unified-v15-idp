@@ -9,6 +9,7 @@ from typing import Any, Callable
 
 import structlog
 
+from .knowledge_base import KnowledgeBase
 from .models import (
     GenerationMode,
     RAGRequest,
@@ -16,7 +17,6 @@ from .models import (
     RetrievalStrategy,
 )
 from .pipeline import RAGPipeline
-from .knowledge_base import KnowledgeBase
 
 logger = structlog.get_logger(__name__)
 
@@ -24,6 +24,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class MCPToolDefinition:
     """MCP Tool definition | تعريف أداة MCP"""
+
     name: str
     description: str
     description_ar: str
@@ -57,434 +58,464 @@ class RAGMCPTools:
         # Query Tools
         # ═══════════════════════════════════════════════════════════════════════
 
-        self._register_tool(MCPToolDefinition(
-            name="rag_query",
-            description="Query the RAG system with a question and get an answer with sources",
-            description_ar="استعلام نظام RAG بسؤال والحصول على إجابة مع المصادر",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The question or query to answer | السؤال أو الاستعلام للإجابة عليه",
+        self._register_tool(
+            MCPToolDefinition(
+                name="rag_query",
+                description="Query the RAG system with a question and get an answer with sources",
+                description_ar="استعلام نظام RAG بسؤال والحصول على إجابة مع المصادر",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The question or query to answer | السؤال أو الاستعلام للإجابة عليه",
+                        },
+                        "collection": {
+                            "type": "string",
+                            "description": "Collection to search in | المجموعة للبحث فيها",
+                            "default": "default",
+                        },
+                        "top_k": {
+                            "type": "integer",
+                            "description": "Number of results to retrieve | عدد النتائج للاسترجاع",
+                            "default": 5,
+                        },
+                        "language": {
+                            "type": "string",
+                            "enum": ["en", "ar"],
+                            "description": "Response language | لغة الاستجابة",
+                            "default": "en",
+                        },
                     },
-                    "collection": {
-                        "type": "string",
-                        "description": "Collection to search in | المجموعة للبحث فيها",
-                        "default": "default",
-                    },
-                    "top_k": {
-                        "type": "integer",
-                        "description": "Number of results to retrieve | عدد النتائج للاسترجاع",
-                        "default": 5,
-                    },
-                    "language": {
-                        "type": "string",
-                        "enum": ["en", "ar"],
-                        "description": "Response language | لغة الاستجابة",
-                        "default": "en",
-                    },
+                    "required": ["query"],
                 },
-                "required": ["query"],
-            },
-            handler=self._handle_rag_query,
-            category="query",
-        ))
+                handler=self._handle_rag_query,
+                category="query",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="semantic_search",
-            description="Perform semantic search to find relevant documents",
-            description_ar="إجراء بحث دلالي للعثور على المستندات ذات الصلة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Search query | استعلام البحث",
+        self._register_tool(
+            MCPToolDefinition(
+                name="semantic_search",
+                description="Perform semantic search to find relevant documents",
+                description_ar="إجراء بحث دلالي للعثور على المستندات ذات الصلة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Search query | استعلام البحث",
+                        },
+                        "collection": {
+                            "type": "string",
+                            "description": "Collection to search | المجموعة للبحث",
+                            "default": "default",
+                        },
+                        "top_k": {
+                            "type": "integer",
+                            "description": "Number of results | عدد النتائج",
+                            "default": 10,
+                        },
+                        "min_score": {
+                            "type": "number",
+                            "description": "Minimum similarity score | الحد الأدنى لدرجة التشابه",
+                            "default": 0.0,
+                        },
                     },
-                    "collection": {
-                        "type": "string",
-                        "description": "Collection to search | المجموعة للبحث",
-                        "default": "default",
-                    },
-                    "top_k": {
-                        "type": "integer",
-                        "description": "Number of results | عدد النتائج",
-                        "default": 10,
-                    },
-                    "min_score": {
-                        "type": "number",
-                        "description": "Minimum similarity score | الحد الأدنى لدرجة التشابه",
-                        "default": 0.0,
-                    },
+                    "required": ["query"],
                 },
-                "required": ["query"],
-            },
-            handler=self._handle_semantic_search,
-            category="query",
-        ))
+                handler=self._handle_semantic_search,
+                category="query",
+            )
+        )
 
         # ═══════════════════════════════════════════════════════════════════════
         # Knowledge Base Tools
         # ═══════════════════════════════════════════════════════════════════════
 
-        self._register_tool(MCPToolDefinition(
-            name="add_document",
-            description="Add a document to the knowledge base",
-            description_ar="إضافة مستند إلى قاعدة المعرفة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "text": {
-                        "type": "string",
-                        "description": "Document text content | محتوى المستند النصي",
+        self._register_tool(
+            MCPToolDefinition(
+                name="add_document",
+                description="Add a document to the knowledge base",
+                description_ar="إضافة مستند إلى قاعدة المعرفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Document text content | محتوى المستند النصي",
+                        },
+                        "title": {
+                            "type": "string",
+                            "description": "Document title | عنوان المستند",
+                        },
+                        "text_ar": {
+                            "type": "string",
+                            "description": "Arabic text content (optional) | المحتوى العربي (اختياري)",
+                        },
+                        "collection": {
+                            "type": "string",
+                            "description": "Target collection | المجموعة المستهدفة",
+                            "default": "default",
+                        },
+                        "metadata": {
+                            "type": "object",
+                            "description": "Additional metadata | بيانات وصفية إضافية",
+                        },
                     },
-                    "title": {
-                        "type": "string",
-                        "description": "Document title | عنوان المستند",
+                    "required": ["text", "title"],
+                },
+                handler=self._handle_add_document,
+                category="knowledge_base",
+            )
+        )
+
+        self._register_tool(
+            MCPToolDefinition(
+                name="add_file",
+                description="Add a file to the knowledge base",
+                description_ar="إضافة ملف إلى قاعدة المعرفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "Path to the file | مسار الملف",
+                        },
+                        "collection": {
+                            "type": "string",
+                            "description": "Target collection | المجموعة المستهدفة",
+                            "default": "default",
+                        },
                     },
-                    "text_ar": {
-                        "type": "string",
-                        "description": "Arabic text content (optional) | المحتوى العربي (اختياري)",
-                    },
-                    "collection": {
-                        "type": "string",
-                        "description": "Target collection | المجموعة المستهدفة",
-                        "default": "default",
-                    },
-                    "metadata": {
-                        "type": "object",
-                        "description": "Additional metadata | بيانات وصفية إضافية",
+                    "required": ["file_path"],
+                },
+                handler=self._handle_add_file,
+                category="knowledge_base",
+            )
+        )
+
+        self._register_tool(
+            MCPToolDefinition(
+                name="list_documents",
+                description="List documents in the knowledge base",
+                description_ar="عرض المستندات في قاعدة المعرفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "collection": {
+                            "type": "string",
+                            "description": "Filter by collection | تصفية حسب المجموعة",
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum number of results | الحد الأقصى لعدد النتائج",
+                            "default": 50,
+                        },
                     },
                 },
-                "required": ["text", "title"],
-            },
-            handler=self._handle_add_document,
-            category="knowledge_base",
-        ))
+                handler=self._handle_list_documents,
+                category="knowledge_base",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="add_file",
-            description="Add a file to the knowledge base",
-            description_ar="إضافة ملف إلى قاعدة المعرفة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "file_path": {
-                        "type": "string",
-                        "description": "Path to the file | مسار الملف",
+        self._register_tool(
+            MCPToolDefinition(
+                name="delete_document",
+                description="Delete a document from the knowledge base",
+                description_ar="حذف مستند من قاعدة المعرفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "document_id": {
+                            "type": "string",
+                            "description": "ID of document to delete | معرف المستند للحذف",
+                        },
                     },
-                    "collection": {
-                        "type": "string",
-                        "description": "Target collection | المجموعة المستهدفة",
-                        "default": "default",
-                    },
+                    "required": ["document_id"],
                 },
-                "required": ["file_path"],
-            },
-            handler=self._handle_add_file,
-            category="knowledge_base",
-        ))
+                handler=self._handle_delete_document,
+                category="knowledge_base",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="list_documents",
-            description="List documents in the knowledge base",
-            description_ar="عرض المستندات في قاعدة المعرفة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "collection": {
-                        "type": "string",
-                        "description": "Filter by collection | تصفية حسب المجموعة",
-                    },
-                    "limit": {
-                        "type": "integer",
-                        "description": "Maximum number of results | الحد الأقصى لعدد النتائج",
-                        "default": 50,
-                    },
+        self._register_tool(
+            MCPToolDefinition(
+                name="kb_stats",
+                description="Get knowledge base statistics",
+                description_ar="الحصول على إحصائيات قاعدة المعرفة",
+                input_schema={
+                    "type": "object",
+                    "properties": {},
                 },
-            },
-            handler=self._handle_list_documents,
-            category="knowledge_base",
-        ))
-
-        self._register_tool(MCPToolDefinition(
-            name="delete_document",
-            description="Delete a document from the knowledge base",
-            description_ar="حذف مستند من قاعدة المعرفة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "document_id": {
-                        "type": "string",
-                        "description": "ID of document to delete | معرف المستند للحذف",
-                    },
-                },
-                "required": ["document_id"],
-            },
-            handler=self._handle_delete_document,
-            category="knowledge_base",
-        ))
-
-        self._register_tool(MCPToolDefinition(
-            name="kb_stats",
-            description="Get knowledge base statistics",
-            description_ar="الحصول على إحصائيات قاعدة المعرفة",
-            input_schema={
-                "type": "object",
-                "properties": {},
-            },
-            handler=self._handle_kb_stats,
-            category="knowledge_base",
-        ))
+                handler=self._handle_kb_stats,
+                category="knowledge_base",
+            )
+        )
 
         # ═══════════════════════════════════════════════════════════════════════
         # Pipeline Configuration Tools
         # ═══════════════════════════════════════════════════════════════════════
 
-        self._register_tool(MCPToolDefinition(
-            name="configure_pipeline",
-            description="Configure RAG pipeline settings",
-            description_ar="تكوين إعدادات خط أنابيب RAG",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "retrieval_strategy": {
-                        "type": "string",
-                        "enum": ["dense", "sparse", "hybrid", "adaptive"],
-                        "description": "Retrieval strategy | استراتيجية الاسترجاع",
-                    },
-                    "reranking_method": {
-                        "type": "string",
-                        "enum": ["none", "cross_encoder", "llm", "reciprocal_rank"],
-                        "description": "Reranking method | طريقة إعادة الترتيب",
-                    },
-                    "generation_mode": {
-                        "type": "string",
-                        "enum": ["standard", "cot", "self_reflective", "iterative"],
-                        "description": "Generation mode | وضع التوليد",
-                    },
-                    "top_k": {
-                        "type": "integer",
-                        "description": "Number of documents to retrieve | عدد المستندات للاسترجاع",
-                    },
-                    "chunk_size": {
-                        "type": "integer",
-                        "description": "Chunk size for documents | حجم القطعة للمستندات",
+        self._register_tool(
+            MCPToolDefinition(
+                name="configure_pipeline",
+                description="Configure RAG pipeline settings",
+                description_ar="تكوين إعدادات خط أنابيب RAG",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "retrieval_strategy": {
+                            "type": "string",
+                            "enum": ["dense", "sparse", "hybrid", "adaptive"],
+                            "description": "Retrieval strategy | استراتيجية الاسترجاع",
+                        },
+                        "reranking_method": {
+                            "type": "string",
+                            "enum": ["none", "cross_encoder", "llm", "reciprocal_rank"],
+                            "description": "Reranking method | طريقة إعادة الترتيب",
+                        },
+                        "generation_mode": {
+                            "type": "string",
+                            "enum": ["standard", "cot", "self_reflective", "iterative"],
+                            "description": "Generation mode | وضع التوليد",
+                        },
+                        "top_k": {
+                            "type": "integer",
+                            "description": "Number of documents to retrieve | عدد المستندات للاسترجاع",
+                        },
+                        "chunk_size": {
+                            "type": "integer",
+                            "description": "Chunk size for documents | حجم القطعة للمستندات",
+                        },
                     },
                 },
-            },
-            handler=self._handle_configure_pipeline,
-            category="configuration",
-        ))
+                handler=self._handle_configure_pipeline,
+                category="configuration",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="get_pipeline_config",
-            description="Get current RAG pipeline configuration",
-            description_ar="الحصول على تكوين خط أنابيب RAG الحالي",
-            input_schema={
-                "type": "object",
-                "properties": {},
-            },
-            handler=self._handle_get_pipeline_config,
-            category="configuration",
-        ))
+        self._register_tool(
+            MCPToolDefinition(
+                name="get_pipeline_config",
+                description="Get current RAG pipeline configuration",
+                description_ar="الحصول على تكوين خط أنابيب RAG الحالي",
+                input_schema={
+                    "type": "object",
+                    "properties": {},
+                },
+                handler=self._handle_get_pipeline_config,
+                category="configuration",
+            )
+        )
 
         # ═══════════════════════════════════════════════════════════════════════
         # Agricultural Advisory Tools
         # ═══════════════════════════════════════════════════════════════════════
 
-        self._register_tool(MCPToolDefinition(
-            name="crop_advisory",
-            description="Get agricultural advisory for a specific crop and situation",
-            description_ar="الحصول على استشارة زراعية لمحصول وحالة معينة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "crop": {
-                        "type": "string",
-                        "description": "Crop type (e.g., wheat, barley, date_palm) | نوع المحصول",
+        self._register_tool(
+            MCPToolDefinition(
+                name="crop_advisory",
+                description="Get agricultural advisory for a specific crop and situation",
+                description_ar="الحصول على استشارة زراعية لمحصول وحالة معينة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "crop": {
+                            "type": "string",
+                            "description": "Crop type (e.g., wheat, barley, date_palm) | نوع المحصول",
+                        },
+                        "issue": {
+                            "type": "string",
+                            "description": "Issue or question (e.g., 'yellowing leaves', 'irrigation schedule') | المشكلة أو السؤال",
+                        },
+                        "context": {
+                            "type": "object",
+                            "description": "Additional context (soil_type, growth_stage, etc.) | سياق إضافي",
+                        },
+                        "language": {
+                            "type": "string",
+                            "enum": ["en", "ar", "both"],
+                            "description": "Response language | لغة الاستجابة",
+                            "default": "both",
+                        },
                     },
-                    "issue": {
-                        "type": "string",
-                        "description": "Issue or question (e.g., 'yellowing leaves', 'irrigation schedule') | المشكلة أو السؤال",
-                    },
-                    "context": {
-                        "type": "object",
-                        "description": "Additional context (soil_type, growth_stage, etc.) | سياق إضافي",
-                    },
-                    "language": {
-                        "type": "string",
-                        "enum": ["en", "ar", "both"],
-                        "description": "Response language | لغة الاستجابة",
-                        "default": "both",
-                    },
+                    "required": ["crop", "issue"],
                 },
-                "required": ["crop", "issue"],
-            },
-            handler=self._handle_crop_advisory,
-            category="agricultural",
-        ))
+                handler=self._handle_crop_advisory,
+                category="agricultural",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="pest_identification",
-            description="Identify pests and get treatment recommendations",
-            description_ar="تحديد الآفات والحصول على توصيات العلاج",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "symptoms": {
-                        "type": "string",
-                        "description": "Observed symptoms | الأعراض الملاحظة",
+        self._register_tool(
+            MCPToolDefinition(
+                name="pest_identification",
+                description="Identify pests and get treatment recommendations",
+                description_ar="تحديد الآفات والحصول على توصيات العلاج",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "symptoms": {
+                            "type": "string",
+                            "description": "Observed symptoms | الأعراض الملاحظة",
+                        },
+                        "crop": {
+                            "type": "string",
+                            "description": "Affected crop | المحصول المتأثر",
+                        },
+                        "region": {
+                            "type": "string",
+                            "description": "Geographic region | المنطقة الجغرافية",
+                        },
                     },
-                    "crop": {
-                        "type": "string",
-                        "description": "Affected crop | المحصول المتأثر",
-                    },
-                    "region": {
-                        "type": "string",
-                        "description": "Geographic region | المنطقة الجغرافية",
-                    },
+                    "required": ["symptoms"],
                 },
-                "required": ["symptoms"],
-            },
-            handler=self._handle_pest_identification,
-            category="agricultural",
-        ))
+                handler=self._handle_pest_identification,
+                category="agricultural",
+            )
+        )
 
         # ═══════════════════════════════════════════════════════════════════════
         # Satellite & GEE Analysis Tools
         # أدوات تحليل صور الأقمار الصناعية
         # ═══════════════════════════════════════════════════════════════════════
 
-        self._register_tool(MCPToolDefinition(
-            name="ndvi_time_series",
-            description="Analyze NDVI time series for a field to detect trends, anomalies, and phenology",
-            description_ar="تحليل السلسلة الزمنية لـ NDVI للحقل لاكتشاف الاتجاهات والشذوذ ومراحل النمو",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {
-                        "type": "string",
-                        "description": "Field identifier | معرف الحقل",
+        self._register_tool(
+            MCPToolDefinition(
+                name="ndvi_time_series",
+                description="Analyze NDVI time series for a field to detect trends, anomalies, and phenology",
+                description_ar="تحليل السلسلة الزمنية لـ NDVI للحقل لاكتشاف الاتجاهات والشذوذ ومراحل النمو",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {
+                            "type": "string",
+                            "description": "Field identifier | معرف الحقل",
+                        },
+                        "start_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Start date (YYYY-MM-DD) | تاريخ البداية",
+                        },
+                        "end_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "End date (YYYY-MM-DD) | تاريخ النهاية",
+                        },
+                        "index_type": {
+                            "type": "string",
+                            "enum": ["ndvi", "evi", "savi", "ndwi", "ndmi", "lai"],
+                            "description": "Vegetation index type | نوع مؤشر الغطاء النباتي",
+                            "default": "ndvi",
+                        },
+                        "satellite": {
+                            "type": "string",
+                            "enum": ["sentinel_2", "landsat_8", "landsat_9", "modis"],
+                            "description": "Satellite source | مصدر القمر الصناعي",
+                            "default": "sentinel_2",
+                        },
                     },
-                    "start_date": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Start date (YYYY-MM-DD) | تاريخ البداية",
-                    },
-                    "end_date": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "End date (YYYY-MM-DD) | تاريخ النهاية",
-                    },
-                    "index_type": {
-                        "type": "string",
-                        "enum": ["ndvi", "evi", "savi", "ndwi", "ndmi", "lai"],
-                        "description": "Vegetation index type | نوع مؤشر الغطاء النباتي",
-                        "default": "ndvi",
-                    },
-                    "satellite": {
-                        "type": "string",
-                        "enum": ["sentinel_2", "landsat_8", "landsat_9", "modis"],
-                        "description": "Satellite source | مصدر القمر الصناعي",
-                        "default": "sentinel_2",
-                    },
+                    "required": ["field_id", "start_date", "end_date"],
                 },
-                "required": ["field_id", "start_date", "end_date"],
-            },
-            handler=self._handle_ndvi_time_series,
-            category="satellite",
-        ))
+                handler=self._handle_ndvi_time_series,
+                category="satellite",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="change_detection",
-            description="Detect vegetation changes between two dates (harvest, planting, stress, drought)",
-            description_ar="كشف تغيرات الغطاء النباتي بين تاريخين (حصاد، زراعة، إجهاد، جفاف)",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {
-                        "type": "string",
-                        "description": "Field identifier | معرف الحقل",
+        self._register_tool(
+            MCPToolDefinition(
+                name="change_detection",
+                description="Detect vegetation changes between two dates (harvest, planting, stress, drought)",
+                description_ar="كشف تغيرات الغطاء النباتي بين تاريخين (حصاد، زراعة، إجهاد، جفاف)",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {
+                            "type": "string",
+                            "description": "Field identifier | معرف الحقل",
+                        },
+                        "date1": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "First date (YYYY-MM-DD) | التاريخ الأول",
+                        },
+                        "date2": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Second date (YYYY-MM-DD) | التاريخ الثاني",
+                        },
+                        "ndvi1": {
+                            "type": "number",
+                            "description": "NDVI value at date1 (optional) | قيمة NDVI في التاريخ الأول",
+                        },
+                        "ndvi2": {
+                            "type": "number",
+                            "description": "NDVI value at date2 (optional) | قيمة NDVI في التاريخ الثاني",
+                        },
                     },
-                    "date1": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "First date (YYYY-MM-DD) | التاريخ الأول",
-                    },
-                    "date2": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Second date (YYYY-MM-DD) | التاريخ الثاني",
-                    },
-                    "ndvi1": {
-                        "type": "number",
-                        "description": "NDVI value at date1 (optional) | قيمة NDVI في التاريخ الأول",
-                    },
-                    "ndvi2": {
-                        "type": "number",
-                        "description": "NDVI value at date2 (optional) | قيمة NDVI في التاريخ الثاني",
-                    },
+                    "required": ["field_id", "date1", "date2"],
                 },
-                "required": ["field_id", "date1", "date2"],
-            },
-            handler=self._handle_change_detection,
-            category="satellite",
-        ))
+                handler=self._handle_change_detection,
+                category="satellite",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="land_cover_classification",
-            description="Classify land cover type (cropland, forest, bare soil, water) from satellite imagery",
-            description_ar="تصنيف نوع الغطاء الأرضي (زراعي، غابة، تربة عارية، ماء) من صور الأقمار الصناعية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {
-                        "type": "string",
-                        "description": "Field identifier | معرف الحقل",
+        self._register_tool(
+            MCPToolDefinition(
+                name="land_cover_classification",
+                description="Classify land cover type (cropland, forest, bare soil, water) from satellite imagery",
+                description_ar="تصنيف نوع الغطاء الأرضي (زراعي، غابة، تربة عارية، ماء) من صور الأقمار الصناعية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {
+                            "type": "string",
+                            "description": "Field identifier | معرف الحقل",
+                        },
+                        "analysis_date": {
+                            "type": "string",
+                            "format": "date",
+                            "description": "Date for analysis (YYYY-MM-DD) | تاريخ التحليل",
+                        },
+                        "ndvi": {
+                            "type": "number",
+                            "description": "NDVI value (optional) | قيمة NDVI",
+                        },
+                        "ndwi": {
+                            "type": "number",
+                            "description": "NDWI value (optional) | قيمة NDWI",
+                        },
                     },
-                    "analysis_date": {
-                        "type": "string",
-                        "format": "date",
-                        "description": "Date for analysis (YYYY-MM-DD) | تاريخ التحليل",
-                    },
-                    "ndvi": {
-                        "type": "number",
-                        "description": "NDVI value (optional) | قيمة NDVI",
-                    },
-                    "ndwi": {
-                        "type": "number",
-                        "description": "NDWI value (optional) | قيمة NDWI",
-                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"],
-            },
-            handler=self._handle_land_cover,
-            category="satellite",
-        ))
+                handler=self._handle_land_cover,
+                category="satellite",
+            )
+        )
 
-        self._register_tool(MCPToolDefinition(
-            name="satellite_query",
-            description="General query about satellite imagery, vegetation indices, or remote sensing",
-            description_ar="استعلام عام عن صور الأقمار الصناعية أو مؤشرات الغطاء النباتي أو الاستشعار عن بعد",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "Query about satellite imagery | استعلام عن صور الأقمار الصناعية",
+        self._register_tool(
+            MCPToolDefinition(
+                name="satellite_query",
+                description="General query about satellite imagery, vegetation indices, or remote sensing",
+                description_ar="استعلام عام عن صور الأقمار الصناعية أو مؤشرات الغطاء النباتي أو الاستشعار عن بعد",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Query about satellite imagery | استعلام عن صور الأقمار الصناعية",
+                        },
+                        "field_id": {
+                            "type": "string",
+                            "description": "Optional field context | سياق الحقل (اختياري)",
+                        },
                     },
-                    "field_id": {
-                        "type": "string",
-                        "description": "Optional field context | سياق الحقل (اختياري)",
-                    },
+                    "required": ["query"],
                 },
-                "required": ["query"],
-            },
-            handler=self._handle_satellite_query,
-            category="satellite",
-        ))
+                handler=self._handle_satellite_query,
+                category="satellite",
+            )
+        )
 
     def _register_tool(self, tool: MCPToolDefinition):
         """Register a tool"""
@@ -780,7 +811,9 @@ class RAGMCPTools:
 
             # Map index type
             index_str = args.get("index_type", "ndvi").upper()
-            index_type = VegetationIndex[index_str] if index_str in VegetationIndex.__members__ else VegetationIndex.NDVI
+            index_type = (
+                VegetationIndex[index_str] if index_str in VegetationIndex.__members__ else VegetationIndex.NDVI
+            )
 
             result = await provider.analyze_time_series(
                 field_id=args["field_id"],

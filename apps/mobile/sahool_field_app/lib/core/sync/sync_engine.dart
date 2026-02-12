@@ -165,6 +165,21 @@ class SyncEngine {
     for (final item in items) {
       final endpoint = item.apiEndpoint;
 
+      // Validate endpoint before processing
+      if (endpoint.isEmpty) {
+        AppLogger.e('Skipping outbox item with empty endpoint',
+            tag: 'SyncEngine',
+            data: {'itemId': item.id, 'method': item.method});
+        await database.markOutboxDone(item.id);
+        await database.logSync(
+          type: 'outbox_invalid_endpoint',
+          status: 'failed',
+          message: 'Item ${item.id} has empty endpoint',
+        );
+        failed++;
+        continue;
+      }
+
       // Check if endpoint can be retried based on backoff and circuit breaker
       if (!_retryTracker.canRetryNow(endpoint)) {
         final status = _retryTracker.getEndpointStatus(endpoint);
@@ -262,6 +277,21 @@ class SyncEngine {
 
   /// Process single outbox item with ETag support
   Future<_ItemResult> _processOutboxItem(OutboxData item) async {
+    // Validate endpoint before making API call
+    if (item.apiEndpoint.isEmpty) {
+      AppLogger.e('Invalid outbox item: empty apiEndpoint',
+          tag: 'SyncEngine',
+          data: {'itemId': item.id, 'method': item.method});
+      throw ArgumentError('API endpoint cannot be empty for outbox item ${item.id}');
+    }
+
+    // Validate endpoint format
+    if (!item.apiEndpoint.startsWith('/')) {
+      AppLogger.w('Endpoint does not start with /, adding prefix',
+          tag: 'SyncEngine',
+          data: {'endpoint': item.apiEndpoint});
+    }
+
     final payload = jsonDecode(item.payload) as Map<String, dynamic>;
 
     // Build headers with If-Match for optimistic locking

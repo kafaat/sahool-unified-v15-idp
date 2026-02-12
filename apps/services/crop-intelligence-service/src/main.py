@@ -11,7 +11,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone, UTC
+from datetime import UTC, date, datetime, timezone
 from typing import Any, Literal
 from uuid import uuid4
 
@@ -23,6 +23,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query, Request
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
@@ -39,14 +40,18 @@ except ImportError:
         """Placeholder when auth not available"""
         return None
 
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 from .decision_engine import (
     GrowthStage,
@@ -79,6 +84,8 @@ from .pest_assessment import (
 )
 from .yield_prediction import (
     CropType as YieldCropType,
+)
+from .yield_prediction import (
     get_crop_parameters,
     predict_yield,
 )
@@ -90,6 +97,7 @@ from .yield_prediction import (
 
 try:
     import structlog
+
     logger = structlog.get_logger(__name__)
 except ImportError:
     logging.basicConfig(level=logging.INFO)
@@ -115,9 +123,7 @@ class ObservationIn(BaseModel):
     """طلب تسجيل رصد جديد"""
 
     captured_at: datetime = Field(..., description="وقت الالتقاط")
-    source: Literal["sentinel-2", "drone", "planet", "landsat", "other"] = Field(
-        ..., description="مصدر البيانات"
-    )
+    source: Literal["sentinel-2", "drone", "planet", "landsat", "other"] = Field(..., description="مصدر البيانات")
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     indices: IndicesIn = Field(..., description="المؤشرات")
     cloud_pct: float = Field(default=0.0, ge=0, le=100, description="نسبة الغيوم")
@@ -325,22 +331,24 @@ async def db_get_observations(
             )
             observations = []
             for row in rows:
-                observations.append({
-                    "id": str(row["id"]),
-                    "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
-                    "source": row["source"],
-                    "growth_stage": row["growth_stage"],
-                    "indices": {
-                        "ndvi": row["ndvi"],
-                        "evi": row["evi"],
-                        "ndre": row["ndre"],
-                        "lci": row["lci"],
-                        "ndwi": row["ndwi"],
-                        "savi": row["savi"],
-                    },
-                    "cloud_pct": row["cloud_pct"],
-                    "notes": row["notes"],
-                })
+                observations.append(
+                    {
+                        "id": str(row["id"]),
+                        "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
+                        "source": row["source"],
+                        "growth_stage": row["growth_stage"],
+                        "indices": {
+                            "ndvi": row["ndvi"],
+                            "evi": row["evi"],
+                            "ndre": row["ndre"],
+                            "lci": row["lci"],
+                            "ndwi": row["ndwi"],
+                            "savi": row["savi"],
+                        },
+                        "cloud_pct": row["cloud_pct"],
+                        "notes": row["notes"],
+                    }
+                )
             return observations
     except Exception as e:
         logger.warning("Failed to get observations from database", error=str(e))
@@ -373,21 +381,23 @@ async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, A
                 zone_id = row["zone_id"]
                 if zone_id not in result:
                     result[zone_id] = []
-                result[zone_id].append({
-                    "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
-                    "source": row["source"],
-                    "growth_stage": row["growth_stage"],
-                    "indices": {
-                        "ndvi": row["ndvi"],
-                        "evi": row["evi"],
-                        "ndre": row["ndre"],
-                        "lci": row["lci"],
-                        "ndwi": row["ndwi"],
-                        "savi": row["savi"],
-                    },
-                    "cloud_pct": row["cloud_pct"],
-                    "notes": row["notes"],
-                })
+                result[zone_id].append(
+                    {
+                        "captured_at": row["captured_at"].isoformat() if row["captured_at"] else None,
+                        "source": row["source"],
+                        "growth_stage": row["growth_stage"],
+                        "indices": {
+                            "ndvi": row["ndvi"],
+                            "evi": row["evi"],
+                            "ndre": row["ndre"],
+                            "lci": row["lci"],
+                            "ndwi": row["ndwi"],
+                            "savi": row["savi"],
+                        },
+                        "cloud_pct": row["cloud_pct"],
+                        "notes": row["notes"],
+                    }
+                )
             return result
     except Exception as e:
         logger.warning("Failed to get field observations from database", error=str(e))
@@ -534,17 +544,13 @@ async def lifespan(app: FastAPI):
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(
-                db_url,
-                min_size=2,
-                max_size=10
-            )
+            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
             app.state.db_connected = True
             logger.info("Connected to database")
 
             # Create tables if not exist
             async with app.state.db_pool.acquire() as conn:
-                await conn.execute('''
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS crop_health_observations (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         field_id VARCHAR(255) NOT NULL,
@@ -563,8 +569,8 @@ async def lifespan(app: FastAPI):
                         tenant_id VARCHAR(255),
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
                     )
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS crop_zones (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         zone_id VARCHAR(255) NOT NULL,
@@ -577,8 +583,8 @@ async def lifespan(app: FastAPI):
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         UNIQUE(zone_id, field_id)
                     )
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE TABLE IF NOT EXISTS disease_detections (
                         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
                         field_id VARCHAR(255) NOT NULL,
@@ -589,20 +595,20 @@ async def lifespan(app: FastAPI):
                         detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         tenant_id VARCHAR(255)
                     )
-                ''')
+                """)
                 # Create indexes for faster queries
-                await conn.execute('''
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_observations_field_zone
                     ON crop_health_observations(field_id, zone_id)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_zones_field
                     ON crop_zones(field_id)
-                ''')
-                await conn.execute('''
+                """)
+                await conn.execute("""
                     CREATE INDEX IF NOT EXISTS idx_disease_field
                     ON disease_detections(field_id)
-                ''')
+                """)
             logger.info("Database tables initialized")
         except Exception as e:
             logger.warning("Failed to connect to database", error=str(e))
@@ -1032,14 +1038,18 @@ async def ingest_observation(
     obs["indices"] = body.indices.model_dump()
 
     # Try to store in database
-    db_obs_id = await db_store_observation(field_id, zone_id, {
-        "captured_at": body.captured_at,
-        "source": body.source,
-        "growth_stage": body.growth_stage.value,
-        "indices": body.indices.model_dump(),
-        "cloud_pct": body.cloud_pct,
-        "notes": body.notes,
-    })
+    db_obs_id = await db_store_observation(
+        field_id,
+        zone_id,
+        {
+            "captured_at": body.captured_at,
+            "source": body.source,
+            "growth_stage": body.growth_stage.value,
+            "indices": body.indices.model_dump(),
+            "cloud_pct": body.cloud_pct,
+            "notes": body.notes,
+        },
+    )
 
     # Always store in memory as fallback
     if field_id not in OBSERVATIONS:
@@ -1116,9 +1126,7 @@ async def get_field_diagnosis(
             continue
 
         # اختر آخر رصد في التاريخ المطلوب أو آخر رصد متاح
-        same_day = [
-            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
-        ]
+        same_day = [o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
         # بناء كائن المؤشرات
@@ -1251,9 +1259,7 @@ async def get_zone_timeline(
 async def export_vrt(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    action_type: str | None = Query(
-        default=None, description="نوع الإجراء: irrigation, fertilization, all"
-    ),
+    action_type: str | None = Query(default=None, description="نوع الإجراء: irrigation, fertilization, all"),
 ):
     """
     تصدير VRT للعمليات الزراعية الدقيقة
@@ -1282,9 +1288,7 @@ async def export_vrt(
             continue
 
         # آخر رصد
-        same_day = [
-            o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target
-        ]
+        same_day = [o for o in obs_list if datetime.fromisoformat(o["captured_at"]).date() == target]
         chosen = same_day[-1] if same_day else obs_list[-1]
 
         idx_in = chosen["indices"]
@@ -1442,7 +1446,7 @@ async def detect_crop_diseases(
             await db_store_disease_detection(
                 field_id=field_id,
                 disease_name=detection.disease_type.value,
-                disease_name_ar=getattr(detection, 'disease_type_ar', None),
+                disease_name_ar=getattr(detection, "disease_type_ar", None),
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
             )
@@ -1817,9 +1821,7 @@ def predict_crop_yield(body: YieldPredictionRequest):
     return {
         "prediction": prediction.to_dict(),
         "field_area_hectares": body.field_area_hectares,
-        "total_predicted_yield_kg": round(
-            prediction.predicted_yield_kg_ha * body.field_area_hectares
-        ),
+        "total_predicted_yield_kg": round(prediction.predicted_yield_kg_ha * body.field_area_hectares),
         "input_indices": {
             "ndvi": body.ndvi,
             "evi": body.evi,
@@ -2027,23 +2029,44 @@ async def comprehensive_analysis(
         disease_crop = CropType.UNKNOWN
 
     diseases = detect_diseases(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
-        crop_type=disease_crop, humidity_pct=humidity_pct, temp_c=temp_c,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
+        crop_type=disease_crop,
+        humidity_pct=humidity_pct,
+        temp_c=temp_c,
     )
     health_en, health_ar = get_overall_health_status(diseases)
 
     deficiencies = detect_nutrient_deficiencies(
-        ndvi=ndvi, evi=evi, ndre=ndre, ndwi=ndwi, lci=lci, savi=savi,
+        ndvi=ndvi,
+        evi=evi,
+        ndre=ndre,
+        ndwi=ndwi,
+        lci=lci,
+        savi=savi,
     )
     nutrient_summary = get_nutrient_status_summary(deficiencies)
 
     yield_pred = predict_yield(
-        crop_type=yield_crop, ndvi=ndvi, evi=evi, ndwi=ndwi, ndre=ndre,
-        lci=lci, savi=savi, field_area_hectares=field_area_hectares,
+        crop_type=yield_crop,
+        ndvi=ndvi,
+        evi=evi,
+        ndwi=ndwi,
+        ndre=ndre,
+        lci=lci,
+        savi=savi,
+        field_area_hectares=field_area_hectares,
     )
 
     pest_risks = assess_pest_risks(
-        temp_c=temp_c, humidity_pct=humidity_pct, ndvi=ndvi, crop_type=crop_type,
+        temp_c=temp_c,
+        humidity_pct=humidity_pct,
+        ndvi=ndvi,
+        crop_type=crop_type,
     )
     pest_summary = get_pest_summary(pest_risks)
 
@@ -2097,8 +2120,12 @@ async def comprehensive_analysis(
             "risks": [r.to_dict() for r in pest_risks[:3]],
         },
         "input_indices": {
-            "ndvi": ndvi, "evi": evi, "ndre": ndre,
-            "ndwi": ndwi, "lci": lci, "savi": savi,
+            "ndvi": ndvi,
+            "evi": evi,
+            "ndre": ndre,
+            "ndwi": ndwi,
+            "lci": lci,
+            "savi": savi,
         },
         "environmental_context": {
             "temp_c": temp_c,

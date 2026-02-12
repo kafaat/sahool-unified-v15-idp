@@ -15,19 +15,20 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Callable
-from datetime import datetime, UTC
+import asyncio
 import json
 import os
-import asyncio
-from pathlib import Path
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from pathlib import Path
+from typing import Any, Callable
 
 
-class FeedbackType(str, Enum):
+class FeedbackType(StrEnum):
     """Types of feedback | أنواع التغذية الراجعة"""
+
     RATING = "rating"  # Numeric rating (1-5)
     THUMBS = "thumbs"  # Thumbs up/down
     CORRECTION = "correction"  # User provides correction
@@ -36,16 +37,18 @@ class FeedbackType(str, Enum):
     COMPARISON = "comparison"  # Compare to alternative
 
 
-class FeedbackSentiment(str, Enum):
+class FeedbackSentiment(StrEnum):
     """Feedback sentiment | المشاعر تجاه التغذية الراجعة"""
+
     POSITIVE = "positive"  # إيجابي
     NEGATIVE = "negative"  # سلبي
     NEUTRAL = "neutral"  # محايد
     MIXED = "mixed"  # مختلط
 
 
-class RecommendationType(str, Enum):
+class RecommendationType(StrEnum):
     """Types of recommendations | أنواع التوصيات"""
+
     IRRIGATION = "irrigation"  # الري
     FERTILIZER = "fertilizer"  # التسميد
     PEST_CONTROL = "pest_control"  # مكافحة الآفات
@@ -55,8 +58,9 @@ class RecommendationType(str, Enum):
     GENERAL = "general"  # عام
 
 
-class OutcomeStatus(str, Enum):
+class OutcomeStatus(StrEnum):
     """Outcome of following recommendation | نتيجة اتباع التوصية"""
+
     SUCCESS = "success"  # نجاح
     PARTIAL_SUCCESS = "partial_success"  # نجاح جزئي
     FAILURE = "failure"  # فشل
@@ -240,11 +244,9 @@ class FeedbackStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         import tempfile
+
         default_path = os.path.join(tempfile.gettempdir(), "sahool_feedback")
-        self.storage_path = Path(storage_path or os.getenv(
-            "FEEDBACK_STORAGE_PATH",
-            default_path
-        ))
+        self.storage_path = Path(storage_path or os.getenv("FEEDBACK_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -295,6 +297,7 @@ class FeedbackStorage:
     ) -> list[FeedbackItem]:
         """Load recent feedback"""
         from datetime import timedelta
+
         cutoff = datetime.now(UTC) - timedelta(days=days)
         all_feedback = await self.load_all(tenant_id)
         return [f for f in all_feedback if f.created_at >= cutoff]
@@ -479,9 +482,7 @@ class FeedbackCollector:
             OutcomeStatus.NOT_APPLICABLE: (FeedbackSentiment.NEUTRAL, 0.0),
             OutcomeStatus.PENDING: (FeedbackSentiment.NEUTRAL, 0.0),
         }
-        sentiment, sentiment_score = sentiment_map.get(
-            outcome, (FeedbackSentiment.NEUTRAL, 0.0)
-        )
+        sentiment, sentiment_score = sentiment_map.get(outcome, (FeedbackSentiment.NEUTRAL, 0.0))
 
         feedback = FeedbackItem(
             recommendation_id=recommendation_id,
@@ -570,10 +571,7 @@ class FeedbackCollector:
 
         # Filter by type if specified
         if recommendation_type:
-            feedback_list = [
-                f for f in feedback_list
-                if f.recommendation_type == recommendation_type
-            ]
+            feedback_list = [f for f in feedback_list if f.recommendation_type == recommendation_type]
 
         if not feedback_list:
             return FeedbackSummary()
@@ -676,37 +674,43 @@ class FeedbackCollector:
         for f in feedback_list:
             # Include high-rated recommendations as positive examples
             if f.rating and f.rating >= min_rating:
-                training_data.append({
-                    "type": "positive_example",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "rating": f.rating,
-                    "outcome": f.outcome.value if f.outcome else None,
-                })
+                training_data.append(
+                    {
+                        "type": "positive_example",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "rating": f.rating,
+                        "outcome": f.outcome.value if f.outcome else None,
+                    }
+                )
 
             # Include corrections for negative examples and improvements
             if include_corrections and f.correction:
-                training_data.append({
-                    "type": "correction",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "original_response": f.context.get("original_recommendation"),
-                    "corrected_response": f.correction,
-                    "comment": f.comment or f.comment_ar,
-                })
+                training_data.append(
+                    {
+                        "type": "correction",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "original_response": f.context.get("original_recommendation"),
+                        "corrected_response": f.correction,
+                        "comment": f.comment or f.comment_ar,
+                    }
+                )
 
             # Include successful outcomes
             if f.outcome == OutcomeStatus.SUCCESS and f.yield_impact and f.yield_impact > 0:
-                training_data.append({
-                    "type": "successful_outcome",
-                    "recommendation_id": f.recommendation_id,
-                    "recommendation_type": f.recommendation_type.value,
-                    "context": f.context,
-                    "yield_impact": f.yield_impact,
-                    "cost_impact": f.cost_impact,
-                })
+                training_data.append(
+                    {
+                        "type": "successful_outcome",
+                        "recommendation_id": f.recommendation_id,
+                        "recommendation_type": f.recommendation_type.value,
+                        "context": f.context,
+                        "yield_impact": f.yield_impact,
+                        "cost_impact": f.cost_impact,
+                    }
+                )
 
         return training_data
 

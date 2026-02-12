@@ -23,6 +23,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class ChunkingConfig:
     """Configuration for chunking | تكوين التقسيم"""
+
     strategy: ChunkingStrategy = ChunkingStrategy.RECURSIVE
     chunk_size: int = 500
     chunk_overlap: int = 50
@@ -120,11 +121,7 @@ class Chunker:
         """Sentence-based chunking"""
         chunks = []
         sentences = self._split_sentences(document.content, config.language)
-        sentences_ar = (
-            self._split_sentences(document.content_ar, "ar")
-            if document.content_ar
-            else []
-        )
+        sentences_ar = self._split_sentences(document.content_ar, "ar") if document.content_ar else []
 
         current_chunk = []
         current_length = 0
@@ -137,7 +134,7 @@ class Chunker:
             if current_length + sentence_len > config.chunk_size and current_chunk:
                 # Create chunk from accumulated sentences
                 chunk_text = " ".join(current_chunk)
-                chunk_text_ar = " ".join(sentences_ar[:len(current_chunk)]) if sentences_ar else None
+                chunk_text_ar = " ".join(sentences_ar[: len(current_chunk)]) if sentences_ar else None
 
                 chunk = KnowledgeChunk(
                     id=f"{document.id}_c{chunk_index}",
@@ -213,7 +210,11 @@ class Chunker:
                         text_ar=para_ar if j == 0 else None,  # Arabic only on first sub-chunk
                         document_id=document.id,
                         collection=document.collection,
-                        metadata={**document.metadata, "source": document.source, "paragraph_index": i},
+                        metadata={
+                            **document.metadata,
+                            "source": document.source,
+                            "paragraph_index": i,
+                        },
                         start_char=current_pos,
                         end_char=current_pos + len(sub_text),
                         chunk_index=chunk_index,
@@ -358,12 +359,12 @@ class Chunker:
         """Split text into sentences"""
         if language == "ar":
             # Arabic sentence endings
-            pattern = r'[۔؟!。\.\?\!]+'
+            pattern = r"[۔؟!。\.\?\!]+"
         else:
             # English/general sentence endings
-            pattern = r'[.!?]+'
+            pattern = r"[.!?]+"
 
-        sentences = re.split(f'({pattern})', text)
+        sentences = re.split(f"({pattern})", text)
 
         # Reconstruct sentences with their endings
         result = []
@@ -455,7 +456,7 @@ class Chunker:
     def _split_by_headers(self, text: str) -> list[tuple[str, str]]:
         """Split text by markdown-style headers"""
         # Match headers like # Header, ## Header, ### Header
-        header_pattern = r'^(#{1,6}\s+.+)$'
+        header_pattern = r"^(#{1,6}\s+.+)$"
 
         sections = []
         current_header = ""
@@ -708,10 +709,7 @@ class KnowledgeBase:
 
     async def clear_collection(self, collection: str) -> int:
         """Clear all documents in a collection"""
-        to_delete = [
-            doc_id for doc_id, doc in self._documents.items()
-            if doc.collection == collection
-        ]
+        to_delete = [doc_id for doc_id, doc in self._documents.items() if doc.collection == collection]
 
         for doc_id in to_delete:
             await self.delete_document(doc_id)

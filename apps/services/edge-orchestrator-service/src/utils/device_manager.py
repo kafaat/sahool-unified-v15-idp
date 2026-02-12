@@ -316,9 +316,7 @@ class DeviceConnection:
                     if status == "completed":
                         return data
                     elif status == "failed":
-                        raise ModelDeploymentError(
-                            data.get("error", "Deployment failed")
-                        )
+                        raise ModelDeploymentError(data.get("error", "Deployment failed"))
 
                 await asyncio.sleep(5)
                 attempt += 1
@@ -501,11 +499,7 @@ class DeviceManager:
     @property
     def connected_devices(self) -> list[UUID]:
         """Get list of connected device IDs."""
-        return [
-            device_id
-            for device_id, conn in self._connections.items()
-            if conn.is_connected
-        ]
+        return [device_id for device_id, conn in self._connections.items() if conn.is_connected]
 
     @property
     def total_devices(self) -> int:

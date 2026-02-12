@@ -18,20 +18,20 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Protocol
 from uuid import UUID
+
 import structlog
 
+from .collaborative_engine import HMCIrrigationEngine
 from .models import (
+    DecisionSession,
     ExperienceRule,
     ExperienceSource,
     IrrigationProgram,
-    DecisionSession,
     SessionOutcome,
 )
-from .collaborative_engine import HMCIrrigationEngine
-
 
 logger = structlog.get_logger(__name__)
 
@@ -258,7 +258,9 @@ class HMCIntegrationManager:
         """
         self._irrigation_agent = agent
         self._integrations_status["irrigation_agent"]["registered"] = True
-        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(UTC).isoformat()
+        self._integrations_status["irrigation_agent"]["registered_at"] = datetime.now(
+            UTC
+        ).isoformat()
 
         logger.info("irrigation_agent_registered")
 
@@ -275,7 +277,9 @@ class HMCIntegrationManager:
         """
         self._weather_service = service
         self._integrations_status["weather_service"]["registered"] = True
-        self._integrations_status["weather_service"]["registered_at"] = datetime.now(UTC).isoformat()
+        self._integrations_status["weather_service"]["registered_at"] = datetime.now(
+            UTC
+        ).isoformat()
 
         logger.info("weather_service_registered")
 
@@ -292,7 +296,9 @@ class HMCIntegrationManager:
         """
         self._fertilization_service = service
         self._integrations_status["fertilization_service"]["registered"] = True
-        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(UTC).isoformat()
+        self._integrations_status["fertilization_service"]["registered_at"] = datetime.now(
+            UTC
+        ).isoformat()
 
         logger.info("fertilization_service_registered")
 
@@ -334,11 +340,11 @@ class HMCIntegrationManager:
                 result["current_conditions"] = await self._weather_service.get_current_conditions(
                     location
                 )
-                result["forecast"] = await self._weather_service.get_forecast(
-                    location, days=7
-                )
+                result["forecast"] = await self._weather_service.get_forecast(location, days=7)
 
-            self._integrations_status["weather_service"]["last_sync"] = datetime.now(UTC).isoformat()
+            self._integrations_status["weather_service"]["last_sync"] = datetime.now(
+                UTC
+            ).isoformat()
 
             logger.info("weather_service_synced", location=location)
 
@@ -384,11 +390,15 @@ class HMCIntegrationManager:
 
         try:
             if field_id and crop_type and growth_stage:
-                result["fertigation_schedule"] = await self._fertilization_service.get_fertigation_schedule(
+                result[
+                    "fertigation_schedule"
+                ] = await self._fertilization_service.get_fertigation_schedule(
                     field_id, crop_type, growth_stage
                 )
 
-            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(UTC).isoformat()
+            self._integrations_status["fertilization_service"]["last_sync"] = datetime.now(
+                UTC
+            ).isoformat()
 
             logger.info(
                 "fertilization_service_synced",
@@ -711,12 +721,8 @@ class HMCIntegrationManager:
         engine.on_program_generated(
             lambda program: self._sync_publish_program_event(program, "generated")
         )
-        engine.on_approval(
-            lambda session: self._sync_publish_session_event(session, "approved")
-        )
-        engine.on_completion(
-            lambda outcome: self._sync_publish_outcome_event(outcome)
-        )
+        engine.on_approval(lambda session: self._sync_publish_session_event(session, "approved"))
+        engine.on_completion(lambda outcome: self._sync_publish_outcome_event(outcome))
 
         logger.info(
             "integrated_engine_created",
@@ -729,6 +735,7 @@ class HMCIntegrationManager:
     def _sync_publish_session_event(self, session: DecisionSession, event_type: str) -> None:
         """Synchronous wrapper for async session event publishing."""
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():
@@ -742,6 +749,7 @@ class HMCIntegrationManager:
     def _sync_publish_program_event(self, program: IrrigationProgram, event_type: str) -> None:
         """Synchronous wrapper for async program event publishing."""
         import asyncio
+
         try:
             loop = asyncio.get_event_loop()
             if loop.is_running():

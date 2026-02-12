@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 
@@ -44,7 +44,14 @@ except ImportError:
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
-from .registry import DeviceRegistry, DeviceStatus, RedisDeviceRegistry, get_registry, get_redis_registry, set_registry
+from .registry import (
+    DeviceRegistry,
+    DeviceStatus,
+    RedisDeviceRegistry,
+    get_redis_registry,
+    get_registry,
+    set_registry,
+)
 
 # Configure logging
 logging.basicConfig(
@@ -55,6 +62,7 @@ logger = logging.getLogger("iot-gateway")
 # Redis imports
 try:
     import redis.asyncio as redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False

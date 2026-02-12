@@ -231,3 +231,8 @@ config/nats/generated/
 analysis_report.txt
 analysis_report.json
 audit_report.json
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CodeQL Analysis
+# ─────────────────────────────────────────────────────────────────────────────
+_codeql_detected_source_root

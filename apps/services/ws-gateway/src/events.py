@@ -5,10 +5,10 @@ WebSocket Event Types
 Defines all event types that can be sent through WebSocket
 """
 
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class EventType(str, Enum):
+class EventType(StrEnum):
     """
     WebSocket event types
     أنواع الأحداث
@@ -159,7 +159,7 @@ def get_event_message(event_type: EventType, language: str = "ar") -> str:
 
 
 # Priority levels for events
-class EventPriority(str, Enum):
+class EventPriority(StrEnum):
     """Event priority levels"""
 
     LOW = "low"

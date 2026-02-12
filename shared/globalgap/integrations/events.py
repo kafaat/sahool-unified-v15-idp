@@ -27,7 +27,7 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
+from datetime import UTC, date, datetime
 from uuid import UUID, uuid4
 
 from pydantic import Field

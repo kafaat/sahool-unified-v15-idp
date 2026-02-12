@@ -10,9 +10,9 @@ Provides ML capabilities using AgML and other agricultural ML frameworks.
 from .agml_integration import (
     AgMLDatasetManager,
     CropDataset,
+    DatasetType,
     DiseaseDataset,
     YieldDataset,
-    DatasetType,
 )
 
 __all__ = [

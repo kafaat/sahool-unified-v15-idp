@@ -12,7 +12,7 @@ and compliance notification functionality.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta
 from typing import Callable
 
 import structlog
@@ -185,8 +185,12 @@ class AlertService:
             priority = AlertPriority.HIGH
             title_en = f"Document Expiring: {document.title_en}"
             title_ar = f"وثيقة تنتهي: {document.title_ar}"
-            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days."
-            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
+            message_en = (
+                f"The document '{document.title_en}' will expire in {days_until_expiry} days."
+            )
+            message_ar = (
+                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
+            )
         elif days_until_expiry <= self.config.medium_threshold:
             priority = AlertPriority.MEDIUM
             title_en = f"Document Renewal Reminder: {document.title_en}"
@@ -197,8 +201,12 @@ class AlertService:
             priority = AlertPriority.LOW
             title_en = f"Upcoming Document Expiry: {document.title_en}"
             title_ar = f"انتهاء صلاحية قادم: {document.title_ar}"
-            message_en = f"The document '{document.title_en}' will expire in {days_until_expiry} days."
-            message_ar = f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
+            message_en = (
+                f"The document '{document.title_en}' will expire in {days_until_expiry} days."
+            )
+            message_ar = (
+                f"ستنتهي صلاحية الوثيقة '{document.title_ar}' خلال {days_until_expiry} يوماً."
+            )
         else:
             return None  # Not within alert threshold
 
@@ -305,15 +313,21 @@ class AlertService:
             priority = AlertPriority.HIGH
             title_en = f"Missing Compliance Document: {requirement_title_en}"
             title_ar = f"وثيقة امتثال مفقودة: {requirement_title_ar}"
-            message_en = f"Required document for '{requirement_title_en}' ({requirement_code}) is missing."
-            message_ar = f"الوثيقة المطلوبة لـ '{requirement_title_ar}' ({requirement_code}) مفقودة."
+            message_en = (
+                f"Required document for '{requirement_title_en}' ({requirement_code}) is missing."
+            )
+            message_ar = (
+                f"الوثيقة المطلوبة لـ '{requirement_title_ar}' ({requirement_code}) مفقودة."
+            )
             action_en = "Upload the required document to maintain compliance"
             action_ar = "تحميل الوثيقة المطلوبة للحفاظ على الامتثال"
         elif alert_subtype == "EXPIRED":
             priority = AlertPriority.HIGH
             title_en = f"Expired Compliance Document: {requirement_title_en}"
             title_ar = f"وثيقة امتثال منتهية: {requirement_title_ar}"
-            message_en = f"The document for '{requirement_title_en}' ({requirement_code}) has expired."
+            message_en = (
+                f"The document for '{requirement_title_en}' ({requirement_code}) has expired."
+            )
             message_ar = f"انتهت صلاحية الوثيقة لـ '{requirement_title_ar}' ({requirement_code})."
             action_en = "Upload a renewed document to maintain compliance"
             action_ar = "تحميل وثيقة متجددة للحفاظ على الامتثال"
@@ -424,9 +438,7 @@ class AlertService:
             AlertPriority.LOW: 3,
             AlertPriority.INFORMATIONAL: 4,
         }
-        results.sort(
-            key=lambda a: (priority_order.get(a.priority, 5), -a.created_at.timestamp())
-        )
+        results.sort(key=lambda a: (priority_order.get(a.priority, 5), -a.created_at.timestamp()))
 
         return results[offset : offset + limit]
 
@@ -464,10 +476,18 @@ class AlertService:
             "unread": sum(1 for a in alerts if not a.is_read),
             "unresolved": sum(1 for a in alerts if not a.is_resolved),
             "by_priority": {
-                "critical": sum(1 for a in alerts if a.priority == AlertPriority.CRITICAL and not a.is_resolved),
-                "high": sum(1 for a in alerts if a.priority == AlertPriority.HIGH and not a.is_resolved),
-                "medium": sum(1 for a in alerts if a.priority == AlertPriority.MEDIUM and not a.is_resolved),
-                "low": sum(1 for a in alerts if a.priority == AlertPriority.LOW and not a.is_resolved),
+                "critical": sum(
+                    1 for a in alerts if a.priority == AlertPriority.CRITICAL and not a.is_resolved
+                ),
+                "high": sum(
+                    1 for a in alerts if a.priority == AlertPriority.HIGH and not a.is_resolved
+                ),
+                "medium": sum(
+                    1 for a in alerts if a.priority == AlertPriority.MEDIUM and not a.is_resolved
+                ),
+                "low": sum(
+                    1 for a in alerts if a.priority == AlertPriority.LOW and not a.is_resolved
+                ),
             },
             "by_type": {},
         }
@@ -797,14 +817,16 @@ class AlertService:
             if alert.is_resolved:
                 continue
             if alert.action_due_date and alert.action_due_date >= today:
-                upcoming_expirations.append({
-                    "alert_id": alert.id,
-                    "type": alert.alert_type,
-                    "title_en": alert.title_en,
-                    "title_ar": alert.title_ar,
-                    "due_date": alert.action_due_date.isoformat(),
-                    "priority": alert.priority.value,
-                })
+                upcoming_expirations.append(
+                    {
+                        "alert_id": alert.id,
+                        "type": alert.alert_type,
+                        "title_en": alert.title_en,
+                        "title_ar": alert.title_ar,
+                        "due_date": alert.action_due_date.isoformat(),
+                        "priority": alert.priority.value,
+                    }
+                )
 
         # Sort by due date
         upcoming_expirations.sort(key=lambda x: x["due_date"])

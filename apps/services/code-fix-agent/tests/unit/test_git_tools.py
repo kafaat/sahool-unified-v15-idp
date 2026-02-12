@@ -5,19 +5,20 @@ SAHOOL Code Fix Agent - Unit Tests for Git Tools
 Tests for Git integration tools.
 """
 
-import pytest
-import tempfile
 import os
 import sys
+import tempfile
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
 from tools.git_tools import (
-    GitTools,
-    GitOperationType,
     FileChangeType,
     GitOperationResult,
+    GitOperationType,
+    GitTools,
 )
 
 
@@ -128,17 +129,14 @@ class TestGitToolsRepository:
         # Initialize git repo
         subprocess.run(["git", "init"], cwd=repo_path, capture_output=True)
         subprocess.run(
-            ["git", "config", "user.email", "test@test.com"],
-            cwd=repo_path, capture_output=True
+            ["git", "config", "user.email", "test@test.com"], cwd=repo_path, capture_output=True
         )
         subprocess.run(
-            ["git", "config", "user.name", "Test User"],
-            cwd=repo_path, capture_output=True
+            ["git", "config", "user.name", "Test User"], cwd=repo_path, capture_output=True
         )
         # Disable GPG signing for test commits
         subprocess.run(
-            ["git", "config", "commit.gpgsign", "false"],
-            cwd=repo_path, capture_output=True
+            ["git", "config", "commit.gpgsign", "false"], cwd=repo_path, capture_output=True
         )
 
         # Create initial commit
@@ -146,7 +144,8 @@ class TestGitToolsRepository:
         subprocess.run(["git", "add", "."], cwd=repo_path, capture_output=True)
         result = subprocess.run(
             ["git", "commit", "--no-gpg-sign", "-m", "Initial commit"],
-            cwd=repo_path, capture_output=True
+            cwd=repo_path,
+            capture_output=True,
         )
 
         return repo_path

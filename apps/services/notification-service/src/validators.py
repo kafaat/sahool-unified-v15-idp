@@ -93,9 +93,7 @@ def validate_email_format(email: str | None) -> str | None:
         return None
 
     # Basic email pattern
-    email_pattern = re.compile(
-        r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-    )
+    email_pattern = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
     if not email_pattern.match(email):
         raise ValueError(f"Invalid email format: {email}")
@@ -138,9 +136,7 @@ def validate_text_content(
                 f"XSS pattern detected in {field_name}",
                 extra={"field": field_name, "pattern": pattern.pattern},
             )
-            raise ValueError(
-                f"{field_name} contains invalid content (potential XSS detected)"
-            )
+            raise ValueError(f"{field_name} contains invalid content (potential XSS detected)")
 
     return text
 
@@ -168,9 +164,7 @@ def validate_farmer_id(farmer_id: str) -> str:
     farmer_id = farmer_id.strip()
 
     if len(farmer_id) > MAX_FARMER_ID_LENGTH:
-        raise ValueError(
-            f"Farmer ID is too long. Maximum {MAX_FARMER_ID_LENGTH} characters"
-        )
+        raise ValueError(f"Farmer ID is too long. Maximum {MAX_FARMER_ID_LENGTH} characters")
 
     # Allow alphanumeric, underscores, and hyphens
     if not re.match(r"^[a-zA-Z0-9_\-]+$", farmer_id):
@@ -202,8 +196,7 @@ def validate_alert_type(alert_type: str) -> str:
 
     if alert_type not in VALID_ALERT_TYPES:
         raise ValueError(
-            f"Invalid alert type: {alert_type}. "
-            f"Valid types: {', '.join(VALID_ALERT_TYPES)}"
+            f"Invalid alert type: {alert_type}. Valid types: {', '.join(VALID_ALERT_TYPES)}"
         )
 
     return alert_type
@@ -215,9 +208,7 @@ def validate_expected_date(expected_date: date) -> date:
 
     # Cannot be in the past
     if expected_date < today:
-        raise ValueError(
-            f"Expected date cannot be in the past: {expected_date}"
-        )
+        raise ValueError(f"Expected date cannot be in the past: {expected_date}")
 
     # Cannot be more than 14 days in the future
     max_date = today + timedelta(days=14)
@@ -363,11 +354,11 @@ class ValidatedPreferences(BaseModel):
         return validate_time_format(v, "quiet_hours_end")
 
     @model_validator(mode="after")
-    def validate_quiet_hours(self) -> "ValidatedPreferences":
+    def validate_quiet_hours(self) -> ValidatedPreferences:
         """Validate quiet hours range."""
         if self.quiet_hours_start and self.quiet_hours_end:
-            start = datetime.strptime(self.quiet_hours_start, "%H:%M").time()
-            end = datetime.strptime(self.quiet_hours_end, "%H:%M").time()
+            datetime.strptime(self.quiet_hours_start, "%H:%M").time()
+            datetime.strptime(self.quiet_hours_end, "%H:%M").time()
 
             # Quiet hours can span midnight (e.g., 22:00 to 06:00)
             # This is valid, so no additional validation needed

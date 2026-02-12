@@ -16,7 +16,7 @@ import json
 import re
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any, Callable, Optional
 
 import structlog
@@ -43,6 +43,7 @@ class GuardDecision:
     Result of a guard check.
     نتيجة فحص الحماية
     """
+
     allowed: bool
     reason: str
     reason_ar: str = ""
@@ -68,6 +69,7 @@ class ToolCallContext:
     Context for a tool call.
     سياق استدعاء الأداة
     """
+
     tool: str
     args: dict[str, Any]
     session_id: str | None = None
@@ -313,6 +315,7 @@ class ToolGuard:
                 # Extract domain from URL if needed
                 if "://" in host:
                     from urllib.parse import urlparse
+
                     parsed = urlparse(host)
                     host = parsed.hostname or ""
 
@@ -368,16 +371,10 @@ class ToolGuard:
 
         # Exact match or subdomain match
         return any(
-            host == domain or host.endswith("." + domain)
-            for domain in self.domain_allowlist
+            host == domain or host.endswith("." + domain) for domain in self.domain_allowlist
         )
 
-    def _record_block(
-        self,
-        layer: str,
-        context: ToolCallContext,
-        decision: GuardDecision
-    ) -> None:
+    def _record_block(self, layer: str, context: ToolCallContext, decision: GuardDecision) -> None:
         """Record a blocked call"""
         self._stats["blocked"] += 1
         self._stats["by_layer"][layer] = self._stats["by_layer"].get(layer, 0) + 1

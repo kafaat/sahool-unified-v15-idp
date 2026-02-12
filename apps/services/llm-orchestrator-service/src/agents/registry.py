@@ -12,13 +12,13 @@ capabilities, endpoints, and metadata.
 """
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from functools import lru_cache
 
 from ..core.config import settings
 
 
-class AgentCategory(str, Enum):
+class AgentCategory(StrEnum):
     """Categories of AI agents."""
 
     CROP_HEALTH = "crop_health"
@@ -32,7 +32,7 @@ class AgentCategory(str, Enum):
     PEST = "pest"
 
 
-class AgentCapability(str, Enum):
+class AgentCapability(StrEnum):
     """Capabilities that agents can have."""
 
     DISEASE_DETECTION = "disease_detection"
@@ -366,11 +366,7 @@ class AgentRegistry:
 
     def get_agents_by_capability(self, capability: AgentCapability) -> list[AgentInfo]:
         """Get agents that have a specific capability."""
-        return [
-            a
-            for a in self._agents.values()
-            if capability in a.capabilities and a.active
-        ]
+        return [a for a in self._agents.values() if capability in a.capabilities and a.active]
 
     def get_agents_for_intent(self, intent_type: str) -> list[AgentInfo]:
         """

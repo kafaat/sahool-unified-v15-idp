@@ -23,6 +23,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class WorkflowExecutionContext:
     """Context for workflow execution | سياق تنفيذ سير العمل"""
+
     workflow_id: str
     variables: dict[str, Any] = field(default_factory=dict)
     step_results: dict[str, Any] = field(default_factory=dict)
@@ -35,6 +36,7 @@ class WorkflowExecutionContext:
 @dataclass
 class StepExecutionResult:
     """Result from step execution | نتيجة تنفيذ الخطوة"""
+
     step_id: str
     success: bool
     output: Any = None
@@ -312,6 +314,7 @@ class WorkflowEngine:
 
         # Use retriever directly
         from .retriever import RetrievalConfig
+
         config = RetrievalConfig(
             top_k=top_k,
             collection=collection,
@@ -339,6 +342,7 @@ class WorkflowEngine:
         top_k = step.config.get("top_k", 5)
 
         from .reranker import RerankConfig
+
         config = RerankConfig(top_k=top_k)
 
         rerank_result = await self.rag_pipeline.reranker.rerank(query, results, config)
@@ -368,6 +372,7 @@ class WorkflowEngine:
 
         if self.rag_pipeline and self.rag_pipeline._generator:
             from .models import GenerationMode
+
             mode = GenerationMode(step.config.get("mode", "standard"))
 
             result = await self.rag_pipeline._generator.generate(
@@ -410,7 +415,7 @@ class WorkflowEngine:
         """Handle loop step"""
         loop_config = step.loop_config or {}
         items = loop_config.get("items") or ctx.variables.get(loop_config.get("items_var", "items"), [])
-        body_step = loop_config.get("body_step")
+        loop_config.get("body_step")
         max_iterations = loop_config.get("max_iterations", 100)
 
         results = []
@@ -536,7 +541,6 @@ class WorkflowEngine:
         """Handle full RAG pipeline call"""
         if self.rag_pipeline is None:
             raise ValueError("RAG pipeline not configured")
-
 
         query = step.config.get("query") or ctx.variables.get("query", "")
         collection = step.config.get("collection", "default")

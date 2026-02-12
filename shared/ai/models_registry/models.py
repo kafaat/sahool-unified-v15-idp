@@ -21,29 +21,29 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class AIModelCategory(str, Enum):
+class AIModelCategory(StrEnum):
     """Categories of Agricultural AI Models.
 
     فئات نماذج الذكاء الاصطناعي الزراعي
     农业AI模型类别
     """
 
-    GENERAL_AGRICULTURE = "general_agriculture"      # 通用农业决策 | استشارات زراعية عامة
-    BREEDING_BIOSCIENCE = "breeding_bioscience"      # 育种与生物科学 | التربية والعلوم الحيوية
-    LIVESTOCK_VETERINARY = "livestock_veterinary"   # 畜牧兽医 | الثروة الحيوانية والبيطرية
-    REMOTE_SENSING_GEO = "remote_sensing_geo"       # 遥感地理 | الاستشعار عن بعد والجغرافيا
-    SPECIALTY = "specialty"                          # 专业垂直 | تخصصات عمودية
-    FOOD_SAFETY = "food_safety"                     # 食品安全 | سلامة الغذاء
-    AGRICULTURAL_LAW = "agricultural_law"           # 农业法律 | القانون الزراعي
-    CLIMATE_WEATHER = "climate_weather"             # 气候天气 | المناخ والطقس
+    GENERAL_AGRICULTURE = "general_agriculture"  # 通用农业决策 | استشارات زراعية عامة
+    BREEDING_BIOSCIENCE = "breeding_bioscience"  # 育种与生物科学 | التربية والعلوم الحيوية
+    LIVESTOCK_VETERINARY = "livestock_veterinary"  # 畜牧兽医 | الثروة الحيوانية والبيطرية
+    REMOTE_SENSING_GEO = "remote_sensing_geo"  # 遥感地理 | الاستشعار عن بعد والجغرافيا
+    SPECIALTY = "specialty"  # 专业垂直 | تخصصات عمودية
+    FOOD_SAFETY = "food_safety"  # 食品安全 | سلامة الغذاء
+    AGRICULTURAL_LAW = "agricultural_law"  # 农业法律 | القانون الزراعي
+    CLIMATE_WEATHER = "climate_weather"  # 气候天气 | المناخ والطقس
 
 
-class ModelCapability(str, Enum):
+class ModelCapability(StrEnum):
     """Capabilities that agricultural AI models can provide.
 
     قدرات نماذج الذكاء الاصطناعي الزراعي
@@ -51,103 +51,103 @@ class ModelCapability(str, Enum):
     """
 
     # Knowledge & Advisory | المعرفة والاستشارات | 知识咨询
-    QA = "qa"                                        # Question Answering | الأسئلة والأجوبة
-    DECISION_SUPPORT = "decision_support"           # Decision Support | دعم القرار
-    EXPERT_CONSULTATION = "expert_consultation"     # Expert Consultation | استشارة الخبراء
-    KNOWLEDGE_GRAPH = "knowledge_graph"             # Knowledge Graph | الرسم البياني المعرفي
+    QA = "qa"  # Question Answering | الأسئلة والأجوبة
+    DECISION_SUPPORT = "decision_support"  # Decision Support | دعم القرار
+    EXPERT_CONSULTATION = "expert_consultation"  # Expert Consultation | استشارة الخبراء
+    KNOWLEDGE_GRAPH = "knowledge_graph"  # Knowledge Graph | الرسم البياني المعرفي
 
     # Crop Intelligence | ذكاء المحاصيل | 作物智能
-    PEST_DETECTION = "pest_detection"               # Pest Detection | كشف الآفات
-    DISEASE_DETECTION = "disease_detection"         # Disease Detection | كشف الأمراض
-    YIELD_PREDICTION = "yield_prediction"           # Yield Prediction | التنبؤ بالإنتاج
-    GROWTH_STAGE = "growth_stage"                   # Growth Stage Analysis | تحليل مراحل النمو
-    CROP_MONITORING = "crop_monitoring"             # Crop Monitoring | مراقبة المحاصيل
+    PEST_DETECTION = "pest_detection"  # Pest Detection | كشف الآفات
+    DISEASE_DETECTION = "disease_detection"  # Disease Detection | كشف الأمراض
+    YIELD_PREDICTION = "yield_prediction"  # Yield Prediction | التنبؤ بالإنتاج
+    GROWTH_STAGE = "growth_stage"  # Growth Stage Analysis | تحليل مراحل النمو
+    CROP_MONITORING = "crop_monitoring"  # Crop Monitoring | مراقبة المحاصيل
 
     # Breeding & Genomics | التربية والجينوم | 育种基因组
-    BREEDING = "breeding"                           # Breeding Recommendations | توصيات التربية
-    GENOMICS = "genomics"                           # Genomics Analysis | تحليل الجينوم
-    GENE_EDITING = "gene_editing"                   # Gene Editing | التعديل الجيني
-    PHENOTYPE_PREDICTION = "phenotype_prediction"   # Phenotype Prediction | التنبؤ بالنمط الظاهري
-    MOLECULAR_DESIGN = "molecular_design"           # Molecular Design | التصميم الجزيئي
+    BREEDING = "breeding"  # Breeding Recommendations | توصيات التربية
+    GENOMICS = "genomics"  # Genomics Analysis | تحليل الجينوم
+    GENE_EDITING = "gene_editing"  # Gene Editing | التعديل الجيني
+    PHENOTYPE_PREDICTION = "phenotype_prediction"  # Phenotype Prediction | التنبؤ بالنمط الظاهري
+    MOLECULAR_DESIGN = "molecular_design"  # Molecular Design | التصميم الجزيئي
 
     # Remote Sensing | الاستشعار عن بعد | 遥感
-    SATELLITE_ANALYSIS = "satellite_analysis"       # Satellite Image Analysis | تحليل صور الأقمار
-    NDVI_ANALYSIS = "ndvi_analysis"                 # NDVI Analysis | تحليل NDVI
-    LAND_USE = "land_use"                           # Land Use Classification | تصنيف استخدام الأراضي
-    CHANGE_DETECTION = "change_detection"           # Change Detection | كشف التغيير
-    SOIL_ANALYSIS = "soil_analysis"                 # Soil Analysis | تحليل التربة
+    SATELLITE_ANALYSIS = "satellite_analysis"  # Satellite Image Analysis | تحليل صور الأقمار
+    NDVI_ANALYSIS = "ndvi_analysis"  # NDVI Analysis | تحليل NDVI
+    LAND_USE = "land_use"  # Land Use Classification | تصنيف استخدام الأراضي
+    CHANGE_DETECTION = "change_detection"  # Change Detection | كشف التغيير
+    SOIL_ANALYSIS = "soil_analysis"  # Soil Analysis | تحليل التربة
 
     # Livestock & Veterinary | الثروة الحيوانية | 畜牧
-    ANIMAL_HEALTH = "animal_health"                 # Animal Health | صحة الحيوان
-    VETERINARY_QA = "veterinary_qa"                 # Veterinary Q&A | أسئلة بيطرية
-    FEED_OPTIMIZATION = "feed_optimization"         # Feed Optimization | تحسين الأعلاف
-    BREEDING_MANAGEMENT = "breeding_management"     # Breeding Management | إدارة التربية
-    MILK_PRODUCTION = "milk_production"             # Milk Production | إنتاج الحليب
+    ANIMAL_HEALTH = "animal_health"  # Animal Health | صحة الحيوان
+    VETERINARY_QA = "veterinary_qa"  # Veterinary Q&A | أسئلة بيطرية
+    FEED_OPTIMIZATION = "feed_optimization"  # Feed Optimization | تحسين الأعلاف
+    BREEDING_MANAGEMENT = "breeding_management"  # Breeding Management | إدارة التربية
+    MILK_PRODUCTION = "milk_production"  # Milk Production | إنتاج الحليب
 
     # Weather & Climate | الطقس والمناخ | 气象
-    WEATHER_FORECAST = "weather_forecast"           # Weather Forecasting | التنبؤ بالطقس
-    CLIMATE_MODELING = "climate_modeling"           # Climate Modeling | نمذجة المناخ
-    DISASTER_WARNING = "disaster_warning"           # Disaster Warning | الإنذار بالكوارث
+    WEATHER_FORECAST = "weather_forecast"  # Weather Forecasting | التنبؤ بالطقس
+    CLIMATE_MODELING = "climate_modeling"  # Climate Modeling | نمذجة المناخ
+    DISASTER_WARNING = "disaster_warning"  # Disaster Warning | الإنذار بالكوارث
 
     # Specialty | التخصصات | 专业
-    FORESTRY = "forestry"                           # Forestry Management | إدارة الغابات
-    TEA_CULTIVATION = "tea_cultivation"             # Tea Cultivation | زراعة الشاي
-    AQUACULTURE = "aquaculture"                     # Aquaculture | الاستزراع المائي
-    LEGAL_QA = "legal_qa"                           # Agricultural Law Q&A | أسئلة قانونية
+    FORESTRY = "forestry"  # Forestry Management | إدارة الغابات
+    TEA_CULTIVATION = "tea_cultivation"  # Tea Cultivation | زراعة الشاي
+    AQUACULTURE = "aquaculture"  # Aquaculture | الاستزراع المائي
+    LEGAL_QA = "legal_qa"  # Agricultural Law Q&A | أسئلة قانونية
 
     # Agent Capabilities | قدرات الوكيل | Agent能力
-    AUTONOMOUS_OPERATION = "autonomous_operation"   # Autonomous Operation | التشغيل الذاتي
-    MULTI_AGENT = "multi_agent"                     # Multi-Agent Collaboration | تعاون متعدد الوكلاء
-    TOOL_USE = "tool_use"                           # Tool Use | استخدام الأدوات
-    PLANNING = "planning"                           # Task Planning | تخطيط المهام
+    AUTONOMOUS_OPERATION = "autonomous_operation"  # Autonomous Operation | التشغيل الذاتي
+    MULTI_AGENT = "multi_agent"  # Multi-Agent Collaboration | تعاون متعدد الوكلاء
+    TOOL_USE = "tool_use"  # Tool Use | استخدام الأدوات
+    PLANNING = "planning"  # Task Planning | تخطيط المهام
 
 
-class ModelLicense(str, Enum):
+class ModelLicense(StrEnum):
     """License types for AI models.
 
     أنواع تراخيص نماذج الذكاء الاصطناعي
     AI模型许可类型
     """
 
-    OPEN_SOURCE = "open_source"                     # Open Source | مفتوح المصدر
-    ACADEMIC = "academic"                           # Academic Use Only | للاستخدام الأكاديمي فقط
-    COMMERCIAL = "commercial"                       # Commercial | تجاري
-    PROPRIETARY = "proprietary"                     # Proprietary | ملكية خاصة
-    GOVERNMENT = "government"                       # Government | حكومي
-    FREEMIUM = "freemium"                           # Freemium | مجاني مع خيارات مدفوعة
-    UNKNOWN = "unknown"                             # Unknown | غير معروف
+    OPEN_SOURCE = "open_source"  # Open Source | مفتوح المصدر
+    ACADEMIC = "academic"  # Academic Use Only | للاستخدام الأكاديمي فقط
+    COMMERCIAL = "commercial"  # Commercial | تجاري
+    PROPRIETARY = "proprietary"  # Proprietary | ملكية خاصة
+    GOVERNMENT = "government"  # Government | حكومي
+    FREEMIUM = "freemium"  # Freemium | مجاني مع خيارات مدفوعة
+    UNKNOWN = "unknown"  # Unknown | غير معروف
 
 
-class ModelStatus(str, Enum):
+class ModelStatus(StrEnum):
     """Operational status of AI models.
 
     حالة تشغيل نماذج الذكاء الاصطناعي
     AI模型运行状态
     """
 
-    ACTIVE = "active"                               # Active & Available | نشط ومتاح
-    BETA = "beta"                                   # Beta Testing | اختبار تجريبي
-    DEPRECATED = "deprecated"                       # Deprecated | مهمل
-    RESEARCH = "research"                           # Research Only | للبحث فقط
-    COMING_SOON = "coming_soon"                     # Coming Soon | قريبا
-    OFFLINE = "offline"                             # Currently Offline | غير متصل حاليا
+    ACTIVE = "active"  # Active & Available | نشط ومتاح
+    BETA = "beta"  # Beta Testing | اختبار تجريبي
+    DEPRECATED = "deprecated"  # Deprecated | مهمل
+    RESEARCH = "research"  # Research Only | للبحث فقط
+    COMING_SOON = "coming_soon"  # Coming Soon | قريبا
+    OFFLINE = "offline"  # Currently Offline | غير متصل حاليا
 
 
-class ModelArchitecture(str, Enum):
+class ModelArchitecture(StrEnum):
     """Underlying architecture of AI models.
 
     البنية الأساسية لنماذج الذكاء الاصطناعي
     AI模型底层架构
     """
 
-    LLM = "llm"                                     # Large Language Model | نموذج لغوي كبير
-    VLM = "vlm"                                     # Vision-Language Model | نموذج رؤية-لغة
-    CNN = "cnn"                                     # Convolutional Neural Network | شبكة عصبية تلافيفية
-    TRANSFORMER = "transformer"                     # Transformer | محول
-    FOUNDATION = "foundation"                       # Foundation Model | نموذج أساسي
-    ENSEMBLE = "ensemble"                           # Ensemble Model | نموذج مجمع
-    AGENT = "agent"                                 # AI Agent | وكيل ذكاء اصطناعي
-    HYBRID = "hybrid"                               # Hybrid Architecture | بنية هجينة
+    LLM = "llm"  # Large Language Model | نموذج لغوي كبير
+    VLM = "vlm"  # Vision-Language Model | نموذج رؤية-لغة
+    CNN = "cnn"  # Convolutional Neural Network | شبكة عصبية تلافيفية
+    TRANSFORMER = "transformer"  # Transformer | محول
+    FOUNDATION = "foundation"  # Foundation Model | نموذج أساسي
+    ENSEMBLE = "ensemble"  # Ensemble Model | نموذج مجمع
+    AGENT = "agent"  # AI Agent | وكيل ذكاء اصطناعي
+    HYBRID = "hybrid"  # Hybrid Architecture | بنية هجينة
 
 
 @dataclass
@@ -204,8 +204,8 @@ class ModelEndpoint:
     url: str
     method: str = "POST"
     auth_required: bool = True
-    auth_type: str = "api_key"                      # api_key, oauth, basic, none
-    rate_limit: int | None = None                   # Requests per minute
+    auth_type: str = "api_key"  # api_key, oauth, basic, none
+    rate_limit: int | None = None  # Requests per minute
     timeout_seconds: int = 60
     is_streaming: bool = False
     documentation_url: str | None = None
@@ -235,7 +235,7 @@ class DeveloperInfo:
     name: str
     name_ar: str = ""
     name_cn: str = ""
-    organization_type: str = "academic"             # academic, commercial, government, research
+    organization_type: str = "academic"  # academic, commercial, government, research
     country: str = "Unknown"
     website: str | None = None
     contact_email: str | None = None
@@ -264,7 +264,7 @@ class ModelPerformance:
     accuracy: float | None = None
     f1_score: float | None = None
     latency_ms: float | None = None
-    throughput: float | None = None                 # Requests per second
+    throughput: float | None = None  # Requests per second
     benchmark_dataset: str | None = None
     benchmark_date: str | None = None
     notes: str | None = None
@@ -322,8 +322,8 @@ class AIModelInfo:
     # Technical | التقنية | 技术
     endpoint: ModelEndpoint | None = None
     performance: ModelPerformance | None = None
-    base_model: str | None = None                   # e.g., "Qwen2", "LLaMA", "GPT-4"
-    parameter_count: str | None = None              # e.g., "7B", "13B", "70B"
+    base_model: str | None = None  # e.g., "Qwen2", "LLaMA", "GPT-4"
+    parameter_count: str | None = None  # e.g., "7B", "13B", "70B"
     context_length: int | None = None
 
     # Description | الوصف | 描述
@@ -467,9 +467,9 @@ class ModelComparison:
 
     query: str
     models: list[AIModelInfo]
-    responses: dict[str, str] = field(default_factory=dict)     # model_id -> response
-    latencies: dict[str, float] = field(default_factory=dict)   # model_id -> latency_ms
-    scores: dict[str, float] = field(default_factory=dict)      # model_id -> score
+    responses: dict[str, str] = field(default_factory=dict)  # model_id -> response
+    latencies: dict[str, float] = field(default_factory=dict)  # model_id -> latency_ms
+    scores: dict[str, float] = field(default_factory=dict)  # model_id -> score
     winner: str | None = None
     comparison_criteria: list[str] = field(default_factory=list)
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))

@@ -13,10 +13,10 @@ Last updated: December 2025
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class YemenRegion(str, Enum):
+class YemenRegion(StrEnum):
     """مناطق اليمن الزراعية"""
 
     TIHAMA = "تهامة"  # السهل الساحلي الغربي
@@ -29,7 +29,7 @@ class YemenRegion(str, Enum):
     ADEN = "عدن"  # عدن، أبين
 
 
-class VarietyOrigin(str, Enum):
+class VarietyOrigin(StrEnum):
     """أصل الصنف"""
 
     LOCAL = "local"  # صنف محلي بلدي
@@ -38,7 +38,7 @@ class VarietyOrigin(str, Enum):
     HYBRID = "hybrid"  # هجين
 
 
-class MaturityClass(str, Enum):
+class MaturityClass(StrEnum):
     """فئة النضج"""
 
     VERY_EARLY = "very_early"  # مبكر جداً

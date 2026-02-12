@@ -1,7 +1,9 @@
 # SAHOOL Astronomical Calendar Service
 # خدمة التقويم الفلكي الزراعي
 
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 LABEL maintainer="SAHOOL Team <dev@sahool.io>"
 LABEL description="Astronomical Calendar Service for Traditional Yemeni Farming"
@@ -15,10 +17,20 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 
 # Install dependencies with retry logic and PyPI mirror fallback
 COPY apps/services/astronomical-calendar/requirements.txt .
-RUN pip install --no-cache-dir --default-timeout=100 --retries=5 -r requirements.txt || \
-    pip install --no-cache-dir --default-timeout=100 --retries=5 \
+# Install dependencies with resilient multi-mirror fallback strategy
+# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
     -r requirements.txt
 
 # Copy root shared modules (shared.ai, shared.events, etc.)

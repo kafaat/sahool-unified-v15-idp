@@ -12,11 +12,11 @@ Fast, no LLM needed, easy to modify.
 """
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Literal
 
 
-class Priority(str, Enum):
+class Priority(StrEnum):
     """Routing priority levels."""
 
     CRITICAL = "critical"

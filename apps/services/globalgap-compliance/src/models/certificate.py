@@ -7,12 +7,12 @@ Data models for GlobalGAP GGN certificates.
 """
 
 from datetime import date, datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 from pydantic import BaseModel, Field
 
 
-class CertificateStatus(str, Enum):
+class CertificateStatus(StrEnum):
     """
     Certificate status
     حالة الشهادة
@@ -26,7 +26,7 @@ class CertificateStatus(str, Enum):
     RENEWAL_REQUIRED = "renewal_required"  # تتطلب التجديد
 
 
-class CertificationScope(str, Enum):
+class CertificationScope(StrEnum):
     """
     Certification scope
     نطاق الشهادة

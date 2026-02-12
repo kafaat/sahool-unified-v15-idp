@@ -18,22 +18,22 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from typing import Any, Protocol
 import logging
+from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
+from typing import Any, Protocol
 
 from .models import (
+    CropFeatures,
+    CropStage,
     IrrigationFeatures,
     IrrigationPrediction,
+    IrrigationRecord,
+    IrrigationType,
     IrrigationUrgency,
     PredictionConfidence,
-    CropStage,
-    IrrigationType,
-    WeatherFeatures,
     SoilFeatures,
-    CropFeatures,
-    IrrigationRecord,
+    WeatherFeatures,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,16 +64,18 @@ class PredictorConfig:
     moisture_optimal_threshold: float = 60.0  # % - Optimal moisture level
 
     # Depletion allowances by crop stage
-    depletion_allowances: dict[str, float] = field(default_factory=lambda: {
-        "germination": 0.25,
-        "seedling": 0.30,
-        "vegetative": 0.40,
-        "tillering": 0.45,
-        "flowering": 0.35,
-        "grain_fill": 0.40,
-        "maturity": 0.55,
-        "harvest": 0.60,
-    })
+    depletion_allowances: dict[str, float] = field(
+        default_factory=lambda: {
+            "germination": 0.25,
+            "seedling": 0.30,
+            "vegetative": 0.40,
+            "tillering": 0.45,
+            "flowering": 0.35,
+            "grain_fill": 0.40,
+            "maturity": 0.55,
+            "harvest": 0.60,
+        }
+    )
 
     # Weather adjustments
     rain_probability_threshold: float = 60.0  # % - Delay irrigation if rain likely
@@ -81,14 +83,16 @@ class PredictorConfig:
     high_wind_threshold: float = 25.0  # km/h - Avoid sprinkler irrigation
 
     # System efficiencies
-    irrigation_efficiencies: dict[str, float] = field(default_factory=lambda: {
-        "drip": 0.90,
-        "sprinkler": 0.75,
-        "flood": 0.50,
-        "center_pivot": 0.85,
-        "furrow": 0.55,
-        "subsurface": 0.95,
-    })
+    irrigation_efficiencies: dict[str, float] = field(
+        default_factory=lambda: {
+            "drip": 0.90,
+            "sprinkler": 0.75,
+            "flood": 0.50,
+            "center_pivot": 0.85,
+            "furrow": 0.55,
+            "subsurface": 0.95,
+        }
+    )
 
     # Prediction settings
     default_confidence: float = 0.75
@@ -305,9 +309,7 @@ class IrrigationPredictor:
             # Calculate net irrigation requirement
             root_zone_depth_m = features.crop.root_depth_cm / 100
             deficit_mm = (
-                soil.moisture_deficit *
-                root_zone_depth_m *
-                10  # Convert to mm
+                soil.moisture_deficit * root_zone_depth_m * 10  # Convert to mm
             )
 
             # Account for effective rainfall
@@ -412,8 +414,8 @@ class IrrigationPredictor:
 
         # Weighted average of amounts
         combined_amount = (
-            self.config.rule_weight * rule_pred.recommended_amount_mm +
-            self.config.model_weight * ml_pred.recommended_amount_mm
+            self.config.rule_weight * rule_pred.recommended_amount_mm
+            + self.config.model_weight * ml_pred.recommended_amount_mm
         )
 
         # Use higher confidence prediction for binary decision
@@ -426,8 +428,8 @@ class IrrigationPredictor:
 
         # Average confidence
         combined_confidence = (
-            self.config.rule_weight * rule_pred.confidence +
-            self.config.model_weight * ml_pred.confidence
+            self.config.rule_weight * rule_pred.confidence
+            + self.config.model_weight * ml_pred.confidence
         )
 
         return IrrigationPrediction(
@@ -455,8 +457,7 @@ class IrrigationPredictor:
 
         # Calculate historical average amount
         recent_records = [
-            r for r in records
-            if r.irrigation_date > datetime.now(UTC) - timedelta(days=30)
+            r for r in records if r.irrigation_date > datetime.now(UTC) - timedelta(days=30)
         ]
 
         if not recent_records:
@@ -464,8 +465,7 @@ class IrrigationPredictor:
 
         avg_amount = sum(r.amount_mm for r in recent_records) / len(recent_records)
         avg_effectiveness = sum(
-            r.effectiveness_rating for r in recent_records
-            if r.effectiveness_rating
+            r.effectiveness_rating for r in recent_records if r.effectiveness_rating
         )
         if avg_effectiveness:
             avg_effectiveness /= len([r for r in recent_records if r.effectiveness_rating])
@@ -479,9 +479,7 @@ class IrrigationPredictor:
             )
         elif avg_effectiveness and avg_effectiveness > 4.5:
             # Historical irrigations were very effective, slight decrease
-            prediction.recommended_amount_mm = round(
-                prediction.recommended_amount_mm * 0.95, 1
-            )
+            prediction.recommended_amount_mm = round(prediction.recommended_amount_mm * 0.95, 1)
 
         # Increase confidence if historical pattern matches prediction
         if abs(prediction.recommended_amount_mm - avg_amount) < avg_amount * 0.2:
@@ -527,12 +525,10 @@ class IrrigationPredictor:
 
         if features.weather.temperature_max > self.config.high_temp_threshold:
             reasoning_en.append(
-                f"High temperature ({features.weather.temperature_max:.1f}C) "
-                "increases water demand"
+                f"High temperature ({features.weather.temperature_max:.1f}C) increases water demand"
             )
             reasoning_ar.append(
-                f"درجة حرارة مرتفعة ({features.weather.temperature_max:.1f}م) "
-                "تزيد الطلب على المياه"
+                f"درجة حرارة مرتفعة ({features.weather.temperature_max:.1f}م) تزيد الطلب على المياه"
             )
 
         # Crop stage consideration
@@ -548,7 +544,9 @@ class IrrigationPredictor:
             CropStage.HARVEST: "الحصاد",
         }
         reasoning_en.append(f"Crop is in {stage.value} stage with specific water needs")
-        reasoning_ar.append(f"المحصول في مرحلة {stage_ar.get(stage, stage.value)} مع احتياجات مائية محددة")
+        reasoning_ar.append(
+            f"المحصول في مرحلة {stage_ar.get(stage, stage.value)} مع احتياجات مائية محددة"
+        )
 
         # Amount recommendation
         if prediction.irrigation_needed:
@@ -634,10 +632,7 @@ class IrrigationPredictor:
             return IrrigationUrgency.HIGH
 
         # High temperature stress
-        if (
-            weather.temperature_max > self.config.high_temp_threshold and
-            depletion > 0.4
-        ):
+        if weather.temperature_max > self.config.high_temp_threshold and depletion > 0.4:
             return IrrigationUrgency.HIGH
 
         # Low moisture
@@ -656,9 +651,7 @@ class IrrigationPredictor:
         confidence = self.config.default_confidence
 
         # Increase confidence for recent sensor data
-        data_age_hours = (
-            datetime.now(UTC) - features.soil.timestamp
-        ).total_seconds() / 3600
+        data_age_hours = (datetime.now(UTC) - features.soil.timestamp).total_seconds() / 3600
 
         if data_age_hours < 1:
             confidence += 0.10
@@ -716,8 +709,8 @@ class IrrigationPredictor:
 
         # Adjust for high wind (avoid sprinkler in wind)
         if (
-            features.irrigation_type == IrrigationType.SPRINKLER and
-            features.weather.wind_speed > self.config.high_wind_threshold
+            features.irrigation_type == IrrigationType.SPRINKLER
+            and features.weather.wind_speed > self.config.high_wind_threshold
         ):
             # Move to evening when wind typically drops
             target_hour = 18
@@ -740,41 +733,49 @@ class IrrigationPredictor:
 
         # Soil moisture factor
         moisture_impact = "high" if features.soil.moisture_current < 35 else "medium"
-        factors.append({
-            "name": "Soil Moisture",
-            "name_ar": "رطوبة التربة",
-            "value": f"{features.soil.moisture_current:.1f}%",
-            "impact": moisture_impact,
-            "weight": 0.35,
-        })
+        factors.append(
+            {
+                "name": "Soil Moisture",
+                "name_ar": "رطوبة التربة",
+                "value": f"{features.soil.moisture_current:.1f}%",
+                "impact": moisture_impact,
+                "weight": 0.35,
+            }
+        )
 
         # ET factor
-        factors.append({
-            "name": "Crop Water Demand (ETc)",
-            "name_ar": "الطلب المائي للمحصول",
-            "value": f"{etc:.1f} mm/day",
-            "impact": "high" if etc > 5 else "medium",
-            "weight": 0.25,
-        })
+        factors.append(
+            {
+                "name": "Crop Water Demand (ETc)",
+                "name_ar": "الطلب المائي للمحصول",
+                "value": f"{etc:.1f} mm/day",
+                "impact": "high" if etc > 5 else "medium",
+                "weight": 0.25,
+            }
+        )
 
         # Depletion factor
-        factors.append({
-            "name": "Soil Depletion",
-            "name_ar": "استنزاف التربة",
-            "value": f"{depletion * 100:.0f}%",
-            "impact": "high" if depletion > 0.5 else "medium",
-            "weight": 0.20,
-        })
+        factors.append(
+            {
+                "name": "Soil Depletion",
+                "name_ar": "استنزاف التربة",
+                "value": f"{depletion * 100:.0f}%",
+                "impact": "high" if depletion > 0.5 else "medium",
+                "weight": 0.20,
+            }
+        )
 
         # Weather factor
         rain_factor = "low" if features.weather.precipitation_probability > 50 else "medium"
-        factors.append({
-            "name": "Weather Conditions",
-            "name_ar": "الظروف الجوية",
-            "value": f"Rain: {features.weather.precipitation_probability:.0f}%",
-            "impact": rain_factor,
-            "weight": 0.20,
-        })
+        factors.append(
+            {
+                "name": "Weather Conditions",
+                "name_ar": "الظروف الجوية",
+                "value": f"Rain: {features.weather.precipitation_probability:.0f}%",
+                "impact": rain_factor,
+                "weight": 0.20,
+            }
+        )
 
         return factors
 

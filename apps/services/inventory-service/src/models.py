@@ -3,13 +3,13 @@ Pydantic models for Inventory Service
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 from pydantic import BaseModel, ConfigDict
 
 
 # Enums
-class ItemCategory(str, Enum):
+class ItemCategory(StrEnum):
     SEED = "SEED"
     FERTILIZER = "FERTILIZER"
     PESTICIDE = "PESTICIDE"
@@ -23,7 +23,7 @@ class ItemCategory(str, Enum):
     OTHER = "OTHER"
 
 
-class Unit(str, Enum):
+class Unit(StrEnum):
     KG = "KG"
     GRAM = "GRAM"
     TON = "TON"
@@ -37,7 +37,7 @@ class Unit(str, Enum):
     HECTARE_DOSE = "HECTARE_DOSE"
 
 
-class MovementType(str, Enum):
+class MovementType(StrEnum):
     PURCHASE = "PURCHASE"
     SALE = "SALE"
     FIELD_APPLICATION = "FIELD_APPLICATION"

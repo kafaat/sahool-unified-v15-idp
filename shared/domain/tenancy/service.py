@@ -5,7 +5,7 @@ Business logic for tenant management
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 
 from .models import Tenant, TenantPlan, TenantSettings, TenantStatus
 

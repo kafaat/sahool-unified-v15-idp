@@ -8,7 +8,9 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 1: Builder - Install dependencies and generate Prisma client
 # ───────────────────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 WORKDIR /app
 
@@ -33,15 +35,20 @@ COPY apps/services/community-chat/openapi.yaml ./openapi.yaml
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
 # ───────────────────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="community-chat"
 LABEL version="1.0.0"
 LABEL description="Real-time chat service for Yemeni farmers community"
 
-# Install curl for healthcheck and openssl for Prisma
-RUN apk add --no-cache curl openssl
+# Install curl for healthcheck
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -68,8 +75,8 @@ COPY --from=builder /app/src/ ./src/
 COPY --from=builder /app/openapi.yaml ./openapi.yaml
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001 && \
+RUN groupadd -g 1001 nodejs && \
+    useradd -u 1001 -g nodejs -s /bin/bash -m nodejs && \
     chown -R nodejs:nodejs /app
 
 USER nodejs

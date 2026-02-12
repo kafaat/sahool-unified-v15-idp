@@ -6,7 +6,7 @@ Token creation and verification using PyJWT
 from __future__ import annotations
 
 import uuid
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 import jwt
 from jwt import PyJWTError

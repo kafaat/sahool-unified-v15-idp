@@ -6,7 +6,9 @@
 # ============================================================================
 # Build Stage
 # ============================================================================
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
@@ -32,7 +34,10 @@ RUN npm prune --production
 # ============================================================================
 # Production Stage
 # ============================================================================
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-alpine AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 LABEL maintainer="KAFAAT <dev@kafaat.com>"
 LABEL description="AI-powered code review agent using Claude Agent SDK"

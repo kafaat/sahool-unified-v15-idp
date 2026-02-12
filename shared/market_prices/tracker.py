@@ -12,32 +12,32 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, date, timedelta, UTC
-from decimal import Decimal
-from pathlib import Path
-from typing import Any
 import asyncio
 import json
 import logging
 import os
 import uuid
+from datetime import UTC, date, datetime, timedelta
+from decimal import Decimal
+from pathlib import Path
+from typing import Any
 
 from .models import (
-    CropPrice,
-    PriceAlert,
-    AlertStatus,
-    AlertType,
-    Market,
-    Region,
-    Currency,
-    PriceUnit,
-    PriceQuality,
-    Country,
+    ALL_REGIONS,
     CROP_TYPES,
     MAJOR_MARKETS,
-    ALL_REGIONS,
+    AlertStatus,
+    AlertType,
+    Country,
+    CropPrice,
+    Currency,
+    Market,
     MarketPriceErrors,
     MarketPriceException,
+    PriceAlert,
+    PriceQuality,
+    PriceUnit,
+    Region,
 )
 
 logger = logging.getLogger(__name__)
@@ -52,11 +52,14 @@ class PriceStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/market_prices" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_prices"  # nosec B108
-        self.storage_path = Path(storage_path or os.getenv(
-            "MARKET_PRICES_STORAGE_PATH",
-            default_path
-        ))
+        default_path = (
+            "/var/lib/sahool/market_prices"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_market_prices"
+        )  # nosec B108
+        self.storage_path = Path(
+            storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path)
+        )
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -154,11 +157,14 @@ class AlertStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/market_alerts" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_alerts"  # nosec B108
-        self.storage_path = Path(storage_path or os.getenv(
-            "MARKET_ALERTS_STORAGE_PATH",
-            default_path
-        ))
+        default_path = (
+            "/var/lib/sahool/market_alerts"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_market_alerts"
+        )  # nosec B108
+        self.storage_path = Path(
+            storage_path or os.getenv("MARKET_ALERTS_STORAGE_PATH", default_path)
+        )
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -221,7 +227,9 @@ class AlertStorage:
                 threshold_unit=PriceUnit(data.get("threshold_unit", "kg")),
                 currency=Currency(data.get("currency", "SAR")),
                 percentage_threshold=data.get("percentage_threshold"),
-                reference_price=Decimal(str(data["reference_price"])) if data.get("reference_price") else None,
+                reference_price=Decimal(str(data["reference_price"]))
+                if data.get("reference_price")
+                else None,
                 time_window_days=data.get("time_window_days", 7),
                 status=AlertStatus(data.get("status", "active")),
                 notify_sms=data.get("notify_sms", True),
@@ -229,12 +237,20 @@ class AlertStorage:
                 notify_push=data.get("notify_push", True),
                 phone_number=data.get("phone_number", ""),
                 email=data.get("email", ""),
-                last_triggered_at=datetime.fromisoformat(data["last_triggered_at"]) if data.get("last_triggered_at") else None,
+                last_triggered_at=datetime.fromisoformat(data["last_triggered_at"])
+                if data.get("last_triggered_at")
+                else None,
                 trigger_count=data.get("trigger_count", 0),
-                last_triggered_price=Decimal(str(data["last_triggered_price"])) if data.get("last_triggered_price") else None,
+                last_triggered_price=Decimal(str(data["last_triggered_price"]))
+                if data.get("last_triggered_price")
+                else None,
                 last_triggered_market_id=data.get("last_triggered_market_id"),
-                valid_from=date.fromisoformat(data["valid_from"]) if data.get("valid_from") else date.today(),
-                valid_until=date.fromisoformat(data["valid_until"]) if data.get("valid_until") else None,
+                valid_from=date.fromisoformat(data["valid_from"])
+                if data.get("valid_from")
+                else date.today(),
+                valid_until=date.fromisoformat(data["valid_until"])
+                if data.get("valid_until")
+                else None,
                 max_triggers=data.get("max_triggers"),
                 name=data.get("name", ""),
                 name_ar=data.get("name_ar", ""),
@@ -380,17 +396,13 @@ class MarketPriceTracker:
         # Validate crop
         crop_type = CROP_TYPES.get(crop_id)
         if not crop_type:
-            raise MarketPriceException(
-                MarketPriceErrors.CROP_NOT_FOUND,
-                f"Crop ID: {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.CROP_NOT_FOUND, f"Crop ID: {crop_id}")
 
         # Validate market
         market = self._markets_cache.get(market_id)
         if not market:
             raise MarketPriceException(
-                MarketPriceErrors.MARKET_NOT_FOUND,
-                f"Market ID: {market_id}"
+                MarketPriceErrors.MARKET_NOT_FOUND, f"Market ID: {market_id}"
             )
 
         # Create price record
@@ -457,7 +469,9 @@ class MarketPriceTracker:
                 source=data.get("source", "batch"),
                 notes=data.get("notes", ""),
                 notes_ar=data.get("notes_ar", ""),
-                price_date=date.fromisoformat(data["price_date"]) if data.get("price_date") else None,
+                price_date=date.fromisoformat(data["price_date"])
+                if data.get("price_date")
+                else None,
             )
             prices.append(price)
 
@@ -563,10 +577,7 @@ class MarketPriceTracker:
         price_date = price_date or date.today()
 
         # Get region IDs for the country
-        country_region_ids = [
-            r.id for r in self._regions_cache.values()
-            if r.country == country
-        ]
+        country_region_ids = [r.id for r in self._regions_cache.values() if r.country == country]
 
         all_prices = await self.price_storage.load_prices(
             crop_id=crop_id,
@@ -639,10 +650,7 @@ class MarketPriceTracker:
         # Validate crop
         crop_type = CROP_TYPES.get(crop_id)
         if not crop_type:
-            raise MarketPriceException(
-                MarketPriceErrors.CROP_NOT_FOUND,
-                f"Crop ID: {crop_id}"
-            )
+            raise MarketPriceException(MarketPriceErrors.CROP_NOT_FOUND, f"Crop ID: {crop_id}")
 
         # Get reference price for percentage alerts
         reference_price = None
@@ -834,8 +842,8 @@ class MarketPriceTracker:
         try:
             # Lazy import to avoid circular dependencies
             from shared.libs.events.nats_publisher import (
-                get_publisher,
                 AnalysisEvent,
+                get_publisher,
             )
         except ImportError:
             logger.warning(

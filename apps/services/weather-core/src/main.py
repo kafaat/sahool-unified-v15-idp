@@ -15,11 +15,11 @@ from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
-from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
 
 # Import shared logging configuration
 # Note: PYTHONPATH=/app is set in Dockerfile, and shared/ is copied to /app/shared/
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import RequestLoggingMiddleware, get_logger, setup_logging
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider

@@ -406,7 +406,9 @@ class SentinelHubClient:
                                 ndvi_array = np.array(img, dtype=np.float32)
 
                                 # Filter valid NDVI values (-1 to 1)
-                                valid_mask = (ndvi_array >= -1) & (ndvi_array <= 1) & np.isfinite(ndvi_array)
+                                valid_mask = (
+                                    (ndvi_array >= -1) & (ndvi_array <= 1) & np.isfinite(ndvi_array)
+                                )
                                 valid_ndvi = ndvi_array[valid_mask]
 
                                 if len(valid_ndvi) > 0:
@@ -532,7 +534,7 @@ def compute_from_sentinel(
     client = get_sentinel_hub_client()
 
     # Sanitize field_id to prevent log injection attacks
-    safe_field_id = str(field_id).replace('\n', '').replace('\r', '').replace('\t', '')[:100]
+    safe_field_id = str(field_id).replace("\n", "").replace("\r", "").replace("\t", "")[:100]
 
     if not client.is_configured:
         logger.info("SentinelHub not configured for field %s, using mock data", safe_field_id)
@@ -620,7 +622,7 @@ async def compute_from_sentinel_async(
     client = get_sentinel_hub_client()
 
     # Sanitize field_id to prevent log injection attacks
-    safe_field_id = str(field_id).replace('\n', '').replace('\r', '').replace('\t', '')[:100]
+    safe_field_id = str(field_id).replace("\n", "").replace("\r", "").replace("\t", "")[:100]
 
     if not client.is_configured:
         logger.info("SentinelHub not configured for field %s, using mock data", safe_field_id)

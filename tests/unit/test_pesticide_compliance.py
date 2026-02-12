@@ -1316,7 +1316,10 @@ class TestEdgeCasesAndErrorHandling:
 
         # Should increase risk due to high evaporation
         assert assessment.risk_level in ["medium", "high", "extreme"]
-        assert "temperature" in " ".join(assessment.recommendations_en).lower() or len(assessment.recommendations_en) > 0
+        assert (
+            "temperature" in " ".join(assessment.recommendations_en).lower()
+            or len(assessment.recommendations_en) > 0
+        )
 
     def test_drift_risk_boundary_values(self):
         """Test drift risk at boundary wind speed values"""

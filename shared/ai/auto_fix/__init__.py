@@ -69,8 +69,8 @@ from .frontend_diagnostics import (
 )
 from .health_check import (
     ComponentType,
-    HealthCheckResult,
     HealthChecker,
+    HealthCheckResult,
     HealthReport,
     HealthStatus,
     check_infrastructure,

@@ -69,88 +69,85 @@ Example Usage:
     ```
 """
 
+from .geometry import (
+    ACRES_PER_SQM,
+    DUNAMS_PER_SQM,
+    # Constants
+    EARTH_RADIUS_M,
+    HECTARES_PER_SQM,
+    # Data classes
+    GeometryMetrics,
+    calculate_bounding_box,
+    calculate_centroid,
+    calculate_geometry_metrics,
+    calculate_overlap_area,
+    calculate_perimeter,
+    calculate_polygon_area_geodesic,
+    calculate_polygon_area_projected,
+    # Conversion utilities
+    degrees_to_radians,
+    edges_intersect,
+    # PostGIS helpers
+    generate_postgis_area_query,
+    generate_postgis_centroid_query,
+    generate_postgis_neighbors_query,
+    generate_postgis_overlap_query,
+    # Core calculations
+    haversine_distance,
+    # Spatial operations
+    is_point_in_polygon,
+    polygons_overlap,
+    radians_to_degrees,
+    simplify_polygon,
+    # Validation and processing
+    validate_polygon,
+)
+from .mapping import (
+    FilterMethod,
+    # Main mapper class
+    GPSMapper,
+    # Configuration
+    MappingConfig,
+    # Enums
+    MappingMode,
+    MappingResult,
+    MappingSession,
+    # Utility functions
+    create_boundary_from_coordinates,
+    merge_boundaries,
+)
 from .models import (
+    BoundaryConflict,
+    # Data models
+    BoundaryPoint,
+    BoundaryShareRequest,
     # Enums
     BoundaryStatus,
     BoundaryType,
     ConflictType,
     CoordinateAccuracy,
+    FieldBoundary,
+    GPSTrack,
+    MultiPolygon,
     # Geometry types
     Point,
     Polygon,
-    MultiPolygon,
-    # Data models
-    BoundaryPoint,
-    FieldBoundary,
-    BoundaryConflict,
-    BoundaryShareRequest,
-    GPSTrack,
 )
-
-from .geometry import (
-    # Constants
-    EARTH_RADIUS_M,
-    HECTARES_PER_SQM,
-    DUNAMS_PER_SQM,
-    ACRES_PER_SQM,
-    # Data classes
-    GeometryMetrics,
-    # Core calculations
-    haversine_distance,
-    calculate_polygon_area_geodesic,
-    calculate_polygon_area_projected,
-    calculate_perimeter,
-    calculate_centroid,
-    calculate_bounding_box,
-    calculate_geometry_metrics,
-    # Spatial operations
-    is_point_in_polygon,
-    polygons_overlap,
-    edges_intersect,
-    calculate_overlap_area,
-    # Validation and processing
-    validate_polygon,
-    simplify_polygon,
-    # Conversion utilities
-    degrees_to_radians,
-    radians_to_degrees,
-    # PostGIS helpers
-    generate_postgis_area_query,
-    generate_postgis_centroid_query,
-    generate_postgis_overlap_query,
-    generate_postgis_neighbors_query,
-)
-
-from .mapping import (
-    # Enums
-    MappingMode,
-    FilterMethod,
-    # Configuration
-    MappingConfig,
-    MappingSession,
-    MappingResult,
-    # Main mapper class
-    GPSMapper,
-    # Utility functions
-    create_boundary_from_coordinates,
-    merge_boundaries,
-)
-
 from .sharing import (
-    # Enums
-    PermissionLevel,
-    ShareStatus,
-    ApprovalStatus,
-    # Data classes
-    SharePermission,
     ApprovalRequest,
-    ConflictResolution,
+    ApprovalStatus,
     # Main manager class
     BoundarySharingManager,
+    ConflictResolution,
+    # Enums
+    PermissionLevel,
+    # Data classes
+    SharePermission,
+    ShareStatus,
     # PostGIS helpers
     generate_postgis_conflict_detection_query,
-    generate_postgis_shared_boundaries_query,
     generate_postgis_neighbor_notification_query,
+    generate_postgis_shared_boundaries_query,
 )
 
 __all__ = [

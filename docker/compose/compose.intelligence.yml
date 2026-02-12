@@ -14,7 +14,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:3020/health
+      - http://localhost:3020/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,7 +41,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:3022/health
+      - http://localhost:3022/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,7 +67,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8091/health
+      - http://localhost:8091/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -93,7 +93,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:9095/health
+      - http://localhost:9095/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -145,7 +145,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8095/health
+      - http://localhost:8095/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -171,7 +171,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8118/health
+      - http://localhost:8118/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -197,7 +197,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8120/health
+      - http://localhost:8120/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -223,7 +223,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8090/health
+      - http://localhost:8090/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -251,7 +251,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8121/health
+      - http://localhost:8121/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -358,7 +358,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8145/health
+      - http://localhost:8145/healthz
       interval: 30s
       timeout: 10s
       retries: 3

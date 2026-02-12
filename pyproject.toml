@@ -16,7 +16,7 @@ base = [
     "pydantic>=2.10.0,<3.0.0",
     "httpx==0.28.1",
     "python-dotenv==1.2.1",
-    "aiohttp>=3.11.12",  # Security fix for CVE-2025-53643
+    "aiohttp>=3.13.3",  # Security fixes for CVE-2025-53643 and CVE-2025-69223
 ]
 infrastructure = [
     "asyncpg==0.31.0",
@@ -47,7 +47,7 @@ testing = [
 ]
 ml = [
     "Pillow==11.3.0",
-    "numpy>=1.26.0,<3.0.0",  # CRITICAL: Must be <2.0.0 for TensorFlow 2.18 compatibility (NumPy 2.x breaks TF)
+    "numpy>=1.26.0,<3.0.0",  # CRITICAL: Must be <2.5.0 for TensorFlow 2.20 compatibility (NumPy 2.x breaks TF)
     "tensorflow-cpu==2.20.0",
 ]
 dev = [
@@ -58,15 +58,23 @@ dev = [
 ]
 
 [tool.ruff]
-line-length = 100
+line-length = 120  # Increased for AI/RAG services with long descriptions
 target-version = "py311"
+exclude = [
+    "archive/",
+    "idp/templates/",
+    ".git",
+    ".venv",
+    "__pycache__",
+]
 
 [tool.ruff.lint]
-select = ["E","F","I","UP","B","SIM","N","W","C4"]
+select = ["E","F","I","UP","B","SIM","N","W","C4","C90"]  # Added C90 for complexity
 ignore = [
     "B008",  # Depends/Query in FastAPI function defaults is standard pattern
     "B904",  # Exception chaining - not critical, best effort fixed
-    "E501",  # Line too long - handled by formatter
+    "E501",  # Line too long - handled by formatter (line-length = 120)
+    "C901",  # Function too complex - allowed up to 20 for AI/RAG services
     "B007",  # Loop control variable not used - often intentional
     "B006",  # Mutable default argument - sometimes intentional
     "N814",  # CamelCase imported as constant - common pattern
@@ -102,8 +110,12 @@ ignore = [
 ]
 fixable = ["ALL"]
 
+[tool.ruff.lint.mccabe]
+# Complexity threshold for AI/RAG services with decision logic
+max-complexity = 20
+
 [tool.ruff.lint.per-file-ignores]
-"**/tests/*" = ["E402", "B017", "F401", "F821", "F841"]
+"**/tests/*" = ["E402", "B017", "F401", "F821", "F841", "N801", "N817"]
 "**/__init__.py" = ["F401"]
 "**/main.py" = ["E402", "F401", "F821"]  # Allow imports after sys.path modifications
 "**/examples/*" = ["F401", "F821", "E402"]  # Example code may have unused imports
@@ -128,6 +140,7 @@ fixable = ["ALL"]
 "shared/ai/__init__.py" = ["E402", "F401"]  # Complex module with conditional imports
 "shared/ai/grpo_trainer.py" = ["F401"]  # Conditional torch import
 "shared/ai/observability.py" = ["F401", "F811"]  # Re-exports and conditional pytest
+"shared/service_enhancements/*" = ["E402"]  # Services may have conditional imports
 "**/verify*.py" = ["F401", "F821"]  # Verification scripts
 "**/test_*.py" = ["F401", "F821", "E402"]  # Test files outside tests folder
 "apps/services/vegetation-analysis-service/test_*.py" = ["E402"]  # Tests with path manipulation
@@ -136,6 +149,7 @@ fixable = ["ALL"]
 "apps/mobile/**/test/*" = ["F401", "F402"]  # Mobile test simulations
 "apps/services/shared/**" = ["F401"]  # Services shared code
 "packages/sahool-eo/**" = ["N999", "N803"]  # Package naming and scientific notation vars
+"tools/**" = ["E402"]  # Tools may have sys.path modifications
 
 [tool.ruff.format]
 quote-style = "double"

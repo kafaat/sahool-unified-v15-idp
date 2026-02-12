@@ -3,14 +3,14 @@ Role-Based Access Control (RBAC) Policy Engine
 Simple and effective permission management
 """
 
-from enum import Enum
+from enum import StrEnum
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Permission Definitions
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class Permission(str, Enum):
+class Permission(StrEnum):
     """
     All permissions in the system.
     Format: service:resource.action
@@ -72,7 +72,7 @@ class Permission(str, Enum):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class Role(str, Enum):
+class Role(StrEnum):
     """System roles"""
 
     VIEWER = "viewer"

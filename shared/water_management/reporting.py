@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, date, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -35,7 +35,6 @@ from .models import (
     WaterSourceStatus,
     WaterSourceType,
 )
-
 
 # =============================================================================
 # Report Models - نماذج التقارير
@@ -266,11 +265,7 @@ class MEWAComplianceReport:
             "certification": {
                 "prepared_by": self.prepared_by,
                 "title": self.prepared_by_title,
-                "date": (
-                    self.certification_date.isoformat()
-                    if self.certification_date
-                    else None
-                ),
+                "date": (self.certification_date.isoformat() if self.certification_date else None),
             },
         }
 
@@ -396,9 +391,7 @@ class WellExtractionReport:
                 "reading_end": self.meter_reading_end,
                 "certified": self.meter_certified,
                 "calibration_date": (
-                    self.meter_calibration_date.isoformat()
-                    if self.meter_calibration_date
-                    else None
+                    self.meter_calibration_date.isoformat() if self.meter_calibration_date else None
                 ),
             },
             "compliance": {
@@ -653,18 +646,12 @@ class FarmWaterSummaryReport:
             },
             "costs": {
                 "total_water_sar": (
-                    float(self.total_water_cost_sar)
-                    if self.total_water_cost_sar
-                    else None
+                    float(self.total_water_cost_sar) if self.total_water_cost_sar else None
                 ),
                 "total_energy_sar": (
-                    float(self.total_energy_cost_sar)
-                    if self.total_energy_cost_sar
-                    else None
+                    float(self.total_energy_cost_sar) if self.total_energy_cost_sar else None
                 ),
-                "per_m3_sar": (
-                    float(self.cost_per_m3_sar) if self.cost_per_m3_sar else None
-                ),
+                "per_m3_sar": (float(self.cost_per_m3_sar) if self.cost_per_m3_sar else None),
             },
             "recommendations": {
                 "en": self.recommendations_en,
@@ -773,9 +760,7 @@ class WaterReportGenerator:
         report.total_allocated_m3_period = report.total_allocated_m3 * period_fraction
 
         # Process consumption
-        consumption_summary = self._calculate_consumption_summary(
-            consumption_records, period
-        )
+        consumption_summary = self._calculate_consumption_summary(consumption_records, period)
         report.consumption_summary = consumption_summary
 
         # Calculate allocation utilization
@@ -862,15 +847,15 @@ class WaterReportGenerator:
         # Calculate actual extraction from records
         well_records = [r for r in consumption_records if r.source_id == well.id]
         report.total_extraction_m3 = sum(r.volume_m3 for r in well_records)
-        report.extraction_days = len({
-            r.period_start.date() if r.period_start else r.recorded_at.date()
-            for r in well_records
-        })
+        report.extraction_days = len(
+            {
+                r.period_start.date() if r.period_start else r.recorded_at.date()
+                for r in well_records
+            }
+        )
 
         if report.extraction_days > 0:
-            report.avg_daily_extraction_m3 = (
-                report.total_extraction_m3 / report.extraction_days
-            )
+            report.avg_daily_extraction_m3 = report.total_extraction_m3 / report.extraction_days
 
         # Calculate pump hours
         report.pump_hours = sum(r.duration_hours or 0 for r in well_records)
@@ -904,15 +889,15 @@ class WaterReportGenerator:
             report.meter_id = well.meter.id
             report.meter_certified = well.meter.is_certified
             report.meter_calibration_date = (
-                well.meter.last_calibrated_at.date()
-                if well.meter.last_calibrated_at
-                else None
+                well.meter.last_calibrated_at.date() if well.meter.last_calibrated_at else None
             )
 
         # Compliance check
         if report.ytd_utilization_percent > 100:
             report.compliance_status = ComplianceStatus.NON_COMPLIANT
-            report.over_extraction_m3 = report.ytd_extraction_m3 - report.licensed_extraction_m3_year
+            report.over_extraction_m3 = (
+                report.ytd_extraction_m3 - report.licensed_extraction_m3_year
+            )
             report.compliance_notes = "Annual extraction limit exceeded"
             report.compliance_notes_ar = "تم تجاوز حد الاستخراج السنوي"
         elif report.ytd_utilization_percent > 90:
@@ -947,9 +932,7 @@ class WaterReportGenerator:
 
         # Filter tests in period
         period_tests = [
-            t
-            for t in quality_tests
-            if period.start_date <= t.tested_at.date() <= period.end_date
+            t for t in quality_tests if period.start_date <= t.tested_at.date() <= period.end_date
         ]
 
         report.tests_conducted = len(period_tests)
@@ -979,9 +962,7 @@ class WaterReportGenerator:
 
         # Calculate averages
         ec_values = [
-            t.electrical_conductivity_ds_m
-            for t in period_tests
-            if t.electrical_conductivity_ds_m
+            t.electrical_conductivity_ds_m for t in period_tests if t.electrical_conductivity_ds_m
         ]
         tds_values = [t.tds_ppm for t in period_tests if t.tds_ppm]
         ph_values = [t.ph for t in period_tests if t.ph]
@@ -1009,8 +990,7 @@ class WaterReportGenerator:
                     severity=AlertSeverity.CRITICAL,
                     description_en=f"{report.unfit_sources} source(s) have water "
                     "unfit for irrigation",
-                    description_ar=f"{report.unfit_sources} مصدر(مصادر) لديها مياه "
-                    "غير صالحة للري",
+                    description_ar=f"{report.unfit_sources} مصدر(مصادر) لديها مياه غير صالحة للري",
                 )
             )
 
@@ -1070,9 +1050,7 @@ class WaterReportGenerator:
 
         # Water sources
         report.total_sources = len(sources)
-        report.active_sources = sum(
-            1 for s in sources if s.status == WaterSourceStatus.ACTIVE
-        )
+        report.active_sources = sum(1 for s in sources if s.status == WaterSourceStatus.ACTIVE)
         report.total_capacity_m3 = sum(s.max_capacity_m3 or 0 for s in sources)
         report.available_capacity_m3 = sum(s.current_level_m3 or 0 for s in sources)
 
@@ -1086,21 +1064,15 @@ class WaterReportGenerator:
             ) * 100
 
         # Consumption
-        report.consumption = self._calculate_consumption_summary(
-            consumption_records, period
-        )
+        report.consumption = self._calculate_consumption_summary(consumption_records, period)
 
         # Efficiency
         if efficiency_metrics:
-            report.avg_application_efficiency = efficiency_metrics.get(
-                "avg_application_efficiency"
-            )
+            report.avg_application_efficiency = efficiency_metrics.get("avg_application_efficiency")
             report.avg_distribution_uniformity = efficiency_metrics.get(
                 "avg_distribution_uniformity"
             )
-            report.water_productivity_kg_m3 = efficiency_metrics.get(
-                "water_productivity_kg_m3"
-            )
+            report.water_productivity_kg_m3 = efficiency_metrics.get("water_productivity_kg_m3")
             report.economic_productivity_sar_m3 = efficiency_metrics.get(
                 "economic_productivity_sar_m3"
             )
@@ -1152,8 +1124,7 @@ class WaterReportGenerator:
         period_records = [
             r
             for r in records
-            if r.period_start
-            and period.start_date <= r.period_start.date() <= period.end_date
+            if r.period_start and period.start_date <= r.period_start.date() <= period.end_date
         ]
 
         summary.total_m3 = sum(r.volume_m3 for r in period_records)
@@ -1173,23 +1144,17 @@ class WaterReportGenerator:
 
         # By source
         for r in period_records:
-            summary.by_source[r.source_id] = (
-                summary.by_source.get(r.source_id, 0) + r.volume_m3
-            )
+            summary.by_source[r.source_id] = summary.by_source.get(r.source_id, 0) + r.volume_m3
 
         # By field
         for r in period_records:
             if r.field_id:
-                summary.by_field[r.field_id] = (
-                    summary.by_field.get(r.field_id, 0) + r.volume_m3
-                )
+                summary.by_field[r.field_id] = summary.by_field.get(r.field_id, 0) + r.volume_m3
 
         # By crop
         for r in period_records:
             if r.crop_type:
-                summary.by_crop[r.crop_type] = (
-                    summary.by_crop.get(r.crop_type, 0) + r.volume_m3
-                )
+                summary.by_crop[r.crop_type] = summary.by_crop.get(r.crop_type, 0) + r.volume_m3
 
         # Daily statistics
         daily_totals: dict[date, float] = {}
@@ -1205,15 +1170,10 @@ class WaterReportGenerator:
 
         return summary
 
-    def _generate_summary_recommendations(
-        self, report: FarmWaterSummaryReport
-    ) -> None:
+    def _generate_summary_recommendations(self, report: FarmWaterSummaryReport) -> None:
         """Generate recommendations for farm summary report"""
         # Efficiency recommendations
-        if (
-            report.avg_application_efficiency
-            and report.avg_application_efficiency < 75
-        ):
+        if report.avg_application_efficiency and report.avg_application_efficiency < 75:
             report.recommendations_en.append(
                 "Irrigation efficiency is below target. Consider system "
                 "maintenance or upgrade to improve water use efficiency."
@@ -1230,8 +1190,7 @@ class WaterReportGenerator:
                 "for the remaining period."
             )
             report.recommendations_ar.append(
-                "استخدام تخصيص المياه مرتفع. خطط للري بعناية "
-                "للفترة المتبقية."
+                "استخدام تخصيص المياه مرتفع. خطط للري بعناية للفترة المتبقية."
             )
 
         # Quality recommendations
@@ -1312,7 +1271,6 @@ class WaterReportScheduler:
 
         elif report_type == "water_quality":
             # Bi-annual reports (every 6 months)
-            months_since_last = 6
             if last_report_date:
                 months_diff = (today.year - last_report_date.year) * 12 + (
                     today.month - last_report_date.month
@@ -1364,18 +1322,20 @@ class WaterReportScheduler:
 
             if due_date < today:
                 days_overdue = (today - due_date).days
-                overdue.append({
-                    "report_type": report_type,
-                    "name_en": name_en,
-                    "name_ar": name_ar,
-                    "due_date": due_date.isoformat(),
-                    "days_overdue": days_overdue,
-                    "severity": (
-                        AlertSeverity.CRITICAL.value
-                        if days_overdue > 30
-                        else AlertSeverity.HIGH.value
-                    ),
-                })
+                overdue.append(
+                    {
+                        "report_type": report_type,
+                        "name_en": name_en,
+                        "name_ar": name_ar,
+                        "due_date": due_date.isoformat(),
+                        "days_overdue": days_overdue,
+                        "severity": (
+                            AlertSeverity.CRITICAL.value
+                            if days_overdue > 30
+                            else AlertSeverity.HIGH.value
+                        ),
+                    }
+                )
 
         return overdue
 

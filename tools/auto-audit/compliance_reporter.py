@@ -21,11 +21,11 @@ import argparse
 import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 
-class ComplianceFramework(str, Enum):
+class ComplianceFramework(StrEnum):
     """Supported compliance frameworks"""
 
     GDPR = "gdpr"
@@ -36,7 +36,7 @@ class ComplianceFramework(str, Enum):
     ALL = "all"
 
 
-class ControlStatus(str, Enum):
+class ControlStatus(StrEnum):
     """Status of a compliance control"""
 
     COMPLIANT = "compliant"

@@ -49,10 +49,11 @@ from crops import (
 from crops import (
     search_crops as search_crops_catalog,
 )
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from yemen_varieties import (
     get_varieties_by_crop,
 )
+
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .engine import (
     CROP_REQUIREMENTS,

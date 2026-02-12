@@ -11,27 +11,27 @@ Updated: January 2026
 """
 
 from .engine import (
-    # Core Types
-    ComponentCategory,
-    DataSourceType,
-    FieldType,
-    # Material Protocol
-    PropDefinition,
-    SlotDefinition,
-    EventDefinition,
-    ComponentMaterial,
-    # Data Model
-    FieldDefinition,
-    DataModel,
+    # AI Features
+    AIComponentSuggester,
     # Page System
     BlockConfig,
+    # Core Types
+    ComponentCategory,
+    ComponentMaterial,
+    DataModel,
+    DataSourceType,
+    EventDefinition,
+    # Data Model
+    FieldDefinition,
+    FieldType,
+    # Engine
+    LowCodeEngine,
     PageDefinition,
     # Plugin System
     PluginBase,
-    # Engine
-    LowCodeEngine,
-    # AI Features
-    AIComponentSuggester,
+    # Material Protocol
+    PropDefinition,
+    SlotDefinition,
 )
 
 __all__ = [

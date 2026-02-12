@@ -378,10 +378,7 @@ class TestWeatherServiceIntegration:
         forecast = await mock_weather_service.get_forecast()
 
         # Find days with rain
-        rainy_days = [
-            day for day in forecast
-            if day["precipitation_probability"] > 0.5
-        ]
+        rainy_days = [day for day in forecast if day["precipitation_probability"] > 0.5]
 
         # Optimize schedule with weather data
         mock_irrigation_agent.optimize_schedule.return_value = {
@@ -395,8 +392,7 @@ class TestWeatherServiceIntegration:
             ],
             "total_water_m3": 1000,  # Reduced due to rain
             "weather_adjustments": [
-                f"Skipped irrigation on {day['date']} due to rain forecast"
-                for day in rainy_days
+                f"Skipped irrigation on {day['date']} due to rain forecast" for day in rainy_days
             ],
             "confidence": 0.82,
         }
@@ -477,26 +473,30 @@ class TestFertilizationSyncIntegration:
         """Mock fertilization service"""
         service = MagicMock()
 
-        service.get_schedule = AsyncMock(return_value=[
-            {
-                "date": (date.today() + timedelta(days=3)).isoformat(),
-                "fertilizer_type": "nitrogen",
-                "amount_kg_ha": 50,
-                "application_method": "fertigation",
-            },
-            {
-                "date": (date.today() + timedelta(days=10)).isoformat(),
-                "fertilizer_type": "potassium",
-                "amount_kg_ha": 30,
-                "application_method": "broadcast",
-            },
-        ])
+        service.get_schedule = AsyncMock(
+            return_value=[
+                {
+                    "date": (date.today() + timedelta(days=3)).isoformat(),
+                    "fertilizer_type": "nitrogen",
+                    "amount_kg_ha": 50,
+                    "application_method": "fertigation",
+                },
+                {
+                    "date": (date.today() + timedelta(days=10)).isoformat(),
+                    "fertilizer_type": "potassium",
+                    "amount_kg_ha": 30,
+                    "application_method": "broadcast",
+                },
+            ]
+        )
 
-        service.sync_with_irrigation = AsyncMock(return_value={
-            "synced": True,
-            "adjusted_dates": [],
-            "conflicts_resolved": 0,
-        })
+        service.sync_with_irrigation = AsyncMock(
+            return_value={
+                "synced": True,
+                "adjusted_dates": [],
+                "conflicts_resolved": 0,
+            }
+        )
 
         return service
 
@@ -530,8 +530,7 @@ class TestFertilizationSyncIntegration:
 
         # Find fertigation days
         fertigation_dates = [
-            item["date"] for item in fert_schedule
-            if item["application_method"] == "fertigation"
+            item["date"] for item in fert_schedule if item["application_method"] == "fertigation"
         ]
 
         # Optimize irrigation with fertigation awareness
@@ -539,15 +538,17 @@ class TestFertilizationSyncIntegration:
             "schedule": [
                 {
                     "date": (date.today() + timedelta(days=i)).isoformat(),
-                    "water_amount_mm": 25 if (date.today() + timedelta(days=i)).isoformat() in fertigation_dates else 18,
-                    "fertigation_day": (date.today() + timedelta(days=i)).isoformat() in fertigation_dates,
+                    "water_amount_mm": 25
+                    if (date.today() + timedelta(days=i)).isoformat() in fertigation_dates
+                    else 18,
+                    "fertigation_day": (date.today() + timedelta(days=i)).isoformat()
+                    in fertigation_dates,
                 }
                 for i in range(7)
             ],
             "total_water_m3": 1300,
             "fertigation_adjustments": [
-                f"Increased water on {fdate} for fertigation"
-                for fdate in fertigation_dates
+                f"Increased water on {fdate} for fertigation" for fdate in fertigation_dates
             ],
             "confidence": 0.88,
         }
@@ -559,14 +560,8 @@ class TestFertilizationSyncIntegration:
         )
 
         # Check fertigation days have more water
-        fertigation_days = [
-            s for s in result["schedule"]
-            if s.get("fertigation_day")
-        ]
-        normal_days = [
-            s for s in result["schedule"]
-            if not s.get("fertigation_day")
-        ]
+        fertigation_days = [s for s in result["schedule"] if s.get("fertigation_day")]
+        normal_days = [s for s in result["schedule"] if not s.get("fertigation_day")]
 
         if fertigation_days and normal_days:
             assert fertigation_days[0]["water_amount_mm"] >= normal_days[0]["water_amount_mm"]
@@ -709,8 +704,7 @@ class TestEndToEndIntegration:
 
         # 10. Approve
         hmc_engine.get_checklist.return_value = [
-            {"item_id": str(i), "is_completed": True, "is_required": True}
-            for i in range(10)
+            {"item_id": str(i), "is_completed": True, "is_required": True} for i in range(10)
         ]
 
         approved = await hmc_engine.approve_program(

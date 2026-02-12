@@ -63,9 +63,7 @@ class PromptGuard:
         text = text.replace("\x00", "")
 
         # Remove control characters (except newlines and tabs)
-        text = "".join(
-            char for char in text if char == "\n" or char == "\t" or not (0 <= ord(char) < 32)
-        )
+        text = "".join(char for char in text if char == "\n" or char == "\t" or not (0 <= ord(char) < 32))
 
         # Normalize whitespace
         text = " ".join(text.split())

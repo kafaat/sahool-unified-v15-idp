@@ -5,23 +5,23 @@ Main compliance checking logic for PHI, REI, tank mix, and drift risk
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
+from .database import (
+    PPE_ENHANCED,
+    PPE_MAXIMUM,
+    get_pesticide,
+)
 from .models import (
-    PesticideApplication,
-    PHIViolation,
-    REIViolation,
-    TankMixCompatibility,
-    PPERequirement,
-    SprayDriftRisk,
     ComplianceCheck,
     ComplianceStatus,
     MixCompatibility,
-)
-from .database import (
-    get_pesticide,
-    PPE_ENHANCED,
-    PPE_MAXIMUM,
+    PesticideApplication,
+    PHIViolation,
+    PPERequirement,
+    REIViolation,
+    SprayDriftRisk,
+    TankMixCompatibility,
 )
 
 
@@ -70,7 +70,8 @@ class PesticideComplianceChecker:
 
         # Get applications for this field
         field_applications = [
-            app for app in self.applications
+            app
+            for app in self.applications
             if app.field_id == field_id and app.application_date <= check_date
         ]
 
@@ -99,9 +100,9 @@ class PesticideComplianceChecker:
                     days_remaining=days_remaining,
                     status=status,
                     message_en=f"Harvest planned {abs(days_remaining)} days too early. "
-                               f"{pesticide.trade_name} requires {pesticide.phi_days} day PHI.",
+                    f"{pesticide.trade_name} requires {pesticide.phi_days} day PHI.",
                     message_ar=f"الحصاد مخطط له مبكراً بـ {abs(days_remaining)} يوم. "
-                               f"{pesticide.trade_name_ar} يتطلب فترة {pesticide.phi_days} يوم قبل الحصاد.",
+                    f"{pesticide.trade_name_ar} يتطلب فترة {pesticide.phi_days} يوم قبل الحصاد.",
                     recommendations_en=[
                         f"Delay harvest until {earliest_harvest.strftime('%Y-%m-%d')}",
                         "Test produce for pesticide residue before sale",
@@ -133,10 +134,7 @@ class PesticideComplianceChecker:
         violations = []
 
         # Get recent applications for this field
-        field_applications = [
-            app for app in self.applications
-            if app.field_id == field_id
-        ]
+        field_applications = [app for app in self.applications if app.field_id == field_id]
 
         for app in field_applications:
             pesticide = get_pesticide(app.pesticide_id)
@@ -154,7 +152,11 @@ class PesticideComplianceChecker:
                 # Get PPE for early entry
                 early_entry_ppe = None
                 if hours_remaining <= (pesticide.rei_hours / 2):
-                    early_entry_ppe = PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
+                    early_entry_ppe = (
+                        PPE_MAXIMUM
+                        if pesticide.toxicity_class.value in ["Ia", "Ib"]
+                        else PPE_ENHANCED
+                    )
 
                 violation = REIViolation(
                     field_id=field_id,
@@ -166,9 +168,9 @@ class PesticideComplianceChecker:
                     safe_entry_time=safe_entry_time,
                     status=status,
                     message_en=f"Field entry too early. {pesticide.trade_name} requires "
-                               f"{pesticide.rei_hours} hour REI. Safe entry at {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
+                    f"{pesticide.rei_hours} hour REI. Safe entry at {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
                     message_ar=f"دخول الحقل مبكر جداً. {pesticide.trade_name_ar} يتطلب "
-                               f"فترة {pesticide.rei_hours} ساعة. الدخول الآمن في {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
+                    f"فترة {pesticide.rei_hours} ساعة. الدخول الآمن في {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
                     early_entry_ppe=early_entry_ppe,
                 )
                 violations.append(violation)
@@ -206,14 +208,18 @@ class PesticideComplianceChecker:
         tank_mix_issues = []
         tank_mix_status = ComplianceStatus.COMPLIANT
         recent_apps = [
-            app for app in self.applications
+            app
+            for app in self.applications
             if app.field_id == field_id and len(app.tank_mix_products) > 1
         ]
         for app in recent_apps:
             for i, product_a in enumerate(app.tank_mix_products):
-                for product_b in app.tank_mix_products[i + 1:]:
+                for product_b in app.tank_mix_products[i + 1 :]:
                     issue = check_tank_mix_compatibility(product_a, product_b)
-                    if issue.compatibility in [MixCompatibility.INCOMPATIBLE, MixCompatibility.CAUTION]:
+                    if issue.compatibility in [
+                        MixCompatibility.INCOMPATIBLE,
+                        MixCompatibility.CAUTION,
+                    ]:
                         tank_mix_issues.append(issue)
                         if issue.compatibility == MixCompatibility.INCOMPATIBLE:
                             tank_mix_status = ComplianceStatus.VIOLATION
@@ -382,11 +388,11 @@ def check_phi_compliance(
             days_remaining=days_remaining,
             status=status,
             message_en=f"⚠️ PHI VIOLATION: Cannot harvest until {earliest_harvest.strftime('%Y-%m-%d')}. "
-                       f"{pesticide.trade_name} applied on {application_date.strftime('%Y-%m-%d')} "
-                       f"requires {pesticide.phi_days} day pre-harvest interval.",
+            f"{pesticide.trade_name} applied on {application_date.strftime('%Y-%m-%d')} "
+            f"requires {pesticide.phi_days} day pre-harvest interval.",
             message_ar=f"⚠️ انتهاك فترة ما قبل الحصاد: لا يمكن الحصاد حتى {earliest_harvest.strftime('%Y-%m-%d')}. "
-                       f"{pesticide.trade_name_ar} المطبق في {application_date.strftime('%Y-%m-%d')} "
-                       f"يتطلب فترة {pesticide.phi_days} يوم قبل الحصاد.",
+            f"{pesticide.trade_name_ar} المطبق في {application_date.strftime('%Y-%m-%d')} "
+            f"يتطلب فترة {pesticide.phi_days} يوم قبل الحصاد.",
             recommendations_en=[
                 f"Wait {abs(days_remaining)} more days before harvesting",
                 "Document the delay for traceability",
@@ -428,7 +434,9 @@ def check_rei_compliance(
         # Get PPE for early entry
         early_entry_ppe = None
         if hours_remaining <= (pesticide.rei_hours / 2):
-            early_entry_ppe = PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
+            early_entry_ppe = (
+                PPE_MAXIMUM if pesticide.toxicity_class.value in ["Ia", "Ib"] else PPE_ENHANCED
+            )
 
         return REIViolation(
             field_id="",
@@ -440,11 +448,11 @@ def check_rei_compliance(
             safe_entry_time=safe_entry_time,
             status=status,
             message_en=f"⚠️ REI VIOLATION: Field is unsafe for entry. "
-                       f"{pesticide.trade_name} requires {pesticide.rei_hours}h REI. "
-                       f"Safe entry: {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
+            f"{pesticide.trade_name} requires {pesticide.rei_hours}h REI. "
+            f"Safe entry: {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
             message_ar=f"⚠️ انتهاك فترة إعادة الدخول: الحقل غير آمن للدخول. "
-                       f"{pesticide.trade_name_ar} يتطلب فترة {pesticide.rei_hours} ساعة. "
-                       f"الدخول الآمن: {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
+            f"{pesticide.trade_name_ar} يتطلب فترة {pesticide.rei_hours} ساعة. "
+            f"الدخول الآمن: {safe_entry_time.strftime('%Y-%m-%d %H:%M')}",
             early_entry_ppe=early_entry_ppe,
         )
 
@@ -555,20 +563,34 @@ def assess_spray_drift_risk(
     recommendations_ar = []
 
     if wind_speed_kmh > 15:
-        recommendations_en.append(f"Wind speed ({wind_speed_kmh} km/h) too high. Wait for calmer conditions.")
-        recommendations_ar.append(f"سرعة الرياح ({wind_speed_kmh} كم/س) مرتفعة جداً. انتظر ظروفاً أهدأ.")
+        recommendations_en.append(
+            f"Wind speed ({wind_speed_kmh} km/h) too high. Wait for calmer conditions."
+        )
+        recommendations_ar.append(
+            f"سرعة الرياح ({wind_speed_kmh} كم/س) مرتفعة جداً. انتظر ظروفاً أهدأ."
+        )
 
     if delta_t > 8:
-        recommendations_en.append("High evaporation conditions. Spray early morning or late evening.")
+        recommendations_en.append(
+            "High evaporation conditions. Spray early morning or late evening."
+        )
         recommendations_ar.append("ظروف تبخر عالية. رش في الصباح الباكر أو المساء.")
 
     if temperature_c > 30:
-        recommendations_en.append(f"Temperature ({temperature_c}°C) too high. Risk of phytotoxicity.")
-        recommendations_ar.append(f"درجة الحرارة ({temperature_c}°م) مرتفعة جداً. خطر السمية النباتية.")
+        recommendations_en.append(
+            f"Temperature ({temperature_c}°C) too high. Risk of phytotoxicity."
+        )
+        recommendations_ar.append(
+            f"درجة الحرارة ({temperature_c}°م) مرتفعة جداً. خطر السمية النباتية."
+        )
 
     if can_spray:
-        recommendations_en.append(f"Maintain minimum {recommended_buffer_m}m buffer from sensitive areas.")
-        recommendations_ar.append(f"حافظ على مسافة عازلة {recommended_buffer_m} متر من المناطق الحساسة.")
+        recommendations_en.append(
+            f"Maintain minimum {recommended_buffer_m}m buffer from sensitive areas."
+        )
+        recommendations_ar.append(
+            f"حافظ على مسافة عازلة {recommended_buffer_m} متر من المناطق الحساسة."
+        )
         recommendations_en.append("Use low-drift nozzles and reduce pressure if possible.")
         recommendations_ar.append("استخدم فوهات منخفضة الانجراف وقلل الضغط إن أمكن.")
 
@@ -577,7 +599,9 @@ def assess_spray_drift_risk(
         message_en = f"✅ Spray conditions acceptable with {risk_level} drift risk. Buffer: {recommended_buffer_m}m"
         message_ar = f"✅ ظروف الرش مقبولة مع خطر انجراف {risk_level_ar}. المسافة العازلة: {recommended_buffer_m}م"
     else:
-        message_en = f"❌ DO NOT SPRAY. {risk_level.upper()} drift risk. Wind: {wind_speed_kmh} km/h"
+        message_en = (
+            f"❌ DO NOT SPRAY. {risk_level.upper()} drift risk. Wind: {wind_speed_kmh} km/h"
+        )
         message_ar = f"❌ لا ترش. خطر انجراف {risk_level_ar}. الرياح: {wind_speed_kmh} كم/س"
 
     return SprayDriftRisk(

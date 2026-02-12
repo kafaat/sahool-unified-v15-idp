@@ -11,7 +11,7 @@ Updated: January 2026
 from __future__ import annotations
 
 import time
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any, Optional
 
 import structlog
@@ -58,7 +58,7 @@ async def chat(request: ChatRequest, req: Request) -> ChatResponse:
                 "error_ar": "الطلب كبير جداً",
                 "max_chars": MAX_PROMPT_CHARS,
                 "actual_chars": total_chars,
-            }
+            },
         )
 
     # Get the last user message for context
@@ -153,7 +153,7 @@ async def chat_stream(request: ChatRequest, req: Request):
         chunk_size = 50
 
         for i in range(0, len(content), chunk_size):
-            chunk = content[i:i + chunk_size]
+            chunk = content[i : i + chunk_size]
             yield f"data: {chunk}\n\n"
 
         yield "data: [DONE]\n\n"
@@ -242,7 +242,7 @@ If the context doesn't answer the question, say so and provide general guidance.
 def _detect_language(text: str) -> str:
     """Detect language (Arabic or English)"""
     # Simple detection based on Arabic character presence
-    arabic_chars = sum(1 for c in text if '\u0600' <= c <= '\u06FF')
+    arabic_chars = sum(1 for c in text if "\u0600" <= c <= "\u06ff")
     if arabic_chars / max(len(text), 1) > 0.3:
         return "ar"
     return "en"
@@ -270,10 +270,12 @@ async def _generate_response(
             {"role": "system", "content": system_prompt},
         ]
         for msg in messages:
-            ollama_messages.append({
-                "role": msg.role.value,
-                "content": msg.content,
-            })
+            ollama_messages.append(
+                {
+                    "role": msg.role.value,
+                    "content": msg.content,
+                }
+            )
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(

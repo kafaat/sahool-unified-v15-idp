@@ -13,12 +13,24 @@ Provides REST API endpoints for terrain analysis:
 import json
 import time
 import uuid
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Optional
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from ...algorithms.dem_processor import DEMBounds, DEMProcessor, DEMSource
+from ...algorithms.terrain_indicators import (
+    CurvatureType as CalcCurvatureType,
+)
+from ...algorithms.terrain_indicators import (
+    FlowMethod,
+    TerrainIndicatorCalculator,
+)
+from ...algorithms.terrain_indicators import (
+    SlopeUnit as CalcSlopeUnit,
+)
+from ...core.config import settings
 from ..schemas import (
     AspectClassification,
     AspectResult,
@@ -32,20 +44,16 @@ from ..schemas import (
     DEMDataBounds,
     DEMDataRequest,
     DEMDataResponse,
-    DEMMetadata as DEMMetadataSchema,
     DEMSourceInfo,
     DEMSourcesResponse,
     DEMSourceType,
     DEMStatistics,
-    FlowAccumulationResult as FlowAccumulationResultSchema,
     FlowAnalysisRequest,
     FlowAnalysisResponse,
     FlowDirectionMethod,
-    FlowDirectionResult as FlowDirectionResultSchema,
     GeoJSONFeatureCollection,
     SlopeAnalysisRequest,
     SlopeAnalysisResponse,
-    SlopeResult as SlopeResultSchema,
     SlopeUnit,
     TerrainAnalysisRequest,
     TerrainAnalysisResponse,
@@ -53,16 +61,22 @@ from ..schemas import (
     TerrainIrrigationRecommendation,
     TWIAnalysisResponse,
     TWIRequest,
+)
+from ..schemas import (
+    DEMMetadata as DEMMetadataSchema,
+)
+from ..schemas import (
+    FlowAccumulationResult as FlowAccumulationResultSchema,
+)
+from ..schemas import (
+    FlowDirectionResult as FlowDirectionResultSchema,
+)
+from ..schemas import (
+    SlopeResult as SlopeResultSchema,
+)
+from ..schemas import (
     TWIResult as TWIResultSchema,
 )
-from ...algorithms.dem_processor import DEMBounds, DEMProcessor, DEMSource
-from ...algorithms.terrain_indicators import (
-    CurvatureType as CalcCurvatureType,
-    FlowMethod,
-    SlopeUnit as CalcSlopeUnit,
-    TerrainIndicatorCalculator,
-)
-from ...core.config import settings
 
 logger = structlog.get_logger()
 
@@ -106,11 +120,12 @@ def get_bounds_from_field_id(field_id: str) -> DEMBounds:
     # Generate deterministic bounds from field_id hash
     # MD5 used for deterministic demo data generation, not security
     import hashlib
+
     hash_bytes = hashlib.md5(field_id.encode(), usedforsecurity=False).digest()
 
     # Middle East region bounds (roughly Saudi Arabia)
     base_lon = 38 + (hash_bytes[0] / 255) * 10  # 38-48
-    base_lat = 20 + (hash_bytes[1] / 255) * 8   # 20-28
+    base_lat = 20 + (hash_bytes[1] / 255) * 8  # 20-28
 
     # Field size (0.01-0.1 degrees, roughly 1-10 km)
     size = 0.01 + (hash_bytes[2] / 255) * 0.09
@@ -151,64 +166,69 @@ def generate_irrigation_recommendations(
     # Zone classification based on TWI and slope
     if mean_twi > 10:
         # High moisture accumulation zones
-        recommendations.append(TerrainIrrigationRecommendation(
-            zone_id=f"{field_id}_zone_1",
-            zone_name=BilingualField(en="High Moisture Zone", ar="منطقة عالية الرطوبة"),
-            area_ha=2.5,  # Example value
-            mean_slope_pct=mean_slope_pct,
-            mean_twi=mean_twi,
-            irrigation_suitability="excellent",
-            suitability_name=BilingualField(en="Excellent", ar="ممتاز"),
-            recommended_method=BilingualField(en="Drip Irrigation", ar="الري بالتنقيط"),
-            water_retention_capacity="high",
-            erosion_risk="low",
-            notes=BilingualField(
-                en="Natural water accumulation zone, ideal for water-intensive crops",
-                ar="منطقة تراكم مياه طبيعية، مثالية للمحاصيل كثيفة المياه"
-            ),
-        ))
+        recommendations.append(
+            TerrainIrrigationRecommendation(
+                zone_id=f"{field_id}_zone_1",
+                zone_name=BilingualField(en="High Moisture Zone", ar="منطقة عالية الرطوبة"),
+                area_ha=2.5,  # Example value
+                mean_slope_pct=mean_slope_pct,
+                mean_twi=mean_twi,
+                irrigation_suitability="excellent",
+                suitability_name=BilingualField(en="Excellent", ar="ممتاز"),
+                recommended_method=BilingualField(en="Drip Irrigation", ar="الري بالتنقيط"),
+                water_retention_capacity="high",
+                erosion_risk="low",
+                notes=BilingualField(
+                    en="Natural water accumulation zone, ideal for water-intensive crops",
+                    ar="منطقة تراكم مياه طبيعية، مثالية للمحاصيل كثيفة المياه",
+                ),
+            )
+        )
     elif mean_twi > 5:
         # Moderate moisture zones
-        recommendations.append(TerrainIrrigationRecommendation(
-            zone_id=f"{field_id}_zone_2",
-            zone_name=BilingualField(en="Moderate Moisture Zone", ar="منطقة متوسطة الرطوبة"),
-            area_ha=5.0,
-            mean_slope_pct=mean_slope_pct,
-            mean_twi=mean_twi,
-            irrigation_suitability="good",
-            suitability_name=BilingualField(en="Good", ar="جيد"),
-            recommended_method=BilingualField(en="Sprinkler Irrigation", ar="الري بالرش"),
-            water_retention_capacity="moderate",
-            erosion_risk="moderate" if mean_slope_pct > 5 else "low",
-            notes=BilingualField(
-                en="Suitable for most crops with standard irrigation",
-                ar="مناسب لمعظم المحاصيل مع الري القياسي"
-            ),
-        ))
+        recommendations.append(
+            TerrainIrrigationRecommendation(
+                zone_id=f"{field_id}_zone_2",
+                zone_name=BilingualField(en="Moderate Moisture Zone", ar="منطقة متوسطة الرطوبة"),
+                area_ha=5.0,
+                mean_slope_pct=mean_slope_pct,
+                mean_twi=mean_twi,
+                irrigation_suitability="good",
+                suitability_name=BilingualField(en="Good", ar="جيد"),
+                recommended_method=BilingualField(en="Sprinkler Irrigation", ar="الري بالرش"),
+                water_retention_capacity="moderate",
+                erosion_risk="moderate" if mean_slope_pct > 5 else "low",
+                notes=BilingualField(
+                    en="Suitable for most crops with standard irrigation",
+                    ar="مناسب لمعظم المحاصيل مع الري القياسي",
+                ),
+            )
+        )
     else:
         # Low moisture / ridge zones
-        recommendations.append(TerrainIrrigationRecommendation(
-            zone_id=f"{field_id}_zone_3",
-            zone_name=BilingualField(en="Ridge Zone", ar="منطقة التلال"),
-            area_ha=1.5,
-            mean_slope_pct=mean_slope_pct,
-            mean_twi=mean_twi,
-            irrigation_suitability="fair" if mean_slope_pct < 10 else "poor",
-            suitability_name=BilingualField(
-                en="Fair" if mean_slope_pct < 10 else "Poor",
-                ar="مقبول" if mean_slope_pct < 10 else "ضعيف"
-            ),
-            recommended_method=BilingualField(
-                en="Micro-sprinkler or Drip",
-                ar="الرش الدقيق أو التنقيط"
-            ),
-            water_retention_capacity="low",
-            erosion_risk="high" if mean_slope_pct > 10 else "moderate",
-            notes=BilingualField(
-                en="Requires careful water management, consider terracing",
-                ar="يتطلب إدارة مياه حذرة، ينصح بالمصاطب"
-            ),
-        ))
+        recommendations.append(
+            TerrainIrrigationRecommendation(
+                zone_id=f"{field_id}_zone_3",
+                zone_name=BilingualField(en="Ridge Zone", ar="منطقة التلال"),
+                area_ha=1.5,
+                mean_slope_pct=mean_slope_pct,
+                mean_twi=mean_twi,
+                irrigation_suitability="fair" if mean_slope_pct < 10 else "poor",
+                suitability_name=BilingualField(
+                    en="Fair" if mean_slope_pct < 10 else "Poor",
+                    ar="مقبول" if mean_slope_pct < 10 else "ضعيف",
+                ),
+                recommended_method=BilingualField(
+                    en="Micro-sprinkler or Drip", ar="الرش الدقيق أو التنقيط"
+                ),
+                water_retention_capacity="low",
+                erosion_risk="high" if mean_slope_pct > 10 else "moderate",
+                notes=BilingualField(
+                    en="Requires careful water management, consider terracing",
+                    ar="يتطلب إدارة مياه حذرة، ينصح بالمصاطب",
+                ),
+            )
+        )
 
     return recommendations
 
@@ -312,9 +332,15 @@ async def analyze_terrain(
         # Flow direction and accumulation
         flow_dir_result = None
         flow_acc_result = None
-        if request_data.include_flow_direction or request_data.include_flow_accumulation or request_data.include_twi:
+        if (
+            request_data.include_flow_direction
+            or request_data.include_flow_accumulation
+            or request_data.include_twi
+        ):
             flow_method = FlowMethod(request_data.flow_method.value)
-            flow_dir_result = terrain_calculator.calculate_flow_direction(dem_data, method=flow_method)
+            flow_dir_result = terrain_calculator.calculate_flow_direction(
+                dem_data, method=flow_method
+            )
             results["flow_direction"] = flow_dir_result
 
             if request_data.include_flow_accumulation or request_data.include_twi:
@@ -356,6 +382,7 @@ async def analyze_terrain(
 
         # Calculate statistics from DEM
         import numpy as np
+
         valid_data = dem_data.data[~dem_data.nodata_mask]
 
         dem_statistics = DEMStatistics(
@@ -419,8 +446,12 @@ async def analyze_terrain(
             flow_dir_schema = FlowDirectionResultSchema(
                 method=FlowDirectionMethod(flow_dir_result.method.value),
                 method_name=BilingualField(
-                    en="D8 Algorithm" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
-                    ar="خوارزمية D8" if flow_dir_result.method == FlowMethod.D8 else flow_dir_result.method.value,
+                    en="D8 Algorithm"
+                    if flow_dir_result.method == FlowMethod.D8
+                    else flow_dir_result.method.value,
+                    ar="خوارزمية D8"
+                    if flow_dir_result.method == FlowMethod.D8
+                    else flow_dir_result.method.value,
                 ),
                 dominant_direction=flow_dir_result.dominant_direction,
                 direction_distribution=flow_dir_result.direction_distribution,
@@ -509,7 +540,9 @@ async def analyze_terrain(
         mean_slope_pct = (
             np.tan(np.radians(slope_result.mean_value)) * 100
             if slope_result and slope_result.unit == CalcSlopeUnit.DEGREES
-            else slope_result.mean_value if slope_result else 0
+            else slope_result.mean_value
+            if slope_result
+            else 0
         )
         terrain_category, terrain_category_name = classify_terrain(mean_slope_pct)
 
@@ -867,7 +900,7 @@ async def get_dem_data(
     resolution_m: float = Query(default=30.0, ge=1.0, le=1000.0),
     include_data: bool = Query(
         default=False,
-        description="Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام"
+        description="Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام",
     ),
     dem_processor: DEMProcessor = Depends(get_dem_processor),
 ):

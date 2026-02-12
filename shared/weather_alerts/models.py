@@ -12,15 +12,16 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, date, time, UTC
-from enum import Enum
-from typing import Any
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, date, datetime, time
+from enum import StrEnum
+from typing import Any
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity levels | مستويات خطورة التنبيهات"""
+
     CRITICAL = "critical"  # حرج - Immediate action required
     WARNING = "warning"  # تحذير - Action within 24-48h
     ADVISORY = "advisory"  # استشارة - Action within 1 week
@@ -28,8 +29,9 @@ class AlertSeverity(str, Enum):
     INFORMATION = "information"  # معلومات - For awareness only
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """Types of weather alerts | أنواع تنبيهات الطقس"""
+
     FROST = "frost"  # صقيع
     HEAT = "heat"  # موجة حر
     WIND = "wind"  # رياح قوية
@@ -42,8 +44,9 @@ class AlertType(str, Enum):
     UV = "uv"  # أشعة فوق بنفسجية
 
 
-class SprayCondition(str, Enum):
+class SprayCondition(StrEnum):
     """Spray window condition status | حالة نافذة الرش"""
+
     OPTIMAL = "optimal"  # مثالي - All conditions ideal
     ACCEPTABLE = "acceptable"  # مقبول - Conditions within range
     MARGINAL = "marginal"  # هامشي - Some conditions borderline
@@ -51,8 +54,9 @@ class SprayCondition(str, Enum):
     DANGEROUS = "dangerous"  # خطر - Drift risk or phytotoxicity risk
 
 
-class IrrigationRecommendation(str, Enum):
+class IrrigationRecommendation(StrEnum):
     """Irrigation recommendation types | أنواع توصيات الري"""
+
     IRRIGATE_NOW = "irrigate_now"  # ري فوري
     IRRIGATE_SOON = "irrigate_soon"  # ري قريب
     DELAY_IRRIGATION = "delay_irrigation"  # تأجيل الري
@@ -62,8 +66,9 @@ class IrrigationRecommendation(str, Enum):
     MONITOR = "monitor"  # مراقبة
 
 
-class HarvestCondition(str, Enum):
+class HarvestCondition(StrEnum):
     """Harvest timing condition | حالة توقيت الحصاد"""
+
     OPTIMAL = "optimal"  # مثالي
     GOOD = "good"  # جيد
     ACCEPTABLE = "acceptable"  # مقبول
@@ -71,8 +76,9 @@ class HarvestCondition(str, Enum):
     UNSUITABLE = "unsuitable"  # غير مناسب
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     """Supported crop types | أنواع المحاصيل المدعومة"""
+
     WHEAT = "wheat"  # قمح
     BARLEY = "barley"  # شعير
     DATE_PALM = "date_palm"  # نخيل
@@ -91,6 +97,7 @@ class WeatherForecast:
     Weather forecast data structure
     بيانات توقعات الطقس
     """
+
     # Time information
     forecast_date: date
     forecast_time: time | None = None
@@ -173,6 +180,7 @@ class WeatherAlert:
     Weather alert with bilingual support
     تنبيه طقس مع دعم ثنائي اللغة
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     alert_type: AlertType = AlertType.FROST
@@ -286,6 +294,7 @@ class SprayWindow:
     Spray window recommendation
     نافذة رش موصى بها
     """
+
     # Time window
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     start_time: datetime | None = None
@@ -386,6 +395,7 @@ class IrrigationSchedule:
     Irrigation scheduling based on weather forecast
     جدولة الري بناء على توقعات الطقس
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     field_id: str = ""
@@ -437,10 +447,18 @@ class IrrigationSchedule:
             "field_id": self.field_id,
             "crop_type": self.crop_type.value,
             "recommendation": self.recommendation.value,
-            "recommended_date": self.recommended_date.isoformat() if self.recommended_date else None,
-            "recommended_time": self.recommended_time.isoformat() if self.recommended_time else None,
-            "optimal_window_start": self.optimal_window_start.isoformat() if self.optimal_window_start else None,
-            "optimal_window_end": self.optimal_window_end.isoformat() if self.optimal_window_end else None,
+            "recommended_date": self.recommended_date.isoformat()
+            if self.recommended_date
+            else None,
+            "recommended_time": self.recommended_time.isoformat()
+            if self.recommended_time
+            else None,
+            "optimal_window_start": self.optimal_window_start.isoformat()
+            if self.optimal_window_start
+            else None,
+            "optimal_window_end": self.optimal_window_end.isoformat()
+            if self.optimal_window_end
+            else None,
             "recommended_amount_mm": self.recommended_amount_mm,
             "original_amount_mm": self.original_amount_mm,
             "adjustment_factor": self.adjustment_factor,
@@ -468,6 +486,7 @@ class HarvestWindow:
     Harvest timing recommendation
     توصية توقيت الحصاد
     """
+
     # Identification
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     field_id: str = ""
@@ -562,6 +581,7 @@ class AlertThresholds:
     Configurable alert thresholds
     عتبات التنبيهات القابلة للتكوين
     """
+
     # Frost thresholds (Celsius)
     frost_critical: float = -2.0  # Severe frost damage
     frost_warning: float = 0.0  # Frost possible

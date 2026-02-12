@@ -17,49 +17,52 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from decimal import Decimal, ROUND_HALF_UP
-from enum import Enum
-from typing import Any
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from decimal import ROUND_HALF_UP, Decimal
+from enum import StrEnum
+from typing import Any
 
 from .models import (
     CooperativeMember,
-    RevenueShareMethod,
     MemberStatus,
+    RevenueShareMethod,
 )
 
 
-class TransactionType(str, Enum):
+class TransactionType(StrEnum):
     """Types of financial transactions | انواع المعاملات المالية"""
-    REVENUE = "revenue"                    # ايراد - Income received
-    EXPENSE = "expense"                    # مصروف - Cost paid
-    DISTRIBUTION = "distribution"          # توزيع - Member payout
-    MEMBERSHIP_FEE = "membership_fee"      # رسوم عضوية
-    ANNUAL_DUES = "annual_dues"            # اشتراك سنوي
-    RESOURCE_FEE = "resource_fee"          # رسوم استخدام موارد
+
+    REVENUE = "revenue"  # ايراد - Income received
+    EXPENSE = "expense"  # مصروف - Cost paid
+    DISTRIBUTION = "distribution"  # توزيع - Member payout
+    MEMBERSHIP_FEE = "membership_fee"  # رسوم عضوية
+    ANNUAL_DUES = "annual_dues"  # اشتراك سنوي
+    RESOURCE_FEE = "resource_fee"  # رسوم استخدام موارد
     RESERVE_TRANSFER = "reserve_transfer"  # تحويل للاحتياطي
-    LOAN = "loan"                          # قرض
-    LOAN_REPAYMENT = "loan_repayment"      # سداد قرض
-    ADJUSTMENT = "adjustment"              # تعديل
+    LOAN = "loan"  # قرض
+    LOAN_REPAYMENT = "loan_repayment"  # سداد قرض
+    ADJUSTMENT = "adjustment"  # تعديل
 
 
-class PeriodStatus(str, Enum):
+class PeriodStatus(StrEnum):
     """Financial period status | حالة الفترة المالية"""
-    OPEN = "open"                          # مفتوحة - Accepting transactions
-    CALCULATING = "calculating"            # قيد الحساب - Distribution in progress
-    DISTRIBUTED = "distributed"            # تم التوزيع
-    CLOSED = "closed"                      # مغلقة - Finalized
+
+    OPEN = "open"  # مفتوحة - Accepting transactions
+    CALCULATING = "calculating"  # قيد الحساب - Distribution in progress
+    DISTRIBUTED = "distributed"  # تم التوزيع
+    CLOSED = "closed"  # مغلقة - Finalized
 
 
-class PaymentStatus(str, Enum):
+class PaymentStatus(StrEnum):
     """Payment status | حالة الدفع"""
-    PENDING = "pending"                    # معلق
-    APPROVED = "approved"                  # معتمد
-    PAID = "paid"                          # مدفوع
-    FAILED = "failed"                      # فشل
-    CANCELLED = "cancelled"                # ملغي
+
+    PENDING = "pending"  # معلق
+    APPROVED = "approved"  # معتمد
+    PAID = "paid"  # مدفوع
+    FAILED = "failed"  # فشل
+    CANCELLED = "cancelled"  # ملغي
 
 
 @dataclass
@@ -68,6 +71,7 @@ class FinancialPeriod:
     Financial accounting period for a cooperative.
     الفترة المحاسبية المالية للتعاونية
     """
+
     # Identification
     period_id: str
     cooperative_id: str
@@ -150,6 +154,7 @@ class Transaction:
     Financial transaction record.
     سجل المعاملة المالية
     """
+
     # Identification
     transaction_id: str
     cooperative_id: str
@@ -165,12 +170,12 @@ class Transaction:
     currency: str = "SAR"
 
     # Related entities
-    member_id: str | None = None           # If member-related
-    category: str | None = None            # Revenue/expense category
-    reference: str | None = None           # External reference
+    member_id: str | None = None  # If member-related
+    category: str | None = None  # Revenue/expense category
+    reference: str | None = None  # External reference
 
     # Source of funds
-    source: str | None = None              # crop_sales, services, grants, etc.
+    source: str | None = None  # crop_sales, services, grants, etc.
     source_ar: str | None = None
 
     # Timing
@@ -178,7 +183,7 @@ class Transaction:
     effective_date: datetime | None = None
 
     # Status
-    status: str = "completed"              # pending, completed, reversed
+    status: str = "completed"  # pending, completed, reversed
 
     # Metadata
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -233,6 +238,7 @@ class MemberShare:
     Calculated share for a member in a distribution.
     الحصة المحسوبة للعضو في التوزيع
     """
+
     member_id: str
     member_name: str
     member_name_ar: str
@@ -282,6 +288,7 @@ class DistributionPlan:
     Plan for distributing revenue to members.
     خطة توزيع الايرادات على الاعضاء
     """
+
     # Identification
     plan_id: str
     cooperative_id: str
@@ -307,7 +314,7 @@ class DistributionPlan:
     total_production: float = 0.0
 
     # Status
-    status: str = "draft"                  # draft, approved, executing, completed
+    status: str = "draft"  # draft, approved, executing, completed
     approved_by: str | None = None
     approved_at: datetime | None = None
 
@@ -397,6 +404,7 @@ class MemberPayment:
     Payment record for a member distribution.
     سجل دفع توزيع العضو
     """
+
     # Identification
     payment_id: str
     plan_id: str
@@ -526,15 +534,11 @@ class RevenueShareCalculator:
         elif method == RevenueShareMethod.CONTRIBUTION:
             return self.calculate_by_contribution(total_amount, active_members)
         elif method == RevenueShareMethod.PRODUCTION:
-            return self.calculate_by_production(
-                total_amount, active_members, production_data or {}
-            )
+            return self.calculate_by_production(total_amount, active_members, production_data or {})
         elif method == RevenueShareMethod.LAND_AREA:
             return self.calculate_by_land_area(total_amount, active_members)
         elif method == RevenueShareMethod.WEIGHTED:
-            return self.calculate_weighted(
-                total_amount, active_members, custom_weights or {}
-            )
+            return self.calculate_weighted(total_amount, active_members, custom_weights or {})
         elif method == RevenueShareMethod.HYBRID:
             return self.calculate_hybrid(
                 total_amount, active_members, hybrid_weights or {}, production_data or {}
@@ -602,9 +606,9 @@ class RevenueShareCalculator:
 
         shares = []
         for member in members:
-            contribution_percent = (member.share_value / total_contribution * Decimal("100")).quantize(
-                Decimal("0.01"), rounding=ROUND_HALF_UP
-            )
+            contribution_percent = (
+                member.share_value / total_contribution * Decimal("100")
+            ).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             share_amount = (total_amount * member.share_value / total_contribution).quantize(
                 Decimal("0.01"), rounding=ROUND_HALF_UP
             )
@@ -644,10 +648,7 @@ class RevenueShareCalculator:
             return []
 
         # Get production for each member
-        member_production = {
-            m.member_id: production_data.get(m.member_id, 0.0)
-            for m in members
-        }
+        member_production = {m.member_id: production_data.get(m.member_id, 0.0) for m in members}
         total_production = sum(member_production.values())
 
         if total_production == 0:
@@ -834,7 +835,9 @@ class RevenueShareCalculator:
 
         if "production" in normalized_weights and normalized_weights["production"] > 0:
             portion = total_amount * Decimal(str(normalized_weights["production"]))
-            method_shares["production"] = self.calculate_by_production(portion, members, production_data)
+            method_shares["production"] = self.calculate_by_production(
+                portion, members, production_data
+            )
 
         if "land_area" in normalized_weights and normalized_weights["land_area"] > 0:
             portion = total_amount * Decimal(str(normalized_weights["land_area"]))
@@ -847,9 +850,7 @@ class RevenueShareCalculator:
             total_share = Decimal("0")
 
             for method_name, shares in method_shares.items():
-                member_share = next(
-                    (s for s in shares if s.member_id == member.member_id), None
-                )
+                member_share = next((s for s in shares if s.member_id == member.member_id), None)
                 if member_share:
                     breakdown[f"{method_name}_share"] = member_share.net_share
                     total_share += member_share.net_share
@@ -977,10 +978,7 @@ class RevenueService:
         """Get the current open period"""
         now = datetime.now(UTC)
         for period in self._periods.values():
-            if (
-                period.status == PeriodStatus.OPEN
-                and period.start_date <= now <= period.end_date
-            ):
+            if period.status == PeriodStatus.OPEN and period.start_date <= now <= period.end_date:
                 return period
         return None
 
@@ -1193,7 +1191,9 @@ class RevenueService:
             raise ValueError(f"Plan {plan_id} not found")
 
         if plan.status != "approved":
-            raise ValueError(f"Plan must be approved before execution. Current status: {plan.status}")
+            raise ValueError(
+                f"Plan must be approved before execution. Current status: {plan.status}"
+            )
 
         plan.status = "executing"
 
@@ -1314,7 +1314,9 @@ class RevenueService:
         for txn in transactions:
             if txn.type == TransactionType.EXPENSE:
                 category = txn.category or "other"
-                expenses_by_category[category] = expenses_by_category.get(category, Decimal("0")) + txn.amount
+                expenses_by_category[category] = (
+                    expenses_by_category.get(category, Decimal("0")) + txn.amount
+                )
 
         # Get distribution plan if exists
         plans = [p for p in self._plans.values() if p.period_id == period_id]
@@ -1366,7 +1368,9 @@ class RevenueService:
                 "total_pending": str(total_pending),
                 "payment_count": len([p for p in payments if p.status == PaymentStatus.PAID]),
             },
-            "payments": [p.to_dict() for p in sorted(payments, key=lambda p: p.created_at, reverse=True)],
+            "payments": [
+                p.to_dict() for p in sorted(payments, key=lambda p: p.created_at, reverse=True)
+            ],
         }
 
 

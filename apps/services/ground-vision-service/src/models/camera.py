@@ -4,13 +4,15 @@ Based on: Qin et al. (2026) - Quaternion-based georeferencing
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
-class CameraStatus(str, Enum):
+class CameraStatus(StrEnum):
     """Camera operational status"""
+
     ONLINE = "online"
     OFFLINE = "offline"
     MAINTENANCE = "maintenance"
@@ -19,6 +21,7 @@ class CameraStatus(str, Enum):
 
 class CameraIntrinsics(BaseModel):
     """Camera intrinsic parameters - معاملات الكاميرا الداخلية"""
+
     focal_length_x: float = Field(..., description="Focal length in x (pixels)")
     focal_length_y: float = Field(..., description="Focal length in y (pixels)")
     principal_point_x: float = Field(..., description="Principal point x (pixels)")
@@ -46,6 +49,7 @@ class CameraExtrinsics(BaseModel):
 
     Quaternion avoids gimbal lock issues with Euler angles.
     """
+
     # Position in local ENU (East-North-Up) coordinates
     position_x: float = Field(..., description="X position in meters (East)")
     position_y: float = Field(..., description="Y position in meters (North)")
@@ -80,6 +84,7 @@ class TowerCamera(BaseModel):
     """
     Tower camera registration model - نموذج تسجيل كاميرا البرج
     """
+
     camera_id: str = Field(..., description="Unique camera identifier")
     tower_id: str = Field(..., description="Tower identifier where camera is mounted")
     name: str = Field(..., description="Camera display name")
@@ -96,8 +101,7 @@ class TowerCamera(BaseModel):
 
     # Field of View coverage (GeoJSON polygon)
     fov_polygon: dict | None = Field(
-        default=None,
-        description="Ground coverage area as GeoJSON Polygon"
+        default=None, description="Ground coverage area as GeoJSON Polygon"
     )
 
     # Capabilities
@@ -114,8 +118,7 @@ class TowerCamera(BaseModel):
     # Multi-tenancy
     tenant_id: str = Field(..., description="Tenant identifier")
     fields_covered: list[str] = Field(
-        default_factory=list,
-        description="List of field IDs in camera coverage"
+        default_factory=list, description="List of field IDs in camera coverage"
     )
 
     # Timestamps
@@ -141,6 +144,7 @@ class TowerCamera(BaseModel):
 
 class CameraCreateRequest(BaseModel):
     """Request model for creating a new camera"""
+
     tower_id: str
     name: str
     name_ar: str
@@ -156,6 +160,7 @@ class CameraCreateRequest(BaseModel):
 
 class CameraUpdateRequest(BaseModel):
     """Request model for updating camera configuration"""
+
     name: str | None = None
     name_ar: str | None = None
     intrinsics: CameraIntrinsics | None = None

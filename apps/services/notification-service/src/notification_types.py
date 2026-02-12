@@ -6,13 +6,13 @@ Comprehensive notification system for Yemen farmers with bilingual support (Arab
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     """نوع الإشعار - Notification Type"""
 
     WEATHER_ALERT = "weather_alert"  # تنبيه طقس
@@ -31,7 +31,7 @@ class NotificationType(str, Enum):
     SYSTEM = "system"  # نظام
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     """أولوية الإشعار"""
 
     LOW = "low"  # منخفضة

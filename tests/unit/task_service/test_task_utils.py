@@ -11,7 +11,7 @@ Tests:
 """
 
 import pytest
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from unittest.mock import MagicMock
 
 # Import from the src package (conftest.py sets up the path)
@@ -199,9 +199,9 @@ class TestDueDateCalculation:
 
     def test_urgent_due_date(self):
         """Test due date for urgent priority"""
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         due_date = get_due_date_for_priority(TaskPriority.URGENT)
-        after = datetime.now(timezone.utc)
+        after = datetime.now(UTC)
 
         # Should be 4 hours from now
         expected_min = before + timedelta(hours=4)
@@ -211,9 +211,9 @@ class TestDueDateCalculation:
 
     def test_high_due_date(self):
         """Test due date for high priority"""
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         due_date = get_due_date_for_priority(TaskPriority.HIGH)
-        after = datetime.now(timezone.utc)
+        after = datetime.now(UTC)
 
         # Should be 12 hours from now
         expected_min = before + timedelta(hours=12)
@@ -223,9 +223,9 @@ class TestDueDateCalculation:
 
     def test_medium_due_date(self):
         """Test due date for medium priority"""
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         due_date = get_due_date_for_priority(TaskPriority.MEDIUM)
-        after = datetime.now(timezone.utc)
+        after = datetime.now(UTC)
 
         # Should be 1 day from now
         expected_min = before + timedelta(days=1)
@@ -235,9 +235,9 @@ class TestDueDateCalculation:
 
     def test_low_due_date(self):
         """Test due date for low priority"""
-        before = datetime.now(timezone.utc)
+        before = datetime.now(UTC)
         due_date = get_due_date_for_priority(TaskPriority.LOW)
-        after = datetime.now(timezone.utc)
+        after = datetime.now(UTC)
 
         # Should be 2 days from now
         expected_min = before + timedelta(days=2)
@@ -328,7 +328,7 @@ class TestTaskCreateData:
 
     def test_creation_with_all_fields(self):
         """Test creating TaskCreateData with all fields"""
-        due_date = datetime.now(timezone.utc)
+        due_date = datetime.now(UTC)
 
         data = TaskCreateData(
             tenant_id="tenant_123",
@@ -380,12 +380,12 @@ class TestDbTaskToDict:
         mock_task.zone_id = None
         mock_task.assigned_to = "user_123"
         mock_task.created_by = "admin"
-        mock_task.due_date = datetime(2024, 1, 15, tzinfo=timezone.utc)
+        mock_task.due_date = datetime(2024, 1, 15, tzinfo=UTC)
         mock_task.scheduled_time = "09:00"
         mock_task.estimated_duration_minutes = 60
         mock_task.actual_duration_minutes = None
-        mock_task.created_at = datetime(2024, 1, 10, tzinfo=timezone.utc)
-        mock_task.updated_at = datetime(2024, 1, 10, tzinfo=timezone.utc)
+        mock_task.created_at = datetime(2024, 1, 10, tzinfo=UTC)
+        mock_task.updated_at = datetime(2024, 1, 10, tzinfo=UTC)
         mock_task.completed_at = None
         mock_task.completion_notes = None
         mock_task.task_metadata = {"key": "value"}
@@ -455,7 +455,7 @@ class TestDbTaskToDict:
         mock_evidence.task_id = "task_123"
         mock_evidence.type = "photo"
         mock_evidence.content = "http://example.com/photo.jpg"
-        mock_evidence.captured_at = datetime(2024, 1, 10, tzinfo=timezone.utc)
+        mock_evidence.captured_at = datetime(2024, 1, 10, tzinfo=UTC)
         mock_evidence.location = {"lat": 24.7, "lon": 46.6}
 
         mock_task = MagicMock()

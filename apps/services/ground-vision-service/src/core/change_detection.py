@@ -7,7 +7,7 @@ expensive MLLM analysis only when meaningful changes occur.
 """
 
 import logging
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Optional
 
 import numpy as np
@@ -16,8 +16,9 @@ from pydantic import BaseModel, Field
 logger = logging.getLogger(__name__)
 
 
-class ChangeType(str, Enum):
+class ChangeType(StrEnum):
     """Types of detected changes"""
+
     NO_CHANGE = "no_change"
     MINOR_CHANGE = "minor_change"
     MODERATE_CHANGE = "moderate_change"
@@ -27,18 +28,17 @@ class ChangeType(str, Enum):
 
 class ChangeDetectionResult(BaseModel):
     """Result of change detection analysis"""
+
     change_score: float = Field(..., ge=0.0, le=1.0)
     change_type: ChangeType
     threshold_used: float
 
     # Regional analysis
     change_regions: list[dict] = Field(
-        default_factory=list,
-        description="Regions with significant change"
+        default_factory=list, description="Regions with significant change"
     )
     max_region_change: float = Field(
-        default=0.0, ge=0.0, le=1.0,
-        description="Maximum change score in any region"
+        default=0.0, ge=0.0, le=1.0, description="Maximum change score in any region"
     )
 
     # Analysis metadata
@@ -47,8 +47,7 @@ class ChangeDetectionResult(BaseModel):
 
     # Trigger recommendation
     should_trigger_analysis: bool = Field(
-        default=False,
-        description="Whether to trigger expensive MLLM analysis"
+        default=False, description="Whether to trigger expensive MLLM analysis"
     )
 
 
@@ -71,7 +70,7 @@ class ChangeDetector:
         trigger_threshold: float = 0.15,
         use_ssim: bool = True,
         use_histogram: bool = True,
-        region_size: int = 64
+        region_size: int = 64,
     ):
         """
         Initialize change detector.
@@ -87,15 +86,10 @@ class ChangeDetector:
         self.use_histogram = use_histogram
         self.region_size = region_size
 
-        logger.info(
-            f"ChangeDetector initialized with threshold={trigger_threshold}"
-        )
+        logger.info(f"ChangeDetector initialized with threshold={trigger_threshold}")
 
     async def compute_change(
-        self,
-        frame1: np.ndarray,
-        frame2: np.ndarray,
-        mask: np.ndarray | None = None
+        self, frame1: np.ndarray, frame2: np.ndarray, mask: np.ndarray | None = None
     ) -> ChangeDetectionResult:
         """
         Compute change score between two frames.
@@ -109,13 +103,12 @@ class ChangeDetector:
             ChangeDetectionResult with score and analysis
         """
         import time
+
         start_time = time.time()
 
         # Ensure frames are same size
         if frame1.shape != frame2.shape:
-            logger.warning(
-                f"Frame shape mismatch: {frame1.shape} vs {frame2.shape}"
-            )
+            logger.warning(f"Frame shape mismatch: {frame1.shape} vs {frame2.shape}")
             # Resize frame2 to match frame1
             frame2 = self._resize_to_match(frame2, frame1.shape)
 
@@ -157,18 +150,15 @@ class ChangeDetector:
 
         # Regional analysis
         change_regions = self._analyze_regions(gray1, gray2)
-        max_region_change = max(
-            [r["change_score"] for r in change_regions],
-            default=0.0
-        )
+        max_region_change = max([r["change_score"] for r in change_regions], default=0.0)
 
         # Classify change type
         change_type = self._classify_change(combined_score)
 
         # Determine if should trigger analysis
         should_trigger = (
-            combined_score >= self.trigger_threshold or
-            max_region_change >= self.trigger_threshold * 1.5
+            combined_score >= self.trigger_threshold
+            or max_region_change >= self.trigger_threshold * 1.5
         )
 
         processing_time = int((time.time() - start_time) * 1000)
@@ -191,11 +181,7 @@ class ChangeDetector:
             return np.dot(image[..., :3], [0.299, 0.587, 0.114])
         return image.astype(float)
 
-    def _resize_to_match(
-        self,
-        image: np.ndarray,
-        target_shape: tuple
-    ) -> np.ndarray:
+    def _resize_to_match(self, image: np.ndarray, target_shape: tuple) -> np.ndarray:
         """Resize image to match target shape using simple interpolation."""
         # Simple nearest-neighbor resize for now
         # In production, use cv2.resize
@@ -218,11 +204,7 @@ class ChangeDetector:
 
         return result
 
-    def _compute_mad(
-        self,
-        gray1: np.ndarray,
-        gray2: np.ndarray
-    ) -> float:
+    def _compute_mad(self, gray1: np.ndarray, gray2: np.ndarray) -> float:
         """Compute Mean Absolute Difference."""
         # Normalize to [0, 1]
         max_val = max(gray1.max(), gray2.max(), 1)
@@ -232,11 +214,7 @@ class ChangeDetector:
         mad = np.mean(np.abs(g1 - g2))
         return float(min(mad * 2, 1.0))  # Scale for better sensitivity
 
-    def _compute_ssim_change(
-        self,
-        gray1: np.ndarray,
-        gray2: np.ndarray
-    ) -> float:
+    def _compute_ssim_change(self, gray1: np.ndarray, gray2: np.ndarray) -> float:
         """
         Compute change based on Structural Similarity Index.
         Returns 1 - SSIM (so higher = more change).
@@ -254,13 +232,13 @@ class ChangeDetector:
         mu2 = self._uniform_filter(gray2, window_size)
 
         # Compute variances and covariance
-        sigma1_sq = self._uniform_filter(gray1 ** 2, window_size) - mu1 ** 2
-        sigma2_sq = self._uniform_filter(gray2 ** 2, window_size) - mu2 ** 2
+        sigma1_sq = self._uniform_filter(gray1**2, window_size) - mu1**2
+        sigma2_sq = self._uniform_filter(gray2**2, window_size) - mu2**2
         sigma12 = self._uniform_filter(gray1 * gray2, window_size) - mu1 * mu2
 
         # SSIM formula
         numerator = (2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)
-        denominator = (mu1 ** 2 + mu2 ** 2 + C1) * (sigma1_sq + sigma2_sq + C2)
+        denominator = (mu1**2 + mu2**2 + C1) * (sigma1_sq + sigma2_sq + C2)
 
         ssim_map = numerator / (denominator + 1e-10)
         mean_ssim = float(np.mean(ssim_map))
@@ -268,18 +246,14 @@ class ChangeDetector:
         # Return change score (1 - SSIM)
         return float(max(0, min(1, 1 - mean_ssim)))
 
-    def _uniform_filter(
-        self,
-        image: np.ndarray,
-        size: int
-    ) -> np.ndarray:
+    def _uniform_filter(self, image: np.ndarray, size: int) -> np.ndarray:
         """Apply uniform filter (box blur) for SSIM computation."""
         # Simple box filter implementation
         kernel_size = size
         pad = kernel_size // 2
 
         # Pad image
-        padded = np.pad(image, pad, mode='reflect')
+        padded = np.pad(image, pad, mode="reflect")
 
         # Cumulative sum for fast box filter
         cumsum = np.cumsum(np.cumsum(padded, axis=0), axis=1)
@@ -291,31 +265,20 @@ class ChangeDetector:
                 y1, y2 = y, y + kernel_size
                 x1, x2 = x, x + kernel_size
 
-                total = (
-                    cumsum[y2, x2] - cumsum[y1, x2] -
-                    cumsum[y2, x1] + cumsum[y1, x1]
-                )
+                total = cumsum[y2, x2] - cumsum[y1, x2] - cumsum[y2, x1] + cumsum[y1, x1]
                 result[y, x] = total / (kernel_size * kernel_size)
 
         return result
 
-    def _compute_histogram_change(
-        self,
-        gray1: np.ndarray,
-        gray2: np.ndarray
-    ) -> float:
+    def _compute_histogram_change(self, gray1: np.ndarray, gray2: np.ndarray) -> float:
         """Compute change based on histogram comparison."""
         # Compute histograms
         bins = 64
         range_min = min(gray1.min(), gray2.min())
         range_max = max(gray1.max(), gray2.max())
 
-        hist1, _ = np.histogram(
-            gray1.ravel(), bins=bins, range=(range_min, range_max)
-        )
-        hist2, _ = np.histogram(
-            gray2.ravel(), bins=bins, range=(range_min, range_max)
-        )
+        hist1, _ = np.histogram(gray1.ravel(), bins=bins, range=(range_min, range_max))
+        hist2, _ = np.histogram(gray2.ravel(), bins=bins, range=(range_min, range_max))
 
         # Normalize histograms
         hist1 = hist1.astype(float) / (hist1.sum() + 1e-10)
@@ -327,11 +290,7 @@ class ChangeDetector:
         # Normalize to [0, 1]
         return float(min(chi_sq / 2, 1.0))
 
-    def _analyze_regions(
-        self,
-        gray1: np.ndarray,
-        gray2: np.ndarray
-    ) -> list[dict]:
+    def _analyze_regions(self, gray1: np.ndarray, gray2: np.ndarray) -> list[dict]:
         """Analyze changes in image regions."""
         regions = []
         h, w = gray1.shape
@@ -351,13 +310,15 @@ class ChangeDetector:
                 change_score = float(np.mean(np.abs(r1 - r2)) * 2)
 
                 if change_score > self.MINOR_THRESHOLD:
-                    regions.append({
-                        "x": x,
-                        "y": y,
-                        "width": x_end - x,
-                        "height": y_end - y,
-                        "change_score": min(change_score, 1.0),
-                    })
+                    regions.append(
+                        {
+                            "x": x,
+                            "y": y,
+                            "width": x_end - x,
+                            "height": y_end - y,
+                            "change_score": min(change_score, 1.0),
+                        }
+                    )
 
         return regions
 
@@ -427,7 +388,7 @@ class TemporalChangeTracker:
         # Calculate trend (increasing/decreasing)
         if len(scores) >= 3:
             first_half = np.mean(scores[: len(scores) // 2])
-            second_half = np.mean(scores[len(scores) // 2:])
+            second_half = np.mean(scores[len(scores) // 2 :])
             acceleration = float(second_half - first_half)
         else:
             acceleration = 0.0

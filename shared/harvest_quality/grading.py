@@ -15,28 +15,27 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
-import math
 
 from .models import (
+    BuyerMatch,
+    BuyerRequirement,
+    CropCategory,
+    DateVariety,
     QualityGrade,
-    QualityStandard,
     QualityParameter,
+    QualityStandard,
     QualityTestRecord,
     QualityTrendAnalysis,
     QualityTrendPoint,
-    BuyerRequirement,
-    BuyerMatch,
-    CropCategory,
-    DateVariety,
-    VegetableType,
     TestResult,
     TrendDirection,
+    VegetableType,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Predefined Quality Standards - معايير الجودة المحددة مسبقاً
@@ -628,6 +627,7 @@ QUALITY_STANDARDS: dict[str, QualityStandard] = {
 @dataclass
 class GradingResult:
     """Result of quality grading | نتيجة تصنيف الجودة"""
+
     overall_grade: QualityGrade
     grade_score: float  # 0-100 composite score
     confidence: float  # 0-1 confidence level
@@ -730,12 +730,8 @@ class QualityGradingEngine:
                     parameter_grades[param.parameter_name] = QualityGrade.REJECTED
                     parameter_scores[param.parameter_name] = 0
                     failed += 1
-                    recommendations.append(
-                        f"Missing required test: {param.parameter_name}"
-                    )
-                    recommendations_ar.append(
-                        f"اختبار مطلوب مفقود: {param.parameter_name_ar}"
-                    )
+                    recommendations.append(f"Missing required test: {param.parameter_name}")
+                    recommendations_ar.append(f"اختبار مطلوب مفقود: {param.parameter_name_ar}")
                 continue
 
             value = test_values[param.parameter_name]
@@ -808,9 +804,7 @@ class QualityGradingEngine:
             total_parameters=len(std.parameters),
             tested_parameters=len(test_values),
             mandatory_tested=sum(
-                1
-                for p in std.parameters
-                if p.mandatory and p.parameter_name in test_values
+                1 for p in std.parameters if p.mandatory and p.parameter_name in test_values
             ),
             mandatory_total=sum(1 for p in std.parameters if p.mandatory),
         )
@@ -879,9 +873,7 @@ class QualityGradingEngine:
         # Optional coverage weight: 30%
         optional_total = total_parameters - mandatory_total
         optional_tested = tested_parameters - mandatory_tested
-        optional_coverage = (
-            optional_tested / optional_total if optional_total > 0 else 1.0
-        )
+        optional_coverage = optional_tested / optional_total if optional_total > 0 else 1.0
 
         confidence = 0.7 * mandatory_coverage + 0.3 * optional_coverage
         return min(confidence, 1.0)
@@ -906,9 +898,7 @@ class QualityGradingEngine:
             standard = QUALITY_STANDARDS.get(key)
 
         if not standard:
-            raise ValueError(
-                f"No quality standard found for crop: {test_record.crop_type}"
-            )
+            raise ValueError(f"No quality standard found for crop: {test_record.crop_type}")
 
         # Extract test values
         test_values: dict[str, float] = {}
@@ -933,9 +923,7 @@ class QualityGradingEngine:
         if "protein" in test_values:
             test_record.protein_percent = test_values["protein"]
         if "sugar_content" in test_values or "brix" in test_values:
-            test_record.sugar_brix = test_values.get(
-                "sugar_content", test_values.get("brix")
-            )
+            test_record.sugar_brix = test_values.get("sugar_content", test_values.get("brix"))
         if "foreign_matter" in test_values:
             test_record.foreign_matter_percent = test_values["foreign_matter"]
         if "defects" in test_values:
@@ -947,8 +935,7 @@ class QualityGradingEngine:
                 result.grade = grading_result.parameter_grades[result.parameter_name]
                 result.result = (
                     TestResult.PASS
-                    if result.grade
-                    not in [QualityGrade.REJECTED, QualityGrade.INDUSTRIAL]
+                    if result.grade not in [QualityGrade.REJECTED, QualityGrade.INDUSTRIAL]
                     else TestResult.FAIL
                 )
 
@@ -1007,9 +994,7 @@ class BuyerMatchingEngine:
 
             # Check variety if specified
             if req.acceptable_varieties and test_record.variety:
-                if test_record.variety.lower() not in [
-                    v.lower() for v in req.acceptable_varieties
-                ]:
+                if test_record.variety.lower() not in [v.lower() for v in req.acceptable_varieties]:
                     continue
 
             # Evaluate match
@@ -1133,17 +1118,13 @@ class BuyerMatchingEngine:
         quantity_met = True
         if requirement.min_quantity_kg and quantity_kg < requirement.min_quantity_kg:
             quantity_met = False
-            unmet.append(
-                f"Quantity {quantity_kg}kg below min {requirement.min_quantity_kg}kg"
-            )
+            unmet.append(f"Quantity {quantity_kg}kg below min {requirement.min_quantity_kg}kg")
             unmet_ar.append(
                 f"الكمية {quantity_kg}كجم أقل من الحد الأدنى {requirement.min_quantity_kg}كجم"
             )
         elif requirement.max_quantity_kg and quantity_kg > requirement.max_quantity_kg:
             quantity_met = False
-            unmet.append(
-                f"Quantity {quantity_kg}kg exceeds max {requirement.max_quantity_kg}kg"
-            )
+            unmet.append(f"Quantity {quantity_kg}kg exceeds max {requirement.max_quantity_kg}kg")
             unmet_ar.append(
                 f"الكمية {quantity_kg}كجم تتجاوز الحد الأقصى {requirement.max_quantity_kg}كجم"
             )
@@ -1185,14 +1166,12 @@ class BuyerMatchingEngine:
         # Generate recommendation
         if is_eligible:
             recommendation = "This harvest meets all buyer requirements. Contact buyer to proceed."
-            recommendation_ar = "هذا المحصول يستوفي جميع متطلبات المشتري. تواصل مع المشتري للمتابعة."
-        elif match_score >= 80:
-            recommendation = (
-                "Close to meeting requirements. Minor adjustments may secure the sale."
-            )
             recommendation_ar = (
-                "قريب من استيفاء المتطلبات. تعديلات طفيفة قد تضمن البيع."
+                "هذا المحصول يستوفي جميع متطلبات المشتري. تواصل مع المشتري للمتابعة."
             )
+        elif match_score >= 80:
+            recommendation = "Close to meeting requirements. Minor adjustments may secure the sale."
+            recommendation_ar = "قريب من استيفاء المتطلبات. تعديلات طفيفة قد تضمن البيع."
         else:
             recommendation = "Does not meet buyer requirements. Consider other buyers."
             recommendation_ar = "لا يستوفي متطلبات المشتري. فكر في مشترين آخرين."
@@ -1323,9 +1302,7 @@ class QualityTrendAnalyzer:
             else TrendDirection.STABLE
         )
         sugar_trend = (
-            self._calculate_trend_direction(sugar_values)
-            if sugar_values
-            else TrendDirection.STABLE
+            self._calculate_trend_direction(sugar_values) if sugar_values else TrendDirection.STABLE
         )
 
         # Generate recommendations
@@ -1336,9 +1313,7 @@ class QualityTrendAnalyzer:
             recommendations.append(
                 "Quality is declining. Review production practices and input quality."
             )
-            recommendations_ar.append(
-                "الجودة في تراجع. راجع ممارسات الإنتاج وجودة المدخلات."
-            )
+            recommendations_ar.append("الجودة في تراجع. راجع ممارسات الإنتاج وجودة المدخلات.")
 
         if moisture_trend == TrendDirection.IMPROVING and moisture_values:
             recommendations.append(
@@ -1380,21 +1355,15 @@ class QualityTrendAnalyzer:
             avg_protein_percent=(
                 sum(protein_values) / len(protein_values) if protein_values else None
             ),
-            avg_sugar_brix=(
-                sum(sugar_values) / len(sugar_values) if sugar_values else None
-            ),
-            avg_defect_percent=(
-                sum(defect_values) / len(defect_values) if defect_values else None
-            ),
+            avg_sugar_brix=(sum(sugar_values) / len(sugar_values) if sugar_values else None),
+            avg_defect_percent=(sum(defect_values) / len(defect_values) if defect_values else None),
             recommendations=recommendations,
             recommendations_ar=recommendations_ar,
             sample_count=len(data_points),
             confidence_score=confidence,
         )
 
-    def _calculate_trend(
-        self, values: list[float]
-    ) -> tuple[TrendDirection, float]:
+    def _calculate_trend(self, values: list[float]) -> tuple[TrendDirection, float]:
         """Calculate trend direction and strength from values"""
         if len(values) < 2:
             return TrendDirection.STABLE, 0.0

@@ -20,7 +20,7 @@ Author: SAHOOL Platform Team
 import os
 import sys
 from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch, AsyncMock
+from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
@@ -38,8 +38,10 @@ os.environ["REDIS_URL"] = ""
 # Mock Classes
 # ===============================================================================
 
+
 class MockUser:
     """Mock User model for authentication."""
+
     def __init__(self, tenant_id: str = "test-tenant"):
         self.id = "test-user-id"
         self.email = "test@example.com"
@@ -113,10 +115,10 @@ get_current_user_dep = main_module.get_current_user
 
 from httpx import ASGITransport, AsyncClient
 
-
 # ===============================================================================
 # Test Fixtures
 # ===============================================================================
+
 
 @pytest.fixture(autouse=True)
 def clear_storage():
@@ -141,7 +143,7 @@ def setup_app_state():
     app.state.redis_connected = False
     app.state.wechat_configured = False
 
-    if hasattr(app.state, 'limiter'):
+    if hasattr(app.state, "limiter"):
         original_enabled = app.state.limiter.enabled
         app.state.limiter.enabled = False
     else:
@@ -158,10 +160,7 @@ async def client(setup_app_state):
     """Create async test client with dependency overrides."""
     app.dependency_overrides[get_current_user_dep] = lambda: MockUser(tenant_id="test-tenant")
 
-    async with AsyncClient(
-        transport=ASGITransport(app=app),
-        base_url="http://test"
-    ) as ac:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -227,6 +226,7 @@ def sample_insights_request():
 # Health Endpoint Tests
 # ===============================================================================
 
+
 class TestHealthEndpoints:
     """Test health check endpoints."""
 
@@ -284,6 +284,7 @@ class TestHealthEndpoints:
 # ===============================================================================
 # Message Endpoint Tests
 # ===============================================================================
+
 
 class TestMessageEndpoints:
     """Test message fetch and send endpoints."""
@@ -418,6 +419,7 @@ class TestMessageEndpoints:
 # Contact Endpoint Tests
 # ===============================================================================
 
+
 class TestContactEndpoints:
     """Test contact management endpoints."""
 
@@ -497,6 +499,7 @@ class TestContactEndpoints:
 # Moment Endpoint Tests
 # ===============================================================================
 
+
 class TestMomentEndpoints:
     """Test moments publishing endpoints."""
 
@@ -560,7 +563,9 @@ class TestMomentEndpoints:
         assert "visible_to" in data["detail"].lower() or "visible" in data["error"].lower()
 
     @pytest.mark.asyncio
-    async def test_publish_moment_selected_visibility_with_users(self, client, sample_moment_request):
+    async def test_publish_moment_selected_visibility_with_users(
+        self, client, sample_moment_request
+    ):
         """Test publishing with selected visibility and user list."""
         sample_moment_request["visibility"] = "selected"
         sample_moment_request["visible_to"] = ["user_001", "user_002"]
@@ -590,6 +595,7 @@ class TestMomentEndpoints:
 # ===============================================================================
 # Chat Analysis Endpoint Tests
 # ===============================================================================
+
 
 class TestChatAnalysisEndpoints:
     """Test chat summarization and insights endpoints."""
@@ -663,7 +669,11 @@ class TestChatAnalysisEndpoints:
     async def test_get_insights_all_types(self, client, sample_insights_request):
         """Test insights with all insight types."""
         sample_insights_request["insight_types"] = [
-            "sentiment", "topic", "action_items", "questions", "key_decisions"
+            "sentiment",
+            "topic",
+            "action_items",
+            "questions",
+            "key_decisions",
         ]
         response = await client.post("/api/v1/chat/insights", json=sample_insights_request)
 
@@ -693,6 +703,7 @@ class TestChatAnalysisEndpoints:
 # ===============================================================================
 # Error Handling Tests
 # ===============================================================================
+
 
 class TestErrorHandling:
     """Test error response format and handling."""
@@ -739,6 +750,7 @@ class TestErrorHandling:
 # Response Format Tests
 # ===============================================================================
 
+
 class TestResponseFormats:
     """Test API response formats."""
 
@@ -749,7 +761,15 @@ class TestResponseFormats:
 
         assert response.status_code == 200
         data = response.json()
-        expected_fields = ["id", "chat_id", "message_type", "content", "timestamp", "status", "status_ar"]
+        expected_fields = [
+            "id",
+            "chat_id",
+            "message_type",
+            "content",
+            "timestamp",
+            "status",
+            "status_ar",
+        ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
 
@@ -760,7 +780,15 @@ class TestResponseFormats:
 
         assert response.status_code == 200
         data = response.json()
-        expected_fields = ["id", "wechat_id", "contact_type", "status", "status_ar", "tags", "added_at"]
+        expected_fields = [
+            "id",
+            "wechat_id",
+            "contact_type",
+            "status",
+            "status_ar",
+            "tags",
+            "added_at",
+        ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
 
@@ -771,7 +799,15 @@ class TestResponseFormats:
 
         assert response.status_code == 200
         data = response.json()
-        expected_fields = ["id", "content", "media_urls", "visibility", "published_at", "status", "status_ar"]
+        expected_fields = [
+            "id",
+            "content",
+            "media_urls",
+            "visibility",
+            "published_at",
+            "status",
+            "status_ar",
+        ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
 
@@ -783,8 +819,14 @@ class TestResponseFormats:
         assert response.status_code == 200
         data = response.json()
         expected_fields = [
-            "chat_id", "time_range_start", "time_range_end", "total_messages",
-            "summary", "key_topics", "action_items", "generated_at"
+            "chat_id",
+            "time_range_start",
+            "time_range_end",
+            "total_messages",
+            "summary",
+            "key_topics",
+            "action_items",
+            "generated_at",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -797,8 +839,13 @@ class TestResponseFormats:
         assert response.status_code == 200
         data = response.json()
         expected_fields = [
-            "chat_id", "time_range_start", "time_range_end", "total_messages_analyzed",
-            "insights", "overall_sentiment", "generated_at"
+            "chat_id",
+            "time_range_start",
+            "time_range_end",
+            "total_messages_analyzed",
+            "insights",
+            "overall_sentiment",
+            "generated_at",
         ]
         for field in expected_fields:
             assert field in data, f"Missing field: {field}"
@@ -807,6 +854,7 @@ class TestResponseFormats:
 # ===============================================================================
 # Message Type Tests
 # ===============================================================================
+
 
 class TestMessageTypes:
     """Test different message types."""
@@ -874,6 +922,7 @@ class TestMessageTypes:
 # ===============================================================================
 # Insight Type Tests
 # ===============================================================================
+
 
 class TestInsightTypes:
     """Test different insight types."""

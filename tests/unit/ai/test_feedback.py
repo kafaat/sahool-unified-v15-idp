@@ -395,17 +395,17 @@ class TestFeedbackCollector:
     async def test_get_summary_by_type(self, collector):
         """Test getting summary filtered by type"""
         await collector.collect_rating(
-            "rec_001", 5,
+            "rec_001",
+            5,
             recommendation_type=RecommendationType.IRRIGATION,
         )
         await collector.collect_rating(
-            "rec_002", 3,
+            "rec_002",
+            3,
             recommendation_type=RecommendationType.FERTILIZER,
         )
 
-        summary = await collector.get_summary(
-            recommendation_type=RecommendationType.IRRIGATION
-        )
+        summary = await collector.get_summary(recommendation_type=RecommendationType.IRRIGATION)
         assert summary.total_feedback == 1
         assert summary.average_rating == 5.0
 
@@ -499,6 +499,7 @@ class TestConvenienceFunctions:
         with tempfile.TemporaryDirectory() as tmpdir:
             # Reset collectors
             from shared.ai import feedback
+
             feedback._collectors = {}
 
             # Create collector with temp storage
@@ -518,6 +519,7 @@ class TestConvenienceFunctions:
         """Test collect_outcome convenience function"""
         with tempfile.TemporaryDirectory() as tmpdir:
             from shared.ai import feedback
+
             feedback._collectors = {}
 
             storage = FeedbackStorage(storage_path=tmpdir)
@@ -592,15 +594,18 @@ class TestFeedbackByType:
     async def test_summary_by_recommendation_type(self, collector):
         """Test summary breakdown by recommendation type"""
         await collector.collect_rating(
-            "rec_001", 5,
+            "rec_001",
+            5,
             recommendation_type=RecommendationType.IRRIGATION,
         )
         await collector.collect_rating(
-            "rec_002", 4,
+            "rec_002",
+            4,
             recommendation_type=RecommendationType.IRRIGATION,
         )
         await collector.collect_rating(
-            "rec_003", 3,
+            "rec_003",
+            3,
             recommendation_type=RecommendationType.FERTILIZER,
         )
 

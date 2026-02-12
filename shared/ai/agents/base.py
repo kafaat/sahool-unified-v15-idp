@@ -21,36 +21,38 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
-from typing import Any, Callable, AsyncIterator
-import asyncio
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any, AsyncIterator, Callable
 
 import structlog
 
-from ..llm_provider import LLMProviderManager, get_llm_manager
 from ..audit import get_audit_logger
 from ..circuit_breaker import get_circuit_breaker
+from ..llm_provider import LLMProviderManager, get_llm_manager
 
 logger = structlog.get_logger()
 
 
-class AgentMode(str, Enum):
+class AgentMode(StrEnum):
     """
     Agent operation mode.
     وضع تشغيل الوكيل
 
     Inspired by OpenCode's dual-agent pattern.
     """
-    PLAN = "plan"           # Read-only analysis, no modifications
-    EXECUTE = "execute"     # Full access, can make changes
-    HYBRID = "hybrid"       # Plan then execute with approval
+
+    PLAN = "plan"  # Read-only analysis, no modifications
+    EXECUTE = "execute"  # Full access, can make changes
+    HYBRID = "hybrid"  # Plan then execute with approval
 
 
-class AgentState(str, Enum):
+class AgentState(StrEnum):
     """Agent execution state."""
+
     IDLE = "idle"
     PLANNING = "planning"
     EXECUTING = "executing"
@@ -60,37 +62,40 @@ class AgentState(str, Enum):
     WAITING_APPROVAL = "waiting_approval"
 
 
-class CollaborationRole(str, Enum):
+class CollaborationRole(StrEnum):
     """
     Role of agent in collaboration.
     دور الوكيل في التعاون
     """
+
     COORDINATOR = "coordinator"  # Coordinates multiple agents
-    SPECIALIST = "specialist"    # Provides specialized expertise
-    EXECUTOR = "executor"        # Executes tasks
-    REVIEWER = "reviewer"        # Reviews and validates
+    SPECIALIST = "specialist"  # Provides specialized expertise
+    EXECUTOR = "executor"  # Executes tasks
+    REVIEWER = "reviewer"  # Reviews and validates
 
 
-class ConsensusType(str, Enum):
+class ConsensusType(StrEnum):
     """
     Type of consensus mechanism.
     نوع آلية الإجماع
     """
-    UNANIMOUS = "unanimous"      # All agents must agree
-    MAJORITY = "majority"        # >50% must agree
-    WEIGHTED = "weighted"        # Weighted by agent expertise
+
+    UNANIMOUS = "unanimous"  # All agents must agree
+    MAJORITY = "majority"  # >50% must agree
+    WEIGHTED = "weighted"  # Weighted by agent expertise
     COORDINATOR_DECIDES = "coordinator_decides"  # Coordinator makes final call
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """
     Type of memory entry.
     نوع إدخال الذاكرة
     """
-    EXPERIENCE = "experience"    # Past execution experience
-    FEEDBACK = "feedback"        # User or system feedback
-    LEARNING = "learning"        # Learned patterns
-    CONTEXT = "context"          # Contextual information
+
+    EXPERIENCE = "experience"  # Past execution experience
+    FEEDBACK = "feedback"  # User or system feedback
+    LEARNING = "learning"  # Learned patterns
+    CONTEXT = "context"  # Contextual information
 
 
 @dataclass
@@ -99,6 +104,7 @@ class AgentCapability:
     Capability of an agent.
     قدرة الوكيل
     """
+
     name: str
     name_ar: str
     description: str
@@ -113,6 +119,7 @@ class MemoryEntry:
     Memory entry for agent learning.
     إدخال ذاكرة لتعلم الوكيل
     """
+
     memory_id: str
     memory_type: MemoryType
     content: dict[str, Any]
@@ -129,6 +136,7 @@ class DelegatedTask:
     Task delegated to a sub-agent.
     مهمة مفوضة لوكيل فرعي
     """
+
     task_id: str
     agent_id: str
     agent_name: str
@@ -147,6 +155,7 @@ class HelpRequest:
     Request for help from another agent.
     طلب مساعدة من وكيل آخر
     """
+
     request_id: str
     requesting_agent: str
     problem: str
@@ -163,6 +172,7 @@ class ConsensusProposal:
     Proposal for multi-agent consensus.
     اقتراح للإجماع متعدد الوكلاء
     """
+
     proposal_id: str
     proposer_agent: str
     title: str
@@ -178,13 +188,13 @@ class ConsensusProposal:
     deadline: datetime | None = None
 
 
-
 @dataclass
 class AgentTool:
     """
     Tool definition for agent use.
     تعريف أداة لاستخدام الوكيل
     """
+
     name: str
     name_ar: str
     description: str
@@ -207,6 +217,7 @@ class AgentTool:
 @dataclass
 class ToolResult:
     """Result of tool execution."""
+
     tool_name: str
     success: bool
     result: Any
@@ -231,6 +242,7 @@ class AgentStep:
 
     Inspired by Dexter's structured research steps.
     """
+
     step_id: str
     step_number: int
     description: str
@@ -261,6 +273,7 @@ class AgentStep:
 @dataclass
 class StepResult:
     """Result of executing a step."""
+
     step: AgentStep
     success: bool
     output: Any
@@ -635,7 +648,7 @@ class BaseAutonomousAgent(ABC):
     ) -> StepResult:
         """Execute a single step with validation."""
         step.status = "in_progress"
-        start_time = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Loop detection
         step_hash = f"{step.tool_name}:{hash(str(step.tool_input))}"
@@ -668,9 +681,7 @@ class BaseAutonomousAgent(ABC):
 
                 # Update stats
                 self.stats["steps_executed"] += 1
-                self.stats["tools_used"][tool.name] = (
-                    self.stats["tools_used"].get(tool.name, 0) + 1
-                )
+                self.stats["tools_used"][tool.name] = self.stats["tools_used"].get(tool.name, 0) + 1
 
                 if not tool_result.success:
                     step.status = "failed"
@@ -682,9 +693,7 @@ class BaseAutonomousAgent(ABC):
                     )
 
                 # Self-validation (inspired by Dexter)
-                is_valid, validation_msg = await self.validate_step_result(
-                    step, tool_result, context
-                )
+                is_valid, validation_msg = await self.validate_step_result(step, tool_result, context)
 
                 if not is_valid:
                     retry_count = self._retry_counts.get(step.step_id, 0)
@@ -751,9 +760,7 @@ class BaseAutonomousAgent(ABC):
             if asyncio.iscoroutinefunction(tool.handler):
                 result = await self.circuit_breaker.call(tool.handler, **inputs)
             else:
-                result = await self.circuit_breaker.call(
-                    asyncio.to_thread, tool.handler, **inputs
-                )
+                result = await self.circuit_breaker.call(asyncio.to_thread, tool.handler, **inputs)
 
             execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
 
@@ -784,10 +791,12 @@ class BaseAutonomousAgent(ABC):
         outputs = []
         for step in completed_steps:
             if step.result:
-                outputs.append({
-                    "step": step.description,
-                    "output": step.result.result,
-                })
+                outputs.append(
+                    {
+                        "step": step.description,
+                        "output": step.result.result,
+                    }
+                )
 
         return {
             "success": len(failed_steps) == 0,

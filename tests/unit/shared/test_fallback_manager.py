@@ -35,9 +35,7 @@ class TestCircuitBreaker:
 
     def test_circuit_breaker_custom_parameters(self):
         """Test circuit breaker with custom parameters"""
-        cb = CircuitBreaker(
-            failure_threshold=3, recovery_timeout=10, success_threshold=2
-        )
+        cb = CircuitBreaker(failure_threshold=3, recovery_timeout=10, success_threshold=2)
         assert cb.failure_threshold == 3
         assert cb.recovery_timeout == 10
         assert cb.success_threshold == 2

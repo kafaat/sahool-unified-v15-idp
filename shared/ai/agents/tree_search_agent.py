@@ -18,23 +18,23 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+import math
+import uuid
 from abc import abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
-import uuid
-import math
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
-    BaseAutonomousAgent,
     AgentMode,
     AgentStep,
+    BaseAutonomousAgent,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 
@@ -44,23 +44,25 @@ logger = structlog.get_logger()
 # ============================================================================
 
 
-class SearchStrategy(str, Enum):
+class SearchStrategy(StrEnum):
     """استراتيجية البحث"""
-    BFS = "bfs"                     # Breadth-first search
-    DFS = "dfs"                     # Depth-first search
-    BEAM = "beam"                   # Beam search
-    MCTS = "mcts"                   # Monte Carlo Tree Search
-    BEST_FIRST = "best_first"       # Best-first search
+
+    BFS = "bfs"  # Breadth-first search
+    DFS = "dfs"  # Depth-first search
+    BEAM = "beam"  # Beam search
+    MCTS = "mcts"  # Monte Carlo Tree Search
+    BEST_FIRST = "best_first"  # Best-first search
 
 
-class NodeStatus(str, Enum):
+class NodeStatus(StrEnum):
     """حالة العقدة"""
-    PENDING = "pending"             # Not yet evaluated
-    EVALUATING = "evaluating"       # Currently being evaluated
-    EXPANDED = "expanded"           # Children generated
-    TERMINAL = "terminal"           # Leaf node (solution or dead end)
-    PRUNED = "pruned"              # Pruned from search
-    SELECTED = "selected"          # Selected as part of solution path
+
+    PENDING = "pending"  # Not yet evaluated
+    EVALUATING = "evaluating"  # Currently being evaluated
+    EXPANDED = "expanded"  # Children generated
+    TERMINAL = "terminal"  # Leaf node (solution or dead end)
+    PRUNED = "pruned"  # Pruned from search
+    SELECTED = "selected"  # Selected as part of solution path
 
 
 # ============================================================================
@@ -76,18 +78,19 @@ class ThoughtNode:
 
     Represents a single thought/state in the exploration.
     """
+
     node_id: str
-    thought: str                    # The thought content
-    thought_ar: str                 # Arabic version
-    depth: int                      # Depth in tree (0 = root)
-    parent_id: str | None = None    # Parent node ID
+    thought: str  # The thought content
+    thought_ar: str  # Arabic version
+    depth: int  # Depth in tree (0 = root)
+    parent_id: str | None = None  # Parent node ID
     children_ids: list[str] = field(default_factory=list)
     status: NodeStatus = NodeStatus.PENDING
 
     # Evaluation scores
-    value: float = 0.0              # Evaluated value (0-1)
-    confidence: float = 0.0         # Confidence in this thought
-    visits: int = 0                 # Visit count (for MCTS)
+    value: float = 0.0  # Evaluated value (0-1)
+    confidence: float = 0.0  # Confidence in this thought
+    visits: int = 0  # Visit count (for MCTS)
 
     # Execution result (if terminal)
     result: Any = None
@@ -109,7 +112,9 @@ class ThoughtNode:
             "value": self.value,
             "confidence": self.confidence,
             "visits": self.visits,
-            "result": self.result if isinstance(self.result, (str, int, float, bool, list, dict, type(None))) else str(self.result),
+            "result": self.result
+            if isinstance(self.result, (str, int, float, bool, list, dict, type(None)))
+            else str(self.result),
             "execution_time_ms": self.execution_time_ms,
             "created_at": self.created_at.isoformat(),
             "metadata": self.metadata,
@@ -119,7 +124,7 @@ class ThoughtNode:
     def ucb1_score(self) -> float:
         """Calculate UCB1 score for MCTS selection."""
         if self.visits == 0:
-            return float('inf')
+            return float("inf")
 
         parent_visits = self.metadata.get("parent_visits", 1)
         exploitation = self.value
@@ -134,6 +139,7 @@ class ThoughtPath:
     A complete path through the thought tree.
     مسار كامل عبر شجرة الأفكار
     """
+
     path_id: str
     nodes: list[ThoughtNode]
     total_value: float = 0.0
@@ -159,6 +165,7 @@ class ThoughtTree:
     Complete thought tree for exploration.
     شجرة أفكار كاملة للاستكشاف
     """
+
     tree_id: str
     task: str
     task_ar: str
@@ -205,10 +212,7 @@ class ThoughtTree:
 
     def get_leaf_nodes(self) -> list[ThoughtNode]:
         """Get all leaf nodes."""
-        return [
-            n for n in self.nodes.values()
-            if not n.children_ids or n.status == NodeStatus.TERMINAL
-        ]
+        return [n for n in self.nodes.values() if not n.children_ids or n.status == NodeStatus.TERMINAL]
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -250,7 +254,7 @@ class ThoughtTree:
                 if child_id in self.nodes:
                     child = self.nodes[child_id]
                     edge_label = f"{child.value:.2f}"
-                    lines.append(f'    {node_id} -->|{edge_label}| {child_id}')
+                    lines.append(f"    {node_id} -->|{edge_label}| {child_id}")
 
         return "\n".join(lines)
 
@@ -516,9 +520,7 @@ class TreeSearchAgent(BaseAutonomousAgent):
                 agent_id=self.agent_id,
                 task=task[:500],
                 success=self.current_tree.best_path is not None,
-                execution_time_ms=(
-                    self.current_tree.completed_at - start_time
-                ).total_seconds() * 1000,
+                execution_time_ms=(self.current_tree.completed_at - start_time).total_seconds() * 1000,
                 steps_executed=len(self.current_tree.nodes),
             )
 
@@ -651,10 +653,10 @@ class TreeSearchAgent(BaseAutonomousAgent):
 
             # Keep top beam_width candidates
             next_level.sort(key=lambda x: x[1], reverse=True)
-            current_level = [nid for nid, _ in next_level[:self.beam_width]]
+            current_level = [nid for nid, _ in next_level[: self.beam_width]]
 
             # Mark pruned nodes
-            pruned = [nid for nid, _ in next_level[self.beam_width:]]
+            pruned = [nid for nid, _ in next_level[self.beam_width :]]
             for nid in pruned:
                 node = self.current_tree.get_node(nid)
                 if node:
@@ -739,6 +741,7 @@ class TreeSearchAgent(BaseAutonomousAgent):
         """Best-first search using priority queue."""
         # Priority queue: (negative_value, node_id) - heapq is min-heap
         import heapq
+
         priority_queue: list[tuple[float, str]] = [(-0.5, self.current_tree.root_id)]
         nodes_explored = 0
 
@@ -783,17 +786,14 @@ class TreeSearchAgent(BaseAutonomousAgent):
             return None
 
         # Get all terminal (solution) nodes
-        terminal_nodes = [
-            n for n in self.current_tree.nodes.values()
-            if n.status == NodeStatus.TERMINAL
-        ]
+        terminal_nodes = [n for n in self.current_tree.nodes.values() if n.status == NodeStatus.TERMINAL]
 
         if not terminal_nodes:
             return None
 
         # Find path with highest total value
         best_path = None
-        best_value = -float('inf')
+        best_value = -float("inf")
 
         for terminal in terminal_nodes:
             path_nodes = self.current_tree.get_path_to_node(terminal.node_id)
@@ -840,10 +840,7 @@ class TreeSearchAgent(BaseAutonomousAgent):
     def export_tree(self, tree_id: str | None = None) -> dict[str, Any]:
         """Export tree for debugging or learning."""
         if tree_id:
-            tree = next(
-                (t for t in self.search_history if t.tree_id == tree_id),
-                None
-            )
+            tree = next((t for t in self.search_history if t.tree_id == tree_id), None)
         else:
             tree = self.current_tree
 

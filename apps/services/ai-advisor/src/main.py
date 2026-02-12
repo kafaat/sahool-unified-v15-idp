@@ -43,8 +43,8 @@ try:
     )
     from shared.ai.context_engineering.evaluation import (
         EvaluationCriteria,
-        RecommendationType,
         RecommendationEvaluator,
+        RecommendationType,
     )
     from shared.ai.context_engineering.memory import (
         FarmMemory,
@@ -61,7 +61,6 @@ except ImportError:
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from shared.errors_py import setup_exception_handlers
-
 from shared.middleware import (
     RequestLoggingMiddleware,
     TenantContextMiddleware,
@@ -242,9 +241,7 @@ async def lifespan(app: FastAPI):
         if CONTEXT_ENGINEERING_AVAILABLE:
             try:
                 # Initialize compression | تهيئة الضغط
-                context_compressor = ContextCompressor(
-                    default_strategy=CompressionStrategy.HYBRID, max_tokens=4000
-                )
+                context_compressor = ContextCompressor(default_strategy=CompressionStrategy.HYBRID, max_tokens=4000)
                 logger.info("context_compressor_initialized")
 
                 # Initialize memory with tenant isolation | تهيئة الذاكرة مع عزل المستأجرين
@@ -289,12 +286,8 @@ async def lifespan(app: FastAPI):
         # Initialize A2A agent if available | تهيئة وكيل A2A إذا كان متاحاً
         if A2A_AVAILABLE:
             try:
-                base_url = os.getenv(
-                    "SERVICE_BASE_URL", f"http://localhost:{settings.service_port}"
-                )
-                a2a_agent = create_ai_advisor_a2a_agent(
-                    base_url=base_url, agents=agents, supervisor=supervisor
-                )
+                base_url = os.getenv("SERVICE_BASE_URL", f"http://localhost:{settings.service_port}")
+                a2a_agent = create_ai_advisor_a2a_agent(base_url=base_url, agents=agents, supervisor=supervisor)
                 app_state["a2a_agent"] = a2a_agent
                 logger.info("a2a_agent_initialized", agent_id=a2a_agent.agent_id)
             except Exception as e:
@@ -481,9 +474,7 @@ async def ask_question(request: QuestionRequest, user: User = Depends(get_curren
 
         # Guard against prompt injection at API level (defense in depth)
         # الحماية من حقن الأوامر على مستوى API (دفاع متعدد الطبقات)
-        sanitized_question, is_safe, warnings = PromptGuard.validate_and_sanitize(
-            request.question, strict=False
-        )
+        sanitized_question, is_safe, warnings = PromptGuard.validate_and_sanitize(request.question, strict=False)
 
         if not is_safe:
             logger.warning(
@@ -533,9 +524,7 @@ async def ask_question(request: QuestionRequest, user: User = Depends(get_curren
         memory_stored = False
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory and request.context:
             try:
-                tenant_id = request.context.get(
-                    "tenant_id", request.context.get("field_id", "default")
-                )
+                tenant_id = request.context.get("tenant_id", request.context.get("field_id", "default"))
                 field_id = request.context.get("field_id")
 
                 farm_memory.store(
@@ -687,9 +676,7 @@ async def get_recommendations(request: RecommendationRequest, user: User = Depen
                     is_approved=eval_result.is_approved,
                     feedback=eval_result.feedback,
                     improvements=eval_result.improvements,
-                    criteria_scores={
-                        k.value: v.score for k, v in eval_result.scores.items()
-                    },
+                    criteria_scores={k.value: v.score for k, v in eval_result.scores.items()},
                 )
 
                 logger.info(
@@ -1118,9 +1105,7 @@ async def get_cost_usage(user_id: str | None = None):
                 "daily_usage_percent": round((stats["daily_cost"] / stats["daily_limit"]) * 100, 2)
                 if stats["daily_limit"] > 0
                 else 0,
-                "monthly_usage_percent": round(
-                    (stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2
-                )
+                "monthly_usage_percent": round((stats["monthly_cost"] / stats["monthly_limit"]) * 100, 2)
                 if stats["monthly_limit"] > 0
                 else 0,
             },

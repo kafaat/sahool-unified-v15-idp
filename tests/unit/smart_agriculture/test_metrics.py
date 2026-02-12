@@ -93,7 +93,7 @@ class MetricsCollector:
             "radius_km": round(max_distance, 2),
             "fields_count": len(field_locations),
             "average_distance_km": round(sum(distances) / len(distances), 2),
-            "coverage_area_km2": round(math.pi * max_distance ** 2, 2),
+            "coverage_area_km2": round(math.pi * max_distance**2, 2),
         }
 
     def calculate_labor_cost_reduction(
@@ -171,21 +171,15 @@ class MetricsCollector:
                 "accuracy_percent": None,
             }
 
-        true_positives = sum(
-            1 for d in self._detections
-            if d.get("predicted") and d.get("actual")
-        )
+        true_positives = sum(1 for d in self._detections if d.get("predicted") and d.get("actual"))
         false_positives = sum(
-            1 for d in self._detections
-            if d.get("predicted") and not d.get("actual")
+            1 for d in self._detections if d.get("predicted") and not d.get("actual")
         )
         true_negatives = sum(
-            1 for d in self._detections
-            if not d.get("predicted") and not d.get("actual")
+            1 for d in self._detections if not d.get("predicted") and not d.get("actual")
         )
         false_negatives = sum(
-            1 for d in self._detections
-            if not d.get("predicted") and d.get("actual")
+            1 for d in self._detections if not d.get("predicted") and d.get("actual")
         )
 
         total = true_positives + false_positives + true_negatives + false_negatives
@@ -431,12 +425,14 @@ class TestFailureResponse:
     def test_calculate_failure_response_single_incident(self, collector: MetricsCollector):
         """Test failure response with single incident"""
         now = datetime.now(UTC)
-        collector.record_incident({
-            "incident_id": str(uuid.uuid4()),
-            "type": "sensor_failure",
-            "detected_at": now.isoformat(),
-            "resolved_at": (now + timedelta(minutes=10)).isoformat(),
-        })
+        collector.record_incident(
+            {
+                "incident_id": str(uuid.uuid4()),
+                "type": "sensor_failure",
+                "detected_at": now.isoformat(),
+                "resolved_at": (now + timedelta(minutes=10)).isoformat(),
+            }
+        )
 
         result = collector.calculate_failure_response_time()
 
@@ -449,18 +445,22 @@ class TestFailureResponse:
         now = datetime.now(UTC)
 
         # 5 minute response
-        collector.record_incident({
-            "incident_id": str(uuid.uuid4()),
-            "detected_at": now.isoformat(),
-            "resolved_at": (now + timedelta(minutes=5)).isoformat(),
-        })
+        collector.record_incident(
+            {
+                "incident_id": str(uuid.uuid4()),
+                "detected_at": now.isoformat(),
+                "resolved_at": (now + timedelta(minutes=5)).isoformat(),
+            }
+        )
 
         # 15 minute response
-        collector.record_incident({
-            "incident_id": str(uuid.uuid4()),
-            "detected_at": now.isoformat(),
-            "resolved_at": (now + timedelta(minutes=15)).isoformat(),
-        })
+        collector.record_incident(
+            {
+                "incident_id": str(uuid.uuid4()),
+                "detected_at": now.isoformat(),
+                "resolved_at": (now + timedelta(minutes=15)).isoformat(),
+            }
+        )
 
         result = collector.calculate_failure_response_time()
 
@@ -475,17 +475,21 @@ class TestFailureResponse:
 
         # Within SLA (15 min)
         for _ in range(3):
-            collector.record_incident({
-                "detected_at": now.isoformat(),
-                "resolved_at": (now + timedelta(minutes=10)).isoformat(),
-            })
+            collector.record_incident(
+                {
+                    "detected_at": now.isoformat(),
+                    "resolved_at": (now + timedelta(minutes=10)).isoformat(),
+                }
+            )
 
         # Outside SLA
         for _ in range(2):
-            collector.record_incident({
-                "detected_at": now.isoformat(),
-                "resolved_at": (now + timedelta(minutes=20)).isoformat(),
-            })
+            collector.record_incident(
+                {
+                    "detected_at": now.isoformat(),
+                    "resolved_at": (now + timedelta(minutes=20)).isoformat(),
+                }
+            )
 
         result = collector.calculate_failure_response_time()
 
@@ -574,10 +578,12 @@ class TestDetectionAccuracy:
         collector.record_operation({"type": "irrigation"})
 
         now = datetime.now(UTC)
-        collector.record_incident({
-            "detected_at": now.isoformat(),
-            "resolved_at": (now + timedelta(minutes=5)).isoformat(),
-        })
+        collector.record_incident(
+            {
+                "detected_at": now.isoformat(),
+                "resolved_at": (now + timedelta(minutes=5)).isoformat(),
+            }
+        )
 
         result = collector.get_comprehensive_metrics()
 

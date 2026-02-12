@@ -6,7 +6,7 @@ Alert generation helpers for different scenarios
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from .models import (
@@ -39,36 +39,31 @@ def generate_exit_alert(
         "alert_id": f"alert_{uuid.uuid4().hex[:8]}",
         "priority": severity,
         "timestamp": timestamp.isoformat(),
-
         # Equipment info
         "equipment_id": equipment_id,
         "equipment_name": equipment_name,
         "equipment_name_ar": equipment_name_ar,
         "tenant_id": tenant_id,
-
         # Geofence info
         "geofence_id": geofence.id,
         "geofence_name": geofence.name,
         "geofence_name_ar": geofence.name_ar,
         "geofence_type": geofence.geofence_type.value,
-
         # Position
         "position": {"lat": lat, "lng": lng},
         "distance_to_boundary_m": distance_to_boundary_m,
         "speed_kmh": speed_kmh,
-
         # Messages
         "title_en": f"🚨 Equipment Left Zone: {geofence.name}",
         "title_ar": f"🚨 المعدة غادرت المنطقة: {geofence.name_ar}",
         "message_en": f"⚠️ ALERT: {equipment_name} has left the allowed zone '{geofence.name}'.\n"
-                      f"📍 Current location: ({lat:.6f}, {lng:.6f})\n"
-                      f"📏 Distance from boundary: {distance_to_boundary_m:.0f}m\n"
-                      f"🕐 Time: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
+        f"📍 Current location: ({lat:.6f}, {lng:.6f})\n"
+        f"📏 Distance from boundary: {distance_to_boundary_m:.0f}m\n"
+        f"🕐 Time: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
         "message_ar": f"⚠️ تنبيه: {equipment_name_ar} غادرت المنطقة المسموح بها '{geofence.name_ar}'.\n"
-                      f"📍 الموقع الحالي: ({lat:.6f}, {lng:.6f})\n"
-                      f"📏 المسافة من الحدود: {distance_to_boundary_m:.0f}م\n"
-                      f"🕐 الوقت: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
-
+        f"📍 الموقع الحالي: ({lat:.6f}, {lng:.6f})\n"
+        f"📏 المسافة من الحدود: {distance_to_boundary_m:.0f}م\n"
+        f"🕐 الوقت: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}",
         # Actions
         "action_required": True,
         "recommended_actions_en": [
@@ -81,7 +76,6 @@ def generate_exit_alert(
             "تواصل مع مشغّل المعدة",
             "تأكد من أن الحركة مصرح بها",
         ],
-
         # Channels
         "channels": geofence.alert_channels,
     }
@@ -112,28 +106,23 @@ def generate_entry_alert(
         "alert_id": f"alert_{uuid.uuid4().hex[:8]}",
         "priority": severity,
         "timestamp": timestamp.isoformat(),
-
         # Equipment info
         "equipment_id": equipment_id,
         "equipment_name": equipment_name,
         "equipment_name_ar": equipment_name_ar,
         "tenant_id": tenant_id,
-
         # Geofence info
         "geofence_id": geofence.id,
         "geofence_name": geofence.name,
         "geofence_name_ar": geofence.name_ar,
         "geofence_type": geofence.geofence_type.value,
-
         # Position
         "position": {"lat": lat, "lng": lng},
-
         # Messages
         "title_en": f"⚠️ Equipment Entered Zone: {geofence.name}",
         "title_ar": f"⚠️ المعدة دخلت المنطقة: {geofence.name_ar}",
         "message_en": f"{equipment_name} has entered the '{geofence.name}' zone.",
         "message_ar": f"{equipment_name_ar} دخلت منطقة '{geofence.name_ar}'.",
-
         # Channels
         "channels": geofence.alert_channels,
     }
@@ -162,32 +151,27 @@ def generate_speed_alert(
         "alert_id": f"alert_{uuid.uuid4().hex[:8]}",
         "priority": "medium",
         "timestamp": timestamp.isoformat(),
-
         # Equipment info
         "equipment_id": equipment_id,
         "equipment_name": equipment_name,
         "equipment_name_ar": equipment_name_ar,
         "tenant_id": tenant_id,
-
         # Geofence info
         "geofence_id": geofence.id,
         "geofence_name": geofence.name,
         "geofence_name_ar": geofence.name_ar,
-
         # Position and speed
         "position": {"lat": lat, "lng": lng},
         "current_speed_kmh": current_speed_kmh,
         "max_speed_kmh": max_speed,
         "excess_speed_kmh": current_speed_kmh - max_speed,
-
         # Messages
         "title_en": "⚡ Speed Limit Exceeded",
         "title_ar": "⚡ تجاوز حد السرعة",
         "message_en": f"{equipment_name} traveling at {current_speed_kmh:.1f} km/h in '{geofence.name}'. "
-                      f"Speed limit: {max_speed} km/h",
+        f"Speed limit: {max_speed} km/h",
         "message_ar": f"{equipment_name_ar} تسير بسرعة {current_speed_kmh:.1f} كم/س في '{geofence.name_ar}'. "
-                      f"حد السرعة: {max_speed} كم/س",
-
+        f"حد السرعة: {max_speed} كم/س",
         # Channels
         "channels": ["push"],
     }
@@ -228,46 +212,41 @@ def generate_theft_alert(
         "alert_id": f"theft_{uuid.uuid4().hex[:8]}",
         "priority": "critical",
         "timestamp": timestamp.isoformat(),
-
         # Equipment info
         "equipment_id": equipment_id,
         "equipment_name": equipment_name,
         "equipment_name_ar": equipment_name_ar,
         "tenant_id": tenant_id,
-
         # Position
         "position": {"lat": lat, "lng": lng},
         "speed_kmh": speed_kmh,
         "last_known_zone": last_known_zone,
-
         # Reasons
         "reasons": reasons,
         "reasons_ar": reasons_ar,
-
         # Messages
         "title_en": "🚨 THEFT ALERT - Immediate Action Required",
         "title_ar": "🚨 تنبيه سرقة - إجراء فوري مطلوب",
         "message_en": f"🚨 CRITICAL: Suspected theft of {equipment_name}!\n\n"
-                      f"📍 Location: ({lat:.6f}, {lng:.6f})\n"
-                      f"🚗 Speed: {speed_kmh:.1f} km/h\n"
-                      f"⚠️ Suspicious activity:\n"
-                      + "\n".join(f"  • {r}" for r in reasons) +
-                      f"\n\n🕐 Time: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                      f"IMMEDIATE ACTIONS REQUIRED:\n"
-                      f"1. Track equipment location in real-time\n"
-                      f"2. Contact local authorities\n"
-                      f"3. Attempt to disable equipment remotely if possible",
+        f"📍 Location: ({lat:.6f}, {lng:.6f})\n"
+        f"🚗 Speed: {speed_kmh:.1f} km/h\n"
+        f"⚠️ Suspicious activity:\n"
+        + "\n".join(f"  • {r}" for r in reasons)
+        + f"\n\n🕐 Time: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        f"IMMEDIATE ACTIONS REQUIRED:\n"
+        f"1. Track equipment location in real-time\n"
+        f"2. Contact local authorities\n"
+        f"3. Attempt to disable equipment remotely if possible",
         "message_ar": f"🚨 حرج: اشتباه سرقة {equipment_name_ar}!\n\n"
-                      f"📍 الموقع: ({lat:.6f}, {lng:.6f})\n"
-                      f"🚗 السرعة: {speed_kmh:.1f} كم/س\n"
-                      f"⚠️ النشاط المشبوه:\n"
-                      + "\n".join(f"  • {r}" for r in reasons_ar) +
-                      f"\n\n🕐 الوقت: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
-                      f"الإجراءات الفورية المطلوبة:\n"
-                      f"1. تتبع موقع المعدة في الوقت الفعلي\n"
-                      f"2. التواصل مع الجهات الأمنية\n"
-                      f"3. محاولة تعطيل المعدة عن بُعد إن أمكن",
-
+        f"📍 الموقع: ({lat:.6f}, {lng:.6f})\n"
+        f"🚗 السرعة: {speed_kmh:.1f} كم/س\n"
+        f"⚠️ النشاط المشبوه:\n"
+        + "\n".join(f"  • {r}" for r in reasons_ar)
+        + f"\n\n🕐 الوقت: {timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        f"الإجراءات الفورية المطلوبة:\n"
+        f"1. تتبع موقع المعدة في الوقت الفعلي\n"
+        f"2. التواصل مع الجهات الأمنية\n"
+        f"3. محاولة تعطيل المعدة عن بُعد إن أمكن",
         # Recommended actions
         "action_required": True,
         "recommended_actions_en": [
@@ -284,16 +263,13 @@ def generate_theft_alert(
             "حفظ مسار GPS كدليل",
             "فحص كاميرات المراقبة إن وجدت",
         ],
-
         # Emergency contacts template
         "emergency_contacts": {
             "police_sa": "911",
             "police_ye": "199",
         },
-
         # Use ALL channels for theft alerts
         "channels": ["push", "sms", "whatsapp", "call", "email"],
-
         # Metadata
         "requires_acknowledgment": True,
         "escalation_timeout_minutes": 5,  # Escalate if not acknowledged within 5 minutes
@@ -321,7 +297,6 @@ def generate_daily_summary(
         "tenant_id": tenant_id,
         "date": date.strftime("%Y-%m-%d"),
         "generated_at": datetime.now(UTC).isoformat(),
-
         # Statistics
         "statistics": {
             "equipment_monitored": equipment_count,
@@ -333,19 +308,17 @@ def generate_daily_summary(
                 "theft": theft_alerts,
             },
         },
-
         # Equipment currently outside allowed zones
         "equipment_outside_zones": equipment_outside_zones,
-
         # Messages
         "title_en": f"Daily Geofencing Report - {date.strftime('%Y-%m-%d')}",
         "title_ar": f"تقرير السياج الجغرافي اليومي - {date.strftime('%Y-%m-%d')}",
         "summary_en": f"Monitored {equipment_count} equipment. "
-                      f"Generated {total_alerts} alerts "
-                      f"({exit_alerts} exits, {entry_alerts} entries, "
-                      f"{speed_alerts} speed violations, {theft_alerts} theft alerts).",
+        f"Generated {total_alerts} alerts "
+        f"({exit_alerts} exits, {entry_alerts} entries, "
+        f"{speed_alerts} speed violations, {theft_alerts} theft alerts).",
         "summary_ar": f"تمت مراقبة {equipment_count} معدة. "
-                      f"تم إنشاء {total_alerts} تنبيه "
-                      f"({exit_alerts} خروج، {entry_alerts} دخول، "
-                      f"{speed_alerts} تجاوز سرعة، {theft_alerts} اشتباه سرقة).",
+        f"تم إنشاء {total_alerts} تنبيه "
+        f"({exit_alerts} خروج، {entry_alerts} دخول، "
+        f"{speed_alerts} تجاوز سرعة، {theft_alerts} اشتباه سرقة).",
     }

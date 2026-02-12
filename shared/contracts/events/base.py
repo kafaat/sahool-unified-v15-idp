@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, ClassVar
 from uuid import UUID, uuid4

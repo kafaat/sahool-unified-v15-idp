@@ -16,35 +16,36 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from datetime import datetime, date, UTC
-from decimal import Decimal
-from typing import Any, Callable
 import asyncio
 import json
 import os
-from pathlib import Path
 import uuid
+from dataclasses import dataclass, field
+from datetime import UTC, date, datetime
+from decimal import Decimal
+from pathlib import Path
+from typing import Any, Callable
 
 from shared.crop_insurance.models import (
-    InsurancePolicy,
-    InsuranceClaim,
     ClaimEvidence,
     ClaimPayout,
     ClaimStatus,
     ClaimType,
-    PolicyStatus,
-    InsuranceType,
-    ParametricTrigger,
-    WeatherIndex,
+    InsuranceClaim,
     InsuranceErrors,
     InsuranceException,
+    InsurancePolicy,
+    InsuranceType,
+    ParametricTrigger,
+    PolicyStatus,
+    WeatherIndex,
 )
 
 
 @dataclass
 class ValidationResult:
     """Result of claim validation | نتيجة التحقق من المطالبة"""
+
     is_valid: bool
     errors: list[str] = field(default_factory=list)
     errors_ar: list[str] = field(default_factory=list)
@@ -75,6 +76,7 @@ class ValidationResult:
 @dataclass
 class PayoutCalculation:
     """Detailed payout calculation | حساب الدفع المفصل"""
+
     claim_id: str
 
     # Amounts
@@ -177,7 +179,7 @@ class ClaimValidator:
         if policy.status != PolicyStatus.ACTIVE:
             result.add_error(
                 f"Policy is not active (status: {policy.status.value})",
-                f"البوليصة غير نشطة (الحالة: {policy.status.value})"
+                f"البوليصة غير نشطة (الحالة: {policy.status.value})",
             )
 
         # Check policy expiry
@@ -185,13 +187,13 @@ class ClaimValidator:
             if claim.incident_date > policy.expiry_date:
                 result.add_error(
                     "Incident date is after policy expiry date",
-                    "تاريخ الحادثة بعد تاريخ انتهاء البوليصة"
+                    "تاريخ الحادثة بعد تاريخ انتهاء البوليصة",
                 )
 
             if claim.incident_date < (policy.effective_date or date.min):
                 result.add_error(
                     "Incident date is before policy effective date",
-                    "تاريخ الحادثة قبل تاريخ سريان البوليصة"
+                    "تاريخ الحادثة قبل تاريخ سريان البوليصة",
                 )
 
         # Check reporting delay
@@ -200,14 +202,13 @@ class ClaimValidator:
             if delay > self.MAX_REPORTING_DELAY_DAYS:
                 result.add_warning(
                     f"Claim reported {delay} days after incident (max: {self.MAX_REPORTING_DELAY_DAYS})",
-                    f"تم الإبلاغ عن المطالبة بعد {delay} يوماً من الحادثة (الحد الأقصى: {self.MAX_REPORTING_DELAY_DAYS})"
+                    f"تم الإبلاغ عن المطالبة بعد {delay} يوماً من الحادثة (الحد الأقصى: {self.MAX_REPORTING_DELAY_DAYS})",
                 )
 
         # Check premium payment
         if policy.premium and not policy.premium.paid:
             result.add_error(
-                "Premium payment is required before claiming",
-                "يجب دفع القسط قبل تقديم المطالبة"
+                "Premium payment is required before claiming", "يجب دفع القسط قبل تقديم المطالبة"
             )
 
         # Check evidence requirements
@@ -215,48 +216,39 @@ class ClaimValidator:
         if len(claim.evidence) < min_evidence:
             result.add_error(
                 f"Insufficient evidence: {len(claim.evidence)} provided, {min_evidence} required",
-                f"دليل غير كافٍ: تم تقديم {len(claim.evidence)}، مطلوب {min_evidence}"
+                f"دليل غير كافٍ: تم تقديم {len(claim.evidence)}، مطلوب {min_evidence}",
             )
 
         # Check field match
         if claim.field_id != policy.field_id:
             result.add_error(
-                "Claim field does not match policy field",
-                "حقل المطالبة لا يتطابق مع حقل البوليصة"
+                "Claim field does not match policy field", "حقل المطالبة لا يتطابق مع حقل البوليصة"
             )
 
         # Check loss percentage
         if claim.estimated_loss_percentage <= 0:
             result.add_error(
-                "Loss percentage must be greater than 0",
-                "يجب أن تكون نسبة الخسارة أكبر من 0"
+                "Loss percentage must be greater than 0", "يجب أن تكون نسبة الخسارة أكبر من 0"
             )
         elif claim.estimated_loss_percentage > 100:
             result.add_error(
-                "Loss percentage cannot exceed 100%",
-                "لا يمكن أن تتجاوز نسبة الخسارة 100%"
+                "Loss percentage cannot exceed 100%", "لا يمكن أن تتجاوز نسبة الخسارة 100%"
             )
 
         # Check affected area
         if claim.affected_area_hectares > claim.total_field_area_hectares:
             result.add_error(
                 "Affected area cannot exceed total field area",
-                "لا يمكن أن تتجاوز المساحة المتضررة مساحة الحقل الإجمالية"
+                "لا يمكن أن تتجاوز المساحة المتضررة مساحة الحقل الإجمالية",
             )
 
         # Validate claim description
         if not claim.description and not claim.description_ar:
-            result.add_error(
-                "Claim description is required",
-                "وصف المطالبة مطلوب"
-            )
+            result.add_error("Claim description is required", "وصف المطالبة مطلوب")
 
         # Validate incident date
         if not claim.incident_date:
-            result.add_error(
-                "Incident date is required",
-                "تاريخ الحادثة مطلوب"
-            )
+            result.add_error("Incident date is required", "تاريخ الحادثة مطلوب")
 
         # Check for parametric claims
         if claim.is_parametric_claim and policy.insurance_type not in [
@@ -266,7 +258,7 @@ class ClaimValidator:
         ]:
             result.add_error(
                 "Parametric claims require a parametric or hybrid policy",
-                "المطالبات المعيارية تتطلب بوليصة معيارية أو مختلطة"
+                "المطالبات المعيارية تتطلب بوليصة معيارية أو مختلطة",
             )
 
         return result
@@ -287,13 +279,13 @@ class ClaimValidator:
         if not is_triggered:
             result.add_error(
                 f"Trigger condition not met: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}",
-                f"شرط المحفز غير مستوفى: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
+                f"شرط المحفز غير مستوفى: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}",
             )
 
         if is_triggered and trigger.requires_verification:
             result.add_warning(
                 "This trigger requires manual verification before payout",
-                "هذا المحفز يتطلب التحقق اليدوي قبل الدفع"
+                "هذا المحفز يتطلب التحقق اليدوي قبل الدفع",
             )
 
         return result
@@ -327,7 +319,11 @@ class PayoutCalculator:
         calculation.calculation_steps = []
 
         # Use verified loss if available, otherwise estimated
-        loss_pct = verified_loss_percentage or claim.verified_loss_percentage or claim.estimated_loss_percentage
+        loss_pct = (
+            verified_loss_percentage
+            or claim.verified_loss_percentage
+            or claim.estimated_loss_percentage
+        )
         calculation.loss_percentage = loss_pct
 
         # Step 1: Calculate gross loss
@@ -346,13 +342,15 @@ class PayoutCalculator:
         # Gross loss = Sum insured * Area ratio * Loss percentage
         gross_loss = sum_insured * Decimal(str(area_ratio)) * Decimal(str(loss_pct / 100))
         calculation.gross_loss = gross_loss
-        calculation.calculation_steps.append({
-            "step": 1,
-            "description": "Calculate gross loss",
-            "description_ar": "حساب الخسارة الإجمالية",
-            "formula": f"{sum_insured} × {area_ratio:.2f} × {loss_pct/100:.2f}",
-            "result": str(gross_loss),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 1,
+                "description": "Calculate gross loss",
+                "description_ar": "حساب الخسارة الإجمالية",
+                "formula": f"{sum_insured} × {area_ratio:.2f} × {loss_pct / 100:.2f}",
+                "result": str(gross_loss),
+            }
+        )
 
         # Step 2: Apply coverage limits based on claim type
         coverage_multiplier = self._get_coverage_multiplier(claim.claim_type, policy.coverage)
@@ -360,32 +358,35 @@ class PayoutCalculator:
 
         covered_loss = gross_loss * Decimal(str(coverage_multiplier))
         calculation.covered_loss = covered_loss
-        calculation.calculation_steps.append({
-            "step": 2,
-            "description": f"Apply coverage limit ({coverage_multiplier:.0%})",
-            "description_ar": f"تطبيق حد التغطية ({coverage_multiplier:.0%})",
-            "formula": f"{gross_loss} × {coverage_multiplier}",
-            "result": str(covered_loss),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 2,
+                "description": f"Apply coverage limit ({coverage_multiplier:.0%})",
+                "description_ar": f"تطبيق حد التغطية ({coverage_multiplier:.0%})",
+                "formula": f"{gross_loss} × {coverage_multiplier}",
+                "result": str(covered_loss),
+            }
+        )
 
         # Step 3: Apply deductible
         deductible_pct = policy.coverage.deductible_percentage / 100
         if policy.coverage.deductible_amount:
             deductible = min(
-                policy.coverage.deductible_amount,
-                covered_loss * Decimal(str(deductible_pct))
+                policy.coverage.deductible_amount, covered_loss * Decimal(str(deductible_pct))
             )
         else:
             deductible = covered_loss * Decimal(str(deductible_pct))
 
         calculation.deductible = deductible
-        calculation.calculation_steps.append({
-            "step": 3,
-            "description": f"Apply deductible ({policy.coverage.deductible_percentage}%)",
-            "description_ar": f"تطبيق التحمل ({policy.coverage.deductible_percentage}%)",
-            "formula": f"min({covered_loss} × {deductible_pct}, fixed amount)",
-            "result": str(deductible),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 3,
+                "description": f"Apply deductible ({policy.coverage.deductible_percentage}%)",
+                "description_ar": f"تطبيق التحمل ({policy.coverage.deductible_percentage}%)",
+                "formula": f"min({covered_loss} × {deductible_pct}, fixed amount)",
+                "result": str(deductible),
+            }
+        )
 
         # Step 4: Calculate net payout
         net_payout = max(covered_loss - deductible, Decimal("0"))
@@ -393,21 +394,25 @@ class PayoutCalculator:
         # Apply maximum payout limit if set
         if policy.coverage.max_payout and net_payout > policy.coverage.max_payout:
             net_payout = policy.coverage.max_payout
-            calculation.calculation_steps.append({
-                "step": 4,
-                "description": "Apply maximum payout limit",
-                "description_ar": "تطبيق الحد الأقصى للدفع",
-                "result": str(net_payout),
-            })
+            calculation.calculation_steps.append(
+                {
+                    "step": 4,
+                    "description": "Apply maximum payout limit",
+                    "description_ar": "تطبيق الحد الأقصى للدفع",
+                    "result": str(net_payout),
+                }
+            )
 
         calculation.net_payout = net_payout
-        calculation.calculation_steps.append({
-            "step": 5 if len(calculation.calculation_steps) > 3 else 4,
-            "description": "Final net payout",
-            "description_ar": "صافي الدفع النهائي",
-            "formula": f"{covered_loss} - {deductible}",
-            "result": str(net_payout),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 5 if len(calculation.calculation_steps) > 3 else 4,
+                "description": "Final net payout",
+                "description_ar": "صافي الدفع النهائي",
+                "formula": f"{covered_loss} - {deductible}",
+                "result": str(net_payout),
+            }
+        )
 
         # Calculate loss ratio
         if policy.premium and policy.premium.total_premium > 0:
@@ -466,35 +471,41 @@ class PayoutCalculator:
             calculation.rejection_reason_ar = f"شرط المحفز غير مستوفى: {measured_value} {trigger.threshold_operator} {trigger.threshold_value}"
             return calculation
 
-        calculation.calculation_steps.append({
-            "step": 1,
-            "description": "Evaluate trigger condition",
-            "description_ar": "تقييم شرط المحفز",
-            "formula": f"{measured_value} {trigger.threshold_operator} {trigger.threshold_value}",
-            "result": "Triggered" if is_triggered else "Not triggered",
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 1,
+                "description": "Evaluate trigger condition",
+                "description_ar": "تقييم شرط المحفز",
+                "formula": f"{measured_value} {trigger.threshold_operator} {trigger.threshold_value}",
+                "result": "Triggered" if is_triggered else "Not triggered",
+            }
+        )
 
         # Step 2: Calculate payout amount
         if trigger.payout_amount:
             # Fixed payout amount
             gross_payout = trigger.payout_amount * Decimal(str(payout_percentage / 100))
-            calculation.calculation_steps.append({
-                "step": 2,
-                "description": f"Apply fixed payout ({payout_percentage}%)",
-                "description_ar": f"تطبيق الدفع الثابت ({payout_percentage}%)",
-                "formula": f"{trigger.payout_amount} × {payout_percentage/100}",
-                "result": str(gross_payout),
-            })
+            calculation.calculation_steps.append(
+                {
+                    "step": 2,
+                    "description": f"Apply fixed payout ({payout_percentage}%)",
+                    "description_ar": f"تطبيق الدفع الثابت ({payout_percentage}%)",
+                    "formula": f"{trigger.payout_amount} × {payout_percentage / 100}",
+                    "result": str(gross_payout),
+                }
+            )
         else:
             # Percentage of sum insured
             gross_payout = sum_insured * Decimal(str(payout_percentage / 100))
-            calculation.calculation_steps.append({
-                "step": 2,
-                "description": f"Calculate payout ({payout_percentage}% of sum insured)",
-                "description_ar": f"حساب الدفع ({payout_percentage}% من المبلغ المؤمن عليه)",
-                "formula": f"{sum_insured} × {payout_percentage/100}",
-                "result": str(gross_payout),
-            })
+            calculation.calculation_steps.append(
+                {
+                    "step": 2,
+                    "description": f"Calculate payout ({payout_percentage}% of sum insured)",
+                    "description_ar": f"حساب الدفع ({payout_percentage}% من المبلغ المؤمن عليه)",
+                    "formula": f"{sum_insured} × {payout_percentage / 100}",
+                    "result": str(gross_payout),
+                }
+            )
 
         calculation.gross_loss = gross_payout
         calculation.loss_percentage = payout_percentage
@@ -503,12 +514,14 @@ class PayoutCalculator:
         deductible_pct = policy.coverage.deductible_percentage / 100
         deductible = gross_payout * Decimal(str(deductible_pct))
         calculation.deductible = deductible
-        calculation.calculation_steps.append({
-            "step": 3,
-            "description": f"Apply deductible ({policy.coverage.deductible_percentage}%)",
-            "description_ar": f"تطبيق التحمل ({policy.coverage.deductible_percentage}%)",
-            "result": str(deductible),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 3,
+                "description": f"Apply deductible ({policy.coverage.deductible_percentage}%)",
+                "description_ar": f"تطبيق التحمل ({policy.coverage.deductible_percentage}%)",
+                "result": str(deductible),
+            }
+        )
 
         # Step 4: Net payout
         net_payout = max(gross_payout - deductible, Decimal("0"))
@@ -521,13 +534,15 @@ class PayoutCalculator:
         calculation.covered_loss = net_payout + deductible
         calculation.coverage_percentage = 100.0  # Full coverage for parametric
 
-        calculation.calculation_steps.append({
-            "step": 4,
-            "description": "Final net payout",
-            "description_ar": "صافي الدفع النهائي",
-            "formula": f"{gross_payout} - {deductible}",
-            "result": str(net_payout),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 4,
+                "description": "Final net payout",
+                "description_ar": "صافي الدفع النهائي",
+                "formula": f"{gross_payout} - {deductible}",
+                "result": str(net_payout),
+            }
+        )
 
         calculation.is_approved = net_payout > 0
 
@@ -564,7 +579,9 @@ class PayoutCalculator:
         if not index.is_triggered():
             calculation.is_approved = False
             calculation.rejection_reason = f"Weather index not triggered: {index.current_value} vs threshold {index.trigger_threshold}"
-            calculation.rejection_reason_ar = f"مؤشر الطقس غير محفز: {index.current_value} مقابل العتبة {index.trigger_threshold}"
+            calculation.rejection_reason_ar = (
+                f"مؤشر الطقس غير محفز: {index.current_value} مقابل العتبة {index.trigger_threshold}"
+            )
             return calculation
 
         calculation.trigger_value = index.current_value
@@ -576,24 +593,28 @@ class PayoutCalculator:
         calculation.payout_units = payout_units
         calculation.unit_payout_rate = index.payout_rate_per_unit
 
-        calculation.calculation_steps.append({
-            "step": 1,
-            "description": "Calculate payout units",
-            "description_ar": "حساب وحدات الدفع",
-            "formula": f"Based on deviation from threshold: {payout_units:.2f} {index.unit_name}",
-            "result": str(payout_units),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 1,
+                "description": "Calculate payout units",
+                "description_ar": "حساب وحدات الدفع",
+                "formula": f"Based on deviation from threshold: {payout_units:.2f} {index.unit_name}",
+                "result": str(payout_units),
+            }
+        )
 
         # Calculate gross payout
         gross_payout = index.payout_rate_per_unit * Decimal(str(payout_units))
         calculation.gross_loss = gross_payout
-        calculation.calculation_steps.append({
-            "step": 2,
-            "description": "Calculate gross payout",
-            "description_ar": "حساب الدفع الإجمالي",
-            "formula": f"{index.payout_rate_per_unit} × {payout_units}",
-            "result": str(gross_payout),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 2,
+                "description": "Calculate gross payout",
+                "description_ar": "حساب الدفع الإجمالي",
+                "formula": f"{index.payout_rate_per_unit} × {payout_units}",
+                "result": str(gross_payout),
+            }
+        )
 
         # Apply deductible
         deductible_pct = policy.coverage.deductible_percentage / 100
@@ -610,15 +631,21 @@ class PayoutCalculator:
         calculation.net_payout = net_payout
         calculation.covered_loss = net_payout + deductible
         calculation.coverage_percentage = 100.0
-        calculation.loss_percentage = (float(gross_payout / policy.coverage.sum_insured) * 100) if policy.coverage.sum_insured else 0
+        calculation.loss_percentage = (
+            (float(gross_payout / policy.coverage.sum_insured) * 100)
+            if policy.coverage.sum_insured
+            else 0
+        )
 
-        calculation.calculation_steps.append({
-            "step": 3,
-            "description": "Final net payout",
-            "description_ar": "صافي الدفع النهائي",
-            "formula": f"{gross_payout} - {deductible}",
-            "result": str(net_payout),
-        })
+        calculation.calculation_steps.append(
+            {
+                "step": 3,
+                "description": "Final net payout",
+                "description_ar": "صافي الدفع النهائي",
+                "formula": f"{gross_payout} - {deductible}",
+                "result": str(net_payout),
+            }
+        )
 
         calculation.is_approved = net_payout > 0
 
@@ -646,11 +673,14 @@ class ClaimStorage:
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/insurance_claims" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_insurance_claims"  # nosec B108
-        self.storage_path = Path(storage_path or os.getenv(
-            "INSURANCE_CLAIMS_STORAGE_PATH",
-            default_path
-        ))
+        default_path = (
+            "/var/lib/sahool/insurance_claims"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_insurance_claims"
+        )  # nosec B108
+        self.storage_path = Path(
+            storage_path or os.getenv("INSURANCE_CLAIMS_STORAGE_PATH", default_path)
+        )
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
@@ -719,20 +749,22 @@ class ClaimStorage:
         # Parse evidence
         evidence = []
         for e_data in data.get("evidence", []):
-            evidence.append(ClaimEvidence(
-                id=e_data.get("id", str(uuid.uuid4())),
-                evidence_type=e_data.get("evidence_type", ""),
-                title=e_data.get("title", ""),
-                title_ar=e_data.get("title_ar", ""),
-                description=e_data.get("description", ""),
-                description_ar=e_data.get("description_ar", ""),
-                file_url=e_data.get("file_url"),
-                file_type=e_data.get("file_type"),
-                file_size_bytes=e_data.get("file_size_bytes"),
-                data_source=e_data.get("data_source", ""),
-                data_value=e_data.get("data_value"),
-                verified=e_data.get("verified", False),
-            ))
+            evidence.append(
+                ClaimEvidence(
+                    id=e_data.get("id", str(uuid.uuid4())),
+                    evidence_type=e_data.get("evidence_type", ""),
+                    title=e_data.get("title", ""),
+                    title_ar=e_data.get("title_ar", ""),
+                    description=e_data.get("description", ""),
+                    description_ar=e_data.get("description_ar", ""),
+                    file_url=e_data.get("file_url"),
+                    file_type=e_data.get("file_type"),
+                    file_size_bytes=e_data.get("file_size_bytes"),
+                    data_source=e_data.get("data_source", ""),
+                    data_value=e_data.get("data_value"),
+                    verified=e_data.get("verified", False),
+                )
+            )
 
         # Parse payout
         payout = None
@@ -763,9 +795,15 @@ class ClaimStorage:
             title_ar=data.get("title_ar", ""),
             description=data.get("description", ""),
             description_ar=data.get("description_ar", ""),
-            incident_date=date.fromisoformat(data["incident_date"]) if data.get("incident_date") else None,
-            discovery_date=date.fromisoformat(data["discovery_date"]) if data.get("discovery_date") else None,
-            reported_date=date.fromisoformat(data["reported_date"]) if data.get("reported_date") else date.today(),
+            incident_date=date.fromisoformat(data["incident_date"])
+            if data.get("incident_date")
+            else None,
+            discovery_date=date.fromisoformat(data["discovery_date"])
+            if data.get("discovery_date")
+            else None,
+            reported_date=date.fromisoformat(data["reported_date"])
+            if data.get("reported_date")
+            else date.today(),
             field_id=data.get("field_id", ""),
             field_name=data.get("field_name", ""),
             affected_area_hectares=data.get("affected_area_hectares", 0.0),
@@ -786,8 +824,12 @@ class ClaimStorage:
             verified_loss_percentage=data.get("verified_loss_percentage"),
             payout=payout,
             status_history=data.get("status_history", []),
-            created_at=datetime.fromisoformat(data["created_at"]) if data.get("created_at") else datetime.now(UTC),
-            updated_at=datetime.fromisoformat(data["updated_at"]) if data.get("updated_at") else datetime.now(UTC),
+            created_at=datetime.fromisoformat(data["created_at"])
+            if data.get("created_at")
+            else datetime.now(UTC),
+            updated_at=datetime.fromisoformat(data["updated_at"])
+            if data.get("updated_at")
+            else datetime.now(UTC),
             contact_phone=data.get("contact_phone", ""),
             contact_email=data.get("contact_email", ""),
             preferred_language=data.get("preferred_language", "ar"),
@@ -909,7 +951,7 @@ class ClaimProcessor:
         if claim.status != ClaimStatus.DRAFT:
             raise InsuranceException(
                 InsuranceErrors.CLAIM_INVALID_STATUS,
-                details="Can only add evidence to draft claims"
+                details="Can only add evidence to draft claims",
             )
 
         claim.evidence.append(evidence)
@@ -1013,7 +1055,7 @@ class ClaimProcessor:
         if claim.status != ClaimStatus.DRAFT:
             raise InsuranceException(
                 InsuranceErrors.CLAIM_ALREADY_SUBMITTED,
-                details=f"Claim status: {claim.status.value}"
+                details=f"Claim status: {claim.status.value}",
             )
 
         # Validate
@@ -1085,19 +1127,21 @@ class ClaimProcessor:
         )
 
         # Add evidence from data source
-        claim.evidence.append(ClaimEvidence(
-            evidence_type="sensor_data",
-            title="Parametric Trigger Data",
-            title_ar="بيانات المحفز المعياري",
-            description=f"Measured value: {measured_value} {trigger.measurement_unit}",
-            description_ar=f"القيمة المقاسة: {measured_value} {trigger.measurement_unit_ar}",
-            data_source=data_source,
-            data_value=measured_value,
-            data_timestamp=datetime.now(UTC),
-            verified=True,
-            verified_by="system",
-            verified_at=datetime.now(UTC),
-        ))
+        claim.evidence.append(
+            ClaimEvidence(
+                evidence_type="sensor_data",
+                title="Parametric Trigger Data",
+                title_ar="بيانات المحفز المعياري",
+                description=f"Measured value: {measured_value} {trigger.measurement_unit}",
+                description_ar=f"القيمة المقاسة: {measured_value} {trigger.measurement_unit_ar}",
+                data_source=data_source,
+                data_value=measured_value,
+                data_timestamp=datetime.now(UTC),
+                verified=True,
+                verified_by="system",
+                verified_at=datetime.now(UTC),
+            )
+        )
 
         # Calculate payout
         payout_calc = self.calculator.calculate_parametric_payout(
@@ -1106,7 +1150,9 @@ class ClaimProcessor:
 
         if auto_approve and payout_calc.is_approved and not trigger.requires_verification:
             # Auto-approve the claim
-            claim.add_status_change(ClaimStatus.APPROVED, "system", "Auto-approved parametric claim")
+            claim.add_status_change(
+                ClaimStatus.APPROVED, "system", "Auto-approved parametric claim"
+            )
             claim.verified_loss_percentage = payout_calc.loss_percentage
 
             # Create payout record
@@ -1133,9 +1179,7 @@ class ClaimProcessor:
         else:
             # Requires manual review
             claim.add_status_change(
-                ClaimStatus.UNDER_REVIEW,
-                "system",
-                "Parametric claim requires verification"
+                ClaimStatus.UNDER_REVIEW, "system", "Parametric claim requires verification"
             )
 
         await self.storage.save_claim(claim)
@@ -1181,25 +1225,29 @@ class ClaimProcessor:
         )
 
         # Add weather data evidence
-        claim.evidence.append(ClaimEvidence(
-            evidence_type="weather_data",
-            title="Weather Index Data",
-            title_ar="بيانات مؤشر الطقس",
-            description=f"Index: {index.index_type.value}, Value: {index.current_value} {index.unit_name}",
-            description_ar=f"المؤشر: {index.index_type.value}، القيمة: {index.current_value} {index.unit_name_ar}",
-            data_source=f"station_{index.measurement_station_id}",
-            data_value=index.current_value,
-            data_timestamp=index.last_updated,
-            verified=True,
-            verified_by="system",
-            verified_at=datetime.now(UTC),
-        ))
+        claim.evidence.append(
+            ClaimEvidence(
+                evidence_type="weather_data",
+                title="Weather Index Data",
+                title_ar="بيانات مؤشر الطقس",
+                description=f"Index: {index.index_type.value}, Value: {index.current_value} {index.unit_name}",
+                description_ar=f"المؤشر: {index.index_type.value}، القيمة: {index.current_value} {index.unit_name_ar}",
+                data_source=f"station_{index.measurement_station_id}",
+                data_value=index.current_value,
+                data_timestamp=index.last_updated,
+                verified=True,
+                verified_by="system",
+                verified_at=datetime.now(UTC),
+            )
+        )
 
         # Calculate payout
         payout_calc = self.calculator.calculate_weather_index_payout(claim, policy, index)
 
         if auto_approve and payout_calc.is_approved:
-            claim.add_status_change(ClaimStatus.APPROVED, "system", "Auto-approved weather index claim")
+            claim.add_status_change(
+                ClaimStatus.APPROVED, "system", "Auto-approved weather index claim"
+            )
             claim.verified_loss_percentage = payout_calc.loss_percentage
 
             payout = ClaimPayout(
@@ -1243,7 +1291,7 @@ class ClaimProcessor:
         if claim.status not in [ClaimStatus.SUBMITTED, ClaimStatus.UNDER_REVIEW]:
             raise InsuranceException(
                 InsuranceErrors.CLAIM_INVALID_STATUS,
-                details=f"Cannot review claim with status: {claim.status.value}"
+                details=f"Cannot review claim with status: {claim.status.value}",
             )
 
         if decision == "approve":
@@ -1282,8 +1330,7 @@ class ClaimProcessor:
         if claim.is_parametric_claim and claim.trigger_id:
             # Find trigger
             trigger = next(
-                (t for t in policy.parametric_triggers if t.id == claim.trigger_id),
-                None
+                (t for t in policy.parametric_triggers if t.id == claim.trigger_id), None
             )
             if trigger and claim.index_value is not None:
                 return self.calculator.calculate_parametric_payout(
@@ -1310,8 +1357,7 @@ class ClaimProcessor:
 
         if claim.status != ClaimStatus.APPROVED:
             raise InsuranceException(
-                InsuranceErrors.CLAIM_INVALID_STATUS,
-                details="Claim must be approved before payout"
+                InsuranceErrors.CLAIM_INVALID_STATUS, details="Claim must be approved before payout"
             )
 
         # Calculate payout
@@ -1319,8 +1365,7 @@ class ClaimProcessor:
 
         if not payout_calc.is_approved:
             raise InsuranceException(
-                InsuranceErrors.CLAIM_INVALID_STATUS,
-                details=payout_calc.rejection_reason
+                InsuranceErrors.CLAIM_INVALID_STATUS, details=payout_calc.rejection_reason
             )
 
         # Create payout record

@@ -6,7 +6,7 @@ FastAPI router for A2A protocol endpoints with WebSocket support.
 موجه FastAPI لنقاط نهاية بروتوكول A2A مع دعم WebSocket.
 """
 
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog

@@ -63,21 +63,6 @@ from .config import (
     set_config,
 )
 
-# Provider base classes
-from .provider import (
-    GenerationOptions,
-    GenerationResponse,
-    GenerationStatus,
-    LLMProvider,
-    LLMProviderError,
-    Message,
-    ModelNotFoundError,
-    ProviderType,
-    ProviderUnavailableError,
-    RateLimitError,
-    StreamChunk,
-)
-
 # Ollama provider
 from .ollama import (
     OllamaError,
@@ -94,17 +79,6 @@ from .openai_compat import (
     get_vllm_provider,
 )
 
-# Router
-from .router import (
-    AllProvidersFailedError,
-    LLMRouter,
-    RouterStats,
-    RoutingDecision,
-    chat,
-    generate,
-    get_router,
-)
-
 # Prompts
 from .prompts import (
     PromptCategory,
@@ -117,6 +91,32 @@ from .prompts import (
     get_prompt_template,
     get_prompts_by_category,
     list_prompt_templates,
+)
+
+# Provider base classes
+from .provider import (
+    GenerationOptions,
+    GenerationResponse,
+    GenerationStatus,
+    LLMProvider,
+    LLMProviderError,
+    Message,
+    ModelNotFoundError,
+    ProviderType,
+    ProviderUnavailableError,
+    RateLimitError,
+    StreamChunk,
+)
+
+# Router
+from .router import (
+    AllProvidersFailedError,
+    LLMRouter,
+    RouterStats,
+    RoutingDecision,
+    chat,
+    generate,
+    get_router,
 )
 
 # Utilities

@@ -124,9 +124,7 @@ Respond with a JSON object containing:
         try:
             # Guard against prompt injection
             # الحماية من حقن الأوامر
-            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(
-                query, strict=False
-            )
+            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(query, strict=False)
 
             if not is_safe:
                 logger.warning(
@@ -190,9 +188,7 @@ Respond with a JSON object containing:
         try:
             # Guard against prompt injection at coordination level
             # الحماية من حقن الأوامر على مستوى التنسيق
-            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(
-                query, strict=False
-            )
+            sanitized_query, is_safe, warnings = PromptGuard.validate_and_sanitize(query, strict=False)
 
             if not is_safe:
                 logger.warning(
@@ -292,15 +288,11 @@ Provide a well-structured, comprehensive answer that addresses the user's query.
         # تنسيق استجابات الوكلاء
         responses_text = []
         for agent_name, response in agent_responses.items():
-            responses_text.append(
-                f"\n{agent_name} ({response.get('role', '')}):\n{response.get('response', '')}"
-            )
+            responses_text.append(f"\n{agent_name} ({response.get('role', '')}):\n{response.get('response', '')}")
 
         messages = [
             SystemMessage(content="You are an expert agricultural advisor synthesizing insights."),
-            HumanMessage(
-                content=synthesis_prompt.format(query=query, responses="\n".join(responses_text))
-            ),
+            HumanMessage(content=synthesis_prompt.format(query=query, responses="\n".join(responses_text))),
         ]
 
         response = await self.llm.ainvoke(messages)

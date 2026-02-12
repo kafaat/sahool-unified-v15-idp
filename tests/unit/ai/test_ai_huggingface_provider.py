@@ -41,6 +41,7 @@ from shared.ai.huggingface_provider import (
 # Config Tests
 # ============================================================================
 
+
 class TestHuggingfaceConfig:
     """Tests for HuggingfaceConfig"""
 
@@ -72,7 +73,7 @@ class TestHuggingfaceConfig:
 
     def test_config_from_env(self):
         """Test configuration from environment variables"""
-        with patch.dict('os.environ', {'HUGGINGFACE_API_TOKEN': 'env_token'}):
+        with patch.dict("os.environ", {"HUGGINGFACE_API_TOKEN": "env_token"}):
             config = HuggingfaceConfig()
             # The __post_init__ should pick up the env var
             # Note: This depends on the actual implementation
@@ -81,6 +82,7 @@ class TestHuggingfaceConfig:
 # ============================================================================
 # Enum Tests
 # ============================================================================
+
 
 class TestEnums:
     """Tests for enumeration types"""
@@ -103,6 +105,7 @@ class TestEnums:
 # ============================================================================
 # Data Class Tests
 # ============================================================================
+
 
 class TestEmbeddingResult:
     """Tests for EmbeddingResult data class"""
@@ -184,6 +187,7 @@ class TestModelInfo:
 # Cache Tests
 # ============================================================================
 
+
 class TestEmbeddingCache:
     """Tests for EmbeddingCache"""
 
@@ -246,6 +250,7 @@ class TestEmbeddingCache:
 # ============================================================================
 # Provider Tests
 # ============================================================================
+
 
 class TestHuggingfaceProvider:
     """Tests for HuggingfaceProvider class"""
@@ -346,6 +351,7 @@ class TestHuggingfaceProvider:
 # Embedding Constants Tests
 # ============================================================================
 
+
 class TestEmbeddingConstants:
     """Tests for embedding model constants"""
 
@@ -380,6 +386,7 @@ class TestEmbeddingConstants:
 # Singleton Tests
 # ============================================================================
 
+
 class TestSingleton:
     """Tests for singleton instance"""
 
@@ -405,6 +412,7 @@ class TestSingleton:
 # Convenience Function Tests
 # ============================================================================
 
+
 class TestConvenienceFunctions:
     """Tests for convenience functions"""
 
@@ -427,6 +435,7 @@ class TestConvenienceFunctions:
 # Async Embedding Tests
 # ============================================================================
 
+
 class TestAsyncEmbeddings:
     """Tests for async embedding methods"""
 
@@ -440,7 +449,7 @@ class TestAsyncEmbeddings:
         provider = HuggingfaceProvider(config)
 
         # Mock the API call
-        with patch.object(provider, '_embed_api', new_callable=AsyncMock) as mock_api:
+        with patch.object(provider, "_embed_api", new_callable=AsyncMock) as mock_api:
             mock_api.return_value = [[0.1] * 768]
 
             # First call - should use API
@@ -463,7 +472,7 @@ class TestAsyncEmbeddings:
         provider = HuggingfaceProvider(config)
 
         # Mock embeddings
-        with patch.object(provider, 'embed_batch', new_callable=AsyncMock) as mock_batch:
+        with patch.object(provider, "embed_batch", new_callable=AsyncMock) as mock_batch:
             mock_batch.return_value = BatchEmbeddingResult(
                 embeddings=[[1.0, 0.0, 0.0], [0.9, 0.1, 0.0]],
                 model="test",
@@ -487,7 +496,7 @@ class TestAsyncEmbeddings:
         provider = HuggingfaceProvider(config)
 
         # Mock embeddings
-        with patch.object(provider, 'embed_batch', new_callable=AsyncMock) as mock_batch:
+        with patch.object(provider, "embed_batch", new_callable=AsyncMock) as mock_batch:
             # Query embedding + 3 candidate embeddings
             mock_batch.return_value = BatchEmbeddingResult(
                 embeddings=[
@@ -516,6 +525,7 @@ class TestAsyncEmbeddings:
 # ============================================================================
 # Integration Tests
 # ============================================================================
+
 
 class TestIntegration:
     """Integration tests for Huggingface provider"""
@@ -550,6 +560,7 @@ class TestIntegration:
 # ============================================================================
 # Edge Case Tests
 # ============================================================================
+
 
 class TestEdgeCases:
     """Tests for edge cases and error handling"""

@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 from .rbac import Permission, Role, has_permission
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class PolicyDecision(str, Enum):
+class PolicyDecision(StrEnum):
     """Policy evaluation result"""
 
     ALLOW = "allow"

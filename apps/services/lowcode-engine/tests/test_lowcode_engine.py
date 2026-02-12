@@ -11,30 +11,32 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # Add project root to path
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+project_root = os.path.dirname(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+)
 sys.path.insert(0, project_root)
 
 # Import from shared.lowcode
 from shared.lowcode import (
-    LowCodeEngine,
+    AIComponentSuggester,
+    BlockConfig,
     ComponentCategory,
     ComponentMaterial,
-    PropDefinition,
-    SlotDefinition,
-    EventDefinition,
     DataModel,
+    EventDefinition,
     FieldDefinition,
     FieldType,
+    LowCodeEngine,
     PageDefinition,
-    BlockConfig,
     PluginBase,
-    AIComponentSuggester,
+    PropDefinition,
+    SlotDefinition,
 )
-
 
 # ============================================================================
 # Test Component Registration
 # ============================================================================
+
 
 class TestComponentRegistration:
     """Tests for component registration functionality."""
@@ -187,6 +189,7 @@ class TestComponentRegistration:
 # Test Component Listing by Category
 # ============================================================================
 
+
 class TestComponentListingByCategory:
     """Tests for listing components by category."""
 
@@ -272,6 +275,7 @@ class TestComponentListingByCategory:
 # ============================================================================
 # Test Page Rendering
 # ============================================================================
+
 
 class TestPageRendering:
     """Tests for page rendering functionality."""
@@ -408,6 +412,7 @@ class TestPageRendering:
 
         # Small delay to ensure different timestamp
         import time
+
         time.sleep(0.01)
 
         engine.add_block_to_page(
@@ -421,6 +426,7 @@ class TestPageRendering:
 # ============================================================================
 # Test Data Model Field Types
 # ============================================================================
+
 
 class TestDataModelFieldTypes:
     """Tests for data model field types."""
@@ -462,7 +468,9 @@ class TestDataModelFieldTypes:
                 FieldDefinition(name="num_field", name_ar="رقم", type=FieldType.NUMBER),
                 FieldDefinition(name="bool_field", name_ar="منطقي", type=FieldType.BOOLEAN),
                 FieldDefinition(name="date_field", name_ar="تاريخ", type=FieldType.DATE),
-                FieldDefinition(name="datetime_field", name_ar="وقت تاريخ", type=FieldType.DATETIME),
+                FieldDefinition(
+                    name="datetime_field", name_ar="وقت تاريخ", type=FieldType.DATETIME
+                ),
                 FieldDefinition(name="enum_field", name_ar="قائمة", type=FieldType.ENUM),
                 FieldDefinition(name="array_field", name_ar="مصفوفة", type=FieldType.ARRAY),
                 FieldDefinition(name="object_field", name_ar="كائن", type=FieldType.OBJECT),
@@ -558,6 +566,7 @@ class TestDataModelFieldTypes:
 # ============================================================================
 # Test Plugin System
 # ============================================================================
+
 
 class TestPluginSystem:
     """Tests for the plugin system."""
@@ -665,6 +674,7 @@ class TestPluginSystem:
 # Test Event System
 # ============================================================================
 
+
 class TestEventSystem:
     """Tests for the event system."""
 
@@ -739,6 +749,7 @@ class TestEventSystem:
 # Test Schema Export
 # ============================================================================
 
+
 class TestSchemaExport:
     """Tests for schema export functionality."""
 
@@ -760,22 +771,26 @@ class TestSchemaExport:
         engine = LowCodeEngine(tenant_id="test-export")
 
         # Add custom component
-        engine.register_component(ComponentMaterial(
-            component_id="export_component",
-            name="Export Test Component",
-            name_ar="مكون تصدير",
-            category=ComponentCategory.FORM,
-        ))
+        engine.register_component(
+            ComponentMaterial(
+                component_id="export_component",
+                name="Export Test Component",
+                name_ar="مكون تصدير",
+                category=ComponentCategory.FORM,
+            )
+        )
 
         # Add custom model
-        engine.register_model(DataModel(
-            model_id="export_model",
-            name="Export Test Model",
-            name_ar="نموذج تصدير",
-            fields=[
-                FieldDefinition(name="field1", name_ar="حقل", type=FieldType.STRING),
-            ],
-        ))
+        engine.register_model(
+            DataModel(
+                model_id="export_model",
+                name="Export Test Model",
+                name_ar="نموذج تصدير",
+                fields=[
+                    FieldDefinition(name="field1", name_ar="حقل", type=FieldType.STRING),
+                ],
+            )
+        )
 
         # Create page
         engine.create_page(
@@ -802,6 +817,7 @@ class TestSchemaExport:
 # ============================================================================
 # Test AI Component Suggester
 # ============================================================================
+
 
 class TestAIComponentSuggester:
     """Tests for the AI component suggester."""
@@ -872,6 +888,7 @@ class TestAIComponentSuggester:
 # ============================================================================
 # Test Built-in Components
 # ============================================================================
+
 
 class TestBuiltinComponents:
     """Tests for built-in components."""
@@ -944,6 +961,7 @@ class TestBuiltinComponents:
 # ============================================================================
 # Test Component Material Methods
 # ============================================================================
+
 
 class TestComponentMaterialMethods:
     """Tests for ComponentMaterial methods."""

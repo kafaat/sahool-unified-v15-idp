@@ -47,8 +47,8 @@ import asyncio
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -70,7 +70,7 @@ logger = structlog.get_logger(__name__)
 # =============================================================================
 
 
-class QualityLevel(str, Enum):
+class QualityLevel(StrEnum):
     """Quality level classification - تصنيف مستوى الجودة"""
 
     EXCELLENT = "excellent"  # 90-100%
@@ -80,7 +80,7 @@ class QualityLevel(str, Enum):
     CRITICAL = "critical"  # 0-29%
 
 
-class IssueSeverity(str, Enum):
+class IssueSeverity(StrEnum):
     """Issue severity levels - مستويات خطورة المشاكل"""
 
     CRITICAL = "critical"
@@ -90,7 +90,7 @@ class IssueSeverity(str, Enum):
     INFO = "info"
 
 
-class AuditAction(str, Enum):
+class AuditAction(StrEnum):
     """Audit action types - أنواع إجراءات التدقيق"""
 
     ANALYSIS_STARTED = "analysis_started"
@@ -434,19 +434,19 @@ class AutoAudit:
 
             output = io.StringIO()
             writer = csv.writer(output)
-            writer.writerow(
-                ["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"]
-            )
+            writer.writerow(["id", "action", "timestamp", "session_id", "user_id", "agent_id", "details"])
             for entry in self.entries:
-                writer.writerow([
-                    entry.id,
-                    entry.action.value,
-                    entry.timestamp.isoformat(),
-                    entry.session_id,
-                    entry.user_id,
-                    entry.agent_id,
-                    json.dumps(entry.details),
-                ])
+                writer.writerow(
+                    [
+                        entry.id,
+                        entry.action.value,
+                        entry.timestamp.isoformat(),
+                        entry.session_id,
+                        entry.user_id,
+                        entry.agent_id,
+                        json.dumps(entry.details),
+                    ]
+                )
             return output.getvalue()
         else:
             raise ValueError(f"Unsupported format: {format}")
@@ -597,15 +597,11 @@ class QualityOrchestrator:
 
                 # Run tools on each file or directory
                 if path_obj.is_file():
-                    results = await self._run_tools_on_target(
-                        path, tools_to_run, fix, parallel
-                    )
+                    results = await self._run_tools_on_target(path, tools_to_run, fix, parallel)
                     all_results.extend(results)
                 else:
                     # For directories, run on the whole directory
-                    results = await self._run_tools_on_target(
-                        path, tools_to_run, fix, parallel
-                    )
+                    results = await self._run_tools_on_target(path, tools_to_run, fix, parallel)
                     all_results.extend(results)
 
             report.tool_results = all_results
@@ -656,9 +652,7 @@ class QualityOrchestrator:
 
                 if self._audit:
                     self._audit.log(
-                        AuditAction.QUALITY_GATE_PASSED
-                        if report.gates_passed
-                        else AuditAction.QUALITY_GATE_FAILED,
+                        AuditAction.QUALITY_GATE_PASSED if report.gates_passed else AuditAction.QUALITY_GATE_FAILED,
                         {
                             "gates_passed": report.gates_passed,
                             "quality_score": report.quality_score,
@@ -749,16 +743,10 @@ class QualityOrchestrator:
 
         return list(languages)
 
-    def _get_tools(
-        self, languages: list[str], specific_tools: list[str] | None
-    ) -> list:
+    def _get_tools(self, languages: list[str], specific_tools: list[str] | None) -> list:
         """Get tools to run based on config and languages"""
         if specific_tools:
-            return [
-                self._registry.get_tool(t)
-                for t in specific_tools
-                if self._registry.get_tool(t)
-            ]
+            return [self._registry.get_tool(t) for t in specific_tools if self._registry.get_tool(t)]
 
         tools = []
         for lang in languages:
@@ -813,10 +801,7 @@ class QualityOrchestrator:
     ) -> list[ToolResult]:
         """Run tools on a target path"""
         if parallel:
-            tasks = [
-                self._registry.run_tool(tool.id, target, auto_fix=fix)
-                for tool in tools
-            ]
+            tasks = [self._registry.run_tool(tool.id, target, auto_fix=fix) for tool in tools]
             return list(await asyncio.gather(*tasks))
         else:
             results = []
@@ -865,9 +850,7 @@ class QualityOrchestrator:
                                 file_path=file_result.get("filePath", ""),
                                 line=msg.get("line"),
                                 column=msg.get("column"),
-                                severity=IssueSeverity.HIGH
-                                if msg.get("severity") == 2
-                                else IssueSeverity.MEDIUM,
+                                severity=IssueSeverity.HIGH if msg.get("severity") == 2 else IssueSeverity.MEDIUM,
                                 category="lint",
                                 message=msg.get("message", ""),
                                 code=msg.get("ruleId"),
@@ -886,9 +869,7 @@ class QualityOrchestrator:
                             file_path=item.get("filename", ""),
                             line=item.get("line_number"),
                             column=None,
-                            severity=self._map_bandit_severity(
-                                item.get("issue_severity", "LOW")
-                            ),
+                            severity=self._map_bandit_severity(item.get("issue_severity", "LOW")),
                             category="security",
                             message=item.get("issue_text", ""),
                             code=item.get("test_id"),
@@ -899,9 +880,7 @@ class QualityOrchestrator:
             elif result.tool_id == "mypy":
                 # Mypy text output parsing
                 for line in result.stdout.split("\n"):
-                    match = re.match(
-                        r"(.+):(\d+):(\d+)?: (error|warning|note): (.+)", line
-                    )
+                    match = re.match(r"(.+):(\d+):(\d+)?: (error|warning|note): (.+)", line)
                     if match:
                         issues.append(
                             QualityIssue(
@@ -910,9 +889,7 @@ class QualityOrchestrator:
                                 file_path=match.group(1),
                                 line=int(match.group(2)),
                                 column=int(match.group(3)) if match.group(3) else None,
-                                severity=IssueSeverity.HIGH
-                                if match.group(4) == "error"
-                                else IssueSeverity.MEDIUM,
+                                severity=IssueSeverity.HIGH if match.group(4) == "error" else IssueSeverity.MEDIUM,
                                 category="type",
                                 message=match.group(5),
                                 auto_fixable=False,
@@ -939,9 +916,7 @@ class QualityOrchestrator:
                                 file_path=match.group(3),
                                 line=int(match.group(4)),
                                 column=int(match.group(5)),
-                                severity=severity_map.get(
-                                    match.group(1), IssueSeverity.MEDIUM
-                                ),
+                                severity=severity_map.get(match.group(1), IssueSeverity.MEDIUM),
                                 category="lint",
                                 message=match.group(2),
                                 auto_fixable=False,
@@ -985,10 +960,7 @@ class QualityOrchestrator:
 
         # Weighted issue penalties
         penalties = (
-            report.critical_issues * 20
-            + report.high_issues * 10
-            + report.medium_issues * 3
-            + report.low_issues * 1
+            report.critical_issues * 20 + report.high_issues * 10 + report.medium_issues * 3 + report.low_issues * 1
         )
 
         # Bonus for fixes
@@ -1111,7 +1083,7 @@ def generate_quality_report_markdown(report: QualityReport) -> str:
 
 | Metric | Value |
 |--------|-------|
-| Quality Score | {level_emoji.get(report.quality_level, '')} {report.quality_score:.1f}% ({report.quality_level.value}) |
+| Quality Score | {level_emoji.get(report.quality_level, "")} {report.quality_score:.1f}% ({report.quality_level.value}) |
 | Files Analyzed | {report.files_analyzed} |
 | Total Issues | {report.total_issues} |
 | Fixed | {report.fixed_count} |
@@ -1140,16 +1112,16 @@ def generate_quality_report_markdown(report: QualityReport) -> str:
     md += f"""
 ## Tools Executed | الأدوات المنفذة
 
-{', '.join(report.tools_executed)}
+{", ".join(report.tools_executed)}
 
 ## Paths Analyzed | المسارات المحللة
 
-{chr(10).join('- ' + p for p in report.paths)}
+{chr(10).join("- " + p for p in report.paths)}
 
 ---
 *Report ID: {report.id}*
 *Session: {report.session_id}*
-*Generated: {report.completed_at.isoformat() if report.completed_at else 'N/A'}*
+*Generated: {report.completed_at.isoformat() if report.completed_at else "N/A"}*
 """
 
     return md

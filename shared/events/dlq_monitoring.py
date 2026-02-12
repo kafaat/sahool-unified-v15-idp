@@ -34,7 +34,7 @@ import asyncio
 import contextlib
 import logging
 from collections.abc import Callable
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 from pydantic import BaseModel, Field
 

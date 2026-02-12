@@ -7,7 +7,7 @@ REFACTORED: Now uses shared EventPublisher for consistency across services
 
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 # Use the shared EventPublisher from shared/events/
@@ -73,7 +73,9 @@ class NATSPublisher:
             self._connected = False
             logger.info("NATS connection closed")
 
-    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] | None = None) -> bool:
+    async def publish_alert(
+        self, alert: dict[str, Any], recipients: list[str] | None = None
+    ) -> bool:
         """
         Publish an alert notification to NATS
 

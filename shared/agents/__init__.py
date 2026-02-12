@@ -8,9 +8,9 @@ Provides simple multi-agent orchestration using CrewAI.
 """
 
 from .crewai_orchestrator import (
-    CrewAIOrchestrator,
     AgentRole,
     AgriculturalCrew,
+    CrewAIOrchestrator,
     TaskResult,
 )
 

@@ -12,7 +12,7 @@ License: MIT
 import io
 import logging
 import os
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 
 import httpx
@@ -308,92 +308,81 @@ def detect_disease_from_colors(
         confidence = min(0.95, 0.5 + color_analysis["brown_ratio"])
         if confidence >= confidence_threshold:
             disease = DISEASE_DATABASE["brown_leaf_spot"]
-            detections.append({
-                "disease_id": "brown_leaf_spot",
-                "disease_name": disease["name_ar"],
-                "disease_name_en": disease["name_en"],
-                "confidence": round(confidence, 2),
-                "severity": disease["severity"],
-                "description": disease["description_en"],
-                "description_ar": disease["description_ar"],
-                "evidence": {"brown_ratio": round(color_analysis["brown_ratio"], 3)},
-            })
+            detections.append(
+                {
+                    "disease_id": "brown_leaf_spot",
+                    "disease_name": disease["name_ar"],
+                    "disease_name_en": disease["name_en"],
+                    "confidence": round(confidence, 2),
+                    "severity": disease["severity"],
+                    "description": disease["description_en"],
+                    "description_ar": disease["description_ar"],
+                    "evidence": {"brown_ratio": round(color_analysis["brown_ratio"], 3)},
+                }
+            )
 
     # Yellow rust detection
     if color_analysis["yellow_ratio"] > 0.2 and color_analysis["mean_saturation"] > 50:
         confidence = min(0.92, 0.55 + color_analysis["yellow_ratio"] * 0.8)
         if confidence >= confidence_threshold:
             disease = DISEASE_DATABASE["yellow_rust"]
-            detections.append({
-                "disease_id": "yellow_rust",
-                "disease_name": disease["name_ar"],
-                "disease_name_en": disease["name_en"],
-                "confidence": round(confidence, 2),
-                "severity": disease["severity"],
-                "description": disease["description_en"],
-                "description_ar": disease["description_ar"],
-                "evidence": {"yellow_ratio": round(color_analysis["yellow_ratio"], 3)},
-            })
+            detections.append(
+                {
+                    "disease_id": "yellow_rust",
+                    "disease_name": disease["name_ar"],
+                    "disease_name_en": disease["name_en"],
+                    "confidence": round(confidence, 2),
+                    "severity": disease["severity"],
+                    "description": disease["description_en"],
+                    "description_ar": disease["description_ar"],
+                    "evidence": {"yellow_ratio": round(color_analysis["yellow_ratio"], 3)},
+                }
+            )
 
     # Powdery mildew detection
     if color_analysis["white_ratio"] > 0.1 and color_analysis["mean_saturation"] < 40:
         confidence = min(0.88, 0.5 + color_analysis["white_ratio"] * 2)
         if confidence >= confidence_threshold:
             disease = DISEASE_DATABASE["powdery_mildew"]
-            detections.append({
-                "disease_id": "powdery_mildew",
-                "disease_name": disease["name_ar"],
-                "disease_name_en": disease["name_en"],
-                "confidence": round(confidence, 2),
-                "severity": disease["severity"],
-                "description": disease["description_en"],
-                "description_ar": disease["description_ar"],
-                "evidence": {"white_ratio": round(color_analysis["white_ratio"], 3)},
-            })
+            detections.append(
+                {
+                    "disease_id": "powdery_mildew",
+                    "disease_name": disease["name_ar"],
+                    "disease_name_en": disease["name_en"],
+                    "confidence": round(confidence, 2),
+                    "severity": disease["severity"],
+                    "description": disease["description_en"],
+                    "description_ar": disease["description_ar"],
+                    "evidence": {"white_ratio": round(color_analysis["white_ratio"], 3)},
+                }
+            )
 
     # Late blight detection (dark lesions)
     if color_analysis["dark_ratio"] > 0.2 and color_analysis["brown_ratio"] > 0.1:
         confidence = min(0.90, 0.5 + color_analysis["dark_ratio"])
         if confidence >= confidence_threshold:
             disease = DISEASE_DATABASE["late_blight"]
-            detections.append({
-                "disease_id": "late_blight",
-                "disease_name": disease["name_ar"],
-                "disease_name_en": disease["name_en"],
-                "confidence": round(confidence, 2),
-                "severity": disease["severity"],
-                "description": disease["description_en"],
-                "description_ar": disease["description_ar"],
-                "evidence": {"dark_ratio": round(color_analysis["dark_ratio"], 3)},
-            })
+            detections.append(
+                {
+                    "disease_id": "late_blight",
+                    "disease_name": disease["name_ar"],
+                    "disease_name_en": disease["name_en"],
+                    "confidence": round(confidence, 2),
+                    "severity": disease["severity"],
+                    "description": disease["description_en"],
+                    "description_ar": disease["description_ar"],
+                    "evidence": {"dark_ratio": round(color_analysis["dark_ratio"], 3)},
+                }
+            )
 
     # Nitrogen deficiency (yellowing with low green)
     if color_analysis["yellow_ratio"] > 0.25 and color_analysis["green_ratio"] < 0.3:
         confidence = min(0.85, 0.5 + color_analysis["yellow_ratio"] * 0.6)
         if confidence >= confidence_threshold:
             disease = DISEASE_DATABASE["nitrogen_deficiency"]
-            detections.append({
-                "disease_id": "nitrogen_deficiency",
-                "disease_name": disease["name_ar"],
-                "disease_name_en": disease["name_en"],
-                "confidence": round(confidence, 2),
-                "severity": disease["severity"],
-                "description": disease["description_en"],
-                "description_ar": disease["description_ar"],
-                "evidence": {
-                    "yellow_ratio": round(color_analysis["yellow_ratio"], 3),
-                    "green_ratio": round(color_analysis["green_ratio"], 3),
-                },
-            })
-
-    # Water stress (low saturation, medium brightness)
-    if color_analysis["mean_saturation"] < 30 and 60 < color_analysis["mean_brightness"] < 150:
-        if color_analysis["green_ratio"] < 0.2:
-            confidence = min(0.80, 0.5 + (1 - color_analysis["green_ratio"]) * 0.3)
-            if confidence >= confidence_threshold:
-                disease = DISEASE_DATABASE["water_stress"]
-                detections.append({
-                    "disease_id": "water_stress",
+            detections.append(
+                {
+                    "disease_id": "nitrogen_deficiency",
                     "disease_name": disease["name_ar"],
                     "disease_name_en": disease["name_en"],
                     "confidence": round(confidence, 2),
@@ -401,24 +390,49 @@ def detect_disease_from_colors(
                     "description": disease["description_en"],
                     "description_ar": disease["description_ar"],
                     "evidence": {
-                        "mean_saturation": round(color_analysis["mean_saturation"], 1),
+                        "yellow_ratio": round(color_analysis["yellow_ratio"], 3),
                         "green_ratio": round(color_analysis["green_ratio"], 3),
                     },
-                })
+                }
+            )
+
+    # Water stress (low saturation, medium brightness)
+    if color_analysis["mean_saturation"] < 30 and 60 < color_analysis["mean_brightness"] < 150:
+        if color_analysis["green_ratio"] < 0.2:
+            confidence = min(0.80, 0.5 + (1 - color_analysis["green_ratio"]) * 0.3)
+            if confidence >= confidence_threshold:
+                disease = DISEASE_DATABASE["water_stress"]
+                detections.append(
+                    {
+                        "disease_id": "water_stress",
+                        "disease_name": disease["name_ar"],
+                        "disease_name_en": disease["name_en"],
+                        "confidence": round(confidence, 2),
+                        "severity": disease["severity"],
+                        "description": disease["description_en"],
+                        "description_ar": disease["description_ar"],
+                        "evidence": {
+                            "mean_saturation": round(color_analysis["mean_saturation"], 1),
+                            "green_ratio": round(color_analysis["green_ratio"], 3),
+                        },
+                    }
+                )
 
     # If healthy (high green ratio)
     if color_analysis["green_ratio"] > 0.5 and not detections:
         disease = DISEASE_DATABASE["healthy"]
-        detections.append({
-            "disease_id": "healthy",
-            "disease_name": disease["name_ar"],
-            "disease_name_en": disease["name_en"],
-            "confidence": min(0.95, 0.6 + color_analysis["green_ratio"] * 0.4),
-            "severity": disease["severity"],
-            "description": disease["description_en"],
-            "description_ar": disease["description_ar"],
-            "evidence": {"green_ratio": round(color_analysis["green_ratio"], 3)},
-        })
+        detections.append(
+            {
+                "disease_id": "healthy",
+                "disease_name": disease["name_ar"],
+                "disease_name_en": disease["name_en"],
+                "confidence": min(0.95, 0.6 + color_analysis["green_ratio"] * 0.4),
+                "severity": disease["severity"],
+                "description": disease["description_en"],
+                "description_ar": disease["description_ar"],
+                "evidence": {"green_ratio": round(color_analysis["green_ratio"], 3)},
+            }
+        )
 
     # Sort by confidence descending
     detections.sort(key=lambda x: x["confidence"], reverse=True)
@@ -449,11 +463,13 @@ def generate_recommendations(detections: list[dict[str, Any]]) -> list[dict[str,
         disease_info = DISEASE_DATABASE.get(disease_id, {})
 
         for treatment in disease_info.get("treatments", []):
-            recommendations.append({
-                "disease": detection["disease_name"],
-                "disease_en": detection["disease_name_en"],
-                **treatment,
-            })
+            recommendations.append(
+                {
+                    "disease": detection["disease_name"],
+                    "disease_en": detection["disease_name_en"],
+                    **treatment,
+                }
+            )
 
     # Sort by priority
     priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
@@ -618,7 +634,9 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
         aggregated: dict[str, dict[str, Any]] = {}
         for detection in filtered_detections:
             disease_id = detection.get("disease_id", "unknown")
-            if disease_id not in aggregated or detection.get("confidence", 0) > aggregated[disease_id].get("confidence", 0):
+            if disease_id not in aggregated or detection.get("confidence", 0) > aggregated[
+                disease_id
+            ].get("confidence", 0):
                 aggregated[disease_id] = detection
 
         final_detections = list(aggregated.values())
@@ -676,9 +694,7 @@ def handle_disease_detection(payload: dict[str, Any]) -> dict[str, Any]:
         from datetime import timedelta
 
         inspection_days = {"critical": 1, "high": 3, "medium": 7, "low": 14, "none": 30}
-        next_inspection = datetime.now(UTC) + timedelta(
-            days=inspection_days.get(risk_level, 14)
-        )
+        next_inspection = datetime.now(UTC) + timedelta(days=inspection_days.get(risk_level, 14))
 
         # ═══════════════════════════════════════════════════════════════════════
         # 7. بناء النتيجة النهائية

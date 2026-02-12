@@ -23,7 +23,7 @@ from __future__ import annotations
 import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any, Callable
 
 import structlog
@@ -38,7 +38,6 @@ from .models import (
     SensorType,
     SystemStatus,
 )
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)
@@ -98,11 +97,7 @@ class ProtocolAdapter(ABC):
         pass
 
     @abstractmethod
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """
         Read a sensor value from a device.
         قراءة قيمة مستشعر من جهاز
@@ -117,12 +112,7 @@ class ProtocolAdapter(ABC):
         pass
 
     @abstractmethod
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """
         Write a command to a device.
         كتابة أمر إلى جهاز
@@ -164,18 +154,10 @@ class MQTTAdapter(ProtocolAdapter):
                 "status": "connected",
             }
             self.is_connected = True
-            self._logger.info(
-                "mqtt_connected",
-                device_id=config.device_id,
-                host=config.host
-            )
+            self._logger.info("mqtt_connected", device_id=config.device_id, host=config.host)
             return True
         except Exception as e:
-            self._logger.error(
-                "mqtt_connection_failed",
-                device_id=config.device_id,
-                error=str(e)
-            )
+            self._logger.error("mqtt_connection_failed", device_id=config.device_id, error=str(e))
             return False
 
     async def disconnect(self, device_id: str) -> bool:
@@ -186,11 +168,7 @@ class MQTTAdapter(ProtocolAdapter):
             return True
         return False
 
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """Read sensor data from MQTT topic."""
         if device_id not in self._connections:
             return None
@@ -207,27 +185,20 @@ class MQTTAdapter(ProtocolAdapter):
         )
         return reading
 
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """Publish command to MQTT topic."""
         if device_id not in self._connections:
             return False
 
         self._logger.info(
-            "mqtt_command_sent",
-            device_id=device_id,
-            command=command,
-            parameters=parameters
+            "mqtt_command_sent", device_id=device_id, command=command, parameters=parameters
         )
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
         """Generate sample sensor value for testing."""
         import random
+
         ranges = {
             SensorType.SOIL_MOISTURE: (20.0, 80.0),
             SensorType.SOIL_TEMPERATURE: (15.0, 35.0),
@@ -284,18 +255,10 @@ class HTTPAdapter(ProtocolAdapter):
                 "connected_at": datetime.now(UTC),
             }
             self.is_connected = True
-            self._logger.info(
-                "http_connected",
-                device_id=config.device_id,
-                base_url=base_url
-            )
+            self._logger.info("http_connected", device_id=config.device_id, base_url=base_url)
             return True
         except Exception as e:
-            self._logger.error(
-                "http_connection_failed",
-                device_id=config.device_id,
-                error=str(e)
-            )
+            self._logger.error("http_connection_failed", device_id=config.device_id, error=str(e))
             return False
 
     async def disconnect(self, device_id: str) -> bool:
@@ -306,11 +269,7 @@ class HTTPAdapter(ProtocolAdapter):
             return True
         return False
 
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """Read sensor data via HTTP GET request."""
         if device_id not in self._endpoints:
             return None
@@ -326,27 +285,20 @@ class HTTPAdapter(ProtocolAdapter):
         )
         return reading
 
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """Send command via HTTP POST request."""
         if device_id not in self._endpoints:
             return False
 
         self._logger.info(
-            "http_command_sent",
-            device_id=device_id,
-            command=command,
-            parameters=parameters
+            "http_command_sent", device_id=device_id, command=command, parameters=parameters
         )
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
         """Generate sample sensor value for testing."""
         import random
+
         ranges = {
             SensorType.SOIL_MOISTURE: (20.0, 80.0),
             SensorType.SOIL_TEMPERATURE: (15.0, 35.0),
@@ -390,18 +342,10 @@ class ModbusAdapter(ProtocolAdapter):
                 "protocol_type": "tcp",  # or "rtu"
             }
             self.is_connected = True
-            self._logger.info(
-                "modbus_connected",
-                device_id=config.device_id,
-                host=config.host
-            )
+            self._logger.info("modbus_connected", device_id=config.device_id, host=config.host)
             return True
         except Exception as e:
-            self._logger.error(
-                "modbus_connection_failed",
-                device_id=config.device_id,
-                error=str(e)
-            )
+            self._logger.error("modbus_connection_failed", device_id=config.device_id, error=str(e))
             return False
 
     async def disconnect(self, device_id: str) -> bool:
@@ -412,11 +356,7 @@ class ModbusAdapter(ProtocolAdapter):
             return True
         return False
 
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """Read sensor data from Modbus registers."""
         if device_id not in self._connections:
             return None
@@ -432,27 +372,20 @@ class ModbusAdapter(ProtocolAdapter):
         )
         return reading
 
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """Write command to Modbus registers."""
         if device_id not in self._connections:
             return False
 
         self._logger.info(
-            "modbus_command_sent",
-            device_id=device_id,
-            command=command,
-            parameters=parameters
+            "modbus_command_sent", device_id=device_id, command=command, parameters=parameters
         )
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
         """Generate sample sensor value for testing."""
         import random
+
         return round(random.uniform(0.0, 100.0), 2)
 
     def _get_unit(self, sensor_type: SensorType) -> str:
@@ -483,18 +416,10 @@ class OPCUAAdapter(ProtocolAdapter):
                 "security_mode": "SignAndEncrypt" if config.use_tls else "None",
             }
             self.is_connected = True
-            self._logger.info(
-                "opcua_connected",
-                device_id=config.device_id,
-                endpoint=endpoint
-            )
+            self._logger.info("opcua_connected", device_id=config.device_id, endpoint=endpoint)
             return True
         except Exception as e:
-            self._logger.error(
-                "opcua_connection_failed",
-                device_id=config.device_id,
-                error=str(e)
-            )
+            self._logger.error("opcua_connection_failed", device_id=config.device_id, error=str(e))
             return False
 
     async def disconnect(self, device_id: str) -> bool:
@@ -505,11 +430,7 @@ class OPCUAAdapter(ProtocolAdapter):
             return True
         return False
 
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """Read sensor data from OPC UA node."""
         if device_id not in self._connections:
             return None
@@ -524,27 +445,20 @@ class OPCUAAdapter(ProtocolAdapter):
         )
         return reading
 
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """Write command to OPC UA node."""
         if device_id not in self._connections:
             return False
 
         self._logger.info(
-            "opcua_command_sent",
-            device_id=device_id,
-            command=command,
-            parameters=parameters
+            "opcua_command_sent", device_id=device_id, command=command, parameters=parameters
         )
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
         """Generate sample sensor value for testing."""
         import random
+
         return round(random.uniform(0.0, 100.0), 2)
 
     def _get_unit(self, sensor_type: SensorType) -> str:
@@ -574,18 +488,10 @@ class CoAPAdapter(ProtocolAdapter):
                 "connected_at": datetime.now(UTC),
             }
             self.is_connected = True
-            self._logger.info(
-                "coap_connected",
-                device_id=config.device_id,
-                host=config.host
-            )
+            self._logger.info("coap_connected", device_id=config.device_id, host=config.host)
             return True
         except Exception as e:
-            self._logger.error(
-                "coap_connection_failed",
-                device_id=config.device_id,
-                error=str(e)
-            )
+            self._logger.error("coap_connection_failed", device_id=config.device_id, error=str(e))
             return False
 
     async def disconnect(self, device_id: str) -> bool:
@@ -596,11 +502,7 @@ class CoAPAdapter(ProtocolAdapter):
             return True
         return False
 
-    async def read_sensor(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> SensorReading | None:
+    async def read_sensor(self, device_id: str, sensor_type: SensorType) -> SensorReading | None:
         """Read sensor data via CoAP GET."""
         if device_id not in self._endpoints:
             return None
@@ -615,27 +517,20 @@ class CoAPAdapter(ProtocolAdapter):
         )
         return reading
 
-    async def write_command(
-        self,
-        device_id: str,
-        command: str,
-        parameters: dict[str, Any]
-    ) -> bool:
+    async def write_command(self, device_id: str, command: str, parameters: dict[str, Any]) -> bool:
         """Send command via CoAP PUT/POST."""
         if device_id not in self._endpoints:
             return False
 
         self._logger.info(
-            "coap_command_sent",
-            device_id=device_id,
-            command=command,
-            parameters=parameters
+            "coap_command_sent", device_id=device_id, command=command, parameters=parameters
         )
         return True
 
     def _generate_sample_value(self, sensor_type: SensorType) -> float:
         """Generate sample sensor value for testing."""
         import random
+
         return round(random.uniform(0.0, 100.0), 2)
 
     def _get_unit(self, sensor_type: SensorType) -> str:
@@ -686,21 +581,17 @@ class PerceptionLayer:
     # Supported manufacturers
     SUPPORTED_MANUFACTURERS = [
         DeviceManufacturer.HIKVISION,  # Cameras
-        DeviceManufacturer.DJI,        # Drones
-        DeviceManufacturer.SENTEK,     # Soil sensors
-        DeviceManufacturer.DAVIS,      # Weather stations
-        DeviceManufacturer.CAMPBELL,   # Scientific sensors
-        DeviceManufacturer.DECAGON,    # Soil sensors
-        DeviceManufacturer.ONSET,      # Environmental loggers
-        DeviceManufacturer.NETAFIM,    # Irrigation sensors
-        DeviceManufacturer.GENERIC,    # Generic devices
+        DeviceManufacturer.DJI,  # Drones
+        DeviceManufacturer.SENTEK,  # Soil sensors
+        DeviceManufacturer.DAVIS,  # Weather stations
+        DeviceManufacturer.CAMPBELL,  # Scientific sensors
+        DeviceManufacturer.DECAGON,  # Soil sensors
+        DeviceManufacturer.ONSET,  # Environmental loggers
+        DeviceManufacturer.NETAFIM,  # Irrigation sensors
+        DeviceManufacturer.GENERIC,  # Generic devices
     ]
 
-    def __init__(
-        self,
-        farm_id: str,
-        default_sampling_config: SamplingConfig | None = None
-    ):
+    def __init__(self, farm_id: str, default_sampling_config: SamplingConfig | None = None):
         """
         Initialize the Perception Layer.
         تهيئة طبقة الإدراك
@@ -741,22 +632,14 @@ class PerceptionLayer:
         self._last_collection_time: datetime | None = None
 
         # Logger
-        self._logger = structlog.get_logger(__name__).bind(
-            farm_id=farm_id,
-            layer="perception"
-        )
+        self._logger = structlog.get_logger(__name__).bind(farm_id=farm_id, layer="perception")
 
         self._logger.info(
-            "perception_layer_initialized",
-            farm_id=farm_id,
-            message_ar="تم تهيئة طبقة الإدراك"
+            "perception_layer_initialized", farm_id=farm_id, message_ar="تم تهيئة طبقة الإدراك"
         )
 
     async def register_device(
-        self,
-        device_id: str,
-        protocol: DeviceProtocol,
-        config: DeviceConfig | dict[str, Any]
+        self, device_id: str, protocol: DeviceProtocol, config: DeviceConfig | dict[str, Any]
     ) -> bool:
         """
         Register an IoT device with the perception layer.
@@ -783,11 +666,7 @@ class PerceptionLayer:
         try:
             # Convert dict to DeviceConfig if needed
             if isinstance(config, dict):
-                config = DeviceConfig(
-                    device_id=device_id,
-                    protocol=protocol,
-                    **config
-                )
+                config = DeviceConfig(device_id=device_id, protocol=protocol, **config)
             elif config.device_id != device_id:
                 config.device_id = device_id
 
@@ -798,9 +677,7 @@ class PerceptionLayer:
             adapter = self._adapters.get(protocol)
             if not adapter:
                 self._logger.error(
-                    "unsupported_protocol",
-                    protocol=protocol.value,
-                    device_id=device_id
+                    "unsupported_protocol", protocol=protocol.value, device_id=device_id
                 )
                 return False
 
@@ -820,16 +697,12 @@ class PerceptionLayer:
                 protocol=protocol.value,
                 manufacturer=config.manufacturer.value,
                 sensor_types=[s.value for s in config.sensor_types],
-                message_ar="تم تسجيل الجهاز"
+                message_ar="تم تسجيل الجهاز",
             )
             return True
 
         except Exception as e:
-            self._logger.error(
-                "device_registration_failed",
-                device_id=device_id,
-                error=str(e)
-            )
+            self._logger.error("device_registration_failed", device_id=device_id, error=str(e))
             for callback in self._on_error_callbacks:
                 callback(device_id, e)
             return False
@@ -857,16 +730,12 @@ class PerceptionLayer:
         del self._device_status[device_id]
 
         self._logger.info(
-            "device_unregistered",
-            device_id=device_id,
-            message_ar="تم إلغاء تسجيل الجهاز"
+            "device_unregistered", device_id=device_id, message_ar="تم إلغاء تسجيل الجهاز"
         )
         return True
 
     async def collect_sensor_data(
-        self,
-        device_ids: list[str] | None = None,
-        sensor_types: list[SensorType] | None = None
+        self, device_ids: list[str] | None = None, sensor_types: list[SensorType] | None = None
     ) -> list[SensorReading]:
         """
         Collect sensor data from registered devices.
@@ -935,13 +804,13 @@ class PerceptionLayer:
                         "sensor_read_failed",
                         device_id=device_id,
                         sensor_type=sensor_type.value,
-                        error=str(e)
+                        error=str(e),
                     )
 
         # Buffer readings
         self._reading_buffer.extend(readings)
         if len(self._reading_buffer) > self._buffer_max_size:
-            self._reading_buffer = self._reading_buffer[-self._buffer_max_size:]
+            self._reading_buffer = self._reading_buffer[-self._buffer_max_size :]
 
         self._last_collection_time = datetime.now(UTC)
 
@@ -949,16 +818,12 @@ class PerceptionLayer:
             "sensor_data_collected",
             reading_count=len(readings),
             device_count=len(devices_to_query),
-            message_ar="تم جمع بيانات المستشعرات"
+            message_ar="تم جمع بيانات المستشعرات",
         )
 
         return readings
 
-    def set_sampling_frequency(
-        self,
-        interval_minutes: int,
-        device_id: str | None = None
-    ) -> bool:
+    def set_sampling_frequency(self, interval_minutes: int, device_id: str | None = None) -> bool:
         """
         Set the sampling frequency for data collection.
         تعيين تردد أخذ العينات لجمع البيانات
@@ -983,7 +848,7 @@ class PerceptionLayer:
                 "sampling_interval_too_low",
                 requested=interval_minutes,
                 minimum=10,
-                message_ar="فترة أخذ العينات منخفضة جداً"
+                message_ar="فترة أخذ العينات منخفضة جداً",
             )
             interval_minutes = 10
 
@@ -1000,7 +865,7 @@ class PerceptionLayer:
             "sampling_frequency_set",
             interval_minutes=interval_minutes,
             device_id=device_id or "all",
-            message_ar="تم تعيين تردد أخذ العينات"
+            message_ar="تم تعيين تردد أخذ العينات",
         )
         return True
 
@@ -1027,10 +892,7 @@ class PerceptionLayer:
         """
         return self._devices.copy()
 
-    def get_devices_by_protocol(
-        self,
-        protocol: DeviceProtocol
-    ) -> list[DeviceConfig]:
+    def get_devices_by_protocol(self, protocol: DeviceProtocol) -> list[DeviceConfig]:
         """
         Get devices filtered by protocol.
         الحصول على الأجهزة المفلترة بالبروتوكول
@@ -1041,15 +903,9 @@ class PerceptionLayer:
         Returns:
             List of matching device configurations
         """
-        return [
-            config for config in self._devices.values()
-            if config.protocol == protocol
-        ]
+        return [config for config in self._devices.values() if config.protocol == protocol]
 
-    def get_devices_by_manufacturer(
-        self,
-        manufacturer: DeviceManufacturer
-    ) -> list[DeviceConfig]:
+    def get_devices_by_manufacturer(self, manufacturer: DeviceManufacturer) -> list[DeviceConfig]:
         """
         Get devices filtered by manufacturer.
         الحصول على الأجهزة المفلترة بالشركة المصنعة
@@ -1062,10 +918,7 @@ class PerceptionLayer:
         Returns:
             List of matching device configurations
         """
-        return [
-            config for config in self._devices.values()
-            if config.manufacturer == manufacturer
-        ]
+        return [config for config in self._devices.values() if config.manufacturer == manufacturer]
 
     def get_buffered_readings(self) -> list[SensorReading]:
         """
@@ -1099,8 +952,7 @@ class PerceptionLayer:
             Dictionary of statistics
         """
         online_count = sum(
-            1 for status in self._device_status.values()
-            if status == SystemStatus.ONLINE
+            1 for status in self._device_status.values() if status == SystemStatus.ONLINE
         )
         return {
             "farm_id": self.farm_id,
@@ -1116,8 +968,7 @@ class PerceptionLayer:
             ),
             "buffer_size": len(self._reading_buffer),
             "last_collection": (
-                self._last_collection_time.isoformat()
-                if self._last_collection_time else None
+                self._last_collection_time.isoformat() if self._last_collection_time else None
             ),
             "sampling_interval_minutes": self.default_sampling_config.interval_minutes,
             "supported_device_types": self.SUPPORTED_DEVICE_TYPES,
@@ -1144,9 +995,7 @@ class PerceptionLayer:
         self._on_error_callbacks.append(callback)
 
     async def discover_devices(
-        self,
-        protocol: DeviceProtocol | None = None,
-        timeout_seconds: int = 30
+        self, protocol: DeviceProtocol | None = None, timeout_seconds: int = 30
     ) -> list[dict[str, Any]]:
         """
         Discover devices on the network.
@@ -1167,7 +1016,7 @@ class PerceptionLayer:
             "device_discovery_started",
             protocol=protocol.value if protocol else "all",
             timeout=timeout_seconds,
-            message_ar="بدء اكتشاف الأجهزة"
+            message_ar="بدء اكتشاف الأجهزة",
         )
 
         # Simulate discovery
@@ -1176,7 +1025,7 @@ class PerceptionLayer:
         self._logger.info(
             "device_discovery_completed",
             devices_found=len(discovered),
-            message_ar="اكتمل اكتشاف الأجهزة"
+            message_ar="اكتمل اكتشاف الأجهزة",
         )
 
         return discovered
@@ -1186,18 +1035,14 @@ class PerceptionLayer:
         Shutdown the perception layer and disconnect all devices.
         إيقاف طبقة الإدراك وقطع الاتصال بجميع الأجهزة
         """
-        self._logger.info(
-            "perception_layer_shutting_down",
-            message_ar="جاري إيقاف طبقة الإدراك"
-        )
+        self._logger.info("perception_layer_shutting_down", message_ar="جاري إيقاف طبقة الإدراك")
 
         for device_id in list(self._devices.keys()):
             await self.unregister_device(device_id)
 
         self._reading_buffer.clear()
         self._logger.info(
-            "perception_layer_shutdown_complete",
-            message_ar="اكتمل إيقاف طبقة الإدراك"
+            "perception_layer_shutdown_complete", message_ar="اكتمل إيقاف طبقة الإدراك"
         )
 
 
@@ -1207,8 +1052,7 @@ class PerceptionLayer:
 
 
 def get_perception_layer(
-    farm_id: str,
-    sampling_config: SamplingConfig | None = None
+    farm_id: str, sampling_config: SamplingConfig | None = None
 ) -> PerceptionLayer:
     """
     Get a perception layer instance.

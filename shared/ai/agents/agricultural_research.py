@@ -24,15 +24,16 @@ from __future__ import annotations
 
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
-from enum import Enum
 
 import structlog
 
+from ..llm_provider import LLMProviderManager
 from .base import (
-    AgentMode,
     AgentCapability,
+    AgentMode,
     AgentStep,
     AgentTool,
     BaseAutonomousAgent,
@@ -40,24 +41,24 @@ from .base import (
     MemoryType,
     ToolResult,
 )
-from ..llm_provider import LLMProviderManager
 
 logger = structlog.get_logger()
 
 
-class ResearchSourceType(str, Enum):
+class ResearchSourceType(StrEnum):
     """
     Types of research sources.
     أنواع مصادر البحث
     """
-    SATELLITE = "satellite"          # Satellite imagery data | بيانات الأقمار الصناعية
-    IOT_SENSOR = "iot_sensor"        # IoT sensor readings | قراءات مستشعرات IoT
-    WEATHER = "weather"              # Weather data | بيانات الطقس
-    SCIENTIFIC_PAPER = "paper"       # Scientific publications | المنشورات العلمية
-    LOCAL_KNOWLEDGE = "local"        # Local/traditional knowledge | المعرفة المحلية
-    WEB = "web"                      # Web sources | مصادر الويب
-    KNOWLEDGE_BASE = "kb"            # Internal knowledge base | قاعدة المعرفة الداخلية
-    EXPERT_OPINION = "expert"        # Expert consultation | استشارة الخبراء
+
+    SATELLITE = "satellite"  # Satellite imagery data | بيانات الأقمار الصناعية
+    IOT_SENSOR = "iot_sensor"  # IoT sensor readings | قراءات مستشعرات IoT
+    WEATHER = "weather"  # Weather data | بيانات الطقس
+    SCIENTIFIC_PAPER = "paper"  # Scientific publications | المنشورات العلمية
+    LOCAL_KNOWLEDGE = "local"  # Local/traditional knowledge | المعرفة المحلية
+    WEB = "web"  # Web sources | مصادر الويب
+    KNOWLEDGE_BASE = "kb"  # Internal knowledge base | قاعدة المعرفة الداخلية
+    EXPERT_OPINION = "expert"  # Expert consultation | استشارة الخبراء
 
 
 @dataclass
@@ -66,6 +67,7 @@ class Citation:
     Citation for research sources.
     اقتباس لمصادر البحث
     """
+
     citation_id: str
     source_type: ResearchSourceType
     title: str
@@ -117,6 +119,7 @@ class ConfidenceAssessment:
     Confidence assessment for research findings.
     تقييم الثقة لنتائج البحث
     """
+
     overall_confidence: float  # 0.0 - 1.0
     data_quality_score: float
     source_diversity_score: float
@@ -147,6 +150,7 @@ class ResearchFinding:
     A research finding with citations and confidence.
     نتيجة بحث مع اقتباسات وثقة
     """
+
     finding_id: str
     topic: str
     topic_ar: str
@@ -180,6 +184,7 @@ class ResearchQuery:
     Agricultural research query with multi-source support.
     استعلام بحث زراعي مع دعم مصادر متعددة
     """
+
     query: str
     query_ar: str | None = None
     field_id: str | None = None
@@ -309,233 +314,264 @@ class AgriculturalResearchAgent(BaseAutonomousAgent):
         """Register agricultural research tools."""
 
         # Tool 1: Fetch Satellite Data (NDVI, LAI)
-        self.register_tool(AgentTool(
-            name="fetch_satellite_data",
-            name_ar="جلب بيانات الأقمار الصناعية",
-            description="Fetch satellite imagery and vegetation indices (NDVI, LAI) for a field",
-            description_ar="جلب صور الأقمار الصناعية ومؤشرات الغطاء النباتي للحقل",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string", "description": "Field identifier"},
-                    "indices": {
-                        "type": "array",
-                        "items": {"type": "string", "enum": ["NDVI", "LAI", "NDWI", "EVI"]},
-                        "description": "Vegetation indices to calculate"
+        self.register_tool(
+            AgentTool(
+                name="fetch_satellite_data",
+                name_ar="جلب بيانات الأقمار الصناعية",
+                description="Fetch satellite imagery and vegetation indices (NDVI, LAI) for a field",
+                description_ar="جلب صور الأقمار الصناعية ومؤشرات الغطاء النباتي للحقل",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string", "description": "Field identifier"},
+                        "indices": {
+                            "type": "array",
+                            "items": {"type": "string", "enum": ["NDVI", "LAI", "NDWI", "EVI"]},
+                            "description": "Vegetation indices to calculate",
+                        },
+                        "date_from": {"type": "string", "format": "date"},
+                        "date_to": {"type": "string", "format": "date"},
                     },
-                    "date_from": {"type": "string", "format": "date"},
-                    "date_to": {"type": "string", "format": "date"},
+                    "required": ["field_id", "indices"],
                 },
-                "required": ["field_id", "indices"]
-            },
-            handler=self._fetch_satellite_data,
-            tags=["satellite", "ndvi", "remote-sensing"],
-        ))
+                handler=self._fetch_satellite_data,
+                tags=["satellite", "ndvi", "remote-sensing"],
+            )
+        )
 
         # NEW Tool: Search Scientific Papers
-        self.register_tool(AgentTool(
-            name="search_scientific_papers",
-            name_ar="البحث في الأوراق العلمية",
-            description="Search agricultural scientific papers and publications",
-            description_ar="البحث في الأوراق والمنشورات العلمية الزراعية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string"},
-                    "query_ar": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "topic": {"type": "string"},
-                    "year_from": {"type": "integer"},
-                    "max_results": {"type": "integer", "default": 5},
+        self.register_tool(
+            AgentTool(
+                name="search_scientific_papers",
+                name_ar="البحث في الأوراق العلمية",
+                description="Search agricultural scientific papers and publications",
+                description_ar="البحث في الأوراق والمنشورات العلمية الزراعية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "query_ar": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "topic": {"type": "string"},
+                        "year_from": {"type": "integer"},
+                        "max_results": {"type": "integer", "default": 5},
+                    },
+                    "required": ["query"],
                 },
-                "required": ["query"]
-            },
-            handler=self._search_scientific_papers,
-            tags=["research", "papers", "academic"],
-        ))
+                handler=self._search_scientific_papers,
+                tags=["research", "papers", "academic"],
+            )
+        )
 
         # NEW Tool: Search Local Knowledge
-        self.register_tool(AgentTool(
-            name="search_local_knowledge",
-            name_ar="البحث في المعرفة المحلية",
-            description="Search traditional and local agricultural knowledge",
-            description_ar="البحث في المعرفة الزراعية التقليدية والمحلية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string"},
-                    "query_ar": {"type": "string"},
-                    "region": {"type": "string"},
-                    "crop_type": {"type": "string"},
+        self.register_tool(
+            AgentTool(
+                name="search_local_knowledge",
+                name_ar="البحث في المعرفة المحلية",
+                description="Search traditional and local agricultural knowledge",
+                description_ar="البحث في المعرفة الزراعية التقليدية والمحلية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "query_ar": {"type": "string"},
+                        "region": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                    },
+                    "required": ["query"],
                 },
-                "required": ["query"]
-            },
-            handler=self._search_local_knowledge,
-            tags=["knowledge", "local", "traditional"],
-        ))
+                handler=self._search_local_knowledge,
+                tags=["knowledge", "local", "traditional"],
+            )
+        )
 
         # NEW Tool: Search Web Sources
-        self.register_tool(AgentTool(
-            name="search_web_sources",
-            name_ar="البحث في مصادر الويب",
-            description="Search web sources for agricultural information",
-            description_ar="البحث في مصادر الويب عن معلومات زراعية",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string"},
-                    "language": {"type": "string", "enum": ["ar", "en", "both"]},
-                    "trusted_domains_only": {"type": "boolean", "default": True},
+        self.register_tool(
+            AgentTool(
+                name="search_web_sources",
+                name_ar="البحث في مصادر الويب",
+                description="Search web sources for agricultural information",
+                description_ar="البحث في مصادر الويب عن معلومات زراعية",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "language": {"type": "string", "enum": ["ar", "en", "both"]},
+                        "trusted_domains_only": {"type": "boolean", "default": True},
+                    },
+                    "required": ["query"],
                 },
-                "required": ["query"]
-            },
-            handler=self._search_web_sources,
-            tags=["web", "search"],
-        ))
+                handler=self._search_web_sources,
+                tags=["web", "search"],
+            )
+        )
 
         # NEW Tool: Assess Confidence
-        self.register_tool(AgentTool(
-            name="assess_confidence",
-            name_ar="تقييم الثقة",
-            description="Assess confidence level of research findings",
-            description_ar="تقييم مستوى الثقة في نتائج البحث",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "findings": {"type": "object"},
-                    "sources_used": {"type": "array"},
-                    "agreement_level": {"type": "number"},
+        self.register_tool(
+            AgentTool(
+                name="assess_confidence",
+                name_ar="تقييم الثقة",
+                description="Assess confidence level of research findings",
+                description_ar="تقييم مستوى الثقة في نتائج البحث",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "findings": {"type": "object"},
+                        "sources_used": {"type": "array"},
+                        "agreement_level": {"type": "number"},
+                    },
+                    "required": ["findings"],
                 },
-                "required": ["findings"]
-            },
-            handler=self._assess_confidence,
-            tags=["confidence", "validation"],
-        ))
+                handler=self._assess_confidence,
+                tags=["confidence", "validation"],
+            )
+        )
 
         # NEW Tool: Generate Citations
-        self.register_tool(AgentTool(
-            name="generate_citations",
-            name_ar="توليد الاقتباسات",
-            description="Generate formatted citations for sources used",
-            description_ar="توليد اقتباسات منسقة للمصادر المستخدمة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "format": {"type": "string", "enum": ["apa", "arabic", "both"]},
-                    "sources": {"type": "array"},
+        self.register_tool(
+            AgentTool(
+                name="generate_citations",
+                name_ar="توليد الاقتباسات",
+                description="Generate formatted citations for sources used",
+                description_ar="توليد اقتباسات منسقة للمصادر المستخدمة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "format": {"type": "string", "enum": ["apa", "arabic", "both"]},
+                        "sources": {"type": "array"},
+                    },
+                    "required": ["sources"],
                 },
-                "required": ["sources"]
-            },
-            handler=self._generate_citations,
-            tags=["citations", "references"],
-        ))
+                handler=self._generate_citations,
+                tags=["citations", "references"],
+            )
+        )
 
         # Tool 2: Fetch Weather Data
-        self.register_tool(AgentTool(
-            name="fetch_weather_data",
-            name_ar="جلب بيانات الطقس",
-            description="Fetch historical and forecast weather data for a location",
-            description_ar="جلب بيانات الطقس التاريخية والمتوقعة للموقع",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "latitude": {"type": "number"},
-                    "longitude": {"type": "number"},
-                    "include_forecast": {"type": "boolean", "default": True},
-                    "days_history": {"type": "integer", "default": 30},
+        self.register_tool(
+            AgentTool(
+                name="fetch_weather_data",
+                name_ar="جلب بيانات الطقس",
+                description="Fetch historical and forecast weather data for a location",
+                description_ar="جلب بيانات الطقس التاريخية والمتوقعة للموقع",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "latitude": {"type": "number"},
+                        "longitude": {"type": "number"},
+                        "include_forecast": {"type": "boolean", "default": True},
+                        "days_history": {"type": "integer", "default": 30},
+                    },
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._fetch_weather_data,
-            tags=["weather", "forecast"],
-        ))
+                handler=self._fetch_weather_data,
+                tags=["weather", "forecast"],
+            )
+        )
 
         # Tool 3: Fetch IoT Sensor Data
-        self.register_tool(AgentTool(
-            name="fetch_sensor_data",
-            name_ar="جلب بيانات المستشعرات",
-            description="Fetch IoT sensor data (soil moisture, temperature, etc.)",
-            description_ar="جلب بيانات مستشعرات إنترنت الأشياء (رطوبة التربة، درجة الحرارة، إلخ)",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "sensor_types": {
-                        "type": "array",
-                        "items": {"type": "string"},
-                        "description": "Types: soil_moisture, soil_temp, air_temp, humidity"
+        self.register_tool(
+            AgentTool(
+                name="fetch_sensor_data",
+                name_ar="جلب بيانات المستشعرات",
+                description="Fetch IoT sensor data (soil moisture, temperature, etc.)",
+                description_ar="جلب بيانات مستشعرات إنترنت الأشياء (رطوبة التربة، درجة الحرارة، إلخ)",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "sensor_types": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Types: soil_moisture, soil_temp, air_temp, humidity",
+                        },
+                        "hours": {"type": "integer", "default": 24},
                     },
-                    "hours": {"type": "integer", "default": 24},
+                    "required": ["field_id"],
                 },
-                "required": ["field_id"]
-            },
-            handler=self._fetch_sensor_data,
-            tags=["iot", "sensors"],
-        ))
+                handler=self._fetch_sensor_data,
+                tags=["iot", "sensors"],
+            )
+        )
 
         # Tool 4: Analyze Crop Health
-        self.register_tool(AgentTool(
-            name="analyze_crop_health",
-            name_ar="تحليل صحة المحصول",
-            description="Analyze crop health based on gathered data",
-            description_ar="تحليل صحة المحصول بناءً على البيانات المجمعة",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "ndvi_data": {"type": "object"},
-                    "weather_data": {"type": "object"},
-                    "sensor_data": {"type": "object"},
+        self.register_tool(
+            AgentTool(
+                name="analyze_crop_health",
+                name_ar="تحليل صحة المحصول",
+                description="Analyze crop health based on gathered data",
+                description_ar="تحليل صحة المحصول بناءً على البيانات المجمعة",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "ndvi_data": {"type": "object"},
+                        "weather_data": {"type": "object"},
+                        "sensor_data": {"type": "object"},
+                    },
+                    "required": ["field_id", "crop_type"],
                 },
-                "required": ["field_id", "crop_type"]
-            },
-            handler=self._analyze_crop_health,
-            tags=["analysis", "health"],
-        ))
+                handler=self._analyze_crop_health,
+                tags=["analysis", "health"],
+            )
+        )
 
         # Tool 5: Generate Recommendations
-        self.register_tool(AgentTool(
-            name="generate_recommendations",
-            name_ar="توليد التوصيات",
-            description="Generate actionable recommendations based on analysis",
-            description_ar="توليد توصيات قابلة للتنفيذ بناءً على التحليل",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "field_id": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "health_analysis": {"type": "object"},
-                    "priority": {"type": "string", "enum": ["critical", "high", "medium", "low"]},
+        self.register_tool(
+            AgentTool(
+                name="generate_recommendations",
+                name_ar="توليد التوصيات",
+                description="Generate actionable recommendations based on analysis",
+                description_ar="توليد توصيات قابلة للتنفيذ بناءً على التحليل",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "field_id": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "health_analysis": {"type": "object"},
+                        "priority": {
+                            "type": "string",
+                            "enum": ["critical", "high", "medium", "low"],
+                        },
+                    },
+                    "required": ["field_id", "health_analysis"],
                 },
-                "required": ["field_id", "health_analysis"]
-            },
-            handler=self._generate_recommendations,
-            tags=["advisory", "recommendations"],
-        ))
+                handler=self._generate_recommendations,
+                tags=["advisory", "recommendations"],
+            )
+        )
 
         # Tool 6: Search Agricultural Knowledge Base
-        self.register_tool(AgentTool(
-            name="search_knowledge_base",
-            name_ar="البحث في قاعدة المعرفة",
-            description="Search agricultural knowledge base for best practices",
-            description_ar="البحث في قاعدة المعرفة الزراعية عن أفضل الممارسات",
-            input_schema={
-                "type": "object",
-                "properties": {
-                    "query": {"type": "string"},
-                    "crop_type": {"type": "string"},
-                    "topic": {
-                        "type": "string",
-                        "enum": ["irrigation", "fertilizer", "pest_control", "disease", "harvest"]
+        self.register_tool(
+            AgentTool(
+                name="search_knowledge_base",
+                name_ar="البحث في قاعدة المعرفة",
+                description="Search agricultural knowledge base for best practices",
+                description_ar="البحث في قاعدة المعرفة الزراعية عن أفضل الممارسات",
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "crop_type": {"type": "string"},
+                        "topic": {
+                            "type": "string",
+                            "enum": [
+                                "irrigation",
+                                "fertilizer",
+                                "pest_control",
+                                "disease",
+                                "harvest",
+                            ],
+                        },
                     },
+                    "required": ["query"],
                 },
-                "required": ["query"]
-            },
-            handler=self._search_knowledge_base,
-            tags=["knowledge", "search"],
-        ))
+                handler=self._search_knowledge_base,
+                tags=["knowledge", "search"],
+            )
+        )
 
     async def decompose_task(
         self,
@@ -613,14 +649,16 @@ Output valid JSON array only."""
 
                 steps = []
                 for i, item in enumerate(plan_data):
-                    steps.append(AgentStep(
-                        step_id=str(uuid.uuid4()),
-                        step_number=i + 1,
-                        description=item.get("description", f"Step {i+1}"),
-                        description_ar=item.get("description_ar", f"الخطوة {i+1}"),
-                        tool_name=item.get("tool_name"),
-                        tool_input=item.get("tool_input", {}),
-                    ))
+                    steps.append(
+                        AgentStep(
+                            step_id=str(uuid.uuid4()),
+                            step_number=i + 1,
+                            description=item.get("description", f"Step {i + 1}"),
+                            description_ar=item.get("description_ar", f"الخطوة {i + 1}"),
+                            tool_name=item.get("tool_name"),
+                            tool_input=item.get("tool_input", {}),
+                        )
+                    )
 
                 return steps
 
@@ -880,7 +918,7 @@ Output valid JSON array only."""
         moisture_reading = sensor_data.get("readings", {}).get("soil_moisture", {})
         moisture_score = 100 if moisture_reading.get("status") == "adequate" else 70
 
-        health_score = (ndvi_score * 0.6 + moisture_score * 0.4)
+        health_score = ndvi_score * 0.6 + moisture_score * 0.4
 
         # Determine status
         if health_score >= 80:
@@ -933,14 +971,16 @@ Output valid JSON array only."""
 
         # Generate recommendations based on health indicators
         if health_score < 70:
-            actions.append({
-                "type": "irrigation",
-                "priority": "high",
-                "action": "Increase irrigation frequency",
-                "action_ar": "زيادة تكرار الري",
-                "details": "Apply 25mm of water within 48 hours",
-                "details_ar": "قم بتطبيق 25 ملم من الماء خلال 48 ساعة",
-            })
+            actions.append(
+                {
+                    "type": "irrigation",
+                    "priority": "high",
+                    "action": "Increase irrigation frequency",
+                    "action_ar": "زيادة تكرار الري",
+                    "details": "Apply 25mm of water within 48 hours",
+                    "details_ar": "قم بتطبيق 25 ملم من الماء خلال 48 ساعة",
+                }
+            )
 
         # Weather-based recommendations
         weather = self.gathered_data.get("weather", {})
@@ -948,14 +988,16 @@ Output valid JSON array only."""
 
         for day in forecast:
             if day.get("rain_prob", 0) > 50:
-                actions.append({
-                    "type": "irrigation",
-                    "priority": "low",
-                    "action": "Delay irrigation due to expected rain",
-                    "action_ar": "تأجيل الري بسبب توقع هطول الأمطار",
-                    "details": f"Rain expected on {day.get('date')}",
-                    "details_ar": f"متوقع هطول أمطار في {day.get('date')}",
-                })
+                actions.append(
+                    {
+                        "type": "irrigation",
+                        "priority": "low",
+                        "action": "Delay irrigation due to expected rain",
+                        "action_ar": "تأجيل الري بسبب توقع هطول الأمطار",
+                        "details": f"Rain expected on {day.get('date')}",
+                        "details_ar": f"متوقع هطول أمطار في {day.get('date')}",
+                    }
+                )
                 break
 
         return {
@@ -1023,22 +1065,26 @@ Output valid JSON array only."""
 
     def _register_default_capabilities(self) -> None:
         """Register research capabilities."""
-        self.register_capability(AgentCapability(
-            name="agricultural_research",
-            name_ar="البحث الزراعي",
-            description="Conduct comprehensive agricultural research with multi-source data",
-            description_ar="إجراء بحث زراعي شامل مع بيانات متعددة المصادر",
-            domains=["research", "analysis", "crop_health"],
-            skill_level=0.9,
-        ))
-        self.register_capability(AgentCapability(
-            name="arabic_research",
-            name_ar="البحث بالعربية",
-            description="Research agricultural topics in Arabic language",
-            description_ar="البحث في الموضوعات الزراعية باللغة العربية",
-            domains=["research", "arabic", "local_knowledge"],
-            skill_level=0.85,
-        ))
+        self.register_capability(
+            AgentCapability(
+                name="agricultural_research",
+                name_ar="البحث الزراعي",
+                description="Conduct comprehensive agricultural research with multi-source data",
+                description_ar="إجراء بحث زراعي شامل مع بيانات متعددة المصادر",
+                domains=["research", "analysis", "crop_health"],
+                skill_level=0.9,
+            )
+        )
+        self.register_capability(
+            AgentCapability(
+                name="arabic_research",
+                name_ar="البحث بالعربية",
+                description="Research agricultural topics in Arabic language",
+                description_ar="البحث في الموضوعات الزراعية باللغة العربية",
+                domains=["research", "arabic", "local_knowledge"],
+                skill_level=0.85,
+            )
+        )
 
     # ========================================
     # NEW: MULTI-SOURCE RESEARCH TOOLS
@@ -1265,10 +1311,7 @@ Output valid JSON array only."""
 
         # Source reliability weighted average
         if source_types:
-            reliability_scores = [
-                self.source_reliability.get(st, 0.5)
-                for st in source_types
-            ]
+            reliability_scores = [self.source_reliability.get(st, 0.5) for st in source_types]
             avg_reliability = sum(reliability_scores) / len(reliability_scores)
         else:
             avg_reliability = 0.5
@@ -1278,11 +1321,11 @@ Output valid JSON array only."""
 
         # Overall confidence
         overall = (
-            data_quality_score * 0.25 +
-            source_diversity * 0.20 +
-            methodology_score * 0.20 +
-            avg_reliability * 0.20 +
-            agreement * 0.15
+            data_quality_score * 0.25
+            + source_diversity * 0.20
+            + methodology_score * 0.20
+            + avg_reliability * 0.20
+            + agreement * 0.15
         )
 
         # Determine confidence level
@@ -1585,12 +1628,14 @@ Findings cross-validated across multiple sources for accuracy.
             if result.get("source_type") == "paper":
                 for paper in result.get("papers", []):
                     if paper.get("relevance_score", 0) > 0.8:
-                        recommendations.append({
-                            "source": "scientific_paper",
-                            "recommendation": f"Based on {paper['title']}: Apply research findings",
-                            "recommendation_ar": f"بناءً على {paper.get('title_ar', paper['title'])}: تطبيق نتائج البحث",
-                            "confidence": paper.get("relevance_score", 0.8),
-                        })
+                        recommendations.append(
+                            {
+                                "source": "scientific_paper",
+                                "recommendation": f"Based on {paper['title']}: Apply research findings",
+                                "recommendation_ar": f"بناءً على {paper.get('title_ar', paper['title'])}: تطبيق نتائج البحث",
+                                "confidence": paper.get("relevance_score", 0.8),
+                            }
+                        )
 
         return recommendations[:5]  # Limit to top 5
 

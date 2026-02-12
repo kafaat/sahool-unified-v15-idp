@@ -5,13 +5,14 @@ Manages low stock alerts, expiry warnings, and notifications
 
 import logging
 
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from pydantic import BaseModel, Field
+
 from .alert_manager import (
     AlertManager,
     AlertPriority,
     AlertType,
 )
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
-from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

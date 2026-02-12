@@ -26,14 +26,13 @@ from __future__ import annotations
 from typing import Any
 
 from .models import (
-    PestIdentification,
-    PestCategory,
-    PestLifeStage,
     CropType,
-    ScoutObservation,
     InfestationLevel,
+    PestCategory,
+    PestIdentification,
+    PestLifeStage,
+    ScoutObservation,
 )
-
 
 # =============================================================================
 # PEST DATABASE - قاعدة بيانات الآفات
@@ -53,15 +52,15 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Curculionidae",
         order="Coleoptera",
         description="The Red Palm Weevil is the most destructive pest of palm trees worldwide. "
-                   "Adults are large reddish-brown weevils that bore into palm trunks where larvae "
-                   "feed on internal tissues, often killing the tree.",
+        "Adults are large reddish-brown weevils that bore into palm trunks where larvae "
+        "feed on internal tissues, often killing the tree.",
         description_ar="سوسة النخيل الحمراء هي أخطر آفة تصيب أشجار النخيل في العالم. "
-                      "الحشرات الكاملة كبيرة الحجم بنية محمرة تثقب جذوع النخيل حيث تتغذى "
-                      "اليرقات على الأنسجة الداخلية، مما يؤدي غالباً إلى موت الشجرة.",
+        "الحشرات الكاملة كبيرة الحجم بنية محمرة تثقب جذوع النخيل حيث تتغذى "
+        "اليرقات على الأنسجة الداخلية، مما يؤدي غالباً إلى موت الشجرة.",
         adult_description="Large weevil (35-40mm), reddish-brown to black with dark spots on thorax. "
-                         "Long curved snout (rostrum).",
+        "Long curved snout (rostrum).",
         adult_description_ar="خنفساء كبيرة (35-40 مم)، بنية محمرة إلى سوداء مع بقع داكنة على الصدر. "
-                            "خرطوم طويل منحني.",
+        "خرطوم طويل منحني.",
         larva_description="Cream-colored, legless grub up to 50mm long with brown head capsule.",
         larva_description_ar="يرقة بيضاء كريمية بدون أرجل يصل طولها إلى 50 مم برأس بني.",
         egg_description="Creamy white, elongated oval, 2-3mm long, laid in wounds in palm tissue.",
@@ -114,7 +113,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Often detected only when damage is severe. Acoustic detection and pheromone traps recommended.",
         detection_notes_ar="غالباً لا يُكتشف إلا عندما يكون الضرر شديداً. يُوصى بالكشف الصوتي والمصائد الفرمونية.",
     ),
-
     # -------------------------------------------------------------------------
     # DUBAS BUG - دوباس النخيل
     # -------------------------------------------------------------------------
@@ -128,15 +126,14 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Tropiduchidae",
         order="Hemiptera",
         description="The Dubas bug is a major pest of date palms in the Middle East. "
-                   "Both nymphs and adults suck sap from leaves, producing honeydew "
-                   "that leads to sooty mold growth.",
+        "Both nymphs and adults suck sap from leaves, producing honeydew "
+        "that leads to sooty mold growth.",
         description_ar="دوباس النخيل هو آفة رئيسية لأشجار النخيل في الشرق الأوسط. "
-                      "تمتص الحوريات والحشرات الكاملة العصارة من الأوراق وتفرز الندوة العسلية "
-                      "التي تؤدي إلى نمو العفن الهبابي.",
+        "تمتص الحوريات والحشرات الكاملة العصارة من الأوراق وتفرز الندوة العسلية "
+        "التي تؤدي إلى نمو العفن الهبابي.",
         adult_description="Small (5-6mm), greenish-yellow to brownish insect with transparent wings. "
-                         "Good jumpers.",
-        adult_description_ar="حشرة صغيرة (5-6 مم)، خضراء مصفرة إلى بنية بأجنحة شفافة. "
-                            "قافزة جيدة.",
+        "Good jumpers.",
+        adult_description_ar="حشرة صغيرة (5-6 مم)، خضراء مصفرة إلى بنية بأجنحة شفافة. قافزة جيدة.",
         larva_description="N/A - Hemimetabolous (nymphs, not larvae)",
         larva_description_ar="لا ينطبق - تطور ناقص (حوريات وليس يرقات)",
         egg_description="Elongated, inserted into leaf tissue, covered with waxy secretion.",
@@ -185,7 +182,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Adults and nymphs visible on undersides of leaves. Honeydew and sooty mold easily observed.",
         detection_notes_ar="الحشرات الكاملة والحوريات مرئية على السطح السفلي للأوراق. الندوة العسلية والعفن الهبابي يُلاحظان بسهولة.",
     ),
-
     # -------------------------------------------------------------------------
     # APHIDS - المن
     # -------------------------------------------------------------------------
@@ -199,13 +195,13 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Aphididae",
         order="Hemiptera",
         description="Small soft-bodied insects that suck plant sap. Major pest of vegetables "
-                   "and many crops. Transmits plant viruses and produces honeydew.",
+        "and many crops. Transmits plant viruses and produces honeydew.",
         description_ar="حشرات صغيرة رخوة الجسم تمتص عصارة النبات. آفة رئيسية للخضروات "
-                      "والعديد من المحاصيل. تنقل الفيروسات النباتية وتفرز الندوة العسلية.",
+        "والعديد من المحاصيل. تنقل الفيروسات النباتية وتفرز الندوة العسلية.",
         adult_description="Small (1-2mm), pear-shaped, variable color (green, yellow, or black). "
-                         "May be winged or wingless.",
+        "May be winged or wingless.",
         adult_description_ar="صغيرة (1-2 مم)، كمثرية الشكل، متغيرة اللون (أخضر أو أصفر أو أسود). "
-                            "قد تكون مجنحة أو غير مجنحة.",
+        "قد تكون مجنحة أو غير مجنحة.",
         larva_description="N/A - Nymphs similar to adults but smaller.",
         larva_description_ar="لا ينطبق - الحوريات مشابهة للحشرات الكاملة لكن أصغر.",
         egg_description="Rarely seen in warm climates where reproduction is mostly parthenogenetic.",
@@ -258,7 +254,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Check undersides of leaves and growing tips. Colonies readily visible.",
         detection_notes_ar="افحص السطح السفلي للأوراق والقمم النامية. المستعمرات مرئية بسهولة.",
     ),
-
     # -------------------------------------------------------------------------
     # GREEN PEACH APHID - من الخوخ الأخضر
     # -------------------------------------------------------------------------
@@ -272,9 +267,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Aphididae",
         order="Hemiptera",
         description="Highly polyphagous aphid and important virus vector. Attacks many vegetable "
-                   "and fruit crops. Known for rapid development of insecticide resistance.",
+        "and fruit crops. Known for rapid development of insecticide resistance.",
         description_ar="من متعدد العوائل ومهم في نقل الفيروسات. يهاجم العديد من محاصيل الخضروات "
-                      "والفاكهة. معروف بتطوير مقاومة سريعة للمبيدات.",
+        "والفاكهة. معروف بتطوير مقاومة سريعة للمبيدات.",
         adult_description="Small (1.5-2.5mm), pale green to yellowish-green, spindle-shaped body.",
         adult_description_ar="صغير (1.5-2.5 مم)، أخضر باهت إلى أصفر مخضر، جسم مغزلي الشكل.",
         larva_description="Nymphs similar to adults, pale green.",
@@ -323,7 +318,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Important virus vector. Monitor regularly in vegetable crops.",
         detection_notes_ar="ناقل فيروسات مهم. راقب بانتظام في محاصيل الخضروات.",
     ),
-
     # -------------------------------------------------------------------------
     # WHITEFLIES - الذبابة البيضاء
     # -------------------------------------------------------------------------
@@ -337,9 +331,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Aleyrodidae",
         order="Hemiptera",
         description="Major pest of greenhouse and field vegetables. Causes direct feeding damage, "
-                   "honeydew production, and transmits devastating geminiviruses like TYLCV.",
+        "honeydew production, and transmits devastating geminiviruses like TYLCV.",
         description_ar="آفة رئيسية للخضروات في البيوت المحمية والحقول المكشوفة. تسبب ضرراً مباشراً "
-                      "بالتغذية وإنتاج الندوة العسلية وتنقل فيروسات مدمرة مثل فيروس تجعد واصفرار أوراق الطماطم.",
+        "بالتغذية وإنتاج الندوة العسلية وتنقل فيروسات مدمرة مثل فيروس تجعد واصفرار أوراق الطماطم.",
         adult_description="Tiny (1-1.5mm), white moth-like insect with waxy white wings held roof-like.",
         adult_description_ar="حشرة صغيرة جداً (1-1.5 مم)، شبيهة بالعثة بيضاء بأجنحة شمعية بيضاء تُحمل بشكل سقفي.",
         larva_description="Nymphs are flat, oval, scale-like, yellowish, attached to leaf undersides.",
@@ -394,7 +388,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Use yellow sticky traps for monitoring. Check leaf undersides for nymphs.",
         detection_notes_ar="استخدم المصائد اللاصقة الصفراء للمراقبة. افحص السطح السفلي للأوراق للحوريات.",
     ),
-
     # -------------------------------------------------------------------------
     # SPIDER MITES - العنكبوت الأحمر
     # -------------------------------------------------------------------------
@@ -408,9 +401,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Tetranychidae",
         order="Trombidiformes",
         description="Extremely polyphagous mite pest that thrives in hot, dry conditions. "
-                   "Causes stippling damage and produces webbing. Can build populations rapidly.",
+        "Causes stippling damage and produces webbing. Can build populations rapidly.",
         description_ar="آفة أكاروسية متعددة العوائل للغاية تزدهر في الظروف الحارة والجافة. "
-                      "تسبب ضرر التنقيط وتنتج الخيوط العنكبوتية. يمكن أن تبني أعدادها بسرعة.",
+        "تسبب ضرر التنقيط وتنتج الخيوط العنكبوتية. يمكن أن تبني أعدادها بسرعة.",
         adult_description="Very small (0.4-0.5mm), oval, greenish-yellow to red with two dark spots.",
         adult_description_ar="صغير جداً (0.4-0.5 مم)، بيضاوي، أخضر مصفر إلى أحمر بنقطتين داكنتين.",
         larva_description="Six-legged larvae, very small, pale.",
@@ -461,11 +454,10 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         first_reported_saudi="Native",
         detection_difficulty="moderate",
         detection_notes="Use hand lens to observe mites. Look for stippling and webbing. "
-                       "Populations explode in hot, dry weather.",
+        "Populations explode in hot, dry weather.",
         detection_notes_ar="استخدم عدسة يدوية لملاحظة العناكب. ابحث عن التنقيط والخيوط. "
-                          "الأعداد تنفجر في الطقس الحار والجاف.",
+        "الأعداد تنفجر في الطقس الحار والجاف.",
     ),
-
     # -------------------------------------------------------------------------
     # TOMATO LEAFMINER (Tuta absoluta) - حافرة أنفاق الطماطم
     # -------------------------------------------------------------------------
@@ -479,9 +471,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Gelechiidae",
         order="Lepidoptera",
         description="Highly destructive invasive pest of tomato. Larvae mine leaves, stems, "
-                   "and fruits. Can cause complete crop loss if uncontrolled.",
+        "and fruits. Can cause complete crop loss if uncontrolled.",
         description_ar="آفة غازية شديدة التدمير للطماطم. تحفر اليرقات أنفاقاً في الأوراق والسيقان "
-                      "والثمار. يمكن أن تسبب خسارة كاملة للمحصول إذا لم تُكافح.",
+        "والثمار. يمكن أن تسبب خسارة كاملة للمحصول إذا لم تُكافح.",
         adult_description="Small moth (5-7mm wingspan), grayish-brown with black spots on forewings.",
         adult_description_ar="عثة صغيرة (5-7 مم امتداد الجناحين)، رمادية بنية ببقع سوداء على الأجنحة الأمامية.",
         larva_description="Cream to greenish caterpillar with dark head, up to 8mm long.",
@@ -536,7 +528,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Use pheromone traps for adults. Look for leaf mines and fruit entry holes.",
         detection_notes_ar="استخدم المصائد الفرمونية للحشرات الكاملة. ابحث عن أنفاق الأوراق وثقوب دخول الثمار.",
     ),
-
     # -------------------------------------------------------------------------
     # DATE MOTH - فراشة التمر
     # -------------------------------------------------------------------------
@@ -550,9 +541,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Pyralidae",
         order="Lepidoptera",
         description="Important pest of dates and other fruits in the Middle East. Larvae feed "
-                   "inside fruits, causing quality loss and facilitating secondary infections.",
+        "inside fruits, causing quality loss and facilitating secondary infections.",
         description_ar="آفة مهمة للتمور والفواكه الأخرى في الشرق الأوسط. تتغذى اليرقات داخل "
-                      "الثمار مسببة خسارة في الجودة وتسهل الإصابات الثانوية.",
+        "الثمار مسببة خسارة في الجودة وتسهل الإصابات الثانوية.",
         adult_description="Small moth (10-14mm wingspan), grey with darker markings on wings.",
         adult_description_ar="عثة صغيرة (10-14 مم امتداد الجناحين)، رمادية بعلامات داكنة على الأجنحة.",
         larva_description="Pinkish caterpillar with brown head, up to 15mm long.",
@@ -603,7 +594,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Use pheromone traps. Inspect fruits for entry holes and webbing.",
         detection_notes_ar="استخدم المصائد الفرمونية. افحص الثمار للثقوب والخيوط.",
     ),
-
     # -------------------------------------------------------------------------
     # DESERT LOCUST - الجراد الصحراوي
     # -------------------------------------------------------------------------
@@ -617,9 +607,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Acrididae",
         order="Orthoptera",
         description="The most devastating migratory pest. Swarms can travel long distances and "
-                   "consume huge quantities of vegetation. A major threat to food security.",
+        "consume huge quantities of vegetation. A major threat to food security.",
         description_ar="أكثر الآفات المهاجرة تدميراً. يمكن للأسراب السفر لمسافات طويلة واستهلاك "
-                      "كميات هائلة من النباتات. تهديد رئيسي للأمن الغذائي.",
+        "كميات هائلة من النباتات. تهديد رئيسي للأمن الغذائي.",
         adult_description="Large grasshopper (60-75mm), solitary phase: green/brown, gregarious phase: yellow/pink.",
         adult_description_ar="جرادة كبيرة (60-75 مم)، الطور الانفرادي: أخضر/بني، الطور التجمعي: أصفر/وردي.",
         larva_description="Hoppers (nymphs) pass through 5-6 instars, changing color with phase.",
@@ -670,7 +660,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Monitor FAO locust bulletins. Report any swarm sightings immediately to authorities.",
         detection_notes_ar="راقب نشرات الجراد من الفاو. أبلغ عن أي مشاهدات للأسراب فوراً للسلطات.",
     ),
-
     # -------------------------------------------------------------------------
     # THRIPS - التربس
     # -------------------------------------------------------------------------
@@ -684,9 +673,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Thripidae",
         order="Thysanoptera",
         description="Tiny insect causing silvering damage to leaves and flowers. Important vector "
-                   "of tospoviruses (TSWV). Difficult to control due to cryptic behavior.",
+        "of tospoviruses (TSWV). Difficult to control due to cryptic behavior.",
         description_ar="حشرة صغيرة جداً تسبب تفضض الأوراق والأزهار. ناقل مهم لفيروسات توسبو. "
-                      "صعبة المكافحة بسبب سلوكها الخفي.",
+        "صعبة المكافحة بسبب سلوكها الخفي.",
         adult_description="Very small (1-2mm), slender, yellowish-brown with fringed wings.",
         adult_description_ar="صغيرة جداً (1-2 مم)، نحيلة، بنية مصفرة بأجنحة مهدبة.",
         larva_description="Nymphs similar to adults but wingless, pale yellow.",
@@ -739,7 +728,6 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         detection_notes="Use blue sticky traps. Tap flowers over white paper to dislodge thrips.",
         detection_notes_ar="استخدم المصائد اللاصقة الزرقاء. اضرب الأزهار فوق ورق أبيض لإسقاط التربس.",
     ),
-
     # -------------------------------------------------------------------------
     # FRUIT FLIES - ذباب الفاكهة
     # -------------------------------------------------------------------------
@@ -753,9 +741,9 @@ PEST_DATABASE: dict[str, PestIdentification] = {
         family="Tephritidae",
         order="Diptera",
         description="Major quarantine pest of fruits. Females lay eggs in fruit, larvae feed inside "
-                   "causing rot and fruit drop. Affects many fruit crops.",
+        "causing rot and fruit drop. Affects many fruit crops.",
         description_ar="آفة حجر زراعي رئيسية للفواكه. تضع الإناث البيض في الثمار، تتغذى اليرقات بالداخل "
-                      "مسببة التعفن وسقوط الثمار. تصيب العديد من محاصيل الفاكهة.",
+        "مسببة التعفن وسقوط الثمار. تصيب العديد من محاصيل الفاكهة.",
         adult_description="Small fly (4-5mm), yellowish with characteristic wing pattern (brown bands).",
         adult_description_ar="ذبابة صغيرة (4-5 مم)، صفراء بنمط جناحي مميز (أشرطة بنية).",
         larva_description="White maggot, legless, up to 8mm long, found inside fruit.",
@@ -812,6 +800,7 @@ PEST_DATABASE: dict[str, PestIdentification] = {
 # =============================================================================
 # PEST LOOKUP FUNCTIONS - دوال البحث عن الآفات
 # =============================================================================
+
 
 def get_pest_by_id(pest_id: str) -> PestIdentification | None:
     """
@@ -900,14 +889,14 @@ def get_high_priority_pests() -> list[PestIdentification]:
     الحصول على الآفات ذات الأهمية الاقتصادية العالية جداً.
     """
     return [
-        pest for pest in PEST_DATABASE.values()
-        if pest.economic_importance in ("very_high", "high")
+        pest for pest in PEST_DATABASE.values() if pest.economic_importance in ("very_high", "high")
     ]
 
 
 # =============================================================================
 # IDENTIFICATION HELPERS - مساعدات التعريف
 # =============================================================================
+
 
 def identify_by_symptoms(
     symptoms: list[str],
@@ -926,7 +915,11 @@ def identify_by_symptoms(
 
     for pest in PEST_DATABASE.values():
         # Skip if crop filter doesn't match
-        if crop_type and crop_type not in pest.primary_hosts and crop_type not in pest.secondary_hosts:
+        if (
+            crop_type
+            and crop_type not in pest.primary_hosts
+            and crop_type not in pest.secondary_hosts
+        ):
             continue
 
         # Calculate symptom match score
@@ -973,9 +966,9 @@ def identify_by_description(
 
         # Check description match
         all_desc = (
-            pest.adult_description.lower() +
-            pest.larva_description.lower() +
-            pest.description.lower()
+            pest.adult_description.lower()
+            + pest.larva_description.lower()
+            + pest.description.lower()
         )
         if desc_lower:
             words = desc_lower.split()
@@ -995,8 +988,7 @@ def identify_by_description(
         # Check color match
         if color:
             color_lower = color.lower()
-            if (color_lower in pest.adult_color.lower() or
-                color_lower in pest.adult_color_ar):
+            if color_lower in pest.adult_color.lower() or color_lower in pest.adult_color_ar:
                 score += 1.0
 
         # Check wing presence
@@ -1138,10 +1130,9 @@ def get_similar_pests(pest_id: str) -> list[PestIdentification]:
             continue
 
         # Similar hosts
-        shared_hosts = (
-            set(pest.primary_hosts) & set(other_pest.primary_hosts) or
-            set(pest.primary_hosts) & set(other_pest.secondary_hosts)
-        )
+        shared_hosts = set(pest.primary_hosts) & set(other_pest.primary_hosts) or set(
+            pest.primary_hosts
+        ) & set(other_pest.secondary_hosts)
         if not shared_hosts:
             continue
 
@@ -1160,6 +1151,7 @@ def get_similar_pests(pest_id: str) -> list[PestIdentification]:
 # =============================================================================
 # SEASONAL AND REGIONAL HELPERS - مساعدات موسمية وإقليمية
 # =============================================================================
+
 
 def get_seasonal_pests(month: int, crop_type: CropType | None = None) -> list[PestIdentification]:
     """
@@ -1191,7 +1183,11 @@ def get_seasonal_pests(month: int, crop_type: CropType | None = None) -> list[Pe
         if month in active_months:
             pest = get_pest_by_id(pest_id)
             if pest:
-                if crop_type is None or crop_type in pest.primary_hosts or crop_type in pest.secondary_hosts:
+                if (
+                    crop_type is None
+                    or crop_type in pest.primary_hosts
+                    or crop_type in pest.secondary_hosts
+                ):
                     results.append(pest)
 
     return results

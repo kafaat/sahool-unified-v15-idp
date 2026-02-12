@@ -12,8 +12,8 @@ Version: 1.0.0
 import logging
 import os
 import sys
-from datetime import datetime, timezone, UTC
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime, timezone
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
@@ -31,10 +31,10 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
 from cors_config import setup_cors_middleware
+from services import EntityService, KnowledgeGraphService, RelationshipService
 
 # Import models and services
 from models import HealthCheckResponse
-from services import KnowledgeGraphService, EntityService, RelationshipService
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -168,7 +168,7 @@ async def health_combined():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Import API routers
-from api.v1 import graphs_router, entities_router, relationships_router
+from api.v1 import entities_router, graphs_router, relationships_router
 
 app.include_router(graphs_router)
 app.include_router(entities_router)

@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TelegramMessage:
     """رسالة تليجرام"""
+
     chat_id: str | int  # Telegram chat ID or username
     text: str
     text_ar: str | None = None
@@ -175,7 +176,7 @@ class TelegramClient:
                 if data.get("ok"):
                     message_id = data["result"]["message_id"]
                     # Sanitize chat_id for logging (prevent log injection)
-                    safe_id = str(chat_id).replace('\n', '').replace('\r', '')[:20]
+                    safe_id = str(chat_id).replace("\n", "").replace("\r", "")[:20]
                     logger.info(f"📱 Telegram sent to {safe_id}: message_id={message_id}")
                     return message_id
                 else:
@@ -184,7 +185,7 @@ class TelegramClient:
 
         except httpx.HTTPStatusError as e:
             # Sanitize chat_id for logging
-            safe_id = str(chat_id).replace('\n', '').replace('\r', '')[:20]
+            safe_id = str(chat_id).replace("\n", "").replace("\r", "")[:20]
             if e.response.status_code == 403:
                 logger.warning(f"User {safe_id} has blocked the bot")
             elif e.response.status_code == 400:

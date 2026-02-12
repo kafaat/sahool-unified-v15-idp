@@ -523,7 +523,7 @@ class AuditAgent(A2AAgent):
         manual_required = []
 
         for issue in issues:
-            issue_type = issue.get("type", "unknown")
+            issue.get("type", "unknown")
             severity = issue.get("severity", "medium")
 
             if priority != "all" and severity != priority:
@@ -704,8 +704,8 @@ class AuditAgent(A2AAgent):
     async def _handle_full_audit(self, task: TaskMessage) -> dict[str, Any]:
         """Handle full audit suite execution"""
         tenant_id = task.input_data.get("tenant_id")
-        framework = task.input_data.get("compliance_framework", "all")
-        audit_data = self._load_audit_data(task)
+        task.input_data.get("compliance_framework", "all")
+        self._load_audit_data(task)
 
         # Run all analysis tools
         analysis = await self._handle_analyze(task)

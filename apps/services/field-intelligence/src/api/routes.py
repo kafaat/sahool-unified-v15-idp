@@ -7,7 +7,7 @@ Storage: PostgreSQL with asyncpg (with in-memory fallback for testing)
 """
 
 import logging
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
@@ -30,12 +30,13 @@ def _sanitize_log_input(value: str, max_length: int = 100) -> str:
     """Sanitize user input for safe logging to prevent log injection."""
     if value is None:
         return ""
-    return str(value).replace('\n', '').replace('\r', '').replace('\t', '')[:max_length]
+    return str(value).replace("\n", "").replace("\r", "").replace("\t", "")[:max_length]
 
 
 # Database imports
 try:
-    from ..database import events_repo, rules_repo, get_pool
+    from ..database import events_repo, get_pool, rules_repo
+
     DB_AVAILABLE = True
 except ImportError:
     DB_AVAILABLE = False
@@ -60,6 +61,7 @@ async def is_db_connected() -> bool:
         return pool is not None
     except Exception:
         return False
+
 
 # محركات المعالجة
 rules_engine = RulesEngine()
@@ -135,9 +137,7 @@ async def create_event(
         else:
             # Fallback to in-memory
             tenant_rules = [
-                r
-                for r in _rules_fallback.values()
-                if r.tenant_id == tenant_id and r.status == RuleStatus.ACTIVE
+                r for r in _rules_fallback.values() if r.tenant_id == tenant_id and r.status == RuleStatus.ACTIVE
             ]
 
         # معالجة الحدث
@@ -169,7 +169,11 @@ async def create_event(
             # Fallback to in-memory
             _events_fallback[event_response.event_id] = event_response
 
-        logger.info("✓ تم إنشاء حدث %s للحقل %s", _sanitize_log_input(event_response.event_id), _sanitize_log_input(event_data.field_id))
+        logger.info(
+            "✓ تم إنشاء حدث %s للحقل %s",
+            _sanitize_log_input(event_response.event_id),
+            _sanitize_log_input(event_data.field_id),
+        )
 
         return event_response
 
@@ -427,9 +431,7 @@ async def get_field_event_stats(
     else:
         # Fallback to in-memory
         # فلترة أحداث الحقل
-        field_events = [
-            e for e in _events_fallback.values() if e.tenant_id == tenant_id and e.field_id == field_id
-        ]
+        field_events = [e for e in _events_fallback.values() if e.tenant_id == tenant_id and e.field_id == field_id]
         recent_events = [e for e in field_events if e.created_at >= cutoff]
 
     # إحصائيات
@@ -512,7 +514,11 @@ async def create_rule(
             if not rule_row:
                 raise HTTPException(status_code=500, detail="Failed to create rule in database")
 
-            logger.info("✓ تم إنشاء قاعدة %s: %s", _sanitize_log_input(rule_id), _sanitize_log_input(rule_data.name))
+            logger.info(
+                "✓ تم إنشاء قاعدة %s: %s",
+                _sanitize_log_input(rule_id),
+                _sanitize_log_input(rule_data.name),
+            )
 
             return RuleResponse(
                 rule_id=rule_row["rule_id"],
@@ -557,7 +563,11 @@ async def create_rule(
 
             _rules_fallback[rule_id] = rule
 
-            logger.info("✓ تم إنشاء قاعدة %s: %s", _sanitize_log_input(rule_id), _sanitize_log_input(rule.name))
+            logger.info(
+                "✓ تم إنشاء قاعدة %s: %s",
+                _sanitize_log_input(rule_id),
+                _sanitize_log_input(rule.name),
+            )
 
             return RuleResponse(**rule.model_dump())
 
@@ -917,7 +927,9 @@ async def get_rule_stats(
             "rule_name": rule_data["name"],
             "status": rule_data["status"],
             "trigger_count": rule_data.get("trigger_count", 0),
-            "last_triggered_at": rule_data["last_triggered_at"].isoformat() if rule_data.get("last_triggered_at") else None,
+            "last_triggered_at": rule_data["last_triggered_at"].isoformat()
+            if rule_data.get("last_triggered_at")
+            else None,
             "cooldown_minutes": rule_data.get("cooldown_minutes", 60),
             "actions_count": len(actions),
             "conditions_count": len(conditions.get("conditions", [])),

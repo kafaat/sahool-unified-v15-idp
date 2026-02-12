@@ -91,6 +91,7 @@ from shared.pest_scouting.recommendations import (
 # FIXTURES
 # =============================================================================
 
+
 @pytest.fixture
 def sample_pest_observation():
     """Create a sample pest observation."""
@@ -163,6 +164,7 @@ def sample_threshold_assessment():
 # =============================================================================
 # TESTS: Pest Identification Models
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_pest_identification_creation():
@@ -294,6 +296,7 @@ def test_treatment_recommendation_creation():
 # =============================================================================
 # TESTS: Pest Database and Lookup Functions
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_pest_database_exists():
@@ -428,11 +431,7 @@ def test_identify_by_symptoms_with_crop_filter():
     assert len(results) > 0
 
     # With wrong crop filter - should find nothing
-    results = identify_by_symptoms(
-        symptoms,
-        crop_type=CropType.TOMATO,
-        min_match_score=0.5
-    )
+    results = identify_by_symptoms(symptoms, crop_type=CropType.TOMATO, min_match_score=0.5)
     # RPW doesn't affect tomato, so should be few/no results
     assert len(results) == 0
 
@@ -519,7 +518,7 @@ def test_get_pest_risk_factors_optimal():
     result = get_pest_risk_factors(
         "MITE001",
         temperature_c=30.0,  # Optimal for MITE001
-        humidity_pct=40.0,   # Optimal for MITE001
+        humidity_pct=40.0,  # Optimal for MITE001
     )
 
     assert result["temperature_risk"] == "high"
@@ -530,6 +529,7 @@ def test_get_pest_risk_factors_optimal():
 # =============================================================================
 # TESTS: Threshold Calculations
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_threshold_database_exists():
@@ -716,6 +716,7 @@ def test_calculate_treatment_roi(sample_threshold_assessment):
 # =============================================================================
 # TESTS: IPM Recommendations
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_treatment_protocols_exist():
@@ -907,6 +908,7 @@ def test_get_ipm_calendar():
 # TESTS: Data Model Validation
 # =============================================================================
 
+
 @pytest.mark.unit
 def test_enum_values():
     """Test enum value definitions."""
@@ -950,6 +952,7 @@ def test_treatment_urgency_ordering():
 # =============================================================================
 # TESTS: Bilingual Support
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_pest_arabic_names():
@@ -1008,6 +1011,7 @@ def test_alert_bilingual_output():
 # =============================================================================
 # TESTS: Edge Cases and Boundary Conditions
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_zero_threshold_rph():
@@ -1077,6 +1081,7 @@ def test_large_field_area():
 # TESTS: Performance and Data Integrity
 # =============================================================================
 
+
 @pytest.mark.unit
 def test_pest_database_unique_ids():
     """Test all pests have unique IDs."""
@@ -1115,6 +1120,7 @@ def test_pest_database_completeness():
 # =============================================================================
 # TESTS: Integration Scenarios
 # =============================================================================
+
 
 @pytest.mark.unit
 def test_complete_scouting_workflow():

@@ -9,8 +9,8 @@ https://github.com/Agent-Lightning/agent-lightning
 import asyncio
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -19,8 +19,9 @@ import structlog
 logger = structlog.get_logger()
 
 
-class OptimizationAlgorithm(str, Enum):
+class OptimizationAlgorithm(StrEnum):
     """Supported optimization algorithms."""
+
     REINFORCE = "reinforce"  # Policy Gradient
     PPO = "ppo"  # Proximal Policy Optimization
     DPO = "dpo"  # Direct Preference Optimization
@@ -28,8 +29,9 @@ class OptimizationAlgorithm(str, Enum):
     SFT = "sft"  # Supervised Fine-Tuning
 
 
-class TrainingStatus(str, Enum):
+class TrainingStatus(StrEnum):
     """Training job status."""
+
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -136,6 +138,7 @@ class AGLTrainer:
         try:
             # Try to import agl
             import importlib
+
             agl_spec = importlib.util.find_spec("agl")
             self._agl_available = agl_spec is not None
 
@@ -192,9 +195,7 @@ class AGLTrainer:
                 return result
 
         # Start training in background
-        asyncio.create_task(
-            self._run_training(job_id, config, feedback_data)
-        )
+        asyncio.create_task(self._run_training(job_id, config, feedback_data))
 
         result.status = TrainingStatus.RUNNING
         logger.info(
@@ -227,9 +228,7 @@ class AGLTrainer:
 
             result.status = TrainingStatus.COMPLETED
             result.completed_at = datetime.now(UTC)
-            result.duration_seconds = (
-                result.completed_at - result.started_at
-            ).total_seconds()
+            result.duration_seconds = (result.completed_at - result.started_at).total_seconds()
 
             logger.info(
                 "Training completed",
@@ -272,11 +271,13 @@ class AGLTrainer:
             current_reward = initial_reward + (iteration / config.num_iterations) * 0.25
 
             result.iterations_completed = iteration + 1
-            result.metrics_history.append({
-                "iteration": iteration,
-                "reward": current_reward,
-                "timestamp": datetime.now(UTC).isoformat(),
-            })
+            result.metrics_history.append(
+                {
+                    "iteration": iteration,
+                    "reward": current_reward,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }
+            )
 
             if iteration % config.checkpoint_interval == 0:
                 logger.debug(
@@ -286,9 +287,7 @@ class AGLTrainer:
                 )
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
         # Generate optimized prompt
         result.optimized_prompt = self._generate_optimized_prompt(
@@ -318,9 +317,7 @@ class AGLTrainer:
             result.iterations_completed = iteration + 1
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     async def _run_rl_training(
         self,
@@ -341,18 +338,19 @@ class AGLTrainer:
             await asyncio.sleep(0.1)
             # Simulate policy gradient with variance
             import random
+
             noise = random.uniform(-0.02, 0.05)
             current_reward = result.initial_reward + (iteration / config.num_iterations) * 0.35 + noise
             result.iterations_completed = iteration + 1
-            result.metrics_history.append({
-                "iteration": iteration,
-                "reward": current_reward,
-            })
+            result.metrics_history.append(
+                {
+                    "iteration": iteration,
+                    "reward": current_reward,
+                }
+            )
 
         result.final_reward = max(m["reward"] for m in result.metrics_history)
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     async def _run_dpo_training(
         self,
@@ -376,9 +374,7 @@ class AGLTrainer:
             result.iterations_completed = iteration + 1
 
         result.final_reward = current_reward
-        result.improvement_percent = (
-            (result.final_reward - result.initial_reward) / result.initial_reward * 100
-        )
+        result.improvement_percent = (result.final_reward - result.initial_reward) / result.initial_reward * 100
 
     def _generate_optimized_prompt(self, agent_name: str) -> str:
         """Generate an optimized system prompt for an agent."""
@@ -397,7 +393,6 @@ When analyzing crop issues:
 - Consider seasonal factors
 - Check for common regional diseases
 - Provide specific treatment recommendations with dosages""",
-
             "advisory": """أنت مستشار زراعي شامل.
 You are a comprehensive agricultural advisor.
 
@@ -412,7 +407,6 @@ Always provide:
 - Expected outcomes
 - Cost estimates in SAR
 - Timeline for results""",
-
             "default": """You are a helpful agricultural AI assistant for SAHOOL platform.
 أنت مساعد ذكاء اصطناعي زراعي مفيد لمنصة سهول.
 
@@ -459,11 +453,7 @@ Provide accurate, actionable advice for Middle Eastern farmers.""",
             key=lambda j: j.completed_at or datetime.min,
             reverse=True,
         ):
-            if (
-                job.status == TrainingStatus.COMPLETED
-                and agent_name in job.agent_name
-                and job.optimized_prompt
-            ):
+            if job.status == TrainingStatus.COMPLETED and agent_name in job.agent_name and job.optimized_prompt:
                 return job.optimized_prompt
 
         return None

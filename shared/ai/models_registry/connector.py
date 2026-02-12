@@ -28,7 +28,7 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from .models import AIModelInfo
@@ -39,6 +39,7 @@ logger = logging.getLogger(__name__)
 # ========================================================================
 # Base Connector
 # ========================================================================
+
 
 @dataclass
 class ConnectorResponse:
@@ -154,6 +155,7 @@ class BaseConnector(abc.ABC):
 # ShengNong Connector (神农)
 # ========================================================================
 
+
 class ShengNongConnector(BaseConnector):
     """Connector for ShengNong 3.0 (神农) model.
 
@@ -187,6 +189,7 @@ class ShengNongConnector(BaseConnector):
         """Set up the HTTP client."""
         try:
             import httpx
+
             self._client = httpx.AsyncClient(
                 timeout=60.0,
                 headers={
@@ -296,6 +299,7 @@ class ShengNongConnector(BaseConnector):
 # CropWizard Connector
 # ========================================================================
 
+
 class CropWizardConnector(BaseConnector):
     """Connector for CropWizard model from NCSA/UIUC.
 
@@ -325,6 +329,7 @@ class CropWizardConnector(BaseConnector):
         """Set up the HTTP client."""
         try:
             import httpx
+
             self._client = httpx.AsyncClient(
                 timeout=60.0,
                 headers={
@@ -418,6 +423,7 @@ class CropWizardConnector(BaseConnector):
 # PlantGPT Connector
 # ========================================================================
 
+
 class PlantGPTConnector(BaseConnector):
     """Connector for PlantGPT model from South China Agricultural University.
 
@@ -448,6 +454,7 @@ class PlantGPTConnector(BaseConnector):
         """Set up the HTTP client."""
         try:
             import httpx
+
             self._client = httpx.AsyncClient(
                 timeout=90.0,  # Genomics queries may take longer
                 headers={
@@ -568,6 +575,7 @@ class PlantGPTConnector(BaseConnector):
 # Generic REST Connector
 # ========================================================================
 
+
 class GenericRESTConnector(BaseConnector):
     """Generic REST API connector for agricultural AI models.
 
@@ -629,6 +637,7 @@ class GenericRESTConnector(BaseConnector):
                     headers["Authorization"] = f"Bearer {self._api_key}"
                 elif auth_type == "basic" and self._api_key:
                     import base64
+
                     encoded = base64.b64encode(self._api_key.encode()).decode()
                     headers["Authorization"] = f"Basic {encoded}"
 
@@ -692,12 +701,12 @@ class GenericRESTConnector(BaseConnector):
 
             # Try to extract response from various formats
             text = (
-                data.get("response") or
-                data.get("answer") or
-                data.get("message") or
-                data.get("text") or
-                data.get("content") or
-                str(data)
+                data.get("response")
+                or data.get("answer")
+                or data.get("message")
+                or data.get("text")
+                or data.get("content")
+                or str(data)
             )
 
             return {
@@ -736,6 +745,7 @@ class GenericRESTConnector(BaseConnector):
 # AgroGPT Connector (MBZUAI - Arabic Support)
 # ========================================================================
 
+
 class AgroGPTConnector(BaseConnector):
     """Connector for AgroGPT model from MBZUAI.
 
@@ -756,6 +766,7 @@ class AgroGPTConnector(BaseConnector):
         """Set up the HTTP client."""
         try:
             import httpx
+
             self._client = httpx.AsyncClient(
                 timeout=90.0,  # VLM may take longer
                 headers={
@@ -843,6 +854,7 @@ class AgroGPTConnector(BaseConnector):
 # Factory Functions
 # ========================================================================
 
+
 def create_connector(model: AIModelInfo) -> BaseConnector:
     """Create an appropriate connector for a model.
 
@@ -874,8 +886,8 @@ def get_available_connectors() -> list[str]:
     获取具有专用连接器的模型列表
     """
     return [
-        "shengnong",    # ShengNong 3.0 (神农)
-        "cropwizard",   # CropWizard (NCSA)
-        "plantgpt",     # PlantGPT
-        "agrogpt",      # AgroGPT (MBZUAI)
+        "shengnong",  # ShengNong 3.0 (神农)
+        "cropwizard",  # CropWizard (NCSA)
+        "plantgpt",  # PlantGPT
+        "agrogpt",  # AgroGPT (MBZUAI)
     ]

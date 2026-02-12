@@ -215,9 +215,7 @@ class TestTreatmentDataIntegrity:
         data = response.json()
 
         all_options = (
-            data["chemical_options"]
-            + data["biological_options"]
-            + data["cultural_options"]
+            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         )
         for option in all_options:
             opt_id = option["id"]
@@ -241,9 +239,7 @@ class TestTreatmentDataIntegrity:
         data = response.json()
 
         all_options = (
-            data["chemical_options"]
-            + data["biological_options"]
-            + data["cultural_options"]
+            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         )
         for option in all_options:
             assert "effectiveness_rating" in option
@@ -255,9 +251,7 @@ class TestTreatmentDataIntegrity:
         data = response.json()
 
         all_options = (
-            data["chemical_options"]
-            + data["biological_options"]
-            + data["cultural_options"]
+            data["chemical_options"] + data["biological_options"] + data["cultural_options"]
         )
         for option in all_options:
             opt_id = option["id"]

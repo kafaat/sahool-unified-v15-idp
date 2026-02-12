@@ -1,4 +1,6 @@
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 LABEL maintainer="KAFAAT Team"
 LABEL description="SAHOOL Demo Data Service - Simulates API data flow"

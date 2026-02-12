@@ -262,9 +262,7 @@ class TestInputDataValidation:
         assert sample_irrigation_features.days_since_irrigation is None
 
         # Set last irrigation date
-        sample_irrigation_features.last_irrigation_date = (
-            datetime.utcnow() - timedelta(days=3)
-        )
+        sample_irrigation_features.last_irrigation_date = datetime.utcnow() - timedelta(days=3)
         days = sample_irrigation_features.days_since_irrigation
         assert days is not None
         assert abs(days - 3.0) < 0.1
@@ -355,9 +353,7 @@ class TestPredictionConfidence:
         fresh_confidence = prediction.confidence
 
         # Old data (2 days ago)
-        sample_irrigation_features.soil.timestamp = (
-            datetime.utcnow() - timedelta(hours=48)
-        )
+        sample_irrigation_features.soil.timestamp = datetime.utcnow() - timedelta(hours=48)
         prediction = predictor.predict(sample_irrigation_features)
         old_confidence = prediction.confidence
 
@@ -575,7 +571,9 @@ class TestScheduleGeneration:
         assert len(result.optimized_schedule) > 0
 
     @pytest.mark.unit
-    def test_schedule_respects_optimal_timing(self, sample_irrigation_records, sample_irrigation_features):
+    def test_schedule_respects_optimal_timing(
+        self, sample_irrigation_records, sample_irrigation_features
+    ):
         """Test schedule uses optimal timing for irrigation type"""
         optimizer = WaterOptimizer()
         result = optimizer.optimize(
@@ -590,7 +588,9 @@ class TestScheduleGeneration:
             assert 4 <= hour <= 10  # Reasonable morning window
 
     @pytest.mark.unit
-    def test_schedule_includes_duration(self, sample_irrigation_records, sample_irrigation_features):
+    def test_schedule_includes_duration(
+        self, sample_irrigation_records, sample_irrigation_features
+    ):
         """Test schedule includes estimated duration"""
         optimizer = WaterOptimizer()
         result = optimizer.optimize(
@@ -834,9 +834,7 @@ class TestWeatherIntegration:
             IrrigationUrgency.HIGH,
             IrrigationUrgency.CRITICAL,
         ]
-        assert urgency_levels.index(pred_hot.urgency) >= urgency_levels.index(
-            pred_moderate.urgency
-        )
+        assert urgency_levels.index(pred_hot.urgency) >= urgency_levels.index(pred_moderate.urgency)
 
     @pytest.mark.unit
     def test_high_wind_affects_sprinkler_timing(self, sample_soil, sample_crop):

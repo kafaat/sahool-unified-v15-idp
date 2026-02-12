@@ -16,7 +16,7 @@ import logging
 import os
 import uuid
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 
 import jwt
 from jwt import PyJWTError
@@ -98,9 +98,6 @@ class TokenPayload:
 # ─────────────────────────────────────────────────────────────────────────────
 # Token Verification
 # ─────────────────────────────────────────────────────────────────────────────
-
-
-
 
 
 def verify_token(token: str, check_revocation: bool = True) -> dict:

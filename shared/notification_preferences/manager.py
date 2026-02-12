@@ -13,21 +13,21 @@ Updated: January 2026
 from __future__ import annotations
 
 import logging
-from datetime import datetime, time, UTC
+from datetime import UTC, datetime, time
 from typing import Any, Protocol
 
 from .models import (
-    UserNotificationPreferences,
-    ChannelConfig,
+    AlertType,
     AlertTypePreference,
+    AlertUrgency,
+    ChannelConfig,
+    DayOfWeek,
+    Language,
+    NotificationChannel,
+    QuietHours,
     TimeBasedRule,
     UrgencyOverride,
-    QuietHours,
-    NotificationChannel,
-    AlertType,
-    AlertUrgency,
-    Language,
-    DayOfWeek,
+    UserNotificationPreferences,
     create_default_preferences,
 )
 
@@ -40,7 +40,9 @@ class PreferencesStorage(Protocol):
     بروتوكول لتخزين التفضيلات
     """
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
+    async def get(
+        self, user_id: str, tenant_id: str | None = None
+    ) -> UserNotificationPreferences | None:
         """Get preferences for a user"""
         ...
 
@@ -70,7 +72,9 @@ class InMemoryStorage:
         """Generate storage key"""
         return f"{tenant_id or 'default'}:{user_id}"
 
-    async def get(self, user_id: str, tenant_id: str | None = None) -> UserNotificationPreferences | None:
+    async def get(
+        self, user_id: str, tenant_id: str | None = None
+    ) -> UserNotificationPreferences | None:
         """Get preferences for a user"""
         key = self._key(user_id, tenant_id)
         return self._storage.get(key)
@@ -93,10 +97,7 @@ class InMemoryStorage:
     async def list_all(self, tenant_id: str | None = None) -> list[UserNotificationPreferences]:
         """List all preferences, optionally filtered by tenant"""
         if tenant_id:
-            return [
-                p for p in self._storage.values()
-                if p.tenant_id == tenant_id
-            ]
+            return [p for p in self._storage.values() if p.tenant_id == tenant_id]
         return list(self._storage.values())
 
 
@@ -169,7 +170,9 @@ class NotificationPreferencesManager:
             self._validate_preferences(preferences)
 
         await self.storage.save(preferences)
-        logger.info(f"Saved preferences for user {preferences.user_id}, version {preferences.version}")
+        logger.info(
+            f"Saved preferences for user {preferences.user_id}, version {preferences.version}"
+        )
         return preferences
 
     async def delete_preferences(
@@ -293,7 +296,9 @@ class NotificationPreferencesManager:
             Updated preferences
         """
         if not channels:
-            raise ValueError("At least one channel must be specified | يجب تحديد قناة واحدة على الأقل")
+            raise ValueError(
+                "At least one channel must be specified | يجب تحديد قناة واحدة على الأقل"
+            )
 
         preferences = await self.get_preferences(user_id, tenant_id)
         preferences.default_channels = channels
@@ -362,8 +367,7 @@ class NotificationPreferencesManager:
         """
         preferences = await self.get_preferences(user_id, tenant_id)
         preferences.channel_configs = [
-            c for c in preferences.channel_configs
-            if c.channel != channel
+            c for c in preferences.channel_configs if c.channel != channel
         ]
         return await self.save_preferences(preferences, validate=False)
 
@@ -678,8 +682,7 @@ class NotificationPreferencesManager:
 
         # Remove existing override for same urgency
         preferences.urgency_overrides = [
-            o for o in preferences.urgency_overrides
-            if o.urgency != override.urgency
+            o for o in preferences.urgency_overrides if o.urgency != override.urgency
         ]
         preferences.urgency_overrides.append(override)
 
@@ -705,8 +708,7 @@ class NotificationPreferencesManager:
         """
         preferences = await self.get_preferences(user_id, tenant_id)
         preferences.urgency_overrides = [
-            o for o in preferences.urgency_overrides
-            if o.urgency != urgency
+            o for o in preferences.urgency_overrides if o.urgency != urgency
         ]
         return await self.save_preferences(preferences, validate=False)
 
@@ -736,9 +738,15 @@ class NotificationPreferencesManager:
 
         # Update simple fields
         simple_fields = [
-            "notifications_enabled", "sound_enabled", "vibration_enabled",
-            "show_badge_count", "show_preview", "show_preview_on_lock_screen",
-            "digest_enabled", "summary_enabled", "summary_interval_hours",
+            "notifications_enabled",
+            "sound_enabled",
+            "vibration_enabled",
+            "show_badge_count",
+            "show_preview",
+            "show_preview_on_lock_screen",
+            "digest_enabled",
+            "summary_enabled",
+            "summary_interval_hours",
         ]
 
         for field in simple_fields:

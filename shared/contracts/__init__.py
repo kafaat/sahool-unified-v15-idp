@@ -19,8 +19,8 @@ Submodules | الوحدات الفرعية:
 - events: Event schemas for NATS messaging | مخططات أحداث NATS
 """
 
-from shared.contracts.events import *
 from shared.contracts.actions import *
+from shared.contracts.events import *
 
 __all__ = [
     # Events submodule exports

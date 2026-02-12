@@ -241,6 +241,26 @@
 -dontwarn io.flutter.plugins.sharedpreferences.**
 
 # ==============================================================================
+# NOTIFICATIONS
+# ==============================================================================
+
+# Flutter Local Notifications
+-keep class com.dexterous.** { *; }
+-keep class androidx.core.app.NotificationCompat** { *; }
+-dontwarn com.dexterous.**
+
+# ==============================================================================
+# BARCODE & QR SCANNING
+# ==============================================================================
+
+# Mobile Scanner
+-keep class dev.steenbakker.mobile_scanner.** { *; }
+-keep class com.google.zxing.** { *; }
+-keep class com.google.mlkit.vision.** { *; }
+-dontwarn dev.steenbakker.mobile_scanner.**
+-dontwarn com.google.zxing.**
+
+# ==============================================================================
 # DEVICE INFO & SECURITY
 # ==============================================================================
 

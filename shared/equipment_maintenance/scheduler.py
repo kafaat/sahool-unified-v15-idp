@@ -15,34 +15,34 @@ Version: 1.0.0
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, date, UTC
-from enum import Enum
+from datetime import UTC, date, datetime, timedelta
+from enum import StrEnum
 
 from .models import (
+    AlertSeverity,
+    AlertType,
+    ChecklistItem,
     Equipment,
     EquipmentType,
+    MaintenanceAlert,
+    MaintenancePart,
+    MaintenancePriority,
     MaintenanceSchedule,
+    MaintenanceStatus,
     MaintenanceTask,
     MaintenanceType,
-    MaintenanceStatus,
-    MaintenancePriority,
-    MaintenanceAlert,
-    AlertType,
-    AlertSeverity,
-    ChecklistItem,
     PartRequirement,
-    MaintenancePart,
     generate_id,
 )
-
 
 # ==============================================================================
 # Enumerations - التعدادات
 # ==============================================================================
 
 
-class ScheduleFrequency(str, Enum):
+class ScheduleFrequency(StrEnum):
     """Schedule frequency type - نوع تكرار الجدولة"""
+
     HOURS = "hours"  # بناءً على ساعات التشغيل
     DAILY = "daily"  # يومي
     WEEKLY = "weekly"  # أسبوعي
@@ -55,8 +55,9 @@ class ScheduleFrequency(str, Enum):
     ON_DEMAND = "on_demand"  # عند الطلب
 
 
-class AgriculturalSeason(str, Enum):
+class AgriculturalSeason(StrEnum):
     """Agricultural season - الموسم الزراعي"""
+
     PRE_PLANTING = "pre_planting"  # قبل الزراعة
     PLANTING = "planting"  # موسم الزراعة
     GROWING = "growing"  # موسم النمو
@@ -74,6 +75,7 @@ class AgriculturalSeason(str, Enum):
 @dataclass
 class ScheduledTask:
     """A task scheduled for execution - مهمة مجدولة للتنفيذ"""
+
     schedule_id: str
     equipment_id: str
     scheduled_date: datetime
@@ -93,6 +95,7 @@ class ScheduledTask:
 @dataclass
 class ScheduleConflict:
     """Schedule conflict information - معلومات تعارض الجدولة"""
+
     schedule_id_1: str
     schedule_id_2: str
     conflict_date: datetime
@@ -107,6 +110,7 @@ class ScheduleConflict:
 @dataclass
 class WorkloadSummary:
     """Workload summary for a period - ملخص حجم العمل لفترة"""
+
     period_start: datetime
     period_end: datetime
     total_tasks: int
@@ -121,6 +125,7 @@ class WorkloadSummary:
 @dataclass
 class SeasonConfig:
     """Season configuration for scheduling - تكوين الموسم للجدولة"""
+
     season: AgriculturalSeason
     start_month: int
     start_day: int
@@ -145,45 +150,59 @@ class SeasonConfig:
 MIDDLE_EAST_SEASONS = {
     AgriculturalSeason.PRE_PLANTING: SeasonConfig(
         season=AgriculturalSeason.PRE_PLANTING,
-        start_month=9, start_day=1,
-        end_month=10, end_day=15,
-        region="middle_east"
+        start_month=9,
+        start_day=1,
+        end_month=10,
+        end_day=15,
+        region="middle_east",
     ),
     AgriculturalSeason.PLANTING: SeasonConfig(
         season=AgriculturalSeason.PLANTING,
-        start_month=10, start_day=15,
-        end_month=11, end_day=30,
-        region="middle_east"
+        start_month=10,
+        start_day=15,
+        end_month=11,
+        end_day=30,
+        region="middle_east",
     ),
     AgriculturalSeason.GROWING: SeasonConfig(
         season=AgriculturalSeason.GROWING,
-        start_month=12, start_day=1,
-        end_month=3, end_day=31,
-        region="middle_east"
+        start_month=12,
+        start_day=1,
+        end_month=3,
+        end_day=31,
+        region="middle_east",
     ),
     AgriculturalSeason.PRE_HARVEST: SeasonConfig(
         season=AgriculturalSeason.PRE_HARVEST,
-        start_month=4, start_day=1,
-        end_month=4, end_day=15,
-        region="middle_east"
+        start_month=4,
+        start_day=1,
+        end_month=4,
+        end_day=15,
+        region="middle_east",
     ),
     AgriculturalSeason.HARVEST: SeasonConfig(
         season=AgriculturalSeason.HARVEST,
-        start_month=4, start_day=15,
-        end_month=5, end_day=31,
-        region="middle_east"
+        start_month=4,
+        start_day=15,
+        end_month=5,
+        end_day=31,
+        region="middle_east",
     ),
     AgriculturalSeason.POST_HARVEST: SeasonConfig(
         season=AgriculturalSeason.POST_HARVEST,
-        start_month=6, start_day=1,
-        end_month=6, end_day=30,
-        region="middle_east"
+        start_month=6,
+        start_day=1,
+        end_month=6,
+        end_day=30,
+        region="middle_east",
     ),
     AgriculturalSeason.OFF_SEASON: SeasonConfig(
         season=AgriculturalSeason.OFF_SEASON,
-        start_month=7, start_day=1,
-        end_month=8, end_day=31,
-        region="middle_east"
+        start_month=7,
+        start_day=1,
+        end_month=8,
+        end_day=31,
+        region="middle_east",
     ),
 }
 
@@ -217,9 +236,15 @@ def get_default_tractor_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             checklist_template=[
                 {"description": "Drain old oil", "description_ar": "تصريف الزيت القديم"},
                 {"description": "Replace oil filter", "description_ar": "استبدال فلتر الزيت"},
-                {"description": "Add new oil (check capacity)", "description_ar": "إضافة زيت جديد (تحقق من السعة)"},
+                {
+                    "description": "Add new oil (check capacity)",
+                    "description_ar": "إضافة زيت جديد (تحقق من السعة)",
+                },
                 {"description": "Check for leaks", "description_ar": "التحقق من التسريبات"},
-                {"description": "Record oil type and quantity", "description_ar": "تسجيل نوع وكمية الزيت"},
+                {
+                    "description": "Record oil type and quantity",
+                    "description_ar": "تسجيل نوع وكمية الزيت",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -238,10 +263,19 @@ def get_default_tractor_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             estimated_duration_hours=0.5,
             default_priority=MaintenancePriority.MEDIUM,
             checklist_template=[
-                {"description": "Remove air filter housing cover", "description_ar": "إزالة غطاء علبة الفلتر"},
-                {"description": "Remove old filter element", "description_ar": "إزالة عنصر الفلتر القديم"},
+                {
+                    "description": "Remove air filter housing cover",
+                    "description_ar": "إزالة غطاء علبة الفلتر",
+                },
+                {
+                    "description": "Remove old filter element",
+                    "description_ar": "إزالة عنصر الفلتر القديم",
+                },
                 {"description": "Clean housing interior", "description_ar": "تنظيف داخل العلبة"},
-                {"description": "Install new filter element", "description_ar": "تركيب عنصر الفلتر الجديد"},
+                {
+                    "description": "Install new filter element",
+                    "description_ar": "تركيب عنصر الفلتر الجديد",
+                },
                 {"description": "Secure housing cover", "description_ar": "تأمين غطاء العلبة"},
             ],
         ),
@@ -261,12 +295,27 @@ def get_default_tractor_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             estimated_duration_hours=2.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Drain hydraulic reservoir", "description_ar": "تصريف خزان الهيدروليك"},
-                {"description": "Replace hydraulic filter", "description_ar": "استبدال الفلتر الهيدروليكي"},
+                {
+                    "description": "Drain hydraulic reservoir",
+                    "description_ar": "تصريف خزان الهيدروليك",
+                },
+                {
+                    "description": "Replace hydraulic filter",
+                    "description_ar": "استبدال الفلتر الهيدروليكي",
+                },
                 {"description": "Inspect hoses for wear", "description_ar": "فحص الخراطيم للتآكل"},
-                {"description": "Check cylinder seals", "description_ar": "التحقق من حشوات الأسطوانات"},
-                {"description": "Refill with correct oil type", "description_ar": "إعادة التعبئة بنوع الزيت الصحيح"},
-                {"description": "Bleed air from system", "description_ar": "تنفيس الهواء من النظام"},
+                {
+                    "description": "Check cylinder seals",
+                    "description_ar": "التحقق من حشوات الأسطوانات",
+                },
+                {
+                    "description": "Refill with correct oil type",
+                    "description_ar": "إعادة التعبئة بنوع الزيت الصحيح",
+                },
+                {
+                    "description": "Bleed air from system",
+                    "description_ar": "تنفيس الهواء من النظام",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -284,13 +333,28 @@ def get_default_tractor_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             estimated_duration_hours=4.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Check all fluid levels", "description_ar": "التحقق من جميع مستويات السوائل"},
-                {"description": "Inspect tire condition and pressure", "description_ar": "فحص حالة الإطارات والضغط"},
-                {"description": "Test all lights and signals", "description_ar": "اختبار جميع الأضواء والإشارات"},
+                {
+                    "description": "Check all fluid levels",
+                    "description_ar": "التحقق من جميع مستويات السوائل",
+                },
+                {
+                    "description": "Inspect tire condition and pressure",
+                    "description_ar": "فحص حالة الإطارات والضغط",
+                },
+                {
+                    "description": "Test all lights and signals",
+                    "description_ar": "اختبار جميع الأضواء والإشارات",
+                },
                 {"description": "Inspect brake system", "description_ar": "فحص نظام الفرامل"},
-                {"description": "Check PTO operation", "description_ar": "التحقق من عمل عمود الإدارة"},
+                {
+                    "description": "Check PTO operation",
+                    "description_ar": "التحقق من عمل عمود الإدارة",
+                },
                 {"description": "Test 3-point hitch", "description_ar": "اختبار الرابطة الثلاثية"},
-                {"description": "Inspect belts and hoses", "description_ar": "فحص الأحزمة والخراطيم"},
+                {
+                    "description": "Inspect belts and hoses",
+                    "description_ar": "فحص الأحزمة والخراطيم",
+                },
                 {"description": "Grease all fittings", "description_ar": "تشحيم جميع النقاط"},
             ],
         ),
@@ -319,12 +383,18 @@ def get_default_harvester_schedules(equipment_id: str, tenant_id: str) -> list[M
             estimated_duration_hours=0.5,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Check engine oil level", "description_ar": "التحقق من مستوى زيت المحرك"},
+                {
+                    "description": "Check engine oil level",
+                    "description_ar": "التحقق من مستوى زيت المحرك",
+                },
                 {"description": "Inspect knife sections", "description_ar": "فحص أقسام السكين"},
                 {"description": "Check belt tensions", "description_ar": "التحقق من شد الأحزمة"},
                 {"description": "Clean radiator screen", "description_ar": "تنظيف شبكة المبرد"},
                 {"description": "Grease daily points", "description_ar": "تشحيم النقاط اليومية"},
-                {"description": "Check grain tank sensors", "description_ar": "فحص مجسات خزان الحبوب"},
+                {
+                    "description": "Check grain tank sensors",
+                    "description_ar": "فحص مجسات خزان الحبوب",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -343,11 +413,23 @@ def get_default_harvester_schedules(equipment_id: str, tenant_id: str) -> list[M
             estimated_duration_hours=2.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Inspect all knife sections", "description_ar": "فحص جميع أقسام السكين"},
-                {"description": "Mark sections needing replacement", "description_ar": "تحديد الأقسام التي تحتاج استبدال"},
-                {"description": "Sharpen or replace sections", "description_ar": "شحذ أو استبدال الأقسام"},
+                {
+                    "description": "Inspect all knife sections",
+                    "description_ar": "فحص جميع أقسام السكين",
+                },
+                {
+                    "description": "Mark sections needing replacement",
+                    "description_ar": "تحديد الأقسام التي تحتاج استبدال",
+                },
+                {
+                    "description": "Sharpen or replace sections",
+                    "description_ar": "شحذ أو استبدال الأقسام",
+                },
                 {"description": "Check knife guards", "description_ar": "فحص واقيات السكين"},
-                {"description": "Verify knife alignment", "description_ar": "التحقق من محاذاة السكين"},
+                {
+                    "description": "Verify knife alignment",
+                    "description_ar": "التحقق من محاذاة السكين",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -365,20 +447,37 @@ def get_default_harvester_schedules(equipment_id: str, tenant_id: str) -> list[M
             estimated_duration_hours=8.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Clean entire machine thoroughly", "description_ar": "تنظيف الآلة بالكامل جيداً"},
-                {"description": "Change engine oil and filter", "description_ar": "تغيير زيت المحرك والفلتر"},
-                {"description": "Drain fuel or add stabilizer", "description_ar": "تصريف الوقود أو إضافة مثبت"},
+                {
+                    "description": "Clean entire machine thoroughly",
+                    "description_ar": "تنظيف الآلة بالكامل جيداً",
+                },
+                {
+                    "description": "Change engine oil and filter",
+                    "description_ar": "تغيير زيت المحرك والفلتر",
+                },
+                {
+                    "description": "Drain fuel or add stabilizer",
+                    "description_ar": "تصريف الوقود أو إضافة مثبت",
+                },
                 {"description": "Grease all fittings", "description_ar": "تشحيم جميع النقاط"},
                 {"description": "Apply rust preventative", "description_ar": "تطبيق مانع الصدأ"},
-                {"description": "Remove batteries for storage", "description_ar": "إزالة البطاريات للتخزين"},
+                {
+                    "description": "Remove batteries for storage",
+                    "description_ar": "إزالة البطاريات للتخزين",
+                },
                 {"description": "Cover machine", "description_ar": "تغطية الآلة"},
-                {"description": "Document any repairs needed", "description_ar": "توثيق أي إصلاحات مطلوبة"},
+                {
+                    "description": "Document any repairs needed",
+                    "description_ar": "توثيق أي إصلاحات مطلوبة",
+                },
             ],
         ),
     ]
 
 
-def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[MaintenanceSchedule]:
+def get_default_irrigation_schedules(
+    equipment_id: str, tenant_id: str
+) -> list[MaintenanceSchedule]:
     """
     Get default maintenance schedules for irrigation systems
     الحصول على جداول الصيانة الافتراضية لأنظمة الري
@@ -403,10 +502,16 @@ def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[
                 {"description": "Shut off water supply", "description_ar": "إيقاف إمداد المياه"},
                 {"description": "Release pressure", "description_ar": "تحرير الضغط"},
                 {"description": "Remove filter elements", "description_ar": "إزالة عناصر الفلتر"},
-                {"description": "Clean elements thoroughly", "description_ar": "تنظيف العناصر جيداً"},
+                {
+                    "description": "Clean elements thoroughly",
+                    "description_ar": "تنظيف العناصر جيداً",
+                },
                 {"description": "Inspect for damage", "description_ar": "فحص التلف"},
                 {"description": "Reinstall elements", "description_ar": "إعادة تركيب العناصر"},
-                {"description": "Check pressure differential", "description_ar": "التحقق من فرق الضغط"},
+                {
+                    "description": "Check pressure differential",
+                    "description_ar": "التحقق من فرق الضغط",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -424,11 +529,23 @@ def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[
             estimated_duration_hours=3.0,
             default_priority=MaintenancePriority.MEDIUM,
             checklist_template=[
-                {"description": "Walk field to inspect emitters", "description_ar": "المشي في الحقل لفحص البواعث"},
-                {"description": "Mark clogged or damaged emitters", "description_ar": "تحديد البواعث المسدودة أو التالفة"},
-                {"description": "Clean or replace as needed", "description_ar": "التنظيف أو الاستبدال حسب الحاجة"},
+                {
+                    "description": "Walk field to inspect emitters",
+                    "description_ar": "المشي في الحقل لفحص البواعث",
+                },
+                {
+                    "description": "Mark clogged or damaged emitters",
+                    "description_ar": "تحديد البواعث المسدودة أو التالفة",
+                },
+                {
+                    "description": "Clean or replace as needed",
+                    "description_ar": "التنظيف أو الاستبدال حسب الحاجة",
+                },
                 {"description": "Check flow rates", "description_ar": "التحقق من معدلات التدفق"},
-                {"description": "Record replacement count", "description_ar": "تسجيل عدد الاستبدالات"},
+                {
+                    "description": "Record replacement count",
+                    "description_ar": "تسجيل عدد الاستبدالات",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -447,12 +564,24 @@ def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[
             estimated_duration_hours=2.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Check pump alignment", "description_ar": "التحقق من محاذاة المضخة"},
-                {"description": "Inspect seals for leaks", "description_ar": "فحص الحشوات للتسريبات"},
+                {
+                    "description": "Check pump alignment",
+                    "description_ar": "التحقق من محاذاة المضخة",
+                },
+                {
+                    "description": "Inspect seals for leaks",
+                    "description_ar": "فحص الحشوات للتسريبات",
+                },
                 {"description": "Check bearings", "description_ar": "فحص المحامل"},
-                {"description": "Measure flow rate and pressure", "description_ar": "قياس معدل التدفق والضغط"},
+                {
+                    "description": "Measure flow rate and pressure",
+                    "description_ar": "قياس معدل التدفق والضغط",
+                },
                 {"description": "Inspect impeller condition", "description_ar": "فحص حالة المروحة"},
-                {"description": "Check electrical connections", "description_ar": "التحقق من التوصيلات الكهربائية"},
+                {
+                    "description": "Check electrical connections",
+                    "description_ar": "التحقق من التوصيلات الكهربائية",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -470,13 +599,25 @@ def get_default_irrigation_schedules(equipment_id: str, tenant_id: str) -> list[
             estimated_duration_hours=4.0,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Inspect all mainlines for damage", "description_ar": "فحص جميع الخطوط الرئيسية للتلف"},
-                {"description": "Check valve operation", "description_ar": "التحقق من عمل الصمامات"},
+                {
+                    "description": "Inspect all mainlines for damage",
+                    "description_ar": "فحص جميع الخطوط الرئيسية للتلف",
+                },
+                {
+                    "description": "Check valve operation",
+                    "description_ar": "التحقق من عمل الصمامات",
+                },
                 {"description": "Flush mainlines", "description_ar": "شطف الخطوط الرئيسية"},
                 {"description": "Flush lateral lines", "description_ar": "شطف الخطوط الفرعية"},
                 {"description": "Test pressure regulation", "description_ar": "اختبار تنظيم الضغط"},
-                {"description": "Verify controller programming", "description_ar": "التحقق من برمجة وحدة التحكم"},
-                {"description": "Run full system test", "description_ar": "تشغيل اختبار النظام الكامل"},
+                {
+                    "description": "Verify controller programming",
+                    "description_ar": "التحقق من برمجة وحدة التحكم",
+                },
+                {
+                    "description": "Run full system test",
+                    "description_ar": "تشغيل اختبار النظام الكامل",
+                },
             ],
         ),
     ]
@@ -506,8 +647,14 @@ def get_default_sprayer_schedules(equipment_id: str, tenant_id: str) -> list[Mai
                 {"description": "Triple rinse tank", "description_ar": "شطف الخزان ثلاث مرات"},
                 {"description": "Flush all hoses", "description_ar": "شطف جميع الخراطيم"},
                 {"description": "Clean nozzle filters", "description_ar": "تنظيف فلاتر الفوهات"},
-                {"description": "Run clean water through system", "description_ar": "تشغيل ماء نظيف في النظام"},
-                {"description": "Dispose of rinse water properly", "description_ar": "التخلص من ماء الشطف بشكل صحيح"},
+                {
+                    "description": "Run clean water through system",
+                    "description_ar": "تشغيل ماء نظيف في النظام",
+                },
+                {
+                    "description": "Dispose of rinse water properly",
+                    "description_ar": "التخلص من ماء الشطف بشكل صحيح",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -525,12 +672,27 @@ def get_default_sprayer_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             estimated_duration_hours=1.5,
             default_priority=MaintenancePriority.HIGH,
             checklist_template=[
-                {"description": "Measure output of each nozzle", "description_ar": "قياس خرج كل فوهة"},
-                {"description": "Compare to rated output", "description_ar": "مقارنة مع الخرج المقنن"},
-                {"description": "Replace worn nozzles (>10% variation)", "description_ar": "استبدال الفوهات البالية (+10% تفاوت)"},
+                {
+                    "description": "Measure output of each nozzle",
+                    "description_ar": "قياس خرج كل فوهة",
+                },
+                {
+                    "description": "Compare to rated output",
+                    "description_ar": "مقارنة مع الخرج المقنن",
+                },
+                {
+                    "description": "Replace worn nozzles (>10% variation)",
+                    "description_ar": "استبدال الفوهات البالية (+10% تفاوت)",
+                },
                 {"description": "Check spray pattern", "description_ar": "التحقق من نمط الرش"},
-                {"description": "Verify pressure gauge accuracy", "description_ar": "التحقق من دقة مقياس الضغط"},
-                {"description": "Calculate actual application rate", "description_ar": "حساب معدل التطبيق الفعلي"},
+                {
+                    "description": "Verify pressure gauge accuracy",
+                    "description_ar": "التحقق من دقة مقياس الضغط",
+                },
+                {
+                    "description": "Calculate actual application rate",
+                    "description_ar": "حساب معدل التطبيق الفعلي",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -549,11 +711,20 @@ def get_default_sprayer_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             estimated_duration_hours=2.0,
             default_priority=MaintenancePriority.MEDIUM,
             checklist_template=[
-                {"description": "Check pump oil level", "description_ar": "التحقق من مستوى زيت المضخة"},
-                {"description": "Inspect diaphragms/pistons", "description_ar": "فحص الحجابات/المكابس"},
+                {
+                    "description": "Check pump oil level",
+                    "description_ar": "التحقق من مستوى زيت المضخة",
+                },
+                {
+                    "description": "Inspect diaphragms/pistons",
+                    "description_ar": "فحص الحجابات/المكابس",
+                },
                 {"description": "Check seals for leaks", "description_ar": "فحص الحشوات للتسريبات"},
                 {"description": "Verify pressure output", "description_ar": "التحقق من خرج الضغط"},
-                {"description": "Check drive belt tension", "description_ar": "التحقق من شد حزام القيادة"},
+                {
+                    "description": "Check drive belt tension",
+                    "description_ar": "التحقق من شد حزام القيادة",
+                },
             ],
         ),
         MaintenanceSchedule(
@@ -573,9 +744,18 @@ def get_default_sprayer_schedules(equipment_id: str, tenant_id: str) -> list[Mai
             checklist_template=[
                 {"description": "Check boom level", "description_ar": "التحقق من مستوى الذراع"},
                 {"description": "Inspect breakaway joints", "description_ar": "فحص مفاصل الفصل"},
-                {"description": "Check hydraulic cylinders", "description_ar": "فحص الأسطوانات الهيدروليكية"},
-                {"description": "Verify nozzle spacing", "description_ar": "التحقق من تباعد الفوهات"},
-                {"description": "Test boom height sensors", "description_ar": "اختبار مجسات ارتفاع الذراع"},
+                {
+                    "description": "Check hydraulic cylinders",
+                    "description_ar": "فحص الأسطوانات الهيدروليكية",
+                },
+                {
+                    "description": "Verify nozzle spacing",
+                    "description_ar": "التحقق من تباعد الفوهات",
+                },
+                {
+                    "description": "Test boom height sensors",
+                    "description_ar": "اختبار مجسات ارتفاع الذراع",
+                },
             ],
         ),
     ]
@@ -822,7 +1002,7 @@ class MaintenanceScheduler:
                             if season_config:
                                 season_start = datetime.combine(
                                     season_config.get_start_date(check_date.year),
-                                    datetime.min.time()
+                                    datetime.min.time(),
                                 )
                                 if schedule.last_executed_at < season_start:
                                     due_schedules.append((schedule, "season_trigger"))
@@ -882,7 +1062,9 @@ class MaintenanceScheduler:
             scheduled_date=scheduled_date,
             due_date=scheduled_date + timedelta(days=7),  # Default 7 days to complete
             estimated_duration_hours=schedule.estimated_duration_hours,
-            triggered_by_hours=equipment.total_hours if equipment and schedule.hours_interval else None,
+            triggered_by_hours=equipment.total_hours
+            if equipment and schedule.hours_interval
+            else None,
             triggered_by_date=bool(schedule.calendar_interval_days),
             triggered_by_condition=triggered_by == "condition",
             checklist=checklist,
@@ -1098,7 +1280,9 @@ class MaintenanceScheduler:
             # Create alert messages
             if "hours" in trigger_reason:
                 hours_since = equipment.total_hours - (schedule.last_executed_hours or 0)
-                message = f"Maintenance due at {schedule.hours_interval}h. Current: {hours_since:.0f}h"
+                message = (
+                    f"Maintenance due at {schedule.hours_interval}h. Current: {hours_since:.0f}h"
+                )
                 message_ar = f"الصيانة مستحقة عند {schedule.hours_interval} ساعة. الحالي: {hours_since:.0f} ساعة"
                 trigger_value = f"{hours_since:.0f}h"
                 threshold_value = f"{schedule.hours_interval}h"
@@ -1112,7 +1296,9 @@ class MaintenanceScheduler:
                 id=generate_id("alert"),
                 tenant_id=schedule.tenant_id,
                 equipment_id=schedule.equipment_id,
-                alert_type=AlertType.SCHEDULED_DUE if "approaching" in trigger_reason else AlertType.OVERDUE,
+                alert_type=AlertType.SCHEDULED_DUE
+                if "approaching" in trigger_reason
+                else AlertType.OVERDUE,
                 severity=severity,
                 title=f"Maintenance Due: {schedule.name}",
                 title_ar=f"صيانة مستحقة: {schedule.name_ar}",

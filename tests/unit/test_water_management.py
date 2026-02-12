@@ -228,8 +228,8 @@ def sample_irrigation_events():
             field_id="field-001",
             source_id="source-001",
             allocation_id="alloc-001",
-            started_at=now - timedelta(days=7-i, hours=8),
-            ended_at=now - timedelta(days=7-i, hours=9),
+            started_at=now - timedelta(days=7 - i, hours=8),
+            ended_at=now - timedelta(days=7 - i, hours=9),
             duration_minutes=60,
             volume_m3=150.0,
             depth_mm=15.0,
@@ -264,7 +264,7 @@ def sample_consumption_records():
             field_id="field-001",
             allocation_id="alloc-001",
             period_start=datetime.utcnow() - timedelta(days=i),
-            period_end=datetime.utcnow() - timedelta(days=i-1),
+            period_end=datetime.utcnow() - timedelta(days=i - 1),
             volume_m3=500.0,
             irrigation_method=IrrigationMethod.DRIP,
             duration_hours=12.0,
@@ -367,17 +367,13 @@ class TestWaterMeter:
 
     def test_water_meter_consumption_calculation(self, sample_water_meter):
         """Test meter consumption calculation"""
-        consumption = sample_water_meter.calculate_consumption(
-            previous_reading=1000.0
-        )
+        consumption = sample_water_meter.calculate_consumption(previous_reading=1000.0)
         assert consumption == 500.0  # 1500 - 1000
 
     def test_water_meter_consumption_with_calibration(self, sample_water_meter):
         """Test meter consumption with calibration factor"""
         sample_water_meter.calibration_factor = 1.05
-        consumption = sample_water_meter.calculate_consumption(
-            previous_reading=1000.0
-        )
+        consumption = sample_water_meter.calculate_consumption(previous_reading=1000.0)
         assert consumption == pytest.approx(525.0)  # (1500 - 1000) * 1.05
 
     def test_water_meter_to_dict(self, sample_water_meter):
@@ -464,9 +460,7 @@ class TestEfficiencyMetrics:
     def test_water_productivity_benchmark(self):
         """Test water productivity benchmarks for crops"""
         benchmarks = EfficiencyBenchmarks()
-        min_wp, good_wp, excellent_wp = benchmarks.get_water_productivity_benchmark(
-            "wheat"
-        )
+        min_wp, good_wp, excellent_wp = benchmarks.get_water_productivity_benchmark("wheat")
         assert min_wp == 0.8
         assert good_wp == 1.2
         assert excellent_wp == 1.5
@@ -853,9 +847,7 @@ class TestMEWACompliance:
         report_dict = report.to_dict()
         assert "farm_information" in report_dict
 
-    def test_mewa_report_over_extraction_compliance(
-        self, sample_well_source, sample_water_right
-    ):
+    def test_mewa_report_over_extraction_compliance(self, sample_well_source, sample_water_right):
         """Test MEWA compliance issue detection for over-extraction"""
         generator = WaterReportGenerator("tenant-001")
 
@@ -954,9 +946,7 @@ class TestWellExtractionReporting:
 class TestWaterQualityReporting:
     """Test water quality reporting"""
 
-    def test_water_quality_report_generation(
-        self, sample_well_source, sample_quality_test
-    ):
+    def test_water_quality_report_generation(self, sample_well_source, sample_quality_test):
         """Test generating water quality report"""
         generator = WaterReportGenerator("tenant-001")
 
@@ -1060,9 +1050,7 @@ class TestFarmSummaryReporting:
         assert report.total_sources == 1
         assert report.active_fields == 5
 
-    def test_farm_summary_report_bilingual(
-        self, sample_well_source, sample_water_allocation
-    ):
+    def test_farm_summary_report_bilingual(self, sample_well_source, sample_water_allocation):
         """Test farm summary report with bilingual content"""
         generator = WaterReportGenerator("tenant-001")
 
@@ -1305,9 +1293,7 @@ class TestIntegrationScenarios:
             ComplianceStatus.NON_COMPLIANT,
         ]
 
-    def test_efficiency_to_alert_workflow(
-        self, sample_well_source, sample_irrigation_events
-    ):
+    def test_efficiency_to_alert_workflow(self, sample_well_source, sample_irrigation_events):
         """Test workflow from efficiency calculation to alert generation"""
         # 1. Calculate efficiency
         calculator = IrrigationEfficiencyCalculator("tenant-001")

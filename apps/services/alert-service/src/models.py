@@ -4,7 +4,7 @@ SAHOOL Alert Service - Data Models
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """أنواع التنبيهات"""
 
     WEATHER = "weather"  # تنبيهات الطقس
@@ -30,7 +30,7 @@ class AlertType(str, Enum):
     GENERAL = "general"  # تنبيهات عامة
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """مستويات الخطورة"""
 
     CRITICAL = "critical"  # حرج - يتطلب إجراء فوري
@@ -40,7 +40,7 @@ class AlertSeverity(str, Enum):
     INFO = "info"  # معلوماتي
 
 
-class AlertStatus(str, Enum):
+class AlertStatus(StrEnum):
     """حالة التنبيه"""
 
     ACTIVE = "active"  # نشط
@@ -50,7 +50,7 @@ class AlertStatus(str, Enum):
     EXPIRED = "expired"  # منتهي الصلاحية
 
 
-class ConditionOperator(str, Enum):
+class ConditionOperator(StrEnum):
     """عوامل المقارنة للقواعد"""
 
     EQ = "eq"  # يساوي

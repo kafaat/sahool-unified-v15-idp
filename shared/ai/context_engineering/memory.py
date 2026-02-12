@@ -23,8 +23,8 @@ import logging
 import time
 from collections import defaultdict
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -46,7 +46,7 @@ DEFAULT_RELEVANCE_THRESHOLD = 0.5
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class MemoryType(str, Enum):
+class MemoryType(StrEnum):
     """
     Type of memory entry.
     نوع إدخال الذاكرة
@@ -61,7 +61,7 @@ class MemoryType(str, Enum):
     SYSTEM = "system"  # System events
 
 
-class RelevanceScore(str, Enum):
+class RelevanceScore(StrEnum):
     """
     Relevance scoring for memory retrieval.
     تقييم الصلة لاسترجاع الذاكرة
@@ -200,9 +200,7 @@ class MemoryEntry:
             timestamp=datetime.fromisoformat(data["timestamp"]),
             relevance=RelevanceScore(data["relevance"]),
             embedding=data.get("embedding"),
-            expires_at=(
-                datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-            ),
+            expires_at=(datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None),
         )
 
 
@@ -306,8 +304,7 @@ class FarmMemory:
         }
 
         logger.info(
-            f"FarmMemory initialized with window_size={self.config.window_size}, "
-            f"max_entries={self.config.max_entries}"
+            f"FarmMemory initialized with window_size={self.config.window_size}, max_entries={self.config.max_entries}"
         )
 
     def store(
@@ -372,8 +369,7 @@ class FarmMemory:
         self._stats["stores"] += 1
 
         logger.debug(
-            f"Stored memory entry: tenant={tenant_id}, type={memory_type.value}, "
-            f"field={field_id}, id={entry.id}"
+            f"Stored memory entry: tenant={tenant_id}, type={memory_type.value}, field={field_id}, id={entry.id}"
         )
 
         # Persist if configured
@@ -505,9 +501,7 @@ class FarmMemory:
         for entry in entries:
             should_forget = False
 
-            if (entry_id and entry.id == entry_id) or (
-                field_id and entry.field_id == field_id
-            ):
+            if (entry_id and entry.id == entry_id) or (field_id and entry.field_id == field_id):
                 should_forget = True
             elif memory_types and entry.memory_type in memory_types:
                 if field_id is None or entry.field_id == field_id:
@@ -525,10 +519,7 @@ class FarmMemory:
         self._memory[tenant_id] = entries_to_keep
         self._stats["forgets"] += forgotten_count
 
-        logger.info(
-            f"Forgot {forgotten_count} entries for tenant={tenant_id}, "
-            f"remaining={len(entries_to_keep)}"
-        )
+        logger.info(f"Forgot {forgotten_count} entries for tenant={tenant_id}, remaining={len(entries_to_keep)}")
 
         return forgotten_count
 
@@ -583,10 +574,7 @@ class FarmMemory:
             return ""
 
         # Score entries by relevance to query
-        scored_entries = [
-            (entry, self._calculate_relevance_score(entry, query))
-            for entry in result.entries
-        ]
+        scored_entries = [(entry, self._calculate_relevance_score(entry, query)) for entry in result.entries]
 
         # Sort by relevance score
         scored_entries.sort(key=lambda x: x[1], reverse=True)
@@ -608,8 +596,7 @@ class FarmMemory:
         context = "\n---\n".join(context_parts)
 
         logger.debug(
-            f"Generated context for tenant={tenant_id}: "
-            f"{len(context_parts)} entries, ~{current_tokens} tokens"
+            f"Generated context for tenant={tenant_id}: {len(context_parts)} entries, ~{current_tokens} tokens"
         )
 
         return context
@@ -712,9 +699,7 @@ class FarmMemory:
 
             # Filter by relevance
             if min_relevance:
-                if self._relevance_to_int(entry.relevance) < self._relevance_to_int(
-                    min_relevance
-                ):
+                if self._relevance_to_int(entry.relevance) < self._relevance_to_int(min_relevance):
                     continue
 
             # Filter by time
@@ -741,9 +726,7 @@ class FarmMemory:
 
         if len(entries) > self.config.max_entries:
             # Remove oldest low-relevance entries first
-            entries.sort(
-                key=lambda e: (self._relevance_to_int(e.relevance), e.timestamp)
-            )
+            entries.sort(key=lambda e: (self._relevance_to_int(e.relevance), e.timestamp))
 
             # Keep the most relevant/recent entries
             entries_to_remove = entries[: len(entries) - self.config.max_entries]
@@ -755,9 +738,7 @@ class FarmMemory:
 
             self._memory[tenant_id] = entries_to_keep
 
-            logger.debug(
-                f"Enforced limits for tenant={tenant_id}: removed {len(entries_to_remove)}"
-            )
+            logger.debug(f"Enforced limits for tenant={tenant_id}: removed {len(entries_to_remove)}")
 
     def _cleanup_expired(self, tenant_id: str) -> int:
         """Remove expired entries"""

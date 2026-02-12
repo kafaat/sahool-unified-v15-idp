@@ -10,8 +10,8 @@ Links with irrigation-smart service to:
 
 import logging
 from dataclasses import dataclass
-from datetime import timezone, datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 from .events import GlobalGAPEventPublisher
@@ -19,7 +19,7 @@ from .events import GlobalGAPEventPublisher
 logger = logging.getLogger(__name__)
 
 
-class WaterSource(str, Enum):
+class WaterSource(StrEnum):
     """مصادر المياه - Water Sources"""
 
     GROUNDWATER = "groundwater"  # مياه جوفية
@@ -30,7 +30,7 @@ class WaterSource(str, Enum):
     UNKNOWN = "unknown"  # غير معروف
 
 
-class WaterQualityStatus(str, Enum):
+class WaterQualityStatus(StrEnum):
     """حالة جودة المياه - Water Quality Status"""
 
     COMPLIANT = "compliant"  # متوافق

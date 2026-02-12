@@ -39,8 +39,8 @@ Usage:
 
 from __future__ import annotations
 
-from datetime import date, datetime, UTC
-from enum import Enum
+from datetime import UTC, date, datetime
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -54,7 +54,7 @@ from .events import GlobalGAPSubjects, WaterUsageRecordedEvent
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class WaterSource(str, Enum):
+class WaterSource(StrEnum):
     """
     Water source types
     أنواع مصادر المياه
@@ -70,7 +70,7 @@ class WaterSource(str, Enum):
     RESERVOIR = "RESERVOIR"  # خزان
 
 
-class IrrigationMethod(str, Enum):
+class IrrigationMethod(StrEnum):
     """
     Irrigation methods
     طرق الري
@@ -85,7 +85,7 @@ class IrrigationMethod(str, Enum):
     MICRO_SPRINKLER = "MICRO_SPRINKLER"  # الرش الصغير
 
 
-class WaterQualityStatus(str, Enum):
+class WaterQualityStatus(StrEnum):
     """
     Water quality test status
     حالة اختبار جودة المياه

@@ -364,14 +364,14 @@ class AuditLogAnalyzer:
 
             # Check for new resource access
             if len(actor_logs) >= 10:
-                early_resources = set(
+                early_resources = {
                     f"{e.get('resource_type')}/{e.get('resource_id')}"
                     for e in actor_logs[: len(actor_logs) // 2]
-                )
-                late_resources = set(
+                }
+                late_resources = {
                     f"{e.get('resource_type')}/{e.get('resource_id')}"
                     for e in actor_logs[len(actor_logs) // 2 :]
-                )
+                }
                 new_resources = late_resources - early_resources
                 if len(new_resources) > 5:
                     anomalies.append(

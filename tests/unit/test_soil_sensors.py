@@ -575,18 +575,20 @@ class TestMQTTAdapter:
         """Test parsing SAHOOL standard format payload"""
         adapter = MQTTAdapter(adapter_config)
         now = datetime.utcnow()
-        payload = json.dumps({
-            "value": 45.5,
-            "type": "moisture",
-            "timestamp": now.isoformat(),
-            "unit": "%",
-            "quality": 0.95,
-            "valid": True,
-            "battery": 80,
-            "rssi": -65,
-            "raw_value": 4550,
-            "raw_unit": "raw",
-        }).encode()
+        payload = json.dumps(
+            {
+                "value": 45.5,
+                "type": "moisture",
+                "timestamp": now.isoformat(),
+                "unit": "%",
+                "quality": 0.95,
+                "valid": True,
+                "battery": 80,
+                "rssi": -65,
+                "raw_value": 4550,
+                "raw_unit": "raw",
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -604,11 +606,13 @@ class TestMQTTAdapter:
     def test_mqtt_parse_cropx_format(self, adapter_config, sample_sensor):
         """Test parsing CropX format payload"""
         adapter = MQTTAdapter(adapter_config)
-        payload = json.dumps({
-            "moisture": 42.0,
-            "depth": 25,
-            "battery": 75,
-        }).encode()
+        payload = json.dumps(
+            {
+                "moisture": 42.0,
+                "depth": 25,
+                "battery": 75,
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -976,15 +980,17 @@ class TestHTTPAdapter:
         adapter = HTTPAdapter(config)
         now = datetime.utcnow()
 
-        payload = json.dumps({
-            "sensor_id": "ext_sensor_001",
-            "volumetric_water_content": 0.42,  # 42%
-            "timestamp": now.isoformat(),
-            "latitude": 24.7136,
-            "longitude": 46.6753,
-            "depth": 30,
-            "battery_level": 88,
-        }).encode()
+        payload = json.dumps(
+            {
+                "sensor_id": "ext_sensor_001",
+                "volumetric_water_content": 0.42,  # 42%
+                "timestamp": now.isoformat(),
+                "latitude": 24.7136,
+                "longitude": 46.6753,
+                "depth": 30,
+                "battery_level": 88,
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -1003,13 +1009,15 @@ class TestHTTPAdapter:
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
 
-        payload = json.dumps({
-            "id": "device_001",
-            "sensor": {
-                "value": 48.5,
-                "unit": "%",
-            },
-        }).encode()
+        payload = json.dumps(
+            {
+                "id": "device_001",
+                "sensor": {
+                    "value": 48.5,
+                    "unit": "%",
+                },
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -1023,9 +1031,11 @@ class TestHTTPAdapter:
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
 
-        payload = json.dumps({
-            "moisture": 55.0,
-        }).encode()
+        payload = json.dumps(
+            {
+                "moisture": 55.0,
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -1038,9 +1048,11 @@ class TestHTTPAdapter:
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
 
-        payload = json.dumps({
-            "value": 60.0,
-        }).encode()
+        payload = json.dumps(
+            {
+                "value": 60.0,
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
 
@@ -1073,9 +1085,11 @@ class TestHTTPAdapter:
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
 
-        payload = json.dumps({
-            "unknown_key": "unknown_value",
-        }).encode()
+        payload = json.dumps(
+            {
+                "unknown_key": "unknown_value",
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
         assert reading is None
@@ -2177,10 +2191,12 @@ class TestErrorHandling:
         adapter = MQTTAdapter(adapter_config)
 
         # Value is a string instead of number
-        payload = json.dumps({
-            "value": "not a number",
-            "type": "moisture",
-        }).encode()
+        payload = json.dumps(
+            {
+                "value": "not a number",
+                "type": "moisture",
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
         assert reading is None
@@ -2191,10 +2207,12 @@ class TestErrorHandling:
         adapter = MQTTAdapter(adapter_config)
 
         # Has value but no type
-        payload = json.dumps({
-            "value": 45.0,
-            # Missing "type"
-        }).encode()
+        payload = json.dumps(
+            {
+                "value": 45.0,
+                # Missing "type"
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
         assert reading is None
@@ -2204,10 +2222,12 @@ class TestErrorHandling:
         """Test MQTT parsing with invalid sensor type"""
         adapter = MQTTAdapter(adapter_config)
 
-        payload = json.dumps({
-            "value": 45.0,
-            "type": "invalid_type_xyz",
-        }).encode()
+        payload = json.dumps(
+            {
+                "value": 45.0,
+                "type": "invalid_type_xyz",
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
         assert reading is None
@@ -2241,13 +2261,15 @@ class TestErrorHandling:
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
 
-        payload = json.dumps({
-            "id": "device",
-            "sensor": {
-                "value": "not a number",
-                "unit": "%",
-            },
-        }).encode()
+        payload = json.dumps(
+            {
+                "id": "device",
+                "sensor": {
+                    "value": "not a number",
+                    "unit": "%",
+                },
+            }
+        ).encode()
 
         reading = adapter.parse_payload(payload, sample_sensor)
         assert reading is None

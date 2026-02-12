@@ -18,25 +18,27 @@ Inspired by Acontext concepts, this module enables AI agents to:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
 
-class ExecutionStatus(str, Enum):
+class ExecutionStatus(StrEnum):
     """Status of task execution"""
+
     SUCCESS = "success"
     PARTIAL = "partial"
     FAILURE = "failure"
     TIMEOUT = "timeout"
 
 
-class SOPConfidence(str, Enum):
+class SOPConfidence(StrEnum):
     """Confidence level of generated SOP"""
-    HIGH = "high"        # 5+ successful executions
-    MEDIUM = "medium"    # 3-4 successful executions
-    LOW = "low"          # 1-2 successful executions
+
+    HIGH = "high"  # 5+ successful executions
+    MEDIUM = "medium"  # 3-4 successful executions
+    LOW = "low"  # 1-2 successful executions
     EXPERIMENTAL = "experimental"  # 0 executions, generated from similar
 
 
@@ -46,6 +48,7 @@ class ExecutionStep:
     A single step in task execution.
     خطوة واحدة في تنفيذ المهمة.
     """
+
     step_number: int
     action: str
     action_ar: str | None = None
@@ -87,6 +90,7 @@ class TaskExecution:
     Record of a complete task execution.
     سجل لتنفيذ مهمة كاملة.
     """
+
     id: str
     task_type: str
     task_description: str
@@ -146,6 +150,7 @@ class SOP:
     Standard Operating Procedure - learned from successful executions.
     إجراء تشغيل قياسي - متعلم من التنفيذات الناجحة.
     """
+
     id: str
     task_type: str
     name: str
@@ -227,7 +232,7 @@ class ExperienceStore:
         self._executions: dict[str, TaskExecution] = {}
         self._sops: dict[str, SOP] = {}
         self._task_type_index: dict[str, list[str]] = {}  # task_type -> execution_ids
-        self._sop_type_index: dict[str, list[str]] = {}   # task_type -> sop_ids
+        self._sop_type_index: dict[str, list[str]] = {}  # task_type -> sop_ids
 
     async def store_execution(self, execution: TaskExecution) -> None:
         """Store a task execution"""
@@ -243,10 +248,7 @@ class ExperienceStore:
         return self._executions.get(execution_id)
 
     async def get_executions_by_type(
-        self,
-        task_type: str,
-        status: ExecutionStatus | None = None,
-        limit: int = 100
+        self, task_type: str, status: ExecutionStatus | None = None, limit: int = 100
     ) -> list[TaskExecution]:
         """Get executions by task type"""
         ids = self._task_type_index.get(task_type, [])
@@ -292,10 +294,7 @@ class ExperienceStore:
             SOPConfidence.EXPERIMENTAL: 1,
         }
 
-        sops.sort(
-            key=lambda x: (confidence_order[x.confidence], x.success_rate),
-            reverse=True
-        )
+        sops.sort(key=lambda x: (confidence_order[x.confidence], x.success_rate), reverse=True)
         return sops[0]
 
 
@@ -367,8 +366,7 @@ class ExperienceLearner:
         """Process a successful execution to update/create SOPs"""
         # Get existing successful executions for this task type
         similar_executions = await self.store.get_executions_by_type(
-            execution.task_type,
-            status=ExecutionStatus.SUCCESS
+            execution.task_type, status=ExecutionStatus.SUCCESS
         )
 
         # Check if we have enough for SOP generation
@@ -388,11 +386,7 @@ class ExperienceLearner:
                 sop.confidence = SOPConfidence.LOW
             await self.store.store_sop(sop)
 
-    async def _generate_or_update_sop(
-        self,
-        task_type: str,
-        executions: list[TaskExecution]
-    ) -> SOP:
+    async def _generate_or_update_sop(self, task_type: str, executions: list[TaskExecution]) -> SOP:
         """
         Generate or update an SOP from successful executions.
         توليد أو تحديث إجراء تشغيل قياسي من التنفيذات الناجحة.
@@ -402,9 +396,9 @@ class ExperienceLearner:
 
         if existing_sops:
             sop = existing_sops[0]  # Update the first one
-            sop.source_executions = list(set(
-                sop.source_executions + [e.id for e in executions[:10]]
-            ))[:20]  # Keep last 20 sources
+            sop.source_executions = list(set(sop.source_executions + [e.id for e in executions[:10]]))[
+                :20
+            ]  # Keep last 20 sources
         else:
             sop = SOP(
                 id=str(uuid4()),
@@ -463,10 +457,7 @@ class ExperienceLearner:
                 return e.task_description_ar
         return None
 
-    def _extract_generalized_steps(
-        self,
-        executions: list[TaskExecution]
-    ) -> list[dict[str, Any]]:
+    def _extract_generalized_steps(self, executions: list[TaskExecution]) -> list[dict[str, Any]]:
         """
         Extract generalized steps from multiple executions.
         استخراج خطوات معممة من تنفيذات متعددة.
@@ -485,9 +476,7 @@ class ExperienceLearner:
                     step_patterns[step.step_number] = {}
 
                 action = step.action
-                step_patterns[step.step_number][action] = (
-                    step_patterns[step.step_number].get(action, 0) + 1
-                )
+                step_patterns[step.step_number][action] = step_patterns[step.step_number].get(action, 0) + 1
 
         # Create generalized steps from most common actions
         generalized = []
@@ -505,13 +494,15 @@ class ExperienceLearner:
                 if example_step:
                     break
 
-            generalized.append({
-                "step_number": step_num,
-                "action": most_common[0],
-                "action_ar": example_step.action_ar if example_step else None,
-                "frequency": most_common[1] / len(executions),
-                "example_parameters": example_step.parameters if example_step else {},
-            })
+            generalized.append(
+                {
+                    "step_number": step_num,
+                    "action": most_common[0],
+                    "action_ar": example_step.action_ar if example_step else None,
+                    "frequency": most_common[1] / len(executions),
+                    "example_parameters": example_step.parameters if example_step else {},
+                }
+            )
 
         return generalized
 
@@ -548,22 +539,14 @@ class ExperienceLearner:
 
         return postconditions[:5]  # Limit to 5 postconditions
 
-    async def get_recommended_sop(
-        self,
-        task_type: str,
-        context: dict[str, Any] | None = None
-    ) -> SOP | None:
+    async def get_recommended_sop(self, task_type: str, context: dict[str, Any] | None = None) -> SOP | None:
         """
         Get the recommended SOP for a task type.
         الحصول على إجراء التشغيل القياسي الموصى به لنوع المهمة.
         """
         return await self.store.get_best_sop(task_type)
 
-    async def get_execution_guidance(
-        self,
-        task_type: str,
-        context: dict[str, Any] | None = None
-    ) -> dict[str, Any]:
+    async def get_execution_guidance(self, task_type: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Get guidance for executing a task based on learned experience.
         الحصول على إرشادات لتنفيذ مهمة بناءً على الخبرة المتعلمة.
@@ -639,7 +622,7 @@ async def record_task_execution(
     context: dict[str, Any],
     tenant_id: str,
     agent_id: str,
-    **kwargs
+    **kwargs,
 ) -> TaskExecution:
     """
     Convenience function to record a task execution.
@@ -669,14 +652,11 @@ async def record_task_execution(
         context=context,
         tenant_id=tenant_id,
         agent_id=agent_id,
-        **kwargs
+        **kwargs,
     )
 
 
-async def get_task_guidance(
-    task_type: str,
-    context: dict[str, Any] | None = None
-) -> dict[str, Any]:
+async def get_task_guidance(task_type: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     Get guidance for executing a task.
     الحصول على إرشادات لتنفيذ مهمة.

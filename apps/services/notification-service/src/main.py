@@ -20,8 +20,8 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import date, datetime, timezone, UTC
-from enum import Enum
+from datetime import UTC, date, datetime, timezone
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
@@ -40,11 +40,14 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 # Import authentication dependencies
 try:
@@ -68,12 +71,17 @@ except ImportError:
 
 # Database imports
 # Multi-channel support
+# New enhanced components (v16.0)
+from .analytics_controller import router as analytics_router
 from .channels_controller import router as channels_router
 from .database import check_db_health, close_db, get_db_stats, init_notification_db
+from .delivery_tracker import get_delivery_tracker
 from .email_client import get_email_client
+from .history_controller import router as history_router
 from .otp_controller import router as otp_router
 from .preferences_controller import router as preferences_router
 from .preferences_service import PreferencesService
+from .queue_processor import get_queue_processor
 from .repository import (
     FarmerProfileRepository,
     NotificationLogRepository,
@@ -83,15 +91,9 @@ from .repository import (
 
 # Notification clients
 from .sms_client import get_sms_client
-from .whatsapp_client import get_whatsapp_client
-from .telegram_client import get_telegram_client
 from .sms_providers import get_multi_sms_client
-
-# New enhanced components (v16.0)
-from .analytics_controller import router as analytics_router
-from .history_controller import router as history_router
-from .delivery_tracker import get_delivery_tracker
-from .queue_processor import get_queue_processor
+from .telegram_client import get_telegram_client
+from .whatsapp_client import get_whatsapp_client
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -102,7 +104,7 @@ logger = logging.getLogger("sahool-notifications")
 # =============================================================================
 
 
-class NotificationType(str, Enum):
+class NotificationType(StrEnum):
     WEATHER_ALERT = "weather_alert"
     PEST_OUTBREAK = "pest_outbreak"
     IRRIGATION_REMINDER = "irrigation_reminder"
@@ -112,14 +114,14 @@ class NotificationType(str, Enum):
     TASK_REMINDER = "task_reminder"
 
 
-class NotificationPriority(str, Enum):
+class NotificationPriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
 
-class NotificationChannel(str, Enum):
+class NotificationChannel(StrEnum):
     PUSH = "push"
     SMS = "sms"
     EMAIL = "email"
@@ -127,7 +129,7 @@ class NotificationChannel(str, Enum):
     IN_APP = "in_app"
 
 
-class Governorate(str, Enum):
+class Governorate(StrEnum):
     SANAA = "sanaa"
     ADEN = "aden"
     TAIZ = "taiz"
@@ -142,7 +144,7 @@ class Governorate(str, Enum):
     ABYAN = "abyan"
 
 
-class CropType(str, Enum):
+class CropType(StrEnum):
     TOMATO = "tomato"
     WHEAT = "wheat"
     COFFEE = "coffee"
@@ -966,7 +968,9 @@ async def lifespan(app: FastAPI):
         if whatsapp_client._initialized:
             logger.info("✅ WhatsApp client initialized")
         else:
-            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
+            logger.info(
+                "ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)"
+            )
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
 

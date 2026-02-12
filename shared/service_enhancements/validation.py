@@ -29,9 +29,9 @@ from __future__ import annotations
 import logging
 import re
 import uuid
-from datetime import date, datetime
+from datetime import date
 from functools import wraps
-from typing import Any, TypeVar
+from typing import TypeVar
 
 from fastapi import HTTPException, status
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
@@ -100,8 +100,7 @@ def validate_field_id(value: str) -> str:
 
     if not any(re.match(pattern, value) for pattern in patterns):
         raise ValueError(
-            f"Invalid field ID format: {value}. "
-            "Expected format: FIELD-XXXXXXXX or valid UUID"
+            f"Invalid field ID format: {value}. Expected format: FIELD-XXXXXXXX or valid UUID"
         )
 
     return value
@@ -120,9 +119,9 @@ def validate_phone(value: str, country_code: str = "967") -> str:
 
     # Handle different formats
     if digits.startswith(country_code):
-        digits = digits[len(country_code):]
+        digits = digits[len(country_code) :]
     elif digits.startswith(f"00{country_code}"):
-        digits = digits[len(f"00{country_code}"):]
+        digits = digits[len(f"00{country_code}") :]
 
     # Yemen mobile: 7XXXXXXXX (9 digits)
     # Yemen landline: 1XXXXXXXX or 2XXXXXXXX (8-9 digits)
@@ -134,9 +133,7 @@ def validate_phone(value: str, country_code: str = "967") -> str:
 
     # Mobile numbers start with 7
     if len(digits) == 9 and not digits.startswith("7"):
-        raise ValueError(
-            "Invalid Yemen mobile number. Must start with 7."
-        )
+        raise ValueError("Invalid Yemen mobile number. Must start with 7.")
 
     return f"+{country_code}{digits}"
 
@@ -190,15 +187,12 @@ def validate_date_range(
 
     if start_date and end_date:
         if start_date > end_date:
-            raise ValueError(
-                "Start date must be before or equal to end date"
-            )
+            raise ValueError("Start date must be before or equal to end date")
 
         days_diff = (end_date - start_date).days
         if days_diff > max_days:
             raise ValueError(
-                f"Date range exceeds maximum of {max_days} days "
-                f"(requested: {days_diff} days)"
+                f"Date range exceeds maximum of {max_days} days (requested: {days_diff} days)"
             )
 
     if not allow_future:
@@ -267,6 +261,7 @@ def validate_input(func):
         async def create_field(request: FieldRequest):
             ...
     """
+
     @wraps(func)
     async def wrapper(*args, **kwargs):
         try:
@@ -327,10 +322,8 @@ class CoordinatesModel(ValidatedModel):
     longitude: float
 
     @model_validator(mode="after")
-    def validate_coords(self) -> "CoordinatesModel":
-        self.latitude, self.longitude = validate_coordinates(
-            self.latitude, self.longitude
-        )
+    def validate_coords(self) -> CoordinatesModel:
+        self.latitude, self.longitude = validate_coordinates(self.latitude, self.longitude)
         return self
 
 
@@ -354,10 +347,8 @@ class DateRangeModel(ValidatedModel):
     end_date: date | None = None
 
     @model_validator(mode="after")
-    def validate_dates(self) -> "DateRangeModel":
-        self.start_date, self.end_date = validate_date_range(
-            self.start_date, self.end_date
-        )
+    def validate_dates(self) -> DateRangeModel:
+        self.start_date, self.end_date = validate_date_range(self.start_date, self.end_date)
         return self
 
 

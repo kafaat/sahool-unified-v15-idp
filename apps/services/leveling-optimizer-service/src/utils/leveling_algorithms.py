@@ -11,14 +11,16 @@ This module implements:
 """
 
 import math
-from typing import List, Tuple, Optional, Dict
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 
 
 @dataclass
 class Point3D:
     """3D point with x, y, z coordinates."""
+
     x: float
     y: float
     z: float
@@ -28,6 +30,7 @@ class Point3D:
 @dataclass
 class PlaneParameters:
     """Parameters defining a plane: z = a*x + b*y + c"""
+
     a: float  # Coefficient for x (grade in x direction)
     b: float  # Coefficient for y (grade in y direction)
     c: float  # Constant term (elevation offset)
@@ -36,6 +39,7 @@ class PlaneParameters:
 @dataclass
 class CutFillResult:
     """Results from cut/fill volume calculation."""
+
     cut_volume: float  # m³
     fill_volume: float  # m³
     cut_area: float  # m²
@@ -56,11 +60,7 @@ class LevelingOptimizer:
     محسّن عمليات تسوية الحقول الزراعية
     """
 
-    def __init__(
-        self,
-        soil_expansion_factor: float = 1.25,
-        soil_compaction_factor: float = 0.90
-    ):
+    def __init__(self, soil_expansion_factor: float = 1.25, soil_compaction_factor: float = 0.90):
         """
         Initialize the leveling optimizer.
 
@@ -76,7 +76,7 @@ class LevelingOptimizer:
         points: list[Point3D],
         target_grade_x: float | None = None,
         target_grade_y: float | None = None,
-        balance_cut_fill: bool = True
+        balance_cut_fill: bool = True,
     ) -> PlaneParameters:
         """
         Compute the optimal design plane using least squares regression.
@@ -133,12 +133,7 @@ class LevelingOptimizer:
 
         return PlaneParameters(a=a, b=b, c=c)
 
-    def _find_balanced_elevation(
-        self,
-        points: list[Point3D],
-        a: float,
-        b: float
-    ) -> float:
+    def _find_balanced_elevation(self, points: list[Point3D], a: float, b: float) -> float:
         """
         Find the elevation offset (c) that balances cut and fill volumes.
 
@@ -188,10 +183,7 @@ class LevelingOptimizer:
         return c_mid
 
     def compute_multi_plane(
-        self,
-        points: list[Point3D],
-        num_planes: int = 2,
-        direction: str = "y"
+        self, points: list[Point3D], num_planes: int = 2, direction: str = "y"
     ) -> list[tuple[PlaneParameters, list[Point3D]]]:
         """
         Compute multiple planes for stepped or terraced leveling.
@@ -223,9 +215,13 @@ class LevelingOptimizer:
 
             # Filter points for this plane
             if direction == "x":
-                plane_points = [p for p in points if low <= p.x < high or (i == num_planes - 1 and p.x == high)]
+                plane_points = [
+                    p for p in points if low <= p.x < high or (i == num_planes - 1 and p.x == high)
+                ]
             else:
-                plane_points = [p for p in points if low <= p.y < high or (i == num_planes - 1 and p.y == high)]
+                plane_points = [
+                    p for p in points if low <= p.y < high or (i == num_planes - 1 and p.y == high)
+                ]
 
             if len(plane_points) >= 3:
                 plane = self.compute_optimal_plane(plane_points)
@@ -234,10 +230,7 @@ class LevelingOptimizer:
         return results
 
     def calculate_cut_fill_volumes(
-        self,
-        points: list[Point3D],
-        plane: PlaneParameters,
-        grid_size: float = 10.0
+        self, points: list[Point3D], plane: PlaneParameters, grid_size: float = 10.0
     ) -> CutFillResult:
         """
         Calculate cut and fill volumes using grid-based method.
@@ -305,14 +298,10 @@ class LevelingOptimizer:
             avg_fill_depth=avg_fill_depth,
             cut_points=cut_points,
             fill_points=fill_points,
-            design_points=design_points
+            design_points=design_points,
         )
 
-    def calculate_tin_volumes(
-        self,
-        points: list[Point3D],
-        plane: PlaneParameters
-    ) -> CutFillResult:
+    def calculate_tin_volumes(self, points: list[Point3D], plane: PlaneParameters) -> CutFillResult:
         """
         Calculate volumes using Triangulated Irregular Network (TIN) method.
 
@@ -325,9 +314,17 @@ class LevelingOptimizer:
 
         if len(points) < 3:
             return CutFillResult(
-                cut_volume=0, fill_volume=0, cut_area=0, fill_area=0,
-                max_cut_depth=0, max_fill_depth=0, avg_cut_depth=0, avg_fill_depth=0,
-                cut_points=[], fill_points=[], design_points=[]
+                cut_volume=0,
+                fill_volume=0,
+                cut_area=0,
+                fill_area=0,
+                max_cut_depth=0,
+                max_fill_depth=0,
+                avg_cut_depth=0,
+                avg_fill_depth=0,
+                cut_points=[],
+                fill_points=[],
+                design_points=[],
             )
 
         # Fallback to grid method for simplicity
@@ -335,9 +332,7 @@ class LevelingOptimizer:
         return self.calculate_cut_fill_volumes(points, plane, grid_size=5.0)
 
     def calculate_haul_distance(
-        self,
-        cut_points: list[Point3D],
-        fill_points: list[Point3D]
+        self, cut_points: list[Point3D], fill_points: list[Point3D]
     ) -> float:
         """
         Calculate average haul distance between cut and fill areas.
@@ -359,8 +354,7 @@ class LevelingOptimizer:
 
         # Euclidean distance
         distance = math.sqrt(
-            (cut_centroid_x - fill_centroid_x) ** 2 +
-            (cut_centroid_y - fill_centroid_y) ** 2
+            (cut_centroid_x - fill_centroid_x) ** 2 + (cut_centroid_y - fill_centroid_y) ** 2
         )
 
         # Add factor for non-direct paths (typical haul factor)
@@ -369,9 +363,7 @@ class LevelingOptimizer:
         return distance * haul_factor
 
     def calculate_mass_haul(
-        self,
-        cut_points: list[Point3D],
-        fill_points: list[Point3D]
+        self, cut_points: list[Point3D], fill_points: list[Point3D]
     ) -> dict[str, float]:
         """
         Calculate mass haul diagram statistics.
@@ -401,7 +393,7 @@ class LevelingOptimizer:
             "free_haul_distance": free_haul_distance,
             "overhaul_distance": overhaul_distance,
             "requires_import": total_fill > total_cut * self.soil_expansion_factor,
-            "requires_export": total_cut > total_fill / self.soil_compaction_factor
+            "requires_export": total_cut > total_fill / self.soil_compaction_factor,
         }
 
     def calculate_field_area(self, points: list[Point3D]) -> float:
@@ -423,10 +415,7 @@ class LevelingOptimizer:
 
         return width * height
 
-    def calculate_statistics(
-        self,
-        points: list[Point3D]
-    ) -> dict[str, float]:
+    def calculate_statistics(self, points: list[Point3D]) -> dict[str, float]:
         """
         Calculate elevation statistics for survey points.
 
@@ -443,7 +432,7 @@ class LevelingOptimizer:
             "mean_elevation": sum(elevations) / len(elevations),
             "elevation_range": max(elevations) - min(elevations),
             "std_dev": self._calculate_std_dev(elevations),
-            "point_count": len(points)
+            "point_count": len(points),
         }
 
     def _calculate_std_dev(self, values: list[float]) -> float:
@@ -456,10 +445,7 @@ class LevelingOptimizer:
         return math.sqrt(variance)
 
     def optimize_for_irrigation(
-        self,
-        points: list[Point3D],
-        min_grade: float = 0.1,
-        max_grade: float = 0.5
+        self, points: list[Point3D], min_grade: float = 0.1, max_grade: float = 0.5
     ) -> PlaneParameters:
         """
         Optimize plane parameters for irrigation efficiency.
@@ -494,10 +480,7 @@ class LevelingOptimizer:
 
         # Recompute with constrained grades
         return self.compute_optimal_plane(
-            points,
-            target_grade_x=grade_x,
-            target_grade_y=grade_y,
-            balance_cut_fill=True
+            points, target_grade_x=grade_x, target_grade_y=grade_y, balance_cut_fill=True
         )
 
     def grade_percent_to_ratio(self, grade_percent: float) -> str:

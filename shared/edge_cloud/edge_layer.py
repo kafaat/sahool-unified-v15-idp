@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import statistics
 from collections import defaultdict
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any, Callable
 from uuid import UUID
 
@@ -39,7 +39,6 @@ from .models import (
     SensorType,
     SystemStatus,
 )
-
 
 # Configure structured logging
 logger = structlog.get_logger(__name__)
@@ -59,11 +58,7 @@ class DataCleaner:
     smoothing, and quality assessment.
     """
 
-    def __init__(
-        self,
-        window_size: int = 10,
-        outlier_threshold: float = 3.0
-    ):
+    def __init__(self, window_size: int = 10, outlier_threshold: float = 3.0):
         """
         Initialize data cleaner.
         تهيئة منظف البيانات
@@ -109,7 +104,7 @@ class DataCleaner:
 
             # Keep only recent values
             if len(self._history[history_key]) > self.window_size:
-                self._history[history_key] = self._history[history_key][-self.window_size:]
+                self._history[history_key] = self._history[history_key][-self.window_size :]
 
             # Skip if not enough history
             if len(self._history[history_key]) < 3:
@@ -119,7 +114,7 @@ class DataCleaner:
             # Check for outliers
             is_outlier = self._is_outlier(
                 reading.value,
-                self._history[history_key][:-1]  # Exclude current value
+                self._history[history_key][:-1],  # Exclude current value
             )
 
             if is_outlier:
@@ -133,7 +128,7 @@ class DataCleaner:
                     device_id=reading.device_id,
                     sensor_type=reading.sensor_type.value,
                     original_value=reading.raw_value,
-                    smoothed_value=smoothed_value
+                    smoothed_value=smoothed_value,
                 )
             else:
                 # Apply light smoothing
@@ -180,11 +175,7 @@ class DataCleaner:
 
         return round(smoothed, 2)
 
-    def get_sensor_stats(
-        self,
-        device_id: str,
-        sensor_type: SensorType
-    ) -> dict[str, float]:
+    def get_sensor_stats(self, device_id: str, sensor_type: SensorType) -> dict[str, float]:
         """
         Get statistics for a sensor.
         الحصول على إحصائيات المستشعر
@@ -212,10 +203,7 @@ class DataCleaner:
         مسح سجل المستشعر
         """
         if device_id:
-            keys_to_remove = [
-                k for k in self._history
-                if k.startswith(device_id)
-            ]
+            keys_to_remove = [k for k in self._history if k.startswith(device_id)]
             for key in keys_to_remove:
                 del self._history[key]
         else:
@@ -261,7 +249,7 @@ class RuleEngine:
             rule_name=rule.name,
             conditions_count=len(rule.conditions),
             actions_count=len(rule.actions),
-            message_ar="تمت إضافة القاعدة"
+            message_ar="تمت إضافة القاعدة",
         )
         return True
 
@@ -283,9 +271,7 @@ class RuleEngine:
         return False
 
     def evaluate(
-        self,
-        readings: list[SensorReading],
-        current_time: datetime | None = None
+        self, readings: list[SensorReading], current_time: datetime | None = None
     ) -> list[tuple[IFTTTRule, list[RuleAction]]]:
         """
         Evaluate all rules against current readings.
@@ -331,15 +317,13 @@ class RuleEngine:
                     "rule_triggered",
                     rule_id=str(rule.id),
                     rule_name=rule.name,
-                    message_ar="تم تفعيل القاعدة"
+                    message_ar="تم تفعيل القاعدة",
                 )
 
         return triggered
 
     def _evaluate_conditions(
-        self,
-        rule: IFTTTRule,
-        readings_by_type: dict[SensorType, list[SensorReading]]
+        self, rule: IFTTTRule, readings_by_type: dict[SensorType, list[SensorReading]]
     ) -> bool:
         """
         Evaluate rule conditions.
@@ -363,9 +347,7 @@ class RuleEngine:
 
             # Evaluate condition
             condition_met = self._evaluate_condition(
-                avg_value,
-                condition.operator,
-                condition.threshold
+                avg_value, condition.operator, condition.threshold
             )
             results.append(condition_met)
 
@@ -375,12 +357,7 @@ class RuleEngine:
         else:  # OR
             return any(results) if results else False
 
-    def _evaluate_condition(
-        self,
-        value: float,
-        operator: str,
-        threshold: float
-    ) -> bool:
+    def _evaluate_condition(self, value: float, operator: str, threshold: float) -> bool:
         """
         Evaluate a single condition.
         تقييم شرط واحد
@@ -396,11 +373,7 @@ class RuleEngine:
         op_func = operators.get(operator, lambda v, t: False)
         return op_func(value, threshold)
 
-    def _is_within_active_hours(
-        self,
-        rule: IFTTTRule,
-        current_time: datetime
-    ) -> bool:
+    def _is_within_active_hours(self, rule: IFTTTRule, current_time: datetime) -> bool:
         """Check if current time is within rule's active hours."""
         if rule.active_hours_start is None or rule.active_hours_end is None:
             return True
@@ -477,11 +450,7 @@ class LocalInferenceEngine:
         self._total_latency_ms = 0.0
         self._logger = structlog.get_logger(__name__).bind(component="inference_engine")
 
-    async def run_inference(
-        self,
-        model_name: str,
-        data: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def run_inference(self, model_name: str, data: dict[str, Any]) -> dict[str, Any]:
         """
         Run local inference.
         تشغيل الاستدلال المحلي
@@ -509,7 +478,7 @@ class LocalInferenceEngine:
             "inference_completed",
             model_name=model_name,
             latency_ms=latency_ms,
-            within_target=latency_ms <= self.TARGET_LATENCY_MS
+            within_target=latency_ms <= self.TARGET_LATENCY_MS,
         )
 
         return {
@@ -519,11 +488,7 @@ class LocalInferenceEngine:
             "timestamp": end_time.isoformat(),
         }
 
-    async def _simple_inference(
-        self,
-        model_name: str,
-        data: dict[str, Any]
-    ) -> dict[str, Any]:
+    async def _simple_inference(self, model_name: str, data: dict[str, Any]) -> dict[str, Any]:
         """
         Simple rule-based inference for common agricultural scenarios.
         استدلال بسيط قائم على القواعد للسيناريوهات الزراعية الشائعة
@@ -564,7 +529,7 @@ class LocalInferenceEngine:
                 "soil_moisture": soil_moisture,
                 "temperature": temperature,
                 "humidity": humidity,
-            }
+            },
         }
 
     def _stress_detection(self, data: dict[str, Any]) -> dict[str, Any]:
@@ -657,12 +622,7 @@ class EdgeComputingLayer:
     # Target response latency: 300ms
     TARGET_LATENCY_MS = 300
 
-    def __init__(
-        self,
-        gateway_id: str,
-        location: str,
-        offline_autonomy: bool = True
-    ):
+    def __init__(self, gateway_id: str, location: str, offline_autonomy: bool = True):
         """
         Initialize Edge Computing Layer.
         تهيئة طبقة الحوسبة الطرفية
@@ -702,23 +662,17 @@ class EdgeComputingLayer:
         self._offline_decisions = 0
 
         # Logger
-        self._logger = structlog.get_logger(__name__).bind(
-            gateway_id=gateway_id,
-            layer="edge"
-        )
+        self._logger = structlog.get_logger(__name__).bind(gateway_id=gateway_id, layer="edge")
 
         self._logger.info(
             "edge_layer_initialized",
             gateway_id=gateway_id,
             location=location,
             offline_autonomy=offline_autonomy,
-            message_ar="تم تهيئة طبقة الحوسبة الطرفية"
+            message_ar="تم تهيئة طبقة الحوسبة الطرفية",
         )
 
-    def clean_data(
-        self,
-        readings: list[SensorReading]
-    ) -> list[SensorReading]:
+    def clean_data(self, readings: list[SensorReading]) -> list[SensorReading]:
         """
         Clean sensor data by removing noise and outliers.
         تنظيف بيانات المستشعرات بإزالة الضوضاء والقيم المتطرفة
@@ -745,15 +699,13 @@ class EdgeComputingLayer:
             "data_cleaned",
             input_count=len(readings),
             output_count=len(cleaned),
-            message_ar="تم تنظيف البيانات"
+            message_ar="تم تنظيف البيانات",
         )
 
         return cleaned
 
     async def run_local_inference(
-        self,
-        data: list[SensorReading] | dict[str, Any],
-        model_name: str = "irrigation_decision"
+        self, data: list[SensorReading] | dict[str, Any], model_name: str = "irrigation_decision"
     ) -> EdgeDecision:
         """
         Run local inference on sensor data.
@@ -775,7 +727,7 @@ class EdgeComputingLayer:
                 # Execute irrigation
                 pass
         """
-        start_time = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Convert readings to dict format
         if isinstance(data, list):
@@ -792,8 +744,7 @@ class EdgeComputingLayer:
         # Determine decision type and action
         decision_result = result.get("result", {})
         decision_type, action, action_ar = self._interpret_inference_result(
-            model_name,
-            decision_result
+            model_name, decision_result
         )
 
         # Create decision
@@ -809,7 +760,7 @@ class EdgeComputingLayer:
                 "model_name": model_name,
                 "inference_result": decision_result,
                 "input_summary": str(input_data)[:200],
-            }
+            },
         )
 
         # Record decision
@@ -821,15 +772,12 @@ class EdgeComputingLayer:
             action=action,
             latency_ms=latency_ms,
             within_target=latency_ms <= self.TARGET_LATENCY_MS,
-            message_ar="اكتمل الاستدلال المحلي"
+            message_ar="اكتمل الاستدلال المحلي",
         )
 
         return decision
 
-    def _readings_to_dict(
-        self,
-        readings: list[SensorReading]
-    ) -> dict[str, Any]:
+    def _readings_to_dict(self, readings: list[SensorReading]) -> dict[str, Any]:
         """Convert sensor readings to dictionary format."""
         result: dict[str, Any] = {}
 
@@ -852,68 +800,39 @@ class EdgeComputingLayer:
         return result
 
     def _interpret_inference_result(
-        self,
-        model_name: str,
-        result: dict[str, Any]
+        self, model_name: str, result: dict[str, Any]
     ) -> tuple[DecisionType, str, str]:
         """Interpret inference result into decision type and action."""
         if model_name == "irrigation_decision":
             decision = result.get("decision", "monitor")
             if decision == "irrigate":
-                return (
-                    DecisionType.IRRIGATION_TRIGGER,
-                    "start_irrigation",
-                    "بدء الري"
-                )
+                return (DecisionType.IRRIGATION_TRIGGER, "start_irrigation", "بدء الري")
             elif decision == "skip":
-                return (
-                    DecisionType.IRRIGATION_STOP,
-                    "skip_irrigation",
-                    "تجاوز الري"
-                )
+                return (DecisionType.IRRIGATION_STOP, "skip_irrigation", "تجاوز الري")
             else:
-                return (
-                    DecisionType.DATA_AGGREGATION,
-                    "continue_monitoring",
-                    "استمرار المراقبة"
-                )
+                return (DecisionType.DATA_AGGREGATION, "continue_monitoring", "استمرار المراقبة")
 
         elif model_name == "stress_detection":
             if result.get("stress_detected"):
                 return (
                     DecisionType.ALERT_WARNING,
                     f"stress_alert: {result.get('stress_indicators', [])}",
-                    "تنبيه إجهاد"
+                    "تنبيه إجهاد",
                 )
-            return (
-                DecisionType.DATA_AGGREGATION,
-                "no_stress",
-                "لا يوجد إجهاد"
-            )
+            return (DecisionType.DATA_AGGREGATION, "no_stress", "لا يوجد إجهاد")
 
         elif model_name == "anomaly_detection":
             if result.get("anomaly_detected"):
                 return (
                     DecisionType.ALERT_WARNING,
                     f"anomaly_detected: {len(result.get('anomalies', []))} anomalies",
-                    "تم اكتشاف شذوذ"
+                    "تم اكتشاف شذوذ",
                 )
-            return (
-                DecisionType.DATA_AGGREGATION,
-                "normal",
-                "طبيعي"
-            )
+            return (DecisionType.DATA_AGGREGATION, "normal", "طبيعي")
 
-        return (
-            DecisionType.LOCAL_INFERENCE,
-            str(result),
-            "نتيجة الاستدلال"
-        )
+        return (DecisionType.LOCAL_INFERENCE, str(result), "نتيجة الاستدلال")
 
-    def execute_preloaded_logic(
-        self,
-        rules: list[IFTTTRule] | None = None
-    ) -> list[IFTTTRule]:
+    def execute_preloaded_logic(self, rules: list[IFTTTRule] | None = None) -> list[IFTTTRule]:
         """
         Load and prepare IFTTT-style rules for execution.
         تحميل وإعداد قواعد نمط IFTTT للتنفيذ
@@ -951,17 +870,12 @@ class EdgeComputingLayer:
         loaded_rules = self._rule_engine.get_rules()
 
         self._logger.info(
-            "rules_loaded",
-            rule_count=len(loaded_rules),
-            message_ar="تم تحميل القواعد"
+            "rules_loaded", rule_count=len(loaded_rules), message_ar="تم تحميل القواعد"
         )
 
         return loaded_rules
 
-    async def evaluate_rules(
-        self,
-        readings: list[SensorReading]
-    ) -> list[EdgeDecision]:
+    async def evaluate_rules(self, readings: list[SensorReading]) -> list[EdgeDecision]:
         """
         Evaluate IFTTT rules against current readings.
         تقييم قواعد IFTTT مقابل القراءات الحالية
@@ -989,7 +903,7 @@ class EdgeComputingLayer:
                     metadata={
                         "rule_name": rule.name,
                         "action_parameters": action.parameters,
-                    }
+                    },
                 )
 
                 # Execute action after delay
@@ -1021,14 +935,12 @@ class EdgeComputingLayer:
             "action_executed",
             action_type=action.action_type,
             parameters=action.parameters,
-            message_ar="تم تنفيذ الإجراء"
+            message_ar="تم تنفيذ الإجراء",
         )
         return True
 
     def auto_irrigation_trigger(
-        self,
-        soil_moisture_threshold: float = 30.0,
-        zone_id: str | None = None
+        self, soil_moisture_threshold: float = 30.0, zone_id: str | None = None
     ) -> IFTTTRule:
         """
         Set up automatic irrigation triggering based on soil moisture.
@@ -1062,7 +974,7 @@ class EdgeComputingLayer:
                 "zone_id": zone_id,
                 "trigger_reason": f"soil_moisture < {soil_moisture_threshold}%",
                 "auto_triggered": True,
-            }
+            },
         )
 
         rule = IFTTTRule(
@@ -1084,7 +996,7 @@ class EdgeComputingLayer:
             "auto_irrigation_configured",
             threshold=soil_moisture_threshold,
             zone_id=zone_id,
-            message_ar="تم إعداد الري التلقائي"
+            message_ar="تم إعداد الري التلقائي",
         )
 
         return rule
@@ -1099,7 +1011,7 @@ class EdgeComputingLayer:
 
         # Trim history
         if len(self._decisions) > self._max_decision_history:
-            self._decisions = self._decisions[-self._max_decision_history:]
+            self._decisions = self._decisions[-self._max_decision_history :]
 
         # Notify callbacks
         for callback in self._on_decision_callbacks:
@@ -1135,7 +1047,7 @@ class EdgeComputingLayer:
                 "cloud_connection_changed",
                 connected=connected,
                 offline_autonomy=self.offline_autonomy,
-                message_ar="تغيرت حالة الاتصال بالسحابة"
+                message_ar="تغيرت حالة الاتصال بالسحابة",
             )
 
     def get_pending_sync_data(self) -> list[EdgeDecision]:
@@ -1193,7 +1105,8 @@ class EdgeComputingLayer:
             "offline_decisions": self._offline_decisions,
             "offline_ratio": (
                 self._offline_decisions / self._total_decisions
-                if self._total_decisions > 0 else 0.0
+                if self._total_decisions > 0
+                else 0.0
             ),
             "average_latency_ms": self.response_latency,
             "target_latency_ms": self.TARGET_LATENCY_MS,
@@ -1201,8 +1114,7 @@ class EdgeComputingLayer:
             "active_rules": len(self._rule_engine.get_rules(active_only=True)),
             "pending_sync_count": pending_sync,
             "last_cloud_sync": (
-                self._last_cloud_sync.isoformat()
-                if self._last_cloud_sync else None
+                self._last_cloud_sync.isoformat() if self._last_cloud_sync else None
             ),
         }
 
@@ -1224,7 +1136,7 @@ class EdgeComputingLayer:
         self._logger.info(
             "edge_layer_shutting_down",
             pending_decisions=len(self.get_pending_sync_data()),
-            message_ar="جاري إيقاف طبقة الحافة"
+            message_ar="جاري إيقاف طبقة الحافة",
         )
 
         self._status = SystemStatus.OFFLINE
@@ -1236,9 +1148,7 @@ class EdgeComputingLayer:
 
 
 def get_edge_layer(
-    gateway_id: str,
-    location: str,
-    offline_autonomy: bool = True
+    gateway_id: str, location: str, offline_autonomy: bool = True
 ) -> EdgeComputingLayer:
     """
     Get an edge computing layer instance.

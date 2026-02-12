@@ -15,18 +15,19 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
 import hashlib
 import os
 import time
-from datetime import datetime, UTC
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from enum import StrEnum
+from typing import Any
 
 
-class EmbeddingProvider(str, Enum):
+class EmbeddingProvider(StrEnum):
     """Supported embedding providers | مزودي التضمينات المدعومين"""
+
     SENTENCE_TRANSFORMERS = "sentence_transformers"
     OLLAMA = "ollama"
     OPENAI = "openai"
@@ -284,9 +285,7 @@ class EmbeddingsAdapter:
     def __init__(self, config: EmbeddingConfig | None = None):
         """Initialize the embeddings adapter"""
         self.config = config or EmbeddingConfig()
-        self._cache = EmbeddingCache(
-            ttl_seconds=self.config.cache_ttl_seconds
-        ) if self.config.cache_enabled else None
+        self._cache = EmbeddingCache(ttl_seconds=self.config.cache_ttl_seconds) if self.config.cache_enabled else None
 
         # Provider availability flags
         self._sentence_transformers_available: bool | None = None
@@ -364,7 +363,7 @@ class EmbeddingsAdapter:
 
         # Process in batches
         for i in range(0, len(texts), self.config.batch_size):
-            batch = texts[i:i + self.config.batch_size]
+            batch = texts[i : i + self.config.batch_size]
             batch_results = []
 
             for text in batch:
@@ -464,6 +463,7 @@ class EmbeddingsAdapter:
                 # Lazy import to avoid dependency issues
                 try:
                     from sentence_transformers import SentenceTransformer
+
                     self._st_model = SentenceTransformer(self.config.model)
                 except ImportError:
                     raise EmbeddingProviderError(
@@ -491,6 +491,7 @@ class EmbeddingsAdapter:
             if self._http_client is None:
                 try:
                     import httpx
+
                     self._http_client = httpx.AsyncClient(timeout=self.config.timeout_seconds)
                 except ImportError:
                     raise EmbeddingProviderError(
@@ -530,6 +531,7 @@ class EmbeddingsAdapter:
 
             if self._http_client is None:
                 import httpx
+
                 self._http_client = httpx.AsyncClient(timeout=self.config.timeout_seconds)
 
             url = "https://api.openai.com/v1/embeddings"
@@ -567,6 +569,7 @@ class EmbeddingsAdapter:
 
             if self._http_client is None:
                 import httpx
+
                 self._http_client = httpx.AsyncClient(timeout=self.config.timeout_seconds)
 
             url = f"https://generativelanguage.googleapis.com/v1/models/{self.config.model}:embedContent"
@@ -597,8 +600,8 @@ class EmbeddingsAdapter:
         try:
             # Try to use the HuggingfaceProvider from our module
             from .huggingface_provider import (
-                HuggingfaceProvider,
                 HuggingfaceConfig,
+                HuggingfaceProvider,
             )
 
             # Lazy initialize provider
@@ -619,6 +622,7 @@ class EmbeddingsAdapter:
             try:
                 if self._http_client is None:
                     import httpx
+
                     self._http_client = httpx.AsyncClient(timeout=self.config.timeout_seconds)
 
                 url = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{self.config.model}"

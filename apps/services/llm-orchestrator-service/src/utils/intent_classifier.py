@@ -254,9 +254,7 @@ def extract_entities(text: str, language: str) -> dict[str, Any]:
     return entities
 
 
-def calculate_intent_score(
-    text: str, intent_type: IntentType, language: str
-) -> float:
+def calculate_intent_score(text: str, intent_type: IntentType, language: str) -> float:
     """
     Calculate confidence score for an intent based on keyword matching.
     حساب درجة الثقة للنية بناءً على مطابقة الكلمات المفتاحية.
@@ -336,18 +334,14 @@ class IntentClassifier:
             if IntentType.IMAGE_ANALYSIS not in intent_scores:
                 intent_scores[IntentType.IMAGE_ANALYSIS] = 0.8
             else:
-                intent_scores[IntentType.IMAGE_ANALYSIS] = min(
-                    intent_scores[IntentType.IMAGE_ANALYSIS] + 0.3, 0.95
-                )
+                intent_scores[IntentType.IMAGE_ANALYSIS] = min(intent_scores[IntentType.IMAGE_ANALYSIS] + 0.3, 0.95)
 
         # Determine primary intent
         if not intent_scores:
             primary_intent = IntentType.GENERAL_ADVISORY
             confidence = 0.5
         else:
-            sorted_intents = sorted(
-                intent_scores.items(), key=lambda x: x[1], reverse=True
-            )
+            sorted_intents = sorted(intent_scores.items(), key=lambda x: x[1], reverse=True)
             primary_intent = sorted_intents[0][0]
             confidence = sorted_intents[0][1]
 
@@ -358,9 +352,7 @@ class IntentClassifier:
 
         # Get secondary intents
         secondary_intents = [
-            intent_type
-            for intent_type, score in intent_scores.items()
-            if score > 0.3 and intent_type != primary_intent
+            intent_type for intent_type, score in intent_scores.items() if score > 0.3 and intent_type != primary_intent
         ][:3]  # Limit to top 3 secondary intents
 
         logger.info(
@@ -378,9 +370,7 @@ class IntentClassifier:
             entities=entities,
             secondary_intents=secondary_intents,
             language_detected=language,
-            reasoning=self._generate_reasoning(
-                primary_intent, confidence, language, entities
-            ),
+            reasoning=self._generate_reasoning(primary_intent, confidence, language, entities),
         )
 
     def _generate_reasoning(
@@ -394,10 +384,7 @@ class IntentClassifier:
         entity_list = ", ".join(entities.keys()) if entities else "none"
 
         if language == "ar":
-            return (
-                f"تم تصنيف النية كـ {intent.value} بثقة {confidence:.0%}. "
-                f"الكيانات المكتشفة: {entity_list}"
-            )
+            return f"تم تصنيف النية كـ {intent.value} بثقة {confidence:.0%}. الكيانات المكتشفة: {entity_list}"
         else:
             return (
                 f"Intent classified as {intent.value} with {confidence:.0%} confidence. "

@@ -16,8 +16,8 @@ import asyncio
 import heapq
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta
+from enum import StrEnum
 from typing import Any, Callable, Coroutine
 from uuid import uuid4
 
@@ -38,28 +38,28 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class ScheduleType(str, Enum):
+class ScheduleType(StrEnum):
     """Types of batch schedules."""
 
-    IMMEDIATE = "immediate"            # فوري
-    SCHEDULED = "scheduled"            # مجدول
-    RECURRING = "recurring"            # متكرر
+    IMMEDIATE = "immediate"  # فوري
+    SCHEDULED = "scheduled"  # مجدول
+    RECURRING = "recurring"  # متكرر
 
 
-class RecurrencePattern(str, Enum):
+class RecurrencePattern(StrEnum):
     """Recurrence patterns for scheduled batches."""
 
-    DAILY = "daily"                    # يومي
-    WEEKLY = "weekly"                  # أسبوعي
-    MONTHLY = "monthly"                # شهري
-    CUSTOM = "custom"                  # مخصص
+    DAILY = "daily"  # يومي
+    WEEKLY = "weekly"  # أسبوعي
+    MONTHLY = "monthly"  # شهري
+    CUSTOM = "custom"  # مخصص
 
 
-class QueuePosition(str, Enum):
+class QueuePosition(StrEnum):
     """Position of a batch in the queue."""
 
-    FRONT = "front"                    # مقدمة القائمة
-    BACK = "back"                      # نهاية القائمة
+    FRONT = "front"  # مقدمة القائمة
+    BACK = "back"  # نهاية القائمة
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ class BatchSchedule:
     schedule_type: ScheduleType = ScheduleType.IMMEDIATE
     scheduled_time: datetime | None = None
     recurrence_pattern: RecurrencePattern | None = None
-    recurrence_interval: int = 1       # عدد الأيام/الأسابيع/الأشهر
+    recurrence_interval: int = 1  # عدد الأيام/الأسابيع/الأشهر
     recurrence_end_date: datetime | None = None
     max_executions: int | None = None
     execution_count: int = 0
@@ -128,9 +128,13 @@ class BatchSchedule:
             "batch_id": self.batch_id,
             "schedule_type": self.schedule_type.value,
             "scheduled_time": self.scheduled_time.isoformat() if self.scheduled_time else None,
-            "recurrence_pattern": self.recurrence_pattern.value if self.recurrence_pattern else None,
+            "recurrence_pattern": self.recurrence_pattern.value
+            if self.recurrence_pattern
+            else None,
             "recurrence_interval": self.recurrence_interval,
-            "recurrence_end_date": self.recurrence_end_date.isoformat() if self.recurrence_end_date else None,
+            "recurrence_end_date": self.recurrence_end_date.isoformat()
+            if self.recurrence_end_date
+            else None,
             "max_executions": self.max_executions,
             "execution_count": self.execution_count,
             "last_execution": self.last_execution.isoformat() if self.last_execution else None,
@@ -289,7 +293,13 @@ class BatchScheduler:
         self._progress_callback = callback
         self._executor.set_progress_callback(callback)
 
-    async def _emit_event(self, event_type: str, batch_id: str, message: BilingualMessage, details: dict[str, Any] | None = None):
+    async def _emit_event(
+        self,
+        event_type: str,
+        batch_id: str,
+        message: BilingualMessage,
+        details: dict[str, Any] | None = None,
+    ):
         """Emit a scheduler event."""
         event = SchedulerEvent(
             event_type=event_type,
@@ -356,8 +366,10 @@ class BatchScheduler:
             {
                 "schedule_id": schedule.id,
                 "schedule_type": schedule_type.value,
-                "next_execution": schedule.next_execution.isoformat() if schedule.next_execution else None,
-            }
+                "next_execution": schedule.next_execution.isoformat()
+                if schedule.next_execution
+                else None,
+            },
         )
 
         logger.info(
@@ -409,7 +421,7 @@ class BatchScheduler:
                 batch.id,
                 BilingualMessage(
                     en=f"Batch enqueued at {position.value}",
-                    ar=f"تمت إضافة الدفعة في {position.value}"
+                    ar=f"تمت إضافة الدفعة في {position.value}",
                 ),
                 {"position": position.value},
             )
@@ -527,9 +539,7 @@ class BatchScheduler:
                     continue
 
                 # Create execution task
-                task = asyncio.create_task(
-                    self._execute_batch(batch, schedule)
-                )
+                task = asyncio.create_task(self._execute_batch(batch, schedule))
                 self._running_batches[batch.id] = task
 
                 logger.info(f"Started batch {batch.id}")
@@ -571,12 +581,15 @@ class BatchScheduler:
                     # Copy items (reset status)
                     for item in batch.field_items:
                         from .models import FieldOperationItem
-                        new_batch.field_items.append(FieldOperationItem(
-                            field_id=item.field_id,
-                            field_name=item.field_name,
-                            field_name_ar=item.field_name_ar,
-                            area_hectares=item.area_hectares,
-                        ))
+
+                        new_batch.field_items.append(
+                            FieldOperationItem(
+                                field_id=item.field_id,
+                                field_name=item.field_name,
+                                field_name_ar=item.field_name_ar,
+                                area_hectares=item.area_hectares,
+                            )
+                        )
 
                     new_schedule = BatchSchedule(
                         batch_id=new_batch.id,
@@ -747,15 +760,19 @@ class BatchScheduler:
         """
         status = []
         for queued in sorted(self._queue):
-            status.append({
-                "batch_id": queued.batch.id,
-                "name": queued.batch.name,
-                "name_ar": queued.batch.name_ar,
-                "priority": queued.batch.priority.value,
-                "scheduled_time": queued.scheduled_time.isoformat() if queued.scheduled_time else None,
-                "enqueued_at": queued.enqueued_at.isoformat(),
-                "item_count": queued.batch.get_item_count(),
-            })
+            status.append(
+                {
+                    "batch_id": queued.batch.id,
+                    "name": queued.batch.name,
+                    "name_ar": queued.batch.name_ar,
+                    "priority": queued.batch.priority.value,
+                    "scheduled_time": queued.scheduled_time.isoformat()
+                    if queued.scheduled_time
+                    else None,
+                    "enqueued_at": queued.enqueued_at.isoformat(),
+                    "item_count": queued.batch.get_item_count(),
+                }
+            )
         return status
 
     def get_running_status(self) -> list[dict[str, Any]]:
@@ -771,14 +788,16 @@ class BatchScheduler:
         for batch_id in self._running_batches:
             batch = self._batches.get(batch_id)
             if batch:
-                status.append({
-                    "batch_id": batch.id,
-                    "name": batch.name,
-                    "name_ar": batch.name_ar,
-                    "status": batch.status.value,
-                    "progress": batch.progress.to_dict(),
-                    "started_at": batch.started_at.isoformat() if batch.started_at else None,
-                })
+                status.append(
+                    {
+                        "batch_id": batch.id,
+                        "name": batch.name,
+                        "name_ar": batch.name_ar,
+                        "status": batch.status.value,
+                        "progress": batch.progress.to_dict(),
+                        "started_at": batch.started_at.isoformat() if batch.started_at else None,
+                    }
+                )
         return status
 
     def get_scheduler_stats(self) -> dict[str, Any]:

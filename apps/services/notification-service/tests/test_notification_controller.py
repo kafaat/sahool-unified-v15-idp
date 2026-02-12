@@ -378,9 +378,7 @@ class TestFarmerRegistration:
             "src.repository.NotificationPreferenceRepository.create_or_update",
             new=AsyncMock(return_value=MagicMock()),
         ):
-            response = await async_client.put(
-                "/farmer-123/preferences", json=preferences
-            )
+            response = await async_client.put("/farmer-123/preferences", json=preferences)
 
             assert response.status_code == 200
             data = response.json()

@@ -11,32 +11,31 @@ from harvest to consumer, with full event history and verification.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Callable
 from uuid import uuid4
 
 from .models import (
-    ProduceBatch,
     BatchStatus,
-    EventType,
-    QualityGrade,
-    StorageCondition,
-    TransportMode,
-    SupplyChainEvent,
-    HarvestEvent,
-    ProcessingEvent,
-    StorageEvent,
-    TransportEvent,
-    RetailEvent,
-    ConsumerScanEvent,
-    ProductJourney,
-    ProductJourneyStep,
     BatchTraceReport,
     Certification,
-    Producer,
+    ConsumerScanEvent,
+    EventType,
     GeoLocation,
+    HarvestEvent,
+    ProcessingEvent,
+    ProduceBatch,
+    Producer,
+    ProductJourney,
+    ProductJourneyStep,
+    QualityGrade,
+    RetailEvent,
+    StorageCondition,
+    StorageEvent,
+    SupplyChainEvent,
+    TransportEvent,
+    TransportMode,
 )
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Type Metadata - بيانات أنواع الأحداث الوصفية
@@ -97,6 +96,7 @@ EVENT_DISPLAY_INFO = {
 @dataclass
 class ChainConfig:
     """Configuration for supply chain tracking - إعدادات تتبع سلسلة التوريد"""
+
     # Temperature thresholds for alerts
     min_temp_threshold_c: float = 0.0
     max_temp_threshold_c: float = 8.0
@@ -853,13 +853,9 @@ class SupplyChainTracker:
         # Compliance issues
         compliance_issues = []
         if temp_excursions > 0:
-            compliance_issues.append(
-                f"Temperature excursion detected {temp_excursions} time(s)"
-            )
+            compliance_issues.append(f"Temperature excursion detected {temp_excursions} time(s)")
         if quality_failed > 0:
-            compliance_issues.append(
-                f"Quality check failed {quality_failed} time(s)"
-            )
+            compliance_issues.append(f"Quality check failed {quality_failed} time(s)")
         if not all_certs_valid:
             compliance_issues.append("One or more certifications are expired")
 

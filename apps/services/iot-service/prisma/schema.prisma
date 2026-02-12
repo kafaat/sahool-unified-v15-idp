@@ -162,6 +162,7 @@ model SensorReading {
   @@index([timestamp])
   @@index([sensorId, timestamp])
   @@index([deviceId, timestamp])
+  @@index([deviceId, sensorId, timestamp]) // Optimize historical queries for specific sensor on device
   @@map("sensor_readings")
 }
 

@@ -15,8 +15,8 @@ import hashlib
 import json
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timedelta, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta
+from enum import StrEnum
 from uuid import uuid4
 
 from .audit_models import AuditCategory, AuditLog, AuditSeverity
@@ -33,7 +33,7 @@ HASH_ALGORITHM = "sha256"
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class AuditAction(str, Enum):
+class AuditAction(StrEnum):
     """Standard audit actions"""
 
     # Auth
@@ -386,11 +386,7 @@ def compute_entry_hash(
 
 async def get_last_entry_hash(tenant_id: str) -> str | None:
     """Get the hash of the most recent audit entry for a tenant."""
-    last_entry = (
-        await AuditLog.filter(tenant_id=tenant_id)
-        .order_by("-created_at")
-        .first()
-    )
+    last_entry = await AuditLog.filter(tenant_id=tenant_id).order_by("-created_at").first()
     return last_entry.entry_hash if last_entry else None
 
 
@@ -458,9 +454,7 @@ async def validate_hash_chain(
     for entry in entries:
         # Skip entries without hash chain (legacy entries)
         if not entry.entry_hash:
-            result.errors.append(
-                f"Entry {entry.id}: Missing entry_hash (legacy entry)"
-            )
+            result.errors.append(f"Entry {entry.id}: Missing entry_hash (legacy entry)")
             continue
 
         # Verify prev_hash matches expected
@@ -618,22 +612,13 @@ async def _get_gdpr_metrics(entries: list[AuditLog]) -> dict:
     """Get GDPR-specific compliance metrics."""
     return {
         "data_access_events": sum(
-            1 for e in entries
-            if e.category == AuditCategory.DATA.value
-            and "access" in e.action.lower()
+            1
+            for e in entries
+            if e.category == AuditCategory.DATA.value and "access" in e.action.lower()
         ),
-        "data_export_events": sum(
-            1 for e in entries
-            if "export" in e.action.lower()
-        ),
-        "data_deletion_events": sum(
-            1 for e in entries
-            if "delete" in e.action.lower()
-        ),
-        "consent_events": sum(
-            1 for e in entries
-            if "consent" in e.action.lower()
-        ),
+        "data_export_events": sum(1 for e in entries if "export" in e.action.lower()),
+        "data_deletion_events": sum(1 for e in entries if "delete" in e.action.lower()),
+        "consent_events": sum(1 for e in entries if "consent" in e.action.lower()),
     }
 
 
@@ -641,21 +626,13 @@ async def _get_soc2_metrics(entries: list[AuditLog]) -> dict:
     """Get SOC 2-specific compliance metrics."""
     return {
         "access_control_events": sum(
-            1 for e in entries
-            if e.category == AuditCategory.ACCESS.value
+            1 for e in entries if e.category == AuditCategory.ACCESS.value
         ),
-        "authentication_events": sum(
-            1 for e in entries
-            if e.category == AuditCategory.AUTH.value
-        ),
+        "authentication_events": sum(1 for e in entries if e.category == AuditCategory.AUTH.value),
         "failed_access_attempts": sum(
-            1 for e in entries
-            if e.category == AuditCategory.ACCESS.value and not e.success
+            1 for e in entries if e.category == AuditCategory.ACCESS.value and not e.success
         ),
-        "admin_actions": sum(
-            1 for e in entries
-            if e.category == AuditCategory.ADMIN.value
-        ),
+        "admin_actions": sum(1 for e in entries if e.category == AuditCategory.ADMIN.value),
     }
 
 
@@ -663,22 +640,17 @@ async def _get_iso27001_metrics(entries: list[AuditLog]) -> dict:
     """Get ISO 27001-specific compliance metrics."""
     return {
         "security_incidents": sum(
-            1 for e in entries
+            1
+            for e in entries
             if e.category == AuditCategory.SECURITY.value
             and e.severity in [AuditSeverity.ERROR.value, AuditSeverity.CRITICAL.value]
         ),
-        "access_reviews_completed": sum(
-            1 for e in entries
-            if "review" in e.action.lower()
-        ),
-        "policy_violations": sum(
-            1 for e in entries
-            if "violation" in e.action.lower()
-        ),
+        "access_reviews_completed": sum(1 for e in entries if "review" in e.action.lower()),
+        "policy_violations": sum(1 for e in entries if "violation" in e.action.lower()),
         "configuration_changes": sum(
-            1 for e in entries
-            if e.category == AuditCategory.ADMIN.value
-            and "config" in e.action.lower()
+            1
+            for e in entries
+            if e.category == AuditCategory.ADMIN.value and "config" in e.action.lower()
         ),
     }
 
@@ -706,11 +678,15 @@ async def export_audit_logs(
     Returns:
         Exported data as string or bytes
     """
-    entries = await AuditLog.filter(
-        tenant_id=tenant_id,
-        created_at__gte=start_date,
-        created_at__lte=end_date,
-    ).order_by("created_at").all()
+    entries = (
+        await AuditLog.filter(
+            tenant_id=tenant_id,
+            created_at__gte=start_date,
+            created_at__lte=end_date,
+        )
+        .order_by("created_at")
+        .all()
+    )
 
     if format == "json":
         return json.dumps(
@@ -742,17 +718,39 @@ async def export_audit_logs(
 
         output = io.StringIO()
         writer = csv.writer(output)
-        writer.writerow([
-            "id", "tenant_id", "user_id", "action", "category",
-            "severity", "resource_type", "resource_id", "success",
-            "ip_address", "created_at", "entry_hash"
-        ])
+        writer.writerow(
+            [
+                "id",
+                "tenant_id",
+                "user_id",
+                "action",
+                "category",
+                "severity",
+                "resource_type",
+                "resource_id",
+                "success",
+                "ip_address",
+                "created_at",
+                "entry_hash",
+            ]
+        )
         for e in entries:
-            writer.writerow([
-                str(e.id), e.tenant_id, e.user_id, e.action, e.category,
-                e.severity, e.resource_type, e.resource_id, e.success,
-                e.ip_address, e.created_at.isoformat(), e.entry_hash
-            ])
+            writer.writerow(
+                [
+                    str(e.id),
+                    e.tenant_id,
+                    e.user_id,
+                    e.action,
+                    e.category,
+                    e.severity,
+                    e.resource_type,
+                    e.resource_id,
+                    e.success,
+                    e.ip_address,
+                    e.created_at.isoformat(),
+                    e.entry_hash,
+                ]
+            )
         return output.getvalue()
     else:
         raise ValueError(f"Unsupported export format: {format}")

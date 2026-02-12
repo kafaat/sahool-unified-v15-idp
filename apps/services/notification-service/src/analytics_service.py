@@ -8,8 +8,8 @@ delivery metrics, and user engagement tracking.
 
 import logging
 from collections import defaultdict
-from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 from tortoise.functions import Count
@@ -25,8 +25,9 @@ from .models import (
 logger = logging.getLogger("sahool-notifications.analytics")
 
 
-class TimeRange(str, Enum):
+class TimeRange(StrEnum):
     """فترة زمنية للتحليلات"""
+
     HOUR = "hour"
     DAY = "day"
     WEEK = "week"
@@ -152,7 +153,7 @@ class NotificationAnalytics:
             best_channel = max(
                 channel_stats.items(),
                 key=lambda x: x[1]["success_rate"],
-                default=(None, {"success_rate": 0})
+                default=(None, {"success_rate": 0}),
             )
 
             return {
@@ -219,9 +220,7 @@ class NotificationAnalytics:
 
             # Find most common type
             most_common = max(
-                type_stats.items(),
-                key=lambda x: x[1]["count"],
-                default=(None, {"count": 0})
+                type_stats.items(), key=lambda x: x[1]["count"], default=(None, {"count": 0})
             )
 
             return {
@@ -258,32 +257,42 @@ class NotificationAnalytics:
 
             # Get farmers grouped by governorate
             governorates = [
-                "sanaa", "aden", "taiz", "hodeidah", "ibb", "dhamar",
-                "hadramaut", "marib", "hajjah", "saada", "lahj", "abyan"
+                "sanaa",
+                "aden",
+                "taiz",
+                "hodeidah",
+                "ibb",
+                "dhamar",
+                "hadramaut",
+                "marib",
+                "hajjah",
+                "saada",
+                "lahj",
+                "abyan",
             ]
 
             governorate_stats = {}
 
             for gov in governorates:
                 # Count farmers in this governorate
-                farmers = await FarmerProfile.filter(
-                    governorate=gov,
-                    is_active=True
-                ).values_list("farmer_id", flat=True)
+                farmers = await FarmerProfile.filter(governorate=gov, is_active=True).values_list(
+                    "farmer_id", flat=True
+                )
 
                 farmer_count = len(farmers)
 
                 if farmer_count > 0:
                     # Count notifications to these farmers
                     notif_count = await Notification.filter(
-                        user_id__in=farmers,
-                        created_at__gte=start_time
+                        user_id__in=farmers, created_at__gte=start_time
                     ).count()
 
                     governorate_stats[gov] = {
                         "farmer_count": farmer_count,
                         "notification_count": notif_count,
-                        "notifications_per_farmer": round(notif_count / farmer_count, 2) if farmer_count > 0 else 0,
+                        "notifications_per_farmer": round(notif_count / farmer_count, 2)
+                        if farmer_count > 0
+                        else 0,
                     }
 
             # Calculate totals
@@ -295,7 +304,9 @@ class NotificationAnalytics:
                 "governorates": governorate_stats,
                 "total_farmers": total_farmers,
                 "total_notifications": total_notifications,
-                "average_per_farmer": round(total_notifications / total_farmers, 2) if total_farmers > 0 else 0,
+                "average_per_farmer": round(total_notifications / total_farmers, 2)
+                if total_farmers > 0
+                else 0,
             }
 
         except Exception as e:
@@ -345,13 +356,15 @@ class NotificationAnalytics:
             # Build hourly data
             hourly_data = []
             for hour in range(24):
-                hourly_data.append({
-                    "hour": hour,
-                    "hour_label": f"{hour:02d}:00",
-                    "total": hourly_counts[hour],
-                    "sent": hourly_sent[hour],
-                    "read": hourly_read[hour],
-                })
+                hourly_data.append(
+                    {
+                        "hour": hour,
+                        "hour_label": f"{hour:02d}:00",
+                        "total": hourly_counts[hour],
+                        "sent": hourly_sent[hour],
+                        "read": hourly_read[hour],
+                    }
+                )
 
             # Find peak hours
             peak_hour = max(hourly_data, key=lambda x: x["total"])
@@ -420,11 +433,7 @@ class NotificationAnalytics:
                     if notif.read_at:
                         user_reads[notif.user_id] += 1
 
-                top_users = sorted(
-                    user_reads.items(),
-                    key=lambda x: x[1],
-                    reverse=True
-                )[:10]
+                top_users = sorted(user_reads.items(), key=lambda x: x[1], reverse=True)[:10]
             else:
                 top_users = []
 
@@ -437,9 +446,10 @@ class NotificationAnalytics:
                 "average_read_time_seconds": round(avg_read_time, 2),
                 "average_read_time_minutes": round(avg_read_time / 60, 2),
                 "top_engaged_users": [
-                    {"user_id": uid, "read_count": count}
-                    for uid, count in top_users
-                ] if top_users else None,
+                    {"user_id": uid, "read_count": count} for uid, count in top_users
+                ]
+                if top_users
+                else None,
             }
 
         except Exception as e:

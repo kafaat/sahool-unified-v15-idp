@@ -1,8 +1,8 @@
 "use client";
 
 /**
- * Admin Sidebar Navigation
- * شريط التنقل الجانبي مع دعم الوضع الداكن
+ * Admin Sidebar Navigation - Enhanced with CRUD Management
+ * شريط التنقل الجانبي المحسن مع إدارة CRUD
  */
 
 import Link from "next/link";
@@ -31,19 +31,48 @@ import {
   CircleDot,
   Menu,
   X,
+  Users,
+  Package,
+  CheckSquare,
+  Wrench,
+  ShoppingCart,
+  FlaskConical,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/stores/auth.store";
 
-const navigation = [
+// Main navigation sections
+const mainNavigation = [
   { name: "لوحة التحكم", href: "/dashboard", icon: LayoutDashboard },
+];
+
+// Operations section
+const operationsNav = [
   { name: "المزارع", href: "/farms", icon: MapPin },
-  { name: "مركز رصد الأوبئة", href: "/epidemic", icon: Activity },
   { name: "إدارة الأمراض", href: "/diseases", icon: Bug },
-  { name: "حاسبة الإنتاجية", href: "/yield", icon: TrendingUp },
   { name: "الري الذكي", href: "/irrigation", icon: Droplets },
+  { name: "المهام", href: "/tasks", icon: CheckSquare },
+];
+
+// Monitoring section
+const monitoringNav = [
   { name: "المستشعرات", href: "/sensors", icon: Cpu },
-  { name: "الطقس والتنبيهات", href: "/alerts", icon: Bell },
+  { name: "التنبيهات", href: "/alerts", icon: Bell },
+  { name: "مركز رصد الأوبئة", href: "/epidemic", icon: Activity },
+  { name: "حاسبة الإنتاجية", href: "/yield", icon: TrendingUp },
+];
+
+// Management section
+const managementNav = [
+  { name: "المستخدمون", href: "/users", icon: Users },
+  { name: "المعدات", href: "/equipment", icon: Wrench },
+  { name: "المخزون", href: "/inventory", icon: Package },
+  { name: "السوق", href: "/marketplace", icon: ShoppingCart },
+  { name: "البحوث", href: "/research", icon: FlaskConical },
+];
+
+// System section  
+const systemNav = [
   { name: "الدعم الفني", href: "/support", icon: MessageCircle, badge: 5 },
   { name: "الإعدادات", href: "/settings", icon: Settings },
 ];
@@ -146,43 +175,186 @@ export default function Sidebar() {
 
         {/* Navigation */}
         <nav
-          className="flex-1 py-4 px-3 space-y-1 overflow-y-auto"
+          className="flex-1 py-4 px-3 space-y-6 overflow-y-auto"
           aria-label="التنقل الرئيسي"
         >
-          {navigation.map((item) => {
-            const isActive =
-              pathname === item.href || pathname?.startsWith(`${item.href}/`);
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                  isActive
-                    ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
-                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
-                )}
-              >
-                <item.icon
+          {/* Main Section */}
+          <div>
+            {mainNavigation.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
                   className={cn(
-                    "w-5 h-5",
-                    isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
                   )}
-                  aria-hidden="true"
-                />
-                {item.name}
-                {"badge" in item && item.badge && item.badge > 0 && (
-                  <span
-                    className="mr-auto bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-0.5 rounded-full"
-                    aria-label={`${item.badge} جديد`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-5 h-5",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Operations Section */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                العمليات
+              </h3>
+            </div>
+            {operationsNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Monitoring Section */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                المراقبة
+              </h3>
+            </div>
+            {monitoringNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Management Section */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                الإدارة
+              </h3>
+            </div>
+            {managementNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* System Section */}
+          <div>
+            <div className="px-4 mb-2">
+              <h3 className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                النظام
+              </h3>
+            </div>
+            {systemNav.map((item) => {
+              const isActive =
+                pathname === item.href || pathname?.startsWith(`${item.href}/`);
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={cn(
+                    "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+                    isActive
+                      ? "bg-sahool-50 dark:bg-sahool-900/30 text-sahool-700 dark:text-sahool-300 border-r-4 border-sahool-600"
+                      : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100",
+                  )}
+                >
+                  <item.icon
+                    className={cn(
+                      "w-4 h-4",
+                      isActive ? "text-sahool-600 dark:text-sahool-400" : "text-gray-400 dark:text-gray-500",
+                    )}
+                    aria-hidden="true"
+                  />
+                  {item.name}
+                  {"badge" in item && item.badge && item.badge > 0 && (
+                    <span
+                      className="mr-auto bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs px-2 py-0.5 rounded-full"
+                      aria-label={`${item.badge} جديد`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
 
           {/* Precision Agriculture Section */}
           <div className="pt-2">

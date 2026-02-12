@@ -11,11 +11,10 @@ Includes comprehensive validation for:
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field, field_validator, model_validator
-
 
 # Validation constants
 # ثوابت التحقق من الصحة
@@ -32,38 +31,42 @@ MAX_RAINFALL_MM = 2000.0  # Maximum rainfall in mm
 # ==============================================================================
 
 
-class DrainageType(str, Enum):
+class DrainageType(StrEnum):
     """Types of drainage patterns."""
-    DENDRITIC = "dendritic"          # شجيري
-    PARALLEL = "parallel"            # متوازي
-    TRELLIS = "trellis"             # شبكي
-    RECTANGULAR = "rectangular"      # مستطيل
-    RADIAL = "radial"               # شعاعي
-    CENTRIPETAL = "centripetal"     # مركزي
-    DERANGED = "deranged"           # مشوش
-    UNKNOWN = "unknown"             # غير معروف
+
+    DENDRITIC = "dendritic"  # شجيري
+    PARALLEL = "parallel"  # متوازي
+    TRELLIS = "trellis"  # شبكي
+    RECTANGULAR = "rectangular"  # مستطيل
+    RADIAL = "radial"  # شعاعي
+    CENTRIPETAL = "centripetal"  # مركزي
+    DERANGED = "deranged"  # مشوش
+    UNKNOWN = "unknown"  # غير معروف
 
 
-class WetnessLevel(str, Enum):
+class WetnessLevel(StrEnum):
     """Wetness classification levels."""
-    VERY_DRY = "very_dry"           # جاف جداً
-    DRY = "dry"                     # جاف
-    MODERATE = "moderate"           # معتدل
-    WET = "wet"                     # رطب
-    VERY_WET = "very_wet"           # رطب جداً
-    WATERLOGGED = "waterlogged"     # مشبع بالماء
+
+    VERY_DRY = "very_dry"  # جاف جداً
+    DRY = "dry"  # جاف
+    MODERATE = "moderate"  # معتدل
+    WET = "wet"  # رطب
+    VERY_WET = "very_wet"  # رطب جداً
+    WATERLOGGED = "waterlogged"  # مشبع بالماء
 
 
-class DepressionRisk(str, Enum):
+class DepressionRisk(StrEnum):
     """Risk level for depressions."""
-    LOW = "low"                     # منخفض
-    MEDIUM = "medium"               # متوسط
-    HIGH = "high"                   # مرتفع
-    CRITICAL = "critical"           # حرج
+
+    LOW = "low"  # منخفض
+    MEDIUM = "medium"  # متوسط
+    HIGH = "high"  # مرتفع
+    CRITICAL = "critical"  # حرج
 
 
 class StreamOrder(int, Enum):
     """Strahler stream order classification."""
+
     FIRST = 1
     SECOND = 2
     THIRD = 3
@@ -79,12 +82,14 @@ class StreamOrder(int, Enum):
 
 class GeoPoint(BaseModel):
     """Geographic point with coordinates."""
+
     lat: float = Field(..., ge=-90, le=90, description="Latitude | خط العرض")
     lon: float = Field(..., ge=-180, le=180, description="Longitude | خط الطول")
 
 
 class BoundingBox(BaseModel):
     """Bounding box for geographic area."""
+
     min_lat: float = Field(..., ge=-90, le=90)
     max_lat: float = Field(..., ge=-90, le=90)
     min_lon: float = Field(..., ge=-180, le=180)
@@ -95,9 +100,7 @@ class GeoPolygon(BaseModel):
     """Geographic polygon with coordinates."""
 
     coordinates: list[list[float]] = Field(
-        ...,
-        min_length=3,
-        description="List of [lon, lat] coordinate pairs"
+        ..., min_length=3, description="List of [lon, lat] coordinate pairs"
     )
     type: str = Field(default="Polygon")
 
@@ -163,46 +166,31 @@ class HydrologyAnalysisRequest(BaseModel):
     """
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        ..., min_length=1, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
-    boundary: GeoPolygon | None = Field(
-        None,
-        description="Field boundary polygon | حدود الحقل"
-    )
+    boundary: GeoPolygon | None = Field(None, description="Field boundary polygon | حدود الحقل")
     dem_source: str | None = Field(
         None,
         max_length=32,
-        description="DEM data source (srtm, aster, local) | مصدر بيانات الارتفاع"
+        description="DEM data source (srtm, aster, local) | مصدر بيانات الارتفاع",
     )
     resolution_m: float = Field(
         default=30.0,
         ge=MIN_RESOLUTION_M,
         le=MAX_RESOLUTION_M,
-        description="Analysis resolution in meters | دقة التحليل بالمتر"
+        description="Analysis resolution in meters | دقة التحليل بالمتر",
     )
     include_rainfall: bool = Field(
-        default=True,
-        description="Include rainfall data from weather service"
+        default=True, description="Include rainfall data from weather service"
     )
     rainfall_period_days: int = Field(
-        default=30,
-        ge=1,
-        le=365,
-        description="Period for rainfall analysis in days"
+        default=30, ge=1, le=365, description="Period for rainfall analysis in days"
     )
     correlation_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Correlation ID for tracing"
+        None, max_length=64, description="Correlation ID for tracing"
     )
 
     @field_validator("field_id", "tenant_id")
@@ -233,25 +221,19 @@ class DrainageAnalysisRequest(BaseModel):
     """Request for drainage network analysis."""
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        None, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
     flow_threshold: int = Field(
         default=100,
         ge=MIN_FLOW_THRESHOLD,
         le=MAX_FLOW_THRESHOLD,
-        description="Flow accumulation threshold for stream detection"
+        description="Flow accumulation threshold for stream detection",
     )
     include_pattern: bool = Field(
-        default=True,
-        description="Include drainage pattern classification"
+        default=True, description="Include drainage pattern classification"
     )
 
     @field_validator("field_id")
@@ -268,25 +250,14 @@ class WetnessAnalysisRequest(BaseModel):
     """Request for wetness/waterlogging analysis."""
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        None, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
-    include_prediction: bool = Field(
-        default=True,
-        description="Include waterlogging prediction"
-    )
+    include_prediction: bool = Field(default=True, description="Include waterlogging prediction")
     rainfall_mm: float | None = Field(
-        None,
-        ge=0,
-        le=MAX_RAINFALL_MM,
-        description="Expected rainfall in mm for prediction"
+        None, ge=0, le=MAX_RAINFALL_MM, description="Expected rainfall in mm for prediction"
     )
 
     @field_validator("field_id")
@@ -303,27 +274,16 @@ class DepressionAnalysisRequest(BaseModel):
     """Request for depression identification."""
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        None, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
     min_depth_m: float = Field(
-        default=0.1,
-        ge=0.01,
-        le=10.0,
-        description="Minimum depression depth in meters"
+        default=0.1, ge=0.01, le=10.0, description="Minimum depression depth in meters"
     )
     min_area_sqm: float = Field(
-        default=10.0,
-        ge=1.0,
-        le=1000000.0,
-        description="Minimum depression area in square meters"
+        default=10.0, ge=1.0, le=1000000.0, description="Minimum depression area in square meters"
     )
 
     @field_validator("field_id")
@@ -340,21 +300,13 @@ class StreamDetectionRequest(BaseModel):
     """Request for stream detection."""
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        None, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
     min_order: int = Field(
-        default=1,
-        ge=1,
-        le=6,
-        description="Minimum Strahler stream order to include"
+        default=1, ge=1, le=6, description="Minimum Strahler stream order to include"
     )
 
     @field_validator("field_id")
@@ -371,25 +323,16 @@ class BasinDelineationRequest(BaseModel):
     """Request for basin/watershed delineation."""
 
     field_id: str = Field(
-        ...,
-        min_length=1,
-        max_length=64,
-        description="Field identifier | معرف الحقل"
+        ..., min_length=1, max_length=64, description="Field identifier | معرف الحقل"
     )
     tenant_id: str | None = Field(
-        None,
-        max_length=64,
-        description="Tenant identifier | معرف المستأجر"
+        None, max_length=64, description="Tenant identifier | معرف المستأجر"
     )
     pour_point: GeoPoint | None = Field(
-        None,
-        description="Custom pour point for watershed delineation"
+        None, description="Custom pour point for watershed delineation"
     )
     min_area_ha: float = Field(
-        default=0.5,
-        ge=0.1,
-        le=10000.0,
-        description="Minimum basin area in hectares"
+        default=0.5, ge=0.1, le=10000.0, description="Minimum basin area in hectares"
     )
 
     @field_validator("field_id")
@@ -409,45 +352,32 @@ class BasinDelineationRequest(BaseModel):
 
 class DrainageSegment(BaseModel):
     """A single drainage segment."""
+
     segment_id: str
-    coordinates: list[list[float]] = Field(
-        ...,
-        description="Line coordinates [[lon, lat], ...]"
-    )
+    coordinates: list[list[float]] = Field(..., description="Line coordinates [[lon, lat], ...]")
     stream_order: int = Field(..., ge=1, description="Strahler stream order")
     length_m: float = Field(..., ge=0, description="Segment length in meters")
-    upstream_area_ha: float = Field(
-        ...,
-        ge=0,
-        description="Upstream contributing area in hectares"
-    )
+    upstream_area_ha: float = Field(..., ge=0, description="Upstream contributing area in hectares")
     slope_percent: float = Field(..., description="Average slope percentage")
 
 
 class DrainageNetwork(BaseModel):
     """Complete drainage network analysis result."""
+
     field_id: str
     total_length_m: float = Field(..., description="Total drainage length")
-    drainage_density: float = Field(
-        ...,
-        description="Drainage density (m/ha) | كثافة التصريف"
-    )
+    drainage_density: float = Field(..., description="Drainage density (m/ha) | كثافة التصريف")
     main_channel_length_m: float = Field(..., description="Main channel length")
-    bifurcation_ratio: float = Field(
-        ...,
-        description="Bifurcation ratio | نسبة التفرع"
-    )
+    bifurcation_ratio: float = Field(..., description="Bifurcation ratio | نسبة التفرع")
     pattern: DrainageType = Field(..., description="Drainage pattern type")
     pattern_ar: str = Field(..., description="Pattern name in Arabic")
     segments: list[DrainageSegment]
-    statistics: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Additional statistics"
-    )
+    statistics: dict[str, Any] = Field(default_factory=dict, description="Additional statistics")
 
 
 class DrainageNetworkResponse(BaseModel):
     """Response model for drainage network endpoint."""
+
     success: bool = True
     data: DrainageNetwork
     analyzed_at: datetime
@@ -462,46 +392,39 @@ class DrainageNetworkResponse(BaseModel):
 
 class WetnessZone(BaseModel):
     """A zone with specific wetness characteristics."""
+
     zone_id: str
     level: WetnessLevel
     level_ar: str = Field(..., description="Wetness level in Arabic")
     area_ha: float = Field(..., ge=0, description="Zone area in hectares")
-    percentage: float = Field(
-        ...,
-        ge=0,
-        le=100,
-        description="Percentage of field area"
-    )
+    percentage: float = Field(..., ge=0, le=100, description="Percentage of field area")
     twi_mean: float = Field(..., description="Mean Topographic Wetness Index")
     twi_range: tuple[float, float] = Field(..., description="TWI range (min, max)")
     polygon: GeoPolygon | None = None
     recommendations_ar: list[str] = Field(
-        default_factory=list,
-        description="Recommendations in Arabic"
+        default_factory=list, description="Recommendations in Arabic"
     )
     recommendations_en: list[str] = Field(
-        default_factory=list,
-        description="Recommendations in English"
+        default_factory=list, description="Recommendations in English"
     )
 
 
 class WaterloggingPrediction(BaseModel):
     """Prediction for waterlogging risk."""
+
     rainfall_mm: float = Field(..., description="Rainfall amount used")
     risk_level: DepressionRisk
     risk_level_ar: str
     affected_area_ha: float
     affected_percentage: float
-    time_to_drain_hours: float | None = Field(
-        None,
-        description="Estimated time to drain"
-    )
+    time_to_drain_hours: float | None = Field(None, description="Estimated time to drain")
     mitigation_ar: list[str] = Field(default_factory=list)
     mitigation_en: list[str] = Field(default_factory=list)
 
 
 class WetnessAnalysis(BaseModel):
     """Complete wetness analysis result."""
+
     field_id: str
     total_area_ha: float
     twi_mean: float = Field(..., description="Mean Topographic Wetness Index")
@@ -513,15 +436,13 @@ class WetnessAnalysis(BaseModel):
     zones: list[WetnessZone]
     waterlogging_prediction: WaterloggingPrediction | None = None
     irrigation_efficiency_score: float = Field(
-        ...,
-        ge=0,
-        le=100,
-        description="Irrigation efficiency based on wetness distribution"
+        ..., ge=0, le=100, description="Irrigation efficiency based on wetness distribution"
     )
 
 
 class WetnessAnalysisResponse(BaseModel):
     """Response model for wetness analysis endpoint."""
+
     success: bool = True
     data: WetnessAnalysis
     analyzed_at: datetime
@@ -534,6 +455,7 @@ class WetnessAnalysisResponse(BaseModel):
 
 class Depression(BaseModel):
     """A single depression/sink identified in the terrain."""
+
     depression_id: str
     center: GeoPoint
     depth_m: float = Field(..., ge=0, description="Maximum depth in meters")
@@ -549,15 +471,13 @@ class Depression(BaseModel):
 
 class DepressionAnalysis(BaseModel):
     """Complete depression analysis result."""
+
     field_id: str
     total_depressions: int
     total_volume_m3: float
     total_area_sqm: float
     field_area_ha: float
-    depressions_percentage: float = Field(
-        ...,
-        description="Percentage of field with depressions"
-    )
+    depressions_percentage: float = Field(..., description="Percentage of field with depressions")
     high_risk_count: int
     critical_count: int
     depressions: list[Depression]
@@ -567,6 +487,7 @@ class DepressionAnalysis(BaseModel):
 
 class DepressionAnalysisResponse(BaseModel):
     """Response model for depression analysis endpoint."""
+
     success: bool = True
     data: DepressionAnalysis
     analyzed_at: datetime
@@ -579,38 +500,34 @@ class DepressionAnalysisResponse(BaseModel):
 
 class Stream(BaseModel):
     """A detected stream segment."""
+
     stream_id: str
     order: int = Field(..., ge=1, description="Strahler order")
     coordinates: list[list[float]]
     length_m: float
     avg_slope_percent: float
     upstream_area_ha: float
-    is_perennial: bool = Field(
-        default=False,
-        description="Whether stream is perennial"
-    )
+    is_perennial: bool = Field(default=False, description="Whether stream is perennial")
 
 
 class StreamNetwork(BaseModel):
     """Complete stream network analysis."""
+
     field_id: str
     total_streams: int
     total_length_m: float
     max_order: int = Field(..., description="Maximum Strahler order")
-    streams_by_order: dict[int, int] = Field(
-        ...,
-        description="Count of streams by order"
-    )
+    streams_by_order: dict[int, int] = Field(..., description="Count of streams by order")
     main_stream_length_m: float
     streams: list[Stream]
     hydraulic_geometry: dict[str, float] = Field(
-        default_factory=dict,
-        description="Hydraulic geometry parameters"
+        default_factory=dict, description="Hydraulic geometry parameters"
     )
 
 
 class StreamNetworkResponse(BaseModel):
     """Response model for stream detection endpoint."""
+
     success: bool = True
     data: StreamNetwork
     analyzed_at: datetime
@@ -623,6 +540,7 @@ class StreamNetworkResponse(BaseModel):
 
 class SubBasin(BaseModel):
     """A sub-basin/catchment area."""
+
     basin_id: str
     area_ha: float
     perimeter_m: float
@@ -631,15 +549,13 @@ class SubBasin(BaseModel):
     mean_elevation_m: float
     elevation_range_m: float
     mean_slope_percent: float
-    time_of_concentration_min: float = Field(
-        ...,
-        description="Time of concentration in minutes"
-    )
+    time_of_concentration_min: float = Field(..., description="Time of concentration in minutes")
     boundary: GeoPolygon
 
 
 class BasinDelineation(BaseModel):
     """Complete basin delineation result."""
+
     field_id: str
     total_basins: int
     total_area_ha: float
@@ -650,16 +566,12 @@ class BasinDelineation(BaseModel):
     elongation_ratio: float
     circularity_ratio: float
     basins: list[SubBasin]
-    runoff_coefficient: float = Field(
-        ...,
-        ge=0,
-        le=1,
-        description="Estimated runoff coefficient"
-    )
+    runoff_coefficient: float = Field(..., ge=0, le=1, description="Estimated runoff coefficient")
 
 
 class BasinDelineationResponse(BaseModel):
     """Response model for basin delineation endpoint."""
+
     success: bool = True
     data: BasinDelineation
     analyzed_at: datetime
@@ -672,6 +584,7 @@ class BasinDelineationResponse(BaseModel):
 
 class HydrologyAnalysisResult(BaseModel):
     """Complete hydrology analysis result."""
+
     field_id: str
     tenant_id: str
     analyzed_at: datetime
@@ -695,10 +608,7 @@ class HydrologyAnalysisResult(BaseModel):
     flood_risk_level: DepressionRisk
     flood_risk_level_ar: str
     drainage_quality_score: float = Field(
-        ...,
-        ge=0,
-        le=100,
-        description="Overall drainage quality score"
+        ..., ge=0, le=100, description="Overall drainage quality score"
     )
 
     # Recommendations
@@ -711,6 +621,7 @@ class HydrologyAnalysisResult(BaseModel):
 
 class HydrologyAnalysisResponse(BaseModel):
     """Response model for full hydrology analysis."""
+
     success: bool = True
     data: HydrologyAnalysisResult
     processing_time_ms: float

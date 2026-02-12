@@ -62,73 +62,70 @@ Usage:
     journey = tracker.build_product_journey(batch.id)
 """
 
-from .models import (
-    # Enums
-    EventType,
-    BatchStatus,
-    CertificationType,
-    QualityGrade,
-    StorageCondition,
-    TransportMode,
-    # Location models
-    GeoLocation,
-    Address,
-    # Actor models
-    Producer,
-    ProcessingFacility,
-    Transporter,
-    Retailer,
-    # Certification models
-    Certification,
-    ComplianceRecord,
-    # Batch models
-    ProduceBatch,
-    BatchSplit,
-    BatchMerge,
-    # Event models
-    SupplyChainEvent,
-    HarvestEvent,
-    ProcessingEvent,
-    StorageEvent,
-    TransportEvent,
-    RetailEvent,
-    ConsumerScanEvent,
-    # Consumer-facing models
-    ProductJourneyStep,
-    ProductJourney,
-    QRCodeData,
-    # Report models
-    BatchTraceReport,
-)
-
-from .qr_generator import (
-    # Config and enums
-    QRFormat,
-    QRSize,
-    QRGenerationConfig,
-    GeneratedQRCode,
-    # Generators
-    QRCodeGenerator,
-    LabelData,
-    LabelGenerator,
-    # Utility functions
-    generate_batch_code,
-    decode_qr_data,
-    verify_qr_checksum,
-)
-
 from .chain import (
+    # Event display info
+    EVENT_DISPLAY_INFO,
     # Config
     ChainConfig,
     # Main tracker
     SupplyChainTracker,
-    # Event display info
-    EVENT_DISPLAY_INFO,
     # Utility functions
     calculate_carbon_footprint,
     estimate_shelf_life,
 )
-
+from .models import (
+    Address,
+    BatchMerge,
+    BatchSplit,
+    BatchStatus,
+    # Report models
+    BatchTraceReport,
+    # Certification models
+    Certification,
+    CertificationType,
+    ComplianceRecord,
+    ConsumerScanEvent,
+    # Enums
+    EventType,
+    # Location models
+    GeoLocation,
+    HarvestEvent,
+    ProcessingEvent,
+    ProcessingFacility,
+    # Batch models
+    ProduceBatch,
+    # Actor models
+    Producer,
+    ProductJourney,
+    # Consumer-facing models
+    ProductJourneyStep,
+    QRCodeData,
+    QualityGrade,
+    Retailer,
+    RetailEvent,
+    StorageCondition,
+    StorageEvent,
+    # Event models
+    SupplyChainEvent,
+    Transporter,
+    TransportEvent,
+    TransportMode,
+)
+from .qr_generator import (
+    GeneratedQRCode,
+    LabelData,
+    LabelGenerator,
+    # Generators
+    QRCodeGenerator,
+    # Config and enums
+    QRFormat,
+    QRGenerationConfig,
+    QRSize,
+    decode_qr_data,
+    # Utility functions
+    generate_batch_code,
+    verify_qr_checksum,
+)
 
 __all__ = [
     # Enums

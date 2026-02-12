@@ -12,8 +12,8 @@ Provides equipment/asset management:
 import os
 import sys
 import uuid
-from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -50,10 +50,9 @@ except ImportError:
 # Import authentication dependencies and error handling
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 try:
-    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
     AUTH_AVAILABLE = True
 except ImportError:
@@ -111,7 +110,7 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-class EquipmentType(str, Enum):
+class EquipmentType(StrEnum):
     TRACTOR = "tractor"
     PUMP = "pump"
     DRONE = "drone"
@@ -123,21 +122,21 @@ class EquipmentType(str, Enum):
     OTHER = "other"
 
 
-class EquipmentStatus(str, Enum):
+class EquipmentStatus(StrEnum):
     OPERATIONAL = "operational"
     MAINTENANCE = "maintenance"
     INACTIVE = "inactive"
     REPAIR = "repair"
 
 
-class MaintenancePriority(str, Enum):
+class MaintenancePriority(StrEnum):
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
     CRITICAL = "critical"
 
 
-class MaintenanceType(str, Enum):
+class MaintenanceType(StrEnum):
     OIL_CHANGE = "oil_change"
     FILTER_CHANGE = "filter_change"
     TIRE_CHECK = "tire_check"

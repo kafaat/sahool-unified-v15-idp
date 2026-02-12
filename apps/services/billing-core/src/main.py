@@ -21,9 +21,9 @@ import os
 import sys
 import uuid
 from contextlib import asynccontextmanager
-from datetime import timezone, date, datetime, timedelta, UTC
+from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
-from enum import Enum
+from enum import Enum, StrEnum
 from pathlib import Path
 from typing import Any
 
@@ -79,11 +79,14 @@ except ImportError:
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 try:
     from auth.dependencies import (
@@ -300,20 +303,20 @@ def require_tenant_or_admin(current_user, tenant_id: str):
 # =============================================================================
 
 
-class PlanTier(str, Enum):
+class PlanTier(StrEnum):
     FREE = "free"
     STARTER = "starter"
     PROFESSIONAL = "professional"
     ENTERPRISE = "enterprise"
 
 
-class BillingCycle(str, Enum):
+class BillingCycle(StrEnum):
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
     YEARLY = "yearly"
 
 
-class SubscriptionStatus(str, Enum):
+class SubscriptionStatus(StrEnum):
     ACTIVE = "active"
     TRIAL = "trial"
     PAST_DUE = "past_due"
@@ -322,7 +325,7 @@ class SubscriptionStatus(str, Enum):
     EXPIRED = "expired"
 
 
-class InvoiceStatus(str, Enum):
+class InvoiceStatus(StrEnum):
     DRAFT = "draft"
     PENDING = "pending"
     PAID = "paid"
@@ -331,7 +334,7 @@ class InvoiceStatus(str, Enum):
     REFUNDED = "refunded"
 
 
-class PaymentMethod(str, Enum):
+class PaymentMethod(StrEnum):
     CREDIT_CARD = "credit_card"
     BANK_TRANSFER = "bank_transfer"
     MOBILE_MONEY = "mobile_money"
@@ -339,7 +342,7 @@ class PaymentMethod(str, Enum):
     THARWATT = "tharwatt"  # بوابة ثروات اليمنية
 
 
-class PaymentStatus(str, Enum):
+class PaymentStatus(StrEnum):
     PENDING = "pending"
     PROCESSING = "processing"
     SUCCEEDED = "succeeded"
@@ -347,7 +350,7 @@ class PaymentStatus(str, Enum):
     REFUNDED = "refunded"
 
 
-class Currency(str, Enum):
+class Currency(StrEnum):
     USD = "USD"
     YER = "YER"
 
@@ -652,9 +655,7 @@ async def get_next_invoice_number() -> str:
         async with get_db_context() as db:
             # Get next value from sequence (atomic operation)
             # Note: Using literal string to avoid SQL injection warnings
-            result = await db.execute(
-                text("SELECT nextval('invoice_number_seq')")
-            )
+            result = await db.execute(text("SELECT nextval('invoice_number_seq')"))
             sequence_value = result.scalar()
             await db.commit()
 
@@ -664,9 +665,12 @@ async def get_next_invoice_number() -> str:
         # This ensures uniqueness even if sequence fails
         logger.warning("Invoice sequence failed, using fallback", exc_info=True)
         import hashlib
-        unique_suffix = hashlib.sha256(
-            f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode()
-        ).hexdigest()[:8].upper()
+
+        unique_suffix = (
+            hashlib.sha256(f"{datetime.now(UTC).isoformat()}-{uuid.uuid4()}".encode())
+            .hexdigest()[:8]
+            .upper()
+        )
         return f"SAH-{year}-{unique_suffix}"
 
 
@@ -692,7 +696,6 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "irrigation": "تخطيط الري",
     "irrigation_planning": "تخطيط الري",
     "irrigation_smart": "الري الذكي",
-
     # AI Features - ميزات الذكاء الاصطناعي
     "ai_diagnosis": "تشخيص المحاصيل بالذكاء الاصطناعي",
     "ai_diagnoses": "تشخيصات الذكاء الاصطناعي",
@@ -701,7 +704,6 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "crop_health_ai": "صحة المحاصيل بالذكاء الاصطناعي",
     "pest_detection": "اكتشاف الآفات",
     "disease_detection": "اكتشاف الأمراض",
-
     # Reports & Documents - التقارير والوثائق
     "reports": "تقارير PDF",
     "pdf_reports": "تقارير PDF",
@@ -710,7 +712,6 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "advanced_analytics": "التحليلات المتقدمة",
     "export": "تصدير البيانات",
     "data_export": "تصدير البيانات",
-
     # Support - الدعم
     "support": "الدعم الفني",
     "email_support": "دعم البريد الإلكتروني",
@@ -718,7 +719,6 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "dedicated_support": "دعم مخصص",
     "phone_support": "دعم هاتفي",
     "24_7_support": "دعم على مدار الساعة",
-
     # API & Integration - واجهة برمجة التطبيقات والتكامل
     "api_access": "الوصول لواجهة برمجة التطبيقات",
     "api_calls": "استدعاءات API",
@@ -726,21 +726,18 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "custom_integrations": "تكاملات مخصصة",
     "webhook_access": "الوصول للويب هوك",
     "third_party_integrations": "تكاملات الطرف الثالث",
-
     # Team & Collaboration - الفريق والتعاون
     "team_members": "أعضاء الفريق",
     "multi_user": "متعدد المستخدمين",
     "collaboration": "التعاون",
     "user_management": "إدارة المستخدمين",
     "role_management": "إدارة الأدوار",
-
     # Storage & Resources - التخزين والموارد
     "storage": "التخزين",
     "storage_gb": "التخزين (جيجابايت)",
     "cloud_storage": "التخزين السحابي",
     "data_retention": "الاحتفاظ بالبيانات",
     "backup": "النسخ الاحتياطي",
-
     # Enterprise Features - ميزات المؤسسات
     "sla": "ضمان مستوى الخدمة",
     "sla_guarantee": "ضمان SLA",
@@ -750,13 +747,11 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "compliance": "الامتثال",
     "sso": "تسجيل الدخول الموحد",
     "single_sign_on": "تسجيل الدخول الموحد",
-
     # Notifications - الإشعارات
     "notifications": "الإشعارات",
     "sms_alerts": "تنبيهات الرسائل النصية",
     "push_notifications": "الإشعارات الفورية",
     "email_alerts": "تنبيهات البريد الإلكتروني",
-
     # Mapping & GIS - الخرائط ونظم المعلومات الجغرافية
     "mapping": "رسم الخرائط",
     "gis": "نظم المعلومات الجغرافية",
@@ -764,20 +759,17 @@ FEATURE_TRANSLATIONS_AR: dict[str, str] = {
     "boundary_detection": "اكتشاف الحدود",
     "ndvi": "مؤشر الغطاء النباتي",
     "ndvi_analysis": "تحليل مؤشر الغطاء النباتي",
-
     # Crop & Farm Management - إدارة المحاصيل والمزرعة
     "crop_planning": "تخطيط المحاصيل",
     "crop_rotation": "تناوب المحاصيل",
     "farm_management": "إدارة المزرعة",
     "inventory": "المخزون",
     "equipment_tracking": "تتبع المعدات",
-
     # Financial - المالية
     "billing": "الفوترة",
     "invoicing": "إصدار الفواتير",
     "expense_tracking": "تتبع النفقات",
     "cost_analysis": "تحليل التكاليف",
-
     # Generic / Fallback
     "unlimited": "غير محدود",
     "limited": "محدود",
@@ -813,7 +805,7 @@ def translate_feature_name(feature_name: str) -> str:
     # Fallback: Return a formatted version with indication it needs translation
     # Format the English name nicely
     formatted_name = feature_name.replace("_", " ").replace("-", " ").title()
-    safe_feature_name = str(feature_name).replace('\n', '').replace('\r', '')[:100]
+    safe_feature_name = str(feature_name).replace("\n", "").replace("\r", "")[:100]
     logger.warning("Missing Arabic translation for feature: %s", safe_feature_name)
     return f"{formatted_name}"
 
@@ -821,13 +813,13 @@ def translate_feature_name(feature_name: str) -> str:
 # Overage rates per metric (USD per unit over limit)
 # رسوم تجاوز الاستخدام لكل مقياس (بالدولار لكل وحدة إضافية)
 OVERAGE_RATES: dict[str, Decimal] = {
-    "fields": Decimal("5.00"),                        # $5 per additional field
+    "fields": Decimal("5.00"),  # $5 per additional field
     "satellite_analyses_per_month": Decimal("0.50"),  # $0.50 per additional analysis
-    "ai_diagnoses_per_month": Decimal("0.25"),        # $0.25 per additional diagnosis
-    "pdf_reports_per_month": Decimal("0.10"),         # $0.10 per additional report
-    "storage_gb": Decimal("2.00"),                    # $2 per additional GB
-    "api_calls_per_day": Decimal("0.001"),            # $0.001 per additional API call
-    "team_members": Decimal("10.00"),                 # $10 per additional team member
+    "ai_diagnoses_per_month": Decimal("0.25"),  # $0.25 per additional diagnosis
+    "pdf_reports_per_month": Decimal("0.10"),  # $0.10 per additional report
+    "storage_gb": Decimal("2.00"),  # $2 per additional GB
+    "api_calls_per_day": Decimal("0.001"),  # $0.001 per additional API call
+    "team_members": Decimal("10.00"),  # $10 per additional team member
 }
 
 # Plan limits for legacy in-memory invoice generation
@@ -1270,10 +1262,11 @@ def generate_invoice_number() -> str:
     about invoice volume.
     """
     import warnings
+
     warnings.warn(
         "generate_invoice_number() is deprecated. Use get_next_invoice_number() instead.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
     year = datetime.now(UTC).year
     # Use UUID-based suffix to prevent sequential number exposure
@@ -1410,7 +1403,9 @@ def calculate_overage_charges(
             overage_amount = rate * Decimal(str(excess))
 
             # Create human-readable metric name with Arabic translation
-            metric_name = metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
+            metric_name = (
+                metric.replace("_", " ").replace(" per month", "").replace(" per day", "").title()
+            )
             metric_name_ar = translate_feature_name(metric)
 
             overage_items.append(

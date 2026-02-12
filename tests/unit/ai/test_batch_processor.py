@@ -6,14 +6,14 @@ Tests the batch processing functionality for large-scale code analysis.
 
 import pytest
 from unittest.mock import MagicMock, patch
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 from uuid import uuid4
 import sys
 
 
 # Mock the dependencies before importing
-sys.modules['shared.ai.orchestration'] = MagicMock()
-sys.modules['shared.ai.orchestration.models'] = MagicMock()
+sys.modules["shared.ai.orchestration"] = MagicMock()
+sys.modules["shared.ai.orchestration.models"] = MagicMock()
 
 
 class TestBatchConfig:
@@ -140,8 +140,8 @@ class TestBatchResult:
         """Test BatchResult creation."""
         result = {
             "batch_id": "test-batch-123",
-            "started_at": datetime.now(timezone.utc).isoformat(),
-            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now(UTC).isoformat(),
+            "completed_at": datetime.now(UTC).isoformat(),
             "total_files": 10,
             "processed_files": 10,
             "failed_files": 1,
@@ -168,7 +168,7 @@ class TestCheckpoint:
         """Test Checkpoint creation."""
         checkpoint = {
             "batch_id": "test-batch-123",
-            "created_at": datetime.now(timezone.utc).isoformat(),
+            "created_at": datetime.now(UTC).isoformat(),
             "processed_files": ["file1.py", "file2.py"],
             "pending_files": ["file3.py"],
             "file_results": [],
@@ -247,10 +247,7 @@ class TestBatchProcessorLogic:
         ]
         exclude_patterns = ["node_modules", ".venv"]
 
-        filtered = [
-            f for f in all_files
-            if not any(pattern in f for pattern in exclude_patterns)
-        ]
+        filtered = [f for f in all_files if not any(pattern in f for pattern in exclude_patterns)]
 
         assert len(filtered) == 3
         assert "node_modules/package.js" not in filtered
@@ -261,10 +258,7 @@ class TestBatchProcessorLogic:
         files = list(range(100))
         batch_size = 25
 
-        batches = [
-            files[i:i + batch_size]
-            for i in range(0, len(files), batch_size)
-        ]
+        batches = [files[i : i + batch_size] for i in range(0, len(files), batch_size)]
 
         assert len(batches) == 4
         assert len(batches[0]) == 25

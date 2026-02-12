@@ -17,27 +17,33 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timezone
+from enum import Enum, StrEnum
 from typing import Any
 from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
-
 from fastapi import Depends, FastAPI, HTTPException, Query, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from slowapi import Limiter
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+    ),
+)
 
 # Service configuration
 SERVICE_NAME = "wechat-service"
@@ -53,8 +59,10 @@ logger = structlog.get_logger()
 # Enums
 # ===============================================================================
 
-class MessageType(str, Enum):
+
+class MessageType(StrEnum):
     """WeChat message types"""
+
     TEXT = "text"
     IMAGE = "image"
     VOICE = "voice"
@@ -65,24 +73,27 @@ class MessageType(str, Enum):
     MINI_PROGRAM = "mini_program"
 
 
-class ContactType(str, Enum):
+class ContactType(StrEnum):
     """WeChat contact types"""
+
     FRIEND = "friend"
     GROUP = "group"
     OFFICIAL_ACCOUNT = "official_account"
     MINI_PROGRAM = "mini_program"
 
 
-class MomentVisibility(str, Enum):
+class MomentVisibility(StrEnum):
     """WeChat moment visibility options"""
+
     PUBLIC = "public"
     FRIENDS = "friends"
     PRIVATE = "private"
     SELECTED = "selected"
 
 
-class InsightType(str, Enum):
+class InsightType(StrEnum):
     """Chat insight types"""
+
     SENTIMENT = "sentiment"
     TOPIC = "topic"
     ACTION_ITEMS = "action_items"
@@ -94,8 +105,10 @@ class InsightType(str, Enum):
 # Error Response Model & Custom Exceptions
 # ===============================================================================
 
+
 class ErrorResponse(BaseModel):
     """Standardized error response model | نموذج استجابة الخطأ الموحد"""
+
     error: str
     error_ar: str | None = None
     error_code: str
@@ -105,6 +118,7 @@ class ErrorResponse(BaseModel):
 
 class ServiceUnavailableError(Exception):
     """Raised when a required service (DB, NATS, WeChat API) is unavailable"""
+
     def __init__(self, service: str, message: str = "Service unavailable"):
         self.service = service
         self.message = message
@@ -113,6 +127,7 @@ class ServiceUnavailableError(Exception):
 
 class ResourceNotFoundError(Exception):
     """Raised when a requested resource is not found"""
+
     def __init__(self, resource_type: str, resource_id: str):
         self.resource_type = resource_type
         self.resource_id = resource_id
@@ -122,6 +137,7 @@ class ResourceNotFoundError(Exception):
 
 class TenantAccessDeniedError(Exception):
     """Raised when tenant access is denied"""
+
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
         self.message = "Access denied: tenant mismatch"
@@ -130,6 +146,7 @@ class TenantAccessDeniedError(Exception):
 
 class WeChatAPIError(Exception):
     """Raised when WeChat API returns an error"""
+
     def __init__(self, error_code: str, message: str, message_ar: str | None = None):
         self.error_code = error_code
         self.message = message
@@ -139,6 +156,7 @@ class WeChatAPIError(Exception):
 
 class RateLimitError(Exception):
     """Raised when rate limit is exceeded"""
+
     def __init__(self, retry_after: int = 60):
         self.retry_after = retry_after
         self.message = f"Rate limit exceeded. Retry after {retry_after} seconds"
@@ -147,6 +165,7 @@ class RateLimitError(Exception):
 
 class InvalidInputError(Exception):
     """Raised when input validation fails"""
+
     def __init__(self, field: str, reason: str, reason_ar: str | None = None):
         self.field = field
         self.reason = reason
@@ -164,6 +183,7 @@ def get_request_id(request: Request) -> str | None:
 # Event Publishing Helper
 # ===============================================================================
 
+
 async def publish_event(subject: str, data: dict) -> None:
     """
     Publish an event to NATS.
@@ -176,10 +196,7 @@ async def publish_event(subject: str, data: dict) -> None:
     """
     if app.state.publisher:
         try:
-            await app.state.publisher.publish(
-                subject,
-                json.dumps(data).encode()
-            )
+            await app.state.publisher.publish(subject, json.dumps(data).encode())
             logger.info("event_published", subject=subject, event_type=data.get("event_type"))
         except Exception as e:
             logger.error("event_publish_failed", subject=subject, error=str(e))
@@ -189,19 +206,30 @@ async def publish_event(subject: str, data: dict) -> None:
 # Request/Response Models
 # ===============================================================================
 
+
 # --- Message Models ---
 class MessageFetchRequest(BaseModel):
     """Request to fetch messages from a chat | طلب جلب الرسائل من محادثة"""
+
     chat_id: str = Field(..., description="WeChat chat/group ID | معرف المحادثة")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    limit: int = Field(50, ge=1, le=200, description="Maximum messages to fetch | الحد الأقصى للرسائل")
-    before_timestamp: datetime | None = Field(None, description="Fetch messages before this time | جلب الرسائل قبل هذا الوقت")
-    after_timestamp: datetime | None = Field(None, description="Fetch messages after this time | جلب الرسائل بعد هذا الوقت")
-    message_types: list[MessageType] | None = Field(None, description="Filter by message types | تصفية حسب أنواع الرسائل")
+    limit: int = Field(
+        50, ge=1, le=200, description="Maximum messages to fetch | الحد الأقصى للرسائل"
+    )
+    before_timestamp: datetime | None = Field(
+        None, description="Fetch messages before this time | جلب الرسائل قبل هذا الوقت"
+    )
+    after_timestamp: datetime | None = Field(
+        None, description="Fetch messages after this time | جلب الرسائل بعد هذا الوقت"
+    )
+    message_types: list[MessageType] | None = Field(
+        None, description="Filter by message types | تصفية حسب أنواع الرسائل"
+    )
 
 
 class MessageResponse(BaseModel):
     """Message response model | نموذج استجابة الرسالة"""
+
     id: str
     chat_id: str
     sender_id: str
@@ -219,6 +247,7 @@ class MessageResponse(BaseModel):
 
 class MessageFetchResponse(BaseModel):
     """Response for message fetch | استجابة جلب الرسائل"""
+
     chat_id: str
     messages: list[MessageResponse]
     total_count: int
@@ -229,17 +258,25 @@ class MessageFetchResponse(BaseModel):
 
 class MessageSendRequest(BaseModel):
     """Request to send a message | طلب إرسال رسالة"""
+
     chat_id: str = Field(..., description="Target chat/group ID | معرف المحادثة المستهدفة")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
     message_type: MessageType = Field(MessageType.TEXT, description="Message type | نوع الرسالة")
-    content: str = Field(..., min_length=1, max_length=10000, description="Message content | محتوى الرسالة")
-    media_url: str | None = Field(None, description="Media URL for non-text messages | رابط الوسائط")
-    reply_to_id: str | None = Field(None, description="Message ID to reply to | معرف الرسالة للرد عليها")
+    content: str = Field(
+        ..., min_length=1, max_length=10000, description="Message content | محتوى الرسالة"
+    )
+    media_url: str | None = Field(
+        None, description="Media URL for non-text messages | رابط الوسائط"
+    )
+    reply_to_id: str | None = Field(
+        None, description="Message ID to reply to | معرف الرسالة للرد عليها"
+    )
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata | بيانات إضافية")
 
 
 class MessageSendResponse(BaseModel):
     """Response for message send | استجابة إرسال الرسالة"""
+
     id: str
     chat_id: str
     message_type: MessageType
@@ -252,17 +289,25 @@ class MessageSendResponse(BaseModel):
 # --- Contact Models ---
 class ContactAddRequest(BaseModel):
     """Request to add a contact | طلب إضافة جهة اتصال"""
+
     wechat_id: str = Field(..., description="WeChat ID or phone number | معرف ويتشات أو رقم الهاتف")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    contact_type: ContactType = Field(ContactType.FRIEND, description="Contact type | نوع جهة الاتصال")
-    greeting_message: str | None = Field(None, max_length=500, description="Friend request message | رسالة طلب الصداقة")
-    greeting_message_ar: str | None = Field(None, max_length=500, description="Greeting in Arabic | الترحيب بالعربية")
+    contact_type: ContactType = Field(
+        ContactType.FRIEND, description="Contact type | نوع جهة الاتصال"
+    )
+    greeting_message: str | None = Field(
+        None, max_length=500, description="Friend request message | رسالة طلب الصداقة"
+    )
+    greeting_message_ar: str | None = Field(
+        None, max_length=500, description="Greeting in Arabic | الترحيب بالعربية"
+    )
     notes: str | None = Field(None, max_length=1000, description="Personal notes | ملاحظات شخصية")
     tags: list[str] | None = Field(None, description="Contact tags | وسوم جهة الاتصال")
 
 
 class ContactResponse(BaseModel):
     """Contact response model | نموذج استجابة جهة الاتصال"""
+
     id: str
     wechat_id: str
     nickname: str | None = None
@@ -279,20 +324,33 @@ class ContactResponse(BaseModel):
 # --- Moment Models ---
 class MomentPublishRequest(BaseModel):
     """Request to publish a moment | طلب نشر لحظة"""
+
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    content: str = Field(..., min_length=1, max_length=2000, description="Moment text content | محتوى النص")
-    content_ar: str | None = Field(None, max_length=2000, description="Content in Arabic | المحتوى بالعربية")
-    media_urls: list[str] | None = Field(None, max_length=9, description="Media URLs (max 9) | روابط الوسائط")
+    content: str = Field(
+        ..., min_length=1, max_length=2000, description="Moment text content | محتوى النص"
+    )
+    content_ar: str | None = Field(
+        None, max_length=2000, description="Content in Arabic | المحتوى بالعربية"
+    )
+    media_urls: list[str] | None = Field(
+        None, max_length=9, description="Media URLs (max 9) | روابط الوسائط"
+    )
     location: str | None = Field(None, description="Location tag | علامة الموقع")
     location_ar: str | None = Field(None, description="Location in Arabic | الموقع بالعربية")
-    visibility: MomentVisibility = Field(MomentVisibility.FRIENDS, description="Visibility setting | إعداد الرؤية")
-    visible_to: list[str] | None = Field(None, description="Specific user IDs if visibility is 'selected' | معرفات المستخدمين المحددين")
+    visibility: MomentVisibility = Field(
+        MomentVisibility.FRIENDS, description="Visibility setting | إعداد الرؤية"
+    )
+    visible_to: list[str] | None = Field(
+        None,
+        description="Specific user IDs if visibility is 'selected' | معرفات المستخدمين المحددين",
+    )
     link_url: str | None = Field(None, description="Link to attach | رابط للإرفاق")
     link_title: str | None = Field(None, description="Link title | عنوان الرابط")
 
 
 class MomentResponse(BaseModel):
     """Moment response model | نموذج استجابة اللحظة"""
+
     id: str
     content: str
     content_ar: str | None = None
@@ -312,17 +370,27 @@ class MomentResponse(BaseModel):
 # --- Chat Analysis Models ---
 class ChatSummarizeRequest(BaseModel):
     """Request to summarize a chat | طلب تلخيص المحادثة"""
+
     chat_id: str = Field(..., description="Chat ID to summarize | معرف المحادثة للتلخيص")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    time_range_hours: int = Field(24, ge=1, le=168, description="Hours of chat to summarize | ساعات المحادثة للتلخيص")
-    max_messages: int = Field(500, ge=10, le=2000, description="Maximum messages to analyze | الحد الأقصى للرسائل")
+    time_range_hours: int = Field(
+        24, ge=1, le=168, description="Hours of chat to summarize | ساعات المحادثة للتلخيص"
+    )
+    max_messages: int = Field(
+        500, ge=10, le=2000, description="Maximum messages to analyze | الحد الأقصى للرسائل"
+    )
     language: str = Field("en", description="Output language (en/ar/both) | لغة المخرجات")
-    include_participants: bool = Field(True, description="Include participant summary | تضمين ملخص المشاركين")
-    include_timeline: bool = Field(False, description="Include activity timeline | تضمين الجدول الزمني")
+    include_participants: bool = Field(
+        True, description="Include participant summary | تضمين ملخص المشاركين"
+    )
+    include_timeline: bool = Field(
+        False, description="Include activity timeline | تضمين الجدول الزمني"
+    )
 
 
 class ParticipantSummary(BaseModel):
     """Participant summary in chat | ملخص المشارك في المحادثة"""
+
     user_id: str
     name: str | None = None
     name_ar: str | None = None
@@ -334,6 +402,7 @@ class ParticipantSummary(BaseModel):
 
 class ChatSummaryResponse(BaseModel):
     """Chat summary response | استجابة ملخص المحادثة"""
+
     chat_id: str
     time_range_start: datetime
     time_range_end: datetime
@@ -352,11 +421,12 @@ class ChatSummaryResponse(BaseModel):
 
 class ChatInsightsRequest(BaseModel):
     """Request to extract chat insights | طلب استخراج رؤى المحادثة"""
+
     chat_id: str = Field(..., description="Chat ID | معرف المحادثة")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
     insight_types: list[InsightType] = Field(
         default=[InsightType.SENTIMENT, InsightType.TOPIC, InsightType.ACTION_ITEMS],
-        description="Types of insights to extract | أنواع الرؤى للاستخراج"
+        description="Types of insights to extract | أنواع الرؤى للاستخراج",
     )
     time_range_hours: int = Field(24, ge=1, le=168, description="Hours to analyze | ساعات التحليل")
     language: str = Field("en", description="Output language (en/ar/both) | لغة المخرجات")
@@ -364,6 +434,7 @@ class ChatInsightsRequest(BaseModel):
 
 class InsightItem(BaseModel):
     """Single insight item | عنصر رؤية واحد"""
+
     insight_type: InsightType
     title: str
     title_ar: str | None = None
@@ -376,6 +447,7 @@ class InsightItem(BaseModel):
 
 class ChatInsightsResponse(BaseModel):
     """Chat insights response | استجابة رؤى المحادثة"""
+
     chat_id: str
     time_range_start: datetime
     time_range_end: datetime
@@ -400,6 +472,7 @@ chat_summaries: dict[str, ChatSummaryResponse] = {}
 # ===============================================================================
 # Authentication Helpers
 # ===============================================================================
+
 
 def validate_tenant_access(user: User, tenant_id: str) -> None:
     """
@@ -429,6 +502,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 # Lifespan Management
 # ===============================================================================
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager | مدير دورة حياة التطبيق"""
@@ -456,9 +530,9 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             from shared.events.publisher import get_publisher
+
             app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME,
-                service_version=SERVICE_VERSION
+                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
             )
             app.state.nats_connected = True
             print(f"NATS connected: {nats_url}")
@@ -475,6 +549,7 @@ async def lifespan(app: FastAPI):
     if db_url:
         try:
             import asyncpg
+
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
@@ -518,6 +593,7 @@ async def lifespan(app: FastAPI):
 # ===============================================================================
 # Redis Cache Helpers
 # ===============================================================================
+
 
 async def cache_get(key: str) -> dict | None:
     """Get value from Redis cache."""
@@ -574,6 +650,7 @@ app.state.limiter = limiter
 def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     """Custom handler for rate limit exceeded errors (429)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "rate_limit_exceeded",
@@ -601,6 +678,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 # Request ID Middleware
 # ===============================================================================
 
+
 @app.middleware("http")
 async def add_request_id_middleware(request: Request, call_next):
     """Add request ID to all requests for tracing | إضافة معرف الطلب لجميع الطلبات للتتبع"""
@@ -615,10 +693,12 @@ async def add_request_id_middleware(request: Request, call_next):
 # Exception Handlers
 # ===============================================================================
 
+
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError):
     """Handle validation errors (400)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning("validation_error", path=request.url.path, request_id=request_id, error=str(exc))
     return JSONResponse(
@@ -637,8 +717,15 @@ async def value_error_handler(request: Request, exc: ValueError):
 async def resource_not_found_handler(request: Request, exc: ResourceNotFoundError):
     """Handle resource not found errors (404)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.info("resource_not_found", path=request.url.path, request_id=request_id, resource_type=exc.resource_type, resource_id=exc.resource_id)
+    logger.info(
+        "resource_not_found",
+        path=request.url.path,
+        request_id=request_id,
+        resource_type=exc.resource_type,
+        resource_id=exc.resource_id,
+    )
     return JSONResponse(
         status_code=404,
         content=ErrorResponse(
@@ -655,8 +742,14 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError):
     """Handle tenant access denied errors (403)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.warning("tenant_access_denied", path=request.url.path, request_id=request_id, tenant_id=exc.tenant_id)
+    logger.warning(
+        "tenant_access_denied",
+        path=request.url.path,
+        request_id=request_id,
+        tenant_id=exc.tenant_id,
+    )
     return JSONResponse(
         status_code=403,
         content=ErrorResponse(
@@ -673,8 +766,15 @@ async def tenant_access_denied_handler(request: Request, exc: TenantAccessDenied
 async def wechat_api_error_handler(request: Request, exc: WeChatAPIError):
     """Handle WeChat API errors (502)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.error("wechat_api_error", path=request.url.path, request_id=request_id, error_code=exc.error_code, error=exc.message)
+    logger.error(
+        "wechat_api_error",
+        path=request.url.path,
+        request_id=request_id,
+        error_code=exc.error_code,
+        error=exc.message,
+    )
     return JSONResponse(
         status_code=502,
         content=ErrorResponse(
@@ -691,8 +791,15 @@ async def wechat_api_error_handler(request: Request, exc: WeChatAPIError):
 async def invalid_input_handler(request: Request, exc: InvalidInputError):
     """Handle invalid input errors (400)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.warning("invalid_input", path=request.url.path, request_id=request_id, field=exc.field, reason=exc.reason)
+    logger.warning(
+        "invalid_input",
+        path=request.url.path,
+        request_id=request_id,
+        field=exc.field,
+        reason=exc.reason,
+    )
     return JSONResponse(
         status_code=400,
         content=ErrorResponse(
@@ -709,8 +816,15 @@ async def invalid_input_handler(request: Request, exc: InvalidInputError):
 async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError):
     """Handle service unavailable errors (503)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.error("service_unavailable", path=request.url.path, request_id=request_id, service=exc.service, error=exc.message)
+    logger.error(
+        "service_unavailable",
+        path=request.url.path,
+        request_id=request_id,
+        service=exc.service,
+        error=exc.message,
+    )
     return JSONResponse(
         status_code=503,
         content=ErrorResponse(
@@ -727,6 +841,7 @@ async def service_unavailable_handler(request: Request, exc: ServiceUnavailableE
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with consistent format"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     error_codes = {
         400: ("BAD_REQUEST", "طلب غير صالح"),
@@ -742,9 +857,21 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     error_code, error_ar = error_codes.get(exc.status_code, ("ERROR", "خطأ"))
 
     if exc.status_code >= 500:
-        logger.error("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.error(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
     else:
-        logger.warning("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.warning(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -762,8 +889,16 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all unhandled exceptions (500)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
-    logger.error("unhandled_exception", path=request.url.path, request_id=request_id, error=str(exc), error_type=type(exc).__name__, exc_info=True)
+    logger.error(
+        "unhandled_exception",
+        path=request.url.path,
+        request_id=request_id,
+        error=str(exc),
+        error_type=type(exc).__name__,
+        exc_info=True,
+    )
     return JSONResponse(
         status_code=500,
         content=ErrorResponse(
@@ -777,7 +912,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -791,6 +928,7 @@ app.add_middleware(
 # ===============================================================================
 # Health Endpoints
 # ===============================================================================
+
 
 @app.get("/healthz", tags=["Health"])
 def health():
@@ -837,6 +975,7 @@ def health_detailed():
 # Message Endpoints
 # ===============================================================================
 
+
 @app.post("/api/v1/messages/fetch", response_model=MessageFetchResponse, tags=["Messages"])
 @limiter.limit("60/minute")
 async def fetch_messages(
@@ -860,7 +999,7 @@ async def fetch_messages(
 
     # Try cache first
     cache_key = f"wechat:messages:{fetch_request.tenant_id}:{chat_id}"
-    cached = await cache_get(cache_key)
+    await cache_get(cache_key)
 
     # Simulate fetching messages (in production, call WeChat API)
     if chat_id not in messages:
@@ -886,14 +1025,20 @@ async def fetch_messages(
     # Apply filters
     filtered_messages = chat_messages
     if fetch_request.before_timestamp:
-        filtered_messages = [m for m in filtered_messages if m.timestamp < fetch_request.before_timestamp]
+        filtered_messages = [
+            m for m in filtered_messages if m.timestamp < fetch_request.before_timestamp
+        ]
     if fetch_request.after_timestamp:
-        filtered_messages = [m for m in filtered_messages if m.timestamp > fetch_request.after_timestamp]
+        filtered_messages = [
+            m for m in filtered_messages if m.timestamp > fetch_request.after_timestamp
+        ]
     if fetch_request.message_types:
-        filtered_messages = [m for m in filtered_messages if m.message_type in fetch_request.message_types]
+        filtered_messages = [
+            m for m in filtered_messages if m.message_type in fetch_request.message_types
+        ]
 
     # Apply limit
-    limited_messages = filtered_messages[:fetch_request.limit]
+    limited_messages = filtered_messages[: fetch_request.limit]
 
     # Publish event
     await publish_event(
@@ -905,7 +1050,7 @@ async def fetch_messages(
             "message_count": len(limited_messages),
             "user_id": user.id,
             "timestamp": datetime.now(UTC).isoformat(),
-        }
+        },
     )
 
     return MessageFetchResponse(
@@ -942,7 +1087,7 @@ async def send_message(
         raise InvalidInputError(
             field="media_url",
             reason="Media URL is required for non-text messages",
-            reason_ar="رابط الوسائط مطلوب للرسائل غير النصية"
+            reason_ar="رابط الوسائط مطلوب للرسائل غير النصية",
         )
 
     # Create message
@@ -982,7 +1127,7 @@ async def send_message(
             "message_type": send_request.message_type.value,
             "user_id": user.id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     logger.info(
@@ -1008,6 +1153,7 @@ async def send_message(
 # Contact Endpoints
 # ===============================================================================
 
+
 @app.post("/api/v1/contacts/add", response_model=ContactResponse, tags=["Contacts"])
 @limiter.limit("20/minute")
 async def add_contact(
@@ -1032,7 +1178,7 @@ async def add_contact(
     if contact_key in contacts:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Contact already exists: {add_request.wechat_id}"
+            detail=f"Contact already exists: {add_request.wechat_id}",
         )
 
     # Create contact
@@ -1065,7 +1211,7 @@ async def add_contact(
             "contact_type": add_request.contact_type.value,
             "user_id": user.id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     logger.info(
@@ -1082,6 +1228,7 @@ async def add_contact(
 # ===============================================================================
 # Moments Endpoints
 # ===============================================================================
+
 
 @app.post("/api/v1/moments/publish", response_model=MomentResponse, tags=["Moments"])
 @limiter.limit("10/minute")
@@ -1108,7 +1255,7 @@ async def publish_moment(
         raise InvalidInputError(
             field="visible_to",
             reason="User IDs required when visibility is 'selected'",
-            reason_ar="معرفات المستخدمين مطلوبة عند اختيار 'محدد'"
+            reason_ar="معرفات المستخدمين مطلوبة عند اختيار 'محدد'",
         )
 
     # Create moment
@@ -1148,7 +1295,7 @@ async def publish_moment(
             "media_count": len(publish_request.media_urls) if publish_request.media_urls else 0,
             "user_id": user.id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     logger.info(
@@ -1164,6 +1311,7 @@ async def publish_moment(
 # ===============================================================================
 # Chat Analysis Endpoints
 # ===============================================================================
+
 
 @app.post("/api/v1/chat/summarize", response_model=ChatSummaryResponse, tags=["Chat Analysis"])
 @limiter.limit("10/minute")
@@ -1190,14 +1338,14 @@ async def summarize_chat(
 
     # Calculate time range
     from datetime import timedelta
+
     time_range_start = now - timedelta(hours=summarize_request.time_range_hours)
 
     # Get messages for analysis
     chat_messages = messages.get(chat_id, [])
-    filtered_messages = [
-        m for m in chat_messages
-        if m.timestamp >= time_range_start
-    ][:summarize_request.max_messages]
+    filtered_messages = [m for m in chat_messages if m.timestamp >= time_range_start][
+        : summarize_request.max_messages
+    ]
 
     # Generate summary (in production, use AI model)
     participants = []
@@ -1216,9 +1364,7 @@ async def summarize_chat(
                 }
             participant_map[msg.sender_id]["message_count"] += 1
 
-        participants = [
-            ParticipantSummary(**p) for p in participant_map.values()
-        ]
+        participants = [ParticipantSummary(**p) for p in participant_map.values()]
 
     # Generate bilingual summary
     summary_en = "The conversation covered agricultural topics including crop health and irrigation scheduling."
@@ -1243,7 +1389,9 @@ async def summarize_chat(
         action_items_ar=action_items_ar if summarize_request.language in ["ar", "both"] else None,
         participants=participants if summarize_request.include_participants else None,
         sentiment_overview="Generally positive with constructive discussions",
-        sentiment_overview_ar="إيجابي بشكل عام مع نقاشات بناءة" if summarize_request.language in ["ar", "both"] else None,
+        sentiment_overview_ar="إيجابي بشكل عام مع نقاشات بناءة"
+        if summarize_request.language in ["ar", "both"]
+        else None,
         generated_at=now,
     )
 
@@ -1262,7 +1410,7 @@ async def summarize_chat(
             "time_range_hours": summarize_request.time_range_hours,
             "user_id": user.id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     logger.info(
@@ -1301,72 +1449,80 @@ async def get_chat_insights(
 
     # Calculate time range
     from datetime import timedelta
+
     time_range_start = now - timedelta(hours=insights_request.time_range_hours)
 
     # Get messages for analysis
     chat_messages = messages.get(chat_id, [])
-    filtered_messages = [
-        m for m in chat_messages
-        if m.timestamp >= time_range_start
-    ]
+    filtered_messages = [m for m in chat_messages if m.timestamp >= time_range_start]
 
     # Generate insights (in production, use AI model)
     insights = []
 
     if InsightType.SENTIMENT in insights_request.insight_types:
-        insights.append(InsightItem(
-            insight_type=InsightType.SENTIMENT,
-            title="Overall Positive Sentiment",
-            title_ar="مشاعر إيجابية بشكل عام",
-            description="The conversation maintains a positive and collaborative tone throughout.",
-            description_ar="تحافظ المحادثة على نبرة إيجابية وتعاونية طوال الوقت.",
-            confidence=0.85,
-            related_messages=[],
-        ))
+        insights.append(
+            InsightItem(
+                insight_type=InsightType.SENTIMENT,
+                title="Overall Positive Sentiment",
+                title_ar="مشاعر إيجابية بشكل عام",
+                description="The conversation maintains a positive and collaborative tone throughout.",
+                description_ar="تحافظ المحادثة على نبرة إيجابية وتعاونية طوال الوقت.",
+                confidence=0.85,
+                related_messages=[],
+            )
+        )
 
     if InsightType.TOPIC in insights_request.insight_types:
-        insights.append(InsightItem(
-            insight_type=InsightType.TOPIC,
-            title="Agricultural Advisory",
-            title_ar="الإرشاد الزراعي",
-            description="Main discussion topic revolves around crop management and irrigation.",
-            description_ar="يدور موضوع النقاش الرئيسي حول إدارة المحاصيل والري.",
-            confidence=0.92,
-            related_messages=[],
-        ))
+        insights.append(
+            InsightItem(
+                insight_type=InsightType.TOPIC,
+                title="Agricultural Advisory",
+                title_ar="الإرشاد الزراعي",
+                description="Main discussion topic revolves around crop management and irrigation.",
+                description_ar="يدور موضوع النقاش الرئيسي حول إدارة المحاصيل والري.",
+                confidence=0.92,
+                related_messages=[],
+            )
+        )
 
     if InsightType.ACTION_ITEMS in insights_request.insight_types:
-        insights.append(InsightItem(
-            insight_type=InsightType.ACTION_ITEMS,
-            title="Follow-up Required",
-            title_ar="متابعة مطلوبة",
-            description="Check soil moisture levels before next irrigation cycle.",
-            description_ar="فحص مستويات رطوبة التربة قبل دورة الري التالية.",
-            confidence=0.78,
-            related_messages=[],
-        ))
+        insights.append(
+            InsightItem(
+                insight_type=InsightType.ACTION_ITEMS,
+                title="Follow-up Required",
+                title_ar="متابعة مطلوبة",
+                description="Check soil moisture levels before next irrigation cycle.",
+                description_ar="فحص مستويات رطوبة التربة قبل دورة الري التالية.",
+                confidence=0.78,
+                related_messages=[],
+            )
+        )
 
     if InsightType.QUESTIONS in insights_request.insight_types:
-        insights.append(InsightItem(
-            insight_type=InsightType.QUESTIONS,
-            title="Unanswered Question",
-            title_ar="سؤال بدون إجابة",
-            description="When should the fertilizer be applied?",
-            description_ar="متى يجب تطبيق السماد؟",
-            confidence=0.88,
-            related_messages=[],
-        ))
+        insights.append(
+            InsightItem(
+                insight_type=InsightType.QUESTIONS,
+                title="Unanswered Question",
+                title_ar="سؤال بدون إجابة",
+                description="When should the fertilizer be applied?",
+                description_ar="متى يجب تطبيق السماد؟",
+                confidence=0.88,
+                related_messages=[],
+            )
+        )
 
     if InsightType.KEY_DECISIONS in insights_request.insight_types:
-        insights.append(InsightItem(
-            insight_type=InsightType.KEY_DECISIONS,
-            title="Decision Made",
-            title_ar="قرار تم اتخاذه",
-            description="Agreed to schedule irrigation for Tuesday morning.",
-            description_ar="تم الاتفاق على جدولة الري لصباح يوم الثلاثاء.",
-            confidence=0.95,
-            related_messages=[],
-        ))
+        insights.append(
+            InsightItem(
+                insight_type=InsightType.KEY_DECISIONS,
+                title="Decision Made",
+                title_ar="قرار تم اتخاذه",
+                description="Agreed to schedule irrigation for Tuesday morning.",
+                description_ar="تم الاتفاق على جدولة الري لصباح يوم الثلاثاء.",
+                confidence=0.95,
+                related_messages=[],
+            )
+        )
 
     insights_response = ChatInsightsResponse(
         chat_id=chat_id,
@@ -1392,7 +1548,7 @@ async def get_chat_insights(
             "insight_types": [i.value for i in insights_request.insight_types],
             "user_id": user.id,
             "timestamp": now.isoformat(),
-        }
+        },
     )
 
     logger.info(
@@ -1409,6 +1565,7 @@ async def get_chat_insights(
 # ===============================================================================
 # Metrics Endpoint
 # ===============================================================================
+
 
 @app.get("/metrics", tags=["Monitoring"])
 def metrics():
@@ -1434,6 +1591,7 @@ wechat_chats_total {len(messages)}
 
 if __name__ == "__main__":
     import uvicorn
+
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
     host = os.getenv("HOST", "0.0.0.0")
     uvicorn.run(app, host=host, port=SERVICE_PORT)

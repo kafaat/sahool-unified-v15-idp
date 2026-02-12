@@ -40,6 +40,10 @@ from crops import (
 from crops import (
     search_crops as search_crops_catalog,
 )
+from yemen_varieties import (
+    get_varieties_by_crop,
+)
+
 from shared.errors_py import (
     ErrorCode,
     NotFoundException,
@@ -47,9 +51,6 @@ from shared.errors_py import (
     add_request_id_middleware,
     create_success_response,
     setup_exception_handlers,
-)
-from yemen_varieties import (
-    get_varieties_by_crop,
 )
 
 # Import authentication dependencies
@@ -163,6 +164,7 @@ def readiness():
 
     if not is_ready:
         from fastapi.responses import JSONResponse
+
         return JSONResponse(
             content={"status": "not_ready", "service": "advisory_service", "checks": checks},
             status_code=503,

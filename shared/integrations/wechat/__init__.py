@@ -58,55 +58,19 @@ Updated: January 2026
 """
 
 # Configuration
-from .config import (
-    AgentModel,
-    CacheConfig,
-    RateLimitConfig,
-    RetryConfig,
-    WeChatConfig,
-    WeChatEnvironment,
-    WeChatTransport,
-    get_wechat_config,
-    reset_config,
-)
-
-# Models
-from .models import (
-    # Enums
-    AgentType,
-    ContactType,
-    MessageDirection,
-    MessageType,
-    MomentVisibility,
-    PriorityLevel,
-    SentimentType,
-    TopicCategory,
-    # Base models
-    Attachment,
-    BilingualText,
-    Location,
-    # Contact models
-    WeChatContact,
-    WeChatGroup,
-    # Message models
-    WeChatMessage,
-    WeChatMoment,
-    # Analysis models
-    ChatInsight,
-    ChatSummary,
-    MessageAnalysis,
-    MultiChatStatus,
-    SearchResult,
-    # Response models
-    AgentResponse,
-    AutoReplyResponse,
-    InsightsResponse,
-    SummaryResponse,
-    # Request models
-    FetchMessagesRequest,
-    PublishMomentRequest,
-    SearchMessagesRequest,
-    SendMessageRequest,
+# Agents
+from .agents import (
+    # Base
+    AgentContext,
+    # Specialized agents
+    AutoReplierAgent,
+    BaseWeChatAgent,
+    ChatInsightsAgent,
+    ChatSummarizerAgent,
+    MessageSearcherAgent,
+    MultiChatCheckerAgent,
+    # Factory
+    create_wechat_agent,
 )
 
 # Client
@@ -121,20 +85,55 @@ from .client import (
     send_quick_message,
     wechat_client,
 )
+from .config import (
+    AgentModel,
+    CacheConfig,
+    RateLimitConfig,
+    RetryConfig,
+    WeChatConfig,
+    WeChatEnvironment,
+    WeChatTransport,
+    get_wechat_config,
+    reset_config,
+)
 
-# Agents
-from .agents import (
-    # Base
-    AgentContext,
-    BaseWeChatAgent,
-    # Specialized agents
-    AutoReplierAgent,
-    ChatInsightsAgent,
-    ChatSummarizerAgent,
-    MessageSearcherAgent,
-    MultiChatCheckerAgent,
-    # Factory
-    create_wechat_agent,
+# Models
+from .models import (
+    # Response models
+    AgentResponse,
+    # Enums
+    AgentType,
+    # Base models
+    Attachment,
+    AutoReplyResponse,
+    BilingualText,
+    # Analysis models
+    ChatInsight,
+    ChatSummary,
+    ContactType,
+    # Request models
+    FetchMessagesRequest,
+    InsightsResponse,
+    Location,
+    MessageAnalysis,
+    MessageDirection,
+    MessageType,
+    MomentVisibility,
+    MultiChatStatus,
+    PriorityLevel,
+    PublishMomentRequest,
+    SearchMessagesRequest,
+    SearchResult,
+    SendMessageRequest,
+    SentimentType,
+    SummaryResponse,
+    TopicCategory,
+    # Contact models
+    WeChatContact,
+    WeChatGroup,
+    # Message models
+    WeChatMessage,
+    WeChatMoment,
 )
 
 __all__ = [
@@ -148,7 +147,6 @@ __all__ = [
     "CacheConfig",
     "get_wechat_config",
     "reset_config",
-
     # ===== Enums =====
     "MessageType",
     "MessageDirection",
@@ -158,39 +156,32 @@ __all__ = [
     "PriorityLevel",
     "TopicCategory",
     "AgentType",
-
     # ===== Base Models =====
     "BilingualText",
     "Location",
     "Attachment",
-
     # ===== Contact Models =====
     "WeChatContact",
     "WeChatGroup",
-
     # ===== Message Models =====
     "WeChatMessage",
     "WeChatMoment",
-
     # ===== Analysis Models =====
     "MessageAnalysis",
     "ChatSummary",
     "ChatInsight",
     "MultiChatStatus",
     "SearchResult",
-
     # ===== Response Models =====
     "AgentResponse",
     "AutoReplyResponse",
     "SummaryResponse",
     "InsightsResponse",
-
     # ===== Request Models =====
     "FetchMessagesRequest",
     "SendMessageRequest",
     "SearchMessagesRequest",
     "PublishMomentRequest",
-
     # ===== Client =====
     "WeChatMCPClient",
     "WeChatMCPError",
@@ -201,7 +192,6 @@ __all__ = [
     "wechat_client",
     "fetch_recent_messages",
     "send_quick_message",
-
     # ===== Agents =====
     "BaseWeChatAgent",
     "AgentContext",

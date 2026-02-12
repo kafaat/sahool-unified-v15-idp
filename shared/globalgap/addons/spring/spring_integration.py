@@ -12,8 +12,8 @@ usage alerts, and seasonal pattern tracking.
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, UTC
-from enum import Enum
+from datetime import UTC, date, datetime
+from enum import StrEnum
 from typing import Any
 
 import httpx
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 # ==================== Alert Models ====================
 
 
-class AlertSeverity(str, Enum):
+class AlertSeverity(StrEnum):
     """Alert severity level / مستوى خطورة التنبيه"""
 
     INFO = "INFO"  # معلومات
@@ -37,7 +37,7 @@ class AlertSeverity(str, Enum):
     CRITICAL = "CRITICAL"  # حرج
 
 
-class AlertType(str, Enum):
+class AlertType(StrEnum):
     """Alert type / نوع التنبيه"""
 
     EXCESSIVE_USAGE = "EXCESSIVE_USAGE"  # استخدام مفرط
@@ -520,10 +520,12 @@ class SpringIntegration:
 
     # ==================== Mock Data Generation Methods ====================
 
-    def _generate_mock_usage_records(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+    def _generate_mock_usage_records(
+        self, start_date: date, end_date: date
+    ) -> list[dict[str, Any]]:
         """Generate realistic mock water usage records for the period"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         records = []
         current_date = start_date
@@ -565,33 +567,36 @@ class SpringIntegration:
                 usage_id = f"WU-{current_date.strftime('%Y%m%d')}-{record_counter:04d}"
                 flow_rate = volume / duration if duration > 0 else 0
 
-                records.append({
-                    "usage_id": usage_id,
-                    "source_id": source["source_id"],
-                    "source_name": source["name"],
-                    "field_id": field["field_id"],
-                    "crop_type": field["crop"],
-                    "measurement_date": current_date.isoformat(),
-                    "volume_cubic_meters": round(volume, 2),
-                    "crop_area_hectares": field["area"],
-                    "irrigation_method": field["method"],
-                    "duration_hours": round(duration, 2),
-                    "flow_rate_m3_per_hour": round(flow_rate, 2),
-                })
+                records.append(
+                    {
+                        "usage_id": usage_id,
+                        "source_id": source["source_id"],
+                        "source_name": source["name"],
+                        "field_id": field["field_id"],
+                        "crop_type": field["crop"],
+                        "measurement_date": current_date.isoformat(),
+                        "volume_cubic_meters": round(volume, 2),
+                        "crop_area_hectares": field["area"],
+                        "irrigation_method": field["method"],
+                        "duration_hours": round(duration, 2),
+                        "flow_rate_m3_per_hour": round(flow_rate, 2),
+                    }
+                )
                 record_counter += 1
 
             current_date += timedelta(days=1)
 
         return records
 
-    def _generate_mock_sensor_readings(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+    def _generate_mock_sensor_readings(
+        self, start_date: date, end_date: date
+    ) -> list[dict[str, Any]]:
         """Generate realistic mock soil moisture sensor readings"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         readings = []
         current_date = start_date
-        sensor_counter = 1
 
         # Define sensor locations (one per field)
         sensors = [
@@ -610,18 +615,20 @@ class SpringIntegration:
                     soil_moisture = max(25, min(75, base_moisture))
                     soil_temperature = random.uniform(18, 35)  # Yemen climate
 
-                    readings.append({
-                        "reading_id": f"SR-{current_date.strftime('%Y%m%d')}-{sensor['sensor_id']}-{hour:02d}",
-                        "sensor_id": sensor["sensor_id"],
-                        "field_id": sensor["field_id"],
-                        "measurement_date": current_date.isoformat(),
-                        "measurement_hour": hour,
-                        "soil_moisture_percent": round(soil_moisture, 1),
-                        "soil_temperature_celsius": round(soil_temperature, 1),
-                        "sensor_depth_cm": sensor["depth_cm"],
-                        "battery_level_percent": random.randint(70, 100),
-                        "signal_strength": random.choice(["STRONG", "GOOD", "FAIR"]),
-                    })
+                    readings.append(
+                        {
+                            "reading_id": f"SR-{current_date.strftime('%Y%m%d')}-{sensor['sensor_id']}-{hour:02d}",
+                            "sensor_id": sensor["sensor_id"],
+                            "field_id": sensor["field_id"],
+                            "measurement_date": current_date.isoformat(),
+                            "measurement_hour": hour,
+                            "soil_moisture_percent": round(soil_moisture, 1),
+                            "soil_temperature_celsius": round(soil_temperature, 1),
+                            "sensor_depth_cm": sensor["depth_cm"],
+                            "battery_level_percent": random.randint(70, 100),
+                            "signal_strength": random.choice(["STRONG", "GOOD", "FAIR"]),
+                        }
+                    )
 
             current_date += timedelta(days=1)
 
@@ -629,8 +636,8 @@ class SpringIntegration:
 
     def _generate_mock_weather_data(self, start_date: date, end_date: date) -> dict[str, Any]:
         """Generate realistic mock weather data for the period"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         weather_records = []
         current_date = start_date
@@ -643,17 +650,19 @@ class SpringIntegration:
             relative_humidity = random.uniform(30, 70)
             wind_speed = random.uniform(5, 20)  # km/h
 
-            weather_records.append({
-                "date": current_date.isoformat(),
-                "min_temperature_celsius": round(min_temp, 1),
-                "max_temperature_celsius": round(max_temp, 1),
-                "avg_temperature_celsius": round((min_temp + max_temp) / 2, 1),
-                "rainfall_mm": round(rainfall, 1),
-                "relative_humidity_percent": round(relative_humidity, 1),
-                "wind_speed_kmh": round(wind_speed, 1),
-                "solar_radiation_mj_m2": round(random.uniform(15, 25), 2),
-                "evapotranspiration_mm": round(random.uniform(3, 8), 2),
-            })
+            weather_records.append(
+                {
+                    "date": current_date.isoformat(),
+                    "min_temperature_celsius": round(min_temp, 1),
+                    "max_temperature_celsius": round(max_temp, 1),
+                    "avg_temperature_celsius": round((min_temp + max_temp) / 2, 1),
+                    "rainfall_mm": round(rainfall, 1),
+                    "relative_humidity_percent": round(relative_humidity, 1),
+                    "wind_speed_kmh": round(wind_speed, 1),
+                    "solar_radiation_mj_m2": round(random.uniform(15, 25), 2),
+                    "evapotranspiration_mm": round(random.uniform(3, 8), 2),
+                }
+            )
 
             current_date += timedelta(days=1)
 
@@ -661,15 +670,18 @@ class SpringIntegration:
             "weather_records": weather_records,
             "aggregated_rainfall_mm": sum(r["rainfall_mm"] for r in weather_records),
             "avg_temperature_celsius": round(
-                sum(r["avg_temperature_celsius"] for r in weather_records) / len(weather_records),
-                1
-            ) if weather_records else 0,
+                sum(r["avg_temperature_celsius"] for r in weather_records) / len(weather_records), 1
+            )
+            if weather_records
+            else 0,
         }
 
-    def _generate_mock_irrigation_schedules(self, start_date: date, end_date: date) -> list[dict[str, Any]]:
+    def _generate_mock_irrigation_schedules(
+        self, start_date: date, end_date: date
+    ) -> list[dict[str, Any]]:
         """Generate realistic mock irrigation schedules for planned events"""
-        from datetime import timedelta
         import random
+        from datetime import timedelta
 
         schedules = []
         current_date = start_date
@@ -701,20 +713,27 @@ class SpringIntegration:
 
                 status = random.choice(["SCHEDULED", "IN_PROGRESS", "COMPLETED"])
 
-                schedules.append({
-                    "schedule_id": f"SCH-{current_date.strftime('%Y%m%d')}-{schedule_counter:04d}",
-                    "field_id": field["field_id"],
-                    "crop_type": field["crop"],
-                    "scheduled_date": current_date.isoformat(),
-                    "scheduled_start_hour": start_hour,
-                    "planned_duration_hours": round(duration, 1),
-                    "planned_volume_cubic_meters": round(planned_volume, 2),
-                    "status": status,
-                    "priority": random.choice(["LOW", "NORMAL", "HIGH"]),
-                    "scheduling_reason": random.choice(
-                        ["Soil moisture threshold", "Growth stage", "Weather forecast", "Manual request"]
-                    ),
-                })
+                schedules.append(
+                    {
+                        "schedule_id": f"SCH-{current_date.strftime('%Y%m%d')}-{schedule_counter:04d}",
+                        "field_id": field["field_id"],
+                        "crop_type": field["crop"],
+                        "scheduled_date": current_date.isoformat(),
+                        "scheduled_start_hour": start_hour,
+                        "planned_duration_hours": round(duration, 1),
+                        "planned_volume_cubic_meters": round(planned_volume, 2),
+                        "status": status,
+                        "priority": random.choice(["LOW", "NORMAL", "HIGH"]),
+                        "scheduling_reason": random.choice(
+                            [
+                                "Soil moisture threshold",
+                                "Growth stage",
+                                "Weather forecast",
+                                "Manual request",
+                            ]
+                        ),
+                    }
+                )
                 schedule_counter += 1
 
             current_date += timedelta(days=1)

@@ -49,6 +49,9 @@ COPY apps/services/yield-prediction-service/package.json ./apps/services/yield-p
 COPY apps/web/package.json ./apps/web/
 
 # Install all dependencies at root level
+# NOTE: --legacy-peer-deps is required due to React 19 compatibility issues with some packages
+# This is a known issue with Next.js 15 + React 19 ecosystem packages
+# TODO: Remove --legacy-peer-deps once all packages are updated to React 19
 RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
 
 # Build the admin app

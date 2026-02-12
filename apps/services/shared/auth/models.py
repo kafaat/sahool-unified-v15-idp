@@ -5,10 +5,10 @@ Authentication Models
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class UserStatus(str, Enum):
+class UserStatus(StrEnum):
     """User account status"""
 
     ACTIVE = "active"
@@ -17,7 +17,7 @@ class UserStatus(str, Enum):
     PENDING = "pending"
 
 
-class RoleType(str, Enum):
+class RoleType(StrEnum):
     """Predefined role types"""
 
     SUPER_ADMIN = "super_admin"  # Full system access

@@ -17,9 +17,9 @@ from typing import Any, Optional
 
 import structlog
 
-from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
-from shared.ai.ultrarag.models import TriRAGConfig, RetrievalStrategy
 from shared.ai.ultrarag.mcp_tools import RAGMCPTools
+from shared.ai.ultrarag.models import RetrievalStrategy, TriRAGConfig
+from shared.ai.ultrarag.providers import AgriRAGProvider, CodeRAGProvider, GEERAGProvider
 
 from .service import CopilotRAGService, RAGConfig, SearchResult
 
@@ -29,6 +29,7 @@ logger = structlog.get_logger(__name__)
 @dataclass
 class UltraRAGConfig:
     """Configuration for UltraRAG integration"""
+
     # Weights for Tri-RAG
     dense_weight: float = 0.4
     sparse_weight: float = 0.3
@@ -599,26 +600,73 @@ class UltraRAGCopilotService:
 
         # Agricultural keywords
         agri_keywords = [
-            "crop", "wheat", "barley", "irrigation", "fertilizer",
-            "disease", "pest", "yield", "harvest", "soil", "farm",
-            "محصول", "قمح", "شعير", "ري", "سماد", "مرض", "آفة",
-            "إنتاج", "حصاد", "تربة", "مزرعة", "زراعة",
+            "crop",
+            "wheat",
+            "barley",
+            "irrigation",
+            "fertilizer",
+            "disease",
+            "pest",
+            "yield",
+            "harvest",
+            "soil",
+            "farm",
+            "محصول",
+            "قمح",
+            "شعير",
+            "ري",
+            "سماد",
+            "مرض",
+            "آفة",
+            "إنتاج",
+            "حصاد",
+            "تربة",
+            "مزرعة",
+            "زراعة",
         ]
 
         # Code keywords
         code_keywords = [
-            "code", "error", "bug", "function", "class", "import",
-            "python", "typescript", "dart", "fix", "lint", "test",
-            "security", "vulnerability", "api", "database",
+            "code",
+            "error",
+            "bug",
+            "function",
+            "class",
+            "import",
+            "python",
+            "typescript",
+            "dart",
+            "fix",
+            "lint",
+            "test",
+            "security",
+            "vulnerability",
+            "api",
+            "database",
         ]
 
         # Satellite/GEE keywords
         satellite_keywords = [
-            "ndvi", "evi", "savi", "ndwi", "ndmi", "lai",
-            "satellite", "sentinel", "landsat", "modis",
-            "vegetation", "land cover", "change detection",
-            "time series", "remote sensing", "imagery",
-            "قمر صناعي", "غطاء نباتي", "صور", "تغيرات",
+            "ndvi",
+            "evi",
+            "savi",
+            "ndwi",
+            "ndmi",
+            "lai",
+            "satellite",
+            "sentinel",
+            "landsat",
+            "modis",
+            "vegetation",
+            "land cover",
+            "change detection",
+            "time series",
+            "remote sensing",
+            "imagery",
+            "قمر صناعي",
+            "غطاء نباتي",
+            "صور",
+            "تغيرات",
         ]
 
         agri_score = sum(1 for kw in agri_keywords if kw in query_lower)
@@ -647,75 +695,82 @@ class UltraRAGCopilotService:
 
         # Agricultural tools
         if self._agri_provider:
-            tools.extend([
-                {
-                    "name": "diagnose_disease",
-                    "description": "Diagnose crop disease from symptoms | تشخيص مرض المحصول من الأعراض",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "symptoms": {"type": "string"},
-                            "crop_type": {"type": "string"},
+            tools.extend(
+                [
+                    {
+                        "name": "diagnose_disease",
+                        "description": "Diagnose crop disease from symptoms | تشخيص مرض المحصول من الأعراض",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "symptoms": {"type": "string"},
+                                "crop_type": {"type": "string"},
+                            },
+                            "required": ["symptoms"],
                         },
-                        "required": ["symptoms"],
                     },
-                },
-                {
-                    "name": "recommend_irrigation",
-                    "description": "Get irrigation recommendations | الحصول على توصيات الري",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "crop_type": {"type": "string"},
-                            "growth_stage": {"type": "string"},
-                            "soil_moisture": {"type": "number"},
+                    {
+                        "name": "recommend_irrigation",
+                        "description": "Get irrigation recommendations | الحصول على توصيات الري",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "crop_type": {"type": "string"},
+                                "growth_stage": {"type": "string"},
+                                "soil_moisture": {"type": "number"},
+                            },
+                            "required": ["crop_type", "growth_stage"],
                         },
-                        "required": ["crop_type", "growth_stage"],
                     },
-                },
-                {
-                    "name": "recommend_fertilizer",
-                    "description": "Get fertilizer recommendations | الحصول على توصيات الأسمدة",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "crop_type": {"type": "string"},
-                            "growth_stage": {"type": "string"},
-                            "soil_analysis": {"type": "object"},
+                    {
+                        "name": "recommend_fertilizer",
+                        "description": "Get fertilizer recommendations | الحصول على توصيات الأسمدة",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "crop_type": {"type": "string"},
+                                "growth_stage": {"type": "string"},
+                                "soil_analysis": {"type": "object"},
+                            },
+                            "required": ["crop_type", "growth_stage"],
                         },
-                        "required": ["crop_type", "growth_stage"],
                     },
-                },
-            ])
+                ]
+            )
 
         # Code tools
         if self._code_provider:
-            tools.extend([
-                {
-                    "name": "analyze_code",
-                    "description": "Analyze code for issues | تحليل الكود للمشاكل",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "code": {"type": "string"},
-                            "language": {"type": "string", "enum": ["python", "typescript", "dart"]},
+            tools.extend(
+                [
+                    {
+                        "name": "analyze_code",
+                        "description": "Analyze code for issues | تحليل الكود للمشاكل",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string"},
+                                "language": {
+                                    "type": "string",
+                                    "enum": ["python", "typescript", "dart"],
+                                },
+                            },
+                            "required": ["code"],
                         },
-                        "required": ["code"],
                     },
-                },
-                {
-                    "name": "security_scan",
-                    "description": "Scan code for security vulnerabilities | فحص الكود للثغرات الأمنية",
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {
-                            "code": {"type": "string"},
-                            "language": {"type": "string"},
+                    {
+                        "name": "security_scan",
+                        "description": "Scan code for security vulnerabilities | فحص الكود للثغرات الأمنية",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string"},
+                                "language": {"type": "string"},
+                            },
+                            "required": ["code"],
                         },
-                        "required": ["code"],
                     },
-                },
-            ])
+                ]
+            )
 
         return tools
 
@@ -788,7 +843,6 @@ def get_ultrarag_service() -> UltraRAGCopilotService:
     global _ultrarag_service
     if _ultrarag_service is None:
         from .service import get_rag_service
-        _ultrarag_service = UltraRAGCopilotService(
-            basic_rag_service=get_rag_service()
-        )
+
+        _ultrarag_service = UltraRAGCopilotService(basic_rag_service=get_rag_service())
     return _ultrarag_service

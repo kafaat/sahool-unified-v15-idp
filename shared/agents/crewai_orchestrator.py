@@ -14,8 +14,8 @@ CrewAI provides a simpler alternative to complex FSM-based agents.
 """
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 import structlog
@@ -23,7 +23,7 @@ import structlog
 logger = structlog.get_logger()
 
 
-class AgentRole(str, Enum):
+class AgentRole(StrEnum):
     """Roles for agricultural AI agents."""
 
     CROP_ADVISOR = "crop_advisor"  # مستشار المحاصيل
@@ -283,7 +283,9 @@ class AgriculturalCrew:
             # Execute crew
             from crewai import Crew
 
-            selected_agents = [self._agents[role] for role in selected_roles if role in self._agents]
+            selected_agents = [
+                self._agents[role] for role in selected_roles if role in self._agents
+            ]
             crew = Crew(
                 agents=selected_agents,
                 tasks=tasks,
@@ -322,16 +324,12 @@ class AgriculturalCrew:
 
         # Pest related
         if any(
-            kw in query_lower
-            for kw in ["pest", "آفة", "حشرة", "سوسة", "دودة", "weevil", "insect"]
+            kw in query_lower for kw in ["pest", "آفة", "حشرة", "سوسة", "دودة", "weevil", "insect"]
         ):
             selected.append(AgentRole.PEST_CONTROLLER)
 
         # Irrigation related
-        if any(
-            kw in query_lower
-            for kw in ["water", "irrigation", "ري", "ماء", "سقي", "رطوبة"]
-        ):
+        if any(kw in query_lower for kw in ["water", "irrigation", "ري", "ماء", "سقي", "رطوبة"]):
             selected.append(AgentRole.IRRIGATION_EXPERT)
 
         # Soil related
@@ -343,8 +341,7 @@ class AgriculturalCrew:
 
         # Yield/production related
         if any(
-            kw in query_lower
-            for kw in ["yield", "production", "إنتاج", "محصول", "harvest", "حصاد"]
+            kw in query_lower for kw in ["yield", "production", "إنتاج", "محصول", "harvest", "حصاد"]
         ):
             selected.append(AgentRole.YIELD_PREDICTOR)
 

@@ -18,16 +18,18 @@ from fastapi import APIRouter, HTTPException
 
 from ...models.schemas import (
     GuardDecision as GuardDecisionSchema,
+)
+from ...models.schemas import (
     ToolCallRequest,
     ToolCallResponse,
 )
+from ...rag import get_rag_service
 from ...security import (
     TOOL_ALLOWLIST,
     guard_tool_call,
     is_domain_allowed,
     is_tool_allowed,
 )
-from ...rag import get_rag_service
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/tools", tags=["Tools"])
@@ -66,7 +68,7 @@ async def run_tool(request: ToolCallRequest) -> ToolCallResponse:
                 "reason": decision.reason,
                 "reason_ar": decision.reason_ar,
                 "layer": decision.layer,
-            }
+            },
         )
 
     # Execute tool
@@ -122,7 +124,7 @@ async def check_guard(request: ToolCallRequest) -> GuardDecisionSchema:
         details={
             "reason_ar": decision.reason_ar,
             "layer": decision.layer,
-        }
+        },
     )
 
 
@@ -136,11 +138,13 @@ async def list_tools():
 
     for tool in sorted(TOOL_ALLOWLIST):
         category = tool.split(".")[0] if "." in tool else "general"
-        tools.append({
-            "name": tool,
-            "category": category,
-            "allowed": True,
-        })
+        tools.append(
+            {
+                "name": tool,
+                "category": category,
+                "allowed": True,
+            }
+        )
 
     return {
         "tools": tools,
@@ -232,8 +236,9 @@ async def _execute_tool(tool: str, args: dict[str, Any]) -> Any:
 
 async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to code-fix-agent"""
-    from ...core.config import get_settings
     import httpx
+
+    from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
@@ -254,8 +259,9 @@ async def _proxy_to_code_agent(tool: str, args: dict[str, Any]) -> Any:
 
 async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to field management service"""
-    from ...core.config import get_settings
     import httpx
+
+    from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]
@@ -288,8 +294,9 @@ async def _proxy_to_field_service(tool: str, args: dict[str, Any]) -> Any:
 
 async def _proxy_to_weather_service(tool: str, args: dict[str, Any]) -> Any:
     """Proxy request to weather service"""
-    from ...core.config import get_settings
     import httpx
+
+    from ...core.config import get_settings
 
     settings = get_settings()
     action = tool.split(".")[-1]

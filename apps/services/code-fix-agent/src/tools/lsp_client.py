@@ -24,6 +24,7 @@ logger = structlog.get_logger(__name__)
 
 class LSPMessageType(Enum):
     """أنواع رسائل LSP"""
+
     REQUEST = "request"
     RESPONSE = "response"
     NOTIFICATION = "notification"
@@ -31,6 +32,7 @@ class LSPMessageType(Enum):
 
 class DiagnosticSeverity(Enum):
     """شدة التشخيص"""
+
     ERROR = 1
     WARNING = 2
     INFORMATION = 3
@@ -40,6 +42,7 @@ class DiagnosticSeverity(Enum):
 @dataclass
 class Position:
     """موقع في الملف"""
+
     line: int
     character: int
 
@@ -47,6 +50,7 @@ class Position:
 @dataclass
 class Range:
     """نطاق في الملف"""
+
     start: Position
     end: Position
 
@@ -54,6 +58,7 @@ class Range:
 @dataclass
 class Location:
     """موقع كامل"""
+
     uri: str
     range: Range
 
@@ -61,6 +66,7 @@ class Location:
 @dataclass
 class Diagnostic:
     """تشخيص"""
+
     range: Range
     severity: DiagnosticSeverity
     code: str | None = None
@@ -72,6 +78,7 @@ class Diagnostic:
 @dataclass
 class CompletionItem:
     """عنصر إكمال"""
+
     label: str
     kind: int  # CompletionItemKind
     detail: str | None = None
@@ -83,6 +90,7 @@ class CompletionItem:
 @dataclass
 class Hover:
     """معلومات التمرير"""
+
     contents: str | list[str]
     range: Range | None = None
 
@@ -90,6 +98,7 @@ class Hover:
 @dataclass
 class SymbolInformation:
     """معلومات الرمز"""
+
     name: str
     kind: int  # SymbolKind
     location: Location
@@ -239,6 +248,7 @@ class LSPClient:
             # Use jedi for Python completion if available
             try:
                 import jedi
+
                 script = jedi.Script(content, path="<string>")
                 jedi_completions = script.complete(
                     position.line + 1,  # jedi uses 1-indexed lines
@@ -246,12 +256,14 @@ class LSPClient:
                 )
                 for c in jedi_completions[:50]:  # Limit results
                     kind = self.COMPLETION_KINDS.get(c.type, 1)
-                    completions.append(CompletionItem(
-                        label=c.name,
-                        kind=kind,
-                        detail=c.type,
-                        documentation=c.docstring() if hasattr(c, 'docstring') else None,
-                    ))
+                    completions.append(
+                        CompletionItem(
+                            label=c.name,
+                            kind=kind,
+                            detail=c.type,
+                            documentation=c.docstring() if hasattr(c, "docstring") else None,
+                        )
+                    )
             except ImportError:
                 # Fallback: basic keyword completion
                 completions = self._get_basic_python_completions(content, position)
@@ -269,37 +281,97 @@ class LSPClient:
         """إكمالات Python أساسية"""
         # Python keywords
         keywords = [
-            "and", "as", "assert", "async", "await", "break", "class",
-            "continue", "def", "del", "elif", "else", "except", "finally",
-            "for", "from", "global", "if", "import", "in", "is", "lambda",
-            "None", "nonlocal", "not", "or", "pass", "raise", "return",
-            "True", "False", "try", "while", "with", "yield",
+            "and",
+            "as",
+            "assert",
+            "async",
+            "await",
+            "break",
+            "class",
+            "continue",
+            "def",
+            "del",
+            "elif",
+            "else",
+            "except",
+            "finally",
+            "for",
+            "from",
+            "global",
+            "if",
+            "import",
+            "in",
+            "is",
+            "lambda",
+            "None",
+            "nonlocal",
+            "not",
+            "or",
+            "pass",
+            "raise",
+            "return",
+            "True",
+            "False",
+            "try",
+            "while",
+            "with",
+            "yield",
         ]
 
         # Common builtins
         builtins = [
-            "print", "len", "range", "str", "int", "float", "list",
-            "dict", "set", "tuple", "bool", "type", "isinstance",
-            "hasattr", "getattr", "setattr", "open", "input",
-            "enumerate", "zip", "map", "filter", "sorted", "reversed",
-            "sum", "min", "max", "abs", "round", "any", "all",
+            "print",
+            "len",
+            "range",
+            "str",
+            "int",
+            "float",
+            "list",
+            "dict",
+            "set",
+            "tuple",
+            "bool",
+            "type",
+            "isinstance",
+            "hasattr",
+            "getattr",
+            "setattr",
+            "open",
+            "input",
+            "enumerate",
+            "zip",
+            "map",
+            "filter",
+            "sorted",
+            "reversed",
+            "sum",
+            "min",
+            "max",
+            "abs",
+            "round",
+            "any",
+            "all",
         ]
 
         completions = []
 
         for kw in keywords:
-            completions.append(CompletionItem(
-                label=kw,
-                kind=self.COMPLETION_KINDS["keyword"],
-                detail="keyword",
-            ))
+            completions.append(
+                CompletionItem(
+                    label=kw,
+                    kind=self.COMPLETION_KINDS["keyword"],
+                    detail="keyword",
+                )
+            )
 
         for b in builtins:
-            completions.append(CompletionItem(
-                label=b,
-                kind=self.COMPLETION_KINDS["function"],
-                detail="builtin",
-            ))
+            completions.append(
+                CompletionItem(
+                    label=b,
+                    kind=self.COMPLETION_KINDS["function"],
+                    detail="builtin",
+                )
+            )
 
         return completions
 
@@ -329,6 +401,7 @@ class LSPClient:
         if self.language == "python" and content:
             try:
                 import jedi
+
                 script = jedi.Script(content, path="<string>")
                 definitions = script.goto(
                     position.line + 1,
@@ -336,13 +409,15 @@ class LSPClient:
                 )
                 for d in definitions:
                     if d.module_path:
-                        locations.append(Location(
-                            uri=f"file://{d.module_path}",
-                            range=Range(
-                                start=Position(d.line - 1, d.column),
-                                end=Position(d.line - 1, d.column),
-                            ),
-                        ))
+                        locations.append(
+                            Location(
+                                uri=f"file://{d.module_path}",
+                                range=Range(
+                                    start=Position(d.line - 1, d.column),
+                                    end=Position(d.line - 1, d.column),
+                                ),
+                            )
+                        )
             except ImportError:
                 pass
             except Exception as e:
@@ -378,6 +453,7 @@ class LSPClient:
         if self.language == "python" and content:
             try:
                 import jedi
+
                 script = jedi.Script(content, path="<string>")
                 references = script.get_references(
                     position.line + 1,
@@ -386,13 +462,15 @@ class LSPClient:
                 )
                 for ref in references:
                     if ref.module_path:
-                        locations.append(Location(
-                            uri=f"file://{ref.module_path}",
-                            range=Range(
-                                start=Position(ref.line - 1, ref.column),
-                                end=Position(ref.line - 1, ref.column),
-                            ),
-                        ))
+                        locations.append(
+                            Location(
+                                uri=f"file://{ref.module_path}",
+                                range=Range(
+                                    start=Position(ref.line - 1, ref.column),
+                                    end=Position(ref.line - 1, ref.column),
+                                ),
+                            )
+                        )
             except ImportError:
                 pass
             except Exception as e:
@@ -424,6 +502,7 @@ class LSPClient:
         if self.language == "python" and content:
             try:
                 import jedi
+
                 script = jedi.Script(content, path="<string>")
                 help_items = script.help(
                     position.line + 1,
@@ -482,16 +561,18 @@ class LSPClient:
         try:
             compile(content, "<string>", "exec")
         except SyntaxError as e:
-            diagnostics.append(Diagnostic(
-                range=Range(
-                    start=Position(e.lineno - 1 if e.lineno else 0, e.offset or 0),
-                    end=Position(e.lineno - 1 if e.lineno else 0, (e.offset or 0) + 1),
-                ),
-                severity=DiagnosticSeverity.ERROR,
-                code="E999",
-                source="python",
-                message=e.msg or "Syntax error",
-            ))
+            diagnostics.append(
+                Diagnostic(
+                    range=Range(
+                        start=Position(e.lineno - 1 if e.lineno else 0, e.offset or 0),
+                        end=Position(e.lineno - 1 if e.lineno else 0, (e.offset or 0) + 1),
+                    ),
+                    severity=DiagnosticSeverity.ERROR,
+                    code="E999",
+                    source="python",
+                    message=e.msg or "Syntax error",
+                )
+            )
             return diagnostics
 
         # Try to use pyflakes for more diagnostics
@@ -537,36 +618,40 @@ class LSPClient:
 
                 for node in ast.walk(tree):
                     if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                        symbols.append(SymbolInformation(
-                            name=node.name,
-                            kind=self.SYMBOL_KINDS["function"],
-                            location=Location(
-                                uri=document_uri,
-                                range=Range(
-                                    start=Position(node.lineno - 1, node.col_offset),
-                                    end=Position(
-                                        (node.end_lineno or node.lineno) - 1,
-                                        node.end_col_offset or 0,
+                        symbols.append(
+                            SymbolInformation(
+                                name=node.name,
+                                kind=self.SYMBOL_KINDS["function"],
+                                location=Location(
+                                    uri=document_uri,
+                                    range=Range(
+                                        start=Position(node.lineno - 1, node.col_offset),
+                                        end=Position(
+                                            (node.end_lineno or node.lineno) - 1,
+                                            node.end_col_offset or 0,
+                                        ),
                                     ),
                                 ),
-                            ),
-                        ))
+                            )
+                        )
 
                     elif isinstance(node, ast.ClassDef):
-                        symbols.append(SymbolInformation(
-                            name=node.name,
-                            kind=self.SYMBOL_KINDS["class"],
-                            location=Location(
-                                uri=document_uri,
-                                range=Range(
-                                    start=Position(node.lineno - 1, node.col_offset),
-                                    end=Position(
-                                        (node.end_lineno or node.lineno) - 1,
-                                        node.end_col_offset or 0,
+                        symbols.append(
+                            SymbolInformation(
+                                name=node.name,
+                                kind=self.SYMBOL_KINDS["class"],
+                                location=Location(
+                                    uri=document_uri,
+                                    range=Range(
+                                        start=Position(node.lineno - 1, node.col_offset),
+                                        end=Position(
+                                            (node.end_lineno or node.lineno) - 1,
+                                            node.end_col_offset or 0,
+                                        ),
                                     ),
                                 ),
-                            ),
-                        ))
+                            )
+                        )
 
             except SyntaxError:
                 pass
@@ -594,6 +679,7 @@ class LSPClient:
         if self.language == "python":
             try:
                 import subprocess
+
                 result = subprocess.run(
                     ["ruff", "format", "-"],
                     input=content,
@@ -634,27 +720,31 @@ class LSPClient:
         if diagnostics:
             for diag in diagnostics:
                 if diag.code == "E999":  # Syntax error
-                    actions.append({
-                        "title": "Fix syntax error",
-                        "kind": "quickfix",
-                        "diagnostics": [diag],
-                        "isPreferred": True,
-                    })
+                    actions.append(
+                        {
+                            "title": "Fix syntax error",
+                            "kind": "quickfix",
+                            "diagnostics": [diag],
+                            "isPreferred": True,
+                        }
+                    )
 
         # Add refactoring actions
-        actions.extend([
-            {
-                "title": "Extract variable",
-                "kind": "refactor.extract.variable",
-            },
-            {
-                "title": "Extract function",
-                "kind": "refactor.extract.function",
-            },
-            {
-                "title": "Organize imports",
-                "kind": "source.organizeImports",
-            },
-        ])
+        actions.extend(
+            [
+                {
+                    "title": "Extract variable",
+                    "kind": "refactor.extract.variable",
+                },
+                {
+                    "title": "Extract function",
+                    "kind": "refactor.extract.function",
+                },
+                {
+                    "title": "Organize imports",
+                    "kind": "source.organizeImports",
+                },
+            ]
+        )
 
         return actions

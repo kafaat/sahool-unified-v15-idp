@@ -3,8 +3,9 @@ Graph API endpoints
 نقاط نهاية API الرسم البياني
 """
 
-from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException, Query
 
 from models import RelationshipType
 
@@ -72,7 +73,9 @@ async def find_relationship_path(
 async def search_graph(
     request,
     q: str = Query(..., description="Search query"),
-    entity_type: str | None = Query(None, description="Filter by entity type (crop, disease, treatment)"),
+    entity_type: str | None = Query(
+        None, description="Filter by entity type (crop, disease, treatment)"
+    ),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
 ):
     """

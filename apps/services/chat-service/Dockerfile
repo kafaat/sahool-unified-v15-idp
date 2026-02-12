@@ -2,14 +2,13 @@
 # خدمة المحادثات للسوق الزراعي
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="chat-service"
 LABEL version="16.0.0"
-
-# Install OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache openssl openssl-dev
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -49,12 +48,17 @@ RUN npx prisma generate || \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
+
+# Re-declare build arg for this stage
+ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for health checks and OpenSSL 3.0.x for Prisma compatibility
-RUN apk add --no-cache curl openssl openssl-dev
+# Install curl for health checks
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds with package-lock.json

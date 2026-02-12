@@ -26,7 +26,7 @@ import json
 import logging
 import os
 import sys
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any
 
 from fastapi import FastAPI, Request, Response
@@ -444,9 +444,7 @@ class SAHOOLMCPServer:
         try:
             while True:
                 # Read line from stdin
-                line = await asyncio.get_event_loop().run_in_executor(
-                    None, sys.stdin.readline
-                )
+                line = await asyncio.get_event_loop().run_in_executor(None, sys.stdin.readline)
 
                 if not line:
                     break

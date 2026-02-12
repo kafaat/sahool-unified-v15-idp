@@ -9,14 +9,14 @@ Core protocol message types, state management, and conversation handling.
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
-class TaskState(str, Enum):
+class TaskState(StrEnum):
     """
     Task execution states
     حالات تنفيذ المهام
@@ -29,7 +29,7 @@ class TaskState(str, Enum):
     CANCELLED = "cancelled"
 
 
-class MessageType(str, Enum):
+class MessageType(StrEnum):
     """
     A2A message types
     أنواع رسائل A2A

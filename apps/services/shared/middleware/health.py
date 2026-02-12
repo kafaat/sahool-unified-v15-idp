@@ -16,7 +16,7 @@ import os
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import FastAPI, Response
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class HealthStatus(str, Enum):
+class HealthStatus(StrEnum):
     """Health status values."""
 
     HEALTHY = "healthy"

@@ -59,6 +59,7 @@ from shared.weather_alerts.spray_window import (
 # FIXTURES
 # ============================================================================
 
+
 @pytest.fixture
 def default_thresholds():
     """Create default alert thresholds"""
@@ -183,6 +184,7 @@ def forecast_inversion_period():
 # ============================================================================
 # TESTS: ALERT MODELS AND ENUMS
 # ============================================================================
+
 
 class TestAlertEnums:
     """Test alert enums and their values"""
@@ -346,6 +348,7 @@ class TestWeatherAlert:
 # TESTS: ALERT THRESHOLDS AND CROP-SPECIFIC THRESHOLDS
 # ============================================================================
 
+
 class TestAlertThresholds:
     """Test AlertThresholds configuration"""
 
@@ -488,6 +491,7 @@ class TestCropHeatThresholds:
 # ============================================================================
 # TESTS: FROST ALERTS
 # ============================================================================
+
 
 class TestFrostAlerts:
     """Test frost alert generation"""
@@ -646,6 +650,7 @@ class TestFrostAlerts:
 # TESTS: HEAT ALERTS
 # ============================================================================
 
+
 class TestHeatAlerts:
     """Test heat alert generation"""
 
@@ -751,6 +756,7 @@ class TestHeatAlerts:
 # TESTS: WIND ALERTS
 # ============================================================================
 
+
 class TestWindAlerts:
     """Test wind alert generation"""
 
@@ -834,6 +840,7 @@ class TestWindAlerts:
 # TESTS: RAIN AND HUMIDITY ALERTS
 # ============================================================================
 
+
 class TestRainAlerts:
     """Test rain alert generation"""
 
@@ -906,6 +913,7 @@ class TestHumidityAlerts:
 # TESTS: TEMPERATURE INVERSION ALERTS
 # ============================================================================
 
+
 class TestInversionAlerts:
     """Test temperature inversion alert generation"""
 
@@ -967,6 +975,7 @@ class TestInversionAlerts:
 # ============================================================================
 # TESTS: SPRAY WINDOW CALCULATIONS
 # ============================================================================
+
 
 class TestSprayWindowCalculator:
     """Test spray window calculation"""
@@ -1128,6 +1137,7 @@ class TestSprayWindowCalculator:
 # TESTS: TEMPERATURE INVERSION DETECTION
 # ============================================================================
 
+
 class TestInversionDetection:
     """Test temperature inversion detection"""
 
@@ -1198,6 +1208,7 @@ class TestInversionDetection:
 # ============================================================================
 # TESTS: IRRIGATION SCHEDULING
 # ============================================================================
+
 
 class TestIrrigationScheduling:
     """Test irrigation scheduling generation"""
@@ -1371,6 +1382,7 @@ class TestIrrigationScheduling:
 # TESTS: HARVEST WINDOW GENERATION
 # ============================================================================
 
+
 class TestHarvestWindowGeneration:
     """Test harvest window generation"""
 
@@ -1479,6 +1491,7 @@ class TestHarvestWindowGeneration:
 # TESTS: CONVENIENCE FUNCTIONS
 # ============================================================================
 
+
 class TestConvenienceFunctions:
     """Test module-level convenience functions"""
 
@@ -1571,6 +1584,7 @@ class TestConvenienceFunctions:
 # TESTS: ALERT SEVERITY ORDERING
 # ============================================================================
 
+
 class TestAlertOrdering:
     """Test alert severity ordering"""
 
@@ -1617,6 +1631,7 @@ class TestAlertOrdering:
 # ============================================================================
 # TESTS: EDGE CASES AND BOUNDARY CONDITIONS
 # ============================================================================
+
 
 class TestEdgeCases:
     """Test edge cases and boundary conditions"""
@@ -1720,6 +1735,7 @@ class TestEdgeCases:
 # ============================================================================
 # TESTS: MULTILINGUAL CONTENT VERIFICATION
 # ============================================================================
+
 
 class TestBilingualContent:
     """Test bilingual content consistency and completeness"""

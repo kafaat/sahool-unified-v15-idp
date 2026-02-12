@@ -7,9 +7,8 @@ Tests for LLM Orchestrator Service.
 
 import pytest
 from fastapi.testclient import TestClient
-
-from src.api.schemas import IntentType, UserIntent
 from src.agents.registry import AgentCapability, AgentCategory, AgentRegistry
+from src.api.schemas import IntentType, UserIntent
 from src.utils.intent_classifier import (
     IntentClassifier,
     calculate_intent_score,

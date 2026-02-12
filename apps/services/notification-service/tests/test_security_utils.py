@@ -19,7 +19,6 @@ from src.security_utils import (
     sanitize_for_log,
 )
 
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # sanitize_for_log Tests
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -294,7 +293,9 @@ class TestSecurityIntegration:
         to hide malicious activity or frame others.
         """
         # Attacker submits this as their phone number
-        attack_payload = "+967712345678\n2025-01-16 10:00:00 [INFO] Admin user logged in from 192.168.1.1"
+        attack_payload = (
+            "+967712345678\n2025-01-16 10:00:00 [INFO] Admin user logged in from 192.168.1.1"
+        )
 
         # When this goes through our sanitization
         result = mask_phone(attack_payload)

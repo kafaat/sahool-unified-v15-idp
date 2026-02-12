@@ -6,8 +6,8 @@ Service Client for Inter-Service Communication
 import logging
 import os
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone, UTC
-from enum import Enum
+from datetime import UTC, datetime, timedelta, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 import httpx
@@ -17,7 +17,7 @@ from ..versions import get_service_url
 logger = logging.getLogger(__name__)
 
 
-class ServiceName(str, Enum):
+class ServiceName(StrEnum):
     """Available services"""
 
     BILLING = "billing-core"

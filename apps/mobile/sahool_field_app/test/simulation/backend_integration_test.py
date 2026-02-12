@@ -9,7 +9,7 @@ Tests the API endpoints that the mobile app connects to.
 import asyncio
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 # =============================================================================
@@ -38,7 +38,9 @@ SERVICES = {
     "weather": ServiceConfig("Weather Advanced", "خدمة الطقس المتقدمة", 8092),
     "fertilizer": ServiceConfig("Fertilizer Advisor", "مستشار الأسمدة", 8093),
     "irrigation": ServiceConfig("Irrigation Smart", "الري الذكي", 8094),
-    "crop_health": ServiceConfig("Crop Intelligence Service", "صحة المحاصيل بالذكاء الاصطناعي", 8095),
+    "crop_health": ServiceConfig(
+        "Crop Intelligence Service", "صحة المحاصيل بالذكاء الاصطناعي", 8095
+    ),
     "virtual_sensors": ServiceConfig("Virtual Sensors", "المستشعرات الافتراضية", 8119),
     "community": ServiceConfig("Community Chat", "مجتمع المزارعين", 8097),
     "yield_engine": ServiceConfig("Yield Prediction Service", "محرك الإنتاجية", 8098),
@@ -54,7 +56,7 @@ SERVICES = {
 # =============================================================================
 
 
-class TestStatus(str, Enum):
+class TestStatus(StrEnum):
     PASSED = "passed"
     FAILED = "failed"
     SKIPPED = "skipped"

@@ -91,9 +91,7 @@ class AgentExecutor:
 
         return None
 
-    async def _set_cached_result(
-        self, cache_key: str, result: dict[str, Any], ttl: int | None = None
-    ) -> None:
+    async def _set_cached_result(self, cache_key: str, result: dict[str, Any], ttl: int | None = None) -> None:
         """Cache a result."""
         if not self._redis:
             return
@@ -422,9 +420,7 @@ class AgentExecutor:
                 "latency_ms": latency_ms,
             }
 
-    async def health_check_all(
-        self, agents: list[tuple[str, str]]
-    ) -> list[dict[str, Any]]:
+    async def health_check_all(self, agents: list[tuple[str, str]]) -> list[dict[str, Any]]:
         """
         Check health of all agents in parallel.
         فحص صحة جميع الوكلاء بالتوازي.

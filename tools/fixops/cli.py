@@ -32,7 +32,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig, run_fixops
+from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
 
 
 def parse_args() -> argparse.Namespace:
@@ -51,41 +51,47 @@ Examples | أمثلة:
     )
 
     parser.add_argument(
-        "--path", "-p",
+        "--path",
+        "-p",
         type=Path,
         default=REPO_ROOT,
         help="Repository root path (default: current repo) | مسار المستودع",
     )
 
     parser.add_argument(
-        "--strategy", "-s",
+        "--strategy",
+        "-s",
         choices=["minimal", "safe", "comprehensive", "refactor"],
         default="safe",
         help="Fix strategy: minimal, safe, comprehensive, refactor (default: safe) | استراتيجية الإصلاح",
     )
 
     parser.add_argument(
-        "--dry-run", "-d",
+        "--dry-run",
+        "-d",
         action="store_true",
         default=True,
         help="Preview mode - don't apply fixes (default: True) | وضع المعاينة",
     )
 
     parser.add_argument(
-        "--no-dry-run", "-n",
+        "--no-dry-run",
+        "-n",
         action="store_true",
         help="Apply fixes (disable dry-run) | تطبيق الإصلاحات",
     )
 
     parser.add_argument(
-        "--output", "-o",
+        "--output",
+        "-o",
         type=Path,
         default=None,
         help="Output directory for reports (default: .fixops/) | مجلد المخرجات",
     )
 
     parser.add_argument(
-        "--max-files", "-m",
+        "--max-files",
+        "-m",
         type=int,
         default=20,
         help="Maximum files to change (default: 20) | أقصى عدد ملفات",
@@ -125,7 +131,8 @@ Examples | أمثلة:
     )
 
     parser.add_argument(
-        "--verbose", "-v",
+        "--verbose",
+        "-v",
         action="store_true",
         help="Verbose output | مخرجات تفصيلية",
     )
@@ -161,7 +168,9 @@ def print_summary(summary, verbose: bool = False, as_json: bool = False):
             "total_issues": summary.analysis.total_issues if summary.analysis else 0,
             "by_severity": summary.analysis.by_severity if summary.analysis else {},
             "by_category": summary.analysis.by_category if summary.analysis else {},
-            "fixes_applied": len(summary.actions.get("fixes_applied", [])) if summary.actions else 0,
+            "fixes_applied": len(summary.actions.get("fixes_applied", []))
+            if summary.actions
+            else 0,
             "files_modified": summary.actions.get("files_modified", []) if summary.actions else [],
         }
         print(json.dumps(output, indent=2, ensure_ascii=False))
@@ -179,12 +188,16 @@ def print_summary(summary, verbose: bool = False, as_json: bool = False):
 
         print("\n🔴 By Severity | حسب الخطورة:")
         for severity, count in summary.analysis.by_severity.items():
-            emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(severity, "⚪")
+            emoji = {"critical": "🔴", "high": "🟠", "medium": "🟡", "low": "🟢"}.get(
+                severity, "⚪"
+            )
             print(f"   {emoji} {severity}: {count}")
 
         print("\n📂 By Category | حسب الفئة:")
         for category, count in summary.analysis.by_category.items():
-            emoji = {"security": "🔒", "bug": "🐛", "style": "🎨", "performance": "⚡"}.get(category, "📁")
+            emoji = {"security": "🔒", "bug": "🐛", "style": "🎨", "performance": "⚡"}.get(
+                category, "📁"
+            )
             print(f"   {emoji} {category}: {count}")
 
     if summary.actions:
@@ -254,13 +267,16 @@ async def main():
             print(f"\n💾 Report saved to: {output_file}")
 
             if dry_run:
-                print("\n💡 Tip: Use --no-dry-run to apply fixes | نصيحة: استخدم --no-dry-run لتطبيق الإصلاحات")
+                print(
+                    "\n💡 Tip: Use --no-dry-run to apply fixes | نصيحة: استخدم --no-dry-run لتطبيق الإصلاحات"
+                )
 
         return 0
 
     except Exception as e:
         if args.json:
             import json
+
             print(json.dumps({"error": str(e)}, ensure_ascii=False))
         else:
             print(f"\n❌ Error | خطأ: {e}")

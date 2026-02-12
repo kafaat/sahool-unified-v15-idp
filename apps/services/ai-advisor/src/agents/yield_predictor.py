@@ -274,9 +274,7 @@ Communicate clearly in both Arabic and English.
         Returns:
             Risk assessment | تقييم المخاطر
         """
-        query = (
-            f"Assess yield risks for {crop_type} with {remaining_growth_period} days until harvest."
-        )
+        query = f"Assess yield risks for {crop_type} with {remaining_growth_period} days until harvest."
 
         context = {
             "crop_type": crop_type,

@@ -5,20 +5,21 @@ SAHOOL Code Fix Agent - Unit Tests for Analyzers
 Tests for Python, TypeScript, and Dart code analyzers.
 """
 
-import pytest
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 
-from agent.analyzers.python_analyzer import PythonAnalyzer
-from agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
-from agent.analyzers.dart_analyzer import DartAnalyzer
 from agent.analyzers.base_analyzer import (
     AnalysisConfig,
-    IssueSeverity,
     IssueCategory,
+    IssueSeverity,
 )
+from agent.analyzers.dart_analyzer import DartAnalyzer
+from agent.analyzers.python_analyzer import PythonAnalyzer
+from agent.analyzers.typescript_analyzer import TypeScriptAnalyzer
 
 
 class TestPythonAnalyzer:
@@ -191,11 +192,11 @@ class TestTypeScriptAnalyzer:
     @pytest.mark.asyncio
     async def test_analyze_clean_code(self, analyzer):
         """Test analyzing clean TypeScript code"""
-        code = '''
+        code = """
 function add(a: number, b: number): number {
     return a + b;
 }
-'''
+"""
         result = await analyzer.analyze(code)
 
         assert result.success is True
@@ -307,11 +308,11 @@ class TestDartAnalyzer:
     @pytest.mark.asyncio
     async def test_analyze_clean_code(self, analyzer):
         """Test analyzing clean Dart code"""
-        code = '''
+        code = """
 int add(int a, int b) {
   return a + b;
 }
-'''
+"""
         result = await analyzer.analyze(code)
 
         assert result.success is True
@@ -365,23 +366,25 @@ int add(int a, int b) {
     @pytest.mark.asyncio
     async def test_flutter_empty_setState(self, analyzer):
         """Test detection of empty setState in Flutter"""
-        code = '''
+        code = """
 class MyWidget extends StatefulWidget {
   void update() {
     setState(() {});
   }
 }
-'''
+"""
         result = await analyzer.analyze(code)
 
         # Should detect Flutter patterns
-        best_practice_issues = [i for i in result.issues if i.category == IssueCategory.BEST_PRACTICE]
+        best_practice_issues = [
+            i for i in result.issues if i.category == IssueCategory.BEST_PRACTICE
+        ]
         # Empty setState should be detected
 
     @pytest.mark.asyncio
     async def test_metrics_flutter_widgets(self, analyzer):
         """Test metrics for Flutter widgets"""
-        code = '''
+        code = """
 class MyWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -393,7 +396,7 @@ class MyStatefulWidget extends StatefulWidget {
   @override
   _MyStatefulWidgetState createState() => _MyStatefulWidgetState();
 }
-'''
+"""
         result = await analyzer.analyze(code)
 
         assert result.metrics is not None

@@ -25,7 +25,7 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 try:
@@ -101,7 +101,7 @@ class TokenFingerprint:
         return hashlib.sha256(fingerprint_str.encode()).hexdigest()[:32]
 
     @classmethod
-    def from_request(cls, request: Any) -> "TokenFingerprint":
+    def from_request(cls, request: Any) -> TokenFingerprint:
         """
         Create fingerprint from FastAPI/Starlette request.
         إنشاء بصمة من طلب FastAPI/Starlette.
@@ -154,7 +154,7 @@ def create_fingerprint_hash(request: Any, include_ip: bool = False) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class TokenFamilyStatus(str, Enum):
+class TokenFamilyStatus(StrEnum):
     """Token family status"""
 
     ACTIVE = "active"
@@ -199,7 +199,7 @@ class TokenFamily:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "TokenFamily":
+    def from_dict(cls, data: dict) -> TokenFamily:
         """Create from dictionary"""
         return cls(
             family_id=data["family_id"],
@@ -462,8 +462,7 @@ class RefreshTokenRotationManager:
         # Check rotation limit
         if family.rotation_count >= family.max_rotations:
             logger.warning(
-                f"Max rotations reached for family {family_id[:8]}... "
-                f"User must re-authenticate"
+                f"Max rotations reached for family {family_id[:8]}... User must re-authenticate"
             )
             await self._revoke_family(family_id, reason="max_rotations_reached")
             return None
@@ -482,10 +481,7 @@ class RefreshTokenRotationManager:
         await self._store_family(family)
         await self._map_jti_to_family(new_jti, family_id)
 
-        logger.info(
-            f"Rotated token family {family_id[:8]}... "
-            f"(rotation #{family.rotation_count})"
-        )
+        logger.info(f"Rotated token family {family_id[:8]}... (rotation #{family.rotation_count})")
 
         return family
 
@@ -672,9 +668,7 @@ class PasswordPepper:
         self._pepper_id = pepper_id
 
         if not self._pepper:
-            logger.warning(
-                "PASSWORD_PEPPER not set. Consider setting it for additional security."
-            )
+            logger.warning("PASSWORD_PEPPER not set. Consider setting it for additional security.")
 
     def apply(self, password: str) -> str:
         """

@@ -44,11 +44,14 @@ from shared.auth.models import User
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
+
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+
     def setup_security_headers(app):
         pass
+
 
 from datetime import UTC
 
@@ -613,9 +616,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
     if app.state.multi_provider:
         weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
     else:
-        weather_data = await app.state.weather_provider.get_current(
-            lat=req.lat, lon=req.lon
-        )
+        weather_data = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
 
     if "error" in weather_data:
         raise ExternalServiceException(
@@ -838,9 +839,7 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
     if app.state.multi_provider:
         weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
     else:
-        weather_data = await app.state.weather_provider.get_current(
-            lat=req.lat, lon=req.lon
-        )
+        weather_data = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
 
     if "error" in weather_data:
         raise ExternalServiceException(

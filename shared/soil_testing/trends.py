@@ -17,11 +17,12 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+import statistics
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
-import statistics
 
+from .interpreter import NUTRIENT_THRESHOLDS, SoilTestInterpreter
 from .models import (
     NutrientStatus,
     NutrientTrend,
@@ -29,12 +30,12 @@ from .models import (
     TrendDataPoint,
     TrendReport,
 )
-from .interpreter import SoilTestInterpreter, NUTRIENT_THRESHOLDS
 
 
 @dataclass
 class TrendAnalysisConfig:
     """Configuration for trend analysis - إعدادات تحليل الاتجاهات"""
+
     # Minimum data points for trend analysis
     min_data_points: int = 3
 
@@ -123,17 +124,26 @@ class SoilTrendAnalyzer:
         ph_trend = self._analyze_single_trend(
             filtered_tests,
             lambda t: t.soil_properties.ph if t.soil_properties else None,
-            "pH", "pH", "درجة الحموضة", ""
+            "pH",
+            "pH",
+            "درجة الحموضة",
+            "",
         )
         ec_trend = self._analyze_single_trend(
             filtered_tests,
             lambda t: t.soil_properties.ec_ds_m if t.soil_properties else None,
-            "EC", "Electrical Conductivity", "التوصيل الكهربائي", "dS/m"
+            "EC",
+            "Electrical Conductivity",
+            "التوصيل الكهربائي",
+            "dS/m",
         )
         om_trend = self._analyze_single_trend(
             filtered_tests,
             lambda t: t.soil_properties.organic_matter_percent if t.soil_properties else None,
-            "OM", "Organic Matter", "المادة العضوية", "%"
+            "OM",
+            "Organic Matter",
+            "المادة العضوية",
+            "%",
         )
 
         # Categorize nutrients by trend
@@ -245,9 +255,7 @@ class SoilTrendAnalyzer:
         if not extractor:
             return self._empty_trend(nutrient_code)
 
-        thresholds = self.thresholds.get(
-            nutrient_code, self.thresholds.get("P_olsen", {})
-        )
+        thresholds = self.thresholds.get(nutrient_code, self.thresholds.get("P_olsen", {}))
 
         return self._analyze_single_trend(
             soil_tests,
@@ -277,14 +285,8 @@ class SoilTrendAnalyzer:
         Returns:
             Comparison dictionary
         """
-        period1_tests = [
-            t for t in soil_tests
-            if period1_start <= t.sample_date <= period1_end
-        ]
-        period2_tests = [
-            t for t in soil_tests
-            if period2_start <= t.sample_date <= period2_end
-        ]
+        period1_tests = [t for t in soil_tests if period1_start <= t.sample_date <= period1_end]
+        period2_tests = [t for t in soil_tests if period2_start <= t.sample_date <= period2_end]
 
         comparison = {
             "period1": {
@@ -333,14 +335,22 @@ class SoilTrendAnalyzer:
                     "period2_mean": round(p2_mean, 2),
                     "absolute_change": round(change, 2),
                     "percent_change": round(change_percent, 1),
-                    "direction": "increased" if change > 0 else "decreased" if change < 0 else "stable",
+                    "direction": "increased"
+                    if change > 0
+                    else "decreased"
+                    if change < 0
+                    else "stable",
                 }
 
         # Compare properties
         for prop, extractor_fn, name in [
             ("pH", lambda t: t.soil_properties.ph if t.soil_properties else None, "pH"),
             ("EC", lambda t: t.soil_properties.ec_ds_m if t.soil_properties else None, "EC"),
-            ("OM", lambda t: t.soil_properties.organic_matter_percent if t.soil_properties else None, "OM%"),
+            (
+                "OM",
+                lambda t: t.soil_properties.organic_matter_percent if t.soil_properties else None,
+                "OM%",
+            ),
         ]:
             p1_values = [extractor_fn(t) for t in period1_tests if extractor_fn(t) is not None]
             p2_values = [extractor_fn(t) for t in period2_tests if extractor_fn(t) is not None]
@@ -378,7 +388,9 @@ class SoilTrendAnalyzer:
         for code, extractor in macro_extractors:
             thresholds = self.thresholds.get(code, self.thresholds.get("P_olsen", {}))
             trend = self._analyze_single_trend(
-                soil_tests, extractor, code,
+                soil_tests,
+                extractor,
+                code,
                 thresholds.get("name", code),
                 thresholds.get("name_ar", code),
                 thresholds.get("unit", "ppm"),
@@ -398,7 +410,9 @@ class SoilTrendAnalyzer:
         for code, extractor in micro_extractors:
             thresholds = self.thresholds.get(code, {})
             trend = self._analyze_single_trend(
-                soil_tests, extractor, code,
+                soil_tests,
+                extractor,
+                code,
                 thresholds.get("name", code),
                 thresholds.get("name_ar", code),
                 thresholds.get("unit", "ppm"),
@@ -423,11 +437,13 @@ class SoilTrendAnalyzer:
         for test in soil_tests:
             value = value_extractor(test)
             if value is not None and value >= 0:
-                data_points.append(TrendDataPoint(
-                    date=test.sample_date,
-                    value=value,
-                    soil_test_id=test.id,
-                ))
+                data_points.append(
+                    TrendDataPoint(
+                        date=test.sample_date,
+                        value=value,
+                        soil_test_id=test.id,
+                    )
+                )
 
         if len(data_points) < 2:
             return self._empty_trend(code, name, name_ar, unit)
@@ -443,9 +459,7 @@ class SoilTrendAnalyzer:
         slope, r_squared = self._calculate_trend(data_points)
 
         # Determine trend direction
-        direction, direction_ar = self._interpret_trend_direction(
-            slope, mean_val, std_dev
-        )
+        direction, direction_ar = self._interpret_trend_direction(slope, mean_val, std_dev)
 
         # Generate interpretation
         interpretation_en, interpretation_ar = self._generate_trend_interpretation(
@@ -453,9 +467,7 @@ class SoilTrendAnalyzer:
         )
 
         # Generate action recommendation
-        action_en, action_ar = self._generate_trend_action(
-            code, direction, slope, mean_val
-        )
+        action_en, action_ar = self._generate_trend_action(code, direction, slope, mean_val)
 
         # Build status history
         status_history = self._build_status_history(code, data_points)
@@ -503,11 +515,11 @@ class SoilTrendAnalyzer:
         sum_x = sum(x)
         sum_y = sum(y)
         sum_xy = sum(xi * yi for xi, yi in zip(x, y))
-        sum_x2 = sum(xi ** 2 for xi in x)
-        sum_y2 = sum(yi ** 2 for yi in y)
+        sum_x2 = sum(xi**2 for xi in x)
+        sum_y2 = sum(yi**2 for yi in y)
 
         # Calculate slope
-        denominator = n * sum_x2 - sum_x ** 2
+        denominator = n * sum_x2 - sum_x**2
         if denominator == 0:
             return 0.0, 0.0
 
@@ -515,7 +527,7 @@ class SoilTrendAnalyzer:
 
         # Calculate r-squared
         numerator = (n * sum_xy - sum_x * sum_y) ** 2
-        denom_y = n * sum_y2 - sum_y ** 2
+        denom_y = n * sum_y2 - sum_y**2
         if denom_y == 0 or denominator == 0:
             r_squared = 0.0
         else:
@@ -534,7 +546,7 @@ class SoilTrendAnalyzer:
         if mean == 0:
             return "stable", "مستقر"
 
-        cv = (std_dev / mean) * 100 if mean != 0 else 0
+        (std_dev / mean) * 100 if mean != 0 else 0
         slope_percent = (slope / mean) * 100 if mean != 0 else 0
 
         if abs(slope_percent) < 2 or abs(slope) < self.config.slope_threshold:
@@ -622,11 +634,13 @@ class SoilTrendAnalyzer:
         history = []
         for dp in data_points:
             status = self._get_status_for_value(code, dp.value)
-            history.append({
-                "date": dp.date.isoformat(),
-                "value": dp.value,
-                "status": status.value,
-            })
+            history.append(
+                {
+                    "date": dp.date.isoformat(),
+                    "value": dp.value,
+                    "status": status.value,
+                }
+            )
         return history
 
     def _get_status_for_value(self, code: str, value: float) -> NutrientStatus:
@@ -697,11 +711,13 @@ class SoilTrendAnalyzer:
         scores = []
         for test in soil_tests:
             interpretation = self.interpreter.interpret(test)
-            scores.append({
-                "date": test.sample_date.isoformat(),
-                "score": interpretation.overall_fertility_score,
-                "grade": interpretation.overall_fertility_grade,
-            })
+            scores.append(
+                {
+                    "date": test.sample_date.isoformat(),
+                    "score": interpretation.overall_fertility_score,
+                    "grade": interpretation.overall_fertility_grade,
+                }
+            )
         return scores
 
     def _generate_trend_recommendations(
@@ -731,12 +747,16 @@ class SoilTrendAnalyzer:
             recommendations_en.append("Apply lime to prevent further pH decline")
             recommendations_ar.append("طبق الجير لمنع المزيد من انخفاض الحموضة")
         elif ph_trend and ph_trend.trend_direction == "increasing" and ph_trend.mean_value > 7.5:
-            recommendations_en.append("Monitor alkalinity; consider acidifying amendments if needed")
+            recommendations_en.append(
+                "Monitor alkalinity; consider acidifying amendments if needed"
+            )
             recommendations_ar.append("راقب القلوية؛ نظر في التعديلات المحمضة إذا لزم الأمر")
 
         # EC/salinity trends
         if ec_trend and ec_trend.trend_direction in ["increasing", "increasing_rapidly"]:
-            recommendations_en.append("Implement salinity management: leaching, drainage improvement")
+            recommendations_en.append(
+                "Implement salinity management: leaching, drainage improvement"
+            )
             recommendations_ar.append("طبق إدارة الملوحة: غسيل، تحسين الصرف")
 
         # Organic matter trends

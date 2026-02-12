@@ -7,10 +7,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class Permission(str, Enum):
+class Permission(StrEnum):
     """Permission types for SAHOOL platform"""
 
     # Farm Management

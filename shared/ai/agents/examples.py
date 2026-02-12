@@ -38,7 +38,7 @@ async def example_agricultural_research():
             "field_id": "F003",
             "crop_type": "wheat",
             "farm_id": "FARM-001",
-        }
+        },
     )
 
     print("=== Agricultural Research Result ===")
@@ -56,8 +56,8 @@ async def example_farm_advisor_plan_mode():
 
     Inspired by OpenCode's Plan agent.
     """
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode
+    from .farm_advisor import FarmAdvisorAgent
 
     # Create advisor in PLAN mode (safe, read-only)
     advisor = FarmAdvisorAgent(
@@ -72,7 +72,7 @@ async def example_farm_advisor_plan_mode():
         context={
             "field_id": "F003",
             "farm_id": "FARM-001",
-        }
+        },
     )
 
     print("=== Farm Advisor (Plan Mode) ===")
@@ -90,14 +90,14 @@ async def example_farm_advisor_execute_mode():
 
     Inspired by OpenCode's Build agent with approval.
     """
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode, AgentStep
+    from .farm_advisor import FarmAdvisorAgent
 
     # Approval callback
     def approve_plan(steps: list[AgentStep]) -> bool:
         print("\n=== Execution Plan Approval ===")
         for i, step in enumerate(steps):
-            print(f"  {i+1}. {step.description}")
+            print(f"  {i + 1}. {step.description}")
             print(f"     {step.description_ar}")
 
         # In real app, this would prompt user
@@ -122,7 +122,7 @@ async def example_farm_advisor_execute_mode():
 
     print("\n=== Farm Advisor (Execute Mode) ===")
     print(f"Success: {result['success']}")
-    if result['success']:
+    if result["success"]:
         print("Irrigation has been scheduled!")
 
     return result
@@ -146,7 +146,7 @@ async def example_planner_agent():
             "field_id": "F003",
             "farm_id": "FARM-001",
             "season": "winter",
-        }
+        },
     )
 
     print("=== Execution Plan ===")
@@ -157,7 +157,7 @@ async def example_planner_agent():
     print(f"Requires Approval: {plan.requires_approval}")
     print(f"\nSteps ({len(plan.steps)}):")
     for i, step in enumerate(plan.steps[:5]):  # Show first 5
-        print(f"  {i+1}. {step.get('description', 'N/A')}")
+        print(f"  {i + 1}. {step.get('description', 'N/A')}")
 
     return plan
 
@@ -189,7 +189,9 @@ async def example_streaming_progress():
             print(f"[Plan] Created {update.get('total_steps')} steps")
 
         elif update_type == "step_start":
-            print(f"[Step {update.get('step_number')}/{update.get('total_steps')}] Starting: {update.get('description')}")
+            print(
+                f"[Step {update.get('step_number')}/{update.get('total_steps')}] Starting: {update.get('description')}"
+            )
 
         elif update_type == "step_complete":
             status = "✓" if update.get("success") else "✗"
@@ -206,9 +208,9 @@ async def example_multi_agent_workflow():
 
     Inspired by OpenCode's dual-agent pattern.
     """
-    from .planner import PlannerAgent
-    from .farm_advisor import FarmAdvisorAgent
     from .base import AgentMode
+    from .farm_advisor import FarmAdvisorAgent
+    from .planner import PlannerAgent
 
     print("=== Multi-Agent Workflow ===")
 

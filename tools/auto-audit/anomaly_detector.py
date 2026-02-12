@@ -24,11 +24,11 @@ import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
-from enum import Enum
+from enum import StrEnum
 from pathlib import Path
 
 
-class AnomalyType(str, Enum):
+class AnomalyType(StrEnum):
     """Types of detected anomalies"""
 
     VOLUME_SPIKE = "volume_spike"
@@ -45,7 +45,7 @@ class AnomalyType(str, Enum):
     DATA_EXFILTRATION = "data_exfiltration"
 
 
-class SeverityLevel(str, Enum):
+class SeverityLevel(StrEnum):
     """Anomaly severity levels"""
 
     INFO = "info"
@@ -563,7 +563,7 @@ class AuditAnomalyDetector:
 
             # Check for suspicious sequences
             for pattern in self.SUSPICIOUS_ACTION_SEQUENCES:
-                pattern_str = "->".join(pattern)
+                "->".join(pattern)
                 for i in range(len(actions) - len(pattern) + 1):
                     window = actions[i : i + len(pattern)]
                     # Fuzzy match - check if actions contain the pattern

@@ -17,7 +17,7 @@ import logging
 import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from redis import Redis
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-class TaskType(str, Enum):
+class TaskType(StrEnum):
     """
     أنواع المهام المدعومة
     Supported task types
@@ -47,7 +47,7 @@ class TaskType(str, Enum):
     MODEL_INFERENCE = "model_inference"  # استنتاج النموذج
 
 
-class TaskStatus(str, Enum):
+class TaskStatus(StrEnum):
     """
     حالات المهمة
     Task states

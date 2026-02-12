@@ -200,9 +200,9 @@ class TestToolGuard:
 
         decision = guard.check(context)
 
-        assert hasattr(decision, 'allowed')
-        assert hasattr(decision, 'reason')
-        assert hasattr(decision, 'checked_at')
+        assert hasattr(decision, "allowed")
+        assert hasattr(decision, "reason")
+        assert hasattr(decision, "checked_at")
 
 
 class TestPolicy:

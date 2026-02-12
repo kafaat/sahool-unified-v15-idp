@@ -11,8 +11,8 @@ Provides repository classes for:
 
 from .repository import (
     CRMRepository,
-    FarmerRepository,
     DealRepository,
+    FarmerRepository,
     InteractionRepository,
 )
 

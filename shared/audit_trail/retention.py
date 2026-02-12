@@ -19,7 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any, Callable
 from uuid import uuid4
@@ -631,10 +631,7 @@ class RetentionManager:
 
             # Filter to expired only
             now = datetime.now(UTC)
-            expired_entries = [
-                e for e in matching_entries
-                if e.expires_at and e.expires_at <= now
-            ]
+            expired_entries = [e for e in matching_entries if e.expires_at and e.expires_at <= now]
 
             job.entries_processed = len(expired_entries)
 
@@ -705,10 +702,7 @@ class RetentionManager:
             now = datetime.now(UTC)
             threshold = now + timedelta(days=check_days)
 
-            expiring = [
-                e for e in matching
-                if e.expires_at and now < e.expires_at <= threshold
-            ]
+            expiring = [e for e in matching if e.expires_at and now < e.expires_at <= threshold]
 
             if expiring:
                 notifications[policy.id] = expiring
@@ -774,7 +768,7 @@ class RetentionManager:
         Get summary of retention status.
         الحصول على ملخص حالة الاحتفاظ
         """
-        now = datetime.now(UTC)
+        datetime.now(UTC)
 
         # Count entries by retention status
         total = len(self._entries)
@@ -830,7 +824,11 @@ def get_retention_manager(
     global _global_manager
     if _global_manager is None:
         # Default to /var/lib/sahool in production, /tmp for development only
-        default_path = "/var/lib/sahool/audit_trail" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_audit_trail"  # nosec B108
+        default_path = (
+            "/var/lib/sahool/audit_trail"
+            if os.getenv("ENVIRONMENT") == "production"
+            else "/tmp/sahool_audit_trail"
+        )  # nosec B108
         storage = storage_path or os.getenv("AUDIT_TRAIL_STORAGE_PATH", default_path)
         archive = archive_path or os.path.join(storage, "archive")
         _global_manager = RetentionManager(

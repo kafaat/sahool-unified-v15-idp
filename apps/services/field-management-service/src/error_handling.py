@@ -201,7 +201,8 @@ def create_error_response(
     if details:
         # Filter out sensitive keys
         safe_details = {
-            k: v for k, v in details.items()
+            k: v
+            for k, v in details.items()
             if k.lower() not in ("password", "secret", "token", "api_key", "authorization")
         }
         if safe_details:
@@ -432,6 +433,7 @@ def validate_area_ha(area_ha: float, min_area: float = 0.01, max_area: float = 1
 
 def wrap_database_error(operation: str):
     """Decorator to wrap database errors."""
+
     def decorator(func):
         async def wrapper(*args, **kwargs):
             error_id = str(uuid.uuid4())[:8]
@@ -445,5 +447,7 @@ def wrap_database_error(operation: str):
                     exc_info=True,
                 )
                 raise DatabaseError(operation, error_id) from e
+
         return wrapper
+
     return decorator

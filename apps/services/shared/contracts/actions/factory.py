@@ -5,7 +5,7 @@ SAHOOL Action Template Factory
 يوفر طرق سهلة لإنشاء ActionTemplates من خدمات التحليل المختلفة
 """
 
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from .template import ActionStep, ActionTemplate, Resource
 from .types import ActionType, ResourceType, UrgencyLevel

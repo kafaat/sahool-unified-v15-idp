@@ -27,7 +27,6 @@ Usage:
 from __future__ import annotations
 
 import logging
-import os
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -147,12 +146,14 @@ def setup_service(app: FastAPI, config: ServiceConfig) -> FastAPI:
 def _setup_exception_handlers(app: FastAPI) -> None:
     """Setup unified exception handlers."""
     try:
-        from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+        from shared.errors_py import setup_exception_handlers
+
         setup_exception_handlers(app)
         logger.debug("Exception handlers configured from shared.errors_py")
     except ImportError:
         try:
             from apps.services.shared.middleware.exception_handler import setup_exception_handlers
+
             setup_exception_handlers(app)
             logger.debug("Exception handlers configured from apps.services.shared")
         except ImportError:
@@ -162,10 +163,11 @@ def _setup_exception_handlers(app: FastAPI) -> None:
 
 def _setup_default_exception_handlers(app: FastAPI) -> None:
     """Setup basic exception handlers when shared module not available."""
+    import uuid
+
     from fastapi import HTTPException, status
     from fastapi.exceptions import RequestValidationError
     from fastapi.responses import JSONResponse
-    import uuid
 
     @app.exception_handler(HTTPException)
     async def http_exception_handler(request: Request, exc: HTTPException):
@@ -276,6 +278,7 @@ def _setup_security_headers(app: FastAPI) -> None:
     """Setup security headers middleware."""
     try:
         from shared.middleware.security_headers import setup_security_headers
+
         setup_security_headers(app)
         logger.debug("Security headers middleware configured")
     except ImportError:
@@ -284,7 +287,7 @@ def _setup_security_headers(app: FastAPI) -> None:
 
 def _setup_health_endpoints(app: FastAPI, config: ServiceConfig) -> None:
     """Setup standard health check endpoints."""
-    from datetime import datetime, UTC
+    from datetime import UTC, datetime
 
     @app.get(config.health_path, tags=["Health"])
     def health():

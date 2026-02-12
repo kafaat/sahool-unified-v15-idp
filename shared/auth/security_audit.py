@@ -30,8 +30,8 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
+from datetime import UTC, datetime, timezone
+from enum import Enum, StrEnum
 from typing import Any
 
 try:
@@ -46,7 +46,7 @@ from .config import config
 logger = logging.getLogger(__name__)
 
 
-class SecurityEventType(str, Enum):
+class SecurityEventType(StrEnum):
     """Security event types"""
 
     # Authentication Events
@@ -110,7 +110,7 @@ class SecurityEventType(str, Enum):
     PERMISSION_REVOKED = "config.permission.revoked"
 
 
-class SecurityEventSeverity(str, Enum):
+class SecurityEventSeverity(StrEnum):
     """Event severity levels"""
 
     DEBUG = "debug"
@@ -251,7 +251,7 @@ class SecurityEvent:
             "event_id": self.event_id,
             "event_type": self.event_type.value,
             "timestamp": self.timestamp,
-            "timestamp_iso": datetime.fromtimestamp(self.timestamp, tz=timezone.utc).isoformat(),
+            "timestamp_iso": datetime.fromtimestamp(self.timestamp, tz=UTC).isoformat(),
             "severity": self.severity.value,
             "user_id": self.user_id,
             "tenant_id": self.tenant_id,
@@ -269,7 +269,7 @@ class SecurityEvent:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "SecurityEvent":
+    def from_dict(cls, data: dict) -> SecurityEvent:
         """Create from dictionary"""
         return cls(
             event_id=data["event_id"],
@@ -845,7 +845,7 @@ class SecurityAuditLogger:
             self._memory_events.append(event)
             # Keep memory bounded
             if len(self._memory_events) > self.MAX_RECENT_EVENTS:
-                self._memory_events = self._memory_events[-self.MAX_RECENT_EVENTS:]
+                self._memory_events = self._memory_events[-self.MAX_RECENT_EVENTS :]
 
     async def _track_failed_login(self, identifier: str) -> None:
         """Track failed login attempt"""
@@ -862,8 +862,7 @@ class SecurityAuditLogger:
             # Clean old entries
             window = now - self.FAILED_ATTEMPT_WINDOW
             self._memory_failed_logins[identifier] = [
-                ts for ts in self._memory_failed_logins[identifier]
-                if ts > window
+                ts for ts in self._memory_failed_logins[identifier] if ts > window
             ]
 
     def _log_to_python_logger(self, event: SecurityEvent) -> None:

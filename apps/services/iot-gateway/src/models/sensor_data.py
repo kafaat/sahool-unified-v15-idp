@@ -7,10 +7,10 @@ Contains models for readings, aggregated data, and sensor health
 """
 
 from dataclasses import asdict, dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 
 
-class AggregationMethod(str, Enum):
+class AggregationMethod(StrEnum):
     """طرق التجميع - Aggregation methods"""
 
     MEAN = "mean"  # المتوسط الحسابي
@@ -28,7 +28,7 @@ class AggregationMethod(str, Enum):
     CUMULATIVE_SUM = "cumulative_sum"  # المجموع التراكمي
 
 
-class TimeGranularity(str, Enum):
+class TimeGranularity(StrEnum):
     """دقة الوقت - Time granularity for aggregation"""
 
     HOURLY = "hourly"  # كل ساعة
@@ -37,7 +37,7 @@ class TimeGranularity(str, Enum):
     MONTHLY = "monthly"  # شهري
 
 
-class SensorStatus(str, Enum):
+class SensorStatus(StrEnum):
     """حالة المستشعر - Sensor status"""
 
     HEALTHY = "healthy"  # سليم

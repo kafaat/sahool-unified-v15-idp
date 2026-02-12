@@ -12,7 +12,7 @@ Tests:
 
 import pytest
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timezone, UTC
 
 # Import from the src package (conftest.py sets up the path)
 from src.cache import (
@@ -180,6 +180,7 @@ class TestCacheAdapter:
         await adapter.set("key1", "cached_value")
 
         call_count = 0
+
         def factory():
             nonlocal call_count
             call_count += 1
@@ -196,6 +197,7 @@ class TestCacheAdapter:
         adapter = CacheAdapter(namespace="test_miss")
 
         call_count = 0
+
         def factory():
             nonlocal call_count
             call_count += 1
@@ -363,8 +365,8 @@ class TestCacheSerializationEdgeCases:
         adapter = CacheAdapter(namespace="datetime_test")
 
         data = {
-            "timestamp": datetime.now(timezone.utc),
-            "date": datetime.now(timezone.utc).date(),
+            "timestamp": datetime.now(UTC),
+            "date": datetime.now(UTC).date(),
         }
 
         # Should not raise

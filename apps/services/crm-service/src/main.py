@@ -19,35 +19,41 @@ import os
 import re
 import sys
 from contextlib import asynccontextmanager
+from datetime import UTC, date, datetime, timezone
 from typing import Any
-from datetime import datetime, date, timezone, UTC
 from uuid import uuid4
 
 import redis.asyncio as redis_client
 import structlog
-
 from fastapi import Depends, FastAPI, HTTPException, Query, Request
-from starlette import status
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
+from starlette import status
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
 # Add project root to path
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))))
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        )
+    ),
+)
 
 from shared.crm import (
+    DealStage,
+    Farmer,
     FarmerCRMService,
     FarmerQueryBot,
-    Farmer,
     FarmerStatus,
     HarvestDeal,
-    DealStage,
     Interaction,
     InteractionType,
 )
@@ -66,8 +72,10 @@ logger = structlog.get_logger()
 # Error Response Model & Custom Exceptions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class ErrorResponse(BaseModel):
     """Standardized error response model"""
+
     error: str
     error_ar: str | None = None
     error_code: str
@@ -77,6 +85,7 @@ class ErrorResponse(BaseModel):
 
 class ServiceUnavailableError(Exception):
     """Raised when a required service (DB, NATS) is unavailable"""
+
     def __init__(self, service: str, message: str = "Service unavailable"):
         self.service = service
         self.message = message
@@ -85,6 +94,7 @@ class ServiceUnavailableError(Exception):
 
 class ResourceNotFoundError(Exception):
     """Raised when a requested resource is not found"""
+
     def __init__(self, resource_type: str, resource_id: str):
         self.resource_type = resource_type
         self.resource_id = resource_id
@@ -94,6 +104,7 @@ class ResourceNotFoundError(Exception):
 
 class TenantAccessDeniedError(Exception):
     """Raised when tenant access is denied"""
+
     def __init__(self, tenant_id: str):
         self.tenant_id = tenant_id
         self.message = "Access denied: tenant mismatch"
@@ -102,6 +113,7 @@ class TenantAccessDeniedError(Exception):
 
 class DuplicateResourceError(Exception):
     """Raised when attempting to create a duplicate resource"""
+
     def __init__(self, resource_type: str, identifier: str):
         self.resource_type = resource_type
         self.identifier = identifier
@@ -111,6 +123,7 @@ class DuplicateResourceError(Exception):
 
 class InvalidQueryError(Exception):
     """Raised when a natural language query is invalid"""
+
     def __init__(self, reason: str):
         self.reason = reason
         self.message = f"Invalid query: {reason}"
@@ -147,13 +160,13 @@ def sanitize_query(query: str) -> str:
     """
     # Remove SQL-like keywords that could indicate injection attempts
     dangerous_patterns = [
-        r'\b(DROP|DELETE|UPDATE|INSERT|ALTER|TRUNCATE)\b',
-        r'[;\-\-]',  # SQL comment/injection patterns
-        r'[\x00-\x1f]',  # Control characters
+        r"\b(DROP|DELETE|UPDATE|INSERT|ALTER|TRUNCATE)\b",
+        r"[;\-\-]",  # SQL comment/injection patterns
+        r"[\x00-\x1f]",  # Control characters
     ]
     sanitized = query
     for pattern in dangerous_patterns:
-        sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE)
+        sanitized = re.sub(pattern, "", sanitized, flags=re.IGNORECASE)
     return sanitized.strip()
 
 
@@ -170,7 +183,7 @@ def check_query_complexity(query: str) -> bool:
         True if query complexity is acceptable, False otherwise
     """
     # Check for too many conditions (and/or in English and Arabic)
-    condition_words = ['and', 'or', 'و', 'أو']
+    condition_words = ["and", "or", "و", "أو"]
     condition_count = sum(query.lower().count(w) for w in condition_words)
     return condition_count <= 5
 
@@ -178,6 +191,7 @@ def check_query_complexity(query: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Event Publishing Helper
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def publish_event(subject: str, data: dict) -> None:
     """
@@ -191,10 +205,7 @@ async def publish_event(subject: str, data: dict) -> None:
     """
     if app.state.publisher:
         try:
-            await app.state.publisher.publish(
-                subject,
-                json.dumps(data).encode()
-            )
+            await app.state.publisher.publish(subject, json.dumps(data).encode())
             logger.info("event_published", subject=subject, event_type=data.get("event_type"))
         except Exception as e:
             logger.error("event_publish_failed", subject=subject, error=str(e))
@@ -204,8 +215,10 @@ async def publish_event(subject: str, data: dict) -> None:
 # Request/Response Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class FarmerCreateRequest(BaseModel):
     """Request to create a farmer"""
+
     name: str = Field(..., min_length=2, max_length=100)
     name_ar: str | None = Field(None, max_length=100)
     phone: str = Field(..., pattern=r"^\+?[0-9]{10,15}$")
@@ -220,6 +233,7 @@ class FarmerCreateRequest(BaseModel):
 
 class FarmerUpdateRequest(BaseModel):
     """Request to update a farmer"""
+
     name: str | None = Field(None, min_length=2, max_length=100)
     name_ar: str | None = Field(None, max_length=100)
     phone: str | None = Field(None, pattern=r"^\+?[0-9]{10,15}$")
@@ -234,6 +248,7 @@ class FarmerUpdateRequest(BaseModel):
 
 class FarmerResponse(BaseModel):
     """Farmer response model"""
+
     id: str
     name: str
     name_ar: str | None
@@ -253,6 +268,7 @@ class FarmerResponse(BaseModel):
 
 class HarvestDealCreateRequest(BaseModel):
     """Request to create a harvest deal"""
+
     farmer_id: str
     crop_type: str
     crop_type_ar: str | None = None
@@ -265,6 +281,7 @@ class HarvestDealCreateRequest(BaseModel):
 
 class HarvestDealResponse(BaseModel):
     """Harvest deal response model"""
+
     id: str
     farmer_id: str
     crop_type: str
@@ -284,6 +301,7 @@ class HarvestDealResponse(BaseModel):
 
 class InteractionCreateRequest(BaseModel):
     """Request to log an interaction"""
+
     farmer_id: str
     interaction_type: str = Field(..., description="Type: call, visit, whatsapp, sms, email")
     subject: str
@@ -296,6 +314,7 @@ class InteractionCreateRequest(BaseModel):
 
 class InteractionResponse(BaseModel):
     """Interaction response model"""
+
     id: str
     farmer_id: str
     interaction_type: str
@@ -311,12 +330,14 @@ class InteractionResponse(BaseModel):
 
 class QueryRequest(BaseModel):
     """Natural language query request"""
+
     query: str = Field(..., description="Natural language query in English or Arabic")
     tenant_id: str
 
 
 class QueryResponse(BaseModel):
     """Query response model"""
+
     query: str
     interpreted_as: str
     interpreted_as_ar: str | None
@@ -327,6 +348,7 @@ class QueryResponse(BaseModel):
 
 class PipelineStatsResponse(BaseModel):
     """Pipeline statistics response"""
+
     total_deals: int
     total_value: float
     by_stage: dict[str, dict[str, Any]]
@@ -351,6 +373,7 @@ query_bot = FarmerQueryBot(crm_service)
 # Database Helper Functions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 def get_crm_repo(request: Request):
     """Get CRM repository from app state."""
     return getattr(request.app.state, "crm_repo", None)
@@ -359,6 +382,7 @@ def get_crm_repo(request: Request):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Authentication Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 def validate_tenant_access(user: User, tenant_id: str) -> None:
     """
@@ -374,6 +398,7 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Lifespan Management
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -401,9 +426,9 @@ async def lifespan(app: FastAPI):
     if nats_url:
         try:
             from shared.events.publisher import get_publisher
+
             app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME,
-                service_version=SERVICE_VERSION
+                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
             )
             app.state.nats_connected = True
             print(f"✅ NATS connected: {nats_url}")
@@ -419,8 +444,10 @@ async def lifespan(app: FastAPI):
     db_url = os.getenv("DATABASE_URL")
     if db_url:
         try:
-            import asyncpg
             from pathlib import Path
+
+            import asyncpg
+
             from .db import CRMRepository
 
             app.state.db_pool = await asyncpg.create_pool(
@@ -470,6 +497,7 @@ async def lifespan(app: FastAPI):
 # ═══════════════════════════════════════════════════════════════════════════════
 # Redis Cache Helpers
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 async def cache_get(key: str) -> dict | None:
     """Get value from Redis cache."""
@@ -538,6 +566,7 @@ app.state.limiter = limiter
 def rate_limit_exceeded_handler(request: Request, exc: RateLimitExceeded):
     """Custom handler for rate limit exceeded errors (429)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "rate_limit_exceeded",
@@ -565,6 +594,7 @@ app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
 # Request ID Middleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.middleware("http")
 async def add_request_id_middleware(request: Request, call_next):
     """Add request ID to all requests for tracing"""
@@ -579,10 +609,12 @@ async def add_request_id_middleware(request: Request, call_next):
 # Exception Handlers
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError):
     """Handle validation errors (400)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "validation_error",
@@ -606,6 +638,7 @@ async def value_error_handler(request: Request, exc: ValueError):
 async def resource_not_found_handler(request: Request, exc: ResourceNotFoundError):
     """Handle resource not found errors (404)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.info(
         "resource_not_found",
@@ -630,6 +663,7 @@ async def resource_not_found_handler(request: Request, exc: ResourceNotFoundErro
 async def tenant_access_denied_handler(request: Request, exc: TenantAccessDeniedError):
     """Handle tenant access denied errors (403)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "tenant_access_denied",
@@ -653,6 +687,7 @@ async def tenant_access_denied_handler(request: Request, exc: TenantAccessDenied
 async def duplicate_resource_handler(request: Request, exc: DuplicateResourceError):
     """Handle duplicate resource errors (409)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "duplicate_resource",
@@ -677,6 +712,7 @@ async def duplicate_resource_handler(request: Request, exc: DuplicateResourceErr
 async def invalid_query_handler(request: Request, exc: InvalidQueryError):
     """Handle invalid query errors (400)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.warning(
         "invalid_query",
@@ -700,6 +736,7 @@ async def invalid_query_handler(request: Request, exc: InvalidQueryError):
 async def service_unavailable_handler(request: Request, exc: ServiceUnavailableError):
     """Handle service unavailable errors (503)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.error(
         "service_unavailable",
@@ -724,6 +761,7 @@ async def service_unavailable_handler(request: Request, exc: ServiceUnavailableE
 async def http_exception_handler(request: Request, exc: HTTPException):
     """Handle HTTP exceptions with consistent format"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     error_codes = {
         400: ("BAD_REQUEST", "طلب غير صالح"),
@@ -738,9 +776,21 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     error_code, error_ar = error_codes.get(exc.status_code, ("ERROR", "خطأ"))
 
     if exc.status_code >= 500:
-        logger.error("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.error(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
     else:
-        logger.warning("http_exception", status_code=exc.status_code, path=request.url.path, request_id=request_id, detail=exc.detail)
+        logger.warning(
+            "http_exception",
+            status_code=exc.status_code,
+            path=request.url.path,
+            request_id=request_id,
+            detail=exc.detail,
+        )
 
     return JSONResponse(
         status_code=exc.status_code,
@@ -758,6 +808,7 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 async def general_exception_handler(request: Request, exc: Exception):
     """Handle all unhandled exceptions (500)"""
     from fastapi.responses import JSONResponse
+
     request_id = get_request_id(request)
     logger.error(
         "unhandled_exception",
@@ -780,7 +831,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+cors_origins = os.getenv(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -794,6 +847,7 @@ app.add_middleware(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.get("/healthz", tags=["Health"])
 def health():
@@ -837,6 +891,7 @@ def health_detailed():
 # Farmer Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/api/v1/farmers", response_model=FarmerResponse, tags=["Farmers"])
 @limiter.limit("30/minute")
 async def create_farmer(
@@ -877,7 +932,7 @@ async def create_farmer(
                 "phone": data["phone"],
                 "status": data["status"],
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return FarmerResponse(
@@ -934,7 +989,7 @@ async def create_farmer(
                 "phone": farmer.phone,
                 "status": farmer.status.value,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return FarmerResponse(
@@ -1016,14 +1071,15 @@ async def list_farmers(
         if search:
             search_lower = search.lower()
             results = [
-                f for f in results
+                f
+                for f in results
                 if search_lower in f.name.lower()
                 or (f.name_ar and search_lower in f.name_ar)
                 or search in f.phone
             ]
 
         # Paginate
-        results = results[offset:offset + limit]
+        results = results[offset : offset + limit]
 
         return [
             FarmerResponse(
@@ -1192,7 +1248,7 @@ async def update_farmer(
                 "name_ar": data["name_ar"],
                 "status": data["status"],
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         # Publish status changed event if status was updated
@@ -1206,7 +1262,7 @@ async def update_farmer(
                     "old_status": old_status,
                     "new_status": data["status"],
                     "timestamp": datetime.now(UTC).isoformat(),
-                }
+                },
             )
 
         return FarmerResponse(
@@ -1276,7 +1332,7 @@ async def update_farmer(
                 "name_ar": f.name_ar,
                 "status": f.status.value,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         # Publish status changed event if status was updated
@@ -1290,7 +1346,7 @@ async def update_farmer(
                     "old_status": old_status.value,
                     "new_status": f.status.value,
                     "timestamp": datetime.now(UTC).isoformat(),
-                }
+                },
             )
 
         return FarmerResponse(
@@ -1315,6 +1371,7 @@ async def update_farmer(
 # ═══════════════════════════════════════════════════════════════════════════════
 # Harvest Deal Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @app.post("/api/v1/deals", response_model=HarvestDealResponse, tags=["Deals"])
 @limiter.limit("30/minute")
@@ -1360,11 +1417,13 @@ async def create_deal(
                 "crop_type": data["crop_type"],
                 "crop_type_ar": data["crop_type_ar"],
                 "expected_quantity_tons": data["expected_quantity_tons"],
-                "expected_harvest_date": data["expected_harvest_date"].isoformat() if data["expected_harvest_date"] else None,
+                "expected_harvest_date": data["expected_harvest_date"].isoformat()
+                if data["expected_harvest_date"]
+                else None,
                 "price_per_ton": data["price_per_ton"],
                 "stage": data["stage"],
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return HarvestDealResponse(
@@ -1431,7 +1490,7 @@ async def create_deal(
                 "price_per_ton": deal.price_per_ton,
                 "stage": deal.stage.value,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return HarvestDealResponse(
@@ -1502,7 +1561,8 @@ async def list_deals(
         # Fallback to in-memory
         # Filter deals by tenant_id (via farmer's tenant_id)
         results = [
-            d for d in deals.values()
+            d
+            for d in deals.values()
             if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
         ]
 
@@ -1578,7 +1638,7 @@ async def update_deal_stage(
                 "new_stage": data["stage"],
                 "expected_quantity_tons": data["expected_quantity_tons"],
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return HarvestDealResponse(
@@ -1633,7 +1693,7 @@ async def update_deal_stage(
                 "new_stage": deal.stage.value,
                 "expected_quantity_tons": deal.expected_quantity_tons,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return HarvestDealResponse(
@@ -1707,7 +1767,8 @@ async def get_pipeline_stats(
         # Fallback to in-memory
         # Filter deals by tenant_id (via farmer's tenant_id)
         all_deals = [
-            d for d in deals.values()
+            d
+            for d in deals.values()
             if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == tenant_id
         ]
 
@@ -1715,8 +1776,7 @@ async def get_pipeline_stats(
         for stage in list(DealStage):
             stage_deals = [d for d in all_deals if d.stage == stage]
             total_value = sum(
-                (d.price_per_ton or 0) * d.expected_quantity_tons
-                for d in stage_deals
+                (d.price_per_ton or 0) * d.expected_quantity_tons for d in stage_deals
             )
             by_stage[stage.value] = {
                 "count": len(stage_deals),
@@ -1726,10 +1786,7 @@ async def get_pipeline_stats(
 
         total_deals = len(all_deals)
         won_deals = len([d for d in all_deals if d.stage == DealStage.PAID])
-        total_value = sum(
-            (d.price_per_ton or 0) * d.expected_quantity_tons
-            for d in all_deals
-        )
+        total_value = sum((d.price_per_ton or 0) * d.expected_quantity_tons for d in all_deals)
 
         response = PipelineStatsResponse(
             total_deals=total_deals,
@@ -1749,6 +1806,7 @@ async def get_pipeline_stats(
 # Interaction Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/api/v1/interactions", response_model=InteractionResponse, tags=["Interactions"])
 @limiter.limit("60/minute")
 async def log_interaction(
@@ -1763,7 +1821,9 @@ async def log_interaction(
         # Use database - first verify farmer exists
         farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id)
         if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
+            raise ResourceNotFoundError(
+                resource_type="Farmer", resource_id=interaction_data.farmer_id
+            )
 
         # Validate tenant access via farmer's tenant_id
         validate_tenant_access(user, farmer_data["tenant_id"])
@@ -1781,9 +1841,9 @@ async def log_interaction(
         )
 
         # Update farmer's last interaction
-        await crm_repo.farmers.update(interaction_data.farmer_id, {
-            "last_interaction_at": datetime.now(UTC)
-        })
+        await crm_repo.farmers.update(
+            interaction_data.farmer_id, {"last_interaction_at": datetime.now(UTC)}
+        )
 
         # Publish interaction logged event
         await publish_event(
@@ -1797,9 +1857,11 @@ async def log_interaction(
                 "subject": data["subject"],
                 "subject_ar": data["subject_ar"],
                 "outcome": data["outcome"],
-                "follow_up_date": data["follow_up_date"].isoformat() if data["follow_up_date"] else None,
+                "follow_up_date": data["follow_up_date"].isoformat()
+                if data["follow_up_date"]
+                else None,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return InteractionResponse(
@@ -1818,7 +1880,9 @@ async def log_interaction(
     else:
         # Fallback to in-memory
         if interaction_data.farmer_id not in farmers:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
+            raise ResourceNotFoundError(
+                resource_type="Farmer", resource_id=interaction_data.farmer_id
+            )
 
         # Validate tenant access via farmer's tenant_id
         farmer = farmers[interaction_data.farmer_id]
@@ -1857,9 +1921,11 @@ async def log_interaction(
                 "subject": interaction.subject,
                 "subject_ar": interaction.subject_ar,
                 "outcome": interaction.outcome,
-                "follow_up_date": interaction.follow_up_date.isoformat() if interaction.follow_up_date else None,
+                "follow_up_date": interaction.follow_up_date.isoformat()
+                if interaction.follow_up_date
+                else None,
                 "timestamp": datetime.now(UTC).isoformat(),
-            }
+            },
         )
 
         return InteractionResponse(
@@ -1956,6 +2022,7 @@ async def list_interactions(
 # Natural Language Query Endpoint (SQLBot-inspired)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.post("/api/v1/query", response_model=QueryResponse, tags=["Query"])
 @limiter.limit("10/minute")
 async def natural_language_query(
@@ -1978,6 +2045,7 @@ async def natural_language_query(
     validate_tenant_access(user, query_data.tenant_id)
 
     import time
+
     start_time = time.time()
 
     # Security: Query length validation
@@ -2003,7 +2071,8 @@ async def natural_language_query(
     tenant_farmers = {fid: f for fid, f in farmers.items() if f.tenant_id == query_data.tenant_id}
     # Filter deals by tenant_id (via farmer's tenant_id)
     tenant_deals = {
-        did: d for did, d in deals.items()
+        did: d
+        for did, d in deals.items()
         if d.farmer_id in farmers and farmers[d.farmer_id].tenant_id == query_data.tenant_id
     }
 
@@ -2116,6 +2185,7 @@ async def natural_language_query(
 # Metrics Endpoint
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @app.get("/metrics", tags=["Monitoring"])
 def metrics():
     """Prometheus-compatible metrics"""
@@ -2135,6 +2205,7 @@ crm_interactions_total {len(interactions)}
 
 if __name__ == "__main__":
     import uvicorn
+
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
     host = os.getenv("HOST", "0.0.0.0")
     uvicorn.run(app, host=host, port=SERVICE_PORT)

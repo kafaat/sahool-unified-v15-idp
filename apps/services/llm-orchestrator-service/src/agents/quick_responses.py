@@ -152,8 +152,7 @@ QUICK_RESPONSES: dict[str, QuickResponse] = {
     ),
     "ما هو ndvi": QuickResponse(
         response_en=(
-            "NDVI measures plant health from satellite imagery. "
-            "Higher values (0.6-0.9) indicate healthy crops."
+            "NDVI measures plant health from satellite imagery. Higher values (0.6-0.9) indicate healthy crops."
         ),
         response_ar=(
             "NDVI (مؤشر الاختلاف النباتي الطبيعي) هو مقياس لصحة النبات "
@@ -328,11 +327,7 @@ def get_quick_responses_by_category(category: str) -> list[tuple[str, QuickRespo
     Get quick responses filtered by category.
     الحصول على الردود السريعة مفلترة حسب الفئة.
     """
-    return [
-        (key, resp)
-        for key, resp in QUICK_RESPONSES.items()
-        if resp.category == category
-    ]
+    return [(key, resp) for key, resp in QUICK_RESPONSES.items() if resp.category == category]
 
 
 def get_categories() -> list[str]:

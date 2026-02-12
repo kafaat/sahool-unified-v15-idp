@@ -28,7 +28,7 @@ import re
 import time
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -417,7 +417,7 @@ SECURITY_PATTERNS: list[SecurityPattern] = [
     # Path Traversal
     SecurityPattern(
         id="SEC012",
-        pattern=r'open\s*\([^)]*\+[^)]*\)',
+        pattern=r"open\s*\([^)]*\+[^)]*\)",
         severity="high",
         category="path_traversal",
         message="Potential path traversal vulnerability",
@@ -763,7 +763,13 @@ class CodeDiagnostics:
 
         if suffix == ".py":
             # Return tools in order of priority/speed
-            return [ToolType.RUFF, ToolType.BANDIT, ToolType.MYPY, ToolType.PYLINT, ToolType.SEMGREP]
+            return [
+                ToolType.RUFF,
+                ToolType.BANDIT,
+                ToolType.MYPY,
+                ToolType.PYLINT,
+                ToolType.SEMGREP,
+            ]
         elif suffix in (".ts", ".tsx", ".js", ".jsx"):
             return [ToolType.ESLINT, ToolType.SEMGREP]
         elif suffix == ".dart":
@@ -927,9 +933,7 @@ class CodeDiagnostics:
                     break
 
                 # Check exclusions
-                excluded = any(
-                    file_path.match(excl) for excl in exclude_patterns
-                )
+                excluded = any(file_path.match(excl) for excl in exclude_patterns)
                 if not excluded and file_path.is_file():
                     files.append(str(file_path))
 
@@ -987,9 +991,7 @@ class CodeDiagnostics:
                     id=str(uuid.uuid4()),
                     message=message,
                     message_ar=translate_message(message),
-                    severity=get_severity_from_level(
-                        "error" if rule_id.startswith(("E", "F")) else "warning"
-                    ),
+                    severity=get_severity_from_level("error" if rule_id.startswith(("E", "F")) else "warning"),
                     category=get_category_from_rule(rule_id, ToolType.RUFF),
                     location=CodeLocation(
                         file_path=item.get("filename", file_path),
@@ -1053,9 +1055,7 @@ class CodeDiagnostics:
                         ),
                         rule_id=rule_id,
                         tool=ToolType.ESLINT,
-                        suggestion=msg.get("suggestions", [{}])[0].get("desc")
-                        if msg.get("suggestions")
-                        else None,
+                        suggestion=msg.get("suggestions", [{}])[0].get("desc") if msg.get("suggestions") else None,
                     )
                     diagnostics.append(diag)
 
@@ -1096,9 +1096,7 @@ class CodeDiagnostics:
                         id=str(uuid.uuid4()),
                         message=message,
                         message_ar=translate_message(message),
-                        severity=get_severity_from_level(
-                            item.get("severity", "error")
-                        ),
+                        severity=get_severity_from_level(item.get("severity", "error")),
                         category=DiagnosticCategory.TYPE,
                         location=CodeLocation(
                             file_path=item.get("file", file_path),
@@ -1147,9 +1145,7 @@ class CodeDiagnostics:
                     id=str(uuid.uuid4()),
                     message=message,
                     message_ar=translate_message(message),
-                    severity=get_severity_from_level(
-                        item.get("issue_severity", "medium")
-                    ),
+                    severity=get_severity_from_level(item.get("issue_severity", "medium")),
                     category=DiagnosticCategory.SECURITY,
                     location=CodeLocation(
                         file_path=item.get("filename", file_path),
@@ -1199,9 +1195,7 @@ class CodeDiagnostics:
                     message=message,
                     message_ar=translate_message(message),
                     severity=get_severity_from_level(severity),
-                    category=get_category_from_rule(
-                        item.get("code", ""), ToolType.DART_ANALYZE
-                    ),
+                    category=get_category_from_rule(item.get("code", ""), ToolType.DART_ANALYZE),
                     location=CodeLocation(
                         file_path=item.get("location", {}).get("file", file_path),
                         line_start=item.get("location", {}).get("startLine", 1),
@@ -1233,7 +1227,7 @@ class CodeDiagnostics:
         try:
             # Determine language config
             suffix = Path(file_path).suffix.lower()
-            lang_config = {
+            {
                 ".py": "python",
                 ".js": "javascript",
                 ".ts": "typescript",

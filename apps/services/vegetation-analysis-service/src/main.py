@@ -20,7 +20,7 @@ import sys
 import uuid
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timedelta
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
@@ -347,14 +347,14 @@ register_spray_endpoints(app)
 # =============================================================================
 
 
-class SatelliteSource(str, Enum):
+class SatelliteSource(StrEnum):
     SENTINEL2 = "sentinel-2"
     LANDSAT8 = "landsat-8"
     LANDSAT9 = "landsat-9"
     MODIS = "modis"
 
 
-class BandType(str, Enum):
+class BandType(StrEnum):
     RED = "red"
     GREEN = "green"
     BLUE = "blue"
@@ -2792,7 +2792,9 @@ async def get_yield_history(
     # Import shared crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        _proj_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+        )
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
@@ -2904,7 +2906,9 @@ async def get_regional_yields(
     # Import crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+        _proj_root = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
+        )
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS

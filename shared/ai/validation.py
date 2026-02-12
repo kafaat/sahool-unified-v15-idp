@@ -17,12 +17,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class ValidationLevel(str, Enum):
+class ValidationLevel(StrEnum):
     """Validation strictness levels."""
 
     STRICT = "strict"  # Block on any concern
@@ -30,7 +30,7 @@ class ValidationLevel(str, Enum):
     LENIENT = "lenient"  # Only block critical issues
 
 
-class ThreatCategory(str, Enum):
+class ThreatCategory(StrEnum):
     """Categories of detected threats."""
 
     PROMPT_INJECTION = "prompt_injection"
@@ -43,7 +43,7 @@ class ThreatCategory(str, Enum):
     OFF_TOPIC = "off_topic"
 
 
-class Severity(str, Enum):
+class Severity(StrEnum):
     """Severity levels for validation issues."""
 
     CRITICAL = "critical"  # Must block
@@ -121,7 +121,10 @@ PROMPT_INJECTION_PATTERNS = [
     (r"act\s+as\s+(?:if|a|an)", Severity.HIGH),
     (r"roleplay\s+as", Severity.HIGH),
     # System prompt extraction
-    (r"(what|show|reveal|display)\s+(is|are)?\s*(your|the)\s+(system|initial)\s+prompt", Severity.CRITICAL),
+    (
+        r"(what|show|reveal|display)\s+(is|are)?\s*(your|the)\s+(system|initial)\s+prompt",
+        Severity.CRITICAL,
+    ),
     (r"repeat\s+(your|the)\s+(system|initial)\s+(prompt|instructions)", Severity.CRITICAL),
     # Encoding tricks
     (r"base64\s*[:=]", Severity.MEDIUM),
@@ -146,7 +149,10 @@ JAILBREAK_PATTERNS = [
 # Unsafe agricultural advice patterns (things we should flag)
 UNSAFE_AGRICULTURAL_PATTERNS = [
     # Pesticide misuse
-    (r"(increase|double|triple)\s+(the\s+)?(dosage|dose|amount)\s+of\s+(pesticide|herbicide|insecticide)", Severity.CRITICAL),
+    (
+        r"(increase|double|triple)\s+(the\s+)?(dosage|dose|amount)\s+of\s+(pesticide|herbicide|insecticide)",
+        Severity.CRITICAL,
+    ),
     (r"mix\s+(different\s+)?(pesticides?|chemicals?)\s+together", Severity.HIGH),
     (r"spray\s+during\s+(rain|wind|hot)", Severity.MEDIUM),
     # Food safety
@@ -242,24 +248,28 @@ class AIValidator:
         # Check prompt injection
         for pattern, severity in PROMPT_INJECTION_PATTERNS:
             if re.search(pattern, text_lower, re.IGNORECASE):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.PROMPT_INJECTION,
-                    severity=severity,
-                    message="Potential prompt injection detected",
-                    message_ar="تم اكتشاف محاولة حقن أوامر محتملة",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.PROMPT_INJECTION,
+                        severity=severity,
+                        message="Potential prompt injection detected",
+                        message_ar="تم اكتشاف محاولة حقن أوامر محتملة",
+                        details={"pattern": pattern},
+                    )
+                )
 
         # Check jailbreak attempts
         for pattern, severity in JAILBREAK_PATTERNS:
             if re.search(pattern, text_lower, re.IGNORECASE):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.JAILBREAK_ATTEMPT,
-                    severity=severity,
-                    message="Potential jailbreak attempt detected",
-                    message_ar="تم اكتشاف محاولة تجاوز القيود",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.JAILBREAK_ATTEMPT,
+                        severity=severity,
+                        message="Potential jailbreak attempt detected",
+                        message_ar="تم اكتشاف محاولة تجاوز القيود",
+                        details={"pattern": pattern},
+                    )
+                )
 
         # Check PII in input
         if self.enable_pii_detection:
@@ -269,13 +279,15 @@ class AIValidator:
         # Check custom patterns
         for pattern, severity in self.custom_patterns:
             if re.search(pattern, text, re.IGNORECASE):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.HARMFUL_CONTENT,
-                    severity=severity,
-                    message="Custom pattern matched",
-                    message_ar="تم مطابقة نمط مخصص",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.HARMFUL_CONTENT,
+                        severity=severity,
+                        message="Custom pattern matched",
+                        message_ar="تم مطابقة نمط مخصص",
+                        details={"pattern": pattern},
+                    )
+                )
 
         return self._build_result(text, issues)
 
@@ -326,13 +338,15 @@ class AIValidator:
             pattern, severity, pii_type = item[0], item[1], item[2] if len(item) > 2 else "unknown"
             matches = re.findall(pattern, text, re.IGNORECASE)
             if matches:
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.PII_EXPOSURE,
-                    severity=severity,
-                    message=f"Potential PII detected: {pii_type}",
-                    message_ar=f"تم اكتشاف بيانات شخصية محتملة: {pii_type}",
-                    details={"type": pii_type, "count": len(matches)},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.PII_EXPOSURE,
+                        severity=severity,
+                        message=f"Potential PII detected: {pii_type}",
+                        message_ar=f"تم اكتشاف بيانات شخصية محتملة: {pii_type}",
+                        details={"type": pii_type, "count": len(matches)},
+                    )
+                )
         return issues
 
     def _check_agricultural_safety(
@@ -346,13 +360,15 @@ class AIValidator:
 
         for pattern, severity in UNSAFE_AGRICULTURAL_PATTERNS:
             if re.search(pattern, text_lower, re.IGNORECASE):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.UNSAFE_ADVICE,
-                    severity=severity,
-                    message="Potentially unsafe agricultural advice detected",
-                    message_ar="تم اكتشاف نصيحة زراعية قد تكون غير آمنة",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.UNSAFE_ADVICE,
+                        severity=severity,
+                        message="Potentially unsafe agricultural advice detected",
+                        message_ar="تم اكتشاف نصيحة زراعية قد تكون غير آمنة",
+                        details={"pattern": pattern},
+                    )
+                )
 
         return issues
 
@@ -371,24 +387,28 @@ class AIValidator:
 
         for pattern in overconfident_patterns:
             if re.search(pattern, text_lower):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.HALLUCINATION,
-                    severity=Severity.LOW,
-                    message="Potentially overconfident statement",
-                    message_ar="عبارة قد تكون مفرطة في الثقة",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.HALLUCINATION,
+                        severity=Severity.LOW,
+                        message="Potentially overconfident statement",
+                        message_ar="عبارة قد تكون مفرطة في الثقة",
+                        details={"pattern": pattern},
+                    )
+                )
 
         # Specific numbers without context (potential hallucination)
         specific_stats = re.findall(r"\b\d+(?:\.\d+)?%\b", text)
         if len(specific_stats) > 3:
-            issues.append(ValidationIssue(
-                category=ThreatCategory.HALLUCINATION,
-                severity=Severity.INFO,
-                message="Multiple specific statistics detected - verify accuracy",
-                message_ar="تم اكتشاف إحصائيات متعددة محددة - تحقق من الدقة",
-                details={"count": len(specific_stats)},
-            ))
+            issues.append(
+                ValidationIssue(
+                    category=ThreatCategory.HALLUCINATION,
+                    severity=Severity.INFO,
+                    message="Multiple specific statistics detected - verify accuracy",
+                    message_ar="تم اكتشاف إحصائيات متعددة محددة - تحقق من الدقة",
+                    details={"count": len(specific_stats)},
+                )
+            )
 
         return issues
 
@@ -404,13 +424,15 @@ class AIValidator:
 
         for pattern, severity in harmful_patterns:
             if re.search(pattern, text_lower):
-                issues.append(ValidationIssue(
-                    category=ThreatCategory.HARMFUL_CONTENT,
-                    severity=severity,
-                    message="Potentially harmful content detected",
-                    message_ar="تم اكتشاف محتوى قد يكون ضاراً",
-                    details={"pattern": pattern},
-                ))
+                issues.append(
+                    ValidationIssue(
+                        category=ThreatCategory.HARMFUL_CONTENT,
+                        severity=severity,
+                        message="Potentially harmful content detected",
+                        message_ar="تم اكتشاف محتوى قد يكون ضاراً",
+                        details={"pattern": pattern},
+                    )
+                )
 
         return issues
 
@@ -438,9 +460,7 @@ class AIValidator:
         if self.level == ValidationLevel.STRICT:
             is_valid = len(issues) == 0
         elif self.level == ValidationLevel.MODERATE:
-            is_valid = not any(
-                i.severity in [Severity.CRITICAL, Severity.HIGH] for i in issues
-            )
+            is_valid = not any(i.severity in [Severity.CRITICAL, Severity.HIGH] for i in issues)
         else:  # LENIENT
             is_valid = not any(i.severity == Severity.CRITICAL for i in issues)
 

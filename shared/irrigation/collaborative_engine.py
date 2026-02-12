@@ -22,37 +22,37 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from typing import Any, Callable
-from uuid import UUID, uuid4, uuid5, NAMESPACE_DNS
+from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
+
 import structlog
 
-from .models import (
-    IrrigationGoal,
-    IrrigationGoalType,
-    EcologicalConstraint,
-    ExperienceRule,
-    HumanDecision,
-    DecisionType,
-    CalibrationResult,
-    CalibrationMethod,
-    ZoneConfiguration,
-    IrrigationProgram,
-    IrrigationSchedule,
-    DecisionSession,
-    SessionStatus,
-    SessionOutcome,
-    HMCError,
-    HMCErrors,
-)
+from .checklist import CollaborativeChecklist
 from .dimensions import (
-    GoalAnchoringDimension,
     ExperienceInjectionDimension,
+    GoalAnchoringDimension,
     SupervisionCalibrationDimension,
     ValueUpgradeDimension,
 )
-from .checklist import CollaborativeChecklist
-
+from .models import (
+    CalibrationMethod,
+    CalibrationResult,
+    DecisionSession,
+    DecisionType,
+    EcologicalConstraint,
+    ExperienceRule,
+    HMCError,
+    HMCErrors,
+    HumanDecision,
+    IrrigationGoal,
+    IrrigationGoalType,
+    IrrigationProgram,
+    IrrigationSchedule,
+    SessionOutcome,
+    SessionStatus,
+    ZoneConfiguration,
+)
 
 logger = structlog.get_logger(__name__)
 
@@ -399,10 +399,10 @@ class HMCIrrigationEngine:
     @property
     def is_session_active(self) -> bool:
         """Check if there is an active session."""
-        return (
-            self._current_session is not None
-            and self._current_session.status not in [SessionStatus.COMPLETED, SessionStatus.CANCELLED]
-        )
+        return self._current_session is not None and self._current_session.status not in [
+            SessionStatus.COMPLETED,
+            SessionStatus.CANCELLED,
+        ]
 
     # =========================================================================
     # Session Management - إدارة الجلسات
@@ -502,12 +502,22 @@ class HMCIrrigationEngine:
                 else False
             ),
             "dimension_status": {
-                "goal_anchoring": self._goal_dimension.get_status() if self._goal_dimension else None,
-                "experience_injection": self._experience_dimension.get_status() if self._experience_dimension else None,
-                "supervision_calibration": self._calibration_dimension.get_status() if self._calibration_dimension else None,
-                "value_upgrade": self._value_dimension.get_status() if self._value_dimension else None,
+                "goal_anchoring": self._goal_dimension.get_status()
+                if self._goal_dimension
+                else None,
+                "experience_injection": self._experience_dimension.get_status()
+                if self._experience_dimension
+                else None,
+                "supervision_calibration": self._calibration_dimension.get_status()
+                if self._calibration_dimension
+                else None,
+                "value_upgrade": self._value_dimension.get_status()
+                if self._value_dimension
+                else None,
             },
-            "checklist_complete": self._checklist.validate_all().is_complete if self._checklist else False,
+            "checklist_complete": self._checklist.validate_all().is_complete
+            if self._checklist
+            else False,
             "created_at": self._current_session.created_at.isoformat(),
             "updated_at": self._current_session.updated_at.isoformat(),
         }
@@ -1128,9 +1138,7 @@ class HMCIrrigationEngine:
         # Calculate performance vs predictions
         water_saving = None
         if results.get("actual_water_usage_m3") and program.expected_water_usage_m3:
-            water_saving = (
-                1 - results["actual_water_usage_m3"] / program.expected_water_usage_m3
-            )
+            water_saving = 1 - results["actual_water_usage_m3"] / program.expected_water_usage_m3
 
         # Create outcome record
         outcome = SessionOutcome(
@@ -1158,7 +1166,12 @@ class HMCIrrigationEngine:
         # Extract new rules if successful
         if outcome.overall_success and results.get("lessons_learned"):
             observations = [
-                {"observation": lesson, "condition": "learned_condition", "outcome": "success", "confidence": 0.7}
+                {
+                    "observation": lesson,
+                    "condition": "learned_condition",
+                    "outcome": "success",
+                    "confidence": 0.7,
+                }
                 for lesson in results.get("lessons_learned", [])
             ]
             extracted = self._value_dimension.extract_field_rules(observations)

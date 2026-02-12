@@ -27,7 +27,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone, UTC
+from datetime import UTC, datetime, timezone
 
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware

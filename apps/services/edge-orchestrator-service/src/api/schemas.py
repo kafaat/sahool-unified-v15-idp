@@ -10,7 +10,7 @@ Defines data models for edge devices, jobs, and synchronization.
 """
 
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID
 
@@ -21,7 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 # =============================================================================
 
 
-class DeviceType(str, Enum):
+class DeviceType(StrEnum):
     """Edge device types | أنواع أجهزة الحافة."""
 
     JETSON_ORIN_NANO = "jetson_orin_nano"  # NVIDIA Jetson Orin Nano
@@ -31,7 +31,7 @@ class DeviceType(str, Enum):
     GENERIC_EDGE = "generic_edge"  # Generic edge device
 
 
-class DeviceStatus(str, Enum):
+class DeviceStatus(StrEnum):
     """Device operational status | حالة تشغيل الجهاز."""
 
     ONLINE = "online"  # Device is connected and operational | متصل وعامل
@@ -44,7 +44,7 @@ class DeviceStatus(str, Enum):
     MAINTENANCE = "maintenance"  # Device under maintenance | تحت الصيانة
 
 
-class JobType(str, Enum):
+class JobType(StrEnum):
     """Edge job types | أنواع مهام الحافة."""
 
     INFERENCE = "inference"  # Run AI inference | تشغيل الاستدلال
@@ -56,7 +56,7 @@ class JobType(str, Enum):
     CAPTURE = "capture"  # Capture images/data | التقاط صور/بيانات
 
 
-class JobStatus(str, Enum):
+class JobStatus(StrEnum):
     """Job execution status | حالة تنفيذ المهمة."""
 
     PENDING = "pending"  # Job is queued | في الانتظار
@@ -68,7 +68,7 @@ class JobStatus(str, Enum):
     TIMEOUT = "timeout"  # Job timed out | انتهت المهلة
 
 
-class JobPriority(str, Enum):
+class JobPriority(StrEnum):
     """Job priority levels | مستويات أولوية المهمة."""
 
     LOW = "low"  # Low priority | أولوية منخفضة
@@ -77,7 +77,7 @@ class JobPriority(str, Enum):
     CRITICAL = "critical"  # Critical priority | أولوية حرجة
 
 
-class SyncDirection(str, Enum):
+class SyncDirection(StrEnum):
     """Data sync direction | اتجاه مزامنة البيانات."""
 
     UPLOAD = "upload"  # Device to cloud | من الجهاز إلى السحابة
@@ -85,7 +85,7 @@ class SyncDirection(str, Enum):
     BIDIRECTIONAL = "bidirectional"  # Both directions | ثنائي الاتجاه
 
 
-class ModelFormat(str, Enum):
+class ModelFormat(StrEnum):
     """AI model format | تنسيق نموذج الذكاء الاصطناعي."""
 
     TENSORRT = "tensorrt"  # NVIDIA TensorRT optimized
@@ -539,7 +539,7 @@ class DeployResponse(BaseModel):
 # =============================================================================
 
 
-class WSMessageType(str, Enum):
+class WSMessageType(StrEnum):
     """WebSocket message types | أنواع رسائل WebSocket."""
 
     HEARTBEAT = "heartbeat"  # Device heartbeat | نبض القلب

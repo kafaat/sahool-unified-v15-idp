@@ -15,13 +15,13 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class SecretBackend(str, Enum):
+class SecretBackend(StrEnum):
     """Supported secret backends"""
 
     ENVIRONMENT = "environment"

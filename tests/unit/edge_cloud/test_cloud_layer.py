@@ -57,7 +57,9 @@ class PestDetectionModel:
             "bounding_boxes": [
                 {"x": 100, "y": 150, "width": 50, "height": 40, "confidence": 0.92},
                 {"x": 250, "y": 300, "width": 45, "height": 35, "confidence": 0.88},
-            ] if image_data else [],
+            ]
+            if image_data
+            else [],
             "recommendations": [
                 "Apply neem oil spray",
                 "Introduce beneficial insects (ladybugs)",
@@ -117,11 +119,13 @@ class MoisturePredictionModel:
             predicted = max(10, base_moisture - (hours * decay_rate) + rain_boost)
             confidence = max(0.5, 0.95 - (hours * 0.01))
 
-            predictions.append({
-                "hours_ahead": hours,
-                "moisture_percent": round(predicted, 1),
-                "confidence": round(confidence, 2),
-            })
+            predictions.append(
+                {
+                    "hours_ahead": hours,
+                    "moisture_percent": round(predicted, 1),
+                    "confidence": round(confidence, 2),
+                }
+            )
 
         # Determine when irrigation is needed
         irrigation_threshold = 30.0
@@ -250,21 +254,21 @@ class ModelTrainer:
         """Get training job status"""
         return self._training_jobs.get(job_id)
 
-    async def complete_training(
-        self, job_id: str, metrics: dict[str, float]
-    ) -> dict[str, Any]:
+    async def complete_training(self, job_id: str, metrics: dict[str, float]) -> dict[str, Any]:
         """Complete a training job with metrics"""
         job = self._training_jobs.get(job_id)
         if not job:
             raise ValueError(f"Job not found: {job_id}")
 
-        job.update({
-            "status": "completed",
-            "progress_percent": 100,
-            "completed_at": datetime.now(UTC).isoformat(),
-            "metrics": metrics,
-            "model_version": f"{job['model_type']}-v{uuid.uuid4().hex[:6]}",
-        })
+        job.update(
+            {
+                "status": "completed",
+                "progress_percent": 100,
+                "completed_at": datetime.now(UTC).isoformat(),
+                "metrics": metrics,
+                "model_version": f"{job['model_type']}-v{uuid.uuid4().hex[:6]}",
+            }
+        )
 
         return job
 
@@ -363,7 +367,9 @@ class TestMoisturePrediction:
         return MoisturePredictionModel(model_version="2.1.0")
 
     @pytest.mark.asyncio
-    async def test_predict_moisture_multiple_horizons(self, moisture_model: MoisturePredictionModel):
+    async def test_predict_moisture_multiple_horizons(
+        self, moisture_model: MoisturePredictionModel
+    ):
         """Test moisture prediction for multiple time horizons"""
         result = await moisture_model.predict(
             field_id="field-001",
@@ -430,7 +436,9 @@ class TestMoisturePrediction:
         assert with_rain_24h["moisture_percent"] >= no_rain_24h["moisture_percent"]
 
     @pytest.mark.asyncio
-    async def test_predict_minimum_moisture_threshold(self, moisture_model: MoisturePredictionModel):
+    async def test_predict_minimum_moisture_threshold(
+        self, moisture_model: MoisturePredictionModel
+    ):
         """Test predictions don't go below minimum threshold"""
         result = await moisture_model.predict(
             field_id="field-001",

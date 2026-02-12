@@ -21,7 +21,7 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
@@ -262,11 +262,23 @@ class SAHOOLTools:
                             "type": "object",
                             "description": "Soil test results | نتائج تحليل التربة",
                             "properties": {
-                                "nitrogen_ppm": {"type": "number", "description": "النيتروجين (ppm)"},
-                                "phosphorus_ppm": {"type": "number", "description": "الفوسفور (ppm)"},
-                                "potassium_ppm": {"type": "number", "description": "البوتاسيوم (ppm)"},
+                                "nitrogen_ppm": {
+                                    "type": "number",
+                                    "description": "النيتروجين (ppm)",
+                                },
+                                "phosphorus_ppm": {
+                                    "type": "number",
+                                    "description": "الفوسفور (ppm)",
+                                },
+                                "potassium_ppm": {
+                                    "type": "number",
+                                    "description": "البوتاسيوم (ppm)",
+                                },
                                 "ph": {"type": "number", "description": "درجة الحموضة"},
-                                "organic_matter_pct": {"type": "number", "description": "نسبة المادة العضوية"},
+                                "organic_matter_pct": {
+                                    "type": "number",
+                                    "description": "نسبة المادة العضوية",
+                                },
                             },
                         },
                         "target_yield": {
@@ -455,7 +467,10 @@ class SAHOOLTools:
                                 "farmer_id": {"type": "string"},
                                 "crop_type": {"type": "string"},
                                 "custom_instructions": {"type": "string"},
-                                "language_preference": {"type": "string", "enum": ["en", "ar", "both"]},
+                                "language_preference": {
+                                    "type": "string",
+                                    "enum": ["en", "ar", "both"],
+                                },
                             },
                         },
                         "model": {
@@ -697,9 +712,7 @@ class SAHOOLTools:
                     error_ar="مطلوب إما معرف الحقل أو خط العرض/الطول",
                 )
 
-            response = await self.client.get(
-                f"{self.base_url}/api/weather/forecast", params=params
-            )
+            response = await self.client.get(f"{self.base_url}/api/weather/forecast", params=params)
             response.raise_for_status()
             data = response.json()
 
@@ -1185,9 +1198,7 @@ class SAHOOLTools:
                 AgentType.GENERAL_ASSISTANT: ("General Assistant", "مساعد عام"),
             }
 
-            name_en, name_ar = agent_descriptions.get(
-                agent_type_enum, ("Agent", "وكيل")
-            )
+            name_en, name_ar = agent_descriptions.get(agent_type_enum, ("Agent", "وكيل"))
 
             return ToolResult(
                 success=True,
@@ -1381,9 +1392,7 @@ class SAHOOLTools:
                         "uptime_seconds": uptime_seconds,
                         "idle_seconds": idle_seconds,
                         "queries_per_minute": (
-                            agent.query_count / (uptime_seconds / 60)
-                            if uptime_seconds > 0
-                            else 0
+                            agent.query_count / (uptime_seconds / 60) if uptime_seconds > 0 else 0
                         ),
                     }
 

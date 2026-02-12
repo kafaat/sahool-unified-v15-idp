@@ -17,12 +17,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from .models import (
+    CROP_FROST_THRESHOLDS,
+    CROP_HEAT_THRESHOLDS,
     AlertSeverity,
     AlertThresholds,
     AlertType,
     CropType,
-    CROP_FROST_THRESHOLDS,
-    CROP_HEAT_THRESHOLDS,
     HarvestCondition,
     HarvestWindow,
     IrrigationRecommendation,
@@ -30,7 +30,6 @@ from .models import (
     WeatherAlert,
     WeatherForecast,
 )
-
 
 # Bilingual alert templates
 ALERT_TEMPLATES: dict[AlertType, dict[str, dict[str, str]]] = {
@@ -506,6 +505,7 @@ ALERT_ACTIONS: dict[AlertType, dict[str, tuple[list[str], list[str]]]] = {
 @dataclass
 class AlertGeneratorConfig:
     """Configuration for alert generator"""
+
     thresholds: AlertThresholds = None
     default_crop: CropType = CropType.GENERAL
     timezone_offset_hours: int = 3  # Default to AST (Arabia Standard Time)
@@ -662,8 +662,7 @@ class WeatherAlertGenerator:
         # Get crop-specific thresholds
         if self.config.enable_crop_specific_thresholds:
             thresholds = CROP_FROST_THRESHOLDS.get(
-                crop_type,
-                CROP_FROST_THRESHOLDS[CropType.GENERAL]
+                crop_type, CROP_FROST_THRESHOLDS[CropType.GENERAL]
             )
         else:
             thresholds = {
@@ -695,9 +694,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.FROST,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(temp=temp),
             impact=template["impact"],
@@ -725,10 +723,7 @@ class WeatherAlertGenerator:
 
         # Get crop-specific thresholds
         if self.config.enable_crop_specific_thresholds:
-            thresholds = CROP_HEAT_THRESHOLDS.get(
-                crop_type,
-                CROP_HEAT_THRESHOLDS[CropType.GENERAL]
-            )
+            thresholds = CROP_HEAT_THRESHOLDS.get(crop_type, CROP_HEAT_THRESHOLDS[CropType.GENERAL])
         else:
             thresholds = {
                 "critical": self.thresholds.heat_critical,
@@ -759,9 +754,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.HEAT,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(temp=temp),
             impact=template["impact"],
@@ -805,9 +799,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.WIND,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(speed=wind),
             impact=template["impact"],
@@ -845,9 +838,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.RAIN,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(amount=rain),
             impact=template["impact"],
@@ -886,9 +878,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.HUMIDITY,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(humidity=humidity),
             impact=template["impact"],
@@ -923,9 +914,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.INVERSION,
             severity=AlertSeverity.WARNING,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(start=start_hour, end=end_hour),
             impact=template["impact"],
@@ -962,9 +952,8 @@ class WeatherAlertGenerator:
             alert_type=AlertType.UV,
             severity=severity,
             valid_from=datetime.combine(forecast.forecast_date, datetime.min.time()),
-            valid_until=datetime.combine(
-                forecast.forecast_date, datetime.min.time()
-            ) + timedelta(hours=24),
+            valid_until=datetime.combine(forecast.forecast_date, datetime.min.time())
+            + timedelta(hours=24),
             title=template["title"],
             description=template["description"].format(uv=uv),
             impact=template["impact"],
@@ -1004,14 +993,12 @@ class WeatherAlertGenerator:
         """
         # Calculate expected rain and ET
         expected_rain_mm = sum(f.precipitation_amount for f in forecasts[:3])
-        expected_rain_prob = max(
-            (f.precipitation_probability for f in forecasts[:3]), default=0
-        )
+        expected_rain_prob = max((f.precipitation_probability for f in forecasts[:3]), default=0)
 
         # Simple ET calculation (more sophisticated in real implementation)
         avg_temp = sum(f.temperature for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        avg_humidity = sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
-        avg_wind = sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
+        sum(f.wind_speed for f in forecasts[:3]) / max(len(forecasts[:3]), 1)
 
         # Simplified Hargreaves ET (reference ET)
         expected_et_mm = max(0.0023 * (avg_temp + 17.8) * 7, 0) * 3  # 3 days
@@ -1025,16 +1012,22 @@ class WeatherAlertGenerator:
         if expected_rain_mm >= 10 or expected_rain_prob >= 60:
             recommendation = IrrigationRecommendation.SKIP_IRRIGATION
             reason = f"Significant rain expected ({expected_rain_mm:.1f}mm with {expected_rain_prob:.0f}% probability)"
-            reason_ar = f"أمطار كبيرة متوقعة ({expected_rain_mm:.1f}مم باحتمال {expected_rain_prob:.0f}%)"
+            reason_ar = (
+                f"أمطار كبيرة متوقعة ({expected_rain_mm:.1f}مم باحتمال {expected_rain_prob:.0f}%)"
+            )
             adjustment_factor = 0.0
             factors.append(f"Expected rainfall: {expected_rain_mm:.1f}mm")
             factors_ar.append(f"الأمطار المتوقعة: {expected_rain_mm:.1f}مم")
         elif expected_rain_mm >= 5:
             recommendation = IrrigationRecommendation.REDUCE_AMOUNT
-            reduction = min(expected_rain_mm / planned_irrigation_mm, 0.5) if planned_irrigation_mm > 0 else 0.3
+            reduction = (
+                min(expected_rain_mm / planned_irrigation_mm, 0.5)
+                if planned_irrigation_mm > 0
+                else 0.3
+            )
             adjustment_factor = 1.0 - reduction
-            reason = f"Light rain expected, reduce irrigation by {reduction*100:.0f}%"
-            reason_ar = f"أمطار خفيفة متوقعة، قلل الري بنسبة {reduction*100:.0f}%"
+            reason = f"Light rain expected, reduce irrigation by {reduction * 100:.0f}%"
+            reason_ar = f"أمطار خفيفة متوقعة، قلل الري بنسبة {reduction * 100:.0f}%"
             factors.append(f"Expected rainfall: {expected_rain_mm:.1f}mm")
             factors_ar.append(f"الأمطار المتوقعة: {expected_rain_mm:.1f}مم")
         elif avg_temp > 38:
@@ -1184,8 +1177,12 @@ class WeatherAlertGenerator:
 
         # Generate recommendations
         if condition == HarvestCondition.OPTIMAL:
-            recommendation = f"Optimal harvest window on {best_day.forecast_date if best_day else 'N/A'}"
-            recommendation_ar = f"نافذة حصاد مثالية في {best_day.forecast_date if best_day else 'غير متاح'}"
+            recommendation = (
+                f"Optimal harvest window on {best_day.forecast_date if best_day else 'N/A'}"
+            )
+            recommendation_ar = (
+                f"نافذة حصاد مثالية في {best_day.forecast_date if best_day else 'غير متاح'}"
+            )
         elif condition == HarvestCondition.GOOD:
             recommendation = "Good harvest conditions expected. Proceed with harvest plans."
             recommendation_ar = "ظروف حصاد جيدة متوقعة. استمر في خطط الحصاد."
@@ -1204,31 +1201,34 @@ class WeatherAlertGenerator:
             recommendation_ar = "ظروف غير مناسبة للحصاد. انتظر طقساً أفضل."
 
         # Calculate dry hours
-        dry_hours = sum(
-            24.0 if f.precipitation_probability < 20 else 0.0
-            for f in forecasts[:3]
-        )
+        dry_hours = sum(24.0 if f.precipitation_probability < 20 else 0.0 for f in forecasts[:3])
 
         return HarvestWindow(
             field_id=field_id,
             crop_type=crop_type,
-            window_start=datetime.combine(
-                forecasts[0].forecast_date, datetime.min.time()
-            ) if forecasts else None,
-            window_end=datetime.combine(
-                forecasts[-1].forecast_date, datetime.max.time()
-            ) if forecasts else None,
+            window_start=datetime.combine(forecasts[0].forecast_date, datetime.min.time())
+            if forecasts
+            else None,
+            window_end=datetime.combine(forecasts[-1].forecast_date, datetime.max.time())
+            if forecasts
+            else None,
             optimal_date=best_day.forecast_date if best_day else None,
             overall_condition=condition,
             score=best_score,
             expected_rain_probability=max(
                 (f.precipitation_probability for f in forecasts[:3]), default=0
             ),
-            expected_humidity_avg=sum(f.humidity for f in forecasts[:3]) / max(len(forecasts[:3]), 1),
-            expected_temperature_avg=sum(f.temperature for f in forecasts[:3]) / max(len(forecasts[:3]), 1),
+            expected_humidity_avg=sum(f.humidity for f in forecasts[:3])
+            / max(len(forecasts[:3]), 1),
+            expected_temperature_avg=sum(f.temperature for f in forecasts[:3])
+            / max(len(forecasts[:3]), 1),
             dry_hours_available=dry_hours,
-            rain_risk="high" if max((f.precipitation_probability for f in forecasts[:3]), default=0) > 50 else "low",
-            rain_risk_ar="مرتفع" if max((f.precipitation_probability for f in forecasts[:3]), default=0) > 50 else "منخفض",
+            rain_risk="high"
+            if max((f.precipitation_probability for f in forecasts[:3]), default=0) > 50
+            else "low",
+            rain_risk_ar="مرتفع"
+            if max((f.precipitation_probability for f in forecasts[:3]), default=0) > 50
+            else "منخفض",
             recommendation=recommendation,
             considerations=considerations,
             recommendation_ar=recommendation_ar,

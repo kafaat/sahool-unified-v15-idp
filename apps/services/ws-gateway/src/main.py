@@ -25,6 +25,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from jose import JWTError, jwt
 from pydantic import BaseModel
+
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .handlers import WebSocketMessageHandler
@@ -276,12 +277,16 @@ def metrics():
     # Add connections by room type
     connections_by_type = stats.get("connections_by_room_type", {})
     if connections_by_type:
-        metrics_lines.extend([
-            "# HELP ws_gateway_connections_by_room_type Connections by room type",
-            "# TYPE ws_gateway_connections_by_room_type gauge",
-        ])
+        metrics_lines.extend(
+            [
+                "# HELP ws_gateway_connections_by_room_type Connections by room type",
+                "# TYPE ws_gateway_connections_by_room_type gauge",
+            ]
+        )
         for room_type, count in connections_by_type.items():
-            metrics_lines.append(f'ws_gateway_connections_by_room_type{{room_type="{room_type}"}} {count}')
+            metrics_lines.append(
+                f'ws_gateway_connections_by_room_type{{room_type="{room_type}"}} {count}'
+            )
         metrics_lines.append("")
 
     from fastapi.responses import PlainTextResponse
@@ -395,22 +400,26 @@ async def websocket_endpoint(
                     f"Message too large from {connection_id}: "
                     f"{len(raw_message)} bytes (max: {MAX_MESSAGE_SIZE_BYTES})"
                 )
-                await websocket.send_json({
-                    "type": "error",
-                    "error": f"Message too large (max {MAX_MESSAGE_SIZE_BYTES} bytes)",
-                    "message_ar": "الرسالة كبيرة جداً",
-                })
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "error": f"Message too large (max {MAX_MESSAGE_SIZE_BYTES} bytes)",
+                        "message_ar": "الرسالة كبيرة جداً",
+                    }
+                )
                 continue
 
             # Check rate limit
             is_allowed, rate_limit_error = check_rate_limit(connection_id)
             if not is_allowed:
                 logger.warning(f"Rate limit exceeded for {connection_id}")
-                await websocket.send_json({
-                    "type": "error",
-                    "error": rate_limit_error,
-                    "message_ar": "تم تجاوز حد المعدل. حاول مرة أخرى لاحقاً",
-                })
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "error": rate_limit_error,
+                        "message_ar": "تم تجاوز حد المعدل. حاول مرة أخرى لاحقاً",
+                    }
+                )
                 continue
 
             # Parse JSON message
@@ -420,11 +429,13 @@ async def websocket_endpoint(
                 data = json.loads(raw_message)
             except json.JSONDecodeError as e:
                 logger.warning(f"Invalid JSON from {connection_id}: {e}")
-                await websocket.send_json({
-                    "type": "error",
-                    "error": "Invalid JSON format",
-                    "message_ar": "تنسيق JSON غير صالح",
-                })
+                await websocket.send_json(
+                    {
+                        "type": "error",
+                        "error": "Invalid JSON format",
+                        "message_ar": "تنسيق JSON غير صالح",
+                    }
+                )
                 continue
 
             # Handle message using the message handler

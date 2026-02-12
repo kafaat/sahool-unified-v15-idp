@@ -248,8 +248,7 @@ def setup_metrics(app: FastAPI, service_name: str = "sahool"):
     """
     if not FASTAPI_AVAILABLE:
         raise RuntimeError(
-            "FastAPI is required for setup_metrics(). "
-            "Install it with: pip install fastapi"
+            "FastAPI is required for setup_metrics(). Install it with: pip install fastapi"
         )
 
     registry = get_registry(service_name)

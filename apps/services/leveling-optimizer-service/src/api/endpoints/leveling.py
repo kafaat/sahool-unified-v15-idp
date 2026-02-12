@@ -8,32 +8,31 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query, Path
+import structlog
+from fastapi import APIRouter, HTTPException, Path, Query
 
-from ..schemas import (
-    LevelingAnalysisRequest,
-    LevelingAnalysisResponse,
-    LevelingPlan,
-    CutFillVolume,
-    CostEstimate,
-    EquipmentRecommendation,
-    EquipmentType,
-    DesignPlane,
-    SimulationRequest,
-    SimulationResult,
-    ElevationPoint,
-    LevelingMethod,
-    LevelingPriority,
-    ErrorResponse,
-)
+from ...core.config import settings
 from ...utils.leveling_algorithms import (
     LevelingOptimizer,
-    Point3D,
     PlaneParameters,
+    Point3D,
 )
-from ...core.config import settings
-
-import structlog
+from ..schemas import (
+    CostEstimate,
+    CutFillVolume,
+    DesignPlane,
+    ElevationPoint,
+    EquipmentRecommendation,
+    EquipmentType,
+    ErrorResponse,
+    LevelingAnalysisRequest,
+    LevelingAnalysisResponse,
+    LevelingMethod,
+    LevelingPlan,
+    LevelingPriority,
+    SimulationRequest,
+    SimulationResult,
+)
 
 logger = structlog.get_logger()
 
@@ -86,10 +85,7 @@ EQUIPMENT_CONFIG = {
 
 def _convert_points(elevation_points: list[ElevationPoint]) -> list[Point3D]:
     """Convert API elevation points to internal Point3D format."""
-    return [
-        Point3D(x=p.x, y=p.y, z=p.elevation, point_id=p.point_id)
-        for p in elevation_points
-    ]
+    return [Point3D(x=p.x, y=p.y, z=p.elevation, point_id=p.point_id) for p in elevation_points]
 
 
 def _calculate_cost_estimate(
@@ -195,10 +191,17 @@ def _get_equipment_recommendations(
         primary_equipment = [EquipmentType.SCRAPER, EquipmentType.BULLDOZER, EquipmentType.GRADER]
     else:
         # Long haul - excavator + trucks
-        primary_equipment = [EquipmentType.EXCAVATOR, EquipmentType.DUMP_TRUCK, EquipmentType.GRADER]
+        primary_equipment = [
+            EquipmentType.EXCAVATOR,
+            EquipmentType.DUMP_TRUCK,
+            EquipmentType.GRADER,
+        ]
 
     # Add laser leveler for precision methods
-    if method == LevelingMethod.SINGLE_PLANE and EquipmentType.LASER_LEVELER not in primary_equipment:
+    if (
+        method == LevelingMethod.SINGLE_PLANE
+        and EquipmentType.LASER_LEVELER not in primary_equipment
+    ):
         primary_equipment.append(EquipmentType.LASER_LEVELER)
 
     for eq_type in primary_equipment:
@@ -308,7 +311,8 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest):
 
         # Create design plane model
         design_plane = DesignPlane(
-            centroid_elevation=plane.c + plane.a * (stats.get("min_elevation", 0) + stats.get("max_elevation", 0)) / 2,
+            centroid_elevation=plane.c
+            + plane.a * (stats.get("min_elevation", 0) + stats.get("max_elevation", 0)) / 2,
             grade_x_percent=round(plane.a * 100, 3),
             grade_y_percent=round(plane.b * 100, 3),
             plane_equation=f"z = {plane.a:.6f}*x + {plane.b:.6f}*y + {plane.c:.3f}",
@@ -407,8 +411,12 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest):
             field_area_hectares=round(field_area_hectares, 4),
             original_elevation_range=round(elevation_range, 3),
             leveled_elevation_range=round(
-                max(design_plane.grade_x_percent, design_plane.grade_y_percent) / 100 *
-                max(p.x for p in points) if points else 0, 3
+                max(design_plane.grade_x_percent, design_plane.grade_y_percent)
+                / 100
+                * max(p.x for p in points)
+                if points
+                else 0,
+                3,
             ),
             avg_haul_distance_m=round(haul_distance, 1),
             equipment_recommendations=equipment_recommendations,
@@ -520,7 +528,9 @@ async def get_cost_estimation(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
     cut_volume_m3: float = Query(..., description="Cut volume (m³) | حجم القطع (م³)"),
     fill_volume_m3: float = Query(..., description="Fill volume (m³) | حجم الردم (م³)"),
-    field_area_hectares: float = Query(..., description="Field area (hectares) | مساحة الحقل (هكتار)"),
+    field_area_hectares: float = Query(
+        ..., description="Field area (hectares) | مساحة الحقل (هكتار)"
+    ),
     haul_distance_m: float = Query(
         default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"
     ),
@@ -571,7 +581,9 @@ async def get_cost_estimation(
 )
 async def get_equipment_recommendations(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
-    total_volume_m3: float = Query(..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"),
+    total_volume_m3: float = Query(
+        ..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"
+    ),
     haul_distance_m: float = Query(
         default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"
     ),

@@ -9,7 +9,7 @@ import logging
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import timezone, datetime, UTC
+from datetime import UTC, datetime, timezone
 from pathlib import Path as PathLib
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query

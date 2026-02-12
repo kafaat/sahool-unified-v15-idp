@@ -13,69 +13,68 @@ Updated: January 2026
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
-
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class BatchOperationType(str, Enum):
+class BatchOperationType(StrEnum):
     """Types of batch operations."""
 
-    IRRIGATION = "irrigation"          # ري متعدد الحقول
-    SPRAYING = "spraying"              # رش متعدد الحقول
-    FERTILIZATION = "fertilization"    # تسميد متعدد الحقول
-    HARVEST = "harvest"                # حصاد جماعي
+    IRRIGATION = "irrigation"  # ري متعدد الحقول
+    SPRAYING = "spraying"  # رش متعدد الحقول
+    FERTILIZATION = "fertilization"  # تسميد متعدد الحقول
+    HARVEST = "harvest"  # حصاد جماعي
     EQUIPMENT_ASSIGN = "equipment_assign"  # تخصيص المعدات
-    ALERT_ACK = "alert_ack"            # إقرار التنبيهات
+    ALERT_ACK = "alert_ack"  # إقرار التنبيهات
 
 
-class BatchStatus(str, Enum):
+class BatchStatus(StrEnum):
     """Status of a batch operation."""
 
-    PENDING = "pending"                # في الانتظار
-    QUEUED = "queued"                  # في قائمة الانتظار
-    IN_PROGRESS = "in_progress"        # قيد التنفيذ
-    PAUSED = "paused"                  # متوقف مؤقتاً
-    COMPLETED = "completed"            # مكتمل
+    PENDING = "pending"  # في الانتظار
+    QUEUED = "queued"  # في قائمة الانتظار
+    IN_PROGRESS = "in_progress"  # قيد التنفيذ
+    PAUSED = "paused"  # متوقف مؤقتاً
+    COMPLETED = "completed"  # مكتمل
     PARTIALLY_COMPLETED = "partially_completed"  # مكتمل جزئياً
-    FAILED = "failed"                  # فشل
-    CANCELLED = "cancelled"            # ملغى
-    ROLLED_BACK = "rolled_back"        # تم التراجع
+    FAILED = "failed"  # فشل
+    CANCELLED = "cancelled"  # ملغى
+    ROLLED_BACK = "rolled_back"  # تم التراجع
 
 
-class BatchPriority(str, Enum):
+class BatchPriority(StrEnum):
     """Priority levels for batch operations."""
 
-    LOW = "low"                        # منخفض
-    MEDIUM = "medium"                  # متوسط
-    HIGH = "high"                      # عالي
-    URGENT = "urgent"                  # عاجل
+    LOW = "low"  # منخفض
+    MEDIUM = "medium"  # متوسط
+    HIGH = "high"  # عالي
+    URGENT = "urgent"  # عاجل
 
 
-class ItemStatus(str, Enum):
+class ItemStatus(StrEnum):
     """Status of an individual item in a batch."""
 
-    PENDING = "pending"                # في الانتظار
-    IN_PROGRESS = "in_progress"        # قيد التنفيذ
-    COMPLETED = "completed"            # مكتمل
-    FAILED = "failed"                  # فشل
-    SKIPPED = "skipped"                # تم تخطيه
-    ROLLED_BACK = "rolled_back"        # تم التراجع
+    PENDING = "pending"  # في الانتظار
+    IN_PROGRESS = "in_progress"  # قيد التنفيذ
+    COMPLETED = "completed"  # مكتمل
+    FAILED = "failed"  # فشل
+    SKIPPED = "skipped"  # تم تخطيه
+    ROLLED_BACK = "rolled_back"  # تم التراجع
 
 
-class RollbackStrategy(str, Enum):
+class RollbackStrategy(StrEnum):
     """Strategy for handling rollbacks."""
 
-    NONE = "none"                      # لا تراجع
+    NONE = "none"  # لا تراجع
     ON_FIRST_ERROR = "on_first_error"  # عند أول خطأ
-    ON_THRESHOLD = "on_threshold"      # عند تجاوز الحد
-    MANUAL = "manual"                  # يدوي
+    ON_THRESHOLD = "on_threshold"  # عند تجاوز الحد
+    MANUAL = "manual"  # يدوي
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -101,54 +100,26 @@ class BilingualMessage:
 
 # Standard messages
 BATCH_MESSAGES = {
-    "started": BilingualMessage(
-        en="Batch operation started",
-        ar="بدأت عملية الدفعة"
-    ),
+    "started": BilingualMessage(en="Batch operation started", ar="بدأت عملية الدفعة"),
     "completed": BilingualMessage(
-        en="Batch operation completed successfully",
-        ar="اكتملت عملية الدفعة بنجاح"
+        en="Batch operation completed successfully", ar="اكتملت عملية الدفعة بنجاح"
     ),
     "partially_completed": BilingualMessage(
-        en="Batch operation partially completed",
-        ar="اكتملت عملية الدفعة جزئياً"
+        en="Batch operation partially completed", ar="اكتملت عملية الدفعة جزئياً"
     ),
-    "failed": BilingualMessage(
-        en="Batch operation failed",
-        ar="فشلت عملية الدفعة"
-    ),
-    "cancelled": BilingualMessage(
-        en="Batch operation cancelled",
-        ar="تم إلغاء عملية الدفعة"
-    ),
+    "failed": BilingualMessage(en="Batch operation failed", ar="فشلت عملية الدفعة"),
+    "cancelled": BilingualMessage(en="Batch operation cancelled", ar="تم إلغاء عملية الدفعة"),
     "rolled_back": BilingualMessage(
-        en="Batch operation rolled back",
-        ar="تم التراجع عن عملية الدفعة"
+        en="Batch operation rolled back", ar="تم التراجع عن عملية الدفعة"
     ),
-    "paused": BilingualMessage(
-        en="Batch operation paused",
-        ar="تم إيقاف عملية الدفعة مؤقتاً"
-    ),
-    "resumed": BilingualMessage(
-        en="Batch operation resumed",
-        ar="تم استئناف عملية الدفعة"
-    ),
+    "paused": BilingualMessage(en="Batch operation paused", ar="تم إيقاف عملية الدفعة مؤقتاً"),
+    "resumed": BilingualMessage(en="Batch operation resumed", ar="تم استئناف عملية الدفعة"),
     "item_completed": BilingualMessage(
-        en="Item processed successfully",
-        ar="تمت معالجة العنصر بنجاح"
+        en="Item processed successfully", ar="تمت معالجة العنصر بنجاح"
     ),
-    "item_failed": BilingualMessage(
-        en="Item processing failed",
-        ar="فشلت معالجة العنصر"
-    ),
-    "rollback_started": BilingualMessage(
-        en="Rollback started",
-        ar="بدأ التراجع"
-    ),
-    "rollback_completed": BilingualMessage(
-        en="Rollback completed",
-        ar="اكتمل التراجع"
-    ),
+    "item_failed": BilingualMessage(en="Item processing failed", ar="فشلت معالجة العنصر"),
+    "rollback_started": BilingualMessage(en="Rollback started", ar="بدأ التراجع"),
+    "rollback_completed": BilingualMessage(en="Rollback completed", ar="اكتمل التراجع"),
 }
 
 
@@ -161,9 +132,9 @@ BATCH_MESSAGES = {
 class IrrigationParams:
     """Parameters for irrigation operations."""
 
-    water_amount_mm: float              # كمية المياه بالملم
-    duration_minutes: int | None = None # مدة الري بالدقائق
-    method: str = "drip"                # طريقة الري
+    water_amount_mm: float  # كمية المياه بالملم
+    duration_minutes: int | None = None  # مدة الري بالدقائق
+    method: str = "drip"  # طريقة الري
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -182,12 +153,12 @@ class IrrigationParams:
 class SprayingParams:
     """Parameters for spraying operations."""
 
-    product_name: str                   # اسم المنتج
+    product_name: str  # اسم المنتج
     product_name_ar: str | None = None
-    product_type: str = "pesticide"     # نوع المنتج (pesticide/herbicide/fungicide)
+    product_type: str = "pesticide"  # نوع المنتج (pesticide/herbicide/fungicide)
     concentration: float | None = None  # التركيز
     volume_per_hectare: float | None = None  # الحجم لكل هكتار
-    safety_interval_days: int = 0       # فترة الأمان بالأيام
+    safety_interval_days: int = 0  # فترة الأمان بالأيام
     notes: str | None = None
     notes_ar: str | None = None
 
@@ -209,10 +180,10 @@ class SprayingParams:
 class FertilizationParams:
     """Parameters for fertilization operations."""
 
-    fertilizer_name: str                # اسم السماد
+    fertilizer_name: str  # اسم السماد
     fertilizer_name_ar: str | None = None
-    fertilizer_type: str = "granular"   # نوع السماد
-    rate_kg_per_hectare: float = 0.0    # معدل التسميد
+    fertilizer_type: str = "granular"  # نوع السماد
+    rate_kg_per_hectare: float = 0.0  # معدل التسميد
     nitrogen_percent: float | None = None
     phosphorus_percent: float | None = None
     potassium_percent: float | None = None
@@ -469,17 +440,17 @@ class BatchProgress:
 class BatchConfig:
     """Configuration for a batch operation."""
 
-    max_concurrent: int = 5             # الحد الأقصى للعمليات المتزامنة
+    max_concurrent: int = 5  # الحد الأقصى للعمليات المتزامنة
     timeout_per_item_seconds: float = 60.0  # مهلة كل عنصر
-    retry_failed_items: bool = True     # إعادة محاولة العناصر الفاشلة
-    max_retries: int = 3                # الحد الأقصى لمحاولات الإعادة
-    retry_delay_seconds: float = 1.0    # تأخير بين المحاولات
-    stop_on_error: bool = False         # التوقف عند أول خطأ
-    rollback_on_failure: bool = False   # التراجع عند الفشل
+    retry_failed_items: bool = True  # إعادة محاولة العناصر الفاشلة
+    max_retries: int = 3  # الحد الأقصى لمحاولات الإعادة
+    retry_delay_seconds: float = 1.0  # تأخير بين المحاولات
+    stop_on_error: bool = False  # التوقف عند أول خطأ
+    rollback_on_failure: bool = False  # التراجع عند الفشل
     rollback_strategy: RollbackStrategy = RollbackStrategy.NONE
     failure_threshold_percent: float = 50.0  # حد فشل النسبة المئوية
     continue_on_partial_success: bool = True  # المتابعة عند النجاح الجزئي
-    dry_run: bool = False               # وضع المحاكاة
+    dry_run: bool = False  # وضع المحاكاة
 
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
@@ -653,7 +624,9 @@ class BatchResult:
             "failed_items": self.failed_items,
             "skipped_items": self.skipped_items,
             "duration_seconds": round(self.duration_seconds, 2),
-            "success_rate": round((self.completed_items / self.total_items * 100) if self.total_items > 0 else 0, 2),
+            "success_rate": round(
+                (self.completed_items / self.total_items * 100) if self.total_items > 0 else 0, 2
+            ),
             "errors": self.errors,
             "rollback_performed": self.rollback_performed,
             "rollback_successful": self.rollback_successful,

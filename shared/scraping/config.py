@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-
 # Common user agents for rotation
 USER_AGENTS: list[str] = [
     # Chrome on Windows
@@ -69,9 +68,7 @@ class RetryConfig:
     jitter: float = 0.1
 
     # HTTP status codes that should trigger a retry
-    retry_status_codes: list[int] = field(
-        default_factory=lambda: [408, 429, 500, 502, 503, 504]
-    )
+    retry_status_codes: list[int] = field(default_factory=lambda: [408, 429, 500, 502, 503, 504])
 
 
 @dataclass

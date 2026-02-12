@@ -2,7 +2,7 @@
 Inventory Service - Main business logic layer
 """
 
-from datetime import datetime, timedelta, timezone, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement, Supplier

@@ -17,31 +17,32 @@ from __future__ import annotations
 
 import asyncio
 import json
-import os
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
-from enum import Enum
+from datetime import datetime, timedelta, UTC
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 
 import structlog
 
 logger = structlog.get_logger(__name__)
 
 
-class CheckType(str, Enum):
+class CheckType(StrEnum):
     """Types of checks | أنواع الفحوصات"""
-    PRE_COMMIT = "pre_commit"      # قبل الـ commit
-    POST_COMMIT = "post_commit"    # بعد الـ commit
-    POST_FIX = "post_fix"          # بعد الإصلاح
-    PERIODIC = "periodic"          # دوري
-    ON_DEMAND = "on_demand"        # عند الطلب
-    CI_CD = "ci_cd"               # في CI/CD
+
+    PRE_COMMIT = "pre_commit"  # قبل الـ commit
+    POST_COMMIT = "post_commit"  # بعد الـ commit
+    POST_FIX = "post_fix"  # بعد الإصلاح
+    PERIODIC = "periodic"  # دوري
+    ON_DEMAND = "on_demand"  # عند الطلب
+    CI_CD = "ci_cd"  # في CI/CD
 
 
-class CheckFrequency(str, Enum):
+class CheckFrequency(StrEnum):
     """Frequency of periodic checks | تكرار الفحوصات الدورية"""
+
     HOURLY = "hourly"
     DAILY = "daily"
     WEEKLY = "weekly"
@@ -51,16 +52,17 @@ class CheckFrequency(str, Enum):
 @dataclass
 class ScheduledCheck:
     """Scheduled check configuration | تكوين الفحص المجدول"""
+
     id: str
     name: str
     name_ar: str
     check_type: CheckType
-    frequency: Optional[CheckFrequency] = None
+    frequency: CheckFrequency | None = None
     tools: list[str] = field(default_factory=list)
     paths: list[str] = field(default_factory=list)
     enabled: bool = True
-    last_run: Optional[datetime] = None
-    next_run: Optional[datetime] = None
+    last_run: datetime | None = None
+    next_run: datetime | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -80,10 +82,11 @@ class ScheduledCheck:
 @dataclass
 class CheckResult:
     """Result of a scheduled check | نتيجة الفحص المجدول"""
+
     check_id: str
     check_type: CheckType
     started_at: datetime
-    completed_at: Optional[datetime] = None
+    completed_at: datetime | None = None
     success: bool = True
     total_issues: int = 0
     critical_issues: int = 0
@@ -130,7 +133,7 @@ class LogAnalyzer:
         (r"out of memory|OutOfMemory|OOM", "memory", "نفاد الذاكرة"),
     ]
 
-    def __init__(self, log_dirs: Optional[list[Path]] = None):
+    def __init__(self, log_dirs: list[Path] | None = None):
         self.log_dirs = log_dirs or [
             Path("/var/log"),
             Path.cwd() / "logs",
@@ -143,7 +146,7 @@ class LogAnalyzer:
         line_count = 0
 
         try:
-            with open(log_path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(log_path, encoding="utf-8", errors="ignore") as f:
                 for i, line in enumerate(f):
                     if i >= max_lines:
                         break
@@ -151,14 +154,16 @@ class LogAnalyzer:
 
                     for pattern, category, category_ar in self.ERROR_PATTERNS:
                         if re.search(pattern, line):
-                            issues.append({
-                                "line_number": i + 1,
-                                "category": category,
-                                "category_ar": category_ar,
-                                "content": line.strip()[:200],
-                            })
+                            issues.append(
+                                {
+                                    "line_number": i + 1,
+                                    "category": category,
+                                    "category_ar": category_ar,
+                                    "content": line.strip()[:200],
+                                }
+                            )
                             break
-        except (OSError, IOError) as e:
+        except OSError as e:
             logger.warning("Failed to analyze log", path=str(log_path), error=str(e))
             return {"error": str(e)}
 
@@ -173,7 +178,7 @@ class LogAnalyzer:
     def analyze_all_logs(self, max_age_hours: int = 24) -> dict[str, Any]:
         """Analyze all recent log files | تحليل جميع ملفات السجلات الحديثة"""
         results = []
-        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
+        cutoff = datetime.now(UTC) - timedelta(hours=max_age_hours)
 
         for log_dir in self.log_dirs:
             if not log_dir.exists():
@@ -181,7 +186,7 @@ class LogAnalyzer:
 
             for log_file in log_dir.glob("**/*.log"):
                 try:
-                    mtime = datetime.fromtimestamp(log_file.stat().st_mtime, timezone.utc)
+                    mtime = datetime.fromtimestamp(log_file.stat().st_mtime, UTC)
                     if mtime >= cutoff:
                         result = self.analyze_log_file(log_file)
                         if result.get("issues_found", 0) > 0:
@@ -190,7 +195,7 @@ class LogAnalyzer:
                     continue
 
         return {
-            "analyzed_at": datetime.now(timezone.utc).isoformat(),
+            "analyzed_at": datetime.now(UTC).isoformat(),
             "max_age_hours": max_age_hours,
             "files_analyzed": len(results),
             "total_issues": sum(r.get("issues_found", 0) for r in results),
@@ -248,8 +253,8 @@ class FixOpsScheduler:
 
     def __init__(
         self,
-        repo_root: Optional[Path] = None,
-        config_path: Optional[Path] = None,
+        repo_root: Path | None = None,
+        config_path: Path | None = None,
     ):
         self.repo_root = repo_root or Path.cwd()
         self.config_path = config_path or self.repo_root / ".fixops" / "scheduler.json"
@@ -264,19 +269,23 @@ class FixOpsScheduler:
         """Load scheduler configuration"""
         if self.config_path.exists():
             try:
-                with open(self.config_path, "r", encoding="utf-8") as f:
+                with open(self.config_path, encoding="utf-8") as f:
                     data = json.load(f)
                     for check_data in data.get("checks", []):
-                        self.checks.append(ScheduledCheck(
-                            id=check_data["id"],
-                            name=check_data["name"],
-                            name_ar=check_data.get("name_ar", ""),
-                            check_type=CheckType(check_data["check_type"]),
-                            frequency=CheckFrequency(check_data["frequency"]) if check_data.get("frequency") else None,
-                            tools=check_data.get("tools", []),
-                            paths=check_data.get("paths", []),
-                            enabled=check_data.get("enabled", True),
-                        ))
+                        self.checks.append(
+                            ScheduledCheck(
+                                id=check_data["id"],
+                                name=check_data["name"],
+                                name_ar=check_data.get("name_ar", ""),
+                                check_type=CheckType(check_data["check_type"]),
+                                frequency=CheckFrequency(check_data["frequency"])
+                                if check_data.get("frequency")
+                                else None,
+                                tools=check_data.get("tools", []),
+                                paths=check_data.get("paths", []),
+                                enabled=check_data.get("enabled", True),
+                            )
+                        )
             except (json.JSONDecodeError, KeyError) as e:
                 logger.warning("Failed to load scheduler config", error=str(e))
                 self.checks = self.DEFAULT_CHECKS.copy()
@@ -288,10 +297,15 @@ class FixOpsScheduler:
         self.config_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(self.config_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "checks": [c.to_dict() for c in self.checks],
-                "updated_at": datetime.now(timezone.utc).isoformat(),
-            }, f, indent=2, ensure_ascii=False)
+            json.dump(
+                {
+                    "checks": [c.to_dict() for c in self.checks],
+                    "updated_at": datetime.now(UTC).isoformat(),
+                },
+                f,
+                indent=2,
+                ensure_ascii=False,
+            )
 
     def add_callback(self, callback: Callable[[CheckResult], None]) -> None:
         """Add callback for check results"""
@@ -300,7 +314,7 @@ class FixOpsScheduler:
     async def run_check(
         self,
         check: ScheduledCheck,
-        paths: Optional[list[str]] = None,
+        paths: list[str] | None = None,
     ) -> CheckResult:
         """
         Run a scheduled check.
@@ -308,7 +322,7 @@ class FixOpsScheduler:
         """
         from .orchestrator import FixOpsOrchestrator, FixOpsConfig
 
-        started_at = datetime.now(timezone.utc)
+        started_at = datetime.now(UTC)
 
         logger.info(
             "Running scheduled check",
@@ -329,7 +343,7 @@ class FixOpsScheduler:
             target_paths = paths or check.paths or [str(self.repo_root)]
             summary = await orchestrator.run(paths=target_paths)
 
-            completed_at = datetime.now(timezone.utc)
+            completed_at = datetime.now(UTC)
             duration_ms = (completed_at - started_at).total_seconds() * 1000
 
             result = CheckResult(
@@ -362,7 +376,7 @@ class FixOpsScheduler:
                 check_id=check.id,
                 check_type=check.check_type,
                 started_at=started_at,
-                completed_at=datetime.now(timezone.utc),
+                completed_at=datetime.now(UTC),
                 success=False,
                 summary=f"Check failed: {e}",
                 summary_ar=f"فشل الفحص: {e}",
@@ -379,7 +393,7 @@ class FixOpsScheduler:
 
     async def run_pre_commit_check(
         self,
-        staged_files: Optional[list[str]] = None,
+        staged_files: list[str] | None = None,
     ) -> CheckResult:
         """
         Run pre-commit check.
@@ -393,7 +407,7 @@ class FixOpsScheduler:
                 name_ar="فحص قبل الـ commit",
                 check_type=CheckType.PRE_COMMIT,
                 tools=["ruff", "eslint"],
-            )
+            ),
         )
 
         return await self.run_check(check, paths=staged_files)
@@ -414,7 +428,7 @@ class FixOpsScheduler:
                 name_ar="التحقق بعد الإصلاح",
                 check_type=CheckType.POST_FIX,
                 tools=["ruff", "mypy"],
-            )
+            ),
         )
 
         return await self.run_check(check, paths=modified_files)
@@ -429,7 +443,7 @@ class FixOpsScheduler:
 
     def _calculate_next_run(self, frequency: CheckFrequency) -> datetime:
         """Calculate next run time based on frequency"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         if frequency == CheckFrequency.HOURLY:
             return now + timedelta(hours=1)
@@ -444,7 +458,7 @@ class FixOpsScheduler:
 
     def get_due_checks(self) -> list[ScheduledCheck]:
         """Get checks that are due to run"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         due = []
 
         for check in self.checks:
@@ -495,8 +509,8 @@ class FixOpsScheduler:
 
 # Convenience functions
 async def run_pre_commit(
-    repo_root: Optional[Path] = None,
-    staged_files: Optional[list[str]] = None,
+    repo_root: Path | None = None,
+    staged_files: list[str] | None = None,
 ) -> CheckResult:
     """Run pre-commit check | تشغيل فحص قبل الـ commit"""
     scheduler = FixOpsScheduler(repo_root=repo_root)
@@ -504,8 +518,8 @@ async def run_pre_commit(
 
 
 async def run_post_fix(
-    repo_root: Optional[Path] = None,
-    modified_files: Optional[list[str]] = None,
+    repo_root: Path | None = None,
+    modified_files: list[str] | None = None,
 ) -> CheckResult:
     """Run post-fix verification | تشغيل التحقق بعد الإصلاح"""
     scheduler = FixOpsScheduler(repo_root=repo_root)
@@ -513,7 +527,7 @@ async def run_post_fix(
 
 
 async def analyze_logs(
-    repo_root: Optional[Path] = None,
+    repo_root: Path | None = None,
     max_age_hours: int = 24,
 ) -> dict[str, Any]:
     """Analyze log files | تحليل ملفات السجلات"""

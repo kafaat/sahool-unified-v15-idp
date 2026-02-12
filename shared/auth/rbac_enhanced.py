@@ -23,7 +23,7 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import Enum, StrEnum
 from functools import lru_cache
 from typing import Any, Callable
 
@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class SystemRole(str, Enum):
+class SystemRole(StrEnum):
     """
     System roles with hierarchy.
     أدوار النظام مع التسلسل الهرمي.
@@ -135,7 +135,7 @@ ROLE_HIERARCHY: dict[SystemRole, list[SystemRole]] = {
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-class PermissionAction(str, Enum):
+class PermissionAction(StrEnum):
     """Standard permission actions"""
 
     CREATE = "create"
@@ -156,7 +156,7 @@ class PermissionAction(str, Enum):
     MANAGE = "manage"  # Full CRUD + special actions
 
 
-class ResourceType(str, Enum):
+class ResourceType(StrEnum):
     """Platform resource types"""
 
     # Farm resources
@@ -222,7 +222,7 @@ class Permission:
         return f"{self.resource}:{self.action}:{self.scope}"
 
     @classmethod
-    def from_string(cls, permission_str: str) -> "Permission":
+    def from_string(cls, permission_str: str) -> Permission:
         """Parse permission from string"""
         parts = permission_str.split(":")
         if len(parts) == 2:
@@ -232,7 +232,7 @@ class Permission:
         else:
             raise ValueError(f"Invalid permission format: {permission_str}")
 
-    def matches(self, other: "Permission") -> bool:
+    def matches(self, other: Permission) -> bool:
         """
         Check if this permission matches/covers another permission.
         Wildcards (*) match any value.
@@ -552,9 +552,7 @@ class RBACManager:
         )
 
         # Build required permission variations
-        required_permissions = self._build_required_permissions(
-            resource, action, context
-        )
+        required_permissions = self._build_required_permissions(resource, action, context)
 
         # Check each required permission
         for required in required_permissions:
@@ -634,10 +632,7 @@ class RBACManager:
 
         if scope == "tenant":
             # Same tenant resources
-            return (
-                context.tenant_id is not None
-                and context.resource_tenant_id == context.tenant_id
-            )
+            return context.tenant_id is not None and context.resource_tenant_id == context.tenant_id
 
         if scope == "assigned":
             # Resources assigned to user (check attributes)
@@ -653,9 +648,8 @@ class RBACManager:
     ) -> bool:
         """Check if a permission string matches the context"""
         perm = Permission.from_string(permission_str)
-        return (
-            (perm.resource == "*" or perm.resource == context.resource_type)
-            and (perm.action == "*" or perm.action == context.action)
+        return (perm.resource == "*" or perm.resource == context.resource_type) and (
+            perm.action == "*" or perm.action == context.action
         )
 
     # ─────────────────────────────────────────────────────────────────────────
@@ -917,6 +911,7 @@ def require_permission(
         ...     pass
     """
     from fastapi import Depends, HTTPException, Request, status
+
     from .dependencies import get_current_active_user
     from .models import User
 

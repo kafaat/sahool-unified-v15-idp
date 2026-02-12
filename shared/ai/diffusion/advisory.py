@@ -25,13 +25,14 @@ Updated: January 2026
 import math
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime, UTC
-from enum import Enum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 
 
-class EditType(str, Enum):
+class EditType(StrEnum):
     """Type of edit operation for Edit Flows."""
+
     INSERT = "insert"
     DELETE = "delete"
     SUBSTITUTE = "substitute"
@@ -44,6 +45,7 @@ class EditOperation:
 
     عملية تحرير لتدفقات التحرير
     """
+
     edit_type: EditType
     position: int  # Token position
     content: str | None = None  # New content for insert/substitute
@@ -57,6 +59,7 @@ class DiffusionConfig:
 
     إعدادات نموذج اللغة الانتشاري
     """
+
     # Model settings
     model_name: str = "llada-8b-instruct"
     model_path: str | None = None
@@ -102,6 +105,7 @@ class DiffusionSamplerConfig:
 
     إعدادات عينات الانتشار
     """
+
     # Sampling strategy
     strategy: str = "ddpm"  # ddpm, ddim, euler
 
@@ -124,6 +128,7 @@ class GenerationResult:
 
     نتيجة التوليد بالانتشار
     """
+
     id: str = field(default_factory=lambda: str(uuid.uuid4()))
     text: str = ""
     text_ar: str | None = None
@@ -322,6 +327,7 @@ class DiffusionAdvisoryGenerator:
             GenerationResult with generated text
         """
         import time
+
         start_time = time.time()
 
         language = language or self.config.default_language
@@ -396,16 +402,14 @@ class DiffusionAdvisoryGenerator:
             GenerationResult with filled template
         """
         import time
+
         start_time = time.time()
 
         num_steps = num_steps or self.sampler_config.num_steps
 
         # Parse template into tokens
         tokens = template.split()
-        mask_positions = [
-            i for i, t in enumerate(tokens)
-            if t == self.MASK_TOKEN or self.MASK_TOKEN in t
-        ]
+        mask_positions = [i for i, t in enumerate(tokens) if t == self.MASK_TOKEN or self.MASK_TOKEN in t]
 
         if not mask_positions:
             # No masks to fill
@@ -474,6 +478,7 @@ class DiffusionAdvisoryGenerator:
             GenerationResult with edited text
         """
         import time
+
         start_time = time.time()
 
         num_steps = num_steps or self.sampler_config.num_steps // 2  # Fewer steps for edits
@@ -486,12 +491,12 @@ class DiffusionAdvisoryGenerator:
             if edit.edit_type == EditType.INSERT:
                 # Insert new content
                 new_tokens = edit.content.split() if edit.content else [self.MASK_TOKEN]
-                tokens = tokens[:edit.position] + new_tokens + tokens[edit.position:]
+                tokens = tokens[: edit.position] + new_tokens + tokens[edit.position :]
 
             elif edit.edit_type == EditType.DELETE:
                 # Delete tokens
                 end_pos = min(edit.position + edit.length, len(tokens))
-                tokens = tokens[:edit.position] + tokens[end_pos:]
+                tokens = tokens[: edit.position] + tokens[end_pos:]
 
             elif edit.edit_type == EditType.SUBSTITUTE:
                 # Replace with masks then fill
@@ -500,16 +505,13 @@ class DiffusionAdvisoryGenerator:
                     new_tokens = edit.content.split()
                 else:
                     new_tokens = [self.MASK_TOKEN] * edit.length
-                tokens = tokens[:edit.position] + new_tokens + tokens[end_pos:]
+                tokens = tokens[: edit.position] + new_tokens + tokens[end_pos:]
 
         # Refine with diffusion (fill any remaining masks)
         output_tokens = tokens
 
         # Find positions that need refinement
-        refine_positions = [
-            i for i, t in enumerate(output_tokens)
-            if self.MASK_TOKEN in t
-        ]
+        refine_positions = [i for i, t in enumerate(output_tokens) if self.MASK_TOKEN in t]
 
         # Refinement diffusion
         for step in range(num_steps):
@@ -616,18 +618,42 @@ class DiffusionAdvisoryGenerator:
         # Simulate prediction with agricultural vocabulary
         agricultural_vocab = [
             # Arabic irrigation terms
-            "الري", "السقي", "الماء", "التربة", "الرطوبة",
-            "مم", "لتر", "يوم", "أيام", "أسبوع",
+            "الري",
+            "السقي",
+            "الماء",
+            "التربة",
+            "الرطوبة",
+            "مم",
+            "لتر",
+            "يوم",
+            "أيام",
+            "أسبوع",
             # English terms
-            "irrigation", "water", "soil", "moisture",
-            "mm", "liters", "days", "week",
+            "irrigation",
+            "water",
+            "soil",
+            "moisture",
+            "mm",
+            "liters",
+            "days",
+            "week",
             # Numbers
-            "5", "7", "10", "14", "20", "25", "30",
+            "5",
+            "7",
+            "10",
+            "14",
+            "20",
+            "25",
+            "30",
             # Actions
-            "يُنصح", "أضف", "تجنب", "راقب",
+            "يُنصح",
+            "أضف",
+            "تجنب",
+            "راقب",
         ]
 
         import random
+
         predictions = []
 
         for i, token in enumerate(current_output):
@@ -687,6 +713,7 @@ class DiffusionAdvisoryGenerator:
     def _should_unmask(self, probability: float) -> bool:
         """Probabilistically decide whether to unmask."""
         import random
+
         return random.random() < probability
 
 

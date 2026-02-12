@@ -13,7 +13,7 @@ Calculates 7 key terrain indicators for agricultural analysis:
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Optional
 
 import numpy as np
@@ -23,37 +23,42 @@ from numpy.typing import NDArray
 try:
     from scipy import ndimage
     from scipy.interpolate import interp2d
+
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False
 
 try:
     from skimage import measure
+
     SKIMAGE_AVAILABLE = True
 except ImportError:
     SKIMAGE_AVAILABLE = False
 
-from .dem_processor import DEMData, DEMBounds
+from .dem_processor import DEMBounds, DEMData
 
 logger = structlog.get_logger()
 
 
-class SlopeUnit(str, Enum):
+class SlopeUnit(StrEnum):
     """Slope measurement units | وحدات قياس الميل"""
+
     DEGREES = "degrees"
     PERCENT = "percent"
     RADIANS = "radians"
 
 
-class FlowMethod(str, Enum):
+class FlowMethod(StrEnum):
     """Flow direction methods | طرق اتجاه التدفق"""
+
     D8 = "d8"
     DINF = "dinf"
     MFD = "mfd"
 
 
-class CurvatureType(str, Enum):
+class CurvatureType(StrEnum):
     """Curvature types | أنواع الانحناء"""
+
     PLAN = "plan"
     PROFILE = "profile"
     TOTAL = "total"
@@ -62,6 +67,7 @@ class CurvatureType(str, Enum):
 @dataclass
 class SlopeResult:
     """Slope calculation result | نتيجة حساب الميل"""
+
     data: NDArray[np.float32]
     unit: SlopeUnit
     min_value: float
@@ -74,6 +80,7 @@ class SlopeResult:
 @dataclass
 class AspectResult:
     """Aspect calculation result | نتيجة حساب الجانب"""
+
     data: NDArray[np.float32]  # In degrees, 0=North, clockwise
     dominant_direction: str
     distribution: dict[str, float]  # Percentage in each direction
@@ -83,6 +90,7 @@ class AspectResult:
 @dataclass
 class FlowDirectionResult:
     """Flow direction result | نتيجة اتجاه التدفق"""
+
     data: NDArray[np.int32]  # D8 coded: 1,2,4,8,16,32,64,128
     method: FlowMethod
     dominant_direction: str
@@ -92,6 +100,7 @@ class FlowDirectionResult:
 @dataclass
 class FlowAccumulationResult:
     """Flow accumulation result | نتيجة تراكم التدفق"""
+
     data: NDArray[np.float32]
     max_accumulation: int
     mean_accumulation: float
@@ -104,6 +113,7 @@ class FlowAccumulationResult:
 @dataclass
 class TWIResult:
     """Topographic Wetness Index result | نتيجة مؤشر الرطوبة الطبوغرافية"""
+
     data: NDArray[np.float32]
     min_twi: float
     max_twi: float
@@ -115,6 +125,7 @@ class TWIResult:
 @dataclass
 class CurvatureResult:
     """Curvature calculation result | نتيجة حساب الانحناء"""
+
     data: NDArray[np.float32]
     curvature_type: CurvatureType
     min_value: float
@@ -128,6 +139,7 @@ class CurvatureResult:
 @dataclass
 class ContourResult:
     """Contour generation result | نتيجة إنشاء خطوط الكنتور"""
+
     contours: list[dict]  # List of GeoJSON LineString features
     interval_m: float
     min_elevation: float
@@ -146,22 +158,22 @@ class TerrainIndicatorCalculator:
 
     # D8 flow direction encoding (ArcGIS convention)
     # Direction: E=1, SE=2, S=4, SW=8, W=16, NW=32, N=64, NE=128
-    D8_DIRECTIONS = {
-        "E": 1, "SE": 2, "S": 4, "SW": 8,
-        "W": 16, "NW": 32, "N": 64, "NE": 128
-    }
+    D8_DIRECTIONS = {"E": 1, "SE": 2, "S": 4, "SW": 8, "W": 16, "NW": 32, "N": 64, "NE": 128}
 
     # D8 direction names in Arabic
     D8_DIRECTIONS_AR = {
-        "E": "شرق", "SE": "جنوب شرق", "S": "جنوب", "SW": "جنوب غرب",
-        "W": "غرب", "NW": "شمال غرب", "N": "شمال", "NE": "شمال شرق"
+        "E": "شرق",
+        "SE": "جنوب شرق",
+        "S": "جنوب",
+        "SW": "جنوب غرب",
+        "W": "غرب",
+        "NW": "شمال غرب",
+        "N": "شمال",
+        "NE": "شمال شرق",
     }
 
     # Row/col offsets for 8 directions (E, SE, S, SW, W, NW, N, NE)
-    D8_OFFSETS = [
-        (0, 1), (1, 1), (1, 0), (1, -1),
-        (0, -1), (-1, -1), (-1, 0), (-1, 1)
-    ]
+    D8_OFFSETS = [(0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0), (-1, 1)]
 
     # Aspect direction classifications
     ASPECT_CLASSES = {
@@ -178,10 +190,10 @@ class TerrainIndicatorCalculator:
 
     # Slope classification thresholds (percent)
     SLOPE_CLASSES = {
-        "flat": (0, 2),           # مسطح
-        "gentle": (2, 5),         # لطيف
-        "moderate": (5, 10),      # معتدل
-        "steep": (10, 20),        # حاد
+        "flat": (0, 2),  # مسطح
+        "gentle": (2, 5),  # لطيف
+        "moderate": (5, 10),  # معتدل
+        "steep": (10, 20),  # حاد
         "very_steep": (20, 100),  # حاد جداً
     }
 
@@ -233,19 +245,19 @@ class TerrainIndicatorCalculator:
         padded = np.pad(elevation, 1, mode="edge")
 
         # Extract 3x3 neighbors
-        z1 = padded[:-2, :-2]   # NW
+        z1 = padded[:-2, :-2]  # NW
         z2 = padded[:-2, 1:-1]  # N
-        z3 = padded[:-2, 2:]    # NE
+        z3 = padded[:-2, 2:]  # NE
         z4 = padded[1:-1, :-2]  # W
         # z5 = padded[1:-1, 1:-1]  # Center (not used)
-        z6 = padded[1:-1, 2:]   # E
-        z7 = padded[2:, :-2]    # SW
-        z8 = padded[2:, 1:-1]   # S
-        z9 = padded[2:, 2:]     # SE
+        z6 = padded[1:-1, 2:]  # E
+        z7 = padded[2:, :-2]  # SW
+        z8 = padded[2:, 1:-1]  # S
+        z9 = padded[2:, 2:]  # SE
 
         # Horn's method: weighted gradient
-        dz_dx = ((z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)) / (8 * cell_size)
-        dz_dy = ((z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)) / (8 * cell_size)
+        dz_dx = ((z3 + 2 * z6 + z9) - (z1 + 2 * z4 + z7)) / (8 * cell_size)
+        dz_dy = ((z7 + 2 * z8 + z9) - (z1 + 2 * z2 + z3)) / (8 * cell_size)
 
         # Calculate slope
         slope_radians = np.arctan(np.sqrt(dz_dx**2 + dz_dy**2))
@@ -327,8 +339,8 @@ class TerrainIndicatorCalculator:
         z9 = padded[2:, 2:]
 
         # Calculate gradients
-        dz_dx = ((z3 + 2*z6 + z9) - (z1 + 2*z4 + z7)) / (8 * cell_size)
-        dz_dy = ((z7 + 2*z8 + z9) - (z1 + 2*z2 + z3)) / (8 * cell_size)
+        dz_dx = ((z3 + 2 * z6 + z9) - (z1 + 2 * z4 + z7)) / (8 * cell_size)
+        dz_dy = ((z7 + 2 * z8 + z9) - (z1 + 2 * z2 + z3)) / (8 * cell_size)
 
         # Calculate aspect (in degrees, 0=North, clockwise)
         aspect = np.degrees(np.arctan2(dz_dy, -dz_dx))
@@ -357,7 +369,9 @@ class TerrainIndicatorCalculator:
         total_valid = np.sum(~dem_data.nodata_mask)
         if total_valid > 0:
             # Flat areas
-            distribution["flat"] = float(np.sum(flat_mask & ~dem_data.nodata_mask) / total_valid * 100)
+            distribution["flat"] = float(
+                np.sum(flat_mask & ~dem_data.nodata_mask) / total_valid * 100
+            )
 
             # Directional distribution
             for direction, (low, high) in self.ASPECT_CLASSES.items():
@@ -365,12 +379,12 @@ class TerrainIndicatorCalculator:
                     continue
                 if direction == "N":
                     # North wraps around 360
-                    count = np.sum(
-                        (valid_aspect >= low) | (valid_aspect < high)
-                    )
+                    count = np.sum((valid_aspect >= low) | (valid_aspect < high))
                 else:
                     count = np.sum((valid_aspect >= low) & (valid_aspect < high))
-                distribution[direction] = float(count / len(valid_aspect) * 100) if len(valid_aspect) > 0 else 0
+                distribution[direction] = (
+                    float(count / len(valid_aspect) * 100) if len(valid_aspect) > 0 else 0
+                )
 
         # Find dominant direction
         dominant = max(distribution.items(), key=lambda x: x[1])[0]
@@ -412,8 +426,14 @@ class TerrainIndicatorCalculator:
 
         # Distance weights for diagonal vs cardinal
         distances = [
-            cell_size, cell_size * np.sqrt(2), cell_size, cell_size * np.sqrt(2),
-            cell_size, cell_size * np.sqrt(2), cell_size, cell_size * np.sqrt(2)
+            cell_size,
+            cell_size * np.sqrt(2),
+            cell_size,
+            cell_size * np.sqrt(2),
+            cell_size,
+            cell_size * np.sqrt(2),
+            cell_size,
+            cell_size * np.sqrt(2),
         ]
 
         # Initialize flow direction array
@@ -497,8 +517,14 @@ class TerrainIndicatorCalculator:
 
         # D8 direction to offset mapping
         dir_to_offset = {
-            1: (0, 1), 2: (1, 1), 4: (1, 0), 8: (1, -1),
-            16: (0, -1), 32: (-1, -1), 64: (-1, 0), 128: (-1, 1)
+            1: (0, 1),
+            2: (1, 1),
+            4: (1, 0),
+            8: (1, -1),
+            16: (0, -1),
+            32: (-1, -1),
+            64: (-1, 0),
+            128: (-1, 1),
         }
 
         # Accumulate flow
@@ -531,7 +557,7 @@ class TerrainIndicatorCalculator:
         channel_pixels = int(np.sum(channel_mask & ~dem_data.nodata_mask))
 
         # Drainage density (channel length / area)
-        cell_area_km2 = (dem_data.metadata.resolution_m ** 2) / 1e6
+        cell_area_km2 = (dem_data.metadata.resolution_m**2) / 1e6
         total_area_km2 = np.sum(~dem_data.nodata_mask) * cell_area_km2
         channel_length_km = channel_pixels * dem_data.metadata.resolution_m / 1000
         drainage_density = channel_length_km / total_area_km2 if total_area_km2 > 0 else 0
@@ -588,28 +614,27 @@ class TerrainIndicatorCalculator:
             # Convert pixel coordinates to geographic (simplified)
             if transform is not None:
                 coords = [
-                    [
-                        float(transform.c + x * transform.a),
-                        float(transform.f + y * transform.e)
-                    ]
+                    [float(transform.c + x * transform.a), float(transform.f + y * transform.e)]
                     for x, y in zip(x_coords[::5], y_coords[::5])  # Sample every 5th point
                 ]
             else:
                 coords = [[float(x), float(y)] for x, y in zip(x_coords[::5], y_coords[::5])]
 
             if len(coords) >= 2:
-                streams.append({
-                    "type": "Feature",
-                    "properties": {
-                        "stream_id": region_id,
-                        "length_pixels": len(x_coords),
-                        "max_accumulation": float(np.max(acc_values)),
-                    },
-                    "geometry": {
-                        "type": "LineString",
-                        "coordinates": coords,
+                streams.append(
+                    {
+                        "type": "Feature",
+                        "properties": {
+                            "stream_id": region_id,
+                            "length_pixels": len(x_coords),
+                            "max_accumulation": float(np.max(acc_values)),
+                        },
+                        "geometry": {
+                            "type": "LineString",
+                            "coordinates": coords,
+                        },
                     }
-                })
+                )
 
         return streams
 
@@ -739,8 +764,8 @@ class TerrainIndicatorCalculator:
         q = (z2 - z8) / (2 * L)
 
         # d²z/dx², d²z/dy², d²z/dxdy
-        r = (z6 - 2*z5 + z4) / (L**2)
-        t = (z2 - 2*z5 + z8) / (L**2)
+        r = (z6 - 2 * z5 + z4) / (L**2)
+        t = (z2 - 2 * z5 + z8) / (L**2)
         s = (z3 - z1 - z9 + z7) / (4 * L**2)
 
         # Calculate curvature
@@ -748,12 +773,12 @@ class TerrainIndicatorCalculator:
             # Plan curvature (horizontal)
             denominator = (p**2 + q**2) * np.sqrt(1 + p**2 + q**2)
             denominator = np.where(denominator < 1e-10, 1e-10, denominator)
-            curvature = -(q**2 * r - 2*p*q*s + p**2 * t) / denominator
+            curvature = -(q**2 * r - 2 * p * q * s + p**2 * t) / denominator
         elif curvature_type == CurvatureType.PROFILE:
             # Profile curvature (vertical)
-            denominator = (p**2 + q**2) * (1 + p**2 + q**2)**1.5
+            denominator = (p**2 + q**2) * (1 + p**2 + q**2) ** 1.5
             denominator = np.where(denominator < 1e-10, 1e-10, denominator)
-            curvature = -(p**2 * r + 2*p*q*s + q**2 * t) / denominator
+            curvature = -(p**2 * r + 2 * p * q * s + q**2 * t) / denominator
         else:  # TOTAL
             # Total/mean curvature
             curvature = -((r + t) / 2)
@@ -845,7 +870,7 @@ class TerrainIndicatorCalculator:
                         geo_coords = [
                             [
                                 float(dem_data.transform.c + x * dem_data.transform.a),
-                                float(dem_data.transform.f + y * dem_data.transform.e)
+                                float(dem_data.transform.f + y * dem_data.transform.e),
                             ]
                             for y, x in coords
                         ]
@@ -854,7 +879,7 @@ class TerrainIndicatorCalculator:
 
                     # Simplify if requested
                     if simplify_tolerance > 0 and len(geo_coords) > 10:
-                        geo_coords = geo_coords[::int(simplify_tolerance * 2 + 1)]
+                        geo_coords = geo_coords[:: int(simplify_tolerance * 2 + 1)]
 
                     if len(geo_coords) < 2:
                         continue
@@ -862,24 +887,26 @@ class TerrainIndicatorCalculator:
                     # Calculate length
                     length_m = 0
                     for i in range(len(geo_coords) - 1):
-                        dx = geo_coords[i+1][0] - geo_coords[i][0]
-                        dy = geo_coords[i+1][1] - geo_coords[i][1]
+                        dx = geo_coords[i + 1][0] - geo_coords[i][0]
+                        dy = geo_coords[i + 1][1] - geo_coords[i][1]
                         length_m += np.sqrt(dx**2 + dy**2) * 111320  # Approximate
 
                     is_major = (level % major_interval) < 0.01
 
-                    contours.append({
-                        "type": "Feature",
-                        "properties": {
-                            "elevation_m": float(level),
-                            "length_m": float(length_m),
-                            "is_major": is_major,
-                        },
-                        "geometry": {
-                            "type": "LineString",
-                            "coordinates": geo_coords,
+                    contours.append(
+                        {
+                            "type": "Feature",
+                            "properties": {
+                                "elevation_m": float(level),
+                                "length_m": float(length_m),
+                                "is_major": is_major,
+                            },
+                            "geometry": {
+                                "type": "LineString",
+                                "coordinates": geo_coords,
+                            },
                         }
-                    })
+                    )
         else:
             logger.warning("scikit-image not available, contour generation limited")
 

@@ -233,12 +233,20 @@ class WeatherForecastService:
 
         # OpenWeatherMap
         owm_config = self.config.providers.get("openweathermap")
-        if owm_config and getattr(owm_config, "enabled", False) and getattr(owm_config, "api_key", None):
+        if (
+            owm_config
+            and getattr(owm_config, "enabled", False)
+            and getattr(owm_config, "api_key", None)
+        ):
             self.providers["openweathermap"] = OpenWeatherMapProvider(owm_config.api_key)
 
         # WeatherAPI
         wa_config = self.config.providers.get("weatherapi")
-        if wa_config and getattr(wa_config, "enabled", False) and getattr(wa_config, "api_key", None):
+        if (
+            wa_config
+            and getattr(wa_config, "enabled", False)
+            and getattr(wa_config, "api_key", None)
+        ):
             self.providers["weatherapi"] = WeatherAPIProvider(wa_config.api_key)
 
         # Yemen Met (mock)
@@ -267,9 +275,11 @@ class WeatherForecastService:
         # جرب المزودين حسب ترتيب الأولوية
         sorted_providers = sorted(
             self.providers.items(),
-            key=lambda x: self.config.providers.get(x[0], {}).priority.value
-            if hasattr(self.config.providers.get(x[0], {}), "priority")
-            else 999,
+            key=lambda x: (
+                self.config.providers.get(x[0], {}).priority.value
+                if hasattr(self.config.providers.get(x[0], {}), "priority")
+                else 999
+            ),
         )
 
         for provider_name, provider in sorted_providers:
@@ -414,7 +424,9 @@ class WeatherForecastService:
                     wind_speed_max_kmh=sum(f.wind_speed_max_kmh for f in day_forecasts)
                     / len(day_forecasts),
                     uv_index_max=sum(f.uv_index_max for f in day_forecasts) / len(day_forecasts),
-                    condition=getattr(day_forecasts[0], "condition", None),  # Use first provider's condition
+                    condition=getattr(
+                        day_forecasts[0], "condition", None
+                    ),  # Use first provider's condition
                     condition_ar=getattr(day_forecasts[0], "condition_ar", None),
                     icon=getattr(day_forecasts[0], "icon", None),
                     sunrise=day_forecasts[0].sunrise,

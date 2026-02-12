@@ -184,7 +184,7 @@ sahool-unified-v15-idp/
 | ---------------------- | --------------------------------------------------------------------- |
 | **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
 | **Python Version**     | >= 3.11 (target: py311)                                                |
-| **Node.js Services**   | NestJS, Prisma 5.x, TypeScript 5.9.x, React 19.x                     |
+| **Node.js Services**   | NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, React 19.x               |
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
 | **Message Queue**      | NATS 2.x (event-driven architecture)                                  |
@@ -200,18 +200,19 @@ sahool-unified-v15-idp/
 | **State Management** | Riverpod 2.6.x                         |
 | **Local Database**   | Drift 2.24+ with SQLCipher (encrypted) |
 | **Background Tasks** | Workmanager                            |
-| **Maps**             | MapLibre GL, flutter_map               |
+| **Maps**             | flutter_map 8.1.x, latlong2            |
 | **Network**          | Dio 5.x with certificate pinning       |
+| **Crash Reporting**  | Sentry (sentry_flutter 8.x)            |
 
 ### Frontend (Web/Admin)
 
-| Layer          | Technology                                    |
-| -------------- | --------------------------------------------- |
-| **Framework**  | Next.js / React with TypeScript               |
-| **Testing**    | Vitest 3.x, React Testing Library, Playwright |
-| **Build**      | Vite / Next.js                                |
-| **Styling**    | Tailwind CSS                                  |
-| **Monitoring** | Sentry                                        |
+| Layer          | Technology                                             |
+| -------------- | ------------------------------------------------------ |
+| **Framework**  | Next.js 15.x, React 19.x with TypeScript 5.9.x        |
+| **Testing**    | Vitest 3.x, React Testing Library 16.x, Playwright 1.57.x |
+| **Build**      | Vite 6.x / Next.js 15.x                               |
+| **Styling**    | Tailwind CSS 3.4.x                                    |
+| **Monitoring** | Sentry                                                 |
 
 ### Infrastructure
 
@@ -528,25 +529,60 @@ class FieldNotifier extends _$FieldNotifier {
 }
 ```
 
+### Mobile Apps
+
+| App | Location | Description |
+| --- | -------- | ----------- |
+| sahool_field_app | `apps/mobile/sahool_field_app/` | Main field operations app |
+| sahol_atmosphere | `apps/mobile/sahol_atmosphere/` | Companion weather/atmosphere app |
+
 ### Offline-First Pattern
 
-- Use Drift for local SQLite database with SQLCipher encryption
+- Use Drift for local SQLite database with SQLCipher 256-bit AES encryption
+- Secure key storage via flutter_secure_storage (Android Keystore / iOS Keychain)
 - Background sync with Workmanager
-- Conflict resolution for offline edits
-- Certificate pinning for secure connections
+- Conflict resolution for offline edits (ETag-based, schema v4)
+- Certificate pinning for secure connections (3-tier: production, staging, development)
+
+### Mobile Security Features
+
+- **Certificate Pinning**: 3 production domains configured (api.sahool.app, ws.sahool.app, *.sahool.io)
+- **Device Integrity**: Root/jailbreak detection via safe_device
+- **Screen Security**: Screenshot prevention via secure_application
+- **Biometric Auth**: local_auth for fingerprint/face authentication
+- **Request Signing**: HMAC signing for API requests
 
 ### File Structure
 
 ```
 lib/
 ├── core/
-│   ├── notifications/
-│   └── security/
-├── features/
-│   ├── field/
-│   ├── rotation/
-│   └── spray/
-└── l10n/                   # Localization (Arabic/English)
+│   ├── ai/                 # AI utilities
+│   ├── api/                # API client & interceptors
+│   ├── auth/               # JWT, 2FA authentication
+│   ├── http/               # Dio client, retry, rate limiter
+│   ├── offline/            # Offline-first sync engine
+│   ├── security/           # Certificate pinning, device integrity
+│   ├── storage/            # Drift database + SQLCipher encryption
+│   ├── sync/               # Background sync
+│   ├── notifications/      # Push & local notifications
+│   ├── voice/              # Speech-to-text, TTS
+│   ├── websocket/          # Real-time updates
+│   └── ...                 # config, geo, map, ml, theme, etc.
+├── features/               # 58 feature modules
+│   ├── field/              # Core field operations
+│   ├── irrigation/         # Irrigation management
+│   ├── crop_health/        # Crop health monitoring
+│   ├── ndvi/               # NDVI analysis
+│   ├── advisor/            # Agricultural advisory
+│   ├── marketplace/        # Marketplace
+│   ├── chat/               # Field chat
+│   ├── equipment/          # Equipment tracking
+│   ├── ai_advisor/         # AI advisory
+│   ├── astronomical_calendar/ # Islamic calendar
+│   └── ...                 # 48+ more feature modules
+├── l10n/                   # Localization (Arabic/English)
+└── main.dart               # Entry point
 ```
 
 ---

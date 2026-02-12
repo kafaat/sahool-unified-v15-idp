@@ -40,7 +40,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (28 npm workspaces)
+├── packages/                   # Shared packages (16 npm workspaces + 8 non-workspace dirs)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -61,10 +61,11 @@ sahool-unified-v15-idp/
 │   ├── field_suite/            # Field suite components
 │   ├── kernel_domain/          # Kernel domain logic
 │   ├── sahool-eo/              # Earth Observation (eo-learn integration)
+│   ├── shared/                 # Shared event definitions
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (64+ modules)
+├── shared/                     # Python shared modules (65 modules)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -220,7 +221,7 @@ sahool-unified-v15-idp/
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
 | **IaC**          | Terraform (AWS me-south-1), Helm Charts (19)      |
-| **CI/CD**        | GitHub Actions (48 workflows), Argo CD (18 apps)  |
+| **CI/CD**        | GitHub Actions (48 workflows), Argo CD (14 apps + 3 AppSets) |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -696,7 +697,7 @@ lib/
 │   ├── voice/              # Speech-to-text, TTS
 │   ├── websocket/          # Real-time updates
 │   └── ...                 # config, geo, map, ml, theme, etc.
-├── features/               # 58 feature modules
+├── features/               # 57 feature modules
 │   ├── field/              # Core field operations
 │   ├── irrigation/         # Irrigation management
 │   ├── crop_health/        # Crop health monitoring
@@ -957,7 +958,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.secrets.yml` | Secrets management                       |
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (28 workspaces)       |
+| `package.json`                  | Node.js root workspace (30 workspaces)       |
 | `.env.example`                  | Environment template                         |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1084,6 +1085,8 @@ This service has been migrated to [new-service]
 | ----- | -------- |
 | Field-Ops Migration | `docs/migrations/FIELD_OPS_MIGRATION_SUMMARY.md` |
 | Agro-Advisor Migration | `docs/migrations/AGRO_ADVISOR_MIGRATION_SUMMARY.md` |
+| Alert Service Migration | `docs/migrations/ALERT_SERVICE_MIGRATION_SUMMARY.md` |
+| Console Logging Migration | `docs/migrations/CONSOLE_LOGGING_MIGRATION.md` |
 | Deduplication Matrix | `governance/DEDUP_MATRIX.md` |
 | Deprecation Summary | `apps/services/DEPRECATION_SUMMARY.md` |
 | Archive Index | `archive/deprecated-services/README.md` |
@@ -2518,7 +2521,7 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Shared Agricultural Domain Modules
 
-The `shared/` directory contains 64+ Python modules organized by domain. Beyond the core infrastructure (auth, cache, events, middleware, etc.) and AI modules documented above, the platform includes extensive agricultural domain libraries:
+The `shared/` directory contains 65 Python modules organized by domain. Beyond the core infrastructure (auth, cache, events, middleware, etc.) and AI modules documented above, the platform includes extensive agricultural domain libraries:
 
 ### Crop & Field Management
 
@@ -2580,6 +2583,10 @@ The `shared/` directory contains 64+ Python modules organized by domain. Beyond 
 | `edge_cloud/` | Edge-cloud architecture, cooperative systems |
 | `lowcode/` | Low-code/no-code workflow automation engine |
 | `scraping/` | Data scraping for price and weather data |
+| `llm/` | LLM provider configuration & routing |
+| `design-system/` | Design system configuration |
+| `service_enhancements/` | Service enhancement utilities |
+| `templates/` | Code generation & scaffolding templates |
 
 ### Regional
 

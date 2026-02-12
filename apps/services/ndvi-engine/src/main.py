@@ -276,7 +276,7 @@ async def get_ndvi_zones(
 
 
 @app.post("/ndvi/indices")
-def calculate_indices(req: IndicesRequest):
+def calculate_indices(req: IndicesRequest, user: User = Depends(get_current_user)):
     """Calculate multiple vegetation indices from band values"""
     indices = calculate_vegetation_indices(
         red=req.red,

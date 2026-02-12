@@ -1076,7 +1076,7 @@ async def service_info():
 
 
 @app.post("/v1/et0/calculate", response_model=ET0Response)
-async def calculate_et0(weather: WeatherInput):
+async def calculate_et0(weather: WeatherInput, user: User = Depends(get_current_user)):
     """
     Calculate reference evapotranspiration (ET0) using Penman-Monteith.
     حساب التبخر-نتح المرجعي باستخدام بنمان-مونتيث
@@ -1164,6 +1164,7 @@ async def calculate_crop_etc(
     weather: WeatherInput,
     crop_type: str = Query(..., description="Crop type"),
     growth_stage: GrowthStage = Query(..., description="Current growth stage"),
+    user: User = Depends(get_current_user),
     field_area_hectares: float = Query(1.0, gt=0, description="Field area in hectares"),
     days_in_stage: int | None = Query(None, description="Days in current stage"),
 ):
@@ -1234,7 +1235,7 @@ async def get_soil_types():
 
 
 @app.post("/v1/soil-moisture/estimate", response_model=VirtualSoilMoistureResponse)
-async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput):
+async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: User = Depends(get_current_user)):
     """
     Estimate soil moisture using water balance method.
     تقدير رطوبة التربة باستخدام ميزان الماء
@@ -1283,7 +1284,7 @@ async def get_irrigation_methods():
 
 
 @app.post("/v1/irrigation/recommend", response_model=IrrigationRecommendation)
-async def get_irrigation_recommendation(input_data: IrrigationRecommendationInput):
+async def get_irrigation_recommendation(input_data: IrrigationRecommendationInput, user: User = Depends(get_current_user)):
     """
     Get complete irrigation recommendation.
     الحصول على توصية ري شاملة

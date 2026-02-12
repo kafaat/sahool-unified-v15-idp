@@ -278,7 +278,7 @@ async def get_job_status(job_id: str):
 
 
 @app.delete("/process/{job_id}")
-async def cancel_processing(job_id: str):
+async def cancel_processing(job_id: str, user: User = Depends(get_current_user)):
     """إلغاء معالجة"""
     success = cancel_job(job_id)
     if not success:
@@ -384,7 +384,7 @@ async def get_change_analysis(
 
 
 @app.post("/fields/{field_id}/ndvi/change", response_model=ChangeAnalysisResponse)
-async def post_change_analysis(field_id: str, request: ChangeAnalysisRequest):
+async def post_change_analysis(field_id: str, request: ChangeAnalysisRequest, user: User = Depends(get_current_user)):
     """تحليل التغير (POST)"""
     result = analyze_change(
         field_id,
@@ -475,7 +475,7 @@ async def export_ndvi(
 
 
 @app.post("/composites/monthly", response_model=CompositeResponse, status_code=201)
-async def create_monthly_composite(request: CompositeRequest):
+async def create_monthly_composite(request: CompositeRequest, user: User = Depends(get_current_user)):
     """إنشاء مركب شهري"""
     composite = create_composite(
         field_id=request.field_id,

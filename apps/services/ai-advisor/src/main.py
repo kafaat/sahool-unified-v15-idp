@@ -556,7 +556,7 @@ async def ask_question(request: QuestionRequest, user: User = Depends(get_curren
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
-async def diagnose_disease(request: DiagnoseRequest):
+async def diagnose_disease(request: DiagnoseRequest, user: User = Depends(get_current_user)):
     """
     Diagnose crop disease
     تشخيص مرض المحصول

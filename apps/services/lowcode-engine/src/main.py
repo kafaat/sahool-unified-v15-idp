@@ -1706,7 +1706,7 @@ async def render_page(page_id: str, data: str | None = Query(None)):
 
 
 @app.post("/api/v1/ai/suggest", response_model=AISuggestionResponse, tags=["AI"])
-async def suggest_components(request: AISuggestionRequest):
+async def suggest_components(request: AISuggestionRequest, user: User = Depends(get_current_user)):
     """
     AI-powered component suggestions based on page description
 

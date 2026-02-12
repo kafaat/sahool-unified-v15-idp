@@ -898,7 +898,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest):
+async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
     """طلب صور الأقمار الصناعية لحقل معين"""
 
     config = SATELLITE_CONFIGS[request.satellite]
@@ -944,7 +944,7 @@ async def request_imagery(request: ImageryRequest):
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest):
+async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
 
     # Get imagery first
@@ -1324,6 +1324,7 @@ async def analyze_ndvi_timeseries(
     anomaly_threshold: float = Query(
         default=2.0, ge=1.0, le=4.0, description="Z-score threshold for anomaly detection"
     ),
+    user: User = Depends(get_current_user),
 ):
     """
     تحليل شامل للسلسلة الزمنية لمؤشر NDVI
@@ -1426,6 +1427,7 @@ async def compare_ndvi_periods(
     period1_end: str = Query(..., description="Period 1 end date (YYYY-MM-DD)"),
     period2_start: str = Query(..., description="Period 2 start date (YYYY-MM-DD)"),
     period2_end: str = Query(..., description="Period 2 end date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     مقارنة فترتين زمنيتين لكشف التغييرات
@@ -2267,7 +2269,7 @@ async def get_specific_index(
 
 
 @app.post("/v1/indices/interpret")
-async def interpret_indices(request: InterpretRequest):
+async def interpret_indices(request: InterpretRequest, user: User = Depends(get_current_user)):
     """
     Interpret multiple vegetation indices for a specific crop and growth stage
     تفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو
@@ -2644,7 +2646,7 @@ class ChangeReportResponse(BaseModel):
 
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
-async def predict_yield(request: YieldPredictionRequest):
+async def predict_yield(request: YieldPredictionRequest, user: User = Depends(get_current_user)):
     """
     التنبؤ بإنتاجية المحصول | Predict Crop Yield
 
@@ -3183,6 +3185,7 @@ async def interpolate_cloudy_pixels(
     field_id: str = Query(..., description="Field identifier"),
     method: str = Query("linear", description="Interpolation method: linear, spline, previous"),
     ndvi_series: list[dict] = None,
+    user: User = Depends(get_current_user),
 ):
     """
     Interpolate cloudy observations using temporal neighbors

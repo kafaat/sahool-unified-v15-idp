@@ -4,7 +4,8 @@
 // Paper: https://arxiv.org/abs/2509.17808 (2025)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -50,6 +51,7 @@ class GridPartitionInput {
 
 @ApiTags("rs-world-model")
 @Controller("api/v1/rs-world-model")
+@UseGuards(JwtAuthGuard)
 export class RSWorldModelController {
   constructor(private readonly rsWorldModelService: RSWorldModelService) {}
 

@@ -3,7 +3,8 @@
 // Field-First Architecture - Early Stress Detection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { LAIService, StressDetectionResponse } from "./lai.service";
 import {
@@ -16,6 +17,7 @@ import {
 
 @ApiTags("lai")
 @Controller("api/v1/lai")
+@UseGuards(JwtAuthGuard)
 export class LAIController {
   constructor(private readonly laiService: LAIService) {}
 

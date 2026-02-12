@@ -2,7 +2,8 @@
 // Vegetation Indices Controller - مراقب مؤشرات الغطاء النباتي
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -23,6 +24,7 @@ class SpectralBandsInput {
 
 @ApiTags("indices")
 @Controller("api/v1/indices")
+@UseGuards(JwtAuthGuard)
 export class VegetationIndicesController {
   constructor(private readonly indicesService: VegetationIndicesService) {}
 

@@ -4,7 +4,8 @@
 // Multi-layer architecture with data integration and hybrid modeling
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -78,6 +79,7 @@ class DigitalTwinStateInput {
 
 @ApiTags("digital-twin-core")
 @Controller("api/v1/digital-twin")
+@UseGuards(JwtAuthGuard)
 export class DigitalTwinCoreController {
   constructor(private readonly digitalTwinService: DigitalTwinCoreService) {}
 

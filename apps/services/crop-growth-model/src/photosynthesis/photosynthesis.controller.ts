@@ -3,7 +3,8 @@
 // Based on Farquhar-von Caemmerer-Berry (FvCB) Model and Light Use Efficiency
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -30,6 +31,7 @@ class PhotosynthesisInput {
 
 @ApiTags("photosynthesis")
 @Controller("api/v1/photosynthesis")
+@UseGuards(JwtAuthGuard)
 export class PhotosynthesisController {
   constructor(private readonly photosynthesisService: PhotosynthesisService) {}
 

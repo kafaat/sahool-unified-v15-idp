@@ -3,7 +3,8 @@
 // REST API for intelligent satellite data source selection
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -37,6 +38,7 @@ class CompareInput {
 
 @ApiTags("satellite-data")
 @Controller("api/v1/satellite-data")
+@UseGuards(JwtAuthGuard)
 export class SatelliteDataController {
   constructor(private readonly satelliteDataService: SatelliteDataService) {}
 

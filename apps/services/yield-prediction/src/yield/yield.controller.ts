@@ -3,7 +3,8 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
   YieldService,
@@ -13,6 +14,7 @@ import {
 
 @ApiTags("yield")
 @Controller("api/v1/yield")
+@UseGuards(JwtAuthGuard)
 export class YieldController {
   constructor(private readonly yieldService: YieldService) {}
 

@@ -3,7 +3,8 @@
 // REST API for agricultural web data aggregation (Browserbase MCP inspired)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -23,6 +24,7 @@ class CollectionJobInput {
 
 @ApiTags("web-data-collector")
 @Controller("api/v1/data-collector")
+@UseGuards(JwtAuthGuard)
 export class WebDataCollectorController {
   constructor(private readonly collectorService: WebDataCollectorService) {}
 

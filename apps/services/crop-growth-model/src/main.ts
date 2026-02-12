@@ -22,7 +22,7 @@ async function bootstrap() {
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs

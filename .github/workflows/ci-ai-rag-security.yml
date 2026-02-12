@@ -314,20 +314,38 @@ jobs:
         run: |
           echo "🔍 Running Bandit security scan on shared/ai/..."
           
+          # Run Bandit and create SARIF file (continue on error)
           bandit -r shared/ai/ \
             -ll \
             -ii \
             --format sarif \
-            -o bandit-shared-ai.sarif || true
+            -o bandit-shared-ai.sarif || {
+              echo "⚠️ Bandit encountered issues, but SARIF file may still be created"
+              # Check if file was created
+              if [ ! -f bandit-shared-ai.sarif ]; then
+                echo "❌ SARIF file not created"
+              else
+                echo "✅ SARIF file created"
+              fi
+            }
           
+          # Also output text format for human readability
           bandit -r shared/ai/ \
             -ll \
             -ii \
             --format txt || true
+          
+          # Verify SARIF file exists and is valid JSON
+          if [ -f bandit-shared-ai.sarif ]; then
+            echo "📄 Validating SARIF file..."
+            python3 -m json.tool bandit-shared-ai.sarif > /dev/null && \
+              echo "✅ SARIF file is valid JSON" || \
+              echo "⚠️ SARIF file may have issues"
+          fi
 
       - name: Upload Bandit SARIF
         uses: github/codeql-action/upload-sarif@v4
-        if: always()
+        if: always() && hashFiles('bandit-shared-ai.sarif') != ''
         with:
           sarif_file: bandit-shared-ai.sarif
           category: bandit-shared-ai

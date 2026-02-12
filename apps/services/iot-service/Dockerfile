@@ -7,7 +7,9 @@
 # ───────────────────────────────────────────
 # Stage 1: Builder
 # ───────────────────────────────────────────
-FROM node:20-bookworm-slim AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 # Use workspace structure to maintain relative paths for shared imports
 WORKDIR /workspace
@@ -48,7 +50,7 @@ RUN npm run build
 # ───────────────────────────────────────────
 # Stage 2: Production
 # ───────────────────────────────────────────
-FROM node:20-bookworm-slim AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"

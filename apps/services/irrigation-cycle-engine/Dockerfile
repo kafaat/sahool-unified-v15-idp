@@ -1,4 +1,6 @@
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 # Non-root user
 RUN groupadd --system sahool && \

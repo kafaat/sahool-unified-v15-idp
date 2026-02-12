@@ -8,7 +8,9 @@
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 1: Builder - Install dependencies
 # ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim-bookworm AS builder
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 # Configure apt to use HTTPS and install build dependencies
 RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
@@ -44,7 +46,7 @@ RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.ali
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image
 # ───────────────────────────────────────────────────────────────────────────────
-FROM python:3.11-slim-bookworm AS production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 LABEL maintainer="Sahool Team <dev@sahool.io>"
 LABEL service="knowledge-graph"

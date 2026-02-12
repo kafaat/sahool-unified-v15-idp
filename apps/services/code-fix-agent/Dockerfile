@@ -3,7 +3,9 @@
 # وكيل إصلاح الكود - صورة دوكر
 # ============================================================================
 
-FROM python:3.11-slim-bookworm AS builder
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
@@ -29,7 +31,7 @@ RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgr
 # Production Image
 # ============================================================================
 
-FROM python:3.11-slim-bookworm
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 

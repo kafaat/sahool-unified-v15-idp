@@ -198,7 +198,9 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 # -----------------------------------------------------------------------------
 # Stage 5: CPU-only image (for environments without GPU)
 # -----------------------------------------------------------------------------
-FROM python:3.11-slim-bookworm AS cpu-only
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm AS cpu-only
 
 # Prevent interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive

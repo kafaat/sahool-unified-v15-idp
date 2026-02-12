@@ -2,7 +2,9 @@
 # ============================
 # Uses shared base image for consistency
 # Version: 16.0.0
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 # Build arguments
 ARG SERVICE_NAME=weather-core

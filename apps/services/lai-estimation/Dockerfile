@@ -3,7 +3,9 @@
 # Based on LAI-TransNet Two-Stage Transfer Learning Framework
 
 # Build stage
-FROM node:20-alpine AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-alpine AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="lai-estimation"
@@ -31,7 +33,7 @@ RUN npm config set registry https://registry.npmmirror.com && \
 RUN npm run build
 
 # Production stage
-FROM node:20-alpine AS production
+FROM node:${NODE_VERSION}-alpine AS production
 
 WORKDIR /app
 

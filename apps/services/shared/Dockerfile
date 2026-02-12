@@ -1,7 +1,9 @@
 # SAHOOL Shared Services Dockerfile
 # ⚠️ Note: This is a library/package, not a standalone service
 # Services should include shared/ as a dependency rather than running this container
-FROM python:3.11-slim-bookworm
+ARG PYTHON_VERSION=3.11
+
+FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 

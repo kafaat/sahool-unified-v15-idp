@@ -2,7 +2,9 @@
 # خدمة المحادثات للسوق الزراعي
 
 # Build stage
-FROM node:20-bookworm-slim AS builder
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="chat-service"
@@ -46,7 +48,7 @@ RUN npx prisma generate || \
 RUN npm run build
 
 # Production stage
-FROM node:20-bookworm-slim AS production
+FROM node:${NODE_VERSION}-bookworm-slim AS production
 
 WORKDIR /app
 

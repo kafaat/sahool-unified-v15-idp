@@ -25,7 +25,7 @@ from datetime import date, datetime, timedelta, timezone, UTC
 from enum import Enum
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -33,6 +33,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -1005,6 +1007,19 @@ app.add_middleware(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 @app.get("/healthz")
 @app.get("/health")
 async def health_check():
@@ -1516,6 +1531,7 @@ def _create_virtual_sensor_action(
 async def get_irrigation_recommendation_with_action(
     request: VirtualSensorActionRequest,
     background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
 ):
     """
     الحصول على توصية ري مع ActionTemplate
@@ -1523,6 +1539,10 @@ async def get_irrigation_recommendation_with_action(
     Field-First: ينتج قالب إجراء للتطبيق المحمول
     Badge: تقدير افتراضي (بدون حساس)
     """
+
+    # Enforce tenant isolation
+    if request.tenant_id:
+        _enforce_tenant(user, request.tenant_id)
 
     # Build weather input
     weather = request.weather

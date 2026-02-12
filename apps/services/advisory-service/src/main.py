@@ -53,23 +53,8 @@ from yemen_varieties import (
 )
 
 # Import authentication dependencies
-try:
-    from auth.dependencies import get_current_user, get_optional_user
-    from auth.models import User
-
-    AUTH_AVAILABLE = True
-except ImportError:
-    # Fallback if auth module not available
-    AUTH_AVAILABLE = False
-    User = None
-
-    def get_current_user():
-        """Placeholder when auth not available"""
-        return None
-
-    def get_optional_user():
-        """Placeholder when auth not available"""
-        return None
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 
 from .engine import (
@@ -245,14 +230,33 @@ class FertilizerPlanRequest(BaseModel):
     correlation_id: str | None = None
 
 
+# ============== Helper Functions ==============
+
+
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ============== Disease Endpoints ==============
 
 
 @app.post("/disease/assess")
 async def assess_disease(
-    req: DiseaseAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: DiseaseAssessRequest, user: User = Depends(get_current_user)
 ):
     """Assess disease from image classification result"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessment = assess_from_image_event(
         condition_id=req.condition_id,
         confidence=req.confidence,
@@ -293,9 +297,11 @@ async def assess_disease(
 
 @app.post("/disease/symptoms")
 async def assess_symptoms(
-    req: SymptomAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: SymptomAssessRequest, user: User = Depends(get_current_user)
 ):
     """Assess possible diseases from reported symptoms"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessments = assess_from_symptoms(
         symptoms=req.symptoms,
         crop=req.crop,
@@ -372,9 +378,11 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 @app.post("/nutrient/ndvi")
 async def assess_from_ndvi_endpoint(
-    req: NDVIAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: NDVIAssessRequest, user: User = Depends(get_current_user)
 ):
     """Assess nutrient deficiency from NDVI data"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessments = assess_from_ndvi(
         ndvi=req.ndvi,
         ndvi_history=req.ndvi_history,
@@ -409,9 +417,11 @@ async def assess_from_ndvi_endpoint(
 
 @app.post("/nutrient/visual")
 async def assess_visual_endpoint(
-    req: VisualAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: VisualAssessRequest, user: User = Depends(get_current_user)
 ):
     """Assess nutrient deficiency from visual indicators"""
+    _enforce_tenant(user, req.tenant_id)
+
     indicators = {
         "leaf_color": req.leaf_color,
         "pattern": req.pattern,
@@ -463,9 +473,11 @@ def get_deficiency_info(deficiency_id: str):
 
 @app.post("/fertilizer/plan")
 async def create_fertilizer_plan(
-    req: FertilizerPlanRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: FertilizerPlanRequest, user: User = Depends(get_current_user)
 ):
     """Generate fertilizer plan for crop and stage"""
+    _enforce_tenant(user, req.tenant_id)
+
     plan = fertilizer_plan(
         crop=req.crop,
         stage=req.stage,

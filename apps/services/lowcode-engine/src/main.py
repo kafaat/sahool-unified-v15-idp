@@ -995,6 +995,19 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
         raise TenantAccessDeniedError(tenant_id=tenant_id)
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # NATS Event Publishing
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1171,8 +1184,10 @@ def get_component(component_name: str):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.post("/api/v1/models", response_model=DataModelResponse, tags=["Data Models"])
-async def create_data_model(request: DataModelCreateRequest):
+async def create_data_model(request: DataModelCreateRequest, user: User = Depends(get_current_user)):
     """Create a data model | إنشاء نموذج بيانات"""
+    _enforce_tenant(user, request.tenant_id)
+
     model_id = str(uuid4())
     now = datetime.now(UTC)
 
@@ -1303,8 +1318,10 @@ async def get_data_model(model_id: str):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @app.post("/api/v1/pages", response_model=PageResponse, tags=["Pages"])
-async def create_page(request: PageCreateRequest):
+async def create_page(request: PageCreateRequest, user: User = Depends(get_current_user)):
     """Create a page | إنشاء صفحة"""
+    _enforce_tenant(user, request.tenant_id)
+
     page_id = str(uuid4())
     now = datetime.now(UTC)
 
@@ -1470,8 +1487,11 @@ async def get_page(page_id: str):
 
 
 @app.post("/api/v1/pages/{page_id}/publish", response_model=PageResponse, tags=["Pages"])
-async def publish_page(page_id: str, tenant_id: str = Query(None)):
+async def publish_page(page_id: str, tenant_id: str = Query(None), user: User = Depends(get_current_user)):
     """Publish a page | نشر صفحة"""
+    if tenant_id:
+        _enforce_tenant(user, tenant_id)
+
     now = datetime.now(UTC)
 
     # Try to get from database first
@@ -1649,12 +1669,15 @@ async def generate_page_from_template(
     name: str = Query(...),
     name_ar: str | None = Query(None),
     tenant_id: str = Query(...),
+    user: User = Depends(get_current_user),
 ):
     """
     Generate a page from a template
 
     إنشاء صفحة من قالب
     """
+    _enforce_tenant(user, tenant_id)
+
     templates = {
         "field-dashboard": {
             "components": ["field_map", "sensor_display", "crop_health_card", "ai_advisor"],

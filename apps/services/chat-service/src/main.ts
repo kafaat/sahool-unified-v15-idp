@@ -118,6 +118,25 @@ async function bootstrap() {
     version: "16.0.0",
     docs: `http://localhost:${port}/docs`,
   });
+
+  // Graceful shutdown
+  let isShuttingDown = false;
+  async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+    try {
+      await app.close();
+      console.log('Service shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 bootstrap().catch((err) => {

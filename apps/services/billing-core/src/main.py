@@ -271,7 +271,9 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
     التحقق من أن المستخدم يمكنه الوصول إلى المستأجر المحدد
     """
     if not AUTH_AVAILABLE or current_user is None:
-        return True  # No auth - allow access (dev mode)
+        # Only bypass in dev/test — production rejects unauthenticated access
+        env = os.getenv("ENVIRONMENT", "production").lower()
+        return env in ("development", "dev", "test", "testing")
 
     # Super admins can access any tenant
     if hasattr(current_user, "has_any_role") and current_user.has_any_role(["super_admin"]):

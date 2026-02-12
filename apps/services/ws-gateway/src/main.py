@@ -57,6 +57,9 @@ logger = logging.getLogger("ws-gateway")
 
 # JWT Configuration - Always required in production
 JWT_SECRET = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
+if not JWT_SECRET:
+    logger.critical("JWT_SECRET_KEY is not set — rejecting all WebSocket auth")
+
 
 # SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
 # Never trust algorithm from environment variables or token header

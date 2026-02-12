@@ -9,7 +9,7 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import timezone, datetime, UTC
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -26,6 +26,9 @@ except ImportError:
     setup_cors_middleware = None
 
 import logging
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .models import (
     AnomalyResponse,
@@ -224,9 +227,28 @@ def readiness():
 # ============== Processing Endpoints ==============
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 @app.post("/process", response_model=JobResponse, status_code=202)
-async def start_processing(request: ProcessRequest, background_tasks: BackgroundTasks):
+async def start_processing(
+    request: ProcessRequest,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+):
     """بدء معالجة صورة جديدة"""
+    _enforce_tenant(user, request.tenant_id)
+
     job_id = create_job(
         tenant_id=request.tenant_id,
         field_id=request.field_id,

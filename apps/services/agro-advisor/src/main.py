@@ -9,10 +9,14 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Auth imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from pydantic import BaseModel, Field
 
@@ -104,6 +108,22 @@ setup_exception_handlers(app)
 add_request_id_middleware(app)
 
 
+# ============== Tenant Isolation ==============
+
+
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ============== Health Check ==============
 
 
@@ -183,8 +203,10 @@ class FertilizerPlanRequest(BaseModel):
 
 
 @app.post("/disease/assess")
-async def assess_disease(req: DiseaseAssessRequest):
+async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
     """Assess disease from image classification result"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessment = assess_from_image_event(
         condition_id=req.condition_id,
         confidence=req.confidence,
@@ -224,8 +246,10 @@ async def assess_disease(req: DiseaseAssessRequest):
 
 
 @app.post("/disease/symptoms")
-async def assess_symptoms(req: SymptomAssessRequest):
+async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_current_user)):
     """Assess possible diseases from reported symptoms"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessments = assess_from_symptoms(
         symptoms=req.symptoms,
         crop=req.crop,
@@ -296,8 +320,10 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 
 @app.post("/nutrient/ndvi")
-async def assess_from_ndvi_endpoint(req: NDVIAssessRequest):
+async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from NDVI data"""
+    _enforce_tenant(user, req.tenant_id)
+
     assessments = assess_from_ndvi(
         ndvi=req.ndvi,
         ndvi_history=req.ndvi_history,
@@ -331,8 +357,10 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest):
 
 
 @app.post("/nutrient/visual")
-async def assess_visual_endpoint(req: VisualAssessRequest):
+async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from visual indicators"""
+    _enforce_tenant(user, req.tenant_id)
+
     indicators = {
         "leaf_color": req.leaf_color,
         "pattern": req.pattern,
@@ -380,8 +408,10 @@ def get_deficiency_info(deficiency_id: str):
 
 
 @app.post("/fertilizer/plan")
-async def create_fertilizer_plan(req: FertilizerPlanRequest):
+async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
     """Generate fertilizer plan for crop and stage"""
+    _enforce_tenant(user, req.tenant_id)
+
     plan = fertilizer_plan(
         crop=req.crop,
         stage=req.stage,

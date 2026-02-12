@@ -29,20 +29,8 @@ from .risks import assess_weather, get_irrigation_adjustment, heat_stress_risk
 setup_logging(service_name="weather-core")
 logger = get_logger(__name__)
 
-# Import authentication dependencies
-try:
-    from shared.auth.dependencies import get_current_user
-    from shared.auth.models import User
-
-    AUTH_AVAILABLE = True
-except ImportError:
-    # Fallback if auth module not available
-    AUTH_AVAILABLE = False
-    User = None
-
-    def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 
 # Configuration
@@ -111,6 +99,22 @@ add_request_id_middleware(app)
 app.add_middleware(RequestLoggingMiddleware, service_name="weather-core")
 
 
+# ============== Authentication Helper ==============
+
+
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ============== Health Check ==============
 
 
@@ -169,13 +173,15 @@ class IrrigationRequest(BaseModel):
 
 @app.post("/weather/assess")
 async def assess(
-    req: WeatherAssessRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: WeatherAssessRequest, user: User = Depends(get_current_user)
 ):
     """
     Assess weather conditions and generate alerts
 
     Manual weather data input for assessment
     """
+    _enforce_tenant(user, req.tenant_id)
+
     alerts = assess_weather(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -211,7 +217,7 @@ async def assess(
 
 @app.post("/weather/current")
 async def get_current_weather(
-    req: LocationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: LocationRequest, user: User = Depends(get_current_user)
 ):
     """
     Get current weather from API provider
@@ -221,6 +227,8 @@ async def get_current_weather(
     - OpenWeatherMap (if OPENWEATHERMAP_API_KEY set)
     - WeatherAPI (if WEATHERAPI_KEY set)
     """
+    _enforce_tenant(user, req.tenant_id)
+
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
@@ -297,7 +305,7 @@ async def get_current_weather(
 async def get_forecast(
     req: LocationRequest,
     days: int = 7,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User = Depends(get_current_user),
 ):
     """
     Get weather forecast
@@ -305,6 +313,8 @@ async def get_forecast(
     Args:
         days: Number of forecast days (1-16)
     """
+    _enforce_tenant(user, req.tenant_id)
+
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
@@ -359,13 +369,15 @@ async def get_forecast(
 
 @app.post("/weather/irrigation")
 async def irrigation_adjustment(
-    req: IrrigationRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
+    req: IrrigationRequest, user: User = Depends(get_current_user)
 ):
     """
     Calculate irrigation adjustment based on weather
 
     Returns adjustment factor and recommendations
     """
+    _enforce_tenant(user, req.tenant_id)
+
     adjustment = get_irrigation_adjustment(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,

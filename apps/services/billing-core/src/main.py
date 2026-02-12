@@ -89,12 +89,11 @@ except ImportError:
 
 
 try:
-    from auth.dependencies import (
-        api_key_auth,
+    from shared.auth.dependencies import (
         get_current_active_user,
         require_roles,
     )
-    from auth.models import User
+    from shared.auth.models import User
 
     AUTH_AVAILABLE = True
 except ImportError:

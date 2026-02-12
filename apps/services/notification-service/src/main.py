@@ -51,8 +51,8 @@ except ImportError:
 
 # Import authentication dependencies
 try:
-    from auth.dependencies import get_current_user, get_optional_user
-    from auth.models import User
+    from shared.auth.dependencies import get_current_user, get_optional_user
+    from shared.auth.models import User
 
     AUTH_AVAILABLE = True
 except ImportError:

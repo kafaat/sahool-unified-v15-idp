@@ -88,9 +88,9 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash sahool
 
-# Install curl for healthcheck and ca-certificates
+# Install curl for healthcheck, ca-certificates, and OpenSSL for Prisma native query engine
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl ca-certificates && \
+    apt-get install -y --no-install-recommends curl ca-certificates openssl && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade npm to latest version

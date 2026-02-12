@@ -61,9 +61,9 @@ LABEL service="iot-service"
 LABEL version="16.0.0"
 LABEL description="SAHOOL IoT Service - Smart Irrigation & Sensor Management"
 
-# Install curl for healthcheck
+# Install curl for healthcheck and OpenSSL for Prisma native query engine
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

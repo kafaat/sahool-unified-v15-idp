@@ -45,7 +45,6 @@ from yemen_varieties import (
 )
 
 from shared.errors_py import (
-    ErrorCode,
     NotFoundException,
     ValidationException,
     add_request_id_middleware,
@@ -80,8 +79,8 @@ from .kb import (
 
 # Import token revocation
 try:
-    from auth.revocation_middleware import TokenRevocationMiddleware
-    from auth.token_revocation import get_revocation_store
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+    from shared.auth.token_revocation import get_revocation_store
 
     REVOCATION_AVAILABLE = True
 except ImportError:
@@ -362,8 +361,10 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
     disease = get_disease(disease_id)
     if not disease:
         raise NotFoundException(
-            ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "disease", "disease_id": disease_id},
+            message=f"Disease not found: {disease_id}",
+            message_ar="لم يتم العثور على المرض",
+            resource_type="disease",
+            resource_id=disease_id,
         )
 
     return create_success_response(
@@ -463,8 +464,10 @@ def get_deficiency_info(deficiency_id: str):
     deficiency = get_deficiency(deficiency_id)
     if not deficiency:
         raise NotFoundException(
-            ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "deficiency", "deficiency_id": deficiency_id},
+            message=f"Deficiency not found: {deficiency_id}",
+            message_ar="لم يتم العثور على نقص المغذيات",
+            resource_type="deficiency",
+            resource_id=deficiency_id,
         )
 
     return create_success_response({"id": deficiency_id, **deficiency})
@@ -515,8 +518,10 @@ def get_fertilizer_info(fertilizer_id: str):
     fert = get_fertilizer(fertilizer_id)
     if not fert:
         raise NotFoundException(
-            ErrorCode.RESOURCE_NOT_FOUND,
-            details={"resource": "fertilizer", "fertilizer_id": fertilizer_id},
+            message=f"Fertilizer not found: {fertilizer_id}",
+            message_ar="لم يتم العثور على السماد",
+            resource_type="fertilizer",
+            resource_id=fertilizer_id,
         )
 
     return create_success_response({"id": fertilizer_id, **fert})
@@ -559,8 +564,9 @@ def search_crops_endpoint(q: str):
     """Search crops by Arabic or English name"""
     if not q or len(q) < 2:
         raise ValidationException(
-            ErrorCode.INVALID_INPUT,
-            details={"field": "q", "message": "Query must be at least 2 characters"},
+            message="Query must be at least 2 characters",
+            message_ar="يجب أن يكون الاستعلام حرفين على الأقل",
+            details={"field": "q"},
         )
 
     results = search_crops_catalog(q)
@@ -632,7 +638,12 @@ def get_crop_details(crop_code: str):
     """Get single crop details with Yemen varieties"""
     crop = get_crop(crop_code)
     if not crop:
-        raise NotFoundException.crop(crop_code)
+        raise NotFoundException(
+            message=f"Crop not found: {crop_code}",
+            message_ar="لم يتم العثور على المحصول",
+            resource_type="crop",
+            resource_id=crop_code,
+        )
 
     # Get Yemen varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -677,7 +688,12 @@ def get_crop_varieties(crop_code: str):
     # First check if crop exists
     crop = get_crop(crop_code)
     if not crop:
-        raise NotFoundException.crop(crop_code)
+        raise NotFoundException(
+            message=f"Crop not found: {crop_code}",
+            message_ar="لم يتم العثور على المحصول",
+            resource_type="crop",
+            resource_id=crop_code,
+        )
 
     # Get varieties for this crop
     varieties = get_varieties_by_crop(crop_code)
@@ -721,7 +737,12 @@ def get_crop_stages(crop: str):
     """Get growth stages for a crop"""
     timeline = get_stage_timeline(crop)
     if not timeline:
-        raise NotFoundException.crop(crop)
+        raise NotFoundException(
+            message=f"Crop not found: {crop}",
+            message_ar="لم يتم العثور على المحصول",
+            resource_type="crop",
+            resource_id=crop,
+        )
 
     return create_success_response({"crop": crop, "stages": timeline})
 
@@ -730,7 +751,12 @@ def get_crop_stages(crop: str):
 def get_crop_requirements_legacy(crop: str):
     """Get nutrient requirements for a crop (legacy endpoint)"""
     if crop not in CROP_REQUIREMENTS:
-        raise NotFoundException.crop(crop)
+        raise NotFoundException(
+            message=f"Crop not found: {crop}",
+            message_ar="لم يتم العثور على المحصول",
+            resource_type="crop",
+            resource_id=crop,
+        )
 
     return create_success_response({"crop": crop, **CROP_REQUIREMENTS[crop]})
 

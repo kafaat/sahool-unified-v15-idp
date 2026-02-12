@@ -21,8 +21,20 @@ COPY apps/services/marketplace-service ./marketplace-service/
 
 WORKDIR /workspace/marketplace-service
 
-# Install dependencies (with retries for network resilience)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install dependencies with retry loop for network resilience
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3 4 5; do \
+        echo "Attempt $i: Installing npm dependencies..." && \
+        npm install --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -31,8 +43,10 @@ RUN npx prisma generate || \
     (sleep 10 && npx prisma generate) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
-# Build the application
-RUN npm run build
+# Build the application and verify output
+RUN npm run build && \
+    test -f dist/main.js || \
+    (echo "ERROR: dist/main.js not found after build. Listing dist/:" && ls -la dist/ && exit 1)
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production
@@ -47,9 +61,28 @@ WORKDIR /app
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
-# Install with npm ci (deterministic) with fallback to npm install
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+# Install production dependencies with retry loop
+RUN --mount=type=cache,target=/root/.npm \
+    for i in 1 2 3; do \
+        echo "Attempt $i: Installing production dependencies..." && \
+        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund || \
+        npm install --omit=dev --ignore-scripts --legacy-peer-deps \
+            --fetch-retries=5 \
+            --fetch-retry-mintimeout=30000 \
+            --fetch-retry-maxtimeout=180000 \
+            --fetch-timeout=300000 \
+            --prefer-offline \
+            --no-audit \
+            --no-fund) && break || \
+        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+    done
 
 # Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

@@ -13,8 +13,10 @@ from contextlib import asynccontextmanager
 from typing import Any
 
 import structlog
-from fastapi import FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .agents import (
     DiseaseExpertAgent,
@@ -395,6 +397,19 @@ if A2A_AVAILABLE:
 # Endpoints | نقاط النهاية
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 @app.get("/healthz", tags=["Health"])
 async def health_check():
     """
@@ -432,7 +447,7 @@ def readiness():
 
 
 @app.post("/v1/advisor/ask", response_model=EnhancedAgentResponse, tags=["Advisor"])
-async def ask_question(request: QuestionRequest):
+async def ask_question(request: QuestionRequest, user: User = Depends(get_current_user)):
     """
     Ask a general question to the AI advisor
     طرح سؤال عام على المستشار الذكي
@@ -443,6 +458,10 @@ async def ask_question(request: QuestionRequest):
     يتم ضغط الاستجابات لتحسين استخدام نافذة السياق.
     """
     try:
+        # Enforce tenant isolation
+        if request.context and (tenant_id := request.context.get("tenant_id")):
+            _enforce_tenant(user, tenant_id)
+
         supervisor = app_state.get("supervisor")
         context_compressor = app_state.get("context_compressor")
         farm_memory = app_state.get("farm_memory")
@@ -537,7 +556,7 @@ async def ask_question(request: QuestionRequest):
 
 
 @app.post("/v1/advisor/diagnose", response_model=AgentResponse, tags=["Advisor"])
-async def diagnose_disease(request: DiagnoseRequest):
+async def diagnose_disease(request: DiagnoseRequest, user: User = Depends(get_current_user)):
     """
     Diagnose crop disease
     تشخيص مرض المحصول
@@ -582,7 +601,7 @@ async def diagnose_disease(request: DiagnoseRequest):
 
 
 @app.post("/v1/advisor/recommend", response_model=EnhancedAgentResponse, tags=["Advisor"])
-async def get_recommendations(request: RecommendationRequest):
+async def get_recommendations(request: RecommendationRequest, user: User = Depends(get_current_user)):
     """
     Get agricultural recommendations
     الحصول على توصيات زراعية
@@ -593,6 +612,10 @@ async def get_recommendations(request: RecommendationRequest):
     يقيم التوصيات من حيث الجودة ويخزنها في الذاكرة.
     """
     try:
+        # Enforce tenant isolation
+        if request.field_data and (tenant_id := request.field_data.get("tenant_id")):
+            _enforce_tenant(user, tenant_id)
+
         agents = app_state.get("agents")
         farm_memory = app_state.get("farm_memory")
         recommendation_evaluator = app_state.get("recommendation_evaluator")
@@ -712,7 +735,7 @@ async def get_recommendations(request: RecommendationRequest):
 
 
 @app.post("/v1/advisor/analyze-field", response_model=EnhancedAgentResponse, tags=["Advisor"])
-async def analyze_field(request: FieldAnalysisRequest):
+async def analyze_field(request: FieldAnalysisRequest, user: User = Depends(get_current_user)):
     """
     Comprehensive field analysis
     تحليل شامل للحقل
@@ -818,7 +841,7 @@ async def analyze_field(request: FieldAnalysisRequest):
         if CONTEXT_ENGINEERING_AVAILABLE and farm_memory:
             try:
                 farm_memory.store(
-                    tenant_id="default",
+                    tenant_id=user.tenant_id or "default",
                     content={
                         "crop_type": request.crop_type,
                         "ndvi": satellite_data.get("ndvi") if isinstance(satellite_data, dict) else None,
@@ -830,7 +853,7 @@ async def analyze_field(request: FieldAnalysisRequest):
                     relevance=RelevanceScore.CRITICAL,
                 )
                 memory_stored = True
-                logger.info("field_state_stored_in_memory", field_id=request.field_id)
+                logger.info("field_state_stored_in_memory", field_id=request.field_id, tenant_id=user.tenant_id)
             except Exception as e:
                 logger.warning("memory_storage_failed", error=str(e))
                 # Continue even if memory storage fails
@@ -934,6 +957,7 @@ async def get_memory_context(
     field_id: str | None = None,
     query: str | None = None,
     max_tokens: int = 2000,
+    user: User = Depends(get_current_user),
 ):
     """
     Retrieve relevant context from memory
@@ -952,7 +976,10 @@ async def get_memory_context(
             )
 
         if not tenant_id:
-            tenant_id = "default"
+            tenant_id = user.tenant_id or "default"
+        else:
+            # Enforce tenant isolation if tenant_id is provided
+            _enforce_tenant(user, tenant_id)
 
         if not query:
             query = "all"

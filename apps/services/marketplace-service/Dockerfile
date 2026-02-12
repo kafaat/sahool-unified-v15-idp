@@ -42,10 +42,7 @@ ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for healthcheck (not using fetch as it requires Node.js 18+)
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
-    rm -rf /var/lib/apt/lists/*
+# OpenSSL runtime is included in bookworm-slim — no extra install needed for Prisma
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./
@@ -71,9 +68,9 @@ EXPOSE 3010
 RUN chown -R node:node /app
 USER node
 
-# Health check (using curl instead of Node.js fetch)
+# Health check (using Node.js built-in fetch — no curl dependency needed)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3010/api/v1/healthz || exit 1
+    CMD node -e "fetch('http://localhost:3010/api/v1/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 # Run the application
 CMD ["node", "dist/src/main.js"]

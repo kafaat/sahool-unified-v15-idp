@@ -3,7 +3,8 @@
 // Based on Source-Sink-Flow Assimilate Distribution Models (WOFOST/DSSAT)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -52,6 +53,7 @@ class YieldInput {
 
 @ApiTags("biomass")
 @Controller("api/v1/biomass")
+@UseGuards(JwtAuthGuard)
 export class BiomassController {
   constructor(private readonly biomassService: BiomassService) {}
 

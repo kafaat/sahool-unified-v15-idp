@@ -47,6 +47,7 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
     }),
   );
@@ -79,6 +80,25 @@ async function bootstrap() {
 ║  🔌 MQTT: Connected to broker                            ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
+
+  // Graceful shutdown
+  let isShuttingDown = false;
+  async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+    try {
+      await app.close();
+      console.log('Service shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 bootstrap();

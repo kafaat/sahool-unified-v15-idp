@@ -3,7 +3,8 @@
 // Integrated Soil-Crop-Atmosphere Water Balance
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -64,6 +65,7 @@ class IrrigationScheduleInput {
 
 @ApiTags("water-balance")
 @Controller("api/v1/water")
+@UseGuards(JwtAuthGuard)
 export class WaterBalanceController {
   constructor(private readonly waterBalanceService: WaterBalanceService) {}
 

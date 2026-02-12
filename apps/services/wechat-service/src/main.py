@@ -485,6 +485,19 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
         raise TenantAccessDeniedError(tenant_id=tenant_id)
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ===============================================================================
 # Lifespan Management
 # ===============================================================================
@@ -980,7 +993,7 @@ async def fetch_messages(
     - Pagination via before_timestamp/after_timestamp
     """
     # Validate tenant access
-    validate_tenant_access(user, fetch_request.tenant_id)
+    _enforce_tenant(user, fetch_request.tenant_id)
 
     chat_id = fetch_request.chat_id
 
@@ -1067,7 +1080,7 @@ async def send_message(
     - Returns message ID and status
     """
     # Validate tenant access
-    validate_tenant_access(user, send_request.tenant_id)
+    _enforce_tenant(user, send_request.tenant_id)
 
     # Validate media URL for non-text messages
     if send_request.message_type != MessageType.TEXT and not send_request.media_url:
@@ -1158,7 +1171,7 @@ async def add_contact(
     - Add notes and tags for organization
     """
     # Validate tenant access
-    validate_tenant_access(user, add_request.tenant_id)
+    _enforce_tenant(user, add_request.tenant_id)
 
     # Check if contact already exists
     contact_key = f"{add_request.tenant_id}:{add_request.wechat_id}"
@@ -1235,7 +1248,7 @@ async def publish_moment(
     - Attach links with titles
     """
     # Validate tenant access
-    validate_tenant_access(user, publish_request.tenant_id)
+    _enforce_tenant(user, publish_request.tenant_id)
 
     # Validate visibility
     if publish_request.visibility == MomentVisibility.SELECTED and not publish_request.visible_to:
@@ -1318,7 +1331,7 @@ async def summarize_chat(
     - Support multiple output languages
     """
     # Validate tenant access
-    validate_tenant_access(user, summarize_request.tenant_id)
+    _enforce_tenant(user, summarize_request.tenant_id)
 
     chat_id = summarize_request.chat_id
     now = datetime.now(UTC)
@@ -1429,7 +1442,7 @@ async def get_chat_insights(
     - Key decision tracking
     """
     # Validate tenant access
-    validate_tenant_access(user, insights_request.tenant_id)
+    _enforce_tenant(user, insights_request.tenant_id)
 
     chat_id = insights_request.chat_id
     now = datetime.now(UTC)

@@ -3,12 +3,14 @@
 // Early Warning System for Agricultural Disasters
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { AlertService } from "./alert.service";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 @ApiTags("alerts")
 @Controller("api/v1/alerts")
+@UseGuards(JwtAuthGuard)
 export class AlertController {
   constructor(private readonly alertService: AlertService) {}
 

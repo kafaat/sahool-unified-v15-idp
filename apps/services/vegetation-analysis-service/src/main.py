@@ -23,13 +23,15 @@ from datetime import UTC, date, datetime, timedelta
 from enum import Enum, StrEnum
 from typing import Any
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -882,8 +884,21 @@ def list_monitored_regions():
     }
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 @app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest):
+async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
     """طلب صور الأقمار الصناعية لحقل معين"""
 
     config = SATELLITE_CONFIGS[request.satellite]
@@ -929,7 +944,7 @@ async def request_imagery(request: ImageryRequest):
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest):
+async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
 
     # Get imagery first
@@ -1083,6 +1098,7 @@ def _create_satellite_action_template(
 async def analyze_field_with_action(
     request: AnalyzeWithActionRequest,
     background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
 ):
     """
     تحليل الحقل مع إنتاج ActionTemplate
@@ -1090,6 +1106,9 @@ async def analyze_field_with_action(
     Field-First: ينتج قالب إجراء للتطبيق المحمول
     ينشر الحدث عبر NATS للإشعارات الفورية
     """
+    # Enforce tenant isolation
+    if request.tenant_id:
+        _enforce_tenant(user, request.tenant_id)
 
     # Perform analysis
     imagery_request = ImageryRequest(
@@ -1187,13 +1206,19 @@ class RealAnalysisRequest(BaseModel):
 
 
 @app.post("/v1/analyze/real")
-async def analyze_field_real(request: RealAnalysisRequest):
+async def analyze_field_real(
+    request: RealAnalysisRequest,
+    user: User = Depends(get_current_user),
+):
     """
     تحليل الحقل باستخدام بيانات الأقمار الصناعية الحقيقية
 
     يستخدم sahool-eo و Sentinel Hub للحصول على بيانات حقيقية.
     إذا لم تكن الاعتمادات مكونة، يعود إلى البيانات المحاكاة.
     """
+    # Enforce tenant isolation
+    _enforce_tenant(user, request.tenant_id)
+
     # Try real data first
     if EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED:
         result = await fetch_real_satellite_data(
@@ -1299,6 +1324,7 @@ async def analyze_ndvi_timeseries(
     anomaly_threshold: float = Query(
         default=2.0, ge=1.0, le=4.0, description="Z-score threshold for anomaly detection"
     ),
+    user: User = Depends(get_current_user),
 ):
     """
     تحليل شامل للسلسلة الزمنية لمؤشر NDVI
@@ -1401,6 +1427,7 @@ async def compare_ndvi_periods(
     period1_end: str = Query(..., description="Period 1 end date (YYYY-MM-DD)"),
     period2_start: str = Query(..., description="Period 2 start date (YYYY-MM-DD)"),
     period2_end: str = Query(..., description="Period 2 end date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
 ):
     """
     مقارنة فترتين زمنيتين لكشف التغييرات
@@ -1671,6 +1698,7 @@ class PhenologyActionRequest(BaseModel):
 async def analyze_phenology_with_action(
     request: PhenologyActionRequest,
     background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
 ):
     """
     Detect phenology stage and generate ActionTemplate
@@ -1681,6 +1709,10 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
+    # Enforce tenant isolation
+    if request.tenant_id:
+        _enforce_tenant(user, request.tenant_id)
+
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
 
@@ -2237,7 +2269,7 @@ async def get_specific_index(
 
 
 @app.post("/v1/indices/interpret")
-async def interpret_indices(request: InterpretRequest):
+async def interpret_indices(request: InterpretRequest, user: User = Depends(get_current_user)):
     """
     Interpret multiple vegetation indices for a specific crop and growth stage
     تفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو
@@ -2614,7 +2646,7 @@ class ChangeReportResponse(BaseModel):
 
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
-async def predict_yield(request: YieldPredictionRequest):
+async def predict_yield(request: YieldPredictionRequest, user: User = Depends(get_current_user)):
     """
     التنبؤ بإنتاجية المحصول | Predict Crop Yield
 
@@ -3153,6 +3185,7 @@ async def interpolate_cloudy_pixels(
     field_id: str = Query(..., description="Field identifier"),
     method: str = Query("linear", description="Interpolation method: linear, spline, previous"),
     ndvi_series: list[dict] = None,
+    user: User = Depends(get_current_user),
 ):
     """
     Interpolate cloudy observations using temporal neighbors

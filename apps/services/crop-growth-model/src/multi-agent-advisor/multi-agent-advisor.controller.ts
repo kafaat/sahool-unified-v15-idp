@@ -3,7 +3,8 @@
 // REST API for multi-AI collaboration on agricultural decisions
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -33,6 +34,7 @@ class PestQuestionInput {
 
 @ApiTags("multi-agent-advisor")
 @Controller("api/v1/advisor-council")
+@UseGuards(JwtAuthGuard)
 export class MultiAgentAdvisorController {
   constructor(private readonly multiAgentService: MultiAgentAdvisorService) {}
 

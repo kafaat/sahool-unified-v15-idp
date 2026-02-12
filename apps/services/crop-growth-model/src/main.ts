@@ -22,7 +22,7 @@ async function bootstrap() {
   // Global exception filter for unified error handling
   app.useGlobalFilters(new HttpExceptionFilter());
 
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
 
   // ============== Middleware Setup ==============
   // Global request logging interceptor with correlation IDs
@@ -84,6 +84,25 @@ async function bootstrap() {
 
   console.log(`🌱 Crop Growth Model Service running on port ${port}`);
   console.log(`📚 API Documentation: http://localhost:${port}/docs`);
+
+  // Graceful shutdown
+  let isShuttingDown = false;
+  async function gracefulShutdown(signal: string) {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`\nReceived ${signal}, starting graceful shutdown...`);
+    try {
+      await app.close();
+      console.log('Service shutdown complete');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 }
 
 bootstrap();

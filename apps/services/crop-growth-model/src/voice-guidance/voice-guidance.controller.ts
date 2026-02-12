@@ -3,7 +3,8 @@
 // REST API for AI-powered agricultural voice guidance (SoulX-Podcast inspired)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -34,6 +35,7 @@ class PodcastRequest {
 
 @ApiTags("voice-guidance")
 @Controller("api/v1/voice-guidance")
+@UseGuards(JwtAuthGuard)
 export class VoiceGuidanceController {
   constructor(private readonly voiceGuidanceService: VoiceGuidanceService) {}
 

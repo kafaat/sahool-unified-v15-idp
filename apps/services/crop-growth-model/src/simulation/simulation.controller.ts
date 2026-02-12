@@ -3,7 +3,8 @@
 // Integrated Crop Growth Model combining Phenology, Photosynthesis, and Biomass
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -37,6 +38,7 @@ class QuickEstimateInput {
 
 @ApiTags("simulation")
 @Controller("api/v1/simulation")
+@UseGuards(JwtAuthGuard)
 export class GrowthSimulationController {
   constructor(private readonly simulationService: GrowthSimulationService) {}
 

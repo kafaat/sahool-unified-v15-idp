@@ -11,12 +11,29 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
+
+# Auth imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
+
+
+def sanitize_log_value(value: str) -> str:
+    """
+    Sanitize a string for safe logging by removing line breaks and
+    other control characters that could be used for log injection.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    # Remove carriage returns and newlines; optionally strip other controls.
+    value = value.replace("\r\n", "").replace("\n", "").replace("\r", "")
+    return value
+
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -506,6 +523,19 @@ class DeviceRegisterRequest(BaseModel):
 # ============== Authorization & Validation Functions ==============
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 def validate_device_authorization(device_id: str, tenant_id: str, field_id: str) -> bool:
     """
     Validate that device is authorized for the tenant and field
@@ -513,9 +543,12 @@ def validate_device_authorization(device_id: str, tenant_id: str, field_id: str)
     device = registry.get(device_id)
 
     if not device:
+        safe_device_id = sanitize_log_value(device_id)
+        safe_tenant_id = sanitize_log_value(tenant_id)
+        safe_field_id = sanitize_log_value(field_id)
         logger.error(
             f"Device authorization failed: Device not found. "
-            f"Device: {device_id}, Tenant: {tenant_id}, Field: {field_id}"
+            f"Device: {safe_device_id}, Tenant: {safe_tenant_id}, Field: {safe_field_id}"
         )
         return False
 
@@ -550,7 +583,10 @@ def validate_sensor_reading(
     # 1. Check device exists
     device = registry.get(device_id)
     if not device:
-        logger.error(f"Sensor reading rejected: Device {device_id} not registered")
+        safe_device_id = sanitize_log_value(device_id)
+        logger.error(
+            f"Sensor reading rejected: Device {safe_device_id} not registered"
+        )
         raise HTTPException(
             status_code=404,
             detail=f"Device {device_id} not registered. Please register device first.",
@@ -561,11 +597,14 @@ def validate_sensor_reading(
         raise HTTPException(
             status_code=403, detail="Device not authorized for this tenant or field"
         )
+    safe_device_id = sanitize_log_value(device_id)
+    safe_tenant_id = sanitize_log_value(tenant_id)
+    safe_sensor_type = sanitize_log_value(sensor_type)
 
     # 3. Value range already validated by Pydantic model
     logger.info(
         f"Sensor reading validated. "
-        f"Device: {device_id}, Tenant: {tenant_id}, Type: {sensor_type}, Value: {value}"
+        f"Device: {safe_device_id}, Tenant: {safe_tenant_id}, Type: {safe_sensor_type}, Value: {value}"
     )
 
 
@@ -573,7 +612,7 @@ def validate_sensor_reading(
 
 
 @app.post("/sensor/reading")
-async def post_sensor_reading(req: SensorReadingRequest):
+async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(get_current_user)):
     """
     HTTP endpoint to submit sensor reading
 
@@ -586,6 +625,9 @@ async def post_sensor_reading(req: SensorReadingRequest):
 
     Alternative to MQTT for devices that support HTTP
     """
+    # Enforce tenant isolation
+    _enforce_tenant(user, req.tenant_id)
+
     if not publisher:
         logger.error("Sensor reading rejected: Publisher not available")
         raise HTTPException(status_code=503, detail="Publisher not available")
@@ -627,9 +669,13 @@ async def post_sensor_reading(req: SensorReadingRequest):
         metadata=req.metadata,
     )
 
+    safe_event_id = sanitize_log_value(event_id)
+    safe_device_id = sanitize_log_value(req.device_id)
+    safe_sensor_type = sanitize_log_value(req.sensor_type)
+
     logger.info(
         f"Sensor reading published. "
-        f"Event: {event_id}, Device: {req.device_id}, Type: {req.sensor_type}"
+        f"Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}"
     )
 
     return {
@@ -642,7 +688,7 @@ async def post_sensor_reading(req: SensorReadingRequest):
 
 
 @app.post("/sensor/batch")
-async def post_batch_readings(req: BatchReadingRequest):
+async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get_current_user)):
     """
     Submit multiple sensor readings at once
 
@@ -653,6 +699,9 @@ async def post_batch_readings(req: BatchReadingRequest):
     - Validates each sensor value range
     - Rejects entire batch if any validation fails
     """
+    # Enforce tenant isolation
+    _enforce_tenant(user, req.tenant_id)
+
     if not publisher:
         logger.error("Batch reading rejected: Publisher not available")
         raise HTTPException(status_code=503, detail="Publisher not available")
@@ -742,8 +791,11 @@ async def post_batch_readings(req: BatchReadingRequest):
 
 
 @app.post("/device/register")
-async def register_device(req: DeviceRegisterRequest):
+async def register_device(req: DeviceRegisterRequest, user: User = Depends(get_current_user)):
     """Register a new device with Redis persistence"""
+    # Enforce tenant isolation
+    _enforce_tenant(user, req.tenant_id)
+
     # Use async registration if Redis-backed registry is available
     if isinstance(registry, RedisDeviceRegistry):
         device = await registry.register_async(
@@ -842,8 +894,16 @@ async def list_devices(
 
 
 @app.delete("/device/{device_id}")
-async def delete_device(device_id: str):
+async def delete_device(device_id: str, user: User = Depends(get_current_user)):
     """Remove device from registry with Redis persistence"""
+    # Get device to check tenant ownership
+    device = registry.get(device_id)
+    if not device:
+        raise HTTPException(status_code=404, detail="Device not found")
+
+    # Enforce tenant isolation
+    _enforce_tenant(user, device.tenant_id)
+
     # Use async deletion if Redis-backed registry is available
     if isinstance(registry, RedisDeviceRegistry):
         if not await registry.delete_async(device_id):

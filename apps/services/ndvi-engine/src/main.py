@@ -111,6 +111,22 @@ async def add_deprecation_header(request: Request, call_next):
     return response
 
 
+# ============== Tenant Isolation ==============
+
+
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ============== Health Check ==============
 
 
@@ -177,6 +193,10 @@ async def compute_ndvi(
 
     Supports mock data or Sentinel-2 imagery
     """
+    # Enforce tenant isolation
+    if AUTH_AVAILABLE and user:
+        _enforce_tenant(user, req.tenant_id)
+
     if req.use_sentinel and req.geometry:
         result = compute_from_sentinel(req.field_id, req.geometry)
     else:
@@ -232,6 +252,10 @@ async def get_ndvi_zones(
     req: NdviZonesRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Analyze NDVI zones within a field"""
+    # Enforce tenant isolation
+    if AUTH_AVAILABLE and user:
+        _enforce_tenant(user, req.tenant_id)
+
     zones = analyze_ndvi_zones(req.field_id)
 
     return {
@@ -252,7 +276,7 @@ async def get_ndvi_zones(
 
 
 @app.post("/ndvi/indices")
-def calculate_indices(req: IndicesRequest):
+def calculate_indices(req: IndicesRequest, user: User = Depends(get_current_user)):
     """Calculate multiple vegetation indices from band values"""
     indices = calculate_vegetation_indices(
         red=req.red,
@@ -279,6 +303,10 @@ async def check_anomaly(
     req: AnomalyRequest, user: User = Depends(get_current_user) if AUTH_AVAILABLE else None
 ):
     """Check for NDVI anomalies"""
+    # Enforce tenant isolation
+    if AUTH_AVAILABLE and user:
+        _enforce_tenant(user, req.tenant_id)
+
     anomaly = detect_anomalies(
         current_ndvi=req.current_ndvi,
         historical_mean=req.historical_mean,

@@ -25,6 +25,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 @ApiTags("disasters")
 @Controller("api/v1/disasters")
+@UseGuards(JwtAuthGuard)
 export class DisasterController {
   constructor(private readonly disasterService: DisasterService) {}
 

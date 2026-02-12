@@ -21,5 +21,8 @@ nats-py==2.9.0
 
 structlog>=24.1.0
 
+# Authentication
+PyJWT>=2.8.0,<3.0.0
+
 # Redis for token revocation
 redis[hiredis]==7.1.0

@@ -14,7 +14,7 @@ import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -36,6 +36,10 @@ from shared.errors_py import (
     add_request_id_middleware,
     setup_exception_handlers,
 )
+
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 # Security headers middleware
 try:
@@ -128,6 +132,22 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 
+# ============== Tenant Isolation ==============
+
+
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 # ============== Health Check ==============
 
 
@@ -196,12 +216,14 @@ class IrrigationRequest(BaseModel):
 
 
 @app.post("/weather/assess")
-async def assess(req: WeatherAssessRequest):
+async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_user)):
     """
     Assess weather conditions and generate alerts
 
     Manual weather data input for assessment
     """
+    _enforce_tenant(user, req.tenant_id)
+
     alerts = assess_weather(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -236,7 +258,7 @@ async def assess(req: WeatherAssessRequest):
 
 
 @app.post("/weather/current")
-async def get_current_weather(req: LocationRequest):
+async def get_current_weather(req: LocationRequest, user: User = Depends(get_current_user)):
     """
     Get current weather from API provider
 
@@ -245,6 +267,8 @@ async def get_current_weather(req: LocationRequest):
     - OpenWeatherMap (if OPENWEATHERMAP_API_KEY set)
     - WeatherAPI (if WEATHERAPI_KEY set)
     """
+    _enforce_tenant(user, req.tenant_id)
+
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
@@ -318,13 +342,15 @@ async def get_current_weather(req: LocationRequest):
 
 
 @app.post("/weather/forecast")
-async def get_forecast(req: LocationRequest, days: int = 7):
+async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends(get_current_user)):
     """
     Get weather forecast
 
     Args:
         days: Number of forecast days (1-16)
     """
+    _enforce_tenant(user, req.tenant_id)
+
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
@@ -377,12 +403,14 @@ async def get_forecast(req: LocationRequest, days: int = 7):
 
 
 @app.post("/weather/irrigation")
-async def irrigation_adjustment(req: IrrigationRequest):
+async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get_current_user)):
     """
     Calculate irrigation adjustment based on weather
 
     Returns adjustment factor and recommendations
     """
+    _enforce_tenant(user, req.tenant_id)
+
     adjustment = get_irrigation_adjustment(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -490,7 +518,7 @@ class SprayWindowRequest(BaseModel):
 
 
 @app.post("/weather/evapotranspiration")
-async def calculate_et(req: ETRequest):
+async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
     """
     Calculate Reference Evapotranspiration (ET0)
     حساب التبخر-نتح المرجعي
@@ -501,6 +529,8 @@ async def calculate_et(req: ETRequest):
     Returns:
         ET0 in mm/day with irrigation recommendations
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_evapotranspiration(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -516,7 +546,7 @@ async def calculate_et(req: ETRequest):
 
 
 @app.post("/weather/gdd")
-async def calculate_gdd(req: GDDRequest):
+async def calculate_gdd(req: GDDRequest, user: User = Depends(get_current_user)):
     """
     Calculate Growing Degree Days (GDD)
     حساب أيام النمو الحراري
@@ -527,6 +557,8 @@ async def calculate_gdd(req: GDDRequest):
     Returns:
         Daily GDD with growth rate classification
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_growing_degree_days(
         temp_max_c=req.temp_max_c,
         temp_min_c=req.temp_min_c,
@@ -542,7 +574,7 @@ async def calculate_gdd(req: GDDRequest):
 
 
 @app.post("/weather/spray-window")
-async def assess_spray_window(req: SprayWindowRequest):
+async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_current_user)):
     """
     Assess spray window suitability
     تقييم مدى ملاءمة نافذة الرش
@@ -553,6 +585,8 @@ async def assess_spray_window(req: SprayWindowRequest):
     Returns:
         Spray suitability score and recommendations
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_spray_window(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -568,7 +602,7 @@ async def assess_spray_window(req: SprayWindowRequest):
 
 
 @app.post("/weather/agricultural-report")
-async def get_agricultural_report(req: LocationRequest):
+async def get_agricultural_report(req: LocationRequest, user: User = Depends(get_current_user)):
     """
     Comprehensive agricultural weather report
     تقرير الطقس الزراعي الشامل
@@ -576,6 +610,8 @@ async def get_agricultural_report(req: LocationRequest):
     Combines current weather, alerts, ET0, GDD, and spray window
     into a single comprehensive report for farmers.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     # Get current weather
     if app.state.multi_provider:
         weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
@@ -686,7 +722,7 @@ class DroughtIndexRequest(BaseModel):
 
 
 @app.post("/weather/frost-risk")
-async def assess_frost_risk(req: FrostRiskRequest):
+async def assess_frost_risk(req: FrostRiskRequest, user: User = Depends(get_current_user)):
     """
     Assess frost risk and get protection recommendations
     تقييم خطر الصقيع والحصول على توصيات الحماية
@@ -694,6 +730,8 @@ async def assess_frost_risk(req: FrostRiskRequest):
     Evaluates frost risk based on temperature, humidity, wind, and cloud cover.
     Returns protection measures for different risk levels.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_frost_risk(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -710,7 +748,7 @@ async def assess_frost_risk(req: FrostRiskRequest):
 
 
 @app.post("/weather/heat-stress")
-async def assess_heat_stress(req: HeatStressRequest):
+async def assess_heat_stress(req: HeatStressRequest, user: User = Depends(get_current_user)):
     """
     Calculate heat stress index for crops
     حساب مؤشر الإجهاد الحراري للمحاصيل
@@ -718,6 +756,8 @@ async def assess_heat_stress(req: HeatStressRequest):
     Evaluates heat stress using Temperature-Humidity Index (THI).
     Returns mitigation recommendations for high stress conditions.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_heat_stress_index(
         temp_c=req.temp_c,
         humidity_pct=req.humidity_pct,
@@ -733,7 +773,7 @@ async def assess_heat_stress(req: HeatStressRequest):
 
 
 @app.post("/weather/chill-hours")
-async def calculate_chill(req: ChillHoursRequest):
+async def calculate_chill(req: ChillHoursRequest, user: User = Depends(get_current_user)):
     """
     Calculate chill hours/units for fruit trees
     حساب ساعات البرودة للأشجار المثمرة
@@ -745,6 +785,8 @@ async def calculate_chill(req: ChillHoursRequest):
 
     Returns chill units and which crops' requirements are satisfied.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_chill_hours(
         hourly_temps=req.hourly_temps,
         model=req.model,
@@ -759,7 +801,7 @@ async def calculate_chill(req: ChillHoursRequest):
 
 
 @app.post("/weather/drought-index")
-async def calculate_drought(req: DroughtIndexRequest):
+async def calculate_drought(req: DroughtIndexRequest, user: User = Depends(get_current_user)):
     """
     Calculate drought stress index
     حساب مؤشر الإجهاد الجفافي
@@ -767,6 +809,8 @@ async def calculate_drought(req: DroughtIndexRequest):
     Based on water balance (precipitation vs evapotranspiration).
     Returns irrigation recommendations.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     result = calculate_drought_index(
         precipitation_mm=req.precipitation_mm,
         et0_mm=req.et0_mm,
@@ -781,7 +825,7 @@ async def calculate_drought(req: DroughtIndexRequest):
 
 
 @app.post("/weather/comprehensive-stress-report")
-async def get_stress_report(req: LocationRequest):
+async def get_stress_report(req: LocationRequest, user: User = Depends(get_current_user)):
     """
     Comprehensive weather stress report
     تقرير الإجهاد الجوي الشامل
@@ -789,6 +833,8 @@ async def get_stress_report(req: LocationRequest):
     Combines frost risk, heat stress, spray window, and alerts
     into a single comprehensive stress assessment.
     """
+    _enforce_tenant(user, req.tenant_id)
+
     # Get current weather
     if app.state.multi_provider:
         weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)

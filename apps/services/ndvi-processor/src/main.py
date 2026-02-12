@@ -9,7 +9,7 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException, Query, Response
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -26,6 +26,9 @@ except ImportError:
     setup_cors_middleware = None
 
 import logging
+
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 
 from .models import (
     AnomalyResponse,
@@ -224,9 +227,28 @@ def readiness():
 # ============== Processing Endpoints ==============
 
 
+def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
+    """Validate JWT tenant matches the requested tenant."""
+    if user.tenant_id and user.tenant_id != requested_tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message_ar": "لا يمكنك الوصول إلى بيانات مستأجر آخر",
+                "message_en": "Cannot access another tenant's data",
+            },
+        )
+
+
 @app.post("/process", response_model=JobResponse, status_code=202)
-async def start_processing(request: ProcessRequest, background_tasks: BackgroundTasks):
+async def start_processing(
+    request: ProcessRequest,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+):
     """بدء معالجة صورة جديدة"""
+    _enforce_tenant(user, request.tenant_id)
+
     job_id = create_job(
         tenant_id=request.tenant_id,
         field_id=request.field_id,
@@ -256,7 +278,7 @@ async def get_job_status(job_id: str):
 
 
 @app.delete("/process/{job_id}")
-async def cancel_processing(job_id: str):
+async def cancel_processing(job_id: str, user: User = Depends(get_current_user)):
     """إلغاء معالجة"""
     success = cancel_job(job_id)
     if not success:
@@ -362,7 +384,7 @@ async def get_change_analysis(
 
 
 @app.post("/fields/{field_id}/ndvi/change", response_model=ChangeAnalysisResponse)
-async def post_change_analysis(field_id: str, request: ChangeAnalysisRequest):
+async def post_change_analysis(field_id: str, request: ChangeAnalysisRequest, user: User = Depends(get_current_user)):
     """تحليل التغير (POST)"""
     result = analyze_change(
         field_id,
@@ -453,7 +475,7 @@ async def export_ndvi(
 
 
 @app.post("/composites/monthly", response_model=CompositeResponse, status_code=201)
-async def create_monthly_composite(request: CompositeRequest):
+async def create_monthly_composite(request: CompositeRequest, user: User = Depends(get_current_user)):
     """إنشاء مركب شهري"""
     composite = create_composite(
         field_id=request.field_id,

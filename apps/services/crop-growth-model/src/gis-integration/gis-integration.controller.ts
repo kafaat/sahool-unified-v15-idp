@@ -7,7 +7,9 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   GISIntegrationService,
   GeoJSONFeatureCollection,
@@ -110,6 +112,7 @@ interface ValidateGeoJSONDto {
 }
 
 @Controller("gis")
+@UseGuards(JwtAuthGuard)
 export class GISIntegrationController {
   constructor(private readonly gisService: GISIntegrationService) {}
 

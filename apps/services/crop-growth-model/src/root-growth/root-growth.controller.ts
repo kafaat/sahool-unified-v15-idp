@@ -3,7 +3,8 @@
 // Based on SimRoot 3D Root Architecture Model
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -61,6 +62,7 @@ class RootArchitectureInput {
 
 @ApiTags("root-growth")
 @Controller("api/v1/roots")
+@UseGuards(JwtAuthGuard)
 export class RootGrowthController {
   constructor(private readonly rootGrowthService: RootGrowthService) {}
 

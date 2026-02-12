@@ -20,6 +20,9 @@ redis==5.2.1
 # Messaging
 nats-py==2.9.0
 
+# Authentication
+PyJWT>=2.8.0,<3.0.0
+
 # HTTP Client
 httpx==0.28.1
 

@@ -3,7 +3,8 @@
 // REST API for smart irrigation decision making
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -64,6 +65,7 @@ class SmartScheduleInput {
 
 @ApiTags("irrigation-decision")
 @Controller("api/v1/irrigation-decision")
+@UseGuards(JwtAuthGuard)
 export class IrrigationDecisionController {
   constructor(
     private readonly irrigationDecisionService: IrrigationDecisionService,

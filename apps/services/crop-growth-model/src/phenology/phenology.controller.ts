@@ -3,7 +3,8 @@
 // Based on WOFOST DVS (Development Stage) and thermal time accumulation
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, UseGuards } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   ApiTags,
   ApiOperation,
@@ -41,6 +42,7 @@ class PredictDatesInput {
 
 @ApiTags("phenology")
 @Controller("api/v1/phenology")
+@UseGuards(JwtAuthGuard)
 export class PhenologyController {
   constructor(private readonly phenologyService: PhenologyService) {}
 

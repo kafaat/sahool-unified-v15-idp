@@ -7,7 +7,9 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from "@nestjs/common";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { PlantingStrategyService } from "./planting-strategy.service";
 
 // Request DTOs
@@ -159,6 +161,7 @@ interface AnalyzeFieldDto {
 }
 
 @Controller("planting-strategy")
+@UseGuards(JwtAuthGuard)
 export class PlantingStrategyController {
   constructor(
     private readonly plantingStrategyService: PlantingStrategyService,

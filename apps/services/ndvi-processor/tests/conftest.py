@@ -94,7 +94,19 @@ def sample_ndvi_result() -> dict[str, Any]:
 
 @pytest.fixture
 def test_client():
-    """Create FastAPI test client"""
+    """Create FastAPI test client with auth dependency overridden"""
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
     from src.main import app
 
-    return TestClient(app)
+    def fake_current_user():
+        return User(
+            id="test-user-001",
+            email="test@sahool.sa",
+            roles=["farmer"],
+            tenant_id="test_tenant",
+        )
+
+    app.dependency_overrides[get_current_user] = fake_current_user
+    yield TestClient(app)
+    app.dependency_overrides.clear()

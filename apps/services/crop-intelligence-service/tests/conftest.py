@@ -5,7 +5,18 @@ Test Configuration and Fixtures
 
 import pytest
 from fastapi.testclient import TestClient
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
+
+
+def _fake_current_user():
+    return User(
+        id="test-user-001",
+        email="test@sahool.sa",
+        roles=["farmer"],
+        tenant_id="test_tenant",
+    )
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -27,8 +38,10 @@ def setup_test_data():
 
 @pytest.fixture
 def client(setup_test_data):
-    """Create test client with sample data initialized"""
-    return TestClient(app)
+    """Create test client with sample data initialized and auth overridden"""
+    app.dependency_overrides[get_current_user] = _fake_current_user
+    yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

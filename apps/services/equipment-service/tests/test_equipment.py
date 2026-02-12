@@ -11,13 +11,26 @@ from fastapi.testclient import TestClient
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from src.main import app
+
+
+def _fake_current_user():
+    return User(
+        id="test-user-001",
+        email="test@sahool.sa",
+        roles=["farmer"],
+        tenant_id="tenant-test",
+    )
 
 
 @pytest.fixture
 def client():
-    """Test client fixture"""
-    return TestClient(app)
+    """Test client fixture with auth dependency overridden"""
+    app.dependency_overrides[get_current_user] = _fake_current_user
+    yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

@@ -10,12 +10,25 @@ from kernel.services.agro_advisor.src.engine.planner import (
     get_stage_timeline,
 )
 from kernel.services.agro_advisor.src.main import app
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
+
+
+def _fake_current_user():
+    return User(
+        id="test-user-001",
+        email="test@sahool.sa",
+        roles=["farmer"],
+        tenant_id="test_tenant",
+    )
 
 
 @pytest.fixture
 def client():
-    """Create test client"""
-    return TestClient(app)
+    """Create test client with auth dependency overridden"""
+    app.dependency_overrides[get_current_user] = _fake_current_user
+    yield TestClient(app)
+    app.dependency_overrides.clear()
 
 
 class TestPlannerEngine:

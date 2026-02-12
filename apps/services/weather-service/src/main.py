@@ -1,7 +1,7 @@
 """
 SAHOOL Weather Core - Main API Service
 Agricultural weather assessment and alerts
-Port: 8108
+Port: 8092
 
 Multi-Provider Support:
 - Open-Meteo (Free - No API key required)
@@ -614,18 +614,22 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
 
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        if not result.success:
+            raise ExternalServiceException.weather_service(
+                details={
+                    "error": result.error,
+                    "error_ar": result.error_ar,
+                    "failed_providers": result.failed_providers,
+                }
+            )
+        weather = result.data
     else:
-        weather_data = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
+        weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
 
-    if "error" in weather_data:
-        raise ExternalServiceException(
-            service_name="Weather Provider", message=weather_data["error"]
-        )
-
-    temp_c = weather_data.get("temperature_c", 25)
-    humidity_pct = weather_data.get("humidity_percent", 50)
-    wind_speed_kmh = weather_data.get("wind_speed_kmh", 10)
+    temp_c = weather.temperature_c
+    humidity_pct = weather.humidity_pct
+    wind_speed_kmh = weather.wind_speed_kmh
 
     # Calculate all metrics
     et_result = calculate_evapotranspiration(
@@ -663,7 +667,6 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
         "location": {"lat": req.lat, "lon": req.lon},
-        "current_weather": weather_data,
         "evapotranspiration": et_result,
         "growing_degree_days": gdd_result,
         "spray_window": spray_result,
@@ -837,19 +840,23 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
 
     # Get current weather
     if app.state.multi_provider:
-        weather_data = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        if not result.success:
+            raise ExternalServiceException.weather_service(
+                details={
+                    "error": result.error,
+                    "error_ar": result.error_ar,
+                    "failed_providers": result.failed_providers,
+                }
+            )
+        weather = result.data
     else:
-        weather_data = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
+        weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
 
-    if "error" in weather_data:
-        raise ExternalServiceException(
-            service_name="Weather Provider", message=weather_data["error"]
-        )
-
-    temp_c = weather_data.get("temperature_c", 25)
-    humidity_pct = weather_data.get("humidity_percent", 50)
-    wind_speed_kmh = weather_data.get("wind_speed_kmh", 10)
-    cloud_cover_pct = weather_data.get("cloud_cover_percent", 50)
+    temp_c = weather.temperature_c
+    humidity_pct = weather.humidity_pct
+    wind_speed_kmh = weather.wind_speed_kmh
+    cloud_cover_pct = weather.cloud_cover_pct
 
     # Calculate stress metrics
     frost_result = calculate_frost_risk(
@@ -892,7 +899,6 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
         "location": {"lat": req.lat, "lon": req.lon},
-        "current_weather": weather_data,
         "overall_status": overall_status,
         "overall_color": overall_color,
         "frost_risk": frost_result,
@@ -904,5 +910,5 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", 8108))
+    port = int(os.getenv("PORT", 8092))
     uvicorn.run(app, host="0.0.0.0", port=port)

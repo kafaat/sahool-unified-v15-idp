@@ -22,6 +22,19 @@ from pydantic import BaseModel, Field, ValidationInfo, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+
+def sanitize_log_value(value: str) -> str:
+    """
+    Sanitize a string for safe logging by removing line breaks and
+    other control characters that could be used for log injection.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    # Remove carriage returns and newlines; optionally strip other controls.
+    value = value.replace("\r\n", "").replace("\n", "").replace("\r", "")
+    return value
+
+
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 except ImportError:
@@ -530,9 +543,12 @@ def validate_device_authorization(device_id: str, tenant_id: str, field_id: str)
     device = registry.get(device_id)
 
     if not device:
+        safe_device_id = sanitize_log_value(device_id)
+        safe_tenant_id = sanitize_log_value(tenant_id)
+        safe_field_id = sanitize_log_value(field_id)
         logger.error(
             f"Device authorization failed: Device not found. "
-            f"Device: {device_id}, Tenant: {tenant_id}, Field: {field_id}"
+            f"Device: {safe_device_id}, Tenant: {safe_tenant_id}, Field: {safe_field_id}"
         )
         return False
 
@@ -567,7 +583,10 @@ def validate_sensor_reading(
     # 1. Check device exists
     device = registry.get(device_id)
     if not device:
-        logger.error(f"Sensor reading rejected: Device {device_id} not registered")
+        safe_device_id = sanitize_log_value(device_id)
+        logger.error(
+            f"Sensor reading rejected: Device {safe_device_id} not registered"
+        )
         raise HTTPException(
             status_code=404,
             detail=f"Device {device_id} not registered. Please register device first.",
@@ -578,11 +597,14 @@ def validate_sensor_reading(
         raise HTTPException(
             status_code=403, detail="Device not authorized for this tenant or field"
         )
+    safe_device_id = sanitize_log_value(device_id)
+    safe_tenant_id = sanitize_log_value(tenant_id)
+    safe_sensor_type = sanitize_log_value(sensor_type)
 
     # 3. Value range already validated by Pydantic model
     logger.info(
         f"Sensor reading validated. "
-        f"Device: {device_id}, Tenant: {tenant_id}, Type: {sensor_type}, Value: {value}"
+        f"Device: {safe_device_id}, Tenant: {safe_tenant_id}, Type: {safe_sensor_type}, Value: {value}"
     )
 
 
@@ -643,13 +665,16 @@ async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(ge
         sensor_type=req.sensor_type,
         value=req.value,
         unit=req.unit,
+    safe_event_id = sanitize_log_value(event_id)
+    safe_device_id = sanitize_log_value(req.device_id)
+    safe_sensor_type = sanitize_log_value(req.sensor_type)
         timestamp=timestamp,
         metadata=req.metadata,
     )
 
     logger.info(
         f"Sensor reading published. "
-        f"Event: {event_id}, Device: {req.device_id}, Type: {req.sensor_type}"
+        f"Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}"
     )
 
     return {

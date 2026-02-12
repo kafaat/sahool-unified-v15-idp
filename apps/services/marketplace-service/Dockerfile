@@ -56,7 +56,10 @@ ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# OpenSSL runtime is included in bookworm-slim — no extra install needed for Prisma
+# Install OpenSSL for Prisma native query engine (bookworm-slim ships OpenSSL 3.x)
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends openssl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/marketplace-service/package.json ./

@@ -39,15 +39,15 @@ RUN pip install --no-cache-dir --upgrade pip || \
 # Install dependencies with fallback to Aliyun mirror
 COPY apps/services/advisory-service/requirements.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun mirror first (fast in China), fallback to official PyPI, finally Tencent
+# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
     -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \

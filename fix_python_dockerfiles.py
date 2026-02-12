@@ -40,7 +40,7 @@ def find_python_dockerfiles(root_dir: str = ".") -> list[Path]:
 def needs_update(content: str) -> bool:
     """Check if Dockerfile needs the resilient fallback pattern."""
     # Check if already has the robust fallback pattern with timeouts
-    if "timeout=300" in content and "pypi.org/simple" in content:
+    if "timeout=600" in content and "pypi.org/simple" in content:
         return False
 
     # Check if has pip install (with or without simple fallback)

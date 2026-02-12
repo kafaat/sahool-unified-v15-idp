@@ -398,6 +398,122 @@ make deps-audit           # Security audit of dependencies
 
 ---
 
+## Docker Build Conventions
+
+### Dockerfiles Overview
+
+The platform contains **84 Dockerfiles** (68 Python, 15 Node.js, 1 PostgreSQL).
+
+| File | Purpose |
+| ---- | ------- |
+| `docker/Dockerfile.python.base` | Base Python image (no mirror, basic pip config) |
+| `docker/Dockerfile.ai-base` | AI services base (Aliyun + Tsinghua mirrors) |
+| `docker/Dockerfile.node.base` | Node.js base |
+| `apps/services/*/Dockerfile` | Per-service Dockerfiles (77 services) |
+| `config/postgres/Dockerfile.walg` | PostgreSQL 16 + PostGIS 3.4 + WAL-G |
+| `idp/templates/python-fastapi/skeleton/Dockerfile` | IDP service template |
+
+### Python Base Image
+
+All Python services use `python:${PYTHON_VERSION}-slim-bookworm` (default 3.11).
+Exception: `yolo26-vision-service` uses `nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04`.
+
+### Pip Environment Variables (Standard)
+
+```dockerfile
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10
+```
+
+### Pip Mirror Configuration (3 Patterns)
+
+**Pattern A: Multi-Mirror Fallback** (37+ services - recommended)
+
+```dockerfile
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r requirements.txt
+```
+
+**Pattern B: Aliyun Mirror Only** (24+ services)
+
+```dockerfile
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ -r requirements.txt
+```
+
+**Pattern C: No Mirror** (7+ services - not recommended)
+
+```dockerfile
+RUN pip install --no-cache-dir -r requirements.txt
+```
+
+### pip.conf (AI Base Image)
+
+```ini
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+               download.pytorch.org
+[install]
+prefer-binary = true
+```
+
+### Available Pip Mirrors
+
+| Mirror | URL | Region |
+| ------ | --- | ------ |
+| Official PyPI | `https://pypi.org/simple` | Global |
+| Alibaba Cloud | `https://mirrors.aliyun.com/pypi/simple/` | Asia (primary) |
+| Tsinghua University | `https://pypi.tuna.tsinghua.edu.cn/simple/` | Asia (secondary) |
+| Tencent Cloud | `https://mirrors.cloud.tencent.com/pypi/simple` | Asia (tertiary) |
+| PyTorch CUDA | `https://download.pytorch.org/whl/cu121` | GPU services only |
+
+### Constraints Files
+
+| File | Purpose |
+| ---- | ------- |
+| `constraints.txt` | Platform-wide version constraints (100+ packages) |
+| `docker/constraints-ai.txt` | AI service version pins with CVE patches |
+
+Usage: `pip install --no-cache-dir -c constraints.txt -r requirements.txt`
+
+### NPM Mirror (Node.js Services)
+
+```dockerfile
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps || \
+    (npm config set registry https://registry.npmjs.org && npm install --legacy-peer-deps)
+```
+
+### Docker Security Pattern
+
+All services follow:
+- Non-root user `sahool` (UID 1000)
+- Read-only filesystem where possible
+- Multi-stage builds (35+ services)
+- HEALTHCHECK directives
+
+---
+
 ## Python Service Conventions
 
 ### File Structure (FastAPI Service)

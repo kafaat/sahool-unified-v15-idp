@@ -187,8 +187,8 @@ sahool-unified-v15-idp/
 | **Node.js Services**   | NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, React 19.x               |
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
-| **Message Queue**      | NATS 2.x (event-driven architecture)                                  |
-| **API Gateway**        | Kong (authentication, rate limiting)                                  |
+| **Message Queue**      | NATS 2.10.x with JetStream (event-driven architecture)               |
+| **API Gateway**        | Kong 3.x (authentication, rate limiting, 79 routes)                   |
 | **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
 | **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
@@ -216,13 +216,19 @@ sahool-unified-v15-idp/
 
 ### Infrastructure
 
-| Layer          | Technology                              |
-| -------------- | --------------------------------------- |
-| **Container**  | Docker, Kubernetes (K8s)                |
-| **IaC**        | Terraform, Helm Charts                  |
-| **CI/CD**      | GitHub Actions (48 workflows), Argo CD  |
-| **Monitoring** | Prometheus, Grafana, OpenTelemetry      |
-| **Secrets**    | HashiCorp Vault                         |
+| Layer            | Technology                                        |
+| ---------------- | ------------------------------------------------- |
+| **Container**    | Docker, Kubernetes (K8s)                          |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (21)      |
+| **CI/CD**        | GitHub Actions (51 workflows), Argo CD (14 apps)  |
+| **Monitoring**   | Prometheus, Grafana (9 dashboards), OpenTelemetry  |
+| **Tracing**      | Jaeger, OpenTelemetry Collector                    |
+| **Secrets**      | HashiCorp Vault 1.17                               |
+| **Object Store** | MinIO (S3-compatible)                              |
+| **Vector DB**    | Qdrant 1.7.x, Milvus 2.3.x                       |
+| **ML Tracking**  | MLflow 2.15.x                                      |
+| **IoT Broker**   | Mosquitto (MQTT) 2.x                               |
+| **Local LLM**    | Ollama 0.5.x                                       |
 
 ---
 
@@ -723,12 +729,13 @@ GET /metrics         # Prometheus metrics
 
 ### Rate Limiting Tiers
 
-| Tier     | Requests/min | Requests/hour |
-| -------- | ------------ | ------------- |
-| Free     | 30           | 500           |
-| Standard | 60           | 2000          |
-| Premium  | 120          | 5000          |
-| Internal | 1000         | 50000         |
+| Tier       | Requests/min | Requests/hour |
+| ---------- | ------------ | ------------- |
+| Starter    | 30           | 500           |
+| Professional | 60         | 2000          |
+| Enterprise | 120          | 5000          |
+| Research   | 120          | 10000         |
+| Internal   | 1000         | 50000         |
 
 ---
 
@@ -818,8 +825,12 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker-compose.telemetry.yml`  | OpenTelemetry stack                          |
 | `docker-compose.tls.yml`        | TLS/SSL configuration                        |
 | `docker-compose.walg.yml`       | Backup/recovery (WAL-G)                      |
+| `docker/docker-compose.dlq.yml` | Dead Letter Queue configuration             |
+| `docker/docker-compose.iot.yml` | IoT services                                |
+| `docker/docker-compose.secrets.yml` | Secrets management                       |
+| `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (27 workspaces)       |
+| `package.json`                  | Node.js root workspace (30 workspaces)       |
 | `.env.example`                  | Environment template                         |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -888,16 +899,16 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (48):
+GitHub Workflows (51):
 
 - **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`
 - **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`
 - **Deployment**: `cd-production.yml`, `cd-staging.yml`, `cd-new-services.yml`, `canary-deploy.yml`, `blue-green-deploy.yml`
-- **Testing**: `frontend-tests.yml`, `mobile-ci.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-test-validation.yml`
+- **Testing**: `frontend-tests.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-testing.yml`, `load-test-validation.yml`
 - **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`
 - **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`
 - **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `skills-tests.yml`
-- **Mobile**: `flutter-apk.yml`, `mobile-release.yml`
+- **Frontend/Mobile**: `frontend-ci.yml`, `flutter-apk.yml`, `mobile-ci.yml`, `mobile-release.yml`
 - **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`
 - **AI/Evaluation**: `agent-evaluation.yml`, `skills-tests.yml`
 - **PR Automation**: `auto-merge-prs.yml`, `pr-status-monitor.yml`

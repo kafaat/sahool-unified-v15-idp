@@ -32,7 +32,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 95 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 77 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -40,7 +40,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (30 npm workspaces)
+├── packages/                   # Shared packages (28 npm workspaces)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -145,13 +145,13 @@ sahool-unified-v15-idp/
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (171+ docs)
+├── docs/                       # Technical documentation (365+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
-├── tests/                      # Test suites (17 categories)
+├── tests/                      # Test suites (18 categories)
 │   ├── unit/                   # Fast unit tests
 │   ├── integration/            # API & database tests
 │   ├── smoke/                  # Import verification
@@ -188,7 +188,7 @@ sahool-unified-v15-idp/
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
 | **Database**           | PostgreSQL 16+ with PostGIS 3.4 (geospatial)                          |
 | **Message Queue**      | NATS 2.10.x with JetStream (event-driven architecture)               |
-| **API Gateway**        | Kong 3.x (authentication, rate limiting, 79 routes)                   |
+| **API Gateway**        | Kong 3.x (authentication, rate limiting, 105 routes)                  |
 | **Caching**            | Redis 7.x (sessions, rate limiting)                                   |
 | **Connection Pooling** | PgBouncer (transaction mode, 250 max connections)                     |
 
@@ -202,7 +202,7 @@ sahool-unified-v15-idp/
 | **Background Tasks** | Workmanager                            |
 | **Maps**             | flutter_map 8.1.x, latlong2            |
 | **Network**          | Dio 5.x with certificate pinning       |
-| **Crash Reporting**  | Sentry (sentry_flutter 8.x)            |
+| **Crash Reporting**  | Sentry (@sentry/nextjs 8.x for web)    |
 
 ### Frontend (Web/Admin)
 
@@ -219,9 +219,9 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (21)      |
-| **CI/CD**        | GitHub Actions (51 workflows), Argo CD (14 apps)  |
-| **Monitoring**   | Prometheus, Grafana (9 dashboards), OpenTelemetry  |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (19)      |
+| **CI/CD**        | GitHub Actions (48 workflows), Argo CD (18 apps)  |
+| **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
 | **Object Store** | MinIO (S3-compatible)                              |
@@ -402,7 +402,7 @@ make deps-audit           # Security audit of dependencies
 
 ### Dockerfiles Overview
 
-The platform contains **84 Dockerfiles** (68 Python, 15 Node.js, 1 PostgreSQL).
+The platform contains **109 Dockerfiles** across Python, Node.js, and infrastructure services.
 
 | File | Purpose |
 | ---- | ------- |
@@ -932,7 +932,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 
 | File                            | Purpose                                     |
 | ------------------------------- | ------------------------------------------- |
-| `Makefile`                      | All development commands (~115 targets)      |
+| `Makefile`                      | All development commands (~140 targets)      |
 | `docker-compose.yml`            | Full service stack (main)                    |
 | `docker-compose.test.yml`       | Testing environment                          |
 | `docker-compose.prod.yml`       | Production configuration                     |
@@ -946,7 +946,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.secrets.yml` | Secrets management                       |
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (30 workspaces)       |
+| `package.json`                  | Node.js root workspace (28 workspaces)       |
 | `.env.example`                  | Environment template                         |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1015,7 +1015,7 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (51):
+GitHub Workflows (48):
 
 - **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`
 - **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`
@@ -1026,7 +1026,7 @@ GitHub Workflows (51):
 - **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `skills-tests.yml`
 - **Frontend/Mobile**: `frontend-ci.yml`, `flutter-apk.yml`, `mobile-ci.yml`, `mobile-release.yml`
 - **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`
-- **AI/Evaluation**: `agent-evaluation.yml`, `skills-tests.yml`
+- **AI/Evaluation**: `agent-evaluation.yml`
 - **PR Automation**: `auto-merge-prs.yml`, `pr-status-monitor.yml`
 - **Docs/Preview**: `docs.yml`, `lighthouse-ci.yml`, `deploy-preview.yml`, `vercel-preview.yml`, `playwright-e2e.yml`
 - **Other**: `notifications.yml`, `scorecard.yml`, `reusable-setup.yml`, `generator-guard.yml`
@@ -2581,13 +2581,13 @@ The `shared/` directory contains 64+ Python modules organized by domain. Beyond 
 
 ## Platform Documentation Map
 
-The platform contains **367+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **365+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 367+ files)
+### Main Documentation (`docs/` - 365+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |
-| `docs/` (root) | 175 | Core platform docs (API, architecture, deployment, security, operations) |
+| `docs/` (root) | 145 | Core platform docs (API, architecture, deployment, security, operations) |
 | `docs/adr/` | 9 | Architectural Decision Records (ADR-001 through ADR-007) |
 | `docs/api/` | 8 | API endpoint documentation (AI, auth, fields, sensors, weather) |
 | `docs/architecture/` | 9 | Architecture proposals, principles, service activation maps |
@@ -2649,7 +2649,7 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 
 > **Note**: Individual services also have `README.md` files (69+ services) with bilingual (EN/AR) docs.
 
-### Governance (`governance/` - 27 files)
+### Governance (`governance/` - 26 files)
 
 | Path | Purpose |
 | ---- | ------- |
@@ -2662,7 +2662,7 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 | `templates/` | Service scaffolding templates (API, backend, worker) |
 | `design/design-tokens.yaml` | Design system tokens |
 
-### Internal Developer Platform (`idp/` - 31 files)
+### Internal Developer Platform (`idp/` - 41 files)
 
 | Path | Purpose |
 | ---- | ------- |
@@ -2675,13 +2675,13 @@ Detailed per-service documentation with API endpoints, architecture, and admin i
 | `templates/data-pipeline/` | Data pipeline template |
 | `sahoolctl/README.md` | CLI tool documentation |
 
-### Infrastructure Documentation (`infrastructure/` - 95+ files)
+### Infrastructure Documentation (`infrastructure/` - 182+ files)
 
 | Path | Purpose |
 | ---- | ------- |
 | `gateway/kong/` | Kong gateway setup, runbook, security (15+ files) |
 | `monitoring/` | Prometheus, Grafana dashboards, alert rules (20+ files) |
-| `monitoring/grafana/dashboards/` | 9 Grafana dashboards (agricultural insights, API gateway, etc.) |
+| `monitoring/grafana/dashboards/` | 4 Grafana dashboards (agricultural insights, disaster recovery, SLO, AI skills) |
 | `monitoring/prometheus/rules/` | Alert rules (agricultural, DR, NATS, SLO) |
 | `core/postgres/` | PostgreSQL HA with Patroni |
 | `core/pgbouncer/` | PgBouncer connection pooling |

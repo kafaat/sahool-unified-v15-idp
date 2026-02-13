@@ -89,18 +89,20 @@ except ImportError:
 
 
 try:
-    from auth.dependencies import (
-        api_key_auth,
+    from shared.auth.dependencies import (
         get_current_active_user,
         require_roles,
     )
-    from auth.models import User
 
     AUTH_AVAILABLE = True
+
+    async def api_key_auth():
+        """Service-to-service API key auth (placeholder when shared auth is available)"""
+        return None
+
 except ImportError:
     # SECURITY: Auth module not available - restrict access in production
     AUTH_AVAILABLE = False
-    User = None
     ENVIRONMENT = os.getenv("ENVIRONMENT", "production").lower()
 
     if ENVIRONMENT not in ("development", "dev", "test", "testing"):

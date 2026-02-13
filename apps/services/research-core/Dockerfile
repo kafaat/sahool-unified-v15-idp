@@ -54,9 +54,9 @@ ARG NODE_VERSION=20
 
 WORKDIR /app
 
-# Install curl for health checks
+# Install curl for health checks and OpenSSL for Prisma native query engine
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy package files from builder (includes generated package-lock.json)

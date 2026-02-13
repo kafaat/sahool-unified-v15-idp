@@ -22,7 +22,7 @@ psycopg2-binary==2.9.9
 nats-py==2.9.0
 
 # Redis for caching
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Utilities
 python-dotenv==1.0.1

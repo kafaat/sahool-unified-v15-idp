@@ -477,7 +477,7 @@ jobs:
             pip install -r ${{ matrix.service }}/requirements.txt --quiet
           fi
           # Pin pytest-asyncio to compatible version (0.23.x for asyncio_mode support)
-          pip install pytest "pytest-asyncio>=0.23.0,<1.0.0" pytest-cov pytest-timeout httpx fastapi pydantic --quiet
+          pip install pytest "pytest-asyncio>=0.23.0,<1.0.0" pytest-cov pytest-timeout httpx fastapi pydantic "cryptography>=42.0.0" --quiet
 
       - name: Run tests
         run: |

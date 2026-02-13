@@ -101,8 +101,8 @@ except ImportError:
 
 # Import Token Revocation Support | استيراد دعم إلغاء الرموز
 try:
-    from auth.revocation_middleware import TokenRevocationMiddleware
-    from auth.token_revocation import get_revocation_store
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+    from shared.auth.token_revocation import get_revocation_store
 
     REVOCATION_AVAILABLE = True
 except ImportError:

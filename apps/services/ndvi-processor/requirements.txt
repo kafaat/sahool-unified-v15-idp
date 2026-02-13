@@ -15,13 +15,14 @@ tortoise-orm==0.21.7
 asyncpg==0.30.0
 
 # Caching & Queue
-redis==5.2.1
+redis>=7.1.0,<8.0.0
 
 # Messaging
 nats-py==2.9.0
 
 # Authentication
 PyJWT>=2.8.0,<3.0.0
+cryptography>=42.0.0
 
 # HTTP Client
 httpx==0.28.1

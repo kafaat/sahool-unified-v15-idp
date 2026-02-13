@@ -41,8 +41,8 @@ from shared.errors_py import (
 
 # Import authentication dependencies
 try:
-    from auth.dependencies import get_current_user
-    from auth.models import User
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 
     AUTH_AVAILABLE = True
 except ImportError:
@@ -57,8 +57,8 @@ except ImportError:
 
 # Token revocation middleware
 try:
-    from auth.revocation_middleware import TokenRevocationMiddleware
-    from auth.token_revocation import get_revocation_store
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+    from shared.auth.token_revocation import get_revocation_store
 
     REVOCATION_AVAILABLE = True
 except ImportError:

@@ -156,6 +156,55 @@ class ForbiddenException(SahoolException):
         )
 
 
+class ExternalServiceException(SahoolException):
+    """External service error exception."""
+
+    def __init__(
+        self,
+        message: str = "External service error",
+        message_ar: str = "خطأ في الخدمة الخارجية",
+        details: dict[str, Any] | None = None,
+    ):
+        super().__init__(
+            message=message,
+            message_ar=message_ar,
+            code=ErrorCode.EXTERNAL_SERVICE_ERROR,
+            status_code=502,
+            details=details,
+        )
+
+    @classmethod
+    def weather_service(
+        cls,
+        error: Exception | None = None,
+        details: dict[str, Any] | None = None,
+    ) -> "ExternalServiceException":
+        msg = f"Weather service error: {error}" if error else "Weather service unavailable"
+        return cls(
+            message=msg,
+            message_ar="خطأ في خدمة الطقس",
+            details=details,
+        )
+
+
+class InternalServerException(SahoolException):
+    """Internal server error exception."""
+
+    def __init__(
+        self,
+        message: str = "Internal server error",
+        message_ar: str = "خطأ داخلي في الخادم",
+        details: dict[str, Any] | None = None,
+    ):
+        super().__init__(
+            message=message,
+            message_ar=message_ar,
+            code=ErrorCode.INTERNAL_ERROR,
+            status_code=500,
+            details=details,
+        )
+
+
 def create_error_response(
     exc: SahoolException,
     request_id: str | None = None,

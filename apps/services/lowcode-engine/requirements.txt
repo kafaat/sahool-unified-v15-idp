@@ -29,7 +29,7 @@ cryptography>=42.0.0
 slowapi>=0.1.9,<1.0.0
 
 # Caching
-redis>=5.0.0,<6.0.0
+redis>=7.1.0,<8.0.0
 
 # JSON Schema (for data model validation)
 jsonschema>=4.23.0,<5.0.0

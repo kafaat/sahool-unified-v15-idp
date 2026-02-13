@@ -23,6 +23,6 @@ cryptography>=42.0.0
 # Service-specific dependencies
 nats-py==2.9.0
 aiomqtt==2.3.0
-redis>=5.0.0
+redis>=7.1.0,<8.0.0
 
 structlog>=24.1.0

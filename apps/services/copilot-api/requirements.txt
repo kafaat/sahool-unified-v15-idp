@@ -17,7 +17,7 @@ qdrant-client>=1.7.0
 sentence-transformers>=2.2.0
 torch>=2.0.0
 # Caching & Message Queue
-redis>=5.0.0
+redis>=7.1.0,<8.0.0
 nats-py>=2.6.0
 # Logging & Monitoring
 structlog>=24.1.0

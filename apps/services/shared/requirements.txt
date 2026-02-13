@@ -24,7 +24,7 @@ passlib[bcrypt]==1.7.4
 
 # Messaging
 nats-py>=2.7.0
-redis[hiredis]>=5.2.1
+redis[hiredis]>=7.1.0,<8.0.0
 
 # Utilities
 python-dotenv==1.0.1

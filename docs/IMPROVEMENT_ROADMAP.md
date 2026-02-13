@@ -202,7 +202,7 @@ mv apps/services/satellite-service archive/deprecated/
 ### 6.2 تحسينات الكاش
 
 - [ ] تحسين استراتيجية Redis caching
-- [ ] إضافة cache invalidation patterns
+- [x] إضافة cache invalidation patterns (تم التنفيذ في yolo26-vision-service - ResultCache.invalidate بالأنماط task/variant)
 
 ### 6.3 تحسينات Kong
 

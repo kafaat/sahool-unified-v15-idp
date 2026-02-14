@@ -3042,10 +3042,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-ai-chat-assistant
     ports:
-    - 8230:8230
+    - 8260:8260
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8230
+    - PORT=8260
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -3054,7 +3054,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8230/healthz
+      - http://localhost:8260/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3071,7 +3071,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=ai-chat-assistant
-    - sahool.port=8230
+    - sahool.port=8260
     - sahool.category=community
     - traefik.enable=true
     - traefik.http.routers.ai-chat-assistant.rule=PathPrefix(`/api/v1/ai/chat/assistant`)
@@ -3315,10 +3315,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-demo-data
     ports:
-    - 3000:3000
+    - 8261:8261
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3000
+    - PORT=8261
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -3327,7 +3327,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:3000/healthz
+      - http://localhost:8261/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -3344,7 +3344,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=demo-data
-    - sahool.port=3000
+    - sahool.port=8261
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.demo-data.rule=PathPrefix(`/api/v1/demo/data`)

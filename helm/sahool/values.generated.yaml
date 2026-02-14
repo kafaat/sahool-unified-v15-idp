@@ -2419,7 +2419,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8230
+    port: 8260
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2435,13 +2435,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8230'
+      value: '8260'
     serviceAccount:
       create: true
       name: sahool-ai-chat-assistant
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8230'
+      prometheus.io/port: '8260'
       prometheus.io/path: /metrics
   pest-detection-service:
     enabled: true
@@ -2643,7 +2643,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 3000
+    port: 8261
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2659,13 +2659,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '3000'
+      value: '8261'
     serviceAccount:
       create: true
       name: sahool-demo-data
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3000'
+      prometheus.io/port: '8261'
       prometheus.io/path: /metrics
 applications:
   web:
@@ -3028,7 +3028,7 @@ ingress:
     - path: /api/v1/ai/chat/assistant
       pathType: Prefix
       service: ai-chat-assistant
-      port: 8230
+      port: 8260
     - path: /api/v1/pest/detection/service
       pathType: Prefix
       service: pest-detection-service
@@ -3056,7 +3056,7 @@ ingress:
     - path: /api/v1/demo/data
       pathType: Prefix
       service: demo-data
-      port: 3000
+      port: 8261
   tls:
   - secretName: sahool-tls
     hosts:

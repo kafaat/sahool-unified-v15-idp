@@ -57,12 +57,16 @@ Comprehensive soil testing and analysis service for agricultural operations with
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/soil/interpret` | POST | Interpret soil test results (crop-specific) |
+| `/api/v1/soil/interpretation/nutrient-status` | POST | Check individual nutrient status (nutrient, value, extraction_method) |
+| `/api/v1/soil/interpretation/ph-status` | POST | Check soil pH status and classification |
+| `/api/v1/soil/interpretation/ec-status` | POST | Check soil EC/salinity status |
 
 ### Recommendations
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/soil/recommendations/amendment-plan` | POST | Generate amendment plan (crop, target_yield, field_area_ha) |
+| `/api/v1/soil/recommendations/calculate-rate` | POST | Calculate fertilizer application rate (nutrient_needed_kg_ha, fertilizer_nutrient_percent) |
 | `/api/v1/soil/products` | GET | List available fertilizer products |
 | `/api/v1/soil/crops/{crop}/requirements` | GET | Get crop nutrient requirements |
 
@@ -71,17 +75,8 @@ Comprehensive soil testing and analysis service for agricultural operations with
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/api/v1/soil/trends` | POST | Analyze soil trends for a field (field_id, tenant_id) |
-
-### Planned Endpoints (Not Yet Implemented)
-
-The following endpoints are planned for future releases:
-
-- **Nutrient Status**: `/api/v1/soil/interpretation/nutrient-status` - Individual nutrient assessment
-- **pH Status**: `/api/v1/soil/interpretation/ph-status` - pH recommendations
-- **EC Status**: `/api/v1/soil/interpretation/ec-status` - Salinity assessment
-- **Rate Calculator**: `/api/v1/soil/recommendations/calculate-rate` - Application rate calculation
-- **Nutrient Trends**: `/api/v1/soil/trends/nutrient/{nutrient}` - Per-nutrient trends
-- **Period Comparison**: `/api/v1/soil/trends/compare-periods` - Cross-period analysis
+| `/api/v1/soil/trends/nutrient` | POST | Get trend for a specific nutrient (field_id, tenant_id, nutrient) |
+| `/api/v1/soil/trends/compare-periods` | POST | Compare soil health between two time periods |
 
 ---
 

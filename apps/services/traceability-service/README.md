@@ -61,11 +61,16 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 | `/api/v1/traceability/batches` | GET | List produce batches (optional tenant_id, farm_id filters) |
 | `/api/v1/traceability/batches` | POST | Create new batch with auto-generated batch code |
 | `/api/v1/traceability/batches/{batch_id}` | GET | Get batch details |
+| `/api/v1/traceability/batches/{batch_id}` | PUT | Update batch details (product name, quantity, status) |
+| `/api/v1/traceability/batches/{batch_id}/split` | POST | Split batch into sub-batches |
+| `/api/v1/traceability/batches/generate-code` | POST | Generate batch code (product_code, year, sequence) |
+| `/api/v1/traceability/batches/verify-code/{code}` | GET | Verify batch code format and existence |
 
 ### Supply Chain Events
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
+| `/api/v1/traceability/batches/{batch_id}/events` | GET | List all events for a batch |
 | `/api/v1/traceability/batches/{batch_id}/events/harvest` | POST | Record harvest event |
 | `/api/v1/traceability/batches/{batch_id}/events/processing` | POST | Record processing event |
 | `/api/v1/traceability/batches/{batch_id}/events/storage` | POST | Record storage event |
@@ -88,10 +93,9 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 
 The following endpoints are planned for future releases:
 
-- **Batch Operations**: Update batch, status updates, splits, merges
-- **Batch Code Utilities**: `/api/v1/traceability/batches/generate-code`, `/api/v1/traceability/batches/verify-code/{code}`
-- **Event Management**: List batch events, retail events, event details
-- **QR Generation**: QR code generation (POST), label generation, QR decode/verify
+- **Batch Merge**: Merge multiple batches into one
+- **Retail Events**: Record retail/point-of-sale events
+- **QR Generation**: QR code generation (POST), label generation
 - **Consumer Features**: Consumer scan recording, certification display
 - **Certifications**: Full certification CRUD and batch attachment
 - **Reports**: Trace reports, supply chain reports, compliance reports

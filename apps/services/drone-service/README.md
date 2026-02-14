@@ -96,15 +96,24 @@ Comprehensive drone integration service for agricultural operations including fl
 | `/api/v1/missions/{mission_id}/resume` | POST | Resume mission |
 | `/api/v1/missions/{mission_id}/abort` | POST | Abort mission |
 
+### VRA (Variable Rate Application)
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/vra/prescription/ndvi` | POST | Create NDVI-based prescription map |
+| `/api/v1/vra/prescription/spot-spray` | POST | Create spot spray map from detection points |
+| `/api/v1/vra/prescriptions` | GET | List prescription maps (optional field_id filter) |
+| `/api/v1/vra/prescriptions/{prescription_id}` | GET | Get prescription map details |
+
 ### Planned Endpoints (Not Yet Implemented)
 
 The following endpoints are planned for future releases:
 
-- **VRA**: `/api/v1/vra/*` - Variable Rate Application prescription maps
 - **Flight Logs**: `/api/v1/logs/*` - Flight log management and analytics
 - **Imagery**: `/api/v1/imagery/*` - Aerial imagery processing
 - **Perimeter Flights**: `/api/v1/flights/plan/perimeter`
 - **Mission Export**: `/api/v1/missions/{mission_id}/export`
+- **VRA Export**: `/api/v1/vra/{id}/export` - Export prescription (Shapefile/GeoJSON)
 
 ---
 

@@ -62,6 +62,40 @@ class AmendmentPlanRequest(BaseModel):
     area_ha: float = 1.0
 
 
+class NutrientStatusRequest(BaseModel):
+    nutrient: str = Field(..., description="Nutrient code: N, P, K, Ca, Mg, S, Fe, Mn, Zn, Cu, B")
+    value: float = Field(..., ge=0, description="Value in ppm")
+    extraction_method: str = "olsen"
+
+
+class PhStatusRequest(BaseModel):
+    ph: float = Field(..., ge=0, le=14, description="Soil pH value")
+
+
+class EcStatusRequest(BaseModel):
+    ec_ds_m: float = Field(..., ge=0, description="EC in dS/m")
+
+
+class FertilizerRateRequest(BaseModel):
+    nutrient_needed_kg_ha: float = Field(..., gt=0, description="Nutrient needed in kg/ha")
+    fertilizer_nutrient_percent: float = Field(..., gt=0, le=100, description="Nutrient content in fertilizer (%)")
+
+
+class NutrientTrendRequest(BaseModel):
+    field_id: str
+    tenant_id: str
+    nutrient: str = Field(..., description="Nutrient code: N, P, K, etc.")
+
+
+class PeriodCompareRequest(BaseModel):
+    field_id: str
+    tenant_id: str
+    period1_start: datetime
+    period1_end: datetime
+    period2_start: datetime
+    period2_end: datetime
+
+
 class TrendRequest(BaseModel):
     field_id: str
     tenant_id: str
@@ -308,3 +342,125 @@ async def get_crop_nutrient_requirements(crop: str):
         return {"crop": crop, "requirements": reqs}
     except ImportError:
         return {"crop": crop, "requirements": None, "message": "Crop requirements data not available"}
+
+
+@router.post("/interpretation/nutrient-status")
+async def check_nutrient_status(request: NutrientStatusRequest):
+    """Check individual nutrient status - فحص حالة عنصر غذائي فردي"""
+    try:
+        from shared.soil_testing import get_nutrient_status
+        from shared.soil_testing.models import ExtractionMethod
+
+        method = ExtractionMethod(request.extraction_method)
+        status, description_en, description_ar = get_nutrient_status(
+            nutrient=request.nutrient,
+            value=request.value,
+            extraction_method=method,
+        )
+        return {
+            "nutrient": request.nutrient,
+            "value": request.value,
+            "status": status.value if hasattr(status, "value") else str(status),
+            "description": description_en,
+            "description_ar": description_ar,
+            "extraction_method": request.extraction_method,
+        }
+    except ImportError:
+        return {"nutrient": request.nutrient, "value": request.value, "status": None, "message": "Nutrient status module not available"}
+
+
+@router.post("/interpretation/ph-status")
+async def check_ph_status(request: PhStatusRequest):
+    """Check soil pH status - فحص حالة حموضة التربة"""
+    try:
+        from shared.soil_testing import get_ph_status
+
+        status_en, status_ar = get_ph_status(request.ph)
+        return {"ph": request.ph, "status": status_en, "status_ar": status_ar}
+    except ImportError:
+        return {"ph": request.ph, "status": None, "message": "pH status module not available"}
+
+
+@router.post("/interpretation/ec-status")
+async def check_ec_status(request: EcStatusRequest):
+    """Check soil EC/salinity status - فحص حالة ملوحة التربة"""
+    try:
+        from shared.soil_testing import get_ec_status
+
+        status_en, status_ar = get_ec_status(request.ec_ds_m)
+        return {"ec_ds_m": request.ec_ds_m, "status": status_en, "status_ar": status_ar}
+    except ImportError:
+        return {"ec_ds_m": request.ec_ds_m, "status": None, "message": "EC status module not available"}
+
+
+@router.post("/recommendations/calculate-rate")
+async def calculate_rate(request: FertilizerRateRequest):
+    """Calculate fertilizer application rate - حساب معدل تطبيق السماد"""
+    try:
+        from shared.soil_testing import calculate_fertilizer_rate
+
+        rate_kg_ha = calculate_fertilizer_rate(
+            nutrient_needed_kg_ha=request.nutrient_needed_kg_ha,
+            fertilizer_nutrient_percent=request.fertilizer_nutrient_percent,
+        )
+        return {
+            "nutrient_needed_kg_ha": request.nutrient_needed_kg_ha,
+            "fertilizer_nutrient_percent": request.fertilizer_nutrient_percent,
+            "application_rate_kg_ha": round(rate_kg_ha, 2),
+        }
+    except ImportError:
+        return {"application_rate_kg_ha": None, "message": "Rate calculation module not available"}
+
+
+@router.post("/trends/nutrient")
+async def get_single_nutrient_trend(request: NutrientTrendRequest):
+    """Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد"""
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
+
+    if not field_tests:
+        return {"field_id": request.field_id, "nutrient": request.nutrient, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}
+
+    try:
+        from shared.soil_testing import get_nutrient_trend
+
+        soil_test_objs = [t["_soil_test_obj"] for t in field_tests if "_soil_test_obj" in t]
+        if not soil_test_objs:
+            return {"field_id": request.field_id, "nutrient": request.nutrient, "message": "No processable tests"}
+
+        trend = get_nutrient_trend(soil_test_objs, nutrient=request.nutrient)
+        return {
+            "field_id": request.field_id,
+            "nutrient": trend.nutrient_code,
+            "nutrient_name": trend.nutrient_name,
+            "nutrient_name_ar": trend.nutrient_name_ar,
+            "unit": trend.unit,
+        }
+    except ImportError:
+        return {"field_id": request.field_id, "nutrient": request.nutrient, "message": "Nutrient trend module not available"}
+
+
+@router.post("/trends/compare-periods")
+async def compare_periods(request: PeriodCompareRequest):
+    """Compare soil health between two periods - مقارنة صحة التربة بين فترتين"""
+    field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
+
+    if not field_tests:
+        return {"field_id": request.field_id, "message": "No soil tests found", "message_ar": "لا توجد تحاليل تربة"}
+
+    try:
+        from shared.soil_testing import compare_soil_periods
+
+        soil_test_objs = [t["_soil_test_obj"] for t in field_tests if "_soil_test_obj" in t]
+        if not soil_test_objs:
+            return {"field_id": request.field_id, "message": "No processable tests"}
+
+        comparison = compare_soil_periods(
+            soil_test_objs,
+            period1_start=request.period1_start,
+            period1_end=request.period1_end,
+            period2_start=request.period2_start,
+            period2_end=request.period2_end,
+        )
+        return {"field_id": request.field_id, "comparison": comparison}
+    except ImportError:
+        return {"field_id": request.field_id, "message": "Period comparison module not available"}

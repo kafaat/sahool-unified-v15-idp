@@ -93,11 +93,12 @@ except ImportError:
 
 # Include API routers
 try:
-    from src.api.v1 import drones, flights, missions
+    from src.api.v1 import drones, flights, missions, vra
 
     app.include_router(drones.router)
     app.include_router(flights.router)
     app.include_router(missions.router)
+    app.include_router(vra.router)
     logger.info("API routers registered")
 except ImportError as e:
     logger.error("Failed to import API routers", error=str(e))

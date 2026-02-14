@@ -27,20 +27,21 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --upgrade pip "setuptools>=68.0" wheel build
 
 # Install dependencies with resilient multi-mirror fallback strategy
+COPY constraints.txt .
 COPY apps/services/task-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    --user -r requirements.txt || \
+    --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    --user -r requirements.txt || \
+    --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    --user -r requirements.txt
+    --user -c constraints.txt -r requirements.txt
 
 # Stage 2: Production
 FROM python:${PYTHON_VERSION}-slim-bookworm AS production

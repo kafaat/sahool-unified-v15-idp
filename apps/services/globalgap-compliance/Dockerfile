@@ -24,7 +24,8 @@ RUN groupadd -r sahool && useradd -r -g sahool sahool
 # Working directory | دليل العمل
 WORKDIR /app
 
-# Copy requirements first for caching | نسخ المتطلبات أولاً للتخزين المؤقت
+# Copy requirements and constraints first for caching | نسخ المتطلبات أولاً للتخزين المؤقت
+COPY constraints.txt .
 COPY apps/services/globalgap-compliance/requirements.txt .
 
 # Install Python dependencies | تثبيت تبعيات Python
@@ -34,15 +35,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+    -c constraints.txt -r requirements.txt
 
 # Copy root shared modules first (shared.events, etc.)
 COPY shared/ ./shared/

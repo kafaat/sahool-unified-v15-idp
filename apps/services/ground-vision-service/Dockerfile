@@ -17,7 +17,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgdal-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install dependencies with multi-mirror fallback
+# Copy requirements, constraints and install dependencies with multi-mirror fallback
+COPY constraints.txt .
 COPY apps/services/ground-vision-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
@@ -33,15 +34,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    --prefix=/install -r requirements.txt || \
+    --prefix=/install -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    --prefix=/install -r requirements.txt || \
+    --prefix=/install -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    --prefix=/install -r requirements.txt
+    --prefix=/install -c constraints.txt -r requirements.txt
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Production stage

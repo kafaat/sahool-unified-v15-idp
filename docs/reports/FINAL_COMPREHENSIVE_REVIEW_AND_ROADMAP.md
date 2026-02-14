@@ -1,8 +1,8 @@
-# المراجعة النهائية الشاملة وخارطة طريق التنفيذ
-# Final Comprehensive Review & Development Roadmap
+# المراجعة النهائية الشاملة وخارطة طريق التنفيذ (v2)
+# Final Comprehensive Review & Development Roadmap (v2)
 
-**المنصة**: SAHOOL v16.0.0 | **التاريخ**: 2026-02-14
-**النطاق**: مراجعة شاملة لـ 56 تقرير تدقيق + تحليل فجوات نهائي
+**المنصة**: SAHOOL v16.0.0 | **التاريخ**: 2026-02-14 | **مُحدث**: 2026-02-14
+**النطاق**: مراجعة شاملة لـ 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack
 **المُعد**: Claude AI Audit Agent
 
 ---
@@ -18,7 +18,7 @@
 ║                                                                       ║
 ║  ✅ 82 Dockerfile              ✅ 12 docker-compose files             ║
 ║  ✅ 74 خدمة (main.py)          ✅ 48 CI/CD workflow                   ║
-║  ✅ 68 وحدة مشتركة (shared/)   ✅ 56 تقرير تدقيق سابق               ║
+║  ✅ 68 وحدة مشتركة (shared/)   ✅ 57 تقرير تدقيق سابق               ║
 ║  ✅ 17 Helm chart              ✅ 140 Makefile target                  ║
 ║  ✅ 292 ملف اختبار             ✅ 134 script                          ║
 ║  ✅ 41 ملف config              ✅ 182 ملف infrastructure              ║
@@ -26,8 +26,9 @@
 ║  ✅ 52 ملف tools               ✅ 365+ ملف توثيق                     ║
 ║  ✅ 27 npm package             ✅ 7 ملفات requirements                ║
 ║  ✅ pyproject.toml             ✅ governance/ (services + agents)      ║
+║  ✅ copilot-api (Full-Stack)   ✅ 54 Flutter feature module           ║
 ║                                                                       ║
-║  إجمالي الملفات المُراجعة: ~2,100+ ملف                               ║
+║  إجمالي الملفات المُراجعة: ~2,200+ ملف                               ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
@@ -40,22 +41,25 @@
 ║                                                                       ║
 ║  المكون                         التقييم    الوزن    المرجح            ║
 ║  ══════════════════════════════════════════════════════════           ║
-║  الهندسة المعمارية               95/100     15%      14.25           ║
-║  الأمان والحماية                 85/100     15%      12.75           ║
-║  جودة الكود (Backend)            85/100     12%      10.20           ║
-║  جودة الكود (Frontend)           85/100      8%       6.80           ║
-║  قواعد البيانات                  65/100     10%       6.50           ║
-║  Docker والحاويات                72/100      8%       5.76           ║
-║  الاختبارات والتغطية             70/100     10%       7.00           ║
+║  الهندسة المعمارية               95/100     12%      11.40           ║
+║  الأمان والحماية                 82/100     14%      11.48           ║
+║  جودة الكود (Backend)            85/100     10%       8.50           ║
+║  جودة الكود (Frontend)           85/100      7%       5.95           ║
+║  قواعد البيانات                  65/100      9%       5.85           ║
+║  Docker والحاويات                72/100      7%       5.04           ║
+║  الاختبارات والتغطية             70/100      9%       6.30           ║
 ║  البنية التحتية (IaC)            60/100      5%       3.00           ║
-║  CI/CD                           70/100      7%       4.90           ║
-║  التوثيق                         95/100      5%       4.75           ║
-║  DevOps/GitOps                   93/100      5%       4.65           ║
+║  CI/CD                           70/100      6%       4.20           ║
+║  التوثيق                         95/100      4%       3.80           ║
+║  DevOps/GitOps                   93/100      4%       3.72           ║
+║  Copilot/AI Full-Stack           55/100      8%       4.40   ← جديد  ║
+║  Mobile App                      90/100      5%       4.50   ← جديد  ║
 ║  ══════════════════════════════════════════════════════════           ║
 ║                                                                       ║
-║  الإجمالي المُرجح:              80.6 / 100                           ║
+║  الإجمالي المُرجح:              78.1 / 100                           ║
 ║                                                                       ║
 ║  الحالة: 🟡 جاهز للتطوير، يحتاج إصلاحات قبل الإنتاج                ║
+║  (انخفض من 80.6 بسبب اكتشاف فجوة Copilot Web/Admin)                ║
 ╚═══════════════════════════════════════════════════════════════════════╝
 ```
 
@@ -63,16 +67,16 @@
 
 ## الجزء الثاني: جرد المشاكل المكتشفة | Part 2: Issues Inventory
 
-### 2.1 إحصائيات المشاكل
+### 2.1 إحصائيات المشاكل (مُحدث بعد تدقيق Copilot)
 
 | الخطورة | العدد | مُصلح | متبقي | النسبة المُصلحة |
 |---------|-------|-------|-------|----------------|
-| 🔴 حرج (P0) | 42 | 24 | **18** | 57% |
-| 🟠 عالي (P1) | 68 | 44 | **24** | 65% |
-| 🟡 متوسط (P2) | 156 | 78 | **78** | 50% |
-| 🟢 منخفض (P3) | 200+ | 60 | **140+** | 30% |
+| 🔴 حرج (P0) | 46 | 24 | **22** | 52% |
+| 🟠 عالي (P1) | 73 | 44 | **29** | 60% |
+| 🟡 متوسط (P2) | 160 | 78 | **82** | 49% |
+| 🟢 منخفض (P3) | 204+ | 60 | **144+** | 29% |
 
-### 2.2 المشاكل الحرجة المتبقية (18 مشكلة)
+### 2.2 المشاكل الحرجة المتبقية (22 مشكلة)
 
 #### الفئة أ: أمان وحماية (5 مشاكل)
 
@@ -112,6 +116,59 @@
 | D4 | 5 منافذ خاطئة في Kong upstream | Kong config | فشل توجيه 5 خدمات |
 | D5 | مسارات MinIO volumes مفقودة | `docker-compose.yml` | فشل تشغيل MinIO |
 
+#### الفئة هـ: Copilot / المستشار الذكي (4 مشاكل) ← جديد
+
+| # | المشكلة | المكون | التأثير |
+|---|--------|--------|---------|
+| E1 | **copilot-api بدون JWT auth** | `copilot-api` | 🔴 أي شخص يصل للـ API بدون مصادقة |
+| E2 | **Web: لا يوجد أي UI للـ Copilot** | `apps/web/` | 🔴 مستخدمو المتصفح لا يتفاعلون مع AI |
+| E3 | **Admin: لا يوجد أي UI للـ Copilot** | `apps/admin/` | 🔴 لا إدارة للمستشار أو قاعدة المعرفة |
+| E4 | **copilot-api: لا DB persistence** | `copilot-api` | 🔴 فقدان كل المحادثات عند إعادة التشغيل |
+
+### 2.3 تدقيق Copilot Full-Stack (ملخص)
+
+```
+╔═══════════════════════════════════════════════════════════════════════╗
+║               COPILOT INTEGRATION - Full Stack Summary                ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  copilot-api (Backend)  ████████████████████████████████░░░░ 76%     ║
+║  → 6-Layer Guardrails ✅ | Multi-LLM ✅ | UltraRAG ✅                ║
+║  → ❌ No JWT auth | ❌ No NATS events | ❌ No persistence            ║
+║  → ❌ Streaming محاكاة | ❌ No prompt injection protection           ║
+║                                                                       ║
+║  Web Frontend           ████████████░░░░░░░░░░░░░░░░░░░░░░░ 30%     ║
+║  → API hooks جاهزة ✅ | WebSocket ✅ | SSE ✅                        ║
+║  → ❌ صفر صفحات | ❌ صفر مكونات UI | ❌ صفر routes                  ║
+║                                                                       ║
+║  Admin Frontend         ██████████░░░░░░░░░░░░░░░░░░░░░░░░░ 25%     ║
+║  → Gateway مُعد ✅ | Circuit Breaker ✅                               ║
+║  → ❌ صفر صفحات | ❌ صفر مكونات UI | ❌ صفر routes                  ║
+║                                                                       ║
+║  Mobile (Flutter)       ████████████████████████████████████████ 90%  ║
+║  → Chat + Voice + Image + Offline + RTL + Feedback ✅✅✅            ║
+║  → 12 endpoint | Riverpod | SQLCipher | 54 feature module            ║
+║                                                                       ║
+║  الإجمالي:  55% | الهدف بعد الإصلاح: 85%                            ║
+║  الجهد المطلوب: ~8 أيام (1 مطور Full-Stack)                         ║
+╚═══════════════════════════════════════════════════════════════════════╝
+```
+
+**API Endpoints (copilot-api)**:
+- `POST /api/v1/chat` - محادثة مع RAG + توجيه وكيل
+- `POST /api/v1/chat/stream` - SSE streaming (محاكاة)
+- `GET/POST/DELETE /api/v1/rag/*` - إدارة قاعدة المعرفة
+- `POST /api/v1/tools/run` - تنفيذ أدوات مع 6-layer guardrails
+- Agent Router: 6 وكلاء (code_fix, code_review, field, weather, irrigation, general)
+- LLM: Ollama → Claude → OpenAI (fallback chain)
+
+**Mobile AI Advisor (مكتمل)**:
+- `ai_advisor_api.dart` → 12 endpoint (ask, diagnose, recommend, irrigation, fertilizer, analyze-field)
+- `advisory_cache.dart` → 100 رسالة + 50 استشارة (offline-first)
+- `voice_service.dart` → AR/EN speech-to-text + text-to-speech
+- Riverpod providers: `chatControllerProvider`, `aiAdvisorProvider`
+- Widgets: ChatBubble, TypingIndicator, QuickQuestionChips, FeedbackButtons
+
 ---
 
 ## الجزء الثالث: نقاط القوة | Part 3: Strengths
@@ -124,7 +181,9 @@
 | **التوثيق** | 95/100 | 365+ ملف، CLAUDE.md شامل (15K+ كلمة)، ثنائي اللغة |
 | **GitOps/ArgoCD** | 93/100 | 39 ملف، نشر آلي مكتمل، blue-green + canary |
 | **الوحدات المشتركة** | 92/100 | 68 وحدة، ~386K LOC، تغطية زراعية شاملة |
+| **Mobile AI Advisor** | 90/100 | chat + voice + image + offline + RTL - 54 ميزة |
 | **البنية التحتية** | 90/100 | Prometheus, Grafana, OpenTelemetry, Vault مكتملة |
+| **copilot-api Guardrails** | 88/100 | 6 طبقات حماية، 27 أداة مسموحة، 33 نمط محظور |
 | **الأمان** | 85/100 | JWT, RBAC, rate limiting, token revocation مُنفذة |
 | **IDP (Backstage)** | 95/100 | قوالب كاملة، كتالوج خدمات شامل |
 | **Makefile** | 82/100 | 140 target مُنظمة ووظيفية |
@@ -134,14 +193,14 @@
 
 ## الجزء الرابع: خارطة الطريق التنفيذية | Part 4: Development Roadmap
 
-### 4.0 نظرة عامة على المراحل
+### 4.0 نظرة عامة على المراحل (مُحدث)
 
 ```
-المرحلة 0: الطوارئ        ← الأسبوع 1        ← 18 مشكلة حرجة
-المرحلة 1: الأساسيات      ← الأسابيع 2-3     ← بنية تحتية + أمان
-المرحلة 2: الجودة          ← الأسابيع 4-6     ← اختبارات + CI/CD
-المرحلة 3: الاكتمال        ← الأسابيع 7-10    ← Helm + IaC + تحسينات
-المرحلة 4: الاستعداد للإنتاج ← الأسابيع 11-12  ← تحقق + اختبار حمل
+المرحلة 0: الطوارئ        ← الأسبوع 1-2      ← 22 مشكلة حرجة + Copilot أمان
+المرحلة 1: الأساسيات      ← الأسابيع 3-4     ← بنية تحتية + أمان + Copilot UI
+المرحلة 2: الجودة          ← الأسابيع 5-7     ← اختبارات + CI/CD
+المرحلة 3: الاكتمال        ← الأسابيع 8-11    ← Helm + IaC + تحسينات
+المرحلة 4: الاستعداد للإنتاج ← الأسابيع 12-14  ← تحقق + اختبار حمل
 ```
 
 ---
@@ -216,11 +275,82 @@ globalgap:         8128  # ليس 8168
 supply-chain:      8230  # ليس 8166
 ```
 
+#### Sprint 0.4: Copilot أمان فوري (يوم 5-7) ← جديد
+
+| # | المهمة | الملف | الجهد |
+|---|--------|-------|-------|
+| 13 | إضافة JWT auth لـ copilot-api | `copilot-api/src/api/deps.py` | 4h |
+| 14 | تنفيذ NATS event publishing | `copilot-api/src/events/` | 4h |
+| 15 | إضافة prompt injection detection | `copilot-api/src/core/guardrails.py` | 4h |
+| 16 | إضافة rate limiting per-user | `copilot-api/src/main.py` | 2h |
+
+**التنفيذ - JWT auth**:
+```python
+# copilot-api/src/api/deps.py
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from shared.auth.dependencies import verify_jwt_token
+
+security = HTTPBearer()
+
+async def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> dict:
+    try:
+        return verify_jwt_token(credentials.credentials)
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"error": "Invalid token", "error_ar": "رمز غير صالح"}
+        )
+```
+
+**التنفيذ - NATS Events**:
+```python
+# copilot-api/src/events/publisher.py
+COPILOT_EVENTS = {
+    "chat_started":   "sahool.copilot.chat_started",
+    "chat_completed": "sahool.copilot.chat_completed",
+    "tool_executed":  "sahool.copilot.tool_executed",
+    "tool_blocked":   "sahool.copilot.tool_blocked",
+}
+
+async def publish_copilot_event(nc, event_type: str, data: dict):
+    subject = COPILOT_EVENTS[event_type]
+    await nc.publish(subject, json.dumps({
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "copilot-api",
+        **data
+    }).encode())
+```
+
+**التنفيذ - Prompt Injection Detection**:
+```python
+# copilot-api/src/core/prompt_guard.py
+INJECTION_PATTERNS = [
+    r"ignore\s+(previous|all|above)\s+instructions",
+    r"تجاهل\s+(التعليمات|الأوامر)\s+السابقة",
+    r"you\s+are\s+now\s+(?:a|an)",
+    r"system\s*:\s*",
+    r"<\|im_start\|>",
+    r"ADMIN_OVERRIDE",
+]
+
+def detect_prompt_injection(text: str) -> bool:
+    for pattern in INJECTION_PATTERNS:
+        if re.search(pattern, text, re.IGNORECASE):
+            return True
+    return False
+```
+
 #### معيار إنهاء المرحلة 0:
 - [ ] لا يوجد credentials مضمنة في أي compose file
 - [ ] CI/CD يحجب عند فشل الاختبارات
 - [ ] جميع منافذ Kong صحيحة
 - [ ] جميع الخدمات لديها HEALTHCHECK
+- [ ] copilot-api يتطلب JWT auth
+- [ ] copilot-api ينشر أحداث NATS
+- [ ] copilot-api يكشف prompt injection
 
 ---
 
@@ -293,12 +423,93 @@ export function middleware(request: Request) {
 }
 ```
 
+#### Sprint 1.3: Copilot Web + Admin UI (الأسبوع 3-4) ← جديد
+
+| # | المهمة | التفصيل | الجهد |
+|---|--------|---------|-------|
+| 23 | إنشاء صفحة Copilot في Web | `apps/web/src/app/(dashboard)/copilot/page.tsx` | 1d |
+| 24 | إنشاء مكونات Chat UI في Web | ChatInterface, MessageBubble, ChatInput, TypingIndicator | 1d |
+| 25 | إنشاء مكونات متقدمة في Web | RecommendationCard, QuickQuestions, StreamingText, FeedbackButtons | 1d |
+| 26 | إنشاء صفحة Copilot في Admin | `apps/admin/src/app/copilot/page.tsx` | 1d |
+| 27 | إنشاء لوحة إدارة Copilot | RAGManager, ToolGuardConfig, UsageAnalytics, AgentStats | 1d |
+| 28 | تنفيذ True LLM Streaming | copilot-api SSE + Web EventSource | 1d |
+| 29 | إضافة PostgreSQL persistence | copilot-api chat history storage | 1d |
+| 30 | اختبارات التكامل | E2E: Web → copilot-api → LLM → response | 1d |
+
+**التنفيذ - Web Copilot Page**:
+```tsx
+// apps/web/src/app/(dashboard)/copilot/page.tsx
+'use client';
+import { useState } from 'react';
+import { useAskAdvisor, useAdvisorHistory } from '@/features/advisor';
+import { ChatInterface } from '@/components/copilot/ChatInterface';
+import { ContextSelector } from '@/components/copilot/ContextSelector';
+
+export default function CopilotPage() {
+  const [fieldId, setFieldId] = useState<string | null>(null);
+  const { mutateAsync: askAdvisor, isPending } = useAskAdvisor();
+  const { data: history } = useAdvisorHistory();
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-between p-4 border-b">
+        <h1 className="text-xl font-semibold">المستشار الذكي | AI Advisor</h1>
+        <ContextSelector value={fieldId} onChange={setFieldId} />
+      </div>
+      <ChatInterface
+        messages={history?.messages ?? []}
+        onSend={(msg) => askAdvisor({ query: msg, field_id: fieldId })}
+        isLoading={isPending}
+      />
+    </div>
+  );
+}
+```
+
+**التنفيذ - True Streaming**:
+```python
+# copilot-api - True LLM streaming via Ollama
+@router.post("/chat/stream")
+async def chat_stream(request: ChatRequest, user=Depends(get_current_user)):
+    async def generate():
+        async with httpx.AsyncClient() as client:
+            async with client.stream(
+                "POST", f"{OLLAMA_URL}/api/chat",
+                json={"model": model, "messages": messages, "stream": True}
+            ) as resp:
+                async for line in resp.aiter_lines():
+                    data = json.loads(line)
+                    if content := data.get("message", {}).get("content"):
+                        yield f"data: {json.dumps({'content': content})}\n\n"
+        yield "data: [DONE]\n\n"
+    return StreamingResponse(generate(), media_type="text/event-stream")
+```
+
+**التنفيذ - Admin RAG Manager**:
+```tsx
+// apps/admin/src/app/copilot/page.tsx
+export default function CopilotAdminPage() {
+  return (
+    <div className="grid grid-cols-12 gap-6 p-6">
+      <div className="col-span-8"><CopilotDashboard /></div>
+      <div className="col-span-4"><RAGStats /></div>
+      <div className="col-span-6"><RAGManager /></div>
+      <div className="col-span-6"><GuardLogs /></div>
+    </div>
+  );
+}
+```
+
 #### معيار إنهاء المرحلة 1:
 - [ ] IoT Service لديه مخطط DB كامل
 - [ ] جدول Field موحد عبر الخدمات
 - [ ] WebSocket يتطلب مصادقة
 - [ ] CSP مُفعل في apps/web و apps/admin
 - [ ] التقييم الأمني ≥ 90/100
+- [ ] صفحة Copilot تعمل في Web مع chat + streaming
+- [ ] صفحة Copilot Admin تعمل مع RAG management
+- [ ] copilot-api يحفظ المحادثات في PostgreSQL
+- [ ] Copilot Full-Stack ≥ 80%
 
 ---
 
@@ -585,18 +796,21 @@ infrastructure/terraform/
 
 ## الجزء الخامس: مؤشرات النجاح | Part 5: Success Metrics
 
-### 5.1 مؤشرات الأداء الرئيسية (KPIs)
+### 5.1 مؤشرات الأداء الرئيسية (KPIs) - مُحدث
 
-| المؤشر | الحالي | الأسبوع 4 | الأسبوع 8 | الأسبوع 12 |
+| المؤشر | الحالي | الأسبوع 4 | الأسبوع 8 | الأسبوع 14 |
 |--------|--------|----------|----------|-----------|
-| التقييم الإجمالي | 80.6 | 85 | 90 | 92+ |
+| التقييم الإجمالي | 78.1 | 85 | 90 | 92+ |
 | تغطية الاختبارات | 10% | 25% | 40% | 60% |
 | Helm charts coverage | 21% | 21% | 80% | 95% |
-| مشاكل حرجة متبقية | 18 | 5 | 0 | 0 |
+| مشاكل حرجة متبقية | 22 | 5 | 0 | 0 |
 | CI/CD blocking rate | 27% | 80% | 95% | 100% |
 | Docker multi-stage | 34% | 34% | 60% | 80% |
-| تقييم الأمان | 85 | 90 | 93 | 95 |
+| تقييم الأمان | 82 | 90 | 93 | 95 |
 | E2E tests | 7 | 15 | 25 | 30+ |
+| **Copilot Full-Stack** | **55%** | **85%** | **90%** | **95%** |
+| **Copilot Web UI** | **0%** | **90%** | **95%** | **98%** |
+| **Copilot Admin UI** | **0%** | **80%** | **90%** | **95%** |
 
 ### 5.2 معايير القبول للإنتاج
 
@@ -617,6 +831,9 @@ infrastructure/terraform/
 ║  [ ] جميع منافذ Kong صحيحة                                    ║
 ║  [ ] TLS مُفعل لجميع الاتصالات                                ║
 ║  [ ] Monitoring + Alerting مُفعل                               ║
+║  [ ] Copilot Web UI مكتمل ويعمل                                ║
+║  [ ] Copilot Admin UI مكتمل مع إدارة RAG                       ║
+║  [ ] copilot-api: JWT + NATS + DB + streaming                  ║
 ║                                                               ║
 ╚═══════════════════════════════════════════════════════════════╝
 ```
@@ -625,25 +842,25 @@ infrastructure/terraform/
 
 ## الجزء السادس: تقدير الجهد والموارد | Part 6: Effort Estimation
 
-### 6.1 ملخص الجهد حسب المرحلة
+### 6.1 ملخص الجهد حسب المرحلة (مُحدث)
 
 | المرحلة | المدة | أيام عمل | المهام | المطور المطلوب |
 |---------|-------|---------|--------|---------------|
-| المرحلة 0 | أسبوع 1 | 5 أيام | 12 مهمة | 1 DevOps + 1 Backend |
-| المرحلة 1 | أسبوعان | 10 أيام | 10 مهام | 1 Backend + 1 Frontend |
+| المرحلة 0 | أسبوعان | 8 أيام | 16 مهمة | 1 DevOps + 1 Backend |
+| المرحلة 1 | أسبوعان | 18 يوم | 18 مهمة | 1 Backend + 1 Frontend + 1 Full-Stack |
 | المرحلة 2 | 3 أسابيع | 15 يوم | 10 مهام | 2 Backend + 1 QA |
 | المرحلة 3 | 4 أسابيع | 20 يوم | 18 مهمة | 1 DevOps + 1 Backend |
 | المرحلة 4 | أسبوعان | 10 أيام | 9 مهام | 1 DevOps + 1 QA |
-| **الإجمالي** | **12 أسبوع** | **60 يوم** | **59 مهمة** | **فريق 3-4 أشخاص** |
+| **الإجمالي** | **14 أسبوع** | **71 يوم** | **71 مهمة** | **فريق 4-5 أشخاص** |
 
-### 6.2 ملخص الجهد حسب النوع
+### 6.2 ملخص الجهد حسب النوع (مُحدث)
 
 ```
-DevOps/Infrastructure:  ████████████████████████░░░ 35%  (21 يوم)
-Backend Development:    ████████████████████░░░░░░░ 30%  (18 يوم)
-Testing/QA:             ████████████████░░░░░░░░░░░ 22%  (13 يوم)
-Frontend:               ███████░░░░░░░░░░░░░░░░░░░░  8%  (5 أيام)
-Documentation:          ███░░░░░░░░░░░░░░░░░░░░░░░░░  5%  (3 أيام)
+DevOps/Infrastructure:  ██████████████████████░░░░░ 30%  (21 يوم)
+Backend Development:    ██████████████████████░░░░░ 28%  (20 يوم)
+Frontend (Copilot UI):  █████████████████░░░░░░░░░░ 18%  (13 يوم) ← زاد بسبب Copilot
+Testing/QA:             ██████████████████░░░░░░░░░ 17%  (12 يوم)
+Documentation:          ███████░░░░░░░░░░░░░░░░░░░░  7%  (5 أيام)
 ```
 
 ---
@@ -659,6 +876,9 @@ Documentation:          ███░░░░░░░░░░░░░░░�
 | Terraform يحتاج وقت أكثر من المقدر | عالي | متوسط | استخدام modules جاهزة |
 | Helm charts لا تتوافق مع البيئة | متوسط | عالي | اختبار على minikube أولاً |
 | رفع حد التغطية يحجب builds | عالي | منخفض | رفع تدريجي + exemptions |
+| Copilot UI لا يتوافق مع API الحالي | متوسط | عالي | اختبار OpenAPI spec أولاً |
+| LLM streaming يتطلب تغيير WebSocket | منخفض | متوسط | SSE كفاية + fallback |
+| Prompt injection يتسبب في تسريب بيانات | متوسط | حرج | guardrails + monitoring + rate limit |
 
 ### 7.2 التبعيات بين المراحل
 
@@ -679,9 +899,10 @@ Documentation:          ███░░░░░░░░░░░░░░░�
 ```
 الأسبوع: ___   التاريخ: ___________
 
-المشاكل الحرجة المتبقية:  ___ / 18
+المشاكل الحرجة المتبقية:  ___ / 22
 تغطية الاختبارات:         ___ %
 Helm coverage:            ___ %
+Copilot Full-Stack:       ___ %
 التقييم الإجمالي:         ___ / 100
 
 المهام المنجزة هذا الأسبوع:
@@ -699,7 +920,22 @@ Helm coverage:            ___ %
 
 ---
 
-_تم إعداد هذا التقرير بناءً على تحليل 56 تقرير تدقيق سابق + تحليل فجوات نهائي_
-_إجمالي الملفات المُراجعة: ~2,100+ ملف عبر جميع المكونات_
+---
+
+## الجزء التاسع: فهرس التقارير | Part 9: Reports Index
+
+| # | التقرير | الملف | النطاق |
+|---|--------|-------|--------|
+| 1 | تدقيق Dockerfiles الشامل | `DOCKERFILE_COMPREHENSIVE_AUDIT.md` | 82 Dockerfile |
+| 2 | تقرير المنصة الموحد | `UNIFIED_PLATFORM_AUDIT_REPORT.md` | 56 تقرير مُجمع |
+| 3 | تدقيق المكونات المتبقية | `REMAINING_COMPONENTS_AUDIT.md` | 6 مكونات |
+| 4 | تدقيق Copilot Full-Stack | `COPILOT_FULLSTACK_AUDIT.md` | Backend + Web + Admin + Mobile |
+| 5 | **المراجعة النهائية + خارطة الطريق** | **هذا الملف (v2)** | **شامل + Copilot** |
+
+---
+
+_تم إعداد هذا التقرير بناءً على تحليل 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack_
+_إجمالي الملفات المُراجعة: ~2,200+ ملف عبر جميع المكونات_
+_التحديثات: v2 يتضمن نتائج تدقيق Copilot (4 مشاكل حرجة جديدة + 12 مهمة إضافية)_
 _SAHOOL Platform v16.0.0 | KAFAAT_
 _2026-02-14_

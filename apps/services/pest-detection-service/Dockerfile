@@ -38,11 +38,12 @@ RUN pip install --no-cache-dir --upgrade pip \
     --trusted-host pypi.tuna.tsinghua.edu.cn
 
 # Install dependencies
+COPY constraints.txt .
 COPY apps/services/pest-detection-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 \
     -i https://pypi.tuna.tsinghua.edu.cn/simple \
     --trusted-host pypi.tuna.tsinghua.edu.cn \
-    -r requirements.txt
+    -c constraints.txt -r requirements.txt
 
 # Copy shared libraries
 COPY shared/ ./shared/

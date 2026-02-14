@@ -41,6 +41,7 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install dependencies
+COPY constraints.txt .
 COPY apps/services/logistics-service/requirements.txt .
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
@@ -59,15 +60,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt && \
+    -c constraints.txt -r requirements.txt && \
     chown -R sahool:sahool /app
 
 USER sahool

@@ -40,6 +40,7 @@ RUN mkdir -p /root/.pip && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
 # Install Python dependencies
+COPY constraints.txt .
 COPY apps/services/knowledge-graph/requirements.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
@@ -47,15 +48,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
+    -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+    -c constraints.txt -r requirements.txt
 
 # ───────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production - Minimal runtime image

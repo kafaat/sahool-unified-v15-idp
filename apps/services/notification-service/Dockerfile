@@ -1,13 +1,58 @@
-# SAHOOL Notification Service v15.3
+# SAHOOL Notification Service
 # خدمة الإشعارات المخصصة
+# Multi-stage build for optimized image size
+# Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY apps/services/notification-service/requirements.txt .
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    --user -c constraints.txt -r requirements.txt
+
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 LABEL maintainer="SAHOOL Team"
 LABEL service="notification-service"
-LABEL version="15.3.0"
+LABEL version="16.0.0"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
@@ -15,37 +60,16 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# No system dependencies needed - Using Python for healthcheck
-
-# Upgrade pip to latest version
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
-
-# Copy requirements first for better caching
-COPY apps/services/notification-service/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy shared modules
-COPY apps/services/shared ./shared/
+COPY --chown=sahool:sahool apps/services/shared ./shared/
 
 # Copy application code
-COPY apps/services/notification-service/src/ ./src/
+COPY --chown=sahool:sahool apps/services/notification-service/src/ ./src/
 
-# Set ownership and switch to non-root user
-RUN chown -R sahool:sahool /app
 USER sahool
 
 # Default port (can be overridden via PORT env var)

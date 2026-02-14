@@ -1,14 +1,52 @@
 # SAHOOL Inventory Service
 # ============================
 # Agricultural inventory management and analytics
-# Version: 1.0.0
+# Multi-stage build for optimized image size
+# Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm AS base
+
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip || \
+    pip install --no-cache-dir --upgrade pip || true
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY apps/services/inventory-service/requirements.txt .
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    --user -c constraints.txt -r requirements.txt
+
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Build arguments
 ARG SERVICE_NAME=inventory-service
-ARG SERVICE_VERSION=1.0.0
+ARG SERVICE_VERSION=16.0.0
 
 LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}"
 LABEL org.opencontainers.image.version="${SERVICE_VERSION}"
@@ -21,44 +59,25 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Create non-root user
-RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash --create-home sahool
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Upgrade pip (non-fatal in case of network issues)
-RUN pip install --upgrade pip || true
-
-# Install dependencies
-COPY apps/services/inventory-service/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy shared libraries
-COPY shared/ ./shared/
+COPY --chown=sahool:sahool shared/ ./shared/
 
 # Copy services shared modules (needed for errors_py module)
-COPY apps/services/shared/ ./apps/services/shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./apps/services/shared/
 
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
-RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
+RUN cp -r ./apps/services/shared/errors_py ./shared/ || true && \
+    chown -R sahool:sahool /app
 
 # Copy source
-COPY apps/services/inventory-service/src/ ./src/
-
-# Set ownership
-RUN chown -R sahool:sahool /app
+COPY --chown=sahool:sahool apps/services/inventory-service/src/ ./src/
 
 USER sahool
 

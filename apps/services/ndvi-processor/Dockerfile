@@ -1,12 +1,55 @@
 # ============================================
 # SAHOOL NDVI Processor Dockerfile
 # خدمة معالجة صور الأقمار الصناعية
-# Port: 8101
+# Multi-stage build for optimized image size
+# Port: 8118
 # ============================================
 
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+
+WORKDIR /build
+
+# Install system dependencies for geo-spatial processing and compilation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgdal-dev \
+    gdal-bin \
+    build-essential \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip "setuptools>=68.0" wheel build || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip "setuptools>=68.0" wheel build
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY apps/services/ndvi-processor/requirements.txt .
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    --user -c constraints.txt -r requirements.txt
+
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Labels
 LABEL maintainer="KAFAAT <dev@kafaat.sa>"
@@ -22,70 +65,37 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_RETRIES=10 \
     PORT=8118
 
-# Create non-root user
-RUN groupadd -r sahool && useradd -r -g sahool sahool
-
-# Working directory
 WORKDIR /app
 
-# Install system dependencies for geo-spatial processing
+# Create non-root user
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Install only runtime geo-spatial libraries (no build tools)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libgdal-dev \
+    libgdal32 \
     gdal-bin \
-    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
-
-# Configure pip for better network resilience
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
-
-# Copy requirements first for caching
-COPY apps/services/ndvi-processor/requirements.txt .
-
-# Install Python dependencies
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy shared libraries
-COPY shared/ ./shared/
+COPY --chown=sahool:sahool shared/ ./shared/
 
 # Copy services shared modules (needed for errors_py module)
-COPY apps/services/shared/ ./apps/services/shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./apps/services/shared/
 
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
 RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
 
 # Copy source code
-COPY apps/services/ndvi-processor/src/ ./src/
+COPY --chown=sahool:sahool apps/services/ndvi-processor/src/ ./src/
 
 # Create temp directory
-RUN mkdir -p /tmp/ndvi && chown -R sahool:sahool /tmp/ndvi
-
-# Change ownership
-RUN chown -R sahool:sahool /app
+RUN mkdir -p /tmp/ndvi && chown -R sahool:sahool /tmp/ndvi && \
+    chown -R sahool:sahool /app
 
 # Switch to non-root user
 USER sahool

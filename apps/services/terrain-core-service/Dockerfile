@@ -64,10 +64,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # GDAL version is determined at runtime via gdal-config
 
-# Upgrade pip and install build tools
+# Upgrade pip and install build tools with multi-mirror fallback
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  --no-cache-dir --upgrade pip && \
-    pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --upgrade "setuptools>=68.0" wheel build numpy
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip "setuptools>=68.0" wheel build numpy || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip "setuptools>=68.0" wheel build numpy
 
 # Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -79,14 +86,35 @@ RUN mkdir -p /root/.pip && \
     echo "[install]" >> /root/.pip/pip.conf && \
     echo "prefer-binary = true" >> /root/.pip/pip.conf
 
-# Copy requirements first for caching
+# Copy requirements and constraints first for caching
+COPY constraints.txt .
 COPY apps/services/terrain-core-service/requirements.txt .
 
-# Install Python dependencies
-# Install GDAL Python bindings matching system version, with fallback to Tsinghua mirror
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 GDAL==$(gdal-config --version) && \
-    (pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 -r requirements.txt || \
-     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt)
+# Install Python dependencies with multi-mirror fallback
+# Install GDAL Python bindings matching system version
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    GDAL==$(gdal-config --version) || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    GDAL==$(gdal-config --version)
+
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -c constraints.txt -r requirements.txt
 
 # Copy shared libraries
 COPY shared/ ./shared/

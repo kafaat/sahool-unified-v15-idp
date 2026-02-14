@@ -1,57 +1,80 @@
 # SAHOOL Astronomical Calendar Service
 # خدمة التقويم الفلكي الزراعي
+# Multi-stage build for optimized image size
+# Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
 
-FROM python:${PYTHON_VERSION}-slim-bookworm
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-LABEL maintainer="SAHOOL Team <dev@sahool.io>"
-LABEL description="Astronomical Calendar Service for Traditional Yemeni Farming"
-LABEL version="15.5.0"
+WORKDIR /build
 
-# Set working directory
-WORKDIR /app
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip first (better retry logic and connection handling)
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip --default-timeout=100
-
-# Install dependencies with retry logic and PyPI mirror fallback
-COPY apps/services/astronomical-calendar/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
+# Upgrade pip
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
+    --upgrade pip || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY constraints.txt .
+COPY apps/services/astronomical-calendar/requirements.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
+    --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
+    --user -c constraints.txt -r requirements.txt
 
-# Copy root shared modules (shared.ai, shared.events, etc.)
-COPY shared/ ./shared/
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
-# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
-COPY apps/services/shared/ ./shared/
+LABEL maintainer="SAHOOL Team <dev@sahool.io>"
+LABEL description="Astronomical Calendar Service for Traditional Yemeni Farming"
+LABEL version="16.0.0"
 
-# Copy application code
-COPY apps/services/astronomical-calendar/src/ ./src/
+WORKDIR /app
 
 # Create non-root user for security
-RUN useradd --create-home --shell /bin/bash --uid 1000 appuser && \
-    chown -R appuser:appuser /app
-USER appuser
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Environment variables
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONPATH=/app
-ENV PORT=8111
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONPATH=/app \
+    PORT=8111
+
+# Copy root shared modules (shared.ai, shared.events, etc.)
+COPY --chown=sahool:sahool shared/ ./shared/
+
+# Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+
+# Copy application code
+COPY --chown=sahool:sahool apps/services/astronomical-calendar/src/ ./src/
+
+USER sahool
 
 # Expose port
 EXPOSE 8111

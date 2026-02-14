@@ -34,13 +34,7 @@ ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
-RUN pip install --no-cache-dir --upgrade \
-    pip>=24.0 \
-    setuptools>=75.0 \
-    wheel>=0.44.0
-
-# Configure pip with network resilience
+# Configure pip with network resilience BEFORE any pip install
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
@@ -48,16 +42,47 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF
+
+# Upgrade pip with multi-mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0 || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/llm-orchestrator-service/requirements.txt /tmp/requirements.txt
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
-RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Runtime

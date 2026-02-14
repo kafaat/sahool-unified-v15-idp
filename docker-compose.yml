@@ -959,11 +959,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.50'
+          memory: 384M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1004,11 +1004,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.50'
+          memory: 384M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1052,11 +1052,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.50'
+          memory: 384M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1101,11 +1101,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.50'
+          memory: 384M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1150,11 +1150,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 512M
+          cpus: '0.50'
+          memory: 384M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1545,11 +1545,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1594,11 +1594,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1686,11 +1686,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1743,11 +1743,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1785,11 +1785,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1831,11 +1831,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -1919,11 +1919,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2009,11 +2009,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2049,11 +2049,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2089,11 +2089,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2270,11 +2270,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2462,11 +2462,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2503,11 +2503,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2587,11 +2587,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2668,11 +2668,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2809,11 +2809,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2857,11 +2857,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2905,11 +2905,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -2953,11 +2953,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3241,11 +3241,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3285,11 +3285,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3336,11 +3336,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3384,11 +3384,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3473,11 +3473,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3521,11 +3521,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3568,11 +3568,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 
@@ -3615,11 +3615,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
-          memory: 384M
+          cpus: '0.50'
+          memory: 512M
         reservations:
           cpus: '0.25'
-          memory: 128M
+          memory: 256M
     networks:
       - sahool-network
 

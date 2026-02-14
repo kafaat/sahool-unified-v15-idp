@@ -1,0 +1,13 @@
+apiVersion: v2
+name: copilot-api
+description: SAHOOL Copilot Api - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - copilot
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

@@ -27,7 +27,7 @@ aioboto3>=13.0.0
 
 # Data Processing
 pandas>=2.2.0
-numpy>=2.0.0
+numpy>=1.26.0,<2.5.0
 
 # Validation
 pydantic-settings>=2.0.0

@@ -19,7 +19,7 @@ nats-py>=2.6.0
 asyncpg>=0.30.0
 
 # Scientific Computing (for hydrology algorithms)
-numpy>=1.26.0,<2.0.0
+numpy>=1.26.0,<2.5.0
 
 # Logging
 structlog>=24.1.0

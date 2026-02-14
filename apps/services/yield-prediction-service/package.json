@@ -1,7 +1,7 @@
 {
   "name": "@sahool/yield-prediction-service",
   "version": "16.0.0",
-  "description": "SAHOOL Unified Yield Prediction Service - خدمة التنبؤ بالإنتاجية الموحدة",
+  "description": "SAHOOL Unified Yield Prediction Service - \u062e\u062f\u0645\u0629 \u0627\u0644\u062a\u0646\u0628\u0624 \u0628\u0627\u0644\u0625\u0646\u062a\u0627\u062c\u064a\u0629 \u0627\u0644\u0645\u0648\u062d\u062f\u0629",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -34,7 +34,7 @@
     "prisma": "^5.22.0",
     "typescript": "^5.9.3",
     "@types/express": "^5.0.0",
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^29.5.0",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^20.19.33",
     "@types/supertest": "^6.0.3",

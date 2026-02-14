@@ -14,7 +14,7 @@ reportlab>=4.0.0       # PDF generation
 pandas>=2.0.0          # Data analysis and CSV export
 
 # Optional for enhanced functionality - اختياري للميزات المحسنة
-numpy>=1.24.0           # Numerical computations (optional)
+numpy>=1.26.0,<2.5.0
 
 # Development dependencies - متطلبات التطوير
 pytest>=7.0.0           # Testing framework

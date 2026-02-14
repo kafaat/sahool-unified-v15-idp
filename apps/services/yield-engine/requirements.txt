@@ -10,7 +10,7 @@ pydantic==2.12.5
 
 # Scientific Computing
 # Note: Pinned to <2.1.0 for TensorFlow compatibility across services
-numpy>=1.26.0,<2.1.0
+numpy>=1.26.0,<2.5.0
 
 # Utilities
 python-dotenv==1.2.1

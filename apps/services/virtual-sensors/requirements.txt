@@ -28,7 +28,7 @@ python-dateutil==2.9.0.post0
 
 # NumPy for advanced calculations
 # Note: Pinned to <2.1.0 for TensorFlow compatibility across services
-numpy>=1.26.0,<2.1.0
+numpy>=1.26.0,<2.5.0
 
 # Testing
 pytest==8.4.2

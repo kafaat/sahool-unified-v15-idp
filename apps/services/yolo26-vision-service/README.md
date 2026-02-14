@@ -147,6 +147,17 @@
 | `/api/v1/segment/leaves` | POST | Segment leaves |
 | `/api/v1/track/objects` | POST | Track objects across frames |
 
+### Cache Management | إدارة الكاش
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/batch/cache/stats` | GET | Get cache statistics (hit rate, memory usage) |
+| `/api/v1/batch/cache/clear` | POST | Clear all cached results |
+
+Cache supports pattern-based invalidation by `task` (pest/disease/weed) and `variant` (n/s/m/l/x), allowing selective cache clearing without flushing the entire cache.
+
+يدعم الكاش إبطال بالأنماط حسب `task` (آفات/أمراض/أعشاب) و`variant` (n/s/m/l/x)، مما يتيح مسح انتقائي دون حذف الكاش بالكامل.
+
 ### Model Management
 
 | Endpoint | Method | Description |

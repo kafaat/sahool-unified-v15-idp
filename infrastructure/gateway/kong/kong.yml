@@ -527,16 +527,9 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # Agro Advisor - Agricultural advice and rules
-  - name: agro-advisor
-    host: agro-advisor
-    port: 8105
-    protocol: http
-    routes:
-      - name: agro-advisor-route
-        paths: ["/api/v1/agro-advisor", "/api/v1/agro-rules", "/agro-advisor", "/agro-advisor-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # ARCHIVED: agro-advisor → advisory-service (2026-02-14)
+  # Legacy paths now handled by advisory-service
+  # Original paths: /api/v1/agro-advisor, /api/v1/agro-rules
 
   - name: iot-gateway
     host: iot-gateway
@@ -572,27 +565,12 @@ services:
           fault_tolerant: true
           hide_client_headers: false
 
-  # DEPRECATED
-  - name: ndvi-engine
-    host: ndvi-engine
-    port: 8107
-    protocol: http
-    routes:
-      - name: ndvi-engine-route
-        paths: ["/ndvi-engine-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # ARCHIVED: ndvi-engine → vegetation-analysis-service (2026-02-14)
+  # Legacy path /ndvi-engine-legacy removed
 
-  # Weather Core - Advanced weather assessment (POST-based API with lat/lon)
-  - name: weather-core
-    host: weather-core
-    port: 8108
-    protocol: http
-    routes:
-      - name: weather-core-route
-        paths: ["/api/v1/weather-core", "/weather-core", "/weather-core-legacy"]
-        strip_path: true
-        protocols: ["http", "https"]
+  # ARCHIVED: weather-core → weather-service (2026-02-14)
+  # Legacy paths now handled by weather-service
+  # Original paths: /api/v1/weather-core, /weather-core
 
   - name: notification-service
     host: notification-service
@@ -1030,12 +1008,12 @@ services:
   # خدمة تحليل التربة - اختبار وتحليل التربة
   - name: soil-analysis-service
     host: soil-analysis-service
-    port: 8124
+    port: 8134
     protocol: http
     routes:
       - name: soil-analysis-route
-        paths: ["/api/v1/soil", "/soil"]
-        strip_path: true
+        paths: ["/api/v1/soil"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1073,8 +1051,8 @@ services:
     protocol: http
     routes:
       - name: traceability-route
-        paths: ["/api/v1/traceability", "/traceability"]
-        strip_path: true
+        paths: ["/api/v1/traceability"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1092,8 +1070,8 @@ services:
     protocol: http
     routes:
       - name: cooperative-route
-        paths: ["/api/v1/cooperatives", "/cooperatives"]
-        strip_path: true
+        paths: ["/api/v1/cooperatives"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1111,8 +1089,16 @@ services:
     protocol: http
     routes:
       - name: drone-route
-        paths: ["/api/v1/drones", "/drones"]
-        strip_path: true
+        paths: ["/api/v1/drones"]
+        strip_path: false
+        protocols: ["http", "https"]
+      - name: drone-flights-route
+        paths: ["/api/v1/flights"]
+        strip_path: false
+        protocols: ["http", "https"]
+      - name: drone-missions-route
+        paths: ["/api/v1/missions"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting

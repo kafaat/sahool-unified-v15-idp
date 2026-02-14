@@ -602,4 +602,8 @@ export interface ServicePorts {
   wsGateway: number;
   marketplace: number;
   auth: number;
+  soilAnalysis: number;
+  drone: number;
+  cooperative: number;
+  traceability: number;
 }

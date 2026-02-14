@@ -92,6 +92,16 @@ except ImportError:
     logger.warning("shared.errors_py not available, using default error handling")
 
 
+# Include API routers
+try:
+    from src.api.v1 import soil_tests
+
+    app.include_router(soil_tests.router)
+    logger.info("API routers registered")
+except ImportError as e:
+    logger.error("Failed to import API routers", error=str(e))
+
+
 @app.get("/healthz")
 def health():
     """Liveness probe - فحص الحياة"""
@@ -151,4 +161,4 @@ def root():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8124")))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8134")))

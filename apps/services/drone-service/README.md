@@ -158,7 +158,7 @@ Comprehensive drone integration service for agricultural operations including fl
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PORT` | Service port | `8172` | No |
+| `PORT` | Service port | `8126` | No |
 | `HOST` | Bind address | `0.0.0.0` | No |
 | `ENVIRONMENT` | Environment (development/staging/production) | `development` | No |
 | `DATABASE_URL` | PostgreSQL connection string | - | Yes |
@@ -173,7 +173,7 @@ Comprehensive drone integration service for agricultural operations including fl
 
 ## Port
 
-**8172**
+**8126**
 
 ---
 
@@ -186,7 +186,7 @@ Comprehensive drone integration service for agricultural operations including fl
 pip install -r requirements.txt
 
 # Run the service
-uvicorn src.main:app --host 0.0.0.0 --port 8172 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8126 --reload
 ```
 
 ### Docker
@@ -196,7 +196,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8172 --reload
 docker build -t sahool/drone-service .
 
 # Run container
-docker run -p 8172:8172 \
+docker run -p 8126:8126 \
   -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
   -e REDIS_URL=redis://localhost:6379 \
   -e NATS_URL=nats://localhost:4222 \
@@ -230,10 +230,10 @@ spec:
         - name: drone-service
           image: sahool/drone-service:latest
           ports:
-            - containerPort: 8172
+            - containerPort: 8126
           env:
             - name: PORT
-              value: "8172"
+              value: "8126"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -258,13 +258,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8172
+              port: 8126
             initialDelaySeconds: 10
             periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /readyz
-              port: 8172
+              port: 8126
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -284,8 +284,8 @@ spec:
   selector:
     app: drone-service
   ports:
-    - port: 8172
-      targetPort: 8172
+    - port: 8126
+      targetPort: 8126
   type: ClusterIP
 ```
 

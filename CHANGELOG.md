@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **YOLO26 Vision Service - Pattern-Based Cache Invalidation** (February 2026)
+  - Implemented `ResultCache.invalidate(task, variant)` for selective cache clearing
+  - Added `InMemoryCache.invalidate_by_metadata()` for metadata-filtered eviction
+  - Cache entries now store task/variant metadata for pattern matching
+  - Supports filtering by detection task (pest/disease/weed) and model variant (n/s/m/l/x)
+
 - **Kong Middleware Security & Performance** (PR #902, February 2026)
   - Advanced rate limiting middleware with Redis-backed distributed storage
   - Three limiting strategies: Fixed Window, Sliding Window, Token Bucket

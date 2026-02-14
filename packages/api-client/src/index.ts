@@ -65,6 +65,12 @@ const DEFAULT_PORTS: ServicePorts = {
   notifications: 8110, // notification-service
   wsGateway: 8081, // ws-gateway (FIXED: was 8090 - conflict)
 
+  // Agriculture Domain - الخدمات الزراعية المتخصصة
+  soilAnalysis: 8134, // soil-analysis-service
+  drone: 8126, // drone-service
+  cooperative: 8127, // cooperative-service
+  traceability: 8123, // traceability-service
+
   // Deprecated aliases - للتوافق
   community: 8097, // Same as communityChat (FIXED: was 8102)
 };
@@ -288,6 +294,10 @@ export class SahoolApiClient {
       wsGateway: this.getServiceUrl(this.ports.wsGateway),
       marketplace: this.getServiceUrl(this.ports.marketplace),
       auth: this.getServiceUrl(this.ports.auth),
+      soilAnalysis: this.getServiceUrl(this.ports.soilAnalysis),
+      drone: this.getServiceUrl(this.ports.drone),
+      cooperative: this.getServiceUrl(this.ports.cooperative),
+      traceability: this.getServiceUrl(this.ports.traceability),
     };
   }
 

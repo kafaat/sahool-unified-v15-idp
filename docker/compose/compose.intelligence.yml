@@ -427,7 +427,7 @@ services:
     - redis
   ndvi-engine:
     build:
-      context: ../../apps/services/ndvi-engine
+      context: ../../archive/deprecated-services/ndvi-engine
       dockerfile: Dockerfile
     ports:
     - 8107:8107
@@ -533,6 +533,33 @@ services:
     depends_on:
     - terrain-core-service
     - weather-service
+  soil-analysis-service:
+    build:
+      context: ../../apps/services/soil-analysis-service
+      dockerfile: Dockerfile
+    ports:
+    - 8134:8134
+    environment:
+    - PORT=8134
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8134/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - advisory-service
+    - notification-service
 networks:
   sahool-network:
     driver: bridge

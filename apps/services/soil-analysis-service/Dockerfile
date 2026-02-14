@@ -4,30 +4,49 @@ FROM python:${PYTHON_VERSION}-slim-bookworm
 
 WORKDIR /app
 
-# Create non-root user for security
-RUN groupadd --gid 1000 appgroup && \
-    useradd --uid 1000 --gid appgroup --shell /bin/bash --create-home appuser
+# Python environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10
 
-# Install dependencies
+# Create non-root user (platform standard)
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+# Install dependencies with multi-mirror fallback (Pattern A)
 COPY apps/services/soil-analysis-service/requirements.txt .
-RUN pip install --no-cache-dir \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    --trusted-host pypi.tuna.tsinghua.edu.cn \
-    -r requirements.txt
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -c constraints.txt -r requirements.txt
 
 # Copy application
 COPY apps/services/soil-analysis-service/src/ ./src/
 
 # Change ownership to non-root user
-RUN chown -R appuser:appgroup /app
+RUN chown -R sahool:sahool /app
 
 # Switch to non-root user
-USER appuser
+USER sahool
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:8124/healthz || exit 1
+# Health check (using python urllib - no curl needed in slim)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8134/healthz')" || exit 1
 
-EXPOSE 8124
+EXPOSE 8134
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8124"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8134"]

@@ -7,16 +7,19 @@ This directory contains services that have been deprecated and replaced by newer
 
 ## Service Migration Map
 
-| Deprecated Service | Replacement Service | Port |
-|-------------------|---------------------|------|
-| `satellite-service` | `vegetation-analysis-service` | 8090 |
-| `weather-advanced` | `weather-service` | 8092 |
-| `crop-health-ai` | `crop-intelligence-service` | 8095 |
-| `crop-health` | `crop-intelligence-service` | 8095 |
-| `fertilizer-advisor` | `advisory-service` | 8093 |
-| `field-ops` | `field-management-service` | 3000 |
-| `field-core` | `field-management-service` | 3000 |
-| `field-service` | `field-management-service` | 3000 |
+| Deprecated Service | Replacement Service | Port | Archive Date |
+|-------------------|---------------------|------|--------------|
+| `satellite-service` | `vegetation-analysis-service` | 8090 | 2026-01-25 |
+| `weather-advanced` | `weather-service` | 8092 | 2026-01-25 |
+| `crop-health-ai` | `crop-intelligence-service` | 8095 | 2026-01-25 |
+| `crop-health` | `crop-intelligence-service` | 8095 | 2026-01-25 |
+| `fertilizer-advisor` | `advisory-service` | 8093 | 2026-01-25 |
+| `field-ops` | `field-management-service` | 3000 | 2026-01-25 |
+| `field-core` | `field-management-service` | 3000 | 2026-01-25 |
+| `field-service` | `field-management-service` | 3000 | 2026-01-25 |
+| `agro-advisor` | `advisory-service` | 8093 | 2026-02-14 |
+| `ndvi-engine` | `vegetation-analysis-service` | 8090 | 2026-02-14 |
+| `weather-core` | `weather-service` | 8092 | 2026-02-14 |
 
 ## Why Archived
 

@@ -37,7 +37,16 @@ def test_api_routers_exist():
     print("✓ All API router files exist")
 
 
+def test_migrations_exist():
+    """Test that SQL migration files exist"""
+    migrations_path = Path(__file__).parent.parent / "migrations"
+
+    assert (migrations_path / "001_create_drone_tables.sql").exists()
+    print("✓ Migration files exist")
+
+
 if __name__ == "__main__":
     test_main_module_structure()
     test_api_routers_exist()
+    test_migrations_exist()
     print("✓ All smoke tests passed!")

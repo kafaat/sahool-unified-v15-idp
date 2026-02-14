@@ -258,6 +258,33 @@ class InMemoryCache:
         except Exception:
             return 1024
 
+    async def invalidate_by_metadata(
+        self,
+        match: dict[str, Any],
+    ) -> int:
+        """
+        Invalidate entries whose metadata matches all given key-value pairs.
+
+        Args:
+            match: Metadata key-value pairs to match against.
+
+        Returns:
+            Number of entries invalidated.
+        """
+        async with self._lock:
+            keys_to_remove = [
+                key
+                for key, entry in self._cache.items()
+                if all(entry.metadata.get(k) == v for k, v in match.items())
+            ]
+            for key in keys_to_remove:
+                entry = self._cache.pop(key)
+                self._stats.memory_used_bytes -= entry.size_bytes
+                self._stats.evictions += 1
+
+            self._stats.total_entries = len(self._cache)
+            return len(keys_to_remove)
+
     def get_stats(self) -> CacheStats:
         """Get cache statistics."""
         return self._stats
@@ -508,9 +535,10 @@ class ResultCache:
 
         success = True
 
-        # Store in memory
+        # Store in memory with task/variant metadata for pattern invalidation
         if self.enable_memory:
-            memory_success = await self.memory_cache.set(key, result, ttl_seconds)
+            metadata = {"task": task, "variant": variant}
+            memory_success = await self.memory_cache.set(key, result, ttl_seconds, metadata=metadata)
             success = success and memory_success
 
         # Store in Redis
@@ -536,9 +564,22 @@ class ResultCache:
             logger.info("cache_invalidated_all")
             return -1
 
-        # TODO: Implement pattern-based invalidation
-        logger.warning("pattern_invalidation_not_implemented")
-        return 0
+        # Pattern-based invalidation: remove entries matching task/variant
+        match_filter: dict[str, Any] = {}
+        if task is not None:
+            match_filter["task"] = task
+        if variant is not None:
+            match_filter["variant"] = variant
+
+        count = await self.memory_cache.invalidate_by_metadata(match_filter)
+
+        logger.info(
+            "cache_invalidated_pattern",
+            task=task,
+            variant=variant,
+            invalidated_count=count,
+        )
+        return count
 
     def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""

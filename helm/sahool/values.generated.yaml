@@ -1132,7 +1132,7 @@ services:
       prometheus.io/port: '8114'
       prometheus.io/path: /metrics
   agro-advisor:
-    enabled: true
+    enabled: false
     name: agro-advisor
     image:
       repository: ghcr.io/kafaat/sahool-agro-advisor
@@ -1804,7 +1804,7 @@ services:
       prometheus.io/port: '8167'
       prometheus.io/path: /metrics
   ndvi-engine:
-    enabled: true
+    enabled: false
     name: ndvi-engine
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-engine
@@ -1868,7 +1868,7 @@ services:
       prometheus.io/port: '8183'
       prometheus.io/path: /metrics
   weather-core:
-    enabled: true
+    enabled: false
     name: weather-core
     image:
       repository: ghcr.io/kafaat/sahool-weather-core
@@ -2251,6 +2251,134 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8240'
       prometheus.io/path: /metrics
+  soil-analysis-service:
+    enabled: true
+    name: soil-analysis-service
+    image:
+      repository: ghcr.io/kafaat/sahool-soil-analysis-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8134
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8134'
+    serviceAccount:
+      create: true
+      name: sahool-soil-analysis-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8134'
+      prometheus.io/path: /metrics
+  drone-service:
+    enabled: true
+    name: drone-service
+    image:
+      repository: ghcr.io/kafaat/sahool-drone-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8126
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8126'
+    serviceAccount:
+      create: true
+      name: sahool-drone-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8126'
+      prometheus.io/path: /metrics
+  cooperative-service:
+    enabled: true
+    name: cooperative-service
+    image:
+      repository: ghcr.io/kafaat/sahool-cooperative-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8127
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8127'
+    serviceAccount:
+      create: true
+      name: sahool-cooperative-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8127'
+      prometheus.io/path: /metrics
+  traceability-service:
+    enabled: true
+    name: traceability-service
+    image:
+      repository: ghcr.io/kafaat/sahool-traceability-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8123
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8123'
+    serviceAccount:
+      create: true
+      name: sahool-traceability-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8123'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2589,6 +2717,22 @@ ingress:
       pathType: Prefix
       service: whatsapp-bot-service
       port: 8240
+    - path: /api/v1/soil/analysis/service
+      pathType: Prefix
+      service: soil-analysis-service
+      port: 8134
+    - path: /api/v1/drone/service
+      pathType: Prefix
+      service: drone-service
+      port: 8126
+    - path: /api/v1/cooperative/service
+      pathType: Prefix
+      service: cooperative-service
+      port: 8127
+    - path: /api/v1/traceability/service
+      pathType: Prefix
+      service: traceability-service
+      port: 8123
   tls:
   - secretName: sahool-tls
     hosts:

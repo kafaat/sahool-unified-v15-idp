@@ -318,7 +318,7 @@ export default function () {
     tokenRefreshLatency.add(refreshResp.timings.duration);
     totalRefreshes.add(1);
 
-    const refreshOk = check(refreshResp, {
+    check(refreshResp, {
       'token refresh responds': (r) => r.status === 200 || r.status === 401 || r.status === 400 || r.status === 422,
       'token refresh not server error': (r) => r.status < 500,
       'token refresh within threshold': (r) => r.timings.duration < 2000,

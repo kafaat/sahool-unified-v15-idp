@@ -71,17 +71,17 @@ tokenizers>=0.19.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 ultralytics>=8.0.0,<9.0.0
 opencv-python-headless>=4.9.0,<5.0.0
-pillow>=10.0.0,<11.0.0
+pillow>=10.0.0,<12.0.0  # Allow Pillow 11.x (constraints.txt pins 11.3.0)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # NATS Messaging
 # ─────────────────────────────────────────────────────────────────────────────
-nats-py==2.9.0
+nats-py>=2.9.0,<3.0.0  # Allow upgrade to 2.13.1 (constraints.txt pin)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Database and Caching
 # ─────────────────────────────────────────────────────────────────────────────
-asyncpg>=0.30.0,<1.0.0
+asyncpg>=0.30.0,<1.0.0  # Compatible with constraints.txt asyncpg==0.31.0
 # Note: redis extras removed for constraints compatibility - install separately
 redis>=7.1.0,<8.0.0
 sqlalchemy>=2.0.0,<3.0.0
@@ -97,7 +97,7 @@ python-jose>=3.3.0,<4.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Monitoring and Observability
 # ─────────────────────────────────────────────────────────────────────────────
-prometheus-client==0.21.1
+prometheus-client>=0.21.1,<1.0.0  # Allow upgrade to 0.24.1 (constraints.txt pin)
 structlog>=24.4.0,<25.0.0
 opentelemetry-api>=1.20.0,<2.0.0
 opentelemetry-sdk>=1.20.0,<2.0.0
@@ -106,7 +106,7 @@ opentelemetry-instrumentation-fastapi>=0.41b0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
-python-dotenv==1.0.1
+python-dotenv>=1.0.1,<2.0.0  # Allow upgrade to 1.2.1 (constraints.txt pin)
 aiofiles>=24.1.0,<25.0.0
 tenacity>=8.5.0,<9.0.0
 click>=8.1.0,<9.0.0

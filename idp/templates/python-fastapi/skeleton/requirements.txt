@@ -1,9 +1,9 @@
-fastapi==0.126.0
-uvicorn[standard]==0.34.0
-pydantic==2.9.2
-prometheus-client==0.21.1
-opentelemetry-api==1.29.0
-opentelemetry-sdk==1.29.0
-opentelemetry-exporter-otlp-proto-http==0.50b0
-opentelemetry-instrumentation-fastapi==0.50b0
+fastapi==0.128.5
+uvicorn[standard]==0.40.0
+pydantic==2.12.5
+prometheus-client==0.24.1
+opentelemetry-api==1.39.1
+opentelemetry-sdk==1.39.1
+opentelemetry-exporter-otlp-proto-http==0.60b1
+opentelemetry-instrumentation-fastapi==0.60b1
 structlog==24.4.0

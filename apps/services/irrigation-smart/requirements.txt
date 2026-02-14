@@ -20,5 +20,5 @@ python-dotenv==1.2.1
 structlog>=24.1.0
 
 # JWT Authentication
-PyJWT>=2.8.0
+PyJWT>=2.8.0,<3.0.0
 cryptography>=42.0.0

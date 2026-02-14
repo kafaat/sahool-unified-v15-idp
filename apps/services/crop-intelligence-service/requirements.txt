@@ -22,7 +22,7 @@ nats-py>=2.6.0
 asyncpg>=0.30.0
 
 # JWT Authentication
-PyJWT>=2.8.0
+PyJWT>=2.8.0,<3.0.0
 cryptography>=42.0.0
 
 # Redis (required by shared.auth token revocation)

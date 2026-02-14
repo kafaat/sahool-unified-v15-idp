@@ -28,7 +28,7 @@ cryptography>=42.0.0
 httpx==0.28.1
 
 # Geo-spatial & Image Processing
-numpy==1.26.4
+numpy>=1.26.0,<2.5.0
 rasterio==1.4.3
 shapely==2.0.6
 pyproj==3.7.0

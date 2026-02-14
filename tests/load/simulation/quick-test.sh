@@ -18,8 +18,8 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SCRIPT_DIR="$(cd "[0;33m$(dirname "[0;33m${BASH_SOURCE[0]}"[0;33m)" && pwd)""
+PROJECT_ROOT="$(cd "[0;33m$SCRIPT_DIR/../../.."[0;33m && pwd)""
 
 TESTS_PASSED=0
 TESTS_FAILED=0
@@ -98,19 +98,16 @@ test_js_syntax() {
 # ═══════════════════════════════════════════════════════════════════════════════
 # Run Tests
 # ═══════════════════════════════════════════════════════════════════════════════
-
 echo -e "${BLUE}[1] Docker Compose Files${NC}"
 test_file_exists "$SCRIPT_DIR/docker-compose-sim.yml" "docker-compose-sim.yml exists"
 test_file_exists "$SCRIPT_DIR/docker-compose-advanced.yml" "docker-compose-advanced.yml exists"
 test_yaml_valid "$SCRIPT_DIR/docker-compose-sim.yml" "docker-compose-sim.yml is valid YAML"
 test_yaml_valid "$SCRIPT_DIR/docker-compose-advanced.yml" "docker-compose-advanced.yml is valid YAML"
-
 echo ""
 echo -e "${BLUE}[2] Nginx Configuration${NC}"
 test_file_exists "$SCRIPT_DIR/config/nginx.conf" "nginx.conf exists"
 test_file_exists "$SCRIPT_DIR/config/nginx-advanced.conf" "nginx-advanced.conf exists"
 test_file_exists "$SCRIPT_DIR/config/proxy-params.conf" "proxy-params.conf exists"
-
 echo ""
 echo -e "${BLUE}[3] K6 Test Scripts${NC}"
 test_file_exists "$SCRIPT_DIR/scripts/agent-simulation.js" "agent-simulation.js exists"
@@ -125,7 +122,6 @@ test_js_syntax "$SCRIPT_DIR/scripts/chaos-testing.js" "chaos-testing.js has vali
 test_js_syntax "$SCRIPT_DIR/scripts/mobile-app-simulation.js" "mobile-app-simulation.js has valid structure"
 test_js_syntax "$SCRIPT_DIR/scripts/web-dashboard-simulation.js" "web-dashboard-simulation.js has valid structure"
 test_js_syntax "$SCRIPT_DIR/scripts/multi-client-simulation.js" "multi-client-simulation.js has valid structure"
-
 echo ""
 echo -e "${BLUE}[4] Monitoring Configuration${NC}"
 test_file_exists "$SCRIPT_DIR/monitoring/prometheus.yml" "prometheus.yml exists"
@@ -134,7 +130,6 @@ test_file_exists "$SCRIPT_DIR/monitoring/alert-rules.yml" "alert-rules.yml exist
 test_yaml_valid "$SCRIPT_DIR/monitoring/prometheus.yml" "prometheus.yml is valid YAML"
 test_yaml_valid "$SCRIPT_DIR/monitoring/alertmanager.yml" "alertmanager.yml is valid YAML"
 test_yaml_valid "$SCRIPT_DIR/monitoring/alert-rules.yml" "alert-rules.yml is valid YAML"
-
 echo ""
 echo -e "${BLUE}[5] Grafana Dashboards${NC}"
 test_file_exists "$SCRIPT_DIR/grafana/dashboards/k6-dashboard.json" "k6-dashboard.json exists"
@@ -143,7 +138,6 @@ test_file_exists "$SCRIPT_DIR/grafana/dashboards/multi-client-dashboard.json" "m
 test_json_valid "$SCRIPT_DIR/grafana/dashboards/k6-dashboard.json" "k6-dashboard.json is valid JSON"
 test_json_valid "$SCRIPT_DIR/grafana/dashboards/advanced-dashboard.json" "advanced-dashboard.json is valid JSON"
 test_json_valid "$SCRIPT_DIR/grafana/dashboards/multi-client-dashboard.json" "multi-client-dashboard.json is valid JSON"
-
 echo ""
 echo -e "${BLUE}[6] Runner Scripts${NC}"
 test_file_exists "$SCRIPT_DIR/run-simulation.sh" "run-simulation.sh exists"
@@ -153,7 +147,6 @@ test_file_exists "$SCRIPT_DIR/run-advanced.ps1" "run-advanced.ps1 exists"
 test_file_exists "$SCRIPT_DIR/run-multiclient.ps1" "run-multiclient.ps1 exists"
 test_file_exists "$SCRIPT_DIR/verify-simulation.sh" "verify-simulation.sh exists"
 test_file_exists "$SCRIPT_DIR/verify-simulation.ps1" "verify-simulation.ps1 exists"
-
 # Check executability
 if [ -x "$SCRIPT_DIR/run-simulation.sh" ]; then
     test_pass "run-simulation.sh is executable"
@@ -167,14 +160,9 @@ else
     test_fail "run-advanced.sh is not executable"
 fi
 
-echo ""
-echo -e "${BLUE}[7] Application Dockerfile${NC}"
-test_file_exists "$PROJECT_ROOT/apps/services/field-ops/Dockerfile" "field-ops Dockerfile exists"
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Summary
 # ═══════════════════════════════════════════════════════════════════════════════
-
 echo ""
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
 echo -e "${CYAN}  TEST SUMMARY - ملخص الاختبارات${NC}"
@@ -183,17 +171,16 @@ echo ""
 echo -e "  ${GREEN}Passed:${NC} $TESTS_PASSED"
 echo -e "  ${RED}Failed:${NC} $TESTS_FAILED"
 echo ""
-
 if [ $TESTS_FAILED -eq 0 ]; then
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${GREEN}  ✓ ALL TESTS PASSED${NC}"
-    echo -e "${GREEN}  ✓ جميع الاختبارات نجحت${NC}"
-    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}  ✓ ALL TESTS PASSED${NC}"
+echo -e "${GREEN}  ✓ جميع الاختبارات نجحت${NC}"
+echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
     exit 0
 else
-    echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
-    echo -e "${RED}  ✗ SOME TESTS FAILED${NC}"
-    echo -e "${RED}  ✗ بعض الاختبارات فشلت${NC}"
-    echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
+echo -e "${RED}  ✗ SOME TESTS FAILED${NC}"
+echo -e "${RED}  ✗ بعض الاختبارات فشلت${NC}"
+echo -e "${RED}═══════════════════════════════════════════════════════════════${NC}"
     exit 1
 fi

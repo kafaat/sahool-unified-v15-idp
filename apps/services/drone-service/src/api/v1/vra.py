@@ -8,7 +8,7 @@ from datetime import datetime
 import structlog
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
-
+from pydantic import BaseModel
 logger = structlog.get_logger()
 
 router = APIRouter(prefix="/api/v1/vra", tags=["vra"])

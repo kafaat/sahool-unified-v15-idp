@@ -86,6 +86,7 @@ class BatchUpdateRequest(BaseModel):
     status: str | None = None
 
 
+
 class BatchSplitRequest(BaseModel):
     batch_id: str
     quantities: list[float]
@@ -96,6 +97,7 @@ class GenerateCodeRequest(BaseModel):
     year: int | None = None
     sequence: int = Field(..., ge=1)
     farm_code: str | None = Field(None, min_length=3, max_length=3)
+
 
 
 # === Endpoints ===

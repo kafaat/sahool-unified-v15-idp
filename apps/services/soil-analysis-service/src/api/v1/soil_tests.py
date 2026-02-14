@@ -96,6 +96,7 @@ class PeriodCompareRequest(BaseModel):
     period2_end: datetime
 
 
+
 class TrendRequest(BaseModel):
     field_id: str
     tenant_id: str
@@ -342,6 +343,7 @@ async def get_crop_nutrient_requirements(crop: str):
         return {"crop": crop, "requirements": reqs}
     except ImportError:
         return {"crop": crop, "requirements": None, "message": "Crop requirements data not available"}
+
 
 
 @router.post("/interpretation/nutrient-status")

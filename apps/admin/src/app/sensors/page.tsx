@@ -451,7 +451,7 @@ export default function SensorsPage() {
         <DeviceFormModal
           title="تسجيل جهاز جديد"
           onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreate}
+          onSubmit={(data) => handleCreate(data as CreateDeviceData)}
           isSubmitting={isSubmitting}
         />
       )}

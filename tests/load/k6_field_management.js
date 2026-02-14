@@ -98,6 +98,13 @@ export const options = {
 // Helper Functions
 // =============================================================================
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getHeaders() {
   const headers = {
     'Content-Type': 'application/json',
@@ -111,22 +118,22 @@ function getHeaders() {
 }
 
 function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 function randomFloat(min, max) {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(4));
+  return parseFloat((secureRandom() * (max - min) + min).toFixed(4));
 }
 
 function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(secureRandom() * (max - min + 1)) + min;
 }
 
 function randomString(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -141,7 +148,7 @@ function generateFieldPolygon(centerLat, centerLon) {
 
   for (let i = 0; i < points; i++) {
     const angle = (2 * Math.PI * i) / points;
-    const r = radius * (0.8 + Math.random() * 0.4);
+    const r = radius * (0.8 + secureRandom() * 0.4);
     coordinates.push([
       centerLon + r * Math.cos(angle),
       centerLat + r * Math.sin(angle),
@@ -334,7 +341,7 @@ export default function (data) {
   // -------------------------------------------------------------------------
   // Group 3: Filter and Search Fields (Read)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.4) {
+  if (secureRandom() < 0.4) {
     group('Search Fields', function () {
       // Filter by crop type
       const cropFilter = randomElement(CROP_TYPES);
@@ -430,7 +437,7 @@ export default function (data) {
   // -------------------------------------------------------------------------
   // Group 5: Create Field (Write - 20% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.2) {
+  if (secureRandom() < 0.2) {
     group('Create Field', function () {
       const fieldPayload = generateFieldPayload();
       const createResp = http.post(
@@ -487,7 +494,7 @@ export default function (data) {
   // -------------------------------------------------------------------------
   // Group 6: Update Field (Write - 10% of iterations, requires created field)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.1 && createdFieldId) {
+  if (secureRandom() < 0.1 && createdFieldId) {
     group('Update Field', function () {
       const updatePayload = JSON.stringify({
         name: `Updated Field ${randomString(6)}`,
@@ -526,7 +533,7 @@ export default function (data) {
   // -------------------------------------------------------------------------
   // Group 7: Delete Field (Write - 5% of iterations, requires created field)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.05 && createdFieldId) {
+  if (secureRandom() < 0.05 && createdFieldId) {
     group('Delete Field', function () {
       const deleteResp = http.del(
         `${BASE_URL}/api/v1/fields/${createdFieldId}`,
@@ -559,7 +566,7 @@ export default function (data) {
   // -------------------------------------------------------------------------
   // Group 8: Rapid Read Burst (15% of iterations - simulates dashboard refresh)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.15) {
+  if (secureRandom() < 0.15) {
     group('Dashboard Refresh Burst', function () {
       // Simulate a user refreshing a dashboard - multiple reads in quick succession
       const requests = [

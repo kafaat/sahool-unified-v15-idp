@@ -80,6 +80,13 @@ export const options = {
 // Helper Functions
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getHeaders() {
   const headers = {
     'Content-Type': 'application/json',
@@ -258,7 +265,7 @@ export default function () {
   });
 
   // Random sleep between iterations (simulate real user behavior)
-  sleep(Math.random() * 2 + 1);  // 1-3 seconds
+  sleep(secureRandom() * 2 + 1);  // 1-3 seconds
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

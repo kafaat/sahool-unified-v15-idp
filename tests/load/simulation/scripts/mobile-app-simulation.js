@@ -158,9 +158,16 @@ export const options = {
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function generateDeviceId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
+    const r = (secureRandom() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
@@ -208,8 +215,8 @@ function simulateNetworkCondition() {
 function generateGPSCoordinates(baseLocation) {
   // Add small random offset to simulate movement
   return {
-    latitude: baseLocation.lat + (Math.random() - 0.5) * 0.01,
-    longitude: baseLocation.lng + (Math.random() - 0.5) * 0.01,
+    latitude: baseLocation.lat + (secureRandom() - 0.5) * 0.01,
+    longitude: baseLocation.lng + (secureRandom() - 0.5) * 0.01,
     accuracy: randomIntBetween(5, 50),
     altitude: randomIntBetween(0, 500),
     speed: randomIntBetween(0, 120),
@@ -360,7 +367,7 @@ export function iosUserFlow() {
   sleep(randomIntBetween(3, 6));
 
   // Simulate push notification received
-  if (Math.random() < 0.3) {
+  if (secureRandom() < 0.3) {
     group("iOS: Push Notification", () => {
       pushNotifications.add(1);
       const notifRes = http.post(
@@ -499,7 +506,7 @@ export function androidUserFlow() {
   sleep(randomIntBetween(2, 5));
 
   // Android-specific: Battery optimization sync
-  if (Math.random() < 0.2) {
+  if (secureRandom() < 0.2) {
     group("Android: Doze Sync", () => {
       backgroundSyncs.add(1);
       const syncRes = http.post(
@@ -526,7 +533,7 @@ export function androidUserFlow() {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export function fieldWorkerFlow() {
-  const isIOS = Math.random() < 0.4;
+  const isIOS = secureRandom() < 0.4;
   const device = isIOS ? randomItem(IOS_DEVICES) : randomItem(ANDROID_DEVICES);
   const headers = isIOS ? getIOSHeaders(device) : getAndroidHeaders(device);
   const location = randomItem(SAUDI_LOCATIONS);
@@ -581,7 +588,7 @@ export function fieldWorkerFlow() {
     sleep(randomIntBetween(5, 15));
 
     // Occasionally take a photo
-    if (Math.random() < 0.3) {
+    if (secureRandom() < 0.3) {
       group("Field Worker: Image Upload", () => {
         const uploadStart = Date.now();
         const image = generateFieldImage();
@@ -801,7 +808,7 @@ ACTIVITIES:
 
 // Default export for standalone run
 export default function () {
-  if (Math.random() < 0.45) {
+  if (secureRandom() < 0.45) {
     iosUserFlow();
   } else {
     androidUserFlow();

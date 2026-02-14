@@ -34,6 +34,7 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import io
 import json
 import logging
 import os
@@ -49,6 +50,40 @@ logger = logging.getLogger(__name__)
 # Type variables
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
+
+
+class RestrictedUnpickler(pickle.Unpickler):
+    """Restricted unpickler that only allows safe built-in types."""
+
+    SAFE_BUILTINS = {
+        "builtins": frozenset(
+            {
+                "dict",
+                "list",
+                "tuple",
+                "set",
+                "frozenset",
+                "str",
+                "bytes",
+                "int",
+                "float",
+                "bool",
+                "complex",
+                "type",
+                "NoneType",
+            }
+        ),
+        "datetime": frozenset({"datetime", "date", "time", "timedelta"}),
+        "decimal": frozenset({"Decimal"}),
+        "collections": frozenset({"OrderedDict", "defaultdict"}),
+    }
+
+    def find_class(self, module: str, name: str) -> type:
+        if module in self.SAFE_BUILTINS and name in self.SAFE_BUILTINS[module]:
+            return getattr(__import__(module, fromlist=[name]), name)
+        raise pickle.UnpicklingError(
+            f"Restricted: {module}.{name} is not allowed for deserialization"
+        )
 
 
 @dataclass
@@ -183,7 +218,7 @@ class RedisCache:
         if self.serialize_method == "json":
             return json.loads(data.decode("utf-8"))
         else:
-            return pickle.loads(data)
+            return RestrictedUnpickler(io.BytesIO(data)).load()
 
     async def get(self, key: str) -> Any | None:
         """Get value from Redis cache."""

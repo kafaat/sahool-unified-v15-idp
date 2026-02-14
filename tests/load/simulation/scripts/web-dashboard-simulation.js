@@ -221,8 +221,15 @@ export const options = {
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function selectBrowser() {
-  const rand = Math.random();
+  const rand = secureRandom();
   let cumulative = 0;
   for (const browser of BROWSERS) {
     cumulative += browser.share;
@@ -248,7 +255,7 @@ function getWebHeaders(browser, resolution) {
 }
 
 function generateSessionId() {
-  return "sess_" + Math.random().toString(36).substring(2, 15);
+  return "sess_" + secureRandom().toString(36).substring(2, 15);
 }
 
 function simulatePageLoad(headers, pageName, loadTime) {
@@ -1020,7 +1027,7 @@ ACTIVITIES:
 
 // Default export for standalone run
 export default function () {
-  const rand = Math.random();
+  const rand = secureRandom();
   if (rand < 0.15) {
     adminFlow();
   } else if (rand < 0.5) {

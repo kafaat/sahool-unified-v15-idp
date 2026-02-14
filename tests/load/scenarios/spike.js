@@ -64,6 +64,13 @@ export function setup() {
   };
 }
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 // Detect current phase based on VU count
 function getCurrentPhase() {
   const vu = __VU;
@@ -126,7 +133,7 @@ export default function (data) {
   });
 
   // Spike Test Pattern 2: Weather Requests (80% of users)
-  if (Math.random() < 0.8) {
+  if (secureRandom() < 0.8) {
     group("Weather Forecast", () => {
       const locations = ["sanaa", "aden", "taiz"];
       const location = randomElement(locations);
@@ -150,7 +157,7 @@ export default function (data) {
   // Spike Test Pattern 3: Field Creation (during normal phase: 40%, during spike: 20%)
   const creationProbability = phase === "spike" ? 0.2 : 0.4;
 
-  if (Math.random() < creationProbability) {
+  if (secureRandom() < creationProbability) {
     group("Field Creation", () => {
       const fieldData = generateRandomField(authData.tenantId);
       const url = `${config.fieldServiceUrl}/fields`;
@@ -262,7 +269,7 @@ export default function (data) {
   }
 
   // Spike Test Pattern 8: Concurrent Requests (during spike only)
-  if (phase === "spike" && Math.random() < 0.3) {
+  if (phase === "spike" && secureRandom() < 0.3) {
     group("Concurrent Request Burst", () => {
       const requests = [];
 

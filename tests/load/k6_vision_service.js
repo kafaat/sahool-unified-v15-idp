@@ -92,6 +92,13 @@ export const options = {
 // Helper Functions
 // =============================================================================
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getHeaders() {
   const headers = {
     'Content-Type': 'application/json',
@@ -121,7 +128,7 @@ function getMultipartHeaders() {
 function generateTestImagePayload() {
   // Create a minimal binary payload that simulates an image file.
   // In a real scenario, use open() to load actual test images from disk.
-  const size = Math.floor(Math.random() * 50000) + 10000; // 10-60KB
+  const size = Math.floor(secureRandom() * 50000) + 10000; // 10-60KB
   const data = new ArrayBuffer(size);
   const view = new Uint8Array(data);
   // JPEG magic bytes
@@ -140,11 +147,11 @@ function generateTestImagePayload() {
 }
 
 function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 function randomFloat(min, max) {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(2));
+  return parseFloat((secureRandom() * (max - min) + min).toFixed(2));
 }
 
 // =============================================================================
@@ -370,7 +377,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 5: Model Management (10% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group('Model Management', function () {
       // List model versions
       const versionsResp = http.get(`${BASE_URL}/api/v1/models/versions`, { headers });
@@ -408,7 +415,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 6: Batch Detection (5% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.05) {
+  if (secureRandom() < 0.05) {
     group('Batch Detection', function () {
       // Submit a small batch of images for pest detection
       const images = [];

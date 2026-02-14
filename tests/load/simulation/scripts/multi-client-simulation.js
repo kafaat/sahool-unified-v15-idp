@@ -298,9 +298,16 @@ export const options = {
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function generateDeviceId() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0;
+    const r = (secureRandom() * 16) | 0;
     const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
@@ -350,8 +357,8 @@ function getApiHeaders(client) {
 
 function generateGPS(location) {
   return {
-    latitude: location.lat + (Math.random() - 0.5) * 0.01,
-    longitude: location.lng + (Math.random() - 0.5) * 0.01,
+    latitude: location.lat + (secureRandom() - 0.5) * 0.01,
+    longitude: location.lng + (secureRandom() - 0.5) * 0.01,
     accuracy: randomIntBetween(5, 30),
     timestamp: Date.now(),
   };
@@ -477,13 +484,13 @@ export function iosFieldWorkerFlow() {
       sleep(randomIntBetween(3, 8));
 
       // Submit field reading (50% chance)
-      if (Math.random() < 0.5) {
+      if (secureRandom() < 0.5) {
         const readingStart = Date.now();
         const readingRes = http.post(
           `${BASE_URL}/api/fields/${randomIntBetween(1, 50)}/readings`,
           JSON.stringify({
             type: randomItem(["soil_moisture", "temperature", "ph_level"]),
-            value: Math.random() * 100,
+            value: secureRandom() * 100,
             gps: gps,
             timestamp: new Date().toISOString(),
           }),
@@ -1343,13 +1350,13 @@ export function iotSensorFlow() {
         readings: [
           {
             type: "temperature",
-            value: 25 + Math.random() * 20,
+            value: 25 + secureRandom() * 20,
             unit: "celsius",
           },
-          { type: "humidity", value: 30 + Math.random() * 50, unit: "percent" },
+          { type: "humidity", value: 30 + secureRandom() * 50, unit: "percent" },
           {
             type: "soil_moisture",
-            value: Math.random() * 100,
+            value: secureRandom() * 100,
             unit: "percent",
           },
         ],
@@ -1390,12 +1397,12 @@ export function weatherStationFlow() {
       JSON.stringify({
         station_id: `ws_${location.city.toLowerCase()}_${__VU}`,
         readings: {
-          temperature: 20 + Math.random() * 25,
-          humidity: 20 + Math.random() * 60,
-          wind_speed: Math.random() * 30,
+          temperature: 20 + secureRandom() * 25,
+          humidity: 20 + secureRandom() * 60,
+          wind_speed: secureRandom() * 30,
           wind_direction: randomIntBetween(0, 360),
-          pressure: 1000 + Math.random() * 30,
-          precipitation: Math.random() < 0.1 ? Math.random() * 10 : 0,
+          pressure: 1000 + secureRandom() * 30,
+          precipitation: secureRandom() < 0.1 ? secureRandom() * 10 : 0,
         },
         location: { city: location.city, lat: location.lat, lng: location.lng },
         timestamp: new Date().toISOString(),
@@ -1741,30 +1748,30 @@ export function handleSummary(data) {
 
 // Default export - Updated with new distribution
 export default function () {
-  const rand = Math.random();
+  const rand = secureRandom();
 
   // Mobile: 50%
   if (rand < MOBILE_RATIO) {
-    if (Math.random() < 0.45) iosFieldWorkerFlow();
+    if (secureRandom() < 0.45) iosFieldWorkerFlow();
     else androidFieldWorkerFlow();
   }
   // Web: 30%
   else if (rand < MOBILE_RATIO + WEB_RATIO) {
-    const webRand = Math.random();
+    const webRand = secureRandom();
     if (webRand < 0.5) webUserFlow();
     else if (webRand < 0.8) webManagerFlow();
     else webViewerFlow();
   }
   // Dashboard: 15%
   else if (rand < MOBILE_RATIO + WEB_RATIO + DASHBOARD_RATIO) {
-    const dashRand = Math.random();
+    const dashRand = secureRandom();
     if (dashRand < 0.5) dashboardAdminFlow();
     else if (dashRand < 0.8) dashboardAnalystFlow();
     else dashboardSuperAdminFlow();
   }
   // API: 5%
   else {
-    const apiRand = Math.random();
+    const apiRand = secureRandom();
     if (apiRand < 0.5) iotSensorFlow();
     else if (apiRand < 0.8) weatherStationFlow();
     else erpSyncFlow();

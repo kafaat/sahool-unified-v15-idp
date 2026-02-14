@@ -185,6 +185,13 @@ export const options = {
 // HELPER FUNCTIONS - دوال مساعدة
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getAgentId() {
   return `agent_${__VU}_${__ITER}`;
 }
@@ -205,7 +212,7 @@ function randomString(length = 8) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -401,11 +408,11 @@ export function fieldScenario() {
         type: "Polygon",
         coordinates: [
           [
-            [44.19 + Math.random() * 0.1, 15.37 + Math.random() * 0.1],
-            [44.2 + Math.random() * 0.1, 15.37 + Math.random() * 0.1],
-            [44.2 + Math.random() * 0.1, 15.38 + Math.random() * 0.1],
-            [44.19 + Math.random() * 0.1, 15.38 + Math.random() * 0.1],
-            [44.19 + Math.random() * 0.1, 15.37 + Math.random() * 0.1],
+            [44.19 + secureRandom() * 0.1, 15.37 + secureRandom() * 0.1],
+            [44.2 + secureRandom() * 0.1, 15.37 + secureRandom() * 0.1],
+            [44.2 + secureRandom() * 0.1, 15.38 + secureRandom() * 0.1],
+            [44.19 + secureRandom() * 0.1, 15.38 + secureRandom() * 0.1],
+            [44.19 + secureRandom() * 0.1, 15.37 + secureRandom() * 0.1],
           ],
         ],
       },
@@ -559,11 +566,11 @@ export function iotScenario() {
         air_temperature: randomIntBetween(20, 50),
         humidity: randomIntBetween(30, 90),
         light_intensity: randomIntBetween(100, 1000),
-        ph_level: (Math.random() * 4 + 5).toFixed(1),
+        ph_level: (secureRandom() * 4 + 5).toFixed(1),
       },
       location: {
-        lat: 24.7136 + Math.random() * 0.1,
-        lon: 46.6753 + Math.random() * 0.1,
+        lat: 24.7136 + secureRandom() * 0.1,
+        lon: 46.6753 + secureRandom() * 0.1,
       },
     };
 

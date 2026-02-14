@@ -125,12 +125,19 @@ export const options = {
 // HELPER FUNCTIONS - دوال مساعدة
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getAgentId() {
   return `chaos_agent_${__VU}`;
 }
 
 function shouldInjectFailure() {
-  return Math.random() < config.failureRate;
+  return secureRandom() < config.failureRate;
 }
 
 function getHeaders(token = null) {

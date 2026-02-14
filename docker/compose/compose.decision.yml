@@ -300,6 +300,87 @@ services:
     depends_on:
     - weather-service
     - field-management-service
+  yield-prediction-service:
+    build:
+      context: ../../apps/services/yield-prediction-service
+      dockerfile: Dockerfile
+    ports:
+    - 8152:8152
+    environment:
+    - PORT=8152
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8152/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
+    - weather-service
+  fertigation-engine:
+    build:
+      context: ../../apps/services/fertigation-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8252:8252
+    environment:
+    - PORT=8252
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8252/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - irrigation-smart
+    - soil-analysis-service
+  irrigation-cycle-engine:
+    build:
+      context: ../../apps/services/irrigation-cycle-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8250:8250
+    environment:
+    - PORT=8250
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8250/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - irrigation-smart
+    - weather-service
 networks:
   sahool-network:
     driver: bridge

@@ -560,6 +560,59 @@ services:
     depends_on:
     - advisory-service
     - notification-service
+  pest-detection-service:
+    build:
+      context: ../../apps/services/pest-detection-service
+      dockerfile: Dockerfile
+    ports:
+    - 8125:8125
+    environment:
+    - PORT=8125
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8125/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - yolo26-vision-service
+    - notification-service
+  digital-twin-engine:
+    build:
+      context: ../../apps/services/digital-twin-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8253:8253
+    environment:
+    - PORT=8253
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8253/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
 networks:
   sahool-network:
     driver: bridge

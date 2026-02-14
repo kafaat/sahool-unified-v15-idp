@@ -300,6 +300,87 @@ services:
     depends_on:
     - weather-service
     - field-management-service
+  yield-prediction-service:
+    build:
+      context: ../../apps/services/yield-prediction-service
+      dockerfile: Dockerfile
+    ports:
+    - 8152:8152
+    environment:
+    - PORT=8152
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8152/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
+    - weather-service
+  fertigation-engine:
+    build:
+      context: ../../apps/services/fertigation-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8252:8252
+    environment:
+    - PORT=8252
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8252/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - irrigation-smart
+    - soil-analysis-service
+  irrigation-cycle-engine:
+    build:
+      context: ../../apps/services/irrigation-cycle-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8250:8250
+    environment:
+    - PORT=8250
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8250/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - irrigation-smart
+    - weather-service
   disaster-assessment:
     build:
       context: ../../apps/services/disaster-assessment
@@ -860,6 +941,59 @@ services:
     depends_on:
     - advisory-service
     - notification-service
+  pest-detection-service:
+    build:
+      context: ../../apps/services/pest-detection-service
+      dockerfile: Dockerfile
+    ports:
+    - 8125:8125
+    environment:
+    - PORT=8125
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8125/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - yolo26-vision-service
+    - notification-service
+  digital-twin-engine:
+    build:
+      context: ../../apps/services/digital-twin-engine
+      dockerfile: Dockerfile
+    ports:
+    - 8253:8253
+    environment:
+    - PORT=8253
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8253/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - crop-growth-model
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
@@ -1702,6 +1836,82 @@ services:
     depends_on:
     - field-management-service
     - notification-service
+  copilot-api:
+    build:
+      context: ../../apps/services/copilot-api
+      dockerfile: Dockerfile
+    ports:
+    - 8088:8088
+    environment:
+    - PORT=8088
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8088/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '500'
+          memory: 512Mi
+    depends_on:
+    - llm-orchestrator-service
+  ai-chat-assistant:
+    build:
+      context: ../../apps/services/ai-chat-assistant
+      dockerfile: Dockerfile
+    ports:
+    - 8260:8260
+    environment:
+    - PORT=8260
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8260/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - llm-orchestrator-service
+  demo-data:
+    build:
+      context: ../../apps/services/demo-data
+      dockerfile: Dockerfile
+    ports:
+    - 8261:8261
+    environment:
+    - PORT=8261
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8261/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '200'
+          memory: 256Mi
   iot-service:
     build:
       context: ../../apps/services/iot-service
@@ -1965,6 +2175,32 @@ services:
           memory: 384Mi
     depends_on:
     - yolo26-vision-service
+  iot-sensor-hub:
+    build:
+      context: ../../apps/services/iot-sensor-hub
+      dockerfile: Dockerfile
+    ports:
+    - 8251:8251
+    environment:
+    - PORT=8251
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8251/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - iot-service
 networks:
   sahool-network:
     driver: bridge

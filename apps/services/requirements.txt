@@ -13,28 +13,28 @@ httpx==0.28.1
 aiohttp>=3.13.3  # Security fix for CVE-2025-69223 (zip bomb vulnerability)
 
 # Database & ORM
-tortoise-orm==0.21.7
+tortoise-orm==0.25.4
 asyncpg>=0.30.0,<1.0.0
-aerich==0.7.2
+aerich==0.9.2
 
 # NATS Messaging
-nats-py==2.9.0
+nats-py==2.13.1
 
 # Redis
 redis>=7.1.0,<8.0.0
 
 # Validation
 pydantic==2.12.5
-jsonschema==4.23.0
+jsonschema==4.26.0
 
 # Environment
-python-dotenv==1.0.1
+python-dotenv==1.2.1
 
 # Observability
-prometheus-client==0.21.1
-opentelemetry-api==1.29.0
-opentelemetry-sdk==1.29.0
-opentelemetry-instrumentation-fastapi==0.50b0
+prometheus-client==0.24.1
+opentelemetry-api==1.39.1
+opentelemetry-sdk==1.39.1
+opentelemetry-instrumentation-fastapi==0.60b1
 
 # Utilities
 python-multipart==0.0.22
@@ -43,5 +43,5 @@ PyJWT>=2.8.0,<3.0.0
 passlib[bcrypt]==1.7.4
 
 # Testing
-pytest==8.3.4
-pytest-asyncio==0.24.0
+pytest==8.4.2
+pytest-asyncio==0.26.0

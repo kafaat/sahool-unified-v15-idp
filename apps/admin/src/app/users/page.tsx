@@ -399,7 +399,7 @@ export default function UsersPage() {
         <UserFormModal
           title="إضافة مستخدم جديد"
           onClose={() => setShowCreateModal(false)}
-          onSubmit={handleCreate}
+          onSubmit={(data) => handleCreate(data as CreateUserData)}
           isSubmitting={isSubmitting}
         />
       )}

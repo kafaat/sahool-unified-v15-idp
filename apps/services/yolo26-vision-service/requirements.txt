@@ -4,7 +4,7 @@
 
 # Core Framework
 fastapi>=0.109.0,<0.129.0
-uvicorn[standard]>=0.27.0,<0.35.0
+uvicorn[standard]==0.40.0
 pydantic>=2.5.0,<3.0.0
 pydantic-settings>=2.1.0,<3.0.0
 
@@ -24,10 +24,10 @@ matplotlib>=3.7.0,<4.0.0
 
 # Logging & Monitoring
 structlog>=24.1.0,<25.0.0
-python-json-logger>=2.0.7,<3.0.0
+python-json-logger>=3.2.0
 
 # Database (Optional - for result storage)
-asyncpg>=0.29.0,<1.0.0
+asyncpg>=0.30.0,<1.0.0
 psycopg2-binary>=2.9.9,<3.0.0
 
 # Message Queue (Optional - for event publishing)
@@ -43,7 +43,7 @@ aiohttp>=3.9.0,<4.0.0
 
 # File Handling
 python-multipart>=0.0.6,<0.1.0
-aiofiles>=23.2.0,<24.0.0
+aiofiles>=24.0.0
 
 # Utilities
 python-dotenv>=1.0.0,<2.0.0

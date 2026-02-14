@@ -13,11 +13,11 @@ asyncpg>=0.30.0,<1.0.0
 # Message Queue (NATS)
 nats-py>=2.9.0,<3.0.0
 # Caching (Redis)
-redis>=5.2.0,<6.0.0
+redis>=7.1.0,<8.0.0
 # Structured Logging
 structlog>=24.4.0,<25.0.0
 # WebSockets
-websockets>=13.0,<14.0
+websockets>=14.0,<15.0
 # JSON handling
 orjson>=3.10.0,<4.0.0
 # Async utilities
@@ -25,6 +25,6 @@ anyio>=4.0.0,<5.0.0
 # Development & Testing
 pytest>=8.0.0,<9.0.0
 pytest-asyncio>=0.24.0,<1.0.0
-pytest-cov>=6.0.0,<7.0.0
+pytest-cov>=4.1.0,<7.0.0
 # Type hints
 typing-extensions>=4.12.0,<5.0.0

@@ -709,6 +709,7 @@ export {
   type PaginationParams,
   type PaginatedResponse,
   type ApiResponse as ServiceApiResponse,
+  type SensorReading,
 } from "./api/services";
 
 export {
@@ -730,6 +731,3 @@ export {
   type MarketplaceListing,
   type CreateListingData,
 } from "./api/extended-services";
-
-// Re-export SensorReading (imported from @/types above)
-export type { SensorReading };

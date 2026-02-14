@@ -38,18 +38,18 @@ qdrant-client==1.11.1
 
 # NATS Messaging
 # نظام الرسائل NATS
-nats-py==2.9.0
+nats-py==2.13.1
 
 # Utilities
 # أدوات مساعدة
-python-dotenv==1.0.1
+python-dotenv==1.2.1
 python-multipart==0.0.22  # Security fix for CVE-2024-53981
 aiofiles==24.1.0
 tenacity==8.5.0
 
 # Monitoring and Logging
 # المراقبة والتسجيل
-prometheus-client==0.21.1
+prometheus-client==0.24.1
 structlog==24.4.0
 
 # Data Processing
@@ -59,8 +59,8 @@ pandas==2.2.2
 
 # Testing (optional)
 # الاختبار (اختياري)
-pytest==8.3.4
-pytest-asyncio==0.24.0
+pytest==8.4.2
+pytest-asyncio==0.26.0
 
 # Authentication
 # المصادقة

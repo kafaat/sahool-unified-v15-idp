@@ -36,9 +36,9 @@ class SprayFlightRequest(BaseModel):
 class MappingFlightRequest(BaseModel):
     field_id: str
     boundary: list[Coordinate]
-    altitude_m: float = 50.0
-    overlap_percent: float = 75.0
-    sidelap_percent: float = 65.0
+    gsd_cm_px: float = 2.0
+    frontal_overlap: float = 80.0
+    side_overlap: float = 70.0
     name: str
     name_ar: str | None = None
 
@@ -53,10 +53,10 @@ class WeatherCheckRequest(BaseModel):
 
 
 class ResourceEstimateRequest(BaseModel):
-    boundary: list[Coordinate]
-    swath_width_m: float = 5.0
-    altitude_m: float = 3.0
+    area_ha: float
     spray_rate_l_ha: float = 10.0
+    tank_capacity_l: float = 20.0
+    flight_time_per_tank_min: float = 15.0
 
 
 @router.post("/plan/spray", status_code=201)
@@ -111,9 +111,9 @@ async def create_mapping_flight_plan(request: MappingFlightRequest, req: Request
         boundary = [DCoord(lat=c.lat, lng=c.lng) for c in request.boundary]
         result = create_mapping_flight_plan(
             boundary=boundary,
-            altitude_m=request.altitude_m,
-            overlap_percent=request.overlap_percent,
-            sidelap_percent=request.sidelap_percent,
+            gsd_cm_px=request.gsd_cm_px,
+            frontal_overlap=request.frontal_overlap,
+            side_overlap=request.side_overlap,
             name=request.name,
             name_ar=request.name_ar,
         )
@@ -169,20 +169,21 @@ async def check_flight_weather(request: WeatherCheckRequest):
 async def estimate_flight_resources(request: ResourceEstimateRequest):
     """Estimate flight resources - تقدير موارد الرحلة"""
     try:
-        from shared.drone_integration import Coordinate as DCoord, estimate_flight_resources
+        from shared.drone_integration import estimate_flight_resources
 
-        boundary = [DCoord(lat=c.lat, lng=c.lng) for c in request.boundary]
         estimate = estimate_flight_resources(
-            boundary=boundary,
-            swath_width_m=request.swath_width_m,
-            altitude_m=request.altitude_m,
+            area_ha=request.area_ha,
+            spray_rate_l_ha=request.spray_rate_l_ha,
+            tank_capacity_l=request.tank_capacity_l,
+            flight_time_per_tank_min=request.flight_time_per_tank_min,
         )
         return {
-            "area_ha": estimate.area_ha,
-            "total_distance_m": estimate.total_distance_m,
-            "estimated_duration_min": estimate.estimated_duration_min,
-            "battery_changes": estimate.battery_changes,
-            "total_spray_volume_l": request.spray_rate_l_ha * estimate.area_ha if estimate.area_ha else None,
+            "area_ha": request.area_ha,
+            "total_volume_l": estimate["total_volume_l"],
+            "tank_fills": estimate["tank_fills"],
+            "total_flight_time_min": estimate["total_flight_time_min"],
+            "batteries_needed": estimate["batteries_needed"],
+            "estimated_cost_factor": estimate["estimated_cost_factor"],
         }
     except ImportError:
         raise HTTPException(status_code=503, detail={"error": "Flight planning module not available", "error_ar": "وحدة تخطيط الرحلات غير متوفرة"})

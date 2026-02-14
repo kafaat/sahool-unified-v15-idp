@@ -224,7 +224,7 @@ async def generate_amendment_plan(request: AmendmentPlanRequest):
             raise HTTPException(status_code=400, detail="Soil test object not available")
 
         recommender = SoilAmendmentRecommender()
-        plan = recommender.generate_plan(soil_test_obj, crop=request.crop, area_ha=request.area_ha)
+        plan = recommender.generate_plan(soil_test_obj, crop=request.crop, target_yield=request.target_yield_t_ha, field_area_ha=request.area_ha)
         return {
             "test_id": request.test_id,
             "crop": request.crop,

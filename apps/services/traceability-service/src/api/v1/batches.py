@@ -96,7 +96,13 @@ async def create_batch(request: BatchCreateRequest, req: Request):
         try:
             from shared.traceability import generate_batch_code
 
-            batch_code = request.batch_code or generate_batch_code(request.product_name_en)
+            product_code = request.product_name_en[:2].upper()
+            batch_code = request.batch_code or generate_batch_code(
+                product_code=product_code,
+                year=datetime.utcnow().year,
+                sequence=len(_batches) + 1,
+                farm_code=request.farm_id[:3].upper() if request.farm_id else None,
+            )
             batch = tracker.create_batch(
                 tenant_id=request.tenant_id,
                 farm_id=request.farm_id,
@@ -315,9 +321,27 @@ async def estimate_carbon_footprint(batch_id: str):
 
     try:
         from shared.traceability import calculate_carbon_footprint
+        from shared.traceability.models import TransportMode
 
-        events = _batches[batch_id].get("events", [])
-        footprint = calculate_carbon_footprint(events)
-        return {"batch_id": batch_id, "carbon_footprint_kg_co2": footprint}
+        batch = _batches[batch_id]
+        events = batch.get("events", [])
+        transport_events = [e for e in events if e.get("type") == "transport"]
+
+        total_footprint = 0.0
+        quantity_kg = batch.get("quantity", 0)
+        mode_map = {
+            "truck": TransportMode.TRUCK_AMBIENT,
+            "truck_refrigerated": TransportMode.TRUCK_REFRIGERATED,
+            "air": TransportMode.AIR_FREIGHT,
+            "sea": TransportMode.SEA_FREIGHT,
+            "rail": TransportMode.RAIL,
+            "local": TransportMode.LOCAL_DELIVERY,
+        }
+        for te in transport_events:
+            mode = mode_map.get(te.get("mode", "truck"), TransportMode.TRUCK_AMBIENT)
+            distance = te.get("distance_km", 100.0)
+            total_footprint += calculate_carbon_footprint(distance, mode, quantity_kg)
+
+        return {"batch_id": batch_id, "carbon_footprint_kg_co2": round(total_footprint, 3)}
     except (ImportError, Exception):
         return {"batch_id": batch_id, "carbon_footprint_kg_co2": None, "message": "Carbon calculation not available"}

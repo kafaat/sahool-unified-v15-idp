@@ -694,11 +694,6 @@ export {
   irrigationService,
   alertService,
   equipmentService,
-  // Extended Services
-  taskService,
-  inventoryService,
-  researchService,
-  marketplaceService,
   // Core Types
   type User,
   type CreateUserData,
@@ -713,7 +708,15 @@ export {
   type CreateEquipmentData,
   type PaginationParams,
   type PaginatedResponse,
-  type ApiResponse,
+  type ApiResponse as ServiceApiResponse,
+} from "./api/services";
+
+export {
+  // Extended Services
+  taskService,
+  inventoryService,
+  researchService,
+  marketplaceService,
   // Extended Types
   type Task,
   type CreateTaskData,
@@ -726,7 +729,7 @@ export {
   type CreateExperimentData,
   type MarketplaceListing,
   type CreateListingData,
-} from "./api/index";
+} from "./api/extended-services";
 
 // Re-export SensorReading (imported from @/types above)
 export type { SensorReading };

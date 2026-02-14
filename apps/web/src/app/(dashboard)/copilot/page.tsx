@@ -97,27 +97,13 @@ function generateSessionId(): string {
       byteToHex.push((i + 0x100).toString(16).substring(1));
     }
 
+    const hex = (i: number) => byteToHex[bytes[i]!]!;
     return (
-      byteToHex[bytes[0]!] +
-      byteToHex[bytes[1]!] +
-      byteToHex[bytes[2]!] +
-      byteToHex[bytes[3]!] +
-      "-" +
-      byteToHex[bytes[4]!] +
-      byteToHex[bytes[5]!] +
-      "-" +
-      byteToHex[bytes[6]!] +
-      byteToHex[bytes[7]!] +
-      "-" +
-      byteToHex[bytes[8]!] +
-      byteToHex[bytes[9]!] +
-      "-" +
-      byteToHex[bytes[10]!] +
-      byteToHex[bytes[11]!] +
-      byteToHex[bytes[12]!] +
-      byteToHex[bytes[13]!] +
-      byteToHex[bytes[14]!] +
-      byteToHex[bytes[15]!]
+      hex(0) + hex(1) + hex(2) + hex(3) + "-" +
+      hex(4) + hex(5) + "-" +
+      hex(6) + hex(7) + "-" +
+      hex(8) + hex(9) + "-" +
+      hex(10) + hex(11) + hex(12) + hex(13) + hex(14) + hex(15)
     );
   }
 

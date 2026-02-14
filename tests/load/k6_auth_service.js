@@ -261,7 +261,7 @@ export default function () {
     loginLatency.add(loginResp.timings.duration);
     totalLogins.add(1);
 
-    const loginOk = check(loginResp, {
+    check(loginResp, {
       'login responds': (r) => r.status === 200 || r.status === 401 || r.status === 400 || r.status === 422,
       'login not server error': (r) => r.status < 500,
       'login within threshold': (r) => r.timings.duration < 3000,

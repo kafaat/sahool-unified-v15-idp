@@ -1,5 +1,8 @@
-// This is your Prisma schema file for the IoT Service
-// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ═══════════════════════════════════════════════════════════════════════════
+// SAHOOL IoT Service - Prisma Schema
+// Database: PostgreSQL
+// Aligned with platform conventions (field-management-service patterns)
+// ═══════════════════════════════════════════════════════════════════════════
 
 generator client {
   provider      = "prisma-client-js"
@@ -17,7 +20,10 @@ datasource db {
   // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=6&pool_timeout=20&connect_timeout=10
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
 // Enums
+// ─────────────────────────────────────────────────────────────────────────────
+
 enum DeviceType {
   SOIL_MOISTURE_SENSOR
   TEMPERATURE_SENSOR
@@ -85,26 +91,35 @@ enum CommandStatus {
   CANCELLED
 }
 
-// Main Models
-model Device {
-  id              String            @id @default(uuid()) @db.Uuid
-  tenantId        String
-  deviceId        String            // Unique device identifier from the physical device
-  name            String
-  type            DeviceType
-  status          DeviceStatus      @default(OFFLINE)
-  lastSeen        DateTime?
-  metadata        Json?             // Additional device metadata (manufacturer, model, firmware version, etc.)
-  fieldId         String?           // Optional reference to field/zone
+// ─────────────────────────────────────────────────────────────────────────────
+// Device - الأجهزة
+// Physical IoT devices (sensors, actuators, gateways)
+// ─────────────────────────────────────────────────────────────────────────────
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+model Device {
+  id       String @id @default(uuid()) @db.Uuid
+
+  // Tenant & Identity
+  tenantId String       @map("tenant_id") @db.VarChar(100)
+  deviceId String       @map("device_id") @db.VarChar(255) // Unique device identifier from the physical device
+  name     String       @db.VarChar(255)
+  type     DeviceType
+  status   DeviceStatus @default(OFFLINE)
+
+  // Device State
+  lastSeen DateTime? @map("last_seen") @db.Timestamptz
+  metadata Json?     @db.JsonB // Additional device metadata (manufacturer, model, firmware version, etc.)
+  fieldId  String?   @map("field_id") @db.VarChar(100) // Optional reference to field/zone
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  sensors         Sensor[]
-  sensorReadings  SensorReading[]
-  actuators       Actuator[]
-  alerts          DeviceAlert[]
+  sensors        Sensor[]
+  sensorReadings SensorReading[]
+  actuators      Actuator[]
+  alerts         DeviceAlert[]
 
   @@unique([tenantId, deviceId])
   @@index([tenantId])
@@ -117,22 +132,34 @@ model Device {
   @@map("devices")
 }
 
-model Sensor {
-  id              String            @id @default(uuid()) @db.Uuid
-  tenantId        String
-  deviceId        String
-  sensorType      SensorType
-  unit            String            // Unit of measurement (e.g., "%", "°C", "L/min")
-  calibrationData Json?             // Calibration parameters and coefficients
-  lastReading     Float?
-  lastReadingAt   DateTime?
+// ─────────────────────────────────────────────────────────────────────────────
+// Sensor - المستشعرات
+// Sensor metadata & last reading cache
+// ─────────────────────────────────────────────────────────────────────────────
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+model Sensor {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Tenant & Device
+  tenantId   String     @map("tenant_id") @db.VarChar(100)
+  deviceId   String     @map("device_id") @db.Uuid
+  sensorType SensorType @map("sensor_type")
+
+  // Sensor Configuration
+  unit            String @db.VarChar(50) // Unit of measurement (e.g., "%", "°C", "L/min")
+  calibrationData Json?  @map("calibration_data") @db.JsonB // Calibration parameters and coefficients
+
+  // Last Reading Cache
+  lastReading   Float?    @map("last_reading")
+  lastReadingAt DateTime? @map("last_reading_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  readings        SensorReading[]
+  device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  readings SensorReading[]
 
   @@index([tenantId])
   @@index([deviceId])
@@ -141,20 +168,29 @@ model Sensor {
   @@map("sensors")
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SensorReading - قراءات المستشعرات
+// Historical time-series data
+// ─────────────────────────────────────────────────────────────────────────────
+
 model SensorReading {
-  id              String            @id @default(uuid()) @db.Uuid
-  tenantId        String
-  sensorId        String
-  deviceId        String
-  value           Float
-  unit            String
-  timestamp       DateTime          @default(now())
-  quality         Float?            @default(1.0) // Quality indicator 0-1, null means unknown
-  metadata        Json?             // Additional reading metadata (raw value, calibrated value, etc.)
+  id String @id @default(uuid()) @db.Uuid
+
+  // References
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  sensorId String @map("sensor_id") @db.Uuid
+  deviceId String @map("device_id") @db.Uuid
+
+  // Reading Data
+  value     Float
+  unit      String   @db.VarChar(50)
+  timestamp DateTime @default(now()) @db.Timestamptz
+  quality   Float?   @default(1.0) // Quality indicator 0-1, null means unknown
+  metadata  Json?    @db.JsonB // Additional reading metadata (raw value, calibrated value, etc.)
 
   // Relations
-  sensor          Sensor            @relation(fields: [sensorId], references: [id], onDelete: Cascade)
-  device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  sensor Sensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([sensorId])
@@ -166,22 +202,32 @@ model SensorReading {
   @@map("sensor_readings")
 }
 
-model Actuator {
-  id              String            @id @default(uuid()) @db.Uuid
-  tenantId        String
-  deviceId        String
-  actuatorType    ActuatorType
-  name            String?
-  currentState    Json?             // Current state (e.g., {"position": 50, "enabled": true})
-  lastCommand     String?
-  lastCommandAt   DateTime?
+// ─────────────────────────────────────────────────────────────────────────────
+// Actuator - المشغلات
+// Controllable devices (pumps, valves, motors)
+// ─────────────────────────────────────────────────────────────────────────────
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+model Actuator {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Tenant & Device
+  tenantId     String       @map("tenant_id") @db.VarChar(100)
+  deviceId     String       @map("device_id") @db.Uuid
+  actuatorType ActuatorType @map("actuator_type")
+
+  // Actuator State
+  name          String? @db.VarChar(255)
+  currentState  Json?   @map("current_state") @db.JsonB // Current state (e.g., {"position": 50, "enabled": true})
+  lastCommand   String? @map("last_command") @db.VarChar(255)
+  lastCommandAt DateTime? @map("last_command_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  commands        ActuatorCommand[]
+  device   Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  commands ActuatorCommand[]
 
   @@index([tenantId])
   @@index([deviceId])
@@ -190,23 +236,35 @@ model Actuator {
   @@map("actuators")
 }
 
-model ActuatorCommand {
-  id              String            @id @default(uuid()) @db.Uuid
-  tenantId        String
-  actuatorId      String
-  command         String            // Command name (e.g., "open", "close", "set_position")
-  parameters      Json?             // Command parameters
-  status          CommandStatus     @default(PENDING)
-  requestedAt     DateTime          @default(now())
-  executedAt      DateTime?
-  completedAt     DateTime?
-  errorMessage    String?
+// ─────────────────────────────────────────────────────────────────────────────
+// ActuatorCommand - أوامر المشغلات
+// Command execution history
+// ─────────────────────────────────────────────────────────────────────────────
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+model ActuatorCommand {
+  id String @id @default(uuid()) @db.Uuid
+
+  // References
+  tenantId   String @map("tenant_id") @db.VarChar(100)
+  actuatorId String @map("actuator_id") @db.Uuid
+
+  // Command Details
+  command      String        @db.VarChar(255) // Command name (e.g., "open", "close", "set_position")
+  parameters   Json?         @db.JsonB // Command parameters
+  status       CommandStatus @default(PENDING)
+  errorMessage String?       @map("error_message") @db.Text
+
+  // Execution Timestamps
+  requestedAt DateTime  @default(now()) @map("requested_at") @db.Timestamptz
+  executedAt  DateTime? @map("executed_at") @db.Timestamptz
+  completedAt DateTime? @map("completed_at") @db.Timestamptz
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  actuator        Actuator          @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
+  actuator Actuator @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([actuatorId])
@@ -217,24 +275,36 @@ model ActuatorCommand {
   @@map("actuator_commands")
 }
 
-model DeviceAlert {
-  id              String            @id @default(uuid()) @db.Uuid
-  deviceId        String
-  tenantId        String
-  alertType       String            // Type of alert (e.g., "offline", "battery_low", "sensor_error")
-  severity        AlertSeverity
-  message         String
-  acknowledged    Boolean           @default(false)
-  acknowledgedBy  String?
-  acknowledgedAt  DateTime?
-  resolvedAt      DateTime?
-  metadata        Json?             // Additional alert data
+// ─────────────────────────────────────────────────────────────────────────────
+// DeviceAlert - تنبيهات الأجهزة
+// Alert/warning events
+// ─────────────────────────────────────────────────────────────────────────────
 
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+model DeviceAlert {
+  id String @id @default(uuid()) @db.Uuid
+
+  // References
+  deviceId String @map("device_id") @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+
+  // Alert Details
+  alertType    String        @map("alert_type") @db.VarChar(100) // Type of alert (e.g., "offline", "battery_low", "sensor_error")
+  severity     AlertSeverity
+  message      String        @db.Text
+  acknowledged Boolean       @default(false)
+
+  // Resolution
+  acknowledgedBy String?   @map("acknowledged_by") @db.VarChar(255)
+  acknowledgedAt DateTime? @map("acknowledged_at") @db.Timestamptz
+  resolvedAt     DateTime? @map("resolved_at") @db.Timestamptz
+  metadata       Json?     @db.JsonB // Additional alert data
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  device          Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
   @@index([deviceId])
   @@index([tenantId])

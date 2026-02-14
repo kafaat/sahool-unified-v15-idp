@@ -168,26 +168,40 @@ export interface SoilAnalysis {
 
 /**
  * Field entity
+ *
+ * Source of truth: field-management-service Prisma schema
+ * All services should reference this type for Field operations
  */
 export interface Field {
   id: string;
-  farmId: string;
+  version: number;                 // Optimistic locking (ETag-based conflict resolution)
+  farmId?: string;                 // UUID reference to Farm
   name: string;
-  nameAr: string;
+  nameAr?: string;
   tenantId: string;
+  cropType?: string;               // Current crop type
+  ownerId?: string;                // UUID of field owner
   status: FieldStatus;
-  areaHectares: number;
-  geometry: FieldGeometry;
-  centroid: GeoJSONPoint;
-  boundingBox: {
+  areaHectares?: number;           // Calculated from boundary (DECIMAL 10,4)
+  geometry?: FieldGeometry;        // PostGIS boundary - Polygon SRID 4326
+  centroid?: GeoJSONPoint;         // PostGIS centroid - Point SRID 4326
+  boundingBox?: {                  // Computed from geometry
     minLon: number;
     minLat: number;
     maxLon: number;
     maxLat: number;
   };
+
+  // Health & Analysis (updated by NDVI Engine)
+  healthScore?: number;            // 0.0 - 1.0 (DECIMAL 3,2)
+  ndviValue?: number;              // -1.0 to 1.0 (DECIMAL 4,3)
+
+  // Terrain (optional, from terrain-core-service)
   elevation?: number;              // meters
   slope?: number;                  // percentage
   aspect?: number;                 // degrees
+
+  // Agricultural Info
   soilType?: SoilType;
   irrigationType?: IrrigationType;
   lastSoilAnalysis?: SoilAnalysis;
@@ -195,9 +209,15 @@ export interface Field {
   plantingDate?: string;
   expectedHarvestDate?: string;
   tags?: string[];
+
+  // Sync Metadata (offline-first support)
+  isDeleted?: boolean;             // Soft delete flag
+  serverUpdatedAt?: string;        // Server-side last update (ISO 8601)
+  etag?: string;                   // ETag for conflict resolution
+
+  // Timestamps
   createdAt: string;
   updatedAt: string;
-  deletedAt?: string;
   metadata?: Record<string, unknown>;
 }
 

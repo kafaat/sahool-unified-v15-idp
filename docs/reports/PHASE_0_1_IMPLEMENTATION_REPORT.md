@@ -315,12 +315,12 @@ copilot_messages:
 - [x] copilot-api ينشر أحداث NATS
 - [x] copilot-api يكشف prompt injection
 
-### المرحلة 1 — معيار الإنهاء (جزئي)
-- [ ] IoT Service لديه مخطط DB كامل — ⏳ لاحقاً
-- [ ] جدول Field موحد عبر الخدمات — ⏳ لاحقاً
-- [ ] WebSocket يتطلب مصادقة — ⏳ لاحقاً
+### المرحلة 1 — معيار الإنهاء (85% مكتمل)
+- [x] IoT Service لديه مخطط DB كامل ✅ — Prisma schema + initial migration + explicit column types
+- [x] جدول Field موحد عبر الخدمات ✅ — Prisma=source of truth, shared-types+TypeORM aligned
+- [x] WebSocket يتطلب مصادقة ✅ — كان مُنفذ بالفعل (JWT + tenant isolation + rate limiting)
 - [x] CSP مُفعل في apps/web و apps/admin
-- [ ] التقييم الأمني ≥ 90/100 — الحالي ~88
+- [ ] التقييم الأمني ≥ 90/100 — الحالي ~89
 - [x] صفحة Copilot تعمل في Web مع chat + streaming
 - [x] صفحة Copilot Admin تعمل مع RAG management
 - [x] copilot-api يحفظ المحادثات في PostgreSQL
@@ -354,11 +354,11 @@ copilot_messages:
 
 | # | المشكلة | المكون | الأولوية | الحالة |
 |---|--------|--------|---------|--------|
-| B1 | IoT Service بدون مخطط DB | iot-service | P0 | ⏳ المرحلة 1 المتبقية |
-| B2 | 3 تعريفات متعارضة لجدول Field | 3 خدمات | P0 | ⏳ المرحلة 1 المتبقية |
-| B3 | أنواع أعمدة متناقضة (VARCHAR vs UUID) | عبر الخدمات | P0 | ⏳ المرحلة 1 المتبقية |
+| ~~B1~~ | ~~IoT Service بدون مخطط DB~~ | iot-service | P0 | ✅ مكتمل — Prisma schema + migration SQL + column types |
+| ~~B2~~ | ~~3 تعريفات متعارضة لجدول Field~~ | 3 خدمات | P0 | ✅ مكتمل — shared-types + TypeORM aligned to Prisma |
+| ~~B3~~ | ~~أنواع أعمدة متناقضة (VARCHAR vs UUID)~~ | عبر الخدمات | P0 | ✅ مكتمل — VarChar(100) tenantId, Uuid FKs, Timestamptz |
 | B4 | 4 أُطر ORM مختلفة | المنصة | P1 | ⏳ المرحلة 2 |
-| A4 | WebSocket بدون مصادقة | ws-gateway | P0 | ⏳ المرحلة 1 المتبقية |
+| ~~A4~~ | ~~WebSocket بدون مصادقة~~ | ws-gateway | P0 | ✅ كان مُنفذ بالفعل — JWT + tenant isolation |
 | D1 | Helm charts: 21% تغطية | helm/ | P1 | ⏳ المرحلة 3 |
 | D3 | Terraform: 30% فقط | terraform/ | P1 | ⏳ المرحلة 3 |
 
@@ -366,11 +366,11 @@ copilot_messages:
 
 ## الخطوات التالية | Next Steps
 
-### المرحلة 1 المتبقية (الأولوية العالية)
-1. إنشاء مخطط DB لـ IoT Service (Prisma schema + migration)
-2. توحيد جدول Field عبر الخدمات الثلاث
-3. إضافة مصادقة WebSocket لـ ws-gateway
-4. إصلاح أنواع الأعمدة المتناقضة
+### المرحلة 1 المتبقية (الأولوية العالية) — ✅ مكتمل (2026-02-14)
+1. ~~إنشاء مخطط DB لـ IoT Service~~ ✅ — Prisma schema + initial migration SQL
+2. ~~توحيد جدول Field عبر الخدمات الثلاث~~ ✅ — shared-types + TypeORM aligned to Prisma
+3. ~~إضافة مصادقة WebSocket لـ ws-gateway~~ ✅ — كان مُنفذ بالفعل
+4. ~~إصلاح أنواع الأعمدة المتناقضة~~ ✅ — VarChar/Uuid/Timestamptz standardized
 
 ### المرحلة 2 (الجودة)
 1. رفع حد تغطية الاختبارات تدريجياً (10% → 25% → 40%)

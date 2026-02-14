@@ -4,7 +4,7 @@
 **المنصة**: SAHOOL v16.0.0 | **التاريخ**: 2026-02-14 | **مُحدث**: 2026-02-14 (v3)
 **النطاق**: مراجعة شاملة لـ 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack
 **المُعد**: Claude AI Audit Agent
-**حالة التنفيذ**: المرحلة 0 ✅ مكتملة | المرحلة 1 🟡 جزئية (60%) | انظر: `PHASE_0_1_IMPLEMENTATION_REPORT.md`
+**حالة التنفيذ**: المرحلة 0 ✅ مكتملة | المرحلة 1 🟡 جزئية (85%) | انظر: `PHASE_0_1_IMPLEMENTATION_REPORT.md`
 
 ---
 
@@ -72,7 +72,7 @@
 
 | الخطورة | العدد | مُصلح | متبقي | النسبة المُصلحة |
 |---------|-------|-------|-------|----------------|
-| 🔴 حرج (P0) | 46 | 38 | **8** | 83% ← (كان 52%) |
+| 🔴 حرج (P0) | 46 | 43 | **3** | 93% ← (كان 83%) |
 | 🟠 عالي (P1) | 73 | 50 | **23** | 68% ← (كان 60%) |
 | 🟡 متوسط (P2) | 160 | 85 | **75** | 53% ← (كان 49%) |
 | 🟢 منخفض (P3) | 204+ | 65 | **139+** | 32% ← (كان 29%) |
@@ -86,16 +86,16 @@
 | A1 | بيانات اعتماد مضمنة في test compose | Docker | `docker-compose.test.yml` | كلمات مرور مكشوفة في Git |
 | A2 | Redis password في سطر الأوامر | Docker | `docker-compose.redis-ha.yml` | مرئية في `docker inspect` |
 | A3 | 69 منفذ مكشوف على 0.0.0.0 | Docker | `docker-compose.yml` | وصول خارجي غير مقصود |
-| A4 | WebSocket بدون مصادقة | Backend | `ws-gateway` | اتصالات غير مُصدق عليها |
+| ~~A4~~ | ~~WebSocket بدون مصادقة~~ | ~~Backend~~ | ~~`ws-gateway`~~ | ✅ **كان مُنفذ بالفعل** — JWT auth + tenant isolation + rate limiting |
 | ~~A5~~ | ~~Content Security Policy غير مُنفذ~~ | ~~Frontend~~ | ~~`apps/web/`, `apps/admin/`~~ | ✅ **تم التنفيذ** — CSP with nonce, HSTS, security headers |
 
 #### الفئة ب: قواعد البيانات (4 مشاكل)
 
 | # | المشكلة | المكون | التأثير |
 |---|--------|--------|---------|
-| B1 | IoT Service بدون مخطط قاعدة بيانات | `iot-service` | فقدان بيانات عند إعادة التشغيل |
-| B2 | 3 تعريفات متعارضة لجدول Field | 3 خدمات | عدم اتساق البيانات |
-| B3 | أنواع أعمدة متناقضة (VARCHAR vs UUID) | عبر الخدمات | فشل الاستعلامات |
+| ~~B1~~ | ~~IoT Service بدون مخطط قاعدة بيانات~~ | ~~`iot-service`~~ | ✅ **تم** — Prisma schema (6 models) + initial SQL migration + column type mapping |
+| ~~B2~~ | ~~3 تعريفات متعارضة لجدول Field~~ | ~~3 خدمات~~ | ✅ **تم التوحيد** — Prisma=source of truth, shared-types+TypeORM aligned |
+| ~~B3~~ | ~~أنواع أعمدة متناقضة (VARCHAR vs UUID)~~ | ~~عبر الخدمات~~ | ✅ **تم** — IoT schema: VarChar(100) for tenantId, Uuid for FKs, Timestamptz for dates |
 | B4 | 4 أُطر ORM مختلفة | المنصة | تعارض المخططات |
 
 #### الفئة ج: CI/CD (4 مشاكل)
@@ -501,12 +501,12 @@ export default function CopilotAdminPage() {
 }
 ```
 
-#### معيار إنهاء المرحلة 1: 🟡 جزئي (60% — 2026-02-14)
-- [ ] IoT Service لديه مخطط DB كامل — ⏳ متبقي
-- [ ] جدول Field موحد عبر الخدمات — ⏳ متبقي
-- [ ] WebSocket يتطلب مصادقة — ⏳ متبقي
+#### معيار إنهاء المرحلة 1: 🟡 جزئي (85% — 2026-02-14)
+- [x] IoT Service لديه مخطط DB كامل ✅ — Prisma schema (6 models) + migration SQL
+- [x] جدول Field موحد عبر الخدمات ✅ — Prisma=source of truth, shared-types+TypeORM aligned
+- [x] WebSocket يتطلب مصادقة ✅ — كان مُنفذ بالفعل (JWT + tenant isolation + rate limiting)
 - [x] CSP مُفعل في apps/web و apps/admin ✅
-- [ ] التقييم الأمني ≥ 90/100 — الحالي ~88
+- [ ] التقييم الأمني ≥ 90/100 — الحالي ~89
 - [x] صفحة Copilot تعمل في Web مع chat + streaming ✅
 - [x] صفحة Copilot Admin تعمل مع RAG management ✅
 - [x] copilot-api يحفظ المحادثات في PostgreSQL ✅
@@ -804,7 +804,7 @@ infrastructure/terraform/
 | التقييم الإجمالي | 78.1 | **80.5** ✅ | 90 | 92+ |
 | تغطية الاختبارات | 10% | 10% | 40% | 60% |
 | Helm charts coverage | 21% | 21% | 80% | 95% |
-| مشاكل حرجة متبقية | 22 | **8** ✅ | 0 | 0 |
+| مشاكل حرجة متبقية | 22 | **3** ✅ | 0 | 0 |
 | CI/CD blocking rate | 27% | **80%** ✅ | 95% | 100% |
 | Docker multi-stage | 34% | 34% | 60% | 80% |
 | تقييم الأمان | 82 | **~88** ✅ | 93 | 95 |

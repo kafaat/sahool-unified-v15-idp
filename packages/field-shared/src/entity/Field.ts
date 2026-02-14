@@ -6,6 +6,8 @@ import {
   UpdateDateColumn,
   VersionColumn,
   Index,
+  ManyToOne,
+  JoinColumn,
 } from "typeorm";
 
 /**
@@ -15,6 +17,13 @@ import {
  * with SRID 4326 (WGS84 - GPS coordinate system)
  *
  * Supports optimistic locking via version column for ETag-based conflict resolution
+ *
+ * IMPORTANT: Source of truth is the Prisma schema in field-management-service.
+ * This TypeORM entity is kept aligned for services using TypeORM.
+ * Any schema changes should be made in Prisma first, then reflected here.
+ *
+ * @see apps/services/field-management-service/prisma/schema.prisma
+ * @see packages/shared-types/src/field.ts
  */
 @Entity("fields")
 export class Field {
@@ -31,14 +40,17 @@ export class Field {
   @Column({ length: 255 })
   name!: string;
 
-  @Column({ name: "tenant_id" })
+  @Column({ name: "tenant_id", length: 100 })
   tenantId!: string;
 
-  @Column({ name: "crop_type", length: 100 })
-  cropType!: string;
+  @Column({ name: "crop_type", length: 100, nullable: true })
+  cropType?: string;
 
-  @Column({ name: "owner_id", nullable: true })
+  @Column({ name: "owner_id", type: "uuid", nullable: true })
   ownerId?: string;
+
+  @Column({ name: "farm_id", type: "uuid", nullable: true })
+  farmId?: string;
 
   /**
    * Geospatial boundary stored as PostGIS POLYGON
@@ -72,9 +84,9 @@ export class Field {
     type: "decimal",
     precision: 10,
     scale: 4,
-    default: 0,
+    nullable: true,
   })
-  areaHectares!: number;
+  areaHectares?: number;
 
   /**
    * Current health score (0.0 - 1.0)
@@ -85,9 +97,9 @@ export class Field {
     type: "decimal",
     precision: 3,
     scale: 2,
-    default: 0,
+    nullable: true,
   })
-  healthScore!: number;
+  healthScore?: number;
 
   /**
    * Latest NDVI value (-1.0 to 1.0)
@@ -106,7 +118,7 @@ export class Field {
    */
   @Column({
     type: "enum",
-    enum: ["active", "fallow", "harvested", "preparing"],
+    enum: ["active", "fallow", "harvested", "preparing", "inactive"],
     default: "active",
   })
   status!: string;
@@ -141,9 +153,35 @@ export class Field {
   @Column({ type: "jsonb", nullable: true })
   metadata?: object;
 
-  @CreateDateColumn({ name: "created_at" })
+  // ─── Sync Metadata (offline-first support) ─────────────────────────────────
+
+  /**
+   * Soft delete flag
+   */
+  @Column({ name: "is_deleted", default: false })
+  isDeleted!: boolean;
+
+  /**
+   * Server-side last update timestamp for sync
+   */
+  @Column({
+    name: "server_updated_at",
+    type: "timestamptz",
+    default: () => "now()",
+  })
+  serverUpdatedAt!: Date;
+
+  /**
+   * ETag for conflict resolution (auto-generated UUID)
+   */
+  @Column({ length: 64, nullable: true })
+  etag?: string;
+
+  // ─── Timestamps ────────────────────────────────────────────────────────────
+
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: "updated_at" })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt!: Date;
 }

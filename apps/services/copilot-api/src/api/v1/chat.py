@@ -31,7 +31,7 @@ from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
 from ..deps import get_current_user, get_optional_user
 from ...events.publisher import publish_copilot_event
-from ...security.prompt_guard import detect_prompt_injection, sanitize_input
+from ...security.prompt_guard import detect_prompt_injection
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])

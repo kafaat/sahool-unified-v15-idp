@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, weather-core, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
+      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, ndvi-engine, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service]
+      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, agro-advisor, leveling-optimizer-service]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, leveling-optimizer-service]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -1518,7 +1518,7 @@ services:
       - fallback_logging
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # AGRO ADVISOR - مستشار الزراعة
+  # AGRO ADVISOR - مستشار الزراعة (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   agro-advisor:
     name: "Agro Advisor"
@@ -1526,15 +1526,18 @@ services:
     type: python
     category: crop
     layer: decision
-    path: "apps/services/agro-advisor"
+    path: "archive/deprecated-services/agro-advisor"
     port: 8105
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: archived
     owner: "agro-team@sahool.io"
     team: agro
     lifecycle: production
     tier: tier-1
+    replaced_by: advisory-service
+    deprecation_date: "2025-01-06"
+    archive_date: "2026-02-14"
     events:
       produces:
         - AgroAdviceGenerated.v1
@@ -2422,7 +2425,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # NDVI ENGINE - محرك NDVI
+  # NDVI ENGINE - محرك NDVI (ARCHIVED)
   # ═══════════════════════════════════════════════════════════════════════════
   ndvi-engine:
     name: "NDVI Engine"
@@ -2432,15 +2435,18 @@ services:
     type: python
     category: analytics
     layer: intelligence
-    path: "apps/services/ndvi-engine"
-    port: 8107  # Matches Dockerfile and Kong configuration
+    path: "archive/deprecated-services/ndvi-engine"
+    port: 8107
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: archived
     owner: "data-team@sahool.io"
     team: data
     lifecycle: production
     tier: tier-2
+    replaced_by: vegetation-analysis-service
+    deprecation_date: "2026-01-06"
+    archive_date: "2026-02-14"
     events:
       produces:
         - NDVICalculated.v1
@@ -2490,7 +2496,7 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # WEATHER CORE - نواة الطقس
+  # WEATHER CORE - نواة الطقس (ARCHIVED)
   # Base weather service with caching and aggregation
   # ═══════════════════════════════════════════════════════════════════════════
   weather-core:
@@ -2501,16 +2507,18 @@ services:
     type: python
     category: integration
     layer: acquisition
-    path: "apps/services/weather-core"
-    port: 8108  # Matches Dockerfile and Kong configuration
+    path: "archive/deprecated-services/weather-core"
+    port: 8108
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: archived
     owner: "iot-team@sahool.io"
     team: iot
     lifecycle: production
     tier: tier-2
-    consolidation_note: "Base layer for weather-service - may be merged in future"
+    replaced_by: weather-service
+    deprecation_date: "2026-01-01"
+    archive_date: "2026-02-14"
     events:
       produces:
         - WeatherDataCached.v1

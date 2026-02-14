@@ -200,6 +200,47 @@ curl http://localhost:8095/docs
 curl http://localhost:8090/docs
 ```
 
+## Archived Services (2026-02-14)
+
+The following services have completed their deprecation lifecycle and have been moved to `archive/deprecated-services/`:
+
+### 6. agro-advisor → advisory-service
+
+- **Original Path**: `apps/services/agro-advisor`
+- **Archive Path**: `archive/deprecated-services/agro-advisor`
+- **Port**: 8105
+- **Replacement**: `advisory-service` (port 8093)
+- **Deprecation Date**: 2025-01-06
+- **Archive Date**: 2026-02-14
+- **Analysis**: All 21 endpoints fully covered by advisory-service. No unique functions found. advisory-service adds cache_layer, rate_limiter, pagination, and token revocation.
+
+### 7. ndvi-engine → vegetation-analysis-service
+
+- **Original Path**: `apps/services/ndvi-engine`
+- **Archive Path**: `archive/deprecated-services/ndvi-engine`
+- **Port**: 8107
+- **Replacement**: `vegetation-analysis-service` (port 8090)
+- **Deprecation Date**: 2026-01-06
+- **Archive Date**: 2026-02-14
+- **Analysis**: All endpoints covered by vegetation-analysis-service (70+ endpoints). No critical unique functions. vegetation-analysis-service provides superior implementations for confidence, cloud cover, caching, and analytics.
+
+### 8. weather-core → weather-service
+
+- **Original Path**: `apps/services/weather-core`
+- **Archive Path**: `archive/deprecated-services/weather-core`
+- **Port**: 8108
+- **Replacement**: `weather-service` (port 8092)
+- **Deprecation Date**: 2026-01-01
+- **Archive Date**: 2026-02-14
+- **Analysis**: All 8 endpoints exist identically in weather-service. weather-service adds 9 advanced endpoints (evapotranspiration, GDD, spray window, frost risk, heat stress, chill hours, drought index).
+
+## Configuration Changes (2026-02-14)
+
+- `docker-compose.yml`: Removed service definitions, replaced with archive comments
+- `docker-compose.test.yml`: Removed test containers for ndvi-engine and weather-core
+- `governance/services.yaml`: Status changed to `archived`, paths updated to `archive/deprecated-services/`
+- `infrastructure/gateway/kong/kong.yml`: Removed routes, replaced with archive comments
+
 ## Next Steps
 
 1. **Update Documentation**: Ensure all documentation references the new services
@@ -216,5 +257,6 @@ curl http://localhost:8090/docs
 ---
 
 **Implementation Date**: 2025-12-31
+**Last Updated**: 2026-02-14
 **Author**: Claude Code
 **Status**: Complete

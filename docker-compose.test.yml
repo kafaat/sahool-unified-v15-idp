@@ -121,66 +121,8 @@ services:
     networks:
       - sahool-test-network
 
-  ndvi_engine_test:
-    build:
-      context: .
-      dockerfile: apps/services/ndvi-engine/Dockerfile
-    container_name: sahool-ndvi-engine-test
-    environment:
-      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
-      - NATS_URL=nats://test_user:test_password@nats_test:4222
-      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
-      - JWT_ALGORITHM=HS256
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=test
-      - PORT=8107
-    ports:
-      - "8207:8107"
-    depends_on:
-      postgres_test:
-        condition: service_healthy
-      nats_test:
-        condition: service_healthy
-    healthcheck:
-      # Python slim image doesn't include curl, use urllib instead
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')\" || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-    networks:
-      - sahool-test-network
-
-  weather_core_test:
-    build:
-      context: .
-      dockerfile: apps/services/weather-core/Dockerfile
-    container_name: sahool-weather-core-test
-    environment:
-      - DATABASE_URL=postgresql://sahool_test:test_password_123@postgres_test:5432/sahool_test
-      - NATS_URL=nats://test_user:test_password@nats_test:4222
-      - JWT_SECRET_KEY=test-secret-key-for-tests-only-do-not-use-in-production-32chars
-      - JWT_ALGORITHM=HS256
-      - LOG_LEVEL=DEBUG
-      - ENVIRONMENT=test
-      - PORT=8108
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY:-}
-    ports:
-      - "8208:8108"
-    depends_on:
-      postgres_test:
-        condition: service_healthy
-      nats_test:
-        condition: service_healthy
-    healthcheck:
-      # Python slim image doesn't include curl, use urllib instead
-      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')\" || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
-    networks:
-      - sahool-test-network
+  # ARCHIVED: ndvi-engine → vegetation-analysis-service (2026-02-14)
+  # ARCHIVED: weather-core → weather-service (2026-02-14)
 
   billing_core_test:
     build:

@@ -582,6 +582,8 @@ jobs:
             echo "Kubernetes deployment was skipped because \`KUBE_CONFIG_PRODUCTION\` secret is not configured." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "To enable deployments, configure the secret in repository settings." >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Deployment was skipped - KUBE_CONFIG_PRODUCTION not configured"
+            exit 1
           else
             echo "## 🎉 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY

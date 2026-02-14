@@ -114,7 +114,7 @@ jobs:
   dependency-scan:
     name: Dependency Vulnerability Scan
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: false
     permissions:
       security-events: write
       actions: read
@@ -229,7 +229,7 @@ jobs:
   code-security:
     name: Code Security Analysis (SAST)
     runs-on: ubuntu-latest
-    continue-on-error: true
+    continue-on-error: false
     permissions:
       security-events: write
       actions: read
@@ -425,7 +425,7 @@ jobs:
     name: OWASP Dependency Check
     runs-on: ubuntu-latest
     if: github.event_name == 'schedule' || github.event.inputs.full-scan == 'true' || github.ref == 'refs/heads/main'
-    continue-on-error: true
+    continue-on-error: false
     permissions:
       security-events: write
       actions: read

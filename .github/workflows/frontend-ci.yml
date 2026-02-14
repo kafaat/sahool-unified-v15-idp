@@ -156,12 +156,16 @@ jobs:
 
       - name: Report typecheck results
         run: |
+          FAILED=0
           if [ "${{ steps.typecheck-web.outputs.web_passed }}" != "true" ]; then
-            echo "::warning::Web app has TypeScript errors (builds will continue with ignoreBuildErrors)"
+            echo "::error::Web app has TypeScript errors"
+            FAILED=1
           fi
           if [ "${{ steps.typecheck-admin.outputs.admin_passed }}" != "true" ]; then
-            echo "::warning::Admin app has TypeScript errors (builds will continue with ignoreBuildErrors)"
+            echo "::error::Admin app has TypeScript errors"
+            FAILED=1
           fi
+          exit $FAILED
 
   # ═══════════════════════════════════════════════════════════════════════════════
   # Unit Tests

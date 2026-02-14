@@ -15,7 +15,7 @@ from datetime import UTC, datetime, timezone
 from typing import Any, Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from ...core.agents import get_agent_router
 from ...core.config import get_settings
@@ -28,13 +28,16 @@ from ...models.schemas import (
 )
 from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
+from ..deps import get_current_user, get_optional_user
+from ...events.publisher import publish_copilot_event
+from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 
 logger = structlog.get_logger(__name__)
 router = APIRouter(tags=["Chat"])
 
 
 @router.post("/chat", response_model=ChatResponse)
-async def chat(request: ChatRequest, req: Request) -> ChatResponse:
+async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_current_user)) -> ChatResponse:
     """
     Main chat endpoint with RAG and agent routing.
     نقطة نهاية المحادثة الرئيسية مع RAG وتوجيه الوكلاء
@@ -64,6 +67,33 @@ async def chat(request: ChatRequest, req: Request) -> ChatResponse:
     # Get the last user message for context
     last_message = request.messages[-1]
     user_query = last_message.content
+
+    # Prompt injection detection
+    is_injection, pattern_name = detect_prompt_injection(user_query)
+    if is_injection:
+        nc = getattr(req.app.state, "nc", None)
+        await publish_copilot_event(nc, "prompt_injection_detected", {
+            "user_id": user.get("user_id"),
+            "tenant_id": user.get("tenant_id"),
+            "session_id": request.session_id,
+            "pattern": pattern_name,
+        })
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "Prompt injection detected",
+                "error_ar": "تم اكتشاف محاولة حقن أوامر",
+                "pattern": pattern_name,
+            },
+        )
+
+    # Publish chat_started event
+    nc = getattr(req.app.state, "nc", None)
+    await publish_copilot_event(nc, "chat_started", {
+        "user_id": user.get("user_id"),
+        "tenant_id": user.get("tenant_id"),
+        "session_id": request.session_id,
+    })
 
     # Perform RAG search
     rag_context = []
@@ -119,6 +149,16 @@ async def chat(request: ChatRequest, req: Request) -> ChatResponse:
         elapsed_ms=elapsed_ms,
     )
 
+    # Publish chat_completed event
+    await publish_copilot_event(nc, "chat_completed", {
+        "user_id": user.get("user_id"),
+        "tenant_id": user.get("tenant_id"),
+        "session_id": request.session_id,
+        "agent": routing_result.agent_type.value,
+        "rag_hits": len(rag_context),
+        "elapsed_ms": elapsed_ms,
+    })
+
     return ChatResponse(
         session_id=request.session_id,
         mode=CopilotMode.OFFLINE if settings.is_offline_mode else CopilotMode.HYBRID,
@@ -133,7 +173,7 @@ async def chat(request: ChatRequest, req: Request) -> ChatResponse:
 
 
 @router.post("/chat/stream")
-async def chat_stream(request: ChatRequest, req: Request):
+async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(get_current_user)):
     """
     Streaming chat endpoint.
     نقطة نهاية المحادثة المتدفقة
@@ -146,7 +186,7 @@ async def chat_stream(request: ChatRequest, req: Request):
         """Generate streaming response"""
         # For now, return a simple streaming response
         # Full implementation would integrate with LLM streaming
-        response = await chat(request, req)
+        response = await chat(request, req, user)
 
         # Simulate streaming by chunking the response
         content = response.message.content

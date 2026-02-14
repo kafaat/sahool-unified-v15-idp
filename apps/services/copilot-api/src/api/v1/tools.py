@@ -14,8 +14,9 @@ import time
 from typing import Any
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from ..deps import get_current_user
 from ...models.schemas import (
     GuardDecision as GuardDecisionSchema,
 )
@@ -36,7 +37,7 @@ router = APIRouter(prefix="/tools", tags=["Tools"])
 
 
 @router.post("/run", response_model=ToolCallResponse)
-async def run_tool(request: ToolCallRequest) -> ToolCallResponse:
+async def run_tool(request: ToolCallRequest, user: dict = Depends(get_current_user)) -> ToolCallResponse:
     """
     Execute a tool with guardrails.
     تنفيذ أداة مع حواجز الحماية
@@ -107,7 +108,7 @@ async def run_tool(request: ToolCallRequest) -> ToolCallResponse:
 
 
 @router.post("/guard", response_model=GuardDecisionSchema)
-async def check_guard(request: ToolCallRequest) -> GuardDecisionSchema:
+async def check_guard(request: ToolCallRequest, user: dict = Depends(get_current_user)) -> GuardDecisionSchema:
     """
     Check if a tool call would be allowed (dry run).
     فحص ما إذا كان استدعاء الأداة سيُسمح به (تشغيل تجريبي)

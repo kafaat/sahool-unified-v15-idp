@@ -94,13 +94,13 @@ jobs:
           echo "📝 Running TypeScript type check..."
           npx tsc --noEmit -p apps/web/tsconfig.json || echo "::warning::TypeScript errors found in web app"
           npx tsc --noEmit -p apps/admin/tsconfig.json || echo "::warning::TypeScript errors found in admin app"
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Build Check
         run: |
           echo "🏗️ Checking build..."
           cd apps/web && npm run build || echo "::warning::Build failed"
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Test Summary
         if: always()
@@ -157,7 +157,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          fail_ci_if_error: false
+          fail_ci_if_error: true
         continue-on-error: true
 
   # ─────────────────────────────────────────────────────────────────────────────

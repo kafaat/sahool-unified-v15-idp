@@ -1916,13 +1916,13 @@
 <li>[x] copilot-api ينشر أحداث NATS</li>
 <li>[x] copilot-api يكشف prompt injection</li>
 </ul>
-<h3 id="1">المرحلة 1 — معيار الإنهاء (جزئي)<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<h3 id="1-85">المرحلة 1 — معيار الإنهاء (85% مكتمل)<a class="headerlink" href="#1-85" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] IoT Service لديه مخطط DB كامل — ⏳ لاحقاً</li>
-<li>[ ] جدول Field موحد عبر الخدمات — ⏳ لاحقاً</li>
-<li>[ ] WebSocket يتطلب مصادقة — ⏳ لاحقاً</li>
+<li>[x] IoT Service لديه مخطط DB كامل ✅ — Prisma schema + initial migration + explicit column types</li>
+<li>[x] جدول Field موحد عبر الخدمات ✅ — Prisma=source of truth, shared-types+TypeORM aligned</li>
+<li>[x] WebSocket يتطلب مصادقة ✅ — كان مُنفذ بالفعل (JWT + tenant isolation + rate limiting)</li>
 <li>[x] CSP مُفعل في apps/web و apps/admin</li>
-<li>[ ] التقييم الأمني ≥ 90/100 — الحالي ~88</li>
+<li>[ ] التقييم الأمني ≥ 90/100 — الحالي ~89</li>
 <li>[x] صفحة Copilot تعمل في Web مع chat + streaming</li>
 <li>[x] صفحة Copilot Admin تعمل مع RAG management</li>
 <li>[x] copilot-api يحفظ المحادثات في PostgreSQL</li>
@@ -2012,25 +2012,25 @@
 </thead>
 <tbody>
 <tr>
-<td>B1</td>
-<td>IoT Service بدون مخطط DB</td>
+<td>~~B1~~</td>
+<td>~~IoT Service بدون مخطط DB~~</td>
 <td>iot-service</td>
 <td>P0</td>
-<td>⏳ المرحلة 1 المتبقية</td>
+<td>✅ مكتمل — Prisma schema + migration SQL + column types</td>
 </tr>
 <tr>
-<td>B2</td>
-<td>3 تعريفات متعارضة لجدول Field</td>
+<td>~~B2~~</td>
+<td>~~3 تعريفات متعارضة لجدول Field~~</td>
 <td>3 خدمات</td>
 <td>P0</td>
-<td>⏳ المرحلة 1 المتبقية</td>
+<td>✅ مكتمل — shared-types + TypeORM aligned to Prisma</td>
 </tr>
 <tr>
-<td>B3</td>
-<td>أنواع أعمدة متناقضة (VARCHAR vs UUID)</td>
+<td>~~B3~~</td>
+<td>~~أنواع أعمدة متناقضة (VARCHAR vs UUID)~~</td>
 <td>عبر الخدمات</td>
 <td>P0</td>
-<td>⏳ المرحلة 1 المتبقية</td>
+<td>✅ مكتمل — VarChar(100) tenantId, Uuid FKs, Timestamptz</td>
 </tr>
 <tr>
 <td>B4</td>
@@ -2040,11 +2040,11 @@
 <td>⏳ المرحلة 2</td>
 </tr>
 <tr>
-<td>A4</td>
-<td>WebSocket بدون مصادقة</td>
+<td>~~A4~~</td>
+<td>~~WebSocket بدون مصادقة~~</td>
 <td>ws-gateway</td>
 <td>P0</td>
-<td>⏳ المرحلة 1 المتبقية</td>
+<td>✅ كان مُنفذ بالفعل — JWT + tenant isolation</td>
 </tr>
 <tr>
 <td>D1</td>
@@ -2064,12 +2064,12 @@
 </table>
 <hr />
 <h2 id="next-steps">الخطوات التالية | Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<h3 id="1_1">المرحلة 1 المتبقية (الأولوية العالية)<a class="headerlink" href="#1_1" title="Permanent link">&para;</a></h3>
+<h3 id="1-2026-02-14">المرحلة 1 المتبقية (الأولوية العالية) — ✅ مكتمل (2026-02-14)<a class="headerlink" href="#1-2026-02-14" title="Permanent link">&para;</a></h3>
 <ol>
-<li>إنشاء مخطط DB لـ IoT Service (Prisma schema + migration)</li>
-<li>توحيد جدول Field عبر الخدمات الثلاث</li>
-<li>إضافة مصادقة WebSocket لـ ws-gateway</li>
-<li>إصلاح أنواع الأعمدة المتناقضة</li>
+<li>~~إنشاء مخطط DB لـ IoT Service~~ ✅ — Prisma schema + initial migration SQL</li>
+<li>~~توحيد جدول Field عبر الخدمات الثلاث~~ ✅ — shared-types + TypeORM aligned to Prisma</li>
+<li>~~إضافة مصادقة WebSocket لـ ws-gateway~~ ✅ — كان مُنفذ بالفعل</li>
+<li>~~إصلاح أنواع الأعمدة المتناقضة~~ ✅ — VarChar/Uuid/Timestamptz standardized</li>
 </ol>
 <h3 id="2">المرحلة 2 (الجودة)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
 <ol>

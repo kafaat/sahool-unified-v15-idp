@@ -1121,7 +1121,7 @@
 <p><strong>المنصة</strong>: SAHOOL v16.0.0 | <strong>التاريخ</strong>: 2026-02-14 | <strong>مُحدث</strong>: 2026-02-14 (v3)
 <strong>النطاق</strong>: مراجعة شاملة لـ 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack
 <strong>المُعد</strong>: Claude AI Audit Agent
-<strong>حالة التنفيذ</strong>: المرحلة 0 ✅ مكتملة | المرحلة 1 🟡 جزئية (60%) | انظر: <code>PHASE_0_1_IMPLEMENTATION_REPORT.md</code></p>
+<strong>حالة التنفيذ</strong>: المرحلة 0 ✅ مكتملة | المرحلة 1 🟡 جزئية (85%) | انظر: <code>PHASE_0_1_IMPLEMENTATION_REPORT.md</code></p>
 <hr />
 <h2 id="part-1-executive-summary">الجزء الأول: الملخص التنفيذي | Part 1: Executive Summary<a class="headerlink" href="#part-1-executive-summary" title="Permanent link">&para;</a></h2>
 <h3 id="11">1.1 ما تم تدقيقه (الصورة الكاملة)<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
@@ -1191,9 +1191,9 @@
 <tr>
 <td>🔴 حرج (P0)</td>
 <td>46</td>
-<td>38</td>
-<td><strong>8</strong></td>
-<td>83% ← (كان 52%)</td>
+<td>43</td>
+<td><strong>3</strong></td>
+<td>93% ← (كان 83%)</td>
 </tr>
 <tr>
 <td>🟠 عالي (P1)</td>
@@ -1253,11 +1253,11 @@
 <td>وصول خارجي غير مقصود</td>
 </tr>
 <tr>
-<td>A4</td>
-<td>WebSocket بدون مصادقة</td>
-<td>Backend</td>
-<td><code>ws-gateway</code></td>
-<td>اتصالات غير مُصدق عليها</td>
+<td>~~A4~~</td>
+<td>~~WebSocket بدون مصادقة~~</td>
+<td>~~Backend~~</td>
+<td>~~<code>ws-gateway</code>~~</td>
+<td>✅ <strong>كان مُنفذ بالفعل</strong> — JWT auth + tenant isolation + rate limiting</td>
 </tr>
 <tr>
 <td>~~A5~~</td>
@@ -1280,22 +1280,22 @@
 </thead>
 <tbody>
 <tr>
-<td>B1</td>
-<td>IoT Service بدون مخطط قاعدة بيانات</td>
-<td><code>iot-service</code></td>
-<td>فقدان بيانات عند إعادة التشغيل</td>
+<td>~~B1~~</td>
+<td>~~IoT Service بدون مخطط قاعدة بيانات~~</td>
+<td>~~<code>iot-service</code>~~</td>
+<td>✅ <strong>تم</strong> — Prisma schema (6 models) + initial SQL migration + column type mapping</td>
 </tr>
 <tr>
-<td>B2</td>
-<td>3 تعريفات متعارضة لجدول Field</td>
-<td>3 خدمات</td>
-<td>عدم اتساق البيانات</td>
+<td>~~B2~~</td>
+<td>~~3 تعريفات متعارضة لجدول Field~~</td>
+<td>~~3 خدمات~~</td>
+<td>✅ <strong>تم التوحيد</strong> — Prisma=source of truth, shared-types+TypeORM aligned</td>
 </tr>
 <tr>
-<td>B3</td>
-<td>أنواع أعمدة متناقضة (VARCHAR vs UUID)</td>
-<td>عبر الخدمات</td>
-<td>فشل الاستعلامات</td>
+<td>~~B3~~</td>
+<td>~~أنواع أعمدة متناقضة (VARCHAR vs UUID)~~</td>
+<td>~~عبر الخدمات~~</td>
+<td>✅ <strong>تم</strong> — IoT schema: VarChar(100) for tenantId, Uuid for FKs, Timestamptz for dates</td>
 </tr>
 <tr>
 <td>B4</td>
@@ -2054,13 +2054,13 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w">
 <span class="p">}</span>
 </code></pre></div>
 
-<h4 id="1-60-2026-02-14">معيار إنهاء المرحلة 1: 🟡 جزئي (60% — 2026-02-14)<a class="headerlink" href="#1-60-2026-02-14" title="Permanent link">&para;</a></h4>
+<h4 id="1-85-2026-02-14">معيار إنهاء المرحلة 1: 🟡 جزئي (85% — 2026-02-14)<a class="headerlink" href="#1-85-2026-02-14" title="Permanent link">&para;</a></h4>
 <ul>
-<li>[ ] IoT Service لديه مخطط DB كامل — ⏳ متبقي</li>
-<li>[ ] جدول Field موحد عبر الخدمات — ⏳ متبقي</li>
-<li>[ ] WebSocket يتطلب مصادقة — ⏳ متبقي</li>
+<li>[x] IoT Service لديه مخطط DB كامل ✅ — Prisma schema (6 models) + migration SQL</li>
+<li>[x] جدول Field موحد عبر الخدمات ✅ — Prisma=source of truth, shared-types+TypeORM aligned</li>
+<li>[x] WebSocket يتطلب مصادقة ✅ — كان مُنفذ بالفعل (JWT + tenant isolation + rate limiting)</li>
 <li>[x] CSP مُفعل في apps/web و apps/admin ✅</li>
-<li>[ ] التقييم الأمني ≥ 90/100 — الحالي ~88</li>
+<li>[ ] التقييم الأمني ≥ 90/100 — الحالي ~89</li>
 <li>[x] صفحة Copilot تعمل في Web مع chat + streaming ✅</li>
 <li>[x] صفحة Copilot Admin تعمل مع RAG management ✅</li>
 <li>[x] copilot-api يحفظ المحادثات في PostgreSQL ✅</li>
@@ -2622,7 +2622,7 @@ cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class
 <tr>
 <td>مشاكل حرجة متبقية</td>
 <td>22</td>
-<td><strong>8</strong> ✅</td>
+<td><strong>3</strong> ✅</td>
 <td>0</td>
 <td>0</td>
 </tr>

@@ -129,7 +129,7 @@ export async function fetchVRAPrescriptions(params?: {
 }): Promise<VRAPrescription[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.fertilizer}/v1/prescriptions`,
+      `${API_URLS.advisory}/v1/prescriptions`,
       { params },
     );
     return response.data;
@@ -143,7 +143,7 @@ export async function fetchVRAPrescriptions(params?: {
 export async function approvePrescription(id: string): Promise<boolean> {
   try {
     await apiClient.patch(
-      `${API_URLS.fertilizer}/v1/prescriptions/${id}/approve`,
+      `${API_URLS.advisory}/v1/prescriptions/${id}/approve`,
     );
     return true;
   } catch (error) {
@@ -155,7 +155,7 @@ export async function approvePrescription(id: string): Promise<boolean> {
 export async function rejectPrescription(id: string): Promise<boolean> {
   try {
     await apiClient.patch(
-      `${API_URLS.fertilizer}/v1/prescriptions/${id}/reject`,
+      `${API_URLS.advisory}/v1/prescriptions/${id}/reject`,
     );
     return true;
   } catch (error) {
@@ -193,7 +193,7 @@ export async function fetchSprayHistory(params?: {
 }): Promise<SprayHistory[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.fertilizer}/v1/spray-history`,
+      `${API_URLS.advisory}/v1/spray-history`,
       { params },
     );
     return response.data;

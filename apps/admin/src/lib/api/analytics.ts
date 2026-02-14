@@ -89,7 +89,7 @@ export async function fetchProfitabilityData(params?: {
 }): Promise<ProfitabilityData> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.yieldEngine}/v1/profitability`,
+      `${API_URLS.yieldPrediction}/v1/profitability`,
       { params },
     );
     return response.data;

@@ -26,6 +26,7 @@ from ...models.schemas import (
     CopilotMode,
     MessageRole,
 )
+from ...db import save_message
 from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
 from ..deps import get_current_user, get_optional_user
@@ -158,6 +159,41 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         "rag_hits": len(rag_context),
         "elapsed_ms": elapsed_ms,
     })
+
+    # Persist chat messages to database (non-blocking)
+    # حفظ رسائل المحادثة في قاعدة البيانات (بدون حجب)
+    try:
+        user_id = user.get("user_id", "")
+        tenant_id = user.get("tenant_id", "")
+
+        # Save the user message
+        await save_message(
+            session_id=request.session_id,
+            user_id=user_id,
+            tenant_id=tenant_id,
+            role=last_message.role.value,
+            content=user_query,
+            rag_context=None,
+            agent_type=None,
+        )
+
+        # Save the assistant response with RAG context and agent info
+        await save_message(
+            session_id=request.session_id,
+            user_id=user_id,
+            tenant_id=tenant_id,
+            role=MessageRole.ASSISTANT.value,
+            content=response_content,
+            rag_context=rag_context if rag_context else None,
+            agent_type=routing_result.agent_type.value,
+        )
+    except Exception as e:
+        logger.warning(
+            "Failed to persist chat messages",
+            error=str(e),
+            session_id=request.session_id,
+            error_ar="فشل في حفظ رسائل المحادثة",
+        )
 
     return ChatResponse(
         session_id=request.session_id,

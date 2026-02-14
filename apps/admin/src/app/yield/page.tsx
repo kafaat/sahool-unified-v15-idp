@@ -79,7 +79,7 @@ export default function YieldPage() {
 
     try {
       const response = await apiClient.post(
-        `${API_URLS.yieldEngine}/v1/predict`,
+        `${API_URLS.yieldPrediction}/v1/predict`,
         formData,
       );
       setPrediction(response.data);

@@ -22,25 +22,58 @@ import { logger } from "../logger";
 //   - satellite → vegetation-analysis (actual service name)
 //   - weather-advanced → weather (consolidated)
 export type ServiceName =
+  // Core Services
   | "field-core" // @deprecated use "field-management"
   | "field-management"
-  | "satellite"
-  | "vegetation-analysis"
-  | "weather"
-  | "crop-health"
-  | "crop-intelligence"
-  | "virtual-sensors"
-  | "notifications"
-  | "irrigation"
-  | "analytics"
   | "auth"
   | "users"
+  // Satellite & Remote Sensing
+  | "satellite" // @deprecated use "vegetation-analysis"
+  | "vegetation-analysis"
+  | "ndvi-processor"
+  // Weather
+  | "weather"
+  // AI & Analytics
+  | "crop-health" // @deprecated use "crop-intelligence"
+  | "crop-intelligence"
+  | "indicators"
+  | "advisory"
+  | "yield-prediction"
+  | "analytics"
+  | "copilot"
+  | "ai-advisor"
+  | "knowledge-graph"
+  // IoT & Sensors
+  | "virtual-sensors"
+  | "iot-gateway"
+  // Operations
+  | "irrigation"
   | "tasks"
+  | "equipment"
+  | "inventory"
+  | "logistics"
+  // Communication
+  | "notifications"
+  | "field-chat"
+  // Configuration & Misc
+  | "provider-config"
   | "alerts"
   | "reports"
-  | "ai-advisor"
-  | "lab"
-  | "epidemic";
+  // Billing & Audit
+  | "billing"
+  | "audit"
+  // Agriculture Domain
+  | "drone"
+  | "soil-analysis"
+  | "pest-detection"
+  | "traceability"
+  | "globalgap"
+  | "crm"
+  // Vision & Terrain
+  | "yolo-vision"
+  | "terrain-core"
+  | "hydrology"
+  | "edge-orchestrator";
 
 export interface ServiceConfig {
   name: ServiceName;
@@ -88,7 +121,9 @@ export interface ApiResponse<T = unknown> {
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
 
 const SERVICES: Record<ServiceName, ServiceConfig> = {
-  // @deprecated - use "field-management" instead
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Core Services
+  // ═══════════════════════════════════════════════════════════════════════════
   "field-core": {
     name: "field-core",
     baseUrl: `${API_BASE}:3000`,
@@ -97,7 +132,6 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 10000,
     retries: 3,
   },
-  // New canonical name for field management service
   "field-management": {
     name: "field-management",
     baseUrl: `${API_BASE}:3000`,
@@ -105,82 +139,6 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     healthEndpoint: "/health",
     timeout: 10000,
     retries: 3,
-  },
-  // @deprecated alias - actual service is vegetation-analysis-service
-  satellite: {
-    name: "satellite",
-    baseUrl: `${API_BASE}:8090`,
-    port: 8090,
-    healthEndpoint: "/api/health",
-    timeout: 30000,
-    retries: 2,
-  },
-  // New canonical name for vegetation analysis service
-  "vegetation-analysis": {
-    name: "vegetation-analysis",
-    baseUrl: `${API_BASE}:8090`,
-    port: 8090,
-    healthEndpoint: "/api/health",
-    timeout: 30000,
-    retries: 2,
-  },
-  weather: {
-    name: "weather",
-    baseUrl: `${API_BASE}:8092`,
-    port: 8092,
-    healthEndpoint: "/api/health",
-    timeout: 15000,
-    retries: 3,
-  },
-  // @deprecated alias - actual service is crop-intelligence-service
-  "crop-health": {
-    name: "crop-health",
-    baseUrl: `${API_BASE}:8095`,
-    port: 8095,
-    healthEndpoint: "/api/health",
-    timeout: 20000,
-    retries: 2,
-  },
-  // New canonical name for crop intelligence service
-  "crop-intelligence": {
-    name: "crop-intelligence",
-    baseUrl: `${API_BASE}:8095`,
-    port: 8095,
-    healthEndpoint: "/api/health",
-    timeout: 20000,
-    retries: 2,
-  },
-  "virtual-sensors": {
-    name: "virtual-sensors",
-    baseUrl: `${API_BASE}:8119`,
-    port: 8119,
-    healthEndpoint: "/health",
-    timeout: 10000,
-    retries: 3,
-  },
-  notifications: {
-    name: "notifications",
-    baseUrl: `${API_BASE}:8110`,
-    port: 8110,
-    healthEndpoint: "/api/health",
-    timeout: 5000,
-    retries: 2,
-  },
-  irrigation: {
-    name: "irrigation",
-    baseUrl: `${API_BASE}:8094`,
-    port: 8094,
-    healthEndpoint: "/health",
-    timeout: 10000,
-    retries: 3,
-  },
-  analytics: {
-    name: "analytics",
-    baseUrl: `${API_BASE}:8100`,
-    port: 8100,
-    healthEndpoint: "/api/health",
-    timeout: 30000,
-    retries: 2,
   },
   auth: {
     name: "auth",
@@ -198,13 +156,217 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 10000,
     retries: 3,
   },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Satellite & Remote Sensing
+  // ═══════════════════════════════════════════════════════════════════════════
+  satellite: {
+    name: "satellite",
+    baseUrl: `${API_BASE}:8090`,
+    port: 8090,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  "vegetation-analysis": {
+    name: "vegetation-analysis",
+    baseUrl: `${API_BASE}:8090`,
+    port: 8090,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  "ndvi-processor": {
+    name: "ndvi-processor",
+    baseUrl: `${API_BASE}:8118`,
+    port: 8118,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Weather
+  // ═══════════════════════════════════════════════════════════════════════════
+  weather: {
+    name: "weather",
+    baseUrl: `${API_BASE}:8092`,
+    port: 8092,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 3,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // AI & Analytics
+  // ═══════════════════════════════════════════════════════════════════════════
+  "crop-health": {
+    name: "crop-health",
+    baseUrl: `${API_BASE}:8095`,
+    port: 8095,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+  "crop-intelligence": {
+    name: "crop-intelligence",
+    baseUrl: `${API_BASE}:8095`,
+    port: 8095,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+  indicators: {
+    name: "indicators",
+    baseUrl: `${API_BASE}:8091`,
+    port: 8091,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+  advisory: {
+    name: "advisory",
+    baseUrl: `${API_BASE}:8093`,
+    port: 8093,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+  "yield-prediction": {
+    name: "yield-prediction",
+    baseUrl: `${API_BASE}:8152`,
+    port: 8152,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  analytics: {
+    name: "analytics",
+    baseUrl: `${API_BASE}:8100`,
+    port: 8100,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  copilot: {
+    name: "copilot",
+    baseUrl: `${API_BASE}:8088`,
+    port: 8088,
+    healthEndpoint: "/healthz",
+    timeout: 60000,
+    retries: 1,
+  },
+  "ai-advisor": {
+    name: "ai-advisor",
+    baseUrl: `${API_BASE}:8112`,
+    port: 8112,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  "knowledge-graph": {
+    name: "knowledge-graph",
+    baseUrl: `${API_BASE}:8140`,
+    port: 8140,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // IoT & Sensors
+  // ═══════════════════════════════════════════════════════════════════════════
+  "virtual-sensors": {
+    name: "virtual-sensors",
+    baseUrl: `${API_BASE}:8119`,
+    port: 8119,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 3,
+  },
+  "iot-gateway": {
+    name: "iot-gateway",
+    baseUrl: `${API_BASE}:8106`,
+    port: 8106,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Operations
+  // ═══════════════════════════════════════════════════════════════════════════
+  irrigation: {
+    name: "irrigation",
+    baseUrl: `${API_BASE}:8094`,
+    port: 8094,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 3,
+  },
   tasks: {
     name: "tasks",
     baseUrl: `${API_BASE}:8103`,
     port: 8103,
-    healthEndpoint: "/health",
+    healthEndpoint: "/healthz",
     timeout: 10000,
     retries: 3,
+  },
+  equipment: {
+    name: "equipment",
+    baseUrl: `${API_BASE}:8101`,
+    port: 8101,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 3,
+  },
+  inventory: {
+    name: "inventory",
+    baseUrl: `${API_BASE}:8116`,
+    port: 8116,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 3,
+  },
+  logistics: {
+    name: "logistics",
+    baseUrl: `${API_BASE}:8167`,
+    port: 8167,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Communication
+  // ═══════════════════════════════════════════════════════════════════════════
+  notifications: {
+    name: "notifications",
+    baseUrl: `${API_BASE}:8110`,
+    port: 8110,
+    healthEndpoint: "/healthz",
+    timeout: 5000,
+    retries: 2,
+  },
+  "field-chat": {
+    name: "field-chat",
+    baseUrl: `${API_BASE}:8099`,
+    port: 8099,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Configuration & Misc
+  // ═══════════════════════════════════════════════════════════════════════════
+  "provider-config": {
+    name: "provider-config",
+    baseUrl: `${API_BASE}:8104`,
+    port: 8104,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 2,
   },
   alerts: {
     name: "alerts",
@@ -218,32 +380,116 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     name: "reports",
     baseUrl: `${API_BASE}:8084`,
     port: 8084,
-    healthEndpoint: "/health",
+    healthEndpoint: "/healthz",
     timeout: 30000,
     retries: 2,
   },
-  "ai-advisor": {
-    name: "ai-advisor",
-    baseUrl: `${API_BASE}:8091`,
-    port: 8091,
-    healthEndpoint: "/api/health",
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Billing & Audit
+  // ═══════════════════════════════════════════════════════════════════════════
+  billing: {
+    name: "billing",
+    baseUrl: `${API_BASE}:8089`,
+    port: 8089,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+  audit: {
+    name: "audit",
+    baseUrl: `${API_BASE}:8114`,
+    port: 8114,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Agriculture Domain
+  // ═══════════════════════════════════════════════════════════════════════════
+  drone: {
+    name: "drone",
+    baseUrl: `${API_BASE}:8126`,
+    port: 8126,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+  "soil-analysis": {
+    name: "soil-analysis",
+    baseUrl: `${API_BASE}:8124`,
+    port: 8124,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+  "pest-detection": {
+    name: "pest-detection",
+    baseUrl: `${API_BASE}:8125`,
+    port: 8125,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
+    retries: 2,
+  },
+  traceability: {
+    name: "traceability",
+    baseUrl: `${API_BASE}:8123`,
+    port: 8123,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+  globalgap: {
+    name: "globalgap",
+    baseUrl: `${API_BASE}:8128`,
+    port: 8128,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
+  crm: {
+    name: "crm",
+    baseUrl: `${API_BASE}:8131`,
+    port: 8131,
+    healthEndpoint: "/healthz",
+    timeout: 10000,
+    retries: 2,
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Vision & Terrain
+  // ═══════════════════════════════════════════════════════════════════════════
+  "yolo-vision": {
+    name: "yolo-vision",
+    baseUrl: `${API_BASE}:8150`,
+    port: 8150,
+    healthEndpoint: "/healthz",
+    timeout: 60000,
+    retries: 1,
+  },
+  "terrain-core": {
+    name: "terrain-core",
+    baseUrl: `${API_BASE}:8185`,
+    port: 8185,
+    healthEndpoint: "/healthz",
     timeout: 30000,
     retries: 2,
   },
-  lab: {
-    name: "lab",
-    baseUrl: `${API_BASE}:8097`,
-    port: 8097,
-    healthEndpoint: "/api/health",
-    timeout: 15000,
+  hydrology: {
+    name: "hydrology",
+    baseUrl: `${API_BASE}:8165`,
+    port: 8165,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
     retries: 2,
   },
-  epidemic: {
-    name: "epidemic",
-    baseUrl: `${API_BASE}:8098`,
-    port: 8098,
-    healthEndpoint: "/api/health",
-    timeout: 15000,
+  "edge-orchestrator": {
+    name: "edge-orchestrator",
+    baseUrl: `${API_BASE}:8180`,
+    port: 8180,
+    healthEndpoint: "/healthz",
+    timeout: 20000,
     retries: 2,
   },
 };

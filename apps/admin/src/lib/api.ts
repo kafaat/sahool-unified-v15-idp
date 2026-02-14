@@ -146,7 +146,7 @@ export async function fetchDiagnoses(params?: {
 }): Promise<DiagnosisRecord[]> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropHealth}/api/v1/crop-health/diagnoses`,
+      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses`,
       {
         params: {
           status: params?.status,
@@ -213,7 +213,7 @@ export async function fetchDiagnosisStats(): Promise<{
 }> {
   try {
     const response = await apiClient.get(
-      `${API_URLS.cropHealth}/api/v1/crop-health/diagnoses/stats`,
+      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/stats`,
     );
     return {
       total: response.data.total,
@@ -246,7 +246,7 @@ export async function updateDiagnosisStatus(
 ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
   try {
     const response = await apiClient.patch(
-      `${API_URLS.cropHealth}/api/v1/crop-health/diagnoses/${id}`,
+      `${API_URLS.cropIntelligence}/api/v1/crop-health/diagnoses/${id}`,
       null,
       {
         params: {
@@ -275,7 +275,7 @@ export async function getWeatherCurrent(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weatherCore}/weather/current`,
+      `${API_URLS.weather}/weather/current`,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
@@ -293,7 +293,7 @@ export async function getWeatherForecast(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weatherCore}/weather/forecast`,
+      `${API_URLS.weather}/weather/forecast`,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
@@ -310,7 +310,7 @@ export async function getAgriculturalReport(
 ) {
   try {
     const response = await apiClient.post(
-      `${API_URLS.weatherCore}/weather/agricultural-report`,
+      `${API_URLS.weather}/weather/agricultural-report`,
       { tenant_id: "default", field_id: fieldId, lat, lon: lng }
     );
     return response.data;
@@ -483,7 +483,7 @@ export async function fetchCommunityPosts(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(`${API_URLS.community}/api/v1/posts`, {
+    const response = await apiClient.get(`${API_URLS.fieldManagement}/api/v1/posts`, {
       params,
     });
     return response.data;

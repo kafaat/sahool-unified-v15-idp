@@ -77,11 +77,12 @@ Comprehensive drone integration service for agricultural operations including fl
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/flights/plan/spray` | POST | Create spray flight plan |
-| `/api/v1/flights/plan/mapping` | POST | Create mapping flight plan |
-| `/api/v1/flights/plan/perimeter` | POST | Create perimeter flight plan |
-| `/api/v1/flights/weather-check` | POST | Check weather for flight |
-| `/api/v1/flights/estimate` | POST | Estimate flight resources |
+| `/api/v1/flights/plan/spray` | POST | Create spray flight plan (boundary, spray_rate_l_ha, swath_width_m, altitude_m) |
+| `/api/v1/flights/plan/mapping` | POST | Create mapping flight plan (boundary, gsd_cm_px, frontal_overlap, side_overlap) |
+| `/api/v1/flights/weather-check` | POST | Check weather conditions for flight safety |
+| `/api/v1/flights/estimate` | POST | Estimate flight resources (area_ha, spray_rate_l_ha, tank_capacity_l) |
+| `/api/v1/flights/plans` | GET | List flight plans (optional field_id filter) |
+| `/api/v1/flights/plans/{plan_id}` | GET | Get flight plan details |
 
 ### Missions
 
@@ -90,43 +91,20 @@ Comprehensive drone integration service for agricultural operations including fl
 | `/api/v1/missions` | GET | List missions |
 | `/api/v1/missions` | POST | Create mission |
 | `/api/v1/missions/{mission_id}` | GET | Get mission details |
-| `/api/v1/missions/{mission_id}` | PUT | Update mission |
 | `/api/v1/missions/{mission_id}/start` | POST | Start mission execution |
 | `/api/v1/missions/{mission_id}/pause` | POST | Pause mission |
 | `/api/v1/missions/{mission_id}/resume` | POST | Resume mission |
 | `/api/v1/missions/{mission_id}/abort` | POST | Abort mission |
-| `/api/v1/missions/{mission_id}/export` | GET | Export mission (KML/MAVLink) |
 
-### VRA (Variable Rate Application)
+### Planned Endpoints (Not Yet Implemented)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/vra/prescription` | POST | Generate prescription map |
-| `/api/v1/vra/prescription/ndvi` | POST | Generate NDVI-based prescription |
-| `/api/v1/vra/prescription/spot-spray` | POST | Generate spot spray map |
-| `/api/v1/vra/{prescription_id}` | GET | Get prescription map |
-| `/api/v1/vra/{prescription_id}/export` | GET | Export prescription (Shapefile/GeoJSON) |
-| `/api/v1/vra/{prescription_id}/zones` | GET | Get application zones |
+The following endpoints are planned for future releases:
 
-### Flight Logs
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/logs` | GET | List flight logs |
-| `/api/v1/logs/{log_id}` | GET | Get flight log details |
-| `/api/v1/logs/{log_id}/track` | GET | Get flight track |
-| `/api/v1/logs/{log_id}/export` | GET | Export log (GeoJSON/KML) |
-| `/api/v1/logs/{log_id}/analytics` | GET | Get flight analytics |
-
-### Imagery
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/imagery` | GET | List captured imagery |
-| `/api/v1/imagery` | POST | Upload imagery |
-| `/api/v1/imagery/{imagery_id}` | GET | Get imagery details |
-| `/api/v1/imagery/{imagery_id}/process` | POST | Process imagery (NDVI, etc.) |
-| `/api/v1/imagery/{imagery_id}/download` | GET | Download processed imagery |
+- **VRA**: `/api/v1/vra/*` - Variable Rate Application prescription maps
+- **Flight Logs**: `/api/v1/logs/*` - Flight log management and analytics
+- **Imagery**: `/api/v1/imagery/*` - Aerial imagery processing
+- **Perimeter Flights**: `/api/v1/flights/plan/perimeter`
+- **Mission Export**: `/api/v1/missions/{mission_id}/export`
 
 ---
 
@@ -312,11 +290,11 @@ This service uses the shared drone integration module:
 
 ```python
 from shared.drone_integration import (
-    FlightPlanner,
-    FlightPlanConfig,
-    VRAGenerator,
+    Coordinate,
     create_spray_flight_plan,
-    create_ndvi_prescription,
+    create_mapping_flight_plan,
+    assess_flight_weather,
+    estimate_flight_resources,
 )
 ```
 
@@ -328,5 +306,5 @@ Proprietary - KAFAAT
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 16.0.0
+**Last Updated**: February 2026

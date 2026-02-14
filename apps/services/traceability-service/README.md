@@ -58,77 +58,44 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/batches` | GET | List produce batches |
-| `/api/v1/batches` | POST | Create new batch |
-| `/api/v1/batches/{batch_id}` | GET | Get batch details |
-| `/api/v1/batches/{batch_id}` | PUT | Update batch |
-| `/api/v1/batches/{batch_id}/status` | PUT | Update batch status |
-| `/api/v1/batches/{batch_id}/split` | POST | Split batch |
-| `/api/v1/batches/merge` | POST | Merge batches |
-| `/api/v1/batches/generate-code` | POST | Generate batch code |
-| `/api/v1/batches/verify-code/{code}` | GET | Verify batch code |
+| `/api/v1/traceability/batches` | GET | List produce batches (optional tenant_id, farm_id filters) |
+| `/api/v1/traceability/batches` | POST | Create new batch with auto-generated batch code |
+| `/api/v1/traceability/batches/{batch_id}` | GET | Get batch details |
 
-### Events
+### Supply Chain Events
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/batches/{batch_id}/events` | GET | List batch events |
-| `/api/v1/batches/{batch_id}/events/harvest` | POST | Record harvest event |
-| `/api/v1/batches/{batch_id}/events/processing` | POST | Record processing event |
-| `/api/v1/batches/{batch_id}/events/storage` | POST | Record storage event |
-| `/api/v1/batches/{batch_id}/events/transport` | POST | Record transport event |
-| `/api/v1/batches/{batch_id}/events/retail` | POST | Record retail event |
-| `/api/v1/events/{event_id}` | GET | Get event details |
+| `/api/v1/traceability/batches/{batch_id}/events/harvest` | POST | Record harvest event |
+| `/api/v1/traceability/batches/{batch_id}/events/processing` | POST | Record processing event |
+| `/api/v1/traceability/batches/{batch_id}/events/storage` | POST | Record storage event |
+| `/api/v1/traceability/batches/{batch_id}/events/transport` | POST | Record transport event |
 
 ### QR Codes
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/batches/{batch_id}/qr` | POST | Generate QR code |
-| `/api/v1/batches/{batch_id}/qr` | GET | Get QR code |
-| `/api/v1/batches/{batch_id}/label` | POST | Generate label |
-| `/api/v1/qr/decode` | POST | Decode QR data |
-| `/api/v1/qr/verify` | POST | Verify QR checksum |
+| `/api/v1/traceability/batches/{batch_id}/qr` | GET | Get QR code for batch |
 
-### Consumer Journey (Public)
+### Consumer Journey & Carbon
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/journey/{batch_code}` | GET | Get product journey (public) |
-| `/api/v1/scan/{batch_code}` | POST | Record consumer scan |
-| `/api/v1/journey/{batch_code}/certifications` | GET | Get certifications |
-| `/api/v1/journey/{batch_code}/carbon-footprint` | GET | Get carbon footprint |
+| `/api/v1/traceability/journey/{batch_code}` | GET | Get consumer-facing product journey |
+| `/api/v1/traceability/carbon/{batch_id}` | GET | Estimate carbon footprint from transport events |
 
-### Certifications
+### Planned Endpoints (Not Yet Implemented)
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/certifications` | GET | List certifications |
-| `/api/v1/certifications` | POST | Add certification |
-| `/api/v1/certifications/{cert_id}` | GET | Get certification |
-| `/api/v1/certifications/{cert_id}/verify` | GET | Verify certification |
-| `/api/v1/batches/{batch_id}/certifications` | GET | Get batch certifications |
-| `/api/v1/batches/{batch_id}/certifications` | POST | Attach certification |
+The following endpoints are planned for future releases:
 
-### Reports
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/reports/trace/{batch_id}` | GET | Generate trace report |
-| `/api/v1/reports/chain/{batch_id}` | GET | Full supply chain report |
-| `/api/v1/reports/carbon/{batch_id}` | GET | Carbon footprint report |
-| `/api/v1/reports/compliance/{batch_id}` | GET | Compliance report |
-
-### Actors
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/v1/actors/producers` | GET | List producers |
-| `/api/v1/actors/producers` | POST | Register producer |
-| `/api/v1/actors/facilities` | GET | List processing facilities |
-| `/api/v1/actors/facilities` | POST | Register facility |
-| `/api/v1/actors/transporters` | GET | List transporters |
-| `/api/v1/actors/retailers` | GET | List retailers |
+- **Batch Operations**: Update batch, status updates, splits, merges
+- **Batch Code Utilities**: `/api/v1/traceability/batches/generate-code`, `/api/v1/traceability/batches/verify-code/{code}`
+- **Event Management**: List batch events, retail events, event details
+- **QR Generation**: QR code generation (POST), label generation, QR decode/verify
+- **Consumer Features**: Consumer scan recording, certification display
+- **Certifications**: Full certification CRUD and batch attachment
+- **Reports**: Trace reports, supply chain reports, compliance reports
+- **Actors**: Producer, facility, transporter, and retailer management
 
 ---
 
@@ -160,7 +127,7 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PORT` | Service port | `8174` | No |
+| `PORT` | Service port | `8123` | No |
 | `HOST` | Bind address | `0.0.0.0` | No |
 | `ENVIRONMENT` | Environment (development/staging/production) | `development` | No |
 | `DATABASE_URL` | PostgreSQL connection string | - | Yes |
@@ -175,7 +142,7 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 
 ## Port
 
-**8174**
+**8123**
 
 ---
 
@@ -188,7 +155,7 @@ Farm-to-table supply chain traceability service with QR codes, blockchain anchor
 pip install -r requirements.txt
 
 # Run the service
-uvicorn src.main:app --host 0.0.0.0 --port 8174 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8123 --reload
 ```
 
 ### Docker
@@ -198,7 +165,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8174 --reload
 docker build -t sahool/traceability-service .
 
 # Run container
-docker run -p 8174:8174 \
+docker run -p 8123:8123 \
   -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
   -e REDIS_URL=redis://localhost:6379 \
   -e NATS_URL=nats://localhost:4222 \
@@ -232,10 +199,10 @@ spec:
         - name: traceability-service
           image: sahool/traceability-service:latest
           ports:
-            - containerPort: 8174
+            - containerPort: 8123
           env:
             - name: PORT
-              value: "8174"
+              value: "8123"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -256,13 +223,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8174
+              port: 8123
             initialDelaySeconds: 10
             periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /readyz
-              port: 8174
+              port: 8123
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -282,8 +249,8 @@ spec:
   selector:
     app: traceability-service
   ports:
-    - port: 8174
-      targetPort: 8174
+    - port: 8123
+      targetPort: 8123
   type: ClusterIP
 ```
 
@@ -360,10 +327,10 @@ This service uses the shared traceability module:
 from shared.traceability import (
     SupplyChainTracker,
     QRCodeGenerator,
-    ProduceBatch,
-    EventType,
+    generate_batch_code,
     calculate_carbon_footprint,
 )
+from shared.traceability.models import TransportMode
 ```
 
 ---
@@ -374,5 +341,5 @@ Proprietary - KAFAAT
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 16.0.0
+**Last Updated**: February 2026

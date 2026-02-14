@@ -105,16 +105,23 @@ function getHeaders() {
   return headers;
 }
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 function randomFloat(min, max) {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(2));
+  return parseFloat((secureRandom() * (max - min) + min).toFixed(2));
 }
 
 function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(secureRandom() * (max - min + 1)) + min;
 }
 
 function randomString(length) {
@@ -252,7 +259,7 @@ export default function () {
     sleep(0.5);
 
     // Register a new device (30% of iterations)
-    if (Math.random() < 0.3) {
+    if (secureRandom() < 0.3) {
       const location = randomElement(YEMEN_LOCATIONS);
       const devicePayload = JSON.stringify({
         device_id: generateDeviceId(),

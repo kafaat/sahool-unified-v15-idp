@@ -816,6 +816,8 @@ infrastructure/terraform/
 | Terraform modules | 30% | 30% | **~80%** ✅ (6 modules جديدة) | 95% |
 | npm workspaces | 22 | 22 | **موسعة** ✅ | 80+ |
 | **Copilot Full-Stack** | **55%** | **85%** ✅ | **85%** ✅ | **95%** |
+| **Copilot Web UI** | **0%** | **85%** ✅ | **85%** ✅ | **98%** |
+| **Copilot Admin UI** | **0%** | **80%** ✅ | **80%** ✅ | **95%** |
 
 ### 5.2 معايير القبول للإنتاج
 

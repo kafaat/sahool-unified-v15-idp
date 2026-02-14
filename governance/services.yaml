@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service]
+      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, leveling-optimizer-service]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, leveling-optimizer-service, drone-service]
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service]
+      services: [notification-service, marketplace-service, billing-core, community-chat, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, field-chat, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service]
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -2911,6 +2911,149 @@ services:
     dependencies:
       - llm-orchestrator-service
       - yolo26-vision-service
+      - notification-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # SOIL ANALYSIS SERVICE - خدمة تحليل التربة
+  # ═══════════════════════════════════════════════════════════════════════════
+  soil-analysis-service:
+    name: "Soil Analysis Service"
+    name_ar: "خدمة تحليل التربة"
+    description: "Soil testing, interpretation, amendment recommendations, and trend analysis"
+    description_ar: "فحص التربة والتفسير وتوصيات التعديل وتحليل الاتجاهات"
+    type: python
+    category: intelligence
+    layer: intelligence
+    path: "apps/services/soil-analysis-service"
+    port: 8124
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "agri-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - SoilTestCreated.v1
+        - SoilTestInterpreted.v1
+      consumes:
+        - FieldCreated.v1
+    dependencies:
+      - advisory-service
+      - notification-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DRONE SERVICE - خدمة الطائرات المسيرة
+  # ═══════════════════════════════════════════════════════════════════════════
+  drone-service:
+    name: "Drone Service"
+    name_ar: "خدمة الطائرات المسيرة"
+    description: "Drone fleet management, flight planning, mission control, and VRA integration"
+    description_ar: "إدارة أسطول الطائرات وتخطيط الرحلات والتحكم بالمهام وتكامل الرش المتغير"
+    type: python
+    category: decision
+    layer: decision
+    path: "apps/services/drone-service"
+    port: 8126
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "agri-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - DroneRegistered.v1
+        - FlightPlanned.v1
+        - MissionCreated.v1
+        - MissionStarted.v1
+        - MissionAborted.v1
+      consumes:
+        - FieldCreated.v1
+        - WeatherUpdated.v1
+    dependencies:
+      - weather-service
+      - field-management-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # COOPERATIVE SERVICE - خدمة التعاونيات
+  # ═══════════════════════════════════════════════════════════════════════════
+  cooperative-service:
+    name: "Cooperative Service"
+    name_ar: "خدمة التعاونيات"
+    description: "Multi-farm cooperative management, resource pooling, and revenue distribution"
+    description_ar: "إدارة التعاونيات متعددة المزارع وتجميع الموارد وتوزيع الإيرادات"
+    type: python
+    category: business
+    layer: business
+    path: "apps/services/cooperative-service"
+    port: 8127
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "business-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - CooperativeCreated.v1
+        - MemberAdded.v1
+        - ResourceBooked.v1
+      consumes:
+        - FarmerCreated.v1
+    dependencies:
+      - user-service
+      - notification-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TRACEABILITY SERVICE - خدمة التتبع
+  # ═══════════════════════════════════════════════════════════════════════════
+  traceability-service:
+    name: "Traceability Service"
+    name_ar: "خدمة التتبع"
+    description: "Supply chain traceability, batch tracking, QR codes, and carbon footprint estimation"
+    description_ar: "تتبع سلسلة التوريد وتتبع الدفعات ورموز QR وتقدير البصمة الكربونية"
+    type: python
+    category: business
+    layer: business
+    path: "apps/services/traceability-service"
+    port: 8123
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "business-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - BatchCreated.v1
+        - HarvestRecorded.v1
+        - TransportRecorded.v1
+      consumes:
+        - FieldCreated.v1
+        - HarvestCompleted.v1
+    dependencies:
+      - field-management-service
       - notification-service
     resources:
       cpu: "300m"

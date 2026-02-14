@@ -1,0 +1,2146 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Platform Cross-Reference Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-cross-reference-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform Cross-Reference Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-cross-reference-audit-report">SAHOOL Platform Cross-Reference Audit Report<a class="headerlink" href="#sahool-platform-cross-reference-audit-report" title="Permanent link">&para;</a></h1>
+<h1 id="env-docker-compose-kong">تقرير تدقيق التطابق بين .env و Docker Compose و Kong<a class="headerlink" href="#env-docker-compose-kong" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-02-13
+<strong>Scope</strong>: .env.example, docker-compose.yml, Kong configuration, Dockerfiles
+<strong>Version</strong>: 16.0.0</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>A comprehensive cross-reference audit of configuration files across the SAHOOL platform
+revealed <strong>18 issues</strong>: 8 critical (P0), 6 high (P1), and 4 medium (P2).</p>
+<p>The most severe issues are <strong>5 wrong port targets in Kong upstreams</strong> that would cause
+complete routing failures for those services, and <strong>hardcoded credentials</strong> in 4 v3.0 services.</p>
+<hr />
+<h2 id="files-audited">Files Audited<a class="headerlink" href="#files-audited" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker-compose.yml</code></td>
+<td>4241 (54 services)</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>.env.example</code></td>
+<td>1406</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>apps/admin/.env.example</code></td>
+<td>65</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>apps/web/.env.example</code></td>
+<td>57</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>apps/services/ai-chat-assistant/.env.example</code></td>
+<td>46</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>infrastructure/gateway/kong/kong.yml</code></td>
+<td>~3200</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>infrastructure/gateway/kong/kong-upstreams.yml</code></td>
+<td>~1200</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>infrastructure/gateway/kong/kong-security.yml</code></td>
+<td>607</td>
+<td>Fully read</td>
+</tr>
+<tr>
+<td><code>infrastructure/gateway/kong/kong-cors-production.yml</code></td>
+<td>85</td>
+<td>Fully read</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="p0-critical-issues-8">P0 - CRITICAL Issues (8)<a class="headerlink" href="#p0-critical-issues-8" title="Permanent link">&para;</a></h2>
+<h3 id="1-kong-upstreams-wrong-port-targets-5-services">1. Kong Upstreams Wrong Port Targets (5 services)<a class="headerlink" href="#1-kong-upstreams-wrong-port-targets-5-services" title="Permanent link">&para;</a></h3>
+<p><code>kong-upstreams.yml</code> routes to wrong ports vs <code>docker-compose.yml</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>docker-compose</th>
+<th>kong-upstreams.yml</th>
+<th>Correct Port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chat-service</code></td>
+<td>8000</td>
+<td><strong>8114</strong></td>
+<td>8000</td>
+</tr>
+<tr>
+<td><code>copilot-api</code></td>
+<td>8088</td>
+<td><strong>8163</strong></td>
+<td>8088</td>
+</tr>
+<tr>
+<td><code>audit-service</code></td>
+<td>8114</td>
+<td><strong>8122</strong></td>
+<td>8114</td>
+</tr>
+<tr>
+<td><code>globalgap-compliance</code></td>
+<td>8128</td>
+<td><strong>8168</strong></td>
+<td>8128</td>
+</tr>
+<tr>
+<td><code>supply-chain-service</code></td>
+<td>8230</td>
+<td><strong>8166</strong></td>
+<td>8230</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Impact</strong>: Complete routing failure for these 5 services through Kong.</p>
+<p><strong>Fix</strong>: Update <code>infrastructure/gateway/kong/kong-upstreams.yml</code> to match docker-compose.yml ports.</p>
+<h3 id="2-wrong-service-urls-in-envexample-2-services">2. Wrong Service URLs in .env.example (2 services)<a class="headerlink" href="#2-wrong-service-urls-in-envexample-2-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>.env.example Value</th>
+<th>Actual Port</th>
+<th>Wrong Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>YIELD_PREDICTION_URL</code> (line 687)</td>
+<td><code>:8098</code></td>
+<td><code>8152</code></td>
+<td>Points to yield-engine (legacy)</td>
+</tr>
+<tr>
+<td><code>CODE_REVIEW_SERVICE_URL</code> (line 1324)</td>
+<td><code>:8124</code></td>
+<td><code>8102</code></td>
+<td>Points to soil-analysis-service</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Impact</strong>: Inter-service calls using these URLs will hit wrong services.</p>
+<p><strong>Fix</strong>: Update .env.example:
+- <code>YIELD_PREDICTION_URL=http://yield-prediction-service:8152</code>
+- <code>CODE_REVIEW_SERVICE_URL=http://code-review-service:8102</code></p>
+<h3 id="3-hardcoded-credentials-in-v30-services">3. Hardcoded Credentials in v3.0 Services<a class="headerlink" href="#3-hardcoded-credentials-in-v30-services" title="Permanent link">&para;</a></h3>
+<p>Lines 4037-4158 in docker-compose.yml contain hardcoded default passwords:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 4 services affected:</span>
+<span class="l l-Scalar l-Scalar-Plain">NATS_PASSWORD:-sahool_nats_2024</span><span class="w">    </span><span class="c1"># Hardcoded NATS password</span>
+<span class="l l-Scalar l-Scalar-Plain">REDIS_PASSWORD:-sahool_redis_2024</span><span class="w">  </span><span class="c1"># Hardcoded Redis password</span>
+</code></pre></div>
+
+<p><strong>Affected</strong>: <code>irrigation-cycle-engine</code>, <code>iot-sensor-hub</code>, <code>fertigation-engine</code>, <code>digital-twin-engine</code></p>
+<p><strong>Fix</strong>: Use <code>${NATS_PASSWORD:?NATS_PASSWORD is required}</code> pattern like other services.</p>
+<hr />
+<h2 id="p1-high-issues-6">P1 - HIGH Issues (6)<a class="headerlink" href="#p1-high-issues-6" title="Permanent link">&para;</a></h2>
+<h3 id="4-jwt-algorithm-conflict-rs256-vs-hs256">4. JWT Algorithm Conflict (RS256 vs HS256)<a class="headerlink" href="#4-jwt-algorithm-conflict-rs256-vs-hs256" title="Permanent link">&para;</a></h3>
+<p><code>.env.example</code> defaults to <code>JWT_ALGORITHM=HS256</code>, but 5 services default to RS256:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Default</th>
+<th>Line</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ws-gateway</code></td>
+<td>RS256</td>
+<td>1525</td>
+</tr>
+<tr>
+<td><code>agro-advisor</code></td>
+<td>RS256</td>
+<td>2170</td>
+</tr>
+<tr>
+<td><code>iot-gateway</code></td>
+<td>RS256</td>
+<td>2219</td>
+</tr>
+<tr>
+<td><code>ndvi-engine</code></td>
+<td>RS256</td>
+<td>2286</td>
+</tr>
+<tr>
+<td><code>weather-core</code></td>
+<td>RS256</td>
+<td>2340</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Impact</strong>: If JWT_ALGORITHM not set in .env, token verification fails between HS256 and RS256 services.</p>
+<h3 id="5-duplicate-cors_allowed_origins-in-envexample">5. Duplicate CORS_ALLOWED_ORIGINS in .env.example<a class="headerlink" href="#5-duplicate-cors_allowed_origins-in-envexample" title="Permanent link">&para;</a></h3>
+<p>Defined TWICE with different values:</p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Value</th>
+<th>Domains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>209</td>
+<td><code>https://sahool.app,...</code></td>
+<td><strong>.sahool.app</strong></td>
+</tr>
+<tr>
+<td>222</td>
+<td><code>https://sahool.com,...</code></td>
+<td><strong>.sahool.com</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Additionally, 5 different CORS configurations across the platform:</p>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Domains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.env.example</code> line 209</td>
+<td>.sahool.<strong>app</strong></td>
+</tr>
+<tr>
+<td><code>.env.example</code> line 222</td>
+<td>.sahool.<strong>com</strong></td>
+</tr>
+<tr>
+<td><code>kong-security.yml</code></td>
+<td>.sahool.<strong>io</strong></td>
+</tr>
+<tr>
+<td><code>kong-cors-production.yml</code></td>
+<td>.sahool.<strong>com</strong></td>
+</tr>
+<tr>
+<td><code>kong.yml</code> global plugin</td>
+<td>wildcard <code>*</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-admin-portal-auth-url-points-to-kong-admin-api">6. Admin Portal Auth URL Points to Kong Admin API<a class="headerlink" href="#6-admin-portal-auth-url-points-to-kong-admin-api" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/admin/.env.example line 15:</span>
+<span class="na">NEXT_PUBLIC_AUTH_URL</span><span class="o">=</span><span class="s">http://localhost:8001</span><span class="w">  </span><span class="c1"># Kong Admin API!</span>
+</code></pre></div>
+
+<p>Should point to <code>http://localhost:3025</code> (user-service) or <code>http://localhost:8000/api/v1/auth</code> (Kong proxy).</p>
+<h3 id="7-ai-chat-assistant-missing-authentication">7. ai-chat-assistant Missing Authentication<a class="headerlink" href="#7-ai-chat-assistant-missing-authentication" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># apps/services/ai-chat-assistant/.env.example</span>
+<span class="na">NATS_URL</span><span class="o">=</span><span class="s">nats://nats:4222</span><span class="w">          </span><span class="c1"># No authentication!</span>
+<span class="na">REDIS_PASSWORD</span><span class="o">=</span><span class="w">                     </span><span class="c1"># Empty!</span>
+</code></pre></div>
+
+<h3 id="8-port-conflicts">8. Port Conflicts<a class="headerlink" href="#8-port-conflicts" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service 1</th>
+<th>Service 2</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8200</td>
+<td>vault</td>
+<td>mcp-server</td>
+<td>HIGH - Host port collision</td>
+</tr>
+<tr>
+<td>8230</td>
+<td>supply-chain-service</td>
+<td>ai-chat-assistant</td>
+<td>HIGH - Host port collision</td>
+</tr>
+<tr>
+<td>8000</td>
+<td>kong (proxy)</td>
+<td>chat-service (internal)</td>
+<td>MEDIUM - Resolved via mapping</td>
+</tr>
+</tbody>
+</table>
+<h3 id="9-ai-advisor-uses-service_port-instead-of-port">9. ai-advisor Uses SERVICE_PORT Instead of PORT<a class="headerlink" href="#9-ai-advisor-uses-service_port-instead-of-port" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># docker-compose.yml line 2528:</span>
+<span class="nt">ai-advisor</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SERVICE_PORT=8112</span><span class="w">    </span><span class="c1"># Non-standard! All other services use PORT=</span>
+</code></pre></div>
+
+<hr />
+<h2 id="p2-medium-issues-4">P2 - MEDIUM Issues (4)<a class="headerlink" href="#p2-medium-issues-4" title="Permanent link">&para;</a></h2>
+<h3 id="10-inconsistent-database_url-formats">10. Inconsistent DATABASE_URL Formats<a class="headerlink" href="#10-inconsistent-database_url-formats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Format</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td><code>postgresql://...?sslmode=disable&amp;pgbouncer=true</code></td>
+<td>10</td>
+</tr>
+<tr>
+<td>Python (asyncpg)</td>
+<td><code>postgresql+asyncpg://...?ssl=disable</code></td>
+<td>billing-core only</td>
+</tr>
+<tr>
+<td>Python (standard)</td>
+<td><code>postgresql://...?sslmode=disable&amp;pgbouncer=true</code></td>
+<td>~30</td>
+</tr>
+</tbody>
+</table>
+<h3 id="11-v30-services-missing-database_url">11. v3.0 Services Missing DATABASE_URL<a class="headerlink" href="#11-v30-services-missing-database_url" title="Permanent link">&para;</a></h3>
+<p>4 services lack DATABASE_URL entirely: <code>irrigation-cycle-engine</code>, <code>iot-sensor-hub</code>,
+<code>fertigation-engine</code>, <code>digital-twin-engine</code>.</p>
+<h3 id="12-services-without-kong-routes">12. Services Without Kong Routes<a class="headerlink" href="#12-services-without-kong-routes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>8183</td>
+<td>Commented out in kong.yml</td>
+</tr>
+<tr>
+<td><code>iot-sensor-hub</code></td>
+<td>8251</td>
+<td>New v3.0 service</td>
+</tr>
+<tr>
+<td><code>fertigation-engine</code></td>
+<td>8252</td>
+<td>New v3.0 service</td>
+</tr>
+<tr>
+<td><code>irrigation-cycle-engine</code></td>
+<td>8250</td>
+<td>New v3.0 service</td>
+</tr>
+<tr>
+<td><code>digital-twin-engine</code></td>
+<td>8253</td>
+<td>New v3.0 service</td>
+</tr>
+<tr>
+<td><code>code-review-agent</code></td>
+<td>8145</td>
+<td>In .env only, not in docker-compose</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-ghost-service-reference-in-envexample">13. Ghost Service Reference in .env.example<a class="headerlink" href="#13-ghost-service-reference-in-envexample" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># .env.example line 1323:</span>
+<span class="na">CODE_REVIEW_AGENT_URL</span><span class="o">=</span><span class="s">http://code-review-agent:8145</span>
+</code></pre></div>
+
+<p><code>code-review-agent</code> (port 8145) does not exist in docker-compose.yml. Only <code>code-review-service</code> (port 8102) exists.</p>
+<hr />
+<h2 id="complete-port-matrix">Complete Port Matrix<a class="headerlink" href="#complete-port-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="infrastructure-services">Infrastructure Services<a class="headerlink" href="#infrastructure-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>docker-compose Port</th>
+<th>.env Port</th>
+<th>Kong Port</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>postgres</td>
+<td>5432</td>
+<td>5432</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>pgbouncer</td>
+<td>6432</td>
+<td>6432</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>redis</td>
+<td>6379, 6380</td>
+<td>6379, 6380</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>nats</td>
+<td>4222, 4223, 8222</td>
+<td>4222, 4223</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>vault</td>
+<td>8200</td>
+<td>8200</td>
+<td>N/A</td>
+<td>CONFLICT with mcp-server</td>
+</tr>
+<tr>
+<td>kong</td>
+<td>8000, 8001</td>
+<td>8000, 8001</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>qdrant</td>
+<td>6333, 6334</td>
+<td>6333</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>milvus</td>
+<td>19530, 9091</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>minio</td>
+<td>9000, 9090</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>mlflow</td>
+<td>5000</td>
+<td>5000</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>mqtt</td>
+<td>1883, 9001</td>
+<td>1883</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>ollama</td>
+<td>11434</td>
+<td>11434</td>
+<td>N/A</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<h3 id="nodejs-services">Node.js Services<a class="headerlink" href="#nodejs-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>docker-compose</th>
+<th>.env</th>
+<th>Kong</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-management-service</td>
+<td>3000</td>
+<td>3000</td>
+<td>3000</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>user-service</td>
+<td>3025</td>
+<td>3025</td>
+<td>3025</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>marketplace-service</td>
+<td>3010</td>
+<td>3010</td>
+<td>3010</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>research-core</td>
+<td>3015</td>
+<td>-</td>
+<td>3015</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>disaster-assessment</td>
+<td>3020</td>
+<td>-</td>
+<td>3020</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>chat-service</td>
+<td>8000 (host:8115)</td>
+<td>8000</td>
+<td><strong>8114</strong></td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>iot-service</td>
+<td>8117</td>
+<td>-</td>
+<td>8117</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-services">Python Services<a class="headerlink" href="#python-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>docker-compose</th>
+<th>.env</th>
+<th>Kong</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ws-gateway</td>
+<td>8081</td>
+<td>-</td>
+<td>8081</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td>8088 (host:8163)</td>
+<td>-</td>
+<td><strong>8163</strong></td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>billing-core</td>
+<td>8089</td>
+<td>-</td>
+<td>8089</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>8090</td>
+<td>8090</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td>8091</td>
+<td>8091</td>
+<td>8091</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>8092</td>
+<td>8092</td>
+<td>8092</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>8093</td>
+<td>8093</td>
+<td>8093</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>8094</td>
+<td>8094</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td>8095</td>
+<td>8095</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>field-chat</td>
+<td>8099</td>
+<td>-</td>
+<td>8099</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>equipment-service</td>
+<td>8101</td>
+<td>-</td>
+<td>8101</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>code-review-service</td>
+<td>8102</td>
+<td><strong>8124</strong></td>
+<td>8102</td>
+<td>.env MISMATCH</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>8103</td>
+<td>8103</td>
+<td>8103</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>provider-config</td>
+<td>8104</td>
+<td>-</td>
+<td>8104</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>8106</td>
+<td>8106</td>
+<td>8106</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>8110</td>
+<td>8110</td>
+<td>8110</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>8111</td>
+<td>8111</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>8112</td>
+<td>8112</td>
+<td>8112</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>8113</td>
+<td>8113</td>
+<td>8113</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>8114</td>
+<td>-</td>
+<td><strong>8122</strong></td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>8116</td>
+<td>-</td>
+<td>8116</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>ndvi-processor</td>
+<td>8118</td>
+<td>-</td>
+<td>8118</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>8119</td>
+<td>-</td>
+<td>8119</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>field-intelligence</td>
+<td>8120</td>
+<td>8120</td>
+<td>8120</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>skills-service</td>
+<td>8121</td>
+<td>8121</td>
+<td>8121</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>8123</td>
+<td>-</td>
+<td>8123</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td>8124</td>
+<td>-</td>
+<td>8124</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td>8125</td>
+<td>-</td>
+<td>8125</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>8126</td>
+<td>-</td>
+<td>8126</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>cooperative-service</td>
+<td>8127</td>
+<td>-</td>
+<td>8127</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>globalgap-compliance</td>
+<td>8128</td>
+<td>8128</td>
+<td><strong>8168</strong></td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>8130</td>
+<td>8130</td>
+<td>8130</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td>8131</td>
+<td>8131</td>
+<td>8131</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>lowcode-engine</td>
+<td>8132</td>
+<td>8132</td>
+<td>8132</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td>8133</td>
+<td>8133</td>
+<td>8133</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>knowledge-graph</td>
+<td>8140</td>
+<td>8140</td>
+<td>8140</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>yolo26-vision-service</td>
+<td>8150</td>
+<td>8150</td>
+<td>8150</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>yield-prediction-service</td>
+<td>8152</td>
+<td><strong>8098</strong></td>
+<td>8152</td>
+<td>.env MISMATCH</td>
+</tr>
+<tr>
+<td>agent-registry</td>
+<td>8160</td>
+<td>8160</td>
+<td>8160</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>ai-agents-core</td>
+<td>8161</td>
+<td>8161</td>
+<td>8161</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>code-fix-agent</td>
+<td>8162</td>
+<td>8162</td>
+<td>8162</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>llm-orchestrator-service</td>
+<td>8164</td>
+<td>-</td>
+<td>8164</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>8165</td>
+<td>8165</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>logistics-service</td>
+<td>8167</td>
+<td>8167</td>
+<td>8167</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td>8170</td>
+<td>8170</td>
+<td>8170</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td>8180</td>
+<td>8180</td>
+<td>8180</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>8182</td>
+<td>8182</td>
+<td>8182</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td>8230</td>
+<td>-</td>
+<td><strong>8166</strong></td>
+<td>MISMATCH</td>
+</tr>
+<tr>
+<td>terrain-core-service</td>
+<td>8185</td>
+<td>8185</td>
+<td>8185</td>
+<td>OK</td>
+</tr>
+<tr>
+<td>mcp-server</td>
+<td>8200</td>
+<td>8200</td>
+<td>8200</td>
+<td>CONFLICT with vault</td>
+</tr>
+<tr>
+<td>irrigation-cycle-engine</td>
+<td>8250</td>
+<td>-</td>
+<td>-</td>
+<td>No Kong route</td>
+</tr>
+<tr>
+<td>iot-sensor-hub</td>
+<td>8251</td>
+<td>-</td>
+<td>-</td>
+<td>No Kong route</td>
+</tr>
+<tr>
+<td>fertigation-engine</td>
+<td>8252</td>
+<td>-</td>
+<td>-</td>
+<td>No Kong route</td>
+</tr>
+<tr>
+<td>digital-twin-engine</td>
+<td>8253</td>
+<td>-</td>
+<td>-</td>
+<td>No Kong route</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0 - Critical</strong></td>
+<td><strong>8</strong></td>
+<td>5 Kong wrong ports + 2 wrong URLs + hardcoded credentials</td>
+</tr>
+<tr>
+<td><strong>P1 - High</strong></td>
+<td><strong>6</strong></td>
+<td>JWT conflict + CORS duplicate + Auth URL + no-auth + port conflicts + SERVICE_PORT</td>
+</tr>
+<tr>
+<td><strong>P2 - Medium</strong></td>
+<td><strong>4</strong></td>
+<td>DATABASE_URL formats + missing DB URLs + no Kong routes + ghost service</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>18</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>Report generated: 2026-02-13</em>
+<em>Auditor: Claude Code (Opus 4.6)</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

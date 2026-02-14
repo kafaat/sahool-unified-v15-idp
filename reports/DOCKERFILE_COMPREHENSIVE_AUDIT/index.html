@@ -1,0 +1,2978 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>تقرير تدقيق شامل لجميع ملفات Docker | Comprehensive Dockerfile Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-comprehensive-dockerfile-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              تقرير تدقيق شامل لجميع ملفات Docker | Comprehensive Dockerfile Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="docker-comprehensive-dockerfile-audit-report">تقرير تدقيق شامل لجميع ملفات Docker | Comprehensive Dockerfile Audit Report<a class="headerlink" href="#docker-comprehensive-dockerfile-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>المنصة</strong>: SAHOOL v16.0.0 - National Agricultural Intelligence Platform
+<strong>تاريخ التدقيق</strong>: 2026-02-13
+<strong>النطاق</strong>: جميع 82 Dockerfile في المستودع (78 خدمة نشطة + 4 بنية تحتية/قوالب)
+<strong>المدقق</strong>: Claude AI Audit Agent</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تم تدقيق <strong>82 Dockerfile</strong> تغطي 78 خدمة نشطة + 4 ملفات بنية تحتية وقوالب. يشمل التدقيق:
+- <strong>3 صور قاعدة</strong> (Python Base, Node.js Base, AI Base)
+- <strong>55 خدمة Python</strong> (FastAPI)
+- <strong>13 خدمة Node.js</strong> (NestJS)
+- <strong>1 خدمة Vision متخصصة</strong> (CUDA/GPU)
+- <strong>6 بنية تحتية + قوالب</strong> (PostgreSQL, Test Runner, IDP Template)
+- <strong>4 صور Shared/Utility</strong></p>
+<h3 id="_1">نتيجة التدقيق الإجمالية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>النسبة</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HEALTHCHECK موجود</td>
+<td>79/82 (96%)</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>مستخدم غير root</td>
+<td>82/82 (100%)</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>Multi-stage build</td>
+<td>28/82 (34%)</td>
+<td>ضعيف</td>
+</tr>
+<tr>
+<td>Multi-mirror pip fallback</td>
+<td>42/55 (76%)</td>
+<td>مقبول</td>
+</tr>
+<tr>
+<td>Constraints file مستخدم</td>
+<td>6/55 (11%)</td>
+<td>ضعيف جداً</td>
+</tr>
+<tr>
+<td>نسخ shared/</td>
+<td>48/55 (87%)</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>اسم مستخدم sahool موحد</td>
+<td>64/82 (78%)</td>
+<td>يحتاج تحسين</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-base-images">القسم 1: صور القاعدة | Base Images<a class="headerlink" href="#1-base-images" title="Permanent link">&para;</a></h2>
+<h3 id="11-dockerfilepythonbase-docker">1.1 Dockerfile.python.base (<code>docker/</code>)<a class="headerlink" href="#11-dockerfilepythonbase-docker" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>python:3.11-slim</code></td>
+<td>⚠️ يجب أن تكون <code>slim-bookworm</code></td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>✅ 3 مراحل (base → dependencies → production)</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>✅ curl على <code>/healthz</code></td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>مستخدم</td>
+<td>✅ sahool:1000</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>pip mirrors</td>
+<td>❌ لا يوجد mirror خارجي، يعتمد على PyPI فقط</td>
+<td>يحتاج إصلاح</td>
+</tr>
+<tr>
+<td>pip.conf</td>
+<td>✅ timeout=300, retries=10, prefer-binary</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>shared/</td>
+<td>✅ ينسخ <code>shared/</code> إلى <code>/app/shared/</code></td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>constraints</td>
+<td>❌ لا يستخدم constraints.txt</td>
+<td>يحتاج إضافة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>أوجه القصور</strong>:
+1. لا يحدد <code>-bookworm</code> بالاسم الصريح (قد يتغير في المستقبل)
+2. لا يستخدم mirror fallback (مشكلة في المنطقة العربية)
+3. لا يستخدم constraints file
+4. لا يوجد <code>PYTHONFAULTHANDLER=1</code> (موجود في AI base)</p>
+<hr />
+<h3 id="12-dockerfilenodebase-docker">1.2 Dockerfile.node.base (<code>docker/</code>)<a class="headerlink" href="#12-dockerfilenodebase-docker" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>node:20-slim</code></td>
+<td>⚠️ يجب تحديد <code>bookworm-slim</code></td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>✅ 4 مراحل (base → dependencies → builder → production)</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>✅ curl على <code>/healthz</code></td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>مستخدم</td>
+<td>✅ sahool:1000</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>npm mirror</td>
+<td>❌ لا يوجد npm mirror</td>
+<td>يحتاج إصلاح</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>✅ يبني TypeScript ثم ينسخ dist فقط</td>
+<td>جيد</td>
+</tr>
+</tbody>
+</table>
+<p><strong>أوجه القصور</strong>:
+1. لا يستخدم npm mirror (npmmirror.com)
+2. يستخدم <code>npm ci</code> بدون <code>--legacy-peer-deps</code> (قد يفشل)
+3. لا يوجد retry logic لـ npm install</p>
+<hr />
+<h3 id="13-dockerfileai-base-docker">1.3 Dockerfile.ai-base (<code>docker/</code>)<a class="headerlink" href="#13-dockerfileai-base-docker" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>python:3.11-slim-bookworm</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>✅ 3 مراحل (base → builder → runtime)</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>✅ Python urllib</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>مستخدم</td>
+<td>✅ sahool:1000</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>pip mirrors</td>
+<td>✅ Aliyun + Tsinghua + PyPI</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>pip.conf</td>
+<td>✅ شامل مع prefer-binary</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>venv</td>
+<td>✅ يستخدم virtual environment</td>
+<td>أفضل ممارسة</td>
+</tr>
+<tr>
+<td>constraints</td>
+<td>✅ يستخدم <code>constraints-ai.txt</code></td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>OCI Labels</td>
+<td>✅ كاملة</td>
+<td>جيد</td>
+</tr>
+</tbody>
+</table>
+<p><strong>هذه الصورة هي المرجع الذهبي (Gold Standard)</strong> - يجب أن تحتذي بها باقي الصور.</p>
+<hr />
+<h3 id="14-dockerfilewalg-postgresql-configpostgres">1.4 Dockerfile.walg - PostgreSQL (<code>config/postgres/</code>)<a class="headerlink" href="#14-dockerfilewalg-postgresql-configpostgres" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>postgis/postgis:16-3.4</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td>WAL-G</td>
+<td>✅ v2.0.1 مع دعم arm64/amd64</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>AWS CLI</td>
+<td>✅ للعمليات الاحتياطية</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>الأمان</td>
+<td>✅ ملكية postgres:postgres</td>
+<td>جيد</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>❌ غير موجود</td>
+<td>يحتاج إضافة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>أوجه القصور</strong>:
+1. لا يوجد HEALTHCHECK (يجب إضافة <code>pg_isready</code>)
+2. يثبت <code>unzip</code> ضمنياً لكن لا يزيله بعد الاستخدام
+3. لا يوجد pinning لإصدار AWS CLI</p>
+<hr />
+<h2 id="2-python-python-services-detail">القسم 2: خدمات Python التفصيلية | Python Services Detail<a class="headerlink" href="#2-python-python-services-detail" title="Permanent link">&para;</a></h2>
+<h3 id="21-python">2.1 جدول التدقيق الشامل لخدمات Python<a class="headerlink" href="#21-python" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>Multi-Stage</th>
+<th>HEALTHCHECK</th>
+<th>المستخدم</th>
+<th>Mirror Pattern</th>
+<th>shared/</th>
+<th>constraints</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>advisory-service</td>
+<td>8093</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>2</td>
+<td>agent-registry</td>
+<td>8160</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>3</td>
+<td>agro-advisor</td>
+<td>8105</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>مهمل</td>
+</tr>
+<tr>
+<td>4</td>
+<td>agro-rules</td>
+<td>-</td>
+<td>❌</td>
+<td>✅ (pgrep)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>❌</td>
+<td>❌</td>
+<td>فارغ</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>ai-advisor</strong></td>
+<td>8112</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>✅ Aliyun+Tsinghua</td>
+<td>✅</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ai-agents-core</td>
+<td>8161</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>ai-agents-service</strong></td>
+<td>8130</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>✅ Aliyun+Tsinghua</td>
+<td>✅</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>8</td>
+<td>ai-chat-assistant</td>
+<td>8230</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>❌ لا يوجد</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>9</td>
+<td>alert-service</td>
+<td>8113</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>10</td>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>❌</td>
+<td>✅ (httpx)</td>
+<td>⚠️ appuser</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>11</td>
+<td>audit-service</td>
+<td>8114</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>12</td>
+<td>billing-core</td>
+<td>8089</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>code-fix-agent</strong></td>
+<td>8162</td>
+<td>✅</td>
+<td>✅ (httpx)</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>14</td>
+<td>code-review-service</td>
+<td>8102</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>15</td>
+<td>cooperative-service</td>
+<td>8127</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>⚠️ appuser</td>
+<td>❌ Tsinghua فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>هيكل</td>
+</tr>
+<tr>
+<td>16</td>
+<td><strong>copilot-api</strong></td>
+<td>8088</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>⚠️ copilot</td>
+<td>B (Aliyun)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>17</td>
+<td>crm-service</td>
+<td>8131</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>crop-intelligence-service</strong></td>
+<td>8095</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (pip.conf)</td>
+<td>⚠️ جزئي</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>19</td>
+<td>demo-data</td>
+<td>-</td>
+<td>❌</td>
+<td>✅ (pgrep)</td>
+<td>⚠️ appuser</td>
+<td>B (Aliyun)</td>
+<td>❌</td>
+<td>❌</td>
+<td>فارغ</td>
+</tr>
+<tr>
+<td>20</td>
+<td>digital-twin-engine</td>
+<td>8253</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>21</td>
+<td>drone-service</td>
+<td>8172</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>⚠️ appuser</td>
+<td>❌ Tsinghua فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>هيكل</td>
+</tr>
+<tr>
+<td>22</td>
+<td>equipment-service</td>
+<td>8101</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>23</td>
+<td>fertigation-engine</td>
+<td>8252</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>24</td>
+<td>field-chat</td>
+<td>8099</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>field-intelligence</strong></td>
+<td>8120</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (pip.conf)</td>
+<td>⚠️ جزئي</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>26</td>
+<td>globalgap-compliance</td>
+<td>8128</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>27</td>
+<td><strong>ground-vision-service</strong></td>
+<td>8182</td>
+<td>✅</td>
+<td>✅</td>
+<td>⚠️ appuser</td>
+<td>B (Aliyun)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>28</td>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>29</td>
+<td>indicators-service</td>
+<td>8091</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>30</td>
+<td>inventory-service</td>
+<td>8116</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (workaround)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>31</td>
+<td>iot-gateway</td>
+<td>8106</td>
+<td>❌</td>
+<td>✅ (custom)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>32</td>
+<td>iot-sensor-hub</td>
+<td>8251</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>33</td>
+<td>irrigation-cycle-engine</td>
+<td>8250</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>34</td>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>35</td>
+<td><strong>knowledge-graph</strong></td>
+<td>8140</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>36</td>
+<td><strong>llm-orchestrator-service</strong></td>
+<td>8164</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (pip.conf)</td>
+<td>✅</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>37</td>
+<td>logistics-service</td>
+<td>8167</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>38</td>
+<td>lowcode-engine</td>
+<td>8132</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>39</td>
+<td>mcp-server</td>
+<td>8200</td>
+<td>❌</td>
+<td>✅ (httpx)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>هيكل</td>
+</tr>
+<tr>
+<td>40</td>
+<td>ndvi-engine</td>
+<td>8107</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>مهمل</td>
+</tr>
+<tr>
+<td>41</td>
+<td>ndvi-processor</td>
+<td>8118</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (workaround)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>42</td>
+<td>notification-service</td>
+<td>8110</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>43</td>
+<td>pest-detection-service</td>
+<td>8125</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>❌ Tsinghua فقط</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>44</td>
+<td>provider-config</td>
+<td>8104</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (workaround)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>45</td>
+<td>skills-service</td>
+<td>8121</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>46</td>
+<td>soil-analysis-service</td>
+<td>8124</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>⚠️ appuser</td>
+<td>❌ Tsinghua فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>هيكل</td>
+</tr>
+<tr>
+<td>47</td>
+<td>supply-chain-service</td>
+<td>8230</td>
+<td>✅</td>
+<td>✅</td>
+<td>⚠️ appuser</td>
+<td>B (Aliyun)</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>48</td>
+<td>task-service</td>
+<td>8103</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>49</td>
+<td>terrain-core-service</td>
+<td>8185</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (workaround)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>50</td>
+<td>traceability-service</td>
+<td>8123</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>⚠️ appuser</td>
+<td>❌ Tsinghua فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>هيكل</td>
+</tr>
+<tr>
+<td>51</td>
+<td>ussd-gateway</td>
+<td>8183</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>52</td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>✅ (مكرر)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>53</td>
+<td><strong>virtual-sensors</strong></td>
+<td>8119</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>54</td>
+<td><strong>weather-core</strong></td>
+<td>8092</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>مهمل</td>
+</tr>
+<tr>
+<td>55</td>
+<td><strong>weather-service</strong></td>
+<td>8092</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>56</td>
+<td>wechat-service</td>
+<td>8133</td>
+<td>❌</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>57</td>
+<td><strong>whatsapp-bot-service</strong></td>
+<td>8240</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>✅</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>58</td>
+<td>ws-gateway</td>
+<td>8081</td>
+<td>❌</td>
+<td>✅</td>
+<td>sahool</td>
+<td>A (multi)</td>
+<td>✅ (workaround)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>59</td>
+<td><strong>yield-engine</strong></td>
+<td>8098</td>
+<td>✅</td>
+<td>✅</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>⚠️ جزئي</td>
+<td>❌</td>
+<td>مهمل</td>
+</tr>
+<tr>
+<td>60</td>
+<td>yield-prediction-service</td>
+<td>8152</td>
+<td>✅</td>
+<td>✅</td>
+<td>node</td>
+<td>npm mirror</td>
+<td>N/A</td>
+<td>❌</td>
+<td>نشط (Node.js)</td>
+</tr>
+<tr>
+<td>61</td>
+<td><strong>edge-orchestrator-service</strong></td>
+<td>8180</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>sahool</td>
+<td>B (Aliyun)</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>62</td>
+<td><strong>leveling-optimizer-service</strong></td>
+<td>8170</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>⚠️ appuser</td>
+<td>❌ Tsinghua فقط</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الخدمات المميزة بالخط العريض</strong> = تستخدم multi-stage build</p>
+<hr />
+<h2 id="3-nodejs-nodejs-services-detail">القسم 3: خدمات Node.js التفصيلية | Node.js Services Detail<a class="headerlink" href="#3-nodejs-nodejs-services-detail" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخدمة</th>
+<th>المنفذ</th>
+<th>Multi-Stage</th>
+<th>HEALTHCHECK</th>
+<th>المستخدم</th>
+<th>npm mirror</th>
+<th>Prisma</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>✅</td>
+<td>✅ (Node.js)</td>
+<td>sahool</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>2</td>
+<td>user-service</td>
+<td>3025</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>3</td>
+<td>chat-service</td>
+<td>8000</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>4</td>
+<td>community-chat</td>
+<td>8097</td>
+<td>✅</td>
+<td>✅ (Node.js)</td>
+<td>nodejs:1001</td>
+<td>❌</td>
+<td>✅</td>
+<td>مهمل/فارغ</td>
+</tr>
+<tr>
+<td>5</td>
+<td>crop-growth-model</td>
+<td>3023</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>✅ (Taobao)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>6</td>
+<td>disaster-assessment</td>
+<td>3020</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>7</td>
+<td>iot-service</td>
+<td>8117</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>nodejs:1001</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>8</td>
+<td>lai-estimation</td>
+<td>3022</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>✅ (Taobao)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>9</td>
+<td>marketplace-service</td>
+<td>3010</td>
+<td>✅</td>
+<td>✅ (fetch)</td>
+<td>node</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>10</td>
+<td>research-core</td>
+<td>3015</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>❌</td>
+<td>✅</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>11</td>
+<td>yield-prediction</td>
+<td>3021</td>
+<td>✅</td>
+<td>✅ (curl)</td>
+<td>node</td>
+<td>✅ (Taobao)</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>12</td>
+<td>admin (Next.js)</td>
+<td>3001</td>
+<td>✅ (3 مراحل)</td>
+<td>✅ (wget)</td>
+<td>nextjs:1001</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+<tr>
+<td>13</td>
+<td>code-review-agent</td>
+<td>-</td>
+<td>✅</td>
+<td>✅</td>
+<td>agent</td>
+<td>❌</td>
+<td>❌</td>
+<td>نشط</td>
+</tr>
+</tbody>
+</table>
+<p><strong>ملاحظة</strong>: جميع خدمات Node.js تستخدم multi-stage build ✅</p>
+<hr />
+<h2 id="4-yolo26-vision">القسم 4: خدمة YOLO26 Vision المتخصصة<a class="headerlink" href="#4-yolo26-vision" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>القيمة</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td>المراحل</td>
+<td><strong>5 مراحل</strong> (base→builder→production→development→cpu-only)</td>
+<td>✅ الأفضل</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>✅ curl</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>المستخدم</td>
+<td>✅ sahool:1000</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>pip mirrors</td>
+<td>✅ Aliyun + Tsinghua + PyPI</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>constraints</td>
+<td>✅ <code>constraints-ai.txt</code></td>
+<td>✅</td>
+</tr>
+<tr>
+<td>GPU</td>
+<td>✅ CUDA 12.1 + cuDNN 8 + PyTorch</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CPU variant</td>
+<td>✅ مرحلة cpu-only بديلة</td>
+<td>ممتاز</td>
+</tr>
+<tr>
+<td>Dev stage</td>
+<td>✅ مرحلة development للتطوير</td>
+<td>ممتاز</td>
+</tr>
+</tbody>
+</table>
+<p><strong>هذه هي أفضل Dockerfile في المشروع</strong> - نموذج يُحتذى به.</p>
+<hr />
+<h2 id="5-deficiency-analysis">القسم 5: تحليل أوجه القصور | Deficiency Analysis<a class="headerlink" href="#5-deficiency-analysis" title="Permanent link">&para;</a></h2>
+<h3 id="51-critical">5.1 مشاكل حرجة (Critical) 🔴<a class="headerlink" href="#51-critical" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>عدد الخدمات المتأثرة</th>
+<th>الخدمات</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>لا يوجد pip mirror (يفشل في المنطقة العربية)</strong></td>
+<td>4</td>
+<td>ai-chat-assistant, cooperative-service, drone-service, soil-analysis-service</td>
+</tr>
+<tr>
+<td><strong>mirror واحد فقط (Tsinghua) - نقطة فشل واحدة</strong></td>
+<td>5</td>
+<td>cooperative-service, drone-service, pest-detection-service, soil-analysis-service, traceability-service, leveling-optimizer-service</td>
+</tr>
+<tr>
+<td><strong>لا ينسخ shared/ (يفشل عند التشغيل)</strong></td>
+<td>8</td>
+<td>ai-chat-assistant, cooperative-service, drone-service, soil-analysis-service, traceability-service, supply-chain-service, edge-orchestrator-service, leveling-optimizer-service</td>
+</tr>
+<tr>
+<td><strong>تعارض منافذ</strong></td>
+<td>2</td>
+<td>ai-chat-assistant و supply-chain-service كلاهما على المنفذ 8230</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-medium">5.2 مشاكل متوسطة (Medium) 🟡<a class="headerlink" href="#52-medium" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>عدد الخدمات المتأثرة</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>لا يستخدم multi-stage build</strong></td>
+<td>37/55 Python (67%)</td>
+<td>حجم صورة أكبر، أمان أقل</td>
+</tr>
+<tr>
+<td><strong>لا يستخدم constraints file</strong></td>
+<td>49/55 Python (89%)</td>
+<td>إصدارات غير مثبتة، مشاكل توافق</td>
+</tr>
+<tr>
+<td><strong>مستخدم غير sahool</strong></td>
+<td>12 خدمة</td>
+<td>عدم اتساق، مشاكل صلاحيات</td>
+</tr>
+<tr>
+<td><strong>نسخ shared/ مكرر (root + apps/services/)</strong></td>
+<td>15 خدمة</td>
+<td>زيادة حجم الصورة بلا فائدة</td>
+</tr>
+<tr>
+<td><strong>لا يوجد npm mirror</strong></td>
+<td>10/13 Node.js</td>
+<td>فشل البناء في المنطقة</td>
+</tr>
+<tr>
+<td><strong>يستخدم <code>node</code> بدل <code>sahool</code></strong></td>
+<td>8/13 Node.js</td>
+<td>عدم اتساق مع المعيار</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-low">5.3 مشاكل منخفضة (Low) 🟢<a class="headerlink" href="#53-low" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المشكلة</th>
+<th>عدد الخدمات المتأثرة</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>HEALTHCHECK بطرق مختلفة</strong></td>
+<td>كل الخدمات</td>
+<td>عدم اتساق (curl vs urllib vs httpx vs pgrep)</td>
+</tr>
+<tr>
+<td><strong>CMD بأنماط مختلفة</strong></td>
+<td>كل الخدمات</td>
+<td><code>uvicorn</code> vs <code>python -m uvicorn</code> vs <code>sh -c</code></td>
+</tr>
+<tr>
+<td><strong>PORT متغير vs ثابت</strong></td>
+<td>كل الخدمات</td>
+<td><code>${PORT:-8XXX}</code> vs hardcoded</td>
+</tr>
+<tr>
+<td><strong>Alpine vs Bookworm</strong></td>
+<td>Node.js</td>
+<td>صور مختلفة لنفس النوع</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-pip-mirror">القسم 6: توزيع أنماط pip Mirror<a class="headerlink" href="#6-pip-mirror" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>Pattern A (Multi-Mirror Fallback): ███████████████████████████████████████████░ 42 خدمة (76%)
+PyPI → Aliyun → Tencent (الأفضل)
+
+Pattern B (Aliyun/Tsinghua فقط):   ████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 8 خدمات (15%)
+mirror واحد (مقبول)
+
+Pattern C (لا يوجد mirror):         ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 4 خدمات (7%)
+⛔ خطر فشل البناء
+
+Pattern D (Tsinghua فقط):           ████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ 5 خدمات (9%)
+⚠️ نقطة فشل واحدة
+</code></pre></div>
+
+<hr />
+<h2 id="7">القسم 7: توزيع المستخدمين<a class="headerlink" href="#7" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="n">sahool</span><span class="o">:</span><span class="mi">1000</span><span class="w">   </span><span class="err">████████████████████████████████████████████████████████████████</span><span class="w"> </span><span class="mi">64</span><span class="w"> </span><span class="err">خدمة</span><span class="w"> </span><span class="o">(</span><span class="mi">78</span><span class="o">%)</span>
+<span class="n">node</span><span class="w"> </span><span class="o">(</span><span class="n">builtin</span><span class="o">)</span><span class="w"> </span><span class="err">████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="err">خدمات</span><span class="w"> </span><span class="o">(</span><span class="mi">10</span><span class="o">%)</span>
+<span class="n">appuser</span><span class="o">:</span><span class="mi">1000</span><span class="w">  </span><span class="err">████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="w"> </span><span class="mi">8</span><span class="w"> </span><span class="err">خدمات</span><span class="w"> </span><span class="o">(</span><span class="mi">10</span><span class="o">%)</span>
+<span class="err">أخرى</span><span class="w">          </span><span class="err">██░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="err">خدمة</span><span class="w"> </span><span class="o">(</span><span class="mi">2</span><span class="o">%)</span>
+</code></pre></div>
+
+<p>الخدمات التي تستخدم مستخدم غير <code>sahool</code>:
+- <code>appuser</code>: astronomical-calendar, cooperative-service, demo-data, drone-service, ground-vision-service, soil-analysis-service, supply-chain-service, traceability-service, leveling-optimizer-service
+- <code>copilot</code>: copilot-api
+- <code>node</code>: user-service, chat-service, crop-growth-model, disaster-assessment, lai-estimation, marketplace-service, research-core, yield-prediction
+- <code>nodejs</code>: community-chat, iot-service
+- <code>nextjs</code>: admin
+- <code>agent</code>: code-review-agent</p>
+<hr />
+<h2 id="8-vs">القسم 8: مقارنة كيف يجب أن تكون vs الواقع<a class="headerlink" href="#8-vs" title="Permanent link">&para;</a></h2>
+<h3 id="81-dockerfile-python">8.1 Dockerfile المثالي لخدمة Python (المعيار)<a class="headerlink" href="#81-dockerfile-python" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c"># المعيار الذهبي - بناءً على ai-advisor و yolo26-vision-service</span>
+<span class="k">ARG</span><span class="w"> </span><span class="nv">PYTHON_VERSION</span><span class="o">=</span><span class="m">3</span>.11
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:${PYTHON_VERSION}-slim-bookworm</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">base</span>
+
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PYTHONDONTWRITEBYTECODE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">PYTHONUNBUFFERED</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">PYTHONFAULTHANDLER</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">PIP_NO_CACHE_DIR</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span><span class="nv">PIP_DISABLE_PIP_VERSION_CHECK</span><span class="o">=</span><span class="m">1</span>
+
+<span class="k">RUN</span><span class="w"> </span>apt-get<span class="w"> </span>update<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span>--no-install-recommends<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>ca-certificates<span class="w"> </span>curl<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>rm<span class="w"> </span>-rf<span class="w"> </span>/var/lib/apt/lists/*
+
+<span class="k">RUN</span><span class="w"> </span>groupadd<span class="w"> </span>--system<span class="w"> </span>--gid<span class="w"> </span><span class="m">1000</span><span class="w"> </span>sahool<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>useradd<span class="w"> </span>--system<span class="w"> </span>--uid<span class="w"> </span><span class="m">1000</span><span class="w"> </span>--gid<span class="w"> </span>sahool<span class="w"> </span>--shell<span class="w"> </span>/bin/bash<span class="w"> </span>--create-home<span class="w"> </span>sahool
+
+<span class="c"># --- Builder Stage ---</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/home/sahool</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">VIRTUAL_ENV</span><span class="o">=</span>/home/sahool/venv
+<span class="k">RUN</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span><span class="nv">$VIRTUAL_ENV</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+
+<span class="c"># pip.conf مع mirrors متعددة</span>
+<span class="k">RUN</span><span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>~/.pip<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>cat<span class="w"> </span>&gt;<span class="w"> </span>~/.pip/pip.conf<span class="w"> </span>&lt;&lt;<span class="s1">&#39;EOF&#39;</span>
+<span class="o">[</span>global<span class="o">]</span>
+<span class="nv">timeout</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">300</span>
+<span class="nv">retries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="m">10</span>
+index-url<span class="w"> </span><span class="o">=</span><span class="w"> </span>https://mirrors.aliyun.com/pypi/simple/
+extra-index-url<span class="w"> </span><span class="o">=</span><span class="w"> </span>https://pypi.tuna.tsinghua.edu.cn/simple/
+<span class="w">                  </span>https://pypi.org/simple/
+trusted-host<span class="w"> </span><span class="o">=</span><span class="w"> </span>mirrors.aliyun.com
+<span class="w">               </span>pypi.tuna.tsinghua.edu.cn
+<span class="w">               </span>pypi.org
+<span class="w">               </span>files.pythonhosted.org
+<span class="o">[</span>install<span class="o">]</span>
+prefer-binary<span class="w"> </span><span class="o">=</span><span class="w"> </span>true
+EOF
+
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>constraints.txt<span class="w"> </span>/tmp/
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>requirements.txt<span class="w"> </span>.
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>-c<span class="w"> </span>/tmp/constraints.txt<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c"># --- Production Stage ---</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">base</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">production</span>
+<span class="k">ARG</span><span class="w"> </span><span class="nv">SERVICE_NAME</span><span class="o">=</span>service-name
+<span class="k">ARG</span><span class="w"> </span><span class="nv">SERVICE_VERSION</span><span class="o">=</span><span class="m">16</span>.0.0
+<span class="k">LABEL</span><span class="w"> </span>org.opencontainers.image.title<span class="o">=</span><span class="s2">&quot;SAHOOL </span><span class="si">${</span><span class="nv">SERVICE_NAME</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>org.opencontainers.image.version<span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SERVICE_VERSION</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>org.opencontainers.image.vendor<span class="o">=</span><span class="s2">&quot;KAFAAT&quot;</span>
+
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>/home/sahool/venv<span class="w"> </span>/home/sahool/venv
+<span class="k">ENV</span><span class="w"> </span><span class="nv">VIRTUAL_ENV</span><span class="o">=</span>/home/sahool/venv
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$VIRTUAL_ENV</span><span class="s2">/bin:</span><span class="nv">$PATH</span><span class="s2">&quot;</span>
+<span class="k">ENV</span><span class="w"> </span><span class="nv">PYTHONPATH</span><span class="o">=</span>/app
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>shared/<span class="w"> </span>/app/shared/
+<span class="k">COPY</span><span class="w"> </span>--chown<span class="o">=</span>sahool:sahool<span class="w"> </span>src/<span class="w"> </span>/app/src/
+
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">8XXX</span>
+
+<span class="k">HEALTHCHECK</span><span class="w"> </span>--interval<span class="o">=</span>30s<span class="w"> </span>--timeout<span class="o">=</span>10s<span class="w"> </span>--start-period<span class="o">=</span>30s<span class="w"> </span>--retries<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>CMD<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import urllib.request; urllib.request.urlopen(&#39;http://localhost:8XXX/healthz&#39;)&quot;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span>
+
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8XXX&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="82">8.2 فجوة المطابقة مع المعيار<a class="headerlink" href="#82" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>يجب</th>
+<th>الواقع</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-stage build</td>
+<td>✅ لكل خدمة</td>
+<td>18/55 (33%)</td>
+<td><strong>67% لا يستخدمه</strong></td>
+</tr>
+<tr>
+<td>Virtual environment</td>
+<td>✅ لكل خدمة</td>
+<td>~10/55 (18%)</td>
+<td><strong>82% لا يستخدمه</strong></td>
+</tr>
+<tr>
+<td>constraints.txt</td>
+<td>✅ لكل خدمة</td>
+<td>6/55 (11%)</td>
+<td><strong>89% لا يستخدمه</strong></td>
+</tr>
+<tr>
+<td>Multi-mirror pip</td>
+<td>✅ لكل خدمة</td>
+<td>42/55 (76%)</td>
+<td>24% يحتاج إصلاح</td>
+</tr>
+<tr>
+<td>sahool:1000 user</td>
+<td>✅ لكل خدمة</td>
+<td>64/82 (78%)</td>
+<td>22% يحتاج توحيد</td>
+</tr>
+<tr>
+<td>OCI Labels</td>
+<td>✅ لكل خدمة</td>
+<td>~15/82 (18%)</td>
+<td><strong>82% بدون labels</strong></td>
+</tr>
+<tr>
+<td>EXPOSE + ENV PORT</td>
+<td>✅ لكل خدمة</td>
+<td>~50/82 (61%)</td>
+<td>39% بدون ENV PORT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9">القسم 9: الخدمات حسب حالة الاكتمال<a class="headerlink" href="#9" title="Permanent link">&para;</a></h2>
+<h3 id="91-a-grade-">9.1 خدمات ممتازة (A+ Grade) - نموذج يُحتذى<a class="headerlink" href="#91-a-grade-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>السبب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yolo26-vision-service</td>
+<td>5 مراحل، constraints، GPU+CPU، dev stage</td>
+</tr>
+<tr>
+<td>ai-advisor</td>
+<td>multi-stage، venv، constraints، bilingual labels</td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>multi-stage، constraints، curl health</td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>multi-stage، venv، pip.conf، dual shared</td>
+</tr>
+<tr>
+<td>llm-orchestrator-service</td>
+<td>multi-stage، constraints-ai.txt، pip.conf</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-b-grade-">9.2 خدمات جيدة (B Grade) - تحتاج تحسينات بسيطة<a class="headerlink" href="#92-b-grade-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>ما ينقصها</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>field-management-service</td>
+<td>npm mirror</td>
+</tr>
+<tr>
+<td>knowledge-graph</td>
+<td>constraints file</td>
+</tr>
+<tr>
+<td>whatsapp-bot-service</td>
+<td>Aliyun فقط</td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td>مستخدم copilot بدل sahool</td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>shared/ جزئي</td>
+</tr>
+</tbody>
+</table>
+<h3 id="93-c-grade-">9.3 خدمات مقبولة (C Grade) - تحتاج عمل<a class="headerlink" href="#93-c-grade-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المشاكل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>advisory-service, alert-service, billing-core, equipment-service, etc.</td>
+<td>لا multi-stage، لا constraints</td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>Aliyun فقط، لا multi-stage</td>
+</tr>
+</tbody>
+</table>
+<h3 id="94-d-grade-">9.4 خدمات ضعيفة (D Grade) - تحتاج إعادة بناء<a class="headerlink" href="#94-d-grade-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>المشاكل الحرجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai-chat-assistant</td>
+<td>لا mirror، لا shared/، تعارض منفذ 8230</td>
+</tr>
+<tr>
+<td>cooperative-service</td>
+<td>Tsinghua فقط، appuser، لا shared/</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>Tsinghua فقط، appuser، لا shared/</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td>Tsinghua فقط، appuser، لا shared/، curl</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>Tsinghua فقط، appuser، لا shared/</td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td>Tsinghua فقط، appuser/appgroup، لا shared/</td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td>Aliyun فقط، appuser، لا shared/، تعارض منفذ 8230</td>
+</tr>
+</tbody>
+</table>
+<h3 id="95">9.5 خدمات فارغة/مهملة (لا تحتاج تدقيق)<a class="headerlink" href="#95" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخدمة</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>agro-rules</td>
+<td>فارغ (worker فقط)</td>
+</tr>
+<tr>
+<td>demo-data</td>
+<td>فارغ</td>
+</tr>
+<tr>
+<td>community-chat</td>
+<td>فارغ/مهمل</td>
+</tr>
+<tr>
+<td>agro-advisor</td>
+<td>مهمل → advisory-service</td>
+</tr>
+<tr>
+<td>ndvi-engine</td>
+<td>مهمل → vegetation-analysis-service</td>
+</tr>
+<tr>
+<td>weather-core</td>
+<td>مهمل → weather-service</td>
+</tr>
+<tr>
+<td>yield-engine</td>
+<td>مهمل → yield-prediction-service</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-idp-dockerfiletest">القسم 10: قالب IDP و Dockerfile.test<a class="headerlink" href="#10-idp-dockerfiletest" title="Permanent link">&para;</a></h2>
+<h3 id="101-idp-template-idptemplatespython-fastapiskeletondockerfile">10.1 IDP Template (<code>idp/templates/python-fastapi/skeleton/Dockerfile</code>)<a class="headerlink" href="#101-idp-template-idptemplatespython-fastapiskeletondockerfile" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>python:3.11-slim</code> (يجب bookworm)</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>❌ غير موجود</td>
+</tr>
+<tr>
+<td>مستخدم</td>
+<td>✅ sahool</td>
+</tr>
+<tr>
+<td>pip mirror</td>
+<td>❌ لا يوجد</td>
+</tr>
+<tr>
+<td>CMD</td>
+<td><code>python -m src.main</code> (يجب uvicorn)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>⛔ هذا القالب يُنشئ خدمات ناقصة</strong> - يجب تحديثه ليطابق المعيار الذهبي.</p>
+<h3 id="102-dockerfiletest">10.2 Dockerfile.test (الجذر)<a class="headerlink" href="#102-dockerfiletest" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>البند</th>
+<th>التقييم</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>الصورة</td>
+<td><code>python:3.11-slim</code></td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>❌ (طبيعي لحاوية اختبار)</td>
+</tr>
+<tr>
+<td>مستخدم</td>
+<td>✅ sahool</td>
+</tr>
+<tr>
+<td>pip mirror</td>
+<td>❌ لا يوجد</td>
+</tr>
+<tr>
+<td>محتوى</td>
+<td>✅ ينسخ tests/, apps/, packages/, shared/</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-recommendations">القسم 11: التوصيات | Recommendations<a class="headerlink" href="#11-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="111-sprint-1-">11.1 إجراءات فورية (Sprint 1 - أسبوع)<a class="headerlink" href="#111-sprint-1-" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إصلاح تعارض المنافذ</strong>: ai-chat-assistant (8230) و supply-chain-service (8230) - يجب تغيير أحدهما</li>
+<li><strong>إضافة shared/ للخدمات المفقودة</strong>: 8 خدمات تحتاج COPY shared/</li>
+<li><strong>إصلاح pip mirrors للخدمات بدون mirror</strong>: 4 خدمات</li>
+<li><strong>توحيد المستخدم إلى sahool:1000</strong>: 12 خدمة تحتاج تغيير</li>
+</ol>
+<h3 id="112-sprint-2-3">11.2 إجراءات متوسطة المدى (Sprint 2-3)<a class="headerlink" href="#112-sprint-2-3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>تحويل إلى multi-stage build</strong>: 37 خدمة Python</li>
+<li><strong>إضافة constraints.txt</strong>: 49 خدمة Python</li>
+<li><strong>إضافة npm mirror</strong>: 10 خدمات Node.js</li>
+<li><strong>توحيد HEALTHCHECK</strong> إلى Python urllib (بدون curl dependency)</li>
+<li><strong>تحديث IDP Template</strong> ليطابق المعيار الذهبي</li>
+</ol>
+<h3 id="113-sprint-4">11.3 إجراءات طويلة المدى (Sprint 4+)<a class="headerlink" href="#113-sprint-4" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>إضافة OCI Labels</strong> لجميع الخدمات</li>
+<li><strong>إضافة virtual environment</strong> لجميع خدمات Python</li>
+<li><strong>إضافة HEALTHCHECK لـ Dockerfile.walg</strong> (<code>pg_isready</code>)</li>
+<li><strong>توحيد CMD pattern</strong> إلى <code>["uvicorn", ...]</code> (بدون <code>sh -c</code>)</li>
+<li><strong>إزالة Dockerfiles المهملة</strong> أو تعليمها بوضوح</li>
+</ol>
+<hr />
+<h2 id="12">القسم 12: إحصائيات ختامية<a class="headerlink" href="#12" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌────────────────────────────────────────────────────────┐
+│           SAHOOL Dockerfile Audit Summary               │
+├────────────────────────────────────────────────────────┤
+│ إجمالي الملفات المدققة:        82                      │
+│ خدمات نشطة:                    67                      │
+│ خدمات مهملة:                   7                       │
+│ خدمات فارغة/هيكلية:            8                       │
+│                                                        │
+│ تطابق كامل مع المعيار:         5  (6%)   ████          │
+│ تطابق جيد:                     12 (15%)  ████████      │
+│ تطابق مقبول:                   38 (46%)  █████████████ │
+│ تحتاج إعادة بناء:              7  (9%)   ████          │
+│ فارغة/مهملة (لا تحتاج تدقيق):  20 (24%)  ██████████   │
+│                                                        │
+│ المشاكل الحرجة:                4                       │
+│ المشاكل المتوسطة:              12                      │
+│ المشاكل المنخفضة:              8                       │
+└────────────────────────────────────────────────────────┘
+</code></pre></div>
+
+<hr />
+<p><em>تقرير تدقيق مُنشأ بواسطة Claude AI Audit Agent</em>
+<em>تاريخ: 2026-02-13</em>
+<em>المراجعة التالية المقترحة: 2026-03-15</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

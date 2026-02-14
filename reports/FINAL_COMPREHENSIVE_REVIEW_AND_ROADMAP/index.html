@@ -1,0 +1,2971 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>المراجعة النهائية الشاملة وخارطة طريق التنفيذ (v2) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#v2" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              المراجعة النهائية الشاملة وخارطة طريق التنفيذ (v2)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="v2">المراجعة النهائية الشاملة وخارطة طريق التنفيذ (v2)<a class="headerlink" href="#v2" title="Permanent link">&para;</a></h1>
+<h1 id="final-comprehensive-review-development-roadmap-v2">Final Comprehensive Review &amp; Development Roadmap (v2)<a class="headerlink" href="#final-comprehensive-review-development-roadmap-v2" title="Permanent link">&para;</a></h1>
+<p><strong>المنصة</strong>: SAHOOL v16.0.0 | <strong>التاريخ</strong>: 2026-02-14 | <strong>مُحدث</strong>: 2026-02-14
+<strong>النطاق</strong>: مراجعة شاملة لـ 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack
+<strong>المُعد</strong>: Claude AI Audit Agent</p>
+<hr />
+<h2 id="part-1-executive-summary">الجزء الأول: الملخص التنفيذي | Part 1: Executive Summary<a class="headerlink" href="#part-1-executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="11">1.1 ما تم تدقيقه (الصورة الكاملة)<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">╔═══════════════════════════════════════════════════════════════════════╗</span>
+<span class="err">║</span><span class="w">                    </span><span class="n">SAHOOL</span><span class="w"> </span><span class="n">v16</span><span class="o">.</span><span class="mf">0.0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Audit</span><span class="w"> </span><span class="n">Coverage</span><span class="w"> </span><span class="n">Map</span><span class="w">               </span><span class="err">║</span>
+<span class="err">╠═══════════════════════════════════════════════════════════════════════╣</span>
+<span class="err">║</span><span class="w">                                                                       </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">82</span><span class="w"> </span><span class="n">Dockerfile</span><span class="w">              </span><span class="err">✅</span><span class="w"> </span><span class="mi">12</span><span class="w"> </span><span class="n">docker</span><span class="o">-</span><span class="n">compose</span><span class="w"> </span><span class="n">files</span><span class="w">             </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">74</span><span class="w"> </span><span class="err">خدمة</span><span class="w"> </span><span class="p">(</span><span class="n">main</span><span class="o">.</span><span class="n">py</span><span class="p">)</span><span class="w">          </span><span class="err">✅</span><span class="w"> </span><span class="mi">48</span><span class="w"> </span><span class="n">CI</span><span class="o">/</span><span class="n">CD</span><span class="w"> </span><span class="n">workflow</span><span class="w">                   </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">68</span><span class="w"> </span><span class="err">وحدة</span><span class="w"> </span><span class="err">مشتركة</span><span class="w"> </span><span class="p">(</span><span class="n">shared</span><span class="o">/</span><span class="p">)</span><span class="w">   </span><span class="err">✅</span><span class="w"> </span><span class="mi">57</span><span class="w"> </span><span class="err">تقرير</span><span class="w"> </span><span class="err">تدقيق</span><span class="w"> </span><span class="err">سابق</span><span class="w">               </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">17</span><span class="w"> </span><span class="n">Helm</span><span class="w"> </span><span class="n">chart</span><span class="w">              </span><span class="err">✅</span><span class="w"> </span><span class="mi">140</span><span class="w"> </span><span class="n">Makefile</span><span class="w"> </span><span class="n">target</span><span class="w">                  </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">292</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="err">اختبار</span><span class="w">             </span><span class="err">✅</span><span class="w"> </span><span class="mi">134</span><span class="w"> </span><span class="n">script</span><span class="w">                          </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">41</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="n">config</span><span class="w">              </span><span class="err">✅</span><span class="w"> </span><span class="mi">182</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="n">infrastructure</span><span class="w">              </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">41</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="n">IDP</span><span class="w"> </span><span class="p">(</span><span class="n">Backstage</span><span class="p">)</span><span class="w">     </span><span class="err">✅</span><span class="w"> </span><span class="mi">39</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="n">GitOps</span><span class="w"> </span><span class="p">(</span><span class="n">ArgoCD</span><span class="p">)</span><span class="w">             </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">52</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="n">tools</span><span class="w">               </span><span class="err">✅</span><span class="w"> </span><span class="mi">365</span><span class="o">+</span><span class="w"> </span><span class="err">ملف</span><span class="w"> </span><span class="err">توثيق</span><span class="w">                     </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="mi">27</span><span class="w"> </span><span class="n">npm</span><span class="w"> </span><span class="n">package</span><span class="w">             </span><span class="err">✅</span><span class="w"> </span><span class="mi">7</span><span class="w"> </span><span class="err">ملفات</span><span class="w"> </span><span class="n">requirements</span><span class="w">                </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span><span class="w">             </span><span class="err">✅</span><span class="w"> </span><span class="n">governance</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="n">services</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">agents</span><span class="p">)</span><span class="w">      </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">✅</span><span class="w"> </span><span class="n">copilot</span><span class="o">-</span><span class="n">api</span><span class="w"> </span><span class="p">(</span><span class="n">Full</span><span class="o">-</span><span class="n">Stack</span><span class="p">)</span><span class="w">   </span><span class="err">✅</span><span class="w"> </span><span class="mi">54</span><span class="w"> </span><span class="n">Flutter</span><span class="w"> </span><span class="n">feature</span><span class="w"> </span><span class="n">module</span><span class="w">           </span><span class="err">║</span>
+<span class="err">║</span><span class="w">                                                                       </span><span class="err">║</span>
+<span class="err">║</span><span class="w">  </span><span class="err">إجمالي</span><span class="w"> </span><span class="err">الملفات</span><span class="w"> </span><span class="err">المُراجعة</span><span class="p">:</span><span class="w"> </span><span class="o">~</span><span class="mi">2</span><span class="p">,</span><span class="mi">200</span><span class="o">+</span><span class="w"> </span><span class="err">ملف</span><span class="w">                               </span><span class="err">║</span>
+<span class="err">╚═══════════════════════════════════════════════════════════════════════╝</span>
+</code></pre></div>
+
+<h3 id="12">1.2 التقييم الإجمالي النهائي<a class="headerlink" href="#12" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>╔═══════════════════════════════════════════════════════════════════════╗
+║              SAHOOL Platform v16.0.0 - Final Health Score             ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  المكون                         التقييم    الوزن    المرجح            ║
+║  ══════════════════════════════════════════════════════════           ║
+║  الهندسة المعمارية               95/100     12%      11.40           ║
+║  الأمان والحماية                 82/100     14%      11.48           ║
+║  جودة الكود (Backend)            85/100     10%       8.50           ║
+║  جودة الكود (Frontend)           85/100      7%       5.95           ║
+║  قواعد البيانات                  65/100      9%       5.85           ║
+║  Docker والحاويات                72/100      7%       5.04           ║
+║  الاختبارات والتغطية             70/100      9%       6.30           ║
+║  البنية التحتية (IaC)            60/100      5%       3.00           ║
+║  CI/CD                           70/100      6%       4.20           ║
+║  التوثيق                         95/100      4%       3.80           ║
+║  DevOps/GitOps                   93/100      4%       3.72           ║
+║  Copilot/AI Full-Stack           55/100      8%       4.40   ← جديد  ║
+║  Mobile App                      90/100      5%       4.50   ← جديد  ║
+║  ══════════════════════════════════════════════════════════           ║
+║                                                                       ║
+║  الإجمالي المُرجح:              78.1 / 100                           ║
+║                                                                       ║
+║  الحالة: 🟡 جاهز للتطوير، يحتاج إصلاحات قبل الإنتاج                ║
+║  (انخفض من 80.6 بسبب اكتشاف فجوة Copilot Web/Admin)                ║
+╚═══════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+
+<hr />
+<h2 id="part-2-issues-inventory">الجزء الثاني: جرد المشاكل المكتشفة | Part 2: Issues Inventory<a class="headerlink" href="#part-2-issues-inventory" title="Permanent link">&para;</a></h2>
+<h3 id="21-copilot">2.1 إحصائيات المشاكل (مُحدث بعد تدقيق Copilot)<a class="headerlink" href="#21-copilot" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>الخطورة</th>
+<th>العدد</th>
+<th>مُصلح</th>
+<th>متبقي</th>
+<th>النسبة المُصلحة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 حرج (P0)</td>
+<td>46</td>
+<td>24</td>
+<td><strong>22</strong></td>
+<td>52%</td>
+</tr>
+<tr>
+<td>🟠 عالي (P1)</td>
+<td>73</td>
+<td>44</td>
+<td><strong>29</strong></td>
+<td>60%</td>
+</tr>
+<tr>
+<td>🟡 متوسط (P2)</td>
+<td>160</td>
+<td>78</td>
+<td><strong>82</strong></td>
+<td>49%</td>
+</tr>
+<tr>
+<td>🟢 منخفض (P3)</td>
+<td>204+</td>
+<td>60</td>
+<td><strong>144+</strong></td>
+<td>29%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-22">2.2 المشاكل الحرجة المتبقية (22 مشكلة)<a class="headerlink" href="#22-22" title="Permanent link">&para;</a></h3>
+<h4 id="5">الفئة أ: أمان وحماية (5 مشاكل)<a class="headerlink" href="#5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>المكون</th>
+<th>الملف</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>بيانات اعتماد مضمنة في test compose</td>
+<td>Docker</td>
+<td><code>docker-compose.test.yml</code></td>
+<td>كلمات مرور مكشوفة في Git</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Redis password في سطر الأوامر</td>
+<td>Docker</td>
+<td><code>docker-compose.redis-ha.yml</code></td>
+<td>مرئية في <code>docker inspect</code></td>
+</tr>
+<tr>
+<td>A3</td>
+<td>69 منفذ مكشوف على 0.0.0.0</td>
+<td>Docker</td>
+<td><code>docker-compose.yml</code></td>
+<td>وصول خارجي غير مقصود</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>WebSocket بدون مصادقة</td>
+<td>Backend</td>
+<td><code>ws-gateway</code></td>
+<td>اتصالات غير مُصدق عليها</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>Content Security Policy غير مُنفذ</td>
+<td>Frontend</td>
+<td><code>apps/web/</code>, <code>apps/admin/</code></td>
+<td>XSS محتمل</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4">الفئة ب: قواعد البيانات (4 مشاكل)<a class="headerlink" href="#4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>المكون</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td>IoT Service بدون مخطط قاعدة بيانات</td>
+<td><code>iot-service</code></td>
+<td>فقدان بيانات عند إعادة التشغيل</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>3 تعريفات متعارضة لجدول Field</td>
+<td>3 خدمات</td>
+<td>عدم اتساق البيانات</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>أنواع أعمدة متناقضة (VARCHAR vs UUID)</td>
+<td>عبر الخدمات</td>
+<td>فشل الاستعلامات</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>4 أُطر ORM مختلفة</td>
+<td>المنصة</td>
+<td>تعارض المخططات</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cicd-4">الفئة ج: CI/CD (4 مشاكل)<a class="headerlink" href="#cicd-4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>الملف</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td><code>continue-on-error: true</code> يُسكت فشل الاختبارات</td>
+<td><code>test.yml</code></td>
+<td>كود معطل يُدمج</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>فحوصات الأمان غير حاجبة</td>
+<td><code>security-checks.yml</code></td>
+<td>ثغرات تمر بدون حجب</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>حد تغطية 10% (الهدف 60%)</td>
+<td><code>pyproject.toml</code></td>
+<td>كود غير مختبر</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>النشر يُظهر نجاح حتى لو تُخطى</td>
+<td><code>cd-production.yml</code></td>
+<td>إيهام بنجاح النشر</td>
+</tr>
+</tbody>
+</table>
+<h4 id="5_1">الفئة د: بنية تحتية وحوكمة (5 مشاكل)<a class="headerlink" href="#5_1" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>المكون</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1</td>
+<td>Helm charts: 21% تغطية فقط (17/82)</td>
+<td><code>helm/</code></td>
+<td>يمنع نشر K8s</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>15 خدمة مفقودة من services.yaml</td>
+<td><code>governance/</code></td>
+<td>الأتمتة لا تكتشفها</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>Terraform: 30% فقط (7 ملفات .tf)</td>
+<td><code>infrastructure/terraform/</code></td>
+<td>لا أتمتة للسحابة</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>5 منافذ خاطئة في Kong upstream</td>
+<td>Kong config</td>
+<td>فشل توجيه 5 خدمات</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>مسارات MinIO volumes مفقودة</td>
+<td><code>docker-compose.yml</code></td>
+<td>فشل تشغيل MinIO</td>
+</tr>
+</tbody>
+</table>
+<h4 id="copilot-4">الفئة هـ: Copilot / المستشار الذكي (4 مشاكل) ← جديد<a class="headerlink" href="#copilot-4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>المكون</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E1</td>
+<td><strong>copilot-api بدون JWT auth</strong></td>
+<td><code>copilot-api</code></td>
+<td>🔴 أي شخص يصل للـ API بدون مصادقة</td>
+</tr>
+<tr>
+<td>E2</td>
+<td><strong>Web: لا يوجد أي UI للـ Copilot</strong></td>
+<td><code>apps/web/</code></td>
+<td>🔴 مستخدمو المتصفح لا يتفاعلون مع AI</td>
+</tr>
+<tr>
+<td>E3</td>
+<td><strong>Admin: لا يوجد أي UI للـ Copilot</strong></td>
+<td><code>apps/admin/</code></td>
+<td>🔴 لا إدارة للمستشار أو قاعدة المعرفة</td>
+</tr>
+<tr>
+<td>E4</td>
+<td><strong>copilot-api: لا DB persistence</strong></td>
+<td><code>copilot-api</code></td>
+<td>🔴 فقدان كل المحادثات عند إعادة التشغيل</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-copilot-full-stack">2.3 تدقيق Copilot Full-Stack (ملخص)<a class="headerlink" href="#23-copilot-full-stack" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>╔═══════════════════════════════════════════════════════════════════════╗
+║               COPILOT INTEGRATION - Full Stack Summary                ║
+╠═══════════════════════════════════════════════════════════════════════╣
+║                                                                       ║
+║  copilot-api (Backend)  ████████████████████████████████░░░░ 76%     ║
+║  → 6-Layer Guardrails ✅ | Multi-LLM ✅ | UltraRAG ✅                ║
+║  → ❌ No JWT auth | ❌ No NATS events | ❌ No persistence            ║
+║  → ❌ Streaming محاكاة | ❌ No prompt injection protection           ║
+║                                                                       ║
+║  Web Frontend           ████████████░░░░░░░░░░░░░░░░░░░░░░░ 30%     ║
+║  → API hooks جاهزة ✅ | WebSocket ✅ | SSE ✅                        ║
+║  → ❌ صفر صفحات | ❌ صفر مكونات UI | ❌ صفر routes                  ║
+║                                                                       ║
+║  Admin Frontend         ██████████░░░░░░░░░░░░░░░░░░░░░░░░░ 25%     ║
+║  → Gateway مُعد ✅ | Circuit Breaker ✅                               ║
+║  → ❌ صفر صفحات | ❌ صفر مكونات UI | ❌ صفر routes                  ║
+║                                                                       ║
+║  Mobile (Flutter)       ████████████████████████████████████████ 90%  ║
+║  → Chat + Voice + Image + Offline + RTL + Feedback ✅✅✅            ║
+║  → 12 endpoint | Riverpod | SQLCipher | 54 feature module            ║
+║                                                                       ║
+║  الإجمالي:  55% | الهدف بعد الإصلاح: 85%                            ║
+║  الجهد المطلوب: ~8 أيام (1 مطور Full-Stack)                         ║
+╚═══════════════════════════════════════════════════════════════════════╝
+</code></pre></div>
+
+<p><strong>API Endpoints (copilot-api)</strong>:
+- <code>POST /api/v1/chat</code> - محادثة مع RAG + توجيه وكيل
+- <code>POST /api/v1/chat/stream</code> - SSE streaming (محاكاة)
+- <code>GET/POST/DELETE /api/v1/rag/*</code> - إدارة قاعدة المعرفة
+- <code>POST /api/v1/tools/run</code> - تنفيذ أدوات مع 6-layer guardrails
+- Agent Router: 6 وكلاء (code_fix, code_review, field, weather, irrigation, general)
+- LLM: Ollama → Claude → OpenAI (fallback chain)</p>
+<p><strong>Mobile AI Advisor (مكتمل)</strong>:
+- <code>ai_advisor_api.dart</code> → 12 endpoint (ask, diagnose, recommend, irrigation, fertilizer, analyze-field)
+- <code>advisory_cache.dart</code> → 100 رسالة + 50 استشارة (offline-first)
+- <code>voice_service.dart</code> → AR/EN speech-to-text + text-to-speech
+- Riverpod providers: <code>chatControllerProvider</code>, <code>aiAdvisorProvider</code>
+- Widgets: ChatBubble, TypingIndicator, QuickQuestionChips, FeedbackButtons</p>
+<hr />
+<h2 id="part-3-strengths">الجزء الثالث: نقاط القوة | Part 3: Strengths<a class="headerlink" href="#part-3-strengths" title="Permanent link">&para;</a></h2>
+<h3 id="_1">ما يعمل بشكل ممتاز<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكون</th>
+<th>التقييم</th>
+<th>التفصيل</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الهندسة المعمارية</strong></td>
+<td>95/100</td>
+<td>4-layer event architecture مُتقن، 82 خدمة مُهيكلة</td>
+</tr>
+<tr>
+<td><strong>التوثيق</strong></td>
+<td>95/100</td>
+<td>365+ ملف، CLAUDE.md شامل (15K+ كلمة)، ثنائي اللغة</td>
+</tr>
+<tr>
+<td><strong>GitOps/ArgoCD</strong></td>
+<td>93/100</td>
+<td>39 ملف، نشر آلي مكتمل، blue-green + canary</td>
+</tr>
+<tr>
+<td><strong>الوحدات المشتركة</strong></td>
+<td>92/100</td>
+<td>68 وحدة، ~386K LOC، تغطية زراعية شاملة</td>
+</tr>
+<tr>
+<td><strong>Mobile AI Advisor</strong></td>
+<td>90/100</td>
+<td>chat + voice + image + offline + RTL - 54 ميزة</td>
+</tr>
+<tr>
+<td><strong>البنية التحتية</strong></td>
+<td>90/100</td>
+<td>Prometheus, Grafana, OpenTelemetry, Vault مكتملة</td>
+</tr>
+<tr>
+<td><strong>copilot-api Guardrails</strong></td>
+<td>88/100</td>
+<td>6 طبقات حماية، 27 أداة مسموحة، 33 نمط محظور</td>
+</tr>
+<tr>
+<td><strong>الأمان</strong></td>
+<td>85/100</td>
+<td>JWT, RBAC, rate limiting, token revocation مُنفذة</td>
+</tr>
+<tr>
+<td><strong>IDP (Backstage)</strong></td>
+<td>95/100</td>
+<td>قوالب كاملة، كتالوج خدمات شامل</td>
+</tr>
+<tr>
+<td><strong>Makefile</strong></td>
+<td>82/100</td>
+<td>140 target مُنظمة ووظيفية</td>
+</tr>
+<tr>
+<td><strong>pyproject.toml</strong></td>
+<td>93/100</td>
+<td>Ruff ممتاز مع 57 استثناء مُوثق</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="part-4-development-roadmap">الجزء الرابع: خارطة الطريق التنفيذية | Part 4: Development Roadmap<a class="headerlink" href="#part-4-development-roadmap" title="Permanent link">&para;</a></h2>
+<h3 id="40">4.0 نظرة عامة على المراحل (مُحدث)<a class="headerlink" href="#40" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المرحلة 0: الطوارئ        ← الأسبوع 1-2      ← 22 مشكلة حرجة + Copilot أمان
+المرحلة 1: الأساسيات      ← الأسابيع 3-4     ← بنية تحتية + أمان + Copilot UI
+المرحلة 2: الجودة          ← الأسابيع 5-7     ← اختبارات + CI/CD
+المرحلة 3: الاكتمال        ← الأسابيع 8-11    ← Helm + IaC + تحسينات
+المرحلة 4: الاستعداد للإنتاج ← الأسابيع 12-14  ← تحقق + اختبار حمل
+</code></pre></div>
+
+<hr />
+<h3 id="0-phase-0-emergency-fixes">المرحلة 0: إصلاحات الطوارئ | Phase 0: Emergency Fixes<a class="headerlink" href="#0-phase-0-emergency-fixes" title="Permanent link">&para;</a></h3>
+<p><strong>المدة</strong>: أسبوع واحد | <strong>الأولوية</strong>: 🔴 حرجة | <strong>الهدف</strong>: إزالة المخاطر الفورية</p>
+<h4 id="sprint-01-1-2">Sprint 0.1: أمان فوري (يوم 1-2)<a class="headerlink" href="#sprint-01-1-2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الملف</th>
+<th>الجهد</th>
+<th>المسؤول</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>نقل credentials من docker-compose.test.yml إلى <code>.env.test</code></td>
+<td><code>docker-compose.test.yml</code></td>
+<td>1h</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>2</td>
+<td>نقل Redis password من CLI إلى redis.conf</td>
+<td><code>docker-compose.redis-ha.yml</code></td>
+<td>1h</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>3</td>
+<td>ربط 69 منفذ داخلي بـ 127.0.0.1</td>
+<td><code>docker-compose.yml</code></td>
+<td>2h</td>
+<td>DevOps</td>
+</tr>
+<tr>
+<td>4</td>
+<td>إنشاء <code>.env.test</code> + إضافتها لـ <code>.gitignore</code></td>
+<td>الجذر</td>
+<td>30m</td>
+<td>DevOps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># 1. إنشاء .env.test</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>.env.test<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">POSTGRES_PASSWORD=test_password_123</span>
+<span class="s">REDIS_PASSWORD=test_redis_pass</span>
+<span class="s">JWT_SECRET_KEY=test-secret-key-for-unit-tests-only-32chars</span>
+<span class="s">NATS_USER=test_user</span>
+<span class="s">NATS_PASSWORD=test_password</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 2. إضافة لـ .gitignore</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;.env.test&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.gitignore
+
+<span class="c1"># 3. تعديل docker-compose.test.yml لاستخدام متغيرات</span>
+<span class="c1"># استبدال POSTGRES_PASSWORD: test_password_123</span>
+<span class="c1"># بـ POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}</span>
+</code></pre></div>
+
+<h4 id="sprint-02-cicd-2-3">Sprint 0.2: CI/CD فوري (يوم 2-3)<a class="headerlink" href="#sprint-02-cicd-2-3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الملف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5</td>
+<td>إزالة <code>continue-on-error: true</code> من test.yml</td>
+<td><code>.github/workflows/test.yml</code></td>
+<td>1h</td>
+</tr>
+<tr>
+<td>6</td>
+<td>جعل فحوصات الأمان حاجبة</td>
+<td><code>.github/workflows/security-checks.yml</code></td>
+<td>1h</td>
+</tr>
+<tr>
+<td>7</td>
+<td>إصلاح frontend-ci.yml لحجب أخطاء TypeScript</td>
+<td><code>.github/workflows/frontend-ci.yml</code></td>
+<td>1h</td>
+</tr>
+<tr>
+<td>8</td>
+<td>إصلاح CD pipeline "success when skipped"</td>
+<td><code>.github/workflows/cd-production.yml</code></td>
+<td>1h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># test.yml - قبل:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
+<span class="w">  </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># ❌ يُسكت الفشل</span>
+
+<span class="c1"># test.yml - بعد:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests</span>
+<span class="w">  </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">  </span><span class="c1"># ✅ يحجب عند الفشل</span>
+</code></pre></div>
+
+<h4 id="sprint-03-3-5">Sprint 0.3: بنية تحتية فورية (يوم 3-5)<a class="headerlink" href="#sprint-03-3-5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الملف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>9</td>
+<td>إصلاح 5 منافذ خاطئة في Kong</td>
+<td>Kong config</td>
+<td>2h</td>
+</tr>
+<tr>
+<td>10</td>
+<td>إنشاء مسارات MinIO المفقودة</td>
+<td><code>scripts/security/</code></td>
+<td>30m</td>
+</tr>
+<tr>
+<td>11</td>
+<td>إضافة HEALTHCHECK لـ 22 خدمة مفقودة</td>
+<td><code>docker-compose.yml</code></td>
+<td>2h</td>
+</tr>
+<tr>
+<td>12</td>
+<td>إضافة 15 خدمة مفقودة لـ services.yaml</td>
+<td><code>governance/services.yaml</code></td>
+<td>2h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ لإصلاح Kong</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># المنافذ الصحيحة:</span>
+<span class="nt">chat-service</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">8000</span><span class="w">  </span><span class="c1"># ليس 8114</span>
+<span class="nt">copilot-api</span><span class="p">:</span><span class="w">       </span><span class="l l-Scalar l-Scalar-Plain">8088</span><span class="w">  </span><span class="c1"># ليس 8163</span>
+<span class="nt">audit-service</span><span class="p">:</span><span class="w">     </span><span class="l l-Scalar l-Scalar-Plain">8114</span><span class="w">  </span><span class="c1"># ليس 8122</span>
+<span class="nt">globalgap</span><span class="p">:</span><span class="w">         </span><span class="l l-Scalar l-Scalar-Plain">8128</span><span class="w">  </span><span class="c1"># ليس 8168</span>
+<span class="nt">supply-chain</span><span class="p">:</span><span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">8230</span><span class="w">  </span><span class="c1"># ليس 8166</span>
+</code></pre></div>
+
+<h4 id="sprint-04-copilot-5-7">Sprint 0.4: Copilot أمان فوري (يوم 5-7) ← جديد<a class="headerlink" href="#sprint-04-copilot-5-7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الملف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13</td>
+<td>إضافة JWT auth لـ copilot-api</td>
+<td><code>copilot-api/src/api/deps.py</code></td>
+<td>4h</td>
+</tr>
+<tr>
+<td>14</td>
+<td>تنفيذ NATS event publishing</td>
+<td><code>copilot-api/src/events/</code></td>
+<td>4h</td>
+</tr>
+<tr>
+<td>15</td>
+<td>إضافة prompt injection detection</td>
+<td><code>copilot-api/src/core/guardrails.py</code></td>
+<td>4h</td>
+</tr>
+<tr>
+<td>16</td>
+<td>إضافة rate limiting per-user</td>
+<td><code>copilot-api/src/main.py</code></td>
+<td>2h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ - JWT auth</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api/src/api/deps.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">Depends</span><span class="p">,</span> <span class="n">HTTPException</span><span class="p">,</span> <span class="n">status</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.security</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTPBearer</span><span class="p">,</span> <span class="n">HTTPAuthorizationCredentials</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">verify_jwt_token</span>
+
+<span class="n">security</span> <span class="o">=</span> <span class="n">HTTPBearer</span><span class="p">()</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_current_user</span><span class="p">(</span>
+    <span class="n">credentials</span><span class="p">:</span> <span class="n">HTTPAuthorizationCredentials</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">security</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">verify_jwt_token</span><span class="p">(</span><span class="n">credentials</span><span class="o">.</span><span class="n">credentials</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_401_UNAUTHORIZED</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid token&quot;</span><span class="p">,</span> <span class="s2">&quot;error_ar&quot;</span><span class="p">:</span> <span class="s2">&quot;رمز غير صالح&quot;</span><span class="p">}</span>
+        <span class="p">)</span>
+</code></pre></div>
+
+<p><strong>التنفيذ - NATS Events</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api/src/events/publisher.py</span>
+<span class="n">COPILOT_EVENTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;chat_started&quot;</span><span class="p">:</span>   <span class="s2">&quot;sahool.copilot.chat_started&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;chat_completed&quot;</span><span class="p">:</span> <span class="s2">&quot;sahool.copilot.chat_completed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tool_executed&quot;</span><span class="p">:</span>  <span class="s2">&quot;sahool.copilot.tool_executed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;tool_blocked&quot;</span><span class="p">:</span>   <span class="s2">&quot;sahool.copilot.tool_blocked&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">publish_copilot_event</span><span class="p">(</span><span class="n">nc</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+    <span class="n">subject</span> <span class="o">=</span> <span class="n">COPILOT_EVENTS</span><span class="p">[</span><span class="n">event_type</span><span class="p">]</span>
+    <span class="k">await</span> <span class="n">nc</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">subject</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">utcnow</span><span class="p">()</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="s2">&quot;copilot-api&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">data</span>
+    <span class="p">})</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+</code></pre></div>
+
+<p><strong>التنفيذ - Prompt Injection Detection</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api/src/core/prompt_guard.py</span>
+<span class="n">INJECTION_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">&quot;ignore\s+(previous|all|above)\s+instructions&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;تجاهل\s+(التعليمات|الأوامر)\s+السابقة&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;you\s+are\s+now\s+(?:a|an)&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;system\s*:\s*&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;&lt;\|im_start\|&gt;&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;ADMIN_OVERRIDE&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_prompt_injection</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">INJECTION_PATTERNS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h4 id="0">معيار إنهاء المرحلة 0:<a class="headerlink" href="#0" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] لا يوجد credentials مضمنة في أي compose file</li>
+<li>[ ] CI/CD يحجب عند فشل الاختبارات</li>
+<li>[ ] جميع منافذ Kong صحيحة</li>
+<li>[ ] جميع الخدمات لديها HEALTHCHECK</li>
+<li>[ ] copilot-api يتطلب JWT auth</li>
+<li>[ ] copilot-api ينشر أحداث NATS</li>
+<li>[ ] copilot-api يكشف prompt injection</li>
+</ul>
+<hr />
+<h3 id="1-phase-1-foundation-strengthening">المرحلة 1: تعزيز الأساسيات | Phase 1: Foundation Strengthening<a class="headerlink" href="#1-phase-1-foundation-strengthening" title="Permanent link">&para;</a></h3>
+<p><strong>المدة</strong>: أسبوعان | <strong>الأولوية</strong>: 🟠 عالية | <strong>الهدف</strong>: استقرار قواعد البيانات والأمان</p>
+<h4 id="sprint-11-2">Sprint 1.1: قواعد البيانات (الأسبوع 2)<a class="headerlink" href="#sprint-11-2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>13</td>
+<td>إنشاء مخطط DB لـ IoT Service</td>
+<td>Prisma schema + migration</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>14</td>
+<td>توحيد جدول Field (3 تعريفات → 1)</td>
+<td>تنسيق المخطط عبر الخدمات</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>15</td>
+<td>إصلاح أنواع الأعمدة المتناقضة</td>
+<td>VARCHAR → UUID حيث مطلوب</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>16</td>
+<td>إضافة GIN indexes على أعمدة JSONB</td>
+<td>PostgreSQL migrations</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>17</td>
+<td>إضافة Foreign Keys المفقودة</td>
+<td>Inventory Service + أخرى</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- إضافة GIN index للبحث السريع في JSONB</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">CONCURRENTLY</span><span class="w"> </span><span class="n">idx_field_metadata_gin</span>
+<span class="k">ON</span><span class="w"> </span><span class="n">fields</span><span class="w"> </span><span class="k">USING</span><span class="w"> </span><span class="n">GIN</span><span class="w"> </span><span class="p">(</span><span class="n">metadata</span><span class="w"> </span><span class="n">jsonb_path_ops</span><span class="p">);</span>
+
+<span class="c1">-- إضافة Foreign Keys المفقودة</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">inventory_items</span>
+<span class="k">ADD</span><span class="w"> </span><span class="k">CONSTRAINT</span><span class="w"> </span><span class="n">fk_inventory_field</span>
+<span class="k">FOREIGN</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">field_id</span><span class="p">)</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">fields</span><span class="p">(</span><span class="n">id</span><span class="p">)</span>
+<span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">;</span>
+</code></pre></div>
+
+<h4 id="sprint-12-3">Sprint 1.2: أمان متقدم (الأسبوع 3)<a class="headerlink" href="#sprint-12-3" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>18</td>
+<td>إضافة مصادقة WebSocket</td>
+<td>ws-gateway JWT verification</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>19</td>
+<td>تنفيذ Content Security Policy</td>
+<td>Next.js middleware</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>20</td>
+<td>إضافة server-side auth middleware</td>
+<td>apps/web/, apps/admin/</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>21</td>
+<td>تنفيذ input sanitization</td>
+<td>shared/middleware/</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>22</td>
+<td>إضافة httpOnly flag للـ cookies</td>
+<td>auth module</td>
+<td>4h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># ws-gateway JWT verification</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shared.auth.dependencies</span><span class="w"> </span><span class="kn">import</span> <span class="n">verify_jwt_token</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">websocket_auth</span><span class="p">(</span><span class="n">websocket</span><span class="p">:</span> <span class="n">WebSocket</span><span class="p">):</span>
+    <span class="n">token</span> <span class="o">=</span> <span class="n">websocket</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4001</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Authentication required&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">payload</span> <span class="o">=</span> <span class="n">verify_jwt_token</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">payload</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">websocket</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">4003</span><span class="p">,</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;Invalid token&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code><span class="c1">// Next.js CSP middleware</span>
+<span class="c1">// apps/web/src/middleware.ts</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">NextResponse</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;next/server&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">middleware</span><span class="p">(</span><span class="nx">request</span><span class="o">:</span><span class="w"> </span><span class="kt">Request</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">NextResponse</span><span class="p">.</span><span class="nx">next</span><span class="p">();</span>
+<span class="w">  </span><span class="nx">response</span><span class="p">.</span><span class="nx">headers</span><span class="p">.</span><span class="nx">set</span><span class="p">(</span>
+<span class="w">    </span><span class="s1">&#39;Content-Security-Policy&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;default-src &#39;self&#39;; script-src &#39;self&#39; &#39;unsafe-inline&#39;; style-src &#39;self&#39; &#39;unsafe-inline&#39;; img-src &#39;self&#39; data: blob:; connect-src &#39;self&#39; wss://*.sahool.app https://*.sahool.app;&quot;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">response</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="sprint-13-copilot-web-admin-ui-3-4">Sprint 1.3: Copilot Web + Admin UI (الأسبوع 3-4) ← جديد<a class="headerlink" href="#sprint-13-copilot-web-admin-ui-3-4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>23</td>
+<td>إنشاء صفحة Copilot في Web</td>
+<td><code>apps/web/src/app/(dashboard)/copilot/page.tsx</code></td>
+<td>1d</td>
+</tr>
+<tr>
+<td>24</td>
+<td>إنشاء مكونات Chat UI في Web</td>
+<td>ChatInterface, MessageBubble, ChatInput, TypingIndicator</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>25</td>
+<td>إنشاء مكونات متقدمة في Web</td>
+<td>RecommendationCard, QuickQuestions, StreamingText, FeedbackButtons</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>26</td>
+<td>إنشاء صفحة Copilot في Admin</td>
+<td><code>apps/admin/src/app/copilot/page.tsx</code></td>
+<td>1d</td>
+</tr>
+<tr>
+<td>27</td>
+<td>إنشاء لوحة إدارة Copilot</td>
+<td>RAGManager, ToolGuardConfig, UsageAnalytics, AgentStats</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>28</td>
+<td>تنفيذ True LLM Streaming</td>
+<td>copilot-api SSE + Web EventSource</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>29</td>
+<td>إضافة PostgreSQL persistence</td>
+<td>copilot-api chat history storage</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>30</td>
+<td>اختبارات التكامل</td>
+<td>E2E: Web → copilot-api → LLM → response</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ - Web Copilot Page</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/web/src/app/(dashboard)/copilot/page.tsx</span>
+<span class="s1">&#39;use client&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useState</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;react&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/features/advisor&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ChatInterface</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ChatInterface&#39;</span><span class="p">;</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">ContextSelector</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;@/components/copilot/ContextSelector&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CopilotPage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">[</span><span class="nx">fieldId</span><span class="p">,</span><span class="w"> </span><span class="nx">setFieldId</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useState</span><span class="p">&lt;</span><span class="nt">string</span><span class="w"> </span><span class="err">|</span><span class="w"> </span><span class="na">null</span><span class="p">&gt;(</span><span class="kc">null</span><span class="p">);</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">mutateAsync</span><span class="o">:</span><span class="w"> </span><span class="kt">askAdvisor</span><span class="p">,</span><span class="w"> </span><span class="nx">isPending</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAskAdvisor</span><span class="p">();</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="kt">history</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">useAdvisorHistory</span><span class="p">();</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex flex-col h-[calc(100vh-64px)]&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;flex items-center justify-between p-4 border-b&quot;</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">h1</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;text-xl font-semibold&quot;</span><span class="p">&gt;</span><span class="nx">المستشار</span><span class="w"> </span><span class="nx">الذكي</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">AI</span><span class="w"> </span><span class="nx">Advisor</span><span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="p">&lt;</span><span class="nt">ContextSelector</span><span class="w"> </span><span class="na">value</span><span class="o">=</span><span class="p">{</span><span class="nx">fieldId</span><span class="p">}</span><span class="w"> </span><span class="na">onChange</span><span class="o">=</span><span class="p">{</span><span class="nx">setFieldId</span><span class="p">}</span><span class="w"> </span><span class="p">/&gt;</span>
+<span class="w">      </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">ChatInterface</span>
+<span class="w">        </span><span class="na">messages</span><span class="o">=</span><span class="p">{</span><span class="nx">history</span><span class="o">?</span><span class="p">.</span><span class="nx">messages</span><span class="w"> </span><span class="o">??</span><span class="w"> </span><span class="p">[]}</span>
+<span class="w">        </span><span class="na">onSend</span><span class="o">=</span><span class="p">{(</span><span class="nx">msg</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">askAdvisor</span><span class="p">({</span><span class="w"> </span><span class="nx">query</span><span class="o">:</span><span class="w"> </span><span class="kt">msg</span><span class="p">,</span><span class="w"> </span><span class="nx">field_id</span><span class="o">:</span><span class="w"> </span><span class="kt">fieldId</span><span class="w"> </span><span class="p">})}</span>
+<span class="w">        </span><span class="na">isLoading</span><span class="o">=</span><span class="p">{</span><span class="nx">isPending</span><span class="p">}</span>
+<span class="w">      </span><span class="p">/&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p><strong>التنفيذ - True Streaming</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># copilot-api - True LLM streaming via Ollama</span>
+<span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/chat/stream&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">chat_stream</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">ChatRequest</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">Depends</span><span class="p">(</span><span class="n">get_current_user</span><span class="p">)):</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">generate</span><span class="p">():</span>
+        <span class="k">async</span> <span class="k">with</span> <span class="n">httpx</span><span class="o">.</span><span class="n">AsyncClient</span><span class="p">()</span> <span class="k">as</span> <span class="n">client</span><span class="p">:</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+                <span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">OLLAMA_URL</span><span class="si">}</span><span class="s2">/api/chat&quot;</span><span class="p">,</span>
+                <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;messages&quot;</span><span class="p">:</span> <span class="n">messages</span><span class="p">,</span> <span class="s2">&quot;stream&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">resp</span><span class="p">:</span>
+                <span class="k">async</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">resp</span><span class="o">.</span><span class="n">aiter_lines</span><span class="p">():</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">content</span> <span class="o">:=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">):</span>
+                        <span class="k">yield</span> <span class="sa">f</span><span class="s2">&quot;data: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s1">&#39;content&#39;</span><span class="p">:</span><span class="w"> </span><span class="n">content</span><span class="p">})</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="k">yield</span> <span class="s2">&quot;data: [DONE]</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">StreamingResponse</span><span class="p">(</span><span class="n">generate</span><span class="p">(),</span> <span class="n">media_type</span><span class="o">=</span><span class="s2">&quot;text/event-stream&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>التنفيذ - Admin RAG Manager</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// apps/admin/src/app/copilot/page.tsx</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">CopilotAdminPage</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;grid grid-cols-12 gap-6 p-6&quot;</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-8&quot;</span><span class="p">&gt;&lt;</span><span class="nt">CopilotDashboard</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-4&quot;</span><span class="p">&gt;&lt;</span><span class="nt">RAGStats</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-6&quot;</span><span class="p">&gt;&lt;</span><span class="nt">RAGManager</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">      </span><span class="p">&lt;</span><span class="nt">div</span><span class="w"> </span><span class="na">className</span><span class="o">=</span><span class="s">&quot;col-span-6&quot;</span><span class="p">&gt;&lt;</span><span class="nt">GuardLogs</span><span class="w"> </span><span class="p">/&gt;&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+<span class="w">  </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="1">معيار إنهاء المرحلة 1:<a class="headerlink" href="#1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] IoT Service لديه مخطط DB كامل</li>
+<li>[ ] جدول Field موحد عبر الخدمات</li>
+<li>[ ] WebSocket يتطلب مصادقة</li>
+<li>[ ] CSP مُفعل في apps/web و apps/admin</li>
+<li>[ ] التقييم الأمني ≥ 90/100</li>
+<li>[ ] صفحة Copilot تعمل في Web مع chat + streaming</li>
+<li>[ ] صفحة Copilot Admin تعمل مع RAG management</li>
+<li>[ ] copilot-api يحفظ المحادثات في PostgreSQL</li>
+<li>[ ] Copilot Full-Stack ≥ 80%</li>
+</ul>
+<hr />
+<h3 id="2-phase-2-quality-testing">المرحلة 2: الجودة والاختبارات | Phase 2: Quality &amp; Testing<a class="headerlink" href="#2-phase-2-quality-testing" title="Permanent link">&para;</a></h3>
+<p><strong>المدة</strong>: 3 أسابيع | <strong>الأولوية</strong>: 🟡 متوسطة-عالية | <strong>الهدف</strong>: رفع التغطية والجودة</p>
+<h4 id="sprint-21-4-5">Sprint 2.1: تغطية الاختبارات (الأسبوع 4-5)<a class="headerlink" href="#sprint-21-4-5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>الحالي</th>
+<th>الهدف</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>23</td>
+<td>رفع حد التغطية تدريجياً</td>
+<td>10%</td>
+<td>25% → 40%</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>24</td>
+<td>كتابة E2E tests للمسارات الحرجة</td>
+<td>7 tests</td>
+<td>25 tests</td>
+<td>5d</td>
+</tr>
+<tr>
+<td>25</td>
+<td>كتابة Load tests لـ Vision/Terrain/Edge</td>
+<td>0</td>
+<td>6 tests</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>26</td>
+<td>كتابة A2A protocol tests</td>
+<td>2 tests</td>
+<td>10 tests</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>27</td>
+<td>إضافة Integration tests لـ NATS events</td>
+<td>0</td>
+<td>15 tests</td>
+<td>3d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>خطة رفع التغطية</strong>:</p>
+<div class="codehilite"><pre><span></span><code>الأسبوع 4: رفع fail_under من 10 → 25
+الأسبوع 5: رفع fail_under من 25 → 40
+الأسبوع 8: رفع fail_under من 40 → 60 (الهدف النهائي)
+</code></pre></div>
+
+<p><strong>E2E Tests المطلوبة</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># tests/e2e/test_critical_journeys.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestFieldCreationJourney</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: إنشاء حقل → تحليل NDVI → توصية ري&quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_create_field_with_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_field_ndvi_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_irrigation_recommendation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAdvisoryJourney</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: استشارة → تشخيص → توصية&quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_disease_diagnosis_flow</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_pest_detection_to_advisory</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestOfflineSyncJourney</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;رحلة المستخدم: عمل offline → مزامنة → حل التعارضات&quot;&quot;&quot;</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_offline_field_creation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">test_conflict_resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+</code></pre></div>
+
+<p><strong>Load Tests المطلوبة</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">// tests/load/k6_vision_service.js</span>
+<span class="k">import</span><span class="w"> </span><span class="nx">http</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s1">&#39;k6/http&#39;</span><span class="p">;</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">options</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">stages</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">10</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Warm up</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2m&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">50</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Ramp up</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;5m&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">100</span><span class="w"> </span><span class="p">},</span><span class="w">   </span><span class="c1">// Sustained load</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">duration</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;30s&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">target</span><span class="o">:</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// Cool down</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nx">thresholds</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">http_req_duration</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;p(95)&lt;5000&#39;</span><span class="p">],</span><span class="w">  </span><span class="c1">// 5s for vision</span>
+<span class="w">        </span><span class="nx">http_req_failed</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;rate&lt;0.05&#39;</span><span class="p">],</span><span class="w">     </span><span class="c1">// &lt;5% error rate</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="p">};</span>
+
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">image</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">open</span><span class="p">(</span><span class="s1">&#39;./test_data/crop_image.jpg&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;b&#39;</span><span class="p">);</span>
+<span class="w">    </span><span class="kd">const</span><span class="w"> </span><span class="nx">res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span>
+<span class="w">        </span><span class="s1">&#39;http://localhost:8150/api/v1/detect/pest&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">{</span><span class="w"> </span><span class="nx">image</span><span class="o">:</span><span class="w"> </span><span class="nx">http</span><span class="p">.</span><span class="nx">file</span><span class="p">(</span><span class="nx">image</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test.jpg&#39;</span><span class="p">)</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h4 id="sprint-22-5-6">Sprint 2.2: جودة الكود (الأسبوع 5-6)<a class="headerlink" href="#sprint-22-5-6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>28</td>
+<td>إصلاح 211 ESLint warning</td>
+<td>unused vars, any types</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>29</td>
+<td>إصلاح 25 missing useEffect deps</td>
+<td>React components</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>30</td>
+<td>توحيد ORM framework (Tortoise/Prisma)</td>
+<td>خطة ترحيل</td>
+<td>2d (التخطيط)</td>
+</tr>
+<tr>
+<td>31</td>
+<td>إضافة multi-stage builds لـ 54 Dockerfile</td>
+<td>Pattern A</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>32</td>
+<td>إضافة constraints.txt لـ 49 خدمة مفقودة</td>
+<td>pip install -c</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التنفيذ</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c"># إضافة multi-stage build لخدمة Python</span>
+<span class="c"># Stage 1: Builder</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim-bookworm</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">builder</span>
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/build</span>
+<span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>.
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>--no-cache-dir<span class="w"> </span>--prefix<span class="o">=</span>/install<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-c<span class="w"> </span>constraints.txt<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c"># Stage 2: Runtime</span>
+<span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim-bookworm</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="s">runtime</span>
+<span class="k">COPY</span><span class="w"> </span>--from<span class="o">=</span>builder<span class="w"> </span>/install<span class="w"> </span>/usr/local
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
+<span class="k">USER</span><span class="w"> </span><span class="s">sahool</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uvicorn&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src.main:app&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;0.0.0.0&quot;</span><span class="p">]</span>
+</code></pre></div>
+
+<h4 id="2">معيار إنهاء المرحلة 2:<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] تغطية الاختبارات ≥ 40%</li>
+<li>[ ] 25+ E2E test يعملون</li>
+<li>[ ] ESLint warnings &lt; 50</li>
+<li>[ ] Multi-stage builds ≥ 60%</li>
+<li>[ ] التقييم الإجمالي ≥ 85/100</li>
+</ul>
+<hr />
+<h3 id="3-phase-3-completion">المرحلة 3: الاكتمال | Phase 3: Completion<a class="headerlink" href="#3-phase-3-completion" title="Permanent link">&para;</a></h3>
+<p><strong>المدة</strong>: 4 أسابيع | <strong>الأولوية</strong>: 🟡 متوسطة | <strong>الهدف</strong>: Helm + Terraform + تحسينات</p>
+<h4 id="sprint-31-helm-charts-7-8">Sprint 3.1: Helm Charts (الأسبوع 7-8)<a class="headerlink" href="#sprint-31-helm-charts-7-8" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>33</td>
+<td>إنشاء Helm chart generator</td>
+<td>قالب + script</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>34</td>
+<td>إنشاء Helm charts للخدمات الأساسية (Tier-1)</td>
+<td>15 chart</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>35</td>
+<td>إنشاء Helm charts للخدمات الثانوية (Tier-2)</td>
+<td>25 chart</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>36</td>
+<td>إنشاء Helm charts للخدمات الباقية (Tier-3)</td>
+<td>25 chart</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>37</td>
+<td>اختبار النشر على K8s محلي (minikube)</td>
+<td>تحقق</td>
+<td>2d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Helm Chart Generator</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="c1"># scripts/generate-helm-chart.sh</span>
+
+<span class="nv">SERVICE_NAME</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">SERVICE_PORT</span><span class="o">=</span><span class="nv">$2</span>
+<span class="nv">SERVICE_TYPE</span><span class="o">=</span><span class="nv">$3</span><span class="w">  </span><span class="c1"># python|node</span>
+
+mkdir<span class="w"> </span>-p<span class="w"> </span>helm/services/<span class="nv">$SERVICE_NAME</span>/templates
+
+<span class="c1"># Chart.yaml</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class="nv">$SERVICE_NAME</span>/Chart.yaml<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">apiVersion: v2</span>
+<span class="s">name: $SERVICE_NAME</span>
+<span class="s">description: SAHOOL $SERVICE_NAME service</span>
+<span class="s">type: application</span>
+<span class="s">version: 16.0.0</span>
+<span class="s">appVersion: &quot;16.0.0&quot;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># values.yaml</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>helm/services/<span class="nv">$SERVICE_NAME</span>/values.yaml<span class="w"> </span><span class="s">&lt;&lt; EOF</span>
+<span class="s">replicaCount: 2</span>
+<span class="s">image:</span>
+<span class="s">  repository: sahool/$SERVICE_NAME</span>
+<span class="s">  tag: &quot;16.0.0&quot;</span>
+<span class="s">  pullPolicy: IfNotPresent</span>
+<span class="s">service:</span>
+<span class="s">  type: ClusterIP</span>
+<span class="s">  port: $SERVICE_PORT</span>
+<span class="s">resources:</span>
+<span class="s">  limits:</span>
+<span class="s">    cpu: 500m</span>
+<span class="s">    memory: 512Mi</span>
+<span class="s">  requests:</span>
+<span class="s">    cpu: 100m</span>
+<span class="s">    memory: 128Mi</span>
+<span class="s">livenessProbe:</span>
+<span class="s">  httpGet:</span>
+<span class="s">    path: /healthz</span>
+<span class="s">    port: $SERVICE_PORT</span>
+<span class="s">  initialDelaySeconds: 15</span>
+<span class="s">readinessProbe:</span>
+<span class="s">  httpGet:</span>
+<span class="s">    path: /readyz</span>
+<span class="s">    port: $SERVICE_PORT</span>
+<span class="s">  initialDelaySeconds: 5</span>
+<span class="s">EOF</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Generated Helm chart for </span><span class="nv">$SERVICE_NAME</span><span class="s2">&quot;</span>
+</code></pre></div>
+
+<p><strong>تنفيذ لجميع الخدمات</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Tier-1 الأساسية</span>
+./scripts/generate-helm-chart.sh<span class="w"> </span>field-management-service<span class="w"> </span><span class="m">3000</span><span class="w"> </span>node
+./scripts/generate-helm-chart.sh<span class="w"> </span>user-service<span class="w"> </span><span class="m">3025</span><span class="w"> </span>node
+./scripts/generate-helm-chart.sh<span class="w"> </span>advisory-service<span class="w"> </span><span class="m">8093</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>notification-service<span class="w"> </span><span class="m">8110</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>weather-service<span class="w"> </span><span class="m">8092</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>vegetation-analysis-service<span class="w"> </span><span class="m">8090</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>crop-intelligence-service<span class="w"> </span><span class="m">8095</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>irrigation-smart<span class="w"> </span><span class="m">8094</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>marketplace-service<span class="w"> </span><span class="m">3010</span><span class="w"> </span>node
+./scripts/generate-helm-chart.sh<span class="w"> </span>billing-core<span class="w"> </span><span class="m">8089</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>task-service<span class="w"> </span><span class="m">8103</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>yolo26-vision-service<span class="w"> </span><span class="m">8150</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>terrain-core-service<span class="w"> </span><span class="m">8185</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>edge-orchestrator-service<span class="w"> </span><span class="m">8180</span><span class="w"> </span>python
+./scripts/generate-helm-chart.sh<span class="w"> </span>ws-gateway<span class="w"> </span><span class="m">8081</span><span class="w"> </span>python
+</code></pre></div>
+
+<h4 id="sprint-32-terraform-iac-9-10">Sprint 3.2: Terraform IaC (الأسبوع 9-10)<a class="headerlink" href="#sprint-32-terraform-iac-9-10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>38</td>
+<td>VPC + Networking</td>
+<td>AWS me-south-1, subnets, security groups</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>39</td>
+<td>EKS Cluster</td>
+<td>Kubernetes cluster + node groups</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>40</td>
+<td>RDS PostgreSQL</td>
+<td>Aurora PostgreSQL + PostGIS</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>41</td>
+<td>ElastiCache Redis</td>
+<td>Redis cluster + Sentinel</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>42</td>
+<td>S3/MinIO Storage</td>
+<td>Object storage + lifecycle</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>43</td>
+<td>IAM + Security</td>
+<td>Roles, policies, service accounts</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>44</td>
+<td>Monitoring stack</td>
+<td>CloudWatch, Prometheus remote</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<p><strong>هيكل Terraform المقترح</strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">infrastructure</span><span class="o">/</span><span class="n">terraform</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">modules</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">vpc</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">variables</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">outputs</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">eks</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">rds</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">elasticache</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">s3</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">iam</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">environments</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">dev</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">terraform</span><span class="o">.</span><span class="n">tfvars</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">backend</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="n">staging</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="n">production</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">main</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">variables</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">├──</span><span class="w"> </span><span class="n">outputs</span><span class="o">.</span><span class="n">tf</span>
+<span class="err">└──</span><span class="w"> </span><span class="n">versions</span><span class="o">.</span><span class="n">tf</span>
+</code></pre></div>
+
+<h4 id="sprint-33-10">Sprint 3.3: تحسينات إضافية (الأسبوع 10)<a class="headerlink" href="#sprint-33-10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>45</td>
+<td>توسيع npm workspaces (12 → 80+)</td>
+<td><code>package.json</code></td>
+<td>1d</td>
+</tr>
+<tr>
+<td>46</td>
+<td>تنظيف services.yaml من الإدخالات الوصفية</td>
+<td><code>governance/</code></td>
+<td>4h</td>
+</tr>
+<tr>
+<td>47</td>
+<td>إضافة Redis Sentinel HA config</td>
+<td><code>config/redis/</code></td>
+<td>1d</td>
+</tr>
+<tr>
+<td>48</td>
+<td>توسيع shared/agents/ module</td>
+<td>CrewAI integration</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>49</td>
+<td>إضافة 28 خدمة مفقودة لـ docker-compose.yml</td>
+<td><code>docker-compose.yml</code></td>
+<td>2d</td>
+</tr>
+<tr>
+<td>50</td>
+<td>إضافة resource limits لكل الخدمات</td>
+<td><code>docker-compose.yml</code></td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<h4 id="3">معيار إنهاء المرحلة 3:<a class="headerlink" href="#3" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] Helm charts ≥ 80% تغطية (65+ chart)</li>
+<li>[ ] Terraform modules مكتملة لـ AWS</li>
+<li>[ ] npm workspaces تشمل جميع الخدمات</li>
+<li>[ ] Redis HA مُعد بشكل صحيح</li>
+<li>[ ] docker-compose.yml يشمل جميع الخدمات</li>
+</ul>
+<hr />
+<h3 id="4-phase-4-production-readiness">المرحلة 4: الاستعداد للإنتاج | Phase 4: Production Readiness<a class="headerlink" href="#4-phase-4-production-readiness" title="Permanent link">&para;</a></h3>
+<p><strong>المدة</strong>: أسبوعان | <strong>الأولوية</strong>: 🟢 | <strong>الهدف</strong>: تحقق نهائي + اختبار حمل</p>
+<h4 id="sprint-41-11">Sprint 4.1: التحقق النهائي (الأسبوع 11)<a class="headerlink" href="#sprint-41-11" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>51</td>
+<td>اختبار نشر كامل على K8s</td>
+<td>minikube/kind cluster</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>52</td>
+<td>اختبار حمل شامل (k6 + Locust)</td>
+<td>جميع الخدمات الأساسية</td>
+<td>3d</td>
+</tr>
+<tr>
+<td>53</td>
+<td>تحقق أمني نهائي</td>
+<td>Trivy + CodeQL + Bandit</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>54</td>
+<td>اختبار DR (Disaster Recovery)</td>
+<td>failover + backup restore</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>55</td>
+<td>اختبار أداء قاعدة البيانات</td>
+<td>pgbench + query analysis</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<h4 id="sprint-42-12">Sprint 4.2: التوثيق والإطلاق (الأسبوع 12)<a class="headerlink" href="#sprint-42-12" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المهمة</th>
+<th>التفصيل</th>
+<th>الجهد</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>56</td>
+<td>تحديث CLAUDE.md بالتغييرات</td>
+<td>reflect all changes</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>57</td>
+<td>إنشاء Runbook للإنتاج</td>
+<td>operational procedures</td>
+<td>2d</td>
+</tr>
+<tr>
+<td>58</td>
+<td>إنشاء دليل الاستعداد للإنتاج</td>
+<td>production checklist</td>
+<td>1d</td>
+</tr>
+<tr>
+<td>59</td>
+<td>مراجعة نهائية شاملة</td>
+<td>final audit</td>
+<td>1d</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4_1">معيار إنهاء المرحلة 4:<a class="headerlink" href="#4_1" title="Permanent link">&para;</a></h4>
+<ul>
+<li>[ ] نشر ناجح على K8s بجميع الخدمات</li>
+<li>[ ] اختبار حمل: p95 &lt; 500ms للخدمات الأساسية</li>
+<li>[ ] تغطية الاختبارات ≥ 60%</li>
+<li>[ ] 0 ثغرات حرجة في الفحص الأمني</li>
+<li>[ ] DR مُختبر ومُوثق</li>
+<li>[ ] التقييم الإجمالي ≥ 92/100</li>
+</ul>
+<hr />
+<h2 id="part-5-success-metrics">الجزء الخامس: مؤشرات النجاح | Part 5: Success Metrics<a class="headerlink" href="#part-5-success-metrics" title="Permanent link">&para;</a></h2>
+<h3 id="51-kpis-">5.1 مؤشرات الأداء الرئيسية (KPIs) - مُحدث<a class="headerlink" href="#51-kpis-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الحالي</th>
+<th>الأسبوع 4</th>
+<th>الأسبوع 8</th>
+<th>الأسبوع 14</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>التقييم الإجمالي</td>
+<td>78.1</td>
+<td>85</td>
+<td>90</td>
+<td>92+</td>
+</tr>
+<tr>
+<td>تغطية الاختبارات</td>
+<td>10%</td>
+<td>25%</td>
+<td>40%</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Helm charts coverage</td>
+<td>21%</td>
+<td>21%</td>
+<td>80%</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>مشاكل حرجة متبقية</td>
+<td>22</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>CI/CD blocking rate</td>
+<td>27%</td>
+<td>80%</td>
+<td>95%</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Docker multi-stage</td>
+<td>34%</td>
+<td>34%</td>
+<td>60%</td>
+<td>80%</td>
+</tr>
+<tr>
+<td>تقييم الأمان</td>
+<td>82</td>
+<td>90</td>
+<td>93</td>
+<td>95</td>
+</tr>
+<tr>
+<td>E2E tests</td>
+<td>7</td>
+<td>15</td>
+<td>25</td>
+<td>30+</td>
+</tr>
+<tr>
+<td><strong>Copilot Full-Stack</strong></td>
+<td><strong>55%</strong></td>
+<td><strong>85%</strong></td>
+<td><strong>90%</strong></td>
+<td><strong>95%</strong></td>
+</tr>
+<tr>
+<td><strong>Copilot Web UI</strong></td>
+<td><strong>0%</strong></td>
+<td><strong>90%</strong></td>
+<td><strong>95%</strong></td>
+<td><strong>98%</strong></td>
+</tr>
+<tr>
+<td><strong>Copilot Admin UI</strong></td>
+<td><strong>0%</strong></td>
+<td><strong>80%</strong></td>
+<td><strong>90%</strong></td>
+<td><strong>95%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="52">5.2 معايير القبول للإنتاج<a class="headerlink" href="#52" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>╔═══════════════════════════════════════════════════════════════╗
+║           Production Readiness Checklist                       ║
+╠═══════════════════════════════════════════════════════════════╣
+║                                                               ║
+║  [ ] 0 مشاكل حرجة (P0)                                      ║
+║  [ ] &lt; 5 مشاكل عالية (P1)                                    ║
+║  [ ] تغطية اختبارات ≥ 60%                                    ║
+║  [ ] CI/CD يحجب 100% من الفشل                                 ║
+║  [ ] Helm charts ≥ 90% من الخدمات                             ║
+║  [ ] اختبار حمل ناجح (p95 &lt; 500ms)                           ║
+║  [ ] DR مُختبر (RPO &lt; 1h, RTO &lt; 4h)                          ║
+║  [ ] 0 ثغرات حرجة في الفحص الأمني                            ║
+║  [ ] جميع الخدمات لديها HEALTHCHECK                           ║
+║  [ ] جميع منافذ Kong صحيحة                                    ║
+║  [ ] TLS مُفعل لجميع الاتصالات                                ║
+║  [ ] Monitoring + Alerting مُفعل                               ║
+║  [ ] Copilot Web UI مكتمل ويعمل                                ║
+║  [ ] Copilot Admin UI مكتمل مع إدارة RAG                       ║
+║  [ ] copilot-api: JWT + NATS + DB + streaming                  ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+</code></pre></div>
+
+<hr />
+<h2 id="part-6-effort-estimation">الجزء السادس: تقدير الجهد والموارد | Part 6: Effort Estimation<a class="headerlink" href="#part-6-effort-estimation" title="Permanent link">&para;</a></h2>
+<h3 id="61">6.1 ملخص الجهد حسب المرحلة (مُحدث)<a class="headerlink" href="#61" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المرحلة</th>
+<th>المدة</th>
+<th>أيام عمل</th>
+<th>المهام</th>
+<th>المطور المطلوب</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>المرحلة 0</td>
+<td>أسبوعان</td>
+<td>8 أيام</td>
+<td>16 مهمة</td>
+<td>1 DevOps + 1 Backend</td>
+</tr>
+<tr>
+<td>المرحلة 1</td>
+<td>أسبوعان</td>
+<td>18 يوم</td>
+<td>18 مهمة</td>
+<td>1 Backend + 1 Frontend + 1 Full-Stack</td>
+</tr>
+<tr>
+<td>المرحلة 2</td>
+<td>3 أسابيع</td>
+<td>15 يوم</td>
+<td>10 مهام</td>
+<td>2 Backend + 1 QA</td>
+</tr>
+<tr>
+<td>المرحلة 3</td>
+<td>4 أسابيع</td>
+<td>20 يوم</td>
+<td>18 مهمة</td>
+<td>1 DevOps + 1 Backend</td>
+</tr>
+<tr>
+<td>المرحلة 4</td>
+<td>أسبوعان</td>
+<td>10 أيام</td>
+<td>9 مهام</td>
+<td>1 DevOps + 1 QA</td>
+</tr>
+<tr>
+<td><strong>الإجمالي</strong></td>
+<td><strong>14 أسبوع</strong></td>
+<td><strong>71 يوم</strong></td>
+<td><strong>71 مهمة</strong></td>
+<td><strong>فريق 4-5 أشخاص</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="62">6.2 ملخص الجهد حسب النوع (مُحدث)<a class="headerlink" href="#62" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>DevOps/Infrastructure:  ██████████████████████░░░░░ 30%  (21 يوم)
+Backend Development:    ██████████████████████░░░░░ 28%  (20 يوم)
+Frontend (Copilot UI):  █████████████████░░░░░░░░░░ 18%  (13 يوم) ← زاد بسبب Copilot
+Testing/QA:             ██████████████████░░░░░░░░░ 17%  (12 يوم)
+Documentation:          ███████░░░░░░░░░░░░░░░░░░░░  7%  (5 أيام)
+</code></pre></div>
+
+<hr />
+<h2 id="part-7-risks-dependencies">الجزء السابع: المخاطر والتبعيات | Part 7: Risks &amp; Dependencies<a class="headerlink" href="#part-7-risks-dependencies" title="Permanent link">&para;</a></h2>
+<h3 id="71">7.1 المخاطر<a class="headerlink" href="#71" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المخاطرة</th>
+<th>الاحتمال</th>
+<th>التأثير</th>
+<th>التخفيف</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>فشل إصلاح CI/CD يُدخل regression</td>
+<td>متوسط</td>
+<td>عالي</td>
+<td>تفعيل تدريجي + مراقبة</td>
+</tr>
+<tr>
+<td>توحيد DB schema يكسر خدمات</td>
+<td>عالي</td>
+<td>حرج</td>
+<td>migration تدريجي + rollback plan</td>
+</tr>
+<tr>
+<td>Terraform يحتاج وقت أكثر من المقدر</td>
+<td>عالي</td>
+<td>متوسط</td>
+<td>استخدام modules جاهزة</td>
+</tr>
+<tr>
+<td>Helm charts لا تتوافق مع البيئة</td>
+<td>متوسط</td>
+<td>عالي</td>
+<td>اختبار على minikube أولاً</td>
+</tr>
+<tr>
+<td>رفع حد التغطية يحجب builds</td>
+<td>عالي</td>
+<td>منخفض</td>
+<td>رفع تدريجي + exemptions</td>
+</tr>
+<tr>
+<td>Copilot UI لا يتوافق مع API الحالي</td>
+<td>متوسط</td>
+<td>عالي</td>
+<td>اختبار OpenAPI spec أولاً</td>
+</tr>
+<tr>
+<td>LLM streaming يتطلب تغيير WebSocket</td>
+<td>منخفض</td>
+<td>متوسط</td>
+<td>SSE كفاية + fallback</td>
+</tr>
+<tr>
+<td>Prompt injection يتسبب في تسريب بيانات</td>
+<td>متوسط</td>
+<td>حرج</td>
+<td>guardrails + monitoring + rate limit</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72">7.2 التبعيات بين المراحل<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المرحلة 0 ──→ المرحلة 1 ──→ المرحلة 2 ──→ المرحلة 4
+                  │                            ↑
+                  └──→ المرحلة 3 ──────────────┘
+
+ملاحظة: المرحلة 3 (Helm + Terraform) يمكن أن تسير بالتوازي مع المرحلة 2
+</code></pre></div>
+
+<hr />
+<h2 id="part-8-tracking">الجزء الثامن: التتبع والمراقبة | Part 8: Tracking<a class="headerlink" href="#part-8-tracking" title="Permanent link">&para;</a></h2>
+<h3 id="81">8.1 لوحة متابعة أسبوعية<a class="headerlink" href="#81" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">الأسبوع</span><span class="o">:</span><span class="w"> </span><span class="n">___</span><span class="w">   </span><span class="err">التاريخ</span><span class="o">:</span><span class="w"> </span><span class="n">___________</span>
+
+<span class="err">المشاكل</span><span class="w"> </span><span class="err">الحرجة</span><span class="w"> </span><span class="err">المتبقية</span><span class="o">:</span><span class="w">  </span><span class="n">___</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">22</span>
+<span class="err">تغطية</span><span class="w"> </span><span class="err">الاختبارات</span><span class="o">:</span><span class="w">         </span><span class="n">___</span><span class="w"> </span><span class="o">%</span>
+<span class="n">Helm</span><span class="w"> </span><span class="n">coverage</span><span class="o">:</span><span class="w">            </span><span class="n">___</span><span class="w"> </span><span class="o">%</span>
+<span class="n">Copilot</span><span class="w"> </span><span class="n">Full</span><span class="o">-</span><span class="n">Stack</span><span class="o">:</span><span class="w">       </span><span class="n">___</span><span class="w"> </span><span class="o">%</span>
+<span class="err">التقييم</span><span class="w"> </span><span class="err">الإجمالي</span><span class="o">:</span><span class="w">         </span><span class="n">___</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">100</span>
+
+<span class="err">المهام</span><span class="w"> </span><span class="err">المنجزة</span><span class="w"> </span><span class="err">هذا</span><span class="w"> </span><span class="err">الأسبوع</span><span class="o">:</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+
+<span class="err">العوائق</span><span class="o">:</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+
+<span class="err">الأسبوع</span><span class="w"> </span><span class="err">القادم</span><span class="o">:</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+<span class="err">□</span><span class="w"> </span><span class="n">___________________</span>
+</code></pre></div>
+
+<hr />
+<hr />
+<h2 id="part-9-reports-index">الجزء التاسع: فهرس التقارير | Part 9: Reports Index<a class="headerlink" href="#part-9-reports-index" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>التقرير</th>
+<th>الملف</th>
+<th>النطاق</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>تدقيق Dockerfiles الشامل</td>
+<td><code>DOCKERFILE_COMPREHENSIVE_AUDIT.md</code></td>
+<td>82 Dockerfile</td>
+</tr>
+<tr>
+<td>2</td>
+<td>تقرير المنصة الموحد</td>
+<td><code>UNIFIED_PLATFORM_AUDIT_REPORT.md</code></td>
+<td>56 تقرير مُجمع</td>
+</tr>
+<tr>
+<td>3</td>
+<td>تدقيق المكونات المتبقية</td>
+<td><code>REMAINING_COMPONENTS_AUDIT.md</code></td>
+<td>6 مكونات</td>
+</tr>
+<tr>
+<td>4</td>
+<td>تدقيق Copilot Full-Stack</td>
+<td><code>COPILOT_FULLSTACK_AUDIT.md</code></td>
+<td>Backend + Web + Admin + Mobile</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>المراجعة النهائية + خارطة الطريق</strong></td>
+<td><strong>هذا الملف (v2)</strong></td>
+<td><strong>شامل + Copilot</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>تم إعداد هذا التقرير بناءً على تحليل 57 تقرير تدقيق + تحليل فجوات نهائي + تدقيق Copilot Full-Stack</em>
+<em>إجمالي الملفات المُراجعة: ~2,200+ ملف عبر جميع المكونات</em>
+<em>التحديثات: v2 يتضمن نتائج تدقيق Copilot (4 مشاكل حرجة جديدة + 12 مهمة إضافية)</em>
+<em>SAHOOL Platform v16.0.0 | KAFAAT</em>
+<em>2026-02-14</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

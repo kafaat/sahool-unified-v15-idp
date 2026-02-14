@@ -1,0 +1,2314 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>التقرير الشامل الموحد لمنصة سهول | SAHOOL Unified Platform Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-unified-platform-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              التقرير الشامل الموحد لمنصة سهول | SAHOOL Unified Platform Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-unified-platform-audit-report">التقرير الشامل الموحد لمنصة سهول | SAHOOL Unified Platform Audit Report<a class="headerlink" href="#sahool-unified-platform-audit-report" title="Permanent link">&para;</a></h1>
+<p><strong>الإصدار</strong>: 16.0.0 | <strong>المالك</strong>: KAFAAT
+<strong>تاريخ التجميع</strong>: 2026-02-13
+<strong>يغطي</strong>: جميع الجلسات والتدقيقات السابقة (54 تقرير + 129 كوميت)
+<strong>الحالة</strong>: تقرير تجميعي نهائي</p>
+<hr />
+<h2 id="executive-summary">الملخص التنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>هذا التقرير يجمع نتائج <strong>54 تقرير تدقيق</strong> من جلسات متعددة تغطي كل جوانب منصة سهول الزراعية. المنصة تتكون من <strong>77 خدمة</strong> (67 نشطة + 3 فارغة + 5 هيكلية + 11 مهملة) مع <strong>82 Dockerfile</strong> و <strong>21,319 ملف</strong> في المستودع.</p>
+<h3 id="_1">التقييم الإجمالي للمنصة<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>╔══════════════════════════════════════════════════════════════╗
+║              SAHOOL Platform Health Score                    ║
+║                                                              ║
+║  الإجمالي:  ████████████████████████░░░░░  82/100           ║
+║                                                              ║
+║  العمارة:   ████████████████████████████░  95/100  ⭐⭐⭐⭐⭐ ║
+║  الأمان:    ████████████████████████░░░░░  85/100  ⭐⭐⭐⭐  ║
+║  الكود:     ████████████████████████░░░░░  85/100  ⭐⭐⭐⭐  ║
+║  قواعد البيانات: ██████████████░░░░░░░░░░░  65/100  ⭐⭐⭐   ║
+║  الاختبارات: ███████████████████░░░░░░░░░░  70/100  ⭐⭐⭐   ║
+║  Docker:     ███████████████████░░░░░░░░░░  72/100  ⭐⭐⭐   ║
+║  التوثيق:   ████████████████████████████░  95/100  ⭐⭐⭐⭐⭐ ║
+║  البنية التحتية: ████████████████████████░░  90/100  ⭐⭐⭐⭐⭐║
+║  الأداء:    ████████████████████████░░░░░  88/100  ⭐⭐⭐⭐  ║
+║  قابلية التوسع: ████████████████████████████  95/100  ⭐⭐⭐⭐⭐║
+╚══════════════════════════════════════════════════════════════╝
+</code></pre></div>
+
+<hr />
+<h2 id="1-all-reports-index">القسم 1: ملخص جميع التقارير | All Reports Index<a class="headerlink" href="#1-all-reports-index" title="Permanent link">&para;</a></h2>
+<h3 id="11-54">1.1 التقارير حسب الفئة (54 تقرير)<a class="headerlink" href="#11-54" title="Permanent link">&para;</a></h3>
+<h4 id="docker-5">أ) تقارير Docker والحاويات (5 تقارير)<a class="headerlink" href="#docker-5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة الرئيسية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DOCKERFILE_COMPREHENSIVE_AUDIT</td>
+<td>2026-02-13</td>
+<td>حالي</td>
+<td>82 Dockerfile مدققة، 6% فقط تطابق المعيار الذهبي</td>
+</tr>
+<tr>
+<td>ENV_DOCKER_KONG_CROSS_REFERENCE_AUDIT</td>
+<td>2026-02-13</td>
+<td>حالي</td>
+<td>18 مشكلة حرجة (8 P0, 6 P1, 4 P2)</td>
+</tr>
+<tr>
+<td>DOCKER_DEPLOYMENT</td>
+<td>حالي</td>
+<td>مرجع</td>
+<td>دليل نشر 44 خدمة عبر Docker Compose</td>
+</tr>
+<tr>
+<td>BUILD_VALIDATION_REPORT</td>
+<td>2026-01-06</td>
+<td>حالي</td>
+<td>52 Dockerfile: 41 ناجح (78.8%)، 11 تحتاج إصلاح</td>
+</tr>
+<tr>
+<td>CONTAINER_STATUS_REPORT</td>
+<td>قديم</td>
+<td>أرشيف</td>
+<td>تقرير حالة 50+ حاوية</td>
+</tr>
+</tbody>
+</table>
+<h4 id="7">ب) تقارير الأمان (7 تقارير)<a class="headerlink" href="#7" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>الخطورة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CORS_SECURITY_FIX_SUMMARY</td>
+<td>2024-12-24</td>
+<td>✅ مُصلح</td>
+<td>🔴 عالي</td>
+<td>إصلاح CORS wildcard في 4 خدمات</td>
+</tr>
+<tr>
+<td>JWT_GUARDS_IMPLEMENTATION</td>
+<td>2024-12-27</td>
+<td>✅ مكتمل</td>
+<td>🟠 متوسط</td>
+<td>تحقق من حالة المستخدم في Redis</td>
+</tr>
+<tr>
+<td>TOKEN_REVOCATION_COMPLETE</td>
+<td>حالي</td>
+<td>✅ مكتمل</td>
+<td>🟠 متوسط</td>
+<td>نظام إبطال التوكنات عبر Redis</td>
+</tr>
+<tr>
+<td>PASSWORD_MIGRATION_SUMMARY</td>
+<td>حالي</td>
+<td>✅ مكتمل</td>
+<td>🔴 عالي</td>
+<td>ترحيل إلى Argon2id</td>
+</tr>
+<tr>
+<td>RATE_LIMITING_FIX_SUMMARY</td>
+<td>2025-12-27</td>
+<td>✅ مُصلح</td>
+<td>🔴 عالي</td>
+<td>إصلاح Rate Limiting المعطل بالكامل</td>
+</tr>
+<tr>
+<td>REDIS_SENTINEL_IMPLEMENTATION</td>
+<td>حالي</td>
+<td>✅ مكتمل</td>
+<td>🟡 متوسط</td>
+<td>3 عقد Sentinel + failover &lt; 10 ثوان</td>
+</tr>
+<tr>
+<td>AUTO_AUDIT_TOOLS_BENEFITS</td>
+<td>2026-01-05</td>
+<td>✅ تشغيلي</td>
+<td>🟠 متوسط</td>
+<td>كشف تلقائي &lt; 10 ثوان</td>
+</tr>
+<tr>
+<td>BACKEND_AUDIT_REPORT_v16.3</td>
+<td>2025-12-30</td>
+<td>حالي</td>
+<td>-</td>
+<td>جاهزية 85% مع 18 وكيل تحليل</td>
+</tr>
+</tbody>
+</table>
+<h4 id="2">ج) تقارير قواعد البيانات (2 تقرير)<a class="headerlink" href="#2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DATABASE_ANALYSIS_REPORT</td>
+<td>2026-01-01</td>
+<td>حرج</td>
+<td>87 فجوة (12 حرجة): IoT بدون schema، لا خدمة مستخدم مركزية</td>
+</tr>
+<tr>
+<td>DATABASE_SCHEMA_ANALYSIS_AR</td>
+<td>2025-12-24</td>
+<td>حرج</td>
+<td>تعارضات: جدول fields بـ 3 تعريفات، tenant_id بأنواع مختلفة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="api-4">د) تقارير API والخدمات (4 تقارير)<a class="headerlink" href="#api-4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SAHOOL_SERVICES_API_DOCUMENTATION</td>
+<td>Dec 2025</td>
+<td>مرجع</td>
+<td>توثيق 20 خدمة كامل</td>
+</tr>
+<tr>
+<td>API_ENDPOINT_VALIDATION_REPORT</td>
+<td>2026-01-04</td>
+<td>حالي</td>
+<td>تأكيد صحة <code>/api/v1/</code></td>
+</tr>
+<tr>
+<td>SERVICES_DOCUMENTATION</td>
+<td>حالي</td>
+<td>مرجع</td>
+<td>توثيق ثنائي اللغة v15.3</td>
+</tr>
+<tr>
+<td>RATE_LIMITING_FIX_SUMMARY</td>
+<td>2025-12-27</td>
+<td>✅ مكتمل</td>
+<td>Token Bucket + Sliding Window</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4">هـ) تقارير الواجهة الأمامية (4 تقارير)<a class="headerlink" href="#4" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FRONTEND_OPTIMIZATION_REPORT</td>
+<td>2026-01-01</td>
+<td>حالي</td>
+<td>314 ملف، 22 وكيل AI، 47 إصلاح وصولية</td>
+</tr>
+<tr>
+<td>DASHBOARD_REVIEW_REPORT</td>
+<td>2025-12-26</td>
+<td>حالي</td>
+<td>مراجعة شاملة بـ 5 وكلاء</td>
+</tr>
+<tr>
+<td>SAHOOL_MOBILE_APP_DEVELOPMENT_PROMPT</td>
+<td>حالي</td>
+<td>مرجع</td>
+<td>دليل تطوير تطبيق Flutter</td>
+</tr>
+<tr>
+<td>WEATHER_FEATURE_UPDATE_SUMMARY</td>
+<td>2025-12-24</td>
+<td>✅ مكتمل</td>
+<td>تكامل API الطقس مع fallback</td>
+</tr>
+</tbody>
+</table>
+<h4 id="5">و) تقارير البنية التحتية (5 تقارير)<a class="headerlink" href="#5" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>INFRASTRUCTURE_VERIFICATION</td>
+<td>2025-12-31</td>
+<td>✅</td>
+<td>40/40 توصية مطبقة (100%)</td>
+</tr>
+<tr>
+<td>FINAL_DEPLOYMENT_REPORT</td>
+<td>2026-01-06</td>
+<td>✅</td>
+<td>جاهز للإنتاج - 100% جميع الفئات</td>
+</tr>
+<tr>
+<td>KONG_DNS_ISSUE_ANALYSIS</td>
+<td>حالي</td>
+<td>مفتوح</td>
+<td>مشاكل DNS لـ marketplace/research</td>
+</tr>
+<tr>
+<td>FINAL_BUILD_REPORT</td>
+<td>2026-01-06</td>
+<td>✅ مكتمل</td>
+<td>تحقق بناء شامل</td>
+</tr>
+<tr>
+<td>COMPETITIVE_GAP_ANALYSIS_FIELD_VIEW</td>
+<td>2026-01-05</td>
+<td>حالي</td>
+<td>سهول مقابل John Deere و Farmonaut</td>
+</tr>
+</tbody>
+</table>
+<h4 id="aiml-2">ز) تقارير AI/ML (2 تقرير)<a class="headerlink" href="#aiml-2" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>التاريخ</th>
+<th>الحالة</th>
+<th>النتيجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SAHOOL_AI_IDP_INSPECTION</td>
+<td>Jan 2026</td>
+<td>حالي</td>
+<td>نظام وكلاء AI ممتاز ⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td>DEPRECATED_AI_SERVICES_CLEANUP</td>
+<td>2026-01-06</td>
+<td>✅ مكتمل</td>
+<td>تنظيف crop-health و ndvi-engine</td>
+</tr>
+</tbody>
+</table>
+<h4 id="19">ح) تقارير المشروع العامة (19 تقرير)<a class="headerlink" href="#19" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>الحالة</th>
+<th>النتيجة الرئيسية</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>COMPREHENSIVE_REVIEW_REPORT_AR</td>
+<td>حالي</td>
+<td>تقييم 8.1/10 - جاهز للإنتاج</td>
+</tr>
+<tr>
+<td>PROJECT_EVALUATION_REPORT</td>
+<td>حالي</td>
+<td>تقييم 89.75% - ممتاز</td>
+</tr>
+<tr>
+<td>FINAL_REVIEW_REPORT</td>
+<td>حالي</td>
+<td>تقييم 8/10 - جاهز</td>
+</tr>
+<tr>
+<td>CODEBASE_ANALYSIS_REPORT</td>
+<td>حالي</td>
+<td>1,052 ملف، 19 مشكلة حرجة</td>
+</tr>
+<tr>
+<td>PROJECT_GAPS_AND_SOLUTIONS</td>
+<td>حالي</td>
+<td>27 فجوة عبر 7 فئات</td>
+</tr>
+<tr>
+<td>ACTION_PLAN_IMPROVEMENTS</td>
+<td>حالي</td>
+<td>خطة 4 مراحل</td>
+</tr>
+<tr>
+<td>GAPS_AND_RECOMMENDATIONS</td>
+<td>حالي</td>
+<td>لا مشاكل حرجة، تحسينات متوسطة</td>
+</tr>
+<tr>
+<td>وغيرها...</td>
+<td>متنوع</td>
+<td>تحليلات وملخصات متعددة</td>
+</tr>
+</tbody>
+</table>
+<h4 id="6">ط) ملخصات التنفيذ (6 تقارير)<a class="headerlink" href="#6" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>التقرير</th>
+<th>الحالة</th>
+<th>ما تم تنفيذه</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IMPLEMENTATION_SUMMARY</td>
+<td>✅</td>
+<td>إصلاح الفجوات الحرجة</td>
+</tr>
+<tr>
+<td>IMPLEMENTATION_SUMMARY_COMPREHENSIVE</td>
+<td>✅</td>
+<td>تحسينات مؤسسية (observability، أمان، CI/CD)</td>
+</tr>
+<tr>
+<td>TASK_ASTRONOMICAL_INTEGRATION</td>
+<td>اقتراح</td>
+<td>تكامل التقويم الفلكي</td>
+</tr>
+<tr>
+<td>TESTS_SUMMARY</td>
+<td>✅</td>
+<td>3,068 سطر اختبار لـ 5 خدمات</td>
+</tr>
+<tr>
+<td>TEST_FIXES_SUMMARY</td>
+<td>✅</td>
+<td>إصلاح اختبارات فاشلة</td>
+</tr>
+<tr>
+<td>WEATHER_FEATURE_UPDATE_SUMMARY</td>
+<td>✅</td>
+<td>تحديث ميزة الطقس</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-security-posture">القسم 2: الحالة الأمنية الشاملة | Security Posture<a class="headerlink" href="#2-security-posture" title="Permanent link">&para;</a></h2>
+<h3 id="21">2.1 إصلاحات أمنية مكتملة ✅<a class="headerlink" href="#21" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الثغرة</th>
+<th>الخطورة</th>
+<th>الحالة</th>
+<th>التقرير المرجعي</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>CORS Wildcard Origins</td>
+<td>🔴 عالي</td>
+<td>✅ مُصلح</td>
+<td>CORS_SECURITY_FIX_SUMMARY</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Rate Limiting معطل (دائماً False)</td>
+<td>🔴 عالي</td>
+<td>✅ مُصلح</td>
+<td>RATE_LIMITING_FIX_SUMMARY</td>
+</tr>
+<tr>
+<td>3</td>
+<td>تشفير كلمات المرور ضعيف</td>
+<td>🔴 عالي</td>
+<td>✅ مُصلح</td>
+<td>PASSWORD_MIGRATION_SUMMARY</td>
+</tr>
+<tr>
+<td>4</td>
+<td>MQTT Anonymous Auth مفعل</td>
+<td>🔴 عالي</td>
+<td>✅ مُصلح</td>
+<td>BACKEND_AUDIT_REPORT</td>
+</tr>
+<tr>
+<td>5</td>
+<td>WebSocket بدون JWT</td>
+<td>🟠 متوسط</td>
+<td>✅ مُصلح</td>
+<td>FINAL_REVIEW_REPORT</td>
+</tr>
+<tr>
+<td>6</td>
+<td>لا يوجد إبطال توكنات</td>
+<td>🟠 متوسط</td>
+<td>✅ مُصلح</td>
+<td>TOKEN_REVOCATION_COMPLETE</td>
+</tr>
+<tr>
+<td>7</td>
+<td>مستخدمون محذوفون يمكنهم الوصول</td>
+<td>🟠 متوسط</td>
+<td>✅ مُصلح</td>
+<td>JWT_GUARDS_IMPLEMENTATION</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Redis نقطة فشل واحدة</td>
+<td>🟡 متوسط</td>
+<td>✅ مُصلح</td>
+<td>REDIS_SENTINEL_IMPLEMENTATION</td>
+</tr>
+<tr>
+<td>9</td>
+<td>كلمات مرور مضمنة في docker-compose</td>
+<td>🟡 متوسط</td>
+<td>✅ مُصلح</td>
+<td>FINAL_REVIEW_REPORT</td>
+</tr>
+<tr>
+<td>10</td>
+<td>JWT Guards ناقصة في 4 خدمات Node.js</td>
+<td>🟠 متوسط</td>
+<td>✅ مُصلح</td>
+<td>JWT_GUARDS_IMPLEMENTATION</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22">2.2 مشاكل أمنية متبقية ⚠️<a class="headerlink" href="#22" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>الخطورة</th>
+<th>المصدر</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ترحيل JWT من HS256 إلى RS256 (50%)</td>
+<td>🟠 متوسط</td>
+<td>BACKEND_AUDIT</td>
+<td>قيد التنفيذ</td>
+</tr>
+<tr>
+<td>2</td>
+<td>GDPR (65-70%): لا يوجد endpoints للتصدير/المحو</td>
+<td>🟠 متوسط</td>
+<td>BACKEND_AUDIT</td>
+<td>قيد التنفيذ</td>
+</tr>
+<tr>
+<td>3</td>
+<td>بيانات اعتماد مضمنة في 4 خدمات v3.0</td>
+<td>🟠 متوسط</td>
+<td>ENV_DOCKER_KONG_AUDIT</td>
+<td>يحتاج إصلاح</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Gitleaks: لم يُفعل في CI كإلزامي</td>
+<td>🟡 منخفض</td>
+<td>PROJECT_GAPS</td>
+<td>يحتاج تفعيل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-database-status">القسم 3: حالة قواعد البيانات | Database Status<a class="headerlink" href="#3-database-status" title="Permanent link">&para;</a></h2>
+<h3 id="31">3.1 مشاكل حرجة<a class="headerlink" href="#31" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>المصدر</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>جدول <code>fields</code> بـ 3 تعريفات متعارضة</strong></td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>يمنع تشغيل الخدمات</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>IoT Service بدون database schema</strong></td>
+<td>DATABASE_ANALYSIS</td>
+<td>فقدان بيانات المستشعرات</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>لا يوجد خدمة مستخدم مركزية</strong></td>
+<td>DATABASE_ANALYSIS</td>
+<td>user_id موزع عبر كل الخدمات</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>tenant_id بأنواع مختلفة</strong></td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>UUID vs VARCHAR(100) vs VARCHAR(64)</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>لا نظام ترحيل موحد</strong></td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>Alembic + Prisma + Raw SQL متنافسة</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32">3.2 مشاكل متوسطة<a class="headerlink" href="#32" title="Permanent link">&para;</a></h3>
+<ul>
+<li>87 فجوة إجمالية (12 حرجة، 28 عالية، 31 متوسطة، 16 منخفضة)</li>
+<li>فهارس مفقودة: chat_messages، transactions، iot_readings، research_plots</li>
+<li>Research-core: 80%+ غير مُنفذ (17 نموذج معرف، بدون APIs)</li>
+<li>بيانات الطقس لا تُخزن (تُجلب عند الطلب فقط)</li>
+</ul>
+<hr />
+<h2 id="4-docker-docker-status">القسم 4: حالة Docker والحاويات | Docker Status<a class="headerlink" href="#4-docker-docker-status" title="Permanent link">&para;</a></h2>
+<h3 id="41-82-dockerfile">4.1 ملخص تدقيق 82 Dockerfile<a class="headerlink" href="#41-82-dockerfile" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>المعيار          المتحقق    الهدف     الفجوة
+──────────────────────────────────────────────
+HEALTHCHECK       96%        100%      4%
+مستخدم غير root   100%       100%      0%  ✅
+Multi-stage       34%        100%      66% ⛔
+Multi-mirror pip  76%        100%      24%
+Constraints file  11%        100%      89% ⛔
+نسخ shared/       87%        100%      13%
+مستخدم sahool     78%        100%      22%
+OCI Labels        18%        100%      82% ⛔
+</code></pre></div>
+
+<h3 id="42-env_docker_kong_audit">4.2 مشاكل بنية تحتية حرجة (من ENV_DOCKER_KONG_AUDIT)<a class="headerlink" href="#42-env_docker_kong_audit" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>المشكلة</th>
+<th>الأولوية</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>5 خدمات Kong تشير لمنافذ خاطئة</td>
+<td>P0</td>
+<td>فشل التوجيه الكامل</td>
+</tr>
+<tr>
+<td>2</td>
+<td>.env URLs خاطئة لخدمتين</td>
+<td>P0</td>
+<td>فشل الاتصال</td>
+</tr>
+<tr>
+<td>3</td>
+<td>تعارض JWT: RS256 vs HS256</td>
+<td>P1</td>
+<td>فشل المصادقة</td>
+</tr>
+<tr>
+<td>4</td>
+<td>تعارض منفذ 8230 (خدمتان)</td>
+<td>P0</td>
+<td>فشل التشغيل</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-testing-status">القسم 5: حالة الاختبارات | Testing Status<a class="headerlink" href="#5-testing-status" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>الاختبارات الناجحة:  270/286 (94.4%)
+الاختبارات الفاشلة:  16/286 (5.6%)
+تغطية الكود:         46% (الهدف: 60%)
+أسطر الاختبار:       3,068+ LOC
+فئات الاختبار:       18 فئة
+</code></pre></div>
+
+<h3 id="_2">المشاكل:<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>UUID validation لا يكتشف الأخطاء</li>
+<li>WKT format assertion mismatch</li>
+<li>Import paths غير متسقة (sys.path.insert بطرق متعددة)</li>
+<li>Package naming: <code>field-suite</code> غير صالح لاستيراد Python</li>
+</ul>
+<hr />
+<h2 id="6-frontend-status">القسم 6: حالة الواجهات | Frontend Status<a class="headerlink" href="#6-frontend-status" title="Permanent link">&para;</a></h2>
+<h3 id="web-dashboard">Web Dashboard<a class="headerlink" href="#web-dashboard" title="Permanent link">&para;</a></h3>
+<ul>
+<li>314 ملف محلل بواسطة 22 وكيل AI</li>
+<li>47 إصلاح وصولية (WCAG 2.1)</li>
+<li>8 تحسينات أداء (React.memo, useCallback)</li>
+<li>حجم البناء: Web 121KB، Admin 102KB</li>
+</ul>
+<h3 id="mobile-flutter">Mobile (Flutter)<a class="headerlink" href="#mobile-flutter" title="Permanent link">&para;</a></h3>
+<ul>
+<li>335,301 سطر كود</li>
+<li>58 وحدة ميزة</li>
+<li>24 TODO مفتوح (wallet، marketplace، equipment)</li>
+<li>Offline-first مع SQLCipher encryption</li>
+</ul>
+<h3 id="competitive_gap_analysis">فجوات الواجهة (من COMPETITIVE_GAP_ANALYSIS):<a class="headerlink" href="#competitive_gap_analysis" title="Permanent link">&para;</a></h3>
+<ol>
+<li>خريطة تفاعلية: placeholder فقط</li>
+<li>Health Zones: لا تُرسم</li>
+<li>أتمتة NDVI→Tasks: مفقودة</li>
+</ol>
+<hr />
+<h2 id="7-infrastructure-status">القسم 7: حالة البنية التحتية | Infrastructure Status<a class="headerlink" href="#7-infrastructure-status" title="Permanent link">&para;</a></h2>
+<h3 id="71-4040">7.1 ما تم تنفيذه ✅ (40/40 توصية)<a class="headerlink" href="#71-4040" title="Permanent link">&para;</a></h3>
+<ul>
+<li>✅ PostgreSQL HA مع Patroni</li>
+<li>✅ Redis Sentinel (3 عقد + failover)</li>
+<li>✅ NATS JetStream persistence</li>
+<li>✅ Kong Gateway (105 route)</li>
+<li>✅ PgBouncer connection pooling</li>
+<li>✅ Prometheus + Grafana (4 dashboards)</li>
+<li>✅ OpenTelemetry + Jaeger tracing</li>
+<li>✅ Zero-downtime deployments</li>
+<li>✅ GitOps via ArgoCD (18 apps)</li>
+<li>✅ HashiCorp Vault secrets</li>
+<li>✅ Offline-first mobile sync</li>
+</ul>
+<h3 id="72">7.2 ما يحتاج تحسين<a class="headerlink" href="#72" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Kong DNS: مشاكل لـ marketplace/research</li>
+<li>5 Kong routes تشير لمنافذ خاطئة</li>
+<li>Monitoring: dashboards تحتاج تحديث</li>
+</ul>
+<hr />
+<h2 id="8-aiml-ai-status">القسم 8: حالة AI/ML | AI Status<a class="headerlink" href="#8-aiml-ai-status" title="Permanent link">&para;</a></h2>
+<ul>
+<li>✅ نظام وكلاء AI ممتاز (⭐⭐⭐⭐⭐)</li>
+<li>✅ 50+ نموذج زراعي مسجل</li>
+<li>✅ YOLO26 Vision Service (أفضل Dockerfile في المشروع)</li>
+<li>✅ RAG System مع Qdrant/Milvus</li>
+<li>✅ CrewAI multi-agent orchestration</li>
+<li>✅ Arabic NLP (AraBERT)</li>
+<li>✅ Ollama local LLM</li>
+<li>✅ تنظيف خدمات AI المهملة مكتمل</li>
+</ul>
+<hr />
+<h2 id="9-competitive-position">القسم 9: التقييم التنافسي | Competitive Position<a class="headerlink" href="#9-competitive-position" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>المعيار</th>
+<th>سهول</th>
+<th>John Deere</th>
+<th>Farmonaut</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>دعم Offline</td>
+<td>✅ 9/10 (فريد)</td>
+<td>❌ 3/10</td>
+<td>❌ 2/10</td>
+</tr>
+<tr>
+<td>دعم عربي</td>
+<td>✅ 10/10 (فريد)</td>
+<td>❌ 0/10</td>
+<td>❌ 0/10</td>
+</tr>
+<tr>
+<td>تقويم فلكي</td>
+<td>✅ (فريد)</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>تشخيص أمراض</td>
+<td>✅ 8/10</td>
+<td>✅ 7/10</td>
+<td>✅ 6/10</td>
+</tr>
+<tr>
+<td>اتصال معدات</td>
+<td>❌ 3/10</td>
+<td>✅ 10/10</td>
+<td>❌ 2/10</td>
+</tr>
+<tr>
+<td>تحليل NDVI</td>
+<td>✅ 7/10</td>
+<td>✅ 8/10</td>
+<td>✅ 9/10</td>
+</tr>
+<tr>
+<td>Multi-tenant</td>
+<td>✅</td>
+<td>❌</td>
+<td>⚠️ جزئي</td>
+</tr>
+<tr>
+<td>سوق زراعي</td>
+<td>✅</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-unified-action-plan">القسم 10: خطة العمل الموحدة | Unified Action Plan<a class="headerlink" href="#10-unified-action-plan" title="Permanent link">&para;</a></h2>
+<h3 id="1">المرحلة 1: إصلاحات فورية (أسبوع واحد) 🔴<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الإجراء</th>
+<th>المصدر</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>إصلاح 5 Kong routes خاطئة</td>
+<td>ENV_DOCKER_KONG_AUDIT</td>
+<td>فشل توجيه</td>
+</tr>
+<tr>
+<td>2</td>
+<td>إصلاح تعارض منفذ 8230</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>فشل تشغيل</td>
+</tr>
+<tr>
+<td>3</td>
+<td>إضافة shared/ لـ 8 خدمات</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>فشل تشغيل</td>
+</tr>
+<tr>
+<td>4</td>
+<td>إصلاح pip mirrors لـ 4 خدمات</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>فشل بناء</td>
+</tr>
+<tr>
+<td>5</td>
+<td>إصلاح بيانات اعتماد مضمنة في 4 خدمات</td>
+<td>ENV_DOCKER_KONG_AUDIT</td>
+<td>ثغرة أمنية</td>
+</tr>
+<tr>
+<td>6</td>
+<td>إصلاح .env URLs خاطئة</td>
+<td>ENV_DOCKER_KONG_AUDIT</td>
+<td>فشل اتصال</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-2-4">المرحلة 2: تحسينات مهمة (2-4 أسابيع) 🟠<a class="headerlink" href="#2-2-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الإجراء</th>
+<th>المصدر</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td>إنشاء IoT database schema</td>
+<td>DATABASE_ANALYSIS</td>
+<td>فقدان بيانات</td>
+</tr>
+<tr>
+<td>8</td>
+<td>توحيد tenant_id إلى UUID</td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>تعارضات</td>
+</tr>
+<tr>
+<td>9</td>
+<td>حل تعارض جدول fields (3 تعريفات)</td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>خلل schema</td>
+</tr>
+<tr>
+<td>10</td>
+<td>إكمال ترحيل JWT إلى RS256</td>
+<td>BACKEND_AUDIT</td>
+<td>أمان</td>
+</tr>
+<tr>
+<td>11</td>
+<td>إكمال GDPR (export/erasure endpoints)</td>
+<td>BACKEND_AUDIT</td>
+<td>امتثال</td>
+</tr>
+<tr>
+<td>12</td>
+<td>رفع تغطية الاختبارات 46% → 60%</td>
+<td>PROJECT_GAPS</td>
+<td>جودة</td>
+</tr>
+<tr>
+<td>13</td>
+<td>إصلاح 16 اختبار فاشل</td>
+<td>PROJECT_GAPS</td>
+<td>CI/CD</td>
+</tr>
+<tr>
+<td>14</td>
+<td>تحويل 37 خدمة Python إلى multi-stage</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>حجم/أمان</td>
+</tr>
+<tr>
+<td>15</td>
+<td>إضافة npm mirror لـ 10 خدمات Node.js</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>بناء</td>
+</tr>
+<tr>
+<td>16</td>
+<td>توحيد المستخدم إلى sahool:1000</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>اتساق</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-1-3">المرحلة 3: تحسينات متوسطة (1-3 أشهر) 🟡<a class="headerlink" href="#3-1-3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الإجراء</th>
+<th>المصدر</th>
+<th>التأثير</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>17</td>
+<td>تنفيذ Research-core (80% ناقص)</td>
+<td>DATABASE_ANALYSIS</td>
+<td>ميزات</td>
+</tr>
+<tr>
+<td>18</td>
+<td>إضافة constraints.txt لـ 49 خدمة</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>توافق</td>
+</tr>
+<tr>
+<td>19</td>
+<td>إصلاح 3 فجوات واجهة (خريطة، zones، NDVI)</td>
+<td>COMPETITIVE_GAP</td>
+<td>تنافسية</td>
+</tr>
+<tr>
+<td>20</td>
+<td>تحسين أداء قاعدة البيانات (فهارس)</td>
+<td>DATABASE_ANALYSIS</td>
+<td>أداء</td>
+</tr>
+<tr>
+<td>21</td>
+<td>إكمال 24 TODO في تطبيق الموبايل</td>
+<td>FINAL_REVIEW</td>
+<td>ميزات</td>
+</tr>
+<tr>
+<td>22</td>
+<td>إضافة OCI Labels لجميع الخدمات</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>توثيق</td>
+</tr>
+<tr>
+<td>23</td>
+<td>تحديث IDP Template</td>
+<td>DOCKERFILE_AUDIT</td>
+<td>جودة القوالب</td>
+</tr>
+<tr>
+<td>24</td>
+<td>توحيد نظام الترحيل (Liquibase)</td>
+<td>DATABASE_SCHEMA_ANALYSIS</td>
+<td>استقرار</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-3-12">المرحلة 4: تحسينات طويلة المدى (3-12 شهر) 🟢<a class="headerlink" href="#4-3-12" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الإجراء</th>
+<th>المصدر</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>25</td>
+<td>تطبيق Service Mesh (Istio)</td>
+<td>ACTION_PLAN</td>
+</tr>
+<tr>
+<td>26</td>
+<td>إضافة GraphQL Gateway</td>
+<td>ACTION_PLAN</td>
+</tr>
+<tr>
+<td>27</td>
+<td>تطبيق اتصال معدات (IoT advanced)</td>
+<td>COMPETITIVE_GAP</td>
+</tr>
+<tr>
+<td>28</td>
+<td>تطبيق Chaos Engineering</td>
+<td>ACTION_PLAN</td>
+</tr>
+<tr>
+<td>29</td>
+<td>تطبيق A/B Testing للتوصيات</td>
+<td>ACTION_PLAN</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-risk-matrix">القسم 11: مصفوفة المخاطر | Risk Matrix<a class="headerlink" href="#11-risk-matrix" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>        التأثير
+        عالي │ [1][2]  [7][8][9]    [25]
+             │
+      متوسط │ [3][4]  [10][11]     [17][18]
+             │
+      منخفض │ [5][6]  [14][15]     [22][23]
+             │
+             └────────────────────────────────
+               عالي    متوسط      منخفض
+                    الاحتمالية
+
+[1] Kong routes خاطئة    [7] IoT schema مفقود
+[2] تعارض منافذ           [8] tenant_id تعارض
+[3] shared/ مفقود         [9] fields تعارض
+[4] pip mirrors مفقود    [10] JWT RS256
+[5] credentials مضمنة    [11] GDPR
+</code></pre></div>
+
+<hr />
+<h2 id="12-kpis">القسم 12: مؤشرات الأداء الرئيسية | KPIs<a class="headerlink" href="#12-kpis" title="Permanent link">&para;</a></h2>
+<h3 id="vs">الحالة الحالية vs الهدف<a class="headerlink" href="#vs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المؤشر</th>
+<th>الحالي</th>
+<th>الهدف (Q2 2026)</th>
+<th>الفجوة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>خدمات نشطة</td>
+<td>67</td>
+<td>67</td>
+<td>0 ✅</td>
+</tr>
+<tr>
+<td>Dockerfiles مطابقة</td>
+<td>5 (6%)</td>
+<td>60 (73%)</td>
+<td>-55</td>
+</tr>
+<tr>
+<td>تغطية اختبارات</td>
+<td>46%</td>
+<td>70%</td>
+<td>-24%</td>
+</tr>
+<tr>
+<td>اختبارات ناجحة</td>
+<td>94.4%</td>
+<td>99%</td>
+<td>-4.6%</td>
+</tr>
+<tr>
+<td>HEALTHCHECK</td>
+<td>96%</td>
+<td>100%</td>
+<td>-4%</td>
+</tr>
+<tr>
+<td>Multi-stage build</td>
+<td>34%</td>
+<td>90%</td>
+<td>-56%</td>
+</tr>
+<tr>
+<td>أمان (ثغرات مفتوحة)</td>
+<td>4</td>
+<td>0</td>
+<td>-4</td>
+</tr>
+<tr>
+<td>DB gaps حرجة</td>
+<td>5</td>
+<td>0</td>
+<td>-5</td>
+</tr>
+<tr>
+<td>Mobile TODOs</td>
+<td>24</td>
+<td>0</td>
+<td>-24</td>
+</tr>
+<tr>
+<td>تقييم إجمالي</td>
+<td>82/100</td>
+<td>92/100</td>
+<td>-10</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-reports-reference">القسم 13: فهرس التقارير المرجعية | Reports Reference<a class="headerlink" href="#13-reports-reference" title="Permanent link">&para;</a></h2>
+<h3 id="docsreports">الموقع: <code>docs/reports/</code><a class="headerlink" href="#docsreports" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">docs</span><span class="o">/</span><span class="n">reports</span><span class="o">/</span>
+<span class="err">├──</span> <span class="n">UNIFIED_PLATFORM_AUDIT_REPORT</span><span class="p">.</span><span class="n">md</span>          <span class="err">←</span> <span class="err">هذا</span> <span class="err">التقرير</span> <span class="p">(</span><span class="err">شامل</span><span class="p">)</span>
+<span class="err">├──</span> <span class="n">DOCKERFILE_COMPREHENSIVE_AUDIT</span><span class="p">.</span><span class="n">md</span>         <span class="err">←</span> <span class="err">تدقيق</span> <span class="mi">82</span> <span class="n">Dockerfile</span>
+<span class="err">├──</span> <span class="n">ENV_DOCKER_KONG_CROSS_REFERENCE_AUDIT</span><span class="p">.</span><span class="n">md</span>  <span class="err">←</span> <span class="err">تدقيق</span> <span class="p">.</span><span class="n">env</span><span class="o">/</span><span class="n">Docker</span><span class="o">/</span><span class="n">Kong</span>
+<span class="err">├──</span> <span class="n">COMPREHENSIVE_REVIEW_REPORT_AR</span><span class="p">.</span><span class="n">md</span>         <span class="err">←</span> <span class="err">مراجعة</span> <span class="err">شاملة</span> <span class="err">ثنائية</span> <span class="err">اللغة</span>
+<span class="err">├──</span> <span class="n">PROJECT_EVALUATION_REPORT</span><span class="p">.</span><span class="n">md</span>              <span class="err">←</span> <span class="err">تقييم</span> <span class="mf">89.75</span><span class="err">%</span>
+<span class="err">├──</span> <span class="n">BACKEND_AUDIT_REPORT_v16</span><span class="p">.</span><span class="mi">3</span><span class="p">.</span><span class="n">md</span>             <span class="err">←</span> <span class="err">تدقيق</span> <span class="err">الخلفية</span>
+<span class="err">├──</span> <span class="n">DATABASE_ANALYSIS_REPORT</span><span class="p">.</span><span class="n">md</span>               <span class="err">←</span> <span class="err">تحليل</span> <span class="err">قاعدة</span> <span class="err">البيانات</span>
+<span class="err">├──</span> <span class="n">DATABASE_SCHEMA_ANALYSIS_AR</span><span class="p">.</span><span class="n">md</span>            <span class="err">←</span> <span class="err">تحليل</span> <span class="err">المخطط</span>
+<span class="err">├──</span> <span class="n">CODEBASE_ANALYSIS_REPORT</span><span class="p">.</span><span class="n">md</span>               <span class="err">←</span> <span class="err">تحليل</span> <span class="err">الكود</span>
+<span class="err">├──</span> <span class="n">PROJECT_GAPS_AND_SOLUTIONS</span><span class="p">.</span><span class="n">md</span>             <span class="err">←</span> <span class="err">الفجوات</span> <span class="err">والحلول</span>
+<span class="err">├──</span> <span class="n">ACTION_PLAN_IMPROVEMENTS</span><span class="p">.</span><span class="n">md</span>               <span class="err">←</span> <span class="err">خطة</span> <span class="err">التحسين</span>
+<span class="err">├──</span> <span class="n">COMPETITIVE_GAP_ANALYSIS_FIELD_VIEW</span><span class="p">.</span><span class="n">md</span>    <span class="err">←</span> <span class="err">التحليل</span> <span class="err">التنافسي</span>
+<span class="err">│</span>
+<span class="err">├──</span> <span class="p">[</span><span class="err">أمان</span><span class="p">]</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">CORS_SECURITY_FIX_SUMMARY</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">JWT_GUARDS_IMPLEMENTATION_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">TOKEN_REVOCATION_COMPLETE_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">PASSWORD_MIGRATION_SUMMARY</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">RATE_LIMITING_FIX_SUMMARY</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">└──</span> <span class="n">REDIS_SENTINEL_IMPLEMENTATION</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>
+<span class="err">├──</span> <span class="p">[</span><span class="err">بنية</span> <span class="err">تحتية</span><span class="p">]</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">INFRASTRUCTURE_VERIFICATION_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">FINAL_DEPLOYMENT_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">KONG_DNS_ISSUE_ANALYSIS</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">└──</span> <span class="n">BUILD_VALIDATION_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>
+<span class="err">├──</span> <span class="p">[</span><span class="err">واجهات</span><span class="p">]</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">FRONTEND_OPTIMIZATION_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">├──</span> <span class="n">DASHBOARD_REVIEW_REPORT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>   <span class="err">└──</span> <span class="n">SAHOOL_MOBILE_APP_DEVELOPMENT_PROMPT</span><span class="p">.</span><span class="n">md</span>
+<span class="err">│</span>
+<span class="err">└──</span> <span class="p">[</span><span class="mi">38</span> <span class="err">تقرير</span> <span class="err">إضافي</span><span class="p">...]</span>
+</code></pre></div>
+
+<hr />
+<h2 id="conclusion">الخلاصة | Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>منصة سهول هي <strong>منصة زراعية ذكية متقدمة</strong> بتقييم إجمالي <strong>82/100</strong>. العمارة ممتازة (95/100) والبنية التحتية قوية (90/100)، لكن هناك فجوات حرجة في:</p>
+<ol>
+<li><strong>قواعد البيانات</strong> (65/100): تعارضات schema وعدم وجود نظام ترحيل موحد</li>
+<li><strong>Docker</strong> (72/100): 66% من الخدمات بدون multi-stage build</li>
+<li><strong>الاختبارات</strong> (70/100): تغطية 46% فقط من الهدف 60%</li>
+</ol>
+<p><strong>التوصية</strong>: التركيز على المرحلة 1 (أسبوع) والمرحلة 2 (2-4 أسابيع) لرفع التقييم إلى <strong>90+/100</strong> وتحقيق جاهزية إنتاج كاملة.</p>
+<hr />
+<p><em>تقرير شامل موحد مُنشأ من 54 تقرير تدقيق سابق</em>
+<em>تاريخ التجميع: 2026-02-13</em>
+<em>المراجعة التالية: 2026-03-01</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -6,6 +6,7 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { IotModule } from "./iot/iot.module";
+import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 
 @Module({
@@ -28,6 +29,7 @@ import { HealthController } from "./health/health.controller";
         limit: 1000, // 1000 requests per hour
       },
     ]),
+    PrismaModule,
     IotModule,
   ],
   controllers: [HealthController],

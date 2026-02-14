@@ -9,6 +9,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -234,5 +235,26 @@ export class IotController {
       actuators,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  // ==========================================================================
+  // Historical Data
+  // ==========================================================================
+
+  @Get("field/:fieldId/history")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "Get historical sensor readings from database" })
+  @ApiParam({ name: "fieldId", description: "Field identifier" })
+  @ApiResponse({ status: 200, description: "Historical readings retrieved" })
+  async getHistoricalReadings(
+    @Param("fieldId") fieldId: string,
+    @Query("sensorType") sensorType?: string,
+    @Query("hours") hours?: string,
+  ) {
+    return this.iotService.getHistoricalReadings(
+      fieldId,
+      sensorType,
+      hours ? parseInt(hours, 10) : 24,
+    );
   }
 }

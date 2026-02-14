@@ -41,8 +41,8 @@ class FarmORM(Base):
         default=uuid4,
         comment="Unique farm identifier",
     )
-    tenant_id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True),
+    tenant_id: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
         index=True,
         comment="Tenant that owns this farm",
@@ -134,8 +134,8 @@ class FieldORM(Base):
         default=uuid4,
         comment="Unique field identifier",
     )
-    tenant_id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True),
+    tenant_id: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
         index=True,
         comment="Tenant that owns this field",
@@ -194,7 +194,7 @@ class FieldORM(Base):
         String(20),
         nullable=False,
         default="active",
-        comment="Field status: active, fallow, preparation, harvesting",
+        comment="Field status: active, fallow, harvested, preparing, inactive",
     )
     current_crop_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True),
@@ -252,8 +252,8 @@ class ZoneORM(Base):
         default=uuid4,
         comment="Unique zone identifier",
     )
-    tenant_id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True),
+    tenant_id: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
         index=True,
         comment="Tenant that owns this zone",
@@ -351,8 +351,8 @@ class SubZoneORM(Base):
         default=uuid4,
         comment="Unique sub-zone identifier",
     )
-    tenant_id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True),
+    tenant_id: Mapped[str] = mapped_column(
+        String(100),
         nullable=False,
         index=True,
         comment="Tenant that owns this sub-zone",

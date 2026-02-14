@@ -16,6 +16,7 @@ import {
   Logger,
 } from "@nestjs/common";
 import Redis from "ioredis";
+import { PrismaService } from "../prisma/prisma.service";
 import * as mqtt from "mqtt";
 import { v4 as uuidv4 } from "uuid";
 import { publishNotificationSend } from "@sahool/shared-events";
@@ -100,10 +101,13 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
   }
 
-  constructor() {
+  constructor(private readonly prisma: PrismaService) {
     this.isTestEnvironment = ["test", "ci", "testing"].includes(
       (process.env.ENVIRONMENT || process.env.NODE_ENV || "").toLowerCase(),
     );
+
+    // Check database connectivity
+    this.checkDatabaseConnection();
 
     // Only create Redis client if not in test environment or if REDIS_HOST is explicitly set
     if (!this.isTestEnvironment || process.env.REDIS_HOST) {
@@ -298,6 +302,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     const key = `sensor:${fieldId}:${sensorType}`;
     await this.cacheSensorReading(key, reading);
 
+    // Persist to database for historical queries
+    await this.persistSensorReading(reading);
+
     this.logger.debug(
       `📊 Sensor ${sensorType} @ ${fieldId}: ${reading.value}${reading.unit}`,
     );
@@ -340,6 +347,9 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     };
 
     await this.cacheDeviceStatus(status);
+
+    // Persist to database
+    await this.persistDeviceStatus(status);
 
     if (status.batteryLevel && status.batteryLevel < 20) {
       this.logger.warn(
@@ -657,6 +667,207 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  // ===========================================================================
+  // Database Persistence Methods
+  // ===========================================================================
+
+  private dbConnected = false;
+
+  private async checkDatabaseConnection(): Promise<void> {
+    try {
+      await this.prisma.$queryRaw`SELECT 1`;
+      this.dbConnected = true;
+      this.logger.log("Database connection verified for persistence");
+    } catch {
+      this.dbConnected = false;
+      this.logger.warn("Database not available - running with Redis cache only");
+    }
+  }
+
+  /**
+   * Persist sensor reading to database for historical queries
+   */
+  private async persistSensorReading(reading: SensorReading): Promise<void> {
+    if (!this.dbConnected) return;
+    try {
+      // Upsert device
+      const device = await this.prisma.device.upsert({
+        where: {
+          tenantId_deviceId: {
+            tenantId: "default",
+            deviceId: reading.deviceId,
+          },
+        },
+        update: {
+          lastSeen: new Date(),
+          status: "ONLINE",
+        },
+        create: {
+          tenantId: "default",
+          deviceId: reading.deviceId,
+          name: reading.deviceId,
+          type: "SOIL_MOISTURE_SENSOR",
+          status: "ONLINE",
+          lastSeen: new Date(),
+          fieldId: reading.fieldId,
+        },
+      });
+
+      // Upsert sensor
+      const sensor = await this.prisma.sensor.upsert({
+        where: {
+          id: `${device.id}-${reading.sensorType}`,
+        },
+        update: {
+          lastReading: reading.value,
+          lastReadingAt: reading.timestamp,
+        },
+        create: {
+          tenantId: "default",
+          deviceId: device.id,
+          sensorType: this.mapSensorType(reading.sensorType),
+          unit: reading.unit,
+          lastReading: reading.value,
+          lastReadingAt: reading.timestamp,
+        },
+      });
+
+      // Create reading record
+      await this.prisma.sensorReading.create({
+        data: {
+          tenantId: "default",
+          sensorId: sensor.id,
+          deviceId: device.id,
+          value: reading.value,
+          unit: reading.unit,
+          timestamp: reading.timestamp,
+          quality: reading.quality === "good" ? 1.0 : reading.quality === "warning" ? 0.5 : 0.0,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to persist sensor reading: ${error.message}`);
+    }
+  }
+
+  /**
+   * Persist device status to database
+   */
+  private async persistDeviceStatus(status: DeviceStatus): Promise<void> {
+    if (!this.dbConnected) return;
+    try {
+      await this.prisma.device.upsert({
+        where: {
+          tenantId_deviceId: {
+            tenantId: "default",
+            deviceId: status.deviceId,
+          },
+        },
+        update: {
+          status: status.status === "online" ? "ONLINE" : status.status === "offline" ? "OFFLINE" : "ERROR",
+          lastSeen: status.lastSeen,
+          metadata: status.batteryLevel ? { batteryLevel: status.batteryLevel } : undefined,
+        },
+        create: {
+          tenantId: "default",
+          deviceId: status.deviceId,
+          name: status.name,
+          type: status.type === "sensor" ? "SOIL_MOISTURE_SENSOR" : "PUMP_CONTROLLER",
+          status: status.status === "online" ? "ONLINE" : "OFFLINE",
+          lastSeen: status.lastSeen,
+          fieldId: status.fieldId,
+          metadata: status.batteryLevel ? { batteryLevel: status.batteryLevel } : undefined,
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to persist device status: ${error.message}`);
+    }
+  }
+
+  /**
+   * Create alert in database when sensor thresholds exceeded
+   */
+  private async persistAlert(reading: SensorReading, alertType: "low" | "high", threshold: number): Promise<void> {
+    if (!this.dbConnected) return;
+    try {
+      const device = await this.prisma.device.findFirst({
+        where: { deviceId: reading.deviceId },
+      });
+      if (!device) return;
+
+      await this.prisma.deviceAlert.create({
+        data: {
+          deviceId: device.id,
+          tenantId: "default",
+          alertType: `${reading.sensorType}_${alertType}`,
+          severity: "WARNING",
+          message: `${reading.sensorType} ${alertType === "low" ? "below" : "above"} threshold: ${reading.value}${reading.unit} (threshold: ${threshold}${reading.unit})`,
+          metadata: {
+            sensorType: reading.sensorType,
+            value: reading.value,
+            unit: reading.unit,
+            threshold,
+            fieldId: reading.fieldId,
+          },
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to persist alert: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get historical sensor readings from database
+   * استعلام البيانات التاريخية من قاعدة البيانات
+   */
+  async getHistoricalReadings(
+    fieldId: string,
+    sensorType?: string,
+    hours: number = 24,
+  ): Promise<any[]> {
+    if (!this.dbConnected) return [];
+    try {
+      const since = new Date(Date.now() - hours * 60 * 60 * 1000);
+      const where: any = {
+        timestamp: { gte: since },
+        device: { fieldId },
+      };
+      if (sensorType) {
+        where.sensor = { sensorType: this.mapSensorType(sensorType as SensorType) };
+      }
+      return await this.prisma.sensorReading.findMany({
+        where,
+        orderBy: { timestamp: "desc" },
+        take: 1000,
+        include: {
+          sensor: { select: { sensorType: true, unit: true } },
+        },
+      });
+    } catch (error) {
+      this.logger.error(`Failed to fetch historical readings: ${error.message}`);
+      return [];
+    }
+  }
+
+  /**
+   * Map service sensor type to Prisma enum
+   */
+  private mapSensorType(type: SensorType): string {
+    const mapping: Record<string, string> = {
+      [SensorType.SOIL_MOISTURE]: "SOIL_MOISTURE",
+      [SensorType.SOIL_TEMPERATURE]: "SOIL_TEMPERATURE",
+      [SensorType.AIR_TEMPERATURE]: "AIR_TEMPERATURE",
+      [SensorType.AIR_HUMIDITY]: "AIR_HUMIDITY",
+      [SensorType.LIGHT_INTENSITY]: "LIGHT_INTENSITY",
+      [SensorType.WATER_LEVEL]: "WATER_LEVEL",
+      [SensorType.WATER_FLOW]: "WATER_FLOW",
+      [SensorType.PH_LEVEL]: "PH_LEVEL",
+      [SensorType.EC_LEVEL]: "EC_LEVEL",
+      [SensorType.WIND_SPEED]: "WIND_SPEED",
+      [SensorType.RAIN_GAUGE]: "RAINFALL",
+    };
+    return mapping[type] || "CUSTOM";
+  }
+
   // ==========================================================================
   // Helper Methods
   // ==========================================================================
@@ -721,6 +932,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         `⚠️ Low ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
       this.sendSensorAlertNotification(reading, "low", threshold.low);
+      void this.persistAlert(reading, "low", threshold.low);
     }
 
     if (threshold.high && reading.value > threshold.high) {
@@ -728,6 +940,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         `⚠️ High ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
       this.sendSensorAlertNotification(reading, "high", threshold.high);
+      void this.persistAlert(reading, "high", threshold.high);
     }
   }
 

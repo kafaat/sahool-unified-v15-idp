@@ -17,6 +17,7 @@ import {
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
+import { SensorType as PrismaSensorType } from "@prisma/client";
 import * as mqtt from "mqtt";
 import { v4 as uuidv4 } from "uuid";
 import { publishNotificationSend } from "@sahool/shared-events";
@@ -851,21 +852,21 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Map service sensor type to Prisma enum
    */
-  private mapSensorType(type: SensorType): string {
-    const mapping: Record<string, string> = {
-      [SensorType.SOIL_MOISTURE]: "SOIL_MOISTURE",
-      [SensorType.SOIL_TEMPERATURE]: "SOIL_TEMPERATURE",
-      [SensorType.AIR_TEMPERATURE]: "AIR_TEMPERATURE",
-      [SensorType.AIR_HUMIDITY]: "AIR_HUMIDITY",
-      [SensorType.LIGHT_INTENSITY]: "LIGHT_INTENSITY",
-      [SensorType.WATER_LEVEL]: "WATER_LEVEL",
-      [SensorType.WATER_FLOW]: "WATER_FLOW",
-      [SensorType.PH_LEVEL]: "PH_LEVEL",
-      [SensorType.EC_LEVEL]: "EC_LEVEL",
-      [SensorType.WIND_SPEED]: "WIND_SPEED",
-      [SensorType.RAIN_GAUGE]: "RAINFALL",
+  private mapSensorType(type: SensorType): PrismaSensorType {
+    const mapping: Record<string, PrismaSensorType> = {
+      [SensorType.SOIL_MOISTURE]: PrismaSensorType.SOIL_MOISTURE,
+      [SensorType.SOIL_TEMPERATURE]: PrismaSensorType.SOIL_TEMPERATURE,
+      [SensorType.AIR_TEMPERATURE]: PrismaSensorType.AIR_TEMPERATURE,
+      [SensorType.AIR_HUMIDITY]: PrismaSensorType.AIR_HUMIDITY,
+      [SensorType.LIGHT_INTENSITY]: PrismaSensorType.LIGHT_INTENSITY,
+      [SensorType.WATER_LEVEL]: PrismaSensorType.WATER_LEVEL,
+      [SensorType.WATER_FLOW]: PrismaSensorType.WATER_FLOW,
+      [SensorType.PH_LEVEL]: PrismaSensorType.PH_LEVEL,
+      [SensorType.EC_LEVEL]: PrismaSensorType.EC_LEVEL,
+      [SensorType.WIND_SPEED]: PrismaSensorType.WIND_SPEED,
+      [SensorType.RAIN_GAUGE]: PrismaSensorType.RAINFALL,
     };
-    return mapping[type] || "CUSTOM";
+    return mapping[type] || PrismaSensorType.CUSTOM;
   }
 
   // ==========================================================================

@@ -2,7 +2,7 @@
 # تبعيات خدمة الامتثال لـ GlobalGAP
 
 # Database
-asyncpg>=0.29.0
+asyncpg>=0.30.0
 
 # Web Framework
 fastapi>=0.104.0

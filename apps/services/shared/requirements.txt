@@ -23,13 +23,13 @@ bcrypt==5.0.0
 passlib[bcrypt]==1.7.4
 
 # Messaging
-nats-py>=2.7.0
-redis[hiredis]>=5.2.1
+nats-py==2.13.1
+redis[hiredis]>=7.1.0,<8.0.0
 
 # Utilities
-python-dotenv==1.0.1
+python-dotenv==1.2.1
 python-multipart==0.0.22
 
 # Observability
-structlog>=24.1.0
-prometheus-client>=0.21.1
+structlog==24.4.0
+prometheus-client==0.24.1

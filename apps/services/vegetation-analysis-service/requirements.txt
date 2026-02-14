@@ -16,7 +16,7 @@ cryptography>=42.0.0
 httpx==0.28.1
 
 # Utilities
-python-dotenv==1.0.1
+python-dotenv==1.2.1
 
 # Redis cache
 redis[hiredis]==7.1.0

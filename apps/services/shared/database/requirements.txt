@@ -6,7 +6,7 @@ sqlalchemy>=2.0.0
 
 # PostgreSQL drivers
 psycopg2-binary>=2.9.0  # Synchronous driver
-asyncpg>=0.29.0         # Async driver
+asyncpg>=0.30.0         # Async driver
 
 # Alembic for migrations
 alembic>=1.13.0

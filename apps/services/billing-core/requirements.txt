@@ -18,19 +18,19 @@ alembic==1.18.3
 stripe==11.3.0
 
 # Date/Time handling
-python-dateutil==2.8.2
+python-dateutil==2.9.0.post0
 
 # HTTP Client (for inter-service communication)
 httpx==0.28.1
 
 # NATS Messaging (for event-driven architecture)
-nats-py==2.9.0
+nats-py==2.13.1
 
 # Utilities
-python-dotenv==1.0.1
+python-dotenv==1.2.1
 
 # Scheduling (for recurring billing)
-apscheduler==3.10.4
+apscheduler==3.11.2
 
 # Authentication
 PyJWT>=2.8.0,<3.0.0

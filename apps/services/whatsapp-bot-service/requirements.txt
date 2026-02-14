@@ -14,7 +14,7 @@ asyncpg>=0.30.0,<1.0.0
 PyJWT>=2.8.0,<3.0.0
 cryptography>=42.0.0
 # Redis for Session Management
-redis>=5.0.0,<6.0.0
+redis>=7.1.0,<8.0.0
 # NATS for Events
 nats-py>=2.7.0,<3.0.0
 # Logging

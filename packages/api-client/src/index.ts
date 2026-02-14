@@ -66,7 +66,7 @@ const DEFAULT_PORTS: ServicePorts = {
   wsGateway: 8081, // ws-gateway (FIXED: was 8090 - conflict)
 
   // Agriculture Domain - الخدمات الزراعية المتخصصة
-  soilAnalysis: 8124, // soil-analysis-service
+  soilAnalysis: 8134, // soil-analysis-service
   drone: 8126, // drone-service
   cooperative: 8127, // cooperative-service
   traceability: 8123, // traceability-service

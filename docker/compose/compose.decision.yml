@@ -163,7 +163,7 @@ services:
     - nats
   agro-advisor:
     build:
-      context: ../../apps/services/agro-advisor
+      context: ../../archive/deprecated-services/agro-advisor
       dockerfile: Dockerfile
     ports:
     - 8105:8105
@@ -273,6 +273,33 @@ services:
     - irrigation-smart
     - pest-detection-service
     - yolo26-vision-service
+  drone-service:
+    build:
+      context: ../../apps/services/drone-service
+      dockerfile: Dockerfile
+    ports:
+    - 8126:8126
+    environment:
+    - PORT=8126
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8126/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - weather-service
+    - field-management-service
 networks:
   sahool-network:
     driver: bridge

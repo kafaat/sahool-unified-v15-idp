@@ -1008,7 +1008,7 @@ services:
   # خدمة تحليل التربة - اختبار وتحليل التربة
   - name: soil-analysis-service
     host: soil-analysis-service
-    port: 8124
+    port: 8134
     protocol: http
     routes:
       - name: soil-analysis-route

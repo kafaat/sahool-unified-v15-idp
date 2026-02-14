@@ -163,7 +163,7 @@ services:
     - nats
   agro-advisor:
     build:
-      context: ../../apps/services/agro-advisor
+      context: ../../archive/deprecated-services/agro-advisor
       dockerfile: Dockerfile
     ports:
     - 8105:8105
@@ -273,6 +273,33 @@ services:
     - irrigation-smart
     - pest-detection-service
     - yolo26-vision-service
+  drone-service:
+    build:
+      context: ../../apps/services/drone-service
+      dockerfile: Dockerfile
+    ports:
+    - 8126:8126
+    environment:
+    - PORT=8126
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8126/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - weather-service
+    - field-management-service
   disaster-assessment:
     build:
       context: ../../apps/services/disaster-assessment
@@ -700,7 +727,7 @@ services:
     - redis
   ndvi-engine:
     build:
-      context: ../../apps/services/ndvi-engine
+      context: ../../archive/deprecated-services/ndvi-engine
       dockerfile: Dockerfile
     ports:
     - 8107:8107
@@ -806,6 +833,33 @@ services:
     depends_on:
     - terrain-core-service
     - weather-service
+  soil-analysis-service:
+    build:
+      context: ../../apps/services/soil-analysis-service
+      dockerfile: Dockerfile
+    ports:
+    - 8134:8134
+    environment:
+    - PORT=8134
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8134/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - advisory-service
+    - notification-service
   marketplace-service:
     build:
       context: ../../apps/services/marketplace-service
@@ -1594,6 +1648,60 @@ services:
     - llm-orchestrator-service
     - yolo26-vision-service
     - notification-service
+  cooperative-service:
+    build:
+      context: ../../apps/services/cooperative-service
+      dockerfile: Dockerfile
+    ports:
+    - 8127:8127
+    environment:
+    - PORT=8127
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8127/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - user-service
+    - notification-service
+  traceability-service:
+    build:
+      context: ../../apps/services/traceability-service
+      dockerfile: Dockerfile
+    ports:
+    - 8123:8123
+    environment:
+    - PORT=8123
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8123/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '300'
+          memory: 512Mi
+    depends_on:
+    - field-management-service
+    - notification-service
   iot-service:
     build:
       context: ../../apps/services/iot-service
@@ -1807,7 +1915,7 @@ services:
     - mqtt
   weather-core:
     build:
-      context: ../../apps/services/weather-core
+      context: ../../archive/deprecated-services/weather-core
       dockerfile: Dockerfile
     ports:
     - 8108:8108

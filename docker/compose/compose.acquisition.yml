@@ -213,7 +213,7 @@ services:
     - mqtt
   weather-core:
     build:
-      context: ../../apps/services/weather-core
+      context: ../../archive/deprecated-services/weather-core
       dockerfile: Dockerfile
     ports:
     - 8108:8108

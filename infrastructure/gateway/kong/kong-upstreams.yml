@@ -956,7 +956,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: soil-analysis-service:8124
+      - target: soil-analysis-service:8134
         weight: 100
         tags:
           - analytics

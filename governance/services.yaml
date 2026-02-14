@@ -2929,7 +2929,7 @@ services:
     category: intelligence
     layer: intelligence
     path: "apps/services/soil-analysis-service"
-    port: 8124
+    port: 8134
     protocol: http
     health_endpoint: "/healthz"
     status: active

@@ -2997,6 +2997,357 @@ services:
     - sahool.category=business
     - traefik.enable=true
     - traefik.http.routers.traceability-service.rule=PathPrefix(`/api/v1/traceability/service`)
+  copilot-api:
+    build:
+      context: ./apps/services/copilot-api
+      dockerfile: Dockerfile
+    container_name: sahool-copilot-api
+    ports:
+    - 8088:8088
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8088
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8088/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=copilot-api
+    - sahool.port=8088
+    - sahool.category=core
+    - traefik.enable=true
+    - traefik.http.routers.copilot-api.rule=PathPrefix(`/api/v1/copilot/api`)
+  ai-chat-assistant:
+    build:
+      context: ./apps/services/ai-chat-assistant
+      dockerfile: Dockerfile
+    container_name: sahool-ai-chat-assistant
+    ports:
+    - 8230:8230
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8230
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8230/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=ai-chat-assistant
+    - sahool.port=8230
+    - sahool.category=community
+    - traefik.enable=true
+    - traefik.http.routers.ai-chat-assistant.rule=PathPrefix(`/api/v1/ai/chat/assistant`)
+  pest-detection-service:
+    build:
+      context: ./apps/services/pest-detection-service
+      dockerfile: Dockerfile
+    container_name: sahool-pest-detection-service
+    ports:
+    - 8125:8125
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8125
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8125/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=pest-detection-service
+    - sahool.port=8125
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.pest-detection-service.rule=PathPrefix(`/api/v1/pest/detection/service`)
+  yield-prediction-service:
+    build:
+      context: ./apps/services/yield-prediction-service
+      dockerfile: Dockerfile
+    container_name: sahool-yield-prediction-service
+    ports:
+    - 8152:8152
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8152
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8152/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=yield-prediction-service
+    - sahool.port=8152
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.yield-prediction-service.rule=PathPrefix(`/api/v1/yield/prediction/service`)
+  digital-twin-engine:
+    build:
+      context: ./apps/services/digital-twin-engine
+      dockerfile: Dockerfile
+    container_name: sahool-digital-twin-engine
+    ports:
+    - 8253:8253
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8253
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8253/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=digital-twin-engine
+    - sahool.port=8253
+    - sahool.category=analytics
+    - traefik.enable=true
+    - traefik.http.routers.digital-twin-engine.rule=PathPrefix(`/api/v1/digital/twin/engine`)
+  fertigation-engine:
+    build:
+      context: ./apps/services/fertigation-engine
+      dockerfile: Dockerfile
+    container_name: sahool-fertigation-engine
+    ports:
+    - 8252:8252
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8252
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8252/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=fertigation-engine
+    - sahool.port=8252
+    - sahool.category=decision
+    - traefik.enable=true
+    - traefik.http.routers.fertigation-engine.rule=PathPrefix(`/api/v1/fertigation/engine`)
+  irrigation-cycle-engine:
+    build:
+      context: ./apps/services/irrigation-cycle-engine
+      dockerfile: Dockerfile
+    container_name: sahool-irrigation-cycle-engine
+    ports:
+    - 8250:8250
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8250
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8250/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=irrigation-cycle-engine
+    - sahool.port=8250
+    - sahool.category=decision
+    - traefik.enable=true
+    - traefik.http.routers.irrigation-cycle-engine.rule=PathPrefix(`/api/v1/irrigation/cycle/engine`)
+  iot-sensor-hub:
+    build:
+      context: ./apps/services/iot-sensor-hub
+      dockerfile: Dockerfile
+    container_name: sahool-iot-sensor-hub
+    ports:
+    - 8251:8251
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=8251
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8251/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=iot-sensor-hub
+    - sahool.port=8251
+    - sahool.category=integration
+    - traefik.enable=true
+    - traefik.http.routers.iot-sensor-hub.rule=PathPrefix(`/api/v1/iot/sensor/hub`)
+  demo-data:
+    build:
+      context: ./apps/services/demo-data
+      dockerfile: Dockerfile
+    container_name: sahool-demo-data
+    ports:
+    - 3000:3000
+    environment:
+    - NODE_ENV=${NODE_ENV:-development}
+    - PORT=3000
+    - DATABASE_URL=${DATABASE_URL}
+    - REDIS_URL=${REDIS_URL}
+    - NATS_URL=${NATS_URL:-nats://nats:4222}
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3000/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    labels:
+    - sahool.service=demo-data
+    - sahool.port=3000
+    - sahool.category=core
+    - traefik.enable=true
+    - traefik.http.routers.demo-data.rule=PathPrefix(`/api/v1/demo/data`)
   web:
     build:
       context: ./apps/web

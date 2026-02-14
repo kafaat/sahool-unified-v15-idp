@@ -8,12 +8,19 @@
 import { AxiosError } from 'axios';
 import { logger } from '@/lib/logger';
 
+interface ApiResponseData {
+  message?: string;
+  message_ar?: string;
+  details?: Record<string, unknown>;
+  error?: string;
+}
+
 export interface ApiError {
   message: string;
   messageAr?: string;
   code?: string;
   status?: number;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -21,7 +28,7 @@ export class ApiErrorHandler {
   /**
    * Handle Axios errors and convert to standardized format
    */
-  static handleAxiosError(error: AxiosError): ApiError {
+  static handleAxiosError(error: AxiosError<ApiResponseData>): ApiError {
     const timestamp = new Date().toISOString();
 
     // Network error (no response)
@@ -165,8 +172,8 @@ export class ApiErrorHandler {
     const retryableStatuses = [408, 429, 500, 502, 503, 504];
 
     return (
-      (error.code && retryableCodes.includes(error.code)) ||
-      (error.status && retryableStatuses.includes(error.status))
+      (!!error.code && retryableCodes.includes(error.code)) ||
+      (!!error.status && retryableStatuses.includes(error.status))
     );
   }
 

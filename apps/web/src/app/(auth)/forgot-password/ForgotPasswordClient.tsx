@@ -70,7 +70,7 @@ export default function ForgotPasswordClient() {
           body: JSON.stringify({ email }),
         });
 
-        const data = await response.json();
+        const data: { message?: string; error?: string } = await response.json();
 
         if (!response.ok) {
           throw new Error(data.message || data.error || "Failed to send reset email");
@@ -96,7 +96,7 @@ export default function ForgotPasswordClient() {
           }),
         });
 
-        const data = await response.json();
+        const data: { message?: string; error?: string } = await response.json();
 
         if (!response.ok) {
           throw new Error(data.message || data.error || "Failed to send OTP");

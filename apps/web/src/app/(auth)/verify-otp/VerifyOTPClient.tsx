@@ -181,7 +181,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         }),
       });
 
-      const data = await response.json();
+      const data: { message?: string; error?: string; reset_token?: string; resetToken?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || data.error || "Verification failed");
@@ -245,7 +245,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
         }),
       });
 
-      const data = await response.json();
+      const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || data.error || "Failed to resend OTP");

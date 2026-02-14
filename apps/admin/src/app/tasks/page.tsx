@@ -314,7 +314,7 @@ export default function TasksPage() {
       assigned_to: task.assigned_to || "",
       priority: task.priority,
       status: task.status,
-      due_date: task.due_date ? task.due_date.split("T")[0] : "",
+      due_date: task.due_date?.split("T")[0] ?? "",
       field_id: task.field_id,
     });
   }, []);

@@ -146,8 +146,10 @@ export default function UsersPage() {
   const getRoleLabel = (role: User["role"]) => {
     const labels: Record<User["role"], string> = {
       admin: "مدير",
+      manager: "مشرف",
       expert: "خبير",
       farmer: "مزارع",
+      researcher: "باحث",
       viewer: "مشاهد",
     };
     return labels[role];
@@ -156,8 +158,10 @@ export default function UsersPage() {
   const getRoleColor = (role: User["role"]) => {
     const colors: Record<User["role"], string> = {
       admin: "bg-purple-100 text-purple-800",
+      manager: "bg-indigo-100 text-indigo-800",
       expert: "bg-blue-100 text-blue-800",
       farmer: "bg-green-100 text-green-800",
+      researcher: "bg-teal-100 text-teal-800",
       viewer: "bg-gray-100 text-gray-800",
     };
     return colors[role];
@@ -384,7 +388,7 @@ export default function UsersPage() {
             columns={columns}
             data={filteredUsers}
             keyExtractor={(user) => user.id}
-            onRowClick={(user) => _setSelectedUser(user)}
+            onRowClick={(user) => setSelectedUser(user)}
             emptyMessage="لا يوجد مستخدمين مطابقين للبحث"
           />
         )}

@@ -19,7 +19,7 @@ import {
   Wrench,
   Tractor,
   Droplets,
-  Spray,
+  SprayCan,
   Plane,
   CheckCircle2,
   AlertTriangle,
@@ -117,7 +117,7 @@ function getEquipmentTypeIcon(type: string) {
     case "pump":
       return <Droplets className="w-4 h-4" />;
     case "sprayer":
-      return <Spray className="w-4 h-4" />;
+      return <SprayCan className="w-4 h-4" />;
     case "drone":
       return <Plane className="w-4 h-4" />;
     default:

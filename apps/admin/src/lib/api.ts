@@ -680,3 +680,53 @@ function getMockFarms(): Farm[] {
 function getMockDiagnoses(): DiagnosisRecord[] {
   return MOCK_DIAGNOSES;
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Re-export services and types from api/ directory
+// TypeScript resolves @/lib/api to this file (api.ts) rather than api/index.ts,
+// so we re-export all service-based APIs here for consuming pages.
+// ═══════════════════════════════════════════════════════════════════════════
+
+export {
+  // Core Services
+  userService,
+  iotService,
+  irrigationService,
+  alertService,
+  equipmentService,
+  // Extended Services
+  taskService,
+  inventoryService,
+  researchService,
+  marketplaceService,
+  // Core Types
+  type User,
+  type CreateUserData,
+  type UpdateUserData,
+  type IoTDevice,
+  type CreateDeviceData,
+  type IrrigationSchedule,
+  type CreateIrrigationData,
+  type Alert,
+  type CreateAlertData,
+  type Equipment,
+  type CreateEquipmentData,
+  type PaginationParams,
+  type PaginatedResponse,
+  type ApiResponse,
+  // Extended Types
+  type Task,
+  type CreateTaskData,
+  type InventoryItem,
+  type CreateInventoryData,
+  type InventoryTransaction,
+  type ResearchProject,
+  type Experiment,
+  type CreateProjectData,
+  type CreateExperimentData,
+  type MarketplaceListing,
+  type CreateListingData,
+} from "./api/index";
+
+// Re-export SensorReading (imported from @/types above)
+export type { SensorReading };

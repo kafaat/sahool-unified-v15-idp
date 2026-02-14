@@ -23,9 +23,10 @@ from fastapi import (
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from jose import JWTError, jwt
 from pydantic import BaseModel
 
+from shared.auth.jwt_handler import verify_token
+from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 from .handlers import WebSocketMessageHandler
@@ -56,51 +57,34 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ws-gateway")
 
-# JWT Configuration - Always required in production
-JWT_SECRET = os.getenv("JWT_SECRET_KEY", os.getenv("JWT_SECRET", ""))
-if not JWT_SECRET:
-    logger.critical("JWT_SECRET_KEY is not set — rejecting all WebSocket auth")
-
-
-# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
-# Never trust algorithm from environment variables or token header
-ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
-
 
 async def validate_jwt_token(token: str) -> dict:
     """
-    Validate JWT token and return payload
-    التحقق من صحة التوكن وإرجاع البيانات
+    Validate JWT token using shared auth library
+    التحقق من صحة التوكن باستخدام مكتبة التوثيق المشتركة
 
-    Security: Uses hardcoded algorithm whitelist to prevent algorithm confusion attacks
+    Security: Uses shared.auth with issuer/audience verification and token revocation support
     """
     if not token:
         raise ValueError("Token is required")
 
-    if not JWT_SECRET:
-        raise ValueError("JWT_SECRET not configured")
-
     try:
-        # SECURITY FIX: Decode header to validate algorithm before verification
-        unverified_header = jwt.get_unverified_header(token)
+        payload: TokenPayload = verify_token(token)
 
-        if not unverified_header or "alg" not in unverified_header:
-            raise ValueError("Invalid token: missing algorithm")
-
-        algorithm = unverified_header["alg"]
-
-        # Reject 'none' algorithm explicitly
-        if algorithm.lower() == "none":
-            raise ValueError("Invalid token: none algorithm not allowed")
-
-        # Verify algorithm is in whitelist
-        if algorithm not in ALLOWED_ALGORITHMS:
-            raise ValueError(f"Invalid token: unsupported algorithm {algorithm}")
-
-        # SECURITY FIX: Use hardcoded whitelist instead of environment variable
-        payload = jwt.decode(token, JWT_SECRET, algorithms=ALLOWED_ALGORITHMS)
-        return payload
-    except JWTError as e:
+        # Convert TokenPayload to dict for backward compatibility
+        return {
+            "sub": payload.user_id,
+            "user_id": payload.user_id,
+            "roles": payload.roles,
+            "tenant_id": payload.tenant_id,
+            "tid": payload.tenant_id,
+            "permissions": payload.permissions,
+            "jti": payload.jti,
+            "type": payload.token_type,
+        }
+    except AuthException as e:
+        raise ValueError(f"Authentication failed: {e.error.en}") from e
+    except Exception as e:
         raise ValueError(f"Invalid token: {str(e)}") from e
 
 

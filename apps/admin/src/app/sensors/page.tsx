@@ -5,7 +5,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
-import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
 import {
@@ -17,8 +16,6 @@ import {
   Search,
   Plus,
   RefreshCw,
-  Download,
-  Eye,
   Edit,
   Trash2,
   X,

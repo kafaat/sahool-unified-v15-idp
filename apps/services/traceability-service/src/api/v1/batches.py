@@ -79,9 +79,25 @@ class TransportEventRequest(BaseModel):
     vehicle_id: str | None = None
 
 
+class BatchUpdateRequest(BaseModel):
+    product_name_en: str | None = None
+    product_name_ar: str | None = None
+    quantity: float | None = Field(None, gt=0)
+    status: str | None = None
+
+
+
 class BatchSplitRequest(BaseModel):
     batch_id: str
     quantities: list[float]
+
+
+class GenerateCodeRequest(BaseModel):
+    product_code: str = Field(..., min_length=2, max_length=3, description="2-3 letter product code (e.g. WH, TM)")
+    year: int | None = None
+    sequence: int = Field(..., ge=1)
+    farm_code: str | None = Field(None, min_length=3, max_length=3)
+
 
 
 # === Endpoints ===
@@ -311,6 +327,107 @@ async def get_product_journey(batch_code: str):
         "farm_id": batch.get("farm_id"),
         "status": batch.get("status"),
     }
+
+
+@router.put("/batches/{batch_id}")
+async def update_batch(batch_id: str, request: BatchUpdateRequest):
+    """Update batch details - تحديث تفاصيل الدفعة"""
+    if batch_id not in _batches:
+        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+
+    batch = _batches[batch_id]
+    updates = request.model_dump(exclude_none=True)
+    batch.update(updates)
+    logger.info("batch_updated", batch_id=batch_id, fields=list(updates.keys()))
+    return {k: v for k, v in batch.items() if k != "_batch_obj"}
+
+
+@router.get("/batches/{batch_id}/events")
+async def list_batch_events(batch_id: str):
+    """List all events for a batch - قائمة أحداث الدفعة"""
+    if batch_id not in _batches:
+        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+
+    events = _batches[batch_id].get("events", [])
+    return {"batch_id": batch_id, "events": events, "count": len(events)}
+
+
+@router.post("/batches/generate-code")
+async def generate_code(request: GenerateCodeRequest):
+    """Generate a batch code - إنشاء رمز دفعة"""
+    try:
+        from shared.traceability import generate_batch_code
+
+        code = generate_batch_code(
+            product_code=request.product_code,
+            year=request.year or datetime.utcnow().year,
+            sequence=request.sequence,
+            farm_code=request.farm_code,
+        )
+        return {"batch_code": code}
+    except ImportError:
+        year_short = str(request.year or datetime.utcnow().year)[-2:]
+        code = f"{request.product_code}-{year_short}-{request.sequence:03d}"
+        if request.farm_code:
+            code = f"{request.product_code}-{request.farm_code}-{year_short}-{request.sequence:03d}"
+        return {"batch_code": code}
+
+
+@router.get("/batches/verify-code/{code}")
+async def verify_code(code: str):
+    """Verify a batch code format - التحقق من صيغة رمز الدفعة"""
+    try:
+        from shared.traceability import decode_qr_data
+
+        decoded = decode_qr_data(code)
+        exists = any(b.get("batch_code") == code for b in _batches.values())
+        return {"code": code, "valid": decoded is not None, "exists": exists, "decoded": decoded}
+    except ImportError:
+        exists = any(b.get("batch_code") == code for b in _batches.values())
+        return {"code": code, "valid": bool(code), "exists": exists}
+
+
+@router.post("/batches/{batch_id}/split")
+async def split_batch(batch_id: str, request: BatchSplitRequest):
+    """Split a batch into sub-batches - تقسيم الدفعة إلى دفعات فرعية"""
+    if batch_id not in _batches:
+        raise HTTPException(status_code=404, detail={"error": "Batch not found", "error_ar": "الدفعة غير موجودة"})
+
+    parent = _batches[batch_id]
+    parent_qty = parent.get("quantity", 0)
+    total_split = sum(request.quantities)
+    if total_split > parent_qty:
+        raise HTTPException(status_code=400, detail={
+            "error": f"Split total ({total_split}) exceeds batch quantity ({parent_qty})",
+            "error_ar": f"مجموع التقسيم ({total_split}) يتجاوز كمية الدفعة ({parent_qty})",
+        })
+
+    child_batches = []
+    for i, qty in enumerate(request.quantities, 1):
+        child_id = f"BATCH-{uuid.uuid4().hex[:8].upper()}"
+        child = {
+            "id": child_id,
+            "batch_code": f"{parent.get('batch_code', '')}-S{i}",
+            "product_name_en": parent.get("product_name_en"),
+            "product_name_ar": parent.get("product_name_ar"),
+            "quantity": qty,
+            "unit": parent.get("unit", "kg"),
+            "farm_id": parent.get("farm_id"),
+            "field_id": parent.get("field_id"),
+            "tenant_id": parent.get("tenant_id"),
+            "parent_batch_id": batch_id,
+            "status": "created",
+            "events": list(parent.get("events", [])),
+            "created_at": datetime.utcnow().isoformat(),
+        }
+        _batches[child_id] = child
+        child_batches.append(child)
+
+    parent["quantity"] = parent_qty - total_split
+    parent["status"] = "split" if parent["quantity"] == 0 else parent.get("status", "created")
+
+    logger.info("batch_split", parent_id=batch_id, children=len(child_batches))
+    return {"parent_batch_id": batch_id, "remaining_quantity": parent["quantity"], "child_batches": child_batches}
 
 
 @router.get("/carbon/{batch_id}")

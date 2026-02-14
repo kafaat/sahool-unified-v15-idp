@@ -72,7 +72,7 @@ function ResetPasswordForm() {
         }),
       });
 
-      const data = await response.json();
+      const data: { message?: string; error?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || data.error || "Failed to reset password");

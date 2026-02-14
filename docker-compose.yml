@@ -586,7 +586,7 @@ services:
       - API_HOST=0.0.0.0
       - API_PORT=8102
     ports:
-      - "8102:8102"
+      - "127.0.0.1:8102:8102"
     volumes:
       - .:/app/codebase:ro
       - code_review_logs:/app/logs
@@ -882,7 +882,7 @@ services:
       # Memory and Cache Optimization
       KONG_MEM_CACHE_SIZE: 128m
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
       # SSL port (REQUIRED for production - uncomment when SSL is enabled)
       # - "8443:8443"
       - "127.0.0.1:8001:8001" # Admin API - localhost only for security
@@ -938,7 +938,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -983,7 +983,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com}
     ports:
-      - "3010:3010"
+      - "127.0.0.1:3010:3010"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1031,7 +1031,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3015:3015"
+      - "127.0.0.1:3015:3015"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1080,7 +1080,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3020:3020"
+      - "127.0.0.1:3020:3020"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1129,7 +1129,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3021:3021"
+      - "127.0.0.1:3021:3021"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1178,7 +1178,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3022:3022"
+      - "127.0.0.1:3022:3022"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1228,7 +1228,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "3023:3023"
+      - "127.0.0.1:3023:3023"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1273,7 +1273,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8115:8000"
+      - "127.0.0.1:8115:8000"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -1325,7 +1325,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8117:8117"
+      - "127.0.0.1:8117:8117"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1381,7 +1381,7 @@ services:
     volumes:
       - ./models:/models:ro
     ports:
-      - "8182:8182"
+      - "127.0.0.1:8182:8182"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1429,7 +1429,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
-      - "8097:8097"
+      - "127.0.0.1:8097:8097"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1527,7 +1527,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:8080}
     ports:
-      - "8081:8081"
+      - "127.0.0.1:8081:8081"
     depends_on:
       nats:
         condition: service_healthy
@@ -1574,7 +1574,7 @@ services:
       - THARWATT_MERCHANT_ID=${THARWATT_MERCHANT_ID:-}
       - THARWATT_WEBHOOK_SECRET=${THARWATT_WEBHOOK_SECRET:-}
     ports:
-      - "8089:8089"
+      - "127.0.0.1:8089:8089"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -1624,7 +1624,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8090:8090"
+      - "127.0.0.1:8090:8090"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1667,7 +1667,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8091:8091"
+      - "127.0.0.1:8091:8091"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1724,7 +1724,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8092:8092"
+      - "127.0.0.1:8092:8092"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1766,7 +1766,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8093:8093"
+      - "127.0.0.1:8093:8093"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1810,7 +1810,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
-      - "8094:8094"
+      - "127.0.0.1:8094:8094"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1857,7 +1857,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
-      - "8095:8095"
+      - "127.0.0.1:8095:8095"
     volumes:
       - ./models:/app/models:ro
     depends_on:
@@ -1900,7 +1900,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8119:8119"
+      - "127.0.0.1:8119:8119"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1943,7 +1943,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8152:8152"
+      - "127.0.0.1:8152:8152"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -1988,7 +1988,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8099:8099"
+      - "127.0.0.1:8099:8099"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2030,7 +2030,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8101:8101"
+      - "127.0.0.1:8101:8101"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2070,7 +2070,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
-      - "8103:8103"
+      - "127.0.0.1:8103:8103"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2111,7 +2111,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8104:8104"
+      - "127.0.0.1:8104:8104"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2167,7 +2167,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8106:8106"
+      - "127.0.0.1:8106:8106"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2250,7 +2250,7 @@ services:
       # Telegram Bot Configuration
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
     ports:
-      - "8110:8110"
+      - "127.0.0.1:8110:8110"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2290,7 +2290,7 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
-      - "8111:8111"
+      - "127.0.0.1:8111:8111"
     depends_on:
       weather-service:
         condition: service_healthy
@@ -2330,7 +2330,7 @@ services:
       - WEATHER_SERVICE_URL=http://weather-service:8092
       - NDVI_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "8120:8120"
+      - "127.0.0.1:8120:8120"
     depends_on:
       task-service:
         condition: service_healthy
@@ -2393,7 +2393,7 @@ services:
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8112:8112"
+      - "127.0.0.1:8112:8112"
     depends_on:
       qdrant:
         condition: service_healthy
@@ -2442,7 +2442,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
-      - "8113:8113"
+      - "127.0.0.1:8113:8113"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2484,7 +2484,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
     ports:
-      - "8116:8116"
+      - "127.0.0.1:8116:8116"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2528,7 +2528,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
-      - "8118:8118"
+      - "127.0.0.1:8118:8118"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -2609,7 +2609,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8200:8200"
+      - "127.0.0.1:8200:8200"
     depends_on:
       kong:
         condition: service_healthy
@@ -2652,7 +2652,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8121:8121"
+      - "127.0.0.1:8121:8121"
     depends_on:
       redis:
         condition: service_healthy
@@ -2741,7 +2741,7 @@ services:
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
-      - "8130:8130"
+      - "127.0.0.1:8130:8130"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2789,7 +2789,7 @@ services:
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8131:8131"
+      - "127.0.0.1:8131:8131"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2837,7 +2837,7 @@ services:
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8132:8132"
+      - "127.0.0.1:8132:8132"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2885,7 +2885,7 @@ services:
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
       - WECHAT_ENCODING_AES_KEY=${WECHAT_ENCODING_AES_KEY:-}
     ports:
-      - "8133:8133"
+      - "127.0.0.1:8133:8133"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2933,7 +2933,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8160:8160"
+      - "127.0.0.1:8160:8160"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -2978,7 +2978,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
-      - "8161:8161"
+      - "127.0.0.1:8161:8161"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3025,7 +3025,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
-      - "8162:8162"
+      - "127.0.0.1:8162:8162"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3073,7 +3073,7 @@ services:
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
     ports:
-      - "8163:8088"
+      - "127.0.0.1:8163:8088"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3124,7 +3124,7 @@ services:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       - OLLAMA_BASE_URL=${OLLAMA_URL:-http://ollama:11434}
     ports:
-      - "8164:8164"
+      - "127.0.0.1:8164:8164"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3171,7 +3171,7 @@ services:
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
     ports:
-      - "8140:8140"
+      - "127.0.0.1:8140:8140"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3221,7 +3221,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8114:8114"
+      - "127.0.0.1:8114:8114"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3265,7 +3265,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8123:8123"
+      - "127.0.0.1:8123:8123"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3312,7 +3312,7 @@ services:
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8128:8128"
+      - "127.0.0.1:8128:8128"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3364,7 +3364,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8134:8134"
+      - "127.0.0.1:8134:8134"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3409,7 +3409,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - VISION_SERVICE_URL=http://yolo26-vision-service:8150
     ports:
-      - "8125:8125"
+      - "127.0.0.1:8125:8125"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3453,7 +3453,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8126:8126"
+      - "127.0.0.1:8126:8126"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3501,7 +3501,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8127:8127"
+      - "127.0.0.1:8127:8127"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3546,7 +3546,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
-      - "8230:8230"
+      - "127.0.0.1:8230:8230"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3593,7 +3593,7 @@ services:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
     ports:
-      - "8167:8167"
+      - "127.0.0.1:8167:8167"
     depends_on:
       pgbouncer:
         condition: service_healthy
@@ -3646,7 +3646,7 @@ services:
     volumes:
       - yolo26-models:/app/models
     ports:
-      - "8150:8150"
+      - "127.0.0.1:8150:8150"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -3696,7 +3696,7 @@ services:
     volumes:
       - terrain-dem-data:/app/data/dem
     ports:
-      - "8185:8185"
+      - "127.0.0.1:8185:8185"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -3739,7 +3739,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
     ports:
-      - "8165:8165"
+      - "127.0.0.1:8165:8165"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -3784,7 +3784,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
     ports:
-      - "8170:8170"
+      - "127.0.0.1:8170:8170"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -3829,7 +3829,7 @@ services:
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
     ports:
-      - "8180:8180"
+      - "127.0.0.1:8180:8180"
     depends_on:
       # FIX: Use pgbouncer instead of postgres for proper connection pooling
       pgbouncer:
@@ -3872,12 +3872,12 @@ services:
     container_name: sahool-irrigation-cycle-engine
     environment:
       - PORT=8250
-      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8250:8250"
+      - "127.0.0.1:8250:8250"
     depends_on:
       nats:
         condition: service_healthy
@@ -3912,12 +3912,12 @@ services:
     container_name: sahool-iot-sensor-hub
     environment:
       - PORT=8251
-      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8251:8251"
+      - "127.0.0.1:8251:8251"
     depends_on:
       nats:
         condition: service_healthy
@@ -3952,12 +3952,12 @@ services:
     container_name: sahool-fertigation-engine
     environment:
       - PORT=8252
-      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8252:8252"
+      - "127.0.0.1:8252:8252"
     depends_on:
       nats:
         condition: service_healthy
@@ -3992,12 +3992,12 @@ services:
     container_name: sahool-digital-twin-engine
     environment:
       - PORT=8253
-      - NATS_URL=nats://${NATS_USER:-sahool}:${NATS_PASSWORD:-sahool_nats_2024}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD:-sahool_redis_2024}@redis:6379/0
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
     ports:
-      - "8253:8253"
+      - "127.0.0.1:8253:8253"
     depends_on:
       nats:
         condition: service_healthy

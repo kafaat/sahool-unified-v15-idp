@@ -13,7 +13,7 @@ pydantic==2.12.5
 pydantic-settings==2.12.0
 
 # Database (optional, for result caching)
-asyncpg==0.30.0
+asyncpg>=0.30.0,<1.0.0
 
 # Messaging
 nats-py==2.9.0

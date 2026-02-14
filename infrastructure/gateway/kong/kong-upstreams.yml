@@ -1016,7 +1016,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: chat-service:8114
+      - target: chat-service:8000
         weight: 100
         tags:
           - community
@@ -1076,7 +1076,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: audit-service:8122
+      - target: audit-service:8114
         weight: 100
         tags:
           - compliance
@@ -1104,7 +1104,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: globalgap-compliance:8168
+      - target: globalgap-compliance:8128
         weight: 100
         tags:
           - compliance
@@ -1160,7 +1160,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: supply-chain-service:8166
+      - target: supply-chain-service:8230
         weight: 100
         tags:
           - business

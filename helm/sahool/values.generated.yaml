@@ -2379,6 +2379,294 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8123'
       prometheus.io/path: /metrics
+  copilot-api:
+    enabled: true
+    name: copilot-api
+    image:
+      repository: ghcr.io/kafaat/sahool-copilot-api
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8088
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8088'
+    serviceAccount:
+      create: true
+      name: sahool-copilot-api
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8088'
+      prometheus.io/path: /metrics
+  ai-chat-assistant:
+    enabled: true
+    name: ai-chat-assistant
+    image:
+      repository: ghcr.io/kafaat/sahool-ai-chat-assistant
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8260
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8260'
+    serviceAccount:
+      create: true
+      name: sahool-ai-chat-assistant
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8260'
+      prometheus.io/path: /metrics
+  pest-detection-service:
+    enabled: true
+    name: pest-detection-service
+    image:
+      repository: ghcr.io/kafaat/sahool-pest-detection-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8125
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8125'
+    serviceAccount:
+      create: true
+      name: sahool-pest-detection-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8125'
+      prometheus.io/path: /metrics
+  yield-prediction-service:
+    enabled: true
+    name: yield-prediction-service
+    image:
+      repository: ghcr.io/kafaat/sahool-yield-prediction-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8152
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8152'
+    serviceAccount:
+      create: true
+      name: sahool-yield-prediction-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8152'
+      prometheus.io/path: /metrics
+  digital-twin-engine:
+    enabled: true
+    name: digital-twin-engine
+    image:
+      repository: ghcr.io/kafaat/sahool-digital-twin-engine
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8253
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8253'
+    serviceAccount:
+      create: true
+      name: sahool-digital-twin-engine
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8253'
+      prometheus.io/path: /metrics
+  fertigation-engine:
+    enabled: true
+    name: fertigation-engine
+    image:
+      repository: ghcr.io/kafaat/sahool-fertigation-engine
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8252
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8252'
+    serviceAccount:
+      create: true
+      name: sahool-fertigation-engine
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8252'
+      prometheus.io/path: /metrics
+  irrigation-cycle-engine:
+    enabled: true
+    name: irrigation-cycle-engine
+    image:
+      repository: ghcr.io/kafaat/sahool-irrigation-cycle-engine
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8250
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8250'
+    serviceAccount:
+      create: true
+      name: sahool-irrigation-cycle-engine
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8250'
+      prometheus.io/path: /metrics
+  iot-sensor-hub:
+    enabled: true
+    name: iot-sensor-hub
+    image:
+      repository: ghcr.io/kafaat/sahool-iot-sensor-hub
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 8251
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 512Mi
+      limits:
+        cpu: 300000m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8251'
+    serviceAccount:
+      create: true
+      name: sahool-iot-sensor-hub
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8251'
+      prometheus.io/path: /metrics
+  demo-data:
+    enabled: true
+    name: demo-data
+    image:
+      repository: ghcr.io/kafaat/sahool-demo-data
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8261
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 200000m
+        memory: 256Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8261'
+    serviceAccount:
+      create: true
+      name: sahool-demo-data
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8261'
+      prometheus.io/path: /metrics
 applications:
   web:
     enabled: true
@@ -2733,6 +3021,42 @@ ingress:
       pathType: Prefix
       service: traceability-service
       port: 8123
+    - path: /api/v1/copilot/api
+      pathType: Prefix
+      service: copilot-api
+      port: 8088
+    - path: /api/v1/ai/chat/assistant
+      pathType: Prefix
+      service: ai-chat-assistant
+      port: 8260
+    - path: /api/v1/pest/detection/service
+      pathType: Prefix
+      service: pest-detection-service
+      port: 8125
+    - path: /api/v1/yield/prediction/service
+      pathType: Prefix
+      service: yield-prediction-service
+      port: 8152
+    - path: /api/v1/digital/twin/engine
+      pathType: Prefix
+      service: digital-twin-engine
+      port: 8253
+    - path: /api/v1/fertigation/engine
+      pathType: Prefix
+      service: fertigation-engine
+      port: 8252
+    - path: /api/v1/irrigation/cycle/engine
+      pathType: Prefix
+      service: irrigation-cycle-engine
+      port: 8250
+    - path: /api/v1/iot/sensor/hub
+      pathType: Prefix
+      service: iot-sensor-hub
+      port: 8251
+    - path: /api/v1/demo/data
+      pathType: Prefix
+      service: demo-data
+      port: 8261
   tls:
   - secretName: sahool-tls
     hosts:

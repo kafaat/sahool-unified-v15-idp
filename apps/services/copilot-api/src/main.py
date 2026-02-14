@@ -29,6 +29,7 @@ from fastapi.responses import JSONResponse
 
 from .api.v1 import chat_router, health_router, rag_router, tools_router
 from .core.config import Settings, get_settings
+from .db import init_db, close_db
 from .rag import get_rag_service
 
 # Import AI Audit Logger for comprehensive logging
@@ -115,10 +116,27 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("FixOps initialization failed", error=str(e))
 
+    # Initialize Chat History Database
+    # تهيئة قاعدة بيانات سجل المحادثات
+    app.state.chat_db_ready = False
+    try:
+        db_ok = await init_db(settings.database_url)
+        app.state.chat_db_ready = db_ok
+        if db_ok:
+            logger.info("Chat history database initialized")
+        else:
+            logger.warning("Chat history database not available, persistence disabled")
+    except Exception as e:
+        logger.warning("Chat history database initialization failed", error=str(e))
+
     # Store settings in app state
     app.state.settings = settings
 
     yield
+
+    # Cleanup: close chat history database pool
+    # تنظيف: إغلاق تجمع اتصالات قاعدة بيانات سجل المحادثات
+    await close_db()
 
     # Cleanup
     logger.info("Shutting down Copilot API")

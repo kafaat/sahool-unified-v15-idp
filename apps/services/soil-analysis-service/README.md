@@ -47,39 +47,36 @@ Comprehensive soil testing and analysis service for agricultural operations with
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/soil-tests` | GET | List soil test results with filters |
-| `/api/v1/soil-tests` | POST | Create new soil test record |
-| `/api/v1/soil-tests/{test_id}` | GET | Get specific soil test result |
-| `/api/v1/soil-tests/{test_id}` | PUT | Update soil test record |
-| `/api/v1/soil-tests/{test_id}` | DELETE | Delete soil test record |
-| `/api/v1/soil-tests/field/{field_id}` | GET | Get all tests for a field |
-| `/api/v1/soil-tests/field/{field_id}/latest` | GET | Get latest test for a field |
+| `/api/v1/soil/tests` | POST | Create new soil test record |
+| `/api/v1/soil/tests/{test_id}` | GET | Get specific soil test result |
+| `/api/v1/soil/tests/{test_id}` | DELETE | Delete soil test record |
+| `/api/v1/soil/tests/field/{field_id}` | GET | Get all tests for a field |
 
 ### Interpretation
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/interpretation/interpret` | POST | Interpret soil test results |
-| `/api/v1/interpretation/nutrient-status` | POST | Get nutrient status assessment |
-| `/api/v1/interpretation/ph-status` | POST | Get pH status and recommendations |
-| `/api/v1/interpretation/ec-status` | POST | Get EC (salinity) status |
+| `/api/v1/soil/interpret` | POST | Interpret soil test results (crop-specific) |
+| `/api/v1/soil/interpretation/nutrient-status` | POST | Check individual nutrient status (nutrient, value, extraction_method) |
+| `/api/v1/soil/interpretation/ph-status` | POST | Check soil pH status and classification |
+| `/api/v1/soil/interpretation/ec-status` | POST | Check soil EC/salinity status |
 
 ### Recommendations
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/recommendations/amendment-plan` | POST | Generate amendment recommendations |
-| `/api/v1/recommendations/fertilizers` | GET | List available fertilizer products |
-| `/api/v1/recommendations/crop-requirements/{crop}` | GET | Get crop nutrient requirements |
-| `/api/v1/recommendations/calculate-rate` | POST | Calculate fertilizer application rate |
+| `/api/v1/soil/recommendations/amendment-plan` | POST | Generate amendment plan (crop, target_yield, field_area_ha) |
+| `/api/v1/soil/recommendations/calculate-rate` | POST | Calculate fertilizer application rate (nutrient_needed_kg_ha, fertilizer_nutrient_percent) |
+| `/api/v1/soil/products` | GET | List available fertilizer products |
+| `/api/v1/soil/crops/{crop}/requirements` | GET | Get crop nutrient requirements |
 
 ### Trends
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/api/v1/trends/field/{field_id}` | GET | Analyze soil trends for a field |
-| `/api/v1/trends/nutrient/{nutrient}` | GET | Get specific nutrient trend |
-| `/api/v1/trends/compare-periods` | POST | Compare soil health between periods |
+| `/api/v1/soil/trends` | POST | Analyze soil trends for a field (field_id, tenant_id) |
+| `/api/v1/soil/trends/nutrient` | POST | Get trend for a specific nutrient (field_id, tenant_id, nutrient) |
+| `/api/v1/soil/trends/compare-periods` | POST | Compare soil health between two time periods |
 
 ---
 
@@ -107,7 +104,7 @@ Comprehensive soil testing and analysis service for agricultural operations with
 
 | Variable | Description | Default | Required |
 |----------|-------------|---------|----------|
-| `PORT` | Service port | `8170` | No |
+| `PORT` | Service port | `8134` | No |
 | `HOST` | Bind address | `0.0.0.0` | No |
 | `ENVIRONMENT` | Environment (development/staging/production) | `development` | No |
 | `DATABASE_URL` | PostgreSQL connection string | - | Yes |
@@ -119,7 +116,7 @@ Comprehensive soil testing and analysis service for agricultural operations with
 
 ## Port
 
-**8170**
+**8134**
 
 ---
 
@@ -132,7 +129,7 @@ Comprehensive soil testing and analysis service for agricultural operations with
 pip install -r requirements.txt
 
 # Run the service
-uvicorn src.main:app --host 0.0.0.0 --port 8170 --reload
+uvicorn src.main:app --host 0.0.0.0 --port 8134 --reload
 ```
 
 ### Docker
@@ -142,7 +139,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8170 --reload
 docker build -t sahool/soil-analysis-service .
 
 # Run container
-docker run -p 8170:8170 \
+docker run -p 8134:8134 \
   -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
   -e REDIS_URL=redis://localhost:6379 \
   -e NATS_URL=nats://localhost:4222 \
@@ -176,10 +173,10 @@ spec:
         - name: soil-analysis-service
           image: sahool/soil-analysis-service:latest
           ports:
-            - containerPort: 8170
+            - containerPort: 8134
           env:
             - name: PORT
-              value: "8170"
+              value: "8134"
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
@@ -198,13 +195,13 @@ spec:
           livenessProbe:
             httpGet:
               path: /healthz
-              port: 8170
+              port: 8134
             initialDelaySeconds: 10
             periodSeconds: 15
           readinessProbe:
             httpGet:
               path: /readyz
-              port: 8170
+              port: 8134
             initialDelaySeconds: 5
             periodSeconds: 10
           resources:
@@ -224,8 +221,8 @@ spec:
   selector:
     app: soil-analysis-service
   ports:
-    - port: 8170
-      targetPort: 8170
+    - port: 8134
+      targetPort: 8134
   type: ClusterIP
 ```
 
@@ -267,5 +264,5 @@ Proprietary - KAFAAT
 
 ---
 
-**Version**: 1.0.0
-**Last Updated**: January 2026
+**Version**: 16.0.0
+**Last Updated**: February 2026

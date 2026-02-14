@@ -61,50 +61,70 @@ export const API_BASE_HOST =
  */
 export const SERVICE_PORTS = {
   // Core Services
-  fieldCore: 3000,
+  fieldCore: 3000, // @deprecated - use fieldManagement
   fieldManagement: 3000,
   auth: 8080,
   users: 3025,
   wsGateway: 8081,
 
   // Satellite & Remote Sensing
-  satellite: 8090,
-  ndviEngine: 8107,
+  satellite: 8090, // vegetation-analysis-service
+  ndviProcessor: 8118,
 
   // Weather Services
   weather: 8092,
-  weatherCore: 8108,
 
   // AI & Analytics
   indicators: 8091,
-  cropHealth: 8095,
-  fertilizer: 8093,
-  yieldEngine: 8098,
+  cropIntelligence: 8095,
+  advisory: 8093,
+  yieldPrediction: 8152,
   analytics: 8100,
+  copilot: 8088,
+  aiAdvisor: 8112,
+  knowledgeGraph: 8140,
 
   // IoT & Sensors
   virtualSensors: 8119,
+  iotGateway: 8106,
 
   // Operations
   irrigation: 8094,
   task: 8103,
   equipment: 8101,
+  inventory: 8116,
+  logistics: 8167,
+  supplyChain: 8230,
 
   // Communication
-  communityChat: 8097,
-  community: 8097,
   notifications: 8110,
+  fieldChat: 8099,
+  chatService: 8000,
 
   // Configuration & Misc
   providerConfig: 8104,
   alerts: 8113,
   reports: 8084,
 
-  // Research & Health
-  // Note: lab and epidemic services share ports with community services
-  // This is intentional for consolidated service deployment
-  lab: 8097, // Shares port with communityChat (same service instance)
-  epidemic: 8098, // Shares port with yieldEngine (same service instance)
+  // Billing & Audit
+  billing: 8089,
+  audit: 8114,
+
+  // Agriculture Domain
+  drone: 8126,
+  soilAnalysis: 8124,
+  pestDetection: 8125,
+  traceability: 8123,
+  globalgap: 8128,
+  cooperative: 8127,
+  crm: 8131,
+
+  // Vision & Terrain
+  yoloVision: 8150,
+  terrainCore: 8185,
+  hydrology: 8165,
+  levelingOptimizer: 8170,
+  edgeOrchestrator: 8180,
 } as const;
 
 /**
@@ -136,32 +156,71 @@ export function getServiceUrl(port: number): string {
  * Complete URLs for all backend services
  */
 export const SERVICE_URLS = {
+  // Core Services
   fieldCore: getServiceUrl(SERVICE_PORTS.fieldCore),
   fieldManagement: getServiceUrl(SERVICE_PORTS.fieldManagement),
   auth: getServiceUrl(SERVICE_PORTS.auth),
   users: getServiceUrl(SERVICE_PORTS.users),
   wsGateway: getServiceUrl(SERVICE_PORTS.wsGateway),
+
+  // Satellite & Remote Sensing
   satellite: getServiceUrl(SERVICE_PORTS.satellite),
-  ndviEngine: getServiceUrl(SERVICE_PORTS.ndviEngine),
+  ndviProcessor: getServiceUrl(SERVICE_PORTS.ndviProcessor),
+
+  // Weather
   weather: getServiceUrl(SERVICE_PORTS.weather),
-  weatherCore: getServiceUrl(SERVICE_PORTS.weatherCore),
+
+  // AI & Analytics
   indicators: getServiceUrl(SERVICE_PORTS.indicators),
-  cropHealth: getServiceUrl(SERVICE_PORTS.cropHealth),
-  fertilizer: getServiceUrl(SERVICE_PORTS.fertilizer),
-  yieldEngine: getServiceUrl(SERVICE_PORTS.yieldEngine),
+  cropIntelligence: getServiceUrl(SERVICE_PORTS.cropIntelligence),
+  advisory: getServiceUrl(SERVICE_PORTS.advisory),
+  yieldPrediction: getServiceUrl(SERVICE_PORTS.yieldPrediction),
   analytics: getServiceUrl(SERVICE_PORTS.analytics),
+  copilot: getServiceUrl(SERVICE_PORTS.copilot),
+  aiAdvisor: getServiceUrl(SERVICE_PORTS.aiAdvisor),
+  knowledgeGraph: getServiceUrl(SERVICE_PORTS.knowledgeGraph),
+
+  // IoT & Sensors
   virtualSensors: getServiceUrl(SERVICE_PORTS.virtualSensors),
+  iotGateway: getServiceUrl(SERVICE_PORTS.iotGateway),
+
+  // Operations
   irrigation: getServiceUrl(SERVICE_PORTS.irrigation),
   task: getServiceUrl(SERVICE_PORTS.task),
   equipment: getServiceUrl(SERVICE_PORTS.equipment),
-  communityChat: getServiceUrl(SERVICE_PORTS.communityChat),
-  community: getServiceUrl(SERVICE_PORTS.community),
+  inventory: getServiceUrl(SERVICE_PORTS.inventory),
+  logistics: getServiceUrl(SERVICE_PORTS.logistics),
+  supplyChain: getServiceUrl(SERVICE_PORTS.supplyChain),
+
+  // Communication
   notifications: getServiceUrl(SERVICE_PORTS.notifications),
+  fieldChat: getServiceUrl(SERVICE_PORTS.fieldChat),
+  chatService: getServiceUrl(SERVICE_PORTS.chatService),
+
+  // Configuration & Misc
   providerConfig: getServiceUrl(SERVICE_PORTS.providerConfig),
   alerts: getServiceUrl(SERVICE_PORTS.alerts),
   reports: getServiceUrl(SERVICE_PORTS.reports),
-  lab: getServiceUrl(SERVICE_PORTS.lab),
-  epidemic: getServiceUrl(SERVICE_PORTS.epidemic),
+
+  // Billing & Audit
+  billing: getServiceUrl(SERVICE_PORTS.billing),
+  audit: getServiceUrl(SERVICE_PORTS.audit),
+
+  // Agriculture Domain
+  drone: getServiceUrl(SERVICE_PORTS.drone),
+  soilAnalysis: getServiceUrl(SERVICE_PORTS.soilAnalysis),
+  pestDetection: getServiceUrl(SERVICE_PORTS.pestDetection),
+  traceability: getServiceUrl(SERVICE_PORTS.traceability),
+  globalgap: getServiceUrl(SERVICE_PORTS.globalgap),
+  cooperative: getServiceUrl(SERVICE_PORTS.cooperative),
+  crm: getServiceUrl(SERVICE_PORTS.crm),
+
+  // Vision & Terrain
+  yoloVision: getServiceUrl(SERVICE_PORTS.yoloVision),
+  terrainCore: getServiceUrl(SERVICE_PORTS.terrainCore),
+  hydrology: getServiceUrl(SERVICE_PORTS.hydrology),
+  levelingOptimizer: getServiceUrl(SERVICE_PORTS.levelingOptimizer),
+  edgeOrchestrator: getServiceUrl(SERVICE_PORTS.edgeOrchestrator),
 } as const;
 
 /**
@@ -282,10 +341,11 @@ export const API_PATHS = {
     comments: (postId: string) => `/api/v1/posts/${postId}/comments`,
   },
 
-  // Fertilizer
-  fertilizer: {
-    recommendations: "/api/v1/fertilizer/recommendations",
-    calculate: "/api/v1/fertilizer/calculate",
+  // Advisory (fertilizer + crop recommendations)
+  advisory: {
+    recommendations: "/api/v1/advisory/recommendations",
+    fertilizer: "/api/v1/advisory/fertilizer",
+    calculate: "/api/v1/advisory/fertilizer/calculate",
   },
 
   // Yield
@@ -299,6 +359,78 @@ export const API_PATHS = {
     overview: "/api/v1/analytics/overview",
     reports: "/api/v1/analytics/reports",
     export: "/api/v1/analytics/export",
+  },
+
+  // Copilot (AI Assistant)
+  copilot: {
+    chat: "/api/v1/chat",
+    chatHistory: "/api/v1/chat/history",
+    chatById: (id: string) => `/api/v1/chat/${id}`,
+    tools: "/api/v1/tools",
+    toolExecute: (toolName: string) => `/api/v1/tools/${toolName}/execute`,
+    ragDocuments: "/api/v1/rag/documents",
+    ragSearch: "/api/v1/rag/search",
+    guardLogs: "/api/v1/security/guard-logs",
+  },
+
+  // Billing
+  billing: {
+    invoices: "/api/v1/billing/invoices",
+    invoiceById: (id: string) => `/api/v1/billing/invoices/${id}`,
+    subscriptions: "/api/v1/billing/subscriptions",
+    usage: "/api/v1/billing/usage",
+  },
+
+  // Audit
+  audit: {
+    logs: "/api/v1/audit/logs",
+    logById: (id: string) => `/api/v1/audit/logs/${id}`,
+    stats: "/api/v1/audit/stats",
+  },
+
+  // Inventory
+  inventory: {
+    items: "/api/v1/inventory",
+    itemById: (id: string) => `/api/v1/inventory/${id}`,
+    stockLevels: "/api/v1/inventory/stock-levels",
+  },
+
+  // Drone
+  drone: {
+    flights: "/api/v1/drone/flights",
+    flightById: (id: string) => `/api/v1/drone/flights/${id}`,
+    plan: "/api/v1/drone/flights/plan",
+    devices: "/api/v1/drone/devices",
+  },
+
+  // Soil Analysis
+  soilAnalysis: {
+    tests: "/api/v1/soil/tests",
+    testById: (id: string) => `/api/v1/soil/tests/${id}`,
+    recommendations: "/api/v1/soil/recommendations",
+  },
+
+  // Traceability
+  traceability: {
+    batches: "/api/v1/traceability/batches",
+    batchById: (id: string) => `/api/v1/traceability/batches/${id}`,
+    events: "/api/v1/traceability/events",
+    qrCode: (batchId: string) => `/api/v1/traceability/batches/${batchId}/qr`,
+  },
+
+  // Vision
+  vision: {
+    detectPest: "/api/v1/detect/pest",
+    detectDisease: "/api/v1/detect/disease",
+    detectWeed: "/api/v1/detect/weed",
+    models: "/api/v1/models/versions",
+  },
+
+  // Terrain
+  terrain: {
+    analyze: "/api/v1/terrain/dem",
+    slope: "/api/v1/terrain/slope",
+    aspect: "/api/v1/terrain/aspect",
   },
 } as const;
 
@@ -317,24 +449,30 @@ export const API_ENDPOINTS = API_PATHS;
  * Usage: API_URLS.auth.login, API_URLS.fields.list, etc.
  */
 export const API_URLS = {
-  // Service base URLs (for backward compatibility)
+  // Service base URLs
   fieldCore: SERVICE_URLS.fieldCore,
+  fieldManagement: SERVICE_URLS.fieldManagement,
   satellite: SERVICE_URLS.satellite,
   indicators: SERVICE_URLS.indicators,
   weather: SERVICE_URLS.weather,
-  weatherCore: SERVICE_URLS.weatherCore,
-  fertilizer: SERVICE_URLS.fertilizer,
+  advisory: SERVICE_URLS.advisory,
   irrigation: SERVICE_URLS.irrigation,
-  cropHealth: SERVICE_URLS.cropHealth,
+  cropIntelligence: SERVICE_URLS.cropIntelligence,
+  yieldPrediction: SERVICE_URLS.yieldPrediction,
   virtualSensors: SERVICE_URLS.virtualSensors,
-  communityChat: SERVICE_URLS.communityChat,
-  yieldEngine: SERVICE_URLS.yieldEngine,
   equipment: SERVICE_URLS.equipment,
-  community: SERVICE_URLS.community,
   task: SERVICE_URLS.task,
   providerConfig: SERVICE_URLS.providerConfig,
   notifications: SERVICE_URLS.notifications,
   wsGateway: SERVICE_URLS.wsGateway,
+  copilot: SERVICE_URLS.copilot,
+  billing: SERVICE_URLS.billing,
+  audit: SERVICE_URLS.audit,
+  drone: SERVICE_URLS.drone,
+  soilAnalysis: SERVICE_URLS.soilAnalysis,
+  traceability: SERVICE_URLS.traceability,
+  yoloVision: SERVICE_URLS.yoloVision,
+  terrainCore: SERVICE_URLS.terrainCore,
 
   // Authentication endpoints
   auth: {
@@ -347,27 +485,27 @@ export const API_URLS = {
 
   // Field management endpoints
   fields: {
-    list: `${SERVICE_URLS.fieldCore}${API_PATHS.fields.list}`,
-    byId: (id: string) => `${SERVICE_URLS.fieldCore}${API_PATHS.fields.byId(id)}`,
-    create: `${SERVICE_URLS.fieldCore}${API_PATHS.fields.create}`,
-    update: (id: string) => `${SERVICE_URLS.fieldCore}${API_PATHS.fields.update(id)}`,
-    delete: (id: string) => `${SERVICE_URLS.fieldCore}${API_PATHS.fields.delete(id)}`,
+    list: `${SERVICE_URLS.fieldManagement}${API_PATHS.fields.list}`,
+    byId: (id: string) => `${SERVICE_URLS.fieldManagement}${API_PATHS.fields.byId(id)}`,
+    create: `${SERVICE_URLS.fieldManagement}${API_PATHS.fields.create}`,
+    update: (id: string) => `${SERVICE_URLS.fieldManagement}${API_PATHS.fields.update(id)}`,
+    delete: (id: string) => `${SERVICE_URLS.fieldManagement}${API_PATHS.fields.delete(id)}`,
   },
 
-  // Crop health endpoints
+  // Crop intelligence endpoints
   diagnoses: {
-    list: `${SERVICE_URLS.cropHealth}${API_PATHS.cropHealth.diagnoses}`,
+    list: `${SERVICE_URLS.cropIntelligence}${API_PATHS.cropHealth.diagnoses}`,
     byId: (id: string) =>
-      `${SERVICE_URLS.cropHealth}${API_PATHS.cropHealth.diagnosisById(id)}`,
-    stats: `${SERVICE_URLS.cropHealth}${API_PATHS.cropHealth.stats}`,
-    analyze: `${SERVICE_URLS.cropHealth}${API_PATHS.cropHealth.analyze}`,
+      `${SERVICE_URLS.cropIntelligence}${API_PATHS.cropHealth.diagnosisById(id)}`,
+    stats: `${SERVICE_URLS.cropIntelligence}${API_PATHS.cropHealth.stats}`,
+    analyze: `${SERVICE_URLS.cropIntelligence}${API_PATHS.cropHealth.analyze}`,
   },
 
   // Weather endpoints
   weatherEndpoints: {
-    current: `${SERVICE_URLS.weatherCore}${API_PATHS.weather.current}`,
-    forecast: `${SERVICE_URLS.weatherCore}${API_PATHS.weather.forecast}`,
-    agricultural: `${SERVICE_URLS.weatherCore}${API_PATHS.weather.agricultural}`,
+    current: `${SERVICE_URLS.weather}${API_PATHS.weather.current}`,
+    forecast: `${SERVICE_URLS.weather}${API_PATHS.weather.forecast}`,
+    agricultural: `${SERVICE_URLS.weather}${API_PATHS.weather.agricultural}`,
     alerts: (locationId: string) =>
       `${SERVICE_URLS.weather}${API_PATHS.weather.alerts(locationId)}`,
     locations: `${SERVICE_URLS.weather}${API_PATHS.weather.locations}`,
@@ -422,11 +560,68 @@ export const API_URLS = {
     byId: (id: string) => `${SERVICE_URLS.equipment}${API_PATHS.equipment.byId(id)}`,
   },
 
-  // Community endpoints
-  communityEndpoints: {
-    posts: `${SERVICE_URLS.communityChat}${API_PATHS.community.posts}`,
-    postById: (id: string) =>
-      `${SERVICE_URLS.communityChat}${API_PATHS.community.postById(id)}`,
+  // Copilot endpoints
+  copilotEndpoints: {
+    chat: `${SERVICE_URLS.copilot}${API_PATHS.copilot.chat}`,
+    chatHistory: `${SERVICE_URLS.copilot}${API_PATHS.copilot.chatHistory}`,
+    chatById: (id: string) => `${SERVICE_URLS.copilot}${API_PATHS.copilot.chatById(id)}`,
+    tools: `${SERVICE_URLS.copilot}${API_PATHS.copilot.tools}`,
+    ragDocuments: `${SERVICE_URLS.copilot}${API_PATHS.copilot.ragDocuments}`,
+    ragSearch: `${SERVICE_URLS.copilot}${API_PATHS.copilot.ragSearch}`,
+    guardLogs: `${SERVICE_URLS.copilot}${API_PATHS.copilot.guardLogs}`,
+  },
+
+  // Billing endpoints
+  billingEndpoints: {
+    invoices: `${SERVICE_URLS.billing}${API_PATHS.billing.invoices}`,
+    invoiceById: (id: string) => `${SERVICE_URLS.billing}${API_PATHS.billing.invoiceById(id)}`,
+    subscriptions: `${SERVICE_URLS.billing}${API_PATHS.billing.subscriptions}`,
+    usage: `${SERVICE_URLS.billing}${API_PATHS.billing.usage}`,
+  },
+
+  // Audit endpoints
+  auditEndpoints: {
+    logs: `${SERVICE_URLS.audit}${API_PATHS.audit.logs}`,
+    logById: (id: string) => `${SERVICE_URLS.audit}${API_PATHS.audit.logById(id)}`,
+    stats: `${SERVICE_URLS.audit}${API_PATHS.audit.stats}`,
+  },
+
+  // Drone endpoints
+  droneEndpoints: {
+    flights: `${SERVICE_URLS.drone}${API_PATHS.drone.flights}`,
+    flightById: (id: string) => `${SERVICE_URLS.drone}${API_PATHS.drone.flightById(id)}`,
+    plan: `${SERVICE_URLS.drone}${API_PATHS.drone.plan}`,
+    devices: `${SERVICE_URLS.drone}${API_PATHS.drone.devices}`,
+  },
+
+  // Soil Analysis endpoints
+  soilEndpoints: {
+    tests: `${SERVICE_URLS.soilAnalysis}${API_PATHS.soilAnalysis.tests}`,
+    testById: (id: string) => `${SERVICE_URLS.soilAnalysis}${API_PATHS.soilAnalysis.testById(id)}`,
+    recommendations: `${SERVICE_URLS.soilAnalysis}${API_PATHS.soilAnalysis.recommendations}`,
+  },
+
+  // Traceability endpoints
+  traceabilityEndpoints: {
+    batches: `${SERVICE_URLS.traceability}${API_PATHS.traceability.batches}`,
+    batchById: (id: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.batchById(id)}`,
+    events: `${SERVICE_URLS.traceability}${API_PATHS.traceability.events}`,
+    qrCode: (batchId: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
+  },
+
+  // Vision endpoints
+  visionEndpoints: {
+    detectPest: `${SERVICE_URLS.yoloVision}${API_PATHS.vision.detectPest}`,
+    detectDisease: `${SERVICE_URLS.yoloVision}${API_PATHS.vision.detectDisease}`,
+    detectWeed: `${SERVICE_URLS.yoloVision}${API_PATHS.vision.detectWeed}`,
+    models: `${SERVICE_URLS.yoloVision}${API_PATHS.vision.models}`,
+  },
+
+  // Terrain endpoints
+  terrainEndpoints: {
+    analyze: `${SERVICE_URLS.terrainCore}${API_PATHS.terrain.analyze}`,
+    slope: `${SERVICE_URLS.terrainCore}${API_PATHS.terrain.slope}`,
+    aspect: `${SERVICE_URLS.terrainCore}${API_PATHS.terrain.aspect}`,
   },
 
   // Health check helper
@@ -483,34 +678,63 @@ export const API_CONFIG = {
  *   - "crop-health" → use "crop-intelligence"
  */
 export type ServiceName =
+  // Core Services
   | "field-core" // @deprecated - use "field-management"
   | "field-management"
   | "auth"
   | "users"
   | "ws-gateway"
+  // Satellite & Remote Sensing
   | "satellite" // @deprecated - use "vegetation-analysis"
   | "vegetation-analysis"
-  | "ndvi-engine"
+  | "ndvi-processor"
+  // Weather
   | "weather"
-  | "weather-core"
+  // AI & Analytics
   | "indicators"
   | "crop-health" // @deprecated - use "crop-intelligence"
   | "crop-intelligence"
-  | "fertilizer"
-  | "yield-engine"
+  | "advisory"
+  | "yield-prediction"
   | "analytics"
+  | "copilot"
+  | "ai-advisor"
+  | "knowledge-graph"
+  // IoT & Sensors
   | "virtual-sensors"
+  | "iot-gateway"
+  // Operations
   | "irrigation"
   | "task"
   | "equipment"
-  | "community-chat"
-  | "community"
+  | "inventory"
+  | "logistics"
+  | "supply-chain"
+  // Communication
   | "notifications"
+  | "field-chat"
+  | "chat-service"
+  // Configuration & Misc
   | "provider-config"
   | "alerts"
   | "reports"
-  | "lab"
-  | "epidemic";
+  // Billing & Audit
+  | "billing"
+  | "audit"
+  // Agriculture Domain
+  | "drone"
+  | "soil-analysis"
+  | "pest-detection"
+  | "traceability"
+  | "globalgap"
+  | "cooperative"
+  | "crm"
+  // Vision & Terrain
+  | "yolo-vision"
+  | "terrain-core"
+  | "hydrology"
+  | "leveling-optimizer"
+  | "edge-orchestrator";
 
 /**
  * API configuration interface for service-specific settings

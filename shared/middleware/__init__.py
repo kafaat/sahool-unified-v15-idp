@@ -10,6 +10,7 @@ Available middlewares:
 - Request Logging: Structured JSON logging with correlation ID tracking
 - API Versioning: URL-based API versioning (/api/v1/, /api/v2/, etc.)
 - Security Headers: Essential HTTP security headers
+- Input Sanitization: XSS and injection attack prevention
 """
 
 from .api_versioning import (
@@ -48,6 +49,12 @@ from .security_headers import (
     SecurityHeadersMiddleware,
     get_security_headers_config,
     setup_security_headers,
+)
+from .input_sanitizer import (
+    InputSanitizationMiddleware,
+    sanitize_string,
+    sanitize_value,
+    setup_input_sanitization,
 )
 from .tenant_context import TenantContextMiddleware
 
@@ -90,4 +97,9 @@ __all__ = [
     "setup_security_headers",
     "SecurityHeadersMiddleware",
     "get_security_headers_config",
+    # Input Sanitization
+    "InputSanitizationMiddleware",
+    "setup_input_sanitization",
+    "sanitize_string",
+    "sanitize_value",
 ]

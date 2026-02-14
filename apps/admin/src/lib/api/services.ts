@@ -6,7 +6,6 @@
  * Dynamic CRUD operations with proper type safety
  */
 
-import { apiClient } from "../api-client";
 import { logger } from "../logger";
 
 // =============================================================================

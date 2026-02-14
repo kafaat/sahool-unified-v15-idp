@@ -3060,6 +3060,301 @@ services:
       memory: "512Mi"
       replicas: 2
 
+  # ═══════════════════════════════════════════════════════════════════════════
+  # COPILOT API - واجهة برمجة المساعد الذكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  copilot-api:
+    name: "Copilot API"
+    name_ar: "واجهة برمجة المساعد الذكي"
+    description: "AI copilot with multi-LLM support and RAG capabilities"
+    description_ar: "المساعد الذكي متعدد نماذج اللغة مع قدرات RAG"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/copilot-api"
+    port: 8088
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - CopilotQueryProcessed.v1
+      consumes:
+        - AdvisoryGenerated.v1
+    dependencies:
+      - llm-orchestrator-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # AI CHAT ASSISTANT - مساعد الدردشة الذكي
+  # ═══════════════════════════════════════════════════════════════════════════
+  ai-chat-assistant:
+    name: "AI Chat Assistant"
+    name_ar: "مساعد الدردشة الذكي"
+    description: "AI-powered chat assistant for farmer queries and advisory"
+    description_ar: "مساعد دردشة ذكي لاستفسارات المزارعين والإرشادات"
+    type: python
+    category: community
+    layer: business
+    path: "apps/services/ai-chat-assistant"
+    port: 8260
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-3
+    events:
+      produces:
+        - ChatMessageProcessed.v1
+      consumes:
+        - AdvisoryGenerated.v1
+    dependencies:
+      - llm-orchestrator-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PEST DETECTION SERVICE - خدمة كشف الآفات
+  # ═══════════════════════════════════════════════════════════════════════════
+  pest-detection-service:
+    name: "Pest Detection Service"
+    name_ar: "خدمة كشف الآفات"
+    description: "AI-powered pest identification and detection using computer vision"
+    description_ar: "كشف الآفات باستخدام الذكاء الاصطناعي والرؤية الحاسوبية"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/pest-detection-service"
+    port: 8125
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "agri-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - PestDetected.v1
+        - PestAlertIssued.v1
+      consumes:
+        - FieldCreated.v1
+    dependencies:
+      - yolo26-vision-service
+      - notification-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # YIELD PREDICTION SERVICE - خدمة تنبؤ الإنتاجية
+  # ═══════════════════════════════════════════════════════════════════════════
+  yield-prediction-service:
+    name: "Yield Prediction Service"
+    name_ar: "خدمة تنبؤ الإنتاجية"
+    description: "ML-based yield prediction and estimation service"
+    description_ar: "خدمة تنبؤ وتقدير الإنتاجية باستخدام التعلم الآلي"
+    type: nestjs
+    category: analytics
+    layer: decision
+    path: "apps/services/yield-prediction-service"
+    port: 8152
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - YieldPredicted.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - crop-growth-model
+      - weather-service
+    resources:
+      cpu: "500m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DIGITAL TWIN ENGINE - محرك التوأم الرقمي
+  # ═══════════════════════════════════════════════════════════════════════════
+  digital-twin-engine:
+    name: "Digital Twin Engine"
+    name_ar: "محرك التوأم الرقمي"
+    description: "Digital twin simulation for fields and crop systems"
+    description_ar: "محاكاة التوأم الرقمي للحقول وأنظمة المحاصيل"
+    type: python
+    category: analytics
+    layer: intelligence
+    path: "apps/services/digital-twin-engine"
+    port: 8253
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "data-team@sahool.io"
+    team: data
+    lifecycle: production
+    tier: tier-3
+    events:
+      produces:
+        - DigitalTwinUpdated.v1
+      consumes:
+        - FieldIndicatorsComputed.v1
+        - SensorReadingIngested.v1
+    dependencies:
+      - crop-growth-model
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 1
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # FERTIGATION ENGINE - محرك التسميد بالري
+  # ═══════════════════════════════════════════════════════════════════════════
+  fertigation-engine:
+    name: "Fertigation Engine"
+    name_ar: "محرك التسميد بالري"
+    description: "Fertigation management and nutrient injection scheduling"
+    description_ar: "إدارة التسميد بالري وجدولة حقن المغذيات"
+    type: python
+    category: decision
+    layer: decision
+    path: "apps/services/fertigation-engine"
+    port: 8252
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "agri-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - FertigationPlanCreated.v1
+      consumes:
+        - IrrigationPlanProposed.v1
+        - SoilTestInterpreted.v1
+    dependencies:
+      - irrigation-smart
+      - soil-analysis-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IRRIGATION CYCLE ENGINE - محرك دورات الري
+  # ═══════════════════════════════════════════════════════════════════════════
+  irrigation-cycle-engine:
+    name: "Irrigation Cycle Engine"
+    name_ar: "محرك دورات الري"
+    description: "Irrigation cycle optimization and scheduling engine"
+    description_ar: "محرك تحسين وجدولة دورات الري"
+    type: python
+    category: decision
+    layer: decision
+    path: "apps/services/irrigation-cycle-engine"
+    port: 8250
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "agri-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - IrrigationCycleOptimized.v1
+      consumes:
+        - IrrigationPlanProposed.v1
+        - WeatherForecastReady.v1
+    dependencies:
+      - irrigation-smart
+      - weather-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IOT SENSOR HUB - مركز أجهزة الاستشعار
+  # ═══════════════════════════════════════════════════════════════════════════
+  iot-sensor-hub:
+    name: "IoT Sensor Hub"
+    name_ar: "مركز أجهزة الاستشعار"
+    description: "IoT sensor data aggregation and processing hub"
+    description_ar: "مركز تجميع ومعالجة بيانات أجهزة الاستشعار"
+    type: python
+    category: integration
+    layer: acquisition
+    path: "apps/services/iot-sensor-hub"
+    port: 8251
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "iot-team@sahool.io"
+    team: iot
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - SensorReadingIngested.v1
+        - SensorHubStatusUpdated.v1
+      consumes:
+        - DeviceStatusChanged.v1
+    dependencies:
+      - iot-service
+    resources:
+      cpu: "300m"
+      memory: "512Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DEMO DATA - بيانات تجريبية
+  # ═══════════════════════════════════════════════════════════════════════════
+  demo-data:
+    name: "Demo Data"
+    name_ar: "بيانات تجريبية"
+    description: "Demo data generator for development and testing environments"
+    description_ar: "مولد بيانات تجريبية لبيئات التطوير والاختبار"
+    type: python
+    category: core
+    layer: business
+    path: "apps/services/demo-data"
+    port: 8261
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-3
+    events:
+      produces: []
+      consumes: []
+    dependencies: []
+    resources:
+      cpu: "200m"
+      memory: "256Mi"
+      replicas: 1
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Applications (Frontend)
 # ─────────────────────────────────────────────────────────────────────────────

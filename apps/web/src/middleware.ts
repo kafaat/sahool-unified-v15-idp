@@ -50,6 +50,7 @@ const protectedRoutes = [
   "/community",
   "/marketplace",
   "/crop-health",
+  "/copilot",
 ];
 
 // Create i18n middleware

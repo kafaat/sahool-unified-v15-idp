@@ -114,7 +114,7 @@ export default function SupportPage() {
   const fetchStats = async () => {
     try {
       const response = await apiClient.get(
-        `${API_URLS.communityChat}/v1/stats`,
+        `${API_URLS.notifications}/v1/stats`,
       );
       setStats(response.data);
     } catch {
@@ -125,7 +125,7 @@ export default function SupportPage() {
   const fetchRequests = async () => {
     try {
       const response = await apiClient.get(
-        `${API_URLS.communityChat}/v1/requests`,
+        `${API_URLS.notifications}/v1/requests`,
       );
       setRequests(response.data);
     } catch {

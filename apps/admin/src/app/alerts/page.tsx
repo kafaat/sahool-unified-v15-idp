@@ -5,7 +5,6 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Header from "@/components/layout/Header";
-import StatusBadge from "@/components/ui/StatusBadge";
 import DataTable from "@/components/ui/DataTable";
 import { formatDate, cn } from "@/lib/utils";
 import {
@@ -16,10 +15,8 @@ import {
   Thermometer,
   AlertTriangle,
   Info,
-  Search,
   Plus,
   RefreshCw,
-  Download,
   Eye,
   Check,
   CheckCheck,
@@ -37,7 +34,7 @@ import {
 export default function AlertsPage() {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
   const [severityFilter, setSeverityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");

@@ -183,7 +183,7 @@ export default function RegisterClient() {
         }
       );
 
-      const data = await response.json();
+      const data: { message?: string; detail?: string; access_token?: string; refresh_token?: string } = await response.json();
 
       if (!response.ok) {
         throw new Error(data.message || data.detail || "Registration failed");

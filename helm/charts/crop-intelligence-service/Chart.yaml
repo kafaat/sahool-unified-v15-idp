@@ -1,0 +1,13 @@
+apiVersion: v2
+name: crop-intelligence-service
+description: SAHOOL Crop Intelligence Service - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - crop
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

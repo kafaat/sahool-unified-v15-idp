@@ -1,0 +1,13 @@
+apiVersion: v2
+name: vegetation-analysis-service
+description: SAHOOL Vegetation Analysis Service - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - vegetation
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

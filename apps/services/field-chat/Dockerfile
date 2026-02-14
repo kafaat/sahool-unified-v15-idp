@@ -1,10 +1,64 @@
 # SAHOOL Field Chat Service
 # ==========================
-# Uses shared base image for consistency
+# Multi-stage build for optimized image size
 # Version: 16.0.0
 
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm AS base
+
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
+
+WORKDIR /build
+
+# Install build dependencies required to compile native wheels
+# Configure Debian mirror fallback for network-restricted environments
+RUN set -e; \
+    (apt-get update 2>/dev/null && apt-get install -y --no-install-recommends \
+        build-essential gcc libpq-dev python3-dev libsqlite3-dev) || \
+    ( \
+        echo "Default apt sources failed, switching to mirror..."; \
+        if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
+            sed -i 's|URIs: http://deb.debian.org|URIs: https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
+        fi; \
+        if [ -f /etc/apt/sources.list ]; then \
+            sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list; \
+        fi; \
+        apt-get update && \
+        apt-get install -y --no-install-recommends \
+            build-essential gcc libpq-dev python3-dev libsqlite3-dev \
+    ) && \
+    rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip and install build tools
+# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --upgrade pip "setuptools>=68.0" wheel build || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade pip "setuptools>=68.0" wheel build
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY apps/services/field-chat/requirements.txt .
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    --user -c constraints.txt -r requirements.txt
+
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 # Build arguments
 ARG SERVICE_NAME=field-chat
@@ -23,79 +77,26 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Create non-root user
-RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash --create-home sahool
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Install build dependencies required to compile native wheels
-# Configure Debian mirror fallback for network-restricted environments
-RUN set -e; \
-    # Try default sources first, fall back to mirror if DNS fails
-    (apt-get update 2>/dev/null && apt-get install -y --no-install-recommends \
-        build-essential gcc libpq-dev python3-dev libsqlite3-dev) || \
-    ( \
-        echo "Default apt sources failed, switching to mirror..."; \
-        # Bookworm DEB822 format
-        if [ -f /etc/apt/sources.list.d/debian.sources ]; then \
-            sed -i 's|URIs: http://deb.debian.org|URIs: https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources; \
-        fi; \
-        # Traditional format fallback
-        if [ -f /etc/apt/sources.list ]; then \
-            sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list; \
-        fi; \
-        apt-get update && \
-        apt-get install -y --no-install-recommends \
-            build-essential gcc libpq-dev python3-dev libsqlite3-dev \
-    ) && \
-    rm -rf /var/lib/apt/lists/*
+# Install only runtime libraries (no build tools needed)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip and install build tools
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
-
-# Configure pip for better network resilience
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
-
-# Install dependencies (using shared requirements)
-COPY apps/services/field-chat/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
-    -r requirements.txt
-
-# Remove build-time packages to keep the runtime image small
-RUN apt-get purge -y --auto-remove build-essential gcc python3-dev libpq-dev libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    || true
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
-COPY shared/ ./shared/
+COPY --chown=sahool:sahool shared/ ./shared/
 
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
-COPY apps/services/shared/ ./shared/
+COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
 # Copy source
-COPY apps/services/field-chat/src/ ./src/
-
-# Set ownership
-RUN chown -R sahool:sahool /app
+COPY --chown=sahool:sahool apps/services/field-chat/src/ ./src/
 
 USER sahool
 

@@ -43,8 +43,20 @@ RUN mkdir -p /root/.pip && \
 # Note: Build context is repo root, so use full path
 COPY apps/services/leveling-optimizer-service/requirements.txt .
 
-# Install Python dependencies with fallback to Tsinghua mirror
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ -r requirements.txt
+# Install Python dependencies with multi-mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r requirements.txt
 
 # Production stage
 FROM base AS production

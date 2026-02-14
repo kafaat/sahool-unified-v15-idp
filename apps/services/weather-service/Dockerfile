@@ -54,14 +54,15 @@ EOF
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/weather-service/requirements.txt /tmp/requirements.txt
+COPY --chown=sahool:sahool constraints.txt /tmp/constraints.txt
 
 RUN pip install --no-cache-dir --timeout=300 --retries=10 \
-    -r /tmp/requirements.txt || \
+    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     (sleep 5 && pip install --no-cache-dir --timeout=300 --retries=10 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r /tmp/requirements.txt)
+    -c /tmp/constraints.txt -r /tmp/requirements.txt)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Runtime | المرحلة 2: وقت التشغيل

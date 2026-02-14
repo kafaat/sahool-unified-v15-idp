@@ -1,0 +1,13 @@
+apiVersion: v2
+name: notification-service
+description: SAHOOL Notification Service - Microservice
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - notification
+  - microservice
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

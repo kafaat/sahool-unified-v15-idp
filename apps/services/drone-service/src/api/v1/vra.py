@@ -3,7 +3,6 @@ VRA (Variable Rate Application) endpoints - نقاط نهاية التطبيق �
 Integrates with shared.drone_integration.vra for prescription map generation.
 """
 
-import uuid
 from datetime import datetime
 
 import structlog

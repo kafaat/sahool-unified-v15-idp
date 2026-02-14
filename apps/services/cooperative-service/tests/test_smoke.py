@@ -1,5 +1,5 @@
 """
-Smoke test for drone-service
+Smoke test for cooperative-service
 Tests basic import and module structure
 """
 
@@ -12,7 +12,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def test_main_module_structure():
     """Test that main.py has expected attributes"""
-    # Just check the file exists and can be parsed
     try:
         import importlib.util
 
@@ -31,9 +30,7 @@ def test_api_routers_exist():
     """Test that API router files exist"""
     api_path = Path(__file__).parent.parent / "src" / "api" / "v1"
 
-    assert (api_path / "drones.py").exists()
-    assert (api_path / "flights.py").exists()
-    assert (api_path / "missions.py").exists()
+    assert (api_path / "cooperatives.py").exists()
     print("✓ All API router files exist")
 
 
@@ -41,7 +38,7 @@ def test_migrations_exist():
     """Test that SQL migration files exist"""
     migrations_path = Path(__file__).parent.parent / "migrations"
 
-    assert (migrations_path / "001_create_drone_tables.sql").exists()
+    assert (migrations_path / "001_create_cooperative_tables.sql").exists()
     print("✓ Migration files exist")
 
 

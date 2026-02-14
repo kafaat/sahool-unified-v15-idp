@@ -1012,8 +1012,8 @@ services:
     protocol: http
     routes:
       - name: soil-analysis-route
-        paths: ["/api/v1/soil", "/soil"]
-        strip_path: true
+        paths: ["/api/v1/soil"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1051,8 +1051,8 @@ services:
     protocol: http
     routes:
       - name: traceability-route
-        paths: ["/api/v1/traceability", "/traceability"]
-        strip_path: true
+        paths: ["/api/v1/traceability"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1070,8 +1070,8 @@ services:
     protocol: http
     routes:
       - name: cooperative-route
-        paths: ["/api/v1/cooperatives", "/cooperatives"]
-        strip_path: true
+        paths: ["/api/v1/cooperatives"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
@@ -1089,8 +1089,16 @@ services:
     protocol: http
     routes:
       - name: drone-route
-        paths: ["/api/v1/drones", "/drones"]
-        strip_path: true
+        paths: ["/api/v1/drones"]
+        strip_path: false
+        protocols: ["http", "https"]
+      - name: drone-flights-route
+        paths: ["/api/v1/flights"]
+        strip_path: false
+        protocols: ["http", "https"]
+      - name: drone-missions-route
+        paths: ["/api/v1/missions"]
+        strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting

@@ -29,7 +29,7 @@ from ...models.schemas import (
 from ...db import save_message
 from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
-from ..deps import get_current_user, get_optional_user
+from ..deps import get_current_user
 from ...events.publisher import publish_copilot_event
 from ...security.prompt_guard import detect_prompt_injection
 

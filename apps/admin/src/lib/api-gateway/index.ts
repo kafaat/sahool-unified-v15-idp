@@ -69,10 +69,14 @@ export type ServiceName =
   | "traceability"
   | "globalgap"
   | "crm"
+  // Supply Chain & Cooperative
+  | "supply-chain"
+  | "cooperative"
   // Vision & Terrain
   | "yolo-vision"
   | "terrain-core"
   | "hydrology"
+  | "leveling-optimizer"
   | "edge-orchestrator";
 
 export interface ServiceConfig {
@@ -336,6 +340,14 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 15000,
     retries: 2,
   },
+  "supply-chain": {
+    name: "supply-chain",
+    baseUrl: `${API_BASE}:8230`,
+    port: 8230,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Communication
@@ -456,6 +468,14 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     timeout: 10000,
     retries: 2,
   },
+  cooperative: {
+    name: "cooperative",
+    baseUrl: `${API_BASE}:8127`,
+    port: 8127,
+    healthEndpoint: "/healthz",
+    timeout: 15000,
+    retries: 2,
+  },
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Vision & Terrain
@@ -480,6 +500,14 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     name: "hydrology",
     baseUrl: `${API_BASE}:8165`,
     port: 8165,
+    healthEndpoint: "/healthz",
+    timeout: 30000,
+    retries: 2,
+  },
+  "leveling-optimizer": {
+    name: "leveling-optimizer",
+    baseUrl: `${API_BASE}:8170`,
+    port: 8170,
     healthEndpoint: "/healthz",
     timeout: 30000,
     retries: 2,

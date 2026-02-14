@@ -79,14 +79,17 @@ export const SERVICE_PORTS = {
   cropIntelligence: 8095,
   advisory: 8093,
   yieldPrediction: 8152,
+  fieldIntelligence: 8120,
   analytics: 8100,
   copilot: 8088,
   aiAdvisor: 8112,
+  aiAgents: 8161,
   knowledgeGraph: 8140,
 
   // IoT & Sensors
   virtualSensors: 8119,
   iotGateway: 8106,
+  iotService: 8117,
 
   // Operations
   irrigation: 8094,
@@ -100,11 +103,14 @@ export const SERVICE_PORTS = {
   notifications: 8110,
   fieldChat: 8099,
   chatService: 8000,
+  communityChat: 8097,
 
   // Configuration & Misc
   providerConfig: 8104,
   alerts: 8113,
   reports: 8084,
+  astronomicalCalendar: 8111,
+  lowcode: 8132,
 
   // Billing & Audit
   billing: 8089,
@@ -118,6 +124,10 @@ export const SERVICE_PORTS = {
   globalgap: 8128,
   cooperative: 8127,
   crm: 8131,
+
+  // Community & Business
+  marketplace: 3010,
+  research: 3015,
 
   // Vision & Terrain
   yoloVision: 8150,
@@ -175,14 +185,17 @@ export const SERVICE_URLS = {
   cropIntelligence: getServiceUrl(SERVICE_PORTS.cropIntelligence),
   advisory: getServiceUrl(SERVICE_PORTS.advisory),
   yieldPrediction: getServiceUrl(SERVICE_PORTS.yieldPrediction),
+  fieldIntelligence: getServiceUrl(SERVICE_PORTS.fieldIntelligence),
   analytics: getServiceUrl(SERVICE_PORTS.analytics),
   copilot: getServiceUrl(SERVICE_PORTS.copilot),
   aiAdvisor: getServiceUrl(SERVICE_PORTS.aiAdvisor),
+  aiAgents: getServiceUrl(SERVICE_PORTS.aiAgents),
   knowledgeGraph: getServiceUrl(SERVICE_PORTS.knowledgeGraph),
 
   // IoT & Sensors
   virtualSensors: getServiceUrl(SERVICE_PORTS.virtualSensors),
   iotGateway: getServiceUrl(SERVICE_PORTS.iotGateway),
+  iotService: getServiceUrl(SERVICE_PORTS.iotService),
 
   // Operations
   irrigation: getServiceUrl(SERVICE_PORTS.irrigation),
@@ -196,11 +209,14 @@ export const SERVICE_URLS = {
   notifications: getServiceUrl(SERVICE_PORTS.notifications),
   fieldChat: getServiceUrl(SERVICE_PORTS.fieldChat),
   chatService: getServiceUrl(SERVICE_PORTS.chatService),
+  communityChat: getServiceUrl(SERVICE_PORTS.communityChat),
 
   // Configuration & Misc
   providerConfig: getServiceUrl(SERVICE_PORTS.providerConfig),
   alerts: getServiceUrl(SERVICE_PORTS.alerts),
   reports: getServiceUrl(SERVICE_PORTS.reports),
+  astronomicalCalendar: getServiceUrl(SERVICE_PORTS.astronomicalCalendar),
+  lowcode: getServiceUrl(SERVICE_PORTS.lowcode),
 
   // Billing & Audit
   billing: getServiceUrl(SERVICE_PORTS.billing),
@@ -214,6 +230,10 @@ export const SERVICE_URLS = {
   globalgap: getServiceUrl(SERVICE_PORTS.globalgap),
   cooperative: getServiceUrl(SERVICE_PORTS.cooperative),
   crm: getServiceUrl(SERVICE_PORTS.crm),
+
+  // Community & Business
+  marketplace: getServiceUrl(SERVICE_PORTS.marketplace),
+  research: getServiceUrl(SERVICE_PORTS.research),
 
   // Vision & Terrain
   yoloVision: getServiceUrl(SERVICE_PORTS.yoloVision),
@@ -459,15 +479,27 @@ export const API_URLS = {
   irrigation: SERVICE_URLS.irrigation,
   cropIntelligence: SERVICE_URLS.cropIntelligence,
   yieldPrediction: SERVICE_URLS.yieldPrediction,
+  fieldIntelligence: SERVICE_URLS.fieldIntelligence,
+  aiAgents: SERVICE_URLS.aiAgents,
   virtualSensors: SERVICE_URLS.virtualSensors,
   equipment: SERVICE_URLS.equipment,
   task: SERVICE_URLS.task,
   providerConfig: SERVICE_URLS.providerConfig,
+  alerts: SERVICE_URLS.alerts,
+  astronomicalCalendar: SERVICE_URLS.astronomicalCalendar,
+  lowcode: SERVICE_URLS.lowcode,
+  iotService: SERVICE_URLS.iotService,
   notifications: SERVICE_URLS.notifications,
   wsGateway: SERVICE_URLS.wsGateway,
   copilot: SERVICE_URLS.copilot,
   billing: SERVICE_URLS.billing,
   audit: SERVICE_URLS.audit,
+  crm: SERVICE_URLS.crm,
+  fieldChat: SERVICE_URLS.fieldChat,
+  chatService: SERVICE_URLS.chatService,
+  communityChat: SERVICE_URLS.communityChat,
+  marketplace: SERVICE_URLS.marketplace,
+  research: SERVICE_URLS.research,
   drone: SERVICE_URLS.drone,
   soilAnalysis: SERVICE_URLS.soilAnalysis,
   traceability: SERVICE_URLS.traceability,
@@ -696,13 +728,16 @@ export type ServiceName =
   | "crop-intelligence"
   | "advisory"
   | "yield-prediction"
+  | "field-intelligence"
   | "analytics"
   | "copilot"
   | "ai-advisor"
+  | "ai-agents"
   | "knowledge-graph"
   // IoT & Sensors
   | "virtual-sensors"
   | "iot-gateway"
+  | "iot-service"
   // Operations
   | "irrigation"
   | "task"
@@ -714,10 +749,13 @@ export type ServiceName =
   | "notifications"
   | "field-chat"
   | "chat-service"
+  | "community-chat"
   // Configuration & Misc
   | "provider-config"
   | "alerts"
   | "reports"
+  | "astronomical-calendar"
+  | "lowcode"
   // Billing & Audit
   | "billing"
   | "audit"
@@ -729,6 +767,9 @@ export type ServiceName =
   | "globalgap"
   | "cooperative"
   | "crm"
+  // Community & Business
+  | "marketplace"
+  | "research"
   // Vision & Terrain
   | "yolo-vision"
   | "terrain-core"

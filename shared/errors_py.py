@@ -178,7 +178,7 @@ class ExternalServiceException(SahoolException):
         cls,
         error: Exception | None = None,
         details: dict[str, Any] | None = None,
-    ) -> "ExternalServiceException":
+    ) -> ExternalServiceException:
         msg = f"Weather service error: {error}" if error else "Weather service unavailable"
         return cls(
             message=msg,

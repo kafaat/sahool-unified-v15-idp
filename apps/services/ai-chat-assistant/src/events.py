@@ -21,11 +21,11 @@ logger = logging.getLogger(__name__)
 
 class NATSEventHandler:
     """Handles NATS events for AI chat queries."""
-    
+
     def __init__(self):
-        self.nc: Optional[NATS] = None
+        self.nc: NATS | None = None
         self.subscription = None
-        
+
     async def connect(self):
         """Connect to NATS server."""
         try:
@@ -37,61 +37,61 @@ class NATSEventHandler:
                 name="ai-chat-assistant",
             )
             logger.info(f"Connected to NATS: {settings.NATS_URL}")
-            
+
             # Subscribe to AI query events
             await self.subscribe()
-            
+
         except Exception as e:
             logger.error(f"Failed to connect to NATS: {e}")
             raise
-    
+
     async def close(self):
         """Close NATS connection."""
         if self.subscription:
             await self.subscription.unsubscribe()
-        
+
         if self.nc:
             await self.nc.drain()
             await self.nc.close()
             logger.info("NATS connection closed")
-    
+
     async def subscribe(self):
         """Subscribe to AI chat query events."""
         if not self.nc:
             raise RuntimeError("NATS not connected")
-        
+
         # Subscribe to ai_query subject
         self.subscription = await self.nc.subscribe(
             "sahool.chat.ai_query",
             cb=self._handle_ai_query,
         )
         logger.info("Subscribed to sahool.chat.ai_query")
-    
+
     async def _handle_ai_query(self, msg):
         """
         Handle incoming AI query event from chat service.
-        
+
         Args:
             msg: NATS message containing AI query
         """
         start_time = datetime.utcnow()
-        
+
         try:
             # Parse message data
             data = json.loads(msg.data.decode())
             query = AIQuery(**data)
-            
+
             logger.info(
                 f"Received AI query from user {query.user_id}: "
                 f"{query.query[:50]}... (lang: {query.language})"
             )
-            
+
             # Process query
             response = await self._process_query(query)
-            
+
             # Publish response
             await self._publish_response(response)
-            
+
             # Log processing time
             total_time_ms = int((datetime.utcnow() - start_time).total_seconds() * 1000)
             logger.info(
@@ -99,18 +99,18 @@ class NATSEventHandler:
                 f"(cached: {response.metadata.cached}, "
                 f"confidence: {response.metadata.confidence:.2f})"
             )
-            
+
         except Exception as e:
             logger.error(f"Error handling AI query: {e}", exc_info=True)
             # TODO: Send error response back to chat
-    
+
     async def _process_query(self, query: AIQuery) -> AIResponse:
         """
         Process AI query with caching and LLM orchestration.
-        
+
         Args:
             query: Parsed AI query
-            
+
         Returns:
             AI response with answer and metadata
         """
@@ -120,7 +120,7 @@ class NATSEventHandler:
             language=query.language,
             field_id=query.field_id,
         )
-        
+
         if cached:
             # Cache hit - use cached response
             return AIResponse(
@@ -129,7 +129,7 @@ class NATSEventHandler:
                 answer_en=cached.answer_en,
                 metadata=cached.metadata,
             )
-        
+
         # Step 2: Cache miss - call LLM orchestrator
         result = await llm_client.orchestrate(
             query=query.query,
@@ -137,7 +137,7 @@ class NATSEventHandler:
             field_id=query.field_id,
             context=query.context,
         )
-        
+
         # Step 3: Cache the response
         await cache_manager.set(
             query=query.query,
@@ -147,7 +147,7 @@ class NATSEventHandler:
             metadata=result["metadata"],
             field_id=query.field_id,
         )
-        
+
         # Step 4: Return response
         return AIResponse(
             conversation_id=query.conversation_id,
@@ -155,33 +155,33 @@ class NATSEventHandler:
             answer_en=result.get("answer_en"),
             metadata=result["metadata"],
         )
-    
+
     async def _publish_response(self, response: AIResponse):
         """
         Publish AI response back to chat service.
-        
+
         Args:
             response: AI response to publish
         """
         if not self.nc:
             raise RuntimeError("NATS not connected")
-        
+
         try:
             # Serialize response
             response_data = response.model_dump_json()
-            
+
             # Publish to response subject
             await self.nc.publish(
                 "sahool.chat.ai_response",
                 response_data.encode(),
             )
-            
+
             logger.info(f"Published AI response for conversation {response.conversation_id}")
-            
+
         except Exception as e:
             logger.error(f"Error publishing response: {e}")
             raise
-    
+
     async def is_connected(self) -> bool:
         """Check if NATS is connected."""
         return self.nc is not None and self.nc.is_connected

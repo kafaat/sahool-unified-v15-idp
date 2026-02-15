@@ -20,11 +20,11 @@ logger = logging.getLogger(__name__)
 
 class CacheManager:
     """Manages caching of AI responses in Redis."""
-    
+
     def __init__(self):
-        self.redis_client: Optional[Redis] = None
+        self.redis_client: Redis | None = None
         self.namespace = "ai-chat"
-        
+
     async def connect(self):
         """Connect to Redis."""
         try:
@@ -41,80 +41,80 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Failed to connect to Redis: {e}")
             raise
-    
+
     async def close(self):
         """Close Redis connection."""
         if self.redis_client:
             await self.redis_client.close()
             logger.info("Redis connection closed")
-    
-    def _generate_cache_key(self, query: str, language: str, field_id: Optional[str] = None) -> str:
+
+    def _generate_cache_key(self, query: str, language: str, field_id: str | None = None) -> str:
         """Generate cache key from query parameters."""
         # Normalize query (lowercase, strip)
         normalized_query = query.lower().strip()
-        
+
         # Create hash input
         hash_input = f"{normalized_query}:{language}"
         if field_id:
             hash_input += f":{field_id}"
-        
+
         # Generate hash
         cache_hash = hashlib.sha256(hash_input.encode()).hexdigest()[:16]
-        
+
         return f"{self.namespace}:exact:{cache_hash}"
-    
-    async def get(self, query: str, language: str, field_id: Optional[str] = None) -> Optional[CachedResponse]:
+
+    async def get(self, query: str, language: str, field_id: str | None = None) -> CachedResponse | None:
         """
         Get cached response if exists.
-        
+
         Args:
             query: User query
             language: Query language
             field_id: Optional field ID for context
-            
+
         Returns:
             CachedResponse if found, None otherwise
         """
         if not settings.CACHE_ENABLED or not self.redis_client:
             return None
-        
+
         try:
             cache_key = self._generate_cache_key(query, language, field_id)
-            
+
             # Get from Redis
             cached_data = await self.redis_client.get(cache_key)
-            
+
             if not cached_data:
                 logger.debug(f"Cache miss for query: {query[:50]}...")
                 return None
-            
+
             # Parse cached response
             cached_dict = json.loads(cached_data)
             cached_response = CachedResponse(**cached_dict)
-            
+
             # Increment hit count
             cached_response.hit_count += 1
             await self._update_hit_count(cache_key, cached_response)
-            
+
             logger.info(f"Cache hit for query: {query[:50]}... (hits: {cached_response.hit_count})")
             return cached_response
-            
+
         except Exception as e:
             logger.error(f"Error getting from cache: {e}")
             return None
-    
+
     async def set(
         self,
         query: str,
         language: str,
         answer: str,
-        answer_en: Optional[str],
+        answer_en: str | None,
         metadata: ResponseMetadata,
-        field_id: Optional[str] = None,
+        field_id: str | None = None,
     ) -> bool:
         """
         Cache AI response.
-        
+
         Args:
             query: User query
             language: Query language
@@ -122,16 +122,16 @@ class CacheManager:
             answer_en: English translation (if applicable)
             metadata: Response metadata
             field_id: Optional field ID
-            
+
         Returns:
             True if cached successfully, False otherwise
         """
         if not settings.CACHE_ENABLED or not self.redis_client:
             return False
-        
+
         try:
             cache_key = self._generate_cache_key(query, language, field_id)
-            
+
             # Create cached response
             cached_response = CachedResponse(
                 query=query,
@@ -141,24 +141,24 @@ class CacheManager:
                 cached_at=datetime.utcnow(),
                 hit_count=0,
             )
-            
+
             # Serialize to JSON
             cached_data = cached_response.model_dump_json()
-            
+
             # Store in Redis with TTL
             await self.redis_client.setex(
                 cache_key,
                 settings.CACHE_TTL_SECONDS,
                 cached_data,
             )
-            
+
             logger.info(f"Cached response for query: {query[:50]}...")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error setting cache: {e}")
             return False
-    
+
     async def _update_hit_count(self, cache_key: str, cached_response: CachedResponse):
         """Update hit count for cached response."""
         try:
@@ -170,8 +170,8 @@ class CacheManager:
             )
         except Exception as e:
             logger.error(f"Error updating hit count: {e}")
-    
-    async def invalidate(self, query: str, language: str, field_id: Optional[str] = None):
+
+    async def invalidate(self, query: str, language: str, field_id: str | None = None):
         """Invalidate cache for a specific query."""
         try:
             cache_key = self._generate_cache_key(query, language, field_id)
@@ -179,27 +179,27 @@ class CacheManager:
             logger.info(f"Invalidated cache for query: {query[:50]}...")
         except Exception as e:
             logger.error(f"Error invalidating cache: {e}")
-    
+
     async def get_stats(self) -> dict:
         """Get cache statistics."""
         try:
             if not self.redis_client:
                 return {}
-            
+
             # Get all cache keys
             pattern = f"{self.namespace}:*"
             keys = await self.redis_client.keys(pattern)
-            
+
             total_entries = len(keys)
             total_hits = 0
-            
+
             # Calculate total hits
             for key in keys:
                 data = await self.redis_client.get(key)
                 if data:
                     cached = json.loads(data)
                     total_hits += cached.get("hit_count", 0)
-            
+
             return {
                 "total_entries": total_entries,
                 "total_hits": total_hits,

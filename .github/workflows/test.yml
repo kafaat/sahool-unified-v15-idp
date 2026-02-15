@@ -79,28 +79,26 @@ jobs:
 
       - name: Run shared-hooks tests
         run: |
-          echo "🧪 Running shared-hooks tests..."
+          echo "Running shared-hooks tests..."
           cd packages/shared-hooks
-          npx vitest run --reporter=verbose || echo "::warning::shared-hooks tests not configured yet"
+          npx vitest run --reporter=verbose
 
       - name: Run shared-ui tests
         run: |
-          echo "🧪 Running shared-ui tests..."
+          echo "Running shared-ui tests..."
           cd packages/shared-ui
-          npx vitest run --reporter=verbose || echo "::warning::shared-ui tests not configured yet"
+          npx vitest run --reporter=verbose
 
       - name: TypeScript Type Check
         run: |
-          echo "📝 Running TypeScript type check..."
-          npx tsc --noEmit -p apps/web/tsconfig.json || echo "::warning::TypeScript errors found in web app"
-          npx tsc --noEmit -p apps/admin/tsconfig.json || echo "::warning::TypeScript errors found in admin app"
-        continue-on-error: false
+          echo "Running TypeScript type check..."
+          npx tsc --noEmit -p apps/web/tsconfig.json
+          npx tsc --noEmit -p apps/admin/tsconfig.json
 
       - name: Build Check
         run: |
-          echo "🏗️ Checking build..."
-          cd apps/web && npm run build || echo "::warning::Build failed"
-        continue-on-error: false
+          echo "Checking build..."
+          cd apps/web && npm run build
 
       - name: Test Summary
         if: always()
@@ -133,23 +131,23 @@ jobs:
 
       - name: Run NDVI Processor Tests
         run: |
-          echo "🧪 Running NDVI Processor tests..."
-          pytest apps/services/ndvi-processor/tests/ -v --tb=short || echo "::warning::NDVI tests failed"
+          echo "Running NDVI Processor tests..."
+          pytest apps/services/ndvi-processor/tests/ -v --tb=short
 
       - name: Run Alert Service Tests
         run: |
-          echo "🧪 Running Alert Service tests..."
-          pytest apps/services/alert-service/tests/ -v --tb=short || echo "::warning::Alert tests failed"
+          echo "Running Alert Service tests..."
+          pytest apps/services/alert-service/tests/ -v --tb=short
 
       - name: Run Field Service Tests
         run: |
-          echo "🧪 Running Field Service tests..."
-          pytest apps/services/field-service/tests/ -v --tb=short || echo "::warning::Field tests failed"
+          echo "Running Field Service tests..."
+          pytest apps/services/field-service/tests/ -v --tb=short
 
       - name: Generate Coverage Report
         run: |
-          echo "📊 Generating coverage report..."
-          pytest apps/services/ -v --cov=apps/services --cov-report=xml --cov-report=term-missing || true
+          echo "Generating coverage report..."
+          pytest apps/services/ -v --cov=apps/services --cov-report=xml --cov-report=term-missing
 
       - name: Upload Coverage
         uses: codecov/codecov-action@v5
@@ -157,8 +155,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
-          fail_ci_if_error: true
-        continue-on-error: true
+          fail_ci_if_error: false
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Flutter Mobile Tests
@@ -198,22 +195,22 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Analyze code
-        run: flutter analyze --no-fatal-infos || echo "::warning::Analysis warnings found"
+        run: flutter analyze --no-fatal-infos
 
       - name: Run unit tests
         run: |
-          echo "🧪 Running Flutter unit tests..."
-          flutter test test/unit/ --reporter=expanded || echo "::warning::Some unit tests failed"
+          echo "Running Flutter unit tests..."
+          flutter test test/unit/ --reporter=expanded
 
       - name: Run widget tests
         run: |
-          echo "🧪 Running Flutter widget tests..."
-          flutter test test/widget/ --reporter=expanded || echo "::warning::Some widget tests failed"
+          echo "Running Flutter widget tests..."
+          flutter test test/widget/ --reporter=expanded
 
       - name: Run integration tests
         run: |
-          echo "🧪 Running Flutter integration tests..."
-          flutter test test/integration/ --reporter=expanded || echo "::warning::Some integration tests failed"
+          echo "Running Flutter integration tests..."
+          flutter test test/integration/ --reporter=expanded
 
       - name: Test Summary
         if: always()
@@ -311,31 +308,31 @@ jobs:
 
       - name: Check Results
         run: |
-          # Count failures but don't fail the workflow for optional tests
           FAILURES=0
 
           if [[ "${{ needs.frontend-tests.result }}" == "failure" ]]; then
-            echo "::warning::Frontend tests had failures"
+            echo "::error::Frontend tests failed"
             FAILURES=$((FAILURES + 1))
           fi
 
           if [[ "${{ needs.python-tests.result }}" == "failure" ]]; then
-            echo "::warning::Python tests had failures"
+            echo "::error::Python tests failed"
             FAILURES=$((FAILURES + 1))
           fi
 
           if [[ "${{ needs.flutter-tests.result }}" == "failure" ]]; then
-            echo "::warning::Flutter tests had failures"
+            echo "::error::Flutter tests failed"
             FAILURES=$((FAILURES + 1))
           fi
 
           if [[ "${{ needs.schema-validation.result }}" == "failure" ]]; then
-            echo "::warning::Schema validation had failures"
+            echo "::error::Schema validation failed"
             FAILURES=$((FAILURES + 1))
           fi
 
           if [ $FAILURES -gt 0 ]; then
-            echo "::warning::$FAILURES test suite(s) had failures - review required"
+            echo "::error::$FAILURES test suite(s) failed - blocking merge"
+            exit 1
           fi
 
-          echo "✅ Test summary completed"
+          echo "All test suites passed"

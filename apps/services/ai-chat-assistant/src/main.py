@@ -30,37 +30,37 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.SERVICE_NAME} v1.0.0...")
     logger.info(f"Environment: {settings.ENVIRONMENT}")
     logger.info(f"Port: {settings.PORT}")
-    
+
     try:
         # Initialize Redis cache
         logger.info("Connecting to Redis...")
         await cache_manager.connect()
-        
+
         # Initialize LLM orchestrator client
         logger.info("Connecting to LLM Orchestrator...")
         await llm_client.connect()
-        
+
         # Check orchestrator health
         is_healthy = await llm_client.health_check()
         if not is_healthy:
             logger.warning("LLM Orchestrator health check failed - service may not be available")
-        
+
         # Initialize NATS event handler
         logger.info("Connecting to NATS...")
         await event_handler.connect()
-        
+
         logger.info("✅ All services connected successfully")
         logger.info(f"🚀 {settings.SERVICE_NAME} is ready to serve!")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to initialize services: {e}")
         raise
-    
+
     yield
-    
+
     # Shutdown
     logger.info(f"Shutting down {settings.SERVICE_NAME}...")
-    
+
     try:
         await event_handler.close()
         await llm_client.close()
@@ -106,11 +106,11 @@ async def readiness_check():
     redis_connected = cache_manager.redis_client is not None
     nats_connected = await event_handler.is_connected()
     llm_healthy = await llm_client.health_check()
-    
+
     is_ready = redis_connected and nats_connected and llm_healthy
-    
+
     status_code = 200 if is_ready else 503
-    
+
     return JSONResponse(
         status_code=status_code,
         content={
@@ -133,12 +133,12 @@ async def combined_health():
     """
     # Get cache stats
     cache_stats = await cache_manager.get_stats()
-    
+
     # Check connections
     redis_connected = cache_manager.redis_client is not None
     nats_connected = await event_handler.is_connected()
     llm_healthy = await llm_client.health_check()
-    
+
     return {
         "status": "ok",
         "service": settings.SERVICE_NAME,
@@ -166,22 +166,22 @@ async def metrics():
     """
     # Get cache stats
     cache_stats = await cache_manager.get_stats()
-    
+
     # Format as Prometheus metrics
     metrics_lines = [
-        f'# HELP ai_chat_cache_entries Total number of cached entries',
-        f'# TYPE ai_chat_cache_entries gauge',
+        '# HELP ai_chat_cache_entries Total number of cached entries',
+        '# TYPE ai_chat_cache_entries gauge',
         f'ai_chat_cache_entries {cache_stats.get("total_entries", 0)}',
-        f'',
-        f'# HELP ai_chat_cache_hits Total number of cache hits',
-        f'# TYPE ai_chat_cache_hits counter',
+        '',
+        '# HELP ai_chat_cache_hits Total number of cache hits',
+        '# TYPE ai_chat_cache_hits counter',
         f'ai_chat_cache_hits {cache_stats.get("total_hits", 0)}',
-        f'',
-        f'# HELP ai_chat_cache_hit_rate Average cache hit rate',
-        f'# TYPE ai_chat_cache_hit_rate gauge',
+        '',
+        '# HELP ai_chat_cache_hit_rate Average cache hit rate',
+        '# TYPE ai_chat_cache_hit_rate gauge',
         f'ai_chat_cache_hit_rate {cache_stats.get("avg_hits_per_entry", 0)}',
     ]
-    
+
     return "\n".join(metrics_lines)
 
 
@@ -209,7 +209,7 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",

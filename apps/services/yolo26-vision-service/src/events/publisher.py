@@ -1,11 +1,21 @@
 """
-NATS Event Publisher for YOLO26 Vision Service.
+YOLO26 Vision Service - NATS Event Publisher
+=============================================
+ناشر أحداث NATS - خدمة الرؤية الحاسوبية YOLO26
 
-Publishes detection events to NATS subjects for downstream processing
-by advisory, notification, and alert services.
+Publishes vision detection events to NATS subjects defined in
+shared.events.vision_events for consumption by downstream services
+(alert-service, notification-service, advisory-service, etc.).
 
-ناشر أحداث NATS لخدمة الرؤية الحاسوبية YOLO26.
-ينشر أحداث الكشف إلى مواضيع NATS للمعالجة اللاحقة.
+Subjects:
+    sahool.vision.pest_detected      - Pest detection results
+    sahool.vision.disease_detected   - Disease detection results
+    sahool.vision.weed_detected      - Weed detection results
+    sahool.vision.plant_count_completed - Plant counting results
+    sahool.vision.critical_alert     - Critical pest alerts (RPW, locust)
+    sahool.vision.analysis_started   - Analysis job started
+    sahool.vision.analysis_completed - Analysis job completed
+    sahool.vision.analysis_failed    - Analysis job failed
 """
 
 from __future__ import annotations
@@ -13,241 +23,424 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from typing import Any
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import structlog
-from fastapi import Request
 
 logger = structlog.get_logger(__name__)
 
-# NATS subjects matching shared/events/subjects.py
-VISION_SUBJECTS = {
-    "pest_detected": "sahool.vision.pest_detected",
-    "disease_detected": "sahool.vision.disease_detected",
-    "weed_detected": "sahool.vision.weed_detected",
-    "plant_count_completed": "sahool.vision.plant_count_completed",
-    "critical_alert": "sahool.vision.critical_alert",
-    "analysis_started": "sahool.vision.analysis_started",
-    "analysis_completed": "sahool.vision.analysis_completed",
-    "analysis_failed": "sahool.vision.analysis_failed",
+# Critical pest class IDs that trigger critical alerts
+CRITICAL_PEST_IDS = {
+    0,   # Red Palm Weevil (سوسة النخيل الحمراء)
+    11,  # Locust (الجراد)
 }
 
-# Critical pest species that trigger critical alerts
-CRITICAL_PESTS = {
-    "red_palm_weevil",
-    "locust",
-    "desert_locust",
-    "fall_armyworm",
-}
+# NATS subjects (matching shared.events.vision_events.VisionSubjects)
+SUBJECT_PEST_DETECTED = "sahool.vision.pest_detected"
+SUBJECT_DISEASE_DETECTED = "sahool.vision.disease_detected"
+SUBJECT_WEED_DETECTED = "sahool.vision.weed_detected"
+SUBJECT_PLANT_COUNT_COMPLETED = "sahool.vision.plant_count_completed"
+SUBJECT_CRITICAL_ALERT = "sahool.vision.critical_alert"
+SUBJECT_ANALYSIS_STARTED = "sahool.vision.analysis_started"
+SUBJECT_ANALYSIS_COMPLETED = "sahool.vision.analysis_completed"
+SUBJECT_ANALYSIS_FAILED = "sahool.vision.analysis_failed"
 
 
-async def publish_event(
-    request: Request,
-    subject: str,
-    payload: dict[str, Any],
-) -> bool:
+class VisionEventPublisher:
     """
-    Publish an event to NATS if connected.
+    Publishes vision detection events to NATS.
+    ناشر أحداث اكتشاف الرؤية عبر NATS
 
     Args:
-        request: FastAPI request (to access app.state.nc)
-        subject: NATS subject string
-        payload: Event payload dict
-
-    Returns:
-        True if published successfully, False otherwise
+        nc: NATS client connection (from app.state.nc)
+        service_name: Source service identifier
     """
-    nc = getattr(request.app.state, "nc", None)
-    if nc is None or not getattr(request.app.state, "nats_connected", False):
-        logger.debug("nats_not_connected_skipping_event", subject=subject)
-        return False
 
-    try:
-        data = json.dumps(payload, default=str).encode()
-        await nc.publish(subject, data)
-        logger.info(
-            "event_published",
-            subject=subject,
-            event_id=payload.get("event_id", "unknown"),
+    def __init__(self, nc: Any, service_name: str = "yolo26-vision-service"):
+        self._nc = nc
+        self._service_name = service_name
+
+    def _base_envelope(self, correlation_id: str | None = None) -> dict:
+        """Create base event envelope with standard fields."""
+        return {
+            "event_id": str(uuid4()),
+            "timestamp": datetime.now(UTC).isoformat(),
+            "version": "1.0",
+            "source_service": self._service_name,
+            "correlation_id": correlation_id or str(uuid4()),
+        }
+
+    async def _publish(self, subject: str, payload: dict) -> None:
+        """Publish a JSON payload to a NATS subject with error handling."""
+        try:
+            data = json.dumps(payload, default=str).encode()
+            await self._nc.publish(subject, data)
+            logger.info(
+                "event_published",
+                subject=subject,
+                event_id=payload.get("event_id"),
+            )
+        except Exception as e:
+            logger.error(
+                "event_publish_failed",
+                subject=subject,
+                error=str(e),
+            )
+
+    # ─────────────────────────────────────────────────────────────────
+    # Pest Detection Events
+    # ─────────────────────────────────────────────────────────────────
+
+    async def publish_pest_detected(
+        self,
+        *,
+        request_id: UUID,
+        detections: list[dict],
+        processing_time_ms: float,
+        model_variant: str,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        image_url: str | None = None,
+        detection_source: str = "mobile",
+    ) -> None:
+        """
+        Publish pest detection event after successful detection.
+        نشر حدث اكتشاف الآفات بعد نجاح الكشف
+
+        Also publishes critical alerts for Red Palm Weevil and Locust.
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "detection_id": str(uuid4()),
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "detection_count": len(detections),
+            "model_variant": model_variant,
+            "processing_time_ms": round(processing_time_ms, 2),
+            "detection_source": detection_source,
+            "image_url": image_url,
+            "detections": [
+                {
+                    "class_id": d.get("class_id"),
+                    "class_name_en": d.get("class_name_en"),
+                    "class_name_ar": d.get("class_name_ar"),
+                    "confidence": d.get("confidence"),
+                    "severity": d.get("severity"),
+                    "bbox": d.get("bbox"),
+                }
+                for d in detections
+            ],
+        })
+
+        await self._publish(SUBJECT_PEST_DETECTED, envelope)
+
+        # Check for critical pests and publish critical alert
+        critical_detections = [
+            d for d in detections if d.get("class_id") in CRITICAL_PEST_IDS
+        ]
+        if critical_detections:
+            await self._publish_critical_alert(
+                alert_type="pest_outbreak",
+                detections=critical_detections,
+                field_id=field_id,
+                tenant_id=tenant_id,
+                correlation_id=str(request_id),
+            )
+
+    # ─────────────────────────────────────────────────────────────────
+    # Disease Detection Events
+    # ─────────────────────────────────────────────────────────────────
+
+    async def publish_disease_detected(
+        self,
+        *,
+        request_id: UUID,
+        detections: list[dict],
+        processing_time_ms: float,
+        model_variant: str,
+        health_score: float,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        image_url: str | None = None,
+        detection_source: str = "mobile",
+    ) -> None:
+        """
+        Publish disease detection event.
+        نشر حدث اكتشاف الأمراض
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "detection_id": str(uuid4()),
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "detection_count": len(detections),
+            "model_variant": model_variant,
+            "processing_time_ms": round(processing_time_ms, 2),
+            "health_score": round(health_score, 1),
+            "detection_source": detection_source,
+            "image_url": image_url,
+            "detections": [
+                {
+                    "class_id": d.get("class_id"),
+                    "class_name_en": d.get("class_name_en"),
+                    "class_name_ar": d.get("class_name_ar"),
+                    "confidence": d.get("confidence"),
+                    "severity": d.get("severity"),
+                    "affected_area_percent": d.get("affected_area_percent"),
+                    "spread_risk": d.get("spread_risk"),
+                    "bbox": d.get("bbox"),
+                }
+                for d in detections
+            ],
+        })
+
+        await self._publish(SUBJECT_DISEASE_DETECTED, envelope)
+
+        # Critical alert for severe disease outbreaks
+        critical = [
+            d for d in detections
+            if d.get("severity") in ("critical", "high")
+        ]
+        if len(critical) >= 3 or health_score < 30:
+            await self._publish_critical_alert(
+                alert_type="disease_outbreak",
+                detections=critical or detections[:3],
+                field_id=field_id,
+                tenant_id=tenant_id,
+                correlation_id=str(request_id),
+            )
+
+    # ─────────────────────────────────────────────────────────────────
+    # Weed Detection Events
+    # ─────────────────────────────────────────────────────────────────
+
+    async def publish_weed_detected(
+        self,
+        *,
+        request_id: UUID,
+        detections: list[dict],
+        processing_time_ms: float,
+        model_variant: str,
+        total_coverage_percent: float,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        image_url: str | None = None,
+        detection_source: str = "drone",
+    ) -> None:
+        """
+        Publish weed detection event.
+        نشر حدث اكتشاف الأعشاب الضارة
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "detection_id": str(uuid4()),
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "detection_count": len(detections),
+            "model_variant": model_variant,
+            "processing_time_ms": round(processing_time_ms, 2),
+            "total_coverage_percent": round(total_coverage_percent, 1),
+            "detection_source": detection_source,
+            "image_url": image_url,
+            "species_distribution": {},
+            "detections": [
+                {
+                    "class_id": d.get("class_id"),
+                    "class_name_en": d.get("class_name_en"),
+                    "class_name_ar": d.get("class_name_ar"),
+                    "confidence": d.get("confidence"),
+                    "coverage_percent": d.get("coverage_percent"),
+                    "bbox": d.get("bbox"),
+                }
+                for d in detections
+            ],
+        })
+
+        # Build species distribution
+        for d in detections:
+            name = d.get("class_name_en", "Unknown")
+            envelope["species_distribution"][name] = (
+                envelope["species_distribution"].get(name, 0) + 1
+            )
+
+        await self._publish(SUBJECT_WEED_DETECTED, envelope)
+
+    # ─────────────────────────────────────────────────────────────────
+    # Plant Count Events
+    # ─────────────────────────────────────────────────────────────────
+
+    async def publish_plant_count_completed(
+        self,
+        *,
+        request_id: UUID,
+        total_count: int,
+        processing_time_ms: float,
+        model_variant: str,
+        density_per_sqm: float | None = None,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        crop_type: str | None = None,
+        detection_source: str = "drone",
+    ) -> None:
+        """
+        Publish plant counting completed event.
+        نشر حدث اكتمال إحصاء النباتات
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "analysis_id": str(uuid4()),
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "total_plant_count": total_count,
+            "plants_per_sqm": density_per_sqm,
+            "model_variant": model_variant,
+            "processing_time_ms": round(processing_time_ms, 2),
+            "crop_type": crop_type,
+            "detection_source": detection_source,
+        })
+
+        await self._publish(SUBJECT_PLANT_COUNT_COMPLETED, envelope)
+
+    # ─────────────────────────────────────────────────────────────────
+    # Analysis Lifecycle Events
+    # ─────────────────────────────────────────────────────────────────
+
+    async def publish_analysis_started(
+        self,
+        *,
+        analysis_type: str,
+        request_id: UUID,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+        model_variant: str = "m",
+    ) -> None:
+        """
+        Publish analysis started event.
+        نشر حدث بدء التحليل
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "analysis_id": str(request_id),
+            "analysis_type": analysis_type,
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "model_id": f"yolo26-{model_variant}",
+        })
+
+        await self._publish(SUBJECT_ANALYSIS_STARTED, envelope)
+
+    async def publish_analysis_completed(
+        self,
+        *,
+        analysis_type: str,
+        request_id: UUID,
+        total_detections: int,
+        processing_time_ms: float,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+    ) -> None:
+        """
+        Publish analysis completed event.
+        نشر حدث اكتمال التحليل
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "analysis_id": str(request_id),
+            "analysis_type": analysis_type,
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "status": "completed",
+            "total_detections": total_detections,
+            "processing_duration_ms": round(processing_time_ms, 2),
+        })
+
+        await self._publish(SUBJECT_ANALYSIS_COMPLETED, envelope)
+
+    async def publish_analysis_failed(
+        self,
+        *,
+        analysis_type: str,
+        request_id: UUID,
+        error_code: str,
+        error_message: str,
+        field_id: UUID | None = None,
+        tenant_id: UUID | None = None,
+    ) -> None:
+        """
+        Publish analysis failed event.
+        نشر حدث فشل التحليل
+        """
+        envelope = self._base_envelope(correlation_id=str(request_id))
+        envelope.update({
+            "analysis_id": str(request_id),
+            "analysis_type": analysis_type,
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "error_code": error_code,
+            "error_message": error_message,
+        })
+
+        await self._publish(SUBJECT_ANALYSIS_FAILED, envelope)
+
+    # ─────────────────────────────────────────────────────────────────
+    # Critical Alert (internal helper)
+    # ─────────────────────────────────────────────────────────────────
+
+    async def _publish_critical_alert(
+        self,
+        *,
+        alert_type: str,
+        detections: list[dict],
+        field_id: UUID | None,
+        tenant_id: UUID | None,
+        correlation_id: str,
+    ) -> None:
+        """Publish critical alert for emergency pest/disease situations."""
+        # Determine alert details based on type
+        if alert_type == "pest_outbreak":
+            title = "Critical Pest Alert"
+            title_ar = "تنبيه آفات حرج"
+            message = f"Critical pest detected: {len(detections)} detection(s) require immediate action"
+            message_ar = f"تم اكتشاف آفة حرجة: {len(detections)} اكتشاف(ات) تتطلب إجراءً فوريًا"
+            response_hours = 24
+        else:
+            title = "Disease Outbreak Alert"
+            title_ar = "تنبيه تفشي مرض"
+            message = f"Severe disease outbreak: {len(detections)} critical detection(s)"
+            message_ar = f"تفشي مرض شديد: {len(detections)} اكتشاف(ات) حرجة"
+            response_hours = 48
+
+        envelope = self._base_envelope(correlation_id=correlation_id)
+        envelope.update({
+            "alert_id": str(uuid4()),
+            "alert_type": alert_type,
+            "alert_title": title,
+            "alert_title_ar": title_ar,
+            "alert_message": message,
+            "alert_message_ar": message_ar,
+            "severity": "critical",
+            "priority": 1,
+            "field_id": str(field_id) if field_id else None,
+            "tenant_id": str(tenant_id) if tenant_id else None,
+            "detection_count": len(detections),
+            "response_deadline_hours": response_hours,
+            "auto_notify_agronomist": True,
+            "escalation_level": 1,
+            "related_detections": [
+                {
+                    "class_id": d.get("class_id"),
+                    "class_name_en": d.get("class_name_en"),
+                    "confidence": d.get("confidence"),
+                }
+                for d in detections
+            ],
+        })
+
+        await self._publish(SUBJECT_CRITICAL_ALERT, envelope)
+
+        logger.warning(
+            "critical_alert_published",
+            alert_type=alert_type,
+            detection_count=len(detections),
+            field_id=str(field_id) if field_id else None,
         )
-        return True
-    except Exception as e:
-        logger.warning("event_publish_failed", subject=subject, error=str(e))
-        return False
-
-
-async def publish_pest_detection(
-    request: Request,
-    detections: list[dict[str, Any]],
-    *,
-    model_variant: str = "m",
-    processing_time_ms: float = 0,
-    field_id: str | None = None,
-    tenant_id: str | None = None,
-) -> None:
-    """
-    Publish pest detection events to NATS.
-
-    Sends individual events per detection and a critical alert
-    for high-priority pests (RPW, locust).
-    """
-    for det in detections:
-        event_id = str(uuid4())
-        class_name = det.get("class_name_en", "").lower().replace(" ", "_")
-
-        # Determine severity from confidence
-        confidence = det.get("confidence", 0)
-        severity = _confidence_to_severity(confidence)
-
-        payload = {
-            "event_id": event_id,
-            "timestamp": datetime.now(UTC).isoformat(),
-            "version": "1.0",
-            "source_service": "yolo26-vision-service",
-            "detection_type": "pest",
-            "class_name_en": det.get("class_name_en", ""),
-            "class_name_ar": det.get("class_name_ar", ""),
-            "confidence": confidence,
-            "severity": severity,
-            "model_variant": model_variant,
-            "processing_time_ms": processing_time_ms,
-            "bbox": det.get("bbox"),
-        }
-
-        if field_id:
-            payload["field_id"] = field_id
-        if tenant_id:
-            payload["tenant_id"] = tenant_id
-
-        await publish_event(request, VISION_SUBJECTS["pest_detected"], payload)
-
-        # Critical alert for high-priority pests
-        if class_name in CRITICAL_PESTS or severity == "critical":
-            alert_payload = {
-                **payload,
-                "alert_type": "critical_pest",
-                "urgency_hours": 24 if class_name != "red_palm_weevil" else 6,
-            }
-            await publish_event(request, VISION_SUBJECTS["critical_alert"], alert_payload)
-
-
-async def publish_disease_detection(
-    request: Request,
-    detections: list[dict[str, Any]],
-    *,
-    model_variant: str = "m",
-    processing_time_ms: float = 0,
-    field_id: str | None = None,
-    tenant_id: str | None = None,
-) -> None:
-    """Publish disease detection events to NATS."""
-    for det in detections:
-        confidence = det.get("confidence", 0)
-        payload = {
-            "event_id": str(uuid4()),
-            "timestamp": datetime.now(UTC).isoformat(),
-            "version": "1.0",
-            "source_service": "yolo26-vision-service",
-            "detection_type": "disease",
-            "class_name_en": det.get("class_name_en", ""),
-            "class_name_ar": det.get("class_name_ar", ""),
-            "confidence": confidence,
-            "severity": _confidence_to_severity(confidence),
-            "model_variant": model_variant,
-            "processing_time_ms": processing_time_ms,
-            "bbox": det.get("bbox"),
-            "affected_area_percentage": det.get("affected_area_percentage"),
-        }
-
-        if field_id:
-            payload["field_id"] = field_id
-        if tenant_id:
-            payload["tenant_id"] = tenant_id
-
-        await publish_event(request, VISION_SUBJECTS["disease_detected"], payload)
-
-
-async def publish_weed_detection(
-    request: Request,
-    detections: list[dict[str, Any]],
-    *,
-    model_variant: str = "m",
-    processing_time_ms: float = 0,
-    field_id: str | None = None,
-    tenant_id: str | None = None,
-) -> None:
-    """Publish weed detection events to NATS."""
-    for det in detections:
-        confidence = det.get("confidence", 0)
-        payload = {
-            "event_id": str(uuid4()),
-            "timestamp": datetime.now(UTC).isoformat(),
-            "version": "1.0",
-            "source_service": "yolo26-vision-service",
-            "detection_type": "weed",
-            "class_name_en": det.get("class_name_en", ""),
-            "class_name_ar": det.get("class_name_ar", ""),
-            "confidence": confidence,
-            "severity": _confidence_to_severity(confidence),
-            "model_variant": model_variant,
-            "processing_time_ms": processing_time_ms,
-            "bbox": det.get("bbox"),
-            "coverage_percentage": det.get("coverage_percentage"),
-        }
-
-        if field_id:
-            payload["field_id"] = field_id
-        if tenant_id:
-            payload["tenant_id"] = tenant_id
-
-        await publish_event(request, VISION_SUBJECTS["weed_detected"], payload)
-
-
-async def publish_analysis_event(
-    request: Request,
-    event_type: str,
-    *,
-    task: str = "",
-    details: dict[str, Any] | None = None,
-    field_id: str | None = None,
-    tenant_id: str | None = None,
-) -> None:
-    """
-    Publish analysis lifecycle events (started/completed/failed).
-
-    Args:
-        event_type: One of "analysis_started", "analysis_completed", "analysis_failed"
-        task: Analysis task name (e.g., "plant_counting", "ripeness")
-        details: Additional event details
-    """
-    subject = VISION_SUBJECTS.get(event_type)
-    if not subject:
-        logger.warning("unknown_event_type", event_type=event_type)
-        return
-
-    payload = {
-        "event_id": str(uuid4()),
-        "timestamp": datetime.now(UTC).isoformat(),
-        "version": "1.0",
-        "source_service": "yolo26-vision-service",
-        "task": task,
-        **(details or {}),
-    }
-
-    if field_id:
-        payload["field_id"] = field_id
-    if tenant_id:
-        payload["tenant_id"] = tenant_id
-
-    await publish_event(request, subject, payload)
-
-
-def _confidence_to_severity(confidence: float) -> str:
-    """Map confidence score to severity level."""
-    if confidence >= 0.85:
-        return "critical"
-    elif confidence >= 0.7:
-        return "high"
-    elif confidence >= 0.5:
-        return "medium"
-    return "low"

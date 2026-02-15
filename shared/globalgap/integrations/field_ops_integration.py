@@ -44,7 +44,7 @@ from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from shared.events.publisher import EventPublisher
 
@@ -164,13 +164,7 @@ class FieldActivity(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class HarvestBatch(BaseModel):
@@ -252,13 +246,7 @@ class HarvestBatch(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class TraceabilityRecord(BaseModel):
@@ -340,12 +328,7 @@ class TraceabilityRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict()
 
 
 class ActivityComplianceMapping(BaseModel):
@@ -376,8 +359,7 @@ class ActivityComplianceMapping(BaseModel):
     documents_required: bool = Field(default=False, description="Documents required")
     worker_training_required: bool = Field(default=False, description="Worker training required")
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

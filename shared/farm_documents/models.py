@@ -15,7 +15,7 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Enums - التعدادات
@@ -322,12 +322,7 @@ class FarmDocument(BaseModel):
         delta = self.expiry_date - date.today()
         return delta.days
 
-    model_config = {
-        "json_encoders": {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-    }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -468,12 +463,7 @@ class Certification(BaseModel):
         """Check if certification needs renewal (within 90 days)"""
         return self.days_until_expiry <= 90
 
-    model_config = {
-        "json_encoders": {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-    }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -580,12 +570,7 @@ class ComplianceDocument(BaseModel):
             return True
         return date.today() <= self.valid_until
 
-    model_config = {
-        "json_encoders": {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-    }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -650,12 +635,7 @@ class DocumentAlert(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = {
-        "json_encoders": {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-    }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -732,11 +712,7 @@ class DocumentShare(BaseModel):
             return False
         return True
 
-    model_config = {
-        "json_encoders": {
-            datetime: lambda v: v.isoformat(),
-        }
-    }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

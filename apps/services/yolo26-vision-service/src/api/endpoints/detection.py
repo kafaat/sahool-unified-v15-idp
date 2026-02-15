@@ -36,11 +36,7 @@ from src.api.schemas import (
     WeedDetectionResponse,
 )
 from src.core.config import settings
-from src.events.publisher import (
-    publish_disease_detection,
-    publish_pest_detection,
-    publish_weed_detection,
-)
+from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
     ModelTask,
@@ -49,6 +45,15 @@ from src.models.yolo26_manager import (
 )
 
 logger = structlog.get_logger(__name__)
+
+
+def _get_event_publisher(request) -> VisionEventPublisher | None:
+    """Get event publisher from app state if NATS is connected."""
+    nc = getattr(request.app.state, "nc", None)
+    nats_connected = getattr(request.app.state, "nats_connected", False)
+    if nc and nats_connected:
+        return VisionEventPublisher(nc)
+    return None
 
 router = APIRouter(prefix="/api/v1", tags=["detection"])
 
@@ -400,21 +405,24 @@ async def detect_pests(
             processing_time_ms=round(processing_time, 2),
         )
 
-        # Publish NATS events for downstream services
-        if detections:
-            await publish_pest_detection(
-                request,
-                [
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_pest_detected(
+                request_id=request_id,
+                detections=[
                     {
+                        "class_id": d.class_id,
                         "class_name_en": d.class_name_en,
                         "class_name_ar": d.class_name_ar,
                         "confidence": d.confidence,
+                        "severity": d.severity.value if d.severity else None,
                         "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
                     }
                     for d in detections
                 ],
-                model_variant=model_variant.value,
                 processing_time_ms=processing_time,
+                model_variant=model_variant.value,
             )
 
         return PestDetectionResponse(
@@ -618,22 +626,27 @@ async def detect_diseases(
             processing_time_ms=round(processing_time, 2),
         )
 
-        # Publish NATS events for downstream services
-        if detections:
-            await publish_disease_detection(
-                request,
-                [
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_disease_detected(
+                request_id=request_id,
+                detections=[
                     {
+                        "class_id": d.class_id,
                         "class_name_en": d.class_name_en,
                         "class_name_ar": d.class_name_ar,
                         "confidence": d.confidence,
+                        "severity": d.severity.value if d.severity else None,
+                        "affected_area_percent": d.affected_area_percent,
+                        "spread_risk": d.spread_risk.value if d.spread_risk else None,
                         "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
-                        "affected_area_percentage": d.affected_area_percent,
                     }
                     for d in detections
                 ],
-                model_variant=model_variant.value,
                 processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+                health_score=health_score,
             )
 
         return DiseaseDetectionResponse(
@@ -801,22 +814,25 @@ async def detect_weeds(
             processing_time_ms=round(processing_time, 2),
         )
 
-        # Publish NATS events for downstream services
-        if detections:
-            await publish_weed_detection(
-                request,
-                [
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_weed_detected(
+                request_id=request_id,
+                detections=[
                     {
+                        "class_id": d.class_id,
                         "class_name_en": d.class_name_en,
                         "class_name_ar": d.class_name_ar,
                         "confidence": d.confidence,
+                        "coverage_percent": d.coverage_percent,
                         "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
-                        "coverage_percentage": d.coverage_percent,
                     }
                     for d in detections
                 ],
-                model_variant=model_variant.value,
                 processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+                total_coverage_percent=total_coverage,
             )
 
         return WeedDetectionResponse(

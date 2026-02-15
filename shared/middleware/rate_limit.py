@@ -324,12 +324,7 @@ def rate_limit(
 
             # Use custom key function if provided
             if key_func:
-                request.headers.get("X-Tenant-ID", "default")
-
-                # Create a modified request-like object with custom key
                 custom_key = key_func(request)
-                # Store original values
-                # Temporarily modify for rate limit check
                 request.state._rate_limit_key = custom_key
 
             allowed, headers = limiter.check_rate_limit(request)

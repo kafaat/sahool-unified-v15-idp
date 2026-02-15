@@ -1,5 +1,6 @@
 """Pytest configuration and fixtures for YOLO26 Vision Service tests."""
 
+import os
 import sys
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch

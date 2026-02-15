@@ -70,10 +70,6 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --trusted-host mirrors.cloud.tencent.com \
     -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.tuna.tsinghua.edu.cn/simple/ \
-    --trusted-host pypi.tuna.tsinghua.edu.cn \
-    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \

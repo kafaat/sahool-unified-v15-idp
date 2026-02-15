@@ -14,10 +14,10 @@ import logging
 from datetime import UTC, datetime, timedelta, timezone
 
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from .jwt_handler import create_token
-from .models import AuthErrors
+from .jwt_handler import create_access_token, verify_token
+from .models import AuthErrors, AuthException
 from .twofa_service import get_twofa_service
 
 logger = logging.getLogger(__name__)
@@ -41,14 +41,13 @@ class LoginRequest(BaseModel):
     password: str = Field(..., description="User password", min_length=6)
     totp_code: str | None = Field(None, description="6-digit TOTP code if 2FA is enabled")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "admin@sahool.io",
-                "password": "SecurePassword123",
-                "totp_code": "123456",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "email": "admin@sahool.io",
+            "password": "SecurePassword123",
+            "totp_code": "123456",
         }
+    })
 
 
 class LoginResponse(BaseModel):
@@ -60,20 +59,19 @@ class LoginResponse(BaseModel):
     requires_2fa: bool = Field(default=False, description="Whether 2FA is required")
     temp_token: str | None = Field(None, description="Temporary token for 2FA verification")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-                "token_type": "bearer",
-                "user": {
-                    "id": "user-123",
-                    "email": "admin@sahool.io",
-                    "name": "Admin User",
-                    "role": "admin",
-                },
-                "requires_2fa": False,
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            "token_type": "bearer",
+            "user": {
+                "id": "user-123",
+                "email": "admin@sahool.io",
+                "name": "Admin User",
+                "role": "admin",
+            },
+            "requires_2fa": False,
         }
+    })
 
 
 class TwoFALoginRequest(BaseModel):
@@ -82,8 +80,7 @@ class TwoFALoginRequest(BaseModel):
     temp_token: str = Field(..., description="Temporary token from initial login")
     totp_code: str = Field(..., description="6-digit TOTP code or backup code")
 
-    class Config:
-        json_schema_extra = {"example": {"temp_token": "temp_token_here", "totp_code": "123456"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"temp_token": "temp_token_here", "totp_code": "123456"}})
 
 
 class RefreshTokenRequest(BaseModel):
@@ -91,8 +88,7 @@ class RefreshTokenRequest(BaseModel):
 
     refresh_token: str = Field(..., description="Refresh token")
 
-    class Config:
-        json_schema_extra = {"example": {"refresh_token": "refresh_token_here"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"refresh_token": "refresh_token_here"}})
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -125,37 +121,34 @@ def set_user_service(service):
 
 
 def create_temp_token(user_id: str, email: str) -> str:
-    """Create a temporary token for 2FA verification (valid for 5 minutes)"""
-    payload = {
-        "user_id": user_id,
-        "email": email,
-        "temp": True,
-        "exp": datetime.now(UTC) + timedelta(minutes=5),
-    }
-    # Use a simple encoding for temp token (or use JWT)
-    import base64
-    import json
+    """Create a signed temporary token for 2FA verification (valid for 5 minutes).
 
-    return base64.b64encode(json.dumps(payload).encode()).decode()
+    SECURITY: Uses JWT with HMAC signature instead of plain base64 to prevent
+    token forgery and 2FA bypass attacks.
+    """
+    return create_access_token(
+        user_id=user_id,
+        roles=[],
+        expires_delta=timedelta(minutes=5),
+        extra_claims={"temp": True, "email": email},
+    )
 
 
 def verify_temp_token(temp_token: str) -> dict | None:
-    """Verify and decode temporary token"""
+    """Verify and decode temporary token using JWT signature verification."""
     try:
-        import base64
-        import json
+        payload = verify_token(temp_token)
 
-        payload = json.loads(base64.b64decode(temp_token))
-
-        # Check expiration
-        exp_time = datetime.fromisoformat(payload["exp"].replace("Z", "+00:00"))
-        if datetime.now(UTC) > exp_time:
+        # Ensure this is a temp token, not a regular access token
+        if payload.token_type != "access" or not hasattr(payload, "user_id"):
             return None
 
-        if not payload.get("temp"):
-            return None
-
-        return payload
+        return {
+            "user_id": payload.user_id,
+            "temp": True,
+        }
+    except AuthException:
+        return None
     except Exception as e:
         logger.error(f"Error verifying temp token: {e}")
         return None
@@ -256,7 +249,7 @@ async def login(request: LoginRequest):
                 )
 
         # Create access token
-        access_token = create_token(
+        access_token = create_access_token(
             user_id=user.id,
             roles=user.roles,
             tenant_id=user.tenant_id,
@@ -343,7 +336,7 @@ async def login_with_2fa(request: TwoFALoginRequest):
             logger.info(f"Backup code used for user {user.id}")
 
         # Create access token
-        access_token = create_token(
+        access_token = create_access_token(
             user_id=user.id,
             roles=user.roles,
             tenant_id=user.tenant_id,

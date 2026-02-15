@@ -5,6 +5,8 @@ Pest Detection API
 Endpoints for pest identification, database queries, and AI detection.
 """
 
+import json
+from datetime import UTC, datetime
 from enum import Enum, StrEnum
 from typing import Optional
 from uuid import uuid4
@@ -454,7 +456,7 @@ async def identify_pest_from_image(
         pest_info = PEST_DATABASE.get(pest_id)
 
         if pest_info:
-            return DetectionResult(
+            result = DetectionResult(
                 pest_id=pest_id,
                 pest_name_en=pest_info.name_en,
                 pest_name_ar=pest_info.name_ar,
@@ -474,7 +476,7 @@ async def identify_pest_from_image(
                 ],
             )
         else:
-            return DetectionResult(
+            result = DetectionResult(
                 pest_id=pest_id,
                 pest_name_en=top.get("class_name", "Unknown pest"),
                 pest_name_ar="آفة غير معروفة",
@@ -483,6 +485,29 @@ async def identify_pest_from_image(
                 recommendations_en=["Manual identification recommended"],
                 recommendations_ar=["يُنصح بالتعريف اليدوي"],
             )
+
+        # Publish pest detection event to NATS
+        nc = getattr(request.app.state, "nc", None)
+        if nc:
+            try:
+                event_payload = json.dumps({
+                    "event_type": "pest_detected",
+                    "pest_id": result.pest_id,
+                    "pest_name_en": result.pest_name_en,
+                    "pest_name_ar": result.pest_name_ar,
+                    "confidence": result.confidence,
+                    "severity": result.severity.value,
+                    "is_quarantine": pest_info.is_quarantine if pest_info else False,
+                    "detection_id": str(uuid4()),
+                    "source": "pest-detection-service",
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }, default=str).encode()
+                await nc.publish("sahool.health.pest_detected", event_payload)
+                logger.info("nats_event_published", subject="sahool.health.pest_detected", pest_id=result.pest_id)
+            except Exception as pub_err:
+                logger.warning("nats_publish_failed", error=str(pub_err))
+
+        return result
 
     except httpx.RequestError as e:
         logger.error("vision_service_connection_error", error=str(e))

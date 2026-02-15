@@ -200,7 +200,7 @@ async def delete_soil_test(test_id: str):
 
 
 @router.post("/interpret")
-async def interpret_soil_test(request: InterpretRequest):
+async def interpret_soil_test(request: InterpretRequest, req: Request):
     """Interpret soil test results - تفسير نتائج تحليل التربة"""
     if request.test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -216,7 +216,8 @@ async def interpret_soil_test(request: InterpretRequest):
 
         interpreter = SoilTestInterpreter()
         report = interpreter.interpret(soil_test_obj, crop=request.crop)
-        return {
+
+        result = {
             "test_id": request.test_id,
             "crop": request.crop,
             "summary": report.summary,
@@ -233,6 +234,25 @@ async def interpret_soil_test(request: InterpretRequest):
             ],
             "overall_health": report.overall_health,
         }
+
+        # Publish NATS event for interpretation completed
+        nc = getattr(req.app.state, "nc", None)
+        if nc:
+            try:
+                await nc.publish(
+                    "sahool.soil.test_interpreted",
+                    json.dumps({
+                        "test_id": request.test_id,
+                        "crop": request.crop,
+                        "overall_health": report.overall_health,
+                        "field_id": test_data.get("field_id"),
+                        "tenant_id": test_data.get("tenant_id"),
+                    }).encode(),
+                )
+            except Exception:
+                logger.warning("nats_publish_failed", subject="sahool.soil.test_interpreted")
+
+        return result
     except ImportError:
         return {
             "test_id": request.test_id,
@@ -244,7 +264,7 @@ async def interpret_soil_test(request: InterpretRequest):
 
 
 @router.post("/recommendations/amendment-plan")
-async def generate_amendment_plan(request: AmendmentPlanRequest):
+async def generate_amendment_plan(request: AmendmentPlanRequest, req: Request):
     """Generate soil amendment plan - إنشاء خطة تعديل التربة"""
     if request.test_id not in _soil_tests:
         raise HTTPException(status_code=404, detail={"error": "Test not found", "error_ar": "التحليل غير موجود"})
@@ -260,7 +280,8 @@ async def generate_amendment_plan(request: AmendmentPlanRequest):
 
         recommender = SoilAmendmentRecommender()
         plan = recommender.generate_plan(soil_test_obj, crop=request.crop, target_yield=request.target_yield_t_ha, field_area_ha=request.area_ha)
-        return {
+
+        result = {
             "test_id": request.test_id,
             "crop": request.crop,
             "area_ha": request.area_ha,
@@ -279,6 +300,26 @@ async def generate_amendment_plan(request: AmendmentPlanRequest):
             ],
             "total_cost": plan.total_cost,
         }
+
+        # Publish NATS event for amendment plan generated
+        nc = getattr(req.app.state, "nc", None)
+        if nc:
+            try:
+                await nc.publish(
+                    "sahool.soil.amendment_plan_generated",
+                    json.dumps({
+                        "test_id": request.test_id,
+                        "crop": request.crop,
+                        "area_ha": request.area_ha,
+                        "total_cost": plan.total_cost,
+                        "field_id": test_data.get("field_id"),
+                        "tenant_id": test_data.get("tenant_id"),
+                    }).encode(),
+                )
+            except Exception:
+                logger.warning("nats_publish_failed", subject="sahool.soil.amendment_plan_generated")
+
+        return result
     except ImportError:
         return {
             "test_id": request.test_id,
@@ -289,7 +330,7 @@ async def generate_amendment_plan(request: AmendmentPlanRequest):
 
 
 @router.post("/trends")
-async def analyze_soil_trends(request: TrendRequest):
+async def analyze_soil_trends(request: TrendRequest, req: Request):
     """Analyze soil trends for a field - تحليل اتجاهات التربة للحقل"""
     field_tests = [t for t in _soil_tests.values() if t["field_id"] == request.field_id and t["tenant_id"] == request.tenant_id]
 
@@ -305,7 +346,8 @@ async def analyze_soil_trends(request: TrendRequest):
 
         analyzer = SoilTrendAnalyzer()
         report = analyzer.analyze_trends(request.field_id, request.tenant_id, soil_test_objs)
-        return {
+
+        result = {
             "field_id": request.field_id,
             "summary": report.summary,
             "summary_ar": report.summary_ar,
@@ -318,6 +360,23 @@ async def analyze_soil_trends(request: TrendRequest):
                 for t in report.trends
             ],
         }
+
+        # Publish NATS event for trends analyzed
+        nc = getattr(req.app.state, "nc", None)
+        if nc:
+            try:
+                await nc.publish(
+                    "sahool.soil.trends_analyzed",
+                    json.dumps({
+                        "field_id": request.field_id,
+                        "tenant_id": request.tenant_id,
+                        "trends_count": len(report.trends),
+                    }).encode(),
+                )
+            except Exception:
+                logger.warning("nats_publish_failed", subject="sahool.soil.trends_analyzed")
+
+        return result
     except ImportError:
         return {"field_id": request.field_id, "message": "Trend analysis module not available", "message_ar": "وحدة تحليل الاتجاهات غير متوفرة", "trends": []}
 

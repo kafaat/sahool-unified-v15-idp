@@ -11,7 +11,7 @@ from __future__ import annotations
 from datetime import date
 from enum import StrEnum
 
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 
 # ==================== Enumerations ====================
 
@@ -84,8 +84,8 @@ class WaterSource(BaseModel):
     is_active: bool = Field(True, description="Source is active / المصدر نشط")
     notes: str | None = Field(None, description="Additional notes / ملاحظات إضافية")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "source_id": "WELL-001",
                 "source_type": "WELL",
@@ -100,7 +100,8 @@ class WaterSource(BaseModel):
                 "is_active": True,
                 "notes": "Primary irrigation source for northern fields",
             }
-        }
+        },
+    )
 
 
 class WaterQualityTest(BaseModel):
@@ -139,8 +140,8 @@ class WaterQualityTest(BaseModel):
     )
     notes: str | None = Field(None, description="Test notes / ملاحظات الاختبار")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "test_id": "WQ-2024-001",
                 "source_id": "WELL-001",
@@ -158,7 +159,8 @@ class WaterQualityTest(BaseModel):
                 "meets_irrigation_standards": True,
                 "notes": "Water quality suitable for drip irrigation",
             }
-        }
+        },
+    )
 
 
 # ==================== Water Usage Models ====================
@@ -198,8 +200,8 @@ class WaterUsageMetric(BaseModel):
                 return info.data["volume_cubic_meters"] / info.data["duration_hours"]
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "usage_id": "WU-2024-12-001",
                 "source_id": "WELL-001",
@@ -212,7 +214,8 @@ class WaterUsageMetric(BaseModel):
                 "duration_hours": 6.0,
                 "flow_rate_m3_per_hour": 20.92,
             }
-        }
+        },
+    )
 
 
 class IrrigationEfficiency(BaseModel):
@@ -268,8 +271,8 @@ class IrrigationEfficiency(BaseModel):
             return (info.data["water_stored_in_root_zone_m3"] / info.data["water_applied_m3"]) * 100
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "efficiency_id": "IE-2024-Q4-001",
                 "field_id": "FIELD-N1",
@@ -287,7 +290,8 @@ class IrrigationEfficiency(BaseModel):
                 "weather_based_scheduling": True,
                 "notes": "High efficiency due to drip irrigation and precision scheduling",
             }
-        }
+        },
+    )
 
 
 class RainfallHarvesting(BaseModel):
@@ -325,8 +329,8 @@ class RainfallHarvesting(BaseModel):
                 return (info.data["rainfall_mm"] / 1000) * info.data["collection_area_m2"] * 0.8
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "harvest_id": "RH-2024-12-001",
                 "collection_date": "2024-12-15",
@@ -341,7 +345,8 @@ class RainfallHarvesting(BaseModel):
                 "intended_use": "Supplementary irrigation",
                 "notes": "Good rainfall event, tank now at 65% capacity",
             }
-        }
+        },
+    )
 
 
 # ==================== Water Efficiency Scoring ====================
@@ -440,8 +445,8 @@ class WaterEfficiencyScore(BaseModel):
                     ) * 100
         return v
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "assessment_id": "SPRING-2024-Q4",
                 "farm_id": "FARM-YE-001",
@@ -473,7 +478,8 @@ class WaterEfficiencyScore(BaseModel):
                     "الاستمرار في اختبارات جودة المياه الفصلية",
                 ],
             }
-        }
+        },
+    )
 
 
 # ==================== Helper Functions ====================

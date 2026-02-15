@@ -12,7 +12,7 @@ FastAPI routes for 2FA management:
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .dependencies import get_current_active_user
 from .models import User
@@ -41,16 +41,15 @@ class TwoFASetupResponse(BaseModel):
     issuer: str = Field(..., description="Issuer name")
     account_name: str = Field(..., description="Account name (email)")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "secret": "JBSWY3DPEHPK3PXP",
-                "qr_code": "data:image/png;base64,iVBORw0KG...",
-                "manual_entry_key": "JBSWY3DPEHPK3PXP",
-                "issuer": "SAHOOL Agricultural Platform",
-                "account_name": "admin@sahool.io",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "secret": "JBSWY3DPEHPK3PXP",
+            "qr_code": "data:image/png;base64,iVBORw0KG...",
+            "manual_entry_key": "JBSWY3DPEHPK3PXP",
+            "issuer": "SAHOOL Agricultural Platform",
+            "account_name": "admin@sahool.io",
         }
+    })
 
 
 class TwoFAVerifyRequest(BaseModel):
@@ -58,8 +57,7 @@ class TwoFAVerifyRequest(BaseModel):
 
     token: str = Field(..., description="6-digit TOTP code", min_length=6, max_length=6)
 
-    class Config:
-        json_schema_extra = {"example": {"token": "123456"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"token": "123456"}})
 
 
 class TwoFAVerifyResponse(BaseModel):
@@ -69,14 +67,13 @@ class TwoFAVerifyResponse(BaseModel):
     backup_codes: list[str] = Field(..., description="Backup codes for account recovery")
     message: str = Field(..., description="Success message")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "success": True,
-                "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-                "message": "Two-factor authentication enabled successfully",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "success": True,
+            "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
+            "message": "Two-factor authentication enabled successfully",
         }
+    })
 
 
 class TwoFADisableRequest(BaseModel):
@@ -84,8 +81,7 @@ class TwoFADisableRequest(BaseModel):
 
     token: str = Field(..., description="6-digit TOTP code or backup code")
 
-    class Config:
-        json_schema_extra = {"example": {"token": "123456"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"token": "123456"}})
 
 
 class TwoFAStatusResponse(BaseModel):
@@ -94,8 +90,7 @@ class TwoFAStatusResponse(BaseModel):
     enabled: bool = Field(..., description="Whether 2FA is enabled")
     backup_codes_remaining: int = Field(..., description="Number of unused backup codes")
 
-    class Config:
-        json_schema_extra = {"example": {"enabled": True, "backup_codes_remaining": 8}}
+    model_config = ConfigDict(json_schema_extra={"example": {"enabled": True, "backup_codes_remaining": 8}})
 
 
 class BackupCodesResponse(BaseModel):
@@ -104,13 +99,12 @@ class BackupCodesResponse(BaseModel):
     backup_codes: list[str] = Field(..., description="New backup codes")
     message: str = Field(..., description="Warning message")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
-                "message": "Previous backup codes have been invalidated",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "backup_codes": ["ABCD-EFGH", "IJKL-MNOP"],
+            "message": "Previous backup codes have been invalidated",
         }
+    })
 
 
 # ══════════════════════════════════════════════════════════════════════════════

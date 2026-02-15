@@ -72,9 +72,10 @@ export class YieldController {
   async getRegionalStats(
     @Param("governorate") governorate: string,
     @Query("cropType") cropType?: string,
-    @Query("year") year?: number,
+    @Query("year") year?: string,
   ) {
-    return this.yieldService.getRegionalStats({ governorate, cropType, year });
+    const parsedYear = year ? parseInt(year, 10) : undefined;
+    return this.yieldService.getRegionalStats({ governorate, cropType, year: parsedYear });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -89,9 +90,10 @@ export class YieldController {
   @ApiQuery({ name: "years", required: false, type: Number })
   async getHistoricalYields(
     @Param("fieldId") fieldId: string,
-    @Query("years") years?: number,
+    @Query("years") years?: string,
   ) {
-    return this.yieldService.getHistoricalYields(fieldId, years || 5);
+    const parsedYears = years ? parseInt(years, 10) : 5;
+    return this.yieldService.getHistoricalYields(fieldId, parsedYears);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

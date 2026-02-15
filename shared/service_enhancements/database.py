@@ -130,8 +130,14 @@ class QueryBuilder:
         sql, params = query.build()
     """
 
+    # Only allow alphanumeric table names, underscores, and optional schema prefix
+    _TABLE_NAME_PATTERN = __import__("re").compile(r"^[a-zA-Z_][a-zA-Z0-9_.]*$")
+
     def __init__(self, table: str):
-        self.table = table
+        if not self._TABLE_NAME_PATTERN.match(table):
+            raise ValueError(f"Invalid table name: {table}")
+        # Quote the identifier to prevent SQL injection
+        self.table = '"' + table.replace('"', '') + '"'
         self._columns: list[str] = ["*"]
         self._conditions: list[str] = []
         self._params: list[Any] = []

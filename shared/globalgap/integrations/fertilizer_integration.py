@@ -43,7 +43,7 @@ from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from shared.events.publisher import EventPublisher
 
@@ -212,13 +212,14 @@ class FertilizerApplicationRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        use_enum_values = True
-        json_encoders = {
+    model_config = ConfigDict(
+        use_enum_values=True,
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
-        }
+        },
+    )
 
 
 class NutrientRequirement(BaseModel):
@@ -242,10 +243,11 @@ class NutrientRequirement(BaseModel):
     deficit_kg_per_ha: float | None = Field(None, description="Deficit amount in kg per hectare")
     is_deficient: bool = Field(default=False, description="Is deficient")
 
-    class Config:
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
-        }
+        },
+    )
 
 
 class NutrientManagementPlan(BaseModel):
@@ -349,12 +351,13 @@ class NutrientManagementPlan(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
-        }
+        },
+    )
 
 
 class MRLComplianceCheck(BaseModel):
@@ -403,12 +406,13 @@ class MRLComplianceCheck(BaseModel):
 
     checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
             UUID: lambda v: str(v),
-        }
+        },
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────

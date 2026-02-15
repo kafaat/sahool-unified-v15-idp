@@ -14,7 +14,7 @@ from __future__ import annotations
 from datetime import UTC, date, datetime
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .spring_checklist import (
     SPRING_CATEGORIES,
@@ -72,8 +72,8 @@ class WaterBalanceCalculation(BaseModel):
         None, description="Water productivity (kg/m³) / إنتاجية المياه"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "period_start": "2024-10-01",
                 "period_end": "2024-12-31",
@@ -92,7 +92,8 @@ class WaterBalanceCalculation(BaseModel):
                 "beneficial_use_efficiency_percent": 83.3,
                 "water_productivity_kg_per_m3": 6.8,
             }
-        }
+        },
+    )
 
 
 class SpringReportSection(BaseModel):
@@ -167,11 +168,12 @@ class SpringReport(BaseModel):
         None, description="Yemen context (AR) / السياق اليمني"
     )
 
-    class Config:
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
             date: lambda v: v.isoformat(),
-        }
+        },
+    )
 
 
 # ==================== Report Generator Class ====================

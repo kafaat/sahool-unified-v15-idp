@@ -23,7 +23,7 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Enums
@@ -66,11 +66,10 @@ class EventMetadata(BaseModel):
 class BaseEvent(BaseModel):
     """Base class for all SAHOOL events with common metadata."""
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict(json_encoders={
+        datetime: lambda v: v.isoformat(),
+        UUID: lambda v: str(v),
+    })
 
 
 # ─────────────────────────────────────────────────────────────────────────────

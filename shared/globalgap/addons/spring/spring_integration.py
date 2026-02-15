@@ -17,7 +17,7 @@ from enum import StrEnum
 from typing import Any
 
 import httpx
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .water_metrics import (
     WaterSource,
@@ -92,10 +92,11 @@ class WaterUsageAlert(BaseModel):
     is_resolved: bool = Field(False, description="Alert resolved / تم حل التنبيه")
     resolved_date: datetime | None = Field(None, description="Resolution date / تاريخ الحل")
 
-    class Config:
-        json_encoders = {
+    model_config = ConfigDict(
+        json_encoders={
             datetime: lambda v: v.isoformat(),
-        }
+        },
+    )
 
 
 # ==================== Water Footprint Models ====================
@@ -137,8 +138,8 @@ class CropWaterFootprint(BaseModel):
         None, description="Performance rating / تقييم الأداء"
     )
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "crop_type": "Tomatoes",
                 "production_kg": 50000,
@@ -150,7 +151,8 @@ class CropWaterFootprint(BaseModel):
                 "global_benchmark_m3_per_kg": 0.20,
                 "performance_vs_benchmark": "Better than regional, close to global",
             }
-        }
+        },
+    )
 
 
 class SeasonalPattern(BaseModel):
@@ -189,8 +191,8 @@ class SeasonalPattern(BaseModel):
 
     notes: str | None = Field(None, description="Season notes / ملاحظات الموسم")
 
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "season": "Winter 2024",
                 "start_date": "2024-10-01",
@@ -205,7 +207,8 @@ class SeasonalPattern(BaseModel):
                 "average_efficiency_percent": 82.0,
                 "notes": "Good rainfall in November reduced irrigation needs",
             }
-        }
+        },
+    )
 
 
 # ==================== Integration Class ====================

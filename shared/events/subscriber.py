@@ -37,7 +37,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from .contracts import BaseEvent
 from .dlq_config import (
@@ -127,8 +127,7 @@ class Subscription(BaseModel):
     durable_name: str | None = Field(None, description="Durable consumer name (JetStream)")
     auto_ack: bool = Field(default=True, description="Automatically acknowledge messages")
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

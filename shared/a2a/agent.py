@@ -14,7 +14,7 @@ from datetime import UTC, datetime, timezone
 from typing import Any
 
 import structlog
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 from .protocol import (
     ConversationContext,
@@ -100,10 +100,9 @@ class AgentCard(BaseModel):
     )
     last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict(json_encoders={
+        datetime: lambda v: v.isoformat(),
+    })
 
     def to_well_known_format(self) -> dict[str, Any]:
         """
@@ -113,7 +112,7 @@ class AgentCard(BaseModel):
         Returns:
             Agent card as dictionary
         """
-        return self.dict(exclude_none=True)
+        return self.model_dump(exclude_none=True)
 
 
 class A2AAgent(ABC):

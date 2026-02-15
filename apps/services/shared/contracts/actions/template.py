@@ -14,7 +14,7 @@ import uuid
 from datetime import UTC, date, datetime, time, timezone
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .types import ActionStatus, ActionType, ResourceType, UrgencyLevel
 
@@ -136,25 +136,24 @@ class ActionTemplate(BaseModel):
     created_by_service: str | None = None
     version: str = "1.0"
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "action_id": "act_123e4567-e89b-12d3-a456-426614174000",
-                "action_type": "irrigation",
-                "title_ar": "ري الحقل - انخفاض رطوبة التربة",
-                "title_en": "Field Irrigation - Low Soil Moisture",
-                "description_ar": "رطوبة التربة انخفضت إلى 25%، يُنصح بالري خلال 24 ساعة",
-                "description_en": "Soil moisture dropped to 25%, irrigation recommended within 24 hours",
-                "source_service": "irrigation-smart",
-                "confidence": 0.92,
-                "urgency": "high",
-                "field_id": "field_abc123",
-                "estimated_duration_minutes": 120,
-                "offline_executable": True,
-                "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بري الحقل لمدة ساعتين في الصباح الباكر",
-                "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "action_id": "act_123e4567-e89b-12d3-a456-426614174000",
+            "action_type": "irrigation",
+            "title_ar": "ري الحقل - انخفاض رطوبة التربة",
+            "title_en": "Field Irrigation - Low Soil Moisture",
+            "description_ar": "رطوبة التربة انخفضت إلى 25%، يُنصح بالري خلال 24 ساعة",
+            "description_en": "Soil moisture dropped to 25%, irrigation recommended within 24 hours",
+            "source_service": "irrigation-smart",
+            "confidence": 0.92,
+            "urgency": "high",
+            "field_id": "field_abc123",
+            "estimated_duration_minutes": 120,
+            "offline_executable": True,
+            "fallback_instructions_ar": "في حال عدم توفر البيانات، قم بري الحقل لمدة ساعتين في الصباح الباكر",
+            "fallback_instructions_en": "If data unavailable, irrigate field for 2 hours in early morning",
         }
+    })
 
     def calculate_priority_score(self) -> float:
         """حساب درجة الأولوية بناءً على الاستعجال والثقة"""

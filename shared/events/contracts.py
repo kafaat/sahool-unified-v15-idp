@@ -23,7 +23,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Base Event Model - النموذج الأساسي للأحداث
@@ -51,12 +51,10 @@ class BaseEvent(BaseModel):
         """Return the event type name (class name)"""
         return self.__class__.__name__
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True, json_encoders={
+        datetime: lambda v: v.isoformat(),
+        UUID: lambda v: str(v),
+    })
 
 
 # ─────────────────────────────────────────────────────────────────────────────

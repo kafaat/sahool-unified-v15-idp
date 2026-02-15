@@ -40,10 +40,10 @@ USER sahool
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:${PORT:-8230}/healthz', timeout=5)" || exit 1
+    CMD python -c "import httpx; httpx.get('http://localhost:${PORT:-8260}/healthz', timeout=5)" || exit 1
 
 # Expose port
-EXPOSE 8230
+EXPOSE 8260
 
 # Run application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8230"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8260"]

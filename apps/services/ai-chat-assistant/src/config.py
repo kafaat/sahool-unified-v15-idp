@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     """Application settings."""
     
     # Service
-    PORT: int = 8230
+    PORT: int = 8260
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
     SERVICE_NAME: str = "ai-chat-assistant"
@@ -51,7 +51,7 @@ class Settings(BaseSettings):
     
     # Monitoring
     METRICS_ENABLED: bool = True
-    PROMETHEUS_PORT: int = 8231
+    PROMETHEUS_PORT: int = 8261
     
     class Config:
         env_file = ".env"

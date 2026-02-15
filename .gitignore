@@ -15,8 +15,11 @@
 .classpath
 .settings/
 *.log
+*.logs
 *.tmp
 *.temp
+pgbouncer_logs.txt
+sahool.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Environment & Secrets (CRITICAL - Never commit!)

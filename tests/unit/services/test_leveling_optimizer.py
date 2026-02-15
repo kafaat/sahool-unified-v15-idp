@@ -237,30 +237,32 @@ class TestCutFillVolumeCalculation:
 
     def test_earthwork_balance_optimization(self, sample_dem_for_leveling: np.ndarray):
         """Test optimization for cut/fill balance."""
-        dem = sample_dem_for_leveling
-        cell_size_m = 30.0
+        dem = sample_dem_for_leveling.astype(np.float64)
 
         # Find elevation that balances cut and fill
         def calculate_balance(target_elev):
             diff = dem - target_elev
-            cut = np.sum(diff[diff > 0])
-            fill = np.abs(np.sum(diff[diff < 0]))
+            cut = float(np.sum(diff[diff > 0]))
+            fill = float(np.abs(np.sum(diff[diff < 0])))
             return cut, fill
 
         # Binary search for balanced elevation
-        low, high = np.min(dem), np.max(dem)
-        for _ in range(50):  # Converge
+        # When cut > fill, target is too low → raise it (low = mid)
+        # When fill > cut, target is too high → lower it (high = mid)
+        low, high = float(np.min(dem)), float(np.max(dem))
+        for _ in range(50):
             mid = (low + high) / 2
             cut, fill = calculate_balance(mid)
             if cut > fill:
-                high = mid
-            else:
                 low = mid
+            else:
+                high = mid
 
         balanced_elevation = (low + high) / 2
         cut, fill = calculate_balance(balanced_elevation)
 
         # Should be reasonably balanced
+        assert cut > 0 and fill > 0, "Both cut and fill should be positive"
         balance_ratio = min(cut, fill) / max(cut, fill)
         assert balance_ratio > 0.9  # Within 10%
 
@@ -356,8 +358,9 @@ class TestOptimalGradePlane:
         direction_radians = math.radians(target_direction_deg)
 
         # Slope components (dx/dz, dy/dz)
+        # North=0°, East=90°, South=180°, West=270°
         slope_x = math.sin(direction_radians) * math.tan(slope_radians)
-        slope_y = -math.cos(direction_radians) * math.tan(slope_radians)
+        slope_y = math.cos(direction_radians) * math.tan(slope_radians)
 
         # For 180 degrees (south), y-slope should be negative
         assert slope_y < 0

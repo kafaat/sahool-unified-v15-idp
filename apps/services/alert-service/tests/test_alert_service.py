@@ -9,6 +9,7 @@ import pytest
 try:
     import pydantic  # noqa: F401
 except ImportError:
+    pass
 
 from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch

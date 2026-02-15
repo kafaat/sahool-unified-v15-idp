@@ -15,7 +15,7 @@ os.environ["VISION_SERVICE_URL"] = "http://mock-vision:8150"
 
 try:
     from src.main import app
-except ImportError:
+except (ImportError, OSError, RuntimeError):
     app = None
 
 

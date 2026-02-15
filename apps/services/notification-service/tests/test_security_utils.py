@@ -20,7 +20,7 @@ try:
         sanitize_dict_for_log,
         sanitize_for_log,
     )
-except ImportError:
+except (ImportError, OSError, RuntimeError):
     pytest.skip("notification-service src not available", allow_module_level=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════

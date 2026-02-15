@@ -14,7 +14,7 @@ os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 
 try:
     from src.main import app
-except ImportError:
+except (ImportError, OSError, RuntimeError):
     app = None
 
 

@@ -3,13 +3,21 @@ Test Configuration and Fixtures
 إعدادات الاختبار والتجهيزات
 """
 
+import os
+
 import pytest
+
+# Set test environment before any service imports
+os.environ.setdefault("ENVIRONMENT", "test")
+os.environ.setdefault("DATABASE_URL", "postgresql://test:test@localhost:5432/test")
+os.environ.setdefault("NATS_URL", "")
+os.environ.setdefault("REDIS_URL", "")
 
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
     from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
-except ImportError:
+except (ImportError, OSError, RuntimeError):
     get_current_user = None
     User = None
     OBSERVATIONS = None

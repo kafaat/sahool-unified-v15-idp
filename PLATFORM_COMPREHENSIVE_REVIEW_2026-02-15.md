@@ -36,50 +36,23 @@
 ## 1. CRITICAL Issues (Must Fix) | مشاكل حرجة
 
 ### 1.1 Log Files Committed to Repository
-**Severity**: HIGH
-**Files**:
-- `api.logs` (8.2 MB) - API request/response logs
-- `apps.logs` (4.1 MB) - Application logs
-- `sahool.logs` (38 KB) - Platform logs
-- `sahool.txt` (38 KB) - Duplicate of logs
-- `pgbouncer_logs.txt` (5.2 KB) - Database connection pool logs
-- `app.logs` (5.8 KB) - Application logs
-
-**Root Cause**: `.gitignore` has `*.log` but NOT `*.logs` pattern.
-
-**Impact**: Repository bloat, potential sensitive information exposure (request payloads, SQL queries, stack traces).
-
-**Fix**: Add `*.logs` to `.gitignore` and remove files from tracking:
-```bash
-echo "*.logs" >> .gitignore
-git rm --cached *.logs pgbouncer_logs.txt sahool.txt
-```
+**Severity**: HIGH → **RESOLVED** ✅
+**Root Cause**: `.gitignore` had `*.log` but NOT `*.logs` pattern.
+**Resolution**: Added `*.logs`, `pgbouncer_logs.txt`, `sahool.txt` to `.gitignore` and removed 6 tracked log files from git.
 
 ### 1.2 CORS Wildcard in Production-Ready Services
-**Severity**: HIGH
-**Files**:
-- `apps/services/ground-vision-service/src/main.py` - `allow_origins=["*"]` with comment "Configure appropriately in production"
-- `apps/services/leveling-optimizer-service/src/main.py` - `allow_origins=["*"]` with comment "Configure appropriately for production"
-- `apps/services/pest-detection-service/src/main.py` - `allow_origins=["*"]`
+**Severity**: HIGH → **RESOLVED** ✅
+**Resolution**: Replaced `allow_origins=["*"]` with environment-based `CORS_ORIGINS` configuration in all 3 services (ground-vision, leveling-optimizer, pest-detection). Defaults to `sahool.io`, `admin.sahool.io`, `localhost:3000`.
 
-**Impact**: Any website can make cross-origin requests to these services, enabling CSRF and data exfiltration.
-
-**Fix**: Use environment-based CORS configuration, restrict to known origins.
-
-### 1.3 Failing Unit Test
-**Severity**: MEDIUM
-**File**: `tests/unit/services/test_leveling_optimizer.py:265`
-**Test**: `TestCutFillVolumeCalculation::test_earthwork_balance_optimization`
-**Cause**: Float32 numerical precision issue - binary search converges so precisely that `min(cut,fill)/max(cut,fill)` becomes degenerate (~3.96e-10 instead of expected >0.9).
-
-**Fix**: Replace ratio check with absolute difference check:
-```python
-assert abs(cut - fill) / max(cut + fill, 1e-10) < 0.1
-```
+### 1.3 Failing Unit Tests
+**Severity**: MEDIUM → **RESOLVED** ✅
+**Resolution**: Fixed 2 bugs in `test_leveling_optimizer.py`:
+- `test_earthwork_balance_optimization`: Binary search direction was inverted (converged to max instead of balance point). Fixed by swapping `low`/`high` assignments.
+- `test_constrained_slope_plane`: Slope formula had incorrect sign (`-cos` → `cos` for geographic direction convention). All 27 tests now pass.
 
 ### 1.4 Port Conflict
-**Severity**: MEDIUM
-**Services**: `supply-chain-service` (port 8230) and `ai-chat-assistant` (port 8230) share the same port as documented in CLAUDE.md.
+**Severity**: MEDIUM → **RESOLVED** ✅
+**Services**: `supply-chain-service` (port 8230) and `ai-chat-assistant` (port 8260, previously 8230). Resolved by moving ai-chat-assistant to port 8260 per governance/services.yaml.
 
 ---
 
@@ -320,8 +293,8 @@ Additionally, **36 per-file-ignore patterns** create a very complex configuratio
 | Category | Score | Notes |
 |----------|-------|-------|
 | **Code Quality** | 8/10 | Clean linting, good patterns, but permissive config |
-| **Testing** | 8/10 | 1,758+ unit tests, comprehensive coverage, 1 failure |
-| **Security** | 7/10 | Good foundation, CORS and log issues |
+| **Testing** | 8.5/10 | 1,795+ unit tests passing, 2 test bugs fixed |
+| **Security** | 8/10 | CORS and log issues resolved, good foundation |
 | **Architecture** | 6/10 | Service sprawl and duplication |
 | **Documentation** | 7/10 | Comprehensive but cluttered |
 | **Infrastructure** | 8/10 | Well-configured Docker, CI/CD, monitoring |

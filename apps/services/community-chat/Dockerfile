@@ -21,7 +21,10 @@ COPY apps/services/community-chat/package.json apps/services/community-chat/pack
 COPY apps/services/community-chat/prisma/ ./prisma/
 
 # Install all dependencies (including devDependencies for build) with retry for network resilience
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
 
 # Generate Prisma client
 RUN npx prisma generate
@@ -59,8 +62,12 @@ COPY --from=builder /app/package-lock.json ./
 # Copy Prisma schema for migrations
 COPY --from=builder /app/prisma/ ./prisma/
 
-RUN npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
-    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000
+RUN npm config set registry https://registry.npmmirror.com && \
+    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
+    (npm config set registry https://registry.npmjs.org && \
+    (npm ci --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000))
 
 # Copy the generated Prisma client from builder stage
 COPY --from=builder /app/node_modules/.prisma/ ./node_modules/.prisma/

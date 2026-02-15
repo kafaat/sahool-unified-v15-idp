@@ -309,7 +309,7 @@ async def ussd_callback(request: Request):
 
     session_id = data.get("sessionId", data.get("session_id", ""))
     phone_number = data.get("phoneNumber", data.get("msisdn", ""))
-    data.get("serviceCode", data.get("service_code", "*384#"))
+    service_code = data.get("serviceCode", data.get("service_code", "*384#"))
     text = data.get("text", "")
 
     logger.info(f"USSD request: phone={phone_number}, text={text}")

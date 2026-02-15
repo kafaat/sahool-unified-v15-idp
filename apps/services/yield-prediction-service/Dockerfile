@@ -24,8 +24,11 @@ WORKDIR /workspace/yield-prediction-service
 
 # Install dependencies with retry for network resilience
 # Suppress deprecation warnings from transitive dependencies (they're non-blocking, from old packages like glob@7)
-RUN npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
-    (echo "Retrying npm install..." && npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
+RUN npm config set registry https://registry.npmmirror.com && \
+    (npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "Retrying npm install..." && npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
 
 # Build the application
 RUN npm run build
@@ -49,8 +52,12 @@ COPY --from=builder /workspace/yield-prediction-service/package-lock.json ./
 # Install production dependencies with npm ci (deterministic) with fallback to npm install
 # reflect-metadata is required at runtime for NestJS decorators and DI
 # Note: Deprecation warnings (inflight, glob@7) are from transitive dependencies and are non-blocking
-RUN npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
-    (echo "npm ci failed, falling back to npm install..." && npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)
+RUN npm config set registry https://registry.npmmirror.com && \
+    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    (echo "npm ci failed, falling back to npm install..." && npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit)) || \
+    (npm config set registry https://registry.npmjs.org && \
+    (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit))
 
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist

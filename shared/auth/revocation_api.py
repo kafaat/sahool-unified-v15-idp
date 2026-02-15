@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .dependencies import get_current_user
 from .jwt_handler import verify_token
@@ -31,13 +31,12 @@ class RevokeTokenRequest(BaseModel):
     jti: str = Field(..., description="JWT ID to revoke")
     reason: str | None = Field("manual", description="Reason for revocation")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "jti": "550e8400-e29b-41d4-a716-446655440000",
-                "reason": "user_logout",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "jti": "550e8400-e29b-41d4-a716-446655440000",
+            "reason": "user_logout",
         }
+    })
 
 
 class RevokeUserTokensRequest(BaseModel):
@@ -46,8 +45,7 @@ class RevokeUserTokensRequest(BaseModel):
     user_id: str = Field(..., description="User ID")
     reason: str | None = Field("manual", description="Reason for revocation")
 
-    class Config:
-        json_schema_extra = {"example": {"user_id": "user-123", "reason": "password_change"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"user_id": "user-123", "reason": "password_change"}})
 
 
 class RevokeTenantTokensRequest(BaseModel):
@@ -56,8 +54,7 @@ class RevokeTenantTokensRequest(BaseModel):
     tenant_id: str = Field(..., description="Tenant ID")
     reason: str | None = Field("security", description="Reason for revocation")
 
-    class Config:
-        json_schema_extra = {"example": {"tenant_id": "tenant-456", "reason": "security_breach"}}
+    model_config = ConfigDict(json_schema_extra={"example": {"tenant_id": "tenant-456", "reason": "security_breach"}})
 
 
 class RevocationResponse(BaseModel):
@@ -67,14 +64,13 @@ class RevocationResponse(BaseModel):
     message: str = Field(..., description="Response message")
     revoked_count: int | None = Field(None, description="Number of tokens revoked")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "success": True,
-                "message": "Token revoked successfully",
-                "revoked_count": 1,
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "success": True,
+            "message": "Token revoked successfully",
+            "revoked_count": 1,
         }
+    })
 
 
 class TokenStatusResponse(BaseModel):
@@ -84,14 +80,13 @@ class TokenStatusResponse(BaseModel):
     reason: str | None = Field(None, description="Revocation reason")
     revoked_at: float | None = Field(None, description="When token was revoked")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "is_revoked": True,
-                "reason": "user_logout",
-                "revoked_at": 1640000000.0,
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "is_revoked": True,
+            "reason": "user_logout",
+            "revoked_at": 1640000000.0,
         }
+    })
 
 
 class RevocationStatsResponse(BaseModel):
@@ -103,16 +98,15 @@ class RevocationStatsResponse(BaseModel):
     revoked_tenants: int = Field(..., description="Number of tenants with revoked tokens")
     redis_url: str | None = Field(None, description="Redis connection URL (masked)")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "initialized": True,
-                "revoked_tokens": 42,
-                "revoked_users": 10,
-                "revoked_tenants": 2,
-                "redis_url": "localhost:6379/0",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "initialized": True,
+            "revoked_tokens": 42,
+            "revoked_users": 10,
+            "revoked_tenants": 2,
+            "redis_url": "localhost:6379/0",
         }
+    })
 
 
 # ─────────────────────────────────────────────────────────────────────────────

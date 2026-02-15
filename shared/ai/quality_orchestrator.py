@@ -52,8 +52,22 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
-import structlog
-import yaml
+try:
+    import structlog
+
+    logger = structlog.get_logger(__name__)
+except ImportError:
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+try:
+    import yaml
+
+    YAML_AVAILABLE = True
+except ImportError:
+    yaml = None  # type: ignore[assignment]
+    YAML_AVAILABLE = False
 
 from .tool_registry import (
     ToolRegistry,
@@ -61,8 +75,6 @@ from .tool_registry import (
     ToolStatus,
     get_tool_registry,
 )
-
-logger = structlog.get_logger(__name__)
 
 
 # =============================================================================

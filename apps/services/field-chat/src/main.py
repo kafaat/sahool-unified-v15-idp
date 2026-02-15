@@ -3,6 +3,7 @@ SAHOOL Field Chat Service
 Main FastAPI application entry point
 """
 
+import asyncio
 import logging
 import os
 import sys
@@ -202,26 +203,32 @@ async def root(user: dict = Depends(get_current_user)):
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-# Simple in-memory connection manager
+# Simple in-memory connection manager (thread-safe via asyncio.Lock)
 class ConnectionManager:
     def __init__(self):
         self.active_connections: dict[str, list[WebSocket]] = {}
+        self._lock = asyncio.Lock()
 
     async def connect(self, websocket: WebSocket, thread_id: str):
         await websocket.accept()
-        if thread_id not in self.active_connections:
-            self.active_connections[thread_id] = []
-        self.active_connections[thread_id].append(websocket)
+        async with self._lock:
+            if thread_id not in self.active_connections:
+                self.active_connections[thread_id] = []
+            self.active_connections[thread_id].append(websocket)
 
-    def disconnect(self, websocket: WebSocket, thread_id: str):
-        if thread_id in self.active_connections:
-            self.active_connections[thread_id].remove(websocket)
+    async def disconnect(self, websocket: WebSocket, thread_id: str):
+        async with self._lock:
+            if thread_id in self.active_connections:
+                self.active_connections[thread_id].remove(websocket)
+                if not self.active_connections[thread_id]:
+                    del self.active_connections[thread_id]
 
     async def broadcast(self, thread_id: str, message: dict):
-        if thread_id in self.active_connections:
-            for connection in self.active_connections[thread_id]:
-                with suppress(Exception):
-                    await connection.send_json(message)
+        async with self._lock:
+            connections = list(self.active_connections.get(thread_id, []))
+        for connection in connections:
+            with suppress(Exception):
+                await connection.send_json(message)
 
 
 manager = ConnectionManager()
@@ -283,5 +290,5 @@ async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | 
             # Echo back for ping/pong
             await websocket.send_json({"type": "pong", "data": data})
     except WebSocketDisconnect:
-        manager.disconnect(websocket, thread_id)
+        await manager.disconnect(websocket, thread_id)
         logger.info("WebSocket disconnected: thread=%s", safe_thread_id)

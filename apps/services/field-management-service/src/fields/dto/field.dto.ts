@@ -93,7 +93,7 @@ export class CreateFieldDto {
   @ApiProperty({ description: "Field name", example: "North Wheat Field" })
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }: { value?: string }) => value?.trim())
   name: string;
 
   @ApiProperty({ description: "Tenant ID", example: "tenant-001" })
@@ -165,7 +165,7 @@ export class UpdateFieldDto {
   @IsOptional()
   @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value?.trim())
+  @Transform(({ value }: { value?: string }) => value?.trim())
   name?: string;
 
   @ApiPropertyOptional({ description: "Crop type" })

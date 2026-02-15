@@ -30,14 +30,22 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
     pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "setuptools>=68.0" wheel build
 
-# Configure pip for better network resilience
+# Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
+    cat > /root/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+[install]
+prefer-binary = true
+EOF
 
 # Install Python dependencies
 COPY constraints.txt .

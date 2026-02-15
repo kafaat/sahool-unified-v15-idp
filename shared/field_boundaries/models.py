@@ -15,7 +15,7 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class BoundaryStatus(StrEnum):
@@ -289,19 +289,14 @@ class FieldBoundary(BaseModel):
     )
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
-    updated_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     approved_at: datetime | None = Field(default=None)
 
     # Additional metadata | بيانات وصفية إضافية
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    class Config:
-        """Pydantic configuration"""
-
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict()
 
     def to_geojson_feature(self) -> dict[str, Any]:
         """

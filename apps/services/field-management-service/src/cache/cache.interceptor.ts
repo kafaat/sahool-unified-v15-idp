@@ -85,7 +85,7 @@ export class CacheInterceptor implements NestInterceptor {
 
     // Execute handler and cache response
     return next.handle().pipe(
-      tap(async (data) => {
+      tap(async (data: unknown) => {
         if (data) {
           await this.cacheService.set(cacheKey, data, ttl);
           const response = context.switchToHttp().getResponse();

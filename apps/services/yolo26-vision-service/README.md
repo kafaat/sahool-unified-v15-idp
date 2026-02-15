@@ -37,6 +37,12 @@
 │  │                    TensorRT / CUDA Engine                      │        │
 │  │            GPU Acceleration | FP16 Half Precision              │        │
 │  └────────────────────────────────────────────────────────────────┘        │
+│                              │                                             │
+│  ┌───────────────────────────┴───────────────────────────────────┐        │
+│  │                    NATS Event Publisher                         │        │
+│  │  sahool.vision.pest_detected | disease_detected | weed_detected│        │
+│  │  sahool.vision.critical_alert | analysis_completed             │        │
+│  └────────────────────────────────────────────────────────────────┘        │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -381,23 +387,38 @@ services:
 
 ---
 
-## Events | الأحداث
+## Events (NATS) | الأحداث
 
-### Produces
+The service publishes events to NATS after each detection. Event models are defined in `shared/events/vision_events.py` and published via `src/events/publisher.py`.
 
-| Event | Description |
-|-------|-------------|
-| `PestDetected.v1` | Pest identified in image |
-| `DiseaseDetected.v1` | Disease detected with severity |
-| `WeedDetected.v1` | Weed species identified |
-| `CriticalPestAlert.v1` | Critical pest (e.g., RPW) detected |
+### Produces | يُنتج
 
-### Consumes
+| NATS Subject | Event | Description |
+|-------------|-------|-------------|
+| `sahool.vision.pest_detected` | PestDetectedEvent | Pest identified in image with severity & recommendations |
+| `sahool.vision.disease_detected` | VisionDiseaseDetectedEvent | Disease detected with affected area % & health score |
+| `sahool.vision.weed_detected` | WeedDetectedEvent | Weed species identified with coverage % |
+| `sahool.vision.plant_count_completed` | PlantCountCompletedEvent | Plant counting results with density map |
+| `sahool.vision.critical_alert` | VisionCriticalAlertEvent | Critical pest alert (RPW, locust) - auto-escalates |
+| `sahool.vision.analysis_started` | VisionAnalysisStartedEvent | Analysis job started |
+| `sahool.vision.analysis_completed` | VisionAnalysisCompletedEvent | Analysis completed with results summary |
+| `sahool.vision.analysis_failed` | VisionAnalysisFailedEvent | Analysis failed with error details |
 
-| Event | Description |
-|-------|-------------|
-| `ImageCaptured.v1` | Process new field image |
-| `DroneFlightCompleted.v1` | Process drone imagery batch |
+### Consumes | يستهلك
+
+| NATS Subject | Event | Description |
+|-------------|-------|-------------|
+| `sahool.edge.data_collected` | DataCollectedEvent | Process new field image from edge device |
+| `sahool.field.created` | FieldCreatedEvent | Register field for monitoring |
+
+### Critical Alerts | تنبيهات حرجة
+
+Critical alerts are auto-published when:
+- **Red Palm Weevil** (سوسة النخيل الحمراء) detected - class_id 0
+- **Locust** (الجراد) detected - class_id 11
+- **Severe disease outbreak** - 3+ critical detections or health_score < 30
+
+These trigger `sahool.vision.critical_alert` with `priority: 1` and `auto_notify_agronomist: true`.
 
 ---
 
@@ -468,4 +489,4 @@ Proprietary - KAFAAT
 ---
 
 **Version**: 16.0.0
-**Last Updated**: January 2026
+**Last Updated**: February 2026

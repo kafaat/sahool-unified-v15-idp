@@ -296,7 +296,7 @@ async def register_camera(request: CameraRegistration):
     # TODO: Store in database
     logger.info(f"Registering camera {request.camera_id} at tower {request.tower_id}")
 
-    return CameraResponse(
+    response = CameraResponse(
         camera_id=request.camera_id,
         tower_id=request.tower_id,
         name=request.name,
@@ -305,6 +305,21 @@ async def register_camera(request: CameraRegistration):
         status_ar="متصل",
         created_at=datetime.now(UTC).isoformat(),
     )
+
+    # Publish camera status event via NATS
+    if state.publisher:
+        try:
+            await state.publisher.publish_camera_status(
+                camera_id=request.camera_id,
+                tenant_id=request.tenant_id,
+                status="online",
+                status_ar="متصل",
+                details={"tower_id": request.tower_id, "name": request.name},
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish camera_status event: {e}")
+
+    return response
 
 
 @app.get("/api/v1/cameras", tags=["Cameras"])
@@ -384,13 +399,32 @@ async def process_frame(request: FrameProcessRequest):
 
     processing_time = int((time.time() - start_time) * 1000)
 
-    return FrameProcessResponse(
+    response = FrameProcessResponse(
         frame_id=request.frame_id,
         processed=True,
         detections_count=0,
         anomalies_count=0,
         processing_time_ms=processing_time,
     )
+
+    # Publish frame captured event via NATS
+    if state.publisher:
+        try:
+            await state.publisher.publish_frame_captured(
+                camera_id=request.camera_id,
+                frame_id=request.frame_id,
+                tenant_id=request.tenant_id,
+                metadata={
+                    "field_id": request.field_id,
+                    "image_url": request.image_url,
+                    "captured_at": request.captured_at,
+                    "processing_time_ms": processing_time,
+                },
+            )
+        except Exception as e:
+            logger.warning(f"Failed to publish frame_captured event: {e}")
+
+    return response
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -482,8 +516,10 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
 
     processing_time = int((time.time() - start_time) * 1000)
 
-    return TimelineAnalysisResponse(
-        analysis_id=f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}",
+    analysis_id = f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+
+    response = TimelineAnalysisResponse(
+        analysis_id=analysis_id,
         field_id=request.field_id,
         crop_type="wheat",
         crop_type_ar="قمح",
@@ -492,6 +528,29 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
         confidence=0.85,
         processing_time_ms=processing_time,
     )
+
+    # Publish timeline updated event via NATS
+    if state.nc and not state.nc.is_closed:
+        try:
+            import json
+
+            subject = f"sahool.{request.tenant_id}.ground_vision.timeline_updated"
+            payload = json.dumps({
+                "analysis_id": analysis_id,
+                "field_id": request.field_id,
+                "tenant_id": request.tenant_id,
+                "crop_type": "wheat",
+                "growth_stage": "tillering",
+                "confidence": 0.85,
+                "processing_time_ms": processing_time,
+                "timestamp": datetime.now(UTC).isoformat(),
+            }, default=str).encode()
+            await state.nc.publish(subject, payload)
+            logger.info(f"Published timeline_updated for {request.field_id}")
+        except Exception as e:
+            logger.warning(f"Failed to publish timeline_updated event: {e}")
+
+    return response
 
 
 @app.get("/api/v1/timeline/{field_id}", tags=["Timeline"])

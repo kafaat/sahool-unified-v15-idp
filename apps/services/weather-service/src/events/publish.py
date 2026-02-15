@@ -9,7 +9,7 @@ from datetime import UTC, datetime, timezone
 
 from nats.aio.client import Client as NATS
 
-from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, get_subject, get_version
+from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 
@@ -136,6 +136,39 @@ class WeatherPublisher:
         print(
             f"🌤️ Published weather_alert: field={field_id}, type={alert_type}, severity={severity}"
         )
+        return env.event_id
+
+    async def publish_forecast_issued(
+        self,
+        tenant_id: str,
+        field_id: str,
+        provider: str,
+        days: int,
+        correlation_id: str = None,
+    ) -> str:
+        """Publish forecast issued event"""
+        if not self._connected:
+            await self.connect()
+
+        payload = {
+            "field_id": field_id,
+            "provider": provider,
+            "forecast_days": days,
+        }
+
+        env = EventEnvelope.create(
+            event_type=WEATHER_FORECAST_ISSUED,
+            version=get_version(WEATHER_FORECAST_ISSUED),
+            aggregate_id=field_id,
+            tenant_id=tenant_id,
+            correlation_id=correlation_id or str(uuid.uuid4()),
+            payload=payload,
+        )
+
+        subject = get_subject(WEATHER_FORECAST_ISSUED)
+        await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
+
+        print(f"📋 Published forecast_issued: field={field_id}, provider={provider}, days={days}")
         return env.event_id
 
     async def publish_irrigation_adjustment(

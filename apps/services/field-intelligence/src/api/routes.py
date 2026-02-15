@@ -11,7 +11,9 @@ from datetime import UTC, datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query
+import json
+
+from fastapi import APIRouter, Depends, Header, HTTPException, Path, Query, Request
 
 from ..models.events import EventCreate, EventResponse, EventStatus, EventType
 from ..models.rules import (
@@ -88,6 +90,7 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 @router.post("/events", response_model=EventResponse, tags=["Events"])
 async def create_event(
     event_data: EventCreate,
+    request: Request,
     tenant_id: str = Depends(get_tenant_id),
 ):
     """
@@ -174,6 +177,30 @@ async def create_event(
             _sanitize_log_input(event_response.event_id),
             _sanitize_log_input(event_data.field_id),
         )
+
+        # Publish processed event to NATS for downstream services
+        nc = getattr(request.app.state, "nc", None)
+        if nc:
+            try:
+                nats_payload = json.dumps({
+                    "event_id": event_response.event_id,
+                    "tenant_id": event_response.tenant_id,
+                    "field_id": event_response.field_id,
+                    "event_type": event_response.event_type.value,
+                    "severity": event_response.severity.value if hasattr(event_response.severity, "value") else str(event_response.severity),
+                    "status": event_response.status.value,
+                    "title": event_response.title,
+                    "source_service": event_response.source_service,
+                    "triggered_rules": event_response.triggered_rules,
+                    "created_tasks": event_response.created_tasks,
+                    "notifications_sent": event_response.notifications_sent,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                }, default=str).encode()
+                subject = f"sahool.field_intelligence.event_processed"
+                await nc.publish(subject, nats_payload)
+                logger.info("NATS event published: %s for %s", subject, _sanitize_log_input(event_response.event_id))
+            except Exception as pub_err:
+                logger.warning("Failed to publish NATS event: %s", str(pub_err))
 
         return event_response
 

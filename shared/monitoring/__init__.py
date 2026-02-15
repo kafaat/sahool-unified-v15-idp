@@ -80,6 +80,52 @@ from .types import (
     ndvi_to_growth_level,
 )
 
+# SLI/SLO Definitions
+from .sli_slo import (
+    SLI,
+    SLO,
+    SAHOOLSLORegistry,
+    ServiceSLOs,
+    ServiceTier,
+    SLIType,
+    get_service_slos,
+    get_slo_registry,
+)
+
+# Enhanced Health Checks
+from .health_enhanced import (
+    CheckSeverity,
+    DependencyHealth,
+    DependencyType,
+    EnhancedHealthChecker,
+    HealthStatus,
+    ServiceHealthReport,
+    check_disk_space,
+    check_memory,
+    check_nats,
+    check_postgres,
+    check_redis,
+    create_health_router,
+)
+
+# Agricultural Metrics
+from .agricultural_metrics import (
+    AgriculturalMetrics,
+    CropType,
+    get_agricultural_metrics,
+)
+
+# Structured Logging
+from .structured_logging import (
+    LogCategory,
+    LogContext,
+    StructuredLogger,
+    clear_log_context,
+    get_structured_logger,
+    log_operation,
+    set_log_context,
+)
+
 __all__ = [
     # Common types
     "BoundingBox",
@@ -170,49 +216,3 @@ __all__ = [
     "log_operation",
     "get_structured_logger",
 ]
-
-
-# SLI/SLO Definitions
-# Agricultural Metrics
-from .agricultural_metrics import (
-    AgriculturalMetrics,
-    CropType,
-    get_agricultural_metrics,
-)
-
-# Enhanced Health Checks
-from .health_enhanced import (
-    CheckSeverity,
-    DependencyHealth,
-    DependencyType,
-    EnhancedHealthChecker,
-    HealthStatus,
-    ServiceHealthReport,
-    check_disk_space,
-    check_memory,
-    check_nats,
-    check_postgres,
-    check_redis,
-    create_health_router,
-)
-from .sli_slo import (
-    SLI,
-    SLO,
-    SAHOOLSLORegistry,
-    ServiceSLOs,
-    ServiceTier,
-    SLIType,
-    get_service_slos,
-    get_slo_registry,
-)
-
-# Structured Logging
-from .structured_logging import (
-    LogCategory,
-    LogContext,
-    StructuredLogger,
-    clear_log_context,
-    get_structured_logger,
-    log_operation,
-    set_log_context,
-)

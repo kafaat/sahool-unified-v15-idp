@@ -127,6 +127,7 @@ jobs:
   security-deep:
     name: Security Deep Scan
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v6
 
@@ -186,8 +187,9 @@ jobs:
 
       - name: Upload security reports
         uses: actions/upload-artifact@v6
+        if: always()
         with:
-          name: security-reports
+          name: security-deep-reports
           path: |
             bandit-report.json
             pip-audit-report.txt

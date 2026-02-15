@@ -196,7 +196,7 @@ async def create_event(
                     "notifications_sent": event_response.notifications_sent,
                     "timestamp": datetime.now(UTC).isoformat(),
                 }, default=str).encode()
-                subject = f"sahool.field_intelligence.event_processed"
+                subject = "sahool.field_intelligence.event_processed"
                 await nc.publish(subject, nats_payload)
                 logger.info("NATS event published: %s for %s", subject, _sanitize_log_input(event_response.event_id))
             except Exception as pub_err:

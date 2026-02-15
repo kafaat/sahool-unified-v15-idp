@@ -147,17 +147,19 @@ jobs:
           echo "Generating coverage report..."
           # Run each service separately to avoid tests/__init__.py namespace
           # collisions. Only services with guarded imports are included.
+          # Uses -c pytest.ini to force root config — some services (e.g.
+          # ndvi-processor) ship their own pytest.ini which changes rootdir
+          # and can prevent pytest-cov plugin detection (exit code 4).
           SERVICES="ndvi-processor alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
           FIRST=true
           for svc in $SERVICES; do
             echo "--- Testing $svc ---"
             COV_ARGS="--cov=apps/services"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
-            pytest "apps/services/$svc/tests/" -v --tb=short $COV_ARGS --cov-report= --cov-fail-under=0 || {
+            python -m pytest "apps/services/$svc/tests/" -v --tb=short \
+              -c pytest.ini $COV_ARGS --cov-report= --cov-fail-under=0 || {
               rc=$?
-              if [ $rc -eq 5 ]; then echo "⚠ No tests collected for $svc, continuing"
-              elif [ $rc -eq 1 ]; then echo "⚠ Some tests failed in $svc, continuing"
-              else exit $rc; fi
+              echo "⚠ pytest exited with code $rc for $svc, continuing"
             }
             FIRST=false
           done

@@ -34,11 +34,9 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import io
 import json
 import logging
 import os
-import pickle
 import time
 from collections import OrderedDict
 from dataclasses import dataclass
@@ -52,40 +50,6 @@ T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-class RestrictedUnpickler(pickle.Unpickler):
-    """Restricted unpickler that only allows safe built-in types."""
-
-    SAFE_BUILTINS = {
-        "builtins": frozenset(
-            {
-                "dict",
-                "list",
-                "tuple",
-                "set",
-                "frozenset",
-                "str",
-                "bytes",
-                "int",
-                "float",
-                "bool",
-                "complex",
-                "type",
-                "NoneType",
-            }
-        ),
-        "datetime": frozenset({"datetime", "date", "time", "timedelta"}),
-        "decimal": frozenset({"Decimal"}),
-        "collections": frozenset({"OrderedDict", "defaultdict"}),
-    }
-
-    def find_class(self, module: str, name: str) -> type:
-        if module in self.SAFE_BUILTINS and name in self.SAFE_BUILTINS[module]:
-            return getattr(__import__(module, fromlist=[name]), name)
-        raise pickle.UnpicklingError(
-            f"Restricted: {module}.{name} is not allowed for deserialization"
-        )
-
-
 @dataclass
 class CacheConfig:
     """Configuration for cache manager."""
@@ -94,7 +58,7 @@ class CacheConfig:
     default_ttl: int = 300  # 5 minutes
     max_memory_items: int = 1000
     key_prefix: str = "sahool"
-    serialize_method: str = "json"  # "json" or "pickle"
+    serialize_method: str = "json"
 
     @classmethod
     def from_env(cls) -> CacheConfig:
@@ -104,7 +68,7 @@ class CacheConfig:
             default_ttl=int(os.getenv("CACHE_DEFAULT_TTL", "300")),
             max_memory_items=int(os.getenv("CACHE_MAX_ITEMS", "1000")),
             key_prefix=os.getenv("CACHE_KEY_PREFIX", "sahool"),
-            serialize_method=os.getenv("CACHE_SERIALIZE", "json"),
+            serialize_method="json",
         )
 
 
@@ -175,9 +139,8 @@ class InMemoryCache:
 class RedisCache:
     """Redis cache implementation with automatic connection handling."""
 
-    def __init__(self, redis_url: str, serialize_method: str = "json"):
+    def __init__(self, redis_url: str, serialize_method: str = "json"):  # noqa: ARG002
         self.redis_url = redis_url
-        self.serialize_method = serialize_method
         self._client = None
         self._connected = False
 
@@ -207,18 +170,12 @@ class RedisCache:
             return False
 
     def _serialize(self, value: Any) -> bytes:
-        """Serialize value for storage."""
-        if self.serialize_method == "json":
-            return json.dumps(value, default=str).encode("utf-8")
-        else:
-            return pickle.dumps(value)
+        """Serialize value for storage using JSON."""
+        return json.dumps(value, default=str).encode("utf-8")
 
     def _deserialize(self, data: bytes) -> Any:
-        """Deserialize value from storage."""
-        if self.serialize_method == "json":
-            return json.loads(data.decode("utf-8"))
-        else:
-            return RestrictedUnpickler(io.BytesIO(data)).load()
+        """Deserialize value from storage using JSON."""
+        return json.loads(data.decode("utf-8"))
 
     async def get(self, key: str) -> Any | None:
         """Get value from Redis cache."""

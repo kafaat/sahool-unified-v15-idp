@@ -7,7 +7,7 @@ SQLAlchemy ORM models for alerts storage
 
 from __future__ import annotations
 
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from sqlalchemy import Boolean, DateTime, Index, Integer, String, Text

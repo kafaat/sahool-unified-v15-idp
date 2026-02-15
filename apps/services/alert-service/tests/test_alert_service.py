@@ -34,7 +34,7 @@ def mock_alert(mock_db_session):
     alert = Alert(
         id=uuid4(),
         field_id="field-123",
-        tenant_id="tenant-1",
+        tenant_id="11111111-1111-1111-1111-111111111111",
         type="ndvi_low",
         severity="high",
         status="active",
@@ -44,7 +44,7 @@ def mock_alert(mock_db_session):
         message_en="NDVI below threshold",
         recommendations=["Check irrigation"],
         recommendations_en=["Check irrigation"],
-        metadata={"current_ndvi": 0.15},
+        extra_metadata={"current_ndvi": 0.15},
         source_service="ndvi-engine",
         correlation_id=str(uuid4()),
     )
@@ -60,7 +60,7 @@ def mock_alert_rule(mock_db_session):
     rule = AlertRule(
         id=uuid4(),
         field_id="field-123",
-        tenant_id="tenant-1",
+        tenant_id="11111111-1111-1111-1111-111111111111",
         name="Low Soil Moisture",
         name_en="Low Soil Moisture",
         enabled=True,
@@ -212,7 +212,9 @@ class TestAlertRepository:
         """Test updating alert status"""
         from src.repository import update_alert_status
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_status(
             mock_db_session, alert_id=mock_alert.id, status="acknowledged", user_id="user-123"
@@ -227,7 +229,9 @@ class TestAlertRepository:
         """Test updating alert to resolved status"""
         from src.repository import update_alert_status
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_status(
             mock_db_session,
@@ -247,7 +251,9 @@ class TestAlertRepository:
         """Test updating alert to dismissed status"""
         from src.repository import update_alert_status
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_status(
             mock_db_session, alert_id=mock_alert.id, status="dismissed", user_id="user-123"
@@ -262,7 +268,9 @@ class TestAlertRepository:
         """Test updating non-existent alert"""
         from src.repository import update_alert_status
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=None)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_status(mock_db_session, alert_id=uuid4(), status="acknowledged")
 
@@ -272,7 +280,9 @@ class TestAlertRepository:
         """Test deleting an alert"""
         from src.repository import delete_alert
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = delete_alert(mock_db_session, mock_alert.id)
 
@@ -283,7 +293,9 @@ class TestAlertRepository:
         """Test deleting non-existent alert"""
         from src.repository import delete_alert
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=None)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = delete_alert(mock_db_session, uuid4())
 
@@ -381,7 +393,9 @@ class TestAlertRuleRepository:
         """Test updating alert rule"""
         from src.repository import update_alert_rule
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert_rule
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert_rule)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_rule(
             mock_db_session, rule_id=mock_alert_rule.id, enabled=False, cooldown_hours=48
@@ -395,7 +409,9 @@ class TestAlertRuleRepository:
         """Test deleting alert rule"""
         from src.repository import delete_alert_rule
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert_rule
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert_rule)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = delete_alert_rule(mock_db_session, mock_alert_rule.id)
 
@@ -406,7 +422,9 @@ class TestAlertRuleRepository:
         """Test marking rule as triggered"""
         from src.repository import mark_rule_triggered
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = mock_alert_rule
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=mock_alert_rule)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = mark_rule_triggered(mock_db_session, mock_alert_rule.id)
 
@@ -638,29 +656,31 @@ class TestAlertEvents:
     @pytest.mark.asyncio
     async def test_publish_alert_created(self):
         """Test publishing alert created event"""
-        from src.events import AlertPublisher
+        from src.events import AlertEventPublisher
 
-        mock_nc = AsyncMock()
-        publisher = AlertPublisher(mock_nc)
+        publisher = AlertEventPublisher()
+        publisher._nc = AsyncMock()
+        publisher._connected = True
 
         await publisher.publish_alert_created(
             alert_id="alert-123",
             field_id="field-123",
-            tenant_id="tenant-1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             alert_type="ndvi_low",
             severity="high",
             title="Test Alert",
         )
 
-        assert mock_nc.publish.called
+        assert publisher._nc.publish.called
 
     @pytest.mark.asyncio
     async def test_publish_alert_updated(self):
         """Test publishing alert updated event"""
-        from src.events import AlertPublisher
+        from src.events import AlertEventPublisher
 
-        mock_nc = AsyncMock()
-        publisher = AlertPublisher(mock_nc)
+        publisher = AlertEventPublisher()
+        publisher._nc = AsyncMock()
+        publisher._connected = True
 
         await publisher.publish_alert_updated(
             alert_id="alert-123",
@@ -670,20 +690,20 @@ class TestAlertEvents:
             updated_by="user-123",
         )
 
-        assert mock_nc.publish.called
+        assert publisher._nc.publish.called
 
     @pytest.mark.asyncio
     async def test_subscribe_to_external_alerts(self):
         """Test subscribing to external alerts"""
-        from src.events import AlertSubscriber
+        from src.events import AlertEventSubscriber
 
-        mock_nc = AsyncMock()
-        subscriber = AlertSubscriber(mock_nc)
+        subscriber = AlertEventSubscriber()
+        subscriber._nc = AsyncMock()
 
         await subscriber.subscribe_to_external_alerts()
 
         # Should subscribe to multiple topics
-        assert mock_nc.subscribe.call_count >= 3
+        assert subscriber._nc.subscribe.call_count >= 3
 
 
 class TestDatabaseConnection:
@@ -729,7 +749,9 @@ class TestErrorHandling:
         """Test updating non-existent alert"""
         from src.repository import update_alert_status
 
-        mock_db_session.query.return_value.filter.return_value.first.return_value = None
+        mock_result = MagicMock()
+        mock_result.scalar_one_or_none = MagicMock(return_value=None)
+        mock_db_session.execute = MagicMock(return_value=mock_result)
 
         result = update_alert_status(mock_db_session, alert_id=uuid4(), status="acknowledged")
 

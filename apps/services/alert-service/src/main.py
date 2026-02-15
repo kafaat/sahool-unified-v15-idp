@@ -7,11 +7,12 @@ Version: 16.0.0
 
 import logging
 import os
+import re
 import sys
 from contextlib import asynccontextmanager
-import re
 from datetime import UTC, datetime
 from pathlib import Path as PathLib
+from uuid import UUID
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
 
@@ -97,6 +98,11 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
     """Extract and validate tenant ID from X-Tenant-Id header"""
     if not x_tenant_id:
         raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
+    # Validate UUID format to prevent injection of arbitrary strings
+    try:
+        UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="X-Tenant-Id must be a valid UUID")
     return x_tenant_id
 
 
@@ -395,6 +401,8 @@ def readiness():
 
 async def create_alert_internal(alert_data: AlertCreate) -> dict:
     """إنشاء تنبيه داخلياً"""
+    if SessionLocal is None:
+        raise HTTPException(status_code=503, detail="Database not available")
     db = SessionLocal()
     try:
         # Create database alert object
@@ -509,7 +517,7 @@ async def create_rule(
     Create an alert rule
     """
     # Validate tenant matches request
-    if rule_data.tenant_id and rule_data.tenant_id != tenant_id:
+    if rule_data.tenant_id is not None and rule_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
 
     db_rule = DBAlertRule(
@@ -590,7 +598,7 @@ async def delete_rule(
     if not rule:
         raise HTTPException(status_code=404, detail="Rule not found")
 
-    deleted = delete_alert_rule(db, rule_uuid)
+    deleted = delete_alert_rule(db, rule_uuid, tenant_id=tenant_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Rule not found")
 
@@ -613,7 +621,7 @@ async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depend
     Create a new alert
     """
     # Validate tenant matches request
-    if alert_data.tenant_id and alert_data.tenant_id != tenant_id:
+    if alert_data.tenant_id is not None and alert_data.tenant_id != tenant_id:
         raise HTTPException(status_code=403, detail="Tenant ID mismatch")
     alert_data.tenant_id = tenant_id
     alert = await create_alert_internal(alert_data)
@@ -715,6 +723,7 @@ async def update_alert_endpoint(
             status=update_data.status.value,
             user_id=user_id,
             note=update_data.resolution_note,
+            tenant_id=tenant_id,
         )
 
         if not updated_alert:
@@ -814,7 +823,7 @@ async def acknowledge_alert(
         )
 
     updated_alert = update_alert_status(
-        db, alert_id=alert_uuid, status=AlertStatus.ACKNOWLEDGED.value, user_id=user_id
+        db, alert_id=alert_uuid, status=AlertStatus.ACKNOWLEDGED.value, user_id=user_id, tenant_id=tenant_id
     )
 
     if not updated_alert:
@@ -863,6 +872,7 @@ async def resolve_alert(
         status=AlertStatus.RESOLVED.value,
         user_id=user_id,
         note=note,
+        tenant_id=tenant_id,
     )
 
     if not updated_alert:
@@ -905,7 +915,7 @@ async def dismiss_alert(
         raise HTTPException(status_code=400, detail="Alert is already dismissed")
 
     updated_alert = update_alert_status(
-        db, alert_id=alert_uuid, status=AlertStatus.DISMISSED.value, user_id=user_id
+        db, alert_id=alert_uuid, status=AlertStatus.DISMISSED.value, user_id=user_id, tenant_id=tenant_id
     )
 
     if not updated_alert:

@@ -543,7 +543,7 @@ jobs:
           echo "✅ Failed Green deployment removed"
 
       - name: Notify team of rollback
-        if: ${{ failure() && secrets.SLACK_WEBHOOK_URL != '' }}
+        if: ${{ failure() }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -598,7 +598,7 @@ jobs:
           fi
 
       - name: Notify success
-        if: ${{ needs.validate-release.outputs.kubeconfig_available == 'true' && success() && secrets.SLACK_WEBHOOK_URL != '' }}
+        if: ${{ needs.validate-release.outputs.kubeconfig_available == 'true' && success() }}
         uses: 8398a7/action-slack@v3
         with:
           status: custom

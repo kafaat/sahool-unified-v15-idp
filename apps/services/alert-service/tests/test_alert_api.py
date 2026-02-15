@@ -4,7 +4,7 @@ Comprehensive API endpoint testing with mocked dependencies
 Coverage: API endpoints, error handling, CRUD operations, alert actions
 """
 
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 

@@ -13,7 +13,7 @@ from uuid import uuid4
 
 import numpy as np
 import structlog
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from PIL import Image
 
 from src.api.schemas import (
@@ -36,6 +36,7 @@ from src.api.schemas import (
     WeedDetectionResponse,
 )
 from src.core.config import settings
+from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
     ModelTask,
@@ -44,6 +45,15 @@ from src.models.yolo26_manager import (
 )
 
 logger = structlog.get_logger(__name__)
+
+
+def _get_event_publisher(request) -> VisionEventPublisher | None:
+    """Get event publisher from app state if NATS is connected."""
+    nc = getattr(request.app.state, "nc", None)
+    nats_connected = getattr(request.app.state, "nats_connected", False)
+    if nc and nats_connected:
+        return VisionEventPublisher(nc)
+    return None
 
 router = APIRouter(prefix="/api/v1", tags=["detection"])
 
@@ -269,6 +279,7 @@ DISEASE_TREATMENTS: dict[int, dict[str, str]] = {
     description="Detect and classify agricultural pests (20+ species) with bilingual labels and treatment recommendations.",
 )
 async def detect_pests(
+    request: Request,
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.25,
     iou_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.45,
@@ -394,6 +405,26 @@ async def detect_pests(
             processing_time_ms=round(processing_time, 2),
         )
 
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_pest_detected(
+                request_id=request_id,
+                detections=[
+                    {
+                        "class_id": d.class_id,
+                        "class_name_en": d.class_name_en,
+                        "class_name_ar": d.class_name_ar,
+                        "confidence": d.confidence,
+                        "severity": d.severity.value if d.severity else None,
+                        "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    }
+                    for d in detections
+                ],
+                processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+            )
+
         return PestDetectionResponse(
             request_id=request_id,
             processing_time_ms=processing_time,
@@ -426,6 +457,7 @@ async def detect_pests(
     description="Detect and classify plant diseases (30+ diseases) with bilingual labels and treatment recommendations.",
 )
 async def detect_diseases(
+    request: Request,
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.25,
     iou_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.45,
@@ -594,6 +626,29 @@ async def detect_diseases(
             processing_time_ms=round(processing_time, 2),
         )
 
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_disease_detected(
+                request_id=request_id,
+                detections=[
+                    {
+                        "class_id": d.class_id,
+                        "class_name_en": d.class_name_en,
+                        "class_name_ar": d.class_name_ar,
+                        "confidence": d.confidence,
+                        "severity": d.severity.value if d.severity else None,
+                        "affected_area_percent": d.affected_area_percent,
+                        "spread_risk": d.spread_risk.value if d.spread_risk else None,
+                        "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    }
+                    for d in detections
+                ],
+                processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+                health_score=health_score,
+            )
+
         return DiseaseDetectionResponse(
             request_id=request_id,
             processing_time_ms=processing_time,
@@ -627,6 +682,7 @@ async def detect_diseases(
     description="Detect and classify weeds with bilingual labels and coverage estimation.",
 )
 async def detect_weeds(
+    request: Request,
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.25,
     iou_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.45,
@@ -757,6 +813,27 @@ async def detect_weeds(
             total_coverage=round(total_coverage, 1),
             processing_time_ms=round(processing_time, 2),
         )
+
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and detections:
+            await publisher.publish_weed_detected(
+                request_id=request_id,
+                detections=[
+                    {
+                        "class_id": d.class_id,
+                        "class_name_en": d.class_name_en,
+                        "class_name_ar": d.class_name_ar,
+                        "confidence": d.confidence,
+                        "coverage_percent": d.coverage_percent,
+                        "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    }
+                    for d in detections
+                ],
+                processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+                total_coverage_percent=total_coverage,
+            )
 
         return WeedDetectionResponse(
             request_id=request_id,

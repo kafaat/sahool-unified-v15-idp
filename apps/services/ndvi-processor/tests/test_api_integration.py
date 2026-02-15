@@ -3,7 +3,12 @@ Integration Tests for NDVI Processor API Endpoints
 اختبارات التكامل لنقاط نهاية API معالج NDVI
 """
 
-from fastapi import status
+import pytest
+
+try:
+    from fastapi import status
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 class TestHealthEndpoints:

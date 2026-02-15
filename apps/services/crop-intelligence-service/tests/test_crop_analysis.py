@@ -14,7 +14,11 @@ from datetime import datetime, timedelta
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient  # noqa: F401
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 class TestVegetationIndicesAnalysis:

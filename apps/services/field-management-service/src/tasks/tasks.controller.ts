@@ -26,6 +26,7 @@ import {
   IsUUID,
   Min,
 } from "class-validator";
+import { TaskType, Priority, TaskState } from "@prisma/client";
 
 // Task DTOs
 class CreateTaskDto {
@@ -44,13 +45,12 @@ class CreateTaskDto {
   @IsString()
   description?: string;
 
-  @IsString()
-  @IsEnum(["irrigation", "fertilization", "spraying", "scouting", "maintenance", "sampling", "harvest", "planting", "other"])
-  taskType: string;
+  @IsEnum(TaskType)
+  taskType: TaskType;
 
   @IsOptional()
-  @IsEnum(["low", "medium", "high", "urgent"])
-  priority?: string;
+  @IsEnum(Priority)
+  priority?: Priority;
 
   @IsOptional()
   @IsDateString()
@@ -74,9 +74,8 @@ class CreateTaskDto {
 }
 
 class UpdateTaskStatusDto {
-  @IsString()
-  @IsEnum(["pending", "in_progress", "completed", "cancelled", "overdue"])
-  status: string;
+  @IsEnum(TaskState)
+  status: TaskState;
 
   @IsOptional()
   @IsString()
@@ -103,7 +102,7 @@ export class TasksController {
   @ApiResponse({ status: 200, description: "Tasks retrieved" })
   async getTasksForField(
     @Param("fieldId", ParseUUIDPipe) fieldId: string,
-    @Query("status") status?: string,
+    @Query("status") status?: TaskState,
   ) {
     const tasks = await this.tasksService.getTasksForField(fieldId, status);
     return {

@@ -16,8 +16,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from fastapi.testclient import TestClient
-from httpx import AsyncClient
 
 # Add src to path
 src_path = Path(__file__).parent.parent / "src"
@@ -112,16 +110,24 @@ def coordinator_agent() -> MasterCoordinatorAgent:
 
 
 @pytest.fixture
-def api_client() -> TestClient:
+def api_client():
     """Create a test client for the FastAPI app"""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("fastapi not installed")
     from main import app
 
     return TestClient(app)
 
 
 @pytest.fixture
-async def async_api_client() -> AsyncGenerator[AsyncClient, None]:
+async def async_api_client():
     """Create an async test client for the FastAPI app"""
+    try:
+        from httpx import AsyncClient
+    except ImportError:
+        pytest.skip("httpx not installed")
     from main import app
 
     async with AsyncClient(app=app, base_url="http://test") as client:

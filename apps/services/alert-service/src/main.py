@@ -439,6 +439,9 @@ async def create_alert_internal(alert_data: AlertCreate) -> dict:
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Alert CRUD Endpoints
+# NOTE: Static routes (/alerts/rules, /alerts/stats, /alerts/field/{field_id})
+# must be defined BEFORE the dynamic /alerts/{alert_id} route so FastAPI
+# matches them correctly.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
@@ -455,29 +458,6 @@ async def create_alert_endpoint(alert_data: AlertCreate, tenant_id: str = Depend
     alert = await create_alert_internal(alert_data)
     logger.info(f"Created alert {alert['id']} for field {sanitize_log_input(alert['field_id'])}")
     return alert
-
-
-@app.get("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
-async def get_alert_endpoint(
-    alert_id: str = Path(..., description="معرف التنبيه"),
-    tenant_id: str = Depends(get_tenant_id),
-    db: Session = Depends(get_db),
-):
-    """
-    جلب تنبيه محدد
-    Get a specific alert
-    """
-    from uuid import UUID
-
-    try:
-        alert_uuid = UUID(alert_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid alert ID format")
-
-    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
-    if not alert:
-        raise HTTPException(status_code=404, detail="Alert not found")
-    return alert.to_dict()
 
 
 @app.get("/alerts/field/{field_id}", response_model=PaginatedResponse, tags=["Alerts"])
@@ -515,6 +495,182 @@ async def get_alerts_by_field_endpoint(
         "limit": limit,
         "has_more": skip + limit < total,
     }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Alert Rules (static routes - must be before /alerts/{alert_id})
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.post("/alerts/rules", response_model=AlertRuleResponse, tags=["Alert Rules"])
+async def create_rule(
+    rule_data: AlertRuleCreate,
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    إنشاء قاعدة تنبيه
+    Create an alert rule
+    """
+    # Validate tenant matches request
+    if rule_data.tenant_id and rule_data.tenant_id != tenant_id:
+        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
+
+    db_rule = DBAlertRule(
+        field_id=rule_data.field_id,
+        tenant_id=tenant_id,  # Use validated tenant_id
+        name=rule_data.name,
+        name_en=rule_data.name_en,
+        enabled=rule_data.enabled,
+        condition=rule_data.condition.model_dump(),
+        alert_config=rule_data.alert_config.model_dump(),
+        cooldown_hours=rule_data.cooldown_hours,
+    )
+
+    rule = create_alert_rule(db, db_rule)
+    db.commit()
+    db.refresh(rule)
+
+    logger.info(f"Created alert rule {rule.id} for field {sanitize_log_input(rule_data.field_id)}")
+    return rule.to_dict()
+
+
+@app.get("/alerts/rules", response_model=list[AlertRuleResponse], tags=["Alert Rules"])
+async def get_rules(
+    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
+    enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    جلب قواعد التنبيه
+    Get alert rules
+    """
+    from sqlalchemy import select
+
+    from .db_models import AlertRule
+
+    # Always filter by tenant_id for security
+    query = select(AlertRule).where(AlertRule.tenant_id == tenant_id)
+
+    if field_id:
+        query = query.where(AlertRule.field_id == field_id)
+
+    if enabled is not None:
+        query = query.where(AlertRule.enabled == enabled)
+
+    rules = list(db.execute(query).scalars())
+
+    return [rule.to_dict() for rule in rules]
+
+
+@app.delete("/alerts/rules/{rule_id}", tags=["Alert Rules"])
+async def delete_rule(
+    rule_id: str = Path(..., description="معرف القاعدة"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    حذف قاعدة تنبيه
+    Delete an alert rule
+    """
+    from uuid import UUID
+
+    from sqlalchemy import select
+
+    from .db_models import AlertRule
+
+    try:
+        rule_uuid = UUID(rule_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid rule ID format")
+
+    # Check if rule exists and belongs to tenant
+    query = select(AlertRule).where(
+        AlertRule.id == rule_uuid,
+        AlertRule.tenant_id == tenant_id,
+    )
+    rule = db.execute(query).scalar_one_or_none()
+    if not rule:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    deleted = delete_alert_rule(db, rule_uuid)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Rule not found")
+
+    db.commit()
+    logger.info(f"Deleted alert rule {sanitize_log_input(rule_id)}")
+    return {"status": "deleted", "rule_id": rule_id}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Statistics (static route - must be before /alerts/{alert_id})
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/alerts/stats", response_model=AlertStats, tags=["Statistics"])
+async def get_stats(
+    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
+    period: str = Query("30d", description="الفترة الزمنية (7d, 30d, 90d)"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    إحصائيات التنبيهات
+    Get alert statistics
+    """
+    # Parse period
+    days = int(period.replace("d", ""))
+
+    # Get statistics from repository
+    stats = get_alert_statistics(db, tenant_id=tenant_id, field_id=field_id, days=days)
+
+    # Calculate rates
+    total = stats["total_alerts"]
+    acknowledged_count = stats.get("acknowledged_count", 0)
+    resolved_count = stats.get("resolved_count", 0)
+
+    acknowledged_rate = (acknowledged_count / total * 100) if total > 0 else 0
+    resolved_rate = (resolved_count / total * 100) if total > 0 else 0
+
+    return AlertStats(
+        total_alerts=stats["total_alerts"],
+        active_alerts=stats["active_alerts"],
+        by_type=stats["by_type"],
+        by_severity=stats["by_severity"],
+        by_status=stats["by_status"],
+        acknowledged_rate=round(acknowledged_rate, 2),
+        resolved_rate=round(resolved_rate, 2),
+        average_resolution_hours=stats.get("average_resolution_hours"),
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dynamic /alerts/{alert_id} routes (must come after static routes)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+@app.get("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
+async def get_alert_endpoint(
+    alert_id: str = Path(..., description="معرف التنبيه"),
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+):
+    """
+    جلب تنبيه محدد
+    Get a specific alert
+    """
+    from uuid import UUID
+
+    try:
+        alert_uuid = UUID(alert_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid alert ID format")
+
+    alert = get_alert(db, alert_id=alert_uuid, tenant_id=tenant_id)
+    if not alert:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    return alert.to_dict()
 
 
 @app.patch("/alerts/{alert_id}", response_model=AlertResponse, tags=["Alerts"])
@@ -751,154 +907,6 @@ async def dismiss_alert(
     db.refresh(updated_alert)
 
     return updated_alert.to_dict()
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Alert Rules
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-@app.post("/alerts/rules", response_model=AlertRuleResponse, tags=["Alert Rules"])
-async def create_rule(
-    rule_data: AlertRuleCreate,
-    tenant_id: str = Depends(get_tenant_id),
-    db: Session = Depends(get_db),
-):
-    """
-    إنشاء قاعدة تنبيه
-    Create an alert rule
-    """
-    # Validate tenant matches request
-    if rule_data.tenant_id and rule_data.tenant_id != tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant ID mismatch")
-
-    db_rule = DBAlertRule(
-        field_id=rule_data.field_id,
-        tenant_id=tenant_id,  # Use validated tenant_id
-        name=rule_data.name,
-        name_en=rule_data.name_en,
-        enabled=rule_data.enabled,
-        condition=rule_data.condition.model_dump(),
-        alert_config=rule_data.alert_config.model_dump(),
-        cooldown_hours=rule_data.cooldown_hours,
-    )
-
-    rule = create_alert_rule(db, db_rule)
-    db.commit()
-    db.refresh(rule)
-
-    logger.info(f"Created alert rule {rule.id} for field {sanitize_log_input(rule_data.field_id)}")
-    return rule.to_dict()
-
-
-@app.get("/alerts/rules", response_model=list[AlertRuleResponse], tags=["Alert Rules"])
-async def get_rules(
-    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
-    enabled: bool | None = Query(None, description="تصفية حسب الحالة"),
-    tenant_id: str = Depends(get_tenant_id),
-    db: Session = Depends(get_db),
-):
-    """
-    جلب قواعد التنبيه
-    Get alert rules
-    """
-    from sqlalchemy import select
-
-    from .db_models import AlertRule
-
-    # Always filter by tenant_id for security
-    query = select(AlertRule).where(AlertRule.tenant_id == tenant_id)
-
-    if field_id:
-        query = query.where(AlertRule.field_id == field_id)
-
-    if enabled is not None:
-        query = query.where(AlertRule.enabled == enabled)
-
-    rules = list(db.execute(query).scalars())
-
-    return [rule.to_dict() for rule in rules]
-
-
-@app.delete("/alerts/rules/{rule_id}", tags=["Alert Rules"])
-async def delete_rule(
-    rule_id: str = Path(..., description="معرف القاعدة"),
-    tenant_id: str = Depends(get_tenant_id),
-    db: Session = Depends(get_db),
-):
-    """
-    حذف قاعدة تنبيه
-    Delete an alert rule
-    """
-    from uuid import UUID
-
-    from sqlalchemy import select
-
-    from .db_models import AlertRule
-
-    try:
-        rule_uuid = UUID(rule_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid rule ID format")
-
-    # Check if rule exists and belongs to tenant
-    query = select(AlertRule).where(
-        AlertRule.id == rule_uuid,
-        AlertRule.tenant_id == tenant_id,
-    )
-    rule = db.execute(query).scalar_one_or_none()
-    if not rule:
-        raise HTTPException(status_code=404, detail="Rule not found")
-
-    deleted = delete_alert_rule(db, rule_uuid)
-    if not deleted:
-        raise HTTPException(status_code=404, detail="Rule not found")
-
-    db.commit()
-    logger.info(f"Deleted alert rule {sanitize_log_input(rule_id)}")
-    return {"status": "deleted", "rule_id": rule_id}
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Statistics
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-@app.get("/alerts/stats", response_model=AlertStats, tags=["Statistics"])
-async def get_stats(
-    field_id: str | None = Query(None, description="تصفية حسب الحقل"),
-    period: str = Query("30d", description="الفترة الزمنية (7d, 30d, 90d)"),
-    tenant_id: str = Depends(get_tenant_id),
-    db: Session = Depends(get_db),
-):
-    """
-    إحصائيات التنبيهات
-    Get alert statistics
-    """
-    # Parse period
-    days = int(period.replace("d", ""))
-
-    # Get statistics from repository
-    stats = get_alert_statistics(db, tenant_id=tenant_id, field_id=field_id, days=days)
-
-    # Calculate rates
-    total = stats["total_alerts"]
-    acknowledged_count = stats.get("acknowledged_count", 0)
-    resolved_count = stats.get("resolved_count", 0)
-
-    acknowledged_rate = (acknowledged_count / total * 100) if total > 0 else 0
-    resolved_rate = (resolved_count / total * 100) if total > 0 else 0
-
-    return AlertStats(
-        total_alerts=stats["total_alerts"],
-        active_alerts=stats["active_alerts"],
-        by_type=stats["by_type"],
-        by_severity=stats["by_severity"],
-        by_status=stats["by_status"],
-        acknowledged_rate=round(acknowledged_rate, 2),
-        resolved_rate=round(resolved_rate, 2),
-        average_resolution_hours=stats.get("average_resolution_hours"),
-    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

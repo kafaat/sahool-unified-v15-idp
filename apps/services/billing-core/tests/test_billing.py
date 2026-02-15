@@ -6,7 +6,11 @@ SAHOOL Billing Core Service - Unit Tests
 from datetime import datetime
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 @pytest.fixture

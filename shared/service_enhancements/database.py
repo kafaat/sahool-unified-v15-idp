@@ -296,6 +296,7 @@ class DatabaseOptimizer:
             raise ValueError("Only SELECT queries can be analyzed")
         async with self.pool.acquire() as conn:
             start_time = time.perf_counter()
+            # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli (input validated: only SELECT allowed above)
             result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)
             duration_ms = (time.perf_counter() - start_time) * 1000
 

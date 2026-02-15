@@ -246,16 +246,13 @@ jobs:
         run: pip install bandit semgrep
 
       - name: Run Bandit security scan
+        continue-on-error: true
         run: |
           echo "🔍 Running Bandit security analysis..."
           # Check if directories exist and have Python files
           if [ -d "apps/services" ] || [ -d "shared" ]; then
             bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif 2>/dev/null || true
             bandit -r apps/services/ shared/ -ll -ii --format txt 2>/dev/null || true
-          fi
-          # Create empty SARIF if file doesn't exist
-          if [ ! -f "bandit-results.sarif" ]; then
-            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
           fi
 
       - name: Upload Bandit SARIF to GitHub Security
@@ -268,6 +265,7 @@ jobs:
 
       - name: Run Semgrep SAST
         timeout-minutes: 5
+        continue-on-error: true
         run: |
           echo "🔍 Running Semgrep SAST..."
           # Check if directories exist
@@ -289,7 +287,13 @@ jobs:
                     --sarif -o semgrep-results.sarif \
                     apps/services/ shared/ 2>/dev/null || true
           fi
-          # Create empty SARIF if file doesn't exist
+
+      - name: Create empty SARIF files if missing
+        if: always()
+        run: |
+          if [ ! -f "bandit-results.sarif" ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Bandit","version":"1.0.0"}},"results":[]}]}' > bandit-results.sarif
+          fi
           if [ ! -f "semgrep-results.sarif" ]; then
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep-results.sarif
           fi

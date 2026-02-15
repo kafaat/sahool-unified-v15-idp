@@ -17,6 +17,7 @@ import {
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { TasksService } from "./tasks.service";
+import { TaskType, Priority, TaskState } from "@prisma/client";
 import {
   IsString,
   IsOptional,
@@ -105,7 +106,7 @@ export class TasksController {
     @Param("fieldId", ParseUUIDPipe) fieldId: string,
     @Query("status") status?: string,
   ) {
-    const tasks = await this.tasksService.getTasksForField(fieldId, status);
+    const tasks = await this.tasksService.getTasksForField(fieldId, status as TaskState | undefined);
     return {
       success: true,
       data: tasks,
@@ -125,6 +126,8 @@ export class TasksController {
   ) {
     const task = await this.tasksService.createTask({
       ...dto,
+      taskType: dto.taskType as TaskType,
+      priority: dto.priority as Priority | undefined,
       dueDate: dto.dueDate ? new Date(dto.dueDate) : undefined,
     });
     return {
@@ -147,7 +150,7 @@ export class TasksController {
   ) {
     const task = await this.tasksService.updateTaskStatus(
       id,
-      dto.status,
+      dto.status as TaskState,
       dto.completionNotes,
       dto.actualMinutes,
     );

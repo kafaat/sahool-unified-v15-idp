@@ -16,7 +16,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 try:
-    from fastapi.testclient import TestClient
+    import fastapi.testclient  # noqa: F401
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 

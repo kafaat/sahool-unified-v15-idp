@@ -12,7 +12,6 @@ from src.events.publisher import (
     publish_event,
     publish_pest_detection,
     publish_disease_detection,
-    publish_weed_detection,
     publish_analysis_event,
 )
 

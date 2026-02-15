@@ -8,7 +8,6 @@ import pytest
 
 try:
     import pydantic  # noqa: F401
-    import nats  # noqa: F401
 except ImportError:
     pytest.skip("alert-service dependencies not installed", allow_module_level=True)
 

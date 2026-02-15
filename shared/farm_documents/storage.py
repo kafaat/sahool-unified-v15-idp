@@ -117,8 +117,15 @@ class LocalStorageProvider(StorageProvider):
     """
 
     def __init__(self, base_path: str):
-        self.base_path = Path(base_path)
+        self.base_path = Path(base_path).resolve()
         self.base_path.mkdir(parents=True, exist_ok=True)
+
+    def _safe_path(self, storage_path: str) -> Path:
+        """Resolve path and prevent path traversal outside base_path."""
+        full_path = (self.base_path / storage_path).resolve()
+        if not full_path.is_relative_to(self.base_path):
+            raise ValueError(f"Path traversal detected: {storage_path}")
+        return full_path
 
     async def store(
         self,
@@ -126,7 +133,7 @@ class LocalStorageProvider(StorageProvider):
         storage_path: str,
     ) -> str:
         """Store file on local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._safe_path(storage_path)
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
         with open(full_path, "wb") as f:
@@ -142,7 +149,7 @@ class LocalStorageProvider(StorageProvider):
 
     async def retrieve(self, storage_path: str) -> bytes:
         """Retrieve file from local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._safe_path(storage_path)
 
         if not full_path.exists():
             raise FileNotFoundError(f"Document not found: {storage_path}")
@@ -152,7 +159,7 @@ class LocalStorageProvider(StorageProvider):
 
     async def delete(self, storage_path: str) -> bool:
         """Delete file from local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._safe_path(storage_path)
 
         if full_path.exists():
             full_path.unlink()
@@ -163,12 +170,12 @@ class LocalStorageProvider(StorageProvider):
 
     async def exists(self, storage_path: str) -> bool:
         """Check if file exists on local filesystem"""
-        full_path = self.base_path / storage_path
+        full_path = self._safe_path(storage_path)
         return full_path.exists()
 
     async def get_url(self, storage_path: str, expires_in: int = 3600) -> str:
         """Get local file path as URL"""
-        full_path = self.base_path / storage_path
+        full_path = self._safe_path(storage_path)
         return f"file://{full_path}"
 
 

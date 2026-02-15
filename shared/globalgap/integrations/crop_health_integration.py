@@ -50,7 +50,7 @@ from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from shared.events.publisher import EventPublisher
 
@@ -187,13 +187,7 @@ class PestDetectionRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class PPPApplicationRecord(BaseModel):
@@ -268,13 +262,7 @@ class PPPApplicationRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        use_enum_values = True
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class IPMReport(BaseModel):
@@ -376,12 +364,7 @@ class IPMReport(BaseModel):
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     generated_by: UUID | None = Field(None, description="User who generated report")
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        }
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

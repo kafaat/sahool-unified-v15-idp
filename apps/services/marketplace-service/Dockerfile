@@ -23,6 +23,7 @@ WORKDIR /workspace/marketplace-service
 
 # Install dependencies with retry loop for network resilience
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3 4 5; do \
         echo "Attempt $i: Installing npm dependencies..." && \
         npm install --legacy-peer-deps \
@@ -34,7 +35,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
 # Generate Prisma client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -66,6 +69,7 @@ COPY --from=builder /workspace/marketplace-service/package.json ./
 COPY --from=builder /workspace/marketplace-service/package-lock.json ./
 # Install production dependencies with retry loop
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..." && \
         (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -85,7 +89,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund) && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

@@ -99,7 +99,7 @@ async def lifespan(app: FastAPI):
     try:
         publisher = await get_publisher()
         app.state.publisher = publisher
-        print("✅ Weather Core ready on port 8108")
+        print("✅ Weather Core ready on port 8092")
     except Exception as e:
         print(f"⚠️ NATS connection failed: {e}")
         app.state.publisher = None
@@ -373,6 +373,23 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             )
             provider = "Open-Meteo"
 
+        # Publish forecast issued event
+        event_id = None
+        publisher = getattr(app.state, "publisher", None)
+        if publisher and forecast:
+            try:
+                event_id = await publisher.publish_forecast_issued(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    provider=provider,
+                    days=len(forecast),
+                    correlation_id=req.correlation_id,
+                )
+            except Exception as pub_err:
+                import logging
+
+                logging.getLogger(__name__).warning("nats_publish_failed: %s", pub_err)
+
         return {
             "field_id": req.field_id,
             "location": {"lat": req.lat, "lon": req.lon},
@@ -394,6 +411,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
                 for f in forecast
             ],
             "days": len(forecast),
+            "event_id": event_id,
         }
 
     except (ExternalServiceException, InternalServerException):
@@ -663,6 +681,26 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
         wind_speed_kmh=wind_speed_kmh,
     )
 
+    # Publish alerts via NATS (consistent with /weather/current)
+    event_ids = []
+    publisher = getattr(app.state, "publisher", None)
+    if publisher and alerts:
+        for alert in alerts:
+            try:
+                event_id = await publisher.publish_weather_alert(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    alert_type=alert.alert_type,
+                    severity=alert.severity,
+                    window_hours=alert.window_hours,
+                    title_ar=alert.title_ar,
+                    title_en=alert.title_en,
+                    correlation_id=req.correlation_id,
+                )
+                event_ids.append(event_id)
+            except Exception:
+                pass
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
@@ -673,6 +711,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
         "irrigation_adjustment": irrigation,
         "alerts": [a.to_dict() for a in alerts],
         "alert_count": len(alerts),
+        "event_ids": event_ids,
     }
 
 
@@ -743,10 +782,29 @@ async def assess_frost_risk(req: FrostRiskRequest, user: User = Depends(get_curr
         dew_point_c=req.dew_point_c,
     )
 
+    # Publish alert for high/critical frost risk
+    event_id = None
+    if result.get("frost_likely"):
+        publisher = getattr(app.state, "publisher", None)
+        if publisher:
+            try:
+                event_id = await publisher.publish_weather_alert(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    alert_type="frost_risk",
+                    severity=result["risk_level"],
+                    window_hours=12,
+                    title_ar=result.get("recommendation_ar", "خطر صقيع"),
+                    title_en=result.get("recommendation_en", "Frost risk"),
+                )
+            except Exception:
+                pass
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
         "frost_risk": result,
+        "event_id": event_id,
     }
 
 
@@ -768,10 +826,29 @@ async def assess_heat_stress(req: HeatStressRequest, user: User = Depends(get_cu
         wind_speed_kmh=req.wind_speed_kmh,
     )
 
+    # Publish alert for severe/extreme heat stress
+    event_id = None
+    if result.get("is_critical"):
+        publisher = getattr(app.state, "publisher", None)
+        if publisher:
+            try:
+                event_id = await publisher.publish_weather_alert(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    alert_type="heat_stress",
+                    severity=result["stress_level"],
+                    window_hours=24,
+                    title_ar=result.get("recommendation_ar", "إجهاد حراري"),
+                    title_en=result.get("recommendation_en", "Heat stress"),
+                )
+            except Exception:
+                pass
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
         "heat_stress": result,
+        "event_id": event_id,
     }
 
 
@@ -820,10 +897,29 @@ async def calculate_drought(req: DroughtIndexRequest, user: User = Depends(get_c
         days=req.days,
     )
 
+    # Publish alert for severe/extreme drought
+    event_id = None
+    if result.get("drought_level") in ("severe", "extreme"):
+        publisher = getattr(app.state, "publisher", None)
+        if publisher:
+            try:
+                event_id = await publisher.publish_weather_alert(
+                    tenant_id=req.tenant_id,
+                    field_id=req.field_id,
+                    alert_type="drought",
+                    severity=result["drought_level"],
+                    window_hours=48,
+                    title_ar=result.get("recommendation_ar", "جفاف"),
+                    title_en=result.get("recommendation_en", "Drought"),
+                )
+            except Exception:
+                pass
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
         "drought_index": result,
+        "event_id": event_id,
     }
 
 

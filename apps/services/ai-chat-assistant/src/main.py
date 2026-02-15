@@ -169,17 +169,17 @@ async def metrics():
 
     # Format as Prometheus metrics
     metrics_lines = [
-        '# HELP ai_chat_cache_entries Total number of cached entries',
-        '# TYPE ai_chat_cache_entries gauge',
-        f'ai_chat_cache_entries {cache_stats.get("total_entries", 0)}',
-        '',
-        '# HELP ai_chat_cache_hits Total number of cache hits',
-        '# TYPE ai_chat_cache_hits counter',
-        f'ai_chat_cache_hits {cache_stats.get("total_hits", 0)}',
-        '',
-        '# HELP ai_chat_cache_hit_rate Average cache hit rate',
-        '# TYPE ai_chat_cache_hit_rate gauge',
-        f'ai_chat_cache_hit_rate {cache_stats.get("avg_hits_per_entry", 0)}',
+        "# HELP ai_chat_cache_entries Total number of cached entries",
+        "# TYPE ai_chat_cache_entries gauge",
+        f"ai_chat_cache_entries {cache_stats.get('total_entries', 0)}",
+        "",
+        "# HELP ai_chat_cache_hits Total number of cache hits",
+        "# TYPE ai_chat_cache_hits counter",
+        f"ai_chat_cache_hits {cache_stats.get('total_hits', 0)}",
+        "",
+        "# HELP ai_chat_cache_hit_rate Average cache hit rate",
+        "# TYPE ai_chat_cache_hit_rate gauge",
+        f"ai_chat_cache_hit_rate {cache_stats.get('avg_hits_per_entry', 0)}",
     ]
 
     return "\n".join(metrics_lines)

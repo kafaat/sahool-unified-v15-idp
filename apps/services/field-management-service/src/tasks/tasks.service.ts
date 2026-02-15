@@ -5,6 +5,7 @@
 import { Injectable, NotFoundException, Logger } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService, CACHE_KEYS, CACHE_TTL } from "../cache/cache.service";
+import { TaskType, Priority, TaskState, Prisma } from "@prisma/client";
 
 @Injectable()
 export class TasksService {
@@ -18,7 +19,7 @@ export class TasksService {
   /**
    * Get tasks for a field
    */
-  async getTasksForField(fieldId: string, status?: string) {
+  async getTasksForField(fieldId: string, status?: TaskState) {
     const cacheKey = CACHE_KEYS.TASK_LIST(fieldId);
 
     // Try cache if no status filter
@@ -27,7 +28,7 @@ export class TasksService {
       if (cached) return cached;
     }
 
-    const where: any = { fieldId };
+    const where: Prisma.TaskWhereInput = { fieldId };
     if (status) where.status = status;
 
     const tasks = await this.prisma.task.findMany({
@@ -71,8 +72,8 @@ export class TasksService {
     title: string;
     titleAr?: string;
     description?: string;
-    taskType: string;
-    priority?: string;
+    taskType: TaskType;
+    priority?: Priority;
     dueDate?: Date;
     scheduledTime?: string;
     assignedTo?: string;
@@ -85,9 +86,9 @@ export class TasksService {
         title: data.title,
         titleAr: data.titleAr,
         description: data.description,
-        taskType: data.taskType as any,
-        priority: (data.priority as any) || "medium",
-        status: "pending",
+        taskType: data.taskType,
+        priority: data.priority || Priority.medium,
+        status: TaskState.pending,
         dueDate: data.dueDate,
         scheduledTime: data.scheduledTime,
         assignedTo: data.assignedTo,
@@ -109,7 +110,7 @@ export class TasksService {
    */
   async updateTaskStatus(
     id: string,
-    status: string,
+    status: TaskState,
     completionNotes?: string,
     actualMinutes?: number,
   ) {
@@ -125,8 +126,8 @@ export class TasksService {
     const updated = await this.prisma.task.update({
       where: { id },
       data: {
-        status: status as any,
-        completedAt: status === "completed" ? new Date() : null,
+        status,
+        completedAt: status === TaskState.completed ? new Date() : null,
         completionNotes,
         actualMinutes,
       },
@@ -146,8 +147,8 @@ export class TasksService {
   async getOverdueTasks(tenantId?: string) {
     const now = new Date();
 
-    const where: any = {
-      status: { in: ["pending", "in_progress"] },
+    const where: Prisma.TaskWhereInput = {
+      status: { in: [TaskState.pending, TaskState.in_progress] },
       dueDate: { lt: now },
     };
 

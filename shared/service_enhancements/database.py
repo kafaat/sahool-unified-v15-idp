@@ -130,8 +130,14 @@ class QueryBuilder:
         sql, params = query.build()
     """
 
+    # Only allow alphanumeric table names, underscores, and optional schema prefix
+    _TABLE_NAME_PATTERN = __import__("re").compile(r"^[a-zA-Z_][a-zA-Z0-9_.]*$")
+
     def __init__(self, table: str):
-        self.table = table
+        if not self._TABLE_NAME_PATTERN.match(table):
+            raise ValueError(f"Invalid table name: {table}")
+        # Quote the identifier to prevent SQL injection
+        self.table = '"' + table.replace('"', '') + '"'
         self._columns: list[str] = ["*"]
         self._conditions: list[str] = []
         self._params: list[Any] = []
@@ -204,11 +210,13 @@ class QueryBuilder:
         if self._order_by:
             parts.append(f"ORDER BY {self._order_by}")
 
-        # Add pagination
+        # Add pagination using parameterized values
         if self._limit is not None:
-            parts.append(f"LIMIT {self._limit}")
+            self._params.append(int(self._limit))
+            parts.append(f"LIMIT ${len(self._params)}")
         if self._offset is not None:
-            parts.append(f"OFFSET {self._offset}")
+            self._params.append(int(self._offset))
+            parts.append(f"OFFSET ${len(self._params)}")
 
         return " ".join(parts), self._params
 
@@ -282,10 +290,13 @@ class DatabaseOptimizer:
         self._slow_query_threshold_ms = 100
 
     async def analyze_query(self, sql: str, *params) -> dict[str, Any]:
-        """Analyze query execution plan."""
+        """Analyze query execution plan. Only SELECT queries are allowed."""
+        stripped = sql.strip()
+        if not stripped.upper().startswith("SELECT"):
+            raise ValueError("Only SELECT queries can be analyzed")
         async with self.pool.acquire() as conn:
             start_time = time.perf_counter()
-            result = await conn.fetch(f"EXPLAIN ANALYZE {sql}", *params)
+            result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             return {

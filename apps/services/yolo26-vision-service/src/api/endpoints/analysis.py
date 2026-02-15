@@ -15,7 +15,7 @@ from uuid import uuid4
 
 import numpy as np
 import structlog
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 from PIL import Image
 
 from src.api.schemas import (
@@ -33,6 +33,7 @@ from src.api.schemas import (
     TrackedObject,
 )
 from src.core.config import settings
+from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
     ModelTask,
@@ -41,6 +42,15 @@ from src.models.yolo26_manager import (
 )
 
 logger = structlog.get_logger(__name__)
+
+
+def _get_event_publisher(request) -> VisionEventPublisher | None:
+    """Get event publisher from app state if NATS is connected."""
+    nc = getattr(request.app.state, "nc", None)
+    nats_connected = getattr(request.app.state, "nats_connected", False)
+    if nc and nats_connected:
+        return VisionEventPublisher(nc)
+    return None
 
 router = APIRouter(prefix="/api/v1", tags=["analysis"])
 
@@ -317,6 +327,7 @@ def create_tracking_visualization(
     description="Count individual plants with optional density map generation.",
 )
 async def count_plants(
+    request: Request,
     file: Annotated[UploadFile, File(description="Image file to analyze")],
     confidence_threshold: Annotated[float, Query(ge=0.0, le=1.0)] = 0.3,
     model_variant: ModelVariant = ModelVariant.MEDIUM,
@@ -410,6 +421,17 @@ async def count_plants(
             density_per_sqm=density_per_sqm,
             processing_time_ms=round(processing_time, 2),
         )
+
+        # Publish NATS event
+        publisher = _get_event_publisher(request)
+        if publisher and total_count > 0:
+            await publisher.publish_plant_count_completed(
+                request_id=request_id,
+                total_count=total_count,
+                processing_time_ms=processing_time,
+                model_variant=model_variant.value,
+                density_per_sqm=round(density_per_sqm, 2) if density_per_sqm else None,
+            )
 
         return PlantCountResponse(
             request_id=request_id,

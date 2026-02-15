@@ -28,10 +28,20 @@ RUN groupadd --system sahool && \
 
 # Configure pip for better network resilience with fallback mirrors (before any pip commands)
 RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "trusted-host = pypi.org files.pythonhosted.org mirrors.aliyun.com" >> /root/.pip/pip.conf
+    cat > /root/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+[install]
+prefer-binary = true
+EOF
 
 # Upgrade pip and install build tools with fallback to Aliyun mirror
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies

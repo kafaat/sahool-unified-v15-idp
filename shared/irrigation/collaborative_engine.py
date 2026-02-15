@@ -22,7 +22,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from typing import Any, Callable
 from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
 
@@ -254,7 +254,7 @@ class DefaultProgramGenerator(ProgramGenerator):
             growth_stage=context.get("growth_stage", ""),
             schedules=schedules,
             start_date=start_time,
-            end_date=start_time.replace(day=start_time.day + 7),
+            end_date=start_time + timedelta(days=7),
             expected_water_usage_m3=expected_water,
             generated_by="ai",
             generation_model="default_rule_based_v1",

@@ -41,7 +41,11 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
-trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF

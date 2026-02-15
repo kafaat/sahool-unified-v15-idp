@@ -145,7 +145,7 @@ class TwoFactorAuthService:
 
         # Validate token format
         if not token.isdigit() or len(token) != TOTP_DIGITS:
-            logger.warning(f"Invalid TOTP token format: {token}")
+            logger.warning("Invalid TOTP token format: non-numeric or wrong length")
             return False
 
         totp = pyotp.TOTP(
@@ -225,10 +225,13 @@ class TwoFactorAuthService:
         # Hash the provided code
         code_hash = self.hash_backup_code(code)
 
-        # Check if it matches any stored hash
-        if code_hash in hashed_codes:
-            logger.info("Backup code verified successfully")
-            return True, code_hash
+        # Constant-time comparison to prevent timing attacks
+        import hmac
+
+        for stored_hash in hashed_codes:
+            if hmac.compare_digest(code_hash, stored_hash):
+                logger.info("Backup code verified successfully")
+                return True, stored_hash
 
         logger.warning("Backup code verification failed")
         return False, None

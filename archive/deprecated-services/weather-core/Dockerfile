@@ -37,11 +37,15 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
-timeout = 600
+timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
-extra-index-url = https://pypi.org/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
 trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF
@@ -55,13 +59,17 @@ RUN pip install --no-cache-dir --upgrade \
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/weather-core/requirements.txt /tmp/requirements.txt
 
-RUN pip install --no-cache-dir --timeout=600 --retries=10 \
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -r /tmp/requirements.txt || \
-    (sleep 5 && pip install --no-cache-dir --timeout=600 --retries=10 \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r /tmp/requirements.txt)
+    -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Runtime | المرحلة 2: وقت التشغيل

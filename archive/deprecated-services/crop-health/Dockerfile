@@ -32,12 +32,20 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
+    cat > /root/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+[install]
+prefer-binary = true
+EOF
 
 # Install dependencies (using shared requirements)
 COPY apps/services/crop-health/requirements.txt .
@@ -48,8 +56,18 @@ COPY shared/ ./shared/
 # Copy source
 COPY apps/services/crop-health/src/ ./src/
 
-# Install dependencies and set ownership
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r requirements.txt && \
+# Install dependencies with resilient multi-mirror fallback strategy and set ownership
+RUN (pip install --no-cache-dir --timeout=600 --retries=5 \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r requirements.txt) && \
     chown -R sahool:sahool /app
 
 USER sahool

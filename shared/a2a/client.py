@@ -276,7 +276,7 @@ class A2AClient:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
                     str(agent_card.task_endpoint),
-                    json=task.dict(),
+                    json=task.model_dump(),
                     headers={
                         "Content-Type": "application/json",
                         "X-A2A-Protocol-Version": "1.0",
@@ -382,7 +382,7 @@ class A2AClient:
             async with websockets.connect(ws_url) as websocket:
                 # Send task
                 # إرسال المهمة
-                await websocket.send(task.json())
+                await websocket.send(task.model_dump_json())
 
                 logger.info(
                     "streaming_task_sent",

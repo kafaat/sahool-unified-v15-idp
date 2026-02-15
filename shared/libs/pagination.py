@@ -49,7 +49,7 @@ class Page(Generic[T]):
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
-            "items": [item.dict() if hasattr(item, "dict") else item for item in self.items],
+            "items": [item.model_dump() if hasattr(item, "model_dump") else item for item in self.items],
             "page_info": {
                 "has_next_page": self.page_info.has_next_page,
                 "has_previous_page": self.page_info.has_previous_page,
@@ -73,7 +73,7 @@ class OffsetPage(Generic[T]):
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization"""
         return {
-            "items": [item.dict() if hasattr(item, "dict") else item for item in self.items],
+            "items": [item.model_dump() if hasattr(item, "model_dump") else item for item in self.items],
             "pagination": {
                 "total": self.total,
                 "page": self.page,
@@ -354,8 +354,8 @@ class StreamingResponse:
             first = False
 
             # Serialize item
-            if hasattr(item, "dict"):
-                item_json = json.dumps(item.dict())
+            if hasattr(item, "model_dump"):
+                item_json = json.dumps(item.model_dump())
             elif hasattr(item, "__dict__"):
                 item_json = json.dumps(item.__dict__)
             else:
@@ -390,8 +390,8 @@ class StreamingResponse:
         """
         async for item in items:
             # Serialize item
-            if hasattr(item, "dict"):
-                item_json = json.dumps(item.dict())
+            if hasattr(item, "model_dump"):
+                item_json = json.dumps(item.model_dump())
             elif hasattr(item, "__dict__"):
                 item_json = json.dumps(item.__dict__)
             else:

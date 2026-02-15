@@ -123,7 +123,7 @@ class TrainingDataset:
             f.write(self.to_jsonl())
 
     @classmethod
-    def load(cls, path: str, dataset_id: str = None) -> TrainingDataset:
+    def load(cls, path: str, dataset_id: str | None = None) -> TrainingDataset:
         """Load dataset from JSONL file."""
         examples = []
         with open(path, encoding="utf-8") as f:

@@ -25,6 +25,7 @@ COPY packages/field-shared ./packages/field-shared
 WORKDIR /app/packages/field-shared
 # Use retry loop and npm cache for resilience against network issues
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing field-shared dependencies..." && \
         npm install --legacy-peer-deps \
@@ -36,7 +37,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && npm run build && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done || (echo "field-shared build failed after retries" && exit 1)
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
 
 # Return to app directory and install dependencies
 WORKDIR /app
@@ -47,6 +50,7 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-sh
 
 # Install dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing service dependencies..." && \
         npm install --legacy-peer-deps \
@@ -58,7 +62,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done || (echo "npm install failed after retries" && exit 1)
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema (required for prisma generate)
 COPY apps/services/field-management-service/prisma ./prisma
@@ -107,6 +113,7 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-sh
 
 # Install production dependencies only with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..." && \
         npm install --omit=dev --legacy-peer-deps \
@@ -118,7 +125,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done || (echo "npm install production failed after retries" && exit 1)
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

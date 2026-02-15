@@ -91,7 +91,7 @@ class A2AServer:
                             error_code="UNSUPPORTED_MESSAGE_TYPE",
                             error_message=f"Unsupported message type: {message_dict.get('message_type')}",
                         )
-                        await websocket.send_text(error.json())
+                        await websocket.send_text(error.model_dump_json())
 
                 except Exception as e:
                     # Send error message
@@ -101,7 +101,7 @@ class A2AServer:
                         error_code="MESSAGE_PARSE_ERROR",
                         error_message=str(e),
                     )
-                    await websocket.send_text(error.json())
+                    await websocket.send_text(error.model_dump_json())
                     logger.error("websocket_message_error", client_id=client_id, error=str(e))
 
         except WebSocketDisconnect:
@@ -140,7 +140,7 @@ class A2AServer:
                 partial_result=partial_result,
                 is_final=False,
             )
-            await websocket.send_text(update.json())
+            await websocket.send_text(update.model_dump_json())
 
         try:
             # Handle task with progress callback
@@ -149,7 +149,7 @@ class A2AServer:
 
             # Send final result
             # إرسال النتيجة النهائية
-            await websocket.send_text(result.json())
+            await websocket.send_text(result.model_dump_json())
 
         except Exception as e:
             # Send error
@@ -161,7 +161,7 @@ class A2AServer:
                 error_code="TASK_EXECUTION_ERROR",
                 error_message=str(e),
             )
-            await websocket.send_text(error.json())
+            await websocket.send_text(error.model_dump_json())
 
 
 def create_a2a_router(agent: A2AAgent, prefix: str = "/a2a") -> APIRouter:

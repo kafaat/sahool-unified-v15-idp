@@ -81,10 +81,7 @@ class NATSEventHandler:
             data = json.loads(msg.data.decode())
             query = AIQuery(**data)
 
-            logger.info(
-                f"Received AI query from user {query.user_id}: "
-                f"{query.query[:50]}... (lang: {query.language})"
-            )
+            logger.info(f"Received AI query from user {query.user_id}: {query.query[:50]}... (lang: {query.language})")
 
             # Process query
             response = await self._process_query(query)

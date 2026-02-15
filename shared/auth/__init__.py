@@ -234,7 +234,6 @@ __all__ = [
     "is_service_request",
     # Token Revocation
     "RedisTokenRevocationStore",
-    "get_revocation_store",
     "revoke_token",
     "revoke_all_user_tokens",
     "is_token_revoked",

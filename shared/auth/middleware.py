@@ -257,7 +257,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.exclude_paths = exclude_paths or ["/health", "/docs", "/redoc", "/metrics"]
 
         # Redis connection (lazy initialized)
-        self._redis_url = redis_url or config.REDIS_URL if hasattr(config, "REDIS_URL") else None
+        self._redis_url = redis_url or (config.REDIS_URL if hasattr(config, "REDIS_URL") else None)
         self._redis = None
         self._redis_available = False
 

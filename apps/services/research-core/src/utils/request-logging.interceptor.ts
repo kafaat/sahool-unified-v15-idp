@@ -133,7 +133,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
           duration,
         );
       }),
-      catchError((error) => {
+      catchError((error: Error & { status?: number }) => {
         const duration = Date.now() - startTime;
         this.logError(
           request,
@@ -246,7 +246,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
   private logError(
     request: ExtendedRequest,
     response: Response,
-    error: any,
+    error: Error & { status?: number },
     correlationId: string,
     tenantId: string | undefined,
     userId: string | undefined,

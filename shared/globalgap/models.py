@@ -12,7 +12,7 @@ from datetime import UTC, date, datetime
 from enum import StrEnum
 from uuid import uuid4
 
-from pydantic import BaseModel, Field, HttpUrl, ValidationInfo, field_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, ValidationInfo, field_validator
 
 from .constants import (
     GGN_FORMAT_PATTERN,
@@ -60,8 +60,7 @@ class ChecklistItem(BaseModel):
 
     order: int = Field(..., description="Display order within category")
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ChecklistCategory(BaseModel):
@@ -133,8 +132,7 @@ class ComplianceRequirement(BaseModel):
         else:
             return True  # Recommendations always pass
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class AuditFinding(BaseModel):
@@ -169,10 +167,7 @@ class AuditFinding(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict()
 
 
 class NonConformanceSeverity(StrEnum):
@@ -218,11 +213,7 @@ class NonConformance(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class CorrectiveActionStatus(StrEnum):
@@ -273,12 +264,7 @@ class CorrectiveAction(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ProducerProfile(BaseModel):
@@ -321,6 +307,8 @@ class ProducerProfile(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
+    model_config = ConfigDict()
+
     @field_validator("email")
     @classmethod
     def validate_email(cls, v: str) -> str:
@@ -328,11 +316,6 @@ class ProducerProfile(BaseModel):
         if "@" not in v:
             raise ValueError("Invalid email address")
         return v.lower()
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-        }
 
 
 class FarmRegistration(BaseModel):
@@ -422,11 +405,7 @@ class FarmRegistration(BaseModel):
             raise ValueError("Certified area cannot exceed total farm size")
         return v
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
+    model_config = ConfigDict()
 
 
 class AuditSession(BaseModel):
@@ -487,9 +466,4 @@ class AuditSession(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        }
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

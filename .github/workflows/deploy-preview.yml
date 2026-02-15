@@ -126,7 +126,7 @@ jobs:
             ---
 
             > ⏱️ آخر تحديث: ${new Date().toISOString()}
-            > 📝 Commit: \`${{ github.event.pull_request.head.sha.substring(0, 7) }}\`
+            > 📝 Commit: \`${context.payload.pull_request.head.sha.substring(0, 7)}\`
             `;
 
             // Find existing comment

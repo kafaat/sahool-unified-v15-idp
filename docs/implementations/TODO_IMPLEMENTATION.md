@@ -8,8 +8,8 @@
 
 ## TODO #1: Database Migration - Move from In-Memory Storage to PostgreSQL
 
-**Status**: URGENT - IN PROGRESS
-**Location**: `main.py` (multiple endpoints)
+**Status**: COMPLETED ✅
+**Location**: `routes/tasks.py` (all endpoints migrated)
 **Priority**: HIGH
 **Effort**: MEDIUM
 
@@ -245,53 +245,53 @@ Configuration:
 
 | TODO | Status | Effort | Priority | Notes |
 |------|--------|--------|----------|-------|
-| Database Migration | IN PROGRESS | 4-5 hrs | HIGH | 22 endpoint changes needed |
+| Database Migration | COMPLETED ✅ | 4-5 hrs | HIGH | All endpoints migrated to PostgreSQL via TaskRepository |
 | NDVI Integration | COMPLETED ✅ | - | - | Already implemented |
 | Field Manager Lookup | COMPLETED ✅ | - | - | Already implemented |
-| In-Memory Storage Removal | BLOCKED | - | HIGH | Depends on Database Migration |
+| In-Memory Storage Removal | COMPLETED ✅ | - | HIGH | No in-memory dicts remain; all routes use DB |
 
 ---
 
 ## Implementation Checklist
 
-### Phase 1: Straightforward Endpoints (READY TO START)
-- [ ] `get_task()` - single read
-- [ ] `delete_task()` - single delete
-- [ ] `start_task()` - status update
-- [ ] `cancel_task()` - status update
+### Phase 1: Straightforward Endpoints ✅ COMPLETED
+- [x] `get_task()` - single read via `TaskRepository.get_task_by_id()`
+- [x] `delete_task()` - single delete via `TaskRepository.delete_task()`
+- [x] `start_task()` - status update via `TaskRepository.start_task()`
+- [x] `cancel_task()` - status update via `TaskRepository.cancel_task()`
 
-### Phase 2: Complex Endpoints (AFTER DATABASE FOUNDATION)
-- [ ] `create_task()` - with astronomical enrichment
-- [ ] `update_task()` - with history tracking
-- [ ] `complete_task()` - with evidence handling
-- [ ] `add_evidence()` - task evidence
+### Phase 2: Complex Endpoints ✅ COMPLETED
+- [x] `create_task()` - with astronomical enrichment + `TaskRepository.create_task()`
+- [x] `update_task()` - with history tracking via `TaskRepository.update_task()`
+- [x] `complete_task()` - with evidence handling via `TaskRepository.complete_task()`
+- [x] `add_evidence()` - task evidence via `TaskRepository.add_evidence()`
 
-### Phase 3: Analytics Endpoints (AFTER CORE)
-- [ ] `list_tasks()` - already uses repository!
-- [ ] `get_task_stats()` - repository has method
-- [ ] `get_today_tasks()` - refactor to use repo
-- [ ] `get_upcoming_tasks()` - refactor to use repo
+### Phase 3: Analytics Endpoints ✅ COMPLETED
+- [x] `list_tasks()` - uses `TaskRepository.list_tasks()` with full filtering
+- [x] `get_task_stats()` - uses `TaskRepository.get_task_stats()`
+- [x] `get_today_tasks()` - refactored to use `TaskRepository.list_tasks()`
+- [x] `get_upcoming_tasks()` - refactored to use `TaskRepository.list_tasks()`
 
-### Phase 4: NDVI Endpoints (VERIFY ONLY)
-- [ ] `create_task_from_ndvi_alert()` - verify database integration
-- [ ] `get_task_suggestions_for_field()` - verify NDVI client works
-- [ ] `auto_create_tasks()` - verify batch creation works
-- [ ] `get_field_health()` - verify NDVI client calls
-
----
-
-## Files Modified
-
-- `/home/user/sahool-unified-v15-idp/apps/services/task-service/src/main.py` - endpoint refactoring
-- No changes to: `database.py`, `repository.py`, `models.py`, `ndvi_client.py` (already correct)
+### Phase 4: NDVI Endpoints ✅ VERIFIED
+- [x] `create_task_from_ndvi_alert()` - database integration confirmed
+- [x] `get_task_suggestions_for_field()` - NDVI client integration works
+- [x] `auto_create_tasks()` - batch creation via database works
+- [x] `get_field_health()` - NDVI client calls confirmed
 
 ---
 
-## Next Steps
+## Architecture
 
-1. Start with Phase 1 endpoints (straightforward)
-2. Verify each endpoint works with database
-3. Run tests to ensure no regressions
-4. Move to Phase 2 endpoints
-5. Verify NDVI integration still works after migration
-6. Remove in-memory storage dictionaries
+All task endpoints are in `routes/tasks.py`, `routes/astronomical.py`, and `routes/ndvi.py`.
+Each endpoint uses `db: Session = Depends(get_db)` and `TaskRepository(db)` for database access.
+No in-memory storage dictionaries (`tasks_db`, `evidence_db`) exist in the codebase.
+
+## Files
+
+- `apps/services/task-service/src/main.py` - FastAPI app with lifecycle management
+- `apps/services/task-service/src/routes/tasks.py` - Task CRUD routes (all use DB)
+- `apps/services/task-service/src/routes/astronomical.py` - Astronomical calendar routes
+- `apps/services/task-service/src/routes/ndvi.py` - NDVI integration routes
+- `apps/services/task-service/src/repository.py` - TaskRepository (sync + async)
+- `apps/services/task-service/src/database.py` - Database configuration & session management
+- `apps/services/task-service/src/models.py` - SQLAlchemy ORM models (Task, TaskEvidence, TaskHistory)

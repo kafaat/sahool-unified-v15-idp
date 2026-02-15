@@ -727,7 +727,7 @@ lib/
 
 ### Coverage Requirements
 
-- **Minimum**: 10% code coverage (enforced in CI via `fail_under = 10`)
+- **Minimum**: 25% code coverage (enforced in CI via `fail_under = 25`)
 - Coverage report: `coverage.xml` and `coverage_html/`
 
 ### Test Environment Variables
@@ -1209,7 +1209,7 @@ docker-compose --profile legacy up
 | ai-advisor               | Python  | 8112 | AI advisory service         |
 | ai-agents-core           | Python  | 8161 | AI agents core module       |
 | ai-agents-service        | Python  | 8130 | AI agents service           |
-| ai-chat-assistant        | Python  | 8230 | AI chat assistant (port conflict with supply-chain-service) |
+| ai-chat-assistant        | Python  | 8260 | AI chat assistant           |
 | llm-orchestrator-service | Python  | 8164 | LLM orchestration           |
 | copilot-api              | Python  | 8088 | AI copilot (multi-LLM, RAG) |
 | knowledge-graph          | Python  | 8140 | Knowledge graph service     |

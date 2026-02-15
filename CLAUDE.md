@@ -32,7 +32,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 77 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 73 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -40,7 +40,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (28 npm workspaces)
+├── packages/                   # Shared packages (25 npm workspaces)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -219,7 +219,7 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (19)      |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (32)      |
 | **CI/CD**        | GitHub Actions (48 workflows), Argo CD (18 apps)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
@@ -957,7 +957,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.secrets.yml` | Secrets management                       |
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (28 workspaces)       |
+| `package.json`                  | Node.js root workspace (25 packages + services) |
 | `.env.example`                  | Environment template                         |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1048,7 +1048,7 @@ GitHub Workflows (48):
 
 ### Overview
 
-Total deprecated: **11 services** (8 archived + 3 active-deprecated).
+Total deprecated: **11 services** (all archived).
 All deprecated services emit HTTP headers (RFC 8594): `X-API-Deprecated: true`, `X-API-Sunset`, `Deprecation: true`.
 Active-deprecated services require `--profile deprecated` to start.
 
@@ -1070,13 +1070,13 @@ This service has been migrated to [new-service]
 | `field-core`         | `field-management-service`    | Legacy           | v17.0.0     |
 | `field-service`      | `field-management-service`    | Legacy           | v17.0.0     |
 
-### Active Deprecated Services (3) - In `apps/services/`, profile: `deprecated`
+### Previously Active Deprecated Services (3) - Now Archived
 
-| Deprecated Service   | Replaced By                   | Deprecation Date | Port |
-| -------------------- | ----------------------------- | ---------------- | ---- |
-| `agro-advisor`       | `advisory-service`            | 2025-01-06       | 8105 |
-| `ndvi-engine`        | `vegetation-analysis-service` | 2026-01-06       | 8107 |
-| `weather-core`       | `weather-service`             | Implicit         | 8108 |
+| Deprecated Service   | Replaced By                   | Deprecation Date | Archived   |
+| -------------------- | ----------------------------- | ---------------- | ---------- |
+| `agro-advisor`       | `advisory-service`            | 2025-01-06       | 2026-02    |
+| `ndvi-engine`        | `vegetation-analysis-service` | 2026-01-06       | 2026-02    |
+| `weather-core`       | `weather-service`             | Implicit         | 2026-02    |
 
 ### Migration Documentation
 
@@ -1103,16 +1103,14 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 75 microservices (67 active, 5 skeleton, 3 empty) + 4 applications (admin, web, mobile, kernel)
+**Platform Totals**: 73 microservices (75 active in registry, 11 archived) + 4 applications (admin, web, mobile, kernel)
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 67 | Fully implemented with real code |
-| Skeleton | 5 | Structure exists, minimal code (<500 LOC) |
-| Empty | 3 | No implementation (agro-rules, community-chat, demo-data) |
-| Deprecated | 11 | 8 archived + 3 active-deprecated (see Deprecated Services) |
+| Active | 75 | Registered in governance/services.yaml as active |
+| Archived | 11 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications
 
@@ -1148,8 +1146,10 @@ docker-compose --profile legacy up
 | field-intelligence           | Python  | 8120 | Field analytics                |
 | lai-estimation               | Node.js | 3022 | Leaf Area Index estimation     |
 | skills-service               | Python  | 8121 | Farmer skills assessment       |
-| soil-analysis-service        | Python  | 8124 | Soil analysis (skeleton)       |
+| soil-analysis-service        | Python  | 8134 | Soil analysis                  |
 | pest-detection-service       | Python  | 8125 | Pest detection AI              |
+| digital-twin-engine          | Python  | 8253 | Digital twin simulation        |
+| yield-prediction-service     | Node.js | 8152 | Yield prediction ML (NestJS)   |
 
 ### Decision & Advisory
 
@@ -1158,10 +1158,9 @@ docker-compose --profile legacy up
 | crop-growth-model        | Node.js | 3023 | Crop growth simulation       |
 | advisory-service         | Python  | 8093 | Advisory & recommendations   |
 | irrigation-smart         | Python  | 8094 | Smart irrigation             |
-| yield-prediction-service | Python  | 8152 | Yield prediction ML          |
 | yield-prediction         | Node.js | 3021 | Yield prediction (legacy)    |
 | yield-engine             | Python  | 8098 | Yield estimation (legacy)    |
-| agro-rules               | Python  | -    | Agronomic rules engine (empty, worker-only) |
+| agro-rules               | Python  | 8151 | Agronomic rules engine       |
 
 ### Integration & IoT
 
@@ -1176,6 +1175,8 @@ docker-compose --profile legacy up
 | mcp-server            | Python  | 8200 | Model Context Protocol (skeleton) |
 | astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
 | drone-service         | Python  | 8126 | Drone integration (skeleton) |
+| ussd-gateway          | Python  | 8183 | USSD gateway                 |
+| whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 | ussd-gateway          | Python  | 8183 | USSD gateway                 |
 | whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 
@@ -1204,7 +1205,7 @@ docker-compose --profile legacy up
 | ------------------------ | ------- | ---- | --------------------------- |
 | agent-registry           | Python  | 8160 | Agent registry service      |
 | code-fix-agent           | Python  | 8162 | Code fix AI agent           |
-| code-review-agent        | Python  | 8145 | Code review agent           |
+| code-review-agent        | Node.js | 8145 | Code review agent (NestJS)  |
 | code-review-service      | Python  | 8102 | Code review service         |
 | ai-advisor               | Python  | 8112 | AI advisory service         |
 | ai-agents-core           | Python  | 8161 | AI agents core module       |
@@ -1233,7 +1234,7 @@ docker-compose --profile legacy up
 | irrigation-cycle-engine   | Python  | 8250 | Irrigation cycle optimization    |
 | digital-twin-engine       | Python  | 8253 | Digital twin simulation          |
 | lowcode-engine            | Python  | 8132 | Low-code workflow automation     |
-| demo-data                 | Python  | -    | Demo data generator (empty)      |
+| demo-data                 | Python  | 8261 | Demo data generator              |
 
 ---
 
@@ -2518,7 +2519,48 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Shared Agricultural Domain Modules
 
-The `shared/` directory contains 64+ Python modules organized by domain. Beyond the core infrastructure (auth, cache, events, middleware, etc.) and AI modules documented above, the platform includes extensive agricultural domain libraries:
+The `shared/` directory contains 64+ Python modules organized by domain. Below is the complete listing:
+
+### Core Infrastructure
+
+| Module | Purpose |
+|--------|---------|
+| `auth/` | Authentication (JWT, 2FA, token revocation) |
+| `cache/` | Caching layer (Redis Sentinel HA) |
+| `contracts/` | API contracts & event schemas |
+| `db/` | Database utilities |
+| `domain/` | Domain models (auth, users, tenancy) |
+| `events/` | NATS event definitions & DLQ |
+| `file_validation/` | File upload validation & virus scanning |
+| `guardrails/` | AI safety guardrails |
+| `libs/` | Shared libraries (outbox, audit, caching) |
+| `middleware/` | HTTP middleware (rate limiting, CORS, logging) |
+| `monitoring/` | Prometheus metrics & SLI/SLO |
+| `observability/` | OpenTelemetry, Jaeger tracing |
+| `security/` | RBAC, JWT, policy engine |
+| `secrets/` | HashiCorp Vault integration |
+| `telemetry/` | Distributed tracing |
+| `versioning/` | API versioning utilities |
+| `notification_preferences/` | Notification preference management |
+| `audit_trail/` | Audit trail utilities |
+| `service_enhancements/` | Service improvement modules |
+| `templates/` | Configuration/code templates |
+| `integrations/` | External system integrations |
+| `python-lib/` | Python library utilities |
+
+### AI & Intelligence
+
+| Module | Purpose |
+|--------|---------|
+| `ai/` | AI utilities, Auto-Fix Engine, context engineering |
+| `a2a/` | Agent-to-Agent protocol (Linux Foundation) |
+| `agents/` | CrewAI multi-agent orchestration |
+| `llm/` | LLM provider config & routing |
+| `mcp/` | Model Context Protocol |
+| `nlp/` | Arabic NLP (AraBERT) |
+| `satellite/` | Sentinel Hub NDVI integration |
+| `ml/` | AgML agricultural datasets |
+| `crm/` | Farmer CRM module |
 
 ### Crop & Field Management
 

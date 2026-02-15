@@ -168,12 +168,7 @@ class SpringReport(BaseModel):
         None, description="Yemen context (AR) / السياق اليمني"
     )
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-        },
-    )
+    model_config = ConfigDict()
 
 
 # ==================== Report Generator Class ====================

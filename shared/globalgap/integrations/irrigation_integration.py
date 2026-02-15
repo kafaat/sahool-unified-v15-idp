@@ -147,14 +147,7 @@ class WaterUsageRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(
-        use_enum_values=True,
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class WaterUsageReport(BaseModel):
@@ -234,13 +227,7 @@ class WaterUsageReport(BaseModel):
     generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     generated_by: UUID | None = Field(None, description="User who generated report")
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict()
 
 
 class SPRINGCompliance(BaseModel):
@@ -293,13 +280,7 @@ class SPRINGCompliance(BaseModel):
 
     assessed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

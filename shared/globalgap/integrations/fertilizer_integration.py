@@ -212,14 +212,7 @@ class FertilizerApplicationRecord(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(
-        use_enum_values=True,
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class NutrientRequirement(BaseModel):
@@ -243,11 +236,7 @@ class NutrientRequirement(BaseModel):
     deficit_kg_per_ha: float | None = Field(None, description="Deficit amount in kg per hectare")
     is_deficient: bool = Field(default=False, description="Is deficient")
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-        },
-    )
+    model_config = ConfigDict()
 
 
 class NutrientManagementPlan(BaseModel):
@@ -351,13 +340,7 @@ class NutrientManagementPlan(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict()
 
 
 class MRLComplianceCheck(BaseModel):
@@ -406,13 +389,7 @@ class MRLComplianceCheck(BaseModel):
 
     checked_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-            date: lambda v: v.isoformat(),
-            UUID: lambda v: str(v),
-        },
-    )
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

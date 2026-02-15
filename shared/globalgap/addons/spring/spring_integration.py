@@ -92,11 +92,7 @@ class WaterUsageAlert(BaseModel):
     is_resolved: bool = Field(False, description="Alert resolved / تم حل التنبيه")
     resolved_date: datetime | None = Field(None, description="Resolution date / تاريخ الحل")
 
-    model_config = ConfigDict(
-        json_encoders={
-            datetime: lambda v: v.isoformat(),
-        },
-    )
+    model_config = ConfigDict()
 
 
 # ==================== Water Footprint Models ====================

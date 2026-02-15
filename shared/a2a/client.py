@@ -382,7 +382,7 @@ class A2AClient:
             async with websockets.connect(ws_url) as websocket:
                 # Send task
                 # إرسال المهمة
-                await websocket.send(task.json())
+                await websocket.send(task.model_dump_json())
 
                 logger.info(
                     "streaming_task_sent",

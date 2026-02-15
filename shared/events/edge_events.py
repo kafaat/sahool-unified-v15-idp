@@ -267,10 +267,7 @@ class BaseEdgeEvent(BaseModel):
         """Return the event type name (class name)"""
         return self.__class__.__name__
 
-    model_config = ConfigDict(populate_by_name=True, json_encoders={
-        datetime: lambda v: v.isoformat(),
-        UUID: lambda v: str(v),
-    })
+    model_config = ConfigDict(populate_by_name=True)
 
 
 # ─────────────────────────────────────────────────────────────────────────────

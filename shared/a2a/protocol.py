@@ -59,9 +59,7 @@ class A2AMessage(BaseModel):
     conversation_id: str | None = None
     metadata: dict[str, Any] | None = Field(default_factory=dict)
 
-    model_config = ConfigDict(use_enum_values=True, json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class TaskMessage(A2AMessage):

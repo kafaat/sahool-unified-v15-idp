@@ -100,9 +100,7 @@ class AgentCard(BaseModel):
     )
     last_updated: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict()
 
     def to_well_known_format(self) -> dict[str, Any]:
         """

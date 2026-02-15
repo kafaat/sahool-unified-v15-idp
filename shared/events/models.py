@@ -66,10 +66,7 @@ class EventMetadata(BaseModel):
 class BaseEvent(BaseModel):
     """Base class for all SAHOOL events with common metadata."""
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-        UUID: lambda v: str(v),
-    })
+    model_config = ConfigDict()
 
 
 # ─────────────────────────────────────────────────────────────────────────────

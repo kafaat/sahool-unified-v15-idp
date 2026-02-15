@@ -167,9 +167,7 @@ class AuditFinding(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict()
 
 
 class NonConformanceSeverity(StrEnum):
@@ -215,9 +213,7 @@ class NonConformance(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(use_enum_values=True, json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class CorrectiveActionStatus(StrEnum):
@@ -268,10 +264,7 @@ class CorrectiveAction(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(use_enum_values=True, json_encoders={
-        datetime: lambda v: v.isoformat(),
-        date: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class ProducerProfile(BaseModel):
@@ -314,9 +307,7 @@ class ProducerProfile(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict()
 
     @field_validator("email")
     @classmethod
@@ -414,10 +405,7 @@ class FarmRegistration(BaseModel):
             raise ValueError("Certified area cannot exceed total farm size")
         return v
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-        date: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict()
 
 
 class AuditSession(BaseModel):
@@ -478,7 +466,4 @@ class AuditSession(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
-    model_config = ConfigDict(use_enum_values=True, json_encoders={
-        datetime: lambda v: v.isoformat(),
-        date: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict(use_enum_values=True)

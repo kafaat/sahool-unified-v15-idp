@@ -296,9 +296,7 @@ class FieldBoundary(BaseModel):
     # Additional metadata | بيانات وصفية إضافية
     metadata: dict[str, Any] = Field(default_factory=dict)
 
-    model_config = ConfigDict(json_encoders={
-        datetime: lambda v: v.isoformat(),
-    })
+    model_config = ConfigDict()
 
     def to_geojson_feature(self) -> dict[str, Any]:
         """

@@ -353,8 +353,8 @@ class RateLimitError(VisionError):
         )
 
 
-class TimeoutError(VisionError):
-    """Timeout error."""
+class VisionTimeoutError(VisionError):
+    """Timeout error for vision operations."""
 
     def __init__(self, timeout: float):
         super().__init__(

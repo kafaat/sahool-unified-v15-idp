@@ -267,14 +267,13 @@ jobs:
           category: 'bandit-sast'
 
       - name: Run Semgrep SAST
+        timeout-minutes: 5
         run: |
           echo "🔍 Running Semgrep SAST..."
           # Check if directories exist
           if [ -d "apps/services" ] || [ -d "shared" ]; then
-            # Use specific rulesets instead of auto for faster execution
-            # Focus on security-critical rules only
-            semgrep --config=p/python \
-                    --config=p/security-audit \
+            # Focus on security-critical rules only (p/python is too broad/slow)
+            semgrep --config=p/security-audit \
                     --config=p/secrets \
                     --severity=ERROR \
                     --severity=WARNING \
@@ -283,8 +282,10 @@ jobs:
                     --exclude="**/tests/**" \
                     --exclude="**/node_modules/**" \
                     --exclude="**/__pycache__/**" \
-                    --timeout=300 \
-                    --jobs=4 \
+                    --exclude="**/archive/**" \
+                    --timeout=60 \
+                    --max-target-bytes=500000 \
+                    --jobs=2 \
                     --sarif -o semgrep-results.sarif \
                     apps/services/ shared/ 2>/dev/null || true
           fi

@@ -8,7 +8,7 @@ Advanced user activity tracking and analytics system
 
 import uuid
 from collections import Counter, defaultdict
-from datetime import UTC, date, datetime, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 from typing import Any
 
 from .models import (
@@ -351,8 +351,8 @@ class UserAnalyticsService:
             # Check if user was active on target day
             events = self.storage.get_user_events(
                 user_id=user_id,
-                start_date=datetime.combine(target_date, datetime.min.time()),
-                end_date=datetime.combine(target_date, datetime.max.time()),
+                start_date=datetime.combine(target_date, time.min),
+                end_date=datetime.combine(target_date, time.max),
             )
             if events:
                 active_users += 1
@@ -435,8 +435,8 @@ class UserAnalyticsService:
         if not date_val:
             date_val = date.today()
 
-        start_time = datetime.combine(date_val, datetime.min.time())
-        end_time = datetime.combine(date_val, datetime.max.time())
+        start_time = datetime.combine(date_val, time.min)
+        end_time = datetime.combine(date_val, time.max)
 
         events = self.storage.get_events_in_range(start_time, end_time)
         return len({event.user_id for event in events})
@@ -455,8 +455,8 @@ class UserAnalyticsService:
         if not week_start:
             week_start = date.today() - timedelta(days=7)
 
-        start_time = datetime.combine(week_start, datetime.min.time())
-        end_time = datetime.combine(week_start + timedelta(days=7), datetime.max.time())
+        start_time = datetime.combine(week_start, time.min)
+        end_time = datetime.combine(week_start + timedelta(days=7), time.max)
 
         events = self.storage.get_events_in_range(start_time, end_time)
         return len({event.user_id for event in events})
@@ -475,8 +475,8 @@ class UserAnalyticsService:
         if not month_start:
             month_start = date.today() - timedelta(days=30)
 
-        start_time = datetime.combine(month_start, datetime.min.time())
-        end_time = datetime.combine(month_start + timedelta(days=30), datetime.max.time())
+        start_time = datetime.combine(month_start, time.min)
+        end_time = datetime.combine(month_start + timedelta(days=30), time.max)
 
         events = self.storage.get_events_in_range(start_time, end_time)
         return len({event.user_id for event in events})
@@ -559,10 +559,10 @@ class UserAnalyticsService:
         for event in events:
             if event.crop_type:
                 crops.add(event.crop_type)
-            if event.field_id:
-                # يمكن أيضاً الحصول على المحاصيل من الحقول
-                # Can also get crops from fields
-                crops.add(event.field_id)
+            if event.field_id and not event.crop_type:
+                # تخطي الحقول التي تم إضافة محصولها بالفعل
+                # Skip fields whose crop was already added above
+                pass
 
         return len(crops)
 
@@ -949,7 +949,7 @@ class InMemoryStorage:
         """
         # البحث عن المستخدمين الذين سجلوا في الفترة المحددة
         # Find users who signed up in the specified period
-        start = datetime.combine(cohort_period, datetime.min.time())
+        start = datetime.combine(cohort_period, time.min)
         end = start + timedelta(days=30)  # شهر واحد - One month
 
         signup_events = [

@@ -1122,8 +1122,8 @@
 <strong>Service</strong>: <code>/home/user/sahool-unified-v15-idp/apps/services/task-service/src/</code></p>
 <hr />
 <h2 id="todo-1-database-migration-move-from-in-memory-storage-to-postgresql">TODO #1: Database Migration - Move from In-Memory Storage to PostgreSQL<a class="headerlink" href="#todo-1-database-migration-move-from-in-memory-storage-to-postgresql" title="Permanent link">&para;</a></h2>
-<p><strong>Status</strong>: URGENT - IN PROGRESS
-<strong>Location</strong>: <code>main.py</code> (multiple endpoints)
+<p><strong>Status</strong>: COMPLETED ✅
+<strong>Location</strong>: <code>routes/tasks.py</code> (all endpoints migrated)
 <strong>Priority</strong>: HIGH
 <strong>Effort</strong>: MEDIUM</p>
 <h3 id="issue-description">Issue Description<a class="headerlink" href="#issue-description" title="Permanent link">&para;</a></h3>
@@ -1329,10 +1329,10 @@
 <tbody>
 <tr>
 <td>Database Migration</td>
-<td>IN PROGRESS</td>
+<td>COMPLETED ✅</td>
 <td>4-5 hrs</td>
 <td>HIGH</td>
-<td>22 endpoint changes needed</td>
+<td>All endpoints migrated to PostgreSQL via TaskRepository</td>
 </tr>
 <tr>
 <td>NDVI Integration</td>
@@ -1350,59 +1350,58 @@
 </tr>
 <tr>
 <td>In-Memory Storage Removal</td>
-<td>BLOCKED</td>
+<td>COMPLETED ✅</td>
 <td>-</td>
 <td>HIGH</td>
-<td>Depends on Database Migration</td>
+<td>No in-memory dicts remain; all routes use DB</td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="implementation-checklist">Implementation Checklist<a class="headerlink" href="#implementation-checklist" title="Permanent link">&para;</a></h2>
-<h3 id="phase-1-straightforward-endpoints-ready-to-start">Phase 1: Straightforward Endpoints (READY TO START)<a class="headerlink" href="#phase-1-straightforward-endpoints-ready-to-start" title="Permanent link">&para;</a></h3>
+<h3 id="phase-1-straightforward-endpoints-completed">Phase 1: Straightforward Endpoints ✅ COMPLETED<a class="headerlink" href="#phase-1-straightforward-endpoints-completed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] <code>get_task()</code> - single read</li>
-<li>[ ] <code>delete_task()</code> - single delete</li>
-<li>[ ] <code>start_task()</code> - status update</li>
-<li>[ ] <code>cancel_task()</code> - status update</li>
+<li>[x] <code>get_task()</code> - single read via <code>TaskRepository.get_task_by_id()</code></li>
+<li>[x] <code>delete_task()</code> - single delete via <code>TaskRepository.delete_task()</code></li>
+<li>[x] <code>start_task()</code> - status update via <code>TaskRepository.start_task()</code></li>
+<li>[x] <code>cancel_task()</code> - status update via <code>TaskRepository.cancel_task()</code></li>
 </ul>
-<h3 id="phase-2-complex-endpoints-after-database-foundation">Phase 2: Complex Endpoints (AFTER DATABASE FOUNDATION)<a class="headerlink" href="#phase-2-complex-endpoints-after-database-foundation" title="Permanent link">&para;</a></h3>
+<h3 id="phase-2-complex-endpoints-completed">Phase 2: Complex Endpoints ✅ COMPLETED<a class="headerlink" href="#phase-2-complex-endpoints-completed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] <code>create_task()</code> - with astronomical enrichment</li>
-<li>[ ] <code>update_task()</code> - with history tracking</li>
-<li>[ ] <code>complete_task()</code> - with evidence handling</li>
-<li>[ ] <code>add_evidence()</code> - task evidence</li>
+<li>[x] <code>create_task()</code> - with astronomical enrichment + <code>TaskRepository.create_task()</code></li>
+<li>[x] <code>update_task()</code> - with history tracking via <code>TaskRepository.update_task()</code></li>
+<li>[x] <code>complete_task()</code> - with evidence handling via <code>TaskRepository.complete_task()</code></li>
+<li>[x] <code>add_evidence()</code> - task evidence via <code>TaskRepository.add_evidence()</code></li>
 </ul>
-<h3 id="phase-3-analytics-endpoints-after-core">Phase 3: Analytics Endpoints (AFTER CORE)<a class="headerlink" href="#phase-3-analytics-endpoints-after-core" title="Permanent link">&para;</a></h3>
+<h3 id="phase-3-analytics-endpoints-completed">Phase 3: Analytics Endpoints ✅ COMPLETED<a class="headerlink" href="#phase-3-analytics-endpoints-completed" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] <code>list_tasks()</code> - already uses repository!</li>
-<li>[ ] <code>get_task_stats()</code> - repository has method</li>
-<li>[ ] <code>get_today_tasks()</code> - refactor to use repo</li>
-<li>[ ] <code>get_upcoming_tasks()</code> - refactor to use repo</li>
+<li>[x] <code>list_tasks()</code> - uses <code>TaskRepository.list_tasks()</code> with full filtering</li>
+<li>[x] <code>get_task_stats()</code> - uses <code>TaskRepository.get_task_stats()</code></li>
+<li>[x] <code>get_today_tasks()</code> - refactored to use <code>TaskRepository.list_tasks()</code></li>
+<li>[x] <code>get_upcoming_tasks()</code> - refactored to use <code>TaskRepository.list_tasks()</code></li>
 </ul>
-<h3 id="phase-4-ndvi-endpoints-verify-only">Phase 4: NDVI Endpoints (VERIFY ONLY)<a class="headerlink" href="#phase-4-ndvi-endpoints-verify-only" title="Permanent link">&para;</a></h3>
+<h3 id="phase-4-ndvi-endpoints-verified">Phase 4: NDVI Endpoints ✅ VERIFIED<a class="headerlink" href="#phase-4-ndvi-endpoints-verified" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] <code>create_task_from_ndvi_alert()</code> - verify database integration</li>
-<li>[ ] <code>get_task_suggestions_for_field()</code> - verify NDVI client works</li>
-<li>[ ] <code>auto_create_tasks()</code> - verify batch creation works</li>
-<li>[ ] <code>get_field_health()</code> - verify NDVI client calls</li>
-</ul>
-<hr />
-<h2 id="files-modified">Files Modified<a class="headerlink" href="#files-modified" title="Permanent link">&para;</a></h2>
-<ul>
-<li><code>/home/user/sahool-unified-v15-idp/apps/services/task-service/src/main.py</code> - endpoint refactoring</li>
-<li>No changes to: <code>database.py</code>, <code>repository.py</code>, <code>models.py</code>, <code>ndvi_client.py</code> (already correct)</li>
+<li>[x] <code>create_task_from_ndvi_alert()</code> - database integration confirmed</li>
+<li>[x] <code>get_task_suggestions_for_field()</code> - NDVI client integration works</li>
+<li>[x] <code>auto_create_tasks()</code> - batch creation via database works</li>
+<li>[x] <code>get_field_health()</code> - NDVI client calls confirmed</li>
 </ul>
 <hr />
-<h2 id="next-steps">Next Steps<a class="headerlink" href="#next-steps" title="Permanent link">&para;</a></h2>
-<ol>
-<li>Start with Phase 1 endpoints (straightforward)</li>
-<li>Verify each endpoint works with database</li>
-<li>Run tests to ensure no regressions</li>
-<li>Move to Phase 2 endpoints</li>
-<li>Verify NDVI integration still works after migration</li>
-<li>Remove in-memory storage dictionaries</li>
-</ol>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<p>All task endpoints are in <code>routes/tasks.py</code>, <code>routes/astronomical.py</code>, and <code>routes/ndvi.py</code>.
+Each endpoint uses <code>db: Session = Depends(get_db)</code> and <code>TaskRepository(db)</code> for database access.
+No in-memory storage dictionaries (<code>tasks_db</code>, <code>evidence_db</code>) exist in the codebase.</p>
+<h2 id="files">Files<a class="headerlink" href="#files" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>apps/services/task-service/src/main.py</code> - FastAPI app with lifecycle management</li>
+<li><code>apps/services/task-service/src/routes/tasks.py</code> - Task CRUD routes (all use DB)</li>
+<li><code>apps/services/task-service/src/routes/astronomical.py</code> - Astronomical calendar routes</li>
+<li><code>apps/services/task-service/src/routes/ndvi.py</code> - NDVI integration routes</li>
+<li><code>apps/services/task-service/src/repository.py</code> - TaskRepository (sync + async)</li>
+<li><code>apps/services/task-service/src/database.py</code> - Database configuration &amp; session management</li>
+<li><code>apps/services/task-service/src/models.py</code> - SQLAlchemy ORM models (Task, TaskEvidence, TaskHistory)</li>
+</ul>
 
 
 

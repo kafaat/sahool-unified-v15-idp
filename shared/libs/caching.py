@@ -100,10 +100,20 @@ class InMemoryCache:
         if key in self._expiry:
             del self._expiry[key]
 
-    async def clear(self) -> None:
-        """Clear all cache"""
-        self._cache.clear()
-        self._expiry.clear()
+    async def clear(self, pattern: str = "*") -> None:
+        """Clear all cache or keys matching pattern"""
+        if pattern == "*":
+            # Clear all
+            self._cache.clear()
+            self._expiry.clear()
+        else:
+            # Clear keys matching pattern (simple glob pattern support)
+            import fnmatch
+            keys_to_delete = [key for key in self._cache.keys() if fnmatch.fnmatch(key, pattern)]
+            for key in keys_to_delete:
+                del self._cache[key]
+                if key in self._expiry:
+                    del self._expiry[key]
 
     async def exists(self, key: str) -> bool:
         """Check if key exists in cache"""

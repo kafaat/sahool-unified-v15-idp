@@ -17,7 +17,7 @@ Tests cover:
 import json
 import math
 import pytest
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, AsyncMock, patch
 
 from shared.soil_sensors.models import (
@@ -87,7 +87,7 @@ def sample_calibration() -> SensorCalibration:
     """Create a sample calibration for testing"""
     return SensorCalibration(
         sensor_id="sensor_001",
-        calibrated_at=datetime.utcnow(),
+        calibrated_at=datetime.now(UTC),
         calibrated_by="technician_001",
         dry_value=200,
         wet_value=800,
@@ -105,7 +105,7 @@ def sample_reading() -> SensorReading:
     """Create a sample sensor reading for testing"""
     return SensorReading(
         sensor_id="sensor_001",
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(UTC),
         reading_type=SensorType.MOISTURE,
         value=45.0,
         unit="%",
@@ -201,7 +201,7 @@ class TestSensorReading:
         """Test SensorReading default values"""
         reading = SensorReading(
             sensor_id="test",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             reading_type=SensorType.MOISTURE,
             value=50.0,
             unit="%",
@@ -217,7 +217,7 @@ class TestSensorReading:
     @pytest.mark.unit
     def test_sensor_reading_with_all_fields(self):
         """Test SensorReading with all optional fields populated"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         reading = SensorReading(
             sensor_id="sensor_002",
             timestamp=now,
@@ -349,7 +349,7 @@ class TestSensorCalibration:
         """Test calibration with offset and scale factors"""
         calibration = SensorCalibration(
             sensor_id="test",
-            calibrated_at=datetime.utcnow(),
+            calibrated_at=datetime.now(UTC),
             calibrated_by="tech",
             dry_value=0,
             wet_value=100,
@@ -368,7 +368,7 @@ class TestSensorCalibration:
         """Test calibration when dry and wet values are the same (edge case)"""
         calibration = SensorCalibration(
             sensor_id="test",
-            calibrated_at=datetime.utcnow(),
+            calibrated_at=datetime.now(UTC),
             calibrated_by="tech",
             dry_value=500,
             wet_value=500,  # Same as dry
@@ -386,7 +386,7 @@ class TestSensorAlert:
     @pytest.mark.unit
     def test_sensor_alert_creation(self):
         """Test basic SensorAlert creation"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         alert = SensorAlert(
             alert_id="alert_001",
             sensor_id="sensor_001",
@@ -411,7 +411,7 @@ class TestSensorAlert:
     @pytest.mark.unit
     def test_sensor_alert_to_dict(self):
         """Test SensorAlert to_dict method"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         alert = SensorAlert(
             alert_id="alert_001",
             sensor_id="sensor_001",
@@ -446,7 +446,7 @@ class TestFieldMoistureMap:
         """Test basic FieldMoistureMap creation"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             grid_resolution_m=10,
             min_lat=24.0,
             max_lat=24.1,
@@ -471,7 +471,7 @@ class TestSensorAggregation:
     @pytest.mark.unit
     def test_sensor_aggregation_creation(self):
         """Test basic SensorAggregation creation"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         agg = SensorAggregation(
             sensor_id="sensor_001",
             field_id="field_456",
@@ -574,7 +574,7 @@ class TestMQTTAdapter:
     def test_mqtt_parse_sahool_format(self, adapter_config, sample_sensor):
         """Test parsing SAHOOL standard format payload"""
         adapter = MQTTAdapter(adapter_config)
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         payload = json.dumps(
             {
                 "value": 45.5,
@@ -978,7 +978,7 @@ class TestHTTPAdapter:
         """Test parsing Sensoterra webhook format"""
         config = AdapterConfig(protocol=SensorProtocol.HTTP)
         adapter = HTTPAdapter(config)
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         payload = json.dumps(
             {
@@ -1393,7 +1393,7 @@ class TestSensorDataProcessorCalibration:
         # Create reading with raw value at midpoint (500)
         reading = SensorReading(
             sensor_id=sample_sensor.id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             reading_type=SensorType.MOISTURE,
             value=500,  # Raw value
             unit="%",
@@ -1424,7 +1424,7 @@ class TestSensorDataProcessorAnomalies:
         for i in range(5):
             reading = SensorReading(
                 sensor_id=sample_sensor.id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=45.0 + i,
                 unit="%",
@@ -1444,7 +1444,7 @@ class TestSensorDataProcessorAnomalies:
         sample_sensor.critical_max = None
         processor.register_sensor(sample_sensor)
 
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
 
         # Add 15 normal readings around 50%
         for i in range(15):
@@ -1460,7 +1460,7 @@ class TestSensorDataProcessorAnomalies:
         # Add an anomalous reading (far from mean)
         anomalous_reading = SensorReading(
             sensor_id=sample_sensor.id,
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             reading_type=SensorType.MOISTURE,
             value=90.0,  # Way outside normal range
             unit="%",
@@ -1490,7 +1490,7 @@ class TestSensorDataProcessorAggregation:
         for i in range(5):
             reading = SensorReading(
                 sensor_id=sample_sensor.id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=40.0 + i * 2,
                 unit="%",
@@ -1521,7 +1521,7 @@ class TestSensorDataProcessorAggregation:
         processor = SensorDataProcessor("field_456", "tenant_123")
         processor.register_sensor(sample_sensor)
 
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
 
         # Add readings with known values
         values = [40.0, 45.0, 50.0, 55.0, 60.0]
@@ -1560,7 +1560,7 @@ class TestSensorDataProcessorAggregation:
         processor = SensorDataProcessor("field_456", "tenant_123")
         processor.register_sensor(sample_sensor)
 
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
 
         # Add increasing values
         for i in range(10):
@@ -1584,7 +1584,7 @@ class TestSensorDataProcessorAggregation:
         processor = SensorDataProcessor("field_456", "tenant_123")
         processor.register_sensor(sample_sensor)
 
-        base_time = datetime.utcnow()
+        base_time = datetime.now(UTC)
 
         # Add decreasing values
         for i in range(10):
@@ -1767,7 +1767,7 @@ class TestDetectAnomalies:
         readings = [
             SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=50.0 + i,
                 unit="%",
@@ -1784,7 +1784,7 @@ class TestDetectAnomalies:
         readings = [
             SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=50.0 + (i % 3 - 1),  # 49, 50, 51
                 unit="%",
@@ -1801,7 +1801,7 @@ class TestDetectAnomalies:
         readings = [
             SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=50.0,  # Normal value
                 unit="%",
@@ -1813,7 +1813,7 @@ class TestDetectAnomalies:
         readings.append(
             SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=100.0,  # Outlier
                 unit="%",
@@ -1830,7 +1830,7 @@ class TestDetectAnomalies:
         readings = [
             SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=50.0 + (i - 7),  # Range 43-57
                 unit="%",
@@ -1887,7 +1887,7 @@ class TestInterpolateFieldMoisture:
 
         reading = SensorReading(
             sensor_id="sensor_001",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             reading_type=SensorType.MOISTURE,
             value=50.0,
             unit="%",
@@ -1942,14 +1942,14 @@ class TestInterpolateFieldMoisture:
         readings = {
             "sensor_001": SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=20.0,  # Dry
                 unit="%",
             ),
             "sensor_002": SensorReading(
                 sensor_id="sensor_002",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=80.0,  # Wet
                 unit="%",
@@ -1988,7 +1988,7 @@ class TestInterpolateFieldMoisture:
         readings = {
             "sensor_001": SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=50.0,
                 unit="%",
@@ -2030,7 +2030,7 @@ class TestInterpolateFieldMoisture:
         readings = {
             "sensor_001": SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=20.0,  # Very dry
                 unit="%",
@@ -2069,7 +2069,7 @@ class TestInterpolateFieldMoisture:
         readings = {
             "sensor_001": SensorReading(
                 sensor_id="sensor_001",
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=85.0,  # Very wet
                 unit="%",
@@ -2100,7 +2100,7 @@ class TestGenerateMoistureAlert:
         """Test no alert with empty moisture grid"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             moisture_grid=[],
         )
 
@@ -2112,7 +2112,7 @@ class TestGenerateMoistureAlert:
         """Test critical dry alert (avg < 25%)"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             moisture_grid=[[20.0, 22.0], [18.0, 24.0]],
             avg_moisture=21.0,
             dry_zones=[{"lat": 24.0, "lng": 46.0, "moisture": 18.0}],
@@ -2132,7 +2132,7 @@ class TestGenerateMoistureAlert:
         """Test warning dry alert (25% <= avg < 35%)"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             moisture_grid=[[30.0, 32.0], [28.0, 34.0]],
             avg_moisture=31.0,
         )
@@ -2149,7 +2149,7 @@ class TestGenerateMoistureAlert:
         """Test waterlogged alert (avg > 80%)"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             moisture_grid=[[85.0, 82.0], [88.0, 84.0]],
             avg_moisture=84.75,
             wet_zones=[{"lat": 24.0, "lng": 46.0, "moisture": 88.0}],
@@ -2168,7 +2168,7 @@ class TestGenerateMoistureAlert:
         """Test no alert for normal moisture (35% <= avg <= 80%)"""
         moisture_map = FieldMoistureMap(
             field_id="field_456",
-            timestamp=datetime.utcnow(),
+            timestamp=datetime.now(UTC),
             moisture_grid=[[50.0, 55.0], [52.0, 58.0]],
             avg_moisture=53.75,
         )
@@ -2279,7 +2279,7 @@ class TestErrorHandling:
         """Test calibration handles edge cases gracefully"""
         calibration = SensorCalibration(
             sensor_id="test",
-            calibrated_at=datetime.utcnow(),
+            calibrated_at=datetime.now(UTC),
             calibrated_by="tech",
             dry_value=0,
             wet_value=1000,
@@ -2311,7 +2311,7 @@ class TestErrorHandling:
         # Add reading from far past
         old_reading = SensorReading(
             sensor_id=sample_sensor.id,
-            timestamp=datetime.utcnow() - timedelta(days=30),
+            timestamp=datetime.now(UTC) - timedelta(days=30),
             reading_type=SensorType.MOISTURE,
             value=50.0,
             unit="%",
@@ -2342,7 +2342,7 @@ class TestReadingStorageTrimming:
         for i in range(15):
             reading = SensorReading(
                 sensor_id=sample_sensor.id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(UTC),
                 reading_type=SensorType.MOISTURE,
                 value=float(i),
                 unit="%",

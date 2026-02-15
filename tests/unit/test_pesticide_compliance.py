@@ -5,7 +5,7 @@ Tests for PHI, REI, tank mix compatibility, spray drift risk assessment,
 PPE requirements validation, and alert generation.
 """
 
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch, MagicMock
 
 import pytest
@@ -86,7 +86,7 @@ def sample_application():
         tenant_id="tenant_001",
         field_id="field_001",
         pesticide_id="imidacloprid_200sl",
-        application_date=datetime.utcnow() - timedelta(hours=6),
+        application_date=datetime.now(UTC) - timedelta(hours=6),
         application_rate=0.5,
         application_rate_unit="L/ha",
         area_treated_ha=5.0,
@@ -274,8 +274,8 @@ class TestPHICompliance:
 
     def test_phi_compliant_harvest_date(self):
         """Test PHI compliance when harvest date is after PHI period"""
-        application_date = datetime.utcnow() - timedelta(days=25)
-        planned_harvest = datetime.utcnow() + timedelta(days=5)
+        application_date = datetime.now(UTC) - timedelta(days=25)
+        planned_harvest = datetime.now(UTC) + timedelta(days=5)
 
         # imidacloprid has 21 day PHI
         violation = check_phi_compliance(
@@ -288,8 +288,8 @@ class TestPHICompliance:
 
     def test_phi_violation_harvest_too_early(self):
         """Test PHI violation when harvest is planned too early"""
-        application_date = datetime.utcnow() - timedelta(days=10)
-        planned_harvest = datetime.utcnow() + timedelta(days=5)
+        application_date = datetime.now(UTC) - timedelta(days=10)
+        planned_harvest = datetime.now(UTC) + timedelta(days=5)
 
         # imidacloprid has 21 day PHI, so we need 21 days after application
         violation = check_phi_compliance(
@@ -308,8 +308,8 @@ class TestPHICompliance:
         # For CRITICAL status, days_remaining (earliest_harvest - planned_harvest) must be <= 3
         # If applied 19 days ago, earliest_harvest = 2 days from now
         # If planned harvest = now, days_remaining = 2 <= 3 -> CRITICAL
-        application_date = datetime.utcnow() - timedelta(days=19)
-        planned_harvest = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(days=19)
+        planned_harvest = datetime.now(UTC)
 
         violation = check_phi_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -324,16 +324,16 @@ class TestPHICompliance:
         """Test PHI check with unknown pesticide returns None"""
         violation = check_phi_compliance(
             pesticide_id="unknown_pesticide",
-            application_date=datetime.utcnow(),
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            application_date=datetime.now(UTC),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         assert violation is None
 
     def test_phi_violation_includes_recommendations(self):
         """Test PHI violation includes recommendations in both languages"""
-        application_date = datetime.utcnow() - timedelta(days=5)
-        planned_harvest = datetime.utcnow() + timedelta(days=5)
+        application_date = datetime.now(UTC) - timedelta(days=5)
+        planned_harvest = datetime.now(UTC) + timedelta(days=5)
 
         violation = check_phi_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -347,8 +347,8 @@ class TestPHICompliance:
 
     def test_phi_violation_includes_dates(self):
         """Test PHI violation includes relevant dates"""
-        application_date = datetime.utcnow() - timedelta(days=5)
-        planned_harvest = datetime.utcnow() + timedelta(days=5)
+        application_date = datetime.now(UTC) - timedelta(days=5)
+        planned_harvest = datetime.now(UTC) + timedelta(days=5)
 
         violation = check_phi_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -364,8 +364,8 @@ class TestPHICompliance:
     def test_phi_exact_boundary(self):
         """Test PHI compliance at exact boundary (harvest on last day of PHI)"""
         pesticide = get_pesticide("imidacloprid_200sl")
-        application_date = datetime.utcnow() - timedelta(days=pesticide.phi_days)
-        planned_harvest = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(days=pesticide.phi_days)
+        planned_harvest = datetime.now(UTC)
 
         violation = check_phi_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -388,8 +388,8 @@ class TestREICompliance:
 
     def test_rei_compliant_entry_after_period(self):
         """Test REI compliance when entry is after REI period"""
-        application_date = datetime.utcnow() - timedelta(hours=24)
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(hours=24)
+        entry_time = datetime.now(UTC)
 
         # imidacloprid has 12 hour REI
         violation = check_rei_compliance(
@@ -402,8 +402,8 @@ class TestREICompliance:
 
     def test_rei_violation_entry_too_early(self):
         """Test REI violation when field entry is too early"""
-        application_date = datetime.utcnow() - timedelta(hours=6)
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(hours=6)
+        entry_time = datetime.now(UTC)
 
         # imidacloprid has 12 hour REI, so entry after 6 hours is violation
         violation = check_rei_compliance(
@@ -417,8 +417,8 @@ class TestREICompliance:
 
     def test_rei_warning_status_near_end(self):
         """Test REI warning status when close to end of REI period"""
-        application_date = datetime.utcnow() - timedelta(hours=9)
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(hours=9)
+        entry_time = datetime.now(UTC)
 
         # 12 hour REI, 9 hours passed = 3 hours remaining (<= 4 hours = WARNING)
         violation = check_rei_compliance(
@@ -434,16 +434,16 @@ class TestREICompliance:
         """Test REI check with unknown pesticide returns None"""
         violation = check_rei_compliance(
             pesticide_id="unknown_pesticide",
-            application_date=datetime.utcnow(),
-            entry_time=datetime.utcnow(),
+            application_date=datetime.now(UTC),
+            entry_time=datetime.now(UTC),
         )
 
         assert violation is None
 
     def test_rei_violation_includes_safe_entry_time(self):
         """Test REI violation includes safe entry time"""
-        application_date = datetime.utcnow() - timedelta(hours=6)
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(hours=6)
+        entry_time = datetime.now(UTC)
 
         violation = check_rei_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -458,8 +458,8 @@ class TestREICompliance:
     def test_rei_early_entry_ppe_for_high_toxicity(self):
         """Test early entry PPE requirements for high toxicity pesticides"""
         # chlorpyrifos is Class II - should get enhanced PPE for early entry
-        application_date = datetime.utcnow() - timedelta(hours=6)
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC) - timedelta(hours=6)
+        entry_time = datetime.now(UTC)
 
         violation = check_rei_compliance(
             pesticide_id="chlorpyrifos_48ec",  # 24h REI, Class II
@@ -474,7 +474,7 @@ class TestREICompliance:
 
     def test_rei_default_entry_time_is_now(self):
         """Test REI check uses current time when entry_time not specified"""
-        application_date = datetime.utcnow() - timedelta(hours=1)
+        application_date = datetime.now(UTC) - timedelta(hours=1)
 
         # Should use current time by default
         violation = check_rei_compliance(
@@ -778,7 +778,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_002",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow(),
+            application_date=datetime.now(UTC),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -801,7 +801,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_003",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=10),
+            application_date=datetime.now(UTC) - timedelta(days=10),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -815,7 +815,7 @@ class TestComplianceCheckerClass:
         # Check with harvest date too early
         violations = compliance_checker.check_phi_compliance(
             field_id="field_003",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         assert len(violations) > 0
@@ -827,7 +827,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_004",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(hours=6),
+            application_date=datetime.now(UTC) - timedelta(hours=6),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -840,7 +840,7 @@ class TestComplianceCheckerClass:
 
         violations = compliance_checker.check_rei_compliance(
             field_id="field_004",
-            entry_time=datetime.utcnow(),
+            entry_time=datetime.now(UTC),
         )
 
         assert len(violations) > 0
@@ -853,7 +853,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_005",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=30),
+            application_date=datetime.now(UTC) - timedelta(days=30),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -866,7 +866,7 @@ class TestComplianceCheckerClass:
 
         result = compliance_checker.full_compliance_check(
             field_id="field_005",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=10),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=10),
         )
 
         assert result.overall_status == ComplianceStatus.COMPLIANT
@@ -880,7 +880,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_006",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=5),
+            application_date=datetime.now(UTC) - timedelta(days=5),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -893,7 +893,7 @@ class TestComplianceCheckerClass:
 
         result = compliance_checker.full_compliance_check(
             field_id="field_006",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         assert result.overall_status in [ComplianceStatus.VIOLATION, ComplianceStatus.CRITICAL]
@@ -921,7 +921,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_008",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=5),
+            application_date=datetime.now(UTC) - timedelta(days=5),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -934,7 +934,7 @@ class TestComplianceCheckerClass:
 
         result = compliance_checker.full_compliance_check(
             field_id="field_008",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         assert result.summary_en != ""
@@ -947,7 +947,7 @@ class TestComplianceCheckerClass:
             tenant_id="tenant_001",
             field_id="field_009",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=5),
+            application_date=datetime.now(UTC) - timedelta(days=5),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -960,7 +960,7 @@ class TestComplianceCheckerClass:
 
         result = compliance_checker.full_compliance_check(
             field_id="field_009",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         # Should have recommendations for violations
@@ -984,10 +984,10 @@ class TestAlertGeneration:
             pesticide_id="imidacloprid_200sl",
             pesticide_name="Confidor 200 SL",
             pesticide_name_ar="كونفيدور 200 إس إل",
-            application_date=datetime.utcnow() - timedelta(days=10),
+            application_date=datetime.now(UTC) - timedelta(days=10),
             phi_days=21,
-            earliest_harvest_date=datetime.utcnow() + timedelta(days=11),
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            earliest_harvest_date=datetime.now(UTC) + timedelta(days=11),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
             days_remaining=6,
             status=ComplianceStatus.VIOLATION,
             message_en="Test violation message",
@@ -1012,10 +1012,10 @@ class TestAlertGeneration:
             pesticide_id="imidacloprid_200sl",
             pesticide_name="Confidor 200 SL",
             pesticide_name_ar="كونفيدور 200 إس إل",
-            application_date=datetime.utcnow() - timedelta(days=10),
+            application_date=datetime.now(UTC) - timedelta(days=10),
             phi_days=21,
-            earliest_harvest_date=datetime.utcnow() + timedelta(days=11),
-            planned_harvest_date=datetime.utcnow() + timedelta(days=1),
+            earliest_harvest_date=datetime.now(UTC) + timedelta(days=11),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=1),
             days_remaining=10,
             status=ComplianceStatus.CRITICAL,
             message_en="Critical violation",
@@ -1033,9 +1033,9 @@ class TestAlertGeneration:
             pesticide_id="imidacloprid_200sl",
             pesticide_name="Confidor 200 SL",
             pesticide_name_ar="كونفيدور 200 إس إل",
-            application_date=datetime.utcnow() - timedelta(hours=6),
+            application_date=datetime.now(UTC) - timedelta(hours=6),
             rei_hours=12,
-            safe_entry_time=datetime.utcnow() + timedelta(hours=6),
+            safe_entry_time=datetime.now(UTC) + timedelta(hours=6),
             status=ComplianceStatus.VIOLATION,
             message_en="REI violation message",
             message_ar="رسالة مخالفة REI",
@@ -1056,9 +1056,9 @@ class TestAlertGeneration:
             pesticide_id="imidacloprid_200sl",
             pesticide_name="Confidor 200 SL",
             pesticide_name_ar="كونفيدور 200 إس إل",
-            application_date=datetime.utcnow() - timedelta(hours=6),
+            application_date=datetime.now(UTC) - timedelta(hours=6),
             rei_hours=12,
-            safe_entry_time=datetime.utcnow() + timedelta(hours=6),
+            safe_entry_time=datetime.now(UTC) + timedelta(hours=6),
             status=ComplianceStatus.VIOLATION,
             message_en="REI violation message",
             message_ar="رسالة مخالفة REI",
@@ -1196,8 +1196,8 @@ class TestEdgeCasesAndErrorHandling:
 
     def test_phi_check_same_day_application_and_harvest(self):
         """Test PHI check when application and harvest on same day"""
-        application_date = datetime.utcnow()
-        planned_harvest = datetime.utcnow()
+        application_date = datetime.now(UTC)
+        planned_harvest = datetime.now(UTC)
 
         violation = check_phi_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -1213,8 +1213,8 @@ class TestEdgeCasesAndErrorHandling:
 
     def test_rei_check_immediate_entry(self):
         """Test REI check for immediate field entry after application"""
-        application_date = datetime.utcnow()
-        entry_time = datetime.utcnow()
+        application_date = datetime.now(UTC)
+        entry_time = datetime.now(UTC)
 
         violation = check_rei_compliance(
             pesticide_id="imidacloprid_200sl",
@@ -1229,7 +1229,7 @@ class TestEdgeCasesAndErrorHandling:
         """Test compliance check with empty field ID"""
         violations = compliance_checker.check_phi_compliance(
             field_id="",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=10),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=10),
         )
 
         # Should return empty list, not error
@@ -1239,7 +1239,7 @@ class TestEdgeCasesAndErrorHandling:
         """Test compliance check when no applications exist"""
         result = compliance_checker.full_compliance_check(
             field_id="nonexistent_field",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=10),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=10),
         )
 
         assert result.overall_status == ComplianceStatus.COMPLIANT
@@ -1254,7 +1254,7 @@ class TestEdgeCasesAndErrorHandling:
             tenant_id="tenant_001",
             field_id="field_multi",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=5),
+            application_date=datetime.now(UTC) - timedelta(days=5),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -1270,7 +1270,7 @@ class TestEdgeCasesAndErrorHandling:
             tenant_id="tenant_001",
             field_id="field_multi",
             pesticide_id="lambda_cyhalothrin_5ec",
-            application_date=datetime.utcnow() - timedelta(days=3),
+            application_date=datetime.now(UTC) - timedelta(days=3),
             application_rate=0.2,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -1285,7 +1285,7 @@ class TestEdgeCasesAndErrorHandling:
 
         violations = compliance_checker.check_phi_compliance(
             field_id="field_multi",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         # Both applications should create violations if harvest is too early
@@ -1361,7 +1361,7 @@ class TestEdgeCasesAndErrorHandling:
             tenant_id="tenant_001",
             field_id="field_tankmix",
             pesticide_id="mancozeb_80wp",
-            application_date=datetime.utcnow() - timedelta(hours=6),
+            application_date=datetime.now(UTC) - timedelta(hours=6),
             application_rate=2.0,
             application_rate_unit="kg/ha",
             area_treated_ha=5.0,
@@ -1423,10 +1423,10 @@ class TestEdgeCasesAndErrorHandling:
             pesticide_id="test",
             pesticide_name="Test",
             pesticide_name_ar="اختبار",
-            application_date=datetime.utcnow(),
+            application_date=datetime.now(UTC),
             phi_days=14,
-            earliest_harvest_date=datetime.utcnow() + timedelta(days=14),
-            planned_harvest_date=datetime.utcnow() + timedelta(days=7),
+            earliest_harvest_date=datetime.now(UTC) + timedelta(days=14),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=7),
             days_remaining=7,
             status=ComplianceStatus.VIOLATION,
             message_en="Test",
@@ -1459,7 +1459,7 @@ class TestIntegration:
             tenant_id="tenant_001",
             field_id="field_workflow",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=15),
+            application_date=datetime.now(UTC) - timedelta(days=15),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=10.0,
@@ -1474,7 +1474,7 @@ class TestIntegration:
         # Run full compliance check with all parameters
         result = compliance_checker.full_compliance_check(
             field_id="field_workflow",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=10),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=10),
             weather={
                 "wind_speed_kmh": 8.0,
                 "wind_direction": "NE",
@@ -1503,7 +1503,7 @@ class TestIntegration:
                 tenant_id="tenant_001",
                 field_id=field_id,
                 pesticide_id="imidacloprid_200sl",
-                application_date=datetime.utcnow() - timedelta(days=10 + i * 5),
+                application_date=datetime.now(UTC) - timedelta(days=10 + i * 5),
                 application_rate=0.5,
                 application_rate_unit="L/ha",
                 area_treated_ha=5.0,
@@ -1519,7 +1519,7 @@ class TestIntegration:
         for field_id in fields:
             results[field_id] = compliance_checker.full_compliance_check(
                 field_id=field_id,
-                planned_harvest_date=datetime.utcnow() + timedelta(days=15),
+                planned_harvest_date=datetime.now(UTC) + timedelta(days=15),
             )
 
         # Each field should have separate compliance results
@@ -1535,7 +1535,7 @@ class TestIntegration:
             tenant_id="tenant_001",
             field_id="field_alert_flow",
             pesticide_id="imidacloprid_200sl",
-            application_date=datetime.utcnow() - timedelta(days=5),
+            application_date=datetime.now(UTC) - timedelta(days=5),
             application_rate=0.5,
             application_rate_unit="L/ha",
             area_treated_ha=5.0,
@@ -1549,7 +1549,7 @@ class TestIntegration:
         # Run compliance check
         result = compliance_checker.full_compliance_check(
             field_id="field_alert_flow",
-            planned_harvest_date=datetime.utcnow() + timedelta(days=5),
+            planned_harvest_date=datetime.now(UTC) + timedelta(days=5),
         )
 
         # Generate alerts for violations

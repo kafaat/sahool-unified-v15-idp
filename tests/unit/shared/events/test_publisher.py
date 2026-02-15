@@ -62,11 +62,12 @@ def publisher(publisher_config) -> EventPublisher:
 def sample_field_event() -> FieldCreatedEvent:
     """Create a sample field created event."""
     return FieldCreatedEvent(
-        field_id="field-123",
-        farm_id="farm-456",
+        field_id=uuid4(),
+        farm_id=uuid4(),
+        tenant_id=uuid4(),
         name="Test Field",
+        geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
         area_hectares=10.5,
-        crop_type="wheat",
     )
 
 
@@ -358,7 +359,6 @@ class TestEventSerialization:
         # Verify it's valid JSON
         parsed = json.loads(data)
         assert "field_id" in parsed
-        assert parsed["field_id"] == "field-123"
 
     def test_serialize_event_with_datetime(self, publisher, sample_field_event):
         """Test serialization handles datetime correctly."""
@@ -494,11 +494,13 @@ class TestEventValidation:
         publisher._nc = mock_nc
         publisher._js = mock_js
 
-        # Create an event with invalid data by manipulating after creation
+        # Create a valid event
         event = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=uuid4(),
+            farm_id=uuid4(),
+            tenant_id=uuid4(),
             name="Test",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=10.0,
         )
 

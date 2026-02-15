@@ -18,7 +18,7 @@ Tests cover:
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -131,7 +131,7 @@ def sample_harvest_entries():
             field_name="North Field",
             crop_type="wheat",
             crop_type_ar="قمح",
-            harvest_date=datetime.utcnow(),
+            harvest_date=datetime.now(UTC),
             yield_kg=5500,
             quality_grade="A",
             moisture_percent=12.5,
@@ -141,7 +141,7 @@ def sample_harvest_entries():
             field_name="South Field",
             crop_type="barley",
             crop_type_ar="شعير",
-            harvest_date=datetime.utcnow(),
+            harvest_date=datetime.now(UTC),
             yield_kg=3200,
             quality_grade="B",
             moisture_percent=11.8,
@@ -408,10 +408,10 @@ class TestHarvestEntry:
         """Test to_dict handles datetime properly."""
         entry = HarvestEntry(
             field_id="field_001",
-            harvest_date=datetime(2026, 1, 15, 10, 30, 0),
+            harvest_date=datetime(2026, 1, 15, 10, 30, 0, tzinfo=UTC),
         )
         result = entry.to_dict()
-        assert result["harvest_date"] == "2026-01-15T10:30:00"
+        assert result["harvest_date"] == "2026-01-15T10:30:00+00:00"
 
 
 @pytest.mark.unit
@@ -1412,11 +1412,11 @@ class TestBatchSchedule:
         next_exec = schedule.calculate_next_execution()
 
         assert next_exec is not None
-        assert (datetime.utcnow() - next_exec).total_seconds() < 5
+        assert (datetime.now(UTC) - next_exec).total_seconds() < 5
 
     def test_scheduled_future_time(self):
         """Test scheduled future time."""
-        future_time = datetime.utcnow() + timedelta(hours=1)
+        future_time = datetime.now(UTC) + timedelta(hours=1)
         schedule = BatchSchedule(
             batch_id="batch_001",
             schedule_type=ScheduleType.SCHEDULED,
@@ -1428,7 +1428,7 @@ class TestBatchSchedule:
 
     def test_scheduled_past_time(self):
         """Test scheduled past time returns None."""
-        past_time = datetime.utcnow() - timedelta(hours=1)
+        past_time = datetime.now(UTC) - timedelta(hours=1)
         schedule = BatchSchedule(
             batch_id="batch_001",
             schedule_type=ScheduleType.SCHEDULED,
@@ -1445,13 +1445,13 @@ class TestBatchSchedule:
             schedule_type=ScheduleType.RECURRING,
             recurrence_pattern=RecurrencePattern.DAILY,
             recurrence_interval=1,
-            scheduled_time=datetime.utcnow(),
+            scheduled_time=datetime.now(UTC),
         )
-        schedule.last_execution = datetime.utcnow()
+        schedule.last_execution = datetime.now(UTC)
         next_exec = schedule.calculate_next_execution()
 
         assert next_exec is not None
-        expected = datetime.utcnow() + timedelta(days=1)
+        expected = datetime.now(UTC) + timedelta(days=1)
         assert abs((next_exec - expected).total_seconds()) < 60
 
     def test_recurring_weekly(self):
@@ -1461,13 +1461,13 @@ class TestBatchSchedule:
             schedule_type=ScheduleType.RECURRING,
             recurrence_pattern=RecurrencePattern.WEEKLY,
             recurrence_interval=1,
-            scheduled_time=datetime.utcnow(),
+            scheduled_time=datetime.now(UTC),
         )
-        schedule.last_execution = datetime.utcnow()
+        schedule.last_execution = datetime.now(UTC)
         next_exec = schedule.calculate_next_execution()
 
         assert next_exec is not None
-        expected = datetime.utcnow() + timedelta(weeks=1)
+        expected = datetime.now(UTC) + timedelta(weeks=1)
         assert abs((next_exec - expected).total_seconds()) < 60
 
     def test_recurring_max_executions(self):
@@ -1489,10 +1489,10 @@ class TestBatchSchedule:
             batch_id="batch_001",
             schedule_type=ScheduleType.RECURRING,
             recurrence_pattern=RecurrencePattern.DAILY,
-            scheduled_time=datetime.utcnow(),
-            recurrence_end_date=datetime.utcnow() - timedelta(days=1),  # Already ended
+            scheduled_time=datetime.now(UTC),
+            recurrence_end_date=datetime.now(UTC) - timedelta(days=1),  # Already ended
         )
-        schedule.last_execution = datetime.utcnow() - timedelta(days=1)
+        schedule.last_execution = datetime.now(UTC) - timedelta(days=1)
         next_exec = schedule.calculate_next_execution()
 
         assert next_exec is None
@@ -1502,7 +1502,7 @@ class TestBatchSchedule:
         schedule = BatchSchedule(
             batch_id="batch_001",
             schedule_type=ScheduleType.SCHEDULED,
-            scheduled_time=datetime(2026, 1, 15, 10, 0, 0),
+            scheduled_time=datetime(2026, 1, 15, 10, 0, 0, tzinfo=UTC),
         )
         result = schedule.to_dict()
 
@@ -1526,7 +1526,7 @@ class TestQueuedBatch:
             batch_id=sample_irrigation_batch.id,
             schedule_type=ScheduleType.IMMEDIATE,
         )
-        schedule.next_execution = datetime.utcnow()
+        schedule.next_execution = datetime.now(UTC)
 
         queued = QueuedBatch.create(sample_irrigation_batch, schedule)
 
@@ -1550,7 +1550,7 @@ class TestQueuedBatch:
         )
 
         schedule = BatchSchedule(schedule_type=ScheduleType.IMMEDIATE)
-        schedule.next_execution = datetime.utcnow()
+        schedule.next_execution = datetime.now(UTC)
 
         urgent_queued = QueuedBatch.create(urgent_batch, schedule)
         low_queued = QueuedBatch.create(low_batch, schedule)
@@ -1591,7 +1591,7 @@ class TestBatchScheduler:
     def test_schedule_with_future_time(self, sample_irrigation_batch):
         """Test scheduling batch for future time."""
         scheduler = BatchScheduler()
-        future_time = datetime.utcnow() + timedelta(hours=1)
+        future_time = datetime.now(UTC) + timedelta(hours=1)
         schedule = scheduler.schedule_batch(
             sample_irrigation_batch,
             schedule_type=ScheduleType.SCHEDULED,
@@ -1863,7 +1863,7 @@ class TestEdgeCases:
 
         async def execute_with_data(item, batch):
             return {
-                "processed_at": datetime.utcnow().isoformat(),
+                "processed_at": datetime.now(UTC).isoformat(),
                 "water_used_liters": 1000,
             }
 

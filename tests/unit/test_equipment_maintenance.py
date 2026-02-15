@@ -12,7 +12,7 @@ Version: 1.0.0
 """
 
 import pytest
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, UTC
 from decimal import Decimal
 from typing import Optional
 
@@ -119,9 +119,9 @@ def sample_tractor(sample_equipment_specs: EquipmentSpecs) -> Equipment:
         hours_since_last_filter_change=350.0,
         hours_since_last_major_service=700.0,
         hours_since_last_overhaul=2000.0,
-        purchase_date=datetime(2022, 1, 1),
+        purchase_date=datetime(2022, 1, 1, tzinfo=UTC),
         purchase_price=Decimal("150000"),
-        warranty_expiry=datetime(2025, 1, 1),
+        warranty_expiry=datetime(2025, 1, 1, tzinfo=UTC),
         is_active=True,
     )
 
@@ -159,7 +159,7 @@ def sample_harvester(sample_equipment_specs: EquipmentSpecs) -> Equipment:
         total_hours=800.0,
         total_hectares=500.0,
         hours_since_last_oil_change=150.0,
-        purchase_date=datetime(2021, 1, 1),
+        purchase_date=datetime(2021, 1, 1, tzinfo=UTC),
         purchase_price=Decimal("500000"),
         is_active=True,
     )
@@ -195,7 +195,7 @@ def sample_irrigation_system() -> Equipment:
         status=EquipmentStatus.IDLE,
         total_hours=1500.0,
         hours_since_last_filter_change=200.0,
-        purchase_date=datetime(2023, 1, 1),
+        purchase_date=datetime(2023, 1, 1, tzinfo=UTC),
         purchase_price=Decimal("50000"),
         is_active=True,
     )
@@ -248,7 +248,7 @@ def sample_maintenance_schedule(sample_tractor: Equipment) -> MaintenanceSchedul
         estimated_duration_hours=1.0,
         default_priority=MaintenancePriority.MEDIUM,
         estimated_cost=Decimal("500.00"),
-        last_executed_at=datetime.utcnow() - timedelta(days=30),
+        last_executed_at=datetime.now(UTC) - timedelta(days=30),
         last_executed_hours=950.0,
         next_due_hours=1200.0,
         is_active=True,
@@ -376,8 +376,8 @@ def test_maintenance_task_creation():
         maintenance_type=MaintenanceType.PREVENTIVE,
         priority=MaintenancePriority.MEDIUM,
         status=MaintenanceStatus.SCHEDULED,
-        scheduled_date=datetime.utcnow(),
-        due_date=datetime.utcnow() + timedelta(days=7),
+        scheduled_date=datetime.now(UTC),
+        due_date=datetime.now(UTC) + timedelta(days=7),
         estimated_duration_hours=1.5,
     )
 
@@ -390,7 +390,7 @@ def test_maintenance_task_creation():
 @pytest.mark.unit
 def test_maintenance_task_is_overdue():
     """Test maintenance task overdue detection"""
-    past_due_date = datetime.utcnow() - timedelta(days=1)
+    past_due_date = datetime.now(UTC) - timedelta(days=1)
     task = MaintenanceTask(
         id="task_001",
         tenant_id="farm_001",
@@ -441,7 +441,7 @@ def test_checklist_item_creation():
 
     # Mark as completed
     item.is_completed = True
-    item.completed_at = datetime.utcnow()
+    item.completed_at = datetime.now(UTC)
     item.completed_by = "tech_001"
 
     assert item.is_completed is True
@@ -583,7 +583,7 @@ def test_service_record_creation():
         id="record_001",
         tenant_id="farm_001",
         equipment_id="tractor_001",
-        service_date=datetime.utcnow(),
+        service_date=datetime.now(UTC),
         service_type=MaintenanceType.PREVENTIVE,
         description="Regular oil change",
         description_ar="تغيير الزيت العادي",
@@ -740,7 +740,7 @@ def test_calculate_next_due_date_hours_based(
     sample_maintenance_schedule: MaintenanceSchedule,
 ):
     """Test calculating next due date for hours-based schedule"""
-    check_time = datetime.utcnow()
+    check_time = datetime.now(UTC)
     next_due = scheduler.calculate_next_due_date(
         sample_maintenance_schedule,
         sample_tractor,
@@ -806,7 +806,7 @@ def test_generate_task_from_schedule(
 
     task = scheduler.generate_task_from_schedule(
         sample_maintenance_schedule,
-        datetime.utcnow(),
+        datetime.now(UTC),
     )
 
     assert task.id is not None
@@ -825,7 +825,7 @@ def test_update_schedule_after_completion(
     scheduler.register_equipment(sample_tractor)
     scheduler.add_schedule(sample_maintenance_schedule)
 
-    completion_time = datetime.utcnow()
+    completion_time = datetime.now(UTC)
     completion_hours = 1200.0
 
     scheduler.update_schedule_after_completion(
@@ -1161,7 +1161,7 @@ def test_complete_maintenance_workflow(sample_tractor: Equipment):
     # 5. Mark as completed
     scheduler.update_schedule_after_completion(
         schedules[0].id,
-        datetime.utcnow(),
+        datetime.now(UTC),
         sample_tractor.total_hours,
     )
 

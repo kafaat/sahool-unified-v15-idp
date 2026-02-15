@@ -8,16 +8,18 @@ from unittest.mock import Mock
 
 import pytest
 
-# Import the modules to test
-import sys
+# Import the modules to test - use importlib to avoid namespace collision
+# between repo root shared/ and apps/services/shared/
+import importlib.util
 from pathlib import Path
 
-# Add the apps/services path to sys.path
-repo_root = Path(__file__).parent.parent.parent.parent
-services_path = repo_root / "apps" / "services"
-sys.path.insert(0, str(services_path))
-
-from shared.utils.fallback_manager import CircuitBreaker, CircuitState
+_repo_root = Path(__file__).parent.parent.parent.parent
+_module_path = _repo_root / "apps" / "services" / "shared" / "utils" / "fallback_manager.py"
+_spec = importlib.util.spec_from_file_location("fallback_manager", _module_path)
+_module = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(_module)
+CircuitBreaker = _module.CircuitBreaker
+CircuitState = _module.CircuitState
 
 
 class TestCircuitBreaker:
@@ -154,8 +156,8 @@ class TestCircuitState:
 
 # Additional test for coverage
 def test_module_import():
-    """Test module can be imported"""
-    from shared.utils.fallback_manager import CircuitBreaker, CircuitState
-
+    """Test module can be imported via importlib"""
+    # The module lives at apps/services/shared/utils/fallback_manager.py
+    # and not directly importable as shared.utils.fallback_manager
     assert CircuitBreaker is not None
     assert CircuitState is not None

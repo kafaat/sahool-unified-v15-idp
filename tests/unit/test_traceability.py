@@ -8,7 +8,7 @@ Tests for farm-to-table tracking, QR code generation, and supply chain events.
 
 import hashlib
 import json
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
@@ -132,8 +132,8 @@ def sample_certification():
         name_ar="GlobalGAP IFA v6",
         issuing_body_en="GlobalGAP c/o FoodPLUS GmbH",
         issuing_body_ar="GlobalGAP",
-        issue_date=datetime(2024, 1, 1),
-        expiry_date=datetime(2026, 12, 31),
+        issue_date=datetime(2024, 1, 1, tzinfo=UTC),
+        expiry_date=datetime(2026, 12, 31, tzinfo=UTC),
         scope_en="Fresh vegetables and fruits",
         scope_ar="الخضروات والفواكه الطازجة",
         is_valid=True,
@@ -152,8 +152,8 @@ def sample_expired_certification():
         name_ar="شهادة عضوية",
         issuing_body_en="Organic Council",
         issuing_body_ar="مجلس العضوية",
-        issue_date=datetime(2020, 1, 1),
-        expiry_date=datetime(2021, 12, 31),
+        issue_date=datetime(2020, 1, 1, tzinfo=UTC),
+        expiry_date=datetime(2021, 12, 31, tzinfo=UTC),
         scope_en="Organic produce",
         scope_ar="منتجات عضوية",
         is_valid=True,
@@ -177,7 +177,7 @@ def sample_batch():
         quantity_unit="kg",
         quality_grade=QualityGrade.GRADE_A,
         status=BatchStatus.CREATED,
-        harvest_date=datetime.utcnow() - timedelta(days=2),
+        harvest_date=datetime.now(UTC) - timedelta(days=2),
         producer_id="producer_001",
         certification_ids=["cert_001"],
     )
@@ -349,7 +349,7 @@ class TestBatchSplitMerge:
             id="split_001",
             parent_batch_id="batch_001",
             child_batch_ids=["batch_001a", "batch_001b"],
-            split_date=datetime.utcnow(),
+            split_date=datetime.now(UTC),
             reason_en="Split for different retailers",
             reason_ar="تقسيم لتجار مختلفين",
             performed_by="user_001",
@@ -364,7 +364,7 @@ class TestBatchSplitMerge:
             id="merge_001",
             source_batch_ids=["batch_001", "batch_002"],
             target_batch_id="batch_003",
-            merge_date=datetime.utcnow(),
+            merge_date=datetime.now(UTC),
             reason_en="Combine for bulk shipment",
             reason_ar="دمج للشحن بالجملة",
             performed_by="user_001",
@@ -411,7 +411,7 @@ class TestComplianceRecord:
         record = ComplianceRecord(
             id="compliance_001",
             certification_id="cert_001",
-            inspection_date=datetime.utcnow(),
+            inspection_date=datetime.now(UTC),
             inspector_name="John Smith",
             is_compliant=True,
             score=95.0,
@@ -1383,7 +1383,7 @@ class TestQRCodeGenerator:
                 batch_code=f"TM-25-{i:03d}",
                 product_name_en="Tomatoes",
                 product_name_ar="طماطم",
-                harvest_date=datetime.utcnow(),
+                harvest_date=datetime.now(UTC),
             )
             for i in range(3)
         ]
@@ -1730,7 +1730,7 @@ class TestEdgeCases:
             batch_code="LN-25-001",
             product_name_en="A" * 100,  # Very long name
             product_name_ar="ا" * 100,
-            harvest_date=datetime.utcnow(),
+            harvest_date=datetime.now(UTC),
         )
         result = qr_generator.generate_for_batch(batch)
         data = json.loads(result.qr_data)
@@ -1747,12 +1747,12 @@ class TestEdgeCases:
             name_ar="اختبار",
             issuing_body_en="Body",
             issuing_body_ar="جهة",
-            issue_date=datetime.utcnow() - timedelta(days=365),
-            expiry_date=datetime.utcnow(),  # Expires now
+            issue_date=datetime.now(UTC) - timedelta(days=365),
+            expiry_date=datetime.now(UTC),  # Expires now
             scope_en="Test",
             scope_ar="اختبار",
         )
-        # At exact expiry, should be invalid (datetime.utcnow() < self.expiry_date)
+        # At exact expiry, should be invalid (datetime.now(UTC) < self.expiry_date)
         assert cert.is_currently_valid() is False
 
     def test_batch_with_max_certifications(self):
@@ -1908,7 +1908,7 @@ class TestRecallScope:
             batch_code="EX-25-001",
             quantity=100.0,
         )
-        batch.expiry_date = datetime.utcnow() - timedelta(days=1)
+        batch.expiry_date = datetime.now(UTC) - timedelta(days=1)
 
         updated = supply_chain_tracker.update_batch_status(batch.id, BatchStatus.EXPIRED)
 

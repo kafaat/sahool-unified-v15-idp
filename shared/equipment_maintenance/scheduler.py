@@ -922,10 +922,10 @@ class MaintenanceScheduler:
                 if config:
                     season_start = config.get_start_date(from_date.year)
                     if from_date.date() < season_start:
-                        return datetime.combine(season_start, datetime.min.time())
+                        return datetime.combine(season_start, datetime.min.time(), tzinfo=UTC)
                     # Next year
                     next_year_start = config.get_start_date(from_date.year + 1)
-                    return datetime.combine(next_year_start, datetime.min.time())
+                    return datetime.combine(next_year_start, datetime.min.time(), tzinfo=UTC)
             except ValueError:
                 pass
 
@@ -1003,6 +1003,7 @@ class MaintenanceScheduler:
                                 season_start = datetime.combine(
                                     season_config.get_start_date(check_date.year),
                                     datetime.min.time(),
+                                    tzinfo=UTC,
                                 )
                                 if schedule.last_executed_at < season_start:
                                     due_schedules.append((schedule, "season_trigger"))

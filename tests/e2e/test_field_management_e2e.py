@@ -26,7 +26,12 @@ import os
 import uuid
 from typing import Any
 
-import httpx
+try:
+    import httpx
+except ImportError:
+    import pytest
+    pytest.skip("httpx not available", allow_module_level=True)
+
 import pytest
 
 # ============================================================================
@@ -144,7 +149,6 @@ async def created_field(
     )
     if resp.status_code not in (200, 201):
         pytest.skip(f"Cannot create field (status {resp.status_code}): {resp.text[:200]}")
-        return None
 
     data = resp.json()
     field = data.get("data", data)

@@ -209,10 +209,11 @@ class AuthErrors:
 class AuthException(Exception):
     """Base authentication exception"""
 
-    def __init__(self, error: AuthErrorMessage, status_code: int = 401):
+    def __init__(self, error: AuthErrorMessage, status_code: int = 401, detail: str | None = None):
         self.error = error
         self.status_code = status_code
-        super().__init__(error.en)
+        self.detail = detail
+        super().__init__(detail or error.en)
 
     def to_dict(self, lang: str = "en") -> dict:
         """Convert to dictionary for API response"""

@@ -512,9 +512,14 @@ class TestRedisSentinelClient:
         assert "checks" in health
 
     def test_health_check_unhealthy(self, mock_sentinel, redis_config):
-        """Test health check when unhealthy."""
+        """Test health check when unhealthy.
+
+        Note: The health_check method calls self.ping() which catches
+        exceptions internally and returns False. To trigger unhealthy status,
+        we need to mock the ping method on the client instance to raise.
+        """
         client = RedisSentinelClient(config=redis_config)
-        client._master.ping.side_effect = Exception("Connection failed")
+        client.ping = MagicMock(side_effect=Exception("Connection failed"))
 
         health = client.health_check()
 

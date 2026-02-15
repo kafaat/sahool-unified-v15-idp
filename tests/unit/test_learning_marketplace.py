@@ -8,7 +8,7 @@ Updated: January 2026
 """
 
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 import tempfile
 import os
@@ -477,7 +477,7 @@ class TestLessonProgress:
         """Test marking lesson as completed"""
         progress = LessonProgress(
             is_completed=True,
-            completed_at=datetime.utcnow(),
+            completed_at=datetime.now(UTC),
             time_spent_minutes=30,
         )
         assert progress.is_completed is True
@@ -787,13 +787,13 @@ class TestFarmerCertification:
 
     def test_farmer_certification_is_expired(self):
         """Test certification expiration check"""
-        past = datetime.utcnow() - timedelta(days=1)
+        past = datetime.now(UTC) - timedelta(days=1)
         cert = FarmerCertification(expires_at=past)
         assert cert.is_expired is True
 
     def test_farmer_certification_not_expired(self):
         """Test certification not expired"""
-        future = datetime.utcnow() + timedelta(days=30)
+        future = datetime.now(UTC) + timedelta(days=30)
         cert = FarmerCertification(expires_at=future)
         assert cert.is_expired is False
 
@@ -838,7 +838,7 @@ class TestCertificationEligibility:
 
         assert farmer_cert.expires_at is not None
         # Should be about 365 days from now
-        delta = farmer_cert.expires_at - datetime.utcnow()
+        delta = farmer_cert.expires_at - datetime.now(UTC)
         assert 364 <= delta.days <= 365
 
 
@@ -1004,7 +1004,7 @@ class TestContentRecommender:
                 total_enrollments=100 * (i + 1),
                 average_rating=4.0 + (i * 0.1),
                 rating_count=50,
-                updated_at=datetime.utcnow() - timedelta(days=i * 10),
+                updated_at=datetime.now(UTC) - timedelta(days=i * 10),
             )
             for i in range(5)
         ]
@@ -1097,19 +1097,19 @@ class TestContentRecommender:
 
     def test_calculate_freshness_score_recent(self, recommender):
         """Test freshness score for recently updated course"""
-        course = Course(updated_at=datetime.utcnow() - timedelta(days=10))
+        course = Course(updated_at=datetime.now(UTC) - timedelta(days=10))
         score = recommender._calculate_freshness_score(course)
         assert score == 100.0
 
     def test_calculate_freshness_score_old(self, recommender):
         """Test freshness score for old course"""
-        course = Course(updated_at=datetime.utcnow() - timedelta(days=400))
+        course = Course(updated_at=datetime.now(UTC) - timedelta(days=400))
         score = recommender._calculate_freshness_score(course)
         assert score == 20.0
 
     def test_is_seasonally_relevant(self, recommender):
         """Test seasonal relevance detection"""
-        current_month = datetime.utcnow().month
+        current_month = datetime.now(UTC).month
         seasonal_skills = SEASONAL_TOPICS.get(current_month, [])
 
         if seasonal_skills:
@@ -1335,7 +1335,7 @@ class TestEdgeCases:
         """Test enrollment with expired status"""
         enrollment = CourseEnrollment(
             status=EnrollmentStatus.EXPIRED,
-            expires_at=datetime.utcnow() - timedelta(days=1),
+            expires_at=datetime.now(UTC) - timedelta(days=1),
         )
         assert enrollment.status == EnrollmentStatus.EXPIRED
         assert enrollment.is_completed is False

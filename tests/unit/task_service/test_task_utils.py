@@ -15,18 +15,21 @@ from datetime import datetime, timedelta, timezone, UTC
 from unittest.mock import MagicMock
 
 # Import from the src package (conftest.py sets up the path)
-from src.task_utils import (
-    TaskType,
-    TaskPriority,
-    TaskCreateData,
-    generate_task_id,
-    db_task_to_dict,
-    calculate_ndvi_priority,
-    generate_ndvi_task_content,
-    get_due_date_for_priority,
-    get_activity_translation,
-    get_task_type_activity,
-)
+try:
+    from src.task_utils import (
+        TaskType,
+        TaskPriority,
+        TaskCreateData,
+        generate_task_id,
+        db_task_to_dict,
+        calculate_ndvi_priority,
+        generate_ndvi_task_content,
+        get_due_date_for_priority,
+        get_activity_translation,
+        get_task_type_activity,
+    )
+except ModuleNotFoundError:
+    pytest.skip("Task service src module not found - run tests from service directory", allow_module_level=True)
 
 
 class TestTaskIdGeneration:

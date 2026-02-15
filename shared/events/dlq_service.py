@@ -164,8 +164,9 @@ class DLQManager:
             return
 
         try:
+            nats_url = os.getenv("NATS_URL", "nats://localhost:4222")
             self._nc = await nats.connect(
-                servers=[f"nats://{self.config.dlq_stream_name}:4222"],
+                servers=[nats_url],
             )
             self._js = self._nc.jetstream()
             self._connected = True
@@ -218,7 +219,7 @@ class DLQManager:
             total_count = stream_info.state.messages
 
             # Calculate pagination
-            (page - 1) * page_size + 1
+            start_seq = (page - 1) * page_size + 1  # noqa: F841
 
             messages = []
 

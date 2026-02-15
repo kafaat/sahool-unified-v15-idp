@@ -145,7 +145,7 @@ class TwoFactorAuthService:
 
         # Validate token format
         if not token.isdigit() or len(token) != TOTP_DIGITS:
-            logger.warning(f"Invalid TOTP token format: {token}")
+            logger.warning("Invalid TOTP token format: non-numeric or wrong length")
             return False
 
         totp = pyotp.TOTP(

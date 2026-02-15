@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 # Import password hashing libraries
 try:
-    from argon2 import PasswordHasher
+    from argon2 import PasswordHasher as Argon2PasswordHasher
     from argon2.exceptions import (
         InvalidHashError,
         VerificationError,
@@ -87,7 +87,7 @@ class PasswordHasher:
         self.salt_len = salt_len
 
         if ARGON2_AVAILABLE:
-            self.argon2_hasher = PasswordHasher(
+            self.argon2_hasher = Argon2PasswordHasher(
                 time_cost=time_cost,
                 memory_cost=memory_cost,
                 parallelism=parallelism,

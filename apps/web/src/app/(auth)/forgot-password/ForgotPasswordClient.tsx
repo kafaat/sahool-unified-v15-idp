@@ -142,33 +142,33 @@ export default function ForgotPasswordClient() {
             )}
           </div>
           <CardTitle className="text-2xl">
-            <div>{isSuccess ? "تم الإرسال" : "نسيت كلمة المرور؟"}</div>
-            <div className="text-base text-gray-600 mt-1">
+            <span className="block">{isSuccess ? "تم الإرسال" : "نسيت كلمة المرور؟"}</span>
+            <span className="block text-base text-gray-600 mt-1">
               {isSuccess ? "Sent Successfully" : "Forgot Password?"}
-            </div>
+            </span>
           </CardTitle>
           <CardDescription>
             {isSuccess ? (
               <>
-                <div className="text-gray-600">
+                <span className="block text-gray-600">
                   {isEmailChannel
                     ? "إذا كان هناك حساب مرتبط بهذا البريد، فسيتم إرسال رابط إعادة التعيين"
                     : "تم إرسال رمز التحقق إلى رقمك"}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
+                </span>
+                <span className="block text-xs text-gray-500 mt-1">
                   {isEmailChannel
                     ? "If an account exists with this email, a reset link has been sent"
                     : "OTP has been sent to your phone number"}
-                </div>
+                </span>
               </>
             ) : (
               <>
-                <div className="text-gray-600">
+                <span className="block text-gray-600">
                   اختر طريقة استرداد الحساب
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
+                </span>
+                <span className="block text-xs text-gray-500 mt-1">
                   Choose your recovery method
-                </div>
+                </span>
               </>
             )}
           </CardDescription>

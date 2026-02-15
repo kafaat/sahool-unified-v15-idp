@@ -290,10 +290,13 @@ class DatabaseOptimizer:
         self._slow_query_threshold_ms = 100
 
     async def analyze_query(self, sql: str, *params) -> dict[str, Any]:
-        """Analyze query execution plan."""
+        """Analyze query execution plan. Only SELECT queries are allowed."""
+        stripped = sql.strip()
+        if not stripped.upper().startswith("SELECT"):
+            raise ValueError("Only SELECT queries can be analyzed")
         async with self.pool.acquire() as conn:
             start_time = time.perf_counter()
-            result = await conn.fetch(f"EXPLAIN ANALYZE {sql}", *params)
+            result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             return {

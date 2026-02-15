@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi import APIRouter, HTTPException, Path, Query, Request
 
 from ...core.config import settings
 from ...utils.leveling_algorithms import (
@@ -251,7 +251,7 @@ def _get_equipment_recommendations(
         500: {"model": ErrorResponse, "description": "Analysis failed"},
     },
 )
-async def analyze_field_leveling(request: LevelingAnalysisRequest):
+async def analyze_field_leveling(request: LevelingAnalysisRequest, http_request: Request):
     """
     Analyze a field for leveling requirements and generate an optimal plan.
 
@@ -433,6 +433,29 @@ async def analyze_field_leveling(request: LevelingAnalysisRequest):
             cut_volume=cut_fill.cut_volume_m3,
             fill_volume=cut_fill.fill_volume_m3,
         )
+
+        # Publish NATS event for leveling analysis completed
+        nc = getattr(http_request.app.state, "nc", None)
+        nats_connected = getattr(http_request.app.state, "nats_connected", False)
+        if nc and nats_connected:
+            try:
+                import json
+
+                event_payload = json.dumps({
+                    "event_type": "leveling_analyzed",
+                    "field_id": request.field_id,
+                    "method": request.method.value,
+                    "cut_volume_m3": cut_fill.cut_volume_m3,
+                    "fill_volume_m3": cut_fill.fill_volume_m3,
+                    "field_area_hectares": round(field_area_hectares, 4),
+                    "total_cost_sar": cost_estimate.total_cost_sar if cost_estimate else None,
+                    "plan_id": plan.plan_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                }, default=str).encode()
+                await nc.publish("sahool.terrain.leveling_analyzed", event_payload)
+                logger.info("nats_event_published", subject="sahool.terrain.leveling_analyzed", field_id=request.field_id)
+            except Exception as pub_err:
+                logger.warning("nats_publish_failed", error=str(pub_err))
 
         return LevelingAnalysisResponse(
             success=True,
@@ -625,7 +648,7 @@ async def get_equipment_recommendations(
     response_model=SimulationResult,
     summary="Simulate leveling scenario | محاكاة سيناريو التسوية",
 )
-async def simulate_leveling(request: SimulationRequest):
+async def simulate_leveling(request: SimulationRequest, http_request: Request):
     """
     Simulate a leveling scenario and return predicted results.
 
@@ -762,6 +785,26 @@ async def simulate_leveling(request: SimulationRequest):
             fill_volume=cut_fill.fill_volume_m3,
             uniformity_improvement=uniformity_improvement,
         )
+
+        # Publish NATS event for simulation completed
+        nc = getattr(http_request.app.state, "nc", None)
+        nats_connected = getattr(http_request.app.state, "nats_connected", False)
+        if nc and nats_connected:
+            try:
+                import json
+
+                event_payload = json.dumps({
+                    "event_type": "leveling_simulated",
+                    "field_id": request.field_id,
+                    "cut_volume_m3": cut_fill.cut_volume_m3,
+                    "fill_volume_m3": cut_fill.fill_volume_m3,
+                    "uniformity_improvement": round(uniformity_improvement, 2),
+                    "timestamp": datetime.utcnow().isoformat(),
+                }, default=str).encode()
+                await nc.publish("sahool.terrain.leveling_simulated", event_payload)
+                logger.info("nats_event_published", subject="sahool.terrain.leveling_simulated", field_id=request.field_id)
+            except Exception as pub_err:
+                logger.warning("nats_publish_failed", error=str(pub_err))
 
         return SimulationResult(
             field_id=request.field_id,

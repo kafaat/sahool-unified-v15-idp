@@ -169,7 +169,7 @@ fi
 
 echo ""
 printf "%s[7] Application Dockerfile%s\n" "${BLUE}" "${NC}"
-test_file_exists "$PROJECT_ROOT/apps/services/field-ops/Dockerfile" "field-ops Dockerfile exists"
+test_file_exists "$PROJECT_ROOT/apps/services/field-management-service/Dockerfile" "field-management-service Dockerfile exists"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Summary

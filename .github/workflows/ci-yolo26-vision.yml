@@ -127,6 +127,8 @@ jobs:
           JWT_ALGORITHM: HS256
           DATABASE_URL: ""
           NATS_URL: ""
+          REDIS_URL: ""
+          MODEL_BASE_PATH: /tmp/yolo26-test-models
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v5
@@ -332,11 +334,11 @@ jobs:
 
           # Health check
           HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-              CMD curl -f http://localhost:8140/healthz || exit 1
+              CMD curl -f http://localhost:8150/healthz || exit 1
 
-          EXPOSE 8140
+          EXPOSE 8150
 
-          CMD ["python", "-m", "uvicorn", "src.api.main:app", "--host", "0.0.0.0", "--port", "8140"]
+          CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8150"]
           EOF
 
       - name: Build and push Docker image

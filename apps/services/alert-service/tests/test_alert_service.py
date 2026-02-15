@@ -39,7 +39,7 @@ def mock_alert(mock_db_session):
     alert = Alert(
         id=uuid4(),
         field_id="field-123",
-        tenant_id="tenant-1",
+        tenant_id="11111111-1111-1111-1111-111111111111",
         type="ndvi_low",
         severity="high",
         status="active",
@@ -65,7 +65,7 @@ def mock_alert_rule(mock_db_session):
     rule = AlertRule(
         id=uuid4(),
         field_id="field-123",
-        tenant_id="tenant-1",
+        tenant_id="11111111-1111-1111-1111-111111111111",
         name="Low Soil Moisture",
         name_en="Low Soil Moisture",
         enabled=True,
@@ -669,30 +669,28 @@ class TestAlertEvents:
         """Test publishing alert created event"""
         from src.events import AlertEventPublisher
 
-        mock_nc = AsyncMock()
         publisher = AlertEventPublisher()
-        publisher._nc = mock_nc
+        publisher._nc = AsyncMock()
         publisher._connected = True
 
         await publisher.publish_alert_created(
             alert_id="alert-123",
             field_id="field-123",
-            tenant_id="tenant-1",
+            tenant_id="11111111-1111-1111-1111-111111111111",
             alert_type="ndvi_low",
             severity="high",
             title="Test Alert",
         )
 
-        assert mock_nc.publish.called
+        assert publisher._nc.publish.called
 
     @pytest.mark.asyncio
     async def test_publish_alert_updated(self):
         """Test publishing alert updated event"""
         from src.events import AlertEventPublisher
 
-        mock_nc = AsyncMock()
         publisher = AlertEventPublisher()
-        publisher._nc = mock_nc
+        publisher._nc = AsyncMock()
         publisher._connected = True
 
         await publisher.publish_alert_updated(
@@ -703,21 +701,20 @@ class TestAlertEvents:
             updated_by="user-123",
         )
 
-        assert mock_nc.publish.called
+        assert publisher._nc.publish.called
 
     @pytest.mark.asyncio
     async def test_subscribe_to_external_alerts(self):
         """Test subscribing to external alerts"""
         from src.events import AlertEventSubscriber
 
-        mock_nc = AsyncMock()
         subscriber = AlertEventSubscriber()
-        subscriber._nc = mock_nc
+        subscriber._nc = AsyncMock()
 
         await subscriber.subscribe_to_external_alerts()
 
         # Should subscribe to multiple topics
-        assert mock_nc.subscribe.call_count >= 3
+        assert subscriber._nc.subscribe.call_count >= 3
 
 
 class TestDatabaseConnection:

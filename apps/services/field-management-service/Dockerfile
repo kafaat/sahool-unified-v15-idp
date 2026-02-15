@@ -72,10 +72,12 @@ COPY apps/services/field-management-service/prisma ./prisma
 # Generate Prisma client (required before TypeScript compilation)
 RUN npx prisma generate
 
-# Copy source and build
+# Copy source, config, and build
 COPY apps/services/field-management-service/tsconfig.json ./
+COPY apps/services/field-management-service/nest-cli.json ./
 COPY apps/services/field-management-service/src ./src
-RUN npm run build
+# Prisma already generated above; run nest build directly to avoid re-running prisma generate
+RUN npx nest build
 
 # Stage 2: Production
 FROM node:${NODE_VERSION}-bookworm-slim

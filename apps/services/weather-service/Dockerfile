@@ -39,7 +39,8 @@ RUN pip install --no-cache-dir --upgrade \
     setuptools>=75.0 \
     wheel>=0.44.0
 
-# Configure pip for network resilience
+# Configure pip for network resilience with multi-mirror fallback
+# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
@@ -47,9 +48,11 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://mirrors.cloud.tencent.com/pypi/simple
                   https://pypi.org/simple/
 trusted-host = mirrors.aliyun.com
                pypi.tuna.tsinghua.edu.cn
+               mirrors.cloud.tencent.com
                pypi.org
                files.pythonhosted.org
 [install]
@@ -63,13 +66,13 @@ COPY --chown=sahool:sahool constraints.txt /tmp/constraints.txt
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -c /tmp/constraints.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────

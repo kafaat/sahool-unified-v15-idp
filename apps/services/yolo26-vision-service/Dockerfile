@@ -98,10 +98,14 @@ COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Install PyTorch with CUDA support first (pinned versions)
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+# Disable pip.conf to prevent mirror hash conflicts with torch dependencies
+RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries=10 \
     torch==2.2.0 \
     torchvision==0.17.0 \
-    --index-url https://download.pytorch.org/whl/cu121
+    --index-url https://download.pytorch.org/whl/cu121 \
+    --extra-index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org
 
 # Install remaining dependencies with constraints
 RUN pip install --no-cache-dir --timeout=300 --retries=10 \
@@ -251,9 +255,14 @@ trusted-host = mirrors.aliyun.com pypi.tuna.tsinghua.edu.cn
 prefer-binary = true
 EOF
 
-# Install Python dependencies (CPU only) with constraints
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
-    torch torchvision --index-url https://download.pytorch.org/whl/cpu && \
+# Install PyTorch CPU - disable pip.conf to prevent mirror hash conflicts
+# (Tsinghua mirror sympy hash differs from PyTorch index expected hash)
+RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries=10 \
+    torch torchvision \
+    --index-url https://download.pytorch.org/whl/cpu \
+    --extra-index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 

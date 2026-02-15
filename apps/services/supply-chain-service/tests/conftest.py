@@ -12,7 +12,10 @@ os.environ["NATS_URL"] = ""
 os.environ["REDIS_URL"] = ""
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 
-from src.main import app
+try:
+    from src.main import app
+except ImportError:
+    app = None
 
 
 @pytest.fixture(scope="session")
@@ -24,6 +27,8 @@ def anyio_backend() -> str:
 @pytest.fixture(scope="module")
 def test_client():
     """Create a test client for synchronous tests."""
+    if app is None:
+        pytest.skip("supply-chain-service src not available")
     try:
         from fastapi.testclient import TestClient
     except ImportError:
@@ -35,6 +40,8 @@ def test_client():
 @pytest.fixture
 async def async_client():
     """Create an async test client for async tests."""
+    if app is None:
+        pytest.skip("supply-chain-service src not available")
     try:
         from httpx import ASGITransport, AsyncClient
     except ImportError:

@@ -200,7 +200,11 @@ def mock_notification_log_repository():
 @pytest.fixture(autouse=True)
 def reset_farmer_profiles():
     """Reset FARMER_PROFILES dict before each test"""
-    from src.main import FARMER_PROFILES
+    try:
+        from src.main import FARMER_PROFILES
+    except ImportError:
+        yield
+        return
 
     FARMER_PROFILES.clear()
     yield

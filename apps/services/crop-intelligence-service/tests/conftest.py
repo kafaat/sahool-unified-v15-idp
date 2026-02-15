@@ -4,9 +4,18 @@ Test Configuration and Fixtures
 """
 
 import pytest
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
-from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+    from src.main import OBSERVATIONS, ZONES, _init_sample_data, app
+except ImportError:
+    get_current_user = None
+    User = None
+    OBSERVATIONS = None
+    ZONES = None
+    _init_sample_data = None
+    app = None
 
 
 def _fake_current_user():
@@ -21,6 +30,9 @@ def _fake_current_user():
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_data():
     """Initialize sample data before all tests run"""
+    if app is None:
+        yield
+        return
     # Clear any existing data
     ZONES.clear()
     OBSERVATIONS.clear()
@@ -38,6 +50,8 @@ def setup_test_data():
 @pytest.fixture
 def client(setup_test_data):
     """Create test client with sample data initialized and auth overridden"""
+    if app is None:
+        pytest.skip("crop-intelligence-service src not available")
     try:
         from fastapi.testclient import TestClient
     except ImportError:

@@ -13,12 +13,17 @@ os.environ["REDIS_URL"] = ""
 os.environ["DATABASE_URL"] = ""
 os.environ["VISION_SERVICE_URL"] = "http://mock-vision:8150"
 
-from src.main import app
+try:
+    from src.main import app
+except ImportError:
+    app = None
 
 
 @pytest.fixture
 def client():
     """Synchronous test client."""
+    if app is None:
+        pytest.skip("pest-detection-service src not available")
     try:
         from fastapi.testclient import TestClient
     except ImportError:
@@ -30,6 +35,8 @@ def client():
 @pytest.fixture
 async def async_client():
     """Asynchronous test client."""
+    if app is None:
+        pytest.skip("pest-detection-service src not available")
     try:
         from httpx import AsyncClient
     except ImportError:

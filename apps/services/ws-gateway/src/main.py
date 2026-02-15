@@ -474,6 +474,12 @@ async def broadcast_message(
         payload = await validate_jwt_token(token)
         token_tenant_id = payload.get("tenant_id")
 
+        # Both tenant IDs must be present for authorization check
+        if not token_tenant_id or not req.tenant_id:
+            raise HTTPException(
+                status_code=403, detail="tenant_id is required for broadcast"
+            )
+
         # Ensure user can only broadcast to their own tenant
         if token_tenant_id != req.tenant_id:
             # Allow super_admin to broadcast to any tenant

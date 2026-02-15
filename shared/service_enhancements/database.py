@@ -204,11 +204,13 @@ class QueryBuilder:
         if self._order_by:
             parts.append(f"ORDER BY {self._order_by}")
 
-        # Add pagination
+        # Add pagination using parameterized values
         if self._limit is not None:
-            parts.append(f"LIMIT {self._limit}")
+            self._params.append(int(self._limit))
+            parts.append(f"LIMIT ${len(self._params)}")
         if self._offset is not None:
-            parts.append(f"OFFSET {self._offset}")
+            self._params.append(int(self._offset))
+            parts.append(f"OFFSET ${len(self._params)}")
 
         return " ".join(parts), self._params
 

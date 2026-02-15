@@ -371,10 +371,7 @@ class Worker:
         self, cert_type: SafetyCertification, check_date: date | None = None
     ) -> bool:
         """Check if worker has valid certification of given type"""
-        for cert in self.certifications:
-            if cert.certification_type == cert_type and cert.is_valid(check_date):
-                return True
-        return False
+        return any(cert.certification_type == cert_type and cert.is_valid(check_date) for cert in self.certifications)
 
     def get_expiring_certifications(self, days_ahead: int = 30) -> list[WorkerCertification]:
         """Get certifications expiring within given days"""

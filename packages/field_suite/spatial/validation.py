@@ -164,6 +164,9 @@ def validate_and_fix_geometries(
     return report
 
 
+_ALLOWED_TABLES = frozenset({"fields", "zones", "sub_zones"})
+
+
 def _validate_table(
     db: Session,
     *,
@@ -176,15 +179,22 @@ def _validate_table(
 ) -> None:
     """Validate and fix geometries in a single table."""
 
+    # Prevent SQL injection via table name allowlist
+    if table not in _ALLOWED_TABLES:
+        raise ValueError(f"Invalid table name: {table}. Allowed: {_ALLOWED_TABLES}")
+
+    # Use Identifier quoting for defense-in-depth
+    quoted_table = f'"{table}"'
+
     # Count total with geometry
-    count_result = db.execute(text(f"SELECT COUNT(*) FROM {table} WHERE geom IS NOT NULL;"))
+    count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))
     setattr(report, checked_attr, count_result.scalar() or 0)
 
     # Count invalid
     invalid_result = db.execute(
         text(
             f"""
-            SELECT COUNT(*) FROM {table}
+            SELECT COUNT(*) FROM {quoted_table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false;
         """
         )
@@ -208,10 +218,10 @@ def _validate_table(
         text(
             f"""
             WITH invalid AS (
-                SELECT id FROM {table}
+                SELECT id FROM {quoted_table}
                 WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
             )
-            UPDATE {table}
+            UPDATE {quoted_table}
             SET geom = ST_CollectionExtract(ST_MakeValid(ST_Force2D(geom)), 3)
             WHERE id IN (SELECT id FROM invalid)
             RETURNING id;

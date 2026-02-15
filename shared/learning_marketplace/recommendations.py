@@ -655,11 +655,7 @@ class ContentRecommender:
         if course.category in seasonal_skills:
             return True
 
-        for lesson in course.lessons:
-            if any(skill in seasonal_skills for skill in lesson.skills):
-                return True
-
-        return False
+        return any(any(skill in seasonal_skills for skill in lesson.skills) for lesson in course.lessons)
 
     def _generate_reason_text(
         self,

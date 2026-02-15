@@ -4,11 +4,18 @@ Comprehensive unit tests for alert business logic
 Coverage: Repository operations, alert rules, statistics, event processing
 """
 
+import pytest
+
+try:
+    import sqlalchemy  # noqa: F401
+    import pydantic  # noqa: F401
+    import nats  # noqa: F401
+except ImportError:
+    pytest.skip("alert-service dependencies not installed", allow_module_level=True)
+
 from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
-
-import pytest
 
 
 @pytest.fixture

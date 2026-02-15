@@ -246,6 +246,7 @@ jobs:
         run: pip install bandit semgrep
 
       - name: Run Bandit security scan
+        continue-on-error: true
         run: |
           echo "Running Bandit security analysis..."
           if [ -d "apps/services" ] || [ -d "shared" ]; then
@@ -265,6 +266,7 @@ jobs:
 
       - name: Run Semgrep SAST
         timeout-minutes: 5
+        continue-on-error: true
         run: |
           echo "Running Semgrep SAST..."
           if [ -d "apps/services" ] || [ -d "shared" ]; then

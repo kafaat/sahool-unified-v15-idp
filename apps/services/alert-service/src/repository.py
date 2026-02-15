@@ -40,7 +40,7 @@ def get_alert(
     db: Session,
     *,
     alert_id: UUID,
-    tenant_id: UUID | None = None,
+    tenant_id: UUID | str | None = None,
 ) -> Alert | None:
     """
     Get a specific alert by ID.
@@ -48,14 +48,14 @@ def get_alert(
     Args:
         db: SQLAlchemy session
         alert_id: Alert UUID
-        tenant_id: Optional tenant UUID for isolation
+        tenant_id: Optional tenant UUID/string for isolation
 
     Returns:
         Alert or None if not found
     """
     query = select(Alert).where(Alert.id == alert_id)
 
-    if tenant_id:
+    if tenant_id is not None:
         query = query.where(Alert.tenant_id == tenant_id)
 
     return db.execute(query).scalar_one_or_none()
@@ -91,7 +91,7 @@ def get_alerts_by_field(
     # Build base query
     query = select(Alert).where(Alert.field_id == field_id)
 
-    if tenant_id:
+    if tenant_id is not None:
         query = query.where(Alert.tenant_id == tenant_id)
 
     if status:
@@ -201,6 +201,11 @@ def update_alert_status(
     return alert
 
 
+# Severity ordering: critical > high > medium > low > info
+# Using CASE expression for correct non-alphabetical ordering
+SEVERITY_ORDER = {"critical": 0, "high": 1, "medium": 2, "low": 3, "info": 4}
+
+
 def get_active_alerts(
     db: Session,
     *,
@@ -216,8 +221,10 @@ def get_active_alerts(
         field_id: Optional field filter
 
     Returns:
-        List of active alerts
+        List of active alerts ordered by severity (critical first)
     """
+    from sqlalchemy import case
+
     now = datetime.now(UTC)
 
     query = (
@@ -226,29 +233,40 @@ def get_active_alerts(
         .where(or_(Alert.expires_at.is_(None), Alert.expires_at > now))
     )
 
-    if tenant_id:
+    if tenant_id is not None:
         query = query.where(Alert.tenant_id == tenant_id)
 
     if field_id:
         query = query.where(Alert.field_id == field_id)
 
-    query = query.order_by(Alert.severity.desc(), Alert.created_at.desc())
+    # Order by actual severity level (not alphabetical)
+    severity_case = case(
+        SEVERITY_ORDER,
+        value=Alert.severity,
+        else_=5,
+    )
+    query = query.order_by(severity_case, Alert.created_at.desc())
 
     return list(db.execute(query).scalars())
 
 
-def delete_alert(db: Session, alert_id: UUID) -> bool:
+def delete_alert(db: Session, alert_id: UUID, *, tenant_id: UUID | str | None = None) -> bool:
     """
     Delete an alert.
 
     Args:
         db: SQLAlchemy session
         alert_id: Alert UUID
+        tenant_id: Optional tenant UUID/string for isolation
 
     Returns:
         True if deleted, False if not found
     """
     query = select(Alert).where(Alert.id == alert_id)
+
+    if tenant_id is not None:
+        query = query.where(Alert.tenant_id == tenant_id)
+
     alert = db.execute(query).scalar_one_or_none()
 
     if not alert:
@@ -281,7 +299,7 @@ def get_alert_statistics(
 
     query = select(Alert).where(Alert.created_at >= cutoff)
 
-    if tenant_id:
+    if tenant_id is not None:
         query = query.where(Alert.tenant_id == tenant_id)
 
     if field_id:

@@ -103,8 +103,9 @@ class Alert(Base):
         comment="Recommendations in English",
     )
 
-    # Metadata
+    # Metadata - column name "metadata" matches migration schema
     extra_metadata: Mapped[dict | None] = mapped_column(
+        "metadata",
         JSONB,
         nullable=True,
         default=dict,

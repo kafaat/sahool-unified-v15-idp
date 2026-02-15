@@ -683,6 +683,14 @@ services:
     restart: "no"
     security_opt:
       - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
     networks:
       - sahool-network
   # MinIO - Object storage for Milvus

@@ -517,6 +517,8 @@ class QualityOrchestrator:
 
     def _load_config(self) -> dict[str, Any]:
         """Load quality configuration - تحميل إعدادات الجودة"""
+        if not YAML_AVAILABLE:
+            return {}
         if Path(self._config_path).exists():
             with open(self._config_path, encoding="utf-8") as f:
                 return yaml.safe_load(f) or {}

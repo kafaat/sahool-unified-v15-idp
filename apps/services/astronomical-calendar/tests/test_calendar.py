@@ -4,7 +4,11 @@ SAHOOL Astronomical Calendar Service - Unit Tests
 """
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 # Mock the main app

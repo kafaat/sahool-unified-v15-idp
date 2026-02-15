@@ -5,7 +5,11 @@ Audit Service Tests
 import os
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 # Set test environment before importing app
 os.environ["ENVIRONMENT"] = "test"

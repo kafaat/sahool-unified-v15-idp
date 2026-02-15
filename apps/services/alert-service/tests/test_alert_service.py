@@ -4,11 +4,16 @@ Comprehensive unit tests for alert business logic
 Coverage: Repository operations, alert rules, statistics, event processing
 """
 
+import pytest
+
+try:
+    import pydantic  # noqa: F401
+except ImportError:
+    pytest.skip("pydantic not installed", allow_module_level=True)
+
 from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
-
-import pytest
 
 
 @pytest.fixture
@@ -130,9 +135,11 @@ class TestAlertRepository:
         """Test getting alerts by field"""
         from src.repository import get_alerts_by_field
 
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=[mock_alert])
-        mock_db_session.execute = MagicMock(return_value=mock_result)
+        mock_count_result = MagicMock()
+        mock_count_result.scalar = MagicMock(return_value=1)
+        mock_data_result = MagicMock()
+        mock_data_result.scalars = MagicMock(return_value=[mock_alert])
+        mock_db_session.execute = MagicMock(side_effect=[mock_count_result, mock_data_result])
 
         alerts, total = get_alerts_by_field(mock_db_session, field_id="field-123")
 
@@ -144,9 +151,11 @@ class TestAlertRepository:
         """Test getting alerts with filters"""
         from src.repository import get_alerts_by_field
 
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=[mock_alert])
-        mock_db_session.execute = MagicMock(return_value=mock_result)
+        mock_count_result = MagicMock()
+        mock_count_result.scalar = MagicMock(return_value=1)
+        mock_data_result = MagicMock()
+        mock_data_result.scalars = MagicMock(return_value=[mock_alert])
+        mock_db_session.execute = MagicMock(side_effect=[mock_count_result, mock_data_result])
 
         alerts, total = get_alerts_by_field(
             mock_db_session,
@@ -165,9 +174,11 @@ class TestAlertRepository:
         from src.repository import get_alerts_by_field
 
         mock_alerts = [mock_alert] * 5
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=mock_alerts)
-        mock_db_session.execute = MagicMock(return_value=mock_result)
+        mock_count_result = MagicMock()
+        mock_count_result.scalar = MagicMock(return_value=5)
+        mock_data_result = MagicMock()
+        mock_data_result.scalars = MagicMock(return_value=mock_alerts)
+        mock_db_session.execute = MagicMock(side_effect=[mock_count_result, mock_data_result])
 
         alerts, total = get_alerts_by_field(mock_db_session, field_id="field-123", skip=10, limit=5)
 
@@ -765,9 +776,11 @@ class TestComplexQueries:
         """Test getting alerts with multiple filters"""
         from src.repository import get_alerts_by_field
 
-        mock_result = MagicMock()
-        mock_result.scalars = MagicMock(return_value=[mock_alert])
-        mock_db_session.execute = MagicMock(return_value=mock_result)
+        mock_count_result = MagicMock()
+        mock_count_result.scalar = MagicMock(return_value=1)
+        mock_data_result = MagicMock()
+        mock_data_result.scalars = MagicMock(return_value=[mock_alert])
+        mock_db_session.execute = MagicMock(side_effect=[mock_count_result, mock_data_result])
 
         alerts, total = get_alerts_by_field(
             mock_db_session,

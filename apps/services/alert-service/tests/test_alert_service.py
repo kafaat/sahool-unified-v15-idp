@@ -7,7 +7,6 @@ Coverage: Repository operations, alert rules, statistics, event processing
 import pytest
 
 try:
-    import sqlalchemy  # noqa: F401
     import pydantic  # noqa: F401
     import nats  # noqa: F401
 except ImportError:

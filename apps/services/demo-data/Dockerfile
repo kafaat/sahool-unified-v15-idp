@@ -13,9 +13,35 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
+# Configure pip for network resilience
+RUN pip install --no-cache-dir --upgrade pip && \
+    mkdir -p /root/.pip && \
+    cat > /root/.pip/pip.conf <<'EOF'
+[global]
+timeout = 300
+retries = 10
+index-url = https://mirrors.aliyun.com/pypi/simple/
+extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://pypi.org/simple/
+trusted-host = mirrors.aliyun.com
+               pypi.tuna.tsinghua.edu.cn
+               pypi.org
+               files.pythonhosted.org
+[install]
+prefer-binary = true
+EOF
+
 # Install dependencies with retry for network resilience
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip && \
-    pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ httpx[http2]
+RUN pip install --no-cache-dir --timeout=600 --retries=5 httpx[http2] || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    httpx[http2] || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    httpx[http2]
 
 # Copy application
 COPY apps/services/demo-data/main.py .

@@ -383,14 +383,22 @@ services:
 
 ## Events | الأحداث
 
-### Produces
+### NATS Subjects Published | مواضيع NATS المنشورة
 
-| Event | Description |
-|-------|-------------|
-| `PestDetected.v1` | Pest identified in image |
-| `DiseaseDetected.v1` | Disease detected with severity |
-| `WeedDetected.v1` | Weed species identified |
-| `CriticalPestAlert.v1` | Critical pest (e.g., RPW) detected |
+| Subject | Trigger | Description |
+|---------|---------|-------------|
+| `sahool.vision.pest_detected` | Pest detection | Published for each pest found in image |
+| `sahool.vision.disease_detected` | Disease detection | Published for each disease found |
+| `sahool.vision.weed_detected` | Weed detection | Published for each weed found |
+| `sahool.vision.critical_alert` | Critical pest (RPW, locust) | Emergency alert for high-priority pests |
+| `sahool.vision.plant_count_completed` | Plant counting | Published after plant count analysis |
+| `sahool.vision.analysis_started` | Analysis begins | Lifecycle event |
+| `sahool.vision.analysis_completed` | Analysis ends | Lifecycle event |
+| `sahool.vision.analysis_failed` | Analysis fails | Error lifecycle event |
+
+Tenant-scoped pattern: `sahool.tenant.{tenant_id}.vision.{event_type}`
+
+Event schemas: `shared/events/vision_events.py`
 
 ### Consumes
 
@@ -468,4 +476,4 @@ Proprietary - KAFAAT
 ---
 
 **Version**: 16.0.0
-**Last Updated**: January 2026
+**Last Updated**: February 2026

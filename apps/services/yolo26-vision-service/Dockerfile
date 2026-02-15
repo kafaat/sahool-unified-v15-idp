@@ -138,7 +138,8 @@ RUN touch /app/src/__init__.py \
     && touch /app/src/api/__init__.py \
     && touch /app/src/api/endpoints/__init__.py \
     && touch /app/src/core/__init__.py \
-    && touch /app/src/models/__init__.py
+    && touch /app/src/models/__init__.py \
+    && touch /app/src/events/__init__.py
 
 # Environment variables
 ENV ENVIRONMENT=production
@@ -283,7 +284,8 @@ RUN touch /app/src/__init__.py \
     && touch /app/src/api/__init__.py \
     && touch /app/src/api/endpoints/__init__.py \
     && touch /app/src/core/__init__.py \
-    && touch /app/src/models/__init__.py
+    && touch /app/src/models/__init__.py \
+    && touch /app/src/events/__init__.py
 
 # Environment variables
 ENV ENVIRONMENT=production

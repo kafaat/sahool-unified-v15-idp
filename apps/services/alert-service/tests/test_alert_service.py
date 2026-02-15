@@ -9,7 +9,7 @@ import pytest
 try:
     import pydantic  # noqa: F401
 except ImportError:
-    pass
+    pytest.skip("pydantic not installed", allow_module_level=True)
 
 from datetime import UTC, datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch

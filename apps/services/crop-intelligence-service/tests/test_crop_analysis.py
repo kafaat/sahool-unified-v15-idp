@@ -16,7 +16,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 try:
-    import fastapi.testclient
+    from fastapi.testclient import TestClient  # noqa: F401
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 

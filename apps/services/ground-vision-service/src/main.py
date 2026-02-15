@@ -546,9 +546,10 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
                 "timestamp": datetime.now(UTC).isoformat(),
             }, default=str).encode()
             await state.nc.publish(subject, payload)
-            logger.info(f"Published timeline_updated for {request.field_id}")
+            safe_field_id = str(request.field_id).replace('\r', '').replace('\n', '')
+            logger.info("Published timeline_updated for %s", safe_field_id)
         except Exception as e:
-            logger.warning(f"Failed to publish timeline_updated event: {e}")
+            logger.warning("Failed to publish timeline_updated event: %s", str(e))
 
     return response
 

@@ -187,10 +187,12 @@ def _validate_table(
     quoted_table = f'"{table}"'
 
     # Count total with geometry
+    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))
     setattr(report, checked_attr, count_result.scalar() or 0)
 
     # Count invalid
+    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     invalid_result = db.execute(
         text(
             f"""
@@ -214,6 +216,7 @@ def _validate_table(
     # ST_CollectionExtract(..., 3) extracts polygons (type 3)
     # ST_MakeValid attempts to repair invalid geometries
     # ST_Force2D ensures 2D geometry (removes Z/M)
+    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
     fix_result = db.execute(
         text(
             f"""

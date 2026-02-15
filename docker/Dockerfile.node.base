@@ -33,6 +33,9 @@ RUN apt-get update && \
         ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+# Configure npm registry mirror for network resilience
+RUN npm config set registry https://registry.npmmirror.com
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Dependencies Stage
 # ─────────────────────────────────────────────────────────────────────────────
@@ -43,7 +46,8 @@ COPY package*.json ./
 
 # Install production dependencies only
 # Using --omit=dev instead of deprecated --only=production
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev || \
+    (npm config set registry https://registry.npmjs.org && npm ci --omit=dev)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Build Stage (for TypeScript)
@@ -51,7 +55,8 @@ RUN npm ci --omit=dev
 FROM dependencies AS builder
 
 # Install all dependencies (including dev)
-RUN npm ci
+RUN npm ci || \
+    (npm config set registry https://registry.npmjs.org && npm ci)
 
 # Copy source
 COPY . .

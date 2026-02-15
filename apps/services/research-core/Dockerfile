@@ -23,6 +23,7 @@ WORKDIR /workspace/research-core
 
 # Install dependencies with resilient retry loop and npm cache
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing dependencies..." && \
         npm install --legacy-peer-deps \
@@ -34,7 +35,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && break || \
         (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
-    done || (echo "npm install failed after 3 attempts" && exit 1)
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema and generate client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -66,6 +69,7 @@ COPY --from=builder /workspace/research-core/package-lock.json ./
 
 # Install production dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..." && \
         (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -85,7 +89,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund) && break || \
         (echo "Attempt $i failed, waiting $((i * 10)) seconds before retry..." && sleep $((i * 10))); \
-    done || (echo "npm install production failed after retries" && exit 1)
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/research-core/prisma ./prisma/

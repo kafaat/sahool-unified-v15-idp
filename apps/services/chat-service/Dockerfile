@@ -24,6 +24,7 @@ WORKDIR /workspace/chat-service
 # Install dependencies (with retries for network resilience)
 # Use shell-level retry loop for better handling of network timeouts
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3 4 5; do \
         echo "Attempt $i: Installing npm dependencies..." && \
         npm install --legacy-peer-deps \
@@ -35,7 +36,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
 # Copy prisma schema and generate client
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
@@ -65,6 +68,7 @@ RUN apt-get update && \
 COPY --from=builder /workspace/chat-service/package.json ./
 COPY --from=builder /workspace/chat-service/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
     for i in 1 2 3; do \
         echo "Attempt $i: Installing production dependencies..." && \
         (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
@@ -84,7 +88,9 @@ RUN --mount=type=cache,target=/root/.npm \
             --no-audit \
             --no-fund) && break || \
         (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
-    done
+    done || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/chat-service/prisma ./prisma/

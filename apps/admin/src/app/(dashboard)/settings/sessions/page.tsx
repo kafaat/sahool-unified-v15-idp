@@ -72,9 +72,9 @@ export default function SessionManagementPage() {
 
       // Refresh sessions list
       await fetchSessions();
-    } catch (err) {
-      alert(locale === 'ar' 
-        ? 'فشل إلغاء الجلسة' 
+    } catch {
+      alert(locale === 'ar'
+        ? 'فشل إلغاء الجلسة'
         : 'Failed to revoke session'
       );
     }

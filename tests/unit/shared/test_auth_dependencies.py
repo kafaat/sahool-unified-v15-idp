@@ -421,4 +421,4 @@ class TestGetOptionalUser:
         )
 
         with pytest.raises(AttributeError, match="has no attribute 'value'"):
-            get_optional_user(credentials=credentials)
+            get_optional_user(credentials)

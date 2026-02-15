@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import '../utils/app_logger.dart';
 
 /// SSL Certificate Pinning Service

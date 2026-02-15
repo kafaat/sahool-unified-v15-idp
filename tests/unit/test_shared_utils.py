@@ -246,6 +246,10 @@ class TestCacheDecorator:
             call_count += 1
             return x * 2
 
+        # Clear cache before test to ensure clean state
+        cache = get_cache_manager()
+        await cache.clear()
+
         result1 = await test_func(5)
         result2 = await test_func(10)
 

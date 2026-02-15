@@ -200,7 +200,7 @@ function generateRandomPolygon(
 
   for (let i = 0; i <= points; i++) {
     const angle = i * angleStep;
-    const r = radius * (0.8 + Math.random() * 0.4); // vary radius
+    const r = radius * (0.8 + secureRandom() * 0.4); // vary radius
     const lat = centerLat + r * Math.cos(angle);
     const lon = centerLon + r * Math.sin(angle);
     coordinates.push([lon, lat]); // GeoJSON format: [lon, lat]
@@ -273,6 +273,13 @@ export function generateRandomEquipment(fieldId = null, tenantId = null) {
   };
 }
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 /**
  * Random string generator
  */
@@ -280,7 +287,7 @@ export function randomString(length = 8) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -289,14 +296,14 @@ export function randomString(length = 8) {
  * Random integer between min and max (inclusive)
  */
 export function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(secureRandom() * (max - min + 1)) + min;
 }
 
 /**
  * Random float between min and max
  */
 export function randomFloat(min, max, decimals = 2) {
-  const value = Math.random() * (max - min) + min;
+  const value = secureRandom() * (max - min) + min;
   return parseFloat(value.toFixed(decimals));
 }
 
@@ -304,7 +311,7 @@ export function randomFloat(min, max, decimals = 2) {
  * Random element from array
  */
 export function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 /**

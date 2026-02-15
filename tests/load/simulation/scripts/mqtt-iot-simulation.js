@@ -235,6 +235,13 @@ export const options = {
 // HELPER FUNCTIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function generateDeviceId(type, vu) {
   return `${type}_${vu.toString().padStart(4, "0")}_${Date.now().toString(36)}`;
 }
@@ -244,8 +251,8 @@ function generateMacAddress() {
   let mac = "";
   for (let i = 0; i < 6; i++) {
     if (i > 0) mac += ":";
-    mac += hex.charAt(Math.floor(Math.random() * 16));
-    mac += hex.charAt(Math.floor(Math.random() * 16));
+    mac += hex.charAt(Math.floor(secureRandom() * 16));
+    mac += hex.charAt(Math.floor(secureRandom() * 16));
   }
   return mac;
 }
@@ -266,11 +273,11 @@ function getDeviceHeaders(deviceId, deviceType, model) {
 
 function generateGPS(location) {
   return {
-    latitude: location.lat + (Math.random() - 0.5) * 0.02,
-    longitude: location.lng + (Math.random() - 0.5) * 0.02,
+    latitude: location.lat + (secureRandom() - 0.5) * 0.02,
+    longitude: location.lng + (secureRandom() - 0.5) * 0.02,
     altitude: randomIntBetween(100, 500),
     accuracy: randomIntBetween(3, 15),
-    speed: Math.random() * 5, // m/s
+    speed: secureRandom() * 5, // m/s
     heading: randomIntBetween(0, 360),
   };
 }
@@ -377,25 +384,25 @@ export function soilSensorFlow() {
         {
           type: "soil_moisture",
           depth_cm: depth1,
-          value: 15 + Math.random() * 45, // 15-60%
+          value: 15 + secureRandom() * 45, // 15-60%
           unit: "percent",
         },
         {
           type: "soil_moisture",
           depth_cm: depth2,
-          value: 20 + Math.random() * 40, // 20-60%
+          value: 20 + secureRandom() * 40, // 20-60%
           unit: "percent",
         },
         {
           type: "soil_temperature",
           depth_cm: depth1,
-          value: 15 + Math.random() * 25, // 15-40°C
+          value: 15 + secureRandom() * 25, // 15-40°C
           unit: "celsius",
         },
         {
           type: "soil_ec", // Electrical conductivity
           depth_cm: depth1,
-          value: 0.5 + Math.random() * 3, // dS/m
+          value: 0.5 + secureRandom() * 3, // dS/m
           unit: "dS/m",
         },
       ],
@@ -440,19 +447,19 @@ export function weatherStationFlow() {
       device_id: deviceId,
       readings: {
         temperature: {
-          value: 20 + Math.random() * 30, // 20-50°C (Saudi Arabia)
+          value: 20 + secureRandom() * 30, // 20-50°C (Saudi Arabia)
           unit: "celsius",
         },
         humidity: {
-          value: 10 + Math.random() * 50, // 10-60%
+          value: 10 + secureRandom() * 50, // 10-60%
           unit: "percent",
         },
         pressure: {
-          value: 1000 + Math.random() * 30, // hPa
+          value: 1000 + secureRandom() * 30, // hPa
           unit: "hPa",
         },
         wind_speed: {
-          value: Math.random() * 30, // 0-30 m/s
+          value: secureRandom() * 30, // 0-30 m/s
           unit: "m/s",
         },
         wind_direction: {
@@ -460,19 +467,19 @@ export function weatherStationFlow() {
           unit: "degrees",
         },
         solar_radiation: {
-          value: 200 + Math.random() * 800, // W/m²
+          value: 200 + secureRandom() * 800, // W/m²
           unit: "W/m2",
         },
         uv_index: {
-          value: Math.random() * 11, // 0-11
+          value: secureRandom() * 11, // 0-11
           unit: "index",
         },
         precipitation: {
-          value: Math.random() < 0.1 ? Math.random() * 10 : 0, // mm
+          value: secureRandom() < 0.1 ? secureRandom() * 10 : 0, // mm
           unit: "mm",
         },
         evapotranspiration: {
-          value: 2 + Math.random() * 8, // mm/day
+          value: 2 + secureRandom() * 8, // mm/day
           unit: "mm/day",
         },
       },
@@ -483,7 +490,7 @@ export function weatherStationFlow() {
         elevation: randomIntBetween(100, 1500),
       },
       battery_level: randomIntBetween(50, 100),
-      solar_panel_voltage: 12 + Math.random() * 6,
+      solar_panel_voltage: 12 + secureRandom() * 6,
       timestamp: new Date().toISOString(),
     };
 
@@ -548,7 +555,7 @@ export function irrigationControllerFlow() {
       zoneStatuses.push({
         zone_id: i,
         status: randomItem(["active", "idle", "scheduled", "fault"]),
-        flow_rate: Math.random() * 50, // L/min
+        flow_rate: secureRandom() * 50, // L/min
         duration_today: randomIntBetween(0, 120), // minutes
         next_schedule: new Date(
           Date.now() + randomIntBetween(1, 24) * 3600000,
@@ -561,7 +568,7 @@ export function irrigationControllerFlow() {
       controller_status: randomItem(["running", "standby", "maintenance"]),
       zones: zoneStatuses,
       total_water_today: randomIntBetween(100, 5000), // liters
-      pressure: 2 + Math.random() * 4, // bar
+      pressure: 2 + secureRandom() * 4, // bar
       location: {
         ...generateGPS(location),
         farm_name: location.name,
@@ -607,13 +614,13 @@ export function gpsTrackerFlow() {
         timestamp: new Date().toISOString(),
       },
       motion: {
-        is_moving: Math.random() > 0.3,
+        is_moving: secureRandom() > 0.3,
         speed_kmh: gps.speed * 3.6,
         heading: gps.heading,
         distance_today: randomIntBetween(0, 100), // km
       },
       geofence: {
-        inside_boundary: Math.random() > 0.1,
+        inside_boundary: secureRandom() > 0.1,
         nearest_boundary_m: randomIntBetween(10, 1000),
         zone_name: location.name,
       },
@@ -621,7 +628,7 @@ export function gpsTrackerFlow() {
         battery_level: randomIntBetween(10, 100),
         signal_strength: -30 - randomIntBetween(0, 70),
         satellites_in_view: randomIntBetween(6, 14),
-        hdop: 0.5 + Math.random() * 2,
+        hdop: 0.5 + secureRandom() * 2,
       },
       timestamp: new Date().toISOString(),
     };
@@ -820,7 +827,7 @@ ERRORS:
 
 // Default function for standalone execution
 export default function () {
-  const rand = Math.random();
+  const rand = secureRandom();
   if (rand < SOIL_SENSOR_RATIO) {
     soilSensorFlow();
   } else if (rand < SOIL_SENSOR_RATIO + WEATHER_STATION_RATIO) {

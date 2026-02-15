@@ -16,7 +16,7 @@ Updated: January 2026
 """
 
 import json
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
@@ -290,7 +290,7 @@ class TestAuditEntryModels:
 
     def test_audit_entry_expiration_calculation(self):
         """Test automatic expiration date calculation."""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         entry = AuditEntry(
             tenant_id="farm-001",
             timestamp=now,
@@ -425,7 +425,7 @@ class TestAuditEntryModels:
         """Test RetentionJob model."""
         job = RetentionJob(
             policy_id="policy-001",
-            started_at=datetime.utcnow(),
+            started_at=datetime.now(UTC),
             status="running",
         )
 
@@ -918,7 +918,7 @@ class TestReportGeneration:
 
     def test_user_activity_summary_with_period(self, sample_entries):
         """Test user activity summary with time period."""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         start = now - timedelta(days=1)
         end = now + timedelta(days=1)
 
@@ -940,8 +940,8 @@ class TestReportGeneration:
         )
 
         report = generator.generate_activity_report(
-            period_start=datetime.utcnow() - timedelta(days=1),
-            period_end=datetime.utcnow() + timedelta(days=1),
+            period_start=datetime.now(UTC) - timedelta(days=1),
+            period_end=datetime.now(UTC) + timedelta(days=1),
         )
 
         assert report.report_type == "activity"
@@ -969,8 +969,8 @@ class TestReportGeneration:
 
         report = generator.generate_globalgap_report(
             ggn="4012345678901",
-            period_start=datetime.utcnow() - timedelta(days=30),
-            period_end=datetime.utcnow(),
+            period_start=datetime.now(UTC) - timedelta(days=30),
+            period_end=datetime.now(UTC),
         )
 
         assert report.report_type == "globalgap"
@@ -1090,7 +1090,7 @@ class TestRetentionPolicies:
         )
 
         job.status = "completed"
-        job.completed_at = datetime.utcnow()
+        job.completed_at = datetime.now(UTC)
         job.entries_processed = 100
         job.entries_deleted = 50
         job.entries_archived = 50

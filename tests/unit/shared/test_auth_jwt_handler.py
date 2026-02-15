@@ -344,8 +344,13 @@ class TestSecurityFeatures:
         assert payload1.jti != payload2.jti
 
     def test_iat_is_current_time(self):
-        """Test that iat (issued at) is set to current time."""
-        before = datetime.now(UTC)
+        """Test that iat (issued at) is set to current time.
+
+        Note: JWT timestamps are stored as integer seconds, so microseconds
+        are lost during encode/decode. We truncate 'before' to whole seconds
+        to account for this precision loss.
+        """
+        before = datetime.now(UTC).replace(microsecond=0)
         token = create_access_token(user_id="user123", roles=["farmer"])
         after = datetime.now(UTC)
 

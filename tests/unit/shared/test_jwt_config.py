@@ -265,7 +265,7 @@ class TestJWTConfig:
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        with pytest.raises(ValueError, match="JWT_SECRET"):
+        with pytest.raises(module.JWTConfigError, match="JWT_SECRET"):
             module.JWTConfig.validate()
 
     def test_validate_production_with_valid_secret(self):
@@ -487,12 +487,16 @@ class TestJWTConfig:
             module.JWTConfig.validate()
 
     def test_validate_redis_not_configured(self):
-        """Test validation fails when token revocation enabled but Redis not configured"""
+        """Test validation fails when token revocation enabled but Redis not configured.
+
+        Note: REDIS_HOST must be explicitly set to empty string, not just removed
+        from env, because os.getenv("REDIS_HOST", "localhost") defaults to "localhost".
+        """
         os.environ["ENVIRONMENT"] = "production"
         os.environ["JWT_SECRET_KEY"] = "a" * 32
         os.environ["TOKEN_REVOCATION_ENABLED"] = "true"
-        os.environ.pop("REDIS_URL", None)
-        os.environ.pop("REDIS_HOST", None)
+        os.environ["REDIS_URL"] = ""
+        os.environ["REDIS_HOST"] = ""
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
@@ -500,7 +504,7 @@ class TestJWTConfig:
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        with pytest.raises(module.JWTConfigError, match="Redis"):
+        with pytest.raises(module.JWTConfigError, match="REDIS"):
             module.JWTConfig.validate()
 
     def test_validate_with_report_returns_dict(self):

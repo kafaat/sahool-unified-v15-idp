@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import '../utils/app_logger.dart';
 
 /// Performance Monitor for tracking app performance metrics

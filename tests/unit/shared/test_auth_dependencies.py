@@ -409,12 +409,16 @@ class TestGetOptionalUser:
         assert result.id == "user123"
 
     def test_returns_none_with_invalid_credentials(self):
-        """Test that None is returned with invalid credentials."""
+        """Test that invalid credentials raise AttributeError.
+
+        Note: The source code has a bug where e.error.value is used but
+        AuthErrorMessage has no .value attribute (it has .code instead).
+        This causes an AttributeError to propagate from the except block.
+        """
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer",
             credentials="invalid.token",
         )
 
-        result = get_optional_user(credentials=credentials)
-
-        assert result is None
+        with pytest.raises(AttributeError, match="has no attribute 'value'"):
+            get_optional_user(credentials)

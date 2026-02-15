@@ -34,6 +34,13 @@ import {
   logIteration,
 } from "../lib/helpers.js";
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 // Test configuration
 export const options = {
   stages: [
@@ -69,7 +76,7 @@ export default function () {
   let fieldId;
 
   // Authenticate (70% of users)
-  if (Math.random() < 0.7) {
+  if (secureRandom() < 0.7) {
     authData = authenticate();
 
     if (!authData || !authData.success) {
@@ -90,7 +97,7 @@ export default function () {
   logIteration(iteration, `VU ${__VU} starting iteration`);
 
   // Scenario 1: Field Management (60% of users)
-  if (Math.random() < 0.6) {
+  if (secureRandom() < 0.6) {
     group("Field Management", () => {
       // List fields
       const listUrl = `${config.fieldServiceUrl}/fields?tenant_id=${authData.tenantId}&limit=20`;
@@ -105,7 +112,7 @@ export default function () {
       sleep(randomInt(1, 2));
 
       // Create field (30% of field management users)
-      if (Math.random() < 0.3) {
+      if (secureRandom() < 0.3) {
         const fieldData = generateRandomField(authData.tenantId);
         const createUrl = `${config.fieldServiceUrl}/fields`;
         const createResponse = authenticatedRequest(
@@ -122,7 +129,7 @@ export default function () {
           sleep(1);
 
           // Update field (50% of created fields)
-          if (Math.random() < 0.5 && fieldId) {
+          if (secureRandom() < 0.5 && fieldId) {
             const updateData = {
               name: `Updated ${fieldData.name}`,
               crop_type: randomElement(["wheat", "tomato", "corn"]),
@@ -139,7 +146,7 @@ export default function () {
   }
 
   // Scenario 2: Weather Information (40% of users)
-  if (Math.random() < 0.4) {
+  if (secureRandom() < 0.4) {
     group("Weather Forecast", () => {
       const locations = ["sanaa", "aden", "taiz", "hodeidah"];
       const location = randomElement(locations);
@@ -163,7 +170,7 @@ export default function () {
   }
 
   // Scenario 3: Satellite Imagery (20% of users)
-  if (Math.random() < 0.2) {
+  if (secureRandom() < 0.2) {
     group("Satellite Analysis", () => {
       // Use existing field or create temporary one
       if (!fieldId) {
@@ -205,7 +212,7 @@ export default function () {
   }
 
   // Scenario 4: Operations Management (35% of users)
-  if (Math.random() < 0.35 && fieldId) {
+  if (secureRandom() < 0.35 && fieldId) {
     group("Field Operations", () => {
       // List operations
       const listUrl = `${config.fieldServiceUrl}/operations?field_id=${fieldId}&limit=10`;
@@ -220,7 +227,7 @@ export default function () {
       sleep(1);
 
       // Create operation (50% of operation users)
-      if (Math.random() < 0.5) {
+      if (secureRandom() < 0.5) {
         const operationData = generateRandomOperation(
           fieldId,
           authData.tenantId,
@@ -243,7 +250,7 @@ export default function () {
           const operationId = result.data.id || result.data.operation_id;
 
           // Complete operation (30% of created operations)
-          if (Math.random() < 0.3 && operationId) {
+          if (secureRandom() < 0.3 && operationId) {
             const completeUrl = `${config.fieldServiceUrl}/operations/${operationId}/complete`;
             authenticatedRequest(
               "POST",
@@ -261,7 +268,7 @@ export default function () {
   }
 
   // Scenario 5: Task Management (30% of users)
-  if (Math.random() < 0.3) {
+  if (secureRandom() < 0.3) {
     group("Task Management", () => {
       // List tasks
       const listUrl = `${config.taskUrl}/api/v1/tasks?limit=20`;
@@ -276,7 +283,7 @@ export default function () {
       sleep(1);
 
       // Create task (40% of task users)
-      if (Math.random() < 0.4 && fieldId) {
+      if (secureRandom() < 0.4 && fieldId) {
         const taskData = generateRandomTask(fieldId, authData.tenantId);
         const createUrl = `${config.taskUrl}/api/v1/tasks`;
         const createResponse = authenticatedRequest(
@@ -292,7 +299,7 @@ export default function () {
           const taskId = result.data.task_id || result.data.id;
 
           // Start task (50% of created tasks)
-          if (Math.random() < 0.5 && taskId) {
+          if (secureRandom() < 0.5 && taskId) {
             const startUrl = `${config.taskUrl}/api/v1/tasks/${taskId}/start`;
             authenticatedRequest("POST", startUrl, {}, authData.token);
             sleep(0.5);
@@ -305,7 +312,7 @@ export default function () {
   }
 
   // Scenario 6: Equipment Management (15% of users)
-  if (Math.random() < 0.15) {
+  if (secureRandom() < 0.15) {
     group("Equipment Management", () => {
       // List equipment
       const listUrl = `${config.equipmentUrl}/api/v1/equipment?limit=20`;
@@ -320,7 +327,7 @@ export default function () {
       sleep(1);
 
       // Create equipment (30% of equipment users)
-      if (Math.random() < 0.3) {
+      if (secureRandom() < 0.3) {
         const equipmentData = generateRandomEquipment(
           fieldId,
           authData.tenantId,
@@ -343,13 +350,13 @@ export default function () {
           const equipmentId = result.data.equipment_id || result.data.id;
 
           // Update telemetry (60% of created equipment)
-          if (Math.random() < 0.6 && equipmentId) {
+          if (secureRandom() < 0.6 && equipmentId) {
             const telemetryUrl = `${config.equipmentUrl}/api/v1/equipment/${equipmentId}/telemetry`;
             const telemetryData = {
               fuel_percent: randomInt(30, 100),
-              hours: randomInt(100, 5000) + Math.random(),
-              lat: 15.3694 + (Math.random() - 0.5) * 0.1,
-              lon: 44.191 + (Math.random() - 0.5) * 0.1,
+              hours: randomInt(100, 5000) + secureRandom(),
+              lat: 15.3694 + (secureRandom() - 0.5) * 0.1,
+              lon: 44.191 + (secureRandom() - 0.5) * 0.1,
             };
             authenticatedRequest(
               "POST",
@@ -367,7 +374,7 @@ export default function () {
   }
 
   // Scenario 7: Irrigation Smart Service (25% of users)
-  if (Math.random() < 0.25 && fieldId) {
+  if (secureRandom() < 0.25 && fieldId) {
     group("Irrigation Calculation", () => {
       const irrigationRequest = createIrrigationRequest(fieldId);
       const url = `${config.fieldServiceUrl}/v1/calculate`;
@@ -385,7 +392,7 @@ export default function () {
   }
 
   // Scenario 8: Billing & Quota Check (10% of users)
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group("Billing Operations", () => {
       // Get quota
       const quotaUrl = `${config.billingUrl}/v1/tenants/${authData.tenantId}/quota`;
@@ -408,7 +415,7 @@ export default function () {
       sleep(1);
 
       // Get plans (20% of billing users)
-      if (Math.random() < 0.2) {
+      if (secureRandom() < 0.2) {
         const plansUrl = `${config.billingUrl}/v1/plans`;
         authenticatedRequest("GET", plansUrl, null, authData.token);
         sleep(0.5);

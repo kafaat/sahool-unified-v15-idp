@@ -138,7 +138,7 @@ def sample_irrigation_features(sample_weather, sample_soil, sample_crop):
 @pytest.fixture
 def sample_irrigation_records():
     """Create sample historical irrigation records"""
-    base_date = datetime.utcnow() - timedelta(days=30)
+    base_date = datetime.now(UTC) - timedelta(days=30)
     records = []
     for i in range(15):
         records.append(
@@ -262,7 +262,7 @@ class TestInputDataValidation:
         assert sample_irrigation_features.days_since_irrigation is None
 
         # Set last irrigation date
-        sample_irrigation_features.last_irrigation_date = datetime.utcnow() - timedelta(days=3)
+        sample_irrigation_features.last_irrigation_date = datetime.now(UTC) - timedelta(days=3)
         days = sample_irrigation_features.days_since_irrigation
         assert days is not None
         assert abs(days - 3.0) < 0.1
@@ -348,12 +348,12 @@ class TestPredictionConfidence:
         predictor = IrrigationPredictor()
 
         # Fresh data (just now)
-        sample_irrigation_features.soil.timestamp = datetime.utcnow()
+        sample_irrigation_features.soil.timestamp = datetime.now(UTC)
         prediction = predictor.predict(sample_irrigation_features)
         fresh_confidence = prediction.confidence
 
         # Old data (2 days ago)
-        sample_irrigation_features.soil.timestamp = datetime.utcnow() - timedelta(hours=48)
+        sample_irrigation_features.soil.timestamp = datetime.now(UTC) - timedelta(hours=48)
         prediction = predictor.predict(sample_irrigation_features)
         old_confidence = prediction.confidence
 
@@ -526,7 +526,7 @@ class TestOptimizationConstraints:
 
         # Create records with too-frequent irrigation
         frequent_records = []
-        base_date = datetime.utcnow() - timedelta(days=5)
+        base_date = datetime.now(UTC) - timedelta(days=5)
         for i in range(10):
             frequent_records.append(
                 IrrigationRecord(
@@ -1219,7 +1219,7 @@ class TestEdgeCasesSensorFailures:
         optimizer = WaterOptimizer()
 
         # Create records with identical values (stuck sensor)
-        base_date = datetime.utcnow() - timedelta(days=10)
+        base_date = datetime.now(UTC) - timedelta(days=10)
         stuck_records = []
         for i in range(10):
             stuck_records.append(
@@ -1243,7 +1243,7 @@ class TestEdgeCasesSensorFailures:
         optimizer = WaterOptimizer()
 
         # Create normal records
-        base_date = datetime.utcnow() - timedelta(days=20)
+        base_date = datetime.now(UTC) - timedelta(days=20)
         records = []
         for i in range(10):
             records.append(
@@ -1272,7 +1272,7 @@ class TestEdgeCasesSensorFailures:
         optimizer = WaterOptimizer()
 
         # Create normal records
-        base_date = datetime.utcnow() - timedelta(days=20)
+        base_date = datetime.now(UTC) - timedelta(days=20)
         records = []
         for i in range(10):
             records.append(
@@ -1300,7 +1300,7 @@ class TestEdgeCasesSensorFailures:
         """Test anomalies have bilingual descriptions"""
         optimizer = WaterOptimizer()
 
-        base_date = datetime.utcnow() - timedelta(days=10)
+        base_date = datetime.now(UTC) - timedelta(days=10)
         records = [
             IrrigationRecord(
                 irrigation_date=base_date + timedelta(days=i),
@@ -1330,7 +1330,7 @@ class TestEdgeCasesSensorFailures:
         # Only 3 records (less than minimum 5)
         records = [
             IrrigationRecord(
-                irrigation_date=datetime.utcnow() - timedelta(days=i),
+                irrigation_date=datetime.now(UTC) - timedelta(days=i),
                 amount_mm=20.0,
                 irrigation_type=IrrigationType.DRIP,
             )
@@ -1587,7 +1587,7 @@ class TestHistoricalAdjustments:
         predictor = IrrigationPredictor()
 
         # Create records with low effectiveness
-        base_date = datetime.utcnow() - timedelta(days=20)
+        base_date = datetime.now(UTC) - timedelta(days=20)
         low_effectiveness_records = []
         for i in range(10):
             low_effectiveness_records.append(

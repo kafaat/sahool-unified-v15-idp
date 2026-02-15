@@ -33,7 +33,6 @@ jobs:
   preview-web:
     name: Web Preview
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/web/package.json') != '' }}
 
     steps:
       - name: Checkout code
@@ -127,7 +126,7 @@ jobs:
             ---
 
             > ⏱️ آخر تحديث: ${new Date().toISOString()}
-            > 📝 Commit: \`${{ github.event.pull_request.head.sha.substring(0, 7) }}\`
+            > 📝 Commit: \`${context.payload.pull_request.head.sha.substring(0, 7)}\`
             `;
 
             // Find existing comment
@@ -162,7 +161,6 @@ jobs:
   preview-flutter:
     name: Flutter Web Preview
     runs-on: ubuntu-latest
-    if: ${{ hashFiles('apps/mobile/pubspec.yaml') != '' }}
 
     steps:
       - name: Checkout code

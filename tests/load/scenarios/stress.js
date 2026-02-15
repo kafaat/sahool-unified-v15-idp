@@ -28,6 +28,13 @@ import {
   logIteration,
 } from "../lib/helpers.js";
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 // Test configuration
 export const options = {
   stages: [
@@ -94,7 +101,7 @@ export default function (data) {
   logIteration(iteration, `VU ${currentVU} - Stress iteration`);
 
   // Stress Pattern 1: Aggressive Field Operations (70% of VUs)
-  if (Math.random() < 0.7) {
+  if (secureRandom() < 0.7) {
     group("Aggressive Field Operations", () => {
       // Rapid field creation
       for (let i = 0; i < randomInt(1, 3); i++) {
@@ -136,7 +143,7 @@ export default function (data) {
   }
 
   // Stress Pattern 2: Heavy Weather Requests (50% of VUs)
-  if (Math.random() < 0.5) {
+  if (secureRandom() < 0.5) {
     group("Heavy Weather Requests", () => {
       const locations = ["sanaa", "aden", "taiz", "hodeidah", "ibb", "dhamar"];
 
@@ -165,7 +172,7 @@ export default function (data) {
   }
 
   // Stress Pattern 3: Concurrent Operations (40% of VUs)
-  if (Math.random() < 0.4) {
+  if (secureRandom() < 0.4) {
     group("Concurrent Operations", () => {
       // Create field first
       const fieldData = generateRandomField(authData.tenantId);
@@ -218,7 +225,7 @@ export default function (data) {
   }
 
   // Stress Pattern 4: Billing Quota Checks (30% of VUs)
-  if (Math.random() < 0.3) {
+  if (secureRandom() < 0.3) {
     group("Quota Check Storm", () => {
       // Rapid quota checks
       for (let i = 0; i < randomInt(5, 10); i++) {
@@ -241,7 +248,7 @@ export default function (data) {
   }
 
   // Stress Pattern 5: Mixed Read/Write (60% of VUs)
-  if (Math.random() < 0.6) {
+  if (secureRandom() < 0.6) {
     group("Mixed Operations", () => {
       const operations = [
         // Read operations
@@ -293,7 +300,7 @@ export default function (data) {
   }
 
   // Stress Pattern 6: Health Check Spam (10% of VUs)
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group("Health Check Storm", () => {
       const healthEndpoints = [
         `${config.fieldServiceUrl}/healthz`,

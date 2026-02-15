@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import Header from "@/components/layout/Header";
 import StatCard from "@/components/ui/StatCard";
 import AlertBadge from "@/components/ui/AlertBadge";
-import { fetchDashboardStats, fetchFarms, fetchDiagnoses } from "@/lib/api";
+import { fetchDashboardStats, fetchFarms, fetchDiagnoses, fetchYieldTrends, fetchCropDistribution, fetchWeeklyActivity, fetchPlatformMetrics } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import type { DashboardStats, Farm, DiagnosisRecord } from "@/types";
 import type { BaseFarmData } from "@/components/maps/FarmsMap";
@@ -84,34 +84,6 @@ const CHART_COLORS = {
 
 const PIE_COLORS = ["#2E7D32", "#4CAF50", "#81C784", "#A5D6A7", "#C8E6C9"];
 
-// Mock data for charts
-const yieldTrendData = [
-  { month: "يناير", yield: 120, forecast: 115 },
-  { month: "فبراير", yield: 140, forecast: 135 },
-  { month: "مارس", yield: 280, forecast: 250 },
-  { month: "أبريل", yield: 320, forecast: 300 },
-  { month: "مايو", yield: 180, forecast: 190 },
-  { month: "يونيو", yield: 95, forecast: 100 },
-];
-
-const cropDistributionData = [
-  { name: "قمح", value: 35 },
-  { name: "بن", value: 25 },
-  { name: "قات", value: 20 },
-  { name: "فواكه", value: 12 },
-  { name: "خضروات", value: 8 },
-];
-
-const weeklyActivityData = [
-  { day: "السبت", diagnoses: 12, irrigations: 8, alerts: 3 },
-  { day: "الأحد", diagnoses: 18, irrigations: 12, alerts: 5 },
-  { day: "الاثنين", diagnoses: 15, irrigations: 10, alerts: 2 },
-  { day: "الثلاثاء", diagnoses: 22, irrigations: 15, alerts: 4 },
-  { day: "الأربعاء", diagnoses: 19, irrigations: 11, alerts: 6 },
-  { day: "الخميس", diagnoses: 25, irrigations: 14, alerts: 3 },
-  { day: "الجمعة", diagnoses: 8, irrigations: 5, alerts: 1 },
-];
-
 export default function DashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [farms, setFarms] = useState<Farm[]>([]);
@@ -119,6 +91,16 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFarm, setSelectedFarm] = useState<Farm | null>(null);
+  const [yieldTrendData, setYieldTrendData] = useState<Array<{ month: string; yield: number; forecast: number }>>([]);
+  const [cropDistributionData, setCropDistributionData] = useState<Array<{ name: string; value: number }>>([]);
+  const [weeklyActivityData, setWeeklyActivityData] = useState<Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>>([]);
+  const [platformMetrics, setPlatformMetrics] = useState<{
+    activeFarmers: number;
+    dailySales: number;
+    irrigationOps: number;
+    avgTemperature: number;
+    monthlyGrowthRate: number;
+  } | null>(null);
 
   // WebSocket integration for real-time updates
   const { isConnected } = useWebSocket({ autoConnect: true });
@@ -131,11 +113,14 @@ export default function DashboardPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        // Use Promise.allSettled to handle partial failures gracefully
         const results = await Promise.allSettled([
           fetchDashboardStats(),
           fetchFarms(),
           fetchDiagnoses({ limit: 5 }),
+          fetchYieldTrends("30d"),
+          fetchCropDistribution(),
+          fetchWeeklyActivity(),
+          fetchPlatformMetrics(),
         ]);
 
         let failedCount = 0;
@@ -164,11 +149,38 @@ export default function DashboardPage() {
           failedCount++;
         }
 
-        // Show error if all requests failed
+        // Handle yield trends
+        if (results[3].status === "fulfilled") {
+          setYieldTrendData(results[3].value);
+        } else {
+          logger.error("Failed to load yield trends:", results[3].reason);
+        }
+
+        // Handle crop distribution
+        if (results[4].status === "fulfilled") {
+          setCropDistributionData(results[4].value);
+        } else {
+          logger.error("Failed to load crop distribution:", results[4].reason);
+        }
+
+        // Handle weekly activity
+        if (results[5].status === "fulfilled") {
+          setWeeklyActivityData(results[5].value);
+        } else {
+          logger.error("Failed to load weekly activity:", results[5].reason);
+        }
+
+        // Handle platform metrics
+        if (results[6].status === "fulfilled") {
+          setPlatformMetrics(results[6].value);
+        } else {
+          logger.error("Failed to load platform metrics:", results[6].reason);
+        }
+
+        // Show error if core requests failed
         if (failedCount === 3) {
           setLoadError("فشل تحميل بيانات لوحة التحكم. يرجى التحقق من الاتصال.");
         } else if (failedCount > 0) {
-          // Partial failure - log but don't show error to user
           logger.warn(`${failedCount} of 3 dashboard data requests failed`);
         }
       } catch (error) {
@@ -303,7 +315,6 @@ export default function DashboardPage() {
           title="إجمالي المزارع"
           value={stats?.totalFarms || 0}
           icon={MapPin}
-          trend={{ value: 12, isPositive: true }}
           iconColor="text-blue-600"
         />
         <StatCard
@@ -311,14 +322,12 @@ export default function DashboardPage() {
           value={stats?.totalArea?.toFixed(1) || "0"}
           suffix="هكتار"
           icon={Leaf}
-          trend={{ value: 8, isPositive: true }}
           iconColor="text-green-600"
         />
         <StatCard
           title="التشخيصات هذا الأسبوع"
           value={stats?.weeklyDiagnoses || 0}
           icon={Bug}
-          trend={{ value: 23, isPositive: true }}
           iconColor="text-purple-600"
         />
         <StatCard
@@ -362,6 +371,7 @@ export default function DashboardPage() {
             </span>
           </div>
           <div className="h-64">
+            {yieldTrendData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={yieldTrendData}>
                 <defs>
@@ -414,6 +424,11 @@ export default function DashboardPage() {
                 />
               </AreaChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <p>لا توجد بيانات متاحة</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -437,6 +452,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="h-64">
+            {weeklyActivityData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={weeklyActivityData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -470,6 +486,11 @@ export default function DashboardPage() {
                 />
               </BarChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <p>لا توجد بيانات متاحة</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -480,6 +501,7 @@ export default function DashboardPage() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-4">توزيع المحاصيل</h3>
           <div className="h-48">
+            {cropDistributionData.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -505,6 +527,11 @@ export default function DashboardPage() {
                 <Tooltip />
               </PieChart>
             </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-gray-400">
+                <p>لا توجد بيانات متاحة</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -514,32 +541,32 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Users className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">1,240</p>
+              <p className="text-2xl font-bold">{platformMetrics?.activeFarmers?.toLocaleString() || "—"}</p>
               <p className="text-xs opacity-80">مزارع نشط</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <DollarSign className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">$42K</p>
+              <p className="text-2xl font-bold">{platformMetrics?.dailySales ? `$${(platformMetrics.dailySales / 1000).toFixed(0)}K` : "—"}</p>
               <p className="text-xs opacity-80">مبيعات اليوم</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Droplets className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">156</p>
+              <p className="text-2xl font-bold">{platformMetrics?.irrigationOps?.toLocaleString() || "—"}</p>
               <p className="text-xs opacity-80">عملية ري</p>
             </div>
             <div className="bg-white/10 rounded-lg p-4 backdrop-blur-sm">
               <Sun className="w-6 h-6 mb-2 opacity-80" />
-              <p className="text-2xl font-bold">28°</p>
+              <p className="text-2xl font-bold">{platformMetrics?.avgTemperature ? `${platformMetrics.avgTemperature}°` : "—"}</p>
               <p className="text-xs opacity-80">متوسط الحرارة</p>
             </div>
           </div>
           <div className="mt-4 pt-4 border-t border-white/20">
             <div className="flex items-center justify-between text-sm">
               <span className="opacity-80">نسبة النمو الشهري</span>
-              <span className="font-bold text-green-300">+12.5%</span>
+              <span className="font-bold text-green-300">{platformMetrics?.monthlyGrowthRate ? `+${platformMetrics.monthlyGrowthRate}%` : "—"}</span>
             </div>
             <div className="mt-2 h-2 bg-white/20 rounded-full overflow-hidden">
-              <div className="h-full w-3/4 bg-green-400 rounded-full"></div>
+              <div className="h-full bg-green-400 rounded-full" style={{ width: `${Math.min(platformMetrics?.monthlyGrowthRate || 0, 100)}%` }}></div>
             </div>
           </div>
         </div>

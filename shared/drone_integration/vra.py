@@ -417,9 +417,9 @@ class VRAGenerator:
         # Configure for weed mapping
         weed_config = VRAConfig(
             source_type=VRASourceType.WEED,
-            classification_method=ClassificationMethod.THRESHOLD,
+            classification_method=ClassificationMethod.MANUAL,
             base_rate_l_ha=base_rate_l_ha,
-            adjustment_mode=RateAdjustmentMode.PROPORTIONAL,
+            adjustment_mode=RateAdjustmentMode.THRESHOLD,
             zone_count=3,
             custom_thresholds=[0.3, 0.7],
         )

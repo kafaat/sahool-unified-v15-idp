@@ -127,7 +127,7 @@ function randomString(length = 8) {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let result = "";
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -191,6 +191,13 @@ function categorizeError(response) {
   }
 
   return "other";
+}
+
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -329,7 +336,7 @@ export default function (data) {
 
     profileDuration.add(profileEnd - profileStart);
 
-    const profileSuccess = check(profileRes, {
+    check(profileRes, {
       "profile status is 200 or 401": (r) =>
         r.status === 200 || r.status === 401,
       "profile response time < 500ms": (r) => r.timings.duration < 500,
@@ -404,7 +411,7 @@ export default function (data) {
       name: `Agent ${agentId} Field ${randomString(4)}`,
       name_ar: `حقل الوكيل ${agentId}`,
       crop_type: "wheat",
-      area_hectares: Math.random() * 10 + 1,
+      area_hectares: secureRandom() * 10 + 1,
       geometry: {
         type: "Polygon",
         coordinates: [
@@ -434,7 +441,7 @@ export default function (data) {
     );
     fieldCreateDuration.add(Date.now() - createStart);
 
-    const createSuccess = check(createRes, {
+    check(createRes, {
       "create field status is 201 or 200": (r) =>
         r.status === 201 || r.status === 200,
       "create field response time < 1s": (r) => r.timings.duration < 1000,
@@ -482,7 +489,7 @@ export default function (data) {
   }
 
   // Think time between iterations
-  sleep(Math.random() * 2 + 1);
+  sleep(secureRandom() * 2 + 1);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

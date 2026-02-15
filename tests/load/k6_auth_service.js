@@ -98,6 +98,13 @@ export const options = {
 // Helper Functions
 // =============================================================================
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function getHeaders(token) {
   const headers = {
     'Content-Type': 'application/json',
@@ -111,22 +118,22 @@ function getHeaders(token) {
 }
 
 function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 function randomFloat(min, max) {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(2));
+  return parseFloat((secureRandom() * (max - min) + min).toFixed(2));
 }
 
 function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(secureRandom() * (max - min + 1)) + min;
 }
 
 function randomString(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -355,7 +362,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 4: Token Validation (30% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.3 && accessToken) {
+  if (secureRandom() < 0.3 && accessToken) {
     group('Token Validation', function () {
       const validateResp = http.get(
         `${BASE_URL}/api/v1/auth/validate`,
@@ -378,7 +385,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 5: Get User Profile (25% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.25 && accessToken) {
+  if (secureRandom() < 0.25 && accessToken) {
     group('User Profile', function () {
       const profileResp = http.get(
         `${BASE_URL}/api/v1/auth/profile`,
@@ -414,7 +421,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 6: Invalid Login Attempts (10% of iterations - tests security)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group('Invalid Login Attempts', function () {
       // Test with invalid credentials
       const invalidEmail = randomElement(INVALID_EMAILS);
@@ -455,7 +462,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 7: Logout (5% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.05 && accessToken) {
+  if (secureRandom() < 0.05 && accessToken) {
     group('Logout', function () {
       const logoutResp = http.post(
         `${BASE_URL}/api/v1/auth/logout`,
@@ -483,7 +490,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 8: Concurrent Session Simulation (10% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group('Concurrent Session Burst', function () {
       // Simulate multiple login attempts from different users
       const sessionCount = randomInt(2, 4);

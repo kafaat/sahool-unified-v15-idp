@@ -128,7 +128,7 @@ function randomString(length) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
+    result += chars.charAt(Math.floor(secureRandom() * chars.length));
   }
   return result;
 }
@@ -310,7 +310,7 @@ export default function () {
     }
 
     // Get specific device status (40% of iterations)
-    if (Math.random() < 0.4) {
+    if (secureRandom() < 0.4) {
       const deviceId = generateDeviceId();
       const statusResp = http.get(
         `${BASE_URL}/api/v1/edge/devices/${deviceId}`,
@@ -475,7 +475,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 5: Heartbeat Simulation (15% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.15) {
+  if (secureRandom() < 0.15) {
     group('Device Heartbeat', function () {
       // Simulate multiple devices sending heartbeats
       const deviceCount = randomInt(2, 5);

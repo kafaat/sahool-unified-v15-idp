@@ -146,7 +146,6 @@ jobs:
     if: inputs.notify-slack != false
     steps:
       - name: Send Slack notification
-        if: ${{ secrets.SLACK_WEBHOOK_URL != '' }}
         run: |
           WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}"
 
@@ -229,7 +228,6 @@ jobs:
     if: inputs.notify-discord != false
     steps:
       - name: Send Discord notification
-        if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
         run: |
           WEBHOOK_URL="${{ secrets.DISCORD_WEBHOOK_URL }}"
 
@@ -289,7 +287,6 @@ jobs:
     if: inputs.notify-email == true
     steps:
       - name: Send email notification via SendGrid
-        if: ${{ secrets.SENDGRID_API_KEY != '' }}
         run: |
           API_KEY="${{ secrets.SENDGRID_API_KEY }}"
 

@@ -17,7 +17,7 @@ Updated: January 2026
 """
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from decimal import Decimal
 import uuid
 
@@ -134,7 +134,7 @@ def sample_members(sample_cooperative):
             land_area_ha=float(i + 1) * 2.5,
             status=MemberStatus.ACTIVE,
         )
-        member.join_date = datetime.utcnow() - timedelta(days=(5 - i) * 30)
+        member.join_date = datetime.now(UTC) - timedelta(days=(5 - i) * 30)
         members.append(member)
     return members
 
@@ -437,7 +437,7 @@ class TestSharedResource:
     def test_resource_is_available_with_time_window(self, sample_resource):
         """Test is_available with time windows"""
         sample_resource.status = ResourceStatus.AVAILABLE
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
 
         # Available in future only
         sample_resource.available_from = now + timedelta(days=1)
@@ -453,7 +453,7 @@ class TestSharedResource:
         assert sample_resource.needs_maintenance() is False
 
         # Maintenance date in past
-        sample_resource.next_maintenance_date = datetime.utcnow() - timedelta(days=1)
+        sample_resource.next_maintenance_date = datetime.now(UTC) - timedelta(days=1)
         assert sample_resource.needs_maintenance() is True
 
         # By hours
@@ -564,7 +564,7 @@ class TestResourcePoolService:
             usage_fee_per_hour=Decimal("100.00"),
         )
 
-        start_time = datetime.utcnow() + timedelta(days=1)
+        start_time = datetime.now(UTC) + timedelta(days=1)
         booking = await resource_pool_service.create_booking(
             resource_id=resource.resource_id,
             member_id=sample_members[0].member_id,
@@ -587,7 +587,7 @@ class TestResourcePoolService:
             type=ResourceType.EQUIPMENT,
         )
 
-        start_time = datetime.utcnow() + timedelta(days=1)
+        start_time = datetime.now(UTC) + timedelta(days=1)
 
         # First booking
         await resource_pool_service.create_booking(
@@ -626,7 +626,7 @@ class TestResourcePoolService:
                 member_id=sample_members[0].member_id,
                 purpose="Book maintenance equipment",
                 purpose_ar="حجز معدات صيانة",
-                start_time=datetime.utcnow() + timedelta(days=1),
+                start_time=datetime.now(UTC) + timedelta(days=1),
                 duration_hours=4,
             )
 
@@ -644,7 +644,7 @@ class TestResourcePoolService:
             member_id=sample_members[0].member_id,
             purpose="Test booking",
             purpose_ar="حجز اختبار",
-            start_time=datetime.utcnow() + timedelta(days=5),
+            start_time=datetime.now(UTC) + timedelta(days=5),
             duration_hours=4,
         )
 
@@ -668,7 +668,7 @@ class TestResourcePoolService:
             member_id=sample_members[0].member_id,
             purpose="Plowing",
             purpose_ar="حرث",
-            start_time=datetime.utcnow() - timedelta(hours=6),
+            start_time=datetime.now(UTC) - timedelta(hours=6),
             duration_hours=4,
             check_conflicts=False,
         )
@@ -693,7 +693,7 @@ class TestResourceAvailability:
         """Test checking availability at specific hour"""
         avail = ResourceAvailability(
             resource_id="RES-001",
-            date=datetime.utcnow(),
+            date=datetime.now(UTC),
             available_hours=list(range(6, 20)),  # 6 AM to 8 PM
             booked_slots=[(8, 12), (14, 16)],
         )
@@ -708,7 +708,7 @@ class TestResourceAvailability:
         """Test getting available slots"""
         avail = ResourceAvailability(
             resource_id="RES-001",
-            date=datetime.utcnow(),
+            date=datetime.now(UTC),
             available_hours=list(range(6, 20)),
             booked_slots=[(8, 12)],
         )
@@ -730,7 +730,7 @@ class TestMaintenanceRecord:
             type="scheduled",
             description="Oil change and filter replacement",
             description_ar="تغيير الزيت والفلتر",
-            scheduled_date=datetime.utcnow() + timedelta(days=7),
+            scheduled_date=datetime.now(UTC) + timedelta(days=7),
         )
 
         assert record.record_id.startswith("MNT-")
@@ -986,8 +986,8 @@ class TestBillingAndSettlements:
         period = await revenue_service.create_period(
             name="Test Period",
             name_ar="فترة اختبار",
-            start_date=datetime(2026, 1, 1),
-            end_date=datetime(2026, 3, 31),
+            start_date=datetime(2026, 1, 1, tzinfo=UTC),
+            end_date=datetime(2026, 3, 31, tzinfo=UTC),
         )
 
         txn = await revenue_service.record_revenue(
@@ -1012,8 +1012,8 @@ class TestBillingAndSettlements:
         period = await revenue_service.create_period(
             name="Test Period",
             name_ar="فترة اختبار",
-            start_date=datetime(2026, 1, 1),
-            end_date=datetime(2026, 3, 31),
+            start_date=datetime(2026, 1, 1, tzinfo=UTC),
+            end_date=datetime(2026, 3, 31, tzinfo=UTC),
         )
 
         txn = await revenue_service.record_expense(
@@ -1068,8 +1068,8 @@ class TestBillingAndSettlements:
         period = await revenue_service.create_period(
             name="Test Period",
             name_ar="فترة اختبار",
-            start_date=datetime(2026, 1, 1),
-            end_date=datetime(2026, 3, 31),
+            start_date=datetime(2026, 1, 1, tzinfo=UTC),
+            end_date=datetime(2026, 3, 31, tzinfo=UTC),
         )
 
         await revenue_service.record_revenue(
@@ -1102,8 +1102,8 @@ class TestBillingAndSettlements:
         period = await revenue_service.create_period(
             name="Test Period",
             name_ar="فترة اختبار",
-            start_date=datetime(2026, 1, 1),
-            end_date=datetime(2026, 3, 31),
+            start_date=datetime(2026, 1, 1, tzinfo=UTC),
+            end_date=datetime(2026, 3, 31, tzinfo=UTC),
         )
 
         await revenue_service.record_revenue(
@@ -1251,8 +1251,8 @@ class TestEdgeCases:
         period = await revenue_service.create_period(
             name="Test Period",
             name_ar="فترة اختبار",
-            start_date=datetime(2026, 1, 1),
-            end_date=datetime(2026, 3, 31),
+            start_date=datetime(2026, 1, 1, tzinfo=UTC),
+            end_date=datetime(2026, 3, 31, tzinfo=UTC),
         )
 
         await revenue_service.record_revenue(

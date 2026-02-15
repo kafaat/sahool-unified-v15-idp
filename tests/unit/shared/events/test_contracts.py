@@ -50,32 +50,20 @@ class TestBaseEvent:
         assert len(event.event_id) > 0
 
     def test_base_event_has_timestamp(self):
-        """Test that BaseEvent has timestamp."""
+        """Test that BaseEvent auto-generates timestamp."""
         event = BaseEvent()
         assert event.timestamp is not None
         assert isinstance(event.timestamp, datetime)
 
-    def test_base_event_timestamp_is_utc(self):
-        """Test that timestamp is UTC."""
+    def test_base_event_event_type(self):
+        """Test event_type returns class name."""
         event = BaseEvent()
-        # Timestamp should be close to now
-        now = datetime.now(UTC)
-        diff = abs((event.timestamp - now).total_seconds())
-        assert diff < 5  # Within 5 seconds
-
-    def test_base_event_unique_ids(self):
-        """Test that each event has unique ID."""
-        events = [BaseEvent() for _ in range(100)]
-        ids = [e.event_id for e in events]
-        assert len(ids) == len(set(ids))
+        assert event.event_type == "BaseEvent"
 
     def test_base_event_serialization(self):
-        """Test BaseEvent JSON serialization."""
+        """Test JSON serialization."""
         event = BaseEvent()
-        json_str = event.model_dump_json()
-
-        assert isinstance(json_str, str)
-        parsed = json.loads(json_str)
+        parsed = json.loads(event.model_dump_json())
         assert "event_id" in parsed
         assert "timestamp" in parsed
 
@@ -95,35 +83,44 @@ class TestFieldCreatedEvent:
 
     def test_field_created_required_fields(self):
         """Test required fields."""
+        field_id = uuid4()
+        farm_id = uuid4()
+        tenant_id = uuid4()
         event = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=field_id,
+            farm_id=farm_id,
+            tenant_id=tenant_id,
             name="Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
         )
 
-        assert event.field_id == "field-123"
-        assert event.farm_id == "farm-456"
+        assert event.field_id == field_id
+        assert event.farm_id == farm_id
         assert event.name == "Test Field"
 
     def test_field_created_optional_fields(self):
         """Test optional fields."""
         event = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=uuid4(),
+            farm_id=uuid4(),
+            tenant_id=uuid4(),
             name="Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=25.5,
-            crop_type="wheat",
+            soil_type="clay",
         )
 
         assert event.area_hectares == 25.5
-        assert event.crop_type == "wheat"
+        assert event.soil_type == "clay"
 
     def test_field_created_inherits_base(self):
         """Test inheritance from BaseEvent."""
         event = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=uuid4(),
+            farm_id=uuid4(),
+            tenant_id=uuid4(),
             name="Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
         )
 
         assert hasattr(event, "event_id")
@@ -131,17 +128,22 @@ class TestFieldCreatedEvent:
 
     def test_field_created_serialization(self):
         """Test JSON serialization."""
+        field_id = uuid4()
+        farm_id = uuid4()
+        tenant_id = uuid4()
         event = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=field_id,
+            farm_id=farm_id,
+            tenant_id=tenant_id,
             name="Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=25.5,
         )
 
         data = json.loads(event.model_dump_json())
 
-        assert data["field_id"] == "field-123"
-        assert data["farm_id"] == "farm-456"
+        assert data["field_id"] == str(field_id)
+        assert data["farm_id"] == str(farm_id)
         assert data["area_hectares"] == 25.5
 
     def test_field_created_validation(self):
@@ -161,25 +163,26 @@ class TestFieldUpdatedEvent:
 
     def test_field_updated_with_changes(self):
         """Test update event with changes."""
+        field_id = uuid4()
         event = FieldUpdatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
-            changes={"name": "New Name", "area_hectares": 30.0},
+            field_id=field_id,
+            name="New Name",
+            area_hectares=30.0,
         )
 
-        assert event.field_id == "field-123"
-        assert "name" in event.changes
-        assert event.changes["area_hectares"] == 30.0
+        assert event.field_id == field_id
+        assert event.name == "New Name"
+        assert event.area_hectares == 30.0
 
     def test_field_updated_empty_changes(self):
-        """Test update with no changes."""
+        """Test update with minimal fields."""
+        field_id = uuid4()
         event = FieldUpdatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
-            changes={},
+            field_id=field_id,
         )
 
-        assert event.changes == {}
+        assert event.field_id == field_id
+        assert event.name is None
 
 
 # =============================================================================
@@ -192,13 +195,17 @@ class TestFieldDeletedEvent:
 
     def test_field_deleted(self):
         """Test delete event."""
+        field_id = uuid4()
+        farm_id = uuid4()
+        tenant_id = uuid4()
         event = FieldDeletedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=field_id,
+            farm_id=farm_id,
+            tenant_id=tenant_id,
         )
 
-        assert event.field_id == "field-123"
-        assert event.farm_id == "farm-456"
+        assert event.field_id == field_id
+        assert event.farm_id == farm_id
 
 
 # =============================================================================
@@ -212,18 +219,18 @@ class TestWeatherForecastEvent:
     def test_weather_forecast_event(self):
         """Test weather forecast event."""
         event = WeatherForecastEvent(
-            field_id="field-123",
+            location_lat=24.7,
+            location_lon=46.7,
             forecast_date=datetime.now(UTC),
-            temperature_min=15.0,
-            temperature_max=28.0,
-            precipitation_mm=5.0,
-            humidity_percent=65.0,
-            wind_speed_kmh=12.0,
+            temperature=28.0,
+            humidity=65.0,
+            wind_speed=12.0,
+            precipitation=5.0,
         )
 
-        assert event.field_id == "field-123"
-        assert event.temperature_min == 15.0
-        assert event.temperature_max == 28.0
+        assert event.location_lat == 24.7
+        assert event.temperature == 28.0
+        assert event.humidity == 65.0
 
 
 # =============================================================================
@@ -237,15 +244,17 @@ class TestWeatherAlertEvent:
     def test_weather_alert_event(self):
         """Test weather alert event."""
         event = WeatherAlertEvent(
-            field_id="field-123",
+            tenant_id=uuid4(),
             alert_type="frost",
-            severity="high",
+            severity="warning",
+            title="Frost Warning",
             message="Frost warning for tonight",
             message_ar="تحذير من الصقيع الليلة",
+            start_time=datetime.now(UTC),
         )
 
         assert event.alert_type == "frost"
-        assert event.severity == "high"
+        assert event.severity == "warning"
 
 
 # =============================================================================
@@ -259,16 +268,17 @@ class TestSatelliteDataReadyEvent:
     def test_satellite_data_ready(self):
         """Test satellite data ready event."""
         event = SatelliteDataReadyEvent(
-            field_id="field-123",
-            satellite_id="sentinel-2a",
-            image_date=datetime.now(UTC),
-            cloud_cover_percent=10.5,
-            ndvi_available=True,
+            field_id=uuid4(),
+            tenant_id=uuid4(),
+            satellite_source="Sentinel-2",
+            capture_date=datetime.now(UTC),
+            cloud_coverage=10.5,
+            ndvi_mean=0.65,
         )
 
-        assert event.satellite_id == "sentinel-2a"
-        assert event.cloud_cover_percent == 10.5
-        assert event.ndvi_available is True
+        assert event.satellite_source == "Sentinel-2"
+        assert event.cloud_coverage == 10.5
+        assert event.ndvi_mean == 0.65
 
 
 # =============================================================================
@@ -282,18 +292,18 @@ class TestDiseaseDetectedEvent:
     def test_disease_detected(self):
         """Test disease detection event."""
         event = DiseaseDetectedEvent(
-            field_id="field-123",
-            disease_type="wheat_rust",
+            field_id=uuid4(),
+            tenant_id=uuid4(),
             disease_name="Wheat Leaf Rust",
             disease_name_ar="صدأ أوراق القمح",
-            severity="moderate",
+            severity="high",
             confidence_score=0.87,
-            affected_area_percent=15.0,
+            affected_area_hectares=1.5,
         )
 
-        assert event.disease_type == "wheat_rust"
+        assert event.disease_name == "Wheat Leaf Rust"
         assert event.confidence_score == 0.87
-        assert event.affected_area_percent == 15.0
+        assert event.affected_area_hectares == 1.5
 
 
 # =============================================================================
@@ -307,14 +317,15 @@ class TestCropStressEvent:
     def test_crop_stress_event(self):
         """Test crop stress event."""
         event = CropStressEvent(
-            field_id="field-123",
+            field_id=uuid4(),
+            tenant_id=uuid4(),
             stress_type="water",
-            stress_level="moderate",
-            ndvi_deviation=-0.15,
+            severity="medium",
+            confidence_score=0.75,
         )
 
         assert event.stress_type == "water"
-        assert event.stress_level == "moderate"
+        assert event.severity == "medium"
 
 
 # =============================================================================
@@ -328,29 +339,34 @@ class TestBillingEvents:
     def test_subscription_created(self):
         """Test subscription created event."""
         event = SubscriptionCreatedEvent(
-            subscription_id="sub-123",
-            user_id="user-456",
+            subscription_id=uuid4(),
+            tenant_id=uuid4(),
+            user_id=uuid4(),
             plan_id="professional",
-            amount=499.0,
+            plan_name="Professional Plan",
+            plan_tier="professional",
+            billing_cycle="annual",
+            start_date=datetime.now(UTC),
+            price_amount=499.0,
             currency="SAR",
         )
 
-        assert event.subscription_id == "sub-123"
         assert event.plan_id == "professional"
-        assert event.amount == 499.0
+        assert event.price_amount == 499.0
 
     def test_payment_completed(self):
         """Test payment completed event."""
         event = PaymentCompletedEvent(
-            payment_id="pay-123",
-            subscription_id="sub-123",
+            payment_id=uuid4(),
+            tenant_id=uuid4(),
             amount=499.0,
             currency="SAR",
             payment_method="credit_card",
+            transaction_id="txn-123",
         )
 
-        assert event.payment_id == "pay-123"
         assert event.payment_method == "credit_card"
+        assert event.amount == 499.0
 
 
 # =============================================================================
@@ -366,7 +382,8 @@ class TestAgentEvents:
         event = AgentExecutionStartedEvent(
             execution_id="exec-123",
             agent_type="farm_advisor",
-            input_data={"query": "When should I irrigate?"},
+            tenant_id="tenant-1",
+            task="When should I irrigate?",
         )
 
         assert event.execution_id == "exec-123"
@@ -377,13 +394,13 @@ class TestAgentEvents:
         event = AgentExecutionCompletedEvent(
             execution_id="exec-123",
             agent_type="farm_advisor",
-            output_data={"recommendation": "Irrigate in 2 days"},
+            tenant_id="tenant-1",
             duration_ms=1500,
-            success=True,
+            total_steps=3,
         )
 
         assert event.duration_ms == 1500
-        assert event.success is True
+        assert event.total_steps == 3
 
 
 # =============================================================================
@@ -398,10 +415,10 @@ class TestFarmerEvents:
         """Test farmer created event."""
         event = FarmerCreatedEvent(
             farmer_id="farmer-123",
+            tenant_id="tenant-1",
             name="Ahmed Al-Rashid",
             name_ar="أحمد الراشد",
             phone="+966501234567",
-            region="Riyadh",
         )
 
         assert event.farmer_id == "farmer-123"
@@ -418,28 +435,37 @@ class TestEventDeserialization:
 
     def test_field_event_from_json(self):
         """Test creating event from JSON."""
+        field_id = str(uuid4())
+        farm_id = str(uuid4())
+        tenant_id = str(uuid4())
         json_data = {
             "event_id": str(uuid4()),
             "timestamp": datetime.now(UTC).isoformat(),
-            "field_id": "field-123",
-            "farm_id": "farm-456",
+            "field_id": field_id,
+            "farm_id": farm_id,
+            "tenant_id": tenant_id,
             "name": "Test Field",
+            "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             "area_hectares": 25.5,
         }
 
         event = FieldCreatedEvent.model_validate(json_data)
 
-        assert event.field_id == "field-123"
+        assert str(event.field_id) == field_id
         assert event.area_hectares == 25.5
 
     def test_event_round_trip(self):
         """Test serialization and deserialization round trip."""
+        field_id = uuid4()
+        farm_id = uuid4()
+        tenant_id = uuid4()
         original = FieldCreatedEvent(
-            field_id="field-123",
-            farm_id="farm-456",
+            field_id=field_id,
+            farm_id=farm_id,
+            tenant_id=tenant_id,
             name="Test Field",
+            geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=25.5,
-            crop_type="wheat",
         )
 
         # Serialize

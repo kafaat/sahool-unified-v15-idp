@@ -101,16 +101,23 @@ function getHeaders() {
   return headers;
 }
 
+// Cryptographically secure random number in [0, 1)
+function secureRandom() {
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return array[0] * Math.pow(2, -32);
+}
+
 function randomElement(array) {
-  return array[Math.floor(Math.random() * array.length)];
+  return array[Math.floor(secureRandom() * array.length)];
 }
 
 function randomFloat(min, max) {
-  return parseFloat((Math.random() * (max - min) + min).toFixed(4));
+  return parseFloat((secureRandom() * (max - min) + min).toFixed(4));
 }
 
 function randomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+  return Math.floor(secureRandom() * (max - min + 1)) + min;
 }
 
 /**
@@ -127,7 +134,7 @@ function generateFieldBoundary() {
   const coordinates = [];
   for (let i = 0; i < points; i++) {
     const angle = (2 * Math.PI * i) / points;
-    const r = radius * (0.8 + Math.random() * 0.4);
+    const r = radius * (0.8 + secureRandom() * 0.4);
     coordinates.push([
       centerLon + r * Math.cos(angle),
       centerLat + r * Math.sin(angle),
@@ -395,7 +402,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 5: Elevation Point Queries (20% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.2) {
+  if (secureRandom() < 0.2) {
     group('Elevation Point Query', function () {
       const location = randomElement(YEMEN_LOCATIONS);
       const lat = location.lat + randomFloat(-0.05, 0.05);
@@ -428,7 +435,7 @@ export default function () {
   // -------------------------------------------------------------------------
   // Group 6: Combined Terrain Profile (10% of iterations)
   // -------------------------------------------------------------------------
-  if (Math.random() < 0.1) {
+  if (secureRandom() < 0.1) {
     group('Combined Terrain Profile', function () {
       const boundary = generateFieldBoundary();
       const fieldId = `field_${randomInt(1000, 9999)}`;

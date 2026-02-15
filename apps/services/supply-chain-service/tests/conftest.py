@@ -1,12 +1,9 @@
 """Pytest configuration and fixtures for Supply Chain Service tests."""
 
 import os
-from typing import AsyncGenerator, Generator
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
-from httpx import ASGITransport, AsyncClient
 
 # Set test environment before importing app
 os.environ["ENVIRONMENT"] = "test"
@@ -25,15 +22,23 @@ def anyio_backend() -> str:
 
 
 @pytest.fixture(scope="module")
-def test_client() -> Generator[TestClient, None, None]:
+def test_client():
     """Create a test client for synchronous tests."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("fastapi not installed")
     with TestClient(app) as client:
         yield client
 
 
 @pytest.fixture
-async def async_client() -> AsyncGenerator[AsyncClient, None]:
+async def async_client():
     """Create an async test client for async tests."""
+    try:
+        from httpx import ASGITransport, AsyncClient
+    except ImportError:
+        pytest.skip("httpx not installed")
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client

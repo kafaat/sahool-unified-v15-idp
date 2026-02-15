@@ -9,7 +9,11 @@ Tests for device management endpoints.
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 from src.main import app
 

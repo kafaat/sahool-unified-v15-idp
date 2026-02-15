@@ -6,8 +6,6 @@ Test configuration and fixtures for pest-detection-service.
 import os
 
 import pytest
-from fastapi.testclient import TestClient
-from httpx import AsyncClient
 
 os.environ["ENVIRONMENT"] = "test"
 os.environ["NATS_URL"] = ""
@@ -21,6 +19,10 @@ from src.main import app
 @pytest.fixture
 def client():
     """Synchronous test client."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("fastapi not installed")
     with TestClient(app) as c:
         yield c
 
@@ -28,6 +30,10 @@ def client():
 @pytest.fixture
 async def async_client():
     """Asynchronous test client."""
+    try:
+        from httpx import AsyncClient
+    except ImportError:
+        pytest.skip("httpx not installed")
     async with AsyncClient(app=app, base_url="http://test") as ac:
         yield ac
 

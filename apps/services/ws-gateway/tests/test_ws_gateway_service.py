@@ -6,7 +6,11 @@ Comprehensive Tests for WebSocket Gateway Service
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 from src.main import app
 
 

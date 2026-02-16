@@ -298,7 +298,8 @@ async def register_camera(request: CameraRegistration):
 
     if state.db_pool:
         try:
-            await state.db_pool.execute(
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """INSERT INTO cameras (camera_id, tower_id, name, name_ar, latitude, longitude,
                    altitude_m, focal_length_mm, sensor_width_mm, sensor_height_mm,
                    image_width_px, image_height_px, zoom_min, zoom_max, tenant_id, status, created_at)
@@ -461,7 +462,8 @@ async def process_frame(request: FrameProcessRequest):
     # Store result in database if available
     if state.db_pool:
         try:
-            await state.db_pool.execute(
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """INSERT INTO frame_results (frame_id, camera_id, field_id, tenant_id,
                    detections_count, anomalies_count, processed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7)""",
@@ -658,7 +660,8 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     # Store analysis result in database
     if state.db_pool:
         try:
-            await state.db_pool.execute(
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """INSERT INTO timeline_analyses (analysis_id, field_id, tenant_id,
                    crop_type, growth_stage, confidence, processing_time_ms, analyzed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
@@ -843,7 +846,8 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
     acknowledged_at = datetime.now(UTC).isoformat()
     if state.db_pool:
         try:
-            result = await state.db_pool.execute(
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """UPDATE anomalies SET status='acknowledged',
                    acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
                    WHERE anomaly_id=$4""",
@@ -882,7 +886,8 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
     resolved_at = datetime.now(UTC).isoformat()
     if state.db_pool:
         try:
-            result = await state.db_pool.execute(
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
                 """UPDATE anomalies SET status='resolved',
                    resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
                    WHERE anomaly_id=$5""",

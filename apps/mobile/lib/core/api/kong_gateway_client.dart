@@ -193,10 +193,41 @@ class KongServices {
     basePath: '/api/v1/yield',
   );
 
+  static const billing = KongService(
+    name: 'billing-core',
+    nameAr: 'الفوترة',
+    basePath: '/api/v1/billing',
+  );
+
+  static const community = KongService(
+    name: 'chat-service',
+    nameAr: 'المجتمع',
+    basePath: '/api/v1/community',
+  );
+
+  static const ai = KongService(
+    name: 'copilot-api',
+    nameAr: 'المستشار الذكي',
+    basePath: '/api/v1/ai',
+  );
+
+  static const crm = KongService(
+    name: 'crm-service',
+    nameAr: 'إدارة المزارعين',
+    basePath: '/api/v1/crm',
+  );
+
+  static const vision = KongService(
+    name: 'yolo26-vision-service',
+    nameAr: 'الرؤية الحاسوبية',
+    basePath: '/api/v1/vision',
+  );
+
   static List<KongService> get all => [
     fields, auth, weather, vegetation, satellite, ndvi,
     irrigation, advisory, cropHealth, tasks, equipment,
     alerts, notifications, marketplace, iot, yield_,
+    billing, community, ai, crm, vision,
   ];
 }
 

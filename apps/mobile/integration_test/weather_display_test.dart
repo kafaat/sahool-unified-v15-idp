@@ -1,13 +1,13 @@
-/// SAHOOL Integration Test - Weather Display Tests
-/// اختبارات عرض الطقس
-///
-/// Tests for:
-/// - Weather screen loading
-/// - Current weather display
-/// - Hourly and daily forecasts
-/// - Weather alerts
-/// - Agricultural impacts
-/// - Weather refresh functionality
+// SAHOOL Integration Test - Weather Display Tests
+// اختبارات عرض الطقس
+//
+// Tests for:
+// - Weather screen loading
+// - Current weather display
+// - Hourly and daily forecasts
+// - Weather alerts
+// - Agricultural impacts
+// - Weather refresh functionality
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +15,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sahool_field_app/main.dart' as app;
 
 import 'helpers/test_helpers.dart';
-import 'helpers/test_utils.dart';
 import 'fixtures/test_data.dart';
 
 void main() {
@@ -40,7 +39,7 @@ void main() {
     testWidgets('Navigate to weather screen', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -59,7 +58,7 @@ void main() {
     testWidgets('Weather screen has proper tabs', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -96,7 +95,7 @@ void main() {
     testWidgets('Current weather displays temperature', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -116,7 +115,7 @@ void main() {
     testWidgets('Current weather shows humidity', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -136,7 +135,7 @@ void main() {
     testWidgets('Current weather shows wind speed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -155,7 +154,7 @@ void main() {
     testWidgets('Current weather shows weather condition', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -182,7 +181,7 @@ void main() {
     testWidgets('Current weather shows weather icon', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -209,7 +208,7 @@ void main() {
     testWidgets('Hourly forecast section exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -227,7 +226,7 @@ void main() {
     testWidgets('Hourly forecast is scrollable', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -258,7 +257,7 @@ void main() {
     testWidgets('Hourly forecast shows time labels', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -282,7 +281,7 @@ void main() {
     testWidgets('Daily forecast section exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -300,7 +299,7 @@ void main() {
     testWidgets('Daily forecast shows multiple days', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -326,7 +325,7 @@ void main() {
     testWidgets('Daily forecast shows min/max temperatures', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -350,7 +349,7 @@ void main() {
     testWidgets('Navigate to alerts tab', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -370,7 +369,7 @@ void main() {
     testWidgets('Alerts tab shows no alerts message when empty', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -397,7 +396,7 @@ void main() {
     testWidgets('Alert badge shows count when alerts exist', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -427,7 +426,7 @@ void main() {
     testWidgets('Navigate to recommendations tab', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -447,7 +446,7 @@ void main() {
     testWidgets('Agricultural impacts displayed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -480,7 +479,7 @@ void main() {
     testWidgets('Impact filter chips work', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -508,7 +507,7 @@ void main() {
     testWidgets('Impact status colors displayed correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -542,7 +541,7 @@ void main() {
     testWidgets('Refresh button works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -565,7 +564,7 @@ void main() {
     testWidgets('Pull to refresh works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -586,7 +585,7 @@ void main() {
     testWidgets('Loading indicator shown during refresh', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -618,7 +617,7 @@ void main() {
     testWidgets('Error view shows retry option', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -636,7 +635,7 @@ void main() {
     testWidgets('Weather shows cached data when offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -664,7 +663,7 @@ void main() {
     testWidgets('Offline indicator shown on weather screen', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -691,7 +690,7 @@ void main() {
     testWidgets('Weather screen loads quickly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -710,7 +709,7 @@ void main() {
     testWidgets('Tab switching is responsive', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 

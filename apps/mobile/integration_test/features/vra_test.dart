@@ -1,5 +1,5 @@
-/// SAHOOL Integration Test - VRA (Variable Rate Application) Tests
-/// اختبارات الزراعة الدقيقة ووصفات التسميد المتغير
+// SAHOOL Integration Test - VRA (Variable Rate Application) Tests
+// اختبارات الزراعة الدقيقة ووصفات التسميد المتغير
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,7 @@ void main() {
     testWidgets('Navigate to VRA section', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -49,7 +49,7 @@ void main() {
     testWidgets('View VRA prescriptions list', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -62,7 +62,7 @@ void main() {
     testWidgets('VRA list shows prescription details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -80,7 +80,7 @@ void main() {
     testWidgets('Empty state shown when no prescriptions', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -101,7 +101,7 @@ void main() {
     testWidgets('Create new VRA prescription button exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -117,7 +117,7 @@ void main() {
     testWidgets('Create prescription form opens', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -140,7 +140,7 @@ void main() {
     testWidgets('Select field for prescription', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -154,7 +154,7 @@ void main() {
     testWidgets('Select input type (fertilizer/pesticide)', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -168,7 +168,7 @@ void main() {
     testWidgets('Create prescription with valid data', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -187,7 +187,7 @@ void main() {
     testWidgets('View zones on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -200,7 +200,7 @@ void main() {
     testWidgets('Zones show different colors', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -214,7 +214,7 @@ void main() {
     testWidgets('Zone details are shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -231,7 +231,7 @@ void main() {
     testWidgets('Edit zone application rate', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -250,7 +250,7 @@ void main() {
     testWidgets('View prescription details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -263,7 +263,7 @@ void main() {
     testWidgets('Prescription shows total amount needed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -277,7 +277,7 @@ void main() {
     testWidgets('Prescription shows estimated cost', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -296,7 +296,7 @@ void main() {
     testWidgets('Export prescription option exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -313,7 +313,7 @@ void main() {
     testWidgets('Export prescription as PDF', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -336,7 +336,7 @@ void main() {
     testWidgets('Export prescription as shapefile', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -362,7 +362,7 @@ void main() {
     testWidgets('Share prescription with equipment operator', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -386,7 +386,7 @@ void main() {
     testWidgets('Prescription shows draft status', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -400,7 +400,7 @@ void main() {
     testWidgets('Approve prescription', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -419,7 +419,7 @@ void main() {
     testWidgets('Mark prescription as applied', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -443,7 +443,7 @@ void main() {
     testWidgets('Filter prescriptions by status', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -462,7 +462,7 @@ void main() {
     testWidgets('Filter prescriptions by field', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -475,7 +475,7 @@ void main() {
     testWidgets('Sort prescriptions by date', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -498,7 +498,7 @@ void main() {
     testWidgets('Create prescription offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -515,7 +515,7 @@ void main() {
     testWidgets('Offline prescriptions sync when online', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 

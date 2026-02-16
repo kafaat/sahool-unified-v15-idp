@@ -1,5 +1,5 @@
-/// SAHOOL Integration Test - Authentication Tests
-/// اختبارات المصادقة والتحقق
+// SAHOOL Integration Test - Authentication Tests
+// اختبارات المصادقة والتحقق
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,7 @@ void main() {
     testWidgets('Login with valid email and password', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Enter email
@@ -68,7 +68,7 @@ void main() {
     testWidgets('Login with valid phone number and password', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Enter phone
@@ -96,7 +96,7 @@ void main() {
     testWidgets('Login fails with invalid email', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Enter invalid email
@@ -129,7 +129,7 @@ void main() {
     testWidgets('Login fails with invalid password', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Enter valid email
@@ -160,7 +160,7 @@ void main() {
     testWidgets('Login fails with empty credentials', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Leave fields empty and try to login
@@ -180,7 +180,7 @@ void main() {
     testWidgets('Login shows loading indicator', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Enter credentials
@@ -222,7 +222,7 @@ void main() {
     testWidgets('Biometric login option is available', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Check if biometric button exists
@@ -239,7 +239,7 @@ void main() {
     testWidgets('Biometric login flow works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Check if biometric is available
@@ -267,7 +267,7 @@ void main() {
     testWidgets('Forgot password link exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Look for forgot password link
@@ -282,7 +282,7 @@ void main() {
     testWidgets('Forgot password flow opens dialog', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Find and tap forgot password
@@ -309,7 +309,7 @@ void main() {
     testWidgets('Token refresh works automatically', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Login first
@@ -326,7 +326,7 @@ void main() {
     testWidgets('Expired token redirects to login', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Login
@@ -346,7 +346,7 @@ void main() {
     testWidgets('Logout clears user session', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Login
@@ -365,7 +365,7 @@ void main() {
     testWidgets('Logout shows confirmation dialog', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -407,7 +407,7 @@ void main() {
     testWidgets('Session persists across app restarts', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Login
@@ -426,7 +426,7 @@ void main() {
     testWidgets('Concurrent login sessions handled', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Login
@@ -444,7 +444,7 @@ void main() {
     testWidgets('Registration link exists on login screen', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Look for registration link
@@ -459,7 +459,7 @@ void main() {
     testWidgets('Registration form opens correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Find and tap registration link
@@ -486,7 +486,7 @@ void main() {
     testWidgets('Password field obscures text', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Find password field
@@ -501,7 +501,7 @@ void main() {
     testWidgets('Password visibility toggle works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Look for visibility toggle icon
@@ -525,7 +525,7 @@ void main() {
     testWidgets('Multiple failed login attempts handled', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
 
       // Attempt multiple failed logins

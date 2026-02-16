@@ -248,11 +248,12 @@ jobs:
       - name: Run Bandit security scan
         continue-on-error: true
         run: |
-          echo "🔍 Running Bandit security analysis..."
-          # Check if directories exist and have Python files
+          echo "Running Bandit security analysis..."
           if [ -d "apps/services" ] || [ -d "shared" ]; then
+            # Generate SARIF report (informational, don't fail on this)
             bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif 2>/dev/null || true
-            bandit -r apps/services/ shared/ -ll -ii --format txt 2>/dev/null || true
+            # Run text report - fail on HIGH severity issues
+            bandit -r apps/services/ shared/ -ll -ii --format txt 2>/dev/null
           fi
 
       - name: Upload Bandit SARIF to GitHub Security
@@ -267,8 +268,7 @@ jobs:
         timeout-minutes: 5
         continue-on-error: true
         run: |
-          echo "🔍 Running Semgrep SAST..."
-          # Check if directories exist
+          echo "Running Semgrep SAST..."
           if [ -d "apps/services" ] || [ -d "shared" ]; then
             # Focus on security-critical rules only (p/python is too broad/slow)
             semgrep --config=p/security-audit \
@@ -458,7 +458,6 @@ jobs:
             --enableExperimental
             --failOnCVSS 9
             --suppression .dependency-check-suppression.xml
-        continue-on-error: true
 
       - name: Upload OWASP SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
@@ -543,13 +542,39 @@ jobs:
           echo "| SBOM Generation | ${{ needs.sbom-generation.result == 'success' && '✅ Generated' || (needs.sbom-generation.result == 'skipped' && '⏭️ Skipped' || '❌ Failed') }} |" >> $GITHUB_STEP_SUMMARY
           echo "| License Compliance | ${{ needs.license-check.result == 'success' && '✅ Passed' || (needs.license-check.result == 'skipped' && '⏭️ Skipped' || '⚠️ Review Needed') }} |" >> $GITHUB_STEP_SUMMARY
 
+      - name: Enforce security gates
+        run: |
+          CRITICAL_FAILURES=0
+
+          if [[ "${{ needs.secrets-scan.result }}" == "failure" ]]; then
+            echo "::error::Secrets scan failed - potential credentials in code"
+            CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
+          fi
+
+          if [[ "${{ needs.code-security.result }}" == "failure" ]]; then
+            echo "::error::Code security analysis (SAST) failed - security vulnerabilities detected"
+            CRITICAL_FAILURES=$((CRITICAL_FAILURES + 1))
+          fi
+
+          if [ $CRITICAL_FAILURES -gt 0 ]; then
+            echo "::error::$CRITICAL_FAILURES critical security check(s) failed - blocking merge"
+            exit 1
+          fi
+
+          # Non-critical warnings
+          if [[ "${{ needs.dependency-scan.result }}" == "failure" ]]; then
+            echo "::warning::Dependency scan reported issues - review recommended"
+          fi
+
+          echo "Security gates passed"
+
       - name: Notify on security issues (main branch)
-        if: (needs.secrets-scan.result == 'failure' || needs.dependency-scan.result == 'failure') && github.ref == 'refs/heads/main'
+        if: failure() && github.ref == 'refs/heads/main'
         run: |
           echo "::error::Security issues detected on main branch - review required"
           if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
             curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"🚨 Security Alert: Issues detected in SAHOOL platform\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
+              --data '{"text":"Security Alert: Issues detected in SAHOOL platform\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nDetails: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"}' \
               "${{ secrets.SLACK_WEBHOOK_URL }}"
           fi
         continue-on-error: true

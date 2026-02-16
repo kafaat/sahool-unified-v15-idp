@@ -6,7 +6,11 @@ Integration Tests for AI Advisor API Endpoints
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 @pytest.fixture

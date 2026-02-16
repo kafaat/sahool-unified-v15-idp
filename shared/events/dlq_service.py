@@ -218,9 +218,6 @@ class DLQManager:
             stream_info = await self._js.stream_info(self.config.dlq_stream_name)
             total_count = stream_info.state.messages
 
-            # Calculate pagination
-            start_seq = (page - 1) * page_size + 1  # noqa: F841
-
             messages = []
 
             # Fetch messages from stream

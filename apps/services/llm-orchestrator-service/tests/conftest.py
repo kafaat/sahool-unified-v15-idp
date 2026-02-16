@@ -9,7 +9,6 @@ import os
 from unittest.mock import AsyncMock
 
 import pytest
-from fastapi.testclient import TestClient
 
 # Set test environment variables before importing app
 os.environ["ENVIRONMENT"] = "test"
@@ -30,6 +29,10 @@ def setup_test_environment():
 @pytest.fixture
 def client(setup_test_environment):
     """Create test client."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        pytest.skip("fastapi not installed")
     return TestClient(app)
 
 

@@ -25,6 +25,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
 from src.core.config import settings
+from src.core.errors import VisionError, vision_error_handler
 from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
 
 # Configure structured logging
@@ -205,6 +206,9 @@ Current API version: v1
     redoc_url="/redoc" if not settings.is_production else None,
     openapi_url="/openapi.json" if not settings.is_production else None,
 )
+
+# Register VisionError handler for structured bilingual error responses
+app.add_exception_handler(VisionError, vision_error_handler)
 
 
 # =============================================================================

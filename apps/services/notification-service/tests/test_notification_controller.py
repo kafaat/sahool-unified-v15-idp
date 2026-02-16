@@ -9,7 +9,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
+
 from httpx import AsyncClient
 
 

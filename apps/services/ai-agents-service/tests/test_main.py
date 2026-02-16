@@ -17,7 +17,11 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 
 
 class TestHealthEndpoints:

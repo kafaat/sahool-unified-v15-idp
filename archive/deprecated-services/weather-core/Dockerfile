@@ -33,7 +33,8 @@ ENV VIRTUAL_ENV=/home/sahool/venv
 RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-# Configure pip for network resilience
+# Configure pip for network resilience with multi-mirror fallback
+# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
@@ -41,9 +42,11 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://mirrors.cloud.tencent.com/pypi/simple
                   https://pypi.org/simple/
 trusted-host = mirrors.aliyun.com
                pypi.tuna.tsinghua.edu.cn
+               mirrors.cloud.tencent.com
                pypi.org
                files.pythonhosted.org
 [install]
@@ -62,13 +65,13 @@ COPY --chown=sahool:sahool apps/services/weather-core/requirements.txt /tmp/requ
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────

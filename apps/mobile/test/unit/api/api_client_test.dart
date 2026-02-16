@@ -7,6 +7,8 @@ import 'package:sahool_field_app/core/http/api_client.dart';
 // Tests use real objects where possible
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late ApiClient apiClient;
 
   setUp(() {

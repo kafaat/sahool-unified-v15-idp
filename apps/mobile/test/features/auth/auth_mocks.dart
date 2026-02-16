@@ -4,6 +4,8 @@
 /// Provides mock implementations for authentication unit tests.
 /// يوفر تطبيقات وهمية لاختبارات وحدة المصادقة
 
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
@@ -11,6 +13,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
 import 'package:sahool_field_app/core/auth/biometric_service.dart';
 import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
+import 'package:sahool_field_app/core/auth/token_manager.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
 
 /// Mock SecureStorageService with in-memory storage
@@ -224,6 +227,22 @@ class MockApiClient extends Mock implements ApiClient {
     when(() => setTenantId(any())).thenReturn(null);
     when(() => authToken).thenReturn(null);
     when(() => tenantId).thenReturn('tenant_1');
+  }
+}
+
+/// Mock TokenManager for testing
+class MockTokenManager extends Mock implements TokenManager {
+  final _authStateController = StreamController<bool>.broadcast();
+
+  void setupDefaults() {
+    when(() => authStateStream).thenAnswer((_) => _authStateController.stream);
+    when(() => setApiClient(any())).thenReturn(null);
+    when(() => refreshToken()).thenAnswer((_) async {});
+    when(() => dispose()).thenReturn(null);
+  }
+
+  void emitAuthState(bool isAuthenticated) {
+    _authStateController.add(isAuthenticated);
   }
 }
 

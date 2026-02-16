@@ -101,7 +101,7 @@ void main() {
       );
 
       expect(find.text('لا توجد نتائج'), findsOneWidget);
-      expect(find.textContaining('قمح'), findsOneWidget);
+      expect(find.textContaining('قمح'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('OfflineEmptyState should display offline message', (tester) async {

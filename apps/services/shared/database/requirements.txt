@@ -2,7 +2,7 @@
 # متطلبات طبقة قاعدة البيانات المشتركة
 
 # SQLAlchemy ORM
-sqlalchemy>=2.0.0
+sqlalchemy==2.0.46
 
 # PostgreSQL drivers
 psycopg2-binary>=2.9.0  # Synchronous driver

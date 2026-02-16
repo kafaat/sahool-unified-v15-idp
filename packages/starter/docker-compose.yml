@@ -5,11 +5,11 @@
 #
 # Services included:
 # - Infrastructure: PostgreSQL, Redis, NATS
-# - Field Management: field_core
-# - Weather: weather_core
-# - Calendar: astronomical_calendar
-# - Advisory: agro_advisor
-# - Notifications: notification_service
+# - Field Management: field-management-service
+# - Weather: weather-service
+# - Calendar: astronomical-calendar
+# - Advisory: advisory-service
+# - Notifications: notification-service
 #
 # Usage:
 #   docker-compose up -d
@@ -125,8 +125,8 @@ services:
   # Core Application Services
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Field Core Service - خدمة الحقول الجغرافية
-  field_core:
+  # Field Management Service - خدمة إدارة الحقول
+  field-management-service:
     build:
       context: ../../apps/services/field-management-service
       dockerfile: Dockerfile
@@ -166,8 +166,8 @@ services:
     networks:
       - sahool-starter-network
 
-  # Weather Core Service - خدمة الطقس
-  weather_core:
+  # Weather Service - خدمة الطقس
+  weather-service:
     build:
       context: ../../apps/services/weather-service
       dockerfile: Dockerfile
@@ -210,7 +210,7 @@ services:
       - sahool-starter-network
 
   # Astronomical Calendar - التقويم الفلكي الزراعي اليمني
-  astronomical_calendar:
+  astronomical-calendar:
     build:
       context: ../../apps/services/astronomical-calendar
       dockerfile: Dockerfile
@@ -219,11 +219,11 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather_core:8108
+      - WEATHER_SERVICE_URL=http://weather-service:8108
     ports:
       - "8111:8111"
     depends_on:
-      weather_core:
+      weather-service:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8111/healthz')"]
@@ -243,8 +243,8 @@ services:
     networks:
       - sahool-starter-network
 
-  # Agro Advisor - المستشار الزراعي
-  agro_advisor:
+  # Advisory Service - خدمة الاستشارات الزراعية
+  advisory-service:
     build:
       context: ../../apps/services/advisory-service
       dockerfile: Dockerfile
@@ -283,7 +283,7 @@ services:
       - sahool-starter-network
 
   # Notification Service - خدمة الإشعارات
-  notification_service:
+  notification-service:
     build:
       context: ../../apps/services/notification-service
       dockerfile: Dockerfile

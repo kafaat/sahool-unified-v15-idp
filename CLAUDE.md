@@ -1185,7 +1185,7 @@ docker-compose --profile legacy up
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
-| community-chat       | Node.js | 8097 | Community features (empty, deprecated) |
+| community-chat       | Node.js | 8097 | Community features (deprecated, use chat-service) |
 | chat-service         | Node.js | 8000 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |

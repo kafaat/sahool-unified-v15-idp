@@ -48,8 +48,8 @@ linter:
     # Avoid using print in production code
     - avoid_print
 
-    # Avoid returning null for Future
-    - avoid_returning_null_for_future
+    # Avoid returning null for Future (removed in Dart 3.3 - enforced by null safety)
+    # - avoid_returning_null_for_future
 
     # Cancel StreamSubscriptions to avoid memory leaks
     - cancel_subscriptions

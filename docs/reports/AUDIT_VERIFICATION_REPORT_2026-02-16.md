@@ -10,12 +10,12 @@
 ## Executive Summary
 
 An external audit raised 10 potential gaps in the SAHOOL platform. After thorough
-investigation of the actual codebase, **6 of 10 findings were found to be invalid
-or already addressed**, 3 are valid but low-priority, and 1 requires a minor code fix.
+investigation of the actual codebase, **5 of 10 findings were found to be invalid
+or already addressed**, 4 are valid but low-priority, and 1 requires a minor code fix.
 
 | # | Audit Finding | Actual Status | Priority |
 |---|--------------|---------------|----------|
-| 1 | Broken docs links (404s) | **NOT CONFIRMED** - All 218 links valid | N/A |
+| 1 | Broken docs links (404s) | **PARTIALLY VALID** - 27 broken links in 20 files (main index files OK) | Low |
 | 2 | Isar vs Drift undecided | **PARTIALLY VALID** - Drift is primary, but sqflite leak exists | Medium |
 | 3 | Makefile incomplete | **NOT CONFIRMED** - 1192 lines, 140 targets | N/A |
 | 4 | Missing contract testing | **PARTIALLY VALID** - Event contracts exist, no OpenAPI lint | Low |
@@ -32,15 +32,52 @@ or already addressed**, 3 are valid but low-priority, and 1 requires a minor cod
 
 ### 1. Documentation Links (Audit: "Broken 404s")
 
-**Status: NOT CONFIRMED**
+**Status: PARTIALLY VALID - 27 broken links found in 20 files**
 
-Verified programmatically:
-- `docs/README.md`: 199 internal links checked → **0 broken**
-- `README.md` (root): 19 internal links checked → **0 broken**
-- **Total: 218/218 links valid**
+Deep verification revealed broken internal markdown links. Main index files
+(`README.md`, `docs/README.md`) are intact, but secondary docs have stale references.
 
-The audit claim of 404s was likely based on GitHub raw URL access patterns,
-not actual broken internal links.
+**Working (main navigation):**
+- `README.md` (root): All navigation links valid
+- `docs/README.md`: All navigation links valid
+- `docs/api/README.md`: 1 broken link (`satellite.md`)
+
+**Broken links by category (27 total across 20 files):**
+
+| File | Broken Link Target | Expected At |
+|------|--------------------|-------------|
+| `docs/api/README.md` | `./satellite.md` | `docs/api/satellite.md` |
+| `docs/API_COMPREHENSIVE.md` | `./api/websocket.md` | `docs/api/websocket.md` |
+| `docs/API_ENDPOINTS_REFERENCE.md` | `./AUTHENTICATION.md` | `docs/AUTHENTICATION.md` |
+| `docs/API_ENDPOINTS_REFERENCE.md` | `./ERROR_HANDLING.md` | `docs/ERROR_HANDLING.md` |
+| `docs/CERTIFICATE_ROTATION.md` | `../TLS_SETUP_SUMMARY.md` | root `TLS_SETUP_SUMMARY.md` |
+| `docs/CERTIFICATE_ROTATION.md` | `../DEPLOYMENT_CHECKLIST.md` | root `DEPLOYMENT_CHECKLIST.md` |
+| `docs/DATA_FLOW.md` | `../DATABASE_SCHEMA_ANALYSIS_AR.md` | root level |
+| `docs/DEVELOPMENT_STATUS.md` | `../TOKEN_REVOCATION_SETUP.md` | root level |
+| `docs/HEALTH_ENDPOINTS_IMPLEMENTATION_GUIDE.md` | `./HEALTH_ENDPOINTS_STANDARDS.md` | `docs/` |
+| `docs/INFRASTRUCTURE.md` | `./API.md` | `docs/API.md` |
+| `docs/KONG_CONFIGURATION_GUIDE.md` | `/docs/reports/SAHOOL_SERVICES_API_DOCUMENTATION.md` | `docs/reports/` |
+| `docs/LEGACY_MIGRATION_GUIDE.md` | `./ARCHITECTURE.md` | `docs/ARCHITECTURE.md` |
+| `docs/NATS_INTEGRATION.md` | `./EVENT_ARCHITECTURE.md` | `docs/` |
+| `docs/NATS_INTEGRATION.md` | `./SERVICE_COMMUNICATION.md` | `docs/` |
+| `docs/PRODUCTION_DEPLOYMENT.md` | `../HIGH_PRIORITY_FIXES_IMPLEMENTATION.md` | root level |
+| `docs/PRODUCTION_DEPLOYMENT.md` | `../GAPS_AND_RECOMMENDATIONS.md` | root level |
+| `docs/RATE_LIMITING.md` | `../GAPS_AND_RECOMMENDATIONS.md` | root level |
+| `docs/adr/ADR-001-offline-first-architecture.md` | `../architecture/SYNC.md` | `docs/architecture/` |
+| `docs/adr/ADR-005-nats-event-bus.md` | `../architecture/SYNC.md` | `docs/architecture/` |
+| `docs/guides/BUILD_GUIDE.md` | `./README.md` | `docs/guides/README.md` |
+| `docs/guides/FIELD_FIRST_INTEGRATION_GUIDE.md` | `./FIELD_FIRST_ARCHITECTURE.md` | `docs/guides/` |
+| `docs/guides/FIELD_FIRST_INTEGRATION_GUIDE.md` | `./SERVICE_ACTIVATION_MAP.md` | `docs/guides/` |
+| `docs/infrastructure/POSTGIS_OPTIMIZATION.md` | `../architecture/DATABASE.md` | `docs/architecture/` |
+| `docs/reports/COMPETITIVE_GAP_ANALYSIS_FIELD_VIEW.md` | `./MOBILE_ARCHITECTURE_ANALYSIS.md` | `docs/reports/` |
+| `docs/reports/TASK_ASTRONOMICAL_INTEGRATION_RECOMMENDATIONS.md` | `./ASTRONOMICAL_CALENDAR_SERVICE.md` | `docs/reports/` |
+| `docs/reports/TASK_ASTRONOMICAL_INTEGRATION_RECOMMENDATIONS.md` | `../api/tasks.md` | `docs/api/` |
+| `docs/reports/TASK_ASTRONOMICAL_INTEGRATION_RECOMMENDATIONS.md` | `./MOBILE_ARCHITECTURE_ANALYSIS.md` | `docs/reports/` |
+
+**Pattern:** Most broken links reference docs that were likely renamed or reorganized.
+None of these are in critical navigation paths (main README, docs index).
+
+**Recommendation:** Remove or update stale cross-references in secondary documentation files.
 
 ### 2. Offline Database Decision (Audit: "Isar vs Drift undecided")
 
@@ -137,6 +174,7 @@ Security tools run on both PRs and pushes, with SARIF uploads to GitHub Security
 | Priority | Action | Effort |
 |----------|--------|--------|
 | **Medium** | Migrate notifications from sqflite to Drift database | 2-3 days |
+| **Low** | Fix 27 broken docs links across 20 files | 1 day |
 | **Low** | Add Spectral OpenAPI linting to CI | 1 day |
 | **Low** | Populate GitHub Releases for version tracking | 1 day |
 | **Low** | Define IDP golden paths in Backstage templates | 3-5 days |

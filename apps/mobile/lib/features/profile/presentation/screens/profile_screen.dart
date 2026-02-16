@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/auth_service.dart';
+import '../providers/profile_provider.dart';
 
 /// شاشة الملف الشخصي والإعدادات
 /// Profile & Settings Screen
@@ -450,7 +451,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
         Text(
-          'الإصدار 1.0.0',
+          'الإصدار 16.0.0',
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],

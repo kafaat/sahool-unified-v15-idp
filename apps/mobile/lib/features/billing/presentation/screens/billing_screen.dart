@@ -25,6 +25,9 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    Future.microtask(() {
+      ref.read(billingProvider.notifier).loadBillingInfo();
+    });
   }
 
   @override
@@ -103,7 +106,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
                 padding: const EdgeInsets.only(bottom: 12),
                 child: PlanCard(
                   plan: plan,
-                  isCurrentPlan: plan.id == state.currentPlan?.id,
+                  isCurrent: plan.id == state.currentPlan?.id,
                   onUpgrade: () => _handlePlanChange(plan),
                 ),
               )),
@@ -113,7 +116,8 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
   }
 
   Widget _buildCurrentPlanHeader(BillingState state) {
-    final plan = state.currentPlan ?? BillingPlan.allPlans.first;
+    final plan = state.currentPlan;
+    if (plan == null) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(20),

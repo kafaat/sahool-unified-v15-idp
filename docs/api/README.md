@@ -173,7 +173,7 @@ curl -X POST https://api.sahool.sa/v1/auth/login \
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "expires_in": 1800,
+  "expires_in": 3600,
   "token_type": "Bearer",
   "user": {
     "id": "usr_123456",
@@ -197,7 +197,7 @@ curl -X GET https://api.sahool.sa/v1/fields \
 
 ### Token Refresh
 
-Access tokens expire after 30 minutes. Use the refresh token to get a new access token:
+Access tokens expire after 1 hour (3600 seconds). Use the refresh token to get a new access token:
 
 ```bash
 curl -X POST https://api.sahool.sa/v1/auth/refresh \
@@ -283,12 +283,13 @@ print('My Fields:', fields['data'])
 
 API requests are rate-limited based on your subscription tier:
 
-| Tier       | Requests per Minute | Requests per Hour |
-| ---------- | ------------------- | ----------------- |
-| Free       | 30                  | 1,000             |
-| Standard   | 60                  | 3,000             |
-| Premium    | 120                 | 10,000            |
-| Enterprise | Custom              | Custom            |
+| Tier         | Requests per Minute | Requests per Hour |
+| ------------ | ------------------- | ----------------- |
+| Starter      | 30                  | 500               |
+| Professional | 60                  | 2,000             |
+| Enterprise   | 120                 | 5,000             |
+| Research     | 120                 | 10,000            |
+| Internal     | 1,000               | 50,000            |
 
 ### Rate Limit Headers
 
@@ -446,7 +447,7 @@ Official SDKs:
 | Service                               | Port | Base URL              |
 | ------------------------------------- | ---- | --------------------- |
 | SAHOOL Field Service                  | 3000 | http://localhost:3000 |
-| SAHOOL Agent Registry Service         | 8000 | http://localhost:8000 |
+| SAHOOL Agent Registry Service         | 8160 | http://localhost:8160 |
 | SAHOOL Field Chat                     | 8099 | http://localhost:8099 |
 | Sahool Virtual Sensors Engine         | 8119 | http://localhost:8119 |
 | SAHOOL Field Operations (Deprecated)  | 8155 | http://localhost:8155 |
@@ -574,7 +575,7 @@ Total Endpoints: 392
 
 ### Authentication
 
-Endpoints: 2
+Endpoints: 6
 
 ### Field Management
 

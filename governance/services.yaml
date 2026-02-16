@@ -935,9 +935,9 @@ services:
     category: crop
     layer: intelligence
     path: "apps/services/agro-rules"
-    port: null  # NATS worker service - no HTTP server
+    port: 8151
     protocol: nats
-    health_endpoint: null
+    health_endpoint: "/healthz"
     status: active
     owner: "agro-team@sahool.io"
     team: agro

@@ -182,7 +182,7 @@ def verify_token(token: str) -> TokenPayload:
             roles=payload.get("roles", []),
             exp=exp,
             iat=iat,
-            tenant_id=payload.get("tid"),
+            tenant_id=payload.get("tenant_id") or payload.get("tid"),
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
             permissions=payload.get("permissions", []),

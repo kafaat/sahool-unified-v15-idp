@@ -672,7 +672,7 @@ components:
         Pass the token in Socket.io handshake:
         ```javascript
         const socket = io('http://localhost:8097', {
-          auth: { token: 'your-jwt-token' }
+          auth: { token: '<YOUR_JWT_TOKEN>' }
         });
         ```
 
@@ -687,7 +687,7 @@ x-websocket-events:
     ```javascript
     const io = require('socket.io-client');
     const socket = io('http://localhost:8097', {
-      auth: { token: 'your-jwt-token' }
+      auth: { token: '<YOUR_JWT_TOKEN>' }
     });
     ```
 

@@ -74,8 +74,9 @@ ENV PATH="/opt/venv/bin:$PATH"
 # Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
 RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
-# Configure pip for network resilience with fallback mirrors
-# Use non-root pip config location
+# Configure pip for network resilience with multi-mirror fallback
+# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
+# All mirrors use HTTPS with valid certificates - no trusted-host needed
 RUN mkdir -p ~/.pip && \
     cat > ~/.pip/pip.conf <<'EOF'
 [global]
@@ -83,12 +84,9 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://mirrors.cloud.tencent.com/pypi/simple
+                  https://pypi.org/simple/
                   https://download.pytorch.org/whl/cu121
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
-               download.pytorch.org
 [install]
 prefer-binary = true
 EOF
@@ -103,12 +101,18 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
     torch==2.2.0 \
     torchvision==0.17.0 \
     --index-url https://download.pytorch.org/whl/cu121 \
-    --extra-index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org
+    --extra-index-url https://pypi.org/simple
 
-# Install remaining dependencies with constraints
-RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+# Install remaining dependencies with constraints and multi-mirror fallback
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -c /tmp/constraints-ai.txt \
+    -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
+    -c /tmp/constraints-ai.txt \
+    -r /tmp/requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
     -c /tmp/constraints-ai.txt \
     -r /tmp/requirements.txt
 
@@ -138,7 +142,8 @@ RUN touch /app/src/__init__.py \
     && touch /app/src/api/__init__.py \
     && touch /app/src/api/endpoints/__init__.py \
     && touch /app/src/core/__init__.py \
-    && touch /app/src/models/__init__.py
+    && touch /app/src/models/__init__.py \
+    && touch /app/src/events/__init__.py
 
 # Environment variables
 ENV ENVIRONMENT=production
@@ -175,17 +180,19 @@ FROM production AS development
 # Switch back to root for development setup
 USER root
 
-# Install development dependencies with fallback
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --no-cache-dir --timeout=300 --retries=10 \
-    pytest \
-    pytest-asyncio \
-    pytest-cov \
-    httpx \
-    black \
-    ruff \
-    mypy \
-    ipython || \
-    pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple/ \
+# Install development dependencies with multi-mirror fallback
+# Mirrors: Aliyun → Tencent → Tsinghua → PyPI
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://mirrors.aliyun.com/pypi/simple/ \
+    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
+    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
     pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython
 
 # Set development environment
@@ -242,7 +249,9 @@ COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 # Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
 RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
-# Configure pip for network resilience with fallback mirrors
+# Configure pip for network resilience with multi-mirror fallback
+# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
+# All mirrors use HTTPS with valid certificates - no trusted-host needed
 RUN mkdir -p /root/.pip && \
     cat > /root/.pip/pip.conf <<'EOF'
 [global]
@@ -250,11 +259,8 @@ timeout = 300
 retries = 10
 index-url = https://mirrors.aliyun.com/pypi/simple/
 extra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/
+                  https://mirrors.cloud.tencent.com/pypi/simple
                   https://pypi.org/simple/
-trusted-host = mirrors.aliyun.com
-               pypi.tuna.tsinghua.edu.cn
-               pypi.org
-               files.pythonhosted.org
 [install]
 prefer-binary = true
 EOF
@@ -264,9 +270,7 @@ EOF
 RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries=10 \
     torch torchvision \
     --index-url https://download.pytorch.org/whl/cpu \
-    --extra-index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org && \
+    --extra-index-url https://pypi.org/simple && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
@@ -283,7 +287,8 @@ RUN touch /app/src/__init__.py \
     && touch /app/src/api/__init__.py \
     && touch /app/src/api/endpoints/__init__.py \
     && touch /app/src/core/__init__.py \
-    && touch /app/src/models/__init__.py
+    && touch /app/src/models/__init__.py \
+    && touch /app/src/events/__init__.py
 
 # Environment variables
 ENV ENVIRONMENT=production

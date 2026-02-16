@@ -3,7 +3,11 @@ Health Check Tests - Agro Advisor
 """
 
 import pytest
-from fastapi.testclient import TestClient
+
+try:
+    from fastapi.testclient import TestClient
+except ImportError:
+    pytest.skip("fastapi not installed", allow_module_level=True)
 from kernel.services.agro_advisor.src.main import app
 
 

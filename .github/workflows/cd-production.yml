@@ -348,7 +348,7 @@ jobs:
     name: Test Green Environment
     runs-on: ubuntu-latest
     needs: [deploy-green, validate-release]
-    if: needs.validate-release.outputs.kubeconfig_available == 'true'
+    if: needs.deploy-green.result == 'success' && needs.validate-release.outputs.kubeconfig_available == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -569,13 +569,13 @@ jobs:
   summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
-    needs: [validate-release]
+    needs: [validate-release, deploy-green, test-green, switch-traffic, verify-production]
     if: always()
     steps:
       - name: Generate summary
         run: |
           if [ "${{ needs.validate-release.outputs.kubeconfig_available }}" != "true" ]; then
-            echo "## ⚠️ Production Deployment Skipped" >> $GITHUB_STEP_SUMMARY
+            echo "## Production Deployment Skipped" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
@@ -584,18 +584,48 @@ jobs:
             echo "To enable deployments, configure the secret in repository settings." >> $GITHUB_STEP_SUMMARY
             echo "::warning::Deployment was skipped - KUBE_CONFIG_PRODUCTION not configured"
             exit 1
-          else
-            echo "## 🎉 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          # Check if any deployment step failed
+          FAILED=false
+          if [[ "${{ needs.deploy-green.result }}" == "failure" ]]; then
+            echo "::error::Green deployment failed"
+            FAILED=true
+          fi
+          if [[ "${{ needs.test-green.result }}" == "failure" ]]; then
+            echo "::error::Green environment tests failed"
+            FAILED=true
+          fi
+          if [[ "${{ needs.switch-traffic.result }}" == "failure" ]]; then
+            echo "::error::Traffic switch failed"
+            FAILED=true
+          fi
+          if [[ "${{ needs.verify-production.result }}" == "failure" ]]; then
+            echo "::error::Production verification failed"
+            FAILED=true
+          fi
+
+          if [ "$FAILED" = "true" ]; then
+            echo "## Production Deployment Failed" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Deployment ID:** ${{ needs.validate-release.outputs.deployment_id }}" >> $GITHUB_STEP_SUMMARY
-            echo "**Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### URLs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Production:** https://sahool.io" >> $GITHUB_STEP_SUMMARY
-            echo "- **API Docs:** https://sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
-            echo "- **Status:** https://status.sahool.io" >> $GITHUB_STEP_SUMMARY
+            echo "**Deploy:** ${{ needs.deploy-green.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Test:** ${{ needs.test-green.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Switch:** ${{ needs.switch-traffic.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "**Verify:** ${{ needs.verify-production.result }}" >> $GITHUB_STEP_SUMMARY
+            exit 1
           fi
+
+          echo "## Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ needs.validate-release.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployment ID:** ${{ needs.validate-release.outputs.deployment_id }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed at:** $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### URLs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Production:** https://sahool.io" >> $GITHUB_STEP_SUMMARY
+          echo "- **API Docs:** https://sahool.io/api/docs" >> $GITHUB_STEP_SUMMARY
+          echo "- **Status:** https://status.sahool.io" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify success
         if: ${{ needs.validate-release.outputs.kubeconfig_available == 'true' && success() }}

@@ -273,10 +273,6 @@ def _compute_list_delta(
     """Compute delta for list changes."""
     changes: list[DeltaChange] = []
 
-    # For simple values, track additions and removals
-    old_simple = {str(item) for item in old_list if not isinstance(item, (dict, list))}
-    new_simple = {str(item) for item in new_list if not isinstance(item, (dict, list))}  # noqa: F841
-
     # Determine if we should use full replacement or incremental
     if len(old_list) > 100 or len(new_list) > 100:
         # Large lists - use full replacement

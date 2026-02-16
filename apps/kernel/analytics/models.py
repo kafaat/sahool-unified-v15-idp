@@ -6,7 +6,7 @@
 Pydantic models for user activity analytics and metrics
 """
 
-from datetime import date, datetime
+from datetime import UTC, date, datetime
 from enum import Enum, StrEnum
 from typing import Any
 
@@ -151,7 +151,7 @@ class AnalyticsEvent(BaseModel):
 
     # التوقيت - Timing
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الحدث - Event timestamp"
+        default_factory=lambda: datetime.now(UTC), description="وقت الحدث - Event timestamp"
     )
 
     # البيانات الوصفية - Metadata
@@ -277,7 +277,7 @@ class UserMetrics(BaseModel):
 
     # التحديث - Update tracking
     calculated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الحساب - Calculation timestamp"
+        default_factory=lambda: datetime.now(UTC), description="وقت الحساب - Calculation timestamp"
     )
 
 
@@ -314,7 +314,7 @@ class CohortAnalysis(BaseModel):
     # معلومات إضافية - Additional info
     metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     created_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الإنشاء - Created at"
+        default_factory=lambda: datetime.now(UTC), description="وقت الإنشاء - Created at"
     )
 
 
@@ -350,7 +350,7 @@ class FeatureUsage(BaseModel):
     # البيانات الإضافية - Additional data
     metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الحساب - Calculated at"
+        default_factory=lambda: datetime.now(UTC), description="وقت الحساب - Calculated at"
     )
 
 
@@ -398,7 +398,7 @@ class RegionalMetrics(BaseModel):
     # البيانات الإضافية - Additional data
     metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الحساب - Calculated at"
+        default_factory=lambda: datetime.now(UTC), description="وقت الحساب - Calculated at"
     )
 
 
@@ -474,7 +474,7 @@ class FarmerAnalytics(BaseModel):
     # البيانات الإضافية - Additional data
     metadata: dict[str, Any] = Field(default_factory=dict, description="بيانات إضافية - Metadata")
     calculated_at: datetime = Field(
-        default_factory=datetime.utcnow, description="وقت الحساب - Calculated at"
+        default_factory=lambda: datetime.now(UTC), description="وقت الحساب - Calculated at"
     )
 
 

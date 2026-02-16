@@ -9,3 +9,4 @@ export 'mock_auth_service.dart';
 export 'mock_network_status.dart';
 export 'mock_sync_engine.dart';
 export 'mock_providers.dart';
+export 'mock_kong_gateway.dart';

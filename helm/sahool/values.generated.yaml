@@ -41,8 +41,8 @@ services:
       name: sahool-crop-growth-model
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3023'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3023'
   disaster-assessment:
     enabled: true
     name: disaster-assessment
@@ -73,8 +73,8 @@ services:
       name: sahool-disaster-assessment
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3020'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3020'
   lai-estimation:
     enabled: true
     name: lai-estimation
@@ -105,8 +105,8 @@ services:
       name: sahool-lai-estimation
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3022'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3022'
   yield-prediction:
     enabled: true
     name: yield-prediction
@@ -137,8 +137,8 @@ services:
       name: sahool-yield-prediction
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3021'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3021'
   marketplace-service:
     enabled: true
     name: marketplace-service
@@ -169,10 +169,10 @@ services:
       name: sahool-marketplace-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3010'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3010'
   community-chat:
-    enabled: true
+    enabled: false
     name: community-chat
     image:
       repository: ghcr.io/kafaat/sahool-community-chat
@@ -201,8 +201,8 @@ services:
       name: sahool-community-chat
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8097'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8097'
   iot-service:
     enabled: true
     name: iot-service
@@ -233,8 +233,8 @@ services:
       name: sahool-iot-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8117'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8117'
   ground-vision-service:
     enabled: true
     name: ground-vision-service
@@ -265,8 +265,8 @@ services:
       name: sahool-ground-vision-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8182'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8182'
   research-core:
     enabled: true
     name: research-core
@@ -297,8 +297,8 @@ services:
       name: sahool-research-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3015'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3015'
   billing-core:
     enabled: true
     name: billing-core
@@ -329,8 +329,8 @@ services:
       name: sahool-billing-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8089'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8089'
   satellite-service:
     enabled: false
     name: satellite-service
@@ -361,8 +361,8 @@ services:
       name: sahool-satellite-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '9190'
       prometheus.io/path: /metrics
+      prometheus.io/port: '9190'
   weather-advanced:
     enabled: false
     name: weather-advanced
@@ -393,8 +393,8 @@ services:
       name: sahool-weather-advanced
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '9092'
       prometheus.io/path: /metrics
+      prometheus.io/port: '9092'
   indicators-service:
     enabled: true
     name: indicators-service
@@ -425,8 +425,8 @@ services:
       name: sahool-indicators-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8091'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8091'
   crop-health-ai:
     enabled: false
     name: crop-health-ai
@@ -457,8 +457,8 @@ services:
       name: sahool-crop-health-ai
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '9095'
       prometheus.io/path: /metrics
+      prometheus.io/port: '9095'
   virtual-sensors:
     enabled: true
     name: virtual-sensors
@@ -489,8 +489,8 @@ services:
       name: sahool-virtual-sensors
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8119'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8119'
   yield-engine:
     enabled: true
     name: yield-engine
@@ -521,8 +521,8 @@ services:
       name: sahool-yield-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8098'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8098'
   fertilizer-advisor:
     enabled: false
     name: fertilizer-advisor
@@ -553,8 +553,8 @@ services:
       name: sahool-fertilizer-advisor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '9093'
       prometheus.io/path: /metrics
+      prometheus.io/port: '9093'
   irrigation-smart:
     enabled: true
     name: irrigation-smart
@@ -585,8 +585,8 @@ services:
       name: sahool-irrigation-smart
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8094'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8094'
   notification-service:
     enabled: true
     name: notification-service
@@ -617,8 +617,8 @@ services:
       name: sahool-notification-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8110'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8110'
   mcp-server:
     enabled: true
     name: mcp-server
@@ -649,8 +649,8 @@ services:
       name: sahool-mcp-server
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8200'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8200'
   agro-rules:
     enabled: true
     name: agro-rules
@@ -659,9 +659,9 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8151
+    port: null
     healthCheck:
-      path: /healthz
+      path: null
       initialDelaySeconds: 30
       periodSeconds: 10
     resources:
@@ -675,14 +675,14 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8151'
+      value: None
     serviceAccount:
       create: true
       name: sahool-agro-rules
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8151'
       prometheus.io/path: /metrics
+      prometheus.io/port: None
   crop-intelligence-service:
     enabled: true
     name: crop-intelligence-service
@@ -713,8 +713,8 @@ services:
       name: sahool-crop-intelligence-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8095'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8095'
   equipment-service:
     enabled: true
     name: equipment-service
@@ -745,8 +745,8 @@ services:
       name: sahool-equipment-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8101'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8101'
   task-service:
     enabled: true
     name: task-service
@@ -777,8 +777,8 @@ services:
       name: sahool-task-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8103'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8103'
   ws-gateway:
     enabled: true
     name: ws-gateway
@@ -809,8 +809,8 @@ services:
       name: sahool-ws-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8081'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8081'
   ndvi-processor:
     enabled: true
     name: ndvi-processor
@@ -841,8 +841,8 @@ services:
       name: sahool-ndvi-processor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8118'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8118'
   field-intelligence:
     enabled: true
     name: field-intelligence
@@ -873,8 +873,8 @@ services:
       name: sahool-field-intelligence
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8120'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8120'
   vegetation-analysis-service:
     enabled: true
     name: vegetation-analysis-service
@@ -905,8 +905,8 @@ services:
       name: sahool-vegetation-analysis-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8090'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8090'
   weather-service:
     enabled: true
     name: weather-service
@@ -937,8 +937,8 @@ services:
       name: sahool-weather-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8092'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8092'
   skills-service:
     enabled: true
     name: skills-service
@@ -969,8 +969,8 @@ services:
       name: sahool-skills-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8121'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8121'
   advisory-service:
     enabled: true
     name: advisory-service
@@ -1001,8 +1001,8 @@ services:
       name: sahool-advisory-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8093'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8093'
   field-management-service:
     enabled: true
     name: field-management-service
@@ -1033,8 +1033,8 @@ services:
       name: sahool-field-management-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3000'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3000'
   user-service:
     enabled: true
     name: user-service
@@ -1065,8 +1065,8 @@ services:
       name: sahool-user-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3025'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3025'
   alert-service:
     enabled: true
     name: alert-service
@@ -1097,8 +1097,8 @@ services:
       name: sahool-alert-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8113'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8113'
   audit-service:
     enabled: true
     name: audit-service
@@ -1129,8 +1129,8 @@ services:
       name: sahool-audit-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8114'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8114'
   agro-advisor:
     enabled: false
     name: agro-advisor
@@ -1161,8 +1161,8 @@ services:
       name: sahool-agro-advisor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8105'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8105'
   astronomical-calendar:
     enabled: true
     name: astronomical-calendar
@@ -1193,8 +1193,8 @@ services:
       name: sahool-astronomical-calendar
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8111'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8111'
   iot-gateway:
     enabled: true
     name: iot-gateway
@@ -1225,8 +1225,8 @@ services:
       name: sahool-iot-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8106'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8106'
   inventory-service:
     enabled: true
     name: inventory-service
@@ -1257,8 +1257,8 @@ services:
       name: sahool-inventory-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8116'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8116'
   field-chat:
     enabled: true
     name: field-chat
@@ -1289,8 +1289,8 @@ services:
       name: sahool-field-chat
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8099'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8099'
   provider-config:
     enabled: true
     name: provider-config
@@ -1321,8 +1321,8 @@ services:
       name: sahool-provider-config
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8104'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8104'
   ai-agents-service:
     enabled: true
     name: ai-agents-service
@@ -1353,8 +1353,8 @@ services:
       name: sahool-ai-agents-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8130'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8130'
   crm-service:
     enabled: true
     name: crm-service
@@ -1385,8 +1385,8 @@ services:
       name: sahool-crm-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8131'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8131'
   lowcode-engine:
     enabled: true
     name: lowcode-engine
@@ -1417,8 +1417,8 @@ services:
       name: sahool-lowcode-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8132'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8132'
   wechat-service:
     enabled: true
     name: wechat-service
@@ -1449,8 +1449,8 @@ services:
       name: sahool-wechat-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8133'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8133'
   agent-registry:
     enabled: true
     name: agent-registry
@@ -1481,8 +1481,8 @@ services:
       name: sahool-agent-registry
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8160'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8160'
   ai-advisor:
     enabled: true
     name: ai-advisor
@@ -1513,8 +1513,8 @@ services:
       name: sahool-ai-advisor
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8112'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8112'
   ai-agents-core:
     enabled: true
     name: ai-agents-core
@@ -1545,8 +1545,8 @@ services:
       name: sahool-ai-agents-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8161'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8161'
   chat-service:
     enabled: true
     name: chat-service
@@ -1577,8 +1577,8 @@ services:
       name: sahool-chat-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8000'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8000'
   code-fix-agent:
     enabled: true
     name: code-fix-agent
@@ -1609,8 +1609,8 @@ services:
       name: sahool-code-fix-agent
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8162'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8162'
   code-review-agent:
     enabled: true
     name: code-review-agent
@@ -1641,8 +1641,8 @@ services:
       name: sahool-code-review-agent
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8145'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8145'
   code-review-service:
     enabled: true
     name: code-review-service
@@ -1651,7 +1651,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8124
+    port: 8102
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1667,14 +1667,14 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8124'
+      value: '8102'
     serviceAccount:
       create: true
       name: sahool-code-review-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8124'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8102'
   crop-health:
     enabled: false
     name: crop-health
@@ -1705,8 +1705,8 @@ services:
       name: sahool-crop-health
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8100'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8100'
   globalgap-compliance:
     enabled: true
     name: globalgap-compliance
@@ -1737,8 +1737,8 @@ services:
       name: sahool-globalgap-compliance
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8128'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8128'
   knowledge-graph:
     enabled: true
     name: knowledge-graph
@@ -1769,8 +1769,8 @@ services:
       name: sahool-knowledge-graph
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8140'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8140'
   logistics-service:
     enabled: true
     name: logistics-service
@@ -1801,8 +1801,8 @@ services:
       name: sahool-logistics-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8167'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8167'
   ndvi-engine:
     enabled: false
     name: ndvi-engine
@@ -1833,8 +1833,8 @@ services:
       name: sahool-ndvi-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8107'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8107'
   ussd-gateway:
     enabled: true
     name: ussd-gateway
@@ -1865,8 +1865,8 @@ services:
       name: sahool-ussd-gateway
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8183'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8183'
   weather-core:
     enabled: false
     name: weather-core
@@ -1897,8 +1897,8 @@ services:
       name: sahool-weather-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8108'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8108'
   field-core:
     enabled: false
     name: field-core
@@ -1929,8 +1929,8 @@ services:
       name: sahool-field-core
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '3005'
       prometheus.io/path: /metrics
+      prometheus.io/port: '3005'
   field-ops:
     enabled: false
     name: field-ops
@@ -1961,8 +1961,8 @@ services:
       name: sahool-field-ops
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8155'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8155'
   field-service:
     enabled: false
     name: field-service
@@ -1993,8 +1993,8 @@ services:
       name: sahool-field-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8156'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8156'
   yolo26-vision-service:
     enabled: true
     name: yolo26-vision-service
@@ -2025,8 +2025,8 @@ services:
       name: sahool-yolo26-vision-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8150'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8150'
   terrain-core-service:
     enabled: true
     name: terrain-core-service
@@ -2057,8 +2057,8 @@ services:
       name: sahool-terrain-core-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8185'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8185'
   hydrology-service:
     enabled: true
     name: hydrology-service
@@ -2089,8 +2089,8 @@ services:
       name: sahool-hydrology-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8165'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8165'
   leveling-optimizer-service:
     enabled: true
     name: leveling-optimizer-service
@@ -2121,8 +2121,8 @@ services:
       name: sahool-leveling-optimizer-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8170'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8170'
   edge-orchestrator-service:
     enabled: true
     name: edge-orchestrator-service
@@ -2131,7 +2131,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8190
+    port: 8180
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2147,14 +2147,14 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8190'
+      value: '8180'
     serviceAccount:
       create: true
       name: sahool-edge-orchestrator-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8190'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8180'
   llm-orchestrator-service:
     enabled: true
     name: llm-orchestrator-service
@@ -2163,7 +2163,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 8220
+    port: 8164
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2179,14 +2179,14 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8220'
+      value: '8164'
     serviceAccount:
       create: true
       name: sahool-llm-orchestrator-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8220'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8164'
   supply-chain-service:
     enabled: true
     name: supply-chain-service
@@ -2217,8 +2217,8 @@ services:
       name: sahool-supply-chain-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8230'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8230'
   whatsapp-bot-service:
     enabled: true
     name: whatsapp-bot-service
@@ -2249,8 +2249,8 @@ services:
       name: sahool-whatsapp-bot-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8240'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8240'
   soil-analysis-service:
     enabled: true
     name: soil-analysis-service
@@ -2281,8 +2281,8 @@ services:
       name: sahool-soil-analysis-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8134'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8134'
   drone-service:
     enabled: true
     name: drone-service
@@ -2313,8 +2313,8 @@ services:
       name: sahool-drone-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8126'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8126'
   cooperative-service:
     enabled: true
     name: cooperative-service
@@ -2345,8 +2345,8 @@ services:
       name: sahool-cooperative-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8127'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8127'
   traceability-service:
     enabled: true
     name: traceability-service
@@ -2377,8 +2377,8 @@ services:
       name: sahool-traceability-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8123'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8123'
   copilot-api:
     enabled: true
     name: copilot-api
@@ -2409,8 +2409,8 @@ services:
       name: sahool-copilot-api
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8088'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8088'
   ai-chat-assistant:
     enabled: true
     name: ai-chat-assistant
@@ -2441,8 +2441,8 @@ services:
       name: sahool-ai-chat-assistant
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8260'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8260'
   pest-detection-service:
     enabled: true
     name: pest-detection-service
@@ -2473,8 +2473,8 @@ services:
       name: sahool-pest-detection-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8125'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8125'
   yield-prediction-service:
     enabled: true
     name: yield-prediction-service
@@ -2505,8 +2505,8 @@ services:
       name: sahool-yield-prediction-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8152'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8152'
   digital-twin-engine:
     enabled: true
     name: digital-twin-engine
@@ -2537,8 +2537,8 @@ services:
       name: sahool-digital-twin-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8253'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8253'
   fertigation-engine:
     enabled: true
     name: fertigation-engine
@@ -2569,8 +2569,8 @@ services:
       name: sahool-fertigation-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8252'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8252'
   irrigation-cycle-engine:
     enabled: true
     name: irrigation-cycle-engine
@@ -2601,8 +2601,8 @@ services:
       name: sahool-irrigation-cycle-engine
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8250'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8250'
   iot-sensor-hub:
     enabled: true
     name: iot-sensor-hub
@@ -2633,8 +2633,8 @@ services:
       name: sahool-iot-sensor-hub
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8251'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8251'
   demo-data:
     enabled: true
     name: demo-data
@@ -2665,8 +2665,8 @@ services:
       name: sahool-demo-data
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8261'
       prometheus.io/path: /metrics
+      prometheus.io/port: '8261'
 applications:
   web:
     enabled: true
@@ -2808,7 +2808,7 @@ ingress:
     - path: /api/v1/agro/rules
       pathType: Prefix
       service: agro-rules
-      port: 8151
+      port: null
     - path: /api/v1/crop/intelligence/service
       pathType: Prefix
       service: crop-intelligence-service
@@ -2932,7 +2932,7 @@ ingress:
     - path: /api/v1/code/review/service
       pathType: Prefix
       service: code-review-service
-      port: 8124
+      port: 8102
     - path: /api/v1/crop/health
       pathType: Prefix
       service: crop-health
@@ -2992,11 +2992,11 @@ ingress:
     - path: /api/v1/edge/orchestrator/service
       pathType: Prefix
       service: edge-orchestrator-service
-      port: 8190
+      port: 8180
     - path: /api/v1/llm/orchestrator/service
       pathType: Prefix
       service: llm-orchestrator-service
-      port: 8220
+      port: 8164
     - path: /api/v1/supply/chain/service
       pathType: Prefix
       service: supply-chain-service

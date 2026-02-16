@@ -91,24 +91,12 @@ services:
       context: ./apps/services/crop-growth-model
       dockerfile: Dockerfile
     container_name: sahool-crop-growth-model
-    ports:
-    - 3023:3023
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3023
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3023/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3023
     depends_on:
       postgres:
         condition: service_healthy
@@ -119,6 +107,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3023:3023
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3023/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=crop-growth-model
     - sahool.port=3023
@@ -130,25 +130,13 @@ services:
       context: ./apps/services/disaster-assessment
       dockerfile: Dockerfile
     container_name: sahool-disaster-assessment
-    ports:
-    - 3020:3020
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3020
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=3020
     - DB_NAME=sahool_disaster
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3020/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -159,6 +147,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3020:3020
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3020/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=disaster-assessment
     - sahool.port=3020
@@ -170,24 +170,12 @@ services:
       context: ./apps/services/lai-estimation
       dockerfile: Dockerfile
     container_name: sahool-lai-estimation
-    ports:
-    - 3022:3022
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3022
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3022/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3022
     depends_on:
       postgres:
         condition: service_healthy
@@ -198,6 +186,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3022:3022
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3022/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=lai-estimation
     - sahool.port=3022
@@ -209,24 +209,12 @@ services:
       context: ./apps/services/yield-prediction
       dockerfile: Dockerfile
     container_name: sahool-yield-prediction
-    ports:
-    - 3021:3021
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3021
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3021/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3021
     depends_on:
       postgres:
         condition: service_healthy
@@ -237,6 +225,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3021:3021
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3021/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=yield-prediction
     - sahool.port=3021
@@ -248,25 +248,13 @@ services:
       context: ./apps/services/marketplace-service
       dockerfile: Dockerfile
     container_name: sahool-marketplace-service
-    ports:
-    - 3010:3010
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3010
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=3010
     - DB_NAME=sahool_marketplace
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3010/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -277,6 +265,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3010:3010
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3010/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=marketplace-service
     - sahool.port=3010
@@ -288,25 +288,13 @@ services:
       context: ./apps/services/community-chat
       dockerfile: Dockerfile
     container_name: sahool-community-chat
-    ports:
-    - 8097:8097
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8097
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8097
     - DB_NAME=sahool_chat
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8097/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -317,6 +305,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8097:8097
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8097/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=community-chat
     - sahool.port=8097
@@ -328,26 +328,14 @@ services:
       context: ./apps/services/iot-service
       dockerfile: Dockerfile
     container_name: sahool-iot-service
-    ports:
-    - 8117:8117
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8117
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8117
     - DB_NAME=sahool_iot
     - MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8117/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -360,6 +348,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8117:8117
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8117/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=iot-service
     - sahool.port=8117
@@ -371,25 +371,13 @@ services:
       context: ./apps/services/ground-vision-service
       dockerfile: Dockerfile
     container_name: sahool-ground-vision-service
-    ports:
-    - 8182:8182
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8182
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8182
     - DB_NAME=sahool_ground_vision
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8182/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -400,6 +388,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8182:8182
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8182/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ground-vision-service
     - sahool.port=8182
@@ -411,25 +411,13 @@ services:
       context: ./apps/services/research-core
       dockerfile: Dockerfile
     container_name: sahool-research-core
-    ports:
-    - 3015:3015
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3015
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=3015
     - DB_NAME=sahool_research
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3015/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -440,6 +428,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3015:3015
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3015/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=research-core
     - sahool.port=3015
@@ -451,25 +451,13 @@ services:
       context: ./apps/services/billing-core
       dockerfile: Dockerfile
     container_name: sahool-billing-core
-    ports:
-    - 8089:8089
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8089
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8089
     - DB_NAME=sahool_billing
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8089/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -480,6 +468,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8089:8089
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8089/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=billing-core
     - sahool.port=8089
@@ -491,25 +491,13 @@ services:
       context: ./archive/deprecated-services/satellite-service
       dockerfile: Dockerfile
     container_name: sahool-satellite-service
-    ports:
-    - 9190:9190
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=9190
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=9190
     - DB_NAME=sahool_satellite
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9190/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -520,6 +508,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 9190:9190
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9190/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=satellite-service
     - sahool.port=9190
@@ -531,25 +531,13 @@ services:
       context: ./archive/deprecated-services/weather-advanced
       dockerfile: Dockerfile
     container_name: sahool-weather-advanced
-    ports:
-    - 9092:9092
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=9092
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=9092
     - DB_NAME=sahool_weather
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9092/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -560,6 +548,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 9092:9092
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9092/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=weather-advanced
     - sahool.port=9092
@@ -571,25 +571,13 @@ services:
       context: ./apps/services/indicators-service
       dockerfile: Dockerfile
     container_name: sahool-indicators-service
-    ports:
-    - 8091:8091
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8091
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8091
     - DB_NAME=sahool_indicators
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8091/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -600,6 +588,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8091:8091
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8091/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=indicators-service
     - sahool.port=8091
@@ -611,24 +611,12 @@ services:
       context: ./archive/deprecated-services/crop-health-ai
       dockerfile: Dockerfile
     container_name: sahool-crop-health-ai
-    ports:
-    - 9095:9095
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=9095
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9095/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=9095
     depends_on:
       postgres:
         condition: service_healthy
@@ -639,6 +627,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 9095:9095
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9095/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=crop-health-ai
     - sahool.port=9095
@@ -650,24 +650,12 @@ services:
       context: ./apps/services/virtual-sensors
       dockerfile: Dockerfile
     container_name: sahool-virtual-sensors
-    ports:
-    - 8119:8119
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8119
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8119/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8119
     depends_on:
       postgres:
         condition: service_healthy
@@ -678,6 +666,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8119:8119
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8119/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=virtual-sensors
     - sahool.port=8119
@@ -689,24 +689,12 @@ services:
       context: ./apps/services/yield-engine
       dockerfile: Dockerfile
     container_name: sahool-yield-engine
-    ports:
-    - 8098:8098
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8098
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8098/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8098
     depends_on:
       postgres:
         condition: service_healthy
@@ -717,6 +705,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8098:8098
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8098/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=yield-engine
     - sahool.port=8098
@@ -728,25 +728,13 @@ services:
       context: ./archive/deprecated-services/fertilizer-advisor
       dockerfile: Dockerfile
     container_name: sahool-fertilizer-advisor
-    ports:
-    - 9093:9093
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=9093
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=9093
     - DB_NAME=sahool_fertilizer
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:9093/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -757,6 +745,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 9093:9093
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:9093/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=fertilizer-advisor
     - sahool.port=9093
@@ -768,25 +768,13 @@ services:
       context: ./apps/services/irrigation-smart
       dockerfile: Dockerfile
     container_name: sahool-irrigation-smart
-    ports:
-    - 8094:8094
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8094
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8094
     - DB_NAME=sahool_irrigation
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8094/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -797,6 +785,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8094:8094
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8094/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=irrigation-smart
     - sahool.port=8094
@@ -808,25 +808,13 @@ services:
       context: ./apps/services/notification-service
       dockerfile: Dockerfile
     container_name: sahool-notification-service
-    ports:
-    - 8110:8110
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8110
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8110
     - DB_NAME=sahool_notifications
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8110/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -837,6 +825,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8110:8110
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8110/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=notification-service
     - sahool.port=8110
@@ -848,24 +848,12 @@ services:
       context: ./apps/services/mcp-server
       dockerfile: Dockerfile
     container_name: sahool-mcp-server
-    ports:
-    - 8200:8200
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8200
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8200/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8200
     depends_on:
       postgres:
         condition: service_healthy
@@ -876,6 +864,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8200:8200
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8200/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=mcp-server
     - sahool.port=8200
@@ -887,24 +887,11 @@ services:
       context: ./apps/services/agro-rules
       dockerfile: Dockerfile
     container_name: sahool-agro-rules
-    ports:
-    - 8151:8151
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8151
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8151/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -917,33 +904,20 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=agro-rules
-    - sahool.port=8151
+    - sahool.protocol=nats
     - sahool.category=crop
-    - traefik.enable=true
-    - traefik.http.routers.agro-rules.rule=PathPrefix(`/api/v1/agro/rules`)
+    - traefik.enable=false
   crop-intelligence-service:
     build:
       context: ./apps/services/crop-intelligence-service
       dockerfile: Dockerfile
     container_name: sahool-crop-intelligence-service
-    ports:
-    - 8095:8095
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8095
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8095/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8095
     depends_on:
       postgres:
         condition: service_healthy
@@ -954,6 +928,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8095:8095
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8095/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=crop-intelligence-service
     - sahool.port=8095
@@ -965,25 +951,13 @@ services:
       context: ./apps/services/equipment-service
       dockerfile: Dockerfile
     container_name: sahool-equipment-service
-    ports:
-    - 8101:8101
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8101
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8101
     - DB_NAME=sahool_equipment
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8101/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -994,6 +968,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8101:8101
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8101/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=equipment-service
     - sahool.port=8101
@@ -1005,25 +991,13 @@ services:
       context: ./apps/services/task-service
       dockerfile: Dockerfile
     container_name: sahool-task-service
-    ports:
-    - 8103:8103
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8103
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8103
     - DB_NAME=sahool_tasks
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8103/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -1034,6 +1008,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8103:8103
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8103/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=task-service
     - sahool.port=8103
@@ -1045,24 +1031,12 @@ services:
       context: ./apps/services/ws-gateway
       dockerfile: Dockerfile
     container_name: sahool-ws-gateway
-    ports:
-    - 8081:8081
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8081
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8081/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8081
     depends_on:
       postgres:
         condition: service_healthy
@@ -1073,6 +1047,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8081:8081
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8081/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ws-gateway
     - sahool.port=8081
@@ -1084,24 +1070,12 @@ services:
       context: ./apps/services/ndvi-processor
       dockerfile: Dockerfile
     container_name: sahool-ndvi-processor
-    ports:
-    - 8118:8118
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8118
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8118/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8118
     depends_on:
       postgres:
         condition: service_healthy
@@ -1112,6 +1086,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8118:8118
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8118/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ndvi-processor
     - sahool.port=8118
@@ -1123,24 +1109,12 @@ services:
       context: ./apps/services/field-intelligence
       dockerfile: Dockerfile
     container_name: sahool-field-intelligence
-    ports:
-    - 8120:8120
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8120
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8120/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8120
     depends_on:
       postgres:
         condition: service_healthy
@@ -1151,6 +1125,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8120:8120
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8120/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-intelligence
     - sahool.port=8120
@@ -1162,24 +1148,12 @@ services:
       context: ./apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
     container_name: sahool-vegetation-analysis-service
-    ports:
-    - 8090:8090
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8090
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8090/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8090
     depends_on:
       postgres:
         condition: service_healthy
@@ -1190,6 +1164,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8090:8090
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8090/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=vegetation-analysis-service
     - sahool.port=8090
@@ -1201,24 +1187,12 @@ services:
       context: ./apps/services/weather-service
       dockerfile: Dockerfile
     container_name: sahool-weather-service
-    ports:
-    - 8092:8092
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8092
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8092/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8092
     depends_on:
       postgres:
         condition: service_healthy
@@ -1229,6 +1203,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8092:8092
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8092/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=weather-service
     - sahool.port=8092
@@ -1240,25 +1226,13 @@ services:
       context: ./apps/services/skills-service
       dockerfile: Dockerfile
     container_name: sahool-skills-service
-    ports:
-    - 8121:8121
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8121
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8121
     - DB_NAME=sahool_skills
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8121/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -1269,6 +1243,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8121:8121
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8121/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=skills-service
     - sahool.port=8121
@@ -1280,24 +1266,12 @@ services:
       context: ./apps/services/advisory-service
       dockerfile: Dockerfile
     container_name: sahool-advisory-service
-    ports:
-    - 8093:8093
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8093
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8093/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8093
     depends_on:
       postgres:
         condition: service_healthy
@@ -1308,6 +1282,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8093:8093
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8093/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=advisory-service
     - sahool.port=8093
@@ -1319,24 +1305,12 @@ services:
       context: ./apps/services/field-management-service
       dockerfile: Dockerfile
     container_name: sahool-field-management-service
-    ports:
-    - 3000:3000
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3000
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3000/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3000
     depends_on:
       postgres:
         condition: service_healthy
@@ -1347,6 +1321,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3000:3000
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3000/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-management-service
     - sahool.port=3000
@@ -1358,24 +1344,12 @@ services:
       context: ./apps/services/user-service
       dockerfile: Dockerfile
     container_name: sahool-user-service
-    ports:
-    - 3025:3025
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3025
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3025/api/v1/health
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3025
     depends_on:
       postgres:
         condition: service_healthy
@@ -1386,6 +1360,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3025:3025
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3025/api/v1/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=user-service
     - sahool.port=3025
@@ -1397,24 +1383,12 @@ services:
       context: ./apps/services/alert-service
       dockerfile: Dockerfile
     container_name: sahool-alert-service
-    ports:
-    - 8113:8113
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8113
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8113/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8113
     depends_on:
       postgres:
         condition: service_healthy
@@ -1425,6 +1399,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8113:8113
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8113/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=alert-service
     - sahool.port=8113
@@ -1436,24 +1422,12 @@ services:
       context: ./apps/services/audit-service
       dockerfile: Dockerfile
     container_name: sahool-audit-service
-    ports:
-    - 8114:8114
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8114
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8114/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8114
     depends_on:
       postgres:
         condition: service_healthy
@@ -1464,6 +1438,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8114:8114
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8114/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=audit-service
     - sahool.port=8114
@@ -1475,24 +1461,12 @@ services:
       context: ./archive/deprecated-services/agro-advisor
       dockerfile: Dockerfile
     container_name: sahool-agro-advisor
-    ports:
-    - 8105:8105
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8105
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8105/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8105
     depends_on:
       postgres:
         condition: service_healthy
@@ -1503,6 +1477,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8105:8105
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8105/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=agro-advisor
     - sahool.port=8105
@@ -1514,24 +1500,12 @@ services:
       context: ./apps/services/astronomical-calendar
       dockerfile: Dockerfile
     container_name: sahool-astronomical-calendar
-    ports:
-    - 8111:8111
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8111
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8111/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8111
     depends_on:
       postgres:
         condition: service_healthy
@@ -1542,6 +1516,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8111:8111
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8111/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=astronomical-calendar
     - sahool.port=8111
@@ -1553,24 +1539,12 @@ services:
       context: ./apps/services/iot-gateway
       dockerfile: Dockerfile
     container_name: sahool-iot-gateway
-    ports:
-    - 8106:8106
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8106
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8106/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8106
     depends_on:
       postgres:
         condition: service_healthy
@@ -1581,6 +1555,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8106:8106
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8106/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=iot-gateway
     - sahool.port=8106
@@ -1592,24 +1578,12 @@ services:
       context: ./apps/services/inventory-service
       dockerfile: Dockerfile
     container_name: sahool-inventory-service
-    ports:
-    - 8116:8116
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8116
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8116/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8116
     depends_on:
       postgres:
         condition: service_healthy
@@ -1620,6 +1594,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8116:8116
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8116/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=inventory-service
     - sahool.port=8116
@@ -1631,24 +1617,12 @@ services:
       context: ./apps/services/field-chat
       dockerfile: Dockerfile
     container_name: sahool-field-chat
-    ports:
-    - 8099:8099
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8099
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8099/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8099
     depends_on:
       postgres:
         condition: service_healthy
@@ -1659,6 +1633,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8099:8099
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8099/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-chat
     - sahool.port=8099
@@ -1670,24 +1656,12 @@ services:
       context: ./apps/services/provider-config
       dockerfile: Dockerfile
     container_name: sahool-provider-config
-    ports:
-    - 8104:8104
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8104
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8104/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8104
     depends_on:
       postgres:
         condition: service_healthy
@@ -1698,6 +1672,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8104:8104
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8104/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=provider-config
     - sahool.port=8104
@@ -1709,24 +1695,12 @@ services:
       context: ./apps/services/ai-agents-service
       dockerfile: Dockerfile
     container_name: sahool-ai-agents-service
-    ports:
-    - 8130:8130
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8130
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8130/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8130
     depends_on:
       postgres:
         condition: service_healthy
@@ -1737,6 +1711,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8130:8130
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8130/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ai-agents-service
     - sahool.port=8130
@@ -1748,25 +1734,13 @@ services:
       context: ./apps/services/crm-service
       dockerfile: Dockerfile
     container_name: sahool-crm-service
-    ports:
-    - 8131:8131
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8131
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8131
     - DB_NAME=sahool_crm
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8131/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -1777,6 +1751,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8131:8131
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8131/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=crm-service
     - sahool.port=8131
@@ -1788,25 +1774,13 @@ services:
       context: ./apps/services/lowcode-engine
       dockerfile: Dockerfile
     container_name: sahool-lowcode-engine
-    ports:
-    - 8132:8132
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8132
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8132
     - DB_NAME=sahool_lowcode
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8132/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -1817,6 +1791,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8132:8132
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8132/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=lowcode-engine
     - sahool.port=8132
@@ -1828,25 +1814,13 @@ services:
       context: ./apps/services/wechat-service
       dockerfile: Dockerfile
     container_name: sahool-wechat-service
-    ports:
-    - 8133:8133
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8133
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8133
     - DB_NAME=sahool_wechat
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8133/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -1857,6 +1831,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8133:8133
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8133/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=wechat-service
     - sahool.port=8133
@@ -1868,24 +1854,12 @@ services:
       context: ./apps/services/agent-registry
       dockerfile: Dockerfile
     container_name: sahool-agent-registry
-    ports:
-    - 8160:8160
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8160
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8160/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8160
     depends_on:
       postgres:
         condition: service_healthy
@@ -1896,6 +1870,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8160:8160
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8160/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=agent-registry
     - sahool.port=8160
@@ -1907,24 +1893,12 @@ services:
       context: ./apps/services/ai-advisor
       dockerfile: Dockerfile
     container_name: sahool-ai-advisor
-    ports:
-    - 8112:8112
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8112
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8112/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8112
     depends_on:
       postgres:
         condition: service_healthy
@@ -1935,6 +1909,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8112:8112
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8112/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ai-advisor
     - sahool.port=8112
@@ -1946,24 +1932,12 @@ services:
       context: ./apps/services/ai-agents-core
       dockerfile: Dockerfile
     container_name: sahool-ai-agents-core
-    ports:
-    - 8161:8161
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8161
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8161/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8161
     depends_on:
       postgres:
         condition: service_healthy
@@ -1974,6 +1948,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8161:8161
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8161/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ai-agents-core
     - sahool.port=8161
@@ -1985,25 +1971,13 @@ services:
       context: ./apps/services/chat-service
       dockerfile: Dockerfile
     container_name: sahool-chat-service
-    ports:
-    - 8000:8000
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8000
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8000
     - DB_NAME=sahool_chat
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8000/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -2014,6 +1988,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8000:8000
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8000/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=chat-service
     - sahool.port=8000
@@ -2025,24 +2011,12 @@ services:
       context: ./apps/services/code-fix-agent
       dockerfile: Dockerfile
     container_name: sahool-code-fix-agent
-    ports:
-    - 8162:8162
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8162
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8162/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8162
     depends_on:
       postgres:
         condition: service_healthy
@@ -2053,6 +2027,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8162:8162
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8162/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=code-fix-agent
     - sahool.port=8162
@@ -2064,24 +2050,12 @@ services:
       context: ./apps/services/code-review-agent
       dockerfile: Dockerfile
     container_name: sahool-code-review-agent
-    ports:
-    - 8145:8145
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8145
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8145/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8145
     depends_on:
       postgres:
         condition: service_healthy
@@ -2092,6 +2066,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8145:8145
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8145/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=code-review-agent
     - sahool.port=8145
@@ -2103,24 +2089,12 @@ services:
       context: ./apps/services/code-review-service
       dockerfile: Dockerfile
     container_name: sahool-code-review-service
-    ports:
-    - 8124:8124
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8124
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8124/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8102
     depends_on:
       postgres:
         condition: service_healthy
@@ -2131,9 +2105,21 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8102:8102
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8102/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=code-review-service
-    - sahool.port=8124
+    - sahool.port=8102
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.code-review-service.rule=PathPrefix(`/api/v1/code/review/service`)
@@ -2142,14 +2128,24 @@ services:
       context: ./archive/deprecated-services/crop-health
       dockerfile: Dockerfile
     container_name: sahool-crop-health
-    ports:
-    - 8100:8100
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8100
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8100
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    ports:
+    - 8100:8100
     healthcheck:
       test:
       - CMD
@@ -2160,16 +2156,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    networks:
-    - sahool-network
-    restart: unless-stopped
     labels:
     - sahool.service=crop-health
     - sahool.port=8100
@@ -2181,24 +2167,12 @@ services:
       context: ./apps/services/globalgap-compliance
       dockerfile: Dockerfile
     container_name: sahool-globalgap-compliance
-    ports:
-    - 8128:8128
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8128
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8128/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8128
     depends_on:
       postgres:
         condition: service_healthy
@@ -2209,6 +2183,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8128:8128
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8128/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=globalgap-compliance
     - sahool.port=8128
@@ -2220,25 +2206,13 @@ services:
       context: ./apps/services/knowledge-graph
       dockerfile: Dockerfile
     container_name: sahool-knowledge-graph
-    ports:
-    - 8140:8140
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8140
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8140
     - DB_NAME=sahool_knowledge
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8140/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -2249,6 +2223,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8140:8140
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8140/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=knowledge-graph
     - sahool.port=8140
@@ -2260,25 +2246,13 @@ services:
       context: ./apps/services/logistics-service
       dockerfile: Dockerfile
     container_name: sahool-logistics-service
-    ports:
-    - 8167:8167
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8167
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8167
     - DB_NAME=sahool_logistics
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8167/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
     depends_on:
       postgres:
         condition: service_healthy
@@ -2289,6 +2263,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8167:8167
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8167/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=logistics-service
     - sahool.port=8167
@@ -2300,24 +2286,12 @@ services:
       context: ./archive/deprecated-services/ndvi-engine
       dockerfile: Dockerfile
     container_name: sahool-ndvi-engine
-    ports:
-    - 8107:8107
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8107
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8107/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8107
     depends_on:
       postgres:
         condition: service_healthy
@@ -2328,6 +2302,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8107:8107
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8107/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ndvi-engine
     - sahool.port=8107
@@ -2339,24 +2325,12 @@ services:
       context: ./apps/services/ussd-gateway
       dockerfile: Dockerfile
     container_name: sahool-ussd-gateway
-    ports:
-    - 8183:8183
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8183
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8183/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8183
     depends_on:
       postgres:
         condition: service_healthy
@@ -2367,6 +2341,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8183:8183
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8183/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ussd-gateway
     - sahool.port=8183
@@ -2378,24 +2364,12 @@ services:
       context: ./archive/deprecated-services/weather-core
       dockerfile: Dockerfile
     container_name: sahool-weather-core
-    ports:
-    - 8108:8108
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8108
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8108/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8108
     depends_on:
       postgres:
         condition: service_healthy
@@ -2406,6 +2380,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8108:8108
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8108/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=weather-core
     - sahool.port=8108
@@ -2417,24 +2403,12 @@ services:
       context: ./archive/deprecated-services/field-core
       dockerfile: Dockerfile
     container_name: sahool-field-core
-    ports:
-    - 3005:3005
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=3005
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:3005/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=3005
     depends_on:
       postgres:
         condition: service_healthy
@@ -2445,6 +2419,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 3005:3005
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3005/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-core
     - sahool.port=3005
@@ -2456,24 +2442,12 @@ services:
       context: ./archive/deprecated-services/field-ops
       dockerfile: Dockerfile
     container_name: sahool-field-ops
-    ports:
-    - 8155:8155
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8155
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8155/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8155
     depends_on:
       postgres:
         condition: service_healthy
@@ -2484,6 +2458,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8155:8155
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8155/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-ops
     - sahool.port=8155
@@ -2495,24 +2481,12 @@ services:
       context: ./archive/deprecated-services/field-service
       dockerfile: Dockerfile
     container_name: sahool-field-service
-    ports:
-    - 8156:8156
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8156
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8156/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8156
     depends_on:
       postgres:
         condition: service_healthy
@@ -2523,6 +2497,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8156:8156
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8156/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=field-service
     - sahool.port=8156
@@ -2534,24 +2520,12 @@ services:
       context: ./apps/services/yolo26-vision-service
       dockerfile: Dockerfile
     container_name: sahool-yolo26-vision-service
-    ports:
-    - 8150:8150
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8150
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8150/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8150
     depends_on:
       postgres:
         condition: service_healthy
@@ -2562,6 +2536,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8150:8150
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8150/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=yolo26-vision-service
     - sahool.port=8150
@@ -2573,24 +2559,12 @@ services:
       context: ./apps/services/terrain-core-service
       dockerfile: Dockerfile
     container_name: sahool-terrain-core-service
-    ports:
-    - 8185:8185
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8185
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8185/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8185
     depends_on:
       postgres:
         condition: service_healthy
@@ -2601,6 +2575,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8185:8185
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8185/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=terrain-core-service
     - sahool.port=8185
@@ -2612,24 +2598,12 @@ services:
       context: ./apps/services/hydrology-service
       dockerfile: Dockerfile
     container_name: sahool-hydrology-service
-    ports:
-    - 8165:8165
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8165
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8165/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8165
     depends_on:
       postgres:
         condition: service_healthy
@@ -2640,6 +2614,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8165:8165
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8165/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=hydrology-service
     - sahool.port=8165
@@ -2651,24 +2637,12 @@ services:
       context: ./apps/services/leveling-optimizer-service
       dockerfile: Dockerfile
     container_name: sahool-leveling-optimizer-service
-    ports:
-    - 8170:8170
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8170
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8170/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8170
     depends_on:
       postgres:
         condition: service_healthy
@@ -2679,6 +2653,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8170:8170
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8170/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=leveling-optimizer-service
     - sahool.port=8170
@@ -2690,24 +2676,12 @@ services:
       context: ./apps/services/edge-orchestrator-service
       dockerfile: Dockerfile
     container_name: sahool-edge-orchestrator-service
-    ports:
-    - 8190:8190
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8190
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8190/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8180
     depends_on:
       postgres:
         condition: service_healthy
@@ -2718,9 +2692,21 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8180:8180
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8180/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=edge-orchestrator-service
-    - sahool.port=8190
+    - sahool.port=8180
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.edge-orchestrator-service.rule=PathPrefix(`/api/v1/edge/orchestrator/service`)
@@ -2729,24 +2715,12 @@ services:
       context: ./apps/services/llm-orchestrator-service
       dockerfile: Dockerfile
     container_name: sahool-llm-orchestrator-service
-    ports:
-    - 8220:8220
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8220
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8220/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8164
     depends_on:
       postgres:
         condition: service_healthy
@@ -2757,9 +2731,21 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8164:8164
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8164/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=llm-orchestrator-service
-    - sahool.port=8220
+    - sahool.port=8164
     - sahool.category=intelligence
     - traefik.enable=true
     - traefik.http.routers.llm-orchestrator-service.rule=PathPrefix(`/api/v1/llm/orchestrator/service`)
@@ -2768,14 +2754,24 @@ services:
       context: ./apps/services/supply-chain-service
       dockerfile: Dockerfile
     container_name: sahool-supply-chain-service
-    ports:
-    - 8230:8230
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8230
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8230
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      nats:
+        condition: service_healthy
+    networks:
+    - sahool-network
+    restart: unless-stopped
+    ports:
+    - 8230:8230
     healthcheck:
       test:
       - CMD
@@ -2786,16 +2782,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    networks:
-    - sahool-network
-    restart: unless-stopped
     labels:
     - sahool.service=supply-chain-service
     - sahool.port=8230
@@ -2807,24 +2793,12 @@ services:
       context: ./apps/services/whatsapp-bot-service
       dockerfile: Dockerfile
     container_name: sahool-whatsapp-bot-service
-    ports:
-    - 8240:8240
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8240
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8240/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8240
     depends_on:
       postgres:
         condition: service_healthy
@@ -2835,6 +2809,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8240:8240
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8240/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=whatsapp-bot-service
     - sahool.port=8240
@@ -2846,24 +2832,12 @@ services:
       context: ./apps/services/soil-analysis-service
       dockerfile: Dockerfile
     container_name: sahool-soil-analysis-service
-    ports:
-    - 8134:8134
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8134
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8134/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8134
     depends_on:
       postgres:
         condition: service_healthy
@@ -2874,6 +2848,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8134:8134
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8134/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=soil-analysis-service
     - sahool.port=8134
@@ -2885,24 +2871,12 @@ services:
       context: ./apps/services/drone-service
       dockerfile: Dockerfile
     container_name: sahool-drone-service
-    ports:
-    - 8126:8126
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8126
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8126/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8126
     depends_on:
       postgres:
         condition: service_healthy
@@ -2913,6 +2887,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8126:8126
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8126/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=drone-service
     - sahool.port=8126
@@ -2924,24 +2910,12 @@ services:
       context: ./apps/services/cooperative-service
       dockerfile: Dockerfile
     container_name: sahool-cooperative-service
-    ports:
-    - 8127:8127
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8127
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8127/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8127
     depends_on:
       postgres:
         condition: service_healthy
@@ -2952,6 +2926,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8127:8127
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8127/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=cooperative-service
     - sahool.port=8127
@@ -2963,24 +2949,12 @@ services:
       context: ./apps/services/traceability-service
       dockerfile: Dockerfile
     container_name: sahool-traceability-service
-    ports:
-    - 8123:8123
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8123
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8123/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8123
     depends_on:
       postgres:
         condition: service_healthy
@@ -2991,6 +2965,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8123:8123
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8123/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=traceability-service
     - sahool.port=8123
@@ -3002,24 +2988,12 @@ services:
       context: ./apps/services/copilot-api
       dockerfile: Dockerfile
     container_name: sahool-copilot-api
-    ports:
-    - 8088:8088
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8088
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8088/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8088
     depends_on:
       postgres:
         condition: service_healthy
@@ -3030,6 +3004,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8088:8088
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8088/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=copilot-api
     - sahool.port=8088
@@ -3041,24 +3027,12 @@ services:
       context: ./apps/services/ai-chat-assistant
       dockerfile: Dockerfile
     container_name: sahool-ai-chat-assistant
-    ports:
-    - 8260:8260
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8260
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8260/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8260
     depends_on:
       postgres:
         condition: service_healthy
@@ -3069,6 +3043,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8260:8260
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8260/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=ai-chat-assistant
     - sahool.port=8260
@@ -3080,24 +3066,12 @@ services:
       context: ./apps/services/pest-detection-service
       dockerfile: Dockerfile
     container_name: sahool-pest-detection-service
-    ports:
-    - 8125:8125
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8125
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8125/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8125
     depends_on:
       postgres:
         condition: service_healthy
@@ -3108,6 +3082,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8125:8125
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8125/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=pest-detection-service
     - sahool.port=8125
@@ -3119,24 +3105,12 @@ services:
       context: ./apps/services/yield-prediction-service
       dockerfile: Dockerfile
     container_name: sahool-yield-prediction-service
-    ports:
-    - 8152:8152
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8152
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8152/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8152
     depends_on:
       postgres:
         condition: service_healthy
@@ -3147,6 +3121,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8152:8152
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8152/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=yield-prediction-service
     - sahool.port=8152
@@ -3158,24 +3144,12 @@ services:
       context: ./apps/services/digital-twin-engine
       dockerfile: Dockerfile
     container_name: sahool-digital-twin-engine
-    ports:
-    - 8253:8253
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8253
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8253/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8253
     depends_on:
       postgres:
         condition: service_healthy
@@ -3186,6 +3160,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8253:8253
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8253/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=digital-twin-engine
     - sahool.port=8253
@@ -3197,24 +3183,12 @@ services:
       context: ./apps/services/fertigation-engine
       dockerfile: Dockerfile
     container_name: sahool-fertigation-engine
-    ports:
-    - 8252:8252
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8252
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8252/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8252
     depends_on:
       postgres:
         condition: service_healthy
@@ -3225,6 +3199,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8252:8252
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8252/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=fertigation-engine
     - sahool.port=8252
@@ -3236,24 +3222,12 @@ services:
       context: ./apps/services/irrigation-cycle-engine
       dockerfile: Dockerfile
     container_name: sahool-irrigation-cycle-engine
-    ports:
-    - 8250:8250
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8250
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8250/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8250
     depends_on:
       postgres:
         condition: service_healthy
@@ -3264,6 +3238,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8250:8250
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8250/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=irrigation-cycle-engine
     - sahool.port=8250
@@ -3275,24 +3261,12 @@ services:
       context: ./apps/services/iot-sensor-hub
       dockerfile: Dockerfile
     container_name: sahool-iot-sensor-hub
-    ports:
-    - 8251:8251
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8251
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8251/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8251
     depends_on:
       postgres:
         condition: service_healthy
@@ -3303,6 +3277,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8251:8251
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8251/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=iot-sensor-hub
     - sahool.port=8251
@@ -3314,24 +3300,12 @@ services:
       context: ./apps/services/demo-data
       dockerfile: Dockerfile
     container_name: sahool-demo-data
-    ports:
-    - 8261:8261
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8261
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8261/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    - PORT=8261
     depends_on:
       postgres:
         condition: service_healthy
@@ -3342,6 +3316,18 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8261:8261
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8261/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=demo-data
     - sahool.port=8261

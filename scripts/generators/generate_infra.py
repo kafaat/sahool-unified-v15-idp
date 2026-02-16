@@ -46,27 +46,20 @@ def load_services_yaml() -> dict[str, Any]:
 def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
     """Generate a Docker Compose service definition"""
     path = service.get("path", f"apps/services/{name}")
-    port = service.get("port", 3000)
+    port = service.get("port")  # Allow None for NATS-only services
     health_endpoint = service.get("health_endpoint", "/healthz")
+    protocol = service.get("protocol", "http")
 
+    # Base service configuration (common for all services)
     compose_service = {
         "build": {"context": f"./{path}", "dockerfile": "Dockerfile"},
         "container_name": f"sahool-{name}",
-        "ports": [f"{port}:{port}"],
         "environment": [
             "NODE_ENV=${NODE_ENV:-development}",
-            f"PORT={port}",
             "DATABASE_URL=${DATABASE_URL}",
             "REDIS_URL=${REDIS_URL}",
             "NATS_URL=${NATS_URL:-nats://nats:4222}",
         ],
-        "healthcheck": {
-            "test": ["CMD", "curl", "-f", f"http://localhost:{port}{health_endpoint}"],
-            "interval": "30s",
-            "timeout": "10s",
-            "retries": 3,
-            "start_period": "40s",
-        },
         "depends_on": {
             "postgres": {"condition": "service_healthy"},
             "redis": {"condition": "service_healthy"},
@@ -75,6 +68,38 @@ def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, An
         "networks": ["sahool-network"],
         "restart": "unless-stopped",
     }
+
+    # Add port configuration only for services with HTTP endpoints
+    if port is not None:
+        compose_service["ports"] = [f"{port}:{port}"]
+        compose_service["environment"].append(f"PORT={port}")
+        
+        # Add HTTP healthcheck for HTTP services
+        if health_endpoint:
+            compose_service["healthcheck"] = {
+                "test": ["CMD", "curl", "-f", f"http://localhost:{port}{health_endpoint}"],
+                "interval": "30s",
+                "timeout": "10s",
+                "retries": 3,
+                "start_period": "40s",
+            }
+        
+        # Add labels for HTTP services
+        compose_service["labels"] = [
+            f"sahool.service={name}",
+            f"sahool.port={port}",
+            f"sahool.category={service.get('category', 'core')}",
+            "traefik.enable=true",
+            f"traefik.http.routers.{name}.rule=PathPrefix(`/api/v1/{name.replace('-', '/')}`)",
+        ]
+    else:
+        # NATS-only worker service - no HTTP port or healthcheck
+        compose_service["labels"] = [
+            f"sahool.service={name}",
+            f"sahool.protocol={protocol}",
+            f"sahool.category={service.get('category', 'core')}",
+            "traefik.enable=false",
+        ]
 
     # Add database-specific config
     if "database" in service:
@@ -88,15 +113,6 @@ def generate_compose_service(name: str, service: dict[str, Any]) -> dict[str, An
         if broker.get("type") == "mqtt":
             compose_service["environment"].append("MQTT_URL=${MQTT_URL:-mqtt://mqtt:1883}")
             compose_service["depends_on"]["mqtt"] = {"condition": "service_started"}
-
-    # Add labels for service discovery
-    compose_service["labels"] = [
-        f"sahool.service={name}",
-        f"sahool.port={port}",
-        f"sahool.category={service.get('category', 'core')}",
-        "traefik.enable=true",
-        f"traefik.http.routers.{name}.rule=PathPrefix(`/api/v1/{name.replace('-', '/')}`)",
-    ]
 
     return compose_service
 
@@ -221,8 +237,10 @@ def generate_docker_compose(data: dict[str, Any]) -> dict[str, Any]:
 def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
     """Generate Helm values for a service"""
     resources = service.get("resources", {})
+    port = service.get("port")  # Allow None for NATS-only services
+    health_endpoint = service.get("health_endpoint")
 
-    return {
+    helm_service = {
         "enabled": service.get("status") == "active",
         "name": name,
         "image": {
@@ -231,9 +249,9 @@ def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
             "pullPolicy": "IfNotPresent",
         },
         "replicaCount": resources.get("replicas", 1),
-        "port": service.get("port", 3000),
+        "port": port,  # Can be null for NATS-only services
         "healthCheck": {
-            "path": service.get("health_endpoint", "/healthz"),
+            "path": health_endpoint,  # Can be null for NATS-only services
             "initialDelaySeconds": 30,
             "periodSeconds": 10,
         },
@@ -253,15 +271,24 @@ def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
         },
         "env": [
             {"name": "NODE_ENV", "value": "production"},
-            {"name": "PORT", "value": str(service.get("port", 3000))},
         ],
         "serviceAccount": {"create": True, "name": f"sahool-{name}"},
         "podAnnotations": {
             "prometheus.io/scrape": "true",
-            "prometheus.io/port": str(service.get("port", 3000)),
             "prometheus.io/path": "/metrics",
         },
     }
+
+    # Add port-specific config only for HTTP services
+    if port is not None:
+        helm_service["env"].append({"name": "PORT", "value": str(port)})
+        helm_service["podAnnotations"]["prometheus.io/port"] = str(port)
+    else:
+        # For NATS-only services, use a default port annotation
+        helm_service["env"].append({"name": "PORT", "value": "None"})
+        helm_service["podAnnotations"]["prometheus.io/port"] = "None"
+
+    return helm_service
 
 
 def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:

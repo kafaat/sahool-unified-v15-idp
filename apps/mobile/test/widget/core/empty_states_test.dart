@@ -4,14 +4,14 @@ import 'package:sahool_field_app/core/widgets/empty_states.dart';
 import '../../helpers/test_helpers.dart';
 
 void main() {
-  group('SahoolEmptyState', () {
+  group('EmptyStateWidget', () {
     testWidgets('should display icon, title, and message', (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
-          const SahoolEmptyState(
+          const EmptyStateWidget(
             icon: Icons.inbox,
-            title: 'عنوان فارغ',
-            message: 'رسالة فارغة',
+            titleAr: 'عنوان فارغ',
+            messageAr: 'رسالة فارغة',
           ),
         ),
       );
@@ -26,10 +26,10 @@ void main() {
 
       await tester.pumpWidget(
         createSimpleTestableWidget(
-          SahoolEmptyState(
+          EmptyStateWidget(
             icon: Icons.add,
-            title: 'Test',
-            actionLabel: 'إضافة',
+            titleAr: 'Test',
+            actionLabelAr: 'إضافة',
             onAction: () => buttonPressed = true,
           ),
         ),
@@ -46,9 +46,9 @@ void main() {
     testWidgets('should not show action button when onAction is null', (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
-          const SahoolEmptyState(
+          const EmptyStateWidget(
             icon: Icons.inbox,
-            title: 'Test',
+            titleAr: 'Test',
           ),
         ),
       );

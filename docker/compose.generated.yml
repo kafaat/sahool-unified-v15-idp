@@ -892,6 +892,7 @@ services:
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
+    - PORT=8151
     depends_on:
       postgres:
         condition: service_healthy
@@ -902,11 +903,24 @@ services:
     networks:
     - sahool-network
     restart: unless-stopped
+    ports:
+    - 8151:8151
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8151/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     labels:
     - sahool.service=agro-rules
-    - sahool.protocol=nats
+    - sahool.port=8151
     - sahool.category=crop
-    - traefik.enable=false
+    - traefik.enable=true
+    - traefik.http.routers.agro-rules.rule=PathPrefix(`/api/v1/agro/rules`)
   crop-intelligence-service:
     build:
       context: ./apps/services/crop-intelligence-service
@@ -2094,7 +2108,7 @@ services:
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    - PORT=8102
+    - PORT=8124
     depends_on:
       postgres:
         condition: service_healthy
@@ -2106,20 +2120,20 @@ services:
     - sahool-network
     restart: unless-stopped
     ports:
-    - 8102:8102
+    - 8124:8124
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8102/healthz
+      - http://localhost:8124/healthz
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     labels:
     - sahool.service=code-review-service
-    - sahool.port=8102
+    - sahool.port=8124
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.code-review-service.rule=PathPrefix(`/api/v1/code/review/service`)
@@ -2681,7 +2695,7 @@ services:
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    - PORT=8180
+    - PORT=8190
     depends_on:
       postgres:
         condition: service_healthy
@@ -2693,20 +2707,20 @@ services:
     - sahool-network
     restart: unless-stopped
     ports:
-    - 8180:8180
+    - 8190:8190
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8180/healthz
+      - http://localhost:8190/healthz
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     labels:
     - sahool.service=edge-orchestrator-service
-    - sahool.port=8180
+    - sahool.port=8190
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.edge-orchestrator-service.rule=PathPrefix(`/api/v1/edge/orchestrator/service`)
@@ -2720,7 +2734,7 @@ services:
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
-    - PORT=8164
+    - PORT=8220
     depends_on:
       postgres:
         condition: service_healthy
@@ -2732,20 +2746,20 @@ services:
     - sahool-network
     restart: unless-stopped
     ports:
-    - 8164:8164
+    - 8220:8220
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8164/healthz
+      - http://localhost:8220/healthz
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     labels:
     - sahool.service=llm-orchestrator-service
-    - sahool.port=8164
+    - sahool.port=8220
     - sahool.category=intelligence
     - traefik.enable=true
     - traefik.http.routers.llm-orchestrator-service.rule=PathPrefix(`/api/v1/llm/orchestrator/service`)

@@ -15,16 +15,18 @@ import '../providers/smart_alerts_provider.dart';
 class SmartAlertsCenter extends ConsumerWidget {
   final int maxAlerts;
   final bool showViewAll;
+  final String? fieldId;
 
   const SmartAlertsCenter({
     super.key,
     this.maxAlerts = 5,
     this.showViewAll = true,
+    this.fieldId,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alertsState = ref.watch(smartAlertsProvider);
+    final alertsState = ref.watch(smartAlertsProvider(fieldId));
 
     return alertsState.when(
       loading: () => const _AlertsLoading(),

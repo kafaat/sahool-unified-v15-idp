@@ -227,14 +227,14 @@ class KongServices {
 
   /// Community/Social features - المجتمع
   static const community = KongService(
-    name: 'community-chat',
+    name: 'chat-service',
     nameAr: 'المجتمع',
     basePath: '/api/v1/community',
   );
 
   /// Chat/Messaging service - خدمة الرسائل
   static const chat = KongService(
-    name: 'field-chat',
+    name: 'chat-service',
     nameAr: 'الرسائل',
     basePath: '/api/v1/chat',
   );
@@ -275,12 +275,58 @@ class KongServices {
     basePath: '/api/v1/research',
   );
 
+  /// Copilot API - المساعد الذكي (RAG + Multi-LLM)
+  static const copilot = KongService(
+    name: 'copilot-api',
+    nameAr: 'المساعد الذكي',
+    basePath: '/api/v1/copilot',
+    timeout: Duration(seconds: 120), // Longer timeout for AI/RAG operations
+  );
+
+  /// Pest Detection service - كشف الآفات
+  static const pestDetection = KongService(
+    name: 'pest-detection-service',
+    nameAr: 'كشف الآفات',
+    basePath: '/api/v1/pest-detection',
+    timeout: Duration(seconds: 60),
+  );
+
+  /// Soil Analysis service - تحليل التربة
+  static const soilAnalysis = KongService(
+    name: 'soil-analysis-service',
+    nameAr: 'تحليل التربة',
+    basePath: '/api/v1/soil-analysis',
+  );
+
+  /// Irrigation Cycle Engine - محرك دورات الري
+  static const irrigationEngine = KongService(
+    name: 'irrigation-cycle-engine',
+    nameAr: 'محرك الري المحوري',
+    basePath: '/api/v1/irrigation-engine',
+  );
+
+  /// Field Intelligence service - ذكاء الحقل
+  static const fieldIntelligence = KongService(
+    name: 'field-intelligence',
+    nameAr: 'ذكاء الحقل',
+    basePath: '/api/v1/field-intelligence',
+  );
+
+  /// Astronomical Calendar - التقويم الفلكي
+  static const astronomicalCalendar = KongService(
+    name: 'astronomical-calendar',
+    nameAr: 'التقويم الفلكي',
+    basePath: '/api/v1/astronomical',
+  );
+
   static List<KongService> get all => [
     fields, auth, weather, vegetation, satellite, ndvi,
     irrigation, advisory, cropHealth, tasks, equipment,
     alerts, notifications, marketplace, iot, yield_,
     billing, inventory, spray, userProfile, community,
     chat, virtualSensors, aiAdvisor, crops, indicators, research,
+    copilot, pestDetection, soilAnalysis, irrigationEngine,
+    fieldIntelligence, astronomicalCalendar,
   ];
 
   /// Get service by name

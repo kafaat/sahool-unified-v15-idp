@@ -4,7 +4,6 @@
 /// covering state management, loading states, and error handling.
 library;
 
-import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;

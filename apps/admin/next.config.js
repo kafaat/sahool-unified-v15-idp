@@ -6,6 +6,16 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
 const nextConfig = {
   output: "standalone",
 
+  // Transpile workspace packages so Next.js compiles them from source
+  // This avoids dependency on pre-built dist/ directories from build:packages
+  transpilePackages: [
+    "@sahool/shared-ui",
+    "@sahool/shared-utils",
+    "@sahool/shared-hooks",
+    "@sahool/shared-types",
+    "@sahool/api-client",
+  ],
+
   // Security Headers
   async headers() {
     return [

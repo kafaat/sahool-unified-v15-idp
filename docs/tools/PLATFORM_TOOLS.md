@@ -303,4 +303,4 @@ echo "✅ Done"
 **Related Documents:**
 
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)
-- [Development Guidelines](../development/GUIDELINES.md)
+- Development Guidelines

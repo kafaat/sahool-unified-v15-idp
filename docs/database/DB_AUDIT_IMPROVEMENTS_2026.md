@@ -467,7 +467,7 @@ export class PrismaService extends PrismaClient {
 ### Documentation
 - [Prisma Performance Best Practices](https://www.prisma.io/docs/guides/performance-and-optimization)
 - [PostgreSQL Index Types](https://www.postgresql.org/docs/current/indexes-types.html)
-- [Database Security Checklist](../../governance/security/database-security.md)
+- Database Security Checklist
 
 ### Related Files
 - `shared/db/db-utils.ts` - Shared database utilities

@@ -22,7 +22,7 @@ Field Management APIs provide comprehensive tools for managing agricultural fiel
 
 ## Base URL
 
-**Field Management Service:** `http://localhost:8090`
+**Field Management Service:** `http://localhost:3000`
 
 ## Authentication | المصادقة
 
@@ -705,85 +705,85 @@ curl -X GET http://localhost:8080/stats/tenant/{tenant_id} \
 
 ### GET /healthz
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** Health
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/healthz \
+curl -X GET http://localhost:3000/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /healthz
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** Health
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/healthz \
+curl -X GET http://localhost:3000/healthz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /readyz
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** Readiness
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/readyz \
+curl -X GET http://localhost:3000/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /readyz
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** Readiness
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/readyz \
+curl -X GET http://localhost:3000/readyz \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/costs/categories
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all available cost categories
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/costs/categories \
+curl -X GET http://localhost:3000/v1/costs/categories \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/costs/categories
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all available cost categories
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/costs/categories \
+curl -X GET http://localhost:3000/v1/costs/categories \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/crops/list
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -792,13 +792,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/crops/list \
+curl -X GET http://localhost:3000/v1/crops/list \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/crops/list
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -807,39 +807,39 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/crops/list \
+curl -X GET http://localhost:3000/v1/crops/list \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### POST /v1/profitability/analyze
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** Analyze Profitability
 
 #### Example Request
 
 ```bash
-curl -X POST http://localhost:8090/v1/profitability/analyze \
+curl -X POST http://localhost:3000/v1/profitability/analyze \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### POST /v1/profitability/analyze
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** Analyze Profitability
 
 #### Example Request
 
 ```bash
-curl -X POST http://localhost:8090/v1/profitability/analyze \
+curl -X POST http://localhost:3000/v1/profitability/analyze \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/benchmarks/{crop_code}
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -848,13 +848,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/benchmarks/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/benchmarks/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/benchmarks/{crop_code}
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -863,13 +863,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/benchmarks/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/benchmarks/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/break-even
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -878,13 +878,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/break-even \
+curl -X GET http://localhost:3000/v1/profitability/break-even \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/break-even
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -893,13 +893,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/break-even \
+curl -X GET http://localhost:3000/v1/profitability/break-even \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/compare
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -908,13 +908,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/compare \
+curl -X GET http://localhost:3000/v1/profitability/compare \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/compare
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -923,13 +923,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/compare \
+curl -X GET http://localhost:3000/v1/profitability/compare \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/cost-breakdown/{crop_code}
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -938,13 +938,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/cost-breakdown/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/cost-breakdown/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/cost-breakdown/{crop_code}
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -953,39 +953,39 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/cost-breakdown/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/cost-breakdown/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/crop/{crop_season_id}
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** Analyze Profitability
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/crop/{crop_season_id} \
+curl -X GET http://localhost:3000/v1/profitability/crop/{crop_season_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/crop/{crop_season_id}
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** Analyze Profitability
 
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/crop/{crop_season_id} \
+curl -X GET http://localhost:3000/v1/profitability/crop/{crop_season_id} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/history/{field_id}/{crop_code}
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** List all crops with available profitability data.
 
@@ -994,13 +994,13 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/history/{field_id}/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/history/{field_id}/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### GET /v1/profitability/history/{field_id}/{crop_code}
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** List all crops with available profitability data.
 
@@ -1009,33 +1009,33 @@ Returns crop codes, names in both languages, and regional data availability.
 #### Example Request
 
 ```bash
-curl -X GET http://localhost:8090/v1/profitability/history/{field_id}/{crop_code} \
+curl -X GET http://localhost:3000/v1/profitability/history/{field_id}/{crop_code} \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### POST /v1/profitability/season
 
-**Service:** field-core (Port: 8090)
+**Service:** field-core (Port: 3000) _(Deprecated -- replaced by field-management-service)_
 
 **Summary:** Get Season Summary
 
 #### Example Request
 
 ```bash
-curl -X POST http://localhost:8090/v1/profitability/season \
+curl -X POST http://localhost:3000/v1/profitability/season \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### POST /v1/profitability/season
 
-**Service:** field-management-service (Port: 8090)
+**Service:** field-management-service (Port: 3000)
 
 **Summary:** Get Season Summary
 
 #### Example Request
 
 ```bash
-curl -X POST http://localhost:8090/v1/profitability/season \
+curl -X POST http://localhost:3000/v1/profitability/season \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 

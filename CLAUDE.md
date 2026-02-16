@@ -32,7 +32,7 @@ sahool-unified-v15-idp/
 │   │   ├── sahool_field_app/   # Main field app
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 73 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -40,7 +40,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (25 npm workspaces)
+├── packages/                   # Shared packages (32 npm workspaces total)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -414,7 +414,7 @@ The platform contains **109 Dockerfiles** across Python, Node.js, and infrastruc
 | `docker/Dockerfile.python.base` | Base Python image (no mirror, basic pip config) |
 | `docker/Dockerfile.ai-base` | AI services base (Aliyun + Tsinghua mirrors) |
 | `docker/Dockerfile.node.base` | Node.js base |
-| `apps/services/*/Dockerfile` | Per-service Dockerfiles (77 services) |
+| `apps/services/*/Dockerfile` | Per-service Dockerfiles (72 services) |
 | `config/postgres/Dockerfile.walg` | PostgreSQL 16 + PostGIS 3.4 + WAL-G |
 | `idp/templates/python-fastapi/skeleton/Dockerfile` | IDP service template |
 
@@ -696,7 +696,7 @@ lib/
 │   ├── voice/              # Speech-to-text, TTS
 │   ├── websocket/          # Real-time updates
 │   └── ...                 # config, geo, map, ml, theme, etc.
-├── features/               # 58 feature modules
+├── features/               # 57 feature modules
 │   ├── field/              # Core field operations
 │   ├── irrigation/         # Irrigation management
 │   ├── crop_health/        # Crop health monitoring
@@ -957,7 +957,7 @@ The project uses Ruff for Python linting and formatting (configured in `pyprojec
 | `docker/docker-compose.secrets.yml` | Secrets management                       |
 | `docker/docker-compose.infra.yml` | Infrastructure-only services               |
 | `pyproject.toml`                | Python config, Ruff, pytest, MyPy            |
-| `package.json`                  | Node.js root workspace (25 packages + services) |
+| `package.json`                  | Node.js root workspace (32 workspaces)           |
 | `.env.example`                  | Environment template                         |
 | `governance/services.yaml`      | Service registry v3.2.0 (source of truth)    |
 | `governance/agents.yaml`        | AI agent definitions (11 categories)         |
@@ -1103,13 +1103,13 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 73 microservices (75 active in registry, 11 archived) + 4 applications (admin, web, mobile, kernel)
+**Platform Totals**: 72 microservices (72 in apps/services/, 11 archived) + 4 applications (admin, web, mobile, kernel)
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 75 | Registered in governance/services.yaml as active |
+| Active | 72 | Service directories in apps/services/ |
 | Archived | 11 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications

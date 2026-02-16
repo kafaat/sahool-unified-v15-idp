@@ -26,7 +26,7 @@ structlog>=23.2.0
 httpx>=0.25.0
 
 # NATS Messaging
-nats-py>=2.7.0
+nats-py==2.13.1
 
 # Testing (optional)
 pytest>=7.4.0

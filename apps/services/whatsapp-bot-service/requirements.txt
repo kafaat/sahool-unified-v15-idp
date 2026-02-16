@@ -16,7 +16,7 @@ cryptography>=42.0.0
 # Redis for Session Management
 redis>=7.1.0,<8.0.0
 # NATS for Events
-nats-py>=2.7.0,<3.0.0
+nats-py==2.13.1
 # Logging
 structlog>=24.0.0,<25.0.0
 # Testing

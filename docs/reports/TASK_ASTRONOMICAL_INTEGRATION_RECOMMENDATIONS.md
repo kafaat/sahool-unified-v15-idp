@@ -523,9 +523,9 @@ apps/mobile/lib/features/tasks/
 
 ## 9. المراجع
 
-- [ASTRONOMICAL_CALENDAR_SERVICE.md](./ASTRONOMICAL_CALENDAR_SERVICE.md)
-- [Task Service API Documentation](../api/tasks.md)
-- [Mobile Architecture Analysis](./MOBILE_ARCHITECTURE_ANALYSIS.md)
+- [ASTRONOMICAL_CALENDAR_SERVICE.md](../ASTRONOMICAL_CALENDAR_SERVICE.md)
+- [Task Service Quick Reference](../guides/TASK_SERVICE_QUICK_REFERENCE.md)
+- [Mobile Architecture Analysis](../MOBILE_ARCHITECTURE_ANALYSIS.md)
 
 ---
 

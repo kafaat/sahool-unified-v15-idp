@@ -443,45 +443,38 @@ Official SDKs:
 
 ### Base URLs | عناوين URL الأساسية
 
-| Service                               | Port                   | Base URL              |
-| ------------------------------------- | ---------------------- | --------------------- | --------------------- |
-| SAHOOL Field Service                  | 3000                   | http://localhost:3000 |
-| SAHOOL Agent Registry Service         | 8000                   | http://localhost:8000 |
-| AI Advisor Service                    | 8000                   | http://localhost:8000 |
-| SAHOOL Field Chat                     | 8000                   | http://localhost:8000 |
-| Sahool Virtual Sensors Engine         | 8000                   | http://localhost:8000 |
-| SAHOOL Field Operations               | 8080                   | http://localhost:8080 |
-| SAHOOL WebSocket Gateway              | 8081                   | http://localhost:8081 |
-| SAHOOL Billing Core                   | خدمة الفوترة           | 8089                  | http://localhost:8089 |
-| SAHOOL Field Core                     | 8090                   | http://localhost:8090 |
-| SAHOOL Field Core                     | 8090                   | http://localhost:8090 |
-| SAHOOL Satellite Service              | خدمة الأقمار الصناعية  | 8090                  | http://localhost:8090 |
-| SAHOOL Satellite Service              | خدمة الأقمار الصناعية  | 8090                  | http://localhost:8090 |
-| SAHOOL Agricultural Indicators        | خدمة المؤشرات الزراعية | 8091                  | http://localhost:8091 |
-| SAHOOL Advanced Weather Service       | خدمة الطقس المتقدمة    | 8092                  | http://localhost:8092 |
-| SAHOOL Fertilizer Advisor             | مستشار السماد          | 8093                  | http://localhost:8093 |
-| SAHOOL Smart Irrigation Service       | خدمة الري الذكي        | 8094                  | http://localhost:8094 |
-| SAHOOL Agro Advisor                   | 8095                   | http://localhost:8095 |
-| SAHOOL Agro Advisor                   | 8095                   | http://localhost:8095 |
-| سهول فيجن - Sahool Vision             | 8095                   | http://localhost:8095 |
-| SAHOOL Crop Health Service            | 8095                   | http://localhost:8095 |
-| SAHOOL NDVI Engine                    | 8097                   | http://localhost:8097 |
-| محرك سهول للتنبؤ بالإنتاجية           | 8098                   | http://localhost:8098 |
-| SAHOOL Crop Health Service            | 8100                   | http://localhost:8100 |
-| SAHOOL Equipment Service              | 8101                   | http://localhost:8101 |
-| SAHOOL NDVI Processor                 | 8101                   | http://localhost:8101 |
-| SAHOOL Task Service                   | 8103                   | http://localhost:8103 |
-| SAHOOL Provider Configuration Service | 8104                   | http://localhost:8104 |
-| SAHOOL IoT Gateway                    | 8106                   | http://localhost:8106 |
-| SAHOOL Weather Core                   | 8108                   | http://localhost:8108 |
-| SAHOOL Weather Core                   | 8108                   | http://localhost:8108 |
-| SAHOOL Notification Service           | خدمة الإشعارات         | 8110                  | http://localhost:8110 |
-| SAHOOL Astronomical Calendar Service  | 8111                   | http://localhost:8111 |
-| SAHOOL Alert Service                  | 8113                   | http://localhost:8113 |
-| SAHOOL Inventory Service              | 8116                   | http://localhost:8116 |
-| SAHOOL GlobalGAP Compliance Service   | 8120                   | http://localhost:8120 |
-| SAHOOL AI Agents Core                 | 8120                   | http://localhost:8120 |
-| SAHOOL MCP Server                     | 8200                   | http://localhost:8200 |
+| Service                               | Port | Base URL              |
+| ------------------------------------- | ---- | --------------------- |
+| SAHOOL Field Service                  | 3000 | http://localhost:3000 |
+| SAHOOL Agent Registry Service         | 8000 | http://localhost:8000 |
+| SAHOOL Field Chat                     | 8099 | http://localhost:8099 |
+| Sahool Virtual Sensors Engine         | 8119 | http://localhost:8119 |
+| SAHOOL Field Operations (Deprecated)  | 8155 | http://localhost:8155 |
+| SAHOOL WebSocket Gateway              | 8081 | http://localhost:8081 |
+| SAHOOL Billing Core                   | 8089 | http://localhost:8089 |
+| SAHOOL Field Core (Deprecated)        | 3005 | http://localhost:3005 |
+| SAHOOL Satellite Service (Deprecated) | 9190 | http://localhost:9190 |
+| SAHOOL Agricultural Indicators        | 8091 | http://localhost:8091 |
+| SAHOOL Advanced Weather Service (Deprecated) | 9092 | http://localhost:9092 |
+| SAHOOL Fertilizer Advisor (Deprecated) | 9093 | http://localhost:9093 |
+| SAHOOL Smart Irrigation Service       | 8094 | http://localhost:8094 |
+| SAHOOL Crop Intelligence Service      | 8095 | http://localhost:8095 |
+| SAHOOL NDVI Engine (Deprecated)       | 8107 | http://localhost:8107 |
+| SAHOOL Yield Prediction Engine        | 8098 | http://localhost:8098 |
+| SAHOOL Crop Health (Deprecated)       | 8100 | http://localhost:8100 |
+| SAHOOL Equipment Service              | 8101 | http://localhost:8101 |
+| SAHOOL NDVI Processor                 | 8118 | http://localhost:8118 |
+| SAHOOL Task Service                   | 8103 | http://localhost:8103 |
+| SAHOOL Provider Configuration Service | 8104 | http://localhost:8104 |
+| SAHOOL IoT Gateway                    | 8106 | http://localhost:8106 |
+| SAHOOL Weather Core (Deprecated)      | 8108 | http://localhost:8108 |
+| SAHOOL Notification Service           | 8110 | http://localhost:8110 |
+| SAHOOL Astronomical Calendar Service  | 8111 | http://localhost:8111 |
+| SAHOOL Alert Service                  | 8113 | http://localhost:8113 |
+| SAHOOL Inventory Service              | 8116 | http://localhost:8116 |
+| SAHOOL Field Intelligence Service     | 8120 | http://localhost:8120 |
+| SAHOOL Agro Advisor (Deprecated)      | 8105 | http://localhost:8105 |
+| SAHOOL MCP Server                     | 8200 | http://localhost:8200 |
 
 ## API Categories | تصنيفات API
 
@@ -516,7 +509,9 @@ Official SDKs:
 - Disease detection
 - Yield prediction
 
-### 6. [Satellite APIs](./satellite.md) | واجهات الأقمار الصناعية
+### 6. Satellite APIs | واجهات الأقمار الصناعية
+
+> **Note**: Satellite APIs have been consolidated into the [Vegetation Analysis Service](../../apps/services-docs/vegetation-analysis-service.md).
 
 - NDVI analysis
 - Vegetation indices

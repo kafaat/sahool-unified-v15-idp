@@ -229,4 +229,4 @@ async def analyze_field(field_id: str) -> dict:
 - [NATS Documentation](https://docs.nats.io/)
 - [JetStream](https://docs.nats.io/nats-concepts/jetstream)
 - [NATS Patterns](https://docs.nats.io/nats-concepts/core-nats/patterns)
-- [SAHOOL Sync Architecture](../architecture/SYNC.md)
+- [SAHOOL Data Flow](../DATA_FLOW.md)

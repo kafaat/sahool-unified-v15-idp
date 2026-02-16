@@ -586,8 +586,8 @@ kubectl set resources deployment field-service \
 
 ## 📚 References | المراجع
 
-- [High Priority Fixes Implementation](../HIGH_PRIORITY_FIXES_IMPLEMENTATION.md)
-- [Gaps and Recommendations](../GAPS_AND_RECOMMENDATIONS.md)
+- [High Priority Fixes Implementation](./implementations/HIGH_PRIORITY_FIXES_IMPLEMENTATION.md)
+- [Gaps and Recommendations](./reports/GAPS_AND_RECOMMENDATIONS.md)
 - [Rate Limiting Documentation](./RATE_LIMITING.md)
 - [Rate Limiting Guide](../shared/middleware/RATE_LIMITING_GUIDE.md)
 - [Security Headers](../shared/middleware/security_headers.py)

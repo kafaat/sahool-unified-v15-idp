@@ -662,7 +662,7 @@ curl http://localhost:8080/health | jq
 ## Related Documentation | التوثيق ذو الصلة
 
 - [DOCUMENTATION_AUDIT_REPORT.md](./DOCUMENTATION_AUDIT_REPORT.md) - Full documentation audit
-- [HEALTH_ENDPOINTS_STANDARDS.md](./HEALTH_ENDPOINTS_STANDARDS.md) - Health check standards
+- Health Endpoints Standards - See [API Comprehensive Guide](./API_COMPREHENSIVE.md) for endpoint conventions
 - [Kubernetes Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
 ---

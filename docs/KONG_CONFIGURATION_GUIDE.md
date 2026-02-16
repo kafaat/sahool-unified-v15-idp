@@ -216,7 +216,7 @@ pytest tests/integration/test_kong_routes.py -v
 
 - [Kong Gateway Documentation](https://docs.konghq.com/)
 - [Kong Declarative Configuration](https://docs.konghq.com/gateway/latest/production/deployment-topologies/db-less-and-declarative-config/)
-- [SAHOOL API Documentation](/docs/reports/SAHOOL_SERVICES_API_DOCUMENTATION.md)
+- [SAHOOL API Documentation](./reports/SAHOOL_SERVICES_API_DOCUMENTATION.md)
 
 ---
 

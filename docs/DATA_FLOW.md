@@ -1151,7 +1151,7 @@ X-User-Id: {user_id}
 
 - [SERVICES_MAP.md](./SERVICES_MAP.md) - خريطة الخدمات | Service Map
 - [EVENT_CATALOG.md](./EVENT_CATALOG.md) - كتالوج الأحداث | Event Catalog
-- [DATABASE_SCHEMA_ANALYSIS_AR.md](../DATABASE_SCHEMA_ANALYSIS_AR.md) - تحليل قاعدة البيانات | Database Analysis
+- [DATABASE_SCHEMA_ANALYSIS_AR.md](./reports/DATABASE_SCHEMA_ANALYSIS_AR.md) - تحليل قاعدة البيانات | Database Analysis
 - [BACKEND_SERVICES_DOCUMENTATION.md](./BACKEND_SERVICES_DOCUMENTATION.md) - وثائق الخدمات | Services Documentation
 - [AI_ARCHITECTURE.md](./AI_ARCHITECTURE.md) - البنية المعمارية للذكاء الاصطناعي | AI Architecture
 

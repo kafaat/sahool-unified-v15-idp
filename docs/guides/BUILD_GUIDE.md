@@ -272,7 +272,7 @@ npm run build:packages
 
 ### الوثائق
 
-- [README.md](./README.md) - نظرة عامة
+- [README.md](../README.md) - نظرة عامة
 - [CODEBASE_ANALYSIS_REPORT.md](./CODEBASE_ANALYSIS_REPORT.md) - تحليل سابق
 - [PROJECT_ANALYSIS_REPORT.md](./PROJECT_ANALYSIS_REPORT.md) - هذا التحليل
 - [DATABASE_ANALYSIS_REPORT.md](./DATABASE_ANALYSIS_REPORT.md) - قاعدة البيانات

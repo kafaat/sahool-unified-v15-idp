@@ -1136,7 +1136,7 @@
 <li>المقاييس الإقليمية</li>
 </ul>
 <h2 id="base-url">Base URL<a class="headerlink" href="#base-url" title="Permanent link">&para;</a></h2>
-<p><strong>Field Management Service:</strong> <code>http://localhost:8090</code></p>
+<p><strong>Field Management Service:</strong> <code>http://localhost:3000</code></p>
 <h2 id="authentication">Authentication | المصادقة<a class="headerlink" href="#authentication" title="Permanent link">&para;</a></h2>
 <p>All endpoints require JWT authentication:</p>
 <div class="codehilite"><pre><span></span><code><span class="n">Authorization</span><span class="o">:</span><span class="w"> </span><span class="n">Bearer</span><span class="w"> </span><span class="o">&lt;</span><span class="n">access_token</span><span class="o">&gt;</span>
@@ -2336,206 +2336,206 @@
 </code></pre></div>
 
 <h3 id="get-healthz_2">GET /healthz<a class="headerlink" href="#get-healthz_2" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> Health</p>
 <h4 id="example-request_34">Example Request<a class="headerlink" href="#example-request_34" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/healthz<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/healthz<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-healthz_3">GET /healthz<a class="headerlink" href="#get-healthz_3" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> Health</p>
 <h4 id="example-request_35">Example Request<a class="headerlink" href="#example-request_35" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/healthz<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/healthz<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-readyz_2">GET /readyz<a class="headerlink" href="#get-readyz_2" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> Readiness</p>
 <h4 id="example-request_36">Example Request<a class="headerlink" href="#example-request_36" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/readyz<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/readyz<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-readyz_3">GET /readyz<a class="headerlink" href="#get-readyz_3" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> Readiness</p>
 <h4 id="example-request_37">Example Request<a class="headerlink" href="#example-request_37" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/readyz<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/readyz<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1costscategories">GET /v1/costs/categories<a class="headerlink" href="#get-v1costscategories" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all available cost categories</p>
 <h4 id="example-request_38">Example Request<a class="headerlink" href="#example-request_38" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/costs/categories<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/costs/categories<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1costscategories_1">GET /v1/costs/categories<a class="headerlink" href="#get-v1costscategories_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all available cost categories</p>
 <h4 id="example-request_39">Example Request<a class="headerlink" href="#example-request_39" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/costs/categories<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/costs/categories<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1cropslist">GET /v1/crops/list<a class="headerlink" href="#get-v1cropslist" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_40">Example Request<a class="headerlink" href="#example-request_40" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/crops/list<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/crops/list<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1cropslist_1">GET /v1/crops/list<a class="headerlink" href="#get-v1cropslist_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_41">Example Request<a class="headerlink" href="#example-request_41" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/crops/list<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/crops/list<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="post-v1profitabilityanalyze">POST /v1/profitability/analyze<a class="headerlink" href="#post-v1profitabilityanalyze" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> Analyze Profitability</p>
 <h4 id="example-request_42">Example Request<a class="headerlink" href="#example-request_42" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="post-v1profitabilityanalyze_1">POST /v1/profitability/analyze<a class="headerlink" href="#post-v1profitabilityanalyze_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> Analyze Profitability</p>
 <h4 id="example-request_43">Example Request<a class="headerlink" href="#example-request_43" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/v1/profitability/analyze<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitybenchmarkscrop_code">GET /v1/profitability/benchmarks/{crop_code}<a class="headerlink" href="#get-v1profitabilitybenchmarkscrop_code" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_44">Example Request<a class="headerlink" href="#example-request_44" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitybenchmarkscrop_code_1">GET /v1/profitability/benchmarks/{crop_code}<a class="headerlink" href="#get-v1profitabilitybenchmarkscrop_code_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_45">Example Request<a class="headerlink" href="#example-request_45" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/benchmarks/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitybreak-even">GET /v1/profitability/break-even<a class="headerlink" href="#get-v1profitabilitybreak-even" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_46">Example Request<a class="headerlink" href="#example-request_46" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitybreak-even_1">GET /v1/profitability/break-even<a class="headerlink" href="#get-v1profitabilitybreak-even_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_47">Example Request<a class="headerlink" href="#example-request_47" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/break-even<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycompare">GET /v1/profitability/compare<a class="headerlink" href="#get-v1profitabilitycompare" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_48">Example Request<a class="headerlink" href="#example-request_48" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycompare_1">GET /v1/profitability/compare<a class="headerlink" href="#get-v1profitabilitycompare_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_49">Example Request<a class="headerlink" href="#example-request_49" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/compare<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycost-breakdowncrop_code">GET /v1/profitability/cost-breakdown/{crop_code}<a class="headerlink" href="#get-v1profitabilitycost-breakdowncrop_code" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_50">Example Request<a class="headerlink" href="#example-request_50" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycost-breakdowncrop_code_1">GET /v1/profitability/cost-breakdown/{crop_code}<a class="headerlink" href="#get-v1profitabilitycost-breakdowncrop_code_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_51">Example Request<a class="headerlink" href="#example-request_51" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/cost-breakdown/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycropcrop_season_id">GET /v1/profitability/crop/{crop_season_id}<a class="headerlink" href="#get-v1profitabilitycropcrop_season_id" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> Analyze Profitability</p>
 <h4 id="example-request_52">Example Request<a class="headerlink" href="#example-request_52" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilitycropcrop_season_id_1">GET /v1/profitability/crop/{crop_season_id}<a class="headerlink" href="#get-v1profitabilitycropcrop_season_id_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> Analyze Profitability</p>
 <h4 id="example-request_53">Example Request<a class="headerlink" href="#example-request_53" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/crop/<span class="o">{</span>crop_season_id<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilityhistoryfield_idcrop_code">GET /v1/profitability/history/{field_id}/{crop_code}<a class="headerlink" href="#get-v1profitabilityhistoryfield_idcrop_code" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_54">Example Request<a class="headerlink" href="#example-request_54" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="get-v1profitabilityhistoryfield_idcrop_code_1">GET /v1/profitability/history/{field_id}/{crop_code}<a class="headerlink" href="#get-v1profitabilityhistoryfield_idcrop_code_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> List all crops with available profitability data.</p>
 <p>Returns crop codes, names in both languages, and regional data availability.</p>
 <h4 id="example-request_55">Example Request<a class="headerlink" href="#example-request_55" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:8090/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span>http://localhost:3000/v1/profitability/history/<span class="o">{</span>field_id<span class="o">}</span>/<span class="o">{</span>crop_code<span class="o">}</span><span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="post-v1profitabilityseason">POST /v1/profitability/season<a class="headerlink" href="#post-v1profitabilityseason" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-core (Port: 8090)</p>
+<p><strong>Service:</strong> field-core (Port: 3000) <em>(Deprecated -- replaced by field-management-service)</em></p>
 <p><strong>Summary:</strong> Get Season Summary</p>
 <h4 id="example-request_56">Example Request<a class="headerlink" href="#example-request_56" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/season<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/v1/profitability/season<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 
 <h3 id="post-v1profitabilityseason_1">POST /v1/profitability/season<a class="headerlink" href="#post-v1profitabilityseason_1" title="Permanent link">&para;</a></h3>
-<p><strong>Service:</strong> field-management-service (Port: 8090)</p>
+<p><strong>Service:</strong> field-management-service (Port: 3000)</p>
 <p><strong>Summary:</strong> Get Season Summary</p>
 <h4 id="example-request_57">Example Request<a class="headerlink" href="#example-request_57" title="Permanent link">&para;</a></h4>
-<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8090/v1/profitability/season<span class="w"> </span><span class="se">\</span>
+<div class="codehilite"><pre><span></span><code>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:3000/v1/profitability/season<span class="w"> </span><span class="se">\</span>
 <span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Bearer YOUR_TOKEN&quot;</span>
 </code></pre></div>
 

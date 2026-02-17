@@ -23,8 +23,8 @@ Weather APIs provide comprehensive weather data and forecasts for agricultural d
 ## Base URLs
 
 **Weather Core:** `http://localhost:8108`
-**Weather Advanced:** `http://localhost:8109`
-**Weather Service:** `http://localhost:8110`
+**Weather Advanced:** `http://localhost:8109` _(Deprecated -- replaced by Weather Service)_
+**Weather Service:** `http://localhost:8092`
 
 ## Weather Providers | مزودو الطقس
 

@@ -283,7 +283,7 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
  * Get the ErrorMessage for a given code.
  */
 export function getErrorMessage(code: string): ErrorMessage {
-  return ERROR_MESSAGES[code] ?? ERROR_MESSAGES[ERROR_CODES.UNKNOWN];
+  return ERROR_MESSAGES[code] ?? ERROR_MESSAGES[ERROR_CODES.UNKNOWN]!;
 }
 
 /**

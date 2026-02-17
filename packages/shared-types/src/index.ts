@@ -42,5 +42,9 @@ export * from "./leveling";
 export * from "./edge";
 
 // Unified API Contracts - العقود الموحدة لواجهة برمجة التطبيقات
-// Service ports, error codes, endpoint paths, and response shapes
-export * from "./contracts";
+// Import via "@sahool/shared-types/contracts" subpath to avoid
+// name collisions with existing type modules (ApiResponse, FieldStatus, etc.).
+// Re-export only the non-conflicting contract modules here:
+export * from "./contracts/service-ports";
+export * from "./contracts/error-codes";
+export * from "./contracts/api-endpoints";

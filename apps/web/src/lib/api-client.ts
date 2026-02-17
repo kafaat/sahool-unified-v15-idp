@@ -25,7 +25,6 @@ import { getCsrfHeaders } from "./security/security";
 import { sanitizers, validators, validationErrors } from "./validation";
 import {
   ERROR_MESSAGES as UNIFIED_ERROR_MESSAGES,
-  getErrorMessage as getUnifiedErrorMessage,
 } from "@sahool/shared-types/contracts";
 
 // =============================================================================

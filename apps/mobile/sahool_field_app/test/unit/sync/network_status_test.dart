@@ -7,6 +7,8 @@ import 'package:sahool_field_app/core/sync/network_status.dart';
 class MockConnectivity extends Mock implements Connectivity {}
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('NetworkStatus', () {
     test('should initialize successfully', () {
       // Act

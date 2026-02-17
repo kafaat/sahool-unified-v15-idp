@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:timezone/timezone.dart' as tz;
 
 import '../utils/app_logger.dart';
 import 'notification_types.dart';
@@ -178,10 +179,6 @@ class NotificationManager {
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification (older iOS versions)
-        AppLogger.d('iOS foreground notification: $title', tag: 'NOTIFICATIONS');
-      },
     );
 
     final initSettings = InitializationSettings(
@@ -585,15 +582,8 @@ class NotificationManager {
   }
 
   /// Convert DateTime to TZDateTime for scheduling
-  TZDateTime _toTZDateTime(DateTime dateTime) {
-    return TZDateTime(
-      dateTime.year,
-      dateTime.month,
-      dateTime.day,
-      dateTime.hour,
-      dateTime.minute,
-      dateTime.second,
-    );
+  tz.TZDateTime _toTZDateTime(DateTime dateTime) {
+    return tz.TZDateTime.from(dateTime, tz.local);
   }
 
   /// Dispose resources
@@ -603,46 +593,6 @@ class NotificationManager {
     NotificationHandler.instance.dispose();
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Simple TZDateTime Implementation
-// تنفيذ بسيط لـ TZDateTime
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// Simple TZDateTime implementation for scheduling
-/// In production, consider using the timezone package for proper timezone handling
-class TZDateTime extends DateTime {
-  TZDateTime(super.year, [
-    super.month,
-    super.day,
-    super.hour,
-    super.minute,
-    super.second,
-    super.millisecond,
-    super.microsecond,
-  ]);
-
-  factory TZDateTime.now(Location location) {
-    final now = DateTime.now();
-    return TZDateTime(
-      now.year,
-      now.month,
-      now.day,
-      now.hour,
-      now.minute,
-      now.second,
-    );
-  }
-}
-
-/// Simple Location class for timezone
-class Location {
-  final String name;
-  const Location(this.name);
-}
-
-/// Local timezone
-const local = Location('local');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Riverpod Providers

@@ -13,7 +13,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/weather_entities.dart';
 import '../remote/weather_api.dart';
-import '../../../../core/services/weather_provider_service.dart';
+import '../../../../core/services/weather_provider_service.dart' hide WeatherData;
 import '../../../../core/config/providers_config.dart';
 import '../../../../core/utils/app_logger.dart';
 

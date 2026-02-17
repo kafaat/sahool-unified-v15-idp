@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
@@ -39,60 +39,79 @@ class _MapScreenState extends State<MapScreen> {
   ];
 
   // بيانات وهمية للحقول (Mock Data)
-  final List<Field> _mockFields = [
-    const Field(
+  final _now = DateTime.now();
+  late final List<Field> _mockFields = [
+    Field(
       id: '1',
+      tenantId: 'mock',
       name: 'القطعة الشمالية',
       cropType: 'قمح',
-      areaHa: 2.4,
-      ndvi: 0.78,
-      status: FieldStatus.healthy,
+      areaHectares: 2.4,
+      ndviCurrent: 0.78,
+      status: 'active',
       pendingTasks: 1,
+      createdAt: _now,
+      updatedAt: _now,
     ),
-    const Field(
+    Field(
       id: '2',
+      tenantId: 'mock',
       name: 'حقل الذرة',
       cropType: 'ذرة',
-      areaHa: 3.1,
-      ndvi: 0.65,
-      status: FieldStatus.healthy,
+      areaHectares: 3.1,
+      ndviCurrent: 0.65,
+      status: 'active',
       pendingTasks: 0,
+      createdAt: _now,
+      updatedAt: _now,
     ),
-    const Field(
+    Field(
       id: '3',
+      tenantId: 'mock',
       name: 'البستان الغربي',
       cropType: 'عنب',
-      areaHa: 1.8,
-      ndvi: 0.52,
-      status: FieldStatus.stressed,
+      areaHectares: 1.8,
+      ndviCurrent: 0.52,
+      status: 'active',
       pendingTasks: 2,
+      createdAt: _now,
+      updatedAt: _now,
     ),
-    const Field(
+    Field(
       id: '4',
+      tenantId: 'mock',
       name: 'حقل الطماطم',
       cropType: 'طماطم',
-      areaHa: 0.9,
-      ndvi: 0.35,
-      status: FieldStatus.critical,
+      areaHectares: 0.9,
+      ndviCurrent: 0.35,
+      status: 'active',
       pendingTasks: 4,
+      createdAt: _now,
+      updatedAt: _now,
     ),
-    const Field(
+    Field(
       id: '5',
+      tenantId: 'mock',
       name: 'المنطقة الجنوبية',
       cropType: 'برسيم',
-      areaHa: 4.2,
-      ndvi: 0.71,
-      status: FieldStatus.healthy,
+      areaHectares: 4.2,
+      ndviCurrent: 0.71,
+      status: 'active',
       pendingTasks: 0,
+      createdAt: _now,
+      updatedAt: _now,
     ),
-    const Field(
+    Field(
       id: '6',
+      tenantId: 'mock',
       name: 'حقل البطاطا',
       cropType: 'بطاطا',
-      areaHa: 1.5,
-      ndvi: 0.48,
-      status: FieldStatus.stressed,
+      areaHectares: 1.5,
+      ndviCurrent: 0.48,
+      status: 'active',
       pendingTasks: 1,
+      createdAt: _now,
+      updatedAt: _now,
     ),
   ];
 

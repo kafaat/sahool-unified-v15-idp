@@ -310,7 +310,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               // Biometric login option
               if (_isBiometricAvailable && _isBiometricEnabled && !_isOtpSent)
                 BiometricLoginWidget(
-                  onAuthenticated: () {
+                  onSuccess: () {
                     if (mounted) {
                       context.go('/map');
                     }

@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/sync/sync_engine.dart';
 import '../../mocks/mock_app_database.dart';
@@ -9,6 +10,20 @@ import '../../mocks/mock_app_database.dart';
 /// so we can only test basic functionality that doesn't require network access.
 /// For full integration testing, use integration tests with a test server.
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Mock the connectivity_plus platform channel so NetworkStatus can initialize
+  setUpAll(() {
+    const channel = MethodChannel('dev.fluttercommunity.plus/connectivity');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (MethodCall methodCall) async {
+      if (methodCall.method == 'check') {
+        return ['wifi'];
+      }
+      return null;
+    });
+  });
+
   group('SyncEngine', () {
     late SyncEngine syncEngine;
     late MockAppDatabase mockDatabase;
@@ -21,7 +36,10 @@ void main() {
     });
 
     tearDown(() {
-      syncEngine.dispose();
+      // Stop periodic sync but don't dispose the engine,
+      // as it would close the NetworkStatus singleton's stream controller
+      // and break subsequent tests.
+      syncEngine.stop();
     });
 
     group('initialization', () {

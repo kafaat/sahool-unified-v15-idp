@@ -1129,6 +1129,11 @@ class AuthService {
     return secureStorage.getAccessToken();
   }
 
+  /// Get current tenant ID
+  Future<String?> getTenantId() async {
+    return secureStorage.getTenantId();
+  }
+
   /// Store tokens securely
   Future<void> _storeTokens(TokenPair tokens) async {
     await secureStorage.setAccessToken(tokens.accessToken);

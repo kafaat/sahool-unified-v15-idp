@@ -3,24 +3,48 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
 import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 import 'package:sahool_field_app/core/auth/biometric_service.dart';
+import 'package:sahool_field_app/core/auth/user_context.dart';
 
 /// Mock dependencies
 class MockSecureStorageService extends Mock implements SecureStorageService {}
 class MockBiometricService extends Mock implements BiometricService {}
+class MockUserContext extends Mock implements UserContext {}
 
 void main() {
   group('AuthService', () {
     late AuthService authService;
     late MockSecureStorageService mockSecureStorage;
     late MockBiometricService mockBiometricService;
+    late MockUserContext mockUserContext;
 
     setUp(() {
       mockSecureStorage = MockSecureStorageService();
       mockBiometricService = MockBiometricService();
+      mockUserContext = MockUserContext();
+
+      // Default stubs for SecureStorageService async methods
+      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.clearAll()).thenAnswer((_) async {});
+      when(() => mockSecureStorage.read(any())).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async {});
+
+      // Default stubs for UserContext methods
+      when(() => mockUserContext.setUser(any(), tenantId: any(named: 'tenantId'), role: any(named: 'role')))
+          .thenReturn(null);
+      when(() => mockUserContext.clearUser()).thenReturn(null);
 
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+        userContext: mockUserContext,
       );
     });
 
@@ -381,14 +405,37 @@ void main() {
     late AuthStateNotifier authStateNotifier;
     late MockSecureStorageService mockSecureStorage;
     late MockBiometricService mockBiometricService;
+    late MockUserContext mockUserContext;
     late AuthService authService;
 
     setUp(() {
       mockSecureStorage = MockSecureStorageService();
       mockBiometricService = MockBiometricService();
+      mockUserContext = MockUserContext();
+
+      // Default stubs for SecureStorageService async methods
+      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.clearAll()).thenAnswer((_) async {});
+      when(() => mockSecureStorage.read(any())).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async {});
+
+      // Default stubs for UserContext methods
+      when(() => mockUserContext.setUser(any(), tenantId: any(named: 'tenantId'), role: any(named: 'role')))
+          .thenReturn(null);
+      when(() => mockUserContext.clearUser()).thenReturn(null);
+
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+        userContext: mockUserContext,
       );
     });
 

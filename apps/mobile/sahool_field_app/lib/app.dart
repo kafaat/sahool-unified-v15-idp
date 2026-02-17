@@ -7,7 +7,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'core/config/theme.dart';
 import 'core/routes/app_router.dart';
 import 'core/deeplink/deeplink_handler.dart';
-import 'features/auth/data/auth_service.dart';
+import 'core/auth/auth_service.dart';
 
 /// GoRouter provider with authentication guard
 /// مزود GoRouter مع حماية المصادقة
@@ -34,7 +34,6 @@ GoRouter createAppRouter(Ref ref) {
     initialLocation: '/splash',
     debugLogDiagnostics: true,
     routes: AppRouter.router.configuration.routes,
-    errorBuilder: AppRouter.router.configuration.errorBuilder,
 
     // Authentication redirect guard
     // حماية التوجيه للمصادقة

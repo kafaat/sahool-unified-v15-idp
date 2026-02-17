@@ -40,8 +40,12 @@ mixin _$TreatmentModel {
   @JsonKey(name: 'precautions_ar')
   List<String> get precautionsAr => throw _privateConstructorUsedError;
 
+  /// Serializes this TreatmentModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of TreatmentModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TreatmentModelCopyWith<TreatmentModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -76,6 +80,8 @@ class _$TreatmentModelCopyWithImpl<$Res, $Val extends TreatmentModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of TreatmentModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -170,6 +176,8 @@ class __$$TreatmentModelImplCopyWithImpl<$Res>
       _$TreatmentModelImpl _value, $Res Function(_$TreatmentModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of TreatmentModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -332,7 +340,7 @@ class _$TreatmentModelImpl implements _TreatmentModel {
                 .equals(other._precautionsAr, _precautionsAr));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -348,7 +356,9 @@ class _$TreatmentModelImpl implements _TreatmentModel {
       const DeepCollectionEquality().hash(_precautions),
       const DeepCollectionEquality().hash(_precautionsAr));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of TreatmentModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TreatmentModelImplCopyWith<_$TreatmentModelImpl> get copyWith =>
@@ -413,8 +423,11 @@ abstract class _TreatmentModel implements TreatmentModel {
   @override
   @JsonKey(name: 'precautions_ar')
   List<String> get precautionsAr;
+
+  /// Create a copy of TreatmentModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TreatmentModelImplCopyWith<_$TreatmentModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -465,8 +478,12 @@ mixin _$DiagnosisModel {
   @JsonKey(name: 'image_url')
   String? get imageUrl => throw _privateConstructorUsedError;
 
+  /// Serializes this DiagnosisModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of DiagnosisModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $DiagnosisModelCopyWith<DiagnosisModel> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -509,6 +526,8 @@ class _$DiagnosisModelCopyWithImpl<$Res, $Val extends DiagnosisModel>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of DiagnosisModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -651,6 +670,8 @@ class __$$DiagnosisModelImplCopyWithImpl<$Res>
       _$DiagnosisModelImpl _value, $Res Function(_$DiagnosisModelImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of DiagnosisModel
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -920,7 +941,7 @@ class _$DiagnosisModelImpl implements _DiagnosisModel {
                 other.imageUrl == imageUrl));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hashAll([
         runtimeType,
@@ -945,7 +966,9 @@ class _$DiagnosisModelImpl implements _DiagnosisModel {
         imageUrl
       ]);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiagnosisModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$DiagnosisModelImplCopyWith<_$DiagnosisModelImpl> get copyWith =>
@@ -992,8 +1015,8 @@ abstract class _DiagnosisModel implements DiagnosisModel {
   @JsonKey(name: 'diagnosis_id')
   String get diagnosisId;
   @override
-  DateTime get timestamp;
-  @override // معلومات المرض
+  DateTime get timestamp; // معلومات المرض
+  @override
   @JsonKey(name: 'disease_name')
   String get diseaseName;
   @override
@@ -1004,32 +1027,32 @@ abstract class _DiagnosisModel implements DiagnosisModel {
   String? get diseaseDescription;
   @override
   @JsonKey(name: 'disease_description_ar')
-  String? get diseaseDescriptionAr;
-  @override // الثقة والشدة
+  String? get diseaseDescriptionAr; // الثقة والشدة
+  @override
   double get confidence;
   @override
   DiseaseSeverity get severity;
   @override
   @JsonKey(name: 'affected_area_percent')
-  double get affectedAreaPercent;
-  @override // المحصول
+  double get affectedAreaPercent; // المحصول
+  @override
   @JsonKey(name: 'detected_crop')
   String? get detectedCrop;
   @override
   @JsonKey(name: 'growth_stage')
-  String? get growthStage;
-  @override // العلاج
+  String? get growthStage; // العلاج
+  @override
   List<TreatmentModel> get treatments;
   @override
   @JsonKey(name: 'urgent_action_required')
-  bool get urgentActionRequired;
-  @override // مراجعة الخبير
+  bool get urgentActionRequired; // مراجعة الخبير
+  @override
   @JsonKey(name: 'needs_expert_review')
   bool get needsExpertReview;
   @override
   @JsonKey(name: 'expert_review_reason')
-  String? get expertReviewReason;
-  @override // نصائح إضافية
+  String? get expertReviewReason; // نصائح إضافية
+  @override
   @JsonKey(name: 'weather_consideration')
   String? get weatherConsideration;
   @override
@@ -1037,12 +1060,15 @@ abstract class _DiagnosisModel implements DiagnosisModel {
   List<String> get preventionTips;
   @override
   @JsonKey(name: 'prevention_tips_ar')
-  List<String> get preventionTipsAr;
-  @override // الصورة المحفوظة
+  List<String> get preventionTipsAr; // الصورة المحفوظة
+  @override
   @JsonKey(name: 'image_url')
   String? get imageUrl;
+
+  /// Create a copy of DiagnosisModel
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DiagnosisModelImplCopyWith<_$DiagnosisModelImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1056,7 +1082,9 @@ mixin _$DiagnosisSummary {
   DateTime get timestamp => throw _privateConstructorUsedError;
   String? get imageUrl => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiagnosisSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $DiagnosisSummaryCopyWith<DiagnosisSummary> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1086,6 +1114,8 @@ class _$DiagnosisSummaryCopyWithImpl<$Res, $Val extends DiagnosisSummary>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of DiagnosisSummary
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1150,6 +1180,8 @@ class __$$DiagnosisSummaryImplCopyWithImpl<$Res>
       $Res Function(_$DiagnosisSummaryImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of DiagnosisSummary
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1240,7 +1272,9 @@ class _$DiagnosisSummaryImpl implements _DiagnosisSummary {
   int get hashCode => Object.hash(runtimeType, id, diseaseNameAr, confidence,
       severity, timestamp, imageUrl);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiagnosisSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$DiagnosisSummaryImplCopyWith<_$DiagnosisSummaryImpl> get copyWith =>
@@ -1269,8 +1303,11 @@ abstract class _DiagnosisSummary implements DiagnosisSummary {
   DateTime get timestamp;
   @override
   String? get imageUrl;
+
+  /// Create a copy of DiagnosisSummary
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DiagnosisSummaryImplCopyWith<_$DiagnosisSummaryImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

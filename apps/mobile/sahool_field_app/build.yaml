@@ -10,6 +10,7 @@ targets:
           - "lib/models/**/*.dart"
           - "lib/services/**/*.dart"
           - "lib/core/models/**/*.dart"
+          - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
         options:
@@ -21,6 +22,7 @@ targets:
         generate_for:
           - "lib/models/**/*.dart"
           - "lib/core/models/**/*.dart"
+          - "lib/features/**/models/*.dart"
           - "lib/features/**/models/**/*.dart"
           - "lib/features/**/domain/**/*.dart"
 

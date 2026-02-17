@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart' show apiClientProvider;
 import '../../../core/notifications/notification_manager.dart';
 import '../../../core/notifications/notification_types.dart';
 import '../../../core/utils/app_logger.dart';

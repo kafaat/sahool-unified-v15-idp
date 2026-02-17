@@ -700,7 +700,7 @@ AppException fromDioException(DioException e) {
         messageAr: 'تم إلغاء الطلب',
         code: 'REQUEST_CANCELLED',
         type: ErrorType.client,
-        isRetryable: true,
+        isRetryable: false,
         originalError: e,
       );
 

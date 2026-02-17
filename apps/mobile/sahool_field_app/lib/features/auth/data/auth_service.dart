@@ -154,7 +154,7 @@ class RegistrationAuthService {
   final ApiClient _apiClient;
   final SecureStorageService _secureStorage;
 
-  AuthService({
+  RegistrationAuthService({
     required ApiClient apiClient,
     required SecureStorageService secureStorage,
   })  : _apiClient = apiClient,
@@ -165,7 +165,7 @@ class RegistrationAuthService {
   Future<AuthResult> register(RegisterRequest request) async {
     try {
       final response = await _apiClient.post(
-        ApiConfig.authRegister,
+        ApiConfig.register,
         request.toJson(),
       );
 
@@ -259,8 +259,9 @@ class RegistrationAuthService {
     final token = await _secureStorage.getAccessToken();
     if (token == null) return false;
 
-    final isValid = await _secureStorage.isTokenValid();
-    return isValid;
+    final expiry = await _secureStorage.getTokenExpiry();
+    if (expiry == null) return false;
+    return expiry.isAfter(DateTime.now());
   }
 
   /// Logout user

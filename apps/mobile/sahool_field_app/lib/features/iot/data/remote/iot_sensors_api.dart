@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
-import '../../../core/config/api_config.dart';
+import '../../../../core/config/api_config.dart';
 
 /// IoT Sensors Service API Integration
 /// تكامل خدمة مستشعرات إنترنت الأشياء

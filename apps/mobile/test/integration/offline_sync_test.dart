@@ -6,6 +6,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// اختبارات تكامل المزامنة بدون اتصال
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('Offline Mode Integration Tests', () {
     late ProviderContainer container;
 

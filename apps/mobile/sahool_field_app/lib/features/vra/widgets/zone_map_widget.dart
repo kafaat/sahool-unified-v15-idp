@@ -194,9 +194,8 @@ class _ZoneMapWidgetState extends State<ZoneMapWidget> {
                           ? Colors.black
                           : Colors.white,
                   borderStrokeWidth: isSelected ? 3 : isHovered ? 2 : 1,
-                  isFilled: true,
                 );
-              }).toList(),
+              }).toList().cast<Polygon>(),
             ),
 
             // طبقة التسميات

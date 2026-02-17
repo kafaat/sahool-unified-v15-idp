@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../features/sync/providers/sync_events_provider.dart';
 import '../sync/queue_manager.dart';
+import '../sync/sync_metrics_providers.dart' show queueManagerProvider;
 
 /// Sync Indicator Widget
 /// مؤشر حالة المزامنة للـ Home Cockpit

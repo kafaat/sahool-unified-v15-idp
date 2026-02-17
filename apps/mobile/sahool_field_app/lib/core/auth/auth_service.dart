@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' show pow;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import '../http/api_client.dart';
 import '../config/env_config.dart';
 import '../di/providers.dart';
 import '../utils/app_logger.dart';
+import '../security/security_audit_service.dart';
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
 import 'user_context.dart';
@@ -35,6 +37,7 @@ final authServiceProvider = Provider<AuthService>((ref) {
       biometricService: ref.read(biometricServiceProvider),
       userContext: ref.read(userContextProvider),
       apiClient: apiClient,
+      auditService: ref.read(securityAuditServiceProvider),
     );
   } catch (e) {
     // If apiClientProvider is not available, create AuthService without it
@@ -427,13 +430,14 @@ class AuthService {
   final BiometricService biometricService;
   final UserContext userContext;
   final ApiClient? apiClient;
+  final SecurityAuditService? auditService;
 
   Timer? _refreshTimer;
   bool _isRefreshing = false;
   Completer<void>? _refreshCompleter;
 
   static const _tokenRefreshBuffer = Duration(minutes: 5);
-  static const _tokenRefreshRetryDelay = Duration(seconds: 5);
+  static const _tokenRefreshBaseDelay = Duration(seconds: 2);
   static const _maxRefreshRetries = 3;
 
   // Session tracking
@@ -445,6 +449,7 @@ class AuthService {
     required this.biometricService,
     required this.userContext,
     this.apiClient,
+    this.auditService,
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -728,11 +733,9 @@ class AuthService {
       throw AuthException('فشل التحقق من البصمة', code: 'BIOMETRIC_FAILED');
     }
 
-    // Get stored credentials
-    final storedRefreshToken = await secureStorage.getRefreshToken();
-    if (storedRefreshToken == null) {
-      throw AuthException('لا توجد جلسة محفوظة');
-    }
+    try {
+      // Refresh token to get a new access token
+      await refreshToken();
 
       // Sync user context with full information
       final user = await getCurrentUser();
@@ -772,7 +775,7 @@ class AuthService {
         AppLogger.i('Logout API call successful - tokens revoked', tag: 'AUTH');
       } catch (e) {
         // Log but don't fail - local logout should always succeed
-        AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', error: e);
+        AppLogger.w('Logout API call failed (continuing with local logout): $e', tag: 'AUTH');
       }
     }
 
@@ -844,7 +847,7 @@ class AuthService {
         });
         AppLogger.i('All sessions revoked via API', tag: 'AUTH');
       } catch (e) {
-        AppLogger.w('Failed to revoke all sessions via API', tag: 'AUTH', error: e);
+        AppLogger.w('Failed to revoke all sessions via API: $e', tag: 'AUTH');
       }
     }
 
@@ -932,8 +935,18 @@ class AuthService {
       // Reset retry count on success
       _refreshRetryCount = 0;
       _refreshCompleter!.complete();
+
+      // Log successful refresh to security audit
+      await auditService?.logTokenRefresh(success: true);
     } catch (e) {
       AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
+
+      // Log failed refresh to security audit
+      await auditService?.logTokenRefresh(
+        success: false,
+        errorCode: e is AuthException ? e.code : 'UNKNOWN',
+        retryAttempt: _refreshRetryCount,
+      );
 
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
@@ -951,16 +964,25 @@ class AuthService {
         }
       }
 
-      // Handle retry logic for network errors
+      // Handle retry logic for network errors with exponential backoff
       if (e is AuthException && e.code == 'NETWORK_ERROR') {
         _refreshRetryCount++;
         if (_refreshRetryCount < _maxRefreshRetries) {
-          AppLogger.w('Token refresh network error, will retry (attempt $_refreshRetryCount)', tag: 'AUTH');
+          // Exponential backoff: 2s, 4s, 8s
+          final backoffDelay = Duration(
+            milliseconds: _tokenRefreshBaseDelay.inMilliseconds *
+                pow(2, _refreshRetryCount - 1).toInt(),
+          );
+          AppLogger.w(
+            'Token refresh network error, will retry in ${backoffDelay.inSeconds}s '
+            '(attempt $_refreshRetryCount/$_maxRefreshRetries)',
+            tag: 'AUTH',
+          );
           _refreshCompleter!.completeError(e);
           _isRefreshing = false;
 
-          // Schedule retry
-          Timer(_tokenRefreshRetryDelay, () {
+          // Schedule retry with exponential backoff
+          Timer(backoffDelay, () {
             refreshToken().catchError((_) {});
           });
           rethrow;
@@ -1105,6 +1127,11 @@ class AuthService {
   /// Get current access token
   Future<String?> getAccessToken() async {
     return secureStorage.getAccessToken();
+  }
+
+  /// Get current tenant ID
+  Future<String?> getTenantId() async {
+    return secureStorage.getTenantId();
   }
 
   /// Store tokens securely

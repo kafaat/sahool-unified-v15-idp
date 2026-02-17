@@ -9,6 +9,7 @@ import '../security/signing_key_service.dart';
 
 // Import canonical databaseProvider from main.dart
 // This is overridden at runtime with the actual database instance
+import '../../main.dart' show databaseProvider;
 export '../../main.dart' show databaseProvider;
 
 /// API Client Provider

@@ -158,7 +158,7 @@ jobs:
       - name: Run tests
         run: |
           cd apps/mobile
-          flutter test || true
+          flutter test
 
       - name: Build Android APK
         run: |

@@ -63,8 +63,8 @@ void main() {
 
       test('should only return fields for specified tenant', () async {
         // Arrange
-        final field1 = SampleFields.createWheatField(tenantId: 'tenant_1');
-        final field2 = SampleFields.createWheatField(tenantId: 'tenant_2');
+        final field1 = SampleFields.createWheatField(id: 'field_t1', tenantId: 'tenant_1');
+        final field2 = SampleFields.createWheatField(id: 'field_t2', tenantId: 'tenant_2');
 
         mockDatabase.seedField(field1);
         mockDatabase.seedField(field2);
@@ -108,7 +108,7 @@ void main() {
         const farmId = 'farm_001';
         final field1 = SampleFields.createWheatField(farmId: farmId);
         final field2 = SampleFields.createDatePalmField(farmId: farmId);
-        final field3 = SampleFields.createWheatField(farmId: 'farm_002');
+        final field3 = SampleFields.createWheatField(id: 'field_f2', farmId: 'farm_002');
 
         mockDatabase.seedField(field1);
         mockDatabase.seedField(field2);

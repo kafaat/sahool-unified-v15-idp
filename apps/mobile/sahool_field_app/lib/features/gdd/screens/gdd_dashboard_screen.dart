@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../crop_health/presentation/providers/crop_health_provider.dart' show selectedFieldIdProvider;
 import '../models/gdd_models.dart';
 import '../providers/gdd_provider.dart';
 import '../widgets/gdd_gauge_widget.dart';

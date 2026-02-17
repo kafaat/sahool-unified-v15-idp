@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/theme.dart';
 
 /// Reusable Empty State Widget
 /// Displays when lists or data are empty

@@ -26,6 +26,7 @@ void main() {
       // Arrange
       when(() => mockApi.getFieldAlerts(
             fieldId: any(named: 'fieldId'),
+            status: any(named: 'status'),
             limit: any(named: 'limit'),
           )).thenAnswer((_) async => ApiResponse.success(
             AlertsPageResponse.fromJson({
@@ -56,6 +57,7 @@ void main() {
       // Arrange
       when(() => mockApi.getFieldAlerts(
             fieldId: any(named: 'fieldId'),
+            status: any(named: 'status'),
             limit: any(named: 'limit'),
           )).thenAnswer((_) async =>
               errorResponse<AlertsPageResponse>('ERR_500', 'Server error'));
@@ -79,6 +81,7 @@ void main() {
       // Arrange
       when(() => mockApi.getFieldAlerts(
             fieldId: any(named: 'fieldId'),
+            status: any(named: 'status'),
             limit: any(named: 'limit'),
           )).thenAnswer((_) async => ApiResponse.success(
             AlertsPageResponse.fromJson({
@@ -110,6 +113,7 @@ void main() {
       // Arrange
       when(() => mockApi.getFieldAlerts(
             fieldId: any(named: 'fieldId'),
+            status: any(named: 'status'),
             limit: any(named: 'limit'),
           )).thenAnswer((_) async => ApiResponse.success(
             AlertsPageResponse.fromJson({

@@ -17,6 +17,10 @@ concurrency:
   group: test-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: read
+
 env:
   NODE_VERSION: "20"
   PYTHON_VERSION: "3.11"
@@ -35,10 +39,13 @@ jobs:
       mobile: ${{ steps.filter.outputs.mobile }}
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - uses: dorny/paths-filter@v3
         id: filter
         with:
+          token: ${{ github.token }}
           filters: |
             frontend:
               - 'apps/web/**'

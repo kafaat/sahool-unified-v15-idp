@@ -419,6 +419,8 @@ class RotationService {
         reasonsAr.add('فصيلة جديدة - يكسر دورة الآفات');
       } else {
         score -= 25;
+        reasons.add('Crop family used recently - consider alternatives');
+        reasonsAr.add('الفصيلة استخدمت مؤخراً - يفضل النظر في بدائل');
         warning = 'Family recently used - may increase disease risk';
         warningAr = 'الفصيلة استخدمت مؤخراً - قد تزيد خطر الأمراض';
       }

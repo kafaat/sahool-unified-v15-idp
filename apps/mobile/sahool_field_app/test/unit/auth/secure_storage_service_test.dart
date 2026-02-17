@@ -66,7 +66,7 @@ void main() {
 
         try {
           await secureStorageService.setTokenExpiry(futureExpiry);
-          final isValid = await secureStorageService.isTokenValid();
+          final isValid = await secureStorageService.hasValidTokens();
           // expect(isValid, isTrue);
         } catch (e) {
           // Expected in test environment
@@ -79,7 +79,7 @@ void main() {
 
         try {
           await secureStorageService.setTokenExpiry(pastExpiry);
-          final isValid = await secureStorageService.isTokenValid();
+          final isValid = await secureStorageService.hasValidTokens();
           // expect(isValid, isFalse);
         } catch (e) {
           // Expected in test environment
@@ -195,8 +195,8 @@ void main() {
         const pin = '1234';
 
         try {
-          await secureStorageService.setPinCode(pin);
-          final retrieved = await secureStorageService.getPinCode();
+          await secureStorageService.write('pin_code', pin);
+          final retrieved = await secureStorageService.read('pin_code');
           // expect(retrieved, pin);
         } catch (e) {
           // Expected in test environment
@@ -207,8 +207,9 @@ void main() {
         const pin = '1234';
 
         try {
-          await secureStorageService.setPinCode(pin);
-          final isValid = await secureStorageService.verifyPinCode(pin);
+          await secureStorageService.write('pin_code', pin);
+          final stored = await secureStorageService.read('pin_code');
+          final isValid = stored == pin;
           // expect(isValid, isTrue);
         } catch (e) {
           // Expected in test environment
@@ -220,8 +221,9 @@ void main() {
         const incorrectPin = '5678';
 
         try {
-          await secureStorageService.setPinCode(correctPin);
-          final isValid = await secureStorageService.verifyPinCode(incorrectPin);
+          await secureStorageService.write('pin_code', correctPin);
+          final stored = await secureStorageService.read('pin_code');
+          final isValid = stored == incorrectPin;
           // expect(isValid, isFalse);
         } catch (e) {
           // Expected in test environment
@@ -230,9 +232,9 @@ void main() {
 
       test('should delete PIN code', () async {
         try {
-          await secureStorageService.setPinCode('1234');
-          await secureStorageService.deletePinCode();
-          final retrieved = await secureStorageService.getPinCode();
+          await secureStorageService.write('pin_code', '1234');
+          await secureStorageService.delete('pin_code');
+          final retrieved = await secureStorageService.read('pin_code');
           // expect(retrieved, isNull);
         } catch (e) {
           // Expected in test environment
@@ -243,8 +245,8 @@ void main() {
         const level = 'high';
 
         try {
-          await secureStorageService.setSecurityLevel(level);
-          final retrieved = await secureStorageService.getSecurityLevel();
+          await secureStorageService.write('security_level', level);
+          final retrieved = await secureStorageService.read('security_level');
           // expect(retrieved, level);
         } catch (e) {
           // Expected in test environment
@@ -257,8 +259,8 @@ void main() {
         const deviceId = 'device_123';
 
         try {
-          await secureStorageService.setDeviceId(deviceId);
-          final retrieved = await secureStorageService.getDeviceId();
+          await secureStorageService.write('device_id', deviceId);
+          final retrieved = await secureStorageService.read('device_id');
           // expect(retrieved, deviceId);
         } catch (e) {
           // Expected in test environment
@@ -269,8 +271,8 @@ void main() {
         const version = '1.0.0';
 
         try {
-          await secureStorageService.setAppVersion(version);
-          final retrieved = await secureStorageService.getAppVersion();
+          await secureStorageService.write('app_version', version);
+          final retrieved = await secureStorageService.read('app_version');
           // expect(retrieved, version);
         } catch (e) {
           // Expected in test environment

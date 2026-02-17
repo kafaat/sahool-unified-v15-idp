@@ -397,7 +397,8 @@ class RotationYear {
   });
 
   bool get isPlanned => crop != null;
-  bool get isCompleted => harvestDate != null;
+  bool get isCompleted =>
+      harvestDate != null && DateTime.now().isAfter(harvestDate!);
   bool get isCurrent {
     final now = DateTime.now();
     if (plantingDate != null && harvestDate != null) {

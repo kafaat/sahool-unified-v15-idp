@@ -32,8 +32,12 @@ mixin _$Treatment {
   List<String> get precautions => throw _privateConstructorUsedError;
   List<String> get precautionsAr => throw _privateConstructorUsedError;
 
+  /// Serializes this Treatment to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of Treatment
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $TreatmentCopyWith<Treatment> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -67,6 +71,8 @@ class _$TreatmentCopyWithImpl<$Res, $Val extends Treatment>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of Treatment
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -161,6 +167,8 @@ class __$$TreatmentImplCopyWithImpl<$Res>
       _$TreatmentImpl _value, $Res Function(_$TreatmentImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of Treatment
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -315,7 +323,7 @@ class _$TreatmentImpl implements _Treatment {
                 .equals(other._precautionsAr, _precautionsAr));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -331,7 +339,9 @@ class _$TreatmentImpl implements _Treatment {
       const DeepCollectionEquality().hash(_precautions),
       const DeepCollectionEquality().hash(_precautionsAr));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of Treatment
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$TreatmentImplCopyWith<_$TreatmentImpl> get copyWith =>
@@ -384,8 +394,11 @@ abstract class _Treatment implements Treatment {
   List<String> get precautions;
   @override
   List<String> get precautionsAr;
+
+  /// Create a copy of Treatment
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TreatmentImplCopyWith<_$TreatmentImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -421,8 +434,12 @@ mixin _$DiagnosisResult {
   List<String> get preventionTips => throw _privateConstructorUsedError;
   List<String> get preventionTipsAr => throw _privateConstructorUsedError;
 
+  /// Serializes this DiagnosisResult to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of DiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $DiagnosisResultCopyWith<DiagnosisResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -464,6 +481,8 @@ class _$DiagnosisResultCopyWithImpl<$Res, $Val extends DiagnosisResult>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of DiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -600,6 +619,8 @@ class __$$DiagnosisResultImplCopyWithImpl<$Res>
       _$DiagnosisResultImpl _value, $Res Function(_$DiagnosisResultImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of DiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -840,7 +861,7 @@ class _$DiagnosisResultImpl implements _DiagnosisResult {
                 .equals(other._preventionTipsAr, _preventionTipsAr));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -863,7 +884,9 @@ class _$DiagnosisResultImpl implements _DiagnosisResult {
       const DeepCollectionEquality().hash(_preventionTips),
       const DeepCollectionEquality().hash(_preventionTipsAr));
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$DiagnosisResultImplCopyWith<_$DiagnosisResultImpl> get copyWith =>
@@ -905,41 +928,44 @@ abstract class _DiagnosisResult implements DiagnosisResult {
   @override
   String get diagnosisId;
   @override
-  DateTime get timestamp;
-  @override // Disease information
+  DateTime get timestamp; // Disease information
+  @override
   String get diseaseName;
   @override
   String get diseaseNameAr;
   @override
   String get diseaseDescription;
   @override
-  String get diseaseDescriptionAr;
-  @override // Confidence and severity
+  String get diseaseDescriptionAr; // Confidence and severity
+  @override
   double get confidence;
   @override
   String get severity;
   @override
-  double get affectedAreaPercent;
-  @override // Crop information
+  double get affectedAreaPercent; // Crop information
+  @override
   String get detectedCrop;
   @override
-  String? get growthStage;
-  @override // Treatment recommendations
+  String? get growthStage; // Treatment recommendations
+  @override
   List<Treatment> get treatments;
   @override
-  bool get urgentActionRequired;
-  @override // Expert review
+  bool get urgentActionRequired; // Expert review
+  @override
   bool get needsExpertReview;
   @override
-  String? get expertReviewReason;
-  @override // Additional info
+  String? get expertReviewReason; // Additional info
+  @override
   String? get weatherConsideration;
   @override
   List<String> get preventionTips;
   @override
   List<String> get preventionTipsAr;
+
+  /// Create a copy of DiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DiagnosisResultImplCopyWith<_$DiagnosisResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -956,8 +982,12 @@ mixin _$CropOption {
   String get icon => throw _privateConstructorUsedError;
   int get diseasesCount => throw _privateConstructorUsedError;
 
+  /// Serializes this CropOption to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of CropOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $CropOptionCopyWith<CropOption> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -986,6 +1016,8 @@ class _$CropOptionCopyWithImpl<$Res, $Val extends CropOption>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of CropOption
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1044,6 +1076,8 @@ class __$$CropOptionImplCopyWithImpl<$Res>
       _$CropOptionImpl _value, $Res Function(_$CropOptionImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of CropOption
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1121,12 +1155,14 @@ class _$CropOptionImpl implements _CropOption {
                 other.diseasesCount == diseasesCount));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, cropId, name, nameAr, icon, diseasesCount);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of CropOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$CropOptionImplCopyWith<_$CropOptionImpl> get copyWith =>
@@ -1161,8 +1197,11 @@ abstract class _CropOption implements CropOption {
   String get icon;
   @override
   int get diseasesCount;
+
+  /// Create a copy of CropOption
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CropOptionImplCopyWith<_$CropOptionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1179,8 +1218,12 @@ mixin _$DiseaseInfo {
   String get crop => throw _privateConstructorUsedError;
   String get severity => throw _privateConstructorUsedError;
 
+  /// Serializes this DiseaseInfo to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of DiseaseInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $DiseaseInfoCopyWith<DiseaseInfo> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1209,6 +1252,8 @@ class _$DiseaseInfoCopyWithImpl<$Res, $Val extends DiseaseInfo>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of DiseaseInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1267,6 +1312,8 @@ class __$$DiseaseInfoImplCopyWithImpl<$Res>
       _$DiseaseInfoImpl _value, $Res Function(_$DiseaseInfoImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of DiseaseInfo
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1344,12 +1391,14 @@ class _$DiseaseInfoImpl implements _DiseaseInfo {
                 other.severity == severity));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, diseaseId, name, nameAr, crop, severity);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiseaseInfo
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$DiseaseInfoImplCopyWith<_$DiseaseInfoImpl> get copyWith =>
@@ -1384,8 +1433,11 @@ abstract class _DiseaseInfo implements DiseaseInfo {
   String get crop;
   @override
   String get severity;
+
+  /// Create a copy of DiseaseInfo
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DiseaseInfoImplCopyWith<_$DiseaseInfoImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1400,8 +1452,12 @@ mixin _$ExpertReviewRequest {
   String? get farmerNotes => throw _privateConstructorUsedError;
   String get urgency => throw _privateConstructorUsedError;
 
+  /// Serializes this ExpertReviewRequest to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ExpertReviewRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ExpertReviewRequestCopyWith<ExpertReviewRequest> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1425,6 +1481,8 @@ class _$ExpertReviewRequestCopyWithImpl<$Res, $Val extends ExpertReviewRequest>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ExpertReviewRequest
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1468,6 +1526,8 @@ class __$$ExpertReviewRequestImplCopyWithImpl<$Res>
       $Res Function(_$ExpertReviewRequestImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ExpertReviewRequest
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1526,12 +1586,14 @@ class _$ExpertReviewRequestImpl implements _ExpertReviewRequest {
             (identical(other.urgency, urgency) || other.urgency == urgency));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, diagnosisId, farmerNotes, urgency);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ExpertReviewRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ExpertReviewRequestImplCopyWith<_$ExpertReviewRequestImpl> get copyWith =>
@@ -1561,8 +1623,11 @@ abstract class _ExpertReviewRequest implements ExpertReviewRequest {
   String? get farmerNotes;
   @override
   String get urgency;
+
+  /// Create a copy of ExpertReviewRequest
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ExpertReviewRequestImplCopyWith<_$ExpertReviewRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1580,8 +1645,12 @@ mixin _$ExpertReviewResponse {
   String get message => throw _privateConstructorUsedError;
   String get messageEn => throw _privateConstructorUsedError;
 
+  /// Serializes this ExpertReviewResponse to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of ExpertReviewResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $ExpertReviewResponseCopyWith<ExpertReviewResponse> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1612,6 +1681,8 @@ class _$ExpertReviewResponseCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of ExpertReviewResponse
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1676,6 +1747,8 @@ class __$$ExpertReviewResponseImplCopyWithImpl<$Res>
       $Res Function(_$ExpertReviewResponseImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of ExpertReviewResponse
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1764,12 +1837,14 @@ class _$ExpertReviewResponseImpl implements _ExpertReviewResponse {
                 other.messageEn == messageEn));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, reviewId, diagnosisId, status,
       estimatedResponseTime, message, messageEn);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of ExpertReviewResponse
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$ExpertReviewResponseImplCopyWith<_$ExpertReviewResponseImpl>
@@ -1809,8 +1884,11 @@ abstract class _ExpertReviewResponse implements ExpertReviewResponse {
   String get message;
   @override
   String get messageEn;
+
+  /// Create a copy of ExpertReviewResponse
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$ExpertReviewResponseImplCopyWith<_$ExpertReviewResponseImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -1828,8 +1906,12 @@ mixin _$BatchDiagnosisResult {
   List<BatchImageResult> get results => throw _privateConstructorUsedError;
   BatchSummary get summary => throw _privateConstructorUsedError;
 
+  /// Serializes this BatchDiagnosisResult to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $BatchDiagnosisResultCopyWith<BatchDiagnosisResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1862,6 +1944,8 @@ class _$BatchDiagnosisResultCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1900,6 +1984,8 @@ class _$BatchDiagnosisResultCopyWithImpl<$Res,
     ) as $Val);
   }
 
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
   $BatchSummaryCopyWith<$Res> get summary {
@@ -1937,6 +2023,8 @@ class __$$BatchDiagnosisResultImplCopyWithImpl<$Res>
       $Res Function(_$BatchDiagnosisResultImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2030,12 +2118,14 @@ class _$BatchDiagnosisResultImpl implements _BatchDiagnosisResult {
             (identical(other.summary, summary) || other.summary == summary));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, batchId, fieldId, totalImages,
       processed, const DeepCollectionEquality().hash(_results), summary);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$BatchDiagnosisResultImplCopyWith<_$BatchDiagnosisResultImpl>
@@ -2075,8 +2165,11 @@ abstract class _BatchDiagnosisResult implements BatchDiagnosisResult {
   List<BatchImageResult> get results;
   @override
   BatchSummary get summary;
+
+  /// Create a copy of BatchDiagnosisResult
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$BatchDiagnosisResultImplCopyWith<_$BatchDiagnosisResultImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -2092,8 +2185,12 @@ mixin _$BatchImageResult {
   double get confidence => throw _privateConstructorUsedError;
   String get diseaseNameAr => throw _privateConstructorUsedError;
 
+  /// Serializes this BatchImageResult to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of BatchImageResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $BatchImageResultCopyWith<BatchImageResult> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2121,6 +2218,8 @@ class _$BatchImageResultCopyWithImpl<$Res, $Val extends BatchImageResult>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of BatchImageResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2173,6 +2272,8 @@ class __$$BatchImageResultImplCopyWithImpl<$Res>
       $Res Function(_$BatchImageResultImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of BatchImageResult
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2242,12 +2343,14 @@ class _$BatchImageResultImpl implements _BatchImageResult {
                 other.diseaseNameAr == diseaseNameAr));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, filename, disease, confidence, diseaseNameAr);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of BatchImageResult
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$BatchImageResultImplCopyWith<_$BatchImageResultImpl> get copyWith =>
@@ -2280,8 +2383,11 @@ abstract class _BatchImageResult implements BatchImageResult {
   double get confidence;
   @override
   String get diseaseNameAr;
+
+  /// Create a copy of BatchImageResult
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$BatchImageResultImplCopyWith<_$BatchImageResultImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2296,8 +2402,12 @@ mixin _$BatchSummary {
   int get infectedCount => throw _privateConstructorUsedError;
   double get averageConfidence => throw _privateConstructorUsedError;
 
+  /// Serializes this BatchSummary to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of BatchSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $BatchSummaryCopyWith<BatchSummary> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2321,6 +2431,8 @@ class _$BatchSummaryCopyWithImpl<$Res, $Val extends BatchSummary>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of BatchSummary
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2364,6 +2476,8 @@ class __$$BatchSummaryImplCopyWithImpl<$Res>
       _$BatchSummaryImpl _value, $Res Function(_$BatchSummaryImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of BatchSummary
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2424,12 +2538,14 @@ class _$BatchSummaryImpl implements _BatchSummary {
                 other.averageConfidence == averageConfidence));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode =>
       Object.hash(runtimeType, healthyCount, infectedCount, averageConfidence);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of BatchSummary
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$BatchSummaryImplCopyWith<_$BatchSummaryImpl> get copyWith =>
@@ -2458,8 +2574,11 @@ abstract class _BatchSummary implements BatchSummary {
   int get infectedCount;
   @override
   double get averageConfidence;
+
+  /// Create a copy of BatchSummary
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$BatchSummaryImplCopyWith<_$BatchSummaryImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2480,8 +2599,12 @@ mixin _$DiagnosisHistoryItem {
   String? get imagePath => throw _privateConstructorUsedError;
   bool get isResolved => throw _privateConstructorUsedError;
 
+  /// Serializes this DiagnosisHistoryItem to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
+
+  /// Create a copy of DiagnosisHistoryItem
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   $DiagnosisHistoryItemCopyWith<DiagnosisHistoryItem> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2515,6 +2638,8 @@ class _$DiagnosisHistoryItemCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+  /// Create a copy of DiagnosisHistoryItem
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2597,6 +2722,8 @@ class __$$DiagnosisHistoryItemImplCopyWithImpl<$Res>
       $Res Function(_$DiagnosisHistoryItemImpl) _then)
       : super(_value, _then);
 
+  /// Create a copy of DiagnosisHistoryItem
+  /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2717,7 +2844,7 @@ class _$DiagnosisHistoryItemImpl implements _DiagnosisHistoryItem {
                 other.isResolved == isResolved));
   }
 
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2731,7 +2858,9 @@ class _$DiagnosisHistoryItemImpl implements _DiagnosisHistoryItem {
       imagePath,
       isResolved);
 
-  @JsonKey(ignore: true)
+  /// Create a copy of DiagnosisHistoryItem
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
   _$$DiagnosisHistoryItemImplCopyWith<_$DiagnosisHistoryItemImpl>
@@ -2780,8 +2909,11 @@ abstract class _DiagnosisHistoryItem implements DiagnosisHistoryItem {
   String? get imagePath;
   @override
   bool get isResolved;
+
+  /// Create a copy of DiagnosisHistoryItem
+  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(ignore: true)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DiagnosisHistoryItemImplCopyWith<_$DiagnosisHistoryItemImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

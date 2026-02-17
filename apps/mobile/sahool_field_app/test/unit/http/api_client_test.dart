@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:dio/dio.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
+import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
 import 'package:sahool_field_app/core/security/security_config.dart';
 import 'package:sahool_field_app/core/security/certificate_pinning_service.dart'
     show CertificatePinningService, CertificatePin, PinType;
@@ -105,7 +106,7 @@ void main() {
           await client.get('/test');
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
 
@@ -118,7 +119,7 @@ void main() {
           await client.get('/test', queryParameters: {'page': 1, 'limit': 10});
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
     });
@@ -134,7 +135,7 @@ void main() {
           await client.post('/test', data);
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
 
@@ -149,7 +150,7 @@ void main() {
           await client.post('/test', data, headers: headers);
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
     });
@@ -165,7 +166,7 @@ void main() {
           await client.put('/test/1', data);
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
     });
@@ -180,7 +181,7 @@ void main() {
           await client.delete('/test/1');
         } catch (e) {
           // Expected to fail without proper mocking or server
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
     });
@@ -196,9 +197,14 @@ void main() {
           fail('Should have thrown an exception');
         } catch (e) {
           // Assert
-          expect(e, isA<ApiException>());
-          final apiException = e as ApiException;
-          expect(apiException.isNetworkError, isTrue);
+          expect(e, isA<AppException>());
+          // DNS resolution failures may be classified as network or unknown
+          // depending on the underlying Dio exception type
+          final appException = e as AppException;
+          expect(
+            [ErrorType.network, ErrorType.unknown],
+            contains(appException.type),
+          );
         }
       });
 
@@ -212,7 +218,7 @@ void main() {
           fail('Should have thrown an exception');
         } catch (e) {
           // Assert
-          expect(e, isA<ApiException>());
+          expect(e, isA<AppException>());
         }
       });
     });

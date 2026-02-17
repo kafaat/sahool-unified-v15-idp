@@ -22,7 +22,7 @@
     "pg": "^8.13.1",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

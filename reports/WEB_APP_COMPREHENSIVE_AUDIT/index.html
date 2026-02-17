@@ -1,0 +1,4180 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>SAHOOL Web Application - Comprehensive Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-web-application-comprehensive-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Web Application - Comprehensive Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-web-application-comprehensive-audit-report">SAHOOL Web Application - Comprehensive Audit Report<a class="headerlink" href="#sahool-web-application-comprehensive-audit-report" title="Permanent link">&para;</a></h1>
+<h1 id="-">تقرير المراجعة الشاملة لتطبيق الويب - منصة سهول<a class="headerlink" href="#-" title="Permanent link">&para;</a></h1>
+<p><strong>Date / التاريخ</strong>: 2026-02-17
+<strong>Version / الإصدار</strong>: 16.0.0
+<strong>Framework</strong>: Next.js 15.5.12 + React 19.2.4 + TypeScript 5.9.3
+<strong>Location</strong>: <code>apps/web/</code>
+<strong>Total LOC</strong>: ~93,769</p>
+<hr />
+<h2 id="executive-summary">Executive Summary / الملخص التنفيذي<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Value</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Total Routes</strong></td>
+<td>36 (5 auth + 31 dashboard)</td>
+<td>Comprehensive</td>
+</tr>
+<tr>
+<td><strong>Feature Modules</strong></td>
+<td>30 domain modules</td>
+<td>Excellent coverage</td>
+</tr>
+<tr>
+<td><strong>API Endpoints</strong></td>
+<td>60+ client methods</td>
+<td>Enterprise-grade</td>
+</tr>
+<tr>
+<td><strong>UI Components</strong></td>
+<td>36+ app + 21 shared = 57+ total</td>
+<td>Good foundation</td>
+</tr>
+<tr>
+<td><strong>Test Files</strong></td>
+<td>19 unit + 28 E2E specs</td>
+<td>Good foundation</td>
+</tr>
+<tr>
+<td><strong>i18n Languages</strong></td>
+<td>Arabic + English (RTL)</td>
+<td>Infrastructure 100%, adoption ~4%</td>
+</tr>
+<tr>
+<td><strong>Security Score</strong></td>
+<td>9/10</td>
+<td>Enterprise-grade</td>
+</tr>
+<tr>
+<td><strong>Backend Integration</strong></td>
+<td>~50% live, 50% mock</td>
+<td>In progress</td>
+</tr>
+<tr>
+<td><strong>Port/Route Mismatches</strong></td>
+<td>11 issues found</td>
+<td>Needs immediate fix</td>
+</tr>
+<tr>
+<td><strong>Docker/K8s Deployment</strong></td>
+<td>NOT CONFIGURED</td>
+<td>Critical gap</td>
+</tr>
+<tr>
+<td><strong>Auth Flow</strong></td>
+<td>4 of 5 pages broken (missing API routes)</td>
+<td>Critical gap</td>
+</tr>
+<tr>
+<td><strong>Overall Completeness</strong></td>
+<td><strong>70%</strong></td>
+<td>Feature-Complete UI, Integration Incomplete</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Assessment</strong>: The web application is a <strong>production-grade framework</strong> with strong security, comprehensive feature structure, and professional UI. Critical blockers: <strong>4 auth API routes missing</strong>, <strong>11 port/path mismatches with Kong</strong>, <strong>no Docker/K8s deployment</strong>, and <strong>~50% features use mock data</strong>.</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-architecture-overview">Architecture Overview</a></li>
+<li><a href="#2-pages--routes">Pages &amp; Routes</a></li>
+<li><a href="#3-authentication-flow">Authentication Flow</a></li>
+<li><a href="#4-backend-service-connections">Backend Service Connections</a></li>
+<li><a href="#5-port-mapping--route-mismatches">Port Mapping &amp; Route Mismatches</a></li>
+<li><a href="#6-security-assessment">Security Assessment</a></li>
+<li><a href="#7-ui-components--design-system">UI Components &amp; Design System</a></li>
+<li><a href="#8-map--gis-features">Map &amp; GIS Features</a></li>
+<li><a href="#9-charts--analytics">Charts &amp; Analytics</a></li>
+<li><a href="#10-real-time-features">Real-Time Features</a></li>
+<li><a href="#11-notifications--alerts">Notifications &amp; Alerts</a></li>
+<li><a href="#12-i18n--rtl-support">i18n &amp; RTL Support</a></li>
+<li><a href="#13-error-handling--logging">Error Handling &amp; Logging</a></li>
+<li><a href="#14-shared-packages-integration">Shared Packages Integration</a></li>
+<li><a href="#15-ai--advisory-features">AI &amp; Advisory Features</a></li>
+<li><a href="#16-settings--administration">Settings &amp; Administration</a></li>
+<li><a href="#17-testing-infrastructure">Testing Infrastructure</a></li>
+<li><a href="#18-docker--deployment">Docker &amp; Deployment</a></li>
+<li><a href="#19-infrastructure-connections">Infrastructure Connections (Redis, NATS, etc.)</a></li>
+<li><a href="#20-critical-gaps--weaknesses">Critical Gaps &amp; Weaknesses</a></li>
+<li><a href="#21-service-completeness-matrix">Service Completeness Matrix</a></li>
+<li><a href="#22-recommendations">Recommendations</a></li>
+<li><a href="#23-strengths">Strengths</a></li>
+</ol>
+<hr />
+<h2 id="1-architecture-overview">1. Architecture Overview / نظرة عامة على الهندسة<a class="headerlink" href="#1-architecture-overview" title="Permanent link">&para;</a></h2>
+<h3 id="tech-stack">Tech Stack<a class="headerlink" href="#tech-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Version</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Framework</td>
+<td>Next.js (App Router)</td>
+<td>15.5.12</td>
+</tr>
+<tr>
+<td>UI Library</td>
+<td>React</td>
+<td>19.2.4</td>
+</tr>
+<tr>
+<td>Language</td>
+<td>TypeScript (Strict)</td>
+<td>5.9.3</td>
+</tr>
+<tr>
+<td>Styling</td>
+<td>Tailwind CSS</td>
+<td>3.4.x</td>
+</tr>
+<tr>
+<td>State Management</td>
+<td>React Query + Context</td>
+<td>5.90.20</td>
+</tr>
+<tr>
+<td>HTTP Client</td>
+<td>Fetch API + Axios</td>
+<td>1.13.5</td>
+</tr>
+<tr>
+<td>Maps</td>
+<td>Leaflet + MapLibre GL</td>
+<td>1.9.4 / 4.7.1</td>
+</tr>
+<tr>
+<td>Charts</td>
+<td>Recharts</td>
+<td>2.15.4</td>
+</tr>
+<tr>
+<td>Icons</td>
+<td>Lucide React</td>
+<td>0.468.0</td>
+</tr>
+<tr>
+<td>i18n</td>
+<td>next-intl</td>
+<td>3.26.3</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>jose (JWT)</td>
+<td>5.9.6</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Sentry</td>
+<td>8.0.0</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Vitest + Playwright</td>
+<td>Latest</td>
+</tr>
+</tbody>
+</table>
+<h3 id="directory-structure">Directory Structure<a class="headerlink" href="#directory-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">apps</span><span class="o">/</span><span class="nx">web</span><span class="o">/</span><span class="nx">src</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">app</span><span class="o">/</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">Next</span><span class="p">.</span><span class="nx">js</span><span class="w"> </span><span class="nx">App</span><span class="w"> </span><span class="nx">Router</span><span class="w"> </span><span class="p">(</span><span class="mi">36</span><span class="w"> </span><span class="nx">pages</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="p">(</span><span class="nx">auth</span><span class="p">)</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Public</span><span class="w"> </span><span class="nx">auth</span><span class="w"> </span><span class="nx">pages</span><span class="w"> </span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="p">(</span><span class="nx">dashboard</span><span class="p">)</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Protected</span><span class="w"> </span><span class="nx">pages</span><span class="w"> </span><span class="p">(</span><span class="mi">31</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">Server</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">routes</span><span class="w"> </span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">components</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="mi">36</span><span class="o">+</span><span class="w"> </span><span class="nx">Reusable</span><span class="w"> </span><span class="nx">UI</span><span class="w"> </span><span class="nx">components</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">common</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">ErrorBoundary</span><span class="p">,</span><span class="w"> </span><span class="nx">LocaleSwitcher</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">dashboard</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">MapView</span><span class="p">,</span><span class="w"> </span><span class="nx">EventTimeline</span><span class="p">,</span><span class="w"> </span><span class="nx">Stats</span><span class="p">,</span><span class="w"> </span><span class="nx">Cockpit</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">layouts</span><span class="o">/</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">Sidebar</span><span class="p">,</span><span class="w"> </span><span class="nx">Header</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">pwa</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="nx">Worker</span><span class="p">,</span><span class="w"> </span><span class="nx">Offline</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ui</span><span class="o">/</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">Button</span><span class="p">,</span><span class="w"> </span><span class="nx">Input</span><span class="p">,</span><span class="w"> </span><span class="nx">Card</span><span class="p">,</span><span class="w"> </span><span class="nx">Badge</span><span class="p">,</span><span class="w"> </span><span class="nx">Modal</span><span class="p">,</span><span class="w"> </span><span class="nx">Toast</span><span class="p">,</span><span class="w"> </span><span class="nx">Loading</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">settings</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">ServiceSwitcher</span><span class="p">,</span><span class="w"> </span><span class="nx">ServiceHealthDashboard</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">features</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="mi">30</span><span class="w"> </span><span class="nx">domain</span><span class="w"> </span><span class="nx">feature</span><span class="w"> </span><span class="nx">modules</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">fields</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Field</span><span class="w"> </span><span class="nx">CRUD</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">map</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">dashboard</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">crop</span><span class="o">-</span><span class="nx">health</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Disease</span><span class="w"> </span><span class="nx">diagnosis</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ndvi</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Vegetation</span><span class="w"> </span><span class="nx">analysis</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">weather</span><span class="o">/</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">Weather</span><span class="w"> </span><span class="nx">monitoring</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">alerts</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Alert</span><span class="w"> </span><span class="nx">management</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">scouting</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Pest</span><span class="o">/</span><span class="nx">disease</span><span class="w"> </span><span class="nx">scouting</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">analytics</span><span class="o">/</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Charts</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">KPIs</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">reports</span><span class="o">/</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nx">Report</span><span class="w"> </span><span class="nx">generation</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">tasks</span><span class="o">/</span><span class="w">              </span><span class="err">#</span><span class="w"> </span><span class="nx">Task</span><span class="w"> </span><span class="nx">management</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">team</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Team</span><span class="o">/</span><span class="nx">user</span><span class="w"> </span><span class="nx">management</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">wallet</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Billing</span><span class="o">/</span><span class="nx">payments</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">marketplace</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Agricultural</span><span class="w"> </span><span class="nx">marketplace</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">iot</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">IoT</span><span class="w"> </span><span class="nx">sensor</span><span class="w"> </span><span class="nx">monitoring</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">settings</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">User</span><span class="w"> </span><span class="nx">settings</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="o">...</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="mi">16</span><span class="w"> </span><span class="nx">more</span><span class="w"> </span><span class="nx">modules</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">hooks</span><span class="o">/</span><span class="w">                  </span><span class="err">#</span><span class="w"> </span><span class="nx">Custom</span><span class="w"> </span><span class="nx">hooks</span><span class="w"> </span><span class="p">(</span><span class="nx">incl</span><span class="p">.</span><span class="w"> </span><span class="nx">AI</span><span class="p">)</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">lib</span><span class="o">/</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">Core</span><span class="w"> </span><span class="nx">utilities</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kn">api</span><span class="o">/</span><span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="nx">v1</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">310</span><span class="w"> </span><span class="nx">lines</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="kn">api</span><span class="o">-</span><span class="nx">client</span><span class="p">.</span><span class="nx">ts</span><span class="w">       </span><span class="err">#</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">client</span><span class="w"> </span><span class="nx">v2</span><span class="w"> </span><span class="nx">with</span><span class="w"> </span><span class="nx">circuit</span><span class="w"> </span><span class="nx">breaker</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">auth</span><span class="o">/</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="nx">utilities</span><span class="w"> </span><span class="p">(</span><span class="nx">route</span><span class="o">-</span><span class="nx">guard</span><span class="p">)</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">security</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">CSRF</span><span class="p">,</span><span class="w"> </span><span class="nx">JWT</span><span class="p">,</span><span class="w"> </span><span class="nx">XSS</span><span class="p">,</span><span class="w"> </span><span class="nx">CSP</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">ws</span><span class="o">/</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">WebSocket</span><span class="w"> </span><span class="nx">client</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">services</span><span class="o">/</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Service</span><span class="w"> </span><span class="nx">switcher</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">performance</span><span class="o">/</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Optimization</span><span class="w"> </span><span class="nx">utilities</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">stores</span><span class="o">/</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="nx">context</span><span class="w"> </span><span class="nx">store</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">types</span><span class="o">/</span><span class="w">                  </span><span class="err">#</span><span class="w"> </span><span class="nx">TypeScript</span><span class="w"> </span><span class="k">type</span><span class="w"> </span><span class="nx">definitions</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">middleware</span><span class="p">.</span><span class="nx">ts</span><span class="w">           </span><span class="err">#</span><span class="w"> </span><span class="nx">Auth</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">Security</span><span class="w"> </span><span class="nx">middleware</span><span class="w"> </span><span class="p">(</span><span class="nx">Edge</span><span class="w"> </span><span class="nx">Runtime</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="state-management-architecture">State Management Architecture<a class="headerlink" href="#state-management-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Provider Hierarchy:
+QueryClientProvider (React Query)
+  └── AuthProvider (Context API)
+      └── ToastProvider
+          └── App Routes
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th>State Type</th>
+<th>Technology</th>
+<th>Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server State</td>
+<td>React Query 5.x</td>
+<td>90% of app (42 feature hooks)</td>
+</tr>
+<tr>
+<td>Auth State</td>
+<td>React Context</td>
+<td>User session, JWT</td>
+</tr>
+<tr>
+<td>UI State</td>
+<td>React useState</td>
+<td>Forms, modals, toggles</td>
+</tr>
+<tr>
+<td>Persistent State</td>
+<td>localStorage</td>
+<td>Cart, preferences</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>httpOnly Cookies</td>
+<td>JWT tokens, CSRF</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-pages-routes">2. Pages &amp; Routes / الصفحات والمسارات<a class="headerlink" href="#2-pages-routes" title="Permanent link">&para;</a></h2>
+<h3 id="authentication-routes-public-5-pages">Authentication Routes (Public) - 5 pages<a class="headerlink" href="#authentication-routes-public-5-pages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Status</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/login</code></td>
+<td>WORKING</td>
+<td>Email/password, CSRF, error handling</td>
+</tr>
+<tr>
+<td><code>/register</code></td>
+<td>WORKING</td>
+<td>Full form, client validation, auto-login</td>
+</tr>
+<tr>
+<td><code>/forgot-password</code></td>
+<td>BROKEN</td>
+<td>UI complete, API proxy route missing</td>
+</tr>
+<tr>
+<td><code>/reset-password</code></td>
+<td>BROKEN</td>
+<td>UI complete, API proxy route missing</td>
+</tr>
+<tr>
+<td><code>/verify-otp</code></td>
+<td>BROKEN</td>
+<td>6-digit OTP UI, API proxy route missing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dashboard-routes-protected-31-pages">Dashboard Routes (Protected) - 31 pages<a class="headerlink" href="#dashboard-routes-protected-31-pages" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Route</th>
+<th>Status</th>
+<th>Completeness</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/dashboard</code></td>
+<td>REAL</td>
+<td>95%</td>
+<td>Stats, weather, activity, tasks</td>
+</tr>
+<tr>
+<td><code>/copilot</code></td>
+<td>REAL</td>
+<td>100%</td>
+<td>AI chat with SSE streaming</td>
+</tr>
+<tr>
+<td><code>/fields</code></td>
+<td>REAL</td>
+<td>95%</td>
+<td>CRUD, grid/list/map views</td>
+</tr>
+<tr>
+<td><code>/fields/[id]</code></td>
+<td>REAL</td>
+<td>95%</td>
+<td>Detail, NDVI, weather, tasks</td>
+</tr>
+<tr>
+<td><code>/alerts</code></td>
+<td>REAL</td>
+<td>90%</td>
+<td>Severity filtering, bulk ops</td>
+</tr>
+<tr>
+<td><code>/tasks</code></td>
+<td>PARTIAL</td>
+<td>80%</td>
+<td>Task management, mock data</td>
+</tr>
+<tr>
+<td><code>/weather</code></td>
+<td>PARTIAL</td>
+<td>70%</td>
+<td>Weather display, mock data</td>
+</tr>
+<tr>
+<td><code>/crop-health</code></td>
+<td>REAL</td>
+<td>90%</td>
+<td>Disease diagnosis, image upload</td>
+</tr>
+<tr>
+<td><code>/iot</code></td>
+<td>PARTIAL</td>
+<td>70%</td>
+<td>Sensor monitoring, mock data</td>
+</tr>
+<tr>
+<td><code>/sensors</code></td>
+<td>PARTIAL</td>
+<td>70%</td>
+<td>Sensor data display</td>
+</tr>
+<tr>
+<td><code>/equipment</code></td>
+<td>PARTIAL</td>
+<td>60%</td>
+<td>Equipment tracking</td>
+</tr>
+<tr>
+<td><code>/irrigation</code></td>
+<td>MOCK</td>
+<td>60%</td>
+<td>Scheduling UI, mock data</td>
+</tr>
+<tr>
+<td><code>/analytics</code></td>
+<td>PARTIAL</td>
+<td>80%</td>
+<td>Charts, KPIs, reports</td>
+</tr>
+<tr>
+<td><code>/satellite</code></td>
+<td>PARTIAL</td>
+<td>70%</td>
+<td>NDVI visualization</td>
+</tr>
+<tr>
+<td><code>/settings</code></td>
+<td>PARTIAL</td>
+<td>70%</td>
+<td>3/7 tabs complete</td>
+</tr>
+<tr>
+<td><code>/marketplace</code></td>
+<td>STUB</td>
+<td>40%</td>
+<td>Basic listing</td>
+</tr>
+<tr>
+<td><code>/community</code></td>
+<td>STUB</td>
+<td>30%</td>
+<td>Basic structure</td>
+</tr>
+<tr>
+<td><code>/wallet</code></td>
+<td>STUB</td>
+<td>40%</td>
+<td>API ready, UI minimal</td>
+</tr>
+<tr>
+<td><code>/yield</code></td>
+<td>PARTIAL</td>
+<td>50%</td>
+<td>Tracking, no prediction</td>
+</tr>
+<tr>
+<td><code>/research</code></td>
+<td>STUB</td>
+<td>20%</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td><code>/compliance</code></td>
+<td>STUB</td>
+<td>20%</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td><code>/disaster-assessment</code></td>
+<td>STUB</td>
+<td>20%</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td><code>/logistics</code></td>
+<td>STUB</td>
+<td>20%</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td><code>/inventory</code></td>
+<td>STUB</td>
+<td>30%</td>
+<td>Basic listing</td>
+</tr>
+<tr>
+<td><code>/support</code></td>
+<td>STUB</td>
+<td>20%</td>
+<td>Placeholder</td>
+</tr>
+<tr>
+<td><code>/pivot-irrigation</code></td>
+<td>STUB</td>
+<td>30%</td>
+<td>Basic UI</td>
+</tr>
+<tr>
+<td><code>/precision-agriculture/gdd</code></td>
+<td>PARTIAL</td>
+<td>50%</td>
+<td>GDD calculator</td>
+</tr>
+<tr>
+<td><code>/precision-agriculture/spray</code></td>
+<td>PARTIAL</td>
+<td>50%</td>
+<td>Spray window</td>
+</tr>
+<tr>
+<td><code>/precision-agriculture/vra</code></td>
+<td>PARTIAL</td>
+<td>60%</td>
+<td>VRA maps</td>
+</tr>
+<tr>
+<td><code>/diseases</code></td>
+<td>PARTIAL</td>
+<td>60%</td>
+<td>Disease database</td>
+</tr>
+</tbody>
+</table>
+<h3 id="server-api-routes-5-endpoints">Server API Routes - 5 endpoints<a class="headerlink" href="#server-api-routes-5-endpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Method</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/auth/session</code></td>
+<td>POST/DELETE/GET</td>
+<td>Session cookie management</td>
+</tr>
+<tr>
+<td><code>/api/csrf-token</code></td>
+<td>POST</td>
+<td>CSRF token generation</td>
+</tr>
+<tr>
+<td><code>/api/csp-report</code></td>
+<td>POST</td>
+<td>CSP violation reporting</td>
+</tr>
+<tr>
+<td><code>/api/health</code></td>
+<td>GET</td>
+<td>Kubernetes health check</td>
+</tr>
+<tr>
+<td><code>/api/log-error</code></td>
+<td>POST</td>
+<td>Client error logging</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-authentication-flow">3. Authentication Flow / تدفق المصادقة<a class="headerlink" href="#3-authentication-flow" title="Permanent link">&para;</a></h2>
+<h3 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nv">Browser</span><span class="w"> </span>→<span class="w"> </span><span class="nv">Login</span><span class="w"> </span><span class="nv">Page</span><span class="w"> </span>→<span class="w"> </span><span class="nv">POST</span><span class="w"> </span><span class="o">/</span><span class="nv">api</span><span class="o">/</span><span class="nv">v1</span><span class="o">/</span><span class="nv">auth</span><span class="o">/</span><span class="nv">login</span><span class="w"> </span><span class="ss">(</span><span class="nv">via</span><span class="w"> </span><span class="nv">Kong</span><span class="ss">)</span><span class="w"> </span>→<span class="w"> </span><span class="nv">user</span><span class="o">-</span><span class="nv">service</span>:<span class="mi">3025</span>
+<span class="w">       </span>→<span class="w"> </span><span class="nv">POST</span><span class="w"> </span><span class="o">/</span><span class="nv">api</span><span class="o">/</span><span class="nv">auth</span><span class="o">/</span><span class="nv">session</span><span class="w"> </span><span class="ss">(</span><span class="k">Next</span>.<span class="nv">js</span><span class="ss">)</span><span class="w"> </span>→<span class="w"> </span><span class="nv">Sets</span><span class="w"> </span><span class="nv">httpOnly</span><span class="w"> </span><span class="nv">cookies</span>
+<span class="w">       </span>→<span class="w"> </span><span class="nv">GET</span><span class="w"> </span><span class="o">/</span><span class="nv">api</span><span class="o">/</span><span class="nv">v1</span><span class="o">/</span><span class="nv">auth</span><span class="o">/</span><span class="nv">me</span><span class="w"> </span>→<span class="w"> </span><span class="nv">Populates</span><span class="w"> </span><span class="nv">user</span><span class="w"> </span><span class="nv">state</span>
+<span class="w">       </span>→<span class="w"> </span><span class="nv">Middleware</span><span class="w"> </span><span class="nv">validates</span><span class="w"> </span><span class="nv">JWT</span><span class="w"> </span><span class="nv">on</span><span class="w"> </span><span class="nv">every</span><span class="w"> </span><span class="nv">protected</span><span class="w"> </span><span class="nv">route</span>
+</code></pre></div>
+
+<h3 id="what-works">What Works<a class="headerlink" href="#what-works" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Login UI</td>
+<td>WORKING</td>
+<td>Email/password, CSRF protection, toast errors</td>
+</tr>
+<tr>
+<td>Registration UI</td>
+<td>WORKING</td>
+<td>Full form validation, auto-login on success</td>
+</tr>
+<tr>
+<td>Auth Store</td>
+<td>WORKING</td>
+<td>login(), logout(), checkAuth() via Context API</td>
+</tr>
+<tr>
+<td>JWT Middleware</td>
+<td>WORKING</td>
+<td>Edge Runtime, jose library, claim validation</td>
+</tr>
+<tr>
+<td>CSRF Protection</td>
+<td>WORKING</td>
+<td>Timing-safe comparison, per-session tokens</td>
+</tr>
+<tr>
+<td>Session Cookies</td>
+<td>WORKING</td>
+<td>httpOnly, secure, SameSite=strict</td>
+</tr>
+<tr>
+<td>Security Headers</td>
+<td>WORKING</td>
+<td>HSTS, X-Frame-Options, CSP, Permissions-Policy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="critical-auth-bugs">Critical Auth Bugs<a class="headerlink" href="#critical-auth-bugs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Bug</th>
+<th>Severity</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>4 missing API proxy routes</strong></td>
+<td>CRITICAL</td>
+<td><code>/api/auth/forgot-password</code>, <code>/api/auth/send-otp</code>, <code>/api/auth/verify-otp</code>, <code>/api/auth/reset-password</code> do not exist. These pages call Next.js API routes that return 404.</td>
+</tr>
+<tr>
+<td><strong>Cookie name mismatch</strong></td>
+<td>HIGH</td>
+<td><code>route-guard.tsx</code> reads <code>"sahool_token"</code> cookie, but session API sets <code>"access_token"</code>. Server-side route guards always return null.</td>
+</tr>
+<tr>
+<td><strong>Refresh token unreadable</strong></td>
+<td>HIGH</td>
+<td><code>refresh_token</code> is set as httpOnly cookie but <code>api-client.ts</code> reads it via <code>js-cookie</code> (client JS). Token refresh will always fail.</td>
+</tr>
+<tr>
+<td><strong>Login ignores returnTo</strong></td>
+<td>MEDIUM</td>
+<td>Middleware sets <code>?returnTo=</code> on 401 redirect, but LoginClient always redirects to <code>/dashboard</code>.</td>
+</tr>
+<tr>
+<td><strong>No 2FA in login flow</strong></td>
+<td>MEDIUM</td>
+<td>No handling for <code>requires_2fa</code> response from backend during login.</td>
+</tr>
+<tr>
+<td><strong>Route guards unused</strong></td>
+<td>LOW</td>
+<td><code>requireAuth()</code>, <code>requirePermission()</code>, <code>requireRole()</code> functions exist in <code>route-guard.tsx</code> but are never called by any page.</td>
+</tr>
+<tr>
+<td><strong>No email verification</strong></td>
+<td>MEDIUM</td>
+<td>Registration succeeds without verifying email address.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-backend-service-connections">4. Backend Service Connections / اتصالات الخدمات الخلفية<a class="headerlink" href="#4-backend-service-connections" title="Permanent link">&para;</a></h2>
+<h3 id="api-gateway-architecture">API Gateway Architecture<a class="headerlink" href="#api-gateway-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Browser → Next.js App (port 3000)
+       ├── /api/v1/* rewrite → Kong Gateway (port 8000) → Backend Services
+       ├── /ws → WebSocket Gateway (port 8081) → NATS Events
+       └── /api/v1/chat/stream → Copilot API (port 8088) → SSE Stream
+</code></pre></div>
+
+<h3 id="api-client-features">API Client Features<a class="headerlink" href="#api-client-features" title="Permanent link">&para;</a></h3>
+<p>The web app has <strong>TWO separate API clients</strong> (a technical debt issue):</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>api-client.ts (v2)</th>
+<th>api/client.ts (v1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circuit breaker</td>
+<td>YES (5 failures, 30s reset)</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>Retry logic</td>
+<td>YES (3 attempts, exponential)</td>
+<td>YES (3 attempts)</td>
+</tr>
+<tr>
+<td>Token refresh</td>
+<td>YES (60s before expiry)</td>
+<td>YES (on 401)</td>
+</tr>
+<tr>
+<td>CSRF protection</td>
+<td>YES</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Rate limit tracking</td>
+<td>YES (header-based)</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>Bilingual errors</td>
+<td>YES (AR + EN)</td>
+<td>NO (EN only)</td>
+</tr>
+<tr>
+<td>Timeout</td>
+<td>30s (AbortController)</td>
+<td>30s (AbortController)</td>
+</tr>
+<tr>
+<td>Interceptors</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+<tr>
+<td>Mock data fallback</td>
+<td>YES</td>
+<td>NO</td>
+</tr>
+</tbody>
+</table>
+<p>Additionally, feature-level Axios clients exist in <code>features/fields/api.ts</code>, <code>features/alerts/api.ts</code>, etc.</p>
+<p><strong>Recommendation</strong>: Consolidate to single API client.</p>
+<hr />
+<h2 id="5-port-mapping-route-mismatches">5. Port Mapping &amp; Route Mismatches / تعارضات المنافذ والمسارات<a class="headerlink" href="#5-port-mapping-route-mismatches" title="Permanent link">&para;</a></h2>
+<h3 id="critical-mismatches-11-issues-found">CRITICAL MISMATCHES (11 Issues Found)<a class="headerlink" href="#critical-mismatches-11-issues-found" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Issue</th>
+<th>Web App Calls</th>
+<th>Kong Has</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>ARCHIVED route</strong></td>
+<td><code>/api/v1/weather-core/*</code></td>
+<td>REMOVED (2026-02-14)</td>
+<td><strong>404 errors</strong> - Weather POST endpoints broken</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>ARCHIVED route</strong></td>
+<td><code>/api/v1/agro-advisor/*</code></td>
+<td>REMOVED (2026-02-14)</td>
+<td><strong>404 errors</strong> - Advisor endpoints broken</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Path mismatch</strong></td>
+<td><code>/api/v1/disasters/*</code> (plural)</td>
+<td><code>/api/v1/disaster</code> (singular)</td>
+<td><strong>404 errors</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Path mismatch</strong></td>
+<td><code>/api/v1/astronomical/*</code></td>
+<td><code>/api/v1/astronomy</code></td>
+<td><strong>404 errors</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Missing route</strong></td>
+<td><code>/api/v1/action-windows/*</code></td>
+<td>No route, no service</td>
+<td><strong>404 errors</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Path mismatch</strong></td>
+<td><code>/api/v1/providers/*</code></td>
+<td><code>/api/v1/provider-config</code></td>
+<td><strong>404 errors</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Duplicate route</strong></td>
+<td><code>/api/v1/field-core/*</code></td>
+<td>Both <code>field-intelligence:8120</code> AND <code>field-core:3005</code></td>
+<td>Ambiguous routing</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Wrong port</strong></td>
+<td>Copilot direct to <code>localhost:8088</code></td>
+<td>Host mapping is <code>8163:8088</code></td>
+<td>Connection fails in dev</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>Missing env var</strong></td>
+<td><code>NEXT_PUBLIC_COPILOT_API_URL</code></td>
+<td>Not in any <code>.env.example</code></td>
+<td>Undocumented config</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>Wrong fallback</strong></td>
+<td><code>marketplace/api.ts</code> defaults to <code>localhost:3000</code></td>
+<td>Should be Kong <code>:8000</code></td>
+<td>Wrong service</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>Dual alert routes</strong></td>
+<td><code>/api/v1/alerts</code></td>
+<td>Both <code>notification-service:8110</code> AND <code>alert-service:8113</code></td>
+<td>Ambiguous routing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="confirmed-working-routes">Confirmed Working Routes<a class="headerlink" href="#confirmed-working-routes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Web App Path</th>
+<th>Kong Route</th>
+<th>Backend Service</th>
+<th>Port</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/auth/*</code></td>
+<td><code>/api/v1/auth/*</code></td>
+<td>user-service</td>
+<td>3025</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/fields/*</code></td>
+<td><code>/api/v1/fields</code></td>
+<td>field-management-service</td>
+<td>3000</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/weather/v1/*</code></td>
+<td><code>/api/v1/weather</code></td>
+<td>weather-service</td>
+<td>8092</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/crop-health/*</code></td>
+<td><code>/api/v1/crop-health</code></td>
+<td>crop-intelligence-service</td>
+<td>8095</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/satellite/*</code></td>
+<td><code>/api/v1/satellite</code></td>
+<td>vegetation-analysis-service</td>
+<td>8090</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/irrigation/*</code></td>
+<td><code>/api/v1/irrigation</code></td>
+<td>irrigation-smart</td>
+<td>8094</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/fertilizer/*</code></td>
+<td><code>/api/v1/fertilizer</code></td>
+<td>advisory-service</td>
+<td>8093</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/iot/*</code></td>
+<td><code>/api/v1/iot</code></td>
+<td>iot-service</td>
+<td>8117</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/tasks/*</code></td>
+<td><code>/api/v1/tasks</code></td>
+<td>task-service</td>
+<td>8103</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/equipment/*</code></td>
+<td><code>/api/v1/equipment</code></td>
+<td>equipment-service</td>
+<td>8101</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/billing/*</code></td>
+<td><code>/api/v1/billing</code></td>
+<td>billing-core</td>
+<td>8089</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/yield/*</code></td>
+<td><code>/api/v1/yield</code></td>
+<td>yield-prediction-service</td>
+<td>8152</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/marketplace/*</code></td>
+<td><code>/api/v1/marketplace</code></td>
+<td>marketplace-service</td>
+<td>3010</td>
+<td>OK</td>
+</tr>
+<tr>
+<td><code>/api/v1/agro-rules/*</code></td>
+<td><code>/api/v1/agro-rules</code></td>
+<td>agro-rules</td>
+<td>8151</td>
+<td>OK</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-security-assessment">6. Security Assessment / تقييم الأمان<a class="headerlink" href="#6-security-assessment" title="Permanent link">&para;</a></h2>
+<h3 id="score-910-enterprise-grade">Score: 9/10 - Enterprise Grade<a class="headerlink" href="#score-910-enterprise-grade" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Security Feature</th>
+<th>Status</th>
+<th>Implementation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>JWT Validation</strong></td>
+<td>EXCELLENT</td>
+<td>jose library, signature verification, claim validation</td>
+</tr>
+<tr>
+<td><strong>CSRF Protection</strong></td>
+<td>EXCELLENT</td>
+<td>Timing-safe comparison, token per session</td>
+</tr>
+<tr>
+<td><strong>XSS Prevention</strong></td>
+<td>EXCELLENT</td>
+<td>DOMPurify, HTML escaping, CSP nonce</td>
+</tr>
+<tr>
+<td><strong>Cookie Security</strong></td>
+<td>EXCELLENT</td>
+<td>httpOnly, secure, sameSite=strict</td>
+</tr>
+<tr>
+<td><strong>Security Headers</strong></td>
+<td>EXCELLENT</td>
+<td>HSTS, X-Frame-Options, CSP, Permissions-Policy</td>
+</tr>
+<tr>
+<td><strong>Input Validation</strong></td>
+<td>STRONG</td>
+<td>8 validators, 7 sanitizers, bilingual errors</td>
+</tr>
+<tr>
+<td><strong>Rate Limiting</strong></td>
+<td>GOOD</td>
+<td>Server-side Redis + in-memory fallback (API routes only)</td>
+</tr>
+<tr>
+<td><strong>Auth Middleware</strong></td>
+<td>EXCELLENT</td>
+<td>Edge Runtime, protected routes</td>
+</tr>
+<tr>
+<td><strong>Error Handling</strong></td>
+<td>STRONG</td>
+<td>Error boundaries, structured logging</td>
+</tr>
+<tr>
+<td><strong>Token Storage</strong></td>
+<td>EXCELLENT</td>
+<td>httpOnly cookies (not localStorage)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="security-headers-middlewarets">Security Headers (middleware.ts)<a class="headerlink" href="#security-headers-middlewarets" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">X</span><span class="o">-</span><span class="n">Frame</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span><span class="w"> </span><span class="n">DENY</span>
+<span class="n">X</span><span class="o">-</span><span class="n">Content</span><span class="o">-</span><span class="n">Type</span><span class="o">-</span><span class="n">Options</span><span class="p">:</span><span class="w"> </span><span class="n">nosniff</span>
+<span class="n">Strict</span><span class="o">-</span><span class="n">Transport</span><span class="o">-</span><span class="n">Security</span><span class="p">:</span><span class="w"> </span><span class="nb">max</span><span class="o">-</span><span class="n">age</span><span class="o">=</span><span class="mi">63072000</span><span class="p">;</span><span class="w"> </span><span class="n">includeSubDomains</span><span class="p">;</span><span class="w"> </span><span class="nb">preload</span>
+<span class="n">Content</span><span class="o">-</span><span class="n">Security</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="p">(</span><span class="n">nonce</span><span class="o">-</span><span class="n">based</span><span class="p">,</span><span class="w"> </span><span class="n">strict</span><span class="p">)</span>
+<span class="n">Referrer</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="n">strict</span><span class="o">-</span><span class="n">origin</span><span class="o">-</span><span class="n">when</span><span class="o">-</span><span class="n">cross</span><span class="o">-</span><span class="n">origin</span>
+<span class="n">Permissions</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="n">camera</span><span class="o">=</span><span class="p">(),</span><span class="w"> </span><span class="n">microphone</span><span class="o">=</span><span class="p">(),</span><span class="w"> </span><span class="n">geolocation</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+<span class="n">Cross</span><span class="o">-</span><span class="n">Origin</span><span class="o">-</span><span class="n">Embedder</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="n">credentialless</span>
+<span class="n">Cross</span><span class="o">-</span><span class="n">Origin</span><span class="o">-</span><span class="n">Opener</span><span class="o">-</span><span class="n">Policy</span><span class="p">:</span><span class="w"> </span><span class="n">same</span><span class="o">-</span><span class="n">origin</span>
+</code></pre></div>
+
+<h3 id="security-gaps">Security Gaps<a class="headerlink" href="#security-gaps" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Refresh token httpOnly but client tries to read it</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Cookie name mismatch (sahool_token vs access_token)</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>API routes (<code>/api/*</code>) bypass middleware entirely</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No account lockout after failed login attempts</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>2FA setup UI incomplete</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>Session termination button not wired</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>Kong CORS set to <code>*</code> in development</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-ui-components-design-system">7. UI Components &amp; Design System / مكونات واجهة المستخدم<a class="headerlink" href="#7-ui-components-design-system" title="Permanent link">&para;</a></h2>
+<h3 id="component-inventory">Component Inventory<a class="headerlink" href="#component-inventory" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Key Components</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UI Base</strong></td>
+<td>9</td>
+<td>Button, Input, FormField, Card, Badge, Modal, Loading, LoadingSpinner, Toast</td>
+</tr>
+<tr>
+<td><strong>Dashboard</strong></td>
+<td>12</td>
+<td>Cockpit, KPIGrid, KPICard, StatsCards, MapView, AlertPanel, TaskList, EventTimeline, Skeleton</td>
+</tr>
+<tr>
+<td><strong>Layout</strong></td>
+<td>2</td>
+<td>Header, Sidebar</td>
+</tr>
+<tr>
+<td><strong>Common</strong></td>
+<td>3</td>
+<td>ErrorBoundary, LocaleSwitcher</td>
+</tr>
+<tr>
+<td><strong>SEO</strong></td>
+<td>2</td>
+<td>MetaTags, JsonLd</td>
+</tr>
+<tr>
+<td><strong>PWA</strong></td>
+<td>1</td>
+<td>ServiceWorkerRegistration</td>
+</tr>
+<tr>
+<td><strong>Settings</strong></td>
+<td>2</td>
+<td>ServiceSwitcher, ServiceHealthDashboard</td>
+</tr>
+<tr>
+<td><strong>Shared-UI (@sahool/shared-ui)</strong></td>
+<td>21</td>
+<td>Button, Input, Select, Modal, Tabs, Card, Badge, Alert, FocusTrap, SkipLink, VisuallyHidden, PermissionGate, etc.</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>52+</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="design-system">Design System<a class="headerlink" href="#design-system" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Library</strong>: Custom-built (NOT shadcn/ui) with shadcn-inspired patterns</li>
+<li><strong>Theme</strong>: SAHOOL brand colors (sahool-green 9 shades, sahool-brown 9 shades)</li>
+<li><strong>Agricultural Colors</strong>: cropHealth (5), ndvi (6), moisture (5), soil (4), water (4), weather (6)</li>
+<li><strong>Dark Mode</strong>: Class-based (<code>darkMode: "class"</code>) - configured but not activated</li>
+<li><strong>Fonts</strong>: Tajawal (loaded), Cairo (declared but NOT loaded)</li>
+<li><strong>Icons</strong>: Lucide React (20+ icons used)</li>
+</ul>
+<h3 id="accessibility-wcag-21-aa">Accessibility (WCAG 2.1 AA)<a class="headerlink" href="#accessibility-wcag-21-aa" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ARIA attributes</td>
+<td>Comprehensive (aria-invalid, aria-describedby, aria-live, roles)</td>
+</tr>
+<tr>
+<td>Keyboard navigation</td>
+<td>Tabs, Select, Modal (FocusTrap, Escape)</td>
+</tr>
+<tr>
+<td>Screen reader</td>
+<td>sr-only, SkipLink, VisuallyHidden</td>
+</tr>
+<tr>
+<td>Focus management</td>
+<td>FocusLock in modals, focus restoration</td>
+</tr>
+<tr>
+<td>Color contrast</td>
+<td>Semantic colors with sufficient ratios</td>
+</tr>
+</tbody>
+</table>
+<h3 id="missing-ui-components">Missing UI Components<a class="headerlink" href="#missing-ui-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Priority</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Textarea</td>
+<td>HIGH</td>
+<td>No multi-line text input</td>
+</tr>
+<tr>
+<td>Checkbox</td>
+<td>HIGH</td>
+<td>No checkbox for forms</td>
+</tr>
+<tr>
+<td>Radio Group</td>
+<td>HIGH</td>
+<td>No radio buttons</td>
+</tr>
+<tr>
+<td>Table</td>
+<td>HIGH</td>
+<td>No data table (only skeleton)</td>
+</tr>
+<tr>
+<td>Pagination</td>
+<td>HIGH</td>
+<td>No list/table pagination</td>
+</tr>
+<tr>
+<td>Date Picker</td>
+<td>HIGH</td>
+<td>No date selection</td>
+</tr>
+<tr>
+<td>File Upload</td>
+<td>HIGH</td>
+<td>No file input UI</td>
+</tr>
+<tr>
+<td>Empty State</td>
+<td>MEDIUM</td>
+<td>No "no data" pattern</td>
+</tr>
+<tr>
+<td>Progress Bar</td>
+<td>MEDIUM</td>
+<td>No progress indicator</td>
+</tr>
+<tr>
+<td>Tooltip</td>
+<td>MEDIUM</td>
+<td>No hover tooltips</td>
+</tr>
+<tr>
+<td>Dropdown/Menu</td>
+<td>MEDIUM</td>
+<td>Only Select, no generic menu</td>
+</tr>
+<tr>
+<td>Accordion</td>
+<td>LOW</td>
+<td>No collapsible sections</td>
+</tr>
+<tr>
+<td>Breadcrumb</td>
+<td>LOW</td>
+<td>No breadcrumb navigation</td>
+</tr>
+<tr>
+<td>Combobox</td>
+<td>LOW</td>
+<td>No typeahead/autocomplete</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-map-gis-features">8. Map &amp; GIS Features / ميزات الخرائط<a class="headerlink" href="#8-map-gis-features" title="Permanent link">&para;</a></h2>
+<h3 id="completeness-75-80">Completeness: 75-80%<a class="headerlink" href="#completeness-75-80" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>MapLibre</th>
+<th>Leaflet</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Field boundaries</td>
+<td>YES</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>NDVI visualization</td>
+<td>Partial</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Health zones</td>
+<td>-</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Task markers</td>
+<td>-</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Layer control</td>
+<td>Partial</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Weather overlay</td>
+<td>-</td>
+<td>YES</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Field drawing</td>
+<td>-</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+<tr>
+<td>Field editing</td>
+<td>-</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+<tr>
+<td>GPS tracking</td>
+<td>-</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+<tr>
+<td>Measurement tools</td>
+<td>-</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-components-4000-lines">Key Components (~4,000 lines)<a class="headerlink" href="#key-components-4000-lines" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>MapView.tsx</code> (380 lines) - MapLibre GL primary map</li>
+<li><code>InteractiveFieldMap.tsx</code> (735 lines) - Leaflet full-featured map</li>
+<li><code>NdviTileLayer.tsx</code> (375 lines) - Satellite raster overlay</li>
+<li><code>HealthZonesLayer.tsx</code> (415 lines) - Zone visualization</li>
+<li><code>LayerControl.tsx</code> (795 lines) - Layer management UI</li>
+<li><code>TaskMarkers.tsx</code> (387 lines) - Task location markers</li>
+</ul>
+<h3 id="critical-gap-no-field-drawing-tools">Critical Gap: No Field Drawing Tools<a class="headerlink" href="#critical-gap-no-field-drawing-tools" title="Permanent link">&para;</a></h3>
+<p>Missing libraries: <code>leaflet-draw</code>, <code>@mapbox/mapbox-gl-draw</code>, <code>geoman-leaflet</code>. Users cannot draw field boundaries through UI.</p>
+<hr />
+<h2 id="9-charts-analytics">9. Charts &amp; Analytics / الرسوم البيانية<a class="headerlink" href="#9-charts-analytics" title="Permanent link">&para;</a></h2>
+<h3 id="completeness-75">Completeness: 75%<a class="headerlink" href="#completeness-75" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Chart Type</th>
+<th>Library</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bar Charts</td>
+<td>Recharts</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Line Charts</td>
+<td>Recharts</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Area Charts</td>
+<td>Recharts</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Pie Charts</td>
+<td>Recharts</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>KPI Cards</td>
+<td>Custom</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>NDVI Time-series</td>
+<td>-</td>
+<td>PARTIAL (template only)</td>
+</tr>
+<tr>
+<td>Weather Trends</td>
+<td>-</td>
+<td>NOT IMPLEMENTED</td>
+</tr>
+<tr>
+<td>Data Tables</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+<tr>
+<td>PDF Export</td>
+<td>-</td>
+<td>PARTIAL (utils only, no renderer)</td>
+</tr>
+<tr>
+<td>Excel/CSV Export</td>
+<td>-</td>
+<td><strong>NOT IMPLEMENTED</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="missing-libraries">Missing Libraries<a class="headerlink" href="#missing-libraries" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">@</span><span class="n">tanstack</span><span class="o">/</span><span class="n">react</span><span class="o">-</span><span class="n">table</span><span class="w">   </span><span class="c1"># Data tables (sorting, filtering, pagination)</span>
+<span class="n">jspdf</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">html2canvas</span><span class="w">     </span><span class="c1"># PDF generation</span>
+<span class="n">xlsx</span><span class="w">                    </span><span class="c1"># Excel export</span>
+</code></pre></div>
+
+<hr />
+<h2 id="10-real-time-features">10. Real-Time Features / ميزات الوقت الحقيقي<a class="headerlink" href="#10-real-time-features" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Technology</th>
+<th>Status</th>
+<th>Active</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Event Timeline</td>
+<td>WebSocket</td>
+<td>READY</td>
+<td>YES (ws-gateway:8081)</td>
+</tr>
+<tr>
+<td>AI Copilot Chat</td>
+<td>SSE Streaming</td>
+<td>READY</td>
+<td>YES (copilot-api:8088)</td>
+</tr>
+<tr>
+<td>Alert Stream</td>
+<td>SSE</td>
+<td>READY</td>
+<td>NO (hook exists, not mounted)</td>
+</tr>
+<tr>
+<td>Sensor Stream</td>
+<td>SSE</td>
+<td>READY</td>
+<td>NO (hook exists, not mounted)</td>
+</tr>
+<tr>
+<td>Push Notifications</td>
+<td>Service Worker</td>
+<td>PARTIAL</td>
+<td>Handler exists, no subscription</td>
+</tr>
+<tr>
+<td>Offline Support</td>
+<td>Service Worker</td>
+<td>PARTIAL</td>
+<td>Cache strategies done</td>
+</tr>
+<tr>
+<td>Background Sync</td>
+<td>Service Worker</td>
+<td>STUB</td>
+<td>Empty functions, no implementation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="websocket-details">WebSocket Details<a class="headerlink" href="#websocket-details" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>URL</strong>: <code>ws://localhost:8081/events</code> (ws-gateway)</li>
+<li><strong>Subscriptions</strong>: <code>tasks.*</code>, <code>diagnosis.*</code>, <code>weather.*</code>, <code>ndvi.*</code></li>
+<li><strong>Reconnect</strong>: Exponential backoff, max 5 attempts</li>
+<li><strong>Gap</strong>: No user notification when WS disconnects permanently</li>
+</ul>
+<h3 id="polling-intervals-react-query">Polling Intervals (React Query)<a class="headerlink" href="#polling-intervals-react-query" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Interval</th>
+<th>Stale Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sensor data</td>
+<td>30s</td>
+<td>30s</td>
+</tr>
+<tr>
+<td>Alert count</td>
+<td>30s</td>
+<td>30s</td>
+</tr>
+<tr>
+<td>Alerts list</td>
+<td>60s</td>
+<td>30s</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>5min</td>
+<td>5min</td>
+</tr>
+<tr>
+<td>Fields</td>
+<td>-</td>
+<td>2min</td>
+</tr>
+<tr>
+<td>NDVI</td>
+<td>60s</td>
+<td>60s</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-notifications-alerts">11. Notifications &amp; Alerts / الإشعارات والتنبيهات<a class="headerlink" href="#11-notifications-alerts" title="Permanent link">&para;</a></h2>
+<h3 id="alert-system">Alert System<a class="headerlink" href="#alert-system" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alert Dashboard UI</td>
+<td>COMPLETE</td>
+<td>Full CRUD, filtering, severity</td>
+</tr>
+<tr>
+<td>Alert Types</td>
+<td>DEFINED</td>
+<td>4 severities, 7 categories, 4 statuses</td>
+</tr>
+<tr>
+<td>Alert API</td>
+<td>IMPLEMENTED</td>
+<td>REST + SSE stream hook</td>
+</tr>
+<tr>
+<td>Toast System</td>
+<td>COMPLETE</td>
+<td>4 types, auto-dismiss, bilingual, accessible</td>
+</tr>
+<tr>
+<td>Header Bell Icon</td>
+<td>PRESENT</td>
+<td>No dropdown, no count, no click handler</td>
+</tr>
+<tr>
+<td>Notification Preferences</td>
+<td>PARTIAL</td>
+<td>Email/Push/SMS toggles in settings</td>
+</tr>
+<tr>
+<td>Push Notifications</td>
+<td>PARTIAL</td>
+<td>SW handler exists, NO subscription mechanism</td>
+</tr>
+<tr>
+<td>Sound Alerts</td>
+<td>MISSING</td>
+<td>No audio support</td>
+</tr>
+<tr>
+<td>Vibration</td>
+<td>PARTIAL</td>
+<td>Pattern defined in SW (100, 50, 100ms)</td>
+</tr>
+<tr>
+<td>Notification Center Dropdown</td>
+<td>MISSING</td>
+<td>Bell icon with no functionality</td>
+</tr>
+</tbody>
+</table>
+<h3 id="critical-gaps">Critical Gaps<a class="headerlink" href="#critical-gaps" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No <code>pushManager.subscribe()</code> - cannot receive push notifications</li>
+<li>No VAPID key handling</li>
+<li>Bell icon in header has no click handler or dropdown</li>
+<li>Alert count badge is a fixed red dot (no real count)</li>
+</ul>
+<hr />
+<h2 id="12-i18n-rtl-support">12. i18n &amp; RTL Support / الدعم متعدد اللغات<a class="headerlink" href="#12-i18n-rtl-support" title="Permanent link">&para;</a></h2>
+<h3 id="infrastructure-100-complete">Infrastructure: 100% Complete<a class="headerlink" href="#infrastructure-100-complete" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>next-intl plugin + middleware</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Locale cookie switching</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><code>&lt;html dir&gt;</code> dynamic switching</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Tailwind logical properties</td>
+<td>EXTENSIVE (~170 files)</td>
+</tr>
+<tr>
+<td>Translation file parity (AR=EN)</td>
+<td>PERFECT (308 keys each)</td>
+</tr>
+<tr>
+<td>Arabic font (Tajawal)</td>
+<td>LOADED</td>
+</tr>
+</tbody>
+</table>
+<h3 id="adoption-4-of-components">Adoption: ~4% of Components<a class="headerlink" href="#adoption-4-of-components" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Files</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>useTranslations()</code> (correct)</td>
+<td>9 of 223</td>
+<td><strong>~4%</strong></td>
+</tr>
+<tr>
+<td>Hardcoded bilingual strings (workaround)</td>
+<td>184</td>
+<td>~81%</td>
+</tr>
+<tr>
+<td>English-only (no i18n)</td>
+<td>~30</td>
+<td>~15%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="translation-namespaces">Translation Namespaces<a class="headerlink" href="#translation-namespaces" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Keys</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>common</td>
+<td>25</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>auth</td>
+<td>5</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>nav</td>
+<td>small</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>dashboard</td>
+<td>6</td>
+<td>Used (missing <code>areaUnit</code> key)</td>
+</tr>
+<tr>
+<td>fields</td>
+<td>16</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>alerts</td>
+<td>6</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>errors</td>
+<td>4</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>analytics</td>
+<td>41</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>pivotIrrigation</td>
+<td>large</td>
+<td>Used</td>
+</tr>
+<tr>
+<td>vision</td>
+<td>22</td>
+<td><strong>NOT consumed by any component</strong></td>
+</tr>
+<tr>
+<td>terrain</td>
+<td>44</td>
+<td><strong>NOT consumed by any component</strong></td>
+</tr>
+<tr>
+<td>edge</td>
+<td>60</td>
+<td><strong>NOT consumed by any component</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-issues">Key Issues<a class="headerlink" href="#key-issues" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Settings page hardcoded <code>dir="rtl"</code></strong> - forces RTL even in English mode</li>
+<li><strong>3 different Arabic locale codes</strong>: <code>ar-SA</code>, <code>ar-YE</code>, <code>ar-EG</code> used inconsistently</li>
+<li><strong>No unified date/number formatter</strong> - <code>next-intl</code>'s <code>useFormatter</code> exported but never used</li>
+<li><strong>Cairo font declared but not loaded</strong> - <code>font-cairo</code> class will fall back to sans-serif</li>
+<li><strong>Auth form validation messages English-only</strong> - <code>useFormValidation</code> hook has bilingual support but auth pages don't use it</li>
+</ul>
+<hr />
+<h2 id="13-error-handling-logging">13. Error Handling &amp; Logging / معالجة الأخطاء<a class="headerlink" href="#13-error-handling-logging" title="Permanent link">&para;</a></h2>
+<h3 id="error-boundary-coverage">Error Boundary Coverage<a class="headerlink" href="#error-boundary-coverage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Component</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Root</td>
+<td><code>app/layout.tsx</code> wraps all providers</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Auth segment</td>
+<td><code>app/(auth)/error.tsx</code></td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Dashboard segment</td>
+<td><code>app/(dashboard)/error.tsx</code></td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Dashboard layout</td>
+<td>Sidebar, Header, Main wrapped separately</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td>Dashboard widgets</td>
+<td>Individual widget fallbacks</td>
+<td>COMPLETE</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sentry-integration">Sentry Integration<a class="headerlink" href="#sentry-integration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Config</th>
+<th>Status</th>
+<th>Sample Rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client (browser)</td>
+<td>Configured</td>
+<td>Traces: 10%, Replay: 10% on error</td>
+</tr>
+<tr>
+<td>Server (Node.js)</td>
+<td>Configured</td>
+<td>Traces: 10%</td>
+</tr>
+<tr>
+<td>Edge (middleware)</td>
+<td>Configured</td>
+<td>Traces: 5%</td>
+</tr>
+<tr>
+<td><strong><code>withSentryConfig()</code> in next.config.js</strong></td>
+<td><strong>NOT APPLIED</strong></td>
+<td>Source maps NOT uploaded</td>
+</tr>
+<tr>
+<td><strong><code>/api/log-error</code> Sentry call</strong></td>
+<td><strong>COMMENTED OUT</strong></td>
+<td>Server errors not forwarded</td>
+</tr>
+</tbody>
+</table>
+<h3 id="error-handling-gaps">Error Handling Gaps<a class="headerlink" href="#error-handling-gaps" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>withSentryConfig()</code> not applied in next.config.js</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>Sentry capture commented out in <code>/api/log-error</code></td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td><code>initializeErrorTracking()</code> never called (dead code)</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td><code>OfflineIndicator</code> component built but never mounted</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>WS client stops after 5 failures with no user notification</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No global API-error-to-toast bridge</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>Bilingual <code>errorAr</code> lost through React Query queryFn</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>Auth error.tsx shows raw error.message in production</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14-shared-packages-integration">14. Shared Packages Integration / تكامل الحزم المشتركة<a class="headerlink" href="#14-shared-packages-integration" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Version</th>
+<th>Imported</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@sahool/api-client</code></td>
+<td>16.0.0</td>
+<td>YES</td>
+<td>Types + client methods used</td>
+</tr>
+<tr>
+<td><code>@sahool/i18n</code></td>
+<td>16.0.0</td>
+<td>YES</td>
+<td>Full AR/EN + RTL config</td>
+</tr>
+<tr>
+<td><code>@sahool/shared-hooks</code></td>
+<td>16.0.0</td>
+<td><strong>NO</strong></td>
+<td>13 hooks available, never imported</td>
+</tr>
+<tr>
+<td><code>@sahool/shared-ui</code></td>
+<td>16.0.0</td>
+<td><strong>NO</strong></td>
+<td>21 components available, never imported</td>
+</tr>
+<tr>
+<td><code>@sahool/shared-utils</code></td>
+<td>16.0.0</td>
+<td><strong>NO</strong></td>
+<td>45+ utilities available, not used</td>
+</tr>
+</tbody>
+</table>
+<h3 id="issue-unused-dependencies">Issue: Unused Dependencies<a class="headerlink" href="#issue-unused-dependencies" title="Permanent link">&para;</a></h3>
+<p>3 of 5 @sahool/<em> packages are declared in <code>package.json</code> but </em><em>never imported</em>*:
+- <code>@sahool/shared-hooks</code> has <code>useAuth</code>, <code>useWebSocket</code>, <code>useApi</code>, etc. - the web app duplicates these internally
+- <code>@sahool/shared-ui</code> has <code>Card</code>, <code>Modal</code>, <code>StatusBadge</code>, etc. - the web app has its own versions
+- <code>@sahool/shared-utils</code> has <code>formatDate</code>, <code>cn()</code>, etc. - functionality duplicated</p>
+<p><strong>Impact</strong>: Bundle bloat, code duplication, divergent implementations between web and admin apps.</p>
+<hr />
+<h2 id="15-ai-advisory-features">15. AI &amp; Advisory Features / ميزات الذكاء الاصطناعي<a class="headerlink" href="#15-ai-advisory-features" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>UI</th>
+<th>API</th>
+<th>Backend</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Copilot Chat</strong></td>
+<td>FULL</td>
+<td>YES</td>
+<td>copilot-api</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><strong>Disease Diagnosis</strong></td>
+<td>FULL</td>
+<td>YES</td>
+<td>crop-intelligence</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><strong>NDVI Analysis</strong></td>
+<td>FULL</td>
+<td>YES</td>
+<td>vegetation-analysis</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><strong>Pest Scouting</strong></td>
+<td>FULL</td>
+<td>YES</td>
+<td>pest-scouting</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><strong>Alert Management</strong></td>
+<td>FULL</td>
+<td>YES</td>
+<td>alert-service</td>
+<td>COMPLETE</td>
+</tr>
+<tr>
+<td><strong>Field Intelligence</strong></td>
+<td>API Ready</td>
+<td>YES</td>
+<td>field-intelligence</td>
+<td>PARTIAL</td>
+</tr>
+<tr>
+<td><strong>Irrigation Scheduling</strong></td>
+<td>PARTIAL</td>
+<td>YES</td>
+<td>irrigation-smart</td>
+<td>PARTIAL</td>
+</tr>
+<tr>
+<td><strong>Yield Tracking</strong></td>
+<td>PARTIAL</td>
+<td>PARTIAL</td>
+<td>yield-engine</td>
+<td>PARTIAL</td>
+</tr>
+<tr>
+<td><strong>Fertilizer Recs</strong></td>
+<td>NONE</td>
+<td>YES</td>
+<td>advisory-service</td>
+<td>API ONLY</td>
+</tr>
+<tr>
+<td><strong>YOLO Vision</strong></td>
+<td>NONE</td>
+<td>YES</td>
+<td>yolo26-vision</td>
+<td>NOT WIRED</td>
+</tr>
+<tr>
+<td><strong>Terrain Analysis</strong></td>
+<td>NONE</td>
+<td>YES</td>
+<td>terrain-core</td>
+<td>NOT WIRED</td>
+</tr>
+<tr>
+<td><strong>Astronomical Calendar</strong></td>
+<td>NONE</td>
+<td>YES</td>
+<td>astronomical-calendar</td>
+<td>NOT WIRED (path mismatch)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai-context-engineering-hooks-client-side">AI Context Engineering Hooks (Client-side)<a class="headerlink" href="#ai-context-engineering-hooks-client-side" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>useContextCompression</code> - 3-level token compression</li>
+<li><code>useFarmMemory</code> - Farm memory CRUD + search</li>
+<li><code>useRecommendationEvaluation</code> - Quality evaluation (stub)</li>
+</ul>
+<hr />
+<h2 id="16-settings-administration">16. Settings &amp; Administration / الإعدادات والإدارة<a class="headerlink" href="#16-settings-administration" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Status</th>
+<th>Completeness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Profile Management</strong></td>
+<td>COMPLETE</td>
+<td>95%</td>
+</tr>
+<tr>
+<td><strong>Password Change</strong></td>
+<td>COMPLETE</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>Notification Prefs</strong></td>
+<td>COMPLETE</td>
+<td>95%</td>
+</tr>
+<tr>
+<td><strong>Team Management</strong></td>
+<td>COMPLETE</td>
+<td>90%</td>
+</tr>
+<tr>
+<td><strong>Permissions Matrix</strong></td>
+<td>COMPLETE</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>Member Invitations</strong></td>
+<td>COMPLETE</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>Wallet/Billing</strong></td>
+<td>API READY</td>
+<td>80%</td>
+</tr>
+<tr>
+<td><strong>Subscription Display</strong></td>
+<td>COMPLETE</td>
+<td>85%</td>
+</tr>
+<tr>
+<td><strong>Security/2FA</strong></td>
+<td>PARTIAL</td>
+<td>60%</td>
+</tr>
+<tr>
+<td><strong>Privacy Settings</strong></td>
+<td>STUB</td>
+<td>20%</td>
+</tr>
+<tr>
+<td><strong>Display Settings</strong></td>
+<td>STUB</td>
+<td>20%</td>
+</tr>
+<tr>
+<td><strong>Integration Settings</strong></td>
+<td>STUB</td>
+<td>20%</td>
+</tr>
+<tr>
+<td><strong>Organization/Tenant</strong></td>
+<td>NONE</td>
+<td>0%</td>
+</tr>
+<tr>
+<td><strong>API Key Management</strong></td>
+<td>NONE</td>
+<td>0%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="17-testing-infrastructure">17. Testing Infrastructure / بنية الاختبارات<a class="headerlink" href="#17-testing-infrastructure" title="Permanent link">&para;</a></h2>
+<h3 id="unit-tests-vitest">Unit Tests (Vitest)<a class="headerlink" href="#unit-tests-vitest" title="Permanent link">&para;</a></h3>
+<ul>
+<li>19 test files across the codebase</li>
+<li>ErrorBoundary, API, security, validation tests</li>
+<li>Coverage: No minimum enforced</li>
+</ul>
+<h3 id="e2e-tests-playwright">E2E Tests (Playwright)<a class="headerlink" href="#e2e-tests-playwright" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>28 spec files</strong> covering:
+  auth, accessibility, dashboard, fields, analytics, community, equipment, farms, forms, iot, irrigation, marketplace, navigation, notifications, reports, responsive, scouting, settings, tasks, team, vra, wallet, weather</li>
+</ul>
+<h3 id="browser-coverage">Browser Coverage<a class="headerlink" href="#browser-coverage" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Chromium, Firefox, WebKit</li>
+<li>Mobile Chrome, Mobile Safari</li>
+</ul>
+<h3 id="testing-gaps">Testing Gaps<a class="headerlink" href="#testing-gaps" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No unit tests for map components</td>
+<td>HIGH</td>
+</tr>
+<tr>
+<td>No visual regression tests</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No load/stress tests for frontend</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No accessibility-specific test suite</td>
+<td>MEDIUM</td>
+</tr>
+<tr>
+<td>No test for WebSocket reconnection</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>No test for SSE stream handling</td>
+<td>LOW</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="18-docker-deployment-docker">18. Docker &amp; Deployment / Docker والنشر<a class="headerlink" href="#18-docker-deployment-docker" title="Permanent link">&para;</a></h2>
+<h3 id="status-not-configured">Status: NOT CONFIGURED<a class="headerlink" href="#status-not-configured" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Status</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dockerfile</strong></td>
+<td>MISSING</td>
+<td>No Dockerfile exists for <code>apps/web/</code></td>
+</tr>
+<tr>
+<td><strong>docker-compose</strong></td>
+<td>MISSING</td>
+<td>Web app not in any compose stack</td>
+</tr>
+<tr>
+<td><strong>Kubernetes/Helm</strong></td>
+<td>MISSING</td>
+<td>No Deployment, Service, Ingress, HPA</td>
+</tr>
+<tr>
+<td><strong>Health endpoints</strong></td>
+<td>MISSING</td>
+<td>No <code>/healthz</code> or <code>/readyz</code> API routes</td>
+</tr>
+<tr>
+<td><strong>CI pipeline</strong></td>
+<td>CONFIGURED</td>
+<td><code>frontend-ci.yml</code> + <code>frontend-tests.yml</code> working</td>
+</tr>
+<tr>
+<td><strong>CD pipeline</strong></td>
+<td>DISABLED</td>
+<td>Vercel workflow scaffolded but disabled (no secrets)</td>
+</tr>
+<tr>
+<td><strong>Static assets</strong></td>
+<td>PARTIAL</td>
+<td>Next.js built-in only, no CDN/nginx</td>
+</tr>
+<tr>
+<td><strong>Standalone mode</strong></td>
+<td>READY</td>
+<td><code>DOCKER_BUILD=true</code> in next.config.js activates standalone output</td>
+</tr>
+</tbody>
+</table>
+<h3 id="whats-prepared-but-not-used">What's Prepared But Not Used<a class="headerlink" href="#whats-prepared-but-not-used" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>next.config.js</code> has <code>output: "standalone"</code> gated behind <code>DOCKER_BUILD=true</code></li>
+<li>Docker security patterns exist in Helm templates (non-root user, read-only FS, seccomp)</li>
+<li>Container image build workflows exist but don't include web app</li>
+</ul>
+<h3 id="whats-needed-for-production-deployment">What's Needed for Production Deployment<a class="headerlink" href="#whats-needed-for-production-deployment" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Create <code>apps/web/Dockerfile</code> (multi-stage: deps → build → runner)</li>
+<li>Add web service to <code>docker-compose.yml</code></li>
+<li>Add web deployment to Helm chart</li>
+<li>Create <code>/healthz</code> and <code>/readyz</code> API routes</li>
+<li>Configure Vercel secrets OR create nginx/CDN config</li>
+<li>Set <code>DOCKER_BUILD=true</code> in CI build step</li>
+</ol>
+<hr />
+<h2 id="19-infrastructure-connections">19. Infrastructure Connections / اتصالات البنية التحتية<a class="headerlink" href="#19-infrastructure-connections" title="Permanent link">&para;</a></h2>
+<h3 id="how-the-web-app-connects-to-backend-infrastructure">How the Web App Connects to Backend Infrastructure<a class="headerlink" href="#how-the-web-app-connects-to-backend-infrastructure" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Infrastructure</th>
+<th>Direct Connection</th>
+<th>Via Proxy</th>
+<th>Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Kong Gateway</strong></td>
+<td>YES</td>
+<td>-</td>
+<td><code>NEXT_PUBLIC_API_URL=http://localhost:8000</code>, all <code>/api/v1/*</code> calls</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td>NO</td>
+<td>Via services</td>
+<td>No direct DB access from web app</td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td>YES (server-side)</td>
+<td>-</td>
+<td><code>ioredis</code> in <code>/lib/rate-limiter.ts</code>, for rate limiting API routes only</td>
+</tr>
+<tr>
+<td><strong>NATS</strong></td>
+<td>NO</td>
+<td>Via ws-gateway</td>
+<td>Events reach browser through WebSocket, not direct NATS</td>
+</tr>
+<tr>
+<td><strong>ws-gateway</strong></td>
+<td>YES</td>
+<td>-</td>
+<td><code>NEXT_PUBLIC_WS_URL=ws://localhost:8081</code>, WebSocket for real-time events</td>
+</tr>
+<tr>
+<td><strong>Copilot API</strong></td>
+<td>YES</td>
+<td>-</td>
+<td>Direct SSE connection to port 8088 (bypasses Kong)</td>
+</tr>
+<tr>
+<td><strong>FastAPI Services</strong></td>
+<td>NO</td>
+<td>Via Kong</td>
+<td>All 50+ Python FastAPI services accessed through Kong routes</td>
+</tr>
+<tr>
+<td><strong>NestJS Services</strong></td>
+<td>NO</td>
+<td>Via Kong</td>
+<td>All Node.js services accessed through Kong routes</td>
+</tr>
+<tr>
+<td><strong>MinIO</strong></td>
+<td>NO</td>
+<td>Via services</td>
+<td>File uploads go through backend services</td>
+</tr>
+<tr>
+<td><strong>Elasticsearch</strong></td>
+<td>NO</td>
+<td>-</td>
+<td>No search integration in web app</td>
+</tr>
+<tr>
+<td><strong>Vault</strong></td>
+<td>NO</td>
+<td>-</td>
+<td>Secrets injected via env vars, no direct Vault access</td>
+</tr>
+</tbody>
+</table>
+<h3 id="redis-connection-details">Redis Connection Details<a class="headerlink" href="#redis-connection-details" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">// Server-side only (Next.js API routes)</span>
+<span class="k">import</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">Redis</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="kr">from</span><span class="w"> </span><span class="s2">&quot;ioredis&quot;</span><span class="p">;</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">redisClient</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Redis</span><span class="p">(</span><span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">REDIS_URL</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">maxRetriesPerRequest</span><span class="o">:</span><span class="w"> </span><span class="kt">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">retryStrategy</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">times</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nb">Math</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">times</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">50</span><span class="p">,</span><span class="w"> </span><span class="mf">2000</span><span class="p">)</span>
+<span class="p">});</span>
+<span class="c1">// Used for: rate limiting /api/auth/session, /api/csp-report, /api/log-error</span>
+<span class="c1">// Fallback: in-memory store when Redis unavailable</span>
+</code></pre></div>
+
+<h3 id="nats-indirect-via-ws-gateway">NATS (Indirect via ws-gateway)<a class="headerlink" href="#nats-indirect-via-ws-gateway" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Browser WebSocket → ws-gateway:8081 → NATS:4222
+                                    ↓
+                    Subscriptions: tasks.*, diagnosis.*, weather.*, ndvi.*
+</code></pre></div>
+
+<p>The web app never directly connects to NATS. The <code>ws-gateway</code> service:
+- Connects to NATS internally
+- Translates NATS subjects to WebSocket messages
+- Browser subscribes via JSON: <code>{ type: "subscribe", subjects: ["tasks.*"] }</code></p>
+<h3 id="cors-configuration">CORS Configuration<a class="headerlink" href="#cors-configuration" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Setting</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kong (global)</td>
+<td><code>origins: ["*"]</code></td>
+<td>Development wildcard (needs restriction in prod)</td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td><code>http://localhost:3000,http://localhost:8080</code></td>
+<td>Restricted</td>
+</tr>
+<tr>
+<td>Backend services</td>
+<td><code>https://sahool.com,https://app.sahool.com</code></td>
+<td>Production-ready</td>
+</tr>
+<tr>
+<td>CSP connect-src</td>
+<td><code>localhost:8000, ws://localhost:8081</code></td>
+<td>Development</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="20-critical-gaps-weaknesses">20. Critical Gaps &amp; Weaknesses / الفجوات ونقاط الضعف<a class="headerlink" href="#20-critical-gaps-weaknesses" title="Permanent link">&para;</a></h2>
+<h3 id="priority-1-critical-must-fix-before-production">Priority 1 - CRITICAL (Must Fix Before Production)<a class="headerlink" href="#priority-1-critical-must-fix-before-production" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Impact</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>4 missing auth API proxy routes</strong></td>
+<td>Password reset, OTP verification completely broken</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>11 port/route mismatches with Kong</strong></td>
+<td>6+ API features return 404 errors</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Cookie name mismatch</strong> (sahool_token vs access_token)</td>
+<td>Server-side route guards broken</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Refresh token httpOnly but read client-side</strong></td>
+<td>Token refresh always fails</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>No Dockerfile / K8s deployment</strong></td>
+<td>Cannot deploy to production</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Sentry <code>withSentryConfig()</code> not applied</strong></td>
+<td>No automatic error capture, no source maps</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong><code>weather-core</code> and <code>agro-advisor</code> routes archived</strong></td>
+<td>Weather + advisor API calls 404</td>
+<td>1-2 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-2-high-should-fix">Priority 2 - HIGH (Should Fix)<a class="headerlink" href="#priority-2-high-should-fix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Impact</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td><strong>No field boundary drawing tools</strong></td>
+<td>Users cannot create fields via UI</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>9</td>
+<td><strong>~50% features use mock data</strong></td>
+<td>Not production-ready</td>
+<td>2-4 weeks</td>
+</tr>
+<tr>
+<td>10</td>
+<td><strong>No data table library</strong></td>
+<td>Cannot sort/filter/paginate data</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>11</td>
+<td><strong>No PDF/Excel/CSV export</strong></td>
+<td>Reports cannot be exported</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>12</td>
+<td><strong>3 unused @sahool packages</strong></td>
+<td>Bundle bloat, code duplication</td>
+<td>1-2 days</td>
+</tr>
+<tr>
+<td>13</td>
+<td><strong>2 separate API clients</strong></td>
+<td>Maintenance burden, inconsistent behavior</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>14</td>
+<td><strong>No 2FA in login flow</strong></td>
+<td>Security feature incomplete</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>15</td>
+<td><strong>Push notification subscription missing</strong></td>
+<td>Cannot receive push notifications</td>
+<td>2-3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-3-medium-important">Priority 3 - MEDIUM (Important)<a class="headerlink" href="#priority-3-medium-important" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Impact</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16</td>
+<td><strong>SSE streams not activated</strong></td>
+<td>Using polling instead of real-time</td>
+<td>1-2 days</td>
+</tr>
+<tr>
+<td>17</td>
+<td><strong>Settings tabs stubbed</strong> (Privacy, Display, Integrations)</td>
+<td>Incomplete settings</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>18</td>
+<td><strong>No Organization/Tenant management</strong></td>
+<td>Multi-tenancy UI missing</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>19</td>
+<td><strong>YOLO vision not integrated</strong></td>
+<td>AI pest detection not in UI</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>20</td>
+<td><strong>Terrain services not integrated</strong></td>
+<td>DEM/hydrology not in UI</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>21</td>
+<td><strong>Background sync stub</strong></td>
+<td>Offline changes lost</td>
+<td>3-5 days</td>
+</tr>
+<tr>
+<td>22</td>
+<td><strong>i18n adoption at ~4%</strong></td>
+<td>Not truly switchable bilingual</td>
+<td>2-3 weeks</td>
+</tr>
+<tr>
+<td>23</td>
+<td><strong><code>initializeErrorTracking()</code> never called</strong></td>
+<td>Global error tracking dead code</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>24</td>
+<td><strong><code>OfflineIndicator</code> not mounted</strong></td>
+<td>Users don't know when offline</td>
+<td>1 hour</td>
+</tr>
+<tr>
+<td>25</td>
+<td><strong>Missing UI components</strong> (Textarea, Checkbox, Radio, DatePicker)</td>
+<td>Form limitations</td>
+<td>1 week</td>
+</tr>
+<tr>
+<td>26</td>
+<td><strong>Notification bell non-functional</strong></td>
+<td>No dropdown, no count</td>
+<td>2-3 days</td>
+</tr>
+</tbody>
+</table>
+<h3 id="priority-4-low-nice-to-have">Priority 4 - LOW (Nice to Have)<a class="headerlink" href="#priority-4-low-nice-to-have" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Gap</th>
+<th>Impact</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>27</td>
+<td>No NDVI time-series chart</td>
+<td>Missing trend visualization</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td>28</td>
+<td>No weather trend charts</td>
+<td>Missing climate analysis</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>29</td>
+<td>No dashboard customization</td>
+<td>Fixed layout</td>
+<td>3 days</td>
+</tr>
+<tr>
+<td>30</td>
+<td>No map export (PNG/PDF)</td>
+<td>Cannot share maps</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>31</td>
+<td>No measurement tools</td>
+<td>Cannot measure distances</td>
+<td>2 days</td>
+</tr>
+<tr>
+<td>32</td>
+<td>Dark mode not activated</td>
+<td>Theme switch not available</td>
+<td>1-2 days</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="21-service-completeness-matrix">21. Service Completeness Matrix / مصفوفة اكتمال الخدمات<a class="headerlink" href="#21-service-completeness-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="fully-active-services-ui-api-backend">Fully Active Services (UI + API + Backend)<a class="headerlink" href="#fully-active-services-ui-api-backend" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Web UI</th>
+<th>API Client</th>
+<th>Backend</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication</td>
+<td>Login + Register + JWT</td>
+<td>Full</td>
+<td>user-service:3025</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>Copilot AI Chat</td>
+<td>Full SSE streaming</td>
+<td>Full</td>
+<td>copilot-api:8088</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Field Management</td>
+<td>CRUD + Map + Dashboard</td>
+<td>Full</td>
+<td>field-management:3000</td>
+<td>95%</td>
+</tr>
+<tr>
+<td>Disease Diagnosis</td>
+<td>Image upload + results</td>
+<td>Full</td>
+<td>crop-intelligence:8095</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>NDVI Visualization</td>
+<td>Map overlay + hooks</td>
+<td>Full</td>
+<td>vegetation-analysis:8090</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>Alert Management</td>
+<td>Dashboard + filtering</td>
+<td>Full</td>
+<td>alert-service:8113</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>Pest Scouting</td>
+<td>Form + history</td>
+<td>Full</td>
+<td>backend</td>
+<td>85%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="partially-active-services-ui-exists-api-partialmock">Partially Active Services (UI exists, API partial/mock)<a class="headerlink" href="#partially-active-services-ui-exists-api-partialmock" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Web UI</th>
+<th>API Client</th>
+<th>Backend</th>
+<th>Score</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Weather</td>
+<td>Display widgets</td>
+<td>Full</td>
+<td>weather-service:8092</td>
+<td>70%</td>
+</tr>
+<tr>
+<td>Tasks</td>
+<td>Management UI</td>
+<td>Full</td>
+<td>task-service:8103</td>
+<td>70%</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>Schedule display</td>
+<td>Full</td>
+<td>irrigation-smart:8094</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>IoT Sensors</td>
+<td>Monitoring UI</td>
+<td>Full</td>
+<td>iot-service:8117</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Analytics</td>
+<td>Charts + KPIs</td>
+<td>Full</td>
+<td>indicators:8091</td>
+<td>75%</td>
+</tr>
+<tr>
+<td>Reports</td>
+<td>Generator + templates</td>
+<td>Partial</td>
+<td>backend</td>
+<td>60%</td>
+</tr>
+<tr>
+<td>Equipment</td>
+<td>Tracking UI</td>
+<td>Partial</td>
+<td>equipment-service:8101</td>
+<td>50%</td>
+</tr>
+<tr>
+<td>Team Management</td>
+<td>Members + roles</td>
+<td>Full</td>
+<td>user-service:3025</td>
+<td>90%</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>Profile + notifications</td>
+<td>Full</td>
+<td>user-service:3025</td>
+<td>70%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="not-connected-backend-exists-no-ui">Not Connected (Backend exists, no UI)<a class="headerlink" href="#not-connected-backend-exists-no-ui" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yolo26-vision-service</td>
+<td>8150</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>terrain-core-service</td>
+<td>8185</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td>8165</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td>8170</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>astronomical-calendar</td>
+<td>8111</td>
+<td>API exists, path mismatch</td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td>8180</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td>8126</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>cooperative-service</td>
+<td>8127</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td>8123</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>globalgap-compliance</td>
+<td>8128</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>logistics-service</td>
+<td>8167</td>
+<td>API exists, no web UI</td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td>8230</td>
+<td>API exists, no web UI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="22-recommendations">22. Recommendations / التوصيات<a class="headerlink" href="#22-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="phase-0-critical-fixes-1-2-days">Phase 0: Critical Fixes (1-2 days)<a class="headerlink" href="#phase-0-critical-fixes-1-2-days" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Create 4 missing auth API proxy routes</strong>:
+   <code>apps/web/src/app/api/auth/forgot-password/route.ts
+   apps/web/src/app/api/auth/send-otp/route.ts
+   apps/web/src/app/api/auth/verify-otp/route.ts
+   apps/web/src/app/api/auth/reset-password/route.ts</code></p>
+</li>
+<li>
+<p><strong>Fix cookie name mismatch</strong>: Change <code>route-guard.tsx</code> to read <code>"access_token"</code> instead of <code>"sahool_token"</code></p>
+</li>
+<li>
+<p><strong>Fix refresh token</strong>: Either make refresh_token non-httpOnly OR create a server-side <code>/api/auth/refresh</code> route</p>
+</li>
+<li>
+<p><strong>Fix Kong route mismatches</strong>: Update API client paths:</p>
+</li>
+<li><code>weather-core</code> → <code>weather</code></li>
+<li><code>agro-advisor</code> → <code>advisory</code></li>
+<li><code>disasters</code> → <code>disaster</code></li>
+<li><code>astronomical</code> → <code>astronomy</code></li>
+<li>
+<p><code>providers</code> → <code>provider-config</code></p>
+</li>
+<li>
+<p><strong>Apply <code>withSentryConfig()</code></strong> in next.config.js</p>
+</li>
+<li>
+<p><strong>Call <code>initializeErrorTracking()</code></strong> in root layout</p>
+</li>
+<li>
+<p><strong>Mount <code>OfflineIndicator</code></strong> in dashboard layout</p>
+</li>
+</ol>
+<h3 id="phase-1-production-readiness-2-3-weeks">Phase 1: Production Readiness (2-3 weeks)<a class="headerlink" href="#phase-1-production-readiness-2-3-weeks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Create Dockerfile</strong> for web app (multi-stage, standalone mode)</li>
+<li><strong>Add <code>/healthz</code> and <code>/readyz</code></strong> API routes</li>
+<li><strong>Consolidate API clients</strong> to single implementation</li>
+<li><strong>Install critical libraries</strong>:
+    <code>bash
+    npm install @tanstack/react-table jspdf html2canvas xlsx leaflet-draw</code></li>
+<li><strong>Connect mock features to real APIs</strong> (weather, tasks, equipment, IoT, irrigation)</li>
+<li><strong>Activate SSE streams</strong> - mount <code>useAlertStream()</code> and <code>useSensorStream()</code></li>
+<li><strong>Implement field drawing tools</strong> with leaflet-draw</li>
+<li><strong>Remove unused packages</strong> or start importing them</li>
+</ol>
+<h3 id="phase-2-feature-completion-3-4-weeks">Phase 2: Feature Completion (3-4 weeks)<a class="headerlink" href="#phase-2-feature-completion-3-4-weeks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Complete 2FA</strong> - add login challenge handling and TOTP setup UI</li>
+<li><strong>Build notification center dropdown</strong> with real-time count</li>
+<li><strong>Implement push notification subscription</strong> (VAPID, pushManager)</li>
+<li><strong>Complete settings tabs</strong> (Privacy, Display, Integrations)</li>
+<li><strong>Add PDF/Excel/CSV export</strong> - complete report pipeline</li>
+<li><strong>Integrate YOLO vision</strong> - pest/disease image detection UI</li>
+<li><strong>Integrate terrain services</strong> - DEM visualization</li>
+<li><strong>Build Organization management</strong> - multi-tenant admin</li>
+</ol>
+<h3 id="phase-3-enhancement-4-6-weeks">Phase 3: Enhancement (4-6 weeks)<a class="headerlink" href="#phase-3-enhancement-4-6-weeks" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Migrate i18n</strong> from hardcoded bilingual to <code>useTranslations()</code> across all components</li>
+<li><strong>Unify date/number formatting</strong> using <code>next-intl</code>'s <code>useFormatter</code></li>
+<li><strong>Add missing UI components</strong> (Textarea, Checkbox, Radio, DatePicker, Table)</li>
+<li><strong>Build weather trend charts</strong> and NDVI time-series</li>
+<li><strong>Dashboard customization</strong> - widget reordering</li>
+<li><strong>Advanced analytics</strong> - drill-down, comparative analysis</li>
+<li><strong>Map enhancements</strong> - measurement tools, export, 3D terrain</li>
+<li><strong>Activate dark mode</strong> - theme switcher component</li>
+</ol>
+<h3 id="architecture-improvements">Architecture Improvements<a class="headerlink" href="#architecture-improvements" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Adopt <code>@sahool/shared-ui</code></strong> for cross-platform consistency with admin</li>
+<li><strong>Consolidate API clients</strong> - single client with circuit breaker + bilingual errors</li>
+<li><strong>Fix CORS</strong> - replace Kong <code>*</code> origin with specific domains</li>
+<li><strong>Add structured logging</strong> beyond Sentry for operational visibility</li>
+<li><strong>Implement request signing</strong> for critical operations</li>
+<li><strong>Add Kubernetes deployment</strong> to Helm chart</li>
+</ol>
+<hr />
+<h2 id="23-strengths">23. Strengths / نقاط القوة<a class="headerlink" href="#23-strengths" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Enterprise-Grade Security</strong>: JWT, CSRF (timing-safe), CSP nonce, httpOnly cookies, comprehensive headers</li>
+<li><strong>Bilingual Foundation</strong>: Full Arabic/English infrastructure with RTL support</li>
+<li><strong>Type Safety</strong>: Strict TypeScript, 70+ shared types, proper interfaces</li>
+<li><strong>Modern Architecture</strong>: Next.js 15 App Router, React 19, React Query 5</li>
+<li><strong>Comprehensive Feature Structure</strong>: 30 domain modules covering all agricultural needs</li>
+<li><strong>Production-Grade Maps</strong>: Dual library (MapLibre + Leaflet), NDVI overlays, health zones</li>
+<li><strong>AI Integration</strong>: Working SSE copilot, disease diagnosis, field intelligence</li>
+<li><strong>Offline-First Design</strong>: PWA with Service Worker, cache strategies, offline indicator</li>
+<li><strong>Test Infrastructure</strong>: 28 E2E specs + unit tests + Playwright multi-browser</li>
+<li><strong>Clean Code</strong>: Modular feature structure, consistent patterns, proper separation</li>
+<li><strong>Accessibility</strong>: WCAG 2.1 AA compliance with ARIA, keyboard nav, focus management</li>
+<li><strong>Error Handling</strong>: Multi-level error boundaries with granular fallbacks</li>
+<li><strong>Agricultural Design System</strong>: Domain-specific colors (cropHealth, ndvi, moisture, soil, weather)</li>
+<li><strong>Circuit Breaker Pattern</strong>: Resilient API client with automatic failure detection</li>
+<li><strong>Form Validation</strong>: Comprehensive bilingual validation hook with Yemen-specific patterns</li>
+</ol>
+<hr />
+<h2 id="appendix-a-file-statistics">Appendix A: File Statistics<a class="headerlink" href="#appendix-a-file-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Files</th>
+<th>Lines (approx)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pages (app/)</td>
+<td>40+</td>
+<td>~8,000</td>
+</tr>
+<tr>
+<td>Components</td>
+<td>36+</td>
+<td>~20,000</td>
+</tr>
+<tr>
+<td>Feature modules</td>
+<td>30 modules, 120+ files</td>
+<td>~35,000</td>
+</tr>
+<tr>
+<td>API/Services</td>
+<td>30+ files</td>
+<td>~12,000</td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td>50+ files</td>
+<td>~8,000</td>
+</tr>
+<tr>
+<td>Types</td>
+<td>15+ files</td>
+<td>~4,000</td>
+</tr>
+<tr>
+<td>Tests</td>
+<td>47+ files</td>
+<td>~5,000</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>10+ files</td>
+<td>~1,500</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~400 files</strong></td>
+<td><strong>~93,769</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-b-environment-variables">Appendix B: Environment Variables<a class="headerlink" href="#appendix-b-environment-variables" title="Permanent link">&para;</a></h2>
+<h3 id="required-browser-exposed">Required (Browser-Exposed)<a class="headerlink" href="#required-browser-exposed" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_API_URL</code></td>
+<td><code>http://localhost:8000</code></td>
+<td>Kong gateway</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_WS_URL</code></td>
+<td><code>ws://localhost:8081</code></td>
+<td>WebSocket gateway</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_APP_NAME</code></td>
+<td><code>SAHOOL</code></td>
+<td>App name</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_APP_VERSION</code></td>
+<td><code>16.0.0</code></td>
+<td>Version</td>
+</tr>
+</tbody>
+</table>
+<h3 id="missing-from-envexample-referenced-in-code">Missing from .env.example (Referenced in Code)<a class="headerlink" href="#missing-from-envexample-referenced-in-code" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Where Used</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEXT_PUBLIC_COPILOT_API_URL</code></td>
+<td><code>http://localhost:8088</code></td>
+<td>Copilot page</td>
+</tr>
+<tr>
+<td><code>NEXT_PUBLIC_SENTRY_DSN</code></td>
+<td>(optional)</td>
+<td>Sentry monitoring</td>
+</tr>
+</tbody>
+</table>
+<h3 id="server-side-only">Server-Side Only<a class="headerlink" href="#server-side-only" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JWT_SECRET_KEY</code></td>
+<td>Token verification</td>
+</tr>
+<tr>
+<td><code>JWT_ISSUER</code> / <code>JWT_AUDIENCE</code></td>
+<td>JWT claim validation</td>
+</tr>
+<tr>
+<td><code>REDIS_URL</code></td>
+<td>Rate limiting (optional, in-memory fallback)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-c-kong-route-reference">Appendix C: Kong Route Reference<a class="headerlink" href="#appendix-c-kong-route-reference" title="Permanent link">&para;</a></h2>
+<p>See <a href="#5-port-mapping--route-mismatches">Section 5</a> for complete route mapping table with all 11 identified mismatches.</p>
+<hr />
+<p><em>Generated by comprehensive multi-agent parallel audit (28 agents) - February 17, 2026</em>
+<em>Audit covers: Architecture, Auth, API, Ports, Security, UI, Maps, Charts, Real-time, Notifications, i18n, Errors, Packages, AI, Settings, Tests, Docker, Infrastructure</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/di/providers.dart';
 import '../../../../core/config/env_config.dart';
+import '../../../../core/widgets/error_boundary.dart';
+import '../../../../core/widgets/empty_states.dart';
+import '../../../../core/widgets/shimmer_skeletons.dart';
 import '../../../field/domain/mappers/field_mapper.dart';
 import '../../../field/presentation/providers/field_controller.dart';
 import '../../domain/entities/field_entity.dart';
@@ -168,46 +171,62 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            // Error banner
-            if (controllerState.error != null)
-              MaterialBanner(
-                content: Text(controllerState.error!),
-                backgroundColor: Colors.red.shade100,
-                actions: [
-                  TextButton(
-                    onPressed: () => ref.read(fieldControllerProvider(_tenantId).notifier).clearError(),
-                    child: const Text('إغلاق'),
-                  ),
-                ],
+        body: SahoolErrorBoundary(
+          onError: (error, stackTrace) {
+            debugPrint('FieldsListScreen error: $error');
+          },
+          child: Column(
+            children: [
+              // Error banner with dismissible action
+              if (controllerState.error != null)
+                MaterialBanner(
+                  content: Text(controllerState.error!),
+                  backgroundColor: Colors.red.shade100,
+                  leading: const Icon(Icons.error_outline, color: Colors.red),
+                  actions: [
+                    TextButton(
+                      onPressed: () => ref.read(fieldControllerProvider(_tenantId).notifier).clearError(),
+                      child: const Text('إغلاق'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        ref.read(fieldControllerProvider(_tenantId).notifier).clearError();
+                        ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
+                      },
+                      child: const Text('إعادة المحاولة'),
+                    ),
+                  ],
+                ),
+
+              // Search and filters
+              _buildSearchAndFilters(),
+
+              // Stats bar (show skeleton during initial load)
+              controllerState.isLoading && fieldEntities.isEmpty
+                  ? const StatsBarSkeleton()
+                  : _buildStatsBar(filteredFields),
+
+              // Refresh progress indicator (only during refresh, not initial load)
+              if (controllerState.isRefreshing)
+                const LinearProgressIndicator(
+                  backgroundColor: Color(0xFFE8F5E9),
+                  valueColor: AlwaysStoppedAnimation(Color(0xFF367C2B)),
+                ),
+
+              // Fields list/grid
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _refreshFields,
+                  color: const Color(0xFF367C2B),
+                  child: controllerState.isLoading && fieldEntities.isEmpty
+                      ? _buildLoadingState()
+                      : _isGridView
+                          ? _buildGridView(filteredFields)
+                          : _buildListView(filteredFields),
+                ),
               ),
-
-            // Search and filters
-            _buildSearchAndFilters(),
-
-            // Stats bar
-            _buildStatsBar(filteredFields),
-
-            // Loading indicator
-            if (controllerState.isLoading || controllerState.isRefreshing)
-              const LinearProgressIndicator(
-                backgroundColor: Color(0xFFE8F5E9),
-                valueColor: AlwaysStoppedAnimation(Color(0xFF367C2B)),
-              ),
-
-            // Fields list/grid
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _refreshFields,
-                child: controllerState.isLoading && fieldEntities.isEmpty
-                    ? _buildLoadingState()
-                    : _isGridView
-                        ? _buildGridView(filteredFields)
-                        : _buildListView(filteredFields),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: _addField,
@@ -220,16 +239,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircularProgressIndicator(color: Color(0xFF367C2B)),
-          SizedBox(height: 16),
-          Text('جاري تحميل الحقول...'),
-        ],
-      ),
-    );
+    return FieldsListSkeleton(isGridView: _isGridView);
   }
 
   Widget _buildSearchAndFilters() {
@@ -402,11 +412,14 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       itemCount: fields.length,
       itemBuilder: (context, index) {
         final field = fields[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: EnhancedFieldCard(
-            field: field,
-            onTap: () => _openFieldDetails(field),
+        return RepaintBoundary(
+          key: ValueKey('field_${field.id}'),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: EnhancedFieldCard(
+              field: field,
+              onTap: () => _openFieldDetails(field),
+            ),
           ),
         );
       },
@@ -429,39 +442,32 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       itemCount: fields.length,
       itemBuilder: (context, index) {
         final field = fields[index];
-        return EnhancedFieldCard(
-          field: field,
-          isCompact: true,
-          onTap: () => _openFieldDetails(field),
+        return RepaintBoundary(
+          key: ValueKey('field_grid_${field.id}'),
+          child: EnhancedFieldCard(
+            field: field,
+            isCompact: true,
+            onTap: () => _openFieldDetails(field),
+          ),
         );
       },
     );
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.landscape, size: 80, color: Colors.grey[300]),
-          const SizedBox(height: 16),
-          Text(
-            _searchQuery.isNotEmpty || _selectedCrop != null
-                ? 'لا توجد نتائج'
-                : 'لا توجد حقول',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'أضف حقلاً جديداً للبدء',
-            style: TextStyle(color: Colors.grey[500]),
-          ),
-        ],
-      ),
-    );
+    // Show search-specific empty state when filters are active
+    if (_searchQuery.isNotEmpty || _selectedCrop != null) {
+      return NoSearchResultsEmptyState(
+        searchQuery: _searchQuery.isNotEmpty ? _searchQuery : _selectedCrop,
+        onClear: () => setState(() {
+          _searchQuery = '';
+          _selectedCrop = null;
+        }),
+      );
+    }
+
+    // Show fields-specific empty state
+    return NoFieldsEmptyState(onAddField: _addField);
   }
 
   void _openFieldDetails(FieldEntity field) {

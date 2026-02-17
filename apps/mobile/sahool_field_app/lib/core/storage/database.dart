@@ -113,7 +113,10 @@ class Fields extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-/// Sync Log Table
+/// Sync Log Table with performance indexes
+@TableIndex(name: 'sync_logs_status_idx', columns: {#status})
+@TableIndex(name: 'sync_logs_timestamp_idx', columns: {#timestamp})
+@TableIndex(name: 'sync_logs_type_status_idx', columns: {#type, #status})
 class SyncLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get type => text()();

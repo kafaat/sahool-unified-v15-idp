@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import '../../../core/config/api_config.dart';
+import '../../../../core/config/api_config.dart';
 
 /// Notifications Service API Integration
 /// تكامل خدمة الإشعارات

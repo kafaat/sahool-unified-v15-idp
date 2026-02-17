@@ -154,7 +154,7 @@ class RegistrationAuthService {
   final ApiClient _apiClient;
   final SecureStorageService _secureStorage;
 
-  AuthService({
+  RegistrationAuthService({
     required ApiClient apiClient,
     required SecureStorageService secureStorage,
   })  : _apiClient = apiClient,

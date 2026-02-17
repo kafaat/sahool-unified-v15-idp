@@ -5,6 +5,8 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
   flutter_secure_storage_linux
+  gtk
+  record_linux
   sqlcipher_flutter_libs
   url_launcher_linux
 )

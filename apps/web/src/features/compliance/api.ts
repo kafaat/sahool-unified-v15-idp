@@ -3,9 +3,7 @@
  * طبقة API لميزة الامتثال والجودة
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   ComplianceItem,
   Certification,
@@ -14,25 +12,8 @@ import type {
   ComplianceStats,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {

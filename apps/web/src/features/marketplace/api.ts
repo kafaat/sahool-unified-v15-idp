@@ -3,8 +3,7 @@
  * واجهة برمجية لميزة السوق الزراعي
  */
 
-import axios from "axios";
-import Cookies from "js-cookie";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   Product,
   ProductFilters,
@@ -12,35 +11,9 @@ import type {
   OrderFilters,
   CartItem,
 } from "./types";
-import { logger } from "@/lib/logger";
 
-// API Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const cookieValue = Cookies.get("auth");
-  if (cookieValue) {
-    try {
-      const authData = JSON.parse(cookieValue);
-      if (authData?.token) {
-        config.headers.Authorization = `Bearer ${authData.token}`;
-      }
-    } catch {
-      // Cookie is not JSON, use as-is
-      config.headers.Authorization = `Bearer ${cookieValue}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // Error messages
 export const ERROR_MESSAGES = {

@@ -3,9 +3,7 @@
  * طبقة API لميزة صور الأقمار الصناعية
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   SatelliteField,
   SatelliteImage,
@@ -15,25 +13,9 @@ import type {
   ZoneAnalysis,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 15000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+// Longer timeout for satellite image processing
+const api = createApiClient({ timeout: 15000 });
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {

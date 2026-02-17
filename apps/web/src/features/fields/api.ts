@@ -5,7 +5,8 @@
 
 import axios, { type AxiosError } from "axios";
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from "./types";
-import { logger } from "@/lib/logger";
+import { createApiClient, logger } from "@/lib/api/factory";
+import { FIELD_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 
 /**
  * API Field Response Type
@@ -35,36 +36,8 @@ interface ApiFieldResponse {
   updatedAt?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Add auth token interceptor
-// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from "js-cookie";
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {

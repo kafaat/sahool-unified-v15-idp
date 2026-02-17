@@ -3,7 +3,8 @@
  * طبقة API لميزة صحة المحصول
  */
 
-import axios, { type AxiosError } from "axios";
+import { type AxiosError } from "axios";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   HealthSummary,
   HealthRecord,
@@ -15,7 +16,6 @@ import type {
   HealthFilters,
   DiseaseSeverity,
 } from "./types";
-import { logger } from "@/lib/logger";
 
 /**
  * API Response Types
@@ -70,36 +70,9 @@ interface ApiDiagnosisResponse {
   updatedAt: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 30000, // 30 seconds timeout for AI processing
-});
-
-// Add auth token interceptor
-// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from "js-cookie";
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+// Longer timeout for AI processing endpoints
+const api = createApiClient({ timeout: 30000 });
 
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {

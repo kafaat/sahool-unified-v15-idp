@@ -40,7 +40,7 @@ void main() {
     });
 
     test('should have correct virtual sensors service port', () {
-      expect(ServicePorts.virtualSensors, 8096);
+      expect(ServicePorts.virtualSensors, 8119);
     });
 
     test('should have correct community chat service port', () {

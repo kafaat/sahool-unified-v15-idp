@@ -17,7 +17,7 @@ redis>=7.1.0,<8.0.0
 # Structured Logging
 structlog>=24.4.0,<25.0.0
 # WebSockets
-websockets>=14.0,<15.0
+websockets>=14.0,<17.0
 # JSON handling
 orjson>=3.10.0,<4.0.0
 # Async utilities

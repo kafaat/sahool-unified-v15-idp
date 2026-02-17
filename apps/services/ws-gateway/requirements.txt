@@ -20,7 +20,7 @@ PyJWT>=2.8.0,<3.0.0
 passlib[bcrypt]==1.7.4
 
 # Service-specific dependencies
-websockets==14.1
+websockets==16.0
 python-dateutil==2.9.0.post0
 
 structlog>=24.1.0

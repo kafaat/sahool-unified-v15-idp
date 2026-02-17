@@ -30,7 +30,7 @@ numpy>=1.26.0,<2.5.0
 scipy==1.17.0
 
 # Raster processing (requires GDAL)
-rasterio==1.4.3
+rasterio==1.5.0
 
 # Vector processing
 shapely==2.0.6

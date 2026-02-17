@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
 
     steps:
       - name: Checkout repository
@@ -79,9 +79,9 @@ jobs:
         with:
           path: |
             ~/.pub-cache
-            apps/mobile/.dart_tool
-            apps/mobile/.packages
-          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/sahool_field_app/.packages
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
           restore-keys: |
             pub-cache-${{ runner.os }}-
 
@@ -131,7 +131,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: analysis-results
-          path: apps/mobile/analyze_output.txt
+          path: apps/mobile/sahool_field_app/analyze_output.txt
           retention-days: 7
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -144,7 +144,7 @@ jobs:
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
 
     steps:
       - name: Checkout repository
@@ -170,9 +170,9 @@ jobs:
         with:
           path: |
             ~/.pub-cache
-            apps/mobile/.dart_tool
-            apps/mobile/.packages
-          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/sahool_field_app/.packages
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
           restore-keys: |
             pub-cache-${{ runner.os }}-
 
@@ -224,7 +224,7 @@ jobs:
         if: always()
         uses: codecov/codecov-action@v5
         with:
-          files: apps/mobile/coverage/lcov.info
+          files: apps/mobile/sahool_field_app/coverage/lcov.info
           flags: flutter,mobile
           name: sahool-mobile-coverage
           fail_ci_if_error: false
@@ -237,8 +237,8 @@ jobs:
         with:
           name: coverage-report
           path: |
-            apps/mobile/coverage/
-            apps/mobile/test_output.txt
+            apps/mobile/sahool_field_app/coverage/
+            apps/mobile/sahool_field_app/test_output.txt
           retention-days: 14
 
       - name: Check coverage threshold
@@ -264,7 +264,7 @@ jobs:
     if: always() && needs.analyze.result == 'success'
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
@@ -296,9 +296,9 @@ jobs:
         with:
           path: |
             ~/.pub-cache
-            apps/mobile/.dart_tool
-            apps/mobile/.packages
-          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/pubspec.lock') }}
+            apps/mobile/sahool_field_app/.dart_tool
+            apps/mobile/sahool_field_app/.packages
+          key: pub-cache-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/pubspec.lock') }}
           restore-keys: |
             pub-cache-${{ runner.os }}-
 
@@ -308,8 +308,8 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-            apps/mobile/android/.gradle
-          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/android/gradle/wrapper/gradle-wrapper.properties') }}
+            apps/mobile/sahool_field_app/android/.gradle
+          key: gradle-${{ runner.os }}-${{ hashFiles('apps/mobile/sahool_field_app/android/gradle/wrapper/gradle-wrapper.properties') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -373,7 +373,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: sahool-debug-apk-${{ github.run_number }}
-          path: apps/mobile/build/app/outputs/**/*.apk
+          path: apps/mobile/sahool_field_app/build/app/outputs/**/*.apk
           retention-days: 7
 
       - name: Upload build logs on failure
@@ -382,8 +382,8 @@ jobs:
         with:
           name: build-logs-debug-${{ github.run_number }}
           path: |
-            apps/mobile/build.log
-            apps/mobile/android/app/build/outputs/logs/
+            apps/mobile/sahool_field_app/build.log
+            apps/mobile/sahool_field_app/android/app/build/outputs/logs/
           retention-days: 7
 
       - name: Build Summary
@@ -408,7 +408,7 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     defaults:
       run:
-        working-directory: apps/mobile
+        working-directory: apps/mobile/sahool_field_app
 
     steps:
       - name: Checkout repository
@@ -458,7 +458,7 @@ jobs:
           arch: x86_64
           profile: pixel_5
           script: |
-            cd apps/mobile
+            cd apps/mobile/sahool_field_app
             flutter test integration_test/ --verbose
         continue-on-error: true
 
@@ -467,7 +467,7 @@ jobs:
         uses: actions/upload-artifact@v6
         with:
           name: integration-test-results
-          path: apps/mobile/integration_test_output/
+          path: apps/mobile/sahool_field_app/integration_test_output/
           retention-days: 7
         continue-on-error: true
 

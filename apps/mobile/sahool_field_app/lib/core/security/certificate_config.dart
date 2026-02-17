@@ -128,40 +128,34 @@ class CertificateConfig {
   /// 3. Replace the placeholder values below
   static Map<String, List<CertificatePin>> getStagingPins() {
     return {
+      // Staging: use production certificates until staging has its own certs
+      // TODO: Replace with actual staging certificate fingerprints when staging environment is deployed
       'api-staging.sahool.app': [
-        // TODO: CRITICAL - Replace with actual staging API certificate fingerprint
-        // Generate using: ./scripts/generate_cert_pins.sh api-staging.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2026, 6, 30),
-          description: 'Staging API certificate',
+          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Staging API certificate (using production cert)',
         ),
-        // Staging backup
-        // TODO: CRITICAL - Replace with actual staging backup fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2027, 3, 31),
-          description: 'Staging API backup certificate',
+          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'Staging API backup certificate (using production cert)',
         ),
       ],
       'ws-staging.sahool.app': [
-        // TODO: CRITICAL - Replace with actual staging WebSocket certificate fingerprint
-        // Generate using: ./scripts/generate_cert_pins.sh ws-staging.sahool.app
         CertificatePin(
           type: PinType.sha256,
-          value: '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2026, 6, 30),
-          description: 'Staging WebSocket certificate',
+          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Staging WebSocket certificate (using production cert)',
         ),
-        // Staging WebSocket backup
-        // TODO: CRITICAL - Replace with actual staging WebSocket backup fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09', // PLACEHOLDER - MUST REPLACE
-          expiryDate: DateTime(2027, 3, 31),
-          description: 'Staging WebSocket backup certificate',
+          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'Staging WebSocket backup certificate (using production cert)',
         ),
       ],
     };

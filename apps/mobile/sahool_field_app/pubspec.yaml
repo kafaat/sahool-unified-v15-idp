@@ -182,6 +182,7 @@ flutter:
     - assets/icons/
     - assets/icon/
     - assets/fonts/
+    - assets/avatars/
 
   # Local Arabic fonts - faster app startup, smaller APK
   fonts:

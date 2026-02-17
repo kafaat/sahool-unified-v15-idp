@@ -56,7 +56,7 @@ chromadb>=0.4.0,<1.0.0  # Alternative vector DB
 torch==2.2.0  # Locked for CUDA 12.1 compatibility
 torchvision==0.17.0
 numpy>=1.26.0,<2.0.0  # Major version lock for compatibility
-pandas>=2.2.0,<3.0.0
+pandas>=2.2.0,<4.0.0
 scikit-learn>=1.5.0,<2.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────

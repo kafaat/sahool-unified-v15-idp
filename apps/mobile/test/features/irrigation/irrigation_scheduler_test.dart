@@ -426,42 +426,35 @@ void main() {
 
   group('IrrigationSchedule Model (freezed)', () {
     test('should have correct default values', () {
-      const schedule = IrrigationSchedule(
-        scheduleId: 'sched_001',
+      final schedule = IrrigationSchedule(
         fieldId: 'field_001',
         events: [],
-        startDate: null,
-        endDate: null,
-        totalWaterPlanned: 0,
+        generatedAt: DateTime.now(),
       );
 
-      expect(schedule.notes, isEmpty);
-      expect(schedule.notesAr, isEmpty);
+      expect(schedule.fieldId, 'field_001');
+      expect(schedule.events, isEmpty);
     });
 
     test('should calculate total water from events', () {
       // Arrange
       final events = [
         IrrigationEvent(
-          eventId: 'evt_1',
-          scheduledTime: DateTime.now(),
-          durationMinutes: 60,
-          waterLiters: 10000,
+          scheduledAt: DateTime.now(),
+          durationMinutes: 60.0,
+          waterAmountLiters: 10000.0,
           status: 'pending',
-          statusAr: 'معلق',
         ),
         IrrigationEvent(
-          eventId: 'evt_2',
-          scheduledTime: DateTime.now().add(const Duration(days: 1)),
-          durationMinutes: 60,
-          waterLiters: 15000,
+          scheduledAt: DateTime.now().add(const Duration(days: 1)),
+          durationMinutes: 60.0,
+          waterAmountLiters: 15000.0,
           status: 'pending',
-          statusAr: 'معلق',
         ),
       ];
 
       // Act
-      final totalWater = events.fold<double>(0, (sum, e) => sum + e.waterLiters);
+      final totalWater = events.fold<double>(0, (sum, e) => sum + e.waterAmountLiters);
 
       // Assert
       expect(totalWater, 25000);
@@ -471,26 +464,21 @@ void main() {
   group('IrrigationEvent Model (freezed)', () {
     test('should have correct status values', () {
       final event = IrrigationEvent(
-        eventId: 'evt_001',
-        scheduledTime: DateTime.now(),
-        durationMinutes: 120,
-        waterLiters: 50000,
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
         status: 'pending',
-        statusAr: 'معلق',
       );
 
       expect(event.status, 'pending');
-      expect(event.statusAr, 'معلق');
     });
 
     test('should allow notes', () {
       final event = IrrigationEvent(
-        eventId: 'evt_001',
-        scheduledTime: DateTime.now(),
-        durationMinutes: 120,
-        waterLiters: 50000,
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
         status: 'pending',
-        statusAr: 'معلق',
         notes: 'Morning irrigation before sunrise',
       );
 
@@ -499,15 +487,13 @@ void main() {
 
     test('should have default empty notes', () {
       final event = IrrigationEvent(
-        eventId: 'evt_001',
-        scheduledTime: DateTime.now(),
-        durationMinutes: 120,
-        waterLiters: 50000,
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
         status: 'pending',
-        statusAr: 'معلق',
       );
 
-      expect(event.notes, isEmpty);
+      expect(event.notes, isNull);
     });
 
     test('event status progression should be valid', () {
@@ -516,12 +502,10 @@ void main() {
 
       for (final status in validStatuses) {
         final event = IrrigationEvent(
-          eventId: 'evt_001',
-          scheduledTime: DateTime.now(),
-          durationMinutes: 120,
-          waterLiters: 50000,
+          scheduledAt: DateTime.now(),
+          durationMinutes: 120.0,
+          waterAmountLiters: 50000.0,
           status: status,
-          statusAr: 'حالة',
         );
         expect(event.status, status);
       }

@@ -8,7 +8,6 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:matcher/matcher.dart' show containsKey;
 import 'package:latlong2/latlong.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/map/map_providers.dart';
@@ -292,13 +291,13 @@ void main() {
       final cities = YemenMapBounds.cities;
 
       // Assert
-      expect(cities, containsKey('sanaa'));
-      expect(cities, containsKey('aden'));
-      expect(cities, containsKey('taiz'));
-      expect(cities, containsKey('hodeidah'));
-      expect(cities, containsKey('mukalla'));
-      expect(cities, containsKey('ibb'));
-      expect(cities, containsKey('dhamar'));
+      expect(cities.keys, contains('sanaa'));
+      expect(cities.keys, contains('aden'));
+      expect(cities.keys, contains('taiz'));
+      expect(cities.keys, contains('hodeidah'));
+      expect(cities.keys, contains('mukalla'));
+      expect(cities.keys, contains('ibb'));
+      expect(cities.keys, contains('dhamar'));
     });
 
     test('should have Sanaa at correct coordinates', () {

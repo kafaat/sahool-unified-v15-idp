@@ -40,3 +40,7 @@ export * from "./leveling";
 
 // Edge Device types - أنواع أجهزة الحوسبة الطرفية
 export * from "./edge";
+
+// Unified API Contracts - العقود الموحدة لواجهة برمجة التطبيقات
+// Service ports, error codes, endpoint paths, and response shapes
+export * from "./contracts";

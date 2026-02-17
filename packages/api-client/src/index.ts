@@ -30,49 +30,21 @@ import type {
 } from "./types";
 import { ApiError, parseAxiosError } from "./errors";
 
+// Import unified contracts - استيراد العقود الموحدة
+import { SERVICE_PORT_ALIASES } from "@sahool/shared-types/contracts";
+
 // Re-export all types
 export * from "./types";
 // Re-export all errors
 export * from "./errors";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Default Configuration
+// Default Configuration (from unified contracts)
+// Ports sourced from @sahool/shared-types/contracts/service-ports.ts
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_PORTS: ServicePorts = {
-  // Core Services - الخدمات الأساسية
-  fieldCore: 3000, // field-management-service
-  auth: 3025, // user-service (FIXED: was 8001)
-  marketplace: 3010, // marketplace-service
-
-  // Intelligence Layer - طبقة الذكاء
-  satellite: 8090, // vegetation-analysis-service
-  indicators: 8091, // indicators-service
-  cropHealth: 8095, // crop-intelligence-service
-  virtualSensors: 8119, // virtual-sensors (FIXED: was 8096)
-
-  // Decision Layer - طبقة القرار
-  weather: 8092, // weather-service
-  fertilizer: 8093, // advisory-service
-  irrigation: 8094, // irrigation-smart
-  yieldEngine: 8098, // yield-engine
-
-  // Business Layer - طبقة الأعمال
-  communityChat: 8097, // community-chat
-  equipment: 8101, // equipment-service
-  task: 8103, // task-service
-  providerConfig: 8104, // provider-config-service
-  notifications: 8110, // notification-service
-  wsGateway: 8081, // ws-gateway (FIXED: was 8090 - conflict)
-
-  // Agriculture Domain - الخدمات الزراعية المتخصصة
-  soilAnalysis: 8134, // soil-analysis-service
-  drone: 8126, // drone-service
-  cooperative: 8127, // cooperative-service
-  traceability: 8123, // traceability-service
-
-  // Deprecated aliases - للتوافق
-  community: 8097, // Same as communityChat (FIXED: was 8102)
+  ...SERVICE_PORT_ALIASES,
 };
 
 // ─────────────────────────────────────────────────────────────────────────────

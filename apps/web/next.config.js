@@ -133,7 +133,8 @@ const nextConfig = {
   },
 
   // Output configuration for Docker/standalone deployments
-  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
+  // Always use standalone for consistent builds in CI/CD and production
+  output: "standalone",
 
   // Performance optimizations
   compress: true,

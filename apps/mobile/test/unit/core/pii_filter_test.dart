@@ -163,9 +163,12 @@ void main() {
   group('PiiFilter - Arabic Name Masking', () {
     test('Should mask Arabic names', () {
       final result = PiiFilter.sanitize('محمد بن سلمان');
-      expect(result, contains('م****د'));
-      expect(result, contains('ب*ن'));
-      expect(result, contains('س****ن'));
+      // محمد (4 chars): first + 2 stars + last = م**د
+      expect(result, contains('م**د'));
+      // بن (2 chars): unchanged (< 3 chars)
+      expect(result, contains('بن'));
+      // سلمان (5 chars): first + 3 stars + last = س***ن
+      expect(result, contains('س***ن'));
     });
 
     test('Should mask long Arabic names', () {
@@ -519,7 +522,7 @@ void main() {
     test('Should sanitize error messages', () {
       final error = '''
         Authentication failed for user ahmed@example.com
-        Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.payload.signature
+        Token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.SflKxwRJSMeKKF2QT
         Please contact support at +966501234567
       ''';
 

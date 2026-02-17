@@ -1,5 +1,6 @@
 /// SAHOOL API Client Tests
 /// اختبارات عميل API
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
 
@@ -8,6 +9,31 @@ import 'package:sahool_field_app/core/http/api_client.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  // Mock connectivity_plus platform channels to prevent MissingPluginException
+  // ApiClient -> RobustRetryInterceptor -> NetworkQualityMonitor -> Connectivity()
+  setUpAll(() {
+    // Mock method channel for Connectivity.checkConnectivity()
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/connectivity'),
+      (MethodCall methodCall) async {
+        if (methodCall.method == 'check') {
+          return ['wifi'];
+        }
+        return null;
+      },
+    );
+
+    // Mock event channel for Connectivity.onConnectivityChanged
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+      const MethodChannel('dev.fluttercommunity.plus/connectivity_status'),
+      (MethodCall methodCall) async {
+        return null;
+      },
+    );
+  });
 
   late ApiClient apiClient;
 

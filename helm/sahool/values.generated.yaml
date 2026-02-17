@@ -172,7 +172,7 @@ services:
       prometheus.io/port: '3010'
       prometheus.io/path: /metrics
   community-chat:
-    enabled: true
+    enabled: false
     name: community-chat
     image:
       repository: ghcr.io/kafaat/sahool-community-chat
@@ -492,7 +492,7 @@ services:
       prometheus.io/port: '8119'
       prometheus.io/path: /metrics
   yield-engine:
-    enabled: true
+    enabled: false
     name: yield-engine
     image:
       repository: ghcr.io/kafaat/sahool-yield-engine
@@ -812,7 +812,7 @@ services:
       prometheus.io/port: '8081'
       prometheus.io/path: /metrics
   ndvi-processor:
-    enabled: true
+    enabled: false
     name: ndvi-processor
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-processor
@@ -1260,7 +1260,7 @@ services:
       prometheus.io/port: '8116'
       prometheus.io/path: /metrics
   field-chat:
-    enabled: true
+    enabled: false
     name: field-chat
     image:
       repository: ghcr.io/kafaat/sahool-field-chat
@@ -1651,7 +1651,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8124
+    port: 8102
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -1667,13 +1667,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8124'
+      value: '8102'
     serviceAccount:
       create: true
       name: sahool-code-review-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8124'
+      prometheus.io/port: '8102'
       prometheus.io/path: /metrics
   crop-health:
     enabled: false
@@ -2131,7 +2131,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8190
+    port: 8180
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2147,13 +2147,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8190'
+      value: '8180'
     serviceAccount:
       create: true
       name: sahool-edge-orchestrator-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8190'
+      prometheus.io/port: '8180'
       prometheus.io/path: /metrics
   llm-orchestrator-service:
     enabled: true
@@ -2163,7 +2163,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 2
-    port: 8220
+    port: 8164
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -2179,13 +2179,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8220'
+      value: '8164'
     serviceAccount:
       create: true
       name: sahool-llm-orchestrator-service
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8220'
+      prometheus.io/port: '8164'
       prometheus.io/path: /metrics
   supply-chain-service:
     enabled: true
@@ -2932,7 +2932,7 @@ ingress:
     - path: /api/v1/code/review/service
       pathType: Prefix
       service: code-review-service
-      port: 8124
+      port: 8102
     - path: /api/v1/crop/health
       pathType: Prefix
       service: crop-health
@@ -2992,11 +2992,11 @@ ingress:
     - path: /api/v1/edge/orchestrator/service
       pathType: Prefix
       service: edge-orchestrator-service
-      port: 8190
+      port: 8180
     - path: /api/v1/llm/orchestrator/service
       pathType: Prefix
       service: llm-orchestrator-service
-      port: 8220
+      port: 8164
     - path: /api/v1/supply/chain/service
       pathType: Prefix
       service: supply-chain-service

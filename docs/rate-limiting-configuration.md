@@ -396,10 +396,10 @@ for i in range(70):
 
 ## Related Documentation
 
-- [Middleware Architecture](/docs/middleware-architecture.md)
-- [Security Best Practices](/docs/security-best-practices.md)
-- [API Gateway Configuration](/docs/api-gateway-configuration.md)
-- [Redis Setup Guide](/docs/redis-setup.md)
+- Middleware Architecture
+- [Security](SECURITY.md)
+- [API Gateway](API_GATEWAY.md)
+- [Redis Caching (ADR-007)](adr/ADR-007-redis-caching.md)
 
 ---
 

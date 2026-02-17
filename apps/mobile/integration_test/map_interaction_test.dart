@@ -1,13 +1,13 @@
-/// SAHOOL Integration Test - Map Interaction Tests
-/// اختبارات التفاعل مع الخريطة
-///
-/// Tests for:
-/// - Map loading and display
-/// - Map navigation and zoom
-/// - Field polygon drawing
-/// - Point selection
-/// - Map layer switching
-/// - Offline map functionality
+// SAHOOL Integration Test - Map Interaction Tests
+// اختبارات التفاعل مع الخريطة
+//
+// Tests for:
+// - Map loading and display
+// - Map navigation and zoom
+// - Field polygon drawing
+// - Point selection
+// - Map layer switching
+// - Offline map functionality
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +16,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:sahool_field_app/main.dart' as app;
 
 import 'helpers/test_helpers.dart';
-import 'helpers/test_utils.dart';
 import 'fixtures/test_data.dart';
 
 void main() {
@@ -41,7 +40,7 @@ void main() {
     testWidgets('Map widget loads successfully', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -73,7 +72,7 @@ void main() {
     testWidgets('Map displays with correct initial position', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -91,7 +90,7 @@ void main() {
     testWidgets('Map shows attribution correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -114,7 +113,7 @@ void main() {
     testWidgets('Zoom controls work correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -140,7 +139,7 @@ void main() {
     testWidgets('Map pan gesture works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -160,7 +159,7 @@ void main() {
     testWidgets('Map pinch zoom works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -185,7 +184,7 @@ void main() {
     testWidgets('Toggle satellite layer', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -211,7 +210,7 @@ void main() {
     testWidgets('Layer selector popup works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -242,7 +241,7 @@ void main() {
     testWidgets('Drawing mode activates correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -273,7 +272,7 @@ void main() {
     testWidgets('Add points to polygon', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -311,7 +310,7 @@ void main() {
     testWidgets('Undo last point', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -338,7 +337,7 @@ void main() {
     testWidgets('Complete polygon drawing', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -377,7 +376,7 @@ void main() {
     testWidgets('Select point on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -403,7 +402,7 @@ void main() {
     testWidgets('Display field boundaries on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -433,7 +432,7 @@ void main() {
     testWidgets('Display multiple fields on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -460,7 +459,7 @@ void main() {
     testWidgets('Display markers on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -478,7 +477,7 @@ void main() {
     testWidgets('Tap on marker shows info', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -511,7 +510,7 @@ void main() {
     testWidgets('Current location button exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -535,7 +534,7 @@ void main() {
     testWidgets('Map works with cached tiles offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -560,7 +559,7 @@ void main() {
     testWidgets('Offline indicator shown when map offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -587,7 +586,7 @@ void main() {
     testWidgets('Map loads within acceptable time', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -606,7 +605,7 @@ void main() {
     testWidgets('Map interaction is responsive', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -639,7 +638,7 @@ void main() {
     testWidgets('Map handles tile loading errors gracefully', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 

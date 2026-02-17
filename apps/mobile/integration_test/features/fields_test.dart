@@ -1,5 +1,5 @@
-/// SAHOOL Integration Test - Fields Management Tests
-/// اختبارات إدارة الحقول
+// SAHOOL Integration Test - Fields Management Tests
+// اختبارات إدارة الحقول
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +31,7 @@ void main() {
     testWidgets('View fields list', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -53,7 +53,7 @@ void main() {
     testWidgets('Fields list shows correct information', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -70,7 +70,7 @@ void main() {
     testWidgets('Empty state shows when no fields', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -91,7 +91,7 @@ void main() {
     testWidgets('Create new field button exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -107,7 +107,7 @@ void main() {
     testWidgets('Create field form opens correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -130,7 +130,7 @@ void main() {
     testWidgets('Create field with valid data', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -172,7 +172,7 @@ void main() {
     testWidgets('Create field with map drawing', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -203,7 +203,7 @@ void main() {
     testWidgets('Create field validates required fields', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -238,7 +238,7 @@ void main() {
     testWidgets('Open field details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -259,7 +259,7 @@ void main() {
     testWidgets('Edit field information', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -318,7 +318,7 @@ void main() {
     testWidgets('Delete field with confirmation', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -358,7 +358,7 @@ void main() {
     testWidgets('Cancel field deletion', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -398,7 +398,7 @@ void main() {
     testWidgets('View field on map', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -426,7 +426,7 @@ void main() {
     testWidgets('Map shows field boundaries', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -444,7 +444,7 @@ void main() {
     testWidgets('Search fields by name', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -470,7 +470,7 @@ void main() {
     testWidgets('Filter fields by crop type', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -492,7 +492,7 @@ void main() {
     testWidgets('Sort fields by area', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -515,7 +515,7 @@ void main() {
     testWidgets('View field statistics', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -543,7 +543,7 @@ void main() {
     testWidgets('Create field offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -578,7 +578,7 @@ void main() {
     testWidgets('Offline changes sync when online', (tester) async {
       helpers = TestHelpers(tester, binding);
 
-      await app.main();
+      app.main();
       await helpers.pumpAndSettle();
       await helpers.login();
 

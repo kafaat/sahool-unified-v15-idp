@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../presentation/providers/profile_provider.dart';
 
 /// Profile Screen - الملف الشخصي والإعدادات
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final profile = ref.watch(profileProvider);
+
     return Scaffold(
       backgroundColor: SahoolColors.background,
       body: CustomScrollView(
@@ -43,9 +47,9 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text(
-                        'أحمد محمد',
-                        style: TextStyle(
+                      Text(
+                        profile.userNameAr.isNotEmpty ? profile.userNameAr : 'أحمد محمد',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -53,7 +57,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'مزارع • صنعاء',
+                        profile.location.isNotEmpty ? profile.location : 'مزارع',
                         style: TextStyle(
                           color: Colors.white.withOpacity(0.8),
                           fontSize: 14,
@@ -79,7 +83,7 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   // Stats
-                  _buildStatsRow(),
+                  _buildStatsRow(profile),
                   const SizedBox(height: 24),
 
                   // Settings sections
@@ -189,7 +193,7 @@ class ProfileScreen extends StatelessWidget {
                       _SettingItem(
                         icon: Icons.info_outline,
                         title: 'حول التطبيق',
-                        subtitle: 'الإصدار 15.3.0',
+                        subtitle: 'الإصدار 16.0.0',
                         onTap: () => _showAboutDialog(context),
                       ),
                     ],
@@ -218,7 +222,7 @@ class ProfileScreen extends StatelessWidget {
 
                   // Footer
                   Text(
-                    'SAHOOL v15.3.0\nPowered by KAFAAT',
+                    'SAHOOL v16.0.0\nPowered by KAFAAT',
                     style: TextStyle(
                       color: Colors.grey[400],
                       fontSize: 12,
@@ -236,7 +240,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(ProfileState profile) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -247,11 +251,11 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem('12', 'حقل'),
+          _buildStatItem('${profile.fieldsCount > 0 ? profile.fieldsCount : 12}', 'حقل'),
           _buildDivider(),
-          _buildStatItem('48', 'مهمة مكتملة'),
+          _buildStatItem('${profile.tasksCompleted > 0 ? profile.tasksCompleted : 48}', 'مهمة مكتملة'),
           _buildDivider(),
-          _buildStatItem('156', 'يوم نشط'),
+          _buildStatItem('${profile.achievementsCount > 0 ? profile.achievementsCount : 23}', 'إنجاز'),
         ],
       ),
     );
@@ -444,10 +448,10 @@ class ProfileScreen extends StatelessWidget {
           children: [
             const Text('منصة الزراعة الذكية'),
             const SizedBox(height: 16),
-            Text('الإصدار: 15.3.0', style: TextStyle(color: Colors.grey[600])),
-            Text('Build: 2024.12.14', style: TextStyle(color: Colors.grey[600])),
+            Text('الإصدار: 16.0.0', style: TextStyle(color: Colors.grey[600])),
+            Text('Build: 2026.02.16', style: TextStyle(color: Colors.grey[600])),
             const SizedBox(height: 16),
-            const Text('© 2024 KAFAAT'),
+            const Text('© 2026 KAFAAT'),
           ],
         ),
         actions: [

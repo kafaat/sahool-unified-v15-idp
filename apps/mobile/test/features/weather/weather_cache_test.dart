@@ -4,15 +4,11 @@
 /// covering cache hits, misses, expiration, and offline scenarios.
 library;
 
-import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:mocktail/mocktail.dart';
-import 'package:fake_async/fake_async.dart';
 import 'package:sahool_field_app/core/services/weather_provider_service.dart';
 import 'package:sahool_field_app/core/config/providers_config.dart';
-
-import 'weather_fixtures.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks - الكائنات الوهمية
@@ -312,8 +308,6 @@ void main() {
       test('should create ForecastDay with all fields', () {
         // Arrange
         final date = DateTime(2026, 1, 23);
-        const sunrise = null;
-        const sunset = null;
 
         final forecast = ForecastDay(
           date: date,
@@ -325,8 +319,8 @@ void main() {
           condition: 'Partly Cloudy',
           conditionAr: 'غائم جزئياً',
           icon: '⛅',
-          sunrise: sunrise,
-          sunset: sunset,
+          sunrise: null,
+          sunset: null,
         );
 
         // Assert

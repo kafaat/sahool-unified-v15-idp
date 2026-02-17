@@ -8,6 +8,7 @@ import 'core/sync/sync_engine.dart';
 import 'core/sync/background_sync_task.dart';
 import 'core/storage/database.dart';
 import 'core/config/env_config.dart';
+// Legacy crash service kept for backward compatibility but delegates to CrashReporter
 import 'core/services/crash_reporting_service.dart' as legacy_crash;
 import 'core/security/device_integrity_service.dart';
 import 'core/security/device_security_screen.dart';
@@ -28,12 +29,12 @@ void main() async {
   // Ensure Flutter bindings are initialized first
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Set up Flutter error handler before anything else
+  // Set up Flutter error handler - single unified crash reporter
+  // إعداد معالج أخطاء Flutter - نظام تقارير أعطال موحد
   FlutterError.onError = (FlutterErrorDetails details) {
-    // Log to console in debug mode
     FlutterError.presentError(details);
 
-    // Report to new CrashReporter (with Sentry integration)
+    // Single unified crash reporter (Sentry-backed)
     crashReporter.reportError(
       details.exception,
       details.stack,
@@ -45,41 +46,14 @@ void main() async {
       },
       fatal: false,
     );
-
-    // Report to legacy crash reporting service
-    crashReporting.reportError(
-      details.exception,
-      details.stack,
-      severity: legacy_crash.ErrorSeverity.error,
-      reason: details.context?.toString(),
-      customData: {
-        'library': details.library ?? 'unknown',
-        'silent': details.silent,
-      },
-      fatal: false,
-    );
-
-    // Also report via ErrorReporter for unified error handling
-    errorReporter.reportFlutterError(
-      details,
-      context: ErrorContext.current(
-        widget: details.context?.toString(),
-        metadata: {
-          'library': details.library ?? 'unknown',
-          'silent': details.silent,
-        },
-      ),
-    );
   };
 
-  // Set up Platform Dispatcher error handler for async errors
-  // This catches errors that occur outside the Flutter framework
+  // Platform Dispatcher error handler for async errors outside Flutter framework
   // مُعالج أخطاء منصة التشغيل للأخطاء غير المتزامنة
   PlatformDispatcher.instance.onError = (error, stack) {
     AppLogger.critical('Platform Dispatcher Error: $error',
         tag: 'Main', error: error, stackTrace: stack);
 
-    // Report to new CrashReporter (with Sentry integration)
     crashReporter.reportError(
       error,
       stack,
@@ -88,26 +62,6 @@ void main() async {
       fatal: true,
     );
 
-    // Report to legacy crash reporting service
-    crashReporting.reportError(
-      error,
-      stack,
-      severity: legacy_crash.ErrorSeverity.fatal,
-      reason: 'Platform Dispatcher Error',
-      fatal: true,
-    );
-
-    // Report via ErrorReporter
-    errorReporter.reportPlatformError(
-      error,
-      stack,
-      context: ErrorContext.current(
-        recoverable: false,
-        metadata: {'source': 'PlatformDispatcher'},
-      ),
-    );
-
-    // Return true to prevent the error from propagating
     return true;
   };
 
@@ -141,28 +95,22 @@ void main() async {
       AppLogger.w('CrashReporter init failed (non-critical): $e', tag: 'Main');
     }
 
-    // Initialize legacy crash reporting service (for compatibility)
+    // Initialize ErrorReporter (unified error handling layer)
     try {
-      await crashReporting.initialize(
-        samplingRate: 1.0, // 100% in production, can be adjusted
-        maxBreadcrumbs: 100,
-      );
-
-      // Record app start breadcrumb
-      crashReporting.recordBreadcrumb(
-        message: 'App started',
-        category: 'lifecycle',
-        level: legacy_crash.BreadcrumbLevel.info,
-      );
-
-      AppLogger.i('Legacy crash reporting initialized', tag: 'Main');
-
-      // Initialize ErrorReporter (integrates with crash reporting)
       await errorReporter.initialize();
       AppLogger.i('ErrorReporter initialized', tag: 'Main');
     } catch (e) {
-      AppLogger.w('Legacy crash reporting init failed (non-critical): $e',
-          tag: 'Main');
+      AppLogger.w('ErrorReporter init failed (non-critical): $e', tag: 'Main');
+    }
+
+    // Initialize legacy crash reporting (delegates to primary CrashReporter)
+    try {
+      await crashReporting.initialize(
+        samplingRate: 1.0,
+        maxBreadcrumbs: 100,
+      );
+    } catch (e) {
+      AppLogger.w('Legacy crash reporting init skipped: $e', tag: 'Main');
     }
 
     // Device Integrity Check - Security Feature
@@ -444,10 +392,10 @@ void main() async {
     }
   }, (error, stackTrace) {
     // Global zone error handler - catches all uncaught async errors
+    // معالج أخطاء المنطقة العامة - يلتقط جميع الأخطاء غير المتزامنة
     AppLogger.critical('Uncaught error: $error',
         tag: 'Main', error: error, stackTrace: stackTrace);
 
-    // Report to new CrashReporter (with Sentry integration)
     crashReporter.reportError(
       error,
       stackTrace,
@@ -455,18 +403,6 @@ void main() async {
       reason: 'Uncaught zone error',
       fatal: true,
     );
-
-    // Report to legacy crash reporting service
-    crashReporting.reportError(
-      error,
-      stackTrace,
-      severity: legacy_crash.ErrorSeverity.fatal,
-      reason: 'Uncaught zone error',
-      fatal: true,
-    );
-
-    // In release mode, the error has been reported
-    // In debug mode, the error is logged and the app may continue or crash
   });
 }
 

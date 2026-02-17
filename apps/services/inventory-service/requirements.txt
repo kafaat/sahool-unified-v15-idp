@@ -10,15 +10,12 @@ pydantic==2.12.5
 python-dotenv==1.2.1
 
 # Database (async SQLAlchemy - uses asyncpg)
-sqlalchemy>=2.0.0
+sqlalchemy==2.0.46
 asyncpg>=0.30.0
 greenlet>=3.0.0
 
-# Prisma ORM (for service modules)
-prisma>=0.11.0
-
 # NATS messaging
-nats-py>=2.6.0
+nats-py==2.13.1
 
 # Scheduling (for alert checks)
 apscheduler>=3.10.0

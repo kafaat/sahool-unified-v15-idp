@@ -454,9 +454,9 @@ redis-cli CLIENT LIST | wc -l
 ## 🔗 References | المراجع
 
 - [k6 Documentation](https://k6.io/docs/)
-- [Load Testing Guide](tests/load/README.md)
-- [Quick Start](tests/load/QUICKSTART.md)
-- [Docker Guide](docs/DOCKER.md)
+- [Load Testing Guide](../../tests/load/README.md)
+- [Quick Start](../../tests/load/QUICKSTART.md)
+- [Docker Guide](../DOCKER.md)
 - [Post-Merge Verification](POST_MERGE_VERIFICATION.md)
 
 ---

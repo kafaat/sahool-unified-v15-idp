@@ -548,7 +548,7 @@ When reporting issues, include:
 
 - [Docker Documentation](https://docs.docker.com/)
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
-- [SAHOOL Docker Guide](docs/DOCKER.md)
+- [SAHOOL Docker Guide](../DOCKER.md)
 - [Post-Merge Verification](POST_MERGE_VERIFICATION.md)
 
 ---

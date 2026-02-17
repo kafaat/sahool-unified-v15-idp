@@ -41,7 +41,7 @@ class Settings(BaseSettings):
 
     # Server configuration
     host: str = Field(default="0.0.0.0", description="Server host")
-    port: int = Field(default=8190, description="Server port")
+    port: int = Field(default=8180, description="Server port")
     environment: Literal["development", "staging", "production", "test"] = Field(
         default="development",
         description="Deployment environment | بيئة النشر",

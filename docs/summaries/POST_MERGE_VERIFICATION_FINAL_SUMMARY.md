@@ -364,21 +364,21 @@ tests/
 
 ### Documentation
 
-- [POST_MERGE_VERIFICATION.md](POST_MERGE_VERIFICATION.md)
-- [DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md](DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md)
-- [PERFORMANCE_TESTING_GUIDE.md](PERFORMANCE_TESTING_GUIDE.md)
+- [POST_MERGE_VERIFICATION.md](../guides/POST_MERGE_VERIFICATION.md)
+- [DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md](../guides/DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md)
+- [PERFORMANCE_TESTING_GUIDE.md](../guides/PERFORMANCE_TESTING_GUIDE.md)
 - [TEST_RESULTS_SUMMARY.md](TEST_RESULTS_SUMMARY.md)
 
 ### Scripts
 
-- [docker-one-by-one.sh](docker-one-by-one.sh)
-- [docker-one-by-one.ps1](docker-one-by-one.ps1)
+- [docker-one-by-one.sh](../../docker-one-by-one.sh)
+- [docker-one-by-one.ps1](../../docker-one-by-one.ps1)
 
 ### Test Infrastructure
 
-- [tests/load/README.md](tests/load/README.md)
-- [tests/load/QUICKSTART.md](tests/load/QUICKSTART.md)
-- [tests/README.md](tests/README.md)
+- [tests/load/README.md](../../tests/load/README.md)
+- [tests/load/QUICKSTART.md](../../tests/load/QUICKSTART.md)
+- [tests/README.md](../../tests/README.md)
 
 ---
 

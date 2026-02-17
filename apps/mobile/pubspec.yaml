@@ -19,6 +19,7 @@ dependencies:
   # Database (Offline)
   drift: ^2.24.0
   sqlite3: ^2.4.6  # Required for SQLCipher migration
+  sqflite: ^2.4.1  # Local notifications storage
   sqlcipher_flutter_libs: ^0.6.1  # SQLCipher for encrypted database (includes SQLite)
   path_provider: ^2.1.5
   path: ^1.9.0  # Must match Flutter SDK version requirement
@@ -28,6 +29,7 @@ dependencies:
   http: ^1.2.2
   connectivity_plus: ^6.1.1
   socket_io_client: ^2.0.3+1
+  web_socket_channel: ^3.0.1  # WebSocket communication
   crypto: ^3.0.3  # For certificate pinning
 
   # Background Tasks
@@ -61,6 +63,7 @@ dependencies:
   # google_fonts removed: using local IBM Plex Sans Arabic fonts instead
   flutter_svg: ^2.0.16
   cached_network_image: ^3.4.1
+  flutter_cache_manager: ^3.4.1  # Image & file cache management
 
   # Image Processing & Compression - معالجة وضغط الصور
   image: ^4.3.0  # For WebP compression and image manipulation

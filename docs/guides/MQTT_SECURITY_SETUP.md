@@ -579,9 +579,9 @@ use_identity_as_username true
 ## Related Documentation
 
 - [MQTT_AUTH_FIX_SUMMARY.md](MQTT_AUTH_FIX_SUMMARY.md) - Previous authentication fixes
-- [docker-compose.yml](docker-compose.yml) - MQTT service configuration
-- [infrastructure/core/mqtt/mosquitto.conf](infrastructure/core/mqtt/mosquitto.conf) - Broker configuration
-- [infrastructure/core/mqtt/acl](infrastructure/core/mqtt/acl) - Access control rules
+- [docker-compose.yml](../../docker-compose.yml) - MQTT service configuration
+- [infrastructure/core/mqtt/mosquitto.conf](../../infrastructure/core/mqtt/mosquitto.conf) - Broker configuration
+- [infrastructure/core/mqtt/acl](../../infrastructure/core/mqtt/acl) - Access control rules
 
 ---
 

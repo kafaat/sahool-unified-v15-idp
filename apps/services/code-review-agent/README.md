@@ -1,57 +1,65 @@
-# Code Review Agent
+# Code Review Agent | وكيل مراجعة الكود
 
-AI-powered code review agent using the Claude Agent SDK. Analyzes codebases for bugs, security vulnerabilities, performance issues, and code quality problems.
+**English:** AI-powered code review agent using the Claude Agent SDK. Analyzes codebases for bugs, security vulnerabilities, performance issues, and code quality problems.
 
-## Features
+**العربية:** وكيل مراجعة الكود الذي يعمل بالذكاء الاصطناعي باستخدام Claude Agent SDK. يحلل قواعد البيانات للبحث عن الأخطاء والثغرات الأمنية ومشاكل الأداء ومشاكل جودة الكود.
+
+## Features | الميزات
 
 - **Comprehensive Analysis**: Bugs, security, performance, and code quality
+  - **التحليل الشامل**: الأخطاء والأمان والأداء وجودة الكود
 - **Specialized Subagents**: Security scanner, test analyzer, performance analyzer
+  - **وكلاء متخصصون**: ماسح الأمان ومحلل الاختبارات ومحلل الأداء
 - **Structured Output**: JSON Schema-validated results
+  - **المخرجات المنظمة**: نتائج موثقة بـ JSON Schema
 - **Multiple Formats**: JSON, Markdown, SARIF (GitHub Code Scanning)
+  - **صيغ متعددة**: JSON و Markdown و SARIF (مسح كود GitHub)
 - **Audit Logging**: Track all tool usage for compliance
+  - **تسجيل التدقيق**: تتبع جميع استخدام الأدوات للامتثال
 - **Permission Controls**: Block dangerous commands
+  - **التحكم في الأذونات**: حجب الأوامر الخطيرة
 
-## Quick Start
+## Quick Start | البدء السريع
 
 ```bash
-# Install dependencies
+# Install dependencies | تثبيت المتطلبات
 npm install
 
-# Run basic review on current directory
+# Run basic review on current directory | تشغيل المراجعة الأساسية على المجلد الحالي
 npm run review
 
-# Run with structured output
+# Run with structured output | التشغيل مع مخرجات منظمة
 npm run review:structured
 
-# Run production agent
+# Run production agent | تشغيل وكيل الإنتاج
 npm run review:production ./src
 ```
 
-## Usage
+## Usage | الاستخدام
 
 ### CLI
 
 ```bash
-# Review current directory
+# Review current directory | مراجعة المجلد الحالي
 npx tsx src/review-agent.ts
 
-# Review specific directory
+# Review specific directory | مراجعة مجلد معين
 npx tsx src/review-agent.ts ./src
 
-# Production agent with all features
+# Production agent with all features | وكيل الإنتاج مع جميع الميزات
 npx tsx src/production-agent.ts ./src
 
-# Disable subagents
+# Disable subagents | تعطيل الوكلاء الفرعيين
 npx tsx src/production-agent.ts ./src --no-subagents
 
-# Export as Markdown
+# Export as Markdown | التصدير كـ Markdown
 npx tsx src/production-agent.ts ./src --export --markdown
 
-# Export as SARIF
+# Export as SARIF | التصدير كـ SARIF
 npx tsx src/production-agent.ts ./src --export --sarif
 ```
 
-### Programmatic
+### Programmatic | برمجياً
 
 ```typescript
 import {
@@ -60,7 +68,7 @@ import {
   exportResults,
 } from "@sahool/code-review-agent";
 
-// Run review
+// Run review | تشغيل المراجعة
 const result = await runCodeReview({
   directory: "./src",
   model: "opus",
@@ -68,30 +76,30 @@ const result = await runCodeReview({
 });
 
 if (result) {
-  // Print formatted results
+  // Print formatted results | طباعة النتائج المنسقة
   printResults(result);
 
-  // Export as SARIF for GitHub
+  // Export as SARIF for GitHub | التصدير كـ SARIF لـ GitHub
   const sarif = exportResults(result, "sarif");
   fs.writeFileSync("results.sarif", sarif);
 }
 ```
 
-## Configuration
+## Configuration | الإعداد
 
 ### ReviewAgentConfig
 
-| Option             | Type                            | Default  | Description               |
-| ------------------ | ------------------------------- | -------- | ------------------------- |
-| `directory`        | `string`                        | Required | Directory to review       |
-| `model`            | `'opus' \| 'sonnet' \| 'haiku'` | `'opus'` | Claude model to use       |
-| `maxTurns`         | `number`                        | `250`    | Maximum agent turns       |
-| `useSubagents`     | `boolean`                       | `true`   | Use specialized subagents |
-| `structuredOutput` | `boolean`                       | `true`   | Return structured JSON    |
+| Option             | Type                            | Default  | Description               | الوصف                              |
+| ------------------ | ------------------------------- | -------- | ------------------------- | --------------------------------- |
+| `directory`        | `string`                        | Required | Directory to review       | المجلد المراد مراجعته               |
+| `model`            | `'opus' \| 'sonnet' \| 'haiku'` | `'opus'` | Claude model to use       | نموذج Claude الذي يجب استخدامه    |
+| `maxTurns`         | `number`                        | `250`    | Maximum agent turns       | الحد الأقصى لدورات الوكيل           |
+| `useSubagents`     | `boolean`                       | `true`   | Use specialized subagents | استخدام الوكلاء المتخصصين          |
+| `structuredOutput` | `boolean`                       | `true`   | Return structured JSON    | إرجاع JSON منظم                     |
 
-## Output Formats
+## Output Formats | صيغ المخرجات
 
-### JSON (default)
+### JSON (default | الافتراضي)
 
 ```json
 {
@@ -112,36 +120,36 @@ if (result) {
 
 ### SARIF
 
-GitHub Code Scanning compatible format for CI/CD integration.
+GitHub Code Scanning compatible format for CI/CD integration. | صيغة متوافقة مع مسح كود GitHub للتكامل مع CI/CD.
 
 ### Markdown
 
-Human-readable report format.
+Human-readable report format. | صيغة التقرير سهلة القراءة للبشر.
 
-## Subagents
+## Subagents | الوكلاء الفرعيون
 
-The production agent uses specialized subagents:
+The production agent uses specialized subagents: | يستخدم وكيل الإنتاج وكلاء فرعيين متخصصين:
 
-| Subagent               | Model  | Purpose                                |
-| ---------------------- | ------ | -------------------------------------- |
-| `security-scanner`     | Sonnet | Deep security vulnerability analysis   |
-| `test-analyzer`        | Haiku  | Test coverage evaluation               |
-| `performance-analyzer` | Sonnet | Performance optimization opportunities |
+| Subagent               | Model  | Purpose                                | الغرض                                    |
+| ---------------------- | ------ | -------------------------------------- | ---------------------------------------- |
+| `security-scanner`     | Sonnet | Deep security vulnerability analysis   | تحليل عميق للثغرات الأمنية              |
+| `test-analyzer`        | Haiku  | Test coverage evaluation               | تقييم تغطية الاختبارات                  |
+| `performance-analyzer` | Sonnet | Performance optimization opportunities | فرص تحسين الأداء                         |
 
-## Hooks
+## Hooks | الخطاطيف
 
-### Audit Logger
+### Audit Logger | مسجل التدقيق
 
-Logs all tool usage with timestamps:
+Logs all tool usage with timestamps: | تسجيل جميع استخدام الأدوات مع الطوابع الزمنية:
 
 ```
 [AUDIT] 2025-01-10T12:00:00.000Z - Tool: Read
 [AUDIT] 2025-01-10T12:00:01.000Z - Tool: Grep
 ```
 
-### Dangerous Command Blocker
+### Dangerous Command Blocker | محجوب الأوامر الخطيرة
 
-Blocks commands containing:
+Blocks commands containing: | حجب الأوامر التي تحتوي على:
 
 - `rm -rf`
 - `sudo`
@@ -149,56 +157,56 @@ Blocks commands containing:
 - `curl | sh`
 - `wget | sh`
 
-## Environment Variables
+## Environment Variables | متغيرات البيئة
 
-| Variable            | Description                     |
-| ------------------- | ------------------------------- |
-| `ANTHROPIC_API_KEY` | API key for Claude              |
-| `LOG_LEVEL`         | Logging level (default: `info`) |
+| Variable            | Description                     | الوصف                           |
+| ------------------- | ------------------------------- | ------------------------------- |
+| `ANTHROPIC_API_KEY` | API key for Claude              | مفتاح API لـ Claude             |
+| `LOG_LEVEL`         | Logging level (default: `info`) | مستوى التسجيل (افتراضي: `info`) |
 
-## Development
+## Development | التطوير
 
 ```bash
-# Install dependencies
+# Install dependencies | تثبيت المتطلبات
 npm install
 
-# Run in development mode
+# Run in development mode | التشغيل في وضع التطوير
 npm run dev
 
-# Run tests
+# Run tests | تشغيل الاختبارات
 npm test
 
-# Type check
+# Type check | فحص النوع
 npm run typecheck
 
-# Lint
+# Lint | الفحص اللغوي
 npm run lint
 ```
 
 ## Docker
 
 ```bash
-# Build image
+# Build image | بناء الصورة
 docker build -t code-review-agent .
 
-# Run container
+# Run container | تشغيل الحاوية
 docker run -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
   -v $(pwd):/code:ro \
   code-review-agent /code
 ```
 
-## Architecture
+## Architecture | الهندسة المعمارية
 
 ```
 src/
-├── index.ts              # Main exports
-├── types.ts              # TypeScript types and JSON Schema
-├── agent.ts              # Basic agent example
-├── review-agent.ts       # Simple review agent
-├── review-structured.ts  # Structured output agent
-└── production-agent.ts   # Full production agent
+├── index.ts              # Main exports | المخرجات الرئيسية
+├── types.ts              # TypeScript types and JSON Schema | أنواع TypeScript وـ JSON Schema
+├── agent.ts              # Basic agent example | مثال وكيل أساسي
+├── review-agent.ts       # Simple review agent | وكيل مراجعة بسيط
+├── review-structured.ts  # Structured output agent | وكيل المخرجات المنظمة
+└── production-agent.ts   # Full production agent | وكيل الإنتاج الكامل
 ```
 
-## License
+## License | الترخيص
 
-Proprietary - KAFAAT
+Proprietary - KAFAAT | ملكية خاصة - KAFAAT

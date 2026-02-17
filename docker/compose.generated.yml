@@ -285,7 +285,7 @@ services:
     - traefik.http.routers.marketplace-service.rule=PathPrefix(`/api/v1/marketplace/service`)
   community-chat:
     build:
-      context: ./apps/services/community-chat
+      context: ./archive/deprecated-services/community-chat
       dockerfile: Dockerfile
     container_name: sahool-community-chat
     ports:
@@ -686,7 +686,7 @@ services:
     - traefik.http.routers.virtual-sensors.rule=PathPrefix(`/api/v1/virtual/sensors`)
   yield-engine:
     build:
-      context: ./apps/services/yield-engine
+      context: ./archive/deprecated-services/yield-engine
       dockerfile: Dockerfile
     container_name: sahool-yield-engine
     ports:
@@ -1081,7 +1081,7 @@ services:
     - traefik.http.routers.ws-gateway.rule=PathPrefix(`/api/v1/ws/gateway`)
   ndvi-processor:
     build:
-      context: ./apps/services/ndvi-processor
+      context: ./archive/deprecated-services/ndvi-processor
       dockerfile: Dockerfile
     container_name: sahool-ndvi-processor
     ports:
@@ -1628,7 +1628,7 @@ services:
     - traefik.http.routers.inventory-service.rule=PathPrefix(`/api/v1/inventory/service`)
   field-chat:
     build:
-      context: ./apps/services/field-chat
+      context: ./archive/deprecated-services/field-chat
       dockerfile: Dockerfile
     container_name: sahool-field-chat
     ports:
@@ -2104,10 +2104,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-code-review-service
     ports:
-    - 8124:8124
+    - 8102:8102
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8124
+    - PORT=8102
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2116,7 +2116,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8124/healthz
+      - http://localhost:8102/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2133,7 +2133,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=code-review-service
-    - sahool.port=8124
+    - sahool.port=8102
     - sahool.category=core
     - traefik.enable=true
     - traefik.http.routers.code-review-service.rule=PathPrefix(`/api/v1/code/review/service`)
@@ -2691,10 +2691,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-edge-orchestrator-service
     ports:
-    - 8190:8190
+    - 8180:8180
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8190
+    - PORT=8180
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2703,7 +2703,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8190/healthz
+      - http://localhost:8180/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2720,7 +2720,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=edge-orchestrator-service
-    - sahool.port=8190
+    - sahool.port=8180
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.edge-orchestrator-service.rule=PathPrefix(`/api/v1/edge/orchestrator/service`)
@@ -2730,10 +2730,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-llm-orchestrator-service
     ports:
-    - 8220:8220
+    - 8164:8164
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8220
+    - PORT=8164
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -2742,7 +2742,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8220/healthz
+      - http://localhost:8164/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2759,7 +2759,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=llm-orchestrator-service
-    - sahool.port=8220
+    - sahool.port=8164
     - sahool.category=intelligence
     - traefik.enable=true
     - traefik.http.routers.llm-orchestrator-service.rule=PathPrefix(`/api/v1/llm/orchestrator/service`)

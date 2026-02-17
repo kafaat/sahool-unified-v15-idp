@@ -54,7 +54,7 @@ services:
     - lai-estimation
   yield-engine:
     build:
-      context: ../../apps/services/yield-engine
+      context: ../../archive/deprecated-services/yield-engine
       dockerfile: Dockerfile
     ports:
     - 8098:8098
@@ -248,16 +248,16 @@ services:
       context: ../../apps/services/llm-orchestrator-service
       dockerfile: Dockerfile
     ports:
-    - 8220:8220
+    - 8164:8164
     environment:
-    - PORT=8220
+    - PORT=8164
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8220/healthz
+      - http://localhost:8164/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -540,7 +540,7 @@ services:
     - vegetation-analysis-service
   ndvi-processor:
     build:
-      context: ../../apps/services/ndvi-processor
+      context: ../../archive/deprecated-services/ndvi-processor
       dockerfile: Dockerfile
     ports:
     - 8118:8118
@@ -733,7 +733,7 @@ services:
     - 8145:8145
     environment:
     - PORT=8145
-    - NODE_ENV=production
+    - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
@@ -1020,13 +1020,13 @@ services:
           memory: 384Mi
   community-chat:
     build:
-      context: ../../apps/services/community-chat
+      context: ../../archive/deprecated-services/community-chat
       dockerfile: Dockerfile
     ports:
     - 8097:8097
     environment:
     - PORT=8097
-    - NODE_ENV=production
+    - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
@@ -1354,7 +1354,7 @@ services:
     - redis
   field-chat:
     build:
-      context: ../../apps/services/field-chat
+      context: ../../archive/deprecated-services/field-chat
       dockerfile: Dockerfile
     ports:
     - 8099:8099
@@ -1550,16 +1550,16 @@ services:
       context: ../../apps/services/code-review-service
       dockerfile: Dockerfile
     ports:
-    - 8124:8124
+    - 8102:8102
     environment:
-    - PORT=8124
+    - PORT=8102
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8124/healthz
+      - http://localhost:8102/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -2154,16 +2154,16 @@ services:
       context: ../../apps/services/edge-orchestrator-service
       dockerfile: Dockerfile
     ports:
-    - 8190:8190
+    - 8180:8180
     environment:
-    - PORT=8190
+    - PORT=8180
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8190/healthz
+      - http://localhost:8180/healthz
       interval: 30s
       timeout: 10s
       retries: 3

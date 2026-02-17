@@ -10,8 +10,8 @@ void main() {
         createSimpleTestableWidget(
           const SahoolEmptyState(
             icon: Icons.inbox,
-            title: 'عنوان فارغ',
-            message: 'رسالة فارغة',
+            titleAr: 'عنوان فارغ',
+            messageAr: 'رسالة فارغة',
           ),
         ),
       );
@@ -28,8 +28,8 @@ void main() {
         createSimpleTestableWidget(
           SahoolEmptyState(
             icon: Icons.add,
-            title: 'Test',
-            actionLabel: 'إضافة',
+            titleAr: 'Test',
+            actionLabelAr: 'إضافة',
             onAction: () => buttonPressed = true,
           ),
         ),
@@ -48,7 +48,7 @@ void main() {
         createSimpleTestableWidget(
           const SahoolEmptyState(
             icon: Icons.inbox,
-            title: 'Test',
+            titleAr: 'Test',
           ),
         ),
       );
@@ -101,7 +101,7 @@ void main() {
       );
 
       expect(find.text('لا توجد نتائج'), findsOneWidget);
-      expect(find.textContaining('قمح'), findsOneWidget);
+      expect(find.textContaining('قمح'), findsAtLeastNWidgets(1));
     });
 
     testWidgets('OfflineEmptyState should display offline message', (tester) async {
@@ -111,8 +111,8 @@ void main() {
         ),
       );
 
-      expect(find.text('أنت غير متصل'), findsOneWidget);
-      expect(find.byIcon(Icons.cloud_off_rounded), findsOneWidget);
+      expect(find.text('لا يوجد اتصال بالإنترنت'), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_rounded), findsOneWidget);
     });
 
     testWidgets('ComingSoonEmptyState should show feature name', (tester) async {

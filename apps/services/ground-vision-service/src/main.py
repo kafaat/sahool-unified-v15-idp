@@ -293,8 +293,27 @@ async def register_camera(request: CameraRegistration):
 
     تسجيل كاميرا برج جديدة
     """
-    # TODO: Store in database
     logger.info(f"Registering camera {request.camera_id} at tower {request.tower_id}")
+    created_at = datetime.now(UTC).isoformat()
+
+    if state.db_pool:
+        try:
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+                """INSERT INTO cameras (camera_id, tower_id, name, name_ar, latitude, longitude,
+                   altitude_m, focal_length_mm, sensor_width_mm, sensor_height_mm,
+                   image_width_px, image_height_px, zoom_min, zoom_max, tenant_id, status, created_at)
+                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+                   ON CONFLICT (camera_id) DO UPDATE SET
+                   name=$3, name_ar=$4, status=$16""",
+                request.camera_id, request.tower_id, request.name, request.name_ar,
+                request.latitude, request.longitude, request.altitude_m,
+                request.focal_length_mm, request.sensor_width_mm, request.sensor_height_mm,
+                request.image_width_px, request.image_height_px,
+                request.zoom_min, request.zoom_max, request.tenant_id, "online", created_at,
+            )
+        except Exception as e:
+            logger.warning(f"Failed to store camera in database: {e}")
 
     response = CameraResponse(
         camera_id=request.camera_id,
@@ -303,7 +322,7 @@ async def register_camera(request: CameraRegistration):
         name_ar=request.name_ar,
         status="online",
         status_ar="متصل",
-        created_at=datetime.now(UTC).isoformat(),
+        created_at=created_at,
     )
 
     # Publish camera status event via NATS
@@ -332,11 +351,26 @@ async def list_cameras(
 
     قائمة الكاميرات المسجلة
     """
-    # TODO: Query from database
-    return {
-        "cameras": [],
-        "total": 0,
-    }
+    if state.db_pool:
+        try:
+            if tower_id:
+                rows = await state.db_pool.fetch(
+                    "SELECT camera_id, tower_id, name, name_ar, status, created_at "
+                    "FROM cameras WHERE tenant_id=$1 AND tower_id=$2 ORDER BY created_at DESC",
+                    tenant_id, tower_id,
+                )
+            else:
+                rows = await state.db_pool.fetch(
+                    "SELECT camera_id, tower_id, name, name_ar, status, created_at "
+                    "FROM cameras WHERE tenant_id=$1 ORDER BY created_at DESC",
+                    tenant_id,
+                )
+            cameras = [dict(r) for r in rows]
+            return {"cameras": cameras, "total": len(cameras)}
+        except Exception as e:
+            logger.warning(f"Failed to query cameras from database: {e}")
+
+    return {"cameras": [], "total": 0}
 
 
 @app.get("/api/v1/cameras/{camera_id}", tags=["Cameras"])
@@ -346,8 +380,17 @@ async def get_camera(camera_id: str):
 
     تفاصيل الكاميرا
     """
-    # TODO: Query from database
-    raise HTTPException(status_code=404, detail="Camera not found")
+    if state.db_pool:
+        try:
+            row = await state.db_pool.fetchrow(
+                "SELECT * FROM cameras WHERE camera_id=$1", camera_id,
+            )
+            if row:
+                return dict(row)
+        except Exception as e:
+            logger.warning(f"Failed to query camera from database: {e}")
+
+    raise HTTPException(status_code=404, detail="Camera not found | الكاميرا غير موجودة")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -394,16 +437,50 @@ async def process_frame(request: FrameProcessRequest):
 
     start_time = time.time()
 
-    # TODO: Implement full processing pipeline
-    # For now, return mock response
+    detections_count = 0
+    anomalies_count = 0
+
+    # Run change detection if models are loaded
+    if state.change_detector and state.operation_classifier:
+        try:
+            import httpx
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                resp = await client.get(request.image_url)
+                if resp.status_code == 200:
+                    image_data = resp.content
+                    change_result = state.change_detector.detect(image_data)
+                    if change_result and change_result.get("changed"):
+                        ops = state.operation_classifier.classify(image_data)
+                        detections_count = len(ops) if ops else 0
+                    if state.anomaly_detector:
+                        anomalies = state.anomaly_detector.detect(image_data)
+                        anomalies_count = len(anomalies) if anomalies else 0
+        except Exception as e:
+            logger.warning(f"Frame processing pipeline error: {e}")
+
+    # Store result in database if available
+    if state.db_pool:
+        try:
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+                """INSERT INTO frame_results (frame_id, camera_id, field_id, tenant_id,
+                   detections_count, anomalies_count, processed_at)
+                   VALUES ($1,$2,$3,$4,$5,$6,$7)""",
+                request.frame_id, request.camera_id, request.field_id,
+                request.tenant_id, detections_count, anomalies_count,
+                datetime.now(UTC).isoformat(),
+            )
+        except Exception as e:
+            logger.warning(f"Failed to store frame result: {e}")
 
     processing_time = int((time.time() - start_time) * 1000)
 
     response = FrameProcessResponse(
         frame_id=request.frame_id,
         processed=True,
-        detections_count=0,
-        anomalies_count=0,
+        detections_count=detections_count,
+        anomalies_count=anomalies_count,
         processing_time_ms=processing_time,
     )
 
@@ -447,13 +524,46 @@ async def list_detections(
 
     قائمة العمليات المكتشفة
     """
-    # TODO: Query from database
-    return {
-        "detections": [],
-        "total": 0,
-        "limit": limit,
-        "offset": offset,
-    }
+    if state.db_pool:
+        try:
+            query = "SELECT * FROM detections WHERE tenant_id=$1"
+            params: list = [tenant_id]
+            idx = 2
+            if field_id:
+                query += f" AND field_id=${idx}"
+                params.append(field_id)
+                idx += 1
+            if operation_type:
+                query += f" AND operation_type=${idx}"
+                params.append(operation_type)
+                idx += 1
+            if from_date:
+                query += f" AND detected_at >= ${idx}"
+                params.append(from_date)
+                idx += 1
+            if to_date:
+                query += f" AND detected_at <= ${idx}"
+                params.append(to_date)
+                idx += 1
+
+            count_row = await state.db_pool.fetchrow(
+                query.replace("SELECT *", "SELECT COUNT(*) as cnt"), *params,
+            )
+            total = count_row["cnt"] if count_row else 0
+
+            query += f" ORDER BY detected_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
+            params.extend([limit, offset])
+            rows = await state.db_pool.fetch(query, *params)
+            return {
+                "detections": [dict(r) for r in rows],
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+            }
+        except Exception as e:
+            logger.warning(f"Failed to query detections: {e}")
+
+    return {"detections": [], "total": 0, "limit": limit, "offset": offset}
 
 
 @app.get("/api/v1/detections/{detection_id}", tags=["Detections"])
@@ -463,8 +573,17 @@ async def get_detection(detection_id: str):
 
     تفاصيل الكشف
     """
-    # TODO: Query from database
-    raise HTTPException(status_code=404, detail="Detection not found")
+    if state.db_pool:
+        try:
+            row = await state.db_pool.fetchrow(
+                "SELECT * FROM detections WHERE detection_id=$1", detection_id,
+            )
+            if row:
+                return dict(row)
+        except Exception as e:
+            logger.warning(f"Failed to query detection: {e}")
+
+    raise HTTPException(status_code=404, detail="Detection not found | الكشف غير موجود")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -511,21 +630,56 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
 
     start_time = time.time()
 
-    # TODO: Implement actual analysis
-    # For now, return mock response
+    analysis_id = f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+
+    # Default values - overridden by actual analysis if models are loaded
+    crop_type = "unknown"
+    crop_type_ar = "غير معروف"
+    growth_stage = "unknown"
+    growth_stage_ar = "غير معروف"
+    confidence = 0.0
+
+    # Run timeline analysis if reasoner is loaded
+    if state.timeline_reasoner:
+        try:
+            result = state.timeline_reasoner.analyze(
+                field_id=request.field_id,
+                frame_ids=request.frame_ids,
+            )
+            if result:
+                crop_type = result.get("crop_type", crop_type)
+                crop_type_ar = result.get("crop_type_ar", crop_type_ar)
+                growth_stage = result.get("growth_stage", growth_stage)
+                growth_stage_ar = result.get("growth_stage_ar", growth_stage_ar)
+                confidence = result.get("confidence", confidence)
+        except Exception as e:
+            logger.warning(f"Timeline analysis failed: {e}")
 
     processing_time = int((time.time() - start_time) * 1000)
 
-    analysis_id = f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
+    # Store analysis result in database
+    if state.db_pool:
+        try:
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+                """INSERT INTO timeline_analyses (analysis_id, field_id, tenant_id,
+                   crop_type, growth_stage, confidence, processing_time_ms, analyzed_at)
+                   VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
+                analysis_id, request.field_id, request.tenant_id,
+                crop_type, growth_stage, confidence, processing_time,
+                datetime.now(UTC).isoformat(),
+            )
+        except Exception as e:
+            logger.warning(f"Failed to store timeline analysis: {e}")
 
     response = TimelineAnalysisResponse(
         analysis_id=analysis_id,
         field_id=request.field_id,
-        crop_type="wheat",
-        crop_type_ar="قمح",
-        growth_stage="tillering",
-        growth_stage_ar="تفريع",
-        confidence=0.85,
+        crop_type=crop_type,
+        crop_type_ar=crop_type_ar,
+        growth_stage=growth_stage,
+        growth_stage_ar=growth_stage_ar,
+        confidence=confidence,
         processing_time_ms=processing_time,
     )
 
@@ -566,12 +720,35 @@ async def get_field_timeline(
 
     الحصول على الخط الزمني للمحصول للحقل
     """
-    # TODO: Query from database
-    return {
-        "field_id": field_id,
-        "entries": [],
-        "current_stage": None,
-    }
+    if state.db_pool:
+        try:
+            query = (
+                "SELECT * FROM timeline_analyses WHERE field_id=$1 AND tenant_id=$2"
+            )
+            params: list = [field_id, tenant_id]
+            idx = 3
+            if from_date:
+                query += f" AND analyzed_at >= ${idx}"
+                params.append(from_date)
+                idx += 1
+            if to_date:
+                query += f" AND analyzed_at <= ${idx}"
+                params.append(to_date)
+                idx += 1
+            query += " ORDER BY analyzed_at DESC"
+
+            rows = await state.db_pool.fetch(query, *params)
+            entries = [dict(r) for r in rows]
+            current_stage = entries[0].get("growth_stage") if entries else None
+            return {
+                "field_id": field_id,
+                "entries": entries,
+                "current_stage": current_stage,
+            }
+        except Exception as e:
+            logger.warning(f"Failed to query timeline: {e}")
+
+    return {"field_id": field_id, "entries": [], "current_stage": None}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -593,13 +770,42 @@ async def list_anomalies(
 
     قائمة الشذوذ المكتشف
     """
-    # TODO: Query from database
-    return {
-        "anomalies": [],
-        "total": 0,
-        "limit": limit,
-        "offset": offset,
-    }
+    if state.db_pool:
+        try:
+            query = "SELECT * FROM anomalies WHERE tenant_id=$1"
+            params: list = [tenant_id]
+            idx = 2
+            if field_id:
+                query += f" AND field_id=${idx}"
+                params.append(field_id)
+                idx += 1
+            if severity:
+                query += f" AND severity=${idx}"
+                params.append(severity)
+                idx += 1
+            if status:
+                query += f" AND status=${idx}"
+                params.append(status)
+                idx += 1
+
+            count_row = await state.db_pool.fetchrow(
+                query.replace("SELECT *", "SELECT COUNT(*) as cnt"), *params,
+            )
+            total = count_row["cnt"] if count_row else 0
+
+            query += f" ORDER BY detected_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
+            params.extend([limit, offset])
+            rows = await state.db_pool.fetch(query, *params)
+            return {
+                "anomalies": [dict(r) for r in rows],
+                "total": total,
+                "limit": limit,
+                "offset": offset,
+            }
+        except Exception as e:
+            logger.warning(f"Failed to query anomalies: {e}")
+
+    return {"anomalies": [], "total": 0, "limit": limit, "offset": offset}
 
 
 @app.get("/api/v1/anomalies/{anomaly_id}", tags=["Anomalies"])
@@ -609,8 +815,17 @@ async def get_anomaly(anomaly_id: str):
 
     تفاصيل الشذوذ
     """
-    # TODO: Query from database
-    raise HTTPException(status_code=404, detail="Anomaly not found")
+    if state.db_pool:
+        try:
+            row = await state.db_pool.fetchrow(
+                "SELECT * FROM anomalies WHERE anomaly_id=$1", anomaly_id,
+            )
+            if row:
+                return dict(row)
+        except Exception as e:
+            logger.warning(f"Failed to query anomaly: {e}")
+
+    raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
 
 
 class AnomalyAcknowledgeRequest(BaseModel):
@@ -628,11 +843,28 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
 
     الإقرار بالشذوذ
     """
-    # TODO: Update in database
+    acknowledged_at = datetime.now(UTC).isoformat()
+    if state.db_pool:
+        try:
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+                """UPDATE anomalies SET status='acknowledged',
+                   acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
+                   WHERE anomaly_id=$4""",
+                request.acknowledged_by, request.notes, acknowledged_at, anomaly_id,
+            )
+            if result == "UPDATE 0":
+                raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning(f"Failed to acknowledge anomaly in database: {e}")
+
     return {
         "anomaly_id": anomaly_id,
         "status": "acknowledged",
-        "acknowledged_at": datetime.now(UTC).isoformat(),
+        "status_ar": "تم الإقرار",
+        "acknowledged_at": acknowledged_at,
     }
 
 
@@ -651,11 +883,29 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
 
     حل الشذوذ
     """
-    # TODO: Update in database
+    resolved_at = datetime.now(UTC).isoformat()
+    if state.db_pool:
+        try:
+            # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+                """UPDATE anomalies SET status='resolved',
+                   resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
+                   WHERE anomaly_id=$5""",
+                request.resolved_by, request.resolution_notes,
+                request.resolution_notes_ar, resolved_at, anomaly_id,
+            )
+            if result == "UPDATE 0":
+                raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning(f"Failed to resolve anomaly in database: {e}")
+
     return {
         "anomaly_id": anomaly_id,
         "status": "resolved",
-        "resolved_at": datetime.now(UTC).isoformat(),
+        "status_ar": "تم الحل",
+        "resolved_at": resolved_at,
     }
 
 
@@ -666,13 +916,30 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
 
 @app.get("/metrics", tags=["Monitoring"])
 async def metrics():
-    """
-    Prometheus metrics endpoint.
-    """
-    # TODO: Implement Prometheus metrics
-    return (
-        "# HELP ground_vision_up Service is up\n# TYPE ground_vision_up gauge\nground_vision_up 1\n"
+    """Prometheus metrics endpoint."""
+    from fastapi.responses import PlainTextResponse
+
+    db_up = 1 if state.db_pool is not None else 0
+    nats_up = 1 if state.nc is not None and not state.nc.is_closed else 0
+    models_up = 1 if state.models_loaded else 0
+    metrics_text = (
+        "# HELP ground_vision_up Service is up\n"
+        "# TYPE ground_vision_up gauge\n"
+        "ground_vision_up 1\n"
+        '# HELP ground_vision_info Service version info\n'
+        '# TYPE ground_vision_info gauge\n'
+        f'ground_vision_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
+        "# HELP ground_vision_db_up Database connection status\n"
+        "# TYPE ground_vision_db_up gauge\n"
+        f"ground_vision_db_up {db_up}\n"
+        "# HELP ground_vision_nats_up NATS connection status\n"
+        "# TYPE ground_vision_nats_up gauge\n"
+        f"ground_vision_nats_up {nats_up}\n"
+        "# HELP ground_vision_models_loaded Models loaded status\n"
+        "# TYPE ground_vision_models_loaded gauge\n"
+        f"ground_vision_models_loaded {models_up}\n"
     )
+    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

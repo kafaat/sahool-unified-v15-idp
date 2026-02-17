@@ -54,7 +54,7 @@ services:
     - lai-estimation
   yield-engine:
     build:
-      context: ../../apps/services/yield-engine
+      context: ../../archive/deprecated-services/yield-engine
       dockerfile: Dockerfile
     ports:
     - 8098:8098
@@ -248,16 +248,16 @@ services:
       context: ../../apps/services/llm-orchestrator-service
       dockerfile: Dockerfile
     ports:
-    - 8220:8220
+    - 8164:8164
     environment:
-    - PORT=8220
+    - PORT=8164
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8220/healthz
+      - http://localhost:8164/healthz
       interval: 30s
       timeout: 10s
       retries: 3

@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/config/api_config.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('ServicePorts', () {
     test('should have correct field core port', () {
       expect(ServicePorts.fieldCore, 3000);

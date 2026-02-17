@@ -14,7 +14,7 @@ event_architecture:
   layers:
     acquisition:
       description: "Data ingestion layer - طبقة جمع البيانات"
-      services: [vegetation-analysis-service, iot-service, iot-gateway, weather-service, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
+      services: [iot-service, iot-gateway, weather-service, virtual-sensors, ussd-gateway, ground-vision-service, edge-orchestrator-service]
       rules:
         - "No business logic"
         - "Only ingestion + normalization"
@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service]
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service]
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -345,17 +345,17 @@ services:
   community-chat:
     name: "Community Chat"
     name_ar: "دردشة المجتمع"
-    type: nestjs
+    type: nodejs  # Express.js + Socket.io (not NestJS)
     category: community
     layer: business
-    path: "apps/services/community-chat"
+    path: "archive/deprecated-services/community-chat"
     port: 8097
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Use chat-service instead
     owner: "frontend-team@sahool.io"
     team: frontend
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -759,14 +759,14 @@ services:
     type: python
     category: analytics
     layer: decision
-    path: "apps/services/yield-engine"
+    path: "archive/deprecated-services/yield-engine"
     port: 8098
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Archived - use yield-prediction-service instead
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -936,7 +936,7 @@ services:
     layer: intelligence
     path: "apps/services/agro-rules"
     port: 8151
-    protocol: http
+    protocol: nats
     health_endpoint: "/healthz"
     status: active
     owner: "agro-team@sahool.io"
@@ -1091,14 +1091,14 @@ services:
     type: python
     category: analytics
     layer: intelligence
-    path: "apps/services/ndvi-processor"
+    path: "archive/deprecated-services/ndvi-processor"
     port: 8118
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Archived - use vegetation-analysis-service instead
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-2
     events:
       produces:
@@ -1658,14 +1658,14 @@ services:
     type: python
     category: community
     layer: business
-    path: "apps/services/field-chat"
+    path: "archive/deprecated-services/field-chat"
     port: 8099
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Archived - use chat-service instead
     owner: "frontend-team@sahool.io"
     team: frontend
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -2209,7 +2209,7 @@ services:
     name_ar: "وكيل مراجعة الكود"
     description: "AI-powered code review agent for pull request analysis"
     description_ar: "وكيل مراجعة الكود المدعوم بالذكاء الاصطناعي لتحليل طلبات السحب"
-    type: nestjs
+    type: nodejs  # TypeScript + Claude Agent SDK (not NestJS)
     category: analytics
     layer: intelligence
     path: "apps/services/code-review-agent"
@@ -2246,7 +2246,7 @@ services:
     category: core
     layer: business
     path: "apps/services/code-review-service"
-    port: 8124  # Matches Dockerfile EXPOSE
+    port: 8102  # Matches Dockerfile EXPOSE and config/settings.py
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2781,7 +2781,7 @@ services:
     category: integration
     layer: acquisition
     path: "apps/services/edge-orchestrator-service"
-    port: 8190
+    port: 8180  # Matches Dockerfile EXPOSE and ENV PORT
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -2816,7 +2816,7 @@ services:
     category: intelligence
     layer: decision
     path: "apps/services/llm-orchestrator-service"
-    port: 8220
+    port: 8164  # Matches Dockerfile EXPOSE and ENV PORT
     protocol: http
     health_endpoint: "/healthz"
     status: active

@@ -4,8 +4,6 @@ JWT, RBAC, Audit, Token Revocation, and Policy Engine utilities
 """
 
 from .audit import AuditAction, audit_log
-from .deps import get_optional_principal, get_principal
-from .guard import require, require_all, require_any
 from .jwt import AuthError, create_token, verify_token
 from .policy_engine import (
     PolicyContext,
@@ -24,6 +22,20 @@ from .token_revocation import (
     revoke_token,
     revoke_user_tokens,
 )
+
+
+def __getattr__(name: str):
+    """Lazy import for FastAPI-dependent modules (deps, guard)."""
+    _deps_attrs = {"get_principal", "get_optional_principal"}
+    _guard_attrs = {"require", "require_any", "require_all"}
+
+    if name in _deps_attrs:
+        from . import deps
+        return getattr(deps, name)
+    if name in _guard_attrs:
+        from . import guard
+        return getattr(guard, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 __version__ = "15.4.0"
 

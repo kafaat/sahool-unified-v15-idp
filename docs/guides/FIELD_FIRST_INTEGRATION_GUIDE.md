@@ -699,8 +699,8 @@ async def call_original_service(url: str, payload: dict):
 
 للمساعدة أو الاستفسارات:
 
-- راجع [FIELD_FIRST_ARCHITECTURE.md](./FIELD_FIRST_ARCHITECTURE.md)
-- راجع [SERVICE_ACTIVATION_MAP.md](./SERVICE_ACTIVATION_MAP.md)
+- راجع [FIELD_FIRST_ARCHITECTURE.md](../architecture/FIELD_FIRST_ARCHITECTURE.md)
+- راجع [SERVICE_ACTIVATION_MAP.md](../architecture/SERVICE_ACTIVATION_MAP.md)
 - افتح Issue في المستودع
 
 ---

@@ -1741,9 +1741,9 @@ All endpoints return standardized error responses:
 ## Related Documentation
 
 - [API Gateway Configuration](./API_GATEWAY.md)
-- [Authentication](./AUTHENTICATION.md)
+- [Authentication](./api/authentication.md)
 - [Rate Limiting](./RATE_LIMITING.md)
-- [Error Handling](./ERROR_HANDLING.md)
+- [Error Handling](./API_COMPREHENSIVE.md#error-handling--معالجة-الأخطاء)
 - [Service Registry](../governance/services.yaml)
 
 ---

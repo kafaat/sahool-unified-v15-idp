@@ -104,7 +104,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
     available throughout the request lifecycle.
 
     Priority order for tenant_id extraction:
-    1. JWT token claim (tid)
+    1. JWT token claim (tenant_id or tid for cross-language compatibility)
     2. X-Tenant-ID header
     3. Query parameter (for webhooks)
 
@@ -145,7 +145,7 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
         # 1. Try JWT (from request.state if auth middleware ran first)
         if hasattr(request.state, "principal"):
             principal = request.state.principal
-            tenant_id = principal.get("tid")
+            tenant_id = principal.get("tenant_id") or principal.get("tid")
             user_id = principal.get("sub")
             roles = principal.get("roles", [])
 

@@ -348,7 +348,7 @@ echo "0 2 * * * python -m tools.auto-audit full-audit -i /var/log/audit.json -t 
 
 ## المراجع
 
-- [SAHOOL Auto Audit Tools README](../tools/auto-audit/README.md)
+- [SAHOOL Auto Audit Tools README](../../tools/auto-audit/README.md)
 - [A2A Protocol Specification](https://github.com/google/a2a)
 - [GDPR Compliance Guide](https://gdpr.eu/)
 - [SOC 2 Type II Requirements](https://www.aicpa.org/)

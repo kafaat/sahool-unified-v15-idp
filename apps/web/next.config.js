@@ -12,6 +12,17 @@ const nextConfig = {
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
 
+  // Transpile workspace packages so Next.js compiles them from source
+  // This avoids dependency on pre-built dist/ directories from build:packages
+  transpilePackages: [
+    "@sahool/shared-ui",
+    "@sahool/shared-utils",
+    "@sahool/shared-hooks",
+    "@sahool/shared-types",
+    "@sahool/api-client",
+    "@sahool/i18n",
+  ],
+
   // Ignore ESLint warnings during build - lint job checks separately
   eslint: {
     ignoreDuringBuilds: true,

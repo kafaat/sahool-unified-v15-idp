@@ -181,7 +181,7 @@ OLLAMA_MODEL=llama3.2
 ## 📚 Documentation Links | روابط التوثيق
 
 - [Ollama Integration Guide](./OLLAMA_INTEGRATION.md)
-- [Token Revocation Setup](../TOKEN_REVOCATION_SETUP.md)
+- [Token Revocation Setup](./guides/TOKEN_REVOCATION_SETUP.md)
 - [API Gateway Guide](./API_GATEWAY.md)
 - [Security Guidelines](./SECURITY.md)
 - [Deployment Guide](./DEPLOYMENT.md)

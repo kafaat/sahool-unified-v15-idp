@@ -1,52 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../smart_alerts/presentation/providers/smart_alerts_provider.dart';
+import '../data/alert_service_api.dart';
 
 /// Alerts Screen - شاشة التنبيهات
-class AlertsScreen extends StatefulWidget {
+/// Connected to alert-service via Kong gateway
+class AlertsScreen extends ConsumerStatefulWidget {
   const AlertsScreen({super.key});
 
   @override
-  State<AlertsScreen> createState() => _AlertsScreenState();
+  ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
 }
 
-class _AlertsScreenState extends State<AlertsScreen>
+class _AlertsScreenState extends ConsumerState<AlertsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-
-  final List<_Alert> _alerts = [
-    _Alert(
-      id: '1',
-      title: 'نقص النيتروجين',
-      subtitle: 'حقل القمح الشمالي يحتاج تسميد عاجل',
-      type: AlertType.warning,
-      time: DateTime.now().subtract(const Duration(hours: 2)),
-      isRead: false,
-    ),
-    _Alert(
-      id: '2',
-      title: 'موعد الري',
-      subtitle: 'حقل الذرة يحتاج ري خلال 4 ساعات',
-      type: AlertType.info,
-      time: DateTime.now().subtract(const Duration(hours: 5)),
-      isRead: false,
-    ),
-    _Alert(
-      id: '3',
-      title: 'تنبيه آفات',
-      subtitle: 'رصد حشرات في حقل البن - يرجى الفحص',
-      type: AlertType.danger,
-      time: DateTime.now().subtract(const Duration(days: 1)),
-      isRead: true,
-    ),
-    _Alert(
-      id: '4',
-      title: 'تحديث NDVI',
-      subtitle: 'تم تحديث بيانات صحة المحاصيل',
-      type: AlertType.success,
-      time: DateTime.now().subtract(const Duration(days: 2)),
-      isRead: true,
-    ),
-  ];
 
   @override
   void initState() {
@@ -62,6 +31,8 @@ class _AlertsScreenState extends State<AlertsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final alertsState = ref.watch(allAlertsProvider);
+
     return Scaffold(
       backgroundColor: SahoolColors.background,
       appBar: AppBar(
@@ -69,13 +40,13 @@ class _AlertsScreenState extends State<AlertsScreen>
         actions: [
           IconButton(
             icon: const Icon(Icons.done_all),
-            onPressed: () => _markAllAsRead(),
+            onPressed: () => _markAllAsRead(ref),
             tooltip: 'قراءة الكل',
           ),
           IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: () {},
-            tooltip: 'تصفية',
+            icon: const Icon(Icons.refresh),
+            onPressed: () => ref.invalidate(allAlertsProvider),
+            tooltip: 'تحديث',
           ),
         ],
         bottom: TabBar(
@@ -90,7 +61,11 @@ class _AlertsScreenState extends State<AlertsScreen>
                 children: [
                   const Text('الكل'),
                   const SizedBox(width: 6),
-                  _buildBadge(_alerts.length),
+                  alertsState.when(
+                    data: (alerts) => _buildBadge(alerts.length),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
@@ -100,7 +75,12 @@ class _AlertsScreenState extends State<AlertsScreen>
                 children: [
                   const Text('غير مقروءة'),
                   const SizedBox(width: 6),
-                  _buildBadge(_alerts.where((a) => !a.isRead).length),
+                  alertsState.when(
+                    data: (alerts) =>
+                        _buildBadge(alerts.where((a) => !a.isRead).length),
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, __) => const SizedBox.shrink(),
+                  ),
                 ],
               ),
             ),
@@ -108,13 +88,19 @@ class _AlertsScreenState extends State<AlertsScreen>
           ],
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildAlertsList(_alerts),
-          _buildAlertsList(_alerts.where((a) => !a.isRead).toList()),
-          _buildAlertsList(_alerts.where((a) => a.type == AlertType.danger).toList()),
-        ],
+      body: alertsState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => _buildErrorState(error.toString()),
+        data: (alerts) => TabBarView(
+          controller: _tabController,
+          children: [
+            _buildAlertsList(alerts),
+            _buildAlertsList(alerts.where((a) => !a.isRead).toList()),
+            _buildAlertsList(alerts
+                .where((a) => a.severity == AlertSeverity.critical)
+                .toList()),
+          ],
+        ),
       ),
     );
   }
@@ -134,7 +120,29 @@ class _AlertsScreenState extends State<AlertsScreen>
     );
   }
 
-  Widget _buildAlertsList(List<_Alert> alerts) {
+  Widget _buildErrorState(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, size: 64, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          Text(
+            'تعذر تحميل التنبيهات',
+            style: TextStyle(color: Colors.grey[600], fontSize: 16),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: () => ref.invalidate(allAlertsProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlertsList(List<SmartAlert> alerts) {
     if (alerts.isEmpty) {
       return Center(
         child: Column(
@@ -151,59 +159,56 @@ class _AlertsScreenState extends State<AlertsScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: alerts.length,
-      itemBuilder: (context, index) {
-        final alert = alerts[index];
-        return _AlertCard(
-          alert: alert,
-          onTap: () => _onAlertTap(alert),
-          onDismiss: () => _onAlertDismiss(alert),
-        );
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(allAlertsProvider);
+        await ref.read(allAlertsProvider.future);
       },
-    );
-  }
-
-  void _onAlertTap(_Alert alert) {
-    setState(() {
-      final index = _alerts.indexWhere((a) => a.id == alert.id);
-      if (index != -1) {
-        _alerts[index] = alert.copyWith(isRead: true);
-      }
-    });
-  }
-
-  void _onAlertDismiss(_Alert alert) {
-    setState(() {
-      _alerts.removeWhere((a) => a.id == alert.id);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('تم حذف التنبيه'),
-        action: SnackBarAction(
-          label: 'تراجع',
-          onPressed: () {
-            setState(() {
-              _alerts.add(alert);
-            });
-          },
-        ),
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: alerts.length,
+        itemBuilder: (context, index) {
+          final alert = alerts[index];
+          return _AlertCard(
+            alert: alert,
+            onTap: () => _onAlertTap(alert),
+            onDismiss: () => _onAlertDismiss(alert),
+          );
+        },
       ),
     );
   }
 
-  void _markAllAsRead() {
-    setState(() {
-      for (var i = 0; i < _alerts.length; i++) {
-        _alerts[i] = _alerts[i].copyWith(isRead: true);
+  void _onAlertTap(SmartAlert alert) {
+    // Acknowledge the alert via API
+    ref.read(acknowledgeAlertProvider(
+      (alertId: alert.id, userId: 'current_user'),
+    ));
+  }
+
+  void _onAlertDismiss(SmartAlert alert) {
+    ref.read(dismissAlertProvider(
+      (alertId: alert.id, userId: 'current_user'),
+    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('تم رفض التنبيه')),
+    );
+  }
+
+  void _markAllAsRead(WidgetRef ref) {
+    final alerts = ref.read(allAlertsProvider).valueOrNull ?? [];
+    for (final alert in alerts) {
+      if (!alert.isRead) {
+        ref.read(acknowledgeAlertProvider(
+          (alertId: alert.id, userId: 'current_user'),
+        ));
       }
-    });
+    }
   }
 }
 
 class _AlertCard extends StatelessWidget {
-  final _Alert alert;
+  final SmartAlert alert;
   final VoidCallback onTap;
   final VoidCallback onDismiss;
 
@@ -234,10 +239,14 @@ class _AlertCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: alert.isRead ? Colors.white : alert.type.color.withOpacity(0.05),
+            color: alert.isRead
+                ? Colors.white
+                : _getSeverityColor(alert.severity).withOpacity(0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: alert.isRead ? Colors.grey[200]! : alert.type.color.withOpacity(0.3),
+              color: alert.isRead
+                  ? Colors.grey[200]!
+                  : _getSeverityColor(alert.severity).withOpacity(0.3),
             ),
             boxShadow: SahoolShadows.small,
           ),
@@ -246,10 +255,14 @@ class _AlertCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: alert.type.color.withOpacity(0.1),
+                  color: _getSeverityColor(alert.severity).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(alert.type.icon, color: alert.type.color, size: 24),
+                child: Icon(
+                  _getTypeIcon(alert.type),
+                  color: _getSeverityColor(alert.severity),
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -264,7 +277,7 @@ class _AlertCard extends StatelessWidget {
                             height: 8,
                             margin: const EdgeInsets.only(left: 8),
                             decoration: BoxDecoration(
-                              color: alert.type.color,
+                              color: _getSeverityColor(alert.severity),
                               shape: BoxShape.circle,
                             ),
                           ),
@@ -272,24 +285,28 @@ class _AlertCard extends StatelessWidget {
                           child: Text(
                             alert.title,
                             style: TextStyle(
-                              fontWeight: alert.isRead ? FontWeight.normal : FontWeight.bold,
+                              fontWeight: alert.isRead
+                                  ? FontWeight.normal
+                                  : FontWeight.bold,
                               fontSize: 16,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      alert.subtitle,
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 14,
+                    if (alert.message != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        alert.message!,
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 8),
                     Text(
-                      _formatTime(alert.time),
+                      alert.timeAgo,
                       style: TextStyle(
                         color: Colors.grey[400],
                         fontSize: 12,
@@ -306,51 +323,35 @@ class _AlertCard extends StatelessWidget {
     );
   }
 
-  String _formatTime(DateTime time) {
-    final diff = DateTime.now().difference(time);
-    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
-    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
-    return 'منذ ${diff.inDays} يوم';
+  Color _getSeverityColor(AlertSeverity severity) {
+    switch (severity) {
+      case AlertSeverity.critical:
+        return SahoolColors.danger;
+      case AlertSeverity.warning:
+        return SahoolColors.warning;
+      case AlertSeverity.info:
+        return SahoolColors.info;
+      case AlertSeverity.success:
+        return SahoolColors.success;
+    }
   }
-}
 
-enum AlertType {
-  info(Icons.info, SahoolColors.info),
-  warning(Icons.warning_amber, SahoolColors.warning),
-  danger(Icons.error, SahoolColors.danger),
-  success(Icons.check_circle, SahoolColors.success);
-
-  final IconData icon;
-  final Color color;
-
-  const AlertType(this.icon, this.color);
-}
-
-class _Alert {
-  final String id;
-  final String title;
-  final String subtitle;
-  final AlertType type;
-  final DateTime time;
-  final bool isRead;
-
-  _Alert({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.type,
-    required this.time,
-    required this.isRead,
-  });
-
-  _Alert copyWith({bool? isRead}) {
-    return _Alert(
-      id: id,
-      title: title,
-      subtitle: subtitle,
-      type: type,
-      time: time,
-      isRead: isRead ?? this.isRead,
-    );
+  IconData _getTypeIcon(AlertType type) {
+    switch (type) {
+      case AlertType.irrigation:
+        return Icons.water_drop_rounded;
+      case AlertType.weather:
+        return Icons.wb_sunny_rounded;
+      case AlertType.ndvi:
+        return Icons.eco_rounded;
+      case AlertType.sensor:
+        return Icons.sensors_rounded;
+      case AlertType.task:
+        return Icons.task_alt_rounded;
+      case AlertType.pest:
+        return Icons.bug_report_rounded;
+      case AlertType.system:
+        return Icons.info_rounded;
+    }
   }
 }

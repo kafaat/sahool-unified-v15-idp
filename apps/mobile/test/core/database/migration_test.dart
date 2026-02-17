@@ -4,7 +4,7 @@
 /// These tests verify the database migration system works correctly,
 /// including schema upgrades, data preservation, and rollback support.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 
 // Import the migration system

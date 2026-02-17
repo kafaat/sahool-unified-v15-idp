@@ -6,6 +6,8 @@ import 'package:sahool_field_app/core/notifications/notification_settings.dart';
 /// اختبارات تكامل الإشعارات
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('Notification Settings Integration Tests', () {
     late NotificationSettings settings;
 

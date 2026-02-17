@@ -54,6 +54,7 @@ concurrency:
 permissions:
   contents: read
   actions: read
+  pull-requests: read
 
 env:
   PYTHON_VERSION: "3.11"
@@ -87,11 +88,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Check for changes
         uses: dorny/paths-filter@v3
         id: filter
         with:
+          token: ${{ github.token }}
           filters: |
             python:
               - 'apps/services/**/*.py'

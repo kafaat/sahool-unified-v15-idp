@@ -197,7 +197,7 @@ jobs:
           flutter test --coverage --coverage-path=coverage/lcov.info \
             --reporter=expanded \
             --test-randomize-ordering-seed=random \
-            2>&1 | tee test_output.txt || true
+            2>&1 | tee test_output.txt
 
       - name: Generate coverage report
         run: |

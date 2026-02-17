@@ -16,6 +16,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:uuid/uuid.dart';
 
+<<<<<<< HEAD
+=======
+import '../../../core/api/kong_gateway_client.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../../../core/config/api_config.dart';
 import '../../../core/ml/tflite_helper.dart';
 import '../../../core/storage/database.dart';
@@ -503,7 +507,12 @@ class Yolo26Service {
     return [];
   }
 
+<<<<<<< HEAD
   /// Cloud fallback detection
+=======
+  /// Cloud fallback detection via Kong gateway → pest-detection-service
+  /// الكشف السحابي عبر بوابة Kong → خدمة كشف الآفات
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   Future<List<Detection>> _detectWithCloud({
     required Uint8List imageBytes,
     required DetectionType type,
@@ -519,7 +528,74 @@ class Yolo26Service {
     }
 
     try {
+<<<<<<< HEAD
       // Build endpoint based on type
+=======
+      // Route through Kong gateway to pest-detection-service
+      final gateway = kongGateway;
+
+      // Determine the endpoint path based on detection type
+      final detectPath = switch (type) {
+        DetectionType.pest => '/detect/pest',
+        DetectionType.disease => '/detect/disease',
+        DetectionType.plant => '/count/plants',
+        _ => '/detect',
+      };
+
+      // Save image to temp file for upload
+      final tempDir = Directory.systemTemp;
+      final tempFile = File(
+        '${tempDir.path}/detection_${DateTime.now().millisecondsSinceEpoch}.jpg',
+      );
+      await tempFile.writeAsBytes(imageBytes);
+
+      try {
+        final response = await gateway.uploadFile<Map<String, dynamic>>(
+          KongServices.pestDetection,
+          detectPath,
+          filePath: tempFile.path,
+          fieldName: 'image',
+          extraData: {
+            if (fieldId != null) 'field_id': fieldId,
+            'detection_type': type.name,
+            'confidence_threshold': '0.25',
+          },
+          fromJson: (data) => data as Map<String, dynamic>,
+        );
+
+        if (response.success && response.data != null) {
+          return _parseCloudResponse(response.data!, type);
+        }
+
+        // Fallback to legacy endpoint via direct HTTP
+        return _detectWithLegacyCloud(
+          imageBytes: imageBytes,
+          type: type,
+          fieldId: fieldId,
+        );
+      } finally {
+        // Clean up temp file
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+        }
+      }
+    } catch (e) {
+      if (e is Yolo26Exception) rethrow;
+      throw Yolo26Exception(
+        'Cloud detection error: $e',
+        'خطأ في الكشف السحابي',
+      );
+    }
+  }
+
+  /// Legacy cloud detection fallback (direct HTTP to old endpoint)
+  Future<List<Detection>> _detectWithLegacyCloud({
+    required Uint8List imageBytes,
+    required DetectionType type,
+    String? fieldId,
+  }) async {
+    try {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       final endpoint = switch (type) {
         DetectionType.pest => '${ApiConfig.diagnose}/pest',
         DetectionType.disease => '${ApiConfig.diagnose}/disease',
@@ -527,7 +603,10 @@ class Yolo26Service {
         _ => ApiConfig.diagnose,
       };
 
+<<<<<<< HEAD
       // Create multipart request
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       final uri = Uri.parse(endpoint);
       final request = http.MultipartRequest('POST', uri);
 
@@ -540,7 +619,10 @@ class Yolo26Service {
         filename: 'detection_${DateTime.now().millisecondsSinceEpoch}.jpg',
       ));
 
+<<<<<<< HEAD
       // Send request
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       final streamedResponse = await request.send().timeout(
             const Duration(seconds: 30),
           );
@@ -558,8 +640,13 @@ class Yolo26Service {
     } catch (e) {
       if (e is Yolo26Exception) rethrow;
       throw Yolo26Exception(
+<<<<<<< HEAD
         'Cloud detection error: $e',
         'خطأ في الكشف السحابي',
+=======
+        'Legacy cloud detection error: $e',
+        'خطأ في الكشف السحابي القديم',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
     }
   }

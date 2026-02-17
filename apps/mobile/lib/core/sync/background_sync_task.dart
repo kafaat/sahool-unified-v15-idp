@@ -3,7 +3,11 @@ import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
+<<<<<<< HEAD
 import '../config/config.dart';
+=======
+import '../config/env_config.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 /// Background Sync Task Names
 const String backgroundSyncTask = 'sahool_background_sync';
@@ -44,7 +48,11 @@ Future<bool> _executeBackgroundSync() async {
   try {
     // Get tenant ID from shared preferences
     final prefs = await SharedPreferences.getInstance();
+<<<<<<< HEAD
     final tenantId = prefs.getString('tenant_id') ?? AppConfig.defaultTenantId;
+=======
+    final tenantId = prefs.getString('tenant_id') ?? EnvConfig.defaultTenantId;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     // Check if we have pending items
     final pendingItems = await database.getPendingOutbox(
@@ -82,7 +90,11 @@ Future<bool> _executeBackgroundSync() async {
         await database.bumpOutboxRetry(item.id);
 
         // Mark as done if exceeded max retries
+<<<<<<< HEAD
         if (item.retryCount >= AppConfig.maxRetryCount) {
+=======
+        if (item.retryCount >= EnvConfig.maxRetryCount) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           await database.markOutboxDone(item.id);
         }
       }
@@ -207,7 +219,11 @@ class BackgroundSyncManager {
 
     await Workmanager().initialize(
       callbackDispatcher,
+<<<<<<< HEAD
       isInDebugMode: AppConfig.isDebug,
+=======
+      isInDebugMode: EnvConfig.isDebugMode,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
 
     _initialized = true;

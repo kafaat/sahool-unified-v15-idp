@@ -103,7 +103,11 @@ jobs:
       - name: Run Flutter Analyze
         run: |
           echo "Running Flutter Analyze..."
+<<<<<<< HEAD
           flutter analyze --no-fatal-infos 2>&1 | tee analyze_output.txt
+=======
+          flutter analyze --no-fatal-infos 2>&1 | tee analyze_output.txt || echo "::warning::Flutter analysis errors found (pre-existing)"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
           # Extract warning and error counts
           ERRORS=$(grep -c "error" analyze_output.txt || echo "0")
@@ -197,7 +201,11 @@ jobs:
           flutter test --coverage --coverage-path=coverage/lcov.info \
             --reporter=expanded \
             --test-randomize-ordering-seed=random \
+<<<<<<< HEAD
             2>&1 | tee test_output.txt || true
+=======
+            2>&1 | tee test_output.txt
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       - name: Generate coverage report
         run: |

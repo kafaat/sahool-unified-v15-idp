@@ -6,16 +6,32 @@
 
 #include "generated_plugin_registrant.h"
 
+<<<<<<< HEAD
+=======
+#include <app_links/app_links_plugin_c_api.h>
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 #include <connectivity_plus/connectivity_plus_windows_plugin.h>
 #include <file_selector_windows/file_selector_windows.h>
 #include <flutter_secure_storage_windows/flutter_secure_storage_windows_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
 #include <local_auth_windows/local_auth_plugin.h>
+<<<<<<< HEAD
 #include <secure_application/secure_application_plugin.h>
+=======
+#include <permission_handler_windows/permission_handler_windows_plugin.h>
+#include <record_windows/record_windows_plugin_c_api.h>
+#include <secure_application/secure_application_plugin.h>
+#include <share_plus/share_plus_windows_plugin_c_api.h>
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 #include <sqlcipher_flutter_libs/sqlite3_flutter_libs_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
+<<<<<<< HEAD
+=======
+  AppLinksPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("AppLinksPluginCApi"));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   ConnectivityPlusWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ConnectivityPlusWindowsPlugin"));
   FileSelectorWindowsRegisterWithRegistrar(
@@ -26,8 +42,19 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
   LocalAuthPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("LocalAuthPlugin"));
+<<<<<<< HEAD
   SecureApplicationPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("SecureApplicationPlugin"));
+=======
+  PermissionHandlerWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("PermissionHandlerWindowsPlugin"));
+  RecordWindowsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("RecordWindowsPluginCApi"));
+  SecureApplicationPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SecureApplicationPlugin"));
+  SharePlusWindowsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   Sqlite3FlutterLibsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("Sqlite3FlutterLibsPlugin"));
   UrlLauncherWindowsRegisterWithRegistrar(

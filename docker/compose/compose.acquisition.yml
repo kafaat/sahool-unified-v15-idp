@@ -242,16 +242,26 @@ services:
       context: ../../apps/services/edge-orchestrator-service
       dockerfile: Dockerfile
     ports:
+<<<<<<< HEAD
     - 8190:8190
     environment:
     - PORT=8190
+=======
+    - 8180:8180
+    environment:
+    - PORT=8180
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
+<<<<<<< HEAD
       - http://localhost:8190/healthz
+=======
+      - http://localhost:8180/healthz
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       interval: 30s
       timeout: 10s
       retries: 3

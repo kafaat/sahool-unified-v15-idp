@@ -2,6 +2,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 import '../utils/app_logger.dart';
+<<<<<<< HEAD
+=======
+import '../security/security_audit_service.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'secure_storage_service.dart';
 
 /// SAHOOL Biometric Authentication Service
@@ -13,10 +17,18 @@ import 'secure_storage_service.dart';
 /// - Fallback to device credentials
 /// - Lockout handling after repeated failures
 /// - Secure session validation
+<<<<<<< HEAD
+=======
+/// - Security audit logging for all attempts
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 final biometricServiceProvider = Provider<BiometricService>((ref) {
   return BiometricService(
     secureStorage: ref.read(secureStorageProvider),
+<<<<<<< HEAD
+=======
+    auditService: ref.read(securityAuditServiceProvider),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   );
 });
 
@@ -56,11 +68,19 @@ class BiometricResult {
 class BiometricService {
   final LocalAuthentication _localAuth = LocalAuthentication();
   final SecureStorageService secureStorage;
+<<<<<<< HEAD
+=======
+  final SecurityAuditService? auditService;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   // Maximum consecutive failures before lockout
   static const _maxFailures = 5;
 
+<<<<<<< HEAD
   BiometricService({required this.secureStorage});
+=======
+  BiometricService({required this.secureStorage, this.auditService});
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Availability Checks
@@ -174,6 +194,14 @@ class BiometricService {
       if (await secureStorage.isBiometricLockedOut()) {
         final remaining = await secureStorage.getBiometricLockoutRemaining();
         AppLogger.w('Biometric is locked out', tag: 'BIOMETRIC');
+<<<<<<< HEAD
+=======
+        // Log lockout attempt to security audit
+        await auditService?.logBiometricLockout(
+          lockoutDuration: remaining ?? const Duration(minutes: 30),
+          failedAttempts: _maxFailures,
+        );
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         return BiometricResult.failed(
           code: 'LOCKED_OUT',
           message: 'تم قفل البصمة. حاول بعد ${_formatDuration(remaining)}',
@@ -195,10 +223,23 @@ class BiometricService {
         AppLogger.i('Biometric authentication successful', tag: 'BIOMETRIC');
         // Reset failure count on success
         await secureStorage.resetBiometricLockout();
+<<<<<<< HEAD
         return BiometricResult.success();
       } else {
         AppLogger.w('Biometric authentication cancelled', tag: 'BIOMETRIC');
         // User cancelled - don't count as failure
+=======
+        // Log success to security audit
+        await auditService?.logBiometricAttempt(success: true);
+        return BiometricResult.success();
+      } else {
+        AppLogger.w('Biometric authentication cancelled', tag: 'BIOMETRIC');
+        // User cancelled - don't count as failure but log it
+        await auditService?.logBiometricAttempt(
+          success: false,
+          errorCode: 'CANCELLED',
+        );
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         return BiometricResult.failed(
           code: 'CANCELLED',
           message: 'تم إلغاء التحقق من البصمة',
@@ -211,6 +252,16 @@ class BiometricService {
       final failureCount = await secureStorage.recordBiometricFailure();
       final remainingAttempts = _maxFailures - failureCount;
 
+<<<<<<< HEAD
+=======
+      // Log failure to security audit
+      await auditService?.logBiometricAttempt(
+        success: false,
+        errorCode: e.code,
+        remainingAttempts: remainingAttempts > 0 ? remainingAttempts : 0,
+      );
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       switch (e.code) {
         case 'NotAvailable':
           return BiometricResult.failed(

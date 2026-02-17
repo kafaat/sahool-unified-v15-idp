@@ -27,7 +27,10 @@ import {
   IsUUID,
   Min,
 } from "class-validator";
+<<<<<<< HEAD
 import { TaskType, Priority, TaskState } from "@prisma/client";
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 // Task DTOs
 class CreateTaskDto {

@@ -38,7 +38,11 @@ class ApiConfig {
   static String get _protocol => EnvConfig.apiProtocol;
 
   /// Get host based on environment
+<<<<<<< HEAD
   static String get _host => EnvConfig.apiHost;
+=======
+  static String get host => EnvConfig.apiHost;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   /// Base URL for field-core service (legacy)
   static String get baseUrl => EnvConfig.fieldCoreUrl;

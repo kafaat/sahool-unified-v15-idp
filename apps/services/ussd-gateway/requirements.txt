@@ -3,7 +3,11 @@ fastapi>=0.126.0
 uvicorn[standard]>=0.34.0
 pydantic>=2.10.0
 asyncpg>=0.30.0
+<<<<<<< HEAD
 nats-py>=2.9.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 # SMS/USSD Providers
 httpx>=0.28.0

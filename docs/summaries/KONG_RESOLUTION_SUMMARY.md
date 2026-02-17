@@ -246,10 +246,17 @@ Existing test suite at `tests/integration/test_kong_routes.py` validates:
 
 ## Related Documentation
 
+<<<<<<< HEAD
 - [Kong Configuration Alignment Guide](./KONG_CONFIGURATION_ALIGNMENT.md)
 - [Service Registry](./governance/services.yaml)
 - [Docker Compose Configuration](./docker-compose.yml)
 - [Validation Scripts](./scripts/validate-kong-config.sh)
+=======
+- [Kong Configuration Alignment Guide](../configs/KONG_CONFIGURATION_ALIGNMENT.md)
+- [Service Registry](../../governance/services.yaml)
+- [Docker Compose Configuration](../../docker-compose.yml)
+- [Validation Scripts](../../scripts/validate-kong-config.sh)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## Conclusion
 

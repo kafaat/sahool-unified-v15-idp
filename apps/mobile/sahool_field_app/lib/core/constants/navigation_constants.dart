@@ -257,7 +257,11 @@ class NavigationConstants {
     ),
     FeatureGroup(
       title: 'monitoring',
+<<<<<<< HEAD
       icon: Icons.monitoring_rounded,
+=======
+      icon: Icons.monitor_rounded,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       features: ['weather', 'alerts', 'map', 'astronomical'],
     ),
     FeatureGroup(

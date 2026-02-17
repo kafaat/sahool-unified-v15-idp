@@ -6,6 +6,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// اختبارات تكامل المصادقة
 
 void main() {
+<<<<<<< HEAD
+=======
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   group('Auth Flow Integration Tests', () {
     late ProviderContainer container;
 

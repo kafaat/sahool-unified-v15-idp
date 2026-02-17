@@ -1,0 +1,83 @@
+// SAHOOL Community Chat Service Schema
+// مخطط قاعدة بيانات خدمة محادثات المجتمع
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "linux-musl", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer connection pooler)
+  directUrl = env("DATABASE_URL_DIRECT")
+  // TLS/SSL enforcement for secure connections
+  // Requires DATABASE_URL to include sslmode=require parameter
+  // Connection pooling parameters are configured in DATABASE_URL
+  // Example: postgresql://user:pass@pgbouncer:6432/db?sslmode=require&connection_limit=8&pool_timeout=20&connect_timeout=10
+}
+
+model ChatRoom {
+  id          String    @id @default(uuid())
+  name        String
+  type        String    @default("public")
+  tenantId    String    @map("tenant_id")
+  status      String    @default("active")
+  farmerId    String?   @map("farmer_id")
+  farmerName  String?   @map("farmer_name")
+  expertId    String?   @map("expert_id")
+  expertName  String?   @map("expert_name")
+  governorate String?
+  topic       String?
+  diagnosisId String?   @map("diagnosis_id")
+  createdBy   String?   @map("created_by")
+  acceptedAt  DateTime? @map("accepted_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  messages    Message[]
+  members     ChatMember[]
+
+  @@index([tenantId], name: "idx_chat_room_tenant")
+  @@index([status], name: "idx_chat_room_status")
+  @@index([tenantId, status], name: "idx_chat_room_tenant_status")
+  @@index([farmerId], name: "idx_chat_room_farmer")
+  @@index([expertId], name: "idx_chat_room_expert")
+  @@index([createdAt], name: "idx_chat_room_created")
+  @@map("community_chat_rooms")
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  content     String
+  senderId    String   @map("sender_id")
+  senderName  String   @map("sender_name")
+  senderType  String   @map("sender_type") @default("farmer")
+  roomId      String   @map("room_id")
+  room        ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  attachments Json?    @default("[]")
+  status      String   @default("delivered")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([roomId])
+  @@index([senderId])
+  @@index([createdAt], name: "idx_message_created")
+  @@index([roomId, createdAt], name: "idx_message_room_date")
+  @@index([status], name: "idx_message_status")
+  @@map("community_chat_messages")
+}
+
+model ChatMember {
+  id       String   @id @default(uuid())
+  odolUserId String?   @map("odol_user_id")
+  userId   String   @map("user_id")
+  userName String   @map("user_name")
+  userType String   @map("user_type") @default("member")
+  roomId   String   @map("room_id")
+  room     ChatRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  role     String   @default("member")
+  joinedAt DateTime @default(now()) @map("joined_at")
+
+  @@unique([userId, roomId])
+  @@index([roomId])
+  @@map("community_chat_members")
+}

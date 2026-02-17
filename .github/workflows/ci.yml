@@ -54,6 +54,10 @@ concurrency:
 permissions:
   contents: read
   actions: read
+<<<<<<< HEAD
+=======
+  pull-requests: read
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 env:
   PYTHON_VERSION: "3.11"
@@ -87,7 +91,16 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+<<<<<<< HEAD
 
+=======
+        with:
+          fetch-depth: 0
+
+      # Use git-diff mode instead of GitHub API to avoid "Bad credentials"
+      # errors with github.token. This works because fetch-depth: 0 above
+      # fetches full history needed for accurate diff detection.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       - name: Check for changes
         uses: dorny/paths-filter@v3
         id: filter

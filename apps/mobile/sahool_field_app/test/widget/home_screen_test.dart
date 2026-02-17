@@ -8,7 +8,11 @@ void main() {
   group('Home Screen', () {
     testWidgets('should display greeting message', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -30,7 +34,11 @@ void main() {
 
     testWidgets('should display dashboard cards', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -58,7 +66,11 @@ void main() {
 
     testWidgets('should display bottom navigation', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -94,7 +106,11 @@ void main() {
 
     testWidgets('should show sync status indicator', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -126,7 +142,11 @@ void main() {
 
     testWidgets('should show offline indicator when disconnected', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -158,7 +178,11 @@ void main() {
 
     testWidgets('should display weather summary in header', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,
@@ -185,7 +209,11 @@ void main() {
 
     testWidgets('should scroll dashboard content', (tester) async {
       await tester.pumpWidget(
+<<<<<<< HEAD
         const ProviderScope(
+=======
+        ProviderScope(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,

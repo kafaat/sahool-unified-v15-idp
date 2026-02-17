@@ -52,7 +52,11 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       height: widget.height,
       child: LineChart(
         _buildChartData(),
+<<<<<<< HEAD
         swapAnimationDuration: const Duration(milliseconds: 250),
+=======
+        duration: const Duration(milliseconds: 250),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       ),
     );
   }
@@ -119,7 +123,11 @@ class _GDDChartWidgetState extends State<GDDChartWidget> {
       lineTouchData: LineTouchData(
         enabled: true,
         touchTooltipData: LineTouchTooltipData(
+<<<<<<< HEAD
           tooltipBgColor: Colors.blueGrey.withOpacity(0.9),
+=======
+          getTooltipColor: (_) => Colors.blueGrey.withOpacity(0.9),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           getTooltipItems: (touchedSpots) {
             return touchedSpots.map((spot) {
               final record = widget.records[spot.x.toInt()];

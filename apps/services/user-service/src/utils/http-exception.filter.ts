@@ -1,6 +1,11 @@
 /**
+<<<<<<< HEAD
  * HTTP Exception Filter for Marketplace Service
  * فلتر استثناءات HTTP لخدمة السوق
+=======
+ * HTTP Exception Filter for User Service
+ * فلتر استثناءات HTTP لخدمة المستخدمين
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
  *
  * Provides unified error response format across the service.
  */

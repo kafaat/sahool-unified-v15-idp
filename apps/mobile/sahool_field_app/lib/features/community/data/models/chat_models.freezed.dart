@@ -29,8 +29,17 @@ mixin _$ChatMessage {
   DateTime get timestamp => throw _privateConstructorUsedError;
   String get status => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this ChatMessage to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $ChatMessageCopyWith<ChatMessage> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -62,6 +71,11 @@ class _$ChatMessageCopyWithImpl<$Res, $Val extends ChatMessage>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatMessage
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -138,6 +152,11 @@ class __$$ChatMessageImplCopyWithImpl<$Res>
       _$ChatMessageImpl _value, $Res Function(_$ChatMessageImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatMessage
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -253,7 +272,11 @@ class _$ChatMessageImpl implements _ChatMessage {
             (identical(other.status, status) || other.status == status));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -266,7 +289,13 @@ class _$ChatMessageImpl implements _ChatMessage {
       timestamp,
       status);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of ChatMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$ChatMessageImplCopyWith<_$ChatMessageImpl> get copyWith =>
@@ -310,8 +339,16 @@ abstract class _ChatMessage implements ChatMessage {
   DateTime get timestamp;
   @override
   String get status;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of ChatMessage
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$ChatMessageImplCopyWith<_$ChatMessageImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -334,8 +371,17 @@ mixin _$ChatRoom {
   DateTime get createdAt => throw _privateConstructorUsedError;
   DateTime? get acceptedAt => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this ChatRoom to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatRoom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $ChatRoomCopyWith<ChatRoom> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -369,6 +415,11 @@ class _$ChatRoomCopyWithImpl<$Res, $Val extends ChatRoom>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatRoom
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -463,6 +514,11 @@ class __$$ChatRoomImplCopyWithImpl<$Res>
       _$ChatRoomImpl _value, $Res Function(_$ChatRoomImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatRoom
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -601,7 +657,11 @@ class _$ChatRoomImpl implements _ChatRoom {
                 other.acceptedAt == acceptedAt));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -617,7 +677,13 @@ class _$ChatRoomImpl implements _ChatRoom {
       createdAt,
       acceptedAt);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of ChatRoom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$ChatRoomImplCopyWith<_$ChatRoomImpl> get copyWith =>
@@ -670,8 +736,16 @@ abstract class _ChatRoom implements ChatRoom {
   DateTime get createdAt;
   @override
   DateTime? get acceptedAt;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of ChatRoom
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$ChatRoomImplCopyWith<_$ChatRoomImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -689,8 +763,17 @@ mixin _$ChatUser {
   String? get governorate => throw _privateConstructorUsedError;
   bool get isOnline => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this ChatUser to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatUser
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $ChatUserCopyWith<ChatUser> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -719,6 +802,11 @@ class _$ChatUserCopyWithImpl<$Res, $Val extends ChatUser>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatUser
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -783,6 +871,11 @@ class __$$ChatUserImplCopyWithImpl<$Res>
       _$ChatUserImpl _value, $Res Function(_$ChatUserImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatUser
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -871,12 +964,22 @@ class _$ChatUserImpl implements _ChatUser {
                 other.isOnline == isOnline));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode =>
       Object.hash(runtimeType, id, name, nameAr, type, governorate, isOnline);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of ChatUser
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$ChatUserImplCopyWith<_$ChatUserImpl> get copyWith =>
@@ -914,8 +1017,16 @@ abstract class _ChatUser implements ChatUser {
   String? get governorate;
   @override
   bool get isOnline;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of ChatUser
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$ChatUserImplCopyWith<_$ChatUserImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -935,8 +1046,17 @@ mixin _$ExpertRequest {
   String get status => throw _privateConstructorUsedError;
   DateTime get createdAt => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this ExpertRequest to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ExpertRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $ExpertRequestCopyWith<ExpertRequest> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -968,6 +1088,11 @@ class _$ExpertRequestCopyWithImpl<$Res, $Val extends ExpertRequest>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ExpertRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1044,6 +1169,11 @@ class __$$ExpertRequestImplCopyWithImpl<$Res>
       _$ExpertRequestImpl _value, $Res Function(_$ExpertRequestImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ExpertRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1153,12 +1283,22 @@ class _$ExpertRequestImpl implements _ExpertRequest {
                 other.createdAt == createdAt));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, roomId, farmerId, farmerName,
       governorate, topic, diagnosisId, status, createdAt);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of ExpertRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$ExpertRequestImplCopyWith<_$ExpertRequestImpl> get copyWith =>
@@ -1202,8 +1342,16 @@ abstract class _ExpertRequest implements ExpertRequest {
   String get status;
   @override
   DateTime get createdAt;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of ExpertRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$ExpertRequestImplCopyWith<_$ExpertRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1219,8 +1367,17 @@ mixin _$ChatStats {
   int get activeRooms => throw _privateConstructorUsedError;
   int get totalMessages => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this ChatStats to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ChatStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $ChatStatsCopyWith<ChatStats> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1247,6 +1404,11 @@ class _$ChatStatsCopyWithImpl<$Res, $Val extends ChatStats>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatStats
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1299,6 +1461,11 @@ class __$$ChatStatsImplCopyWithImpl<$Res>
       _$ChatStatsImpl _value, $Res Function(_$ChatStatsImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of ChatStats
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1373,12 +1540,22 @@ class _$ChatStatsImpl implements _ChatStats {
                 other.totalMessages == totalMessages));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType, totalConnections, onlineExperts, activeRooms, totalMessages);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of ChatStats
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$ChatStatsImplCopyWith<_$ChatStatsImpl> get copyWith =>
@@ -1410,8 +1587,16 @@ abstract class _ChatStats implements ChatStats {
   int get activeRooms;
   @override
   int get totalMessages;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of ChatStats
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$ChatStatsImplCopyWith<_$ChatStatsImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

@@ -20,7 +20,11 @@ sentence-transformers>=2.2.0
 torch>=2.0.0
 # Caching & Message Queue
 redis>=7.1.0,<8.0.0
+<<<<<<< HEAD
 nats-py>=2.6.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 # Logging & Monitoring
 structlog>=24.1.0
 prometheus-client>=0.19.0

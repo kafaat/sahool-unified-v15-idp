@@ -23,7 +23,12 @@ export interface JwtPayload {
   roles: string[];
   exp: number;
   iat: number;
+<<<<<<< HEAD
   tid?: string; // tenant_id
+=======
+  tid?: string; // tenant_id (legacy short name)
+  tenant_id?: string; // tenant_id (canonical name from Python services)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   jti?: string; // token_id
   type?: string; // access or refresh
   permissions?: string[];
@@ -119,7 +124,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         return {
           id: userId,
           roles: userData.roles || payload.roles || [],
+<<<<<<< HEAD
           tenantId: userData.tenantId || payload.tid,
+=======
+          tenantId: userData.tenantId || payload.tenant_id || payload.tid,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           permissions: payload.permissions || [],
           tokenId: payload.jti,
         };
@@ -133,7 +142,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return {
         id: userId,
         roles: payload.roles || [],
+<<<<<<< HEAD
         tenantId: payload.tid,
+=======
+        tenantId: payload.tenant_id || payload.tid,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         permissions: payload.permissions || [],
         tokenId: payload.jti,
       };

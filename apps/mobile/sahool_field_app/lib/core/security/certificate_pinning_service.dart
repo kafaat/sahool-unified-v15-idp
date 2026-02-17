@@ -297,6 +297,7 @@ class CertificatePinningService {
           description: 'Wildcard backup certificate',
         ),
       ],
+<<<<<<< HEAD
       // Staging API domain
       'api-staging.sahool.app': [
         // TODO: CRITICAL - Replace with actual staging certificate fingerprint
@@ -314,6 +315,22 @@ class CertificatePinningService {
           value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
           expiryDate: DateTime(2027, 3, 31),
           description: 'Staging backup certificate',
+=======
+      // Staging: use production certificates until staging has its own certs
+      // TODO: Replace with actual staging certificate fingerprints when staging environment is deployed
+      'api-staging.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Staging primary certificate (using production cert)',
+        ),
+        CertificatePin(
+          type: PinType.sha256,
+          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'Staging backup certificate (using production cert)',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         ),
       ],
     };

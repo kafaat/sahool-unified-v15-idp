@@ -421,6 +421,7 @@ class CertificatePinManager {
       // ========================================================================
       'api.sahool.app': [
         // PRIMARY CERTIFICATE PIN
+<<<<<<< HEAD
         // -------------------------------------------------------------------------
         // TODO: REPLACE with actual production certificate SHA256 fingerprint
         // Generate: openssl s_client -connect api.sahool.app:443 ...
@@ -431,12 +432,19 @@ class CertificatePinManager {
           // This is a placeholder - the value below is NOT a real certificate hash
           value: 'a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890',
           description: 'Production API primary certificate (PLACEHOLDER - REPLACE)',
+=======
+        CertificatePinEntry(
+          type: CertificatePinType.sha256Certificate,
+          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          description: 'Production API primary certificate',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
           addedDate: DateTime(2025, 1, 1),
         ),
 
         // BACKUP/FALLBACK CERTIFICATE PIN #1
+<<<<<<< HEAD
         // -------------------------------------------------------------------------
         // TODO: REPLACE with backup certificate fingerprint for rotation
         // This allows seamless certificate rotation without app updates
@@ -445,12 +453,19 @@ class CertificatePinManager {
           type: CertificatePinType.sha256Certificate,
           value: 'b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1',
           description: 'Production API backup certificate #1 (PLACEHOLDER - REPLACE)',
+=======
+        CertificatePinEntry(
+          type: CertificatePinType.sha256Certificate,
+          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          description: 'Production API backup certificate #1',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
           addedDate: DateTime(2025, 1, 1),
         ),
 
         // BACKUP/FALLBACK CERTIFICATE PIN #2
+<<<<<<< HEAD
         // -------------------------------------------------------------------------
         // TODO: REPLACE with tertiary certificate fingerprint
         // Having 3 pins provides extra safety margin for rotation
@@ -459,6 +474,12 @@ class CertificatePinManager {
           type: CertificatePinType.sha256Certificate,
           value: 'c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2',
           description: 'Production API backup certificate #2 (PLACEHOLDER - REPLACE)',
+=======
+        CertificatePinEntry(
+          type: CertificatePinType.sha256Certificate,
+          value: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+          description: 'Production API backup certificate #2',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 12, 31),
           isPrimary: false,
           addedDate: DateTime(2025, 1, 1),
@@ -471,16 +492,26 @@ class CertificatePinManager {
       'ws.sahool.app': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
+<<<<<<< HEAD
           value: 'd4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3',
           description: 'Production WebSocket primary certificate (PLACEHOLDER - REPLACE)',
+=======
+          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          description: 'Production WebSocket primary certificate',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
           addedDate: DateTime(2025, 1, 1),
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
+<<<<<<< HEAD
           value: 'e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4',
           description: 'Production WebSocket backup certificate (PLACEHOLDER - REPLACE)',
+=======
+          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          description: 'Production WebSocket backup certificate',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
           addedDate: DateTime(2025, 1, 1),
@@ -493,16 +524,26 @@ class CertificatePinManager {
       '*.sahool.io': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
+<<<<<<< HEAD
           value: 'f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5',
           description: 'Wildcard *.sahool.io primary certificate (PLACEHOLDER - REPLACE)',
+=======
+          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          description: 'Wildcard *.sahool.io primary certificate',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
           addedDate: DateTime(2025, 1, 1),
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
+<<<<<<< HEAD
           value: '7890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f6',
           description: 'Wildcard *.sahool.io backup certificate (PLACEHOLDER - REPLACE)',
+=======
+          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          description: 'Wildcard *.sahool.io backup certificate',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
           addedDate: DateTime(2025, 1, 1),
@@ -512,19 +553,34 @@ class CertificatePinManager {
       // ========================================================================
       // STAGING API GATEWAY - api-staging.sahool.app
       // ========================================================================
+<<<<<<< HEAD
       'api-staging.sahool.app': [
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
           value: '890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67',
           description: 'Staging API primary certificate (PLACEHOLDER - REPLACE)',
+=======
+      // Staging pins use the same production certificates for now
+      // TODO: Replace with actual staging certificate fingerprints when staging is deployed
+      'api-staging.sahool.app': [
+        CertificatePinEntry(
+          type: CertificatePinType.sha256Certificate,
+          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          description: 'Staging API primary certificate (using production cert)',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2026, 12, 31),
           isPrimary: true,
           addedDate: DateTime(2025, 1, 1),
         ),
         CertificatePinEntry(
           type: CertificatePinType.sha256Certificate,
+<<<<<<< HEAD
           value: '90a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f67890a1b2c3d4e5f678',
           description: 'Staging API backup certificate (PLACEHOLDER - REPLACE)',
+=======
+          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          description: 'Staging API backup certificate (using production cert)',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 6, 30),
           isPrimary: false,
           addedDate: DateTime(2025, 1, 1),

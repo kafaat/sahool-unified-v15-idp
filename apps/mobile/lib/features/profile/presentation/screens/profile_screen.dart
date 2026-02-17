@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/auth_service.dart';
+<<<<<<< HEAD
+=======
+import '../providers/profile_provider.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 /// شاشة الملف الشخصي والإعدادات
 /// Profile & Settings Screen
@@ -450,7 +454,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           ),
         ),
         Text(
+<<<<<<< HEAD
           'الإصدار 1.0.0',
+=======
+          'الإصدار 16.0.0',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           style: TextStyle(
             fontSize: 12,
             color: Colors.grey[600],

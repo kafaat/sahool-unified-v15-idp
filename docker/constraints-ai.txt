@@ -90,7 +90,11 @@ sqlalchemy>=2.0.0,<3.0.0
 # Authentication and Security
 # ─────────────────────────────────────────────────────────────────────────────
 PyJWT>=2.9.0,<3.0.0
+<<<<<<< HEAD
 cryptography>=42.0.0,<43.0.0
+=======
+cryptography>=43.0.1,<45.0.0  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 # Note: python-jose extras removed for constraints compatibility - install separately
 python-jose>=3.3.0,<4.0.0
 

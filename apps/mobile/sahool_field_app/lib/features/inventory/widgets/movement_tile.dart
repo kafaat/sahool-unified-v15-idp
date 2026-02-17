@@ -190,7 +190,11 @@ class MovementTile extends StatelessWidget {
       backgroundColor: color.withOpacity(0.15),
       child: Icon(
         icon,
+<<<<<<< HEAD
         color: color.shade700,
+=======
+        color: color,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         size: 20,
       ),
     );

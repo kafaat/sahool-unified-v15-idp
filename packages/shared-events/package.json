@@ -27,11 +27,19 @@
   "license": "MIT",
   "dependencies": {
     "nats": "^2.28.2",
+<<<<<<< HEAD
     "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.19.33",
     "@types/uuid": "^10.0.0",
+=======
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.33",
+    "@types/uuid": "^11.0.0",
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     "typescript": "^5.9.3"
   }
 }

@@ -291,6 +291,7 @@ void main() {
       final cities = YemenMapBounds.cities;
 
       // Assert
+<<<<<<< HEAD
       expect(cities, containsKey('sanaa'));
       expect(cities, containsKey('aden'));
       expect(cities, containsKey('taiz'));
@@ -298,6 +299,15 @@ void main() {
       expect(cities, containsKey('mukalla'));
       expect(cities, containsKey('ibb'));
       expect(cities, containsKey('dhamar'));
+=======
+      expect(cities.keys, contains('sanaa'));
+      expect(cities.keys, contains('aden'));
+      expect(cities.keys, contains('taiz'));
+      expect(cities.keys, contains('hodeidah'));
+      expect(cities.keys, contains('mukalla'));
+      expect(cities.keys, contains('ibb'));
+      expect(cities.keys, contains('dhamar'));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     test('should have Sanaa at correct coordinates', () {

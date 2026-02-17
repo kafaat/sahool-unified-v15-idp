@@ -222,4 +222,8 @@ async def cache_stats():
 
 - [Redis Documentation](https://redis.io/docs/)
 - [Redis Best Practices](https://redis.io/docs/management/optimization/)
+<<<<<<< HEAD
 - [SAHOOL Cache Implementation](../../apps/services/satellite-service/src/cache.py)
+=======
+- [SAHOOL Cache Implementation](../../archive/deprecated-services/satellite-service/)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473

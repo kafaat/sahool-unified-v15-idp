@@ -4,7 +4,11 @@ import 'package:drift/drift.dart';
 import '../storage/database.dart';
 import '../http/api_client.dart';
 import '../http/rate_limiter.dart';
+<<<<<<< HEAD
 import '../config/config.dart';
+=======
+import '../config/env_config.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../utils/app_logger.dart';
 import '../utils/retry_policy.dart';
 import 'network_status.dart';
@@ -50,7 +54,11 @@ class SyncEngine {
   void startPeriodic() {
     _syncTimer?.cancel();
     _syncTimer = Timer.periodic(
+<<<<<<< HEAD
       AppConfig.syncInterval,
+=======
+      EnvConfig.syncInterval,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       (_) => runOnce(),
     );
 
@@ -154,7 +162,11 @@ class SyncEngine {
   /// Uses exponential backoff and circuit breaker per endpoint
   Future<OutboxResult> _processOutbox() async {
     final items = await database.getPendingOutbox(
+<<<<<<< HEAD
       limit: AppConfig.outboxBatchSize,
+=======
+      limit: EnvConfig.outboxBatchSize,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
 
     int processed = 0;
@@ -243,7 +255,11 @@ class SyncEngine {
           _emitBackoffStatus();
 
           // Skip items with too many retries
+<<<<<<< HEAD
           if (item.retryCount >= AppConfig.maxRetryCount) {
+=======
+          if (item.retryCount >= EnvConfig.maxRetryCount) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             await database.markOutboxDone(item.id);
             await database.logSync(
               type: 'outbox_max_retry',

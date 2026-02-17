@@ -2,6 +2,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/config/env_config.dart';
 
 void main() {
+<<<<<<< HEAD
+=======
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   group('EnvConfig', () {
     group('Environment Detection', () {
       test('should default to development environment', () {

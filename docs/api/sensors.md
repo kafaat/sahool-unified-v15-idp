@@ -20,8 +20,13 @@ IoT and Sensor APIs enable integration with agricultural sensors and IoT devices
 
 ## Base URLs
 
+<<<<<<< HEAD
 **IoT Gateway:** `http://localhost:8081`
 **Virtual Sensors:** `http://localhost:8107`
+=======
+**IoT Gateway:** `http://localhost:8106`
+**Virtual Sensors:** `http://localhost:8119`
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## Sensor Types | أنواع أجهزة الاستشعار
 

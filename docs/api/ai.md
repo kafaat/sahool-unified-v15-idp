@@ -24,9 +24,15 @@ AI and Analysis APIs provide intelligent agricultural advisory and analysis:
 
 ## Base URLs
 
+<<<<<<< HEAD
 **AI Advisor:** `http://localhost:8083`
 **Crop Health AI:** `http://localhost:8089`
 **Agro Advisor:** `http://localhost:8084`
+=======
+**AI Advisor:** `http://localhost:8112`
+**Crop Health AI:** `http://localhost:8095`
+**Agro Advisor:** `http://localhost:8105` _(Deprecated -- replaced by Advisory Service)_
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## AI Advisor | المستشار الذكي
 

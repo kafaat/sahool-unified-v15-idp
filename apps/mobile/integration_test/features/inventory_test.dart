@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /// SAHOOL Integration Test - Inventory Management Tests
 /// اختبارات إدارة المخزون
+=======
+// SAHOOL Integration Test - Inventory Management Tests
+// اختبارات إدارة المخزون
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +36,11 @@ void main() {
     testWidgets('Navigate to inventory section', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -49,7 +58,11 @@ void main() {
     testWidgets('View inventory items list', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -62,7 +75,11 @@ void main() {
     testWidgets('Inventory items show details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -80,7 +97,11 @@ void main() {
     testWidgets('Empty state shown when no inventory', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -101,7 +122,11 @@ void main() {
     testWidgets('Add stock in movement', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -139,7 +164,11 @@ void main() {
     testWidgets('Add stock out movement', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -178,7 +207,11 @@ void main() {
     testWidgets('Stock movement requires reason', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -191,7 +224,11 @@ void main() {
     testWidgets('Stock movement history is recorded', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -209,7 +246,11 @@ void main() {
     testWidgets('Low stock items are highlighted', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -226,7 +267,11 @@ void main() {
     testWidgets('View low stock alerts only', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -252,7 +297,11 @@ void main() {
     testWidgets('Low stock alert badge on navigation', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -265,7 +314,11 @@ void main() {
     testWidgets('Create reorder notification', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -283,7 +336,11 @@ void main() {
     testWidgets('Search inventory by name', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -307,7 +364,11 @@ void main() {
     testWidgets('Filter by category', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -327,7 +388,11 @@ void main() {
     testWidgets('Filter by expiry date', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -340,7 +405,11 @@ void main() {
     testWidgets('Sort inventory items', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -365,7 +434,11 @@ void main() {
     testWidgets('View item details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -387,7 +460,11 @@ void main() {
     testWidgets('Item shows quantity and unit', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -400,7 +477,11 @@ void main() {
     testWidgets('Item shows supplier information', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -413,7 +494,11 @@ void main() {
     testWidgets('Item shows expiry date', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -432,7 +517,11 @@ void main() {
     testWidgets('Add new inventory item', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -462,7 +551,11 @@ void main() {
     testWidgets('Edit inventory item', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -492,7 +585,11 @@ void main() {
     testWidgets('Delete inventory item', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -510,7 +607,11 @@ void main() {
     testWidgets('View inventory statistics', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -527,7 +628,11 @@ void main() {
     testWidgets('Export inventory report', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -552,7 +657,11 @@ void main() {
     testWidgets('Scan barcode to add item', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -575,7 +684,11 @@ void main() {
     testWidgets('Manage inventory offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -591,7 +704,11 @@ void main() {
     testWidgets('Offline changes sync when online', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 

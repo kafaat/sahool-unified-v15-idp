@@ -22,6 +22,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+<<<<<<< HEAD
+=======
+import 'package:timezone/timezone.dart' as tz;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import '../utils/app_logger.dart';
 import 'notification_types.dart';
@@ -178,10 +182,13 @@ class NotificationManager {
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
+<<<<<<< HEAD
       onDidReceiveLocalNotification: (id, title, body, payload) async {
         // Handle iOS foreground notification (older iOS versions)
         AppLogger.d('iOS foreground notification: $title', tag: 'NOTIFICATIONS');
       },
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
 
     final initSettings = InitializationSettings(
@@ -585,6 +592,7 @@ class NotificationManager {
   }
 
   /// Convert DateTime to TZDateTime for scheduling
+<<<<<<< HEAD
   TZDateTime _toTZDateTime(DateTime dateTime) {
     return TZDateTime(
       dateTime.year,
@@ -594,6 +602,10 @@ class NotificationManager {
       dateTime.minute,
       dateTime.second,
     );
+=======
+  tz.TZDateTime _toTZDateTime(DateTime dateTime) {
+    return tz.TZDateTime.from(dateTime, tz.local);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   }
 
   /// Dispose resources
@@ -605,6 +617,7 @@ class NotificationManager {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+<<<<<<< HEAD
 // Simple TZDateTime Implementation
 // تنفيذ بسيط لـ TZDateTime
 // ═══════════════════════════════════════════════════════════════════════════
@@ -645,6 +658,8 @@ class Location {
 const local = Location('local');
 
 // ═══════════════════════════════════════════════════════════════════════════
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 // Riverpod Providers
 // مزودات Riverpod
 // ═══════════════════════════════════════════════════════════════════════════

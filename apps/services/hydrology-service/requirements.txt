@@ -13,7 +13,11 @@ pydantic-settings>=2.0.0
 httpx==0.28.1
 
 # Messaging
+<<<<<<< HEAD
 nats-py>=2.6.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 # Database
 asyncpg>=0.30.0

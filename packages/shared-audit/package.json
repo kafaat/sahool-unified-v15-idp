@@ -38,7 +38,11 @@
   "dependencies": {
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+<<<<<<< HEAD
     "uuid": "^10.0.0",
+=======
+    "uuid": "^11.0.3",
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     "deep-diff": "^1.0.2"
   },
   "devDependencies": {
@@ -46,7 +50,11 @@
     "@nestjs/core": "^10.0.0",
     "@types/node": "^20.19.33",
     "@types/express": "^5.0.0",
+<<<<<<< HEAD
     "@types/uuid": "^10.0.0",
+=======
+    "@types/uuid": "^11.0.0",
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     "@types/deep-diff": "^1.0.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.0.0",

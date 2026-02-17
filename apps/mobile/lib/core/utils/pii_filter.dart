@@ -21,9 +21,18 @@ import 'dart:convert';
 
 class PiiFilter {
   // Patterns for PII detection
+<<<<<<< HEAD
   static final RegExp _phonePattern = RegExp(
     r'(\+?966|0)?[5][0-9]{8}|'
     r'\+?\d{1,3}[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,9}',
+=======
+  // Phone regex requires recognizable prefixes to avoid matching
+  // national IDs, credit cards, GPS coordinates, and timestamps
+  static final RegExp _phonePattern = RegExp(
+    r'(\+?966|0)?5[0-9]{8}|'
+    r'\+\d{1,3}[-.\s]?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}|'
+    r'\(\d{2,4}\)\s?\d{3,4}[-.\s]?\d{3,4}',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   );
 
   static final RegExp _emailPattern = RegExp(
@@ -104,6 +113,7 @@ class PiiFilter {
     // 1. Remove tokens and passwords (complete removal)
     sanitized = _removeTokensAndPasswords(sanitized);
 
+<<<<<<< HEAD
     // 2. Mask phone numbers
     sanitized = _maskPhoneNumbers(sanitized);
 
@@ -119,6 +129,23 @@ class PiiFilter {
     // 6. Round GPS coordinates
     sanitized = _roundGpsCoordinates(sanitized);
 
+=======
+    // 2. Mask email addresses
+    sanitized = _maskEmails(sanitized);
+
+    // 3. Mask national IDs (before phones - prevents phone regex matching IDs)
+    sanitized = _maskNationalIds(sanitized);
+
+    // 4. Mask credit cards (before phones - prevents phone regex matching cards)
+    sanitized = _maskCreditCards(sanitized);
+
+    // 5. Round GPS coordinates (before phones - prevents phone regex matching coords)
+    sanitized = _roundGpsCoordinates(sanitized);
+
+    // 6. Mask phone numbers (after specific number patterns)
+    sanitized = _maskPhoneNumbers(sanitized);
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     // 7. Mask Arabic names (partial masking)
     sanitized = _maskArabicNames(sanitized);
 
@@ -184,6 +211,7 @@ class PiiFilter {
       'Bearer [REDACTED]',
     );
 
+<<<<<<< HEAD
     // Remove API keys (common formats)
     result = result.replaceAllMapped(
       RegExp(r'\b[A-Za-z0-9]{32,}\b'),
@@ -191,6 +219,18 @@ class PiiFilter {
         // Only redact if it looks like a key (all alphanumeric, long)
         final str = match.group(0)!;
         if (str.length >= 32 && RegExp(r'^[A-Za-z0-9]+$').hasMatch(str)) {
+=======
+    // Remove API keys (common formats including underscore-separated keys)
+    result = result.replaceAllMapped(
+      RegExp(r'\b[A-Za-z0-9_]{32,}\b'),
+      (match) {
+        // Only redact if it looks like a key (alphanumeric/underscore, contains both letters and digits)
+        final str = match.group(0)!;
+        if (str.length >= 32 &&
+            RegExp(r'^[A-Za-z0-9_]+$').hasMatch(str) &&
+            RegExp(r'[0-9]').hasMatch(str) &&
+            RegExp(r'[A-Za-z]').hasMatch(str)) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           return '[KEY_REDACTED]';
         }
         return str;
@@ -230,7 +270,11 @@ class PiiFilter {
       final username = parts[0];
       final domain = parts[1];
 
+<<<<<<< HEAD
       if (username.length <= 2) {
+=======
+      if (username.length < 2) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         return '${username[0]}*@$domain';
       }
 
@@ -376,7 +420,14 @@ class PiiFilter {
       'emails': _emailPattern.allMatches(input).length,
       'nationalIds': _nationalIdPattern.allMatches(input).length,
       'creditCards': _creditCardPattern.allMatches(input).length,
+<<<<<<< HEAD
       'tokens': RegExp(r'eyJ[A-Za-z0-9-_]+').allMatches(input).length,
+=======
+      'tokens': RegExp(r'eyJ[A-Za-z0-9-_]+').allMatches(input).length +
+          RegExp(r'Bearer\s+[A-Za-z0-9-_.]+', caseSensitive: false)
+              .allMatches(input)
+              .length,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       'arabicNames': _arabicNamePattern.allMatches(input).length,
     };
   }

@@ -29,6 +29,7 @@ import 'certificate_pinning_service.dart';
 ///    - Copy SHA-256 fingerprint
 
 class CertificateConfig {
+<<<<<<< HEAD
   /// Get production certificate pins
   ///
   /// ============================================
@@ -69,10 +70,90 @@ class CertificateConfig {
         CertificatePin(
           type: PinType.sha256,
           value: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+=======
+  /// Known placeholder hashes that MUST NOT be used in production.
+  /// These are detected at runtime and will disable pinning if found.
+  static const _knownPlaceholders = {
+    'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    '2c26b46b68ffc68ff99b453c1d30413413422d706483bfa0f98a5e886266e7ae',
+    '3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d',
+    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad',
+    '6ca13d52ca70c883e0f0bb101e425a89e8624de51db2d2392593af6a84118090',
+    '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589',
+    'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50',
+    '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7',
+    '785f3ec7eb32f30b90cd0fcf3657d388b5ff4297f2f9716ff66e9b69c05ddd09',
+  };
+
+  /// Check if a hash value is a known placeholder
+  static bool isPlaceholder(String hash) {
+    return _knownPlaceholders.contains(hash.toLowerCase());
+  }
+
+  /// Get production certificate pins.
+  ///
+  /// Pin values are loaded from environment or compile-time constants.
+  /// If pins are still placeholders, pinning is DISABLED to prevent
+  /// locking users out, and a warning is logged.
+  ///
+  /// To set real pins, define these environment variables at build time:
+  /// ```
+  /// --dart-define=CERT_PIN_API_PRIMARY=<sha256_hex>
+  /// --dart-define=CERT_PIN_API_BACKUP=<sha256_hex>
+  /// --dart-define=CERT_PIN_WS_PRIMARY=<sha256_hex>
+  /// --dart-define=CERT_PIN_IO_PRIMARY=<sha256_hex>
+  /// ```
+  ///
+  /// Or generate from live servers:
+  /// ```bash
+  /// openssl s_client -connect api.sahool.app:443 </dev/null 2>/dev/null | \
+  ///   openssl x509 -fingerprint -sha256 -noout
+  /// ```
+  static Map<String, List<CertificatePin>> getProductionPins() {
+    const apiPrimary = String.fromEnvironment(
+      'CERT_PIN_API_PRIMARY',
+      defaultValue: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+    );
+    const apiBackup = String.fromEnvironment(
+      'CERT_PIN_API_BACKUP',
+      defaultValue: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+    );
+    const apiTertiary = String.fromEnvironment(
+      'CERT_PIN_API_TERTIARY',
+      defaultValue: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+    );
+    const wsPrimary = String.fromEnvironment(
+      'CERT_PIN_WS_PRIMARY',
+      defaultValue: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+    );
+    const ioPrimary = String.fromEnvironment(
+      'CERT_PIN_IO_PRIMARY',
+      defaultValue: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+    );
+
+    return {
+      'api.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: apiPrimary,
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Primary production certificate',
+        ),
+        CertificatePin(
+          type: PinType.sha256,
+          value: apiBackup,
+          expiryDate: DateTime(2027, 6, 30),
+          description: 'Backup production certificate',
+        ),
+        CertificatePin(
+          type: PinType.sha256,
+          value: apiTertiary,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 12, 31),
           description: 'Tertiary production certificate',
         ),
       ],
+<<<<<<< HEAD
 
       // WebSocket production
       'ws.sahool.app': [
@@ -108,10 +189,28 @@ class CertificateConfig {
           expiryDate: DateTime(2027, 6, 30),
           description: 'Wildcard backup certificate',
         ),
+=======
+      'ws.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: wsPrimary,
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'WebSocket production certificate',
+        ),
+      ],
+      '*.sahool.io': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: ioPrimary,
+          expiryDate: DateTime(2026, 12, 31),
+          description: 'Wildcard sahool.io certificate',
+        ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       ],
     };
   }
 
+<<<<<<< HEAD
   /// Get staging certificate pins
   ///
   /// ============================================
@@ -142,11 +241,46 @@ class CertificateConfig {
         CertificatePin(
           type: PinType.sha256,
           value: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50', // PLACEHOLDER - MUST REPLACE
+=======
+  /// Get staging certificate pins.
+  ///
+  /// Same build-time override approach as production.
+  /// ```
+  /// --dart-define=CERT_PIN_STAGING_API=<sha256_hex>
+  /// --dart-define=CERT_PIN_STAGING_WS=<sha256_hex>
+  /// ```
+  static Map<String, List<CertificatePin>> getStagingPins() {
+    const stagingApi = String.fromEnvironment(
+      'CERT_PIN_STAGING_API',
+      defaultValue: '88d4266fd4e6338d13b845fcf289579d209c897823b9217da3e161936f031589',
+    );
+    const stagingApiBackup = String.fromEnvironment(
+      'CERT_PIN_STAGING_API_BACKUP',
+      defaultValue: 'cd2662154e6d76b2b2b92e70c0cac3ccf534f9b74eb5b89819ec509083d00a50',
+    );
+    const stagingWs = String.fromEnvironment(
+      'CERT_PIN_STAGING_WS',
+      defaultValue: '9b71d224bd62f3785d96d46ad3ea3d73319bfbc2890caadae2dff72519673ca7',
+    );
+
+    return {
+      'api-staging.sahool.app': [
+        CertificatePin(
+          type: PinType.sha256,
+          value: stagingApi,
+          expiryDate: DateTime(2026, 6, 30),
+          description: 'Staging API certificate',
+        ),
+        CertificatePin(
+          type: PinType.sha256,
+          value: stagingApiBackup,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           expiryDate: DateTime(2027, 3, 31),
           description: 'Staging API backup certificate',
         ),
       ],
       'ws-staging.sahool.app': [
+<<<<<<< HEAD
         // TODO: CRITICAL - Replace with actual staging WebSocket certificate fingerprint
         // Generate using: ./scripts/generate_cert_pins.sh ws-staging.sahool.app
         CertificatePin(
@@ -163,6 +297,14 @@ class CertificateConfig {
           expiryDate: DateTime(2027, 3, 31),
           description: 'Staging WebSocket backup certificate',
         ),
+=======
+        CertificatePin(
+          type: PinType.sha256,
+          value: stagingWs,
+          expiryDate: DateTime(2026, 6, 30),
+          description: 'Staging WebSocket certificate',
+        ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       ],
     };
   }

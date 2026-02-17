@@ -8,6 +8,10 @@ import '../../../core/ui/sync_indicator.dart';
 import '../../../core/sync/queue_manager.dart';
 import '../../../core/storage/database.dart';
 import '../../../main.dart';
+<<<<<<< HEAD
+=======
+import '../../../core/sync/sync_metrics_providers.dart' show queueManagerProvider;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../providers/sync_events_provider.dart';
 import 'conflict_resolution_dialog.dart';
 

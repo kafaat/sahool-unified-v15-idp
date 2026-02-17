@@ -1116,8 +1116,13 @@ Database-per-Service with Event Bus
 ### 📚 **وثائق ذات صلة:**
 
 - [Database Schemas Documentation](./docs/DATABASE.md)
+<<<<<<< HEAD
 - [Migration Guide](./docs/MIGRATIONS.md)
 - [PostGIS Optimization](./docs/infrastructure/POSTGIS_OPTIMIZATION.md)
+=======
+- [Migration Guide](../MIGRATIONS.md)
+- [PostGIS Optimization](../infrastructure/POSTGIS_OPTIMIZATION.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Comprehensive Review Report (Arabic)](./COMPREHENSIVE_REVIEW_REPORT_AR.md)
 
 ### 🔧 **ملفات المخططات:**

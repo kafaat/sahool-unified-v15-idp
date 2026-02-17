@@ -34,23 +34,45 @@ if not SHARED_PATH.exists():
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
+<<<<<<< HEAD
 try:
     from config.cors_config import setup_cors_middleware
 except ImportError:
     # Fallback إذا لم يكن الموديول متاح
     def setup_cors_middleware(app):
         pass
+=======
+_logger = logging.getLogger(__name__)
+
+try:
+    from config.cors_config import setup_cors_middleware
+except ImportError:
+    _logger.warning("config.cors_config not available, CORS setup will be skipped")
+
+    def setup_cors_middleware(app):
+        _logger.debug("CORS middleware not configured (module unavailable)")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 except ImportError:
+<<<<<<< HEAD
     # Fallback إذا لم يكن الموديول متاح
     def setup_exception_handlers(app):
         pass
 
     def add_request_id_middleware(app):
         pass
+=======
+    _logger.warning("shared.errors_py not available, using default error handling")
+
+    def setup_exception_handlers(app):
+        _logger.debug("Exception handlers not configured (module unavailable)")
+
+    def add_request_id_middleware(app):
+        _logger.debug("Request ID middleware not configured (module unavailable)")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 # Security headers middleware
@@ -60,9 +82,16 @@ try:
     SECURITY_HEADERS_AVAILABLE = True
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
+<<<<<<< HEAD
 
     def setup_security_headers(app):
         pass
+=======
+    _logger.warning("shared.middleware.security_headers not available")
+
+    def setup_security_headers(app):
+        _logger.debug("Security headers not configured (module unavailable)")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 from .api.routes import router

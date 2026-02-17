@@ -51,6 +51,7 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 
+<<<<<<< HEAD
 		<!-- ============================================ -->
 		<!-- CERTIFICATE PINNING - PRODUCTION DOMAINS     -->
 		<!-- ============================================ -->
@@ -165,6 +166,17 @@
 				</array>
 			</dict>
 		</dict>
+=======
+		<!-- Certificate Pinning for Production Domains -->
+		<!-- NOTE: NSPinnedDomains disabled until real SPKI hashes are generated. -->
+		<!-- Placeholder values (AAAA...) would block ALL connections to pinned domains. -->
+		<!-- Certificate pinning is enforced via Dart-side CertificatePinningService instead. -->
+		<!-- To enable iOS-level pinning: -->
+		<!-- 1. Run: ./scripts/generate_cert_pins.sh api.sahool.app -->
+		<!-- 2. Copy SPKI-SHA256-BASE64 values from output -->
+		<!-- 3. Uncomment NSPinnedDomains and replace placeholder values -->
+		<!-- 4. Test on device before deploying to production -->
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 		<!-- Exception for localhost in development -->
 		<key>NSExceptionDomains</key>
@@ -180,6 +192,7 @@
 				<true/>
 			</dict>
 		</dict>
+<<<<<<< HEAD
 
 		<!-- ============================================ -->
 		<!-- CERTIFICATE PINNING INSTRUCTIONS             -->
@@ -214,6 +227,8 @@
 		- See /apps/mobile/ios/README_CERTIFICATE_PINNING.md
 		- See /apps/mobile/CERTIFICATE_ROTATION_IOS.md
 		-->
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>يحتاج التطبيق للوصول إلى الكاميرا لالتقاط صور المحاصيل والحقول</string>

@@ -74,7 +74,11 @@ class ErrorHandler {
     Future<T> Function() action, {
     String? tag,
     T Function(AppException error)? onError,
+<<<<<<< HEAD
     bool rethrow = true,
+=======
+    bool shouldRethrow = true,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   }) async {
     try {
       return await action();
@@ -85,7 +89,11 @@ class ErrorHandler {
         return onError(appException);
       }
 
+<<<<<<< HEAD
       if (rethrow) {
+=======
+      if (shouldRethrow) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         throw appException;
       }
 

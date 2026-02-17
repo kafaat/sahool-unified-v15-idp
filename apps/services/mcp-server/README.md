@@ -1,7 +1,16 @@
+<<<<<<< HEAD
 # SAHOOL MCP Server
 
 Model Context Protocol (MCP) server for SAHOOL agricultural platform.
 
+=======
+# SAHOOL MCP Server | خادم بروتوكول سياق النموذج
+
+Model Context Protocol (MCP) server for SAHOOL agricultural platform.
+
+خادم بروتوكول سياق النموذج (MCP) لمنصة سهول الزراعية.
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ## Overview
 
 The SAHOOL MCP Server exposes all SAHOOL agricultural capabilities through the Model Context Protocol, enabling AI assistants to:
@@ -10,7 +19,11 @@ The SAHOOL MCP Server exposes all SAHOOL agricultural capabilities through the M
 - Query agricultural resources (fields, weather data, crop catalog)
 - Use agricultural prompt templates
 
+<<<<<<< HEAD
 ## Features
+=======
+## Features | الميزات
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - **Full MCP Specification Support**: Implements MCP 2024-11-05 specification
 - **Multiple Transports**: HTTP/JSON-RPC and Server-Sent Events (SSE)
@@ -19,9 +32,24 @@ The SAHOOL MCP Server exposes all SAHOOL agricultural capabilities through the M
 - **Resource Providers**: Access to field data, weather, and crop catalogs
 - **Prompt Templates**: Pre-built prompts for common agricultural tasks
 
+<<<<<<< HEAD
 ## Quick Start
 
 ### Development
+=======
+---
+
+- **دعم مواصفات MCP الكاملة**: ينفذ مواصفات MCP 2024-11-05
+- **نقل متعدد**: HTTP/JSON-RPC وأحداث مرسلة من الخادم (SSE)
+- **جاهز للإنتاج**: فحوصات الصحة والمقاييس وتسجيل الأخطاء والمعالجة
+- **أدوات زراعية**: 5 أدوات متخصصة للذكاء الزراعي
+- **موفرو الموارد**: الوصول إلى بيانات الحقول والطقس وفهارس المحاصيل
+- **قوالب الرسائل**: رسائل مُعدة مسبقًا للمهام الزراعية الشائعة
+
+## Quick Start | البدء السريع
+
+### Development | التطوير
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 # Install dependencies
@@ -35,7 +63,11 @@ export MCP_SERVER_PORT=8200
 python src/main.py
 ```
 
+<<<<<<< HEAD
 ### Docker
+=======
+### Docker | دوكر
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 # Build image
@@ -47,7 +79,11 @@ docker run -p 8200:8200 \
   sahool-mcp-server
 ```
 
+<<<<<<< HEAD
 ### Docker Compose
+=======
+### Docker Compose | تكوين دوكر
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```yaml
 services:
@@ -65,30 +101,50 @@ services:
       retries: 3
 ```
 
+<<<<<<< HEAD
 ## Endpoints
 
 ### MCP Endpoints
+=======
+## Endpoints | نقاط النهاية
+
+### MCP Endpoints | نقاط نهاية MCP
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - **POST /mcp** - JSON-RPC 2.0 endpoint for MCP requests
 - **GET /mcp/sse** - Server-Sent Events endpoint for streaming
 
+<<<<<<< HEAD
 ### Convenience Endpoints
+=======
+### Convenience Endpoints | نقاط النهاية المريحة
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - **GET /** - Server information
 - **GET /tools** - List available tools
 - **GET /resources** - List available resources
 - **GET /prompts** - List available prompts
 
+<<<<<<< HEAD
 ### Health & Metrics
+=======
+### Health & Metrics | الصحة والمقاييس
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - **GET /health** - Health check
 - **GET /healthz** - Kubernetes health check
 - **GET /ready** - Readiness probe
 - **GET /metrics** - Prometheus metrics
 
+<<<<<<< HEAD
 ## Available Tools
 
 ### 1. get_weather_forecast
+=======
+## Available Tools | الأدوات المتاحة
+
+### 1. get_weather_forecast | الحصول على توقعات الطقس
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 Get weather forecast for a specific location.
 
@@ -103,10 +159,19 @@ Get weather forecast for a specific location.
 }
 ```
 
+<<<<<<< HEAD
 ### 2. analyze_crop_health
 
 Analyze crop health using satellite imagery (NDVI).
 
+=======
+### 2. analyze_crop_health | تحليل صحة المحصول
+
+Analyze crop health using satellite imagery (NDVI).
+
+تحليل صحة المحصول باستخدام صور الأقمار الصناعية (NDVI).
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ```json
 {
   "name": "analyze_crop_health",
@@ -117,10 +182,19 @@ Analyze crop health using satellite imagery (NDVI).
 }
 ```
 
+<<<<<<< HEAD
 ### 3. get_field_data
 
 Retrieve comprehensive field data.
 
+=======
+### 3. get_field_data | الحصول على بيانات الحقل
+
+Retrieve comprehensive field data.
+
+استرجاع بيانات الحقل الشاملة.
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ```json
 {
   "name": "get_field_data",
@@ -132,10 +206,19 @@ Retrieve comprehensive field data.
 }
 ```
 
+<<<<<<< HEAD
 ### 4. calculate_irrigation
 
 Calculate optimal irrigation requirements.
 
+=======
+### 4. calculate_irrigation | حساب متطلبات الري
+
+Calculate optimal irrigation requirements.
+
+حساب متطلبات الري المثلى.
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ```json
 {
   "name": "calculate_irrigation",
@@ -148,10 +231,19 @@ Calculate optimal irrigation requirements.
 }
 ```
 
+<<<<<<< HEAD
 ### 5. get_fertilizer_recommendation
 
 Get fertilizer recommendations based on soil analysis.
 
+=======
+### 5. get_fertilizer_recommendation | الحصول على توصيات الأسمدة
+
+Get fertilizer recommendations based on soil analysis.
+
+الحصول على توصيات الأسمدة بناءً على تحليل التربة.
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ```json
 {
   "name": "get_fertilizer_recommendation",
@@ -169,16 +261,26 @@ Get fertilizer recommendations based on soil analysis.
 }
 ```
 
+<<<<<<< HEAD
 ## Resource Providers
 
 ### Field Data Resources
+=======
+## Resource Providers | موفرو الموارد
+
+### Field Data Resources | موارد بيانات الحقل
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - `field://{field_id}/info` - Field information
 - `field://{field_id}/boundaries` - Geospatial boundaries (GeoJSON)
 - `field://{field_id}/soil` - Soil properties
 - `field://{field_id}/activities` - Historical activities
 
+<<<<<<< HEAD
 ### Weather Data Resources
+=======
+### Weather Data Resources | موارد بيانات الطقس
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - `weather://current` - Current weather conditions
 - `weather://forecast/7day` - 7-day forecast
@@ -186,7 +288,11 @@ Get fertilizer recommendations based on soil analysis.
 - `weather://advisories` - Agricultural advisories
 - `weather://historical/30day` - Historical weather data
 
+<<<<<<< HEAD
 ### Crop Catalog Resources
+=======
+### Crop Catalog Resources | موارد فهرس المحاصيل
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - `crops://catalog` - Complete crop catalog
 - `crops://{crop_id}/info` - Crop information
@@ -194,6 +300,7 @@ Get fertilizer recommendations based on soil analysis.
 - `crops://{crop_id}/pests` - Pest management
 - `crops://{crop_id}/diseases` - Disease management
 
+<<<<<<< HEAD
 ## Prompt Templates
 
 ### field_analysis
@@ -211,6 +318,31 @@ Recommend crops suitable for field conditions.
 ## Configuration
 
 ### Environment Variables
+=======
+## Prompt Templates | قوالب الرسائل
+
+### field_analysis | تحليل الحقل
+
+Comprehensive field analysis including health, weather, and recommendations.
+
+تحليل شامل للحقل يشمل الصحة والطقس والتوصيات.
+
+### irrigation_plan | خطة الري
+
+Create irrigation plan based on weather forecast and soil conditions.
+
+إنشاء خطة ري بناءً على توقعات الطقس وظروف التربة.
+
+### crop_recommendation | توصية المحصول
+
+Recommend crops suitable for field conditions.
+
+التوصية بالمحاصيل المناسبة لظروف الحقل.
+
+## Configuration | الإعداد
+
+### Environment Variables | متغيرات البيئة
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 | Variable          | Description             | Default                 |
 | ----------------- | ----------------------- | ----------------------- |
@@ -219,9 +351,15 @@ Recommend crops suitable for field conditions.
 | `MCP_SERVER_HOST` | Host to bind to         | `0.0.0.0`               |
 | `LOG_LEVEL`       | Logging level           | `INFO`                  |
 
+<<<<<<< HEAD
 ## MCP Client Integration
 
 ### Using Python Client
+=======
+## MCP Client Integration | تكامل عميل MCP
+
+### Using Python Client | استخدام عميل Python
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```python
 from shared.mcp.client import MCPClientContext
@@ -244,10 +382,19 @@ async with MCPClientContext(server_url="http://localhost:8200") as client:
     )
 ```
 
+<<<<<<< HEAD
 ### Using Claude Desktop
 
 Add to Claude Desktop configuration (`claude_desktop_config.json`):
 
+=======
+### Using Claude Desktop | استخدام Claude Desktop
+
+Add to Claude Desktop configuration (`claude_desktop_config.json`):
+
+أضفه إلى إعداد Claude Desktop (`claude_desktop_config.json`):
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 ```json
 {
   "mcpServers": {
@@ -258,23 +405,37 @@ Add to Claude Desktop configuration (`claude_desktop_config.json`):
 }
 ```
 
+<<<<<<< HEAD
 ### Using stdio Transport
+=======
+### Using stdio Transport | استخدام نقل stdio
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 # Run MCP server with stdio transport
 python -m shared.mcp.server --transport stdio
 ```
 
+<<<<<<< HEAD
 ## Monitoring
 
 ### Prometheus Metrics
+=======
+## Monitoring | المراقبة
+
+### Prometheus Metrics | مقاييس Prometheus
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - `mcp_requests_total{method, status}` - Total MCP requests
 - `mcp_request_duration_seconds{method}` - Request duration histogram
 - `mcp_tool_calls_total{tool_name, status}` - Total tool calls
 - `mcp_resource_reads_total{resource_type, status}` - Total resource reads
 
+<<<<<<< HEAD
 ### Health Checks
+=======
+### Health Checks | فحوصات الصحة
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 # Check health
@@ -287,15 +448,25 @@ curl http://localhost:8200/ready
 curl http://localhost:8200/metrics
 ```
 
+<<<<<<< HEAD
 ## Development
 
 ### Running Tests
+=======
+## Development | التطوير
+
+### Running Tests | تشغيل الاختبارات
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 pytest tests/
 ```
 
+<<<<<<< HEAD
 ### Code Quality
+=======
+### Code Quality | جودة الكود
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 # Format code
@@ -308,9 +479,15 @@ ruff check src/
 mypy src/
 ```
 
+<<<<<<< HEAD
 ## Production Deployment
 
 ### Kubernetes
+=======
+## Production Deployment | نشر الإنتاج
+
+### Kubernetes | كوبرنيتس
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```yaml
 apiVersion: apps/v1

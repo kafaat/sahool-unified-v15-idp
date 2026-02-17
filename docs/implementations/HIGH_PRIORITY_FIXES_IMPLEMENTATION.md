@@ -264,7 +264,11 @@ curl -I http://localhost:8095/health
 
 ## 📚 References | المراجع
 
+<<<<<<< HEAD
 - [GAPS_AND_RECOMMENDATIONS.md](../GAPS_AND_RECOMMENDATIONS.md) - Original recommendations
+=======
+- [GAPS_AND_RECOMMENDATIONS.md](../reports/GAPS_AND_RECOMMENDATIONS.md) - Original recommendations
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Security Headers Guide](https://owasp.org/www-project-secure-headers/)
 - [PostgreSQL GIN Indexes](https://www.postgresql.org/docs/current/gin.html)
 - [PostgreSQL Partial Indexes](https://www.postgresql.org/docs/current/indexes-partial.html)

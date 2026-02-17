@@ -96,6 +96,7 @@ extension FieldStatusMapper on FieldStatus {
 /// Extension للحقل نفسه
 extension FieldUIExtension on Field {
   /// لون الحالة
+<<<<<<< HEAD
   Color get statusColor => status.toColor();
 
   /// لون خلفية الحالة
@@ -106,6 +107,18 @@ extension FieldUIExtension on Field {
 
   /// أيقونة الحالة
   IconData get statusIcon => status.toIcon();
+=======
+  Color get statusColor => healthStatus.toColor();
+
+  /// لون خلفية الحالة
+  Color get statusBackgroundColor => healthStatus.toLightColor();
+
+  /// نص الحالة
+  String get statusText => healthStatus.toText();
+
+  /// أيقونة الحالة
+  IconData get statusIcon => healthStatus.toIcon();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   /// تنسيق المساحة
   String get areaFormatted => '${areaHa.toStringAsFixed(1)} هكتار';

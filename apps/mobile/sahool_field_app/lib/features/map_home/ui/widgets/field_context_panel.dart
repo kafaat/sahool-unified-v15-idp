@@ -171,7 +171,11 @@ class _FieldContextPanelState extends State<FieldContextPanel> {
                   Icon(Icons.grass, size: 14, color: Colors.grey[600]),
                   const SizedBox(width: 4),
                   Text(
+<<<<<<< HEAD
                     widget.field.cropType,
+=======
+                    widget.field.cropType ?? '',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 13,

@@ -20,6 +20,13 @@ This directory contains services that have been deprecated and replaced by newer
 | `agro-advisor` | `advisory-service` | 8093 | 2026-02-14 |
 | `ndvi-engine` | `vegetation-analysis-service` | 8090 | 2026-02-14 |
 | `weather-core` | `weather-service` | 8092 | 2026-02-14 |
+<<<<<<< HEAD
+=======
+| `community-chat` | `chat-service` | 8000 | 2026-02-16 |
+| `field-chat` | `chat-service` | 8000 | 2026-02-16 |
+| `ndvi-processor` | `vegetation-analysis-service` | 8090 | 2026-02-16 |
+| `yield-engine` | `yield-prediction-service` | 8152 | 2026-02-16 |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## Why Archived
 

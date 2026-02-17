@@ -35,7 +35,11 @@ async def get_principal(
         @app.get("/protected")
         async def protected_route(principal: dict = Depends(get_principal)):
             user_id = principal["sub"]
+<<<<<<< HEAD
             tenant_id = principal["tid"]
+=======
+            tenant_id = principal["tenant_id"]  # or principal["tid"]
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             ...
 
     Raises:
@@ -58,7 +62,11 @@ async def get_principal(
         # Attach to request state for audit logging
         request.state.principal = payload
         request.state.user_id = payload.get("sub")
+<<<<<<< HEAD
         request.state.tenant_id = payload.get("tid")
+=======
+        request.state.tenant_id = payload.get("tenant_id") or payload.get("tid")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
         return payload
 
@@ -91,7 +99,11 @@ async def get_optional_principal(
         payload = verify_token(credentials.credentials)
         request.state.principal = payload
         request.state.user_id = payload.get("sub")
+<<<<<<< HEAD
         request.state.tenant_id = payload.get("tid")
+=======
+        request.state.tenant_id = payload.get("tenant_id") or payload.get("tid")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         return payload
     except AuthError:
         return None
@@ -111,7 +123,11 @@ async def get_tenant_id(principal: dict = Depends(get_principal)) -> str:
         async def get_resource(tenant_id: str = Depends(get_tenant_id)):
             ...
     """
+<<<<<<< HEAD
     return principal.get("tid", "")
+=======
+    return principal.get("tenant_id") or principal.get("tid", "")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 async def get_user_id(principal: dict = Depends(get_principal)) -> str:
@@ -135,7 +151,11 @@ async def get_tenant_from_header(
     JWT takes precedence.
     """
     if principal:
+<<<<<<< HEAD
         return principal.get("tid", "")
+=======
+        return principal.get("tenant_id") or principal.get("tid", "")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     if x_tenant_id:
         return x_tenant_id
     raise HTTPException(

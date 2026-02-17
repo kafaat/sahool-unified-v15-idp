@@ -364,13 +364,20 @@ tests/
 
 ### Documentation
 
+<<<<<<< HEAD
 - [POST_MERGE_VERIFICATION.md](POST_MERGE_VERIFICATION.md)
 - [DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md](DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md)
 - [PERFORMANCE_TESTING_GUIDE.md](PERFORMANCE_TESTING_GUIDE.md)
+=======
+- [POST_MERGE_VERIFICATION.md](../guides/POST_MERGE_VERIFICATION.md)
+- [DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md](../guides/DOCKER_SEQUENTIAL_BUILD_TROUBLESHOOTING.md)
+- [PERFORMANCE_TESTING_GUIDE.md](../guides/PERFORMANCE_TESTING_GUIDE.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [TEST_RESULTS_SUMMARY.md](TEST_RESULTS_SUMMARY.md)
 
 ### Scripts
 
+<<<<<<< HEAD
 - [docker-one-by-one.sh](docker-one-by-one.sh)
 - [docker-one-by-one.ps1](docker-one-by-one.ps1)
 
@@ -379,6 +386,16 @@ tests/
 - [tests/load/README.md](tests/load/README.md)
 - [tests/load/QUICKSTART.md](tests/load/QUICKSTART.md)
 - [tests/README.md](tests/README.md)
+=======
+- [docker-one-by-one.sh](../../docker-one-by-one.sh)
+- [docker-one-by-one.ps1](../../docker-one-by-one.ps1)
+
+### Test Infrastructure
+
+- [tests/load/README.md](../../tests/load/README.md)
+- [tests/load/QUICKSTART.md](../../tests/load/QUICKSTART.md)
+- [tests/README.md](../../tests/README.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ---
 

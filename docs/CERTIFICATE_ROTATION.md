@@ -829,9 +829,15 @@ For HA deployments:
 
 ### Related SAHOOL Documentation
 
+<<<<<<< HEAD
 - [TLS Setup Summary](../TLS_SETUP_SUMMARY.md)
 - [Security Best Practices](../SECURITY.md)
 - [Deployment Checklist](../DEPLOYMENT_CHECKLIST.md)
+=======
+- [TLS Setup Summary](./summaries/TLS_SETUP_SUMMARY.md)
+- [Security Best Practices](./SECURITY.md)
+- [Deployment Checklist](./guides/DEPLOYMENT_CHECKLIST.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Support
 

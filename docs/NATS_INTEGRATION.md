@@ -609,8 +609,13 @@ await publisher.publish_json("sahool.field.created", data)
 
 ## Related Documentation | الوثائق ذات الصلة
 
+<<<<<<< HEAD
 - [Event Architecture](./EVENT_ARCHITECTURE.md)
 - [Service Communication](./SERVICE_COMMUNICATION.md)
+=======
+- [Event Catalog](./EVENT_CATALOG.md)
+- [Data Flow](./DATA_FLOW.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Deployment Guide](./DEPLOYMENT.md)
 - [Security Guide](./SECURITY.md)
 - [Monitoring & Observability](./OBSERVABILITY.md)

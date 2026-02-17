@@ -120,7 +120,12 @@ void main() {
         AppLogger.d('Test message 1');
         AppLogger.i('Test message 2');
 
+<<<<<<< HEAD
         final exported = AppLogger.exportLogs();
+=======
+        // Use sanitize: false to avoid PII filter masking timestamp digits
+        final exported = AppLogger.exportLogs(sanitize: false);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         expect(exported, isNotEmpty);
         expect(exported, contains('Test message 1'));
         expect(exported, contains('Test message 2'));

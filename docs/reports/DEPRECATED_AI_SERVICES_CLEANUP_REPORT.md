@@ -409,15 +409,26 @@ Files with references (using Kong routes):
 
 ### Internal Documentation
 
+<<<<<<< HEAD
 - [Service Consolidation Map](docs/SERVICE_CONSOLIDATION_MAP.md)
 - [Deprecated Services](docs/DEPRECATED_SERVICES.md)
 - [Deprecation Summary](apps/services/DEPRECATION_SUMMARY.md)
+=======
+- [Service Consolidation Map](../SERVICE_CONSOLIDATION_MAP.md)
+- [Deprecated Services](../DEPRECATED_SERVICES.md)
+- [Deprecation Summary](../../apps/services/DEPRECATION_SUMMARY.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Cleanup Summary](DEPRECATED_SERVICES_CLEANUP_SUMMARY.md)
 
 ### Replacement Service Documentation
 
+<<<<<<< HEAD
 - [Crop Intelligence Service](apps/services/crop-intelligence-service/README.md)
 - [Vegetation Analysis Service](apps/services/vegetation-analysis-service/README.md)
+=======
+- [Crop Intelligence Service](../../apps/services/crop-intelligence-service/README.md)
+- [Vegetation Analysis Service](../../apps/services/vegetation-analysis-service/README.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Standards
 

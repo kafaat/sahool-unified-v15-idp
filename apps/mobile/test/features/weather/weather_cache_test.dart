@@ -4,6 +4,7 @@
 /// covering cache hits, misses, expiration, and offline scenarios.
 library;
 
+<<<<<<< HEAD
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -14,6 +15,14 @@ import 'package:sahool_field_app/core/config/providers_config.dart';
 
 import 'weather_fixtures.dart';
 
+=======
+import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:mocktail/mocktail.dart';
+import 'package:sahool_field_app/core/services/weather_provider_service.dart';
+import 'package:sahool_field_app/core/config/providers_config.dart';
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks - الكائنات الوهمية
 // ═══════════════════════════════════════════════════════════════════════════
@@ -312,8 +321,11 @@ void main() {
       test('should create ForecastDay with all fields', () {
         // Arrange
         final date = DateTime(2026, 1, 23);
+<<<<<<< HEAD
         const sunrise = null;
         const sunset = null;
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
         final forecast = ForecastDay(
           date: date,
@@ -325,8 +337,13 @@ void main() {
           condition: 'Partly Cloudy',
           conditionAr: 'غائم جزئياً',
           icon: '⛅',
+<<<<<<< HEAD
           sunrise: sunrise,
           sunset: sunset,
+=======
+          sunrise: null,
+          sunset: null,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         // Assert

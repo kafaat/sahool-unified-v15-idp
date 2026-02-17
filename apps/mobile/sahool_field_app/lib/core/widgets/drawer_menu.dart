@@ -493,7 +493,11 @@ class SahoolDrawerMenu extends ConsumerWidget {
       'satellite': NavigationConstants.satellite,
       'weather': NavigationConstants.weather,
       'alerts': NavigationConstants.alerts,
+<<<<<<< HEAD
       'map': NavigationConstants.map,
+=======
+      'map': NavigationConstants.fieldMap,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       'astronomical': NavigationConstants.astronomical,
       'inventory': NavigationConstants.inventory,
       'market': NavigationConstants.market,

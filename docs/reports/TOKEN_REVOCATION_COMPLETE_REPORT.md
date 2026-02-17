@@ -325,15 +325,23 @@ curl -X POST http://localhost:3000/auth/revocation/revoke-current \
 
 ### Quick Access
 
+<<<<<<< HEAD
 1. **Getting Started**: [REVOCATION_QUICKSTART.md](./shared/auth/REVOCATION_QUICKSTART.md)
 2. **Full Documentation**: [TOKEN_REVOCATION_README.md](./shared/auth/TOKEN_REVOCATION_README.md)
 3. **Examples**: [REVOCATION_EXAMPLES.md](./shared/auth/REVOCATION_EXAMPLES.md)
 4. **Implementation Details**: [REVOCATION_IMPLEMENTATION_SUMMARY.md](./shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md)
+=======
+1. **Getting Started**: [REVOCATION_QUICKSTART.md](../../shared/auth/REVOCATION_QUICKSTART.md)
+2. **Full Documentation**: [TOKEN_REVOCATION_README.md](../../shared/auth/TOKEN_REVOCATION_README.md)
+3. **Examples**: [REVOCATION_EXAMPLES.md](../../shared/auth/REVOCATION_EXAMPLES.md)
+4. **Implementation Details**: [REVOCATION_IMPLEMENTATION_SUMMARY.md](../../shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Code Files
 
 **Python:**
 
+<<<<<<< HEAD
 - Core: [token_revocation.py](./shared/auth/token_revocation.py)
 - Middleware: [revocation_middleware.py](./shared/auth/revocation_middleware.py)
 - API: [revocation_api.py](./shared/auth/revocation_api.py)
@@ -343,6 +351,17 @@ curl -X POST http://localhost:3000/auth/revocation/revoke-current \
 - Core: [token-revocation.ts](./shared/auth/token-revocation.ts)
 - Guard: [token-revocation.guard.ts](./shared/auth/token-revocation.guard.ts)
 - Controller: [revocation.controller.ts](./shared/auth/revocation.controller.ts)
+=======
+- Core: [token_revocation.py](../../shared/auth/token_revocation.py)
+- Middleware: [revocation_middleware.py](../../shared/auth/revocation_middleware.py)
+- API: [revocation_api.py](../../shared/auth/revocation_api.py)
+
+**TypeScript:**
+
+- Core: [token-revocation.ts](../../shared/auth/token-revocation.ts)
+- Guard: [token-revocation.guard.ts](../../shared/auth/token-revocation.guard.ts)
+- Controller: [revocation.controller.ts](../../shared/auth/revocation.controller.ts)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ---
 
@@ -521,12 +540,21 @@ async changePassword(@Body() dto: ChangePasswordDto, @Request() req) {
 
 | المستند            | الوصف                    | الرابط                                                                                     |
 | ------------------ | ------------------------ | ------------------------------------------------------------------------------------------ |
+<<<<<<< HEAD
 | Quick Start        | دليل البدء السريع        | [REVOCATION_QUICKSTART.md](./shared/auth/REVOCATION_QUICKSTART.md)                         |
 | Full Documentation | التوثيق الكامل           | [TOKEN_REVOCATION_README.md](./shared/auth/TOKEN_REVOCATION_README.md)                     |
 | Examples           | أمثلة عملية              | [REVOCATION_EXAMPLES.md](./shared/auth/REVOCATION_EXAMPLES.md)                             |
 | Implementation     | تفاصيل التنفيذ           | [REVOCATION_IMPLEMENTATION_SUMMARY.md](./shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md) |
 | Python Core        | الكود الأساسي Python     | [token_revocation.py](./shared/auth/token_revocation.py)                                   |
 | TypeScript Core    | الكود الأساسي TypeScript | [token-revocation.ts](./shared/auth/token-revocation.ts)                                   |
+=======
+| Quick Start        | دليل البدء السريع        | [REVOCATION_QUICKSTART.md](../../shared/auth/REVOCATION_QUICKSTART.md)                         |
+| Full Documentation | التوثيق الكامل           | [TOKEN_REVOCATION_README.md](../../shared/auth/TOKEN_REVOCATION_README.md)                     |
+| Examples           | أمثلة عملية              | [REVOCATION_EXAMPLES.md](../../shared/auth/REVOCATION_EXAMPLES.md)                             |
+| Implementation     | تفاصيل التنفيذ           | [REVOCATION_IMPLEMENTATION_SUMMARY.md](../../shared/auth/REVOCATION_IMPLEMENTATION_SUMMARY.md) |
+| Python Core        | الكود الأساسي Python     | [token_revocation.py](../../shared/auth/token_revocation.py)                                   |
+| TypeScript Core    | الكود الأساسي TypeScript | [token-revocation.ts](../../shared/auth/token-revocation.ts)                                   |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ---
 

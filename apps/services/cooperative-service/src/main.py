@@ -72,13 +72,25 @@ app = FastAPI(
 )
 
 # Setup CORS
+<<<<<<< HEAD
 cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
+=======
+cors_origins = os.getenv(
+    "CORS_ORIGINS",
+    "https://sahool.app,https://admin.sahool.app,http://localhost:3000",
+).split(",")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 app.add_middleware(
     CORSMiddleware,
     allow_origins=cors_origins,
     allow_credentials=True,
+<<<<<<< HEAD
     allow_methods=["*"],
     allow_headers=["*"],
+=======
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 )
 
 # Setup unified error handling
@@ -138,11 +150,33 @@ def comprehensive_health():
 @app.get("/metrics")
 async def metrics():
     """Prometheus metrics endpoint"""
+<<<<<<< HEAD
     return {
         "service": "cooperative-service",
         "version": "16.0.0",
         "note": "Prometheus metrics integration pending",
     }
+=======
+    from fastapi.responses import PlainTextResponse
+
+    db_up = 1 if getattr(app.state, "db_connected", False) else 0
+    nats_up = 1 if getattr(app.state, "nats_connected", False) else 0
+    metrics_text = (
+        "# HELP cooperative_service_up Service is up\n"
+        "# TYPE cooperative_service_up gauge\n"
+        "cooperative_service_up 1\n"
+        '# HELP cooperative_service_info Service version info\n'
+        '# TYPE cooperative_service_info gauge\n'
+        'cooperative_service_info{service="cooperative-service",version="16.0.0"} 1\n'
+        "# HELP cooperative_service_db_up Database connection status\n"
+        "# TYPE cooperative_service_db_up gauge\n"
+        f"cooperative_service_db_up {db_up}\n"
+        "# HELP cooperative_service_nats_up NATS connection status\n"
+        "# TYPE cooperative_service_nats_up gauge\n"
+        f"cooperative_service_nats_up {nats_up}\n"
+    )
+    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 @app.get("/")

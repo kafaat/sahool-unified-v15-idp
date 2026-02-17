@@ -40,7 +40,11 @@ def require(principal: dict, perm: str) -> None:
     if not has_permission(principal, perm):
         logger.warning(
             f"Permission denied: user={principal.get('sub')} "
+<<<<<<< HEAD
             f"tenant={principal.get('tid')} perm={perm}"
+=======
+            f"tenant={principal.get('tenant_id') or principal.get('tid')} perm={perm}"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         )
         raise HTTPException(
             status_code=403,
@@ -63,7 +67,11 @@ def require_any(principal: dict, perms: list[str]) -> None:
     if not has_any_permission(principal, perms):
         logger.warning(
             f"Permission denied: user={principal.get('sub')} "
+<<<<<<< HEAD
             f"tenant={principal.get('tid')} perms={perms}"
+=======
+            f"tenant={principal.get('tenant_id') or principal.get('tid')} perms={perms}"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         )
         raise HTTPException(
             status_code=403,
@@ -86,7 +94,11 @@ def require_all(principal: dict, perms: list[str]) -> None:
     if not has_all_permissions(principal, perms):
         logger.warning(
             f"Permission denied: user={principal.get('sub')} "
+<<<<<<< HEAD
             f"tenant={principal.get('tid')} perms={perms}"
+=======
+            f"tenant={principal.get('tenant_id') or principal.get('tid')} perms={perms}"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         )
         raise HTTPException(
             status_code=403,
@@ -118,7 +130,11 @@ def require_tenant(principal: dict, tenant_id: str) -> None:
 
         logger.warning(
             f"Tenant mismatch: user={principal.get('sub')} "
+<<<<<<< HEAD
             f"user_tenant={principal.get('tid')} resource_tenant={tenant_id}"
+=======
+            f"user_tenant={principal.get('tenant_id') or principal.get('tid')} resource_tenant={tenant_id}"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         )
         raise HTTPException(
             status_code=403,
@@ -166,7 +182,11 @@ def require_role(principal: dict, role: str) -> None:
 
         logger.warning(
             f"Role denied: user={principal.get('sub')} "
+<<<<<<< HEAD
             f"tenant={principal.get('tid')} required_role={role}"
+=======
+            f"tenant={principal.get('tenant_id') or principal.get('tid')} required_role={role}"
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         )
         raise HTTPException(
             status_code=403,

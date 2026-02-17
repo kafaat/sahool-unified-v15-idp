@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+import 'package:drift/drift.dart' hide isNotNull, isNull;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/error_handling/app_exceptions.dart';
@@ -65,8 +69,13 @@ void main() {
 
       test('should only return tasks for specified tenant', () async {
         // Arrange
+<<<<<<< HEAD
         final task1 = SampleTasks.createPendingTask(tenantId: 'tenant_1');
         final task2 = SampleTasks.createPendingTask(tenantId: 'tenant_2');
+=======
+        final task1 = SampleTasks.createPendingTask(id: 'task_t1', tenantId: 'tenant_1');
+        final task2 = SampleTasks.createPendingTask(id: 'task_t2', tenantId: 'tenant_2');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
         mockDatabase.seedTask(task1);
         mockDatabase.seedTask(task2);
@@ -86,7 +95,11 @@ void main() {
         const fieldId = 'field_001';
         final task1 = SampleTasks.createPendingTask(fieldId: fieldId);
         final task2 = SampleTasks.createCompletedTask(fieldId: fieldId);
+<<<<<<< HEAD
         final task3 = SampleTasks.createPendingTask(fieldId: 'field_002');
+=======
+        final task3 = SampleTasks.createPendingTask(id: 'task_f2', fieldId: 'field_002');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
         mockDatabase.seedTask(task1);
         mockDatabase.seedTask(task2);
@@ -137,10 +150,17 @@ void main() {
 
         // Make task2 have earlier due date
         mockDatabase.seedTask(task1.copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().add(const Duration(days: 5)),
         ));
         mockDatabase.seedTask(task2.copyWith(
           dueDate: DateTime.now().add(const Duration(days: 2)),
+=======
+          dueDate: Value(DateTime.now().add(const Duration(days: 5))),
+        ));
+        mockDatabase.seedTask(task2.copyWith(
+          dueDate: Value(DateTime.now().add(const Duration(days: 2))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         ));
 
         // Act
@@ -517,13 +537,21 @@ void main() {
           id: 'overdue_1',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().subtract(const Duration(days: 2)),
+=======
+          dueDate: Value(DateTime.now().subtract(const Duration(days: 2))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
         final futureTask = SampleTasks.createPendingTask(
           id: 'future_1',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().add(const Duration(days: 2)),
+=======
+          dueDate: Value(DateTime.now().add(const Duration(days: 2))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockDatabase.seedTask(overdueTask);
@@ -544,7 +572,11 @@ void main() {
           id: 'overdue_completed',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().subtract(const Duration(days: 2)),
+=======
+          dueDate: Value(DateTime.now().subtract(const Duration(days: 2))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockDatabase.seedTask(overdueCompletedTask);
@@ -565,13 +597,21 @@ void main() {
           id: 'today_1',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now(),
+=======
+          dueDate: Value(DateTime.now()),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
         final tomorrowTask = SampleTasks.createPendingTask(
           id: 'tomorrow_1',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().add(const Duration(days: 1)),
+=======
+          dueDate: Value(DateTime.now().add(const Duration(days: 1))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockDatabase.seedTask(todayTask);
@@ -594,13 +634,21 @@ void main() {
           id: 'three_days',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().add(const Duration(days: 3)),
+=======
+          dueDate: Value(DateTime.now().add(const Duration(days: 3))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
         final tenDaysTask = SampleTasks.createPendingTask(
           id: 'ten_days',
           tenantId: tenantId,
         ).copyWith(
+<<<<<<< HEAD
           dueDate: DateTime.now().add(const Duration(days: 10)),
+=======
+          dueDate: Value(DateTime.now().add(const Duration(days: 10))),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockDatabase.seedTask(threeDaysTask);

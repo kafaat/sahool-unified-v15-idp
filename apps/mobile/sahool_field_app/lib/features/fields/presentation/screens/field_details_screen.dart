@@ -9,9 +9,18 @@ import '../../domain/entities/field_entity.dart';
 /// شاشة تفاصيل الحقل
 /// Field Details Screen
 class FieldDetailsScreen extends ConsumerStatefulWidget {
+<<<<<<< HEAD
   final FieldEntity field;
 
   const FieldDetailsScreen({super.key, required this.field});
+=======
+  final FieldEntity? field;
+  final String? fieldId;
+
+  const FieldDetailsScreen({super.key, this.field, this.fieldId})
+      : assert(field != null || fieldId != null,
+            'Either field or fieldId must be provided');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   @override
   ConsumerState<FieldDetailsScreen> createState() => _FieldDetailsScreenState();
@@ -21,6 +30,20 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+<<<<<<< HEAD
+=======
+  /// Returns the field entity, or a minimal placeholder when only fieldId was provided
+  FieldEntity get _field => widget.field ?? FieldEntity(
+    id: widget.fieldId!,
+    tenantId: '',
+    name: 'Field ${widget.fieldId}',
+    areaHectares: 0,
+    cropType: '',
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+  );
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   void initState() {
     super.initState();
@@ -90,7 +113,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                         ),
                         child: Center(
                           child: Text(
+<<<<<<< HEAD
                             widget.field.cropEmoji,
+=======
+                            _field.cropEmoji,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                             style: const TextStyle(fontSize: 40),
                           ),
                         ),
@@ -101,7 +128,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
+<<<<<<< HEAD
                               widget.field.name,
+=======
+                              _field.name,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 22,
@@ -121,7 +152,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
+<<<<<<< HEAD
                                     widget.field.cropType,
+=======
+                                    _field.cropType,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -135,12 +170,20 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
+<<<<<<< HEAD
                                     color: _getStatusColor(widget.field.status)
+=======
+                                    color: _getStatusColor(_field.status)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                                         .withOpacity(0.3),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
+<<<<<<< HEAD
                                     widget.field.status.arabicLabel,
+=======
+                                    _field.status.arabicLabel,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 12,
@@ -162,25 +205,41 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                     children: [
                       _buildQuickStat(
                         icon: Icons.square_foot,
+<<<<<<< HEAD
                         value: '${widget.field.areaHectares.toStringAsFixed(1)}',
+=======
+                        value: '${_field.areaHectares.toStringAsFixed(1)}',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         label: 'هكتار',
                       ),
                       const SizedBox(width: 24),
                       _buildQuickStat(
                         icon: Icons.grass,
+<<<<<<< HEAD
                         value: widget.field.ndviValue?.toStringAsFixed(2) ?? '-',
+=======
+                        value: _field.ndviValue?.toStringAsFixed(2) ?? '-',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         label: 'NDVI',
                       ),
                       const SizedBox(width: 24),
                       _buildQuickStat(
                         icon: Icons.favorite,
+<<<<<<< HEAD
                         value: '${(widget.field.healthScore * 100).round()}%',
+=======
+                        value: '${(_field.healthScore * 100).round()}%',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         label: 'الصحة',
                       ),
                       const SizedBox(width: 24),
                       _buildQuickStat(
                         icon: Icons.water_drop,
+<<<<<<< HEAD
                         value: widget.field.ndwiValue?.toStringAsFixed(2) ?? '-',
+=======
+                        value: _field.ndwiValue?.toStringAsFixed(2) ?? '-',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         label: 'NDWI',
                       ),
                     ],
@@ -267,7 +326,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
           const SizedBox(height: 24),
 
           // Growth progress
+<<<<<<< HEAD
           if (widget.field.plantingDate != null) ...[
+=======
+          if (_field.plantingDate != null) ...[
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             _buildSectionTitle('تقدم النمو'),
             _buildGrowthProgressCard(),
             const SizedBox(height: 24),
@@ -311,31 +374,56 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+<<<<<<< HEAD
             _buildInfoRow(Icons.landscape, 'نوع التربة', widget.field.soilType ?? 'غير محدد'),
             const Divider(),
             _buildInfoRow(Icons.water_drop, 'نظام الري', widget.field.irrigationType ?? 'غير محدد'),
             if (widget.field.lastIrrigation != null) ...[
+=======
+            _buildInfoRow(Icons.landscape, 'نوع التربة', _field.soilType ?? 'غير محدد'),
+            const Divider(),
+            _buildInfoRow(Icons.water_drop, 'نظام الري', _field.irrigationType ?? 'غير محدد'),
+            if (_field.lastIrrigation != null) ...[
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               const Divider(),
               _buildInfoRow(
                 Icons.schedule,
                 'آخر ري',
+<<<<<<< HEAD
                 _formatDate(widget.field.lastIrrigation!),
               ),
             ],
             if (widget.field.plantingDate != null) ...[
+=======
+                _formatDate(_field.lastIrrigation!),
+              ),
+            ],
+            if (_field.plantingDate != null) ...[
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               const Divider(),
               _buildInfoRow(
                 Icons.eco,
                 'تاريخ الزراعة',
+<<<<<<< HEAD
                 _formatDate(widget.field.plantingDate!),
               ),
             ],
             if (widget.field.expectedHarvest != null) ...[
+=======
+                _formatDate(_field.plantingDate!),
+              ),
+            ],
+            if (_field.expectedHarvest != null) ...[
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               const Divider(),
               _buildInfoRow(
                 Icons.agriculture,
                 'موعد الحصاد المتوقع',
+<<<<<<< HEAD
                 _formatDate(widget.field.expectedHarvest!),
+=======
+                _formatDate(_field.expectedHarvest!),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               ),
             ],
           ],
@@ -366,8 +454,13 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildGrowthProgressCard() {
+<<<<<<< HEAD
     final daysSincePlanting = widget.field.daysSincePlanting ?? 0;
     final daysUntilHarvest = widget.field.daysUntilHarvest ?? 0;
+=======
+    final daysSincePlanting = _field.daysSincePlanting ?? 0;
+    final daysUntilHarvest = _field.daysUntilHarvest ?? 0;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     final totalDays = daysSincePlanting + daysUntilHarvest;
     final progress = totalDays > 0 ? daysSincePlanting / totalDays : 0.0;
 
@@ -572,7 +665,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildHealthScoreCard() {
+<<<<<<< HEAD
     final healthColor = _getHealthColor(widget.field.healthScore);
+=======
+    final healthColor = _getHealthColor(_field.healthScore);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     return Card(
       elevation: 2,
@@ -591,7 +688,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                     width: 150,
                     height: 150,
                     child: CircularProgressIndicator(
+<<<<<<< HEAD
                       value: widget.field.healthScore,
+=======
+                      value: _field.healthScore,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                       strokeWidth: 12,
                       backgroundColor: Colors.grey[200],
                       valueColor: AlwaysStoppedAnimation(healthColor),
@@ -601,7 +702,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
+<<<<<<< HEAD
                         '${(widget.field.healthScore * 100).round()}%',
+=======
+                        '${(_field.healthScore * 100).round()}%',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         style: TextStyle(
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
@@ -609,7 +714,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                         ),
                       ),
                       Text(
+<<<<<<< HEAD
                         widget.field.healthLabel,
+=======
+                        _field.healthLabel,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         style: TextStyle(
                           color: healthColor,
                           fontWeight: FontWeight.w500,
@@ -634,9 +743,15 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+<<<<<<< HEAD
             _buildIndexRow('NDVI', widget.field.ndviValue ?? 0, Colors.green),
             const Divider(),
             _buildIndexRow('NDWI', widget.field.ndwiValue ?? 0, Colors.blue),
+=======
+            _buildIndexRow('NDVI', _field.ndviValue ?? 0, Colors.green),
+            const Divider(),
+            _buildIndexRow('NDWI', _field.ndwiValue ?? 0, Colors.blue),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             const Divider(),
             _buildIndexRow('NDRE', 0.28, Colors.orange),
           ],
@@ -852,7 +967,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   void _openMap() {
+<<<<<<< HEAD
     context.push('/map', extra: {'fieldId': widget.field.id});
+=======
+    context.push('/map', extra: {'fieldId': _field.id});
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   }
 
   void _handleMenuAction(String action) {
@@ -883,7 +1002,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('حذف الحقل'),
+<<<<<<< HEAD
         content: Text('هل أنت متأكد من حذف "${widget.field.name}"؟'),
+=======
+        content: Text('هل أنت متأكد من حذف "${_field.name}"؟'),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
@@ -904,17 +1027,28 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
 
   /// Delete field via repository
   Future<void> _deleteField() async {
+<<<<<<< HEAD
     final tenantId = widget.field.tenantId;
     final controller = ref.read(fieldControllerProvider(tenantId).notifier);
 
     final success = await controller.deleteField(widget.field.id);
+=======
+    final tenantId = _field.tenantId;
+    final controller = ref.read(fieldControllerProvider(tenantId).notifier);
+
+    final success = await controller.deleteField(_field.id);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     if (!mounted) return;
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
+<<<<<<< HEAD
           content: Text('تم حذف الحقل "${widget.field.name}"'),
+=======
+          content: Text('تم حذف الحقل "${_field.name}"'),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           backgroundColor: const Color(0xFF367C2B),
         ),
       );

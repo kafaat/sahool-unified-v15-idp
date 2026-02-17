@@ -66,7 +66,11 @@ void main() {
 
         try {
           await secureStorageService.setTokenExpiry(futureExpiry);
+<<<<<<< HEAD
           final isValid = await secureStorageService.isTokenValid();
+=======
+          final isValid = await secureStorageService.hasValidTokens();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(isValid, isTrue);
         } catch (e) {
           // Expected in test environment
@@ -79,7 +83,11 @@ void main() {
 
         try {
           await secureStorageService.setTokenExpiry(pastExpiry);
+<<<<<<< HEAD
           final isValid = await secureStorageService.isTokenValid();
+=======
+          final isValid = await secureStorageService.hasValidTokens();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(isValid, isFalse);
         } catch (e) {
           // Expected in test environment
@@ -195,8 +203,13 @@ void main() {
         const pin = '1234';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setPinCode(pin);
           final retrieved = await secureStorageService.getPinCode();
+=======
+          await secureStorageService.write('pin_code', pin);
+          final retrieved = await secureStorageService.read('pin_code');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(retrieved, pin);
         } catch (e) {
           // Expected in test environment
@@ -207,8 +220,14 @@ void main() {
         const pin = '1234';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setPinCode(pin);
           final isValid = await secureStorageService.verifyPinCode(pin);
+=======
+          await secureStorageService.write('pin_code', pin);
+          final stored = await secureStorageService.read('pin_code');
+          final isValid = stored == pin;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(isValid, isTrue);
         } catch (e) {
           // Expected in test environment
@@ -220,8 +239,14 @@ void main() {
         const incorrectPin = '5678';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setPinCode(correctPin);
           final isValid = await secureStorageService.verifyPinCode(incorrectPin);
+=======
+          await secureStorageService.write('pin_code', correctPin);
+          final stored = await secureStorageService.read('pin_code');
+          final isValid = stored == incorrectPin;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(isValid, isFalse);
         } catch (e) {
           // Expected in test environment
@@ -230,9 +255,15 @@ void main() {
 
       test('should delete PIN code', () async {
         try {
+<<<<<<< HEAD
           await secureStorageService.setPinCode('1234');
           await secureStorageService.deletePinCode();
           final retrieved = await secureStorageService.getPinCode();
+=======
+          await secureStorageService.write('pin_code', '1234');
+          await secureStorageService.delete('pin_code');
+          final retrieved = await secureStorageService.read('pin_code');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(retrieved, isNull);
         } catch (e) {
           // Expected in test environment
@@ -243,8 +274,13 @@ void main() {
         const level = 'high';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setSecurityLevel(level);
           final retrieved = await secureStorageService.getSecurityLevel();
+=======
+          await secureStorageService.write('security_level', level);
+          final retrieved = await secureStorageService.read('security_level');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(retrieved, level);
         } catch (e) {
           // Expected in test environment
@@ -257,8 +293,13 @@ void main() {
         const deviceId = 'device_123';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setDeviceId(deviceId);
           final retrieved = await secureStorageService.getDeviceId();
+=======
+          await secureStorageService.write('device_id', deviceId);
+          final retrieved = await secureStorageService.read('device_id');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(retrieved, deviceId);
         } catch (e) {
           // Expected in test environment
@@ -269,8 +310,13 @@ void main() {
         const version = '1.0.0';
 
         try {
+<<<<<<< HEAD
           await secureStorageService.setAppVersion(version);
           final retrieved = await secureStorageService.getAppVersion();
+=======
+          await secureStorageService.write('app_version', version);
+          final retrieved = await secureStorageService.read('app_version');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // expect(retrieved, version);
         } catch (e) {
           // Expected in test environment

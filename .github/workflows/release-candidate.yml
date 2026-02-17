@@ -158,7 +158,11 @@ jobs:
       - name: Run tests
         run: |
           cd apps/mobile
+<<<<<<< HEAD
           flutter test || true
+=======
+          flutter test
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       - name: Build Android APK
         run: |

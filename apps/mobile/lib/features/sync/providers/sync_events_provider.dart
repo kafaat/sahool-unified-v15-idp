@@ -3,7 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/storage/database.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/queue_manager.dart';
+<<<<<<< HEAD
 import '../../../core/config/config.dart';
+=======
+import '../../../core/config/env_config.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../../../main.dart';
 
 /// Sync Events State
@@ -48,7 +52,11 @@ class SyncEventsNotifier extends StateNotifier<SyncEventsState> {
     required AppDatabase database,
     String? tenantId,
   })  : _database = database,
+<<<<<<< HEAD
         _tenantId = tenantId ?? AppConfig.defaultTenantId,
+=======
+        _tenantId = tenantId ?? EnvConfig.defaultTenantId,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         super(const SyncEventsState(isLoading: true)) {
     _init();
   }

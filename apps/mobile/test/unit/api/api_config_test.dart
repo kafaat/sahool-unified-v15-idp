@@ -4,6 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/config/api_config.dart';
 
 void main() {
+<<<<<<< HEAD
+=======
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   group('ServicePorts', () {
     test('should have correct field core port', () {
       expect(ServicePorts.fieldCore, 3000);
@@ -38,7 +43,11 @@ void main() {
     });
 
     test('should have correct virtual sensors service port', () {
+<<<<<<< HEAD
       expect(ServicePorts.virtualSensors, 8096);
+=======
+      expect(ServicePorts.virtualSensors, 8119);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     test('should have correct community chat service port', () {

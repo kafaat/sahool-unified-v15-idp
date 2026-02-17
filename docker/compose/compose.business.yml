@@ -26,13 +26,21 @@ services:
           memory: 384Mi
   community-chat:
     build:
+<<<<<<< HEAD
       context: ../../apps/services/community-chat
+=======
+      context: ../../archive/deprecated-services/community-chat
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       dockerfile: Dockerfile
     ports:
     - 8097:8097
     environment:
     - PORT=8097
+<<<<<<< HEAD
     - NODE_ENV=production
+=======
+    - ENVIRONMENT=production
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     healthcheck:
       test:
       - CMD
@@ -360,7 +368,11 @@ services:
     - redis
   field-chat:
     build:
+<<<<<<< HEAD
       context: ../../apps/services/field-chat
+=======
+      context: ../../archive/deprecated-services/field-chat
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       dockerfile: Dockerfile
     ports:
     - 8099:8099
@@ -556,16 +568,26 @@ services:
       context: ../../apps/services/code-review-service
       dockerfile: Dockerfile
     ports:
+<<<<<<< HEAD
     - 8124:8124
     environment:
     - PORT=8124
+=======
+    - 8102:8102
+    environment:
+    - PORT=8102
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
+<<<<<<< HEAD
       - http://localhost:8124/healthz
+=======
+      - http://localhost:8102/healthz
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       interval: 30s
       timeout: 10s
       retries: 3

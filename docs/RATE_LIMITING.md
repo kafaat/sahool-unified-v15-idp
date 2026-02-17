@@ -597,7 +597,11 @@ async def my_endpoint():
 
 ## 📖 References | المراجع
 
+<<<<<<< HEAD
 - [GAPS_AND_RECOMMENDATIONS.md](../GAPS_AND_RECOMMENDATIONS.md) - Original recommendations
+=======
+- [GAPS_AND_RECOMMENDATIONS.md](./reports/GAPS_AND_RECOMMENDATIONS.md) - Original recommendations
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Security Headers](../shared/middleware/security_headers.py) - Security middleware
 - [Production Deployment](./PRODUCTION_DEPLOYMENT.md) - Deployment guide
 - [Rate Limiting Guide](../shared/middleware/RATE_LIMITING_GUIDE.md) - Original guide

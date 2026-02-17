@@ -313,7 +313,12 @@ def has_all_permissions(principal: dict, perms: list[str]) -> bool:
 
 def is_same_tenant(principal: dict, tenant_id: str) -> bool:
     """Check if principal belongs to the specified tenant"""
+<<<<<<< HEAD
     return principal.get("tid") == tenant_id
+=======
+    principal_tenant = principal.get("tenant_id") or principal.get("tid")
+    return principal_tenant == tenant_id
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 def can_access_resource(

@@ -12,7 +12,11 @@ pydantic==2.12.5
 httpx==0.28.1
 
 # Messaging
+<<<<<<< HEAD
 nats-py>=2.6.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 # Utilities
 python-dotenv==1.2.1

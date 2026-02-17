@@ -219,9 +219,15 @@ All dependencies now comply with:
 
 ### التوثيق | Documentation
 
+<<<<<<< HEAD
 - [Code Review Service README](apps/services/code-review-service/README.md)
 - [Implementation Summary](apps/services/code-review-service/IMPLEMENTATION_SUMMARY.md)
 - [API Test Script](apps/services/code-review-service/test_api.sh)
+=======
+- [Code Review Service README](../../apps/services/code-review-service/README.md)
+- [Implementation Summary](../../apps/services/code-review-service/IMPLEMENTATION_SUMMARY.md)
+- [API Test Script](../../apps/services/code-review-service/test_api.sh)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### السجل | Changelog
 
@@ -281,12 +287,21 @@ This fix is **approved for merge** with the following conditions met:
 للأسئلة أو المشاكل / For questions or issues:
 
 1. راجع التوثيق / Review documentation:
+<<<<<<< HEAD
    - [Code Review Service README](apps/services/code-review-service/README.md)
    - [Implementation Summary](apps/services/code-review-service/IMPLEMENTATION_SUMMARY.md)
 
 2. تحقق من الاختبارات / Check tests:
    - [Test Suite](apps/services/code-review-service/tests/test_api.py)
    - [Test Script](apps/services/code-review-service/test_api.sh)
+=======
+   - [Code Review Service README](../../apps/services/code-review-service/README.md)
+   - [Implementation Summary](../../apps/services/code-review-service/IMPLEMENTATION_SUMMARY.md)
+
+2. تحقق من الاختبارات / Check tests:
+   - [Test Suite](../../apps/services/code-review-service/tests/test_api.py)
+   - [Test Script](../../apps/services/code-review-service/test_api.sh)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 3. اتصل بفريق DevOps / Contact DevOps team
 

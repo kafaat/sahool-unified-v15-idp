@@ -173,7 +173,11 @@ curl -X POST https://api.sahool.sa/v1/auth/login \
 {
   "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+<<<<<<< HEAD
   "expires_in": 1800,
+=======
+  "expires_in": 3600,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   "token_type": "Bearer",
   "user": {
     "id": "usr_123456",
@@ -197,7 +201,11 @@ curl -X GET https://api.sahool.sa/v1/fields \
 
 ### Token Refresh
 
+<<<<<<< HEAD
 Access tokens expire after 30 minutes. Use the refresh token to get a new access token:
+=======
+Access tokens expire after 1 hour (3600 seconds). Use the refresh token to get a new access token:
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ```bash
 curl -X POST https://api.sahool.sa/v1/auth/refresh \
@@ -283,12 +291,22 @@ print('My Fields:', fields['data'])
 
 API requests are rate-limited based on your subscription tier:
 
+<<<<<<< HEAD
 | Tier       | Requests per Minute | Requests per Hour |
 | ---------- | ------------------- | ----------------- |
 | Free       | 30                  | 1,000             |
 | Standard   | 60                  | 3,000             |
 | Premium    | 120                 | 10,000            |
 | Enterprise | Custom              | Custom            |
+=======
+| Tier         | Requests per Minute | Requests per Hour |
+| ------------ | ------------------- | ----------------- |
+| Starter      | 30                  | 500               |
+| Professional | 60                  | 2,000             |
+| Enterprise   | 120                 | 5,000             |
+| Research     | 120                 | 10,000            |
+| Internal     | 1,000               | 50,000            |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Rate Limit Headers
 
@@ -443,6 +461,7 @@ Official SDKs:
 
 ### Base URLs | عناوين URL الأساسية
 
+<<<<<<< HEAD
 | Service                               | Port                   | Base URL              |
 | ------------------------------------- | ---------------------- | --------------------- | --------------------- |
 | SAHOOL Field Service                  | 3000                   | http://localhost:3000 |
@@ -482,6 +501,40 @@ Official SDKs:
 | SAHOOL GlobalGAP Compliance Service   | 8120                   | http://localhost:8120 |
 | SAHOOL AI Agents Core                 | 8120                   | http://localhost:8120 |
 | SAHOOL MCP Server                     | 8200                   | http://localhost:8200 |
+=======
+| Service                               | Port | Base URL              |
+| ------------------------------------- | ---- | --------------------- |
+| SAHOOL Field Service                  | 3000 | http://localhost:3000 |
+| SAHOOL Agent Registry Service         | 8160 | http://localhost:8160 |
+| SAHOOL Field Chat                     | 8099 | http://localhost:8099 |
+| Sahool Virtual Sensors Engine         | 8119 | http://localhost:8119 |
+| SAHOOL Field Operations (Deprecated)  | 8155 | http://localhost:8155 |
+| SAHOOL WebSocket Gateway              | 8081 | http://localhost:8081 |
+| SAHOOL Billing Core                   | 8089 | http://localhost:8089 |
+| SAHOOL Field Core (Deprecated)        | 3005 | http://localhost:3005 |
+| SAHOOL Satellite Service (Deprecated) | 9190 | http://localhost:9190 |
+| SAHOOL Agricultural Indicators        | 8091 | http://localhost:8091 |
+| SAHOOL Advanced Weather Service (Deprecated) | 9092 | http://localhost:9092 |
+| SAHOOL Fertilizer Advisor (Deprecated) | 9093 | http://localhost:9093 |
+| SAHOOL Smart Irrigation Service       | 8094 | http://localhost:8094 |
+| SAHOOL Crop Intelligence Service      | 8095 | http://localhost:8095 |
+| SAHOOL NDVI Engine (Deprecated)       | 8107 | http://localhost:8107 |
+| SAHOOL Yield Prediction Engine        | 8098 | http://localhost:8098 |
+| SAHOOL Crop Health (Deprecated)       | 8100 | http://localhost:8100 |
+| SAHOOL Equipment Service              | 8101 | http://localhost:8101 |
+| SAHOOL NDVI Processor                 | 8118 | http://localhost:8118 |
+| SAHOOL Task Service                   | 8103 | http://localhost:8103 |
+| SAHOOL Provider Configuration Service | 8104 | http://localhost:8104 |
+| SAHOOL IoT Gateway                    | 8106 | http://localhost:8106 |
+| SAHOOL Weather Core (Deprecated)      | 8108 | http://localhost:8108 |
+| SAHOOL Notification Service           | 8110 | http://localhost:8110 |
+| SAHOOL Astronomical Calendar Service  | 8111 | http://localhost:8111 |
+| SAHOOL Alert Service                  | 8113 | http://localhost:8113 |
+| SAHOOL Inventory Service              | 8116 | http://localhost:8116 |
+| SAHOOL Field Intelligence Service     | 8120 | http://localhost:8120 |
+| SAHOOL Agro Advisor (Deprecated)      | 8105 | http://localhost:8105 |
+| SAHOOL MCP Server                     | 8200 | http://localhost:8200 |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## API Categories | تصنيفات API
 
@@ -516,7 +569,13 @@ Official SDKs:
 - Disease detection
 - Yield prediction
 
+<<<<<<< HEAD
 ### 6. [Satellite APIs](./satellite.md) | واجهات الأقمار الصناعية
+=======
+### 6. Satellite APIs | واجهات الأقمار الصناعية
+
+> **Note**: Satellite APIs have been consolidated into the [Vegetation Analysis Service](../../apps/services-docs/vegetation-analysis-service.md).
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 - NDVI analysis
 - Vegetation indices
@@ -579,7 +638,11 @@ Total Endpoints: 392
 
 ### Authentication
 
+<<<<<<< HEAD
 Endpoints: 2
+=======
+Endpoints: 6
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Field Management
 

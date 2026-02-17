@@ -837,7 +837,11 @@ export class FarmsController {
 - [NestJS Passport Integration](https://docs.nestjs.com/security/authentication)
 - [NestJS Throttler](https://docs.nestjs.com/security/rate-limiting)
 - [Shared Auth Package](/packages/nestjs-auth/README.md)
+<<<<<<< HEAD
 - [Rate Limiting Implementation](/RATE_LIMITING_IMPLEMENTATION.md)
+=======
+- [Rate Limiting Implementation](RATE_LIMITING_IMPLEMENTATION.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ---
 

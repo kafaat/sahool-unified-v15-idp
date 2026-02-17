@@ -1,0 +1,294 @@
+"""
+SAHOOL Field Chat Service
+Main FastAPI application entry point
+"""
+
+import asyncio
+import logging
+import os
+import sys
+from contextlib import asynccontextmanager, suppress
+
+from fastapi import Depends, FastAPI, WebSocket, WebSocketDisconnect
+
+# Shared middleware imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# Import error handlers with fallback
+try:
+    from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+except ImportError:
+
+    def setup_exception_handlers(app):
+        pass
+
+    def add_request_id_middleware(app):
+        pass
+
+
+from .api import router
+from .auth import get_current_user, validate_websocket_token
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
+
+# Database configuration - MUST be set via environment variable in production
+# Set DATABASE_URL in .env file (see .env.example for format)
+ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
+DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    if ENVIRONMENT == "production":
+        raise RuntimeError("DATABASE_URL must be set in production")
+    DATABASE_URL = "sqlite://:memory:"
+    logging.warning("DATABASE_URL not set - using in-memory SQLite (test/dev only)")
+
+TORTOISE_ORM = {
+    "connections": {
+        "default": DATABASE_URL,
+    },
+    "apps": {
+        "models": {
+            "models": ["src.models", "aerich.models"],
+            "default_connection": "default",
+        },
+    },
+}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan handler"""
+    # Startup
+    logger.info("Starting Field Chat service...")
+
+    # Initialize Tortoise ORM
+    from tortoise import Tortoise
+
+    # Check if already initialized (e.g., by test fixtures)
+    if Tortoise._inited:
+        logger.info("Tortoise ORM already initialized (test mode)")
+    else:
+        try:
+            await Tortoise.init(config=TORTOISE_ORM)
+            logger.info("Database connected")
+        except Exception as e:
+            if ENVIRONMENT == "production":
+                raise
+            logger.warning("Database connection failed (non-production): %s", e)
+            await Tortoise.init(
+                db_url="sqlite://:memory:",
+                modules={"models": ["src.models"]},
+            )
+            await Tortoise.generate_schemas()
+            logger.info("Using in-memory SQLite for dev/test")
+
+    # Initialize shared NATS publisher
+    from .events.publish import ChatPublisher
+
+    publisher = ChatPublisher()
+    try:
+        await publisher.connect()
+    except Exception as e:
+        logger.warning("NATS connection failed at startup: %s", e)
+    app.state.publisher = publisher
+
+    yield
+
+    # Shutdown
+    logger.info("Shutting down Field Chat service...")
+    with suppress(Exception):
+        await publisher.close()
+    with suppress(Exception):
+        await Tortoise.close_connections()
+
+
+# Create FastAPI app
+app = FastAPI(
+    title="SAHOOL Field Chat",
+    description="Real-time collaboration for fields, tasks, and incidents",
+    version="16.0.0",
+    lifespan=lifespan,
+)
+
+# Setup unified error handling
+setup_exception_handlers(app)
+add_request_id_middleware(app)
+
+# CORS middleware - Secure configuration
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+try:
+    from shared.cors_config import CORS_SETTINGS
+
+    app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+except ImportError:
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+    )
+
+# Include API router
+app.include_router(router)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Health Endpoints
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/healthz")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "ok",
+        "service": "field_chat",
+        "version": "16.0.0",
+    }
+
+
+@app.get("/readyz")
+async def readiness_check():
+    """Readiness check endpoint"""
+    from tortoise import Tortoise
+
+    try:
+        # Check database connection
+        conn = Tortoise.get_connection("default")
+        await conn.execute_query("SELECT 1")
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    return {
+        "status": "ready" if db_status == "connected" else "not_ready",
+        "checks": {
+            "database": db_status,
+        },
+    }
+
+
+@app.get("/")
+async def root(user: dict = Depends(get_current_user)):
+    """Root endpoint with service info (requires authentication)"""
+    return {
+        "service": "SAHOOL Field Chat",
+        "version": "16.0.0",
+        "description_ar": "خدمة المحادثات الميدانية للحقول والمهام",
+        "description_en": "Field chat service for fields and tasks",
+        "endpoints": {
+            "threads": "/chat/threads",
+            "messages": "/chat/threads/{thread_id}/messages",
+            "search": "/chat/messages/search",
+            "unread": "/chat/unread-counts",
+        },
+        "authenticated_user": user.get("sub") or user.get("user_id"),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# WebSocket Support (placeholder for real-time)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# Simple in-memory connection manager (thread-safe via asyncio.Lock)
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: dict[str, list[WebSocket]] = {}
+        self._lock = asyncio.Lock()
+
+    async def connect(self, websocket: WebSocket, thread_id: str):
+        await websocket.accept()
+        async with self._lock:
+            if thread_id not in self.active_connections:
+                self.active_connections[thread_id] = []
+            self.active_connections[thread_id].append(websocket)
+
+    async def disconnect(self, websocket: WebSocket, thread_id: str):
+        async with self._lock:
+            if thread_id in self.active_connections:
+                self.active_connections[thread_id].remove(websocket)
+                if not self.active_connections[thread_id]:
+                    del self.active_connections[thread_id]
+
+    async def broadcast(self, thread_id: str, message: dict):
+        async with self._lock:
+            connections = list(self.active_connections.get(thread_id, []))
+        for connection in connections:
+            with suppress(Exception):
+                await connection.send_json(message)
+
+
+manager = ConnectionManager()
+
+
+def _sanitize_for_log(value: str) -> str:
+    """Strip newline/carriage-return to prevent log injection."""
+    return value.replace("\n", "").replace("\r", "")
+
+
+@app.websocket("/ws/chat/{thread_id}")
+async def websocket_endpoint(websocket: WebSocket, thread_id: str, token: str | None = None):
+    """
+    WebSocket endpoint for real-time chat updates.
+
+    Connect to receive live messages for a specific thread.
+    Messages are broadcast when sent via the REST API.
+
+    Authentication:
+        Pass JWT token as query parameter: wss://host/ws/chat/{thread_id}?token=<jwt>
+    """
+    # Validate authentication token
+    if not token:
+        await websocket.close(code=4001, reason="Authentication required")
+        return
+
+    try:
+        user = validate_websocket_token(token)
+    except ValueError as e:
+        await websocket.close(code=4001, reason=str(e))
+        return
+
+    # Verify user is a participant in this thread
+    user_id = user.get("sub") or user.get("user_id")
+    tenant_id = user.get("tenant_id")
+    if not user_id or not tenant_id:
+        await websocket.close(code=4003, reason="Missing user_id or tenant_id in token")
+        return
+
+    from .models import ChatParticipant
+
+    participant = await ChatParticipant.get_or_none(
+        thread_id=thread_id,
+        user_id=user_id,
+        tenant_id=tenant_id,
+    )
+    if not participant:
+        await websocket.close(code=4003, reason="Not a participant in this thread")
+        return
+
+    await manager.connect(websocket, thread_id)
+    safe_thread_id = _sanitize_for_log(thread_id)
+    logger.info("WebSocket connected: thread=%s, user=%s", safe_thread_id, user_id)
+
+    try:
+        while True:
+            # Keep connection alive
+            data = await websocket.receive_text()
+            # Echo back for ping/pong
+            await websocket.send_json({"type": "pong", "data": data})
+    except WebSocketDisconnect:
+        await manager.disconnect(websocket, thread_id)
+        logger.info("WebSocket disconnected: thread=%s", safe_thread_id)

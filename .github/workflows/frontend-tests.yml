@@ -1269,7 +1269,11 @@ jobs:
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           script: |
             cd apps/mobile
+<<<<<<< HEAD
             flutter test integration_test/ --verbose 2>&1 | tee integration_test_output.txt || true
+=======
+            flutter test integration_test/ --verbose 2>&1 | tee integration_test_output.txt
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             # Check if any tests passed
             if grep -q "All tests passed" integration_test_output.txt 2>/dev/null; then
               echo "✅ All integration tests passed"

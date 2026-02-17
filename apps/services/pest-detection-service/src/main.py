@@ -147,8 +147,13 @@ async def readiness(request: Request):
         if request.app.state.vision_client:
             response = await request.app.state.vision_client.get("/healthz")
             checks["vision_service"] = response.status_code == 200
+<<<<<<< HEAD
     except Exception:
         pass
+=======
+    except Exception as e:
+        logger.warning("vision_service_health_check_failed", error=str(e))
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     # Check NATS
     if request.app.state.nc and request.app.state.nc.is_connected:
@@ -159,8 +164,13 @@ async def readiness(request: Request):
         if request.app.state.redis:
             await request.app.state.redis.ping()
             checks["redis"] = True
+<<<<<<< HEAD
     except Exception:
         pass
+=======
+    except Exception as e:
+        logger.warning("redis_health_check_failed", error=str(e))
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     all_ready = checks["vision_service"]  # Vision service is required
     status = "ok" if all_ready else "degraded"
@@ -186,11 +196,25 @@ async def health(request: Request):
 @app.get("/metrics", tags=["Health"])
 async def metrics():
     """Prometheus metrics endpoint."""
+<<<<<<< HEAD
     # Basic metrics - can be extended with prometheus_client
     return {
         "service": SERVICE_NAME,
         "version": SERVICE_VERSION,
     }
+=======
+    from fastapi.responses import PlainTextResponse
+
+    metrics_text = (
+        "# HELP pest_detection_up Service is up\n"
+        "# TYPE pest_detection_up gauge\n"
+        "pest_detection_up 1\n"
+        f'# HELP pest_detection_info Service version info\n'
+        f'# TYPE pest_detection_info gauge\n'
+        f'pest_detection_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
+    )
+    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 # Include API routers

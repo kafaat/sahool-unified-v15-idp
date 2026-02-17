@@ -4,11 +4,70 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+<<<<<<< HEAD
+=======
+import '../../data/irrigation_engine_api.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../../domain/models/pivot_models.dart';
 import '../widgets/pivot_visualization.dart';
 import '../widgets/pivot_control_panel.dart';
 import 'sector_management_screen.dart';
 
+<<<<<<< HEAD
+=======
+// ═══════════════════════════════════════════════════════════════════════════
+// Providers - الموفرون
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Provider for IrrigationEngineApi instance
+final irrigationEngineApiProvider = Provider<IrrigationEngineApi>((ref) {
+  return IrrigationEngineApi();
+});
+
+/// Provider for pivot config from API
+final pivotConfigProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>?, String>((ref, pivotId) async {
+  final api = ref.watch(irrigationEngineApiProvider);
+  final response = await api.getPivotConfig(pivotId: pivotId);
+  return response.data;
+});
+
+/// Provider for pivot status from API (polls every 10s)
+final pivotStatusStreamProvider = StreamProvider.autoDispose
+    .family<Map<String, dynamic>?, String>((ref, pivotId) async* {
+  final api = ref.read(irrigationEngineApiProvider);
+
+  // Initial fetch
+  final initial = await api.getPivotStatus(pivotId: pivotId);
+  yield initial.data;
+
+  // Poll for updates every 10 seconds
+  while (true) {
+    await Future.delayed(const Duration(seconds: 10));
+    try {
+      final response = await api.getPivotStatus(pivotId: pivotId);
+      if (response.success && response.data != null) {
+        yield response.data;
+      }
+    } catch (_) {
+      // Keep last data on error
+    }
+  }
+});
+
+/// Provider for pivot statistics
+final pivotStatsProvider = FutureProvider.autoDispose
+    .family<Map<String, dynamic>?, ({String pivotId, String period})>(
+        (ref, params) async {
+  final api = ref.watch(irrigationEngineApiProvider);
+  final response = await api.getPivotStats(
+    pivotId: params.pivotId,
+    period: params.period,
+  );
+  return response.data;
+});
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 /// Main pivot irrigation dashboard
 /// لوحة تحكم الري المحوري الرئيسية
 class PivotDashboardScreen extends ConsumerStatefulWidget {
@@ -35,15 +94,88 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   late PivotConfiguration _pivotConfig;
   late PivotStatus _pivotStatus;
 
+<<<<<<< HEAD
+=======
+  bool _isLoadingFromApi = true;
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _loadDemoData();
+<<<<<<< HEAD
   }
 
   void _loadDemoData() {
     // Demo pivot configuration
+=======
+    _tryLoadFromApi();
+  }
+
+  /// Try to load real data from irrigation-cycle-engine API
+  Future<void> _tryLoadFromApi() async {
+    try {
+      final api = IrrigationEngineApi();
+
+      // Fetch config from API
+      final configResponse = await api.getPivotConfig(pivotId: widget.pivotId);
+      if (configResponse.success && configResponse.data != null) {
+        final data = configResponse.data!;
+        setState(() {
+          _pivotConfig = _pivotConfig.copyWith(
+            name: data['name'] ?? _pivotConfig.name,
+            nameAr: data['name_ar'] ?? _pivotConfig.nameAr,
+            lengthMeters: (data['length_meters'] as num?)?.toDouble() ??
+                _pivotConfig.lengthMeters,
+            areaHectares: (data['area_hectares'] as num?)?.toDouble() ??
+                _pivotConfig.areaHectares,
+            flowRateLph: (data['flow_rate_lph'] as num?)?.toDouble() ??
+                _pivotConfig.flowRateLph,
+            operatingPressureBar:
+                (data['operating_pressure_bar'] as num?)?.toDouble() ??
+                    _pivotConfig.operatingPressureBar,
+            hasVRI: data['has_vri'] ?? _pivotConfig.hasVRI,
+            hasEndGun: data['has_end_gun'] ?? _pivotConfig.hasEndGun,
+          );
+        });
+      }
+
+      // Fetch status from API
+      final statusResponse = await api.getPivotStatus(pivotId: widget.pivotId);
+      if (statusResponse.success && statusResponse.data != null) {
+        final data = statusResponse.data!;
+        setState(() {
+          _pivotStatus = _pivotStatus.copyWith(
+            currentAngle: (data['current_angle'] as num?)?.toDouble() ??
+                _pivotStatus.currentAngle,
+            speedPercent: (data['speed_percent'] as num?)?.toDouble() ??
+                _pivotStatus.speedPercent,
+            currentFlowRateLph:
+                (data['flow_rate_lph'] as num?)?.toDouble() ??
+                    _pivotStatus.currentFlowRateLph,
+            currentPressureBar:
+                (data['pressure_bar'] as num?)?.toDouble() ??
+                    _pivotStatus.currentPressureBar,
+            waterAppliedM3: (data['water_applied_m3'] as num?)?.toDouble() ??
+                _pivotStatus.waterAppliedM3,
+            energyConsumedKwh:
+                (data['energy_consumed_kwh'] as num?)?.toDouble() ??
+                    _pivotStatus.energyConsumedKwh,
+            endGunActive: data['end_gun_active'] ?? _pivotStatus.endGunActive,
+          );
+        });
+      }
+    } catch (_) {
+      // API unavailable - keep using demo data (offline-first)
+    } finally {
+      if (mounted) setState(() => _isLoadingFromApi = false);
+    }
+  }
+
+  void _loadDemoData() {
+    // Demo pivot configuration (offline fallback)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     _pivotConfig = PivotConfiguration(
       id: widget.pivotId,
       fieldId: widget.fieldId ?? 'field_001',
@@ -578,10 +710,17 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   }
 
   void _handleCommand(PivotControlCommand command) {
+<<<<<<< HEAD
     // في الإنتاج، يتم إرسال الأمر للسيرفر
     debugPrint('Command: ${command.commandType}');
 
     // Update local state for demo
+=======
+    // Send command to irrigation-cycle-engine via API
+    _sendCommandToApi(command);
+
+    // Update local state optimistically
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     setState(() {
       switch (command.commandType) {
         case PivotCommandType.start:
@@ -630,6 +769,27 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     );
   }
 
+<<<<<<< HEAD
+=======
+  /// Send command to irrigation-cycle-engine API
+  Future<void> _sendCommandToApi(PivotControlCommand command) async {
+    try {
+      final api = IrrigationEngineApi();
+      await api.sendCommand(
+        pivotId: widget.pivotId,
+        commandType: command.commandType.name,
+        params: {
+          if (command.speedPercent != null) 'speed_percent': command.speedPercent,
+          if (command.direction != null) 'direction': command.direction!.name,
+          if (command.endGunEnabled != null) 'end_gun_enabled': command.endGunEnabled,
+        },
+      );
+    } catch (_) {
+      // Command will be queued for sync when offline
+    }
+  }
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   void _showSectorDetails(PivotSector sector) {
     showModalBottomSheet(
       context: context,

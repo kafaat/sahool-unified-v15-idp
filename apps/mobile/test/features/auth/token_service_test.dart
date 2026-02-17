@@ -23,6 +23,10 @@ void main() {
   late MockSecureStorageService mockSecureStorage;
   late MockBiometricService mockBiometricService;
   late MockApiClient mockApiClient;
+<<<<<<< HEAD
+=======
+  late MockTokenManager mockTokenManager;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   setUpAll(() {
     registerAuthFallbackValues();
@@ -32,10 +36,18 @@ void main() {
     mockSecureStorage = MockSecureStorageService();
     mockBiometricService = MockBiometricService();
     mockApiClient = MockApiClient();
+<<<<<<< HEAD
+=======
+    mockTokenManager = MockTokenManager();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     mockSecureStorage.setupDefaults();
     mockBiometricService.setupDefaults();
     mockApiClient.setupDefaults();
+<<<<<<< HEAD
+=======
+    mockTokenManager.setupDefaults();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   });
 
   tearDown(() {
@@ -50,6 +62,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getRefreshToken())
@@ -75,6 +91,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getRefreshToken())
@@ -96,6 +116,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -128,6 +152,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -155,6 +183,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -185,6 +217,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         String? storedToken;
@@ -214,6 +250,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         String? storedRefreshToken;
@@ -243,6 +283,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         DateTime? storedExpiry;
@@ -280,6 +324,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.clearAll())
@@ -300,6 +348,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -323,6 +375,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -342,6 +398,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -370,6 +430,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -391,6 +455,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -408,6 +476,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       when(() => mockSecureStorage.getAccessToken())
@@ -425,6 +497,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       // Test case 1: No token
@@ -445,6 +521,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       // Setup initial logged in state
@@ -512,6 +592,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         apiClient: mockApiClient,
       );
 
@@ -545,6 +629,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         apiClient: mockApiClient,
       );
 
@@ -578,6 +666,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         apiClient: mockApiClient,
       );
 
@@ -598,10 +690,18 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
         apiClient: mockApiClient,
       );
 
       mockApiClient.setNextResponse(null as dynamic);
+=======
+        tokenManager: mockTokenManager,
+        apiClient: mockApiClient,
+      );
+
+      mockApiClient.setNextResponse(<String, dynamic>{});
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       // Act & Assert - will fall through to mock mode in debug builds
       // For comprehensive testing, verify proper error handling
@@ -614,6 +714,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
 
       String? storedTenantId;
@@ -643,6 +747,10 @@ void main() {
       authService = AuthService(
         secureStorage: mockSecureStorage,
         biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+        tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         apiClient: mockApiClient,
       );
 

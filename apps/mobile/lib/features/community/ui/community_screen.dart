@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:flutter/material.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
@@ -13,11 +14,56 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   String _selectedCategory = 'all';
+=======
+/// Community Screen - Farmer Community Hub
+/// شاشة مجتمع المزارعين - منصة تبادل الخبرات
+///
+/// Features:
+/// - Tab bar: Feed | Discussions | Knowledge Base
+/// - Post cards with author avatar, text, images, likes
+/// - Floating action button to create post
+/// - Search bar
+/// - Arabic/English bilingual
+library;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/theme/sahool_theme.dart';
+import '../../../core/theme/organic_widgets.dart';
+import '../presentation/providers/community_provider.dart';
+import '../presentation/widgets/post_card.dart';
+
+/// Full community screen with tabbed interface
+/// شاشة المجتمع الكاملة مع واجهة مبوبة
+class CommunityScreen extends ConsumerStatefulWidget {
+  const CommunityScreen({super.key});
+
+  @override
+  ConsumerState<CommunityScreen> createState() => _CommunityScreenState();
+}
+
+class _CommunityScreenState extends ConsumerState<CommunityScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
+<<<<<<< HEAD
       appBar: AppBar(
         title: const Text("مجتمع المزارعين"),
         backgroundColor: Colors.white,
@@ -139,18 +185,34 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ],
         ),
       ),
+=======
+      appBar: _buildAppBar(),
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          _FeedTab(),
+          _DiscussionsTab(),
+          _KnowledgeBaseTab(),
+        ],
+      ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreatePost(context),
         backgroundColor: SahoolColors.harvestGold,
         icon: const Icon(Icons.edit, color: Colors.white),
         label: const Text(
+<<<<<<< HEAD
           "اسأل المجتمع",
+=======
+          'Ask Community | اسال المجتمع',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
+<<<<<<< HEAD
   Widget _buildStoriesSection() {
     return SizedBox(
       height: 100,
@@ -186,12 +248,67 @@ class _CommunityScreenState extends State<CommunityScreen> {
             name: "خبير الآفات",
             hasNewStory: false,
             onTap: () => _viewStory(context, "خبير الآفات"),
+=======
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: const Text('Farmer Community | مجتمع المزارعين'),
+      backgroundColor: Colors.white,
+      foregroundColor: SahoolColors.forestGreen,
+      elevation: 0,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.search),
+          onPressed: () => _showSearch(context),
+          tooltip: 'Search | بحث',
+        ),
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_none),
+              onPressed: () => _showNotifications(context),
+              tooltip: 'Notifications | الاشعارات',
+            ),
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: SahoolColors.danger,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+      bottom: TabBar(
+        controller: _tabController,
+        labelColor: SahoolColors.forestGreen,
+        unselectedLabelColor: Colors.grey,
+        indicatorColor: SahoolColors.forestGreen,
+        indicatorWeight: 3,
+        tabs: const [
+          Tab(
+            icon: Icon(Icons.dynamic_feed, size: 20),
+            text: 'Feed | المنشورات',
+          ),
+          Tab(
+            icon: Icon(Icons.forum, size: 20),
+            text: 'Discussions | النقاشات',
+          ),
+          Tab(
+            icon: Icon(Icons.library_books, size: 20),
+            text: 'Knowledge | المعرفة',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           ),
         ],
       ),
     );
   }
 
+<<<<<<< HEAD
   Widget _buildCategoryFilters() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -232,10 +349,131 @@ class _CommunityScreenState extends State<CommunityScreen> {
             onTap: () => setState(() => _selectedCategory = 'equipment'),
           ),
         ],
+=======
+  // ===========================================================================
+  // Create Post Bottom Sheet
+  // نافذة إنشاء منشور جديد
+  // ===========================================================================
+
+  void _showCreatePost(BuildContext context) {
+    final titleController = TextEditingController();
+    final contentController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel | الغاء'),
+                ),
+                const Text(
+                  'New Post | سؤال جديد',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (titleController.text.isNotEmpty) {
+                      ref.read(communityProvider.notifier).createPost(
+                            title: titleController.text,
+                            content: contentController.text,
+                          );
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: const Text(
+                    'Post | نشر',
+                    style: TextStyle(
+                      color: SahoolColors.forestGreen,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            TextField(
+              controller: titleController,
+              decoration: InputDecoration(
+                hintText: 'Post title | عنوان السؤال',
+                filled: true,
+                fillColor: Colors.grey[100],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: TextField(
+                controller: contentController,
+                maxLines: null,
+                expands: true,
+                decoration: InputDecoration(
+                  hintText:
+                      'Write your question details...\nاكتب تفاصيل سؤالك هنا...',
+                  filled: true,
+                  fillColor: Colors.grey[100],
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  alignLabelWithHint: true,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                _AttachButton(
+                  icon: Icons.camera_alt,
+                  label: 'Photo | صورة',
+                  onTap: () {},
+                ),
+                const SizedBox(width: 12),
+                _AttachButton(
+                  icon: Icons.location_on,
+                  label: 'Field | الحقل',
+                  onTap: () {},
+                ),
+                const SizedBox(width: 12),
+                _AttachButton(
+                  icon: Icons.tag,
+                  label: 'Tag | تصنيف',
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ],
+        ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       ),
     );
   }
 
+<<<<<<< HEAD
+=======
+  // ===========================================================================
+  // Search
+  // البحث
+  // ===========================================================================
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   void _showSearch(BuildContext context) {
     showSearch(
       context: context,
@@ -243,6 +481,14 @@ class _CommunityScreenState extends State<CommunityScreen> {
     );
   }
 
+<<<<<<< HEAD
+=======
+  // ===========================================================================
+  // Notifications
+  // الاشعارات
+  // ===========================================================================
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   void _showNotifications(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -270,29 +516,51 @@ class _CommunityScreenState extends State<CommunityScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
+<<<<<<< HEAD
               "الإشعارات",
+=======
+              'Notifications | الاشعارات',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _NotificationItem(
               icon: Icons.comment,
+<<<<<<< HEAD
               title: "رد جديد على سؤالك",
               subtitle: "المهندس سالم رد على سؤال البقع الصفراء",
               time: "منذ 5 دقائق",
+=======
+              title: 'New reply | رد جديد على سؤالك',
+              subtitle: 'المهندس سالم رد على سؤال البقع الصفراء',
+              time: '5 min | منذ 5 دقائق',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               isNew: true,
             ),
             _NotificationItem(
               icon: Icons.thumb_up,
+<<<<<<< HEAD
               title: "إعجاب جديد",
               subtitle: "15 شخص أعجبوا بمنشورك",
               time: "منذ ساعة",
+=======
+              title: 'New likes | اعجاب جديد',
+              subtitle: '15 people liked your post | 15 شخص اعجبوا بمنشورك',
+              time: '1h | منذ ساعة',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               isNew: true,
             ),
             _NotificationItem(
               icon: Icons.person_add,
+<<<<<<< HEAD
               title: "متابع جديد",
               subtitle: "محمد الفلاح بدأ متابعتك",
               time: "أمس",
+=======
+              title: 'New follower | متابع جديد',
+              subtitle: 'محمد الفلاح بدا متابعتك',
+              time: 'Yesterday | امس',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               isNew: false,
             ),
           ],
@@ -300,17 +568,195 @@ class _CommunityScreenState extends State<CommunityScreen> {
       ),
     );
   }
+<<<<<<< HEAD
 
   void _showPostDetails(BuildContext context) {
     // Navigate to post details
   }
 
   void _showComments(BuildContext context) {
+=======
+}
+
+// =============================================================================
+// Feed Tab - المنشورات
+// =============================================================================
+
+class _FeedTab extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final communityState = ref.watch(communityProvider);
+
+    if (communityState.isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(color: SahoolColors.forestGreen),
+      );
+    }
+
+    if (communityState.error != null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.error_outline, size: 48, color: SahoolColors.danger),
+            const SizedBox(height: 16),
+            Text(
+              'Error loading posts\nخطا في تحميل المنشورات',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => ref.read(communityProvider.notifier).loadPosts(),
+              child: const Text('Retry | اعادة المحاولة'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () => ref.read(communityProvider.notifier).loadPosts(),
+      color: SahoolColors.forestGreen,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // Stories section
+          _buildStoriesSection(context),
+          const SizedBox(height: 16),
+
+          // Category filters
+          _buildCategoryFilters(ref, communityState.selectedCategory),
+          const SizedBox(height: 16),
+
+          // Posts
+          ...communityState.filteredPosts.map((post) => Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: PostCard(
+                  post: post,
+                  onLike: () =>
+                      ref.read(communityProvider.notifier).likePost(post.id),
+                  onComment: () => _showComments(context, ref, post),
+                  onTap: () {},
+                ),
+              )),
+
+          const SizedBox(height: 80), // Space for FAB
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStoriesSection(BuildContext context) {
+    return SizedBox(
+      height: 100,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _StoryItem(
+            isAdd: true,
+            name: 'Add | اضافة',
+            onTap: () {},
+          ),
+          _StoryItem(
+            name: 'Eng. Ali | م. علي',
+            hasNewStory: true,
+            onTap: () {},
+          ),
+          _StoryItem(
+            name: 'Al-Wafa Farm | مزرعة الوفاء',
+            hasNewStory: true,
+            onTap: () {},
+          ),
+          _StoryItem(
+            name: 'Saeed | سعيد',
+            hasNewStory: false,
+            onTap: () {},
+          ),
+          _StoryItem(
+            name: 'Saada Co-op | تعاونية صعدة',
+            hasNewStory: true,
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryFilters(WidgetRef ref, String selected) {
+    final categories = [
+      ('all', Icons.apps, 'All | الكل'),
+      ('diseases', Icons.bug_report, 'Diseases | امراض'),
+      ('irrigation', Icons.water_drop, 'Irrigation | الري'),
+      ('marketing', Icons.store, 'Marketing | تسويق'),
+      ('equipment', Icons.agriculture, 'Equipment | معدات'),
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories.map((cat) {
+          final isSelected = selected == cat.$1;
+          return Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: GestureDetector(
+              onTap: () =>
+                  ref.read(communityProvider.notifier).setCategory(cat.$1),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                decoration: BoxDecoration(
+                  color:
+                      isSelected ? SahoolColors.forestGreen : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected
+                        ? SahoolColors.forestGreen
+                        : Colors.grey.withOpacity(0.3),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      cat.$2,
+                      size: 16,
+                      color: isSelected ? Colors.white : Colors.grey,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      cat.$3,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.grey[700],
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _showComments(
+      BuildContext context, WidgetRef ref, CommunityPost post) {
+    final commentController = TextEditingController();
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+<<<<<<< HEAD
       builder: (context) => Container(
+=======
+      builder: (sheetContext) => Container(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         height: MediaQuery.of(context).size.height * 0.75,
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -331,14 +777,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+<<<<<<< HEAD
                   const Text(
                     "التعليقات",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+=======
+                  Text(
+                    'Comments (${post.commentsCount}) | التعليقات',
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                   ),
                 ],
               ),
             ),
             Expanded(
+<<<<<<< HEAD
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 children: [
@@ -359,6 +813,56 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                 ],
               ),
+=======
+              child: post.comments.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No comments yet\nلا توجد تعليقات بعد',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[400]),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: post.comments.length,
+                      itemBuilder: (ctx, index) {
+                        final comment = post.comments[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: comment.isExpert
+                                ? SahoolColors.forestGreen.withOpacity(0.05)
+                                : Colors.grey[50],
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    comment.authorName,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13),
+                                  ),
+                                  if (comment.isExpert) ...[
+                                    const SizedBox(width: 4),
+                                    const Icon(Icons.verified,
+                                        size: 14, color: Colors.blue),
+                                  ],
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Text(comment.content,
+                                  style: const TextStyle(height: 1.4)),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             ),
             Container(
               padding: const EdgeInsets.all(16),
@@ -372,6 +876,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                 ],
               ),
+<<<<<<< HEAD
               child: Row(
                 children: [
                   Expanded(
@@ -400,6 +905,47 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                   ),
                 ],
+=======
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: commentController,
+                        decoration: InputDecoration(
+                          hintText: 'Write a comment... | اكتب تعليقا...',
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    CircleAvatar(
+                      backgroundColor: SahoolColors.forestGreen,
+                      child: IconButton(
+                        icon: const Icon(Icons.send,
+                            color: Colors.white, size: 20),
+                        onPressed: () {
+                          if (commentController.text.trim().isNotEmpty) {
+                            ref
+                                .read(communityProvider.notifier)
+                                .addComment(post.id, commentController.text);
+                            commentController.clear();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               ),
             ),
           ],
@@ -407,6 +953,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
       ),
     );
   }
+<<<<<<< HEAD
 
   void _showCreatePost(BuildContext context) {
     showModalBottomSheet(
@@ -526,6 +1073,114 @@ class _CommunityScreenState extends State<CommunityScreen> {
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Widgets
 // ═══════════════════════════════════════════════════════════════════════════
+=======
+}
+
+// =============================================================================
+// Discussions Tab - النقاشات
+// =============================================================================
+
+class _DiscussionsTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _DiscussionTile(
+          title: 'Wheat Irrigation Best Practices | افضل ممارسات ري القمح',
+          participants: 24,
+          lastMessage: 'Eng. Salem shared a new watering schedule',
+          lastMessageAr: 'م. سالم شارك جدول ري جديد',
+          time: '10 min ago | منذ 10 دقائق',
+          isActive: true,
+        ),
+        _DiscussionTile(
+          title:
+              'Tomato Disease Prevention | الوقاية من امراض الطماطم',
+          participants: 18,
+          lastMessage: 'New images added for identification',
+          lastMessageAr: 'تم اضافة صور جديدة للتعرف',
+          time: '1h ago | منذ ساعة',
+          isActive: true,
+        ),
+        _DiscussionTile(
+          title: 'Market Prices Discussion | اسعار السوق',
+          participants: 45,
+          lastMessage: 'Wheat prices updated for this week',
+          lastMessageAr: 'تم تحديث اسعار القمح لهذا الاسبوع',
+          time: '3h ago | منذ 3 ساعات',
+          isActive: false,
+        ),
+        _DiscussionTile(
+          title: 'Organic Farming Tips | نصائح الزراعة العضوية',
+          participants: 12,
+          lastMessage: 'Natural pest control methods shared',
+          lastMessageAr: 'تمت مشاركة طرق مكافحة طبيعية',
+          time: 'Yesterday | امس',
+          isActive: false,
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Knowledge Base Tab - قاعدة المعرفة
+// =============================================================================
+
+class _KnowledgeBaseTab extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        const Padding(
+          padding: EdgeInsets.only(bottom: 16),
+          child: Text(
+            'Agricultural Knowledge | المعرفة الزراعية',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        _KnowledgeCard(
+          icon: Icons.bug_report,
+          title: 'Pest & Disease Guide | دليل الآفات والامراض',
+          subtitle: '42 articles | 42 مقال',
+          color: SahoolColors.danger,
+        ),
+        _KnowledgeCard(
+          icon: Icons.water_drop,
+          title: 'Irrigation Best Practices | افضل ممارسات الري',
+          subtitle: '28 articles | 28 مقال',
+          color: SahoolColors.info,
+        ),
+        _KnowledgeCard(
+          icon: Icons.eco,
+          title: 'Fertilizer Guide | دليل التسميد',
+          subtitle: '35 articles | 35 مقال',
+          color: SahoolColors.success,
+        ),
+        _KnowledgeCard(
+          icon: Icons.wb_sunny,
+          title: 'Seasonal Calendar | التقويم الزراعي',
+          subtitle: '12 guides | 12 دليل',
+          color: SahoolColors.harvestGold,
+        ),
+        _KnowledgeCard(
+          icon: Icons.agriculture,
+          title: 'Equipment Guides | ادلة المعدات',
+          subtitle: '18 articles | 18 مقال',
+          color: SahoolColors.earthBrown,
+        ),
+      ],
+    );
+  }
+}
+
+// =============================================================================
+// Helper Widgets
+// عناصر مساعدة
+// =============================================================================
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 class _StoryItem extends StatelessWidget {
   final bool isAdd;
@@ -556,7 +1211,14 @@ class _StoryItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: hasNewStory || isAdd
                     ? const LinearGradient(
+<<<<<<< HEAD
                         colors: [SahoolColors.forestGreen, SahoolColors.harvestGold],
+=======
+                        colors: [
+                          SahoolColors.forestGreen,
+                          SahoolColors.harvestGold
+                        ],
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
@@ -572,8 +1234,15 @@ class _StoryItem extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: isAdd
+<<<<<<< HEAD
                     ? const Icon(Icons.add, color: SahoolColors.forestGreen, size: 28)
                     : const Icon(Icons.person, color: SahoolColors.forestGreen, size: 28),
+=======
+                    ? const Icon(Icons.add,
+                        color: SahoolColors.forestGreen, size: 28)
+                    : const Icon(Icons.person,
+                        color: SahoolColors.forestGreen, size: 28),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
               ),
             ),
             const SizedBox(height: 6),
@@ -581,7 +1250,11 @@ class _StoryItem extends StatelessWidget {
               width: 70,
               child: Text(
                 name,
+<<<<<<< HEAD
                 style: const TextStyle(fontSize: 11),
+=======
+                style: const TextStyle(fontSize: 10),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -594,6 +1267,7 @@ class _StoryItem extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 class _CategoryChip extends StatelessWidget {
   final String label;
   final IconData icon;
@@ -673,18 +1347,42 @@ class _PostCard extends StatelessWidget {
     this.hasExpertReply = false,
     required this.onTap,
     required this.onComment,
+=======
+class _DiscussionTile extends StatelessWidget {
+  final String title;
+  final int participants;
+  final String lastMessage;
+  final String lastMessageAr;
+  final String time;
+  final bool isActive;
+
+  const _DiscussionTile({
+    required this.title,
+    required this.participants,
+    required this.lastMessage,
+    required this.lastMessageAr,
+    required this.time,
+    this.isActive = false,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   });
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     return GestureDetector(
       onTap: onTap,
       child: OrganicCard(
         color: isExpertPost ? SahoolColors.forestGreen.withOpacity(0.05) : null,
+=======
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: OrganicCard(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+<<<<<<< HEAD
             // Header
             Row(
               children: [
@@ -811,6 +1509,56 @@ class _PostCard extends StatelessWidget {
                   icon: Icons.bookmark_border,
                   label: "حفظ",
                   onTap: () {},
+=======
+            Row(
+              children: [
+                if (isActive)
+                  Container(
+                    width: 8,
+                    height: 8,
+                    margin: const EdgeInsets.only(left: 8),
+                    decoration: const BoxDecoration(
+                      color: SahoolColors.success,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '$lastMessage\n$lastMessageAr',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.people, size: 14, color: Colors.grey),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$participants members | عضو',
+                      style:
+                          const TextStyle(fontSize: 11, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                Text(
+                  time,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                 ),
               ],
             ),
@@ -821,6 +1569,7 @@ class _PostCard extends StatelessWidget {
   }
 }
 
+<<<<<<< HEAD
 class _InteractionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -830,10 +1579,24 @@ class _InteractionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+=======
+class _KnowledgeCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+
+  const _KnowledgeCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   });
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     return GestureDetector(
       onTap: onTap,
       child: Row(
@@ -845,6 +1608,45 @@ class _InteractionButton extends StatelessWidget {
             style: TextStyle(color: Colors.grey[600], fontSize: 13),
           ),
         ],
+=======
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: OrganicCard(
+        onTap: () {},
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: color),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 14),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.grey),
+          ],
+        ),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       ),
     );
   }
@@ -912,6 +1714,7 @@ class _NotificationItem extends StatelessWidget {
           ),
           Text(
             time,
+<<<<<<< HEAD
             style: const TextStyle(fontSize: 11, color: Colors.grey),
           ),
         ],
@@ -1003,6 +1806,9 @@ class _CommentItem extends StatelessWidget {
                 ),
               ),
             ],
+=======
+            style: const TextStyle(fontSize: 10, color: Colors.grey),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           ),
         ],
       ),
@@ -1036,7 +1842,11 @@ class _AttachButton extends StatelessWidget {
           children: [
             Icon(icon, size: 18, color: SahoolColors.forestGreen),
             const SizedBox(width: 6),
+<<<<<<< HEAD
             Text(label, style: const TextStyle(fontSize: 13)),
+=======
+            Text(label, style: const TextStyle(fontSize: 12)),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           ],
         ),
       ),
@@ -1046,7 +1856,11 @@ class _AttachButton extends StatelessWidget {
 
 class _CommunitySearchDelegate extends SearchDelegate<String> {
   @override
+<<<<<<< HEAD
   String get searchFieldLabel => 'ابحث في المجتمع...';
+=======
+  String get searchFieldLabel => 'Search community... | ابحث في المجتمع...';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -1069,18 +1883,30 @@ class _CommunitySearchDelegate extends SearchDelegate<String> {
   @override
   Widget buildResults(BuildContext context) {
     return Center(
+<<<<<<< HEAD
       child: Text('نتائج البحث عن: $query'),
+=======
+      child: Text('Results for: $query\nنتائج البحث عن: $query'),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = [
+<<<<<<< HEAD
       'أمراض الطماطم',
       'ري بالتنقيط',
       'سماد NPK',
       'مكافحة الآفات',
       'البيوت المحمية',
+=======
+      'Tomato diseases | امراض الطماطم',
+      'Drip irrigation | ري بالتنقيط',
+      'NPK fertilizer | سماد NPK',
+      'Pest control | مكافحة الآفات',
+      'Greenhouse | البيوت المحمية',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     ];
 
     return ListView.builder(

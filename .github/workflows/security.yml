@@ -465,6 +465,10 @@ jobs:
           soft_fail: true
           output_format: sarif
           output_file_path: checkov-results.sarif
+<<<<<<< HEAD
+=======
+          skip_path: archive/deprecated-services
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       - name: Upload Checkov SARIF
         uses: github/codeql-action/upload-sarif@v4

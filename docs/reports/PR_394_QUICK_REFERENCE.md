@@ -64,12 +64,20 @@ Status: APPROVED
    - All technical details
    - Deployment instructions
 
+<<<<<<< HEAD
 2. **[SECURITY_SUMMARY_PR394.md](./SECURITY_SUMMARY_PR394.md)** (5.5KB)
+=======
+2. **[SECURITY_SUMMARY_PR394.md](../summaries/SECURITY_SUMMARY_PR394.md)** (5.5KB)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
    - Security scan results
    - Best practices review
    - No vulnerabilities found
 
+<<<<<<< HEAD
 3. **[MERGE_CONFLICT_RESOLUTION.md](./MERGE_CONFLICT_RESOLUTION.md)** (1.6KB)
+=======
+3. **MERGE_CONFLICT_RESOLUTION.md** (1.6KB)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
    - PR history summary
    - Conflict resolution details
 

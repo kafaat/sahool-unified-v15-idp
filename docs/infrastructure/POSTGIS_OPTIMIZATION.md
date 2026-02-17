@@ -354,4 +354,8 @@ SELECT * FROM pgstattuple('fields');
 **Related Documents:**
 
 - [Engineering Recovery Plan](../engineering/ENGINEERING_RECOVERY_PLAN.md)
+<<<<<<< HEAD
 - [Database Architecture](../architecture/DATABASE.md)
+=======
+- [Database Configuration Guide](../DATABASE_CONFIGURATION_GUIDE.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473

@@ -5,7 +5,11 @@
 /// يوفر بيانات اختبار لوحدة اختبارات ميزة الري
 
 import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart'
+<<<<<<< HEAD
     hide IrrigationEvent; // Hide to avoid conflict with irrigation_api
+=======
+    hide IrrigationEvent, IrrigationCalculation, IrrigationSchedule; // Hide to avoid conflict with irrigation_api
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:sahool_field_app/features/irrigation/data/remote/irrigation_api.dart';
 import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
 import 'package:sahool_field_app/features/pivot_irrigation/domain/models/span_zone_models.dart';

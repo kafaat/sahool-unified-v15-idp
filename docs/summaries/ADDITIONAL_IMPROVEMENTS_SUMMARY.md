@@ -441,11 +441,19 @@ DROP INDEX IF EXISTS idx_inventory_items_expiry;
 
 ### Related Documentation
 
+<<<<<<< HEAD
 - [HIGH_PRIORITY_FIXES_IMPLEMENTATION.md](../HIGH_PRIORITY_FIXES_IMPLEMENTATION.md) - Phase 1 fixes
 - [GAPS_AND_RECOMMENDATIONS.md](../GAPS_AND_RECOMMENDATIONS.md) - Original analysis
 - [PRODUCTION_DEPLOYMENT.md](../docs/PRODUCTION_DEPLOYMENT.md) - Deployment guide
 - [RATE_LIMITING.md](../docs/RATE_LIMITING.md) - Rate limiting guide
 - [WORK_SUMMARY.md](../WORK_SUMMARY.md) - Previous work summary
+=======
+- [HIGH_PRIORITY_FIXES_IMPLEMENTATION.md](../implementations/HIGH_PRIORITY_FIXES_IMPLEMENTATION.md) - Phase 1 fixes
+- [GAPS_AND_RECOMMENDATIONS.md](../reports/GAPS_AND_RECOMMENDATIONS.md) - Original analysis
+- [PRODUCTION_DEPLOYMENT.md](../PRODUCTION_DEPLOYMENT.md) - Deployment guide
+- [RATE_LIMITING.md](../RATE_LIMITING.md) - Rate limiting guide
+- [WORK_SUMMARY.md](./WORK_SUMMARY.md) - Previous work summary
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Technical References
 

@@ -25,7 +25,12 @@ import { AuthErrors } from "./jwt.config";
 export interface JwtPayload {
   sub: string;
   jti?: string;
+<<<<<<< HEAD
   tid?: string;
+=======
+  tid?: string; // legacy short name
+  tenant_id?: string; // canonical name from Python services
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   iat?: number;
   exp?: number;
   [key: string]: any;
@@ -85,7 +90,11 @@ export class TokenRevocationGuard implements CanActivate {
       const result = await this.revocationStore.isRevoked({
         jti: payload.jti,
         userId: payload.sub,
+<<<<<<< HEAD
         tenantId: payload.tid,
+=======
+        tenantId: payload.tenant_id || payload.tid,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         issuedAt: payload.iat,
       });
 
@@ -169,7 +178,11 @@ export class TokenRevocationInterceptor implements NestInterceptor {
           const result = await this.revocationStore.isRevoked({
             jti: payload.jti,
             userId: payload.sub,
+<<<<<<< HEAD
             tenantId: payload.tid,
+=======
+            tenantId: payload.tenant_id || payload.tid,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             issuedAt: payload.iat,
           });
 

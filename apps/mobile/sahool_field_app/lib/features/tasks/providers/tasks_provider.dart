@@ -10,6 +10,13 @@ import '../data/remote/tasks_api.dart';
 import '../data/repo/tasks_repo.dart';
 import '../domain/entities/task.dart';
 
+<<<<<<< HEAD
+=======
+// Re-export for use in other files
+export '../../../core/http/api_client.dart' show ApiClient;
+export '../../../core/notifications/notification_manager.dart' show notificationManagerProvider;
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 // Note: databaseProvider is imported from main.dart (canonical source)
 // Note: apiClientProvider is imported from core/di/providers.dart (with security config)
 
@@ -26,10 +33,13 @@ final tasksRepoProvider = Provider<TasksRepo>((ref) {
   return TasksRepo(database: db, api: api);
 });
 
+<<<<<<< HEAD
 // Re-export for use in other files
 export '../../../core/http/api_client.dart' show ApiClient;
 export '../../../core/notifications/notification_manager.dart' show notificationManagerProvider;
 
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 /// Tasks state notifier
 class TasksNotifier extends StateNotifier<AsyncValue<List<FieldTask>>> {
   final TasksRepo _repo;

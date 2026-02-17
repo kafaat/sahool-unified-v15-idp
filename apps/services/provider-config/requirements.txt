@@ -22,6 +22,10 @@ alembic==1.18.3
 redis>=7.1.0,<8.0.0
 
 # Messaging
+<<<<<<< HEAD
 nats-py>=2.9.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 structlog>=24.1.0

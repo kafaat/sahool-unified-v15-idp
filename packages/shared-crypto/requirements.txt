@@ -1,4 +1,8 @@
 # Python dependencies for SQLAlchemy encryption
+<<<<<<< HEAD
 cryptography>=41.0.0
+=======
+cryptography>=43.0.1  # CVE-2024-225, GHSA-3ww4-gg4f-jr7f
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 bcrypt>=4.0.0
 sqlalchemy>=2.0.0

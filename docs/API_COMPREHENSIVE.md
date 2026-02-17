@@ -674,7 +674,11 @@ weather = client.weather.get_current(
 - [API Gateway Documentation](./API_GATEWAY.md) - Kong configuration
 - [Rate Limiting Guide](./RATE_LIMITING.md) - Rate limiting policies
 - [Authentication Guide](./api/authentication.md) - Detailed auth documentation
+<<<<<<< HEAD
 - [WebSocket Guide](./api/websocket.md) - Real-time API documentation
+=======
+- WebSocket Guide - Real-time connections via `ws-gateway` service (port 8081)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ---
 

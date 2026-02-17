@@ -119,5 +119,9 @@ class SyncOutbox {
 ## References
 
 - [Offline-First Design Patterns](https://offlinefirst.org/)
+<<<<<<< HEAD
 - [SAHOOL Sync Architecture](../architecture/SYNC.md)
+=======
+- [SAHOOL Mobile Architecture](../MOBILE_ARCHITECTURE_ANALYSIS.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [Drift Documentation](https://drift.simonbinder.eu/)

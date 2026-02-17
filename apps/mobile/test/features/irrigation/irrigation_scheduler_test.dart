@@ -11,7 +11,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/features/irrigation/data/remote/irrigation_api.dart';
+<<<<<<< HEAD
 import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart';
+=======
+import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart'
+    hide IrrigationEvent, IrrigationCalculation, IrrigationSchedule; // Hide to avoid conflict with irrigation_api
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:sahool_field_app/features/pivot_irrigation/domain/models/pivot_models.dart';
 
 import 'irrigation_fixtures.dart';
@@ -425,6 +430,7 @@ void main() {
 
   group('IrrigationSchedule Model (freezed)', () {
     test('should have correct default values', () {
+<<<<<<< HEAD
       const schedule = IrrigationSchedule(
         scheduleId: 'sched_001',
         fieldId: 'field_001',
@@ -436,12 +442,23 @@ void main() {
 
       expect(schedule.notes, isEmpty);
       expect(schedule.notesAr, isEmpty);
+=======
+      final schedule = IrrigationSchedule(
+        fieldId: 'field_001',
+        events: [],
+        generatedAt: DateTime.now(),
+      );
+
+      expect(schedule.fieldId, 'field_001');
+      expect(schedule.events, isEmpty);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     test('should calculate total water from events', () {
       // Arrange
       final events = [
         IrrigationEvent(
+<<<<<<< HEAD
           eventId: 'evt_1',
           scheduledTime: DateTime.now(),
           durationMinutes: 60,
@@ -456,11 +473,27 @@ void main() {
           waterLiters: 15000,
           status: 'pending',
           statusAr: 'معلق',
+=======
+          scheduledAt: DateTime.now(),
+          durationMinutes: 60.0,
+          waterAmountLiters: 10000.0,
+          status: 'pending',
+        ),
+        IrrigationEvent(
+          scheduledAt: DateTime.now().add(const Duration(days: 1)),
+          durationMinutes: 60.0,
+          waterAmountLiters: 15000.0,
+          status: 'pending',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         ),
       ];
 
       // Act
+<<<<<<< HEAD
       final totalWater = events.fold<double>(0, (sum, e) => sum + e.waterLiters);
+=======
+      final totalWater = events.fold<double>(0, (sum, e) => sum + e.waterAmountLiters);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       // Assert
       expect(totalWater, 25000);
@@ -470,6 +503,7 @@ void main() {
   group('IrrigationEvent Model (freezed)', () {
     test('should have correct status values', () {
       final event = IrrigationEvent(
+<<<<<<< HEAD
         eventId: 'evt_001',
         scheduledTime: DateTime.now(),
         durationMinutes: 120,
@@ -480,16 +514,32 @@ void main() {
 
       expect(event.status, 'pending');
       expect(event.statusAr, 'معلق');
+=======
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
+        status: 'pending',
+      );
+
+      expect(event.status, 'pending');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     test('should allow notes', () {
       final event = IrrigationEvent(
+<<<<<<< HEAD
         eventId: 'evt_001',
         scheduledTime: DateTime.now(),
         durationMinutes: 120,
         waterLiters: 50000,
         status: 'pending',
         statusAr: 'معلق',
+=======
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
+        status: 'pending',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         notes: 'Morning irrigation before sunrise',
       );
 
@@ -498,6 +548,7 @@ void main() {
 
     test('should have default empty notes', () {
       final event = IrrigationEvent(
+<<<<<<< HEAD
         eventId: 'evt_001',
         scheduledTime: DateTime.now(),
         durationMinutes: 120,
@@ -507,6 +558,15 @@ void main() {
       );
 
       expect(event.notes, isEmpty);
+=======
+        scheduledAt: DateTime.now(),
+        durationMinutes: 120.0,
+        waterAmountLiters: 50000.0,
+        status: 'pending',
+      );
+
+      expect(event.notes, isNull);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     test('event status progression should be valid', () {
@@ -515,12 +575,19 @@ void main() {
 
       for (final status in validStatuses) {
         final event = IrrigationEvent(
+<<<<<<< HEAD
           eventId: 'evt_001',
           scheduledTime: DateTime.now(),
           durationMinutes: 120,
           waterLiters: 50000,
           status: status,
           statusAr: 'حالة',
+=======
+          scheduledAt: DateTime.now(),
+          durationMinutes: 120.0,
+          waterAmountLiters: 50000.0,
+          status: status,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
         expect(event.status, status);
       }

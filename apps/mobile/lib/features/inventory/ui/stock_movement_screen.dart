@@ -4,7 +4,11 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+<<<<<<< HEAD
 import '../../../core/config/config.dart';
+=======
+import '../../../core/config/env_config.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../../../core/di/providers.dart';
 import '../data/inventory_models.dart';
 import '../providers/inventory_providers.dart';
@@ -149,7 +153,11 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
               Builder(
                 builder: (context) {
                   final fieldsAsync = ref.watch(
+<<<<<<< HEAD
                     fieldsStreamProvider(AppConfig.defaultTenantId),
+=======
+                    fieldsStreamProvider(EnvConfig.defaultTenantId),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                   );
                   final fields = fieldsAsync.valueOrNull ?? [];
 

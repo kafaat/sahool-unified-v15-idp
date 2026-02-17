@@ -4,11 +4,19 @@ import 'package:sahool_field_app/core/widgets/empty_states.dart';
 import '../../helpers/test_helpers.dart';
 
 void main() {
+<<<<<<< HEAD
   group('EmptyStateWidget', () {
     testWidgets('should display icon, title, and message', (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const EmptyStateWidget(
+=======
+  group('SahoolEmptyState', () {
+    testWidgets('should display icon, title, and message', (tester) async {
+      await tester.pumpWidget(
+        createSimpleTestableWidget(
+          const SahoolEmptyState(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             icon: Icons.inbox,
             titleAr: 'عنوان فارغ',
             messageAr: 'رسالة فارغة',
@@ -26,7 +34,11 @@ void main() {
 
       await tester.pumpWidget(
         createSimpleTestableWidget(
+<<<<<<< HEAD
           EmptyStateWidget(
+=======
+          SahoolEmptyState(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             icon: Icons.add,
             titleAr: 'Test',
             actionLabelAr: 'إضافة',
@@ -46,7 +58,11 @@ void main() {
     testWidgets('should not show action button when onAction is null', (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
+<<<<<<< HEAD
           const EmptyStateWidget(
+=======
+          const SahoolEmptyState(
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             icon: Icons.inbox,
             titleAr: 'Test',
           ),
@@ -101,7 +117,11 @@ void main() {
       );
 
       expect(find.text('لا توجد نتائج'), findsOneWidget);
+<<<<<<< HEAD
       expect(find.textContaining('قمح'), findsOneWidget);
+=======
+      expect(find.textContaining('قمح'), findsAtLeastNWidgets(1));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     testWidgets('OfflineEmptyState should display offline message', (tester) async {
@@ -111,8 +131,13 @@ void main() {
         ),
       );
 
+<<<<<<< HEAD
       expect(find.text('أنت غير متصل'), findsOneWidget);
       expect(find.byIcon(Icons.cloud_off_rounded), findsOneWidget);
+=======
+      expect(find.text('لا يوجد اتصال بالإنترنت'), findsOneWidget);
+      expect(find.byIcon(Icons.wifi_rounded), findsOneWidget);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     });
 
     testWidgets('ComingSoonEmptyState should show feature name', (tester) async {

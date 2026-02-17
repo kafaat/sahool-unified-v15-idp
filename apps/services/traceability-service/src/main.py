@@ -73,6 +73,7 @@ app = FastAPI(
 )
 
 # Setup CORS
+<<<<<<< HEAD
 cors_origins = os.getenv("CORS_ORIGINS", "*").split(",")
 app.add_middleware(
     CORSMiddleware,
@@ -80,6 +81,18 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+=======
+cors_origins = os.getenv(
+    "CORS_ORIGINS",
+    "https://sahool.app,https://admin.sahool.app,http://localhost:3000",
+).split(",")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=cors_origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 )
 
 # Setup unified error handling
@@ -140,11 +153,33 @@ def comprehensive_health():
 @app.get("/metrics")
 async def metrics():
     """Prometheus metrics endpoint"""
+<<<<<<< HEAD
     return {
         "service": "traceability-service",
         "version": "16.0.0",
         "note": "Prometheus metrics integration pending",
     }
+=======
+    from fastapi.responses import PlainTextResponse
+
+    db_up = 1 if getattr(app.state, "db_connected", False) else 0
+    nats_up = 1 if getattr(app.state, "nats_connected", False) else 0
+    metrics_text = (
+        "# HELP traceability_service_up Service is up\n"
+        "# TYPE traceability_service_up gauge\n"
+        "traceability_service_up 1\n"
+        '# HELP traceability_service_info Service version info\n'
+        '# TYPE traceability_service_info gauge\n'
+        'traceability_service_info{service="traceability-service",version="16.0.0"} 1\n'
+        "# HELP traceability_service_db_up Database connection status\n"
+        "# TYPE traceability_service_db_up gauge\n"
+        f"traceability_service_db_up {db_up}\n"
+        "# HELP traceability_service_nats_up NATS connection status\n"
+        "# TYPE traceability_service_nats_up gauge\n"
+        f"traceability_service_nats_up {nats_up}\n"
+    )
+    return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 
 @app.get("/")

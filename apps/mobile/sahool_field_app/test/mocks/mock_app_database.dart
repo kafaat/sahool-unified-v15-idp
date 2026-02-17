@@ -142,11 +142,16 @@ class MockAppDatabase extends Mock implements AppDatabase {
         synced: task.synced.present ? task.synced.value : existing.synced,
       );
     } else {
+<<<<<<< HEAD
       // Create new task
+=======
+      // Create new task - use defaults for absent values
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       _tasks[id] = Task(
         id: id,
         tenantId: task.tenantId.value,
         fieldId: task.fieldId.value,
+<<<<<<< HEAD
         farmId: task.farmId.value,
         title: task.title.value,
         description: task.description.value,
@@ -159,6 +164,20 @@ class MockAppDatabase extends Mock implements AppDatabase {
         createdAt: task.createdAt.value,
         updatedAt: task.updatedAt.value,
         synced: task.synced.value,
+=======
+        farmId: task.farmId.present ? task.farmId.value : null,
+        title: task.title.value,
+        description: task.description.present ? task.description.value : null,
+        status: task.status.present ? task.status.value : 'open',
+        priority: task.priority.present ? task.priority.value : 'medium',
+        dueDate: task.dueDate.present ? task.dueDate.value : null,
+        assignedTo: task.assignedTo.present ? task.assignedTo.value : null,
+        evidenceNotes: task.evidenceNotes.present ? task.evidenceNotes.value : null,
+        evidencePhotos: task.evidencePhotos.present ? task.evidencePhotos.value : null,
+        createdAt: task.createdAt.value,
+        updatedAt: task.updatedAt.value,
+        synced: task.synced.present ? task.synced.value : false,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       );
     }
     _notifyTasksChanged();
@@ -259,6 +278,7 @@ class MockAppDatabase extends Mock implements AppDatabase {
     final id = field.id.value;
     _fields[id] = Field(
       id: id,
+<<<<<<< HEAD
       remoteId: field.remoteId.value,
       tenantId: field.tenantId.value,
       farmId: field.farmId.value,
@@ -276,6 +296,25 @@ class MockAppDatabase extends Mock implements AppDatabase {
       updatedAt: field.updatedAt.value,
       etag: field.etag.value,
       serverUpdatedAt: field.serverUpdatedAt.value,
+=======
+      remoteId: field.remoteId.present ? field.remoteId.value : null,
+      tenantId: field.tenantId.value,
+      farmId: field.farmId.present ? field.farmId.value : null,
+      name: field.name.value,
+      cropType: field.cropType.present ? field.cropType.value : null,
+      boundary: field.boundary.value,
+      centroid: field.centroid.present ? field.centroid.value : null,
+      areaHectares: field.areaHectares.value,
+      status: field.status.present ? field.status.value : null,
+      ndviCurrent: field.ndviCurrent.present ? field.ndviCurrent.value : null,
+      ndviUpdatedAt: field.ndviUpdatedAt.present ? field.ndviUpdatedAt.value : null,
+      synced: field.synced.present ? field.synced.value : false,
+      isDeleted: field.isDeleted.present ? field.isDeleted.value : false,
+      createdAt: field.createdAt.value,
+      updatedAt: field.updatedAt.value,
+      etag: field.etag.present ? field.etag.value : null,
+      serverUpdatedAt: field.serverUpdatedAt.present ? field.serverUpdatedAt.value : null,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
     _notifyFieldsChanged(field.tenantId.value);
   }

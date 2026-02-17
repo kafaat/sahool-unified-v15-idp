@@ -31,8 +31,17 @@ mixin _$IrrigationRequest {
   double get humidity => throw _privateConstructorUsedError; // %
   String get governorate => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationRequest to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationRequestCopyWith<IrrigationRequest> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -65,6 +74,11 @@ class _$IrrigationRequestCopyWithImpl<$Res, $Val extends IrrigationRequest>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -147,6 +161,11 @@ class __$$IrrigationRequestImplCopyWithImpl<$Res>
       $Res Function(_$IrrigationRequestImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -276,7 +295,11 @@ class _$IrrigationRequestImpl implements _IrrigationRequest {
                 other.governorate == governorate));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -290,7 +313,13 @@ class _$IrrigationRequestImpl implements _IrrigationRequest {
       humidity,
       governorate);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationRequestImplCopyWith<_$IrrigationRequestImpl> get copyWith =>
@@ -325,6 +354,7 @@ abstract class _IrrigationRequest implements IrrigationRequest {
   @override
   String get growthStage;
   @override
+<<<<<<< HEAD
   double get fieldArea;
   @override // hectares
   String get soilType;
@@ -340,6 +370,26 @@ abstract class _IrrigationRequest implements IrrigationRequest {
   String get governorate;
   @override
   @JsonKey(ignore: true)
+=======
+  double get fieldArea; // hectares
+  @override
+  String get soilType;
+  @override
+  String get irrigationMethod; // drip, sprinkler, flood, pivot
+  @override
+  double get currentSoilMoisture; // %
+  @override
+  double get temperature; // °C
+  @override
+  double get humidity; // %
+  @override
+  String get governorate;
+
+  /// Create a copy of IrrigationRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationRequestImplCopyWith<_$IrrigationRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -365,8 +415,17 @@ mixin _$IrrigationCalculation {
   String get notes => throw _privateConstructorUsedError;
   String get notesAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationCalculation to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationCalculation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationCalculationCopyWith<IrrigationCalculation> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -401,6 +460,11 @@ class _$IrrigationCalculationCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationCalculation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -491,6 +555,11 @@ class __$$IrrigationCalculationImplCopyWithImpl<$Res>
       $Res Function(_$IrrigationCalculationImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationCalculation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -625,7 +694,11 @@ class _$IrrigationCalculationImpl implements _IrrigationCalculation {
             (identical(other.notesAr, notesAr) || other.notesAr == notesAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -640,7 +713,13 @@ class _$IrrigationCalculationImpl implements _IrrigationCalculation {
       notes,
       notesAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationCalculation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationCalculationImplCopyWith<_$IrrigationCalculationImpl>
@@ -672,6 +751,7 @@ abstract class _IrrigationCalculation implements IrrigationCalculation {
       _$IrrigationCalculationImpl.fromJson;
 
   @override
+<<<<<<< HEAD
   double get waterRequirementMm;
   @override // mm/day
   double get waterRequirementLiters;
@@ -682,6 +762,18 @@ abstract class _IrrigationCalculation implements IrrigationCalculation {
   @override // crop evapotranspiration
   double get irrigationEfficiency;
   @override // %
+=======
+  double get waterRequirementMm; // mm/day
+  @override
+  double get waterRequirementLiters; // liters/hectare/day
+  @override
+  double get totalWaterLiters; // total for field
+  @override
+  double get etCrop; // crop evapotranspiration
+  @override
+  double get irrigationEfficiency; // %
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   String get recommendedFrequency;
   @override
   String get recommendedFrequencyAr;
@@ -691,8 +783,16 @@ abstract class _IrrigationCalculation implements IrrigationCalculation {
   String get notes;
   @override
   String get notesAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of IrrigationCalculation
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationCalculationImplCopyWith<_$IrrigationCalculationImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -712,8 +812,17 @@ mixin _$IrrigationSchedule {
   String get notes => throw _privateConstructorUsedError;
   String get notesAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationSchedule to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationSchedule
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationScheduleCopyWith<IrrigationSchedule> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -745,6 +854,11 @@ class _$IrrigationScheduleCopyWithImpl<$Res, $Val extends IrrigationSchedule>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationSchedule
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -821,6 +935,11 @@ class __$$IrrigationScheduleImplCopyWithImpl<$Res>
       $Res Function(_$IrrigationScheduleImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationSchedule
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -936,7 +1055,11 @@ class _$IrrigationScheduleImpl implements _IrrigationSchedule {
             (identical(other.notesAr, notesAr) || other.notesAr == notesAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -949,7 +1072,13 @@ class _$IrrigationScheduleImpl implements _IrrigationSchedule {
       notes,
       notesAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationSchedule
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationScheduleImplCopyWith<_$IrrigationScheduleImpl> get copyWith =>
@@ -989,6 +1118,7 @@ abstract class _IrrigationSchedule implements IrrigationSchedule {
   @override
   DateTime get endDate;
   @override
+<<<<<<< HEAD
   double get totalWaterPlanned;
   @override // liters
   String get notes;
@@ -996,6 +1126,18 @@ abstract class _IrrigationSchedule implements IrrigationSchedule {
   String get notesAr;
   @override
   @JsonKey(ignore: true)
+=======
+  double get totalWaterPlanned; // liters
+  @override
+  String get notes;
+  @override
+  String get notesAr;
+
+  /// Create a copy of IrrigationSchedule
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationScheduleImplCopyWith<_$IrrigationScheduleImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1015,8 +1157,17 @@ mixin _$IrrigationEvent {
   String get statusAr => throw _privateConstructorUsedError;
   String get notes => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationEvent to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationEventCopyWith<IrrigationEvent> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1047,6 +1198,11 @@ class _$IrrigationEventCopyWithImpl<$Res, $Val extends IrrigationEvent>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationEvent
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1117,6 +1273,11 @@ class __$$IrrigationEventImplCopyWithImpl<$Res>
       _$IrrigationEventImpl _value, $Res Function(_$IrrigationEventImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationEvent
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1216,12 +1377,22 @@ class _$IrrigationEventImpl implements _IrrigationEvent {
             (identical(other.notes, notes) || other.notes == notes));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, eventId, scheduledTime,
       durationMinutes, waterLiters, status, statusAr, notes);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationEventImplCopyWith<_$IrrigationEventImpl> get copyWith =>
@@ -1258,6 +1429,7 @@ abstract class _IrrigationEvent implements IrrigationEvent {
   @override
   double get waterLiters;
   @override
+<<<<<<< HEAD
   String get status;
   @override // pending, in_progress, completed, skipped
   String get statusAr;
@@ -1265,6 +1437,18 @@ abstract class _IrrigationEvent implements IrrigationEvent {
   String get notes;
   @override
   @JsonKey(ignore: true)
+=======
+  String get status; // pending, in_progress, completed, skipped
+  @override
+  String get statusAr;
+  @override
+  String get notes;
+
+  /// Create a copy of IrrigationEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationEventImplCopyWith<_$IrrigationEventImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1286,8 +1470,17 @@ mixin _$WaterBalance {
   bool get irrigationNeeded => throw _privateConstructorUsedError;
   double get recommendedWaterMm => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this WaterBalance to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of WaterBalance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $WaterBalanceCopyWith<WaterBalance> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1320,6 +1513,11 @@ class _$WaterBalanceCopyWithImpl<$Res, $Val extends WaterBalance>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of WaterBalance
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1402,6 +1600,11 @@ class __$$WaterBalanceImplCopyWithImpl<$Res>
       _$WaterBalanceImpl _value, $Res Function(_$WaterBalanceImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of WaterBalance
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1523,7 +1726,11 @@ class _$WaterBalanceImpl implements _WaterBalance {
                 other.recommendedWaterMm == recommendedWaterMm));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -1537,7 +1744,13 @@ class _$WaterBalanceImpl implements _WaterBalance {
       irrigationNeeded,
       recommendedWaterMm);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of WaterBalance
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$WaterBalanceImplCopyWith<_$WaterBalanceImpl> get copyWith =>
@@ -1577,15 +1790,28 @@ abstract class _WaterBalance implements WaterBalance {
   @override
   double get depletionPercent;
   @override
+<<<<<<< HEAD
   String get status;
   @override // optimal, low, critical, excess
+=======
+  String get status; // optimal, low, critical, excess
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   String get statusAr;
   @override
   bool get irrigationNeeded;
   @override
   double get recommendedWaterMm;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of WaterBalance
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$WaterBalanceImplCopyWith<_$WaterBalanceImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1605,8 +1831,17 @@ mixin _$SensorReading {
   String get fieldId => throw _privateConstructorUsedError;
   String get location => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this SensorReading to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SensorReading
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $SensorReadingCopyWith<SensorReading> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1637,6 +1872,11 @@ class _$SensorReadingCopyWithImpl<$Res, $Val extends SensorReading>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SensorReading
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1707,6 +1947,11 @@ class __$$SensorReadingImplCopyWithImpl<$Res>
       _$SensorReadingImpl _value, $Res Function(_$SensorReadingImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SensorReading
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1806,12 +2051,22 @@ class _$SensorReadingImpl implements _SensorReading {
                 other.location == location));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, sensorId, sensorType, value,
       unit, timestamp, fieldId, location);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of SensorReading
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$SensorReadingImplCopyWith<_$SensorReadingImpl> get copyWith =>
@@ -1841,8 +2096,13 @@ abstract class _SensorReading implements SensorReading {
   @override
   String get sensorId;
   @override
+<<<<<<< HEAD
   String get sensorType;
   @override // soil_moisture, temperature, humidity
+=======
+  String get sensorType; // soil_moisture, temperature, humidity
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   double get value;
   @override
   String get unit;
@@ -1852,8 +2112,16 @@ abstract class _SensorReading implements SensorReading {
   String get fieldId;
   @override
   String get location;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of SensorReading
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$SensorReadingImplCopyWith<_$SensorReadingImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1879,8 +2147,17 @@ mixin _$IrrigationEfficiencyReport {
   List<String> get recommendationsAr => throw _privateConstructorUsedError;
   DateTime get generatedAt => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationEfficiencyReport to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationEfficiencyReport
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationEfficiencyReportCopyWith<IrrigationEfficiencyReport>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -1917,6 +2194,11 @@ class _$IrrigationEfficiencyReportCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationEfficiencyReport
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2014,6 +2296,11 @@ class __$$IrrigationEfficiencyReportImplCopyWithImpl<$Res>
       $Res Function(_$IrrigationEfficiencyReportImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationEfficiencyReport
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2180,7 +2467,11 @@ class _$IrrigationEfficiencyReportImpl implements _IrrigationEfficiencyReport {
                 other.generatedAt == generatedAt));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2196,7 +2487,13 @@ class _$IrrigationEfficiencyReportImpl implements _IrrigationEfficiencyReport {
       const DeepCollectionEquality().hash(_recommendationsAr),
       generatedAt);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationEfficiencyReport
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationEfficiencyReportImplCopyWith<_$IrrigationEfficiencyReportImpl>
@@ -2234,25 +2531,45 @@ abstract class _IrrigationEfficiencyReport
   @override
   String get fieldId;
   @override
+<<<<<<< HEAD
   String get period;
   @override // weekly, monthly, seasonal
+=======
+  String get period; // weekly, monthly, seasonal
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   double get waterUsedLiters;
   @override
   double get waterSavedLiters;
   @override
   double get efficiencyPercent;
   @override
+<<<<<<< HEAD
   double get costSaved;
   @override // currency
   Map<String, double> get dailyUsage;
   @override // date -> liters
+=======
+  double get costSaved; // currency
+  @override
+  Map<String, double> get dailyUsage; // date -> liters
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   List<String> get recommendations;
   @override
   List<String> get recommendationsAr;
   @override
   DateTime get generatedAt;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of IrrigationEfficiencyReport
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationEfficiencyReportImplCopyWith<_$IrrigationEfficiencyReportImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -2274,8 +2591,17 @@ mixin _$IrrigationMethodOption {
   List<String> get suitableCrops => throw _privateConstructorUsedError;
   List<String> get suitableCropsAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this IrrigationMethodOption to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of IrrigationMethodOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $IrrigationMethodOptionCopyWith<IrrigationMethodOption> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2308,6 +2634,11 @@ class _$IrrigationMethodOptionCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationMethodOption
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2387,6 +2718,11 @@ class __$$IrrigationMethodOptionImplCopyWithImpl<$Res>
       $Res Function(_$IrrigationMethodOptionImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of IrrigationMethodOption
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2510,7 +2846,11 @@ class _$IrrigationMethodOptionImpl implements _IrrigationMethodOption {
                 .equals(other._suitableCropsAr, _suitableCropsAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2523,7 +2863,13 @@ class _$IrrigationMethodOptionImpl implements _IrrigationMethodOption {
       const DeepCollectionEquality().hash(_suitableCrops),
       const DeepCollectionEquality().hash(_suitableCropsAr));
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of IrrigationMethodOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$IrrigationMethodOptionImplCopyWith<_$IrrigationMethodOptionImpl>
@@ -2559,8 +2905,13 @@ abstract class _IrrigationMethodOption implements IrrigationMethodOption {
   @override
   String get nameAr;
   @override
+<<<<<<< HEAD
   double get efficiency;
   @override // typical efficiency %
+=======
+  double get efficiency; // typical efficiency %
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   String get description;
   @override
   String get descriptionAr;
@@ -2568,8 +2919,16 @@ abstract class _IrrigationMethodOption implements IrrigationMethodOption {
   List<String> get suitableCrops;
   @override
   List<String> get suitableCropsAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of IrrigationMethodOption
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$IrrigationMethodOptionImplCopyWith<_$IrrigationMethodOptionImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -2591,8 +2950,17 @@ mixin _$CropWaterRequirement {
   int get rootDepthCm => throw _privateConstructorUsedError;
   double get criticalDepletionFraction => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this CropWaterRequirement to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CropWaterRequirement
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $CropWaterRequirementCopyWith<CropWaterRequirement> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2626,6 +2994,11 @@ class _$CropWaterRequirementCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of CropWaterRequirement
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2708,6 +3081,11 @@ class __$$CropWaterRequirementImplCopyWithImpl<$Res>
       $Res Function(_$CropWaterRequirementImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of CropWaterRequirement
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2835,7 +3213,11 @@ class _$CropWaterRequirementImpl implements _CropWaterRequirement {
                 other.criticalDepletionFraction == criticalDepletionFraction));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2849,7 +3231,13 @@ class _$CropWaterRequirementImpl implements _CropWaterRequirement {
       rootDepthCm,
       criticalDepletionFraction);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of CropWaterRequirement
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$CropWaterRequirementImplCopyWith<_$CropWaterRequirementImpl>
@@ -2888,8 +3276,13 @@ abstract class _CropWaterRequirement implements CropWaterRequirement {
   @override
   String get cropNameAr;
   @override
+<<<<<<< HEAD
   Map<String, double> get stageRequirements;
   @override // growth_stage -> mm/day
+=======
+  Map<String, double> get stageRequirements; // growth_stage -> mm/day
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   double get kcInitial;
   @override
   double get kcMid;
@@ -2899,8 +3292,16 @@ abstract class _CropWaterRequirement implements CropWaterRequirement {
   int get rootDepthCm;
   @override
   double get criticalDepletionFraction;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of CropWaterRequirement
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$CropWaterRequirementImplCopyWith<_$CropWaterRequirementImpl>
       get copyWith => throw _privateConstructorUsedError;
 }

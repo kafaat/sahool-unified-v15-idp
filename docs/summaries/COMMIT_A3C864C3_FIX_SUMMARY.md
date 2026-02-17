@@ -365,6 +365,7 @@ All dependencies now comply with:
 
 ### التوثيق | Documentation
 
+<<<<<<< HEAD
 - [Package.json - Root](package.json)
 - [Research Core Service](apps/services/research-core/)
 - [Web Application](apps/web/)
@@ -375,6 +376,18 @@ All dependencies now comply with:
 - [COMMIT_98517653_ANALYSIS.md](COMMIT_98517653_ANALYSIS.md)
 - [COMMIT_823D5C5_FIX_SUMMARY.md](COMMIT_823D5C5_FIX_SUMMARY.md)
 - [PYTHON_VALIDATION_REPORT.md](apps/services/PYTHON_VALIDATION_REPORT.md)
+=======
+- [Package.json - Root](../../package.json)
+- [Research Core Service](../../apps/services/research-core/)
+- [Web Application](../../apps/web/)
+- [Admin Application](../../apps/admin/)
+
+### تقارير التحقق السابقة | Previous Validation Reports
+
+- [COMMIT_98517653_ANALYSIS.md](../reports/COMMIT_98517653_ANALYSIS.md)
+- [COMMIT_823D5C5_FIX_SUMMARY.md](COMMIT_823D5C5_FIX_SUMMARY.md)
+- [PYTHON_VALIDATION_REPORT.md](../../apps/services/PYTHON_VALIDATION_REPORT.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### الأدوات المستخدمة | Tools Used
 
@@ -430,11 +443,19 @@ This fix is **approved for merge** with the following conditions met:
 للأسئلة أو المشاكل / For questions or issues:
 
 1. راجع التوثيق / Review documentation:
+<<<<<<< HEAD
    - [Repository README](README.md)
    - [Services Documentation](apps/services/README.md)
 
 2. تحقق من التقارير السابقة / Check previous reports:
    - [Validation Reports](apps/services/)
+=======
+   - [Repository README](../../README.md)
+   - [Services Documentation](../../apps/services/README.md)
+
+2. تحقق من التقارير السابقة / Check previous reports:
+   - [Validation Reports](../../apps/services/)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
    - [Fix Summaries](./)
 
 3. اتصل بفريق DevOps / Contact DevOps team

@@ -10,7 +10,14 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/ndvi/domain/ndvi_value.dart';
+<<<<<<< HEAD
 import 'package:sahool_field_app/features/analytics/domain/entities/field_history.dart';
+=======
+import 'package:sahool_field_app/features/analytics/domain/entities/field_history.dart'
+    hide TrendDirection;
+import 'package:sahool_field_app/features/analytics/domain/entities/field_history.dart'
+    as fh show TrendDirection;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import 'ndvi_fixtures.dart';
 import 'ndvi_mocks.dart';
@@ -744,7 +751,11 @@ void main() {
         );
 
         // Assert - 20% change rate
+<<<<<<< HEAD
         expect(analytics.trend, equals(TrendDirection.improving));
+=======
+        expect(analytics.trend, equals(fh.TrendDirection.improving));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       });
 
       test('should return declining for changeRate < -5%', () {
@@ -761,7 +772,11 @@ void main() {
         );
 
         // Assert - -16.67% change rate
+<<<<<<< HEAD
         expect(analytics.trend, equals(TrendDirection.declining));
+=======
+        expect(analytics.trend, equals(fh.TrendDirection.declining));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       });
 
       test('should return stable for changeRate between -5% and 5%', () {
@@ -778,7 +793,11 @@ void main() {
         );
 
         // Assert - 4% change rate
+<<<<<<< HEAD
         expect(analytics.trend, equals(TrendDirection.stable));
+=======
+        expect(analytics.trend, equals(fh.TrendDirection.stable));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       });
 
       test('should return stable for less than 3 records', () {
@@ -794,7 +813,11 @@ void main() {
         );
 
         // Assert
+<<<<<<< HEAD
         expect(analytics.trend, equals(TrendDirection.stable));
+=======
+        expect(analytics.trend, equals(fh.TrendDirection.stable));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       });
     });
 

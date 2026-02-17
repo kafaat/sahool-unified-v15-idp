@@ -666,7 +666,11 @@ kubectl exec -it -n $NAMESPACE <postgres-pod-name> -- \
 - [Helm Documentation](https://helm.sh/docs/)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Redis Documentation](https://redis.io/documentation)
+<<<<<<< HEAD
 - [SAHOOL API Documentation](./API.md)
+=======
+- [SAHOOL API Documentation](./API_COMPREHENSIVE.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 - [SAHOOL Secrets Setup Guide](./SECRETS_SETUP.md)
 
 ## Support

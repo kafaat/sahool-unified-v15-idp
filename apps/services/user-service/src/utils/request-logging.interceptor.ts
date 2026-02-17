@@ -1,6 +1,11 @@
 /**
+<<<<<<< HEAD
  * Request Logging Interceptor for Marketplace Service
  * اعتراض تسجيل الطلبات لخدمة السوق
+=======
+ * Request Logging Interceptor for User Service
+ * اعتراض تسجيل الطلبات لخدمة المستخدمين
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
  *
  * Provides structured JSON logging for all HTTP requests.
  */

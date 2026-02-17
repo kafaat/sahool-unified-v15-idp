@@ -414,7 +414,11 @@ The platform contains **109 Dockerfiles** across Python, Node.js, and infrastruc
 | `docker/Dockerfile.python.base` | Base Python image (no mirror, basic pip config) |
 | `docker/Dockerfile.ai-base` | AI services base (Aliyun + Tsinghua mirrors) |
 | `docker/Dockerfile.node.base` | Node.js base |
+<<<<<<< HEAD
 | `apps/services/*/Dockerfile` | Per-service Dockerfiles (77 services) |
+=======
+| `apps/services/*/Dockerfile` | Per-service Dockerfiles (72 services) |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 | `config/postgres/Dockerfile.walg` | PostgreSQL 16 + PostGIS 3.4 + WAL-G |
 | `idp/templates/python-fastapi/skeleton/Dockerfile` | IDP service template |
 
@@ -696,7 +700,11 @@ lib/
 │   ├── voice/              # Speech-to-text, TTS
 │   ├── websocket/          # Real-time updates
 │   └── ...                 # config, geo, map, ml, theme, etc.
+<<<<<<< HEAD
 ├── features/               # 58 feature modules
+=======
+├── features/               # 57 feature modules
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 │   ├── field/              # Core field operations
 │   ├── irrigation/         # Irrigation management
 │   ├── crop_health/        # Crop health monitoring
@@ -1185,7 +1193,11 @@ docker-compose --profile legacy up
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
+<<<<<<< HEAD
 | community-chat       | Node.js | 8097 | Community features (empty, deprecated) |
+=======
+| community-chat       | Node.js | 8097 | Community features (deprecated, use chat-service) |
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 | chat-service         | Node.js | 8000 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |

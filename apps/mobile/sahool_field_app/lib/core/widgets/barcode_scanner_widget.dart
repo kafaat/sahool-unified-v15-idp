@@ -70,7 +70,11 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
       detectionSpeed: DetectionSpeed.normal,
       facing: CameraFacing.back,
       torchEnabled: false,
+<<<<<<< HEAD
       formats: widget.formats,
+=======
+      formats: widget.formats ?? const [],
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
   }
 

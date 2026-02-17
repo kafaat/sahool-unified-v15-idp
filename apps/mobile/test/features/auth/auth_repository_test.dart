@@ -24,6 +24,10 @@ void main() {
   late MockSecureStorageService mockSecureStorage;
   late MockBiometricService mockBiometricService;
   late MockApiClient mockApiClient;
+<<<<<<< HEAD
+=======
+  late MockTokenManager mockTokenManager;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   setUpAll(() {
     registerAuthFallbackValues();
@@ -33,10 +37,18 @@ void main() {
     mockSecureStorage = MockSecureStorageService();
     mockBiometricService = MockBiometricService();
     mockApiClient = MockApiClient();
+<<<<<<< HEAD
+=======
+    mockTokenManager = MockTokenManager();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     mockSecureStorage.setupDefaults();
     mockBiometricService.setupDefaults();
     mockApiClient.setupDefaults();
+<<<<<<< HEAD
+=======
+    mockTokenManager.setupDefaults();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   });
 
   tearDown(() {
@@ -51,6 +63,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           // No apiClient - uses mock mode
         );
 
@@ -83,6 +99,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.setAccessToken(any()))
@@ -110,6 +130,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.setAccessToken(any()))
@@ -136,6 +160,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -169,6 +197,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -190,6 +222,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -215,6 +251,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.clearAll())
@@ -232,6 +272,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.setAccessToken(any()))
@@ -262,6 +306,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -282,6 +330,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -299,6 +351,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -318,6 +374,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -337,6 +397,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -365,6 +429,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -390,6 +458,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getUserData())
@@ -407,6 +479,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getUserData())
@@ -429,6 +505,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getUserData())
@@ -449,6 +529,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -466,6 +550,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.getAccessToken())
@@ -485,6 +573,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockBiometricService.setAvailable(false);
@@ -506,6 +598,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockBiometricService.setAvailable(true);
@@ -528,6 +624,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockBiometricService.setAvailable(true);
@@ -551,6 +651,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         mockBiometricService.setAvailable(true);
@@ -579,6 +683,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         // Act & Assert - should not throw
@@ -596,6 +704,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -621,6 +733,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
           apiClient: mockApiClient,
         );
 
@@ -647,6 +763,10 @@ void main() {
         authService = AuthService(
           secureStorage: mockSecureStorage,
           biometricService: mockBiometricService,
+<<<<<<< HEAD
+=======
+          tokenManager: mockTokenManager,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         );
 
         when(() => mockSecureStorage.setAccessToken(any()))

@@ -28,8 +28,17 @@ mixin _$SoilAnalysis {
   String get soilType => throw _privateConstructorUsedError;
   String get soilTypeAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this SoilAnalysis to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SoilAnalysis
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $SoilAnalysisCopyWith<SoilAnalysis> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -60,6 +69,11 @@ class _$SoilAnalysisCopyWithImpl<$Res, $Val extends SoilAnalysis>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SoilAnalysis
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -130,6 +144,11 @@ class __$$SoilAnalysisImplCopyWithImpl<$Res>
       _$SoilAnalysisImpl _value, $Res Function(_$SoilAnalysisImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SoilAnalysis
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -236,12 +255,22 @@ class _$SoilAnalysisImpl implements _SoilAnalysis {
                 other.soilTypeAr == soilTypeAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, ph, nitrogen, phosphorus,
       potassium, organicMatter, soilType, soilTypeAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of SoilAnalysis
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$SoilAnalysisImplCopyWith<_$SoilAnalysisImpl> get copyWith =>
@@ -271,6 +300,7 @@ abstract class _SoilAnalysis implements SoilAnalysis {
   @override
   double get ph;
   @override
+<<<<<<< HEAD
   double get nitrogen;
   @override // mg/kg
   double get phosphorus;
@@ -284,6 +314,24 @@ abstract class _SoilAnalysis implements SoilAnalysis {
   String get soilTypeAr;
   @override
   @JsonKey(ignore: true)
+=======
+  double get nitrogen; // mg/kg
+  @override
+  double get phosphorus; // mg/kg
+  @override
+  double get potassium; // mg/kg
+  @override
+  double get organicMatter; // %
+  @override
+  String get soilType;
+  @override
+  String get soilTypeAr;
+
+  /// Create a copy of SoilAnalysis
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$SoilAnalysisImplCopyWith<_$SoilAnalysisImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -301,8 +349,17 @@ mixin _$FertilizerRequest {
   String get governorate => throw _privateConstructorUsedError;
   String get irrigationType => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this FertilizerRequest to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $FertilizerRequestCopyWith<FertilizerRequest> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -334,6 +391,11 @@ class _$FertilizerRequestCopyWithImpl<$Res, $Val extends FertilizerRequest>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -372,6 +434,11 @@ class _$FertilizerRequestCopyWithImpl<$Res, $Val extends FertilizerRequest>
     ) as $Val);
   }
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   $SoilAnalysisCopyWith<$Res> get soilAnalysis {
@@ -409,6 +476,11 @@ class __$$FertilizerRequestImplCopyWithImpl<$Res>
       $Res Function(_$FertilizerRequestImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -502,12 +574,22 @@ class _$FertilizerRequestImpl implements _FertilizerRequest {
                 other.irrigationType == irrigationType));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, cropType, fieldArea,
       soilAnalysis, growthStage, governorate, irrigationType);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$FertilizerRequestImplCopyWith<_$FertilizerRequestImpl> get copyWith =>
@@ -537,8 +619,13 @@ abstract class _FertilizerRequest implements FertilizerRequest {
   @override
   String get cropType;
   @override
+<<<<<<< HEAD
   double get fieldArea;
   @override // hectares
+=======
+  double get fieldArea; // hectares
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   SoilAnalysis get soilAnalysis;
   @override
   String get growthStage;
@@ -546,8 +633,16 @@ abstract class _FertilizerRequest implements FertilizerRequest {
   String get governorate;
   @override
   String get irrigationType;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of FertilizerRequest
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$FertilizerRequestImplCopyWith<_$FertilizerRequestImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -568,8 +663,17 @@ mixin _$NpkRecommendation {
   String get timing => throw _privateConstructorUsedError;
   String get timingAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this NpkRecommendation to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of NpkRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $NpkRecommendationCopyWith<NpkRecommendation> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -602,6 +706,11 @@ class _$NpkRecommendationCopyWithImpl<$Res, $Val extends NpkRecommendation>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of NpkRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -684,6 +793,11 @@ class __$$NpkRecommendationImplCopyWithImpl<$Res>
       $Res Function(_$NpkRecommendationImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of NpkRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -808,7 +922,11 @@ class _$NpkRecommendationImpl implements _NpkRecommendation {
                 other.timingAr == timingAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -822,7 +940,13 @@ class _$NpkRecommendationImpl implements _NpkRecommendation {
       timing,
       timingAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of NpkRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$NpkRecommendationImplCopyWith<_$NpkRecommendationImpl> get copyWith =>
@@ -853,8 +977,13 @@ abstract class _NpkRecommendation implements NpkRecommendation {
       _$NpkRecommendationImpl.fromJson;
 
   @override
+<<<<<<< HEAD
   double get nitrogenKg;
   @override // كجم/هكتار
+=======
+  double get nitrogenKg; // كجم/هكتار
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   double get phosphorusKg;
   @override
   double get potassiumKg;
@@ -870,8 +999,16 @@ abstract class _NpkRecommendation implements NpkRecommendation {
   String get timing;
   @override
   String get timingAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of NpkRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$NpkRecommendationImplCopyWith<_$NpkRecommendationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -891,8 +1028,17 @@ mixin _$FertilizerProduct {
   String get applicationNotes => throw _privateConstructorUsedError;
   String get applicationNotesAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this FertilizerProduct to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of FertilizerProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $FertilizerProductCopyWith<FertilizerProduct> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -924,6 +1070,11 @@ class _$FertilizerProductCopyWithImpl<$Res, $Val extends FertilizerProduct>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerProduct
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1000,6 +1151,11 @@ class __$$FertilizerProductImplCopyWithImpl<$Res>
       $Res Function(_$FertilizerProductImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerProduct
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1112,12 +1268,22 @@ class _$FertilizerProductImpl implements _FertilizerProduct {
                 other.applicationNotesAr == applicationNotesAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(runtimeType, productId, name, nameAr,
       npkRatio, quantityKg, pricePerKg, applicationNotes, applicationNotesAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of FertilizerProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$FertilizerProductImplCopyWith<_$FertilizerProductImpl> get copyWith =>
@@ -1153,8 +1319,13 @@ abstract class _FertilizerProduct implements FertilizerProduct {
   @override
   String get nameAr;
   @override
+<<<<<<< HEAD
   String get npkRatio;
   @override // e.g., "15-15-15"
+=======
+  String get npkRatio; // e.g., "15-15-15"
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   double get quantityKg;
   @override
   double get pricePerKg;
@@ -1162,8 +1333,16 @@ abstract class _FertilizerProduct implements FertilizerProduct {
   String get applicationNotes;
   @override
   String get applicationNotesAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of FertilizerProduct
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$FertilizerProductImplCopyWith<_$FertilizerProductImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1192,8 +1371,17 @@ mixin _$FertilizerRecommendation {
   String get seasonalNote => throw _privateConstructorUsedError;
   String get seasonalNoteAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this FertilizerRecommendation to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $FertilizerRecommendationCopyWith<FertilizerRecommendation> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1235,6 +1423,11 @@ class _$FertilizerRecommendationCopyWithImpl<$Res,
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1318,6 +1511,11 @@ class _$FertilizerRecommendationCopyWithImpl<$Res,
     ) as $Val);
   }
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   $NpkRecommendationCopyWith<$Res> get npkRecommendation {
@@ -1367,6 +1565,11 @@ class __$$FertilizerRecommendationImplCopyWithImpl<$Res>
       $Res Function(_$FertilizerRecommendationImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1587,7 +1790,11 @@ class _$FertilizerRecommendationImpl implements _FertilizerRecommendation {
                 other.seasonalNoteAr == seasonalNoteAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -1607,7 +1814,13 @@ class _$FertilizerRecommendationImpl implements _FertilizerRecommendation {
       seasonalNote,
       seasonalNoteAr);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$FertilizerRecommendationImplCopyWith<_$FertilizerRecommendationImpl>
@@ -1673,8 +1886,16 @@ abstract class _FertilizerRecommendation implements FertilizerRecommendation {
   String get seasonalNote;
   @override
   String get seasonalNoteAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of FertilizerRecommendation
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$FertilizerRecommendationImplCopyWith<_$FertilizerRecommendationImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
@@ -1695,8 +1916,17 @@ mixin _$DeficiencySymptom {
   String get recommendationAr => throw _privateConstructorUsedError;
   String get imageUrl => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this DeficiencySymptom to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of DeficiencySymptom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $DeficiencySymptomCopyWith<DeficiencySymptom> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -1728,6 +1958,11 @@ class _$DeficiencySymptomCopyWithImpl<$Res, $Val extends DeficiencySymptom>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of DeficiencySymptom
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1804,6 +2039,11 @@ class __$$DeficiencySymptomImplCopyWithImpl<$Res>
       $Res Function(_$DeficiencySymptomImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of DeficiencySymptom
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -1932,7 +2172,11 @@ class _$DeficiencySymptomImpl implements _DeficiencySymptom {
                 other.imageUrl == imageUrl));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -1945,7 +2189,13 @@ class _$DeficiencySymptomImpl implements _DeficiencySymptom {
       recommendationAr,
       imageUrl);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of DeficiencySymptom
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$DeficiencySymptomImplCopyWith<_$DeficiencySymptomImpl> get copyWith =>
@@ -1979,8 +2229,13 @@ abstract class _DeficiencySymptom implements DeficiencySymptom {
   @override
   String get nutrientAr;
   @override
+<<<<<<< HEAD
   String get severity;
   @override // low, medium, high, critical
+=======
+  String get severity; // low, medium, high, critical
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   List<String> get visualSymptoms;
   @override
   List<String> get visualSymptomsAr;
@@ -1990,8 +2245,16 @@ abstract class _DeficiencySymptom implements DeficiencySymptom {
   String get recommendationAr;
   @override
   String get imageUrl;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of DeficiencySymptom
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$DeficiencySymptomImplCopyWith<_$DeficiencySymptomImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2013,8 +2276,17 @@ mixin _$SoilInterpretation {
   List<String> get recommendationsAr => throw _privateConstructorUsedError;
   double get fertilitySCore => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this SoilInterpretation to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SoilInterpretation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $SoilInterpretationCopyWith<SoilInterpretation> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2045,6 +2317,11 @@ class _$SoilInterpretationCopyWithImpl<$Res, $Val extends SoilInterpretation>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SoilInterpretation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2115,6 +2392,11 @@ class __$$SoilInterpretationImplCopyWithImpl<$Res>
       $Res Function(_$SoilInterpretationImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of SoilInterpretation
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2247,7 +2529,11 @@ class _$SoilInterpretationImpl implements _SoilInterpretation {
                 other.fertilitySCore == fertilitySCore));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2259,7 +2545,13 @@ class _$SoilInterpretationImpl implements _SoilInterpretation {
       const DeepCollectionEquality().hash(_recommendationsAr),
       fertilitySCore);
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of SoilInterpretation
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$SoilInterpretationImplCopyWith<_$SoilInterpretationImpl> get copyWith =>
@@ -2288,12 +2580,21 @@ abstract class _SoilInterpretation implements SoilInterpretation {
       _$SoilInterpretationImpl.fromJson;
 
   @override
+<<<<<<< HEAD
   String get overallHealth;
   @override // excellent, good, fair, poor
   String get overallHealthAr;
   @override
   Map<String, String> get nutrientLevels;
   @override // nutrient -> level
+=======
+  String get overallHealth; // excellent, good, fair, poor
+  @override
+  String get overallHealthAr;
+  @override
+  Map<String, String> get nutrientLevels; // nutrient -> level
+  @override
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   Map<String, String> get nutrientLevelsAr;
   @override
   List<String> get recommendations;
@@ -2301,8 +2602,16 @@ abstract class _SoilInterpretation implements SoilInterpretation {
   List<String> get recommendationsAr;
   @override
   double get fertilitySCore;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of SoilInterpretation
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$SoilInterpretationImplCopyWith<_$SoilInterpretationImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2321,8 +2630,17 @@ mixin _$CropTypeOption {
   List<String> get growthStages => throw _privateConstructorUsedError;
   List<String> get growthStagesAr => throw _privateConstructorUsedError;
 
+<<<<<<< HEAD
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
+=======
+  /// Serializes this CropTypeOption to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of CropTypeOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   $CropTypeOptionCopyWith<CropTypeOption> get copyWith =>
       throw _privateConstructorUsedError;
 }
@@ -2353,6 +2671,11 @@ class _$CropTypeOptionCopyWithImpl<$Res, $Val extends CropTypeOption>
   // ignore: unused_field
   final $Res Function($Val) _then;
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of CropTypeOption
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2423,6 +2746,11 @@ class __$$CropTypeOptionImplCopyWithImpl<$Res>
       _$CropTypeOptionImpl _value, $Res Function(_$CropTypeOptionImpl) _then)
       : super(_value, _then);
 
+<<<<<<< HEAD
+=======
+  /// Create a copy of CropTypeOption
+  /// with the given fields replaced by the non-null parameter values.
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @pragma('vm:prefer-inline')
   @override
   $Res call({
@@ -2535,7 +2863,11 @@ class _$CropTypeOptionImpl implements _CropTypeOption {
                 .equals(other._growthStagesAr, _growthStagesAr));
   }
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   int get hashCode => Object.hash(
       runtimeType,
@@ -2547,7 +2879,13 @@ class _$CropTypeOptionImpl implements _CropTypeOption {
       const DeepCollectionEquality().hash(_growthStages),
       const DeepCollectionEquality().hash(_growthStagesAr));
 
+<<<<<<< HEAD
   @JsonKey(ignore: true)
+=======
+  /// Create a copy of CropTypeOption
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   @override
   @pragma('vm:prefer-inline')
   _$$CropTypeOptionImplCopyWith<_$CropTypeOptionImpl> get copyWith =>
@@ -2589,8 +2927,16 @@ abstract class _CropTypeOption implements CropTypeOption {
   List<String> get growthStages;
   @override
   List<String> get growthStagesAr;
+<<<<<<< HEAD
   @override
   @JsonKey(ignore: true)
+=======
+
+  /// Create a copy of CropTypeOption
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   _$$CropTypeOptionImplCopyWith<_$CropTypeOptionImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

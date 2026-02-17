@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 /// SAHOOL Integration Test - Satellite Imagery Tests
 /// اختبارات صور الأقمار الصناعية
+=======
+// SAHOOL Integration Test - Satellite Imagery Tests
+// اختبارات صور الأقمار الصناعية
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -31,7 +36,11 @@ void main() {
     testWidgets('Navigate to satellite imagery', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -59,7 +68,11 @@ void main() {
     testWidgets('Satellite imagery loads for field', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -78,7 +91,11 @@ void main() {
     testWidgets('Satellite imagery shows correct date', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -97,7 +114,11 @@ void main() {
     testWidgets('NDVI values are displayed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -114,7 +135,11 @@ void main() {
     testWidgets('NDVI color scale is shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -128,7 +153,11 @@ void main() {
     testWidgets('NDVI statistics are shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -146,7 +175,11 @@ void main() {
     testWidgets('View historical satellite data', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -165,7 +198,11 @@ void main() {
     testWidgets('Historical data shows timeline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -178,7 +215,11 @@ void main() {
     testWidgets('Select different date from timeline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -192,7 +233,11 @@ void main() {
     testWidgets('NDVI trend chart is displayed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -211,7 +256,11 @@ void main() {
     testWidgets('Export satellite data option exists', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -228,7 +277,11 @@ void main() {
     testWidgets('Export satellite data as image', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -257,7 +310,11 @@ void main() {
     testWidgets('Export satellite data as PDF report', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -286,7 +343,11 @@ void main() {
     testWidgets('Export NDVI data as CSV', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -320,7 +381,11 @@ void main() {
     testWidgets('Cloud coverage indicator shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -334,7 +399,11 @@ void main() {
     testWidgets('Warning shown for high cloud coverage', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -355,7 +424,11 @@ void main() {
     testWidgets('Compare two different dates', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -374,7 +447,11 @@ void main() {
     testWidgets('Side-by-side comparison works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -392,7 +469,11 @@ void main() {
     testWidgets('Refresh satellite imagery', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -411,7 +492,11 @@ void main() {
     testWidgets('Check for new satellite images', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -429,7 +514,11 @@ void main() {
     testWidgets('Cached satellite images available offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -447,7 +536,11 @@ void main() {
     testWidgets('Offline mode shows last update time', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -469,7 +562,11 @@ void main() {
     testWidgets('Zoom in on satellite image', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -488,7 +585,11 @@ void main() {
     testWidgets('Pan across satellite image', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 

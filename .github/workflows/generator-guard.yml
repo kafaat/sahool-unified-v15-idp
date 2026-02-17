@@ -134,7 +134,11 @@ jobs:
                   if 'port' not in config:
                       errors.append(f'Service {name}: missing \"port\" field')
 
+<<<<<<< HEAD
                   # Validate port ranges (allow null for NATS-only workers)
+=======
+                  # Validate port ranges (null allowed for NATS worker services)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
                   if 'port' in config:
                       port = config['port']
                       if port is not None and (not isinstance(port, int) or port < 1 or port > 65535):

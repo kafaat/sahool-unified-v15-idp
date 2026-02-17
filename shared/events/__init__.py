@@ -98,10 +98,21 @@ from .dlq_monitoring import (
     DLQAlert,
     DLQMonitor,
 )
+<<<<<<< HEAD
 from .dlq_service import (
     DLQManager,
     create_dlq_router,
 )
+=======
+try:
+    from .dlq_service import (
+        DLQManager,
+        create_dlq_router,
+    )
+except ImportError:
+    DLQManager = None  # type: ignore[assignment,misc]
+    create_dlq_router = None  # type: ignore[assignment]
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 # Edge device events
 from .edge_events import (

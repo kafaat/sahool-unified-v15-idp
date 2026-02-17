@@ -1,12 +1,52 @@
+<<<<<<< HEAD
+=======
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/offline/offline_data_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+<<<<<<< HEAD
+=======
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   group('OfflineDataManager', () {
     late OfflineDataManager offlineManager;
 
     setUp(() async {
+<<<<<<< HEAD
+=======
+      // Mock the connectivity_plus method channel (checkConnectivity)
+      const connectivityMethodChannel =
+          MethodChannel('dev.fluttercommunity.plus/connectivity');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(connectivityMethodChannel,
+              (MethodCall methodCall) async {
+        if (methodCall.method == 'check') {
+          return ['none'];
+        }
+        return null;
+      });
+
+      // Mock the connectivity_plus event channel (onConnectivityChanged)
+      const connectivityEventChannel =
+          EventChannel('dev.fluttercommunity.plus/connectivity_status');
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockStreamHandler(
+        connectivityEventChannel,
+        MockStreamHandler.inline(
+          onListen: (Object? arguments, MockStreamHandlerEventSink events) {
+            // Don't send any events - simulates idle connectivity stream
+          },
+          onCancel: (Object? arguments) {},
+        ),
+      );
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       // Initialize shared preferences with empty data
       SharedPreferences.setMockInitialValues({});
 
@@ -303,16 +343,39 @@ void main() {
       });
 
       test('should emit syncing status', () async {
+<<<<<<< HEAD
         // Arrange
         final statuses = <OfflineSyncStatus>[];
         final subscription = offlineManager.syncStatus.listen(statuses.add);
 
         // This will fail due to no network, but should still emit status
+=======
+        // Arrange - switch connectivity to online so syncNow enters the sync path
+        const connectivityMethodChannel =
+            MethodChannel('dev.fluttercommunity.plus/connectivity');
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(connectivityMethodChannel,
+                (MethodCall methodCall) async {
+          if (methodCall.method == 'check') {
+            return ['wifi'];
+          }
+          return null;
+        });
+
+        final statuses = <OfflineSyncStatus>[];
+        final subscription = offlineManager.syncStatus.listen(statuses.add);
+
+        // Act - syncNow will enter the syncing code path (online, no pending items)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         await offlineManager.syncNow();
 
         await Future.delayed(const Duration(milliseconds: 100));
 
+<<<<<<< HEAD
         // Assert
+=======
+        // Assert - should emit syncing then idle
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         expect(statuses, isNotEmpty);
 
         // Cleanup
@@ -320,10 +383,79 @@ void main() {
       });
 
       test('should not sync if already syncing', () async {
+<<<<<<< HEAD
         // Arrange - start first sync (won't complete due to no network)
         final firstSync = offlineManager.syncNow();
 
         // Act - try second sync
+=======
+        // Arrange - use a Completer to block the FIRST syncNow() at the
+        // connectivity check. Then start a second syncNow() AFTER the
+        // first one has set _isSyncing = true (i.e., after completing the
+        // connectivity check but before the sync finishes).
+        //
+        // Flow:
+        // 1. First syncNow() starts, blocks on checkConnectivity (completer)
+        // 2. We complete the completer with ['wifi']
+        // 3. First syncNow() continues: passes offline check, _isSyncing = true
+        //    then enters for loop with pending items. Each updateItemStatus
+        //    involves async await, yielding control.
+        // 4. Second syncNow() starts, sees _isSyncing == true, returns early.
+
+        // Save some pending items so the sync loop has work to do
+        // (creating yield points within the sync)
+        await offlineManager.saveLocally(
+          id: 'task_sync_001',
+          entityType: 'task',
+          data: {'title': 'Sync Test 1'},
+        );
+        await offlineManager.saveLocally(
+          id: 'task_sync_002',
+          entityType: 'task',
+          data: {'title': 'Sync Test 2'},
+        );
+
+        // Track connectivity check calls - saveLocally triggers _trySyncNow
+        // which also calls checkConnectivity, so we need to account for that
+        final syncCompleter = Completer<List<String>>();
+        var directSyncCheckCount = 0;
+        const connectivityMethodChannel =
+            MethodChannel('dev.fluttercommunity.plus/connectivity');
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(connectivityMethodChannel,
+                (MethodCall methodCall) async {
+          if (methodCall.method == 'check') {
+            directSyncCheckCount++;
+            if (directSyncCheckCount == 1) {
+              // First direct syncNow check: block until we release it
+              return syncCompleter.future;
+            }
+            // All other calls return offline to prevent interference
+            return ['none'];
+          }
+          return null;
+        });
+
+        directSyncCheckCount = 0;
+
+        // Start first sync - blocks at checkConnectivity
+        final firstSync = offlineManager.syncNow();
+        await Future.value(null); // microtask yield
+
+        // Complete connectivity check with online status
+        syncCompleter.complete(['wifi']);
+
+        // Yield at microtask level to let first sync advance past
+        // the connectivity check and set _isSyncing = true.
+        // Each await Future.value(null) yields one microtask.
+        // We need enough yields for the continuation to proceed past:
+        //   checkConnectivity -> offline check -> _isSyncing = true
+        // but NOT so many that the entire sync completes.
+        await Future.value(null);
+        await Future.value(null);
+
+        // Act - try second sync while first is in progress
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         final secondResult = await offlineManager.syncNow();
 
         // Assert

@@ -357,7 +357,11 @@ class OTPService {
       AppLogger.e('OTP send failed', tag: 'OTP', error: e);
       return _handleApiException<SendOTPResponse>(e);
     } on RateLimitException catch (e) {
+<<<<<<< HEAD
       AppLogger.w('OTP send rate limited', tag: 'OTP', error: e);
+=======
+      AppLogger.w('OTP send rate limited', tag: 'OTP');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       return Failure(
         'تم تجاوز الحد المسموح. حاول مرة أخرى بعد قليل',
         statusCode: 429,

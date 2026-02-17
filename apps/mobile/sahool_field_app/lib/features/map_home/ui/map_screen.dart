@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
+<<<<<<< HEAD
 import 'package:latlong2/latlong.dart';
+=======
+import 'package:latlong2/latlong.dart' hide Path;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
@@ -39,6 +43,7 @@ class _MapScreenState extends State<MapScreen> {
   ];
 
   // بيانات وهمية للحقول (Mock Data)
+<<<<<<< HEAD
   final List<Field> _mockFields = [
     const Field(
       id: '1',
@@ -93,6 +98,81 @@ class _MapScreenState extends State<MapScreen> {
       ndvi: 0.48,
       status: FieldStatus.stressed,
       pendingTasks: 1,
+=======
+  final _now = DateTime.now();
+  late final List<Field> _mockFields = [
+    Field(
+      id: '1',
+      tenantId: 'mock',
+      name: 'القطعة الشمالية',
+      cropType: 'قمح',
+      areaHectares: 2.4,
+      ndviCurrent: 0.78,
+      status: 'active',
+      pendingTasks: 1,
+      createdAt: _now,
+      updatedAt: _now,
+    ),
+    Field(
+      id: '2',
+      tenantId: 'mock',
+      name: 'حقل الذرة',
+      cropType: 'ذرة',
+      areaHectares: 3.1,
+      ndviCurrent: 0.65,
+      status: 'active',
+      pendingTasks: 0,
+      createdAt: _now,
+      updatedAt: _now,
+    ),
+    Field(
+      id: '3',
+      tenantId: 'mock',
+      name: 'البستان الغربي',
+      cropType: 'عنب',
+      areaHectares: 1.8,
+      ndviCurrent: 0.52,
+      status: 'active',
+      pendingTasks: 2,
+      createdAt: _now,
+      updatedAt: _now,
+    ),
+    Field(
+      id: '4',
+      tenantId: 'mock',
+      name: 'حقل الطماطم',
+      cropType: 'طماطم',
+      areaHectares: 0.9,
+      ndviCurrent: 0.35,
+      status: 'active',
+      pendingTasks: 4,
+      createdAt: _now,
+      updatedAt: _now,
+    ),
+    Field(
+      id: '5',
+      tenantId: 'mock',
+      name: 'المنطقة الجنوبية',
+      cropType: 'برسيم',
+      areaHectares: 4.2,
+      ndviCurrent: 0.71,
+      status: 'active',
+      pendingTasks: 0,
+      createdAt: _now,
+      updatedAt: _now,
+    ),
+    Field(
+      id: '6',
+      tenantId: 'mock',
+      name: 'حقل البطاطا',
+      cropType: 'بطاطا',
+      areaHectares: 1.5,
+      ndviCurrent: 0.48,
+      status: 'active',
+      pendingTasks: 1,
+      createdAt: _now,
+      updatedAt: _now,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     ),
   ];
 

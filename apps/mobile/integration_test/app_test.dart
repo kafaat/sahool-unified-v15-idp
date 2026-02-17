@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /// SAHOOL Field App - Main Integration Tests
 /// اختبارات التكامل الرئيسية للتطبيق
 ///
@@ -14,16 +15,40 @@
 /// - Offline Mode
 /// - Performance
 /// - Accessibility
+=======
+// SAHOOL Field App - Main Integration Tests
+// اختبارات التكامل الرئيسية للتطبيق
+//
+// This is the main test runner for SAHOOL mobile app integration tests.
+// Run with: flutter test integration_test/app_test.dart
+//
+// Test Categories:
+// - App Startup & Initialization
+// - Authentication Flow (Login/Logout)
+// - Navigation & UI
+// - Field Management (CRUD)
+// - Map Interactions
+// - Weather Display
+// - Offline Mode
+// - Performance
+// - Accessibility
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+<<<<<<< HEAD
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sahool_field_app/main.dart' as app;
 
 import 'helpers/test_helpers.dart';
 import 'helpers/test_utils.dart';
 import 'helpers/mock_server.dart';
+=======
+import 'package:sahool_field_app/main.dart' as app;
+
+import 'helpers/test_helpers.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'fixtures/test_data.dart';
 
 void main() {
@@ -48,7 +73,11 @@ void main() {
     testWidgets('App launches successfully', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Verify app launched
@@ -59,7 +88,11 @@ void main() {
     testWidgets('App shows proper Arabic RTL layout', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Verify RTL directionality
@@ -73,7 +106,11 @@ void main() {
     testWidgets('App displays Arabic fonts correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Look for Arabic text
@@ -89,7 +126,11 @@ void main() {
     testWidgets('Complete login flow with valid credentials', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Perform login
@@ -108,7 +149,11 @@ void main() {
     testWidgets('Login fails with invalid credentials', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Try to login with invalid credentials
@@ -136,7 +181,11 @@ void main() {
     testWidgets('Bottom navigation works correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -160,7 +209,11 @@ void main() {
     testWidgets('Navigation drawer opens and works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -178,7 +231,11 @@ void main() {
     testWidgets('Back navigation works correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -206,7 +263,11 @@ void main() {
     testWidgets('Create new field flow', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -220,7 +281,11 @@ void main() {
     testWidgets('View field details', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -240,7 +305,11 @@ void main() {
     testWidgets('Edit field information', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -258,7 +327,11 @@ void main() {
     testWidgets('Delete field with confirmation', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -278,7 +351,11 @@ void main() {
     testWidgets('App works in offline mode', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -295,7 +372,11 @@ void main() {
     testWidgets('Data syncs when back online', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -318,7 +399,11 @@ void main() {
     testWidgets('Quick actions menu opens and works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -346,7 +431,11 @@ void main() {
     testWidgets('Search functionality works', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -374,7 +463,11 @@ void main() {
     testWidgets('Complete logout flow', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -395,7 +488,11 @@ void main() {
     testWidgets('App handles errors gracefully', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Test with invalid input
@@ -418,7 +515,11 @@ void main() {
 
       final startTime = DateTime.now();
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       final loadTime = DateTime.now().difference(startTime);
@@ -432,7 +533,11 @@ void main() {
     testWidgets('Navigation is smooth and responsive', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -459,7 +564,11 @@ void main() {
     testWidgets('No memory leaks during navigation', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -481,7 +590,11 @@ void main() {
     testWidgets('Semantic labels are present', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Verify semantic widgets exist
@@ -495,7 +608,11 @@ void main() {
     testWidgets('Buttons have sufficient touch targets', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Material Design recommends 48x48 minimum
@@ -519,7 +636,11 @@ void main() {
     testWidgets('App maintains RTL layout throughout', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -551,7 +672,11 @@ void main() {
     testWidgets('App uses correct theme colors', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Verify primary color (SAHOOL green)
@@ -571,7 +696,11 @@ void main() {
     testWidgets('Form validation shows Arabic error messages', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Try to login with empty fields
@@ -600,7 +729,11 @@ void main() {
     testWidgets('App shows error message on network failure', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // This would require mocking network errors
@@ -617,7 +750,11 @@ void main() {
     testWidgets('App handles deep links correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Deep link handling would be tested with platform integration
@@ -632,7 +769,11 @@ void main() {
     testWidgets('User preferences persist after app restart', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -650,7 +791,11 @@ void main() {
     testWidgets('Biometric authentication option available', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Check for biometric button
@@ -672,7 +817,11 @@ void main() {
     testWidgets('Capture app flow screenshots', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Capture login screen
@@ -713,7 +862,11 @@ void main() {
 
       final startTime = DateTime.now();
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       final initTime = DateTime.now().difference(startTime);
@@ -731,7 +884,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       // Immediately check for splash elements
       await tester.pump(const Duration(milliseconds: 100));
@@ -744,7 +901,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Images and fonts should be loaded
@@ -764,7 +925,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // App should be configured and working
@@ -786,7 +951,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Step 1: Login
@@ -822,7 +991,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -842,7 +1015,11 @@ void main() {
       final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
 
       // Verify Arabic text is present

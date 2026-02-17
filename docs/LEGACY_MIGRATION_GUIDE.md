@@ -1187,7 +1187,11 @@ If data corruption is detected:
 
 - [API Gateway Documentation](./API_GATEWAY.md)
 - [Service Registry](../governance/services.yaml)
+<<<<<<< HEAD
 - [Architecture Overview](./ARCHITECTURE.md)
+=======
+- [Architecture Overview](./ARCHITECTURE_DIAGRAMS.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ### Getting Help
 

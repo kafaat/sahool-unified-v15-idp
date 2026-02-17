@@ -124,7 +124,11 @@ class VoiceCommandService {
   void _processResult(String text) {
     _updateStatus(VoiceStatus.processing);
 
+<<<<<<< HEAD
     final command = _parseCommand(text);
+=======
+    final command = parseCommand(text);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
     final result = VoiceResult(
       text: text,
@@ -140,7 +144,12 @@ class VoiceCommandService {
   }
 
   /// تحليل الأمر من النص
+<<<<<<< HEAD
   VoiceCommand? _parseCommand(String text) {
+=======
+  /// Public for testing - parses Arabic text into a VoiceCommand
+  VoiceCommand? parseCommand(String text) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     final normalized = _normalizeText(text);
 
     // فتح حقل
@@ -265,22 +274,38 @@ class VoiceCommandService {
   }
 
   /// التحقق من تطابق النمط
+<<<<<<< HEAD
   bool _matchesPattern(String text, List<String> actions, List<String> targets) {
     final hasAction = actions.any((a) => text.contains(a));
     final hasTarget = targets.any((t) => text.contains(t));
+=======
+  /// Normalizes both input text and pattern words for consistent matching
+  bool _matchesPattern(String text, List<String> actions, List<String> targets) {
+    final hasAction = actions.any((a) => text.contains(_normalizeText(a)));
+    final hasTarget = targets.any((t) => text.contains(_normalizeText(t)));
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     return hasAction && hasTarget;
   }
 
   /// استخراج معرف الحقل
   String? _extractFieldIdentifier(String text) {
     // Try to extract field number or name
+<<<<<<< HEAD
     final numberPattern = RegExp(r'(?:حقل|الحقل)\s*(?:رقم)?\s*(\d+|الأول|الثاني|الثالث|الرابع|الخامس)');
+=======
+    // Use normalized forms for Arabic ordinals (أ→ا, ة→ه)
+    final numberPattern = RegExp(r'(?:حقل|الحقل)\s*(?:رقم)?\s*(\d+|الاول|الثاني|الثالث|الرابع|الخامس)');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     final match = numberPattern.firstMatch(text);
 
     if (match != null) {
       final value = match.group(1);
       return switch (value) {
+<<<<<<< HEAD
         'الأول' => '1',
+=======
+        'الاول' => '1',
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
         'الثاني' => '2',
         'الثالث' => '3',
         'الرابع' => '4',

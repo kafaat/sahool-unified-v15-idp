@@ -21,12 +21,16 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+<<<<<<< HEAD
 import 'package:flutter/foundation.dart';
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../utils/app_logger.dart';
+<<<<<<< HEAD
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Constants
@@ -388,6 +392,11 @@ class DeepLinkState {
     );
   }
 }
+=======
+// Re-export models for backward compatibility
+export 'deeplink_models.dart';
+import 'deeplink_models.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Deep Link Handler Notifier

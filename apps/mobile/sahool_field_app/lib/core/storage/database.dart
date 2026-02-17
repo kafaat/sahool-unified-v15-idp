@@ -113,7 +113,14 @@ class Fields extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+<<<<<<< HEAD
 /// Sync Log Table
+=======
+/// Sync Log Table with performance indexes
+@TableIndex(name: 'sync_logs_status_idx', columns: {#status})
+@TableIndex(name: 'sync_logs_timestamp_idx', columns: {#timestamp})
+@TableIndex(name: 'sync_logs_type_status_idx', columns: {#type, #status})
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 class SyncLogs extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get type => text()();
@@ -875,7 +882,11 @@ LazyDatabase _openConnection() {
 }
 
 /// Initialize database with encryption and migrations
+<<<<<<< HEAD
 Future<NativeDatabase> _initializeDatabase() async {
+=======
+Future<QueryExecutor> _initializeDatabase() async {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   // Ensure SQLCipher native library is loaded
   await applyWorkaroundToOpenSqlCipherOnOldAndroidVersions();
 
@@ -929,7 +940,11 @@ Future<NativeDatabase> _initializeDatabase() async {
 
 /// Configure database with encryption and optimizations
 void _configureDatabase(
+<<<<<<< HEAD
   CommonDatabase database,
+=======
+  Database database,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   DatabaseEncryption encryption,
   String encryptionKey,
 ) {
@@ -962,7 +977,11 @@ void _configureDatabase(
 }
 
 /// Verify database integrity
+<<<<<<< HEAD
 void _verifyDatabaseIntegrity(CommonDatabase database) {
+=======
+void _verifyDatabaseIntegrity(Database database) {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   try {
     final result = database.select('PRAGMA integrity_check;');
     if (result.isNotEmpty && result.first['integrity_check'] != 'ok') {

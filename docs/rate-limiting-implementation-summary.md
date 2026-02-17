@@ -310,7 +310,11 @@ curl -v http://localhost:8120/api/v1/analyze \
 
 - Main Documentation: [rate-limiting-configuration.md](/docs/rate-limiting-configuration.md)
 - Middleware Code: [/apps/services/shared/middleware/rate_limiter.py](/apps/services/shared/middleware/rate_limiter.py)
+<<<<<<< HEAD
 - Security Guide: [security-best-practices.md](/docs/security-best-practices.md)
+=======
+- Security Guide: [SECURITY.md](/docs/SECURITY.md)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 ## Conclusion
 

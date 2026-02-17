@@ -3,12 +3,23 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+<<<<<<< HEAD
+=======
+  app_links
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   connectivity_plus
   file_selector_windows
   flutter_secure_storage_windows
   geolocator_windows
   local_auth_windows
+<<<<<<< HEAD
   secure_application
+=======
+  permission_handler_windows
+  record_windows
+  secure_application
+  share_plus
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   sqlcipher_flutter_libs
   url_launcher_windows
 )

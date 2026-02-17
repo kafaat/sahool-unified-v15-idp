@@ -183,7 +183,11 @@ class SettingsNotifier extends StateNotifier<SettingsState> {
 /// Settings Provider
 final settingsProvider =
     StateNotifierProvider<SettingsNotifier, SettingsState>((ref) {
+<<<<<<< HEAD
   final service = ref.watch(notificationServiceProvider);
+=======
+  final service = ref.watch(inAppNotificationServiceProvider);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   return SettingsNotifier(service);
 });
 

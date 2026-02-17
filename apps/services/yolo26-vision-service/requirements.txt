@@ -32,7 +32,11 @@ asyncpg>=0.31.0,<1.0.0
 psycopg2-binary>=2.9.9,<3.0.0
 
 # Message Queue (Optional - for event publishing)
+<<<<<<< HEAD
 nats-py>=2.9.0,<3.0.0
+=======
+nats-py==2.13.1
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 # Caching (Optional)
 redis>=7.1.0,<8.0.0

@@ -520,8 +520,13 @@ redis-cli DEL "ratelimit:user:123:minute"
 
 للمساعدة أو الإبلاغ عن مشاكل:
 
+<<<<<<< HEAD
 1. راجع [RATE_LIMITING_GUIDE.md](shared/middleware/RATE_LIMITING_GUIDE.md)
 2. شاهد الأمثلة في [rate_limit_examples.py](shared/middleware/rate_limit_examples.py)
+=======
+1. راجع [RATE_LIMITING_GUIDE.md](../../shared/middleware/RATE_LIMITING_GUIDE.md)
+2. شاهد الأمثلة في [rate_limit_examples.py](../../shared/middleware/rate_limit_examples.py)
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 3. شغّل الاختبارات: `pytest shared/middleware/test_rate_limit.py -v`
 4. تواصل مع فريق التطوير
 

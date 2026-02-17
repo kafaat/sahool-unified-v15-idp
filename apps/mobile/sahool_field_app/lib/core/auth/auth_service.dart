@@ -1,4 +1,8 @@
 import 'dart:async';
+<<<<<<< HEAD
+=======
+import 'dart:math' show pow;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +10,10 @@ import '../http/api_client.dart';
 import '../config/env_config.dart';
 import '../di/providers.dart';
 import '../utils/app_logger.dart';
+<<<<<<< HEAD
+=======
+import '../security/security_audit_service.dart';
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'secure_storage_service.dart';
 import 'biometric_service.dart';
 import 'user_context.dart';
@@ -35,6 +43,10 @@ final authServiceProvider = Provider<AuthService>((ref) {
       biometricService: ref.read(biometricServiceProvider),
       userContext: ref.read(userContextProvider),
       apiClient: apiClient,
+<<<<<<< HEAD
+=======
+      auditService: ref.read(securityAuditServiceProvider),
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
     );
   } catch (e) {
     // If apiClientProvider is not available, create AuthService without it
@@ -427,13 +439,21 @@ class AuthService {
   final BiometricService biometricService;
   final UserContext userContext;
   final ApiClient? apiClient;
+<<<<<<< HEAD
+=======
+  final SecurityAuditService? auditService;
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
   Timer? _refreshTimer;
   bool _isRefreshing = false;
   Completer<void>? _refreshCompleter;
 
   static const _tokenRefreshBuffer = Duration(minutes: 5);
+<<<<<<< HEAD
   static const _tokenRefreshRetryDelay = Duration(seconds: 5);
+=======
+  static const _tokenRefreshBaseDelay = Duration(seconds: 2);
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   static const _maxRefreshRetries = 3;
 
   // Session tracking
@@ -445,6 +465,10 @@ class AuthService {
     required this.biometricService,
     required this.userContext,
     this.apiClient,
+<<<<<<< HEAD
+=======
+    this.auditService,
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -728,11 +752,17 @@ class AuthService {
       throw AuthException('فشل التحقق من البصمة', code: 'BIOMETRIC_FAILED');
     }
 
+<<<<<<< HEAD
     // Get stored credentials
     final storedRefreshToken = await secureStorage.getRefreshToken();
     if (storedRefreshToken == null) {
       throw AuthException('لا توجد جلسة محفوظة');
     }
+=======
+    try {
+      // Refresh token to get a new access token
+      await refreshToken();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
       // Sync user context with full information
       final user = await getCurrentUser();
@@ -772,7 +802,11 @@ class AuthService {
         AppLogger.i('Logout API call successful - tokens revoked', tag: 'AUTH');
       } catch (e) {
         // Log but don't fail - local logout should always succeed
+<<<<<<< HEAD
         AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', error: e);
+=======
+        AppLogger.w('Logout API call failed (continuing with local logout): $e', tag: 'AUTH');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       }
     }
 
@@ -844,7 +878,11 @@ class AuthService {
         });
         AppLogger.i('All sessions revoked via API', tag: 'AUTH');
       } catch (e) {
+<<<<<<< HEAD
         AppLogger.w('Failed to revoke all sessions via API', tag: 'AUTH', error: e);
+=======
+        AppLogger.w('Failed to revoke all sessions via API: $e', tag: 'AUTH');
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       }
     }
 
@@ -932,9 +970,25 @@ class AuthService {
       // Reset retry count on success
       _refreshRetryCount = 0;
       _refreshCompleter!.complete();
+<<<<<<< HEAD
     } catch (e) {
       AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
 
+=======
+
+      // Log successful refresh to security audit
+      await auditService?.logTokenRefresh(success: true);
+    } catch (e) {
+      AppLogger.e('Token refresh failed', tag: 'AUTH', error: e);
+
+      // Log failed refresh to security audit
+      await auditService?.logTokenRefresh(
+        success: false,
+        errorCode: e is AuthException ? e.code : 'UNKNOWN',
+        retryAttempt: _refreshRetryCount,
+      );
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock refresh', tag: 'AUTH');
@@ -951,6 +1005,7 @@ class AuthService {
         }
       }
 
+<<<<<<< HEAD
       // Handle retry logic for network errors
       if (e is AuthException && e.code == 'NETWORK_ERROR') {
         _refreshRetryCount++;
@@ -961,6 +1016,27 @@ class AuthService {
 
           // Schedule retry
           Timer(_tokenRefreshRetryDelay, () {
+=======
+      // Handle retry logic for network errors with exponential backoff
+      if (e is AuthException && e.code == 'NETWORK_ERROR') {
+        _refreshRetryCount++;
+        if (_refreshRetryCount < _maxRefreshRetries) {
+          // Exponential backoff: 2s, 4s, 8s
+          final backoffDelay = Duration(
+            milliseconds: _tokenRefreshBaseDelay.inMilliseconds *
+                pow(2, _refreshRetryCount - 1).toInt(),
+          );
+          AppLogger.w(
+            'Token refresh network error, will retry in ${backoffDelay.inSeconds}s '
+            '(attempt $_refreshRetryCount/$_maxRefreshRetries)',
+            tag: 'AUTH',
+          );
+          _refreshCompleter!.completeError(e);
+          _isRefreshing = false;
+
+          // Schedule retry with exponential backoff
+          Timer(backoffDelay, () {
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
             refreshToken().catchError((_) {});
           });
           rethrow;
@@ -1107,6 +1183,14 @@ class AuthService {
     return secureStorage.getAccessToken();
   }
 
+<<<<<<< HEAD
+=======
+  /// Get current tenant ID
+  Future<String?> getTenantId() async {
+    return secureStorage.getTenantId();
+  }
+
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
   /// Store tokens securely
   Future<void> _storeTokens(TokenPair tokens) async {
     await secureStorage.setAccessToken(tokens.accessToken);

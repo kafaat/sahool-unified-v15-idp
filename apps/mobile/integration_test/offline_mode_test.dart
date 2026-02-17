@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /// SAHOOL Integration Test - Offline Mode Tests
 /// اختبارات الوضع غير المتصل
 ///
@@ -8,6 +9,18 @@
 /// - Sync when back online
 /// - Conflict resolution
 /// - Queue management
+=======
+// SAHOOL Integration Test - Offline Mode Tests
+// اختبارات الوضع غير المتصل
+//
+// Tests for:
+// - Offline mode detection and indication
+// - Data persistence when offline
+// - CRUD operations in offline mode
+// - Sync when back online
+// - Conflict resolution
+// - Queue management
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +28,10 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sahool_field_app/main.dart' as app;
 
 import 'helpers/test_helpers.dart';
+<<<<<<< HEAD
 import 'helpers/test_utils.dart';
+=======
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
 import 'fixtures/test_data.dart';
 
 void main() {
@@ -41,7 +57,11 @@ void main() {
     testWidgets('App detects offline mode correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -70,7 +90,11 @@ void main() {
     testWidgets('Offline banner shows correct message', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -90,7 +114,11 @@ void main() {
     testWidgets('App gracefully transitions to offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -117,7 +145,11 @@ void main() {
     testWidgets('Cached data available when offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -148,7 +180,11 @@ void main() {
     testWidgets('Local database stores data correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -193,7 +229,11 @@ void main() {
     testWidgets('Create field while offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -235,7 +275,11 @@ void main() {
     testWidgets('Edit field while offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -280,7 +324,11 @@ void main() {
     testWidgets('Delete field while offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -325,7 +373,11 @@ void main() {
     testWidgets('Changes queued for sync when offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -368,7 +420,11 @@ void main() {
     testWidgets('Pending sync count shown correctly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -415,7 +471,11 @@ void main() {
     testWidgets('Data syncs automatically when back online', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -461,7 +521,11 @@ void main() {
     testWidgets('Sync progress indicator shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -510,7 +574,11 @@ void main() {
     testWidgets('Sync success notification shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -559,7 +627,11 @@ void main() {
     testWidgets('Conflict detected when server data changed', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -575,7 +647,11 @@ void main() {
     testWidgets('Conflict resolution dialog shown', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -595,7 +671,11 @@ void main() {
     testWidgets('Failed sync shows retry option', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -608,7 +688,11 @@ void main() {
     testWidgets('Sync errors shown clearly', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -626,7 +710,11 @@ void main() {
     testWidgets('Core features available offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -654,7 +742,11 @@ void main() {
     testWidgets('Online-only features disabled when offline', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -690,7 +782,11 @@ void main() {
     testWidgets('Data integrity maintained after offline session', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -738,7 +834,11 @@ void main() {
     testWidgets('No data loss during interrupted sync', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -788,7 +888,11 @@ void main() {
     testWidgets('Offline mode has acceptable performance', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 
@@ -816,7 +920,11 @@ void main() {
     testWidgets('Sync completes within reasonable time', (tester) async {
       helpers = TestHelpers(tester, binding);
 
+<<<<<<< HEAD
       await app.main();
+=======
+      app.main();
+>>>>>>> 32fd5d55beabbbf36de4006c89fcda63cab80473
       await helpers.pumpAndSettle();
       await helpers.login();
 

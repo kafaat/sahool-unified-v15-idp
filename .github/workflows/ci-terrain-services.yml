@@ -56,11 +56,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Use git-diff mode instead of GitHub API to avoid "Bad credentials"
+      # errors with github.token. This works because fetch-depth: 0 above
+      # fetches full history needed for accurate diff detection.
       - name: Detect file changes
         uses: dorny/paths-filter@v3
         id: filter
         with:
-          token: ${{ github.token }}
           filters: |
             terrain-core:
               - 'apps/services/terrain-core-service/**'

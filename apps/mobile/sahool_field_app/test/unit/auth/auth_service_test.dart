@@ -155,7 +155,7 @@ void main() {
         expect(result, isNotNull);
         expect(result!.isAfter(DateTime.now()), isTrue);
       });
-    })
+    });
 
     group('validateSession', () {
       test('should return false when no access token exists', () async {

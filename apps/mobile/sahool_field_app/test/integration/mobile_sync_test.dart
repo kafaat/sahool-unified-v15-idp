@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/sync/sync_engine.dart';
 import 'package:sahool_field_app/core/storage/database.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
+import 'package:sahool_field_app/core/http/network_config.dart';
+import 'package:sahool_field_app/core/http/rate_limiter.dart';
 
 /// Mobile Sync Integration Tests
 /// اختبارات تكامل المزامنة المحمولة

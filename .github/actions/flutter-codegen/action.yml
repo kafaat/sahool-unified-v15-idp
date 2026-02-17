@@ -54,8 +54,8 @@ runs:
         rm -rf .dart_tool/build
 
         # Remove existing generated files to force regeneration
-        find lib -name "*.g.dart" -delete 2>/dev/null || true
-        find lib -name "*.freezed.dart" -delete 2>/dev/null || true
+        find lib test -name "*.g.dart" -delete 2>/dev/null || true
+        find lib test -name "*.freezed.dart" -delete 2>/dev/null || true
 
         flutter pub get
         echo "✅ Clean completed"
@@ -82,7 +82,7 @@ runs:
         echo "✅ Code generation completed"
         echo ""
         echo "=== Generated files ==="
-        find lib -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
+        find lib test -name "*.g.dart" -o -name "*.freezed.dart" 2>/dev/null | head -20 || echo "No generated files found"
 
     - name: Verify critical files exist
       shell: bash

@@ -236,7 +236,7 @@ class PiiFilter {
       final username = parts[0];
       final domain = parts[1];
 
-      if (username.length <= 2) {
+      if (username.length < 2) {
         return '${username[0]}*@$domain';
       }
 

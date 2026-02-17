@@ -40,6 +40,8 @@ targets:
           # Feature data files
           - "lib/features/**/data/*.dart"
           - "lib/features/**/data/**/*.dart"
+          # Test database files (needed for in-memory DB tests)
+          - "test/core/database/*.dart"
         options:
           store_date_time_values_as_text: true
 
@@ -48,12 +50,13 @@ targets:
         generate_for:
           - "lib/**/*.dart"
 
-      # Exclude test files from code generation
+      # Exclude test files from code generation (except database tests)
       source_gen|combining_builder:
         generate_for:
+          include:
+            - "lib/**"
+            - "test/core/database/**"
           exclude:
-            - "test/**"
-            - "integration_test/**"
             - "**/*.mocks.dart"
             - "**/*.g.dart"
             - "**/*.freezed.dart"

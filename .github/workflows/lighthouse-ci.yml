@@ -50,6 +50,9 @@ jobs:
       - name: Build workspace packages
         run: npm run build:packages
 
+      - name: Setup web environment
+        run: cp apps/web/.env.example apps/web/.env.local
+
       - name: Build application
         run: npm run build --workspace=apps/web
         env:
@@ -87,7 +90,7 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.27.1'
           channel: 'stable'
           cache: true
 

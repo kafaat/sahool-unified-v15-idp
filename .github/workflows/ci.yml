@@ -98,7 +98,6 @@ jobs:
         uses: dorny/paths-filter@v3
         id: filter
         with:
-          token: ${{ github.token }}
           filters: |
             python:
               - 'apps/services/**/*.py'

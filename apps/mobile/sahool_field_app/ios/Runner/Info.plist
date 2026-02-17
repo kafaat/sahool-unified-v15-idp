@@ -79,9 +79,17 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 		<!-- Certificate Pinning for Production Domains -->
+		<!-- NOTE: NSPinnedDomains disabled until real SPKI hashes are generated. -->
+		<!-- Placeholder values (AAAA...) would block ALL connections to pinned domains. -->
+		<!-- Certificate pinning is enforced via Dart-side CertificatePinningService instead. -->
+		<!-- To enable iOS-level pinning: -->
+		<!-- 1. Run: ./scripts/generate_cert_pins.sh api.sahool.app -->
+		<!-- 2. Copy SPKI-SHA256-BASE64 values from output -->
+		<!-- 3. Uncomment NSPinnedDomains below and replace placeholder values -->
+		<!-- 4. Test on device before deploying to production -->
+		<!--
 		<key>NSPinnedDomains</key>
 		<dict>
-			<!-- Production API -->
 			<key>api.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -89,19 +97,15 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- TODO: CRITICAL - Replace with actual production certificate SPKI hash -->
-						<!-- Generate using: openssl s_client -connect api.sahool.app:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64 -->
 						<key>SPKI-SHA256-BASE64</key>
-						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
+						<string>REPLACE_WITH_REAL_SPKI_HASH_PRIMARY</string>
 					</dict>
 					<dict>
-						<!-- TODO: CRITICAL - Add backup certificate SPKI hash for rotation -->
 						<key>SPKI-SHA256-BASE64</key>
-						<string>BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</string>
+						<string>REPLACE_WITH_REAL_SPKI_HASH_BACKUP</string>
 					</dict>
 				</array>
 			</dict>
-			<!-- Production WebSocket -->
 			<key>ws.sahool.app</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -109,27 +113,13 @@
 				<key>NSPinnedLeafIdentities</key>
 				<array>
 					<dict>
-						<!-- TODO: CRITICAL - Replace with actual WebSocket certificate SPKI hash -->
 						<key>SPKI-SHA256-BASE64</key>
-						<string>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</string>
-					</dict>
-				</array>
-			</dict>
-			<!-- Staging API (for development/testing) -->
-			<key>api-staging.sahool.app</key>
-			<dict>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-				<key>NSPinnedLeafIdentities</key>
-				<array>
-					<dict>
-						<!-- TODO: CRITICAL - Replace with staging certificate SPKI hash -->
-						<key>SPKI-SHA256-BASE64</key>
-						<string>CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC=</string>
+						<string>REPLACE_WITH_REAL_SPKI_HASH</string>
 					</dict>
 				</array>
 			</dict>
 		</dict>
+		-->
 	</dict>
 </dict>
 </plist>

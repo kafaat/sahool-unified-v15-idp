@@ -19,8 +19,10 @@ RUN apk add --no-cache python3 make g++
 COPY apps/services/code-review-agent/package*.json ./
 COPY apps/services/code-review-agent/tsconfig.json ./
 
-# Install dependencies
-RUN npm ci --ignore-scripts
+# Install dependencies with mirror fallback
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm ci --ignore-scripts || \
+    (npm config set registry https://registry.npmjs.org && npm ci --ignore-scripts)
 
 # Copy source code
 COPY apps/services/code-review-agent/src/ ./src/

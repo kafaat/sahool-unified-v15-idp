@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "next-intl": "^3.26.3"
+    "next-intl": "^3.26.5"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

@@ -67,6 +67,20 @@ const eslintConfig = [
       // Next.js rules (defined so eslint-disable comments work)
       "@next/next/no-page-custom-font": "off",
       "@next/next/no-img-element": "off",
+
+      // Enforce unified API contracts - import from @sahool/shared-types/contracts
+      "no-restricted-imports": [
+        "warn",
+        {
+          patterns: [
+            {
+              group: ["**/service-ports*", "**/error-codes*"],
+              message:
+                "Import service ports and error codes from @sahool/shared-types/contracts instead of local definitions.",
+            },
+          ],
+        },
+      ],
     },
   },
   {

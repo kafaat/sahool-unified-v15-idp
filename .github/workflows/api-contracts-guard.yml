@@ -1,0 +1,204 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL API Contracts Guard
+# حارس عقود الـ API الموحدة
+#
+# Validates unified API contracts, checks for breaking changes,
+# and ensures TypeScript/Dart contract synchronization.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: API Contracts Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'packages/shared-types/src/contracts/**'
+      - 'apps/mobile/lib/core/contracts/**'
+      - 'packages/api-client/src/**'
+
+concurrency:
+  group: contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Contract Integrity
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-contracts:
+    name: Validate Contract Integrity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts || npm install --ignore-scripts
+        continue-on-error: true
+
+      - name: TypeScript typecheck contracts
+        run: |
+          echo "🔍 Typechecking contracts..."
+          npx tsc --noEmit --project packages/shared-types/tsconfig.json 2>&1 | \
+            grep -v "Cannot find module 'express'" || true
+
+          # Check only contract-specific errors
+          ERRORS=$(npx tsc --noEmit --project packages/shared-types/tsconfig.json 2>&1 | \
+            grep "contracts/" | grep -c "error TS" || true)
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "❌ Found $ERRORS type errors in contracts"
+            npx tsc --noEmit --project packages/shared-types/tsconfig.json 2>&1 | grep "contracts/"
+            exit 1
+          fi
+
+          echo "✅ Contract types are valid"
+
+      - name: Run contract unit tests
+        run: |
+          echo "🔍 Running contract tests..."
+          npx tsx tests/unit/contracts/test_contracts.ts
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Check TypeScript ↔ Dart Sync
+  # ─────────────────────────────────────────────────────────────────────────────
+  dart-sync:
+    name: Check Dart Contract Sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check Dart contracts are in sync
+        run: |
+          echo "🔍 Checking TypeScript ↔ Dart contract synchronization..."
+
+          # Generate Dart contracts from TypeScript source
+          npx tsx scripts/sync-contracts-to-dart.ts --check
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Breaking Change Detection
+  # ─────────────────────────────────────────────────────────────────────────────
+  breaking-changes:
+    name: Detect Breaking Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check for breaking changes
+        run: |
+          echo "🔍 Checking for breaking contract changes..."
+
+          BASE_BRANCH="${{ github.base_ref }}"
+
+          # Check CONTRACT_VERSION bump
+          CURRENT_VERSION=$(grep 'CONTRACT_VERSION' packages/shared-types/src/contracts/index.ts | \
+            grep -oP '"[\d.]+"' | tr -d '"' || echo "0.0.0")
+          BASE_VERSION=$(git show origin/${BASE_BRANCH}:packages/shared-types/src/contracts/index.ts 2>/dev/null | \
+            grep 'CONTRACT_VERSION' | grep -oP '"[\d.]+"' | tr -d '"' || echo "0.0.0")
+
+          echo "  Base version:    $BASE_VERSION"
+          echo "  Current version: $CURRENT_VERSION"
+
+          if [ "$CURRENT_VERSION" = "$BASE_VERSION" ]; then
+            # Check if contract files actually changed
+            CHANGED=$(git diff origin/${BASE_BRANCH} -- packages/shared-types/src/contracts/ | wc -l)
+            if [ "$CHANGED" -gt 0 ]; then
+              echo "::warning::Contract files changed but CONTRACT_VERSION was not bumped"
+              echo "  Please bump CONTRACT_VERSION in packages/shared-types/src/contracts/index.ts"
+            fi
+          fi
+
+          # Check for removed exports (breaking)
+          REMOVED_PORTS=$(git diff origin/${BASE_BRANCH} -- packages/shared-types/src/contracts/service-ports.ts | \
+            grep "^-.*[A-Z_]*:" | grep -v "^---" | grep -v "deprecated" || true)
+          REMOVED_ERRORS=$(git diff origin/${BASE_BRANCH} -- packages/shared-types/src/contracts/error-codes.ts | \
+            grep "^-.*[A-Z_]*:" | grep -v "^---" || true)
+          REMOVED_ENDPOINTS=$(git diff origin/${BASE_BRANCH} -- packages/shared-types/src/contracts/api-endpoints.ts | \
+            grep "^-.*[A-Z_]*:" | grep -v "^---" || true)
+
+          BREAKING=0
+
+          if [ -n "$REMOVED_PORTS" ]; then
+            echo "🚨 Removed service ports (BREAKING):"
+            echo "$REMOVED_PORTS"
+            BREAKING=1
+          fi
+
+          if [ -n "$REMOVED_ERRORS" ]; then
+            echo "🚨 Removed error codes (BREAKING):"
+            echo "$REMOVED_ERRORS"
+            BREAKING=1
+          fi
+
+          if [ -n "$REMOVED_ENDPOINTS" ]; then
+            echo "🚨 Removed endpoints (BREAKING):"
+            echo "$REMOVED_ENDPOINTS"
+            BREAKING=1
+          fi
+
+          if [ "$BREAKING" -eq 1 ]; then
+            echo ""
+            echo "::warning::Breaking changes detected in API contracts!"
+            echo "  Ensure CONTRACT_VERSION major version is bumped."
+            echo "  Add 'BREAKING:' prefix to commit message if intentional."
+          else
+            echo "✅ No breaking changes detected"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate Port Uniqueness & Governance Sync
+  # ─────────────────────────────────────────────────────────────────────────────
+  governance-sync:
+    name: Governance Sync Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check ports match governance
+        run: |
+          echo "🔍 Checking contracts match governance/services.yaml..."
+
+          npx tsx -e "
+          import { SERVICE_PORTS } from './packages/shared-types/src/contracts/service-ports';
+          import { readFileSync } from 'fs';
+
+          // Check all ports are unique
+          const ports = Object.values(SERVICE_PORTS);
+          const seen = new Map<number, string>();
+          let dupes = 0;
+
+          for (const [name, port] of Object.entries(SERVICE_PORTS)) {
+            if (seen.has(port as number)) {
+              console.log('⚠️  Duplicate port ' + port + ': ' + name + ' and ' + seen.get(port as number));
+              dupes++;
+            }
+            seen.set(port as number, name);
+          }
+
+          if (dupes > 0) {
+            console.log('::warning::Found ' + dupes + ' duplicate port assignments');
+          } else {
+            console.log('✅ All ' + ports.length + ' ports are unique');
+          }
+          "

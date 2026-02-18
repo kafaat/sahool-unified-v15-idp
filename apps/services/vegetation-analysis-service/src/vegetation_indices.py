@@ -65,6 +65,24 @@ class VegetationIndex(Enum):
     CCCI = "ccci"  # Canopy Chlorophyll Content Index
     MSI = "msi"  # Moisture Stress Index
 
+    # Phase 2 - Chlorophyll & Red Edge Enhancement
+    # المرحلة الثانية - تعزيز الكلوروفيل والحافة الحمراء
+    CI_GREEN = "ci_green"  # Chlorophyll Index Green (Gitelson 2003)
+    CI_REDEDGE = "ci_rededge"  # Chlorophyll Index Red Edge (Gitelson 2003)
+    IRECI = "ireci"  # Inverted Red Edge Chlorophyll Index (Frampton 2013)
+    MTCI = "mtci"  # MERIS Terrestrial Chlorophyll Index (Dash & Curran 2004)
+    RENDVI = "rendvi"  # Red Edge NDVI
+    WDRVI = "wdrvi"  # Wide Dynamic Range VI (Gitelson 2004)
+
+    # Phase 3 - Water, Drought & Land Cover
+    # المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
+    MNDWI = "mndwi"  # Modified NDWI (Xu 2006)
+    NBR2 = "nbr2"  # Normalized Burn Ratio 2
+    NDBI = "ndbi"  # Normalized Difference Built-up Index (Zha 2003)
+    DVI = "dvi"  # Difference Vegetation Index (Richardson 1977)
+    GDVI = "gdvi"  # Green Difference Vegetation Index
+    TSAVI = "tsavi"  # Transformed SAVI (Baret & Guyot 1991)
+
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
@@ -200,6 +218,24 @@ class AllIndices:
     ccci: float | None = None  # Canopy Chlorophyll Content Index
     msi: float | None = None  # Moisture Stress Index
 
+    # Phase 2 - Chlorophyll & Red Edge Enhancement
+    # المرحلة الثانية - تعزيز الكلوروفيل والحافة الحمراء
+    ci_green: float | None = None  # Chlorophyll Index Green
+    ci_rededge: float | None = None  # Chlorophyll Index Red Edge
+    ireci: float | None = None  # Inverted Red Edge Chlorophyll Index
+    mtci: float | None = None  # MERIS Terrestrial Chlorophyll Index
+    rendvi: float | None = None  # Red Edge NDVI
+    wdrvi: float | None = None  # Wide Dynamic Range VI
+
+    # Phase 3 - Water, Drought & Land Cover
+    # المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
+    mndwi: float | None = None  # Modified NDWI
+    nbr2: float | None = None  # Normalized Burn Ratio 2
+    ndbi: float | None = None  # Normalized Difference Built-up Index
+    dvi: float | None = None  # Difference Vegetation Index
+    gdvi: float | None = None  # Green Difference Vegetation Index
+    tsavi: float | None = None  # Transformed SAVI
+
     def to_dict(self) -> dict[str, float]:
         """Convert to dictionary, excluding None values"""
         return {k: v for k, v in asdict(self).items() if v is not None}
@@ -274,6 +310,22 @@ class VegetationIndicesCalculator:
             sr=self.sr(bands),
             ccci=self.ccci(bands, ndvi),
             msi=self.msi(bands),
+            # Phase 2 - Chlorophyll & Red Edge Enhancement
+            # المرحلة الثانية - تعزيز الكلوروفيل والحافة الحمراء
+            ci_green=self.ci_green(bands),
+            ci_rededge=self.ci_rededge(bands),
+            ireci=self.ireci(bands),
+            mtci=self.mtci(bands),
+            rendvi=self.rendvi(bands),
+            wdrvi=self.wdrvi(bands),
+            # Phase 3 - Water, Drought & Land Cover
+            # المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
+            mndwi=self.mndwi(bands),
+            nbr2=self.nbr2(bands),
+            ndbi=self.ndbi(bands),
+            dvi=self.dvi(bands),
+            gdvi=self.gdvi(bands),
+            tsavi=self.tsavi(bands),
         )
 
     # =========================================================================
@@ -830,6 +882,262 @@ class VegetationIndicesCalculator:
         msi_val = b.B11_swir1 / b.B08_nir
         return round(min(msi_val, 5), 4)
 
+    # =========================================================================
+    # المرحلة الثانية - تعزيز الكلوروفيل والحافة الحمراء
+    # Phase 2 - Chlorophyll & Red Edge Enhancement
+    # =========================================================================
+
+    def ci_green(self, b: BandData) -> float:
+        """
+        CI_GREEN - Chlorophyll Index Green
+        مؤشر الكلوروفيل الأخضر
+
+        Range: 0 to 15+ (typical vegetation: 1 to 8)
+        Best for: Chlorophyll content, LAI estimation, nitrogen monitoring
+        Formula: (NIR / GREEN) - 1
+
+        Reference: Gitelson et al. (2003)
+        IDB ID: 128 | ENVI: Chlorophyll Index Green
+
+        Advantage: Linear relationship with chlorophyll content,
+        more sensitive than NDVI for high chlorophyll levels
+        """
+        if b.B03_green == 0:
+            return 0.0
+        ci_val = (b.B08_nir / b.B03_green) - 1
+        return round(max(0, min(ci_val, 20)), 4)
+
+    def ci_rededge(self, b: BandData) -> float:
+        """
+        CI_REDEDGE - Chlorophyll Index Red Edge
+        مؤشر الكلوروفيل للحافة الحمراء
+
+        Range: 0 to 10+ (typical vegetation: 1 to 6)
+        Best for: Chlorophyll in dense canopies, nitrogen status
+        Formula: (NIR / RE1) - 1
+
+        Reference: Gitelson et al. (2003)
+        IDB ID: 131 | ENVI: Chlorophyll Index Red Edge
+
+        Advantage: Less saturated than CI_GREEN at high LAI,
+        better for dense crop canopies
+        """
+        if b.B05_red_edge1 == 0:
+            return 0.0
+        ci_val = (b.B08_nir / b.B05_red_edge1) - 1
+        return round(max(0, min(ci_val, 15)), 4)
+
+    def ireci(self, b: BandData) -> float:
+        """
+        IRECI - Inverted Red Edge Chlorophyll Index
+        مؤشر الكلوروفيل المعكوس للحافة الحمراء
+
+        Range: 0 to 10+ (typical: 0.5 to 5)
+        Best for: Chlorophyll content estimation from Sentinel-2
+        Formula: (RE3 - RED) / (RE1 / RE2)
+
+        Reference: Frampton et al. (2013) - designed for Sentinel-2
+        IDB ID: 199 | Sentinel-2 specific index
+
+        Advantage: Exploits all three red edge bands of Sentinel-2,
+        optimized for this sensor
+        """
+        if b.B05_red_edge1 == 0 or b.B06_red_edge2 == 0:
+            return 0.0
+        ratio = b.B05_red_edge1 / b.B06_red_edge2
+        if ratio == 0:
+            return 0.0
+        ireci_val = (b.B07_red_edge3 - b.B04_red) / ratio
+        return round(max(0, min(ireci_val, 15)), 4)
+
+    def mtci(self, b: BandData) -> float:
+        """
+        MTCI - MERIS Terrestrial Chlorophyll Index
+        مؤشر الكلوروفيل الأرضي
+
+        Range: 0 to 10+ (typical: 1 to 6)
+        Best for: Chlorophyll content, crop nitrogen status
+        Formula: (RE2 - RE1) / (RE1 - RED)
+
+        Reference: Dash & Curran (2004)
+        IDB ID: 137 | ENVI: MERIS Terrestrial Chlorophyll Index
+
+        Advantage: Strong correlation with chlorophyll a+b,
+        widely validated across crop types
+        """
+        denominator = b.B05_red_edge1 - b.B04_red
+        if denominator == 0:
+            return 0.0
+        mtci_val = (b.B06_red_edge2 - b.B05_red_edge1) / denominator
+        return round(max(0, min(mtci_val, 15)), 4)
+
+    def rendvi(self, b: BandData) -> float:
+        """
+        RENDVI - Red Edge Normalized Difference Vegetation Index
+        مؤشر الغطاء النباتي الفرقي للحافة الحمراء
+
+        Range: -1 to 1 (typical: 0.1 to 0.5)
+        Best for: Chlorophyll content in dense canopies
+        Formula: (RE2 - RE1) / (RE2 + RE1)
+
+        Reference: Gitelson & Merzlyak (1994)
+        IDB ID: 170
+
+        Advantage: Uses red edge bands which are less saturated
+        than red band at high LAI values
+        """
+        denominator = b.B06_red_edge2 + b.B05_red_edge1
+        if denominator == 0:
+            return 0.0
+        return round((b.B06_red_edge2 - b.B05_red_edge1) / denominator, 4)
+
+    def wdrvi(self, b: BandData, alpha: float = 0.2) -> float:
+        """
+        WDRVI - Wide Dynamic Range Vegetation Index
+        مؤشر النبات ذو المدى الديناميكي الواسع
+
+        Range: -1 to 1 (typical: -0.5 to 0.8)
+        Best for: Moderate to high biomass, overcomes NDVI saturation
+        Formula: (α * NIR - RED) / (α * NIR + RED)
+        Default α = 0.2
+
+        Reference: Gitelson (2004)
+        IDB ID: 155 | ENVI: Wide Dynamic Range VI
+
+        Advantage: Better sensitivity than NDVI in high biomass,
+        linear relationship with fraction of vegetation cover
+        """
+        weighted_nir = alpha * b.B08_nir
+        denominator = weighted_nir + b.B04_red
+        if denominator == 0:
+            return 0.0
+        return round((weighted_nir - b.B04_red) / denominator, 4)
+
+    # =========================================================================
+    # المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
+    # Phase 3 - Water, Drought & Land Cover
+    # =========================================================================
+
+    def mndwi(self, b: BandData) -> float:
+        """
+        MNDWI - Modified Normalized Difference Water Index
+        مؤشر المياه الفرقي المعدل
+
+        Range: -1 to 1
+        Best for: Water body detection, flood mapping, irrigation canals
+        Formula: (GREEN - SWIR1) / (GREEN + SWIR1)
+
+        Reference: Xu (2006)
+        IDB ID: 112 | ENVI: Modified NDWI
+
+        Advantage: Better than NDWI for separating water from
+        built-up areas and soil
+        """
+        denominator = b.B03_green + b.B11_swir1
+        if denominator == 0:
+            return 0.0
+        return round((b.B03_green - b.B11_swir1) / denominator, 4)
+
+    def nbr2(self, b: BandData) -> float:
+        """
+        NBR2 - Normalized Burn Ratio 2
+        نسبة الحروق الطبيعية 2
+
+        Range: -1 to 1
+        Best for: Post-fire soil assessment, moisture in soil/vegetation
+        Formula: (SWIR1 - SWIR2) / (SWIR1 + SWIR2)
+
+        Reference: USGS
+        IDB ID: 210
+
+        Advantage: More sensitive to soil moisture variations
+        than NBR, uses SWIR bands only
+        """
+        denominator = b.B11_swir1 + b.B12_swir2
+        if denominator == 0:
+            return 0.0
+        return round((b.B11_swir1 - b.B12_swir2) / denominator, 4)
+
+    def ndbi(self, b: BandData) -> float:
+        """
+        NDBI - Normalized Difference Built-up Index
+        مؤشر المناطق المبنية الفرقي
+
+        Range: -1 to 1
+        Best for: Built-up area detection, urban expansion monitoring
+        Formula: (SWIR1 - NIR) / (SWIR1 + NIR)
+
+        Reference: Zha et al. (2003)
+        IDB ID: 100
+
+        Use in agriculture: Detect encroachment of built-up areas
+        on agricultural land, monitor farm infrastructure
+        """
+        denominator = b.B11_swir1 + b.B08_nir
+        if denominator == 0:
+            return 0.0
+        return round((b.B11_swir1 - b.B08_nir) / denominator, 4)
+
+    def dvi(self, b: BandData) -> float:
+        """
+        DVI - Difference Vegetation Index
+        مؤشر النبات الفرقي
+
+        Range: -1 to 1 (typical: 0 to 0.5 for reflectance 0-1)
+        Best for: Vegetation biomass, simple and robust
+        Formula: NIR - RED
+
+        Reference: Richardson & Wiegand (1977)
+        IDB ID: 28
+
+        Advantage: Simple, not ratio-based so no saturation issues,
+        sensitive to soil background
+        """
+        return round(b.B08_nir - b.B04_red, 4)
+
+    def gdvi(self, b: BandData) -> float:
+        """
+        GDVI - Green Difference Vegetation Index
+        مؤشر النبات الفرقي الأخضر
+
+        Range: -1 to 1 (typical: 0 to 0.5)
+        Best for: Early growth detection, green biomass estimation
+        Formula: NIR - GREEN
+
+        Reference: Sripada et al. (2006)
+
+        Advantage: More sensitive than DVI in early growth stages,
+        responds to green leaf tissue specifically
+        """
+        return round(b.B08_nir - b.B03_green, 4)
+
+    def tsavi(self, b: BandData, s: float = 0.5, a: float = 0.08, X: float = 0.08) -> float:
+        """
+        TSAVI - Transformed Soil Adjusted Vegetation Index
+        مؤشر النبات المعدل للتربة المحول
+
+        Range: 0 to 1 (typical: 0.1 to 0.7)
+        Best for: Sparse vegetation with variable soil backgrounds
+        Formula: s*(NIR - s*RED - a) / (a*NIR + RED - a*s + X*(1 + s²))
+
+        Parameters:
+        - s: Soil line slope (default 0.5, calibrate per region)
+        - a: Soil line intercept (default 0.08)
+        - X: Adjustment factor (default 0.08)
+
+        Reference: Baret & Guyot (1991)
+        IDB ID: 88 | ENVI: Transformed SAVI
+
+        Advantage: Accounts for soil line parameters specific to
+        local soil types, reduces soil influence more than SAVI
+        """
+        numerator = s * (b.B08_nir - s * b.B04_red - a)
+        denominator = a * b.B08_nir + b.B04_red - a * s + X * (1 + s**2)
+        if denominator == 0:
+            return 0.0
+        tsavi_val = numerator / denominator
+        return round(max(0, min(tsavi_val, 1.5)), 4)
+
 
 # =============================================================================
 # Crop-Specific Thresholds and Interpretation
@@ -976,6 +1284,24 @@ class IndexInterpreter:
     CCCI_THRESHOLDS = {"excellent": 1.2, "good": 1.0, "fair": 0.8, "poor": 0.5}
     MSI_THRESHOLDS = {"no_stress": 0.8, "mild": 1.0, "moderate": 1.5, "severe": 2.0}
 
+    # Phase 2 - Chlorophyll & Red Edge thresholds
+    # المرحلة الثانية - عتبات الكلوروفيل والحافة الحمراء
+    CI_GREEN_THRESHOLDS = {"excellent": 5.0, "good": 3.0, "fair": 1.5, "poor": 0.5}
+    CI_REDEDGE_THRESHOLDS = {"excellent": 4.0, "good": 2.5, "fair": 1.5, "poor": 0.5}
+    IRECI_THRESHOLDS = {"excellent": 3.5, "good": 2.0, "fair": 1.0, "poor": 0.3}
+    MTCI_THRESHOLDS = {"excellent": 4.0, "good": 2.5, "fair": 1.5, "poor": 0.5}
+    RENDVI_THRESHOLDS = {"excellent": 0.35, "good": 0.25, "fair": 0.15, "poor": 0.05}
+    WDRVI_THRESHOLDS = {"excellent": 0.3, "good": 0.1, "fair": -0.1, "poor": -0.3}
+
+    # Phase 3 - Water, Drought & Land Cover thresholds
+    # المرحلة الثالثة - عتبات المياه والجفاف والغطاء الأرضي
+    MNDWI_THRESHOLDS = {"water": 0.3, "wet": 0.1, "moist": -0.1, "dry": -0.3}
+    NBR2_THRESHOLDS = {"excellent": 0.3, "good": 0.15, "fair": 0.05, "poor": -0.1}
+    NDBI_THRESHOLDS = {"built_up": 0.1, "mixed": 0.0, "sparse_built": -0.1, "vegetation": -0.3}
+    DVI_THRESHOLDS = {"excellent": 0.35, "good": 0.25, "fair": 0.15, "poor": 0.05}
+    GDVI_THRESHOLDS = {"excellent": 0.3, "good": 0.2, "fair": 0.1, "poor": 0.03}
+    TSAVI_THRESHOLDS = {"excellent": 0.5, "good": 0.35, "fair": 0.2, "poor": 0.1}
+
     def interpret_index(
         self,
         index_name: str,
@@ -1013,6 +1339,32 @@ class IndexInterpreter:
             return self._interpret_ccci(value)
         elif index_name_lower == "msi":
             return self._interpret_msi(value)
+        # Phase 2 - Chlorophyll & Red Edge
+        elif index_name_lower == "ci_green":
+            return self._interpret_ci_green(value)
+        elif index_name_lower == "ci_rededge":
+            return self._interpret_ci_rededge(value)
+        elif index_name_lower == "ireci":
+            return self._interpret_ireci(value)
+        elif index_name_lower == "mtci":
+            return self._interpret_mtci(value)
+        elif index_name_lower == "rendvi":
+            return self._interpret_rendvi(value)
+        elif index_name_lower == "wdrvi":
+            return self._interpret_wdrvi(value)
+        # Phase 3 - Water, Drought & Land Cover
+        elif index_name_lower == "mndwi":
+            return self._interpret_mndwi(value)
+        elif index_name_lower == "nbr2":
+            return self._interpret_nbr2(value)
+        elif index_name_lower == "ndbi":
+            return self._interpret_ndbi(value)
+        elif index_name_lower == "dvi":
+            return self._interpret_dvi(value)
+        elif index_name_lower == "gdvi":
+            return self._interpret_gdvi(value)
+        elif index_name_lower == "tsavi":
+            return self._interpret_tsavi(value)
         else:
             # Generic interpretation
             return self._interpret_generic(index_name, value)
@@ -1487,6 +1839,412 @@ class IndexInterpreter:
             threshold_info=self.MSI_THRESHOLDS,
         )
 
+    # =========================================================================
+    # Phase 2 - Chlorophyll & Red Edge Interpreters
+    # المرحلة الثانية - مفسرات الكلوروفيل والحافة الحمراء
+    # =========================================================================
+
+    def _interpret_ci_green(self, value: float) -> IndexInterpretation:
+        """Interpret CI_GREEN (chlorophyll index green)"""
+        if value >= self.CI_GREEN_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "محتوى كلوروفيل ممتاز - نشاط ضوئي عالٍ"
+            desc_en = "Excellent chlorophyll content - high photosynthetic activity"
+            confidence = 0.9
+        elif value >= self.CI_GREEN_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "محتوى كلوروفيل جيد"
+            desc_en = "Good chlorophyll content"
+            confidence = 0.85
+        elif value >= self.CI_GREEN_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "محتوى كلوروفيل متوسط - فكر في التسميد النيتروجيني"
+            desc_en = "Moderate chlorophyll - consider nitrogen fertilization"
+            confidence = 0.8
+        elif value >= self.CI_GREEN_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "نقص في الكلوروفيل - تسميد مطلوب"
+            desc_en = "Chlorophyll deficiency - fertilization needed"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "نقص حاد في الكلوروفيل"
+            desc_en = "Severe chlorophyll deficiency"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="CI_GREEN", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.CI_GREEN_THRESHOLDS,
+        )
+
+    def _interpret_ci_rededge(self, value: float) -> IndexInterpretation:
+        """Interpret CI_REDEDGE (chlorophyll index red edge)"""
+        if value >= self.CI_REDEDGE_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كلوروفيل ممتاز عبر الحافة الحمراء - مظلة كثيفة صحية"
+            desc_en = "Excellent red edge chlorophyll - dense healthy canopy"
+            confidence = 0.9
+        elif value >= self.CI_REDEDGE_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "محتوى كلوروفيل جيد في المظلة الكثيفة"
+            desc_en = "Good chlorophyll in dense canopy"
+            confidence = 0.85
+        elif value >= self.CI_REDEDGE_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "محتوى كلوروفيل متوسط - راقب حالة النيتروجين"
+            desc_en = "Moderate chlorophyll - monitor nitrogen status"
+            confidence = 0.8
+        elif value >= self.CI_REDEDGE_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "نقص في الكلوروفيل - تسميد نيتروجيني مطلوب"
+            desc_en = "Chlorophyll deficiency - nitrogen fertilization needed"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "نقص حاد في كلوروفيل المظلة"
+            desc_en = "Severe canopy chlorophyll deficiency"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="CI_REDEDGE", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.CI_REDEDGE_THRESHOLDS,
+        )
+
+    def _interpret_ireci(self, value: float) -> IndexInterpretation:
+        """Interpret IRECI (inverted red edge chlorophyll)"""
+        if value >= self.IRECI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كلوروفيل ممتاز - استجابة قوية في الحافة الحمراء"
+            desc_en = "Excellent chlorophyll - strong red edge response"
+            confidence = 0.85
+        elif value >= self.IRECI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "مستوى كلوروفيل جيد"
+            desc_en = "Good chlorophyll level"
+            confidence = 0.8
+        elif value >= self.IRECI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كلوروفيل متوسط - قد يحتاج تسميد"
+            desc_en = "Moderate chlorophyll - may need fertilization"
+            confidence = 0.8
+        elif value >= self.IRECI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كلوروفيل ضعيف - نقص واضح"
+            desc_en = "Low chlorophyll - clear deficiency"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كلوروفيل حرج - تدخل فوري مطلوب"
+            desc_en = "Critical chlorophyll - immediate intervention needed"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="IRECI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.IRECI_THRESHOLDS,
+        )
+
+    def _interpret_mtci(self, value: float) -> IndexInterpretation:
+        """Interpret MTCI (MERIS terrestrial chlorophyll)"""
+        if value >= self.MTCI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كلوروفيل أرضي ممتاز - نيتروجين كافٍ"
+            desc_en = "Excellent terrestrial chlorophyll - sufficient nitrogen"
+            confidence = 0.9
+        elif value >= self.MTCI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "مستوى كلوروفيل جيد"
+            desc_en = "Good chlorophyll level"
+            confidence = 0.85
+        elif value >= self.MTCI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كلوروفيل متوسط - فكر في إضافة نيتروجين"
+            desc_en = "Moderate chlorophyll - consider adding nitrogen"
+            confidence = 0.8
+        elif value >= self.MTCI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "نقص في الكلوروفيل الأرضي"
+            desc_en = "Terrestrial chlorophyll deficiency"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "نقص حاد في الكلوروفيل - تسميد فوري"
+            desc_en = "Severe chlorophyll deficiency - immediate fertilization"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="MTCI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.MTCI_THRESHOLDS,
+        )
+
+    def _interpret_rendvi(self, value: float) -> IndexInterpretation:
+        """Interpret RENDVI (red edge NDVI)"""
+        if value >= self.RENDVI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "استجابة ممتازة في الحافة الحمراء - كلوروفيل مرتفع"
+            desc_en = "Excellent red edge response - high chlorophyll"
+            confidence = 0.85
+        elif value >= self.RENDVI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "استجابة جيدة في الحافة الحمراء"
+            desc_en = "Good red edge response"
+            confidence = 0.8
+        elif value >= self.RENDVI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "استجابة متوسطة - راقب صحة المحصول"
+            desc_en = "Moderate response - monitor crop health"
+            confidence = 0.8
+        elif value >= self.RENDVI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "استجابة ضعيفة في الحافة الحمراء"
+            desc_en = "Poor red edge response"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "استجابة حرجة - إجهاد شديد"
+            desc_en = "Critical response - severe stress"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="RENDVI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.RENDVI_THRESHOLDS,
+        )
+
+    def _interpret_wdrvi(self, value: float) -> IndexInterpretation:
+        """Interpret WDRVI (wide dynamic range VI)"""
+        if value >= self.WDRVI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كتلة حيوية عالية - تجاوز تشبع NDVI"
+            desc_en = "High biomass - beyond NDVI saturation range"
+            confidence = 0.85
+        elif value >= self.WDRVI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "كتلة حيوية جيدة"
+            desc_en = "Good biomass"
+            confidence = 0.8
+        elif value >= self.WDRVI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كتلة حيوية متوسطة"
+            desc_en = "Moderate biomass"
+            confidence = 0.8
+        elif value >= self.WDRVI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كتلة حيوية ضعيفة"
+            desc_en = "Low biomass"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كتلة حيوية حرجة - تغطية نباتية شبه معدومة"
+            desc_en = "Critical biomass - near zero vegetation cover"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="WDRVI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.WDRVI_THRESHOLDS,
+        )
+
+    # =========================================================================
+    # Phase 3 - Water, Drought & Land Cover Interpreters
+    # المرحلة الثالثة - مفسرات المياه والجفاف والغطاء الأرضي
+    # =========================================================================
+
+    def _interpret_mndwi(self, value: float) -> IndexInterpretation:
+        """Interpret MNDWI (modified water index)"""
+        if value >= self.MNDWI_THRESHOLDS["water"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "مسطح مائي واضح أو تربة مشبعة"
+            desc_en = "Clear water body or saturated soil"
+            confidence = 0.9
+        elif value >= self.MNDWI_THRESHOLDS["wet"]:
+            status = HealthStatus.GOOD
+            desc_ar = "تربة رطبة أو مناطق ري"
+            desc_en = "Wet soil or irrigated areas"
+            confidence = 0.85
+        elif value >= self.MNDWI_THRESHOLDS["moist"]:
+            status = HealthStatus.FAIR
+            desc_ar = "تربة رطبة قليلاً"
+            desc_en = "Slightly moist soil"
+            confidence = 0.8
+        elif value >= self.MNDWI_THRESHOLDS["dry"]:
+            status = HealthStatus.POOR
+            desc_ar = "تربة جافة - قد تحتاج ري"
+            desc_en = "Dry soil - may need irrigation"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "تربة جافة جداً أو غطاء نباتي كثيف"
+            desc_en = "Very dry soil or dense vegetation"
+            confidence = 0.8
+        return IndexInterpretation(
+            index_name="MNDWI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.MNDWI_THRESHOLDS,
+        )
+
+    def _interpret_nbr2(self, value: float) -> IndexInterpretation:
+        """Interpret NBR2 (burn ratio 2 / soil moisture)"""
+        if value >= self.NBR2_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "رطوبة تربة ممتازة - محتوى مائي عالٍ"
+            desc_en = "Excellent soil moisture - high water content"
+            confidence = 0.85
+        elif value >= self.NBR2_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "رطوبة تربة جيدة"
+            desc_en = "Good soil moisture"
+            confidence = 0.8
+        elif value >= self.NBR2_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "رطوبة تربة متوسطة"
+            desc_en = "Moderate soil moisture"
+            confidence = 0.8
+        elif value >= self.NBR2_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "تربة جافة - فكر في الري"
+            desc_en = "Dry soil - consider irrigation"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "تربة جافة جداً أو محروقة"
+            desc_en = "Very dry or burned soil"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="NBR2", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.NBR2_THRESHOLDS,
+        )
+
+    def _interpret_ndbi(self, value: float) -> IndexInterpretation:
+        """Interpret NDBI (built-up index) - higher = more built-up"""
+        if value >= self.NDBI_THRESHOLDS["built_up"]:
+            status = HealthStatus.CRITICAL
+            desc_ar = "منطقة مبنية - لا يوجد غطاء نباتي"
+            desc_en = "Built-up area - no vegetation cover"
+            confidence = 0.85
+        elif value >= self.NDBI_THRESHOLDS["mixed"]:
+            status = HealthStatus.POOR
+            desc_ar = "خليط مباني وتربة - تغطية نباتية ضعيفة"
+            desc_en = "Mixed built-up and soil - poor vegetation"
+            confidence = 0.8
+        elif value >= self.NDBI_THRESHOLDS["sparse_built"]:
+            status = HealthStatus.FAIR
+            desc_ar = "بنية تحتية متفرقة مع غطاء نباتي"
+            desc_en = "Sparse infrastructure with vegetation"
+            confidence = 0.8
+        elif value >= self.NDBI_THRESHOLDS["vegetation"]:
+            status = HealthStatus.GOOD
+            desc_ar = "غطاء نباتي مع قليل من البنية التحتية"
+            desc_en = "Vegetation cover with minimal infrastructure"
+            confidence = 0.85
+        else:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "أرض زراعية مفتوحة - غطاء نباتي كثيف"
+            desc_en = "Open agricultural land - dense vegetation"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="NDBI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.NDBI_THRESHOLDS,
+        )
+
+    def _interpret_dvi(self, value: float) -> IndexInterpretation:
+        """Interpret DVI (difference vegetation)"""
+        if value >= self.DVI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كتلة حيوية عالية - فرق انعكاسية كبير"
+            desc_en = "High biomass - large reflectance difference"
+            confidence = 0.85
+        elif value >= self.DVI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "كتلة حيوية جيدة"
+            desc_en = "Good biomass"
+            confidence = 0.8
+        elif value >= self.DVI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كتلة حيوية متوسطة"
+            desc_en = "Moderate biomass"
+            confidence = 0.8
+        elif value >= self.DVI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كتلة حيوية ضعيفة"
+            desc_en = "Low biomass"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كتلة حيوية حرجة أو تربة عارية"
+            desc_en = "Critical biomass or bare soil"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="DVI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.DVI_THRESHOLDS,
+        )
+
+    def _interpret_gdvi(self, value: float) -> IndexInterpretation:
+        """Interpret GDVI (green difference vegetation)"""
+        if value >= self.GDVI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كتلة خضراء حيوية ممتازة"
+            desc_en = "Excellent green biomass"
+            confidence = 0.85
+        elif value >= self.GDVI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "كتلة خضراء حيوية جيدة"
+            desc_en = "Good green biomass"
+            confidence = 0.8
+        elif value >= self.GDVI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كتلة خضراء متوسطة"
+            desc_en = "Moderate green biomass"
+            confidence = 0.8
+        elif value >= self.GDVI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كتلة خضراء ضعيفة"
+            desc_en = "Low green biomass"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كتلة خضراء حرجة"
+            desc_en = "Critical green biomass"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="GDVI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.GDVI_THRESHOLDS,
+        )
+
+    def _interpret_tsavi(self, value: float) -> IndexInterpretation:
+        """Interpret TSAVI (transformed SAVI)"""
+        if value >= self.TSAVI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "غطاء نباتي ممتاز - تصحيح تربة محسّن"
+            desc_en = "Excellent vegetation - enhanced soil correction"
+            confidence = 0.85
+        elif value >= self.TSAVI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "غطاء نباتي جيد مع تصحيح التربة"
+            desc_en = "Good vegetation with soil correction"
+            confidence = 0.8
+        elif value >= self.TSAVI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "غطاء نباتي متفرق"
+            desc_en = "Sparse vegetation"
+            confidence = 0.8
+        elif value >= self.TSAVI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "غطاء نباتي ضعيف - تأثير التربة كبير"
+            desc_en = "Poor vegetation - significant soil influence"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "تربة عارية تقريباً"
+            desc_en = "Nearly bare soil"
+            confidence = 0.9
+        return IndexInterpretation(
+            index_name="TSAVI", value=value, status=status,
+            description_ar=desc_ar, description_en=desc_en,
+            confidence=confidence, threshold_info=self.TSAVI_THRESHOLDS,
+        )
+
     def _interpret_generic(self, index_name: str, value: float) -> IndexInterpretation:
         """Generic interpretation for other indices"""
         # Simplified interpretation based on typical ranges
@@ -1517,10 +2275,21 @@ class IndexInterpreter:
         الحصول على المؤشرات الموصى بها حسب مرحلة النمو
         """
         recommendations = {
-            GrowthStage.EMERGENCE: ["GNDVI", "VARI", "GLI", "NDVI", "BSI", "EVI2"],
-            GrowthStage.VEGETATIVE: ["NDVI", "LAI", "CVI", "GNDVI", "NDRE", "CCCI", "SR", "EVI2"],
-            GrowthStage.REPRODUCTIVE: ["NDRE", "MCARI", "NDVI", "NDWI", "LAI", "CCCI", "MSI"],
-            GrowthStage.MATURATION: ["NDVI", "NDMI", "NDWI", "EVI", "MSI", "NBR"],
-            GrowthStage.HARVEST: ["NDVI", "NDMI", "NBR", "BSI"],
+            GrowthStage.EMERGENCE: [
+                "GNDVI", "VARI", "GLI", "NDVI", "BSI", "EVI2", "DVI", "GDVI", "WDRVI",
+            ],
+            GrowthStage.VEGETATIVE: [
+                "NDVI", "LAI", "CVI", "GNDVI", "NDRE", "CCCI", "SR", "EVI2",
+                "CI_GREEN", "CI_REDEDGE", "IRECI", "MTCI", "RENDVI", "WDRVI",
+            ],
+            GrowthStage.REPRODUCTIVE: [
+                "NDRE", "MCARI", "NDVI", "NDWI", "LAI", "CCCI", "MSI",
+                "CI_REDEDGE", "MTCI", "IRECI", "MNDWI",
+            ],
+            GrowthStage.MATURATION: [
+                "NDVI", "NDMI", "NDWI", "EVI", "MSI", "NBR",
+                "NBR2", "MNDWI", "TSAVI",
+            ],
+            GrowthStage.HARVEST: ["NDVI", "NDMI", "NBR", "BSI", "NBR2", "DVI"],
         }
         return recommendations.get(growth_stage, ["NDVI", "NDWI", "EVI"])

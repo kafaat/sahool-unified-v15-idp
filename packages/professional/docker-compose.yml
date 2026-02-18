@@ -124,6 +124,7 @@ services:
   # Core Services (from Starter)
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Field Management Service - إدارة الحقول (canonical name: field-management-service)
   field_core:
     build:
       context: ../../apps/services/field-management-service
@@ -164,6 +165,7 @@ services:
     networks:
       - sahool-pro-network
 
+  # Weather Service - خدمة الطقس (canonical name: weather-service)
   weather_core:
     build:
       context: ../../apps/services/weather-service
@@ -239,45 +241,8 @@ services:
     networks:
       - sahool-pro-network
 
-  agro_advisor:
-    build:
-      context: ../../apps/services/advisory-service
-      dockerfile: Dockerfile
-    container_name: sahool-pro-advisory-service
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      # NOTE: Uses non-standard port 8105 to avoid conflict with fertilizer_advisor (8093)
-      # This is a legacy instance - prefer fertilizer_advisor at canonical port 8093
-      - PORT=8105
-    ports:
-      - "8105:8105"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    restart: unless-stopped
-    networks:
-      - sahool-pro-network
+  # NOTE: agro_advisor service REMOVED - deprecated and replaced by advisory-service
+  # (fertilizer_advisor below runs advisory-service at canonical port 8093)
 
   notification_service:
     build:
@@ -327,7 +292,8 @@ services:
   # Professional Tier Services
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Satellite Service - خدمة الأقمار الصناعية
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  # (legacy alias: satellite_service → canonical: vegetation-analysis-service)
   satellite_service:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -372,7 +338,8 @@ services:
     networks:
       - sahool-pro-network
 
-  # NDVI Engine - محرك NDVI
+  # NDVI Processor - معالج NDVI
+  # (legacy alias: ndvi_engine → canonical: ndvi-processor, port 8118)
   ndvi_engine:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -411,7 +378,8 @@ services:
     networks:
       - sahool-pro-network
 
-  # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
+  # Crop Intelligence Service - ذكاء المحاصيل
+  # (legacy alias: crop_health_ai → canonical: crop-intelligence-service)
   crop_health_ai:
     build:
       context: ../../apps/services/crop-intelligence-service
@@ -562,7 +530,8 @@ services:
     networks:
       - sahool-pro-network
 
-  # Fertilizer Advisor - مستشار التسميد
+  # Advisory Service - خدمة الاستشارات الزراعية
+  # (legacy alias: fertilizer_advisor → canonical: advisory-service, port 8093)
   fertilizer_advisor:
     build:
       context: ../../apps/services/advisory-service

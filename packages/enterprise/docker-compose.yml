@@ -186,6 +186,7 @@ services:
   # Core Services
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Field Management Service - إدارة الحقول (canonical name: field-management-service)
   field_core:
     build:
       context: ../../apps/services/field-management-service
@@ -226,6 +227,7 @@ services:
     networks:
       - sahool-enterprise-network
 
+  # Weather Service - خدمة الطقس (canonical name: weather-service)
   weather_core:
     build:
       context: ../../apps/services/weather-service
@@ -301,45 +303,8 @@ services:
     networks:
       - sahool-enterprise-network
 
-  agro_advisor:
-    build:
-      context: ../../apps/services/advisory-service
-      dockerfile: Dockerfile
-    container_name: sahool-enterprise-advisory-service
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      # NOTE: Uses non-standard port 8105 to avoid conflict with fertilizer_advisor (8093)
-      # This is a legacy instance - prefer fertilizer_advisor at canonical port 8093
-      - PORT=8105
-    ports:
-      - "8105:8105"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '2.0'
-          memory: 2G
-        reservations:
-          cpus: '1.0'
-          memory: 1G
-    restart: unless-stopped
-    networks:
-      - sahool-enterprise-network
+  # NOTE: agro_advisor service REMOVED - deprecated and replaced by advisory-service
+  # (fertilizer_advisor below runs advisory-service at canonical port 8093)
 
   notification_service:
     build:
@@ -390,6 +355,8 @@ services:
   # Professional Tier Services
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  # (legacy alias: satellite_service → canonical: vegetation-analysis-service)
   satellite_service:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -435,6 +402,8 @@ services:
     networks:
       - sahool-enterprise-network
 
+  # NDVI Processor - معالج NDVI
+  # (legacy alias: ndvi_engine → canonical: ndvi-processor, port 8118)
   ndvi_engine:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -473,6 +442,8 @@ services:
     networks:
       - sahool-enterprise-network
 
+  # Crop Intelligence Service - ذكاء المحاصيل
+  # (legacy alias: crop_health_ai → canonical: crop-intelligence-service)
   crop_health_ai:
     build:
       context: ../../apps/services/crop-intelligence-service
@@ -621,6 +592,8 @@ services:
     networks:
       - sahool-enterprise-network
 
+  # Advisory Service - خدمة الاستشارات الزراعية
+  # (legacy alias: fertilizer_advisor → canonical: advisory-service, port 8093)
   fertilizer_advisor:
     build:
       context: ../../apps/services/advisory-service
@@ -724,7 +697,7 @@ services:
       - CROP_HEALTH_URL=http://crop_health_ai:8095
       - WEATHER_URL=http://weather_core:8092
       - SATELLITE_URL=http://satellite_service:8090
-      - AGRO_ADVISOR_URL=http://agro_advisor:8105
+      - AGRO_ADVISOR_URL=http://fertilizer_advisor:8093
       - NDVI_URL=http://ndvi_engine:8118
       # RAG Configuration
       - QDRANT_HOST=qdrant
@@ -742,7 +715,7 @@ services:
         condition: service_healthy
       weather_core:
         condition: service_healthy
-      agro_advisor:
+      fertilizer_advisor:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')"]

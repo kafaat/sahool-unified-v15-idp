@@ -56,6 +56,15 @@ class VegetationIndex(Enum):
     PSRI = "psri"  # Plant Senescence Reflectance Index
     REP = "rep"  # Red Edge Position
 
+    # Phase 1 - Extended Spectral Indices (IDB/ENVI reference)
+    # المرحلة الأولى - المؤشرات الطيفية الموسعة
+    NBR = "nbr"  # Normalized Burn Ratio (fire/drought)
+    EVI2 = "evi2"  # Two-Band Enhanced Vegetation Index
+    BSI = "bsi"  # Bare Soil Index
+    SR = "sr"  # Simple Ratio (NIR/Red)
+    CCCI = "ccci"  # Canopy Chlorophyll Content Index
+    MSI = "msi"  # Moisture Stress Index
+
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
@@ -182,6 +191,15 @@ class AllIndices:
     psri: float | None = None  # Plant Senescence Reflectance Index
     rep: float | None = None  # Red Edge Position (nm)
 
+    # Phase 1 - Extended Spectral Indices (IDB/ENVI reference)
+    # المرحلة الأولى - المؤشرات الطيفية الموسعة
+    nbr: float | None = None  # Normalized Burn Ratio
+    evi2: float | None = None  # Two-Band Enhanced Vegetation Index
+    bsi: float | None = None  # Bare Soil Index
+    sr: float | None = None  # Simple Ratio
+    ccci: float | None = None  # Canopy Chlorophyll Content Index
+    msi: float | None = None  # Moisture Stress Index
+
     def to_dict(self) -> dict[str, float]:
         """Convert to dictionary, excluding None values"""
         return {k: v for k, v in asdict(self).items() if v is not None}
@@ -248,6 +266,14 @@ class VegetationIndicesCalculator:
             ari=self.ari(bands),
             psri=self.psri(bands),
             rep=self.rep(bands),
+            # Phase 1 - Extended Spectral Indices (IDB/ENVI)
+            # المرحلة الأولى - المؤشرات الطيفية الموسعة
+            nbr=self.nbr(bands),
+            evi2=self.evi2(bands),
+            bsi=self.bsi(bands),
+            sr=self.sr(bands),
+            ccci=self.ccci(bands, ndvi),
+            msi=self.msi(bands),
         )
 
     # =========================================================================
@@ -659,6 +685,151 @@ class VegetationIndicesCalculator:
         except (ValueError, ZeroDivisionError, OverflowError):
             return None
 
+    # =========================================================================
+    # المرحلة الأولى - المؤشرات الطيفية الموسعة (IDB/ENVI)
+    # Phase 1 - Extended Spectral Indices (IDB/ENVI reference)
+    # =========================================================================
+
+    def nbr(self, b: BandData) -> float:
+        """
+        NBR - Normalized Burn Ratio
+        نسبة الحروق الطبيعية
+
+        Range: -1 to 1 (typical vegetation: 0.1 to 0.6)
+        Best for: Burn severity mapping, drought stress, post-fire recovery
+        Formula: (NIR - SWIR2) / (NIR + SWIR2)
+
+        Reference: Key (2001), USGS standard for burn mapping
+        IDB ID: 53 | ENVI: Normalized Burn Ratio
+
+        Interpretation:
+        - High NBR (>0.4): Healthy dense vegetation
+        - Medium NBR (0.1-0.4): Moderate vegetation / regrowth
+        - Low NBR (-0.1-0.1): Bare soil / sparse vegetation
+        - Negative NBR (<-0.1): Burned / severely degraded area
+        """
+        denominator = b.B08_nir + b.B12_swir2
+        if denominator == 0:
+            return 0.0
+        return round((b.B08_nir - b.B12_swir2) / denominator, 4)
+
+    def evi2(self, b: BandData) -> float:
+        """
+        EVI2 - Two-Band Enhanced Vegetation Index
+        مؤشر الغطاء النباتي المحسّن ثنائي النطاق
+
+        Range: -1 to 1 (typical vegetation: 0.2 to 0.8)
+        Best for: Vegetation assessment without blue band, high biomass areas
+        Formula: 2.5 * (NIR - RED) / (NIR + 2.4 * RED + 1)
+
+        Reference: Jiang et al. (2008)
+        IDB ID: 237 | ENVI: Two-Band EVI
+
+        Advantage over EVI: Does not require blue band, more robust
+        in areas with high atmospheric interference
+        """
+        denominator = b.B08_nir + 2.4 * b.B04_red + 1
+        if denominator == 0:
+            return 0.0
+        return round(2.5 * (b.B08_nir - b.B04_red) / denominator, 4)
+
+    def bsi(self, b: BandData) -> float:
+        """
+        BSI - Bare Soil Index
+        مؤشر التربة العارية
+
+        Range: -1 to 1 (typical: -0.5 to 0.5)
+        Best for: Bare soil detection, tillage mapping, land degradation
+        Formula: ((SWIR1 + RED) - (NIR + BLUE)) / ((SWIR1 + RED) + (NIR + BLUE))
+
+        Reference: Rikimaru et al. (2002)
+        IDB ID: 146 | ENVI: Bare Soil Index
+
+        Interpretation:
+        - High BSI (>0.2): Bare soil / exposed ground
+        - Medium BSI (-0.1-0.2): Mixed soil/vegetation
+        - Low BSI (<-0.1): Dense vegetation cover
+        """
+        numerator = (b.B11_swir1 + b.B04_red) - (b.B08_nir + b.B02_blue)
+        denominator = (b.B11_swir1 + b.B04_red) + (b.B08_nir + b.B02_blue)
+        if denominator == 0:
+            return 0.0
+        return round(numerator / denominator, 4)
+
+    def sr(self, b: BandData) -> float:
+        """
+        SR - Simple Ratio (RVI)
+        النسبة البسيطة
+
+        Range: 0 to 30+ (typical vegetation: 2 to 8)
+        Best for: Biomass estimation, vegetation density, LAI correlation
+        Formula: NIR / RED
+
+        Reference: Jordan (1969) - oldest vegetation index
+        IDB ID: 1 | ENVI: Simple Ratio
+
+        Interpretation:
+        - High SR (>6): Dense healthy vegetation
+        - Medium SR (2-6): Moderate vegetation
+        - Low SR (<2): Sparse/bare soil
+        """
+        if b.B04_red == 0:
+            return 0.0
+        sr_val = b.B08_nir / b.B04_red
+        return round(min(sr_val, 30), 4)
+
+    def ccci(self, b: BandData, ndvi: float | None = None) -> float:
+        """
+        CCCI - Canopy Chlorophyll Content Index
+        مؤشر محتوى الكلوروفيل في المظلة
+
+        Range: 0 to 2+ (typical: 0.5 to 1.5)
+        Best for: Canopy-level chlorophyll, nitrogen status in dense crops
+        Formula: NDRE / NDVI
+
+        Reference: Barnes et al. (2000)
+        IDB ID: 224 | ENVI: Canopy Chlorophyll Content Index
+
+        Advantage: Normalizes chlorophyll by canopy density,
+        better than NDRE alone for variable-density fields
+
+        Interpretation:
+        - High CCCI (>1.2): High chlorophyll content relative to canopy
+        - Medium CCCI (0.8-1.2): Normal nitrogen status
+        - Low CCCI (<0.8): Nitrogen deficiency likely
+        """
+        ndre_val = self.ndre(b)
+        if ndvi is None:
+            ndvi = self.ndvi(b)
+        if ndvi == 0 or ndvi < 0.05:
+            return 0.0
+        ccci_val = ndre_val / ndvi
+        return round(max(0, min(ccci_val, 3)), 4)
+
+    def msi(self, b: BandData) -> float:
+        """
+        MSI - Moisture Stress Index
+        مؤشر إجهاد الرطوبة
+
+        Range: 0 to 3+ (typical vegetation: 0.4 to 2.0)
+        Best for: Plant moisture content, drought monitoring, irrigation timing
+        Formula: SWIR1 / NIR
+
+        Reference: Hunt & Rock (1989)
+        IDB ID: 49 | ENVI: Moisture Stress Index
+
+        Note: INVERSE relationship - higher MSI = more stress (drier)
+
+        Interpretation:
+        - Low MSI (<0.8): Well-watered, healthy vegetation
+        - Medium MSI (0.8-1.5): Moderate moisture
+        - High MSI (>1.5): Significant moisture stress
+        """
+        if b.B08_nir == 0:
+            return 0.0
+        msi_val = b.B11_swir1 / b.B08_nir
+        return round(min(msi_val, 5), 4)
+
 
 # =============================================================================
 # Crop-Specific Thresholds and Interpretation
@@ -796,6 +967,15 @@ class IndexInterpreter:
         "severe_stress": -0.2,  # < -0.2: Severe stress
     }
 
+    # Phase 1 - Extended index thresholds
+    # المرحلة الأولى - عتبات المؤشرات الموسعة
+    NBR_THRESHOLDS = {"excellent": 0.4, "good": 0.2, "fair": 0.1, "poor": -0.1}
+    EVI2_THRESHOLDS = {"excellent": 0.5, "good": 0.35, "fair": 0.2, "poor": 0.1}
+    BSI_THRESHOLDS = {"bare_soil": 0.2, "mixed": 0.0, "sparse_veg": -0.1, "dense_veg": -0.3}
+    SR_THRESHOLDS = {"excellent": 6.0, "good": 4.0, "fair": 2.0, "poor": 1.0}
+    CCCI_THRESHOLDS = {"excellent": 1.2, "good": 1.0, "fair": 0.8, "poor": 0.5}
+    MSI_THRESHOLDS = {"no_stress": 0.8, "mild": 1.0, "moderate": 1.5, "severe": 2.0}
+
     def interpret_index(
         self,
         index_name: str,
@@ -821,6 +1001,18 @@ class IndexInterpreter:
             return self._interpret_evi(value)
         elif index_name_lower == "lai":
             return self._interpret_lai(value, crop_type)
+        elif index_name_lower == "nbr":
+            return self._interpret_nbr(value)
+        elif index_name_lower == "evi2":
+            return self._interpret_evi2(value)
+        elif index_name_lower == "bsi":
+            return self._interpret_bsi(value)
+        elif index_name_lower == "sr":
+            return self._interpret_sr(value)
+        elif index_name_lower == "ccci":
+            return self._interpret_ccci(value)
+        elif index_name_lower == "msi":
+            return self._interpret_msi(value)
         else:
             # Generic interpretation
             return self._interpret_generic(index_name, value)
@@ -1062,6 +1254,239 @@ class IndexInterpreter:
             threshold_info=thresholds,
         )
 
+    # =========================================================================
+    # Phase 1 - Extended Index Interpreters
+    # المرحلة الأولى - مفسرات المؤشرات الموسعة
+    # =========================================================================
+
+    def _interpret_nbr(self, value: float) -> IndexInterpretation:
+        """Interpret NBR (burn ratio / drought)"""
+        if value >= self.NBR_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "غطاء نباتي كثيف وصحي - لا توجد علامات حروق أو جفاف"
+            desc_en = "Dense healthy vegetation - no burn or drought signs"
+            confidence = 0.9
+        elif value >= self.NBR_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "غطاء نباتي معتدل - حالة جيدة"
+            desc_en = "Moderate vegetation - good condition"
+            confidence = 0.85
+        elif value >= self.NBR_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "غطاء نباتي خفيف أو تربة مكشوفة"
+            desc_en = "Sparse vegetation or exposed soil"
+            confidence = 0.8
+        elif value >= self.NBR_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "تدهور واضح - تحقق من الحروق أو الجفاف الشديد"
+            desc_en = "Clear degradation - check for burn or severe drought"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "منطقة محروقة أو متدهورة بشدة - تدخل فوري مطلوب"
+            desc_en = "Burned or severely degraded area - immediate intervention"
+            confidence = 0.9
+
+        return IndexInterpretation(
+            index_name="NBR",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.NBR_THRESHOLDS,
+        )
+
+    def _interpret_evi2(self, value: float) -> IndexInterpretation:
+        """Interpret EVI2 (two-band enhanced vegetation)"""
+        if value >= self.EVI2_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كثافة نباتية عالية - بنية مظلة ممتازة"
+            desc_en = "High vegetation density - excellent canopy structure"
+            confidence = 0.9
+        elif value >= self.EVI2_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "كثافة نباتية جيدة"
+            desc_en = "Good vegetation density"
+            confidence = 0.85
+        elif value >= self.EVI2_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كثافة نباتية متوسطة - قد يحتاج لمتابعة"
+            desc_en = "Moderate vegetation density - may need monitoring"
+            confidence = 0.8
+        elif value >= self.EVI2_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كثافة نباتية ضعيفة"
+            desc_en = "Poor vegetation density"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كثافة نباتية حرجة - تحقق من صحة المحصول"
+            desc_en = "Critical vegetation density - check crop health"
+            confidence = 0.9
+
+        return IndexInterpretation(
+            index_name="EVI2",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.EVI2_THRESHOLDS,
+        )
+
+    def _interpret_bsi(self, value: float) -> IndexInterpretation:
+        """Interpret BSI (bare soil) - higher = more bare soil"""
+        if value >= self.BSI_THRESHOLDS["bare_soil"]:
+            status = HealthStatus.CRITICAL
+            desc_ar = "تربة عارية - لا يوجد غطاء نباتي يُذكر"
+            desc_en = "Bare soil - negligible vegetation cover"
+            confidence = 0.9
+        elif value >= self.BSI_THRESHOLDS["mixed"]:
+            status = HealthStatus.POOR
+            desc_ar = "خليط تربة وغطاء نباتي - تغطية ضعيفة"
+            desc_en = "Mixed soil and vegetation - poor coverage"
+            confidence = 0.8
+        elif value >= self.BSI_THRESHOLDS["sparse_veg"]:
+            status = HealthStatus.FAIR
+            desc_ar = "غطاء نباتي خفيف مع تربة مكشوفة"
+            desc_en = "Sparse vegetation with exposed soil"
+            confidence = 0.8
+        elif value >= self.BSI_THRESHOLDS["dense_veg"]:
+            status = HealthStatus.GOOD
+            desc_ar = "غطاء نباتي جيد - تربة مغطاة غالباً"
+            desc_en = "Good vegetation cover - mostly covered soil"
+            confidence = 0.85
+        else:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "غطاء نباتي كثيف - التربة مغطاة بالكامل"
+            desc_en = "Dense vegetation cover - fully covered soil"
+            confidence = 0.9
+
+        return IndexInterpretation(
+            index_name="BSI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.BSI_THRESHOLDS,
+        )
+
+    def _interpret_sr(self, value: float) -> IndexInterpretation:
+        """Interpret SR (simple ratio)"""
+        if value >= self.SR_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "كتلة حيوية عالية جداً - غطاء نباتي كثيف"
+            desc_en = "Very high biomass - dense vegetation cover"
+            confidence = 0.9
+        elif value >= self.SR_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "كتلة حيوية جيدة"
+            desc_en = "Good biomass"
+            confidence = 0.85
+        elif value >= self.SR_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "كتلة حيوية متوسطة - غطاء نباتي معتدل"
+            desc_en = "Moderate biomass - moderate vegetation cover"
+            confidence = 0.8
+        elif value >= self.SR_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "كتلة حيوية ضعيفة - غطاء خفيف"
+            desc_en = "Low biomass - sparse cover"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "كتلة حيوية حرجة - تربة عارية تقريباً"
+            desc_en = "Critical biomass - nearly bare soil"
+            confidence = 0.9
+
+        return IndexInterpretation(
+            index_name="SR",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.SR_THRESHOLDS,
+        )
+
+    def _interpret_ccci(self, value: float) -> IndexInterpretation:
+        """Interpret CCCI (canopy chlorophyll content)"""
+        if value >= self.CCCI_THRESHOLDS["excellent"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "محتوى كلوروفيل عالٍ في المظلة - نيتروجين كافٍ"
+            desc_en = "High canopy chlorophyll - sufficient nitrogen"
+            confidence = 0.85
+        elif value >= self.CCCI_THRESHOLDS["good"]:
+            status = HealthStatus.GOOD
+            desc_ar = "محتوى كلوروفيل جيد نسبة للكثافة النباتية"
+            desc_en = "Good chlorophyll relative to canopy density"
+            confidence = 0.8
+        elif value >= self.CCCI_THRESHOLDS["fair"]:
+            status = HealthStatus.FAIR
+            desc_ar = "محتوى كلوروفيل متوسط - راقب حالة النيتروجين"
+            desc_en = "Moderate chlorophyll - monitor nitrogen status"
+            confidence = 0.8
+        elif value >= self.CCCI_THRESHOLDS["poor"]:
+            status = HealthStatus.POOR
+            desc_ar = "نقص محتمل في النيتروجين - فكر في التسميد"
+            desc_en = "Possible nitrogen deficiency - consider fertilization"
+            confidence = 0.85
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "نقص حاد في النيتروجين - تسميد فوري مطلوب"
+            desc_en = "Severe nitrogen deficiency - immediate fertilization needed"
+            confidence = 0.9
+
+        return IndexInterpretation(
+            index_name="CCCI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.CCCI_THRESHOLDS,
+        )
+
+    def _interpret_msi(self, value: float) -> IndexInterpretation:
+        """Interpret MSI (moisture stress) - INVERSE: higher = more stress"""
+        if value <= self.MSI_THRESHOLDS["no_stress"]:
+            status = HealthStatus.EXCELLENT
+            desc_ar = "رطوبة نباتية ممتازة - لا يوجد إجهاد مائي"
+            desc_en = "Excellent plant moisture - no water stress"
+            confidence = 0.9
+        elif value <= self.MSI_THRESHOLDS["mild"]:
+            status = HealthStatus.GOOD
+            desc_ar = "رطوبة نباتية جيدة - إجهاد مائي خفيف"
+            desc_en = "Good plant moisture - mild water stress"
+            confidence = 0.85
+        elif value <= self.MSI_THRESHOLDS["moderate"]:
+            status = HealthStatus.FAIR
+            desc_ar = "إجهاد مائي متوسط - زد كمية الري"
+            desc_en = "Moderate moisture stress - increase irrigation"
+            confidence = 0.85
+        elif value <= self.MSI_THRESHOLDS["severe"]:
+            status = HealthStatus.POOR
+            desc_ar = "إجهاد مائي شديد - ري فوري مطلوب"
+            desc_en = "Severe moisture stress - immediate irrigation required"
+            confidence = 0.9
+        else:
+            status = HealthStatus.CRITICAL
+            desc_ar = "إجهاد مائي حاد - ري عاجل للإنقاذ"
+            desc_en = "Critical moisture stress - urgent rescue irrigation"
+            confidence = 0.95
+
+        return IndexInterpretation(
+            index_name="MSI",
+            value=value,
+            status=status,
+            description_ar=desc_ar,
+            description_en=desc_en,
+            confidence=confidence,
+            threshold_info=self.MSI_THRESHOLDS,
+        )
+
     def _interpret_generic(self, index_name: str, value: float) -> IndexInterpretation:
         """Generic interpretation for other indices"""
         # Simplified interpretation based on typical ranges
@@ -1092,10 +1517,10 @@ class IndexInterpreter:
         الحصول على المؤشرات الموصى بها حسب مرحلة النمو
         """
         recommendations = {
-            GrowthStage.EMERGENCE: ["GNDVI", "VARI", "GLI", "NDVI"],
-            GrowthStage.VEGETATIVE: ["NDVI", "LAI", "CVI", "GNDVI", "NDRE"],
-            GrowthStage.REPRODUCTIVE: ["NDRE", "MCARI", "NDVI", "NDWI", "LAI"],
-            GrowthStage.MATURATION: ["NDVI", "NDMI", "NDWI", "EVI"],
-            GrowthStage.HARVEST: ["NDVI", "NDMI"],
+            GrowthStage.EMERGENCE: ["GNDVI", "VARI", "GLI", "NDVI", "BSI", "EVI2"],
+            GrowthStage.VEGETATIVE: ["NDVI", "LAI", "CVI", "GNDVI", "NDRE", "CCCI", "SR", "EVI2"],
+            GrowthStage.REPRODUCTIVE: ["NDRE", "MCARI", "NDVI", "NDWI", "LAI", "CCCI", "MSI"],
+            GrowthStage.MATURATION: ["NDVI", "NDMI", "NDWI", "EVI", "MSI", "NBR"],
+            GrowthStage.HARVEST: ["NDVI", "NDMI", "NBR", "BSI"],
         }
         return recommendations.get(growth_stage, ["NDVI", "NDWI", "EVI"])

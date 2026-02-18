@@ -14,6 +14,12 @@ Indices:
 - NDMI: Normalized Difference Moisture Index
 - GNDVI: Green NDVI
 - NDRE: Normalized Difference Red Edge
+- NBR: Normalized Burn Ratio
+- EVI2: Two-Band Enhanced Vegetation Index
+- BSI: Bare Soil Index
+- SR: Simple Ratio
+- CCCI: Canopy Chlorophyll Content Index
+- MSI: Moisture Stress Index
 """
 
 import logging
@@ -386,6 +392,144 @@ class SahoolNDRETask(BaseIndexTask):
 
 
 # =============================================================================
+# Phase 1 - Extended Spectral Indices (IDB/ENVI)
+# المرحلة الأولى - المؤشرات الطيفية الموسعة
+# =============================================================================
+
+
+class SahoolNBRTask(BaseIndexTask):
+    """
+    Normalized Burn Ratio (NBR)
+
+    NBR = (NIR - SWIR2) / (NIR + SWIR2)
+
+    Range: -1 to 1
+    Best for: Burn severity, drought stress, post-fire recovery
+    Reference: Key (2001), IDB ID: 53
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="NBR", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        swir2 = self._get_band(data, "SWIR2")
+        return np.clip(self._safe_divide(nir - swir2, nir + swir2), -1, 1)
+
+
+class SahoolEVI2Task(BaseIndexTask):
+    """
+    Two-Band Enhanced Vegetation Index (EVI2)
+
+    EVI2 = 2.5 * (NIR - RED) / (NIR + 2.4 * RED + 1)
+
+    Range: -1 to 1
+    Does not require blue band, more robust than EVI.
+    Reference: Jiang et al. (2008), IDB ID: 237
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="EVI2", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        denominator = nir + 2.4 * red + 1
+        return np.clip(self._safe_divide(2.5 * (nir - red), denominator), -1, 1)
+
+
+class SahoolBSITask(BaseIndexTask):
+    """
+    Bare Soil Index (BSI)
+
+    BSI = ((SWIR1 + RED) - (NIR + BLUE)) / ((SWIR1 + RED) + (NIR + BLUE))
+
+    Range: -1 to 1
+    Higher values = more bare soil.
+    Reference: Rikimaru et al. (2002), IDB ID: 146
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="BSI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        blue = self._get_band(data, "BLUE")
+        swir1 = self._get_band(data, "SWIR1")
+        numerator = (swir1 + red) - (nir + blue)
+        denominator = (swir1 + red) + (nir + blue)
+        return np.clip(self._safe_divide(numerator, denominator), -1, 1)
+
+
+class SahoolSRTask(BaseIndexTask):
+    """
+    Simple Ratio (SR / RVI)
+
+    SR = NIR / RED
+
+    Range: 0 to 30+
+    Oldest vegetation index (Jordan 1969).
+    Reference: IDB ID: 1
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="SR", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        return np.clip(self._safe_divide(nir, red), 0, 30)
+
+
+class SahoolCCCITask(BaseIndexTask):
+    """
+    Canopy Chlorophyll Content Index (CCCI)
+
+    CCCI = NDRE / NDVI
+
+    Range: 0 to 2+
+    Normalizes chlorophyll by canopy density.
+    Reference: Barnes et al. (2000), IDB ID: 224
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="CCCI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        re1 = self._get_band(data, "RE1")
+
+        ndvi = self._safe_divide(nir - red, nir + red)
+        ndre = self._safe_divide(nir - re1, nir + re1)
+
+        # Avoid division by very small NDVI
+        ndvi_safe = np.where(np.abs(ndvi) < 0.05, 0.05, ndvi)
+        return np.clip(self._safe_divide(ndre, ndvi_safe), 0, 3)
+
+
+class SahoolMSITask(BaseIndexTask):
+    """
+    Moisture Stress Index (MSI)
+
+    MSI = SWIR1 / NIR
+
+    Range: 0 to 5
+    INVERSE: higher = more stress (drier).
+    Reference: Hunt & Rock (1989), IDB ID: 49
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="MSI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        swir1 = self._get_band(data, "SWIR1")
+        return np.clip(self._safe_divide(swir1, nir), 0, 5)
+
+
+# =============================================================================
 # All Indices Task
 # =============================================================================
 
@@ -437,6 +581,13 @@ class AllIndicesTask:
             "NDMI": SahoolNDMITask,
             "GNDVI": SahoolGNDVITask,
             "NDRE": SahoolNDRETask,
+            # Phase 1 - Extended Spectral Indices
+            "NBR": SahoolNBRTask,
+            "EVI2": SahoolEVI2Task,
+            "BSI": SahoolBSITask,
+            "SR": SahoolSRTask,
+            "CCCI": SahoolCCCITask,
+            "MSI": SahoolMSITask,
         }
 
         self.indices = indices or list(self.available_indices.keys())

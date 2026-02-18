@@ -1,53 +1,62 @@
-/// SAHOOL Unified Error Codes (Dart)
-/// أكواد الأخطاء الموحدة
+/// SAHOOL Unified Error Codes (auto-generated)
+/// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
+/// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Auto-generated from: packages/shared-types/src/contracts/error-codes.ts
-/// Used by: Mobile app (Flutter/Dart)
-///
-/// @version 16.0.0
+/// Contract version: 1.2.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
 abstract final class ErrorCodes {
-  // ── Network & Transport ──────────────────────────────────────────────
   static const String networkError = 'NETWORK_ERROR';
   static const String timeout = 'TIMEOUT';
   static const String circuitOpen = 'CIRCUIT_OPEN';
   static const String invalidResponse = 'INVALID_RESPONSE';
-
-  // ── Authentication (401) ─────────────────────────────────────────────
   static const String unauthorized = 'UNAUTHORIZED';
   static const String tokenExpired = 'TOKEN_EXPIRED';
   static const String tokenInvalid = 'TOKEN_INVALID';
   static const String sessionExpired = 'SESSION_EXPIRED';
-
-  // ── Authorization (403) ──────────────────────────────────────────────
   static const String forbidden = 'FORBIDDEN';
   static const String insufficientPermissions = 'INSUFFICIENT_PERMISSIONS';
-
-  // ── Client Errors (4xx) ──────────────────────────────────────────────
   static const String badRequest = 'BAD_REQUEST';
   static const String validationError = 'VALIDATION_ERROR';
   static const String notFound = 'NOT_FOUND';
   static const String conflict = 'CONFLICT';
   static const String rateLimited = 'RATE_LIMITED';
-
-  // ── Server Errors (5xx) ──────────────────────────────────────────────
   static const String serverError = 'SERVER_ERROR';
+  static const String badGateway = 'BAD_GATEWAY';
   static const String serviceUnavailable = 'SERVICE_UNAVAILABLE';
   static const String gatewayTimeout = 'GATEWAY_TIMEOUT';
-
-  // ── Mobile-Specific ──────────────────────────────────────────────────
   static const String offline = 'OFFLINE';
   static const String syncFailed = 'SYNC_FAILED';
   static const String syncConflict = 'SYNC_CONFLICT';
   static const String certificateError = 'CERTIFICATE_ERROR';
-
-  // ── Generic ──────────────────────────────────────────────────────────
   static const String unknown = 'UNKNOWN';
+
+  // Vision Service (E-codes)
+  static const String visionInvalidFormat = 'E1001';
+  static const String visionFileTooLarge = 'E1002';
+  static const String visionInvalidDimensions = 'E1003';
+  static const String visionUnsupportedType = 'E1004';
+  static const String visionEmptyImage = 'E1005';
+  static const String visionCorruptFile = 'E1006';
+  static const String visionModelNotFound = 'E2001';
+  static const String visionModelLoadFailed = 'E2002';
+  static const String visionInferenceFailed = 'E2003';
+  static const String visionModelIncompatible = 'E2004';
+  static const String visionWarmupFailed = 'E2005';
+  static const String visionImageDecode = 'E3001';
+  static const String visionBatchFailed = 'E3003';
+  static const String visionGpuOom = 'E4001';
+  static const String visionMaxConcurrent = 'E4004';
+  static const String visionDbError = 'E5001';
+  static const String visionCacheError = 'E5002';
+  static const String visionRateExceeded = 'E6001';
+  static const String visionQuotaExceeded = 'E6002';
+  static const String visionInferenceTimeout = 'E7001';
+  static const String visionRequestTimeout = 'E7002';
 }
 
-/// Bilingual error message definition.
+/// Bilingual error message.
 class ErrorMessage {
   final String code;
   final int httpStatus;
@@ -62,14 +71,10 @@ class ErrorMessage {
     required this.ar,
     required this.retryable,
   });
-
-  /// Get localized error text.
-  String localized(String locale) => locale == 'ar' ? ar : en;
 }
 
-/// All error messages keyed by error code.
+/// Unified error messages (en + ar).
 const Map<String, ErrorMessage> errorMessages = {
-  // ── Network & Transport ──────────────────────────────────────────────
   'NETWORK_ERROR': ErrorMessage(
     code: 'NETWORK_ERROR',
     httpStatus: 0,
@@ -98,8 +103,6 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'استجابة غير صالحة من الخادم',
     retryable: false,
   ),
-
-  // ── Authentication (401) ─────────────────────────────────────────────
   'UNAUTHORIZED': ErrorMessage(
     code: 'UNAUTHORIZED',
     httpStatus: 401,
@@ -128,8 +131,6 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.',
     retryable: false,
   ),
-
-  // ── Authorization (403) ──────────────────────────────────────────────
   'FORBIDDEN': ErrorMessage(
     code: 'FORBIDDEN',
     httpStatus: 403,
@@ -144,8 +145,6 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'ليس لديك صلاحية لتنفيذ هذا الإجراء',
     retryable: false,
   ),
-
-  // ── Client Errors (4xx) ──────────────────────────────────────────────
   'BAD_REQUEST': ErrorMessage(
     code: 'BAD_REQUEST',
     httpStatus: 400,
@@ -181,13 +180,18 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'طلبات كثيرة جداً. يرجى الانتظار.',
     retryable: true,
   ),
-
-  // ── Server Errors (5xx) ──────────────────────────────────────────────
   'SERVER_ERROR': ErrorMessage(
     code: 'SERVER_ERROR',
     httpStatus: 500,
     en: 'Server error - please try again later',
     ar: 'خطأ في الخادم - يرجى المحاولة لاحقاً',
+    retryable: true,
+  ),
+  'BAD_GATEWAY': ErrorMessage(
+    code: 'BAD_GATEWAY',
+    httpStatus: 502,
+    en: 'Bad gateway - upstream service error',
+    ar: 'خطأ في البوابة - خطأ في الخدمة الأصلية',
     retryable: true,
   ),
   'SERVICE_UNAVAILABLE': ErrorMessage(
@@ -204,8 +208,6 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'انتهت مهلة البوابة - يرجى المحاولة مرة أخرى',
     retryable: true,
   ),
-
-  // ── Mobile-Specific ──────────────────────────────────────────────────
   'OFFLINE': ErrorMessage(
     code: 'OFFLINE',
     httpStatus: 0,
@@ -234,8 +236,6 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'خطأ في شهادة الأمان',
     retryable: false,
   ),
-
-  // ── Generic ──────────────────────────────────────────────────────────
   'UNKNOWN': ErrorMessage(
     code: 'UNKNOWN',
     httpStatus: 0,
@@ -245,32 +245,30 @@ const Map<String, ErrorMessage> errorMessages = {
   ),
 };
 
-/// Get the ErrorMessage for a given code.
-ErrorMessage getErrorMessage(String code) {
-  return errorMessages[code] ?? errorMessages[ErrorCodes.unknown]!;
-}
+/// Get error message by code, with fallback to UNKNOWN.
+ErrorMessage getErrorMessage(String code) =>
+    errorMessages[code] ?? errorMessages[ErrorCodes.unknown]!;
 
-/// Get localized error text.
+/// Get localized error string.
 String getLocalizedError(String code, {String locale = 'ar'}) {
-  return getErrorMessage(code).localized(locale);
+  final msg = getErrorMessage(code);
+  return locale == 'ar' ? msg.ar : msg.en;
 }
 
-/// Map an HTTP status code to the best matching error code.
-String httpStatusToErrorCode(int status) {
-  return switch (status) {
-    401 => ErrorCodes.unauthorized,
-    403 => ErrorCodes.forbidden,
-    404 => ErrorCodes.notFound,
-    409 => ErrorCodes.conflict,
-    429 => ErrorCodes.rateLimited,
-    400 => ErrorCodes.badRequest,
-    502 => ErrorCodes.invalidResponse,
-    503 => ErrorCodes.serviceUnavailable,
-    504 => ErrorCodes.gatewayTimeout,
-    >= 500 => ErrorCodes.serverError,
-    _ => ErrorCodes.unknown,
-  };
-}
+/// Map HTTP status to error code.
+String httpStatusToErrorCode(int status) => switch (status) {
+      401 => ErrorCodes.unauthorized,
+      403 => ErrorCodes.forbidden,
+      404 => ErrorCodes.notFound,
+      409 => ErrorCodes.conflict,
+      429 => ErrorCodes.rateLimited,
+      400 => ErrorCodes.badRequest,
+      502 => ErrorCodes.invalidResponse,
+      503 => ErrorCodes.serviceUnavailable,
+      504 => ErrorCodes.gatewayTimeout,
+      >= 500 => ErrorCodes.serverError,
+      _ => ErrorCodes.unknown,
+    };
 
 /// Check if an error code is retryable.
 bool isRetryable(String code) => getErrorMessage(code).retryable;

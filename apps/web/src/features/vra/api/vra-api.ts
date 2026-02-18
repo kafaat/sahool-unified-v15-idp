@@ -5,7 +5,7 @@
  * API client for VRA prescription maps and variable rate application features.
  */
 
-import { VRA_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
+import { VRA_ENDPOINTS } from "@sahool/shared-types/contracts";
 import type { ApiResponse } from "@/lib/api/types";
 import { logger } from "@/lib/logger";
 import type {

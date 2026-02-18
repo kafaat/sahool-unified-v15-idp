@@ -3,7 +3,7 @@
  * طبقة API لإدارة الفريق
  */
 
-import { TEAM_ENDPOINTS, USER_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+import { USER_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { logger } from "@/lib/logger";

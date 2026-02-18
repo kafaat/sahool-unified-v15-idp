@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Calendar, Plus, Search, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
 import { useSeasons, useSeasonStats } from "@/features/seasons";
-import type { Season, SeasonStatus, SeasonType } from "@/features/seasons";
+import type { SeasonStatus, SeasonType } from "@/features/seasons";
 
 const statusConfig: Record<SeasonStatus, { color: string; labelAr: string }> = {
   planning: { color: "bg-blue-100 text-blue-800", labelAr: "تخطيط" },

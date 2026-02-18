@@ -11,7 +11,6 @@ import type {
   CopilotTool,
   RagDocument,
   RagSearchResult,
-  CopilotFilters,
 } from "./types";
 
 const api = createApiClient({ timeout: 60000 });

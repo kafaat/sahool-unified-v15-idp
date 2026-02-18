@@ -6,7 +6,7 @@ import {
   Shield, FileCheck, File, Clock,
 } from "lucide-react";
 import { useDocuments, useDocumentStats } from "@/features/documents";
-import type { Document, DocumentCategory, DocumentStatus } from "@/features/documents";
+import type { DocumentCategory, DocumentStatus } from "@/features/documents";
 
 const categoryConfig: Record<DocumentCategory, { labelAr: string; icon: React.ElementType; color: string }> = {
   compliance: { labelAr: "امتثال", icon: Shield, color: "text-blue-600" },

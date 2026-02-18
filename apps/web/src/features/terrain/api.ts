@@ -15,7 +15,6 @@ import type {
   LevelingPlan,
   CutFillResult,
   LevelingCost,
-  TerrainFilters,
 } from "./types";
 
 const api = createApiClient({ timeout: 60000 });

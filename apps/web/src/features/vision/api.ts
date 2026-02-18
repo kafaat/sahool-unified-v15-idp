@@ -13,7 +13,6 @@ import type {
   RipenessResult,
   LeafSegmentation,
   ModelInfo,
-  VisionFilters,
 } from "./types";
 
 const api = createApiClient({ timeout: 60000 });

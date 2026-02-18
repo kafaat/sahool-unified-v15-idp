@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import {
-  FileBarChart, Download, Calendar, TrendingUp, Droplets,
-  Sprout, DollarSign, AlertTriangle, BarChart3, PieChart,
+  FileBarChart, Download, TrendingUp, Droplets,
+  Sprout, DollarSign, BarChart3, PieChart,
 } from "lucide-react";
 
 type ReportType = "yield" | "irrigation" | "financial" | "crop-health" | "inventory" | "weather";

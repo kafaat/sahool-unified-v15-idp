@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Users, Plus, Search, Shield, AlertTriangle, CheckCircle, Clock, UserX } from "lucide-react";
 import { useUsers, useUserStats } from "@/features/users";
-import type { User, UserRole, UserStatus } from "@/features/users";
+import type { UserRole, UserStatus } from "@/features/users";
 
 const roles: Array<{ value: UserRole | "all"; label: string; labelAr: string }> = [
   { value: "all", label: "All Roles", labelAr: "جميع الأدوار" },

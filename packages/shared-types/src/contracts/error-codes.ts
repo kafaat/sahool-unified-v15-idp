@@ -43,6 +43,7 @@ export const ERROR_CODES = {
 
   // ── Server Errors (5xx) ──────────────────────────────────────────────
   SERVER_ERROR: "SERVER_ERROR",
+  BAD_GATEWAY: "BAD_GATEWAY",
   SERVICE_UNAVAILABLE: "SERVICE_UNAVAILABLE",
   GATEWAY_TIMEOUT: "GATEWAY_TIMEOUT",
 
@@ -218,6 +219,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 500,
     en: "Server error - please try again later",
     ar: "خطأ في الخادم - يرجى المحاولة لاحقاً",
+    retryable: true,
+  },
+  [ERROR_CODES.BAD_GATEWAY]: {
+    code: ERROR_CODES.BAD_GATEWAY,
+    httpStatus: 502,
+    en: "Bad gateway - upstream service error",
+    ar: "خطأ في البوابة - خطأ في الخدمة الأصلية",
     retryable: true,
   },
   [ERROR_CODES.SERVICE_UNAVAILABLE]: {

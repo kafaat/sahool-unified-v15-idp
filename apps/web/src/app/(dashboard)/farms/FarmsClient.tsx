@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle } from "lucide-react";
 import { useFarms, useFarmStats } from "@/features/farms";
-import type { Farm, FarmStatus } from "@/features/farms";
+import type { FarmStatus } from "@/features/farms";
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
   active: { color: "bg-green-100 text-green-800", labelAr: "نشطة" },

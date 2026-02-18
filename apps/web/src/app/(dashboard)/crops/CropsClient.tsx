@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from "lucide-react";
 import { useCrops, useCropStats } from "@/features/crops";
-import type { Crop, CropCategory, CropStage } from "@/features/crops";
+import type { CropCategory, CropStage } from "@/features/crops";
 
 const categoryLabels: Record<CropCategory, string> = {
   cereals: "حبوب",

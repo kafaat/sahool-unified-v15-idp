@@ -5,7 +5,7 @@
 
 import { type AxiosError } from "axios";
 import { createApiClient, logger } from "@/lib/api/factory";
-import { PROVIDER_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
+import { API_PREFIX } from "@sahool/shared-types/contracts";
 import type {
   UserProfile,
   NotificationPreferences,

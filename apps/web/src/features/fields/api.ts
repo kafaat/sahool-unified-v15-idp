@@ -3,7 +3,7 @@
  * طبقة API لميزة الحقول
  */
 
-import axios, { type AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from "./types";
 import { createApiClient, logger } from "@/lib/api/factory";
 import { FIELD_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";

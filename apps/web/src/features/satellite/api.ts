@@ -4,7 +4,7 @@
  */
 
 import { createApiClient, logger } from "@/lib/api/factory";
-import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
+import { API_PREFIX } from "@sahool/shared-types/contracts";
 import type {
   SatelliteField,
   SatelliteImage,

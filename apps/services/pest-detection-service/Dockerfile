@@ -34,15 +34,15 @@ RUN mkdir -p /root/.pip && \
 
 # Upgrade pip
 RUN pip install --no-cache-dir --upgrade pip \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    --trusted-host pypi.tuna.tsinghua.edu.cn
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com
 
 # Install dependencies
 COPY constraints.txt .
 COPY apps/services/pest-detection-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=300 --retries=10 \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    --trusted-host pypi.tuna.tsinghua.edu.cn \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt
 
 # Copy shared libraries

@@ -16,6 +16,7 @@ import type {
   CommunityFilters,
   GroupFilters,
 } from "./types";
+import { COMMUNITY_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -310,7 +311,7 @@ export const communityApi = {
       if (filters?.search) params.set("search", filters.search);
 
       const response = await api.get(
-        `/api/v1/community/posts?${params.toString()}`,
+        `${COMMUNITY_ENDPOINTS.POSTS}?${params.toString()}`,
       );
 
       // Handle different response formats
@@ -333,7 +334,7 @@ export const communityApi = {
    */
   getTrendingPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get("/api/v1/community/posts/trending");
+      const response = await api.get(COMMUNITY_ENDPOINTS.TRENDING);
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -356,7 +357,7 @@ export const communityApi = {
    */
   getSavedPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get("/api/v1/community/posts/saved");
+      const response = await api.get(COMMUNITY_ENDPOINTS.SAVED);
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -379,7 +380,7 @@ export const communityApi = {
    */
   getMyPosts: async (): Promise<Post[]> => {
     try {
-      const response = await api.get("/api/v1/community/posts/my-posts");
+      const response = await api.get(COMMUNITY_ENDPOINTS.MY_POSTS);
       const posts = response.data.data || response.data;
 
       if (Array.isArray(posts)) {
@@ -399,7 +400,7 @@ export const communityApi = {
    */
   getPostById: async (id: string): Promise<Post> => {
     try {
-      const response = await api.get(`/api/v1/community/posts/${id}`);
+      const response = await api.get(buildUrl(COMMUNITY_ENDPOINTS.POST_GET, { postId: id }));
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -423,7 +424,7 @@ export const communityApi = {
    */
   createPost: async (data: Partial<Post>): Promise<Post> => {
     try {
-      const response = await api.post("/api/v1/community/posts", data);
+      const response = await api.post(COMMUNITY_ENDPOINTS.POSTS, data);
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -454,7 +455,7 @@ export const communityApi = {
    */
   updatePost: async (id: string, data: Partial<Post>): Promise<Post> => {
     try {
-      const response = await api.put(`/api/v1/community/posts/${id}`, data);
+      const response = await api.put(buildUrl(COMMUNITY_ENDPOINTS.POST_UPDATE, { postId: id }), data);
       const post = response.data.data || response.data;
       return post;
     } catch (error) {
@@ -485,7 +486,7 @@ export const communityApi = {
    */
   deletePost: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/community/posts/${id}`);
+      await api.delete(buildUrl(COMMUNITY_ENDPOINTS.POST_DELETE, { postId: id }));
     } catch (error) {
       logger.error(`Failed to delete post ${id}:`, error);
 
@@ -514,7 +515,7 @@ export const communityApi = {
    */
   likePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/posts/${postId}/like`);
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.POST_LIKE, { postId }));
     } catch (error) {
       logger.error(`Failed to like post ${postId}:`, error);
       throw error;
@@ -526,7 +527,7 @@ export const communityApi = {
    */
   savePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/posts/${postId}/save`);
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.POST_SAVE, { postId }));
     } catch (error) {
       logger.error(`Failed to save post ${postId}:`, error);
       throw error;
@@ -538,7 +539,7 @@ export const communityApi = {
    */
   sharePost: async (postId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/posts/${postId}/share`);
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.POST_SHARE, { postId }));
     } catch (error) {
       logger.error(`Failed to share post ${postId}:`, error);
       throw error;
@@ -556,7 +557,7 @@ export const communityApi = {
   getComments: async (postId: string): Promise<Comment[]> => {
     try {
       const response = await api.get(
-        `/api/v1/community/posts/${postId}/comments`,
+        buildUrl(COMMUNITY_ENDPOINTS.POST_COMMENTS, { postId }),
       );
       const comments = response.data.data || response.data;
 
@@ -585,7 +586,7 @@ export const communityApi = {
   ): Promise<Comment> => {
     try {
       const response = await api.post(
-        `/api/v1/community/posts/${postId}/comments`,
+        buildUrl(COMMUNITY_ENDPOINTS.POST_COMMENTS, { postId }),
         {
           content,
           parentId,
@@ -622,7 +623,7 @@ export const communityApi = {
   likeComment: async (postId: string, commentId: string): Promise<void> => {
     try {
       await api.post(
-        `/api/v1/community/posts/${postId}/comments/${commentId}/like`,
+        `${buildUrl(COMMUNITY_ENDPOINTS.POST_COMMENTS, { postId })}/${commentId}/like`,
       );
     } catch (error) {
       logger.error(`Failed to like comment ${commentId}:`, error);
@@ -649,7 +650,7 @@ export const communityApi = {
       if (filters?.search) params.set("search", filters.search);
 
       const response = await api.get(
-        `/api/v1/community/groups?${params.toString()}`,
+        `${COMMUNITY_ENDPOINTS.GROUPS}?${params.toString()}`,
       );
 
       // Handle different response formats
@@ -672,7 +673,7 @@ export const communityApi = {
    */
   getGroupById: async (id: string): Promise<Group> => {
     try {
-      const response = await api.get(`/api/v1/community/groups/${id}`);
+      const response = await api.get(buildUrl(COMMUNITY_ENDPOINTS.GROUP_GET, { groupId: id }));
       const group = response.data.data || response.data;
       return group;
     } catch (error) {
@@ -696,7 +697,7 @@ export const communityApi = {
    */
   getMyGroups: async (): Promise<Group[]> => {
     try {
-      const response = await api.get("/api/v1/community/groups/my-groups");
+      const response = await api.get(COMMUNITY_ENDPOINTS.MY_GROUPS);
       const groups = response.data.data || response.data;
 
       if (Array.isArray(groups)) {
@@ -719,7 +720,7 @@ export const communityApi = {
    */
   createGroup: async (data: Partial<Group>): Promise<Group> => {
     try {
-      const response = await api.post("/api/v1/community/groups", data);
+      const response = await api.post(COMMUNITY_ENDPOINTS.GROUPS, data);
       const group = response.data.data || response.data;
       return group;
     } catch (error) {
@@ -748,7 +749,7 @@ export const communityApi = {
    */
   joinGroup: async (groupId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/groups/${groupId}/join`);
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.GROUP_JOIN, { groupId }));
     } catch (error) {
       logger.error(`Failed to join group ${groupId}:`, error);
 
@@ -777,7 +778,7 @@ export const communityApi = {
    */
   leaveGroup: async (groupId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/groups/${groupId}/leave`);
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.GROUP_LEAVE, { groupId }));
     } catch (error) {
       logger.error(`Failed to leave group ${groupId}:`, error);
 
@@ -807,7 +808,7 @@ export const communityApi = {
   getGroupMembers: async (groupId: string): Promise<GroupMember[]> => {
     try {
       const response = await api.get(
-        `/api/v1/community/groups/${groupId}/members`,
+        buildUrl(COMMUNITY_ENDPOINTS.GROUP_MEMBERS, { groupId }),
       );
       const members = response.data.data || response.data;
 
@@ -837,7 +838,7 @@ export const communityApi = {
   getGroupMessages: async (groupId: string): Promise<ChatMessage[]> => {
     try {
       const response = await api.get(
-        `/api/v1/community/groups/${groupId}/messages`,
+        buildUrl(COMMUNITY_ENDPOINTS.GROUP_MESSAGES, { groupId }),
       );
       const messages = response.data.data || response.data;
 
@@ -866,7 +867,7 @@ export const communityApi = {
   ): Promise<ChatMessage> => {
     try {
       const response = await api.post(
-        `/api/v1/community/groups/${groupId}/messages`,
+        buildUrl(COMMUNITY_ENDPOINTS.GROUP_MESSAGES, { groupId }),
         {
           content,
           type,
@@ -907,7 +908,7 @@ export const communityApi = {
    */
   getExperts: async (): Promise<Expert[]> => {
     try {
-      const response = await api.get("/api/v1/community/experts");
+      const response = await api.get(COMMUNITY_ENDPOINTS.EXPERTS);
       const experts = response.data.data || response.data;
 
       if (Array.isArray(experts)) {
@@ -928,7 +929,7 @@ export const communityApi = {
   askExpert: async (data: Partial<ExpertQuestion>): Promise<ExpertQuestion> => {
     try {
       const response = await api.post(
-        "/api/v1/community/expert-questions",
+        COMMUNITY_ENDPOINTS.EXPERT_QUESTIONS,
         data,
       );
       const question = response.data.data || response.data;
@@ -961,7 +962,7 @@ export const communityApi = {
    */
   getExpertQuestions: async (): Promise<ExpertQuestion[]> => {
     try {
-      const response = await api.get("/api/v1/community/expert-questions");
+      const response = await api.get(COMMUNITY_ENDPOINTS.EXPERT_QUESTIONS);
       const questions = response.data.data || response.data;
 
       if (Array.isArray(questions)) {
@@ -984,7 +985,7 @@ export const communityApi = {
     helpful: boolean,
   ): Promise<void> => {
     try {
-      await api.post(`/api/v1/community/expert-questions/${questionId}/rate`, {
+      await api.post(buildUrl(COMMUNITY_ENDPOINTS.EXPERT_RATE, { questionId }), {
         helpful,
       });
     } catch (error) {

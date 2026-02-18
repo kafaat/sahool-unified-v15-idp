@@ -3,6 +3,7 @@
  * طبقة API لميزة الوثائق
  */
 
+import { DOCUMENT_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import { createApiClient, extractData, logger } from "@/lib/api/factory";
 import type { Document, DocumentFilters, DocumentStats } from "./types";
 
@@ -119,7 +120,7 @@ export const documentsApi = {
       if (filters?.status) params.set("status", filters.status);
       if (filters?.farmId) params.set("farm_id", filters.farmId);
       if (filters?.search) params.set("search", filters.search);
-      const response = await api.get(`/api/v1/documents?${params.toString()}`);
+      const response = await api.get(`${DOCUMENT_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<Document[]>(response);
       if (Array.isArray(data)) return data;
       return MOCK_DOCUMENTS;
@@ -131,7 +132,7 @@ export const documentsApi = {
 
   getDocumentById: async (id: string): Promise<Document> => {
     try {
-      const response = await api.get(`/api/v1/documents/${encodeURIComponent(id)}`);
+      const response = await api.get(buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id }));
       return extractData<Document>(response);
     } catch {
       const mock = MOCK_DOCUMENTS.find((d) => d.id === id);
@@ -141,18 +142,18 @@ export const documentsApi = {
   },
 
   uploadDocument: async (data: FormData): Promise<Document> => {
-    const response = await api.post("/api/v1/documents", data, {
+    const response = await api.post(DOCUMENT_ENDPOINTS.UPLOAD, data, {
       headers: { "Content-Type": "multipart/form-data" },
     });
     return extractData<Document>(response);
   },
 
   deleteDocument: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/documents/${encodeURIComponent(id)}`);
+    await api.delete(buildUrl(DOCUMENT_ENDPOINTS.DELETE, { documentId: id }));
   },
 
   downloadDocument: async (id: string): Promise<Blob> => {
-    const response = await api.get(`/api/v1/documents/${encodeURIComponent(id)}/download`, {
+    const response = await api.get(`${buildUrl(DOCUMENT_ENDPOINTS.GET, { documentId: id })}/download`, {
       responseType: "blob",
     });
     return response.data;
@@ -160,7 +161,7 @@ export const documentsApi = {
 
   getStats: async (): Promise<DocumentStats> => {
     try {
-      const response = await api.get("/api/v1/documents/stats");
+      const response = await api.get(`${DOCUMENT_ENDPOINTS.LIST}/stats`);
       return extractData<DocumentStats>(response);
     } catch {
       return MOCK_STATS;

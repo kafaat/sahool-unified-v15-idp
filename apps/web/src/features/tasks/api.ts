@@ -232,7 +232,7 @@ export const tasksApi = {
         params.set("dueDateFrom", filters.due_date_from);
       if (filters?.due_date_to) params.set("dueDateTo", filters.due_date_to);
 
-      const response = await api.get(`/api/v1/tasks?${params.toString()}`);
+      const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
 
       const data = response.data.data || response.data;
 
@@ -254,7 +254,7 @@ export const tasksApi = {
    */
   getTask: async (id: string): Promise<Task> => {
     try {
-      const response = await api.get(`/api/v1/tasks/${id}`);
+      const response = await api.get(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
 
       const data = response.data.data || response.data;
 
@@ -295,7 +295,7 @@ export const tasksApi = {
         taskType: "general",
       };
 
-      const response = await api.post("/api/v1/tasks", payload);
+      const response = await api.post(TASK_ENDPOINTS.CREATE, payload);
 
       const taskData = response.data.data || response.data;
 
@@ -335,7 +335,7 @@ export const tasksApi = {
         payload.assignee_id = data.assigned_to;
       if (data.field_id !== undefined) payload.field_id = data.field_id;
 
-      const response = await api.put(`/api/v1/tasks/${id}`, payload);
+      const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
 
       const taskData = response.data.data || response.data;
 
@@ -356,7 +356,7 @@ export const tasksApi = {
    */
   deleteTask: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/tasks/${id}`);
+      await api.delete(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }));
     } catch (error) {
       logger.error(`Failed to delete task ${id}:`, error);
       throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
@@ -378,7 +378,7 @@ export const tasksApi = {
         completed_at: new Date().toISOString(),
       };
 
-      const response = await api.post(`/api/v1/tasks/${id}/complete`, payload);
+      const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), payload);
 
       const taskData = response.data.data || response.data;
 
@@ -403,7 +403,7 @@ export const tasksApi = {
         status: mapStatusToBackend(status),
       };
 
-      const response = await api.put(`/api/v1/tasks/${id}`, payload);
+      const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
 
       const taskData = response.data.data || response.data;
 
@@ -428,7 +428,7 @@ export const tasksApi = {
         assignee_id: userId,
       };
 
-      const response = await api.put(`/api/v1/tasks/${id}`, payload);
+      const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
 
       const taskData = response.data.data || response.data;
 

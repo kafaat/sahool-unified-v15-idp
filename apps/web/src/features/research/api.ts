@@ -3,6 +3,7 @@
  * طبقة API لميزة الأبحاث والتجارب
  */
 
+import { RESEARCH_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
 import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   ResearchTrial,
@@ -133,7 +134,7 @@ export const researchApi = {
       if (filters?.cropType) params.set("crop_type", filters.cropType);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/research/trials?${params.toString()}`);
+      const response = await api.get(`${RESEARCH_ENDPOINTS.TRIALS}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -150,7 +151,7 @@ export const researchApi = {
 
   getTrialById: async (id: string): Promise<ResearchTrial> => {
     try {
-      const response = await api.get(`/api/v1/research/trials/${id}`);
+      const response = await api.get(buildUrl(RESEARCH_ENDPOINTS.TRIAL_GET, { trialId: id }));
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch trial ${id}, using mock data:`, error);
@@ -162,7 +163,7 @@ export const researchApi = {
 
   createTrial: async (data: ResearchFormData): Promise<ResearchTrial> => {
     try {
-      const response = await api.post("/api/v1/research/trials", data);
+      const response = await api.post(RESEARCH_ENDPOINTS.TRIAL_CREATE, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create trial:", error);
@@ -172,7 +173,7 @@ export const researchApi = {
 
   updateTrial: async (id: string, data: Partial<ResearchFormData>): Promise<ResearchTrial> => {
     try {
-      const response = await api.put(`/api/v1/research/trials/${id}`, data);
+      const response = await api.put(buildUrl(RESEARCH_ENDPOINTS.TRIAL_UPDATE, { trialId: id }), data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update trial ${id}:`, error);
@@ -182,7 +183,7 @@ export const researchApi = {
 
   deleteTrial: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/research/trials/${id}`);
+      await api.delete(buildUrl(RESEARCH_ENDPOINTS.TRIAL_GET, { trialId: id }));
     } catch (error) {
       logger.error(`Failed to delete trial ${id}:`, error);
       throw error;
@@ -191,7 +192,7 @@ export const researchApi = {
 
   updateProgress: async (id: string, progress: number): Promise<ResearchTrial> => {
     try {
-      const response = await api.patch(`/api/v1/research/trials/${id}/progress`, { progress });
+      const response = await api.patch(`${buildUrl(RESEARCH_ENDPOINTS.TRIAL_GET, { trialId: id })}/progress`, { progress });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update progress for trial ${id}:`, error);
@@ -201,7 +202,7 @@ export const researchApi = {
 
   getMilestones: async (trialId: string): Promise<ResearchMilestone[]> => {
     try {
-      const response = await api.get(`/api/v1/research/trials/${trialId}/milestones`);
+      const response = await api.get(`${buildUrl(RESEARCH_ENDPOINTS.TRIAL_GET, { trialId })}/milestones`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch milestones for trial ${trialId}:`, error);
@@ -211,7 +212,7 @@ export const researchApi = {
 
   getStats: async (): Promise<ResearchStats> => {
     try {
-      const response = await api.get("/api/v1/research/stats");
+      const response = await api.get(`${API_PREFIX}/research/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch research stats, using mock data:", error);

@@ -4,7 +4,7 @@
  */
 
 import { createApiClient, extractData, logger } from "@/lib/api/factory";
-import { AUTH_ENDPOINTS } from "@sahool/shared-types/contracts";
+import { USER_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import type { User, UserFilters, UserFormData, UserStats } from "./types";
 
 const api = createApiClient();
@@ -103,7 +103,7 @@ export const usersApi = {
       if (filters?.role) params.set("role", filters.role);
       if (filters?.status) params.set("status", filters.status);
       if (filters?.search) params.set("search", filters.search);
-      const response = await api.get(`/api/v1/users?${params.toString()}`);
+      const response = await api.get(`${USER_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<User[]>(response);
       if (Array.isArray(data)) return data;
       return MOCK_USERS;
@@ -115,7 +115,7 @@ export const usersApi = {
 
   getUserById: async (id: string): Promise<User> => {
     try {
-      const response = await api.get(`/api/v1/users/${encodeURIComponent(id)}`);
+      const response = await api.get(buildUrl(USER_ENDPOINTS.GET, { userId: id }));
       return extractData<User>(response);
     } catch {
       const mock = MOCK_USERS.find((u) => u.id === id);
@@ -125,27 +125,27 @@ export const usersApi = {
   },
 
   createUser: async (data: UserFormData): Promise<User> => {
-    const response = await api.post("/api/v1/users", data);
+    const response = await api.post(USER_ENDPOINTS.CREATE, data);
     return extractData<User>(response);
   },
 
   updateUser: async (id: string, data: Partial<UserFormData>): Promise<User> => {
-    const response = await api.put(`/api/v1/users/${encodeURIComponent(id)}`, data);
+    const response = await api.put(buildUrl(USER_ENDPOINTS.UPDATE, { userId: id }), data);
     return extractData<User>(response);
   },
 
   deleteUser: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/users/${encodeURIComponent(id)}`);
+    await api.delete(buildUrl(USER_ENDPOINTS.DELETE, { userId: id }));
   },
 
   toggleStatus: async (id: string, status: "active" | "suspended"): Promise<User> => {
-    const response = await api.patch(`/api/v1/users/${encodeURIComponent(id)}/status`, { status });
+    const response = await api.patch(`${buildUrl(USER_ENDPOINTS.GET, { userId: id })}/status`, { status });
     return extractData<User>(response);
   },
 
   getStats: async (): Promise<UserStats> => {
     try {
-      const response = await api.get("/api/v1/users/stats");
+      const response = await api.get(`${USER_ENDPOINTS.LIST}/stats`);
       return extractData<UserStats>(response);
     } catch {
       return MOCK_STATS;

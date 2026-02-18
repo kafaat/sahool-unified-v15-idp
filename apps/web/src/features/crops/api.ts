@@ -3,6 +3,7 @@
  * طبقة API لميزة المحاصيل
  */
 
+import { API_PREFIX } from "@sahool/shared-types/contracts";
 import { createApiClient, extractData, logger } from "@/lib/api/factory";
 import type { Crop, CropFilters, CropFormData, CropStats } from "./types";
 
@@ -111,7 +112,7 @@ export const cropsApi = {
       if (filters?.stage) params.set("stage", filters.stage);
       if (filters?.fieldId) params.set("field_id", filters.fieldId);
       if (filters?.search) params.set("search", filters.search);
-      const response = await api.get(`/api/v1/crops?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/crops?${params.toString()}`);
       const data = extractData<Crop[]>(response);
       if (Array.isArray(data)) return data;
       return MOCK_CROPS;
@@ -123,7 +124,7 @@ export const cropsApi = {
 
   getCropById: async (id: string): Promise<Crop> => {
     try {
-      const response = await api.get(`/api/v1/crops/${encodeURIComponent(id)}`);
+      const response = await api.get(`${API_PREFIX}/crops/${encodeURIComponent(id)}`);
       return extractData<Crop>(response);
     } catch {
       const mock = MOCK_CROPS.find((c) => c.id === id);
@@ -133,22 +134,22 @@ export const cropsApi = {
   },
 
   createCrop: async (data: CropFormData): Promise<Crop> => {
-    const response = await api.post("/api/v1/crops", data);
+    const response = await api.post(`${API_PREFIX}/crops`, data);
     return extractData<Crop>(response);
   },
 
   updateCrop: async (id: string, data: Partial<CropFormData>): Promise<Crop> => {
-    const response = await api.put(`/api/v1/crops/${encodeURIComponent(id)}`, data);
+    const response = await api.put(`${API_PREFIX}/crops/${encodeURIComponent(id)}`, data);
     return extractData<Crop>(response);
   },
 
   deleteCrop: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/crops/${encodeURIComponent(id)}`);
+    await api.delete(`${API_PREFIX}/crops/${encodeURIComponent(id)}`);
   },
 
   getStats: async (): Promise<CropStats> => {
     try {
-      const response = await api.get("/api/v1/crops/stats");
+      const response = await api.get(`${API_PREFIX}/crops/stats`);
       return extractData<CropStats>(response);
     } catch {
       return MOCK_STATS;

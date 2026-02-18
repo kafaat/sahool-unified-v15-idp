@@ -16,6 +16,7 @@ import type {
   HealthFilters,
   DiseaseSeverity,
 } from "./types";
+import { CROP_HEALTH_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 
 /**
  * API Response Types
@@ -345,7 +346,7 @@ export const cropHealthApi = {
       if (filters?.dateTo) params.set("date_to", filters.dateTo);
 
       const response = await api.get(
-        `/api/v1/crop-health/summary?${params.toString()}`,
+        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/summary?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return data;
@@ -378,7 +379,7 @@ export const cropHealthApi = {
         params.set("severity", filters.severity.join(","));
 
       const response = await api.get(
-        `/api/v1/crop-health/records?${params.toString()}`,
+        `${CROP_HEALTH_ENDPOINTS.ANALYZE}/records?${params.toString()}`,
       );
       const records = response.data.data || response.data;
 
@@ -402,7 +403,7 @@ export const cropHealthApi = {
    */
   getHealthRecord: async (id: string): Promise<HealthRecord> => {
     try {
-      const response = await api.get(`/api/v1/crop-health/records/${id}`);
+      const response = await api.get(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
     } catch (error) {
@@ -428,7 +429,7 @@ export const cropHealthApi = {
     data: Partial<HealthRecord>,
   ): Promise<HealthRecord> => {
     try {
-      const response = await api.post("/api/v1/crop-health/records", data);
+      const response = await api.post(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records`, data);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
     } catch (error) {
@@ -462,7 +463,7 @@ export const cropHealthApi = {
     data: Partial<HealthRecord>,
   ): Promise<HealthRecord> => {
     try {
-      const response = await api.put(`/api/v1/crop-health/records/${id}`, data);
+      const response = await api.put(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/records/${id}`, data);
       const record = response.data.data || response.data;
       return mapApiHealthRecordToHealthRecord(record);
     } catch (error) {
@@ -495,7 +496,7 @@ export const cropHealthApi = {
     data: Partial<DiagnosisRequest>,
   ): Promise<DiagnosisRequest> => {
     try {
-      const response = await api.post("/api/v1/crop-health/diagnoses", data);
+      const response = await api.post(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST, data);
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
     } catch (error) {
@@ -530,7 +531,7 @@ export const cropHealthApi = {
       files.forEach((file) => formData.append("images", file));
 
       const response = await api.post(
-        "/api/v1/crop-health/diagnoses/upload",
+        `${CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST}/upload`,
         formData,
         {
           headers: {
@@ -568,7 +569,7 @@ export const cropHealthApi = {
    */
   getDiagnosisRequests: async (): Promise<DiagnosisRequest[]> => {
     try {
-      const response = await api.get("/api/v1/crop-health/diagnoses");
+      const response = await api.get(CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST);
       const diagnoses = response.data.data || response.data;
 
       if (Array.isArray(diagnoses)) {
@@ -588,7 +589,7 @@ export const cropHealthApi = {
    */
   getDiagnosisRequest: async (id: string): Promise<DiagnosisRequest> => {
     try {
-      const response = await api.get(`/api/v1/crop-health/diagnoses/${id}`);
+      const response = await api.get(buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }));
       const diagnosis = response.data.data || response.data;
       return mapApiDiagnosisToDiagnosis(diagnosis);
     } catch (error) {
@@ -603,7 +604,7 @@ export const cropHealthApi = {
   getDiagnosisResult: async (requestId: string): Promise<DiagnosisResult> => {
     try {
       const response = await api.get(
-        `/api/v1/crop-health/diagnoses/${requestId}/result`,
+        `${buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: requestId })}/result`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -617,7 +618,7 @@ export const cropHealthApi = {
    */
   getDiseases: async (): Promise<Disease[]> => {
     try {
-      const response = await api.get("/api/v1/crop-health/diseases");
+      const response = await api.get(CROP_HEALTH_ENDPOINTS.DISEASES);
       const diseases = response.data.data || response.data;
 
       if (Array.isArray(diseases)) {
@@ -637,7 +638,7 @@ export const cropHealthApi = {
    */
   getDiseaseAlerts: async (): Promise<DiseaseAlert[]> => {
     try {
-      const response = await api.get("/api/v1/crop-health/alerts");
+      const response = await api.get(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts`);
       const alerts = response.data.data || response.data;
 
       if (Array.isArray(alerts)) {
@@ -660,7 +661,7 @@ export const cropHealthApi = {
    */
   dismissAlert: async (alertId: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/crop-health/alerts/${alertId}/dismiss`);
+      await api.post(`${CROP_HEALTH_ENDPOINTS.ANALYZE}/alerts/${alertId}/dismiss`);
     } catch (error) {
       logger.error(`Failed to dismiss alert ${alertId}:`, error);
 
@@ -694,7 +695,7 @@ export const cropHealthApi = {
   }): Promise<ExpertConsultation> => {
     try {
       const response = await api.post(
-        "/api/v1/crop-health/consultations",
+        CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW,
         data,
       );
       return response.data.data || response.data;
@@ -726,7 +727,7 @@ export const cropHealthApi = {
    */
   getConsultations: async (): Promise<ExpertConsultation[]> => {
     try {
-      const response = await api.get("/api/v1/crop-health/consultations");
+      const response = await api.get(CROP_HEALTH_ENDPOINTS.EXPERT_REVIEW);
       const consultations = response.data.data || response.data;
 
       if (Array.isArray(consultations)) {

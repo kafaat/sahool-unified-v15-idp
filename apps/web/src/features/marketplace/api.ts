@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from "@/lib/api/factory";
+import { MARKETPLACE_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
 import type {
   Product,
   ProductFilters,
@@ -262,7 +263,7 @@ export const marketplaceApi = {
       if (filters?.sortBy) params.append("sortBy", filters.sortBy);
 
       const response = await api.get(
-        `/api/v1/marketplace/products?${params.toString()}`,
+        `${MARKETPLACE_ENDPOINTS.PRODUCTS}?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -276,7 +277,7 @@ export const marketplaceApi = {
    */
   async getProductById(id: string): Promise<Product> {
     try {
-      const response = await api.get(`/api/v1/marketplace/products/${id}`);
+      const response = await api.get(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }));
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Using mock product data:", error);
@@ -293,7 +294,7 @@ export const marketplaceApi = {
    */
   async createProduct(data: Partial<Product>): Promise<Product> {
     try {
-      const response = await api.post("/api/v1/marketplace/products", data);
+      const response = await api.post(MARKETPLACE_ENDPOINTS.PRODUCTS, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create product:", error);
@@ -307,7 +308,7 @@ export const marketplaceApi = {
   async updateProduct(id: string, data: Partial<Product>): Promise<Product> {
     try {
       const response = await api.patch(
-        `/api/v1/marketplace/products/${id}`,
+        buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }),
         data,
       );
       return response.data.data || response.data;
@@ -322,7 +323,7 @@ export const marketplaceApi = {
    */
   async deleteProduct(id: string): Promise<void> {
     try {
-      await api.delete(`/api/v1/marketplace/products/${id}`);
+      await api.delete(buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId: id }));
     } catch (error) {
       logger.error("Failed to delete product:", error);
       throw new Error(ERROR_MESSAGES.DELETE_PRODUCT.ar);
@@ -334,7 +335,7 @@ export const marketplaceApi = {
    */
   async getCategories(): Promise<typeof MOCK_CATEGORIES> {
     try {
-      const response = await api.get("/api/v1/marketplace/categories");
+      const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/categories`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Using mock categories:", error);
@@ -347,7 +348,7 @@ export const marketplaceApi = {
    */
   async getFeaturedProducts(): Promise<Product[]> {
     try {
-      const response = await api.get("/api/v1/marketplace/products/featured");
+      const response = await api.get(`${MARKETPLACE_ENDPOINTS.PRODUCTS}/featured`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Using mock featured products:", error);
@@ -361,7 +362,7 @@ export const marketplaceApi = {
   async getSellerProducts(sellerId: string): Promise<Product[]> {
     try {
       const response = await api.get(
-        `/api/v1/marketplace/sellers/${sellerId}/products`,
+        `${API_PREFIX}/marketplace/sellers/${sellerId}/products`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -381,7 +382,7 @@ export const marketplaceApi = {
       if (filters?.dateTo) params.append("dateTo", filters.dateTo);
 
       const response = await api.get(
-        `/api/v1/marketplace/orders?${params.toString()}`,
+        `${MARKETPLACE_ENDPOINTS.ORDERS}?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -395,7 +396,7 @@ export const marketplaceApi = {
    */
   async getOrderById(id: string): Promise<Order | null> {
     try {
-      const response = await api.get(`/api/v1/marketplace/orders/${id}`);
+      const response = await api.get(`${MARKETPLACE_ENDPOINTS.ORDERS}/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to fetch order:", error);
@@ -412,7 +413,7 @@ export const marketplaceApi = {
     notes?: string;
   }): Promise<Order> {
     try {
-      const response = await api.post("/api/v1/marketplace/orders", data);
+      const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create order:", error);
@@ -444,7 +445,7 @@ export const marketplaceApi = {
   async cancelOrder(id: string): Promise<{ success: boolean; error?: string }> {
     try {
       const response = await api.post(
-        `/api/v1/marketplace/orders/${id}/cancel`,
+        `${MARKETPLACE_ENDPOINTS.ORDERS}/${id}/cancel`,
       );
       return { success: true, ...response.data };
     } catch (error) {
@@ -461,7 +462,7 @@ export const marketplaceApi = {
    */
   async getCart(): Promise<CartItem[]> {
     try {
-      const response = await api.get("/api/v1/marketplace/cart");
+      const response = await api.get(`${API_PREFIX}/marketplace/cart`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Cart API not available:", error);
@@ -474,7 +475,7 @@ export const marketplaceApi = {
    */
   async addToCart(productId: string, quantity: number): Promise<CartItem> {
     try {
-      const response = await api.post("/api/v1/marketplace/cart", {
+      const response = await api.post(`${API_PREFIX}/marketplace/cart`, {
         productId,
         quantity,
       });
@@ -490,7 +491,7 @@ export const marketplaceApi = {
    */
   async updateCartItem(itemId: string, quantity: number): Promise<CartItem> {
     try {
-      const response = await api.patch(`/api/v1/marketplace/cart/${itemId}`, {
+      const response = await api.patch(`${API_PREFIX}/marketplace/cart/${itemId}`, {
         quantity,
       });
       return response.data.data || response.data;
@@ -505,7 +506,7 @@ export const marketplaceApi = {
    */
   async removeFromCart(itemId: string): Promise<void> {
     try {
-      await api.delete(`/api/v1/marketplace/cart/${itemId}`);
+      await api.delete(`${API_PREFIX}/marketplace/cart/${itemId}`);
     } catch (error) {
       logger.error("Failed to remove from cart:", error);
       throw error;
@@ -517,7 +518,7 @@ export const marketplaceApi = {
    */
   async clearCart(): Promise<void> {
     try {
-      await api.delete("/api/v1/marketplace/cart");
+      await api.delete(`${API_PREFIX}/marketplace/cart`);
     } catch (error) {
       logger.error("Failed to clear cart:", error);
       throw error;
@@ -530,7 +531,7 @@ export const marketplaceApi = {
   async searchProducts(query: string): Promise<Product[]> {
     try {
       const response = await api.get(
-        `/api/v1/marketplace/products/search?q=${encodeURIComponent(query)}`,
+        `${MARKETPLACE_ENDPOINTS.PRODUCTS}/search?q=${encodeURIComponent(query)}`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -554,7 +555,7 @@ export const marketplaceApi = {
   > {
     try {
       const response = await api.get(
-        `/api/v1/marketplace/products/${productId}/reviews`,
+        `${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -571,7 +572,7 @@ export const marketplaceApi = {
     data: { rating: number; comment: string },
   ): Promise<void> {
     try {
-      await api.post(`/api/v1/marketplace/products/${productId}/reviews`, data);
+      await api.post(`${buildUrl(MARKETPLACE_ENDPOINTS.PRODUCT_GET, { productId })}/reviews`, data);
     } catch (error) {
       logger.error("Failed to add review:", error);
       throw error;

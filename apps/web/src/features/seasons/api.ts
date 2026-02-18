@@ -3,6 +3,7 @@
  * طبقة API لميزة المواسم
  */
 
+import { SEASON_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import { createApiClient, extractData, logger } from "@/lib/api/factory";
 import type { Season, SeasonFilters, SeasonFormData, SeasonStats } from "./types";
 
@@ -96,7 +97,7 @@ export const seasonsApi = {
       if (filters?.year) params.set("year", String(filters.year));
       if (filters?.farmId) params.set("farm_id", filters.farmId);
       if (filters?.search) params.set("search", filters.search);
-      const response = await api.get(`/api/v1/seasons?${params.toString()}`);
+      const response = await api.get(`${SEASON_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<Season[]>(response);
       if (Array.isArray(data)) return data;
       return MOCK_SEASONS;
@@ -108,7 +109,7 @@ export const seasonsApi = {
 
   getSeasonById: async (id: string): Promise<Season> => {
     try {
-      const response = await api.get(`/api/v1/seasons/${encodeURIComponent(id)}`);
+      const response = await api.get(buildUrl(SEASON_ENDPOINTS.GET, { seasonId: id }));
       return extractData<Season>(response);
     } catch {
       const mock = MOCK_SEASONS.find((s) => s.id === id);
@@ -118,22 +119,22 @@ export const seasonsApi = {
   },
 
   createSeason: async (data: SeasonFormData): Promise<Season> => {
-    const response = await api.post("/api/v1/seasons", data);
+    const response = await api.post(SEASON_ENDPOINTS.CREATE, data);
     return extractData<Season>(response);
   },
 
   updateSeason: async (id: string, data: Partial<SeasonFormData>): Promise<Season> => {
-    const response = await api.put(`/api/v1/seasons/${encodeURIComponent(id)}`, data);
+    const response = await api.put(buildUrl(SEASON_ENDPOINTS.UPDATE, { seasonId: id }), data);
     return extractData<Season>(response);
   },
 
   deleteSeason: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/seasons/${encodeURIComponent(id)}`);
+    await api.delete(buildUrl(SEASON_ENDPOINTS.DELETE, { seasonId: id }));
   },
 
   getStats: async (): Promise<SeasonStats> => {
     try {
-      const response = await api.get("/api/v1/seasons/stats");
+      const response = await api.get(`${SEASON_ENDPOINTS.LIST}/stats`);
       return extractData<SeasonStats>(response);
     } catch {
       return MOCK_STATS;

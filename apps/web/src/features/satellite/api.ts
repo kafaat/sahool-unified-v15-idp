@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from "@/lib/api/factory";
+import { SATELLITE_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
 import type {
   SatelliteField,
   SatelliteImage,
@@ -123,7 +124,7 @@ export const satelliteApi = {
       if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
       if (filters?.dateTo) params.set("date_to", filters.dateTo);
 
-      const response = await api.get(`/api/v1/satellite/fields?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/satellite/fields?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -140,7 +141,7 @@ export const satelliteApi = {
 
   getFieldById: async (id: string): Promise<SatelliteField> => {
     try {
-      const response = await api.get(`/api/v1/satellite/fields/${id}`);
+      const response = await api.get(`${API_PREFIX}/satellite/fields/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch satellite field ${id}, using mock data:`, error);
@@ -157,7 +158,7 @@ export const satelliteApi = {
       if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
       if (filters?.dateTo) params.set("date_to", filters.dateTo);
 
-      const response = await api.get(`/api/v1/satellite/images?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/satellite/images?${params.toString()}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch images for field ${fieldId}:`, error);
@@ -177,7 +178,7 @@ export const satelliteApi = {
       params.set("from", period.from);
       params.set("to", period.to);
 
-      const response = await api.get(`/api/v1/satellite/timeseries?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/satellite/timeseries?${params.toString()}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch time series for field ${fieldId}:`, error);
@@ -187,7 +188,7 @@ export const satelliteApi = {
 
   getZoneAnalysis: async (fieldId: string): Promise<ZoneAnalysis[]> => {
     try {
-      const response = await api.get(`/api/v1/satellite/fields/${fieldId}/zones`);
+      const response = await api.get(`${API_PREFIX}/satellite/fields/${fieldId}/zones`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch zone analysis for field ${fieldId}:`, error);
@@ -197,7 +198,7 @@ export const satelliteApi = {
 
   requestNewCapture: async (fieldId: string): Promise<{ requestId: string; estimatedTime: string }> => {
     try {
-      const response = await api.post(`/api/v1/satellite/fields/${fieldId}/capture`);
+      const response = await api.post(`${API_PREFIX}/satellite/fields/${fieldId}/capture`);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to request capture for field ${fieldId}:`, error);
@@ -207,7 +208,7 @@ export const satelliteApi = {
 
   getStats: async (): Promise<SatelliteStats> => {
     try {
-      const response = await api.get("/api/v1/satellite/stats");
+      const response = await api.get(`${API_PREFIX}/satellite/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch satellite stats, using mock data:", error);

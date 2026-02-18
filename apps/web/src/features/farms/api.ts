@@ -3,6 +3,7 @@
  * طبقة API لميزة المزارع
  */
 
+import { FARM_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import { createApiClient, extractData, logger } from "@/lib/api/factory";
 import type { Farm, FarmFilters, FarmFormData, FarmStats } from "./types";
 
@@ -89,7 +90,7 @@ export const farmsApi = {
       if (filters?.status) params.set("status", filters.status);
       if (filters?.region) params.set("region", filters.region);
       if (filters?.search) params.set("search", filters.search);
-      const response = await api.get(`/api/v1/farms?${params.toString()}`);
+      const response = await api.get(`${FARM_ENDPOINTS.LIST}?${params.toString()}`);
       const data = extractData<Farm[]>(response);
       if (Array.isArray(data)) return data;
       return MOCK_FARMS;
@@ -101,7 +102,7 @@ export const farmsApi = {
 
   getFarmById: async (id: string): Promise<Farm> => {
     try {
-      const response = await api.get(`/api/v1/farms/${encodeURIComponent(id)}`);
+      const response = await api.get(buildUrl(FARM_ENDPOINTS.GET, { farmId: id }));
       return extractData<Farm>(response);
     } catch {
       const mock = MOCK_FARMS.find((f) => f.id === id);
@@ -111,22 +112,22 @@ export const farmsApi = {
   },
 
   createFarm: async (data: FarmFormData): Promise<Farm> => {
-    const response = await api.post("/api/v1/farms", data);
+    const response = await api.post(FARM_ENDPOINTS.CREATE, data);
     return extractData<Farm>(response);
   },
 
   updateFarm: async (id: string, data: Partial<FarmFormData>): Promise<Farm> => {
-    const response = await api.put(`/api/v1/farms/${encodeURIComponent(id)}`, data);
+    const response = await api.put(buildUrl(FARM_ENDPOINTS.UPDATE, { farmId: id }), data);
     return extractData<Farm>(response);
   },
 
   deleteFarm: async (id: string): Promise<void> => {
-    await api.delete(`/api/v1/farms/${encodeURIComponent(id)}`);
+    await api.delete(buildUrl(FARM_ENDPOINTS.DELETE, { farmId: id }));
   },
 
   getStats: async (): Promise<FarmStats> => {
     try {
-      const response = await api.get("/api/v1/farms/stats");
+      const response = await api.get(`${FARM_ENDPOINTS.LIST}/stats`);
       return extractData<FarmStats>(response);
     } catch {
       return MOCK_STATS;

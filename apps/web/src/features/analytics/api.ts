@@ -5,6 +5,7 @@
 
 import { type AxiosError } from "axios";
 import { createApiClient, logger } from "@/lib/api/factory";
+import { INDICATOR_ENDPOINTS, YIELD_ENDPOINTS } from "@sahool/shared-types/contracts";
 import type {
   AnalyticsSummary,
   YieldData,
@@ -423,7 +424,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/summary?${params.toString()}`,
+        `${INDICATOR_ENDPOINTS.SUMMARY}?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -444,7 +445,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/yield?${params.toString()}`,
+        `${YIELD_ENDPOINTS.PREDICTIONS}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_YIELD_DATA;
@@ -464,7 +465,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/cost?${params.toString()}`,
+        `${YIELD_ENDPOINTS.PROFITABILITY}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_COST_DATA;
@@ -486,7 +487,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/revenue?${params.toString()}`,
+        `${YIELD_ENDPOINTS.PROFITABILITY}?${params.toString()}&type=revenue`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_REVENUE_DATA;
@@ -506,7 +507,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/kpis?${params.toString()}`,
+        `${INDICATOR_ENDPOINTS.DASHBOARD}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_KPI_METRICS;
@@ -533,7 +534,7 @@ export const analyticsApi = {
       params.set("metric", metric);
 
       const response = await api.get(
-        `/api/v1/analytics/comparison?${params.toString()}`,
+        `${INDICATOR_ENDPOINTS.TRENDS}?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch (error) {
@@ -572,7 +573,7 @@ export const analyticsApi = {
     try {
       const params = buildQueryParams(filters);
       const response = await api.get(
-        `/api/v1/analytics/resources?${params.toString()}`,
+        `${INDICATOR_ENDPOINTS.DEFINITIONS}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_RESOURCE_USAGE;
@@ -593,7 +594,7 @@ export const analyticsApi = {
   ): Promise<{ downloadUrl: string; reportId: string }> => {
     try {
       const response = await api.post(
-        "/api/v1/analytics/reports/generate",
+        `${YIELD_ENDPOINTS.PREDICT_POST}`,
         config,
       );
       return response.data.data || response.data;
@@ -627,7 +628,7 @@ export const analyticsApi = {
   downloadReport: async (reportId: string): Promise<Blob> => {
     try {
       const response = await api.get(
-        `/api/v1/analytics/reports/${reportId}/download`,
+        `${YIELD_ENDPOINTS.PREDICTIONS}/${reportId}/download`,
         {
           responseType: "blob",
         },

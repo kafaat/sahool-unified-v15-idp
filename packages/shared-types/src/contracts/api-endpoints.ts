@@ -500,6 +500,178 @@ export const AGRO_RULES_ENDPOINTS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Edge Orchestrator Endpoints - نقاط إدارة الأجهزة الطرفية
+// ---------------------------------------------------------------------------
+
+export const EDGE_ENDPOINTS = {
+  DEVICES: `${API_PREFIX}/edge/devices`,
+  DEVICE_GET: `${API_PREFIX}/edge/devices/{deviceId}`,
+  DEVICE_CREATE: `${API_PREFIX}/edge/devices`,
+  DEVICE_UPDATE: `${API_PREFIX}/edge/devices/{deviceId}`,
+  DEVICE_DELETE: `${API_PREFIX}/edge/devices/{deviceId}`,
+  DEVICE_STATUS: `${API_PREFIX}/edge/devices/{deviceId}/status`,
+  DEPLOY_MODEL: `${API_PREFIX}/edge/deploy`,
+  DEPLOY_STATUS: `${API_PREFIX}/edge/deploy/{deploymentId}/status`,
+  SYNC: `${API_PREFIX}/edge/sync`,
+  SYNC_STATUS: `${API_PREFIX}/edge/sync/{syncId}/status`,
+  METRICS: `${API_PREFIX}/edge/devices/{deviceId}/metrics`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Community Endpoints - نقاط المجتمع الزراعي
+// ---------------------------------------------------------------------------
+
+export const COMMUNITY_ENDPOINTS = {
+  POSTS: `${API_PREFIX}/community/posts`,
+  POST_GET: `${API_PREFIX}/community/posts/{postId}`,
+  POST_CREATE: `${API_PREFIX}/community/posts`,
+  POST_UPDATE: `${API_PREFIX}/community/posts/{postId}`,
+  POST_DELETE: `${API_PREFIX}/community/posts/{postId}`,
+  POST_LIKE: `${API_PREFIX}/community/posts/{postId}/like`,
+  POST_SAVE: `${API_PREFIX}/community/posts/{postId}/save`,
+  POST_SHARE: `${API_PREFIX}/community/posts/{postId}/share`,
+  POST_COMMENTS: `${API_PREFIX}/community/posts/{postId}/comments`,
+  TRENDING: `${API_PREFIX}/community/posts/trending`,
+  SAVED: `${API_PREFIX}/community/posts/saved`,
+  MY_POSTS: `${API_PREFIX}/community/posts/my-posts`,
+  GROUPS: `${API_PREFIX}/community/groups`,
+  GROUP_GET: `${API_PREFIX}/community/groups/{groupId}`,
+  GROUP_JOIN: `${API_PREFIX}/community/groups/{groupId}/join`,
+  GROUP_LEAVE: `${API_PREFIX}/community/groups/{groupId}/leave`,
+  GROUP_MEMBERS: `${API_PREFIX}/community/groups/{groupId}/members`,
+  GROUP_MESSAGES: `${API_PREFIX}/community/groups/{groupId}/messages`,
+  MY_GROUPS: `${API_PREFIX}/community/groups/my-groups`,
+  EXPERTS: `${API_PREFIX}/community/experts`,
+  EXPERT_QUESTIONS: `${API_PREFIX}/community/expert-questions`,
+  EXPERT_RATE: `${API_PREFIX}/community/expert-questions/{questionId}/rate`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Home Dashboard Endpoints - نقاط لوحة المعلومات
+// ---------------------------------------------------------------------------
+
+export const DASHBOARD_ENDPOINTS = {
+  SUMMARY: `${API_PREFIX}/dashboard/summary`,
+  STATS: `${API_PREFIX}/dashboard/stats`,
+  RECENT_ACTIVITY: `${API_PREFIX}/dashboard/recent-activity`,
+  WEATHER_WIDGET: `${API_PREFIX}/dashboard/weather`,
+  ALERTS_WIDGET: `${API_PREFIX}/dashboard/alerts`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Astronomical Calendar Endpoints - نقاط التقويم الفلكي
+// ---------------------------------------------------------------------------
+
+export const ASTRONOMICAL_ENDPOINTS = {
+  CALENDAR: `${API_PREFIX}/astronomical/calendar`,
+  PRAYER_TIMES: `${API_PREFIX}/astronomical/prayer-times`,
+  MOON_PHASES: `${API_PREFIX}/astronomical/moon-phases`,
+  SEASONS: `${API_PREFIX}/astronomical/seasons`,
+  EVENTS: `${API_PREFIX}/astronomical/events`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Farms & Seasons Endpoints - نقاط المزارع والمواسم
+// ---------------------------------------------------------------------------
+
+export const FARM_ENDPOINTS = {
+  LIST: `${API_PREFIX}/farms`,
+  GET: `${API_PREFIX}/farms/{farmId}`,
+  CREATE: `${API_PREFIX}/farms`,
+  UPDATE: `${API_PREFIX}/farms/{farmId}`,
+  DELETE: `${API_PREFIX}/farms/{farmId}`,
+  STATS: `${API_PREFIX}/farms/{farmId}/stats`,
+  MEMBERS: `${API_PREFIX}/farms/{farmId}/members`,
+} as const;
+
+export const SEASON_ENDPOINTS = {
+  LIST: `${API_PREFIX}/seasons`,
+  GET: `${API_PREFIX}/seasons/{seasonId}`,
+  CREATE: `${API_PREFIX}/seasons`,
+  UPDATE: `${API_PREFIX}/seasons/{seasonId}`,
+  DELETE: `${API_PREFIX}/seasons/{seasonId}`,
+  ACTIVE: `${API_PREFIX}/seasons/active`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Compliance & Documents Endpoints - نقاط الامتثال والمستندات
+// ---------------------------------------------------------------------------
+
+export const COMPLIANCE_ENDPOINTS = {
+  CHECKLISTS: `${API_PREFIX}/compliance/checklists`,
+  CHECKLIST_GET: `${API_PREFIX}/compliance/checklists/{checklistId}`,
+  AUDITS: `${API_PREFIX}/compliance/audits`,
+  CERTIFICATES: `${API_PREFIX}/compliance/certificates`,
+  STANDARDS: `${API_PREFIX}/compliance/standards`,
+} as const;
+
+export const DOCUMENT_ENDPOINTS = {
+  LIST: `${API_PREFIX}/documents`,
+  GET: `${API_PREFIX}/documents/{documentId}`,
+  UPLOAD: `${API_PREFIX}/documents/upload`,
+  DELETE: `${API_PREFIX}/documents/{documentId}`,
+  CATEGORIES: `${API_PREFIX}/documents/categories`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Logistics & Research Endpoints - نقاط اللوجستيات والأبحاث
+// ---------------------------------------------------------------------------
+
+export const LOGISTICS_ENDPOINTS = {
+  SHIPMENTS: `${API_PREFIX}/logistics/shipments`,
+  SHIPMENT_GET: `${API_PREFIX}/logistics/shipments/{shipmentId}`,
+  SHIPMENT_CREATE: `${API_PREFIX}/logistics/shipments`,
+  VEHICLES: `${API_PREFIX}/logistics/vehicles`,
+  ROUTES: `${API_PREFIX}/logistics/routes`,
+  TRACKING: `${API_PREFIX}/logistics/tracking/{shipmentId}`,
+} as const;
+
+export const RESEARCH_ENDPOINTS = {
+  TRIALS: `${API_PREFIX}/research/trials`,
+  TRIAL_GET: `${API_PREFIX}/research/trials/{trialId}`,
+  TRIAL_CREATE: `${API_PREFIX}/research/trials`,
+  TRIAL_UPDATE: `${API_PREFIX}/research/trials/{trialId}`,
+  OBSERVATIONS: `${API_PREFIX}/research/trials/{trialId}/observations`,
+  ANALYSIS: `${API_PREFIX}/research/trials/{trialId}/analysis`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Scouting & VRA Endpoints - نقاط الكشف والتطبيق المتغير
+// ---------------------------------------------------------------------------
+
+export const SCOUTING_ENDPOINTS = {
+  LIST: `${API_PREFIX}/scouting/reports`,
+  GET: `${API_PREFIX}/scouting/reports/{reportId}`,
+  CREATE: `${API_PREFIX}/scouting/reports`,
+  UPDATE: `${API_PREFIX}/scouting/reports/{reportId}`,
+  DELETE: `${API_PREFIX}/scouting/reports/{reportId}`,
+  FIELD_REPORTS: `${API_PREFIX}/scouting/fields/{fieldId}/reports`,
+  STATS: `${API_PREFIX}/scouting/stats`,
+} as const;
+
+export const VRA_ENDPOINTS = {
+  MAPS: `${API_PREFIX}/vra/maps`,
+  MAP_GET: `${API_PREFIX}/vra/maps/{mapId}`,
+  MAP_CREATE: `${API_PREFIX}/vra/maps`,
+  PRESCRIPTIONS: `${API_PREFIX}/vra/prescriptions`,
+  PRESCRIPTION_GET: `${API_PREFIX}/vra/prescriptions/{prescriptionId}`,
+  ZONES: `${API_PREFIX}/vra/zones/{fieldId}`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Team Management Endpoints - نقاط إدارة الفريق
+// ---------------------------------------------------------------------------
+
+export const TEAM_ENDPOINTS = {
+  MEMBERS: `${API_PREFIX}/team/members`,
+  MEMBER_GET: `${API_PREFIX}/team/members/{memberId}`,
+  MEMBER_INVITE: `${API_PREFIX}/team/members/invite`,
+  MEMBER_REMOVE: `${API_PREFIX}/team/members/{memberId}`,
+  MEMBER_ROLE: `${API_PREFIX}/team/members/{memberId}/role`,
+  ROLES: `${API_PREFIX}/team/roles`,
+} as const;
+
+// ---------------------------------------------------------------------------
 // Public Endpoints (no auth required) - النقاط العامة
 // ---------------------------------------------------------------------------
 

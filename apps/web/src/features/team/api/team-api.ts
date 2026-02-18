@@ -3,6 +3,7 @@
  * طبقة API لإدارة الفريق
  */
 
+import { TEAM_ENDPOINTS, USER_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { logger } from "@/lib/logger";
@@ -213,7 +214,7 @@ export const teamApi = {
       if (filters?.status) params.set("status", filters.status);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/users?${params.toString()}`);
+      const response = await api.get(`${USER_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -237,7 +238,7 @@ export const teamApi = {
    */
   getMember: async (id: string): Promise<TeamMember> => {
     try {
-      const response = await api.get(`/api/v1/users/${id}`);
+      const response = await api.get(buildUrl(USER_ENDPOINTS.GET, { userId: id }));
       const data = response.data.data || response.data;
 
       if (data && typeof data === "object") {
@@ -277,7 +278,7 @@ export const teamApi = {
         phoneVerified: false,
       };
 
-      const response = await api.post("/api/v1/users", payload);
+      const response = await api.post(USER_ENDPOINTS.CREATE, payload);
       const userData = response.data.data || response.data;
 
       if (userData && typeof userData === "object") {
@@ -298,7 +299,7 @@ export const teamApi = {
   updateMemberRole: async (userId: string, role: Role): Promise<TeamMember> => {
     try {
       const payload = { role };
-      const response = await api.put(`/api/v1/users/${userId}`, payload);
+      const response = await api.put(buildUrl(USER_ENDPOINTS.UPDATE, { userId }), payload);
       const userData = response.data.data || response.data;
 
       if (userData && typeof userData === "object") {
@@ -318,7 +319,7 @@ export const teamApi = {
    */
   removeMember: async (userId: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/users/${userId}`);
+      await api.delete(buildUrl(USER_ENDPOINTS.DELETE, { userId }));
     } catch (error) {
       logger.error(`Failed to remove member ${userId}:`, error);
       throw new Error(ERROR_MESSAGES.REMOVE_FAILED.en);

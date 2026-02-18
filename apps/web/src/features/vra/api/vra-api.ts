@@ -5,6 +5,7 @@
  * API client for VRA prescription maps and variable rate application features.
  */
 
+import { VRA_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
 import type { ApiResponse } from "@/lib/api/types";
 import { logger } from "@/lib/logger";
 import type {
@@ -114,7 +115,7 @@ export async function generatePrescription(
     };
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/vra/generate`,
+      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.MAP_CREATE}`,
       {
         method: "POST",
         headers: {
@@ -217,7 +218,7 @@ export async function getPrescriptionHistory(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/vra/prescriptions/${fieldId}?limit=${limit}`,
+      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${fieldId}?limit=${limit}`,
       {
         method: "GET",
         headers: {
@@ -300,7 +301,7 @@ export async function getPrescriptionDetails(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/vra/prescription/${prescriptionId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`,
       {
         method: "GET",
         headers: {
@@ -424,7 +425,7 @@ export async function exportPrescription(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/vra/export/${prescriptionId}?format=${format}`,
+      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}/export?format=${format}`,
       {
         method: "GET",
         headers: {
@@ -490,7 +491,7 @@ export async function deletePrescription(
 
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/v1/vra/prescription/${prescriptionId}`,
+      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`,
       {
         method: "DELETE",
         headers: {

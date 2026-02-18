@@ -4,6 +4,7 @@
  */
 
 import { createApiClient, logger } from "@/lib/api/factory";
+import { EQUIPMENT_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import type {
   Equipment,
   EquipmentFilters,
@@ -218,7 +219,7 @@ export const equipmentApi = {
       if (filters?.fieldId) params.set("field_id", filters.fieldId);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/equipment?${params.toString()}`);
+      const response = await api.get(`${EQUIPMENT_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -242,7 +243,7 @@ export const equipmentApi = {
    */
   getEquipmentById: async (id: string): Promise<Equipment> => {
     try {
-      const response = await api.get(`/api/v1/equipment/${id}`);
+      const response = await api.get(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -264,7 +265,7 @@ export const equipmentApi = {
    */
   createEquipment: async (data: EquipmentFormData): Promise<Equipment> => {
     try {
-      const response = await api.post("/api/v1/equipment", data);
+      const response = await api.post(EQUIPMENT_ENDPOINTS.LIST, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create equipment:", error);
@@ -281,7 +282,7 @@ export const equipmentApi = {
     data: Partial<EquipmentFormData>,
   ): Promise<Equipment> => {
     try {
-      const response = await api.put(`/api/v1/equipment/${id}`, data);
+      const response = await api.put(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update equipment ${id}:`, error);
@@ -295,7 +296,7 @@ export const equipmentApi = {
    */
   deleteEquipment: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/equipment/${id}`);
+      await api.delete(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
     } catch (error) {
       logger.error(`Failed to delete equipment ${id}:`, error);
       throw error;
@@ -312,7 +313,7 @@ export const equipmentApi = {
   ): Promise<Equipment> => {
     try {
       const response = await api.patch(
-        `/api/v1/equipment/${id}/location`,
+        `${buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id })}/location`,
         location,
       );
       return response.data.data || response.data;
@@ -331,7 +332,7 @@ export const equipmentApi = {
   ): Promise<MaintenanceRecord[]> => {
     try {
       const params = equipmentId ? `?equipment_id=${equipmentId}` : "";
-      const response = await api.get(`/api/v1/equipment/maintenance${params}`);
+      const response = await api.get(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}${params}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -361,7 +362,7 @@ export const equipmentApi = {
    */
   getMaintenanceById: async (id: string): Promise<MaintenanceRecord> => {
     try {
-      const response = await api.get(`/api/v1/equipment/maintenance/${id}`);
+      const response = await api.get(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -385,7 +386,7 @@ export const equipmentApi = {
     data: MaintenanceFormData,
   ): Promise<MaintenanceRecord> => {
     try {
-      const response = await api.post("/api/v1/equipment/maintenance", data);
+      const response = await api.post(EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create maintenance record:", error);
@@ -403,7 +404,7 @@ export const equipmentApi = {
   ): Promise<MaintenanceRecord> => {
     try {
       const response = await api.put(
-        `/api/v1/equipment/maintenance/${id}`,
+        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`,
         data,
       );
       return response.data.data || response.data;
@@ -419,7 +420,7 @@ export const equipmentApi = {
    */
   deleteMaintenance: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/equipment/maintenance/${id}`);
+      await api.delete(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`);
     } catch (error) {
       logger.error(`Failed to delete maintenance record ${id}:`, error);
       throw error;
@@ -436,7 +437,7 @@ export const equipmentApi = {
   ): Promise<MaintenanceRecord> => {
     try {
       const response = await api.post(
-        `/api/v1/equipment/maintenance/${id}/complete`,
+        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`,
         { notes },
       );
       return response.data.data || response.data;
@@ -457,7 +458,7 @@ export const equipmentApi = {
     maintenanceDue: number;
   }> => {
     try {
-      const response = await api.get("/api/v1/equipment/stats");
+      const response = await api.get(EQUIPMENT_ENDPOINTS.STATS);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {

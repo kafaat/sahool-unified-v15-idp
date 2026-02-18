@@ -221,7 +221,7 @@ export const fieldsApi = {
       if (filters?.maxArea) params.set("maxArea", filters.maxArea.toString());
       if (filters?.status) params.set("status", filters.status);
 
-      const response = await api.get(`/api/v1/fields?${params.toString()}`);
+      const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
 
       // Handle different response formats
       const fields = response.data.data || response.data;
@@ -243,7 +243,7 @@ export const fieldsApi = {
    */
   getFieldById: async (id: string): Promise<Field> => {
     try {
-      const response = await api.get(`/api/v1/fields/${id}`);
+      const response = await api.get(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }));
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -271,7 +271,7 @@ export const fieldsApi = {
   ): Promise<Field> => {
     try {
       const apiData = mapFieldToApiField(data, tenantId);
-      const response = await api.post("/api/v1/fields", apiData);
+      const response = await api.post(FIELD_ENDPOINTS.CREATE, apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -307,7 +307,7 @@ export const fieldsApi = {
   ): Promise<Field> => {
     try {
       const apiData = mapFieldToApiField(data as FieldFormData, tenantId);
-      const response = await api.put(`/api/v1/fields/${id}`, apiData);
+      const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -338,7 +338,7 @@ export const fieldsApi = {
    */
   deleteField: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/fields/${id}`);
+      await api.delete(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }));
     } catch (error) {
       logger.error(`Failed to delete field ${id}:`, error);
 
@@ -377,7 +377,7 @@ export const fieldsApi = {
       if (farmId) params.set("tenantId", farmId);
 
       const response = await api.get(
-        `/api/v1/fields/stats?${params.toString()}`,
+        `${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch {

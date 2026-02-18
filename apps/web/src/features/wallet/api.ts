@@ -5,6 +5,7 @@
 
 import axios from "axios";
 import { createApiClient, logger } from "@/lib/api/factory";
+import { BILLING_ENDPOINTS } from "@sahool/shared-types/contracts";
 import type {
   Wallet,
   Transaction,
@@ -187,7 +188,7 @@ export const walletApi = {
    */
   async getWallet(): Promise<Wallet> {
     try {
-      const response = await api.get("/api/v1/billing/wallet");
+      const response = await api.get(BILLING_ENDPOINTS.WALLET);
 
       // Handle different response formats
       const data = response.data.data || response.data;
@@ -211,7 +212,7 @@ export const walletApi = {
    */
   async getStats(): Promise<WalletStats> {
     try {
-      const response = await api.get("/api/v1/billing/wallet/stats");
+      const response = await api.get(`${BILLING_ENDPOINTS.WALLET}/stats`);
       const data = response.data.data || response.data;
 
       if (data && typeof data === "object" && "currentBalance" in data) {
@@ -273,7 +274,7 @@ export const walletApi = {
         params.append("maxAmount", filters.maxAmount.toString());
 
       const queryString = params.toString();
-      const endpoint = `/api/v1/billing/transactions${queryString ? `?${queryString}` : ""}`;
+      const endpoint = `${BILLING_ENDPOINTS.TRANSACTIONS}${queryString ? `?${queryString}` : ""}`;
 
       const response = await api.get(endpoint);
       const data = response.data.data || response.data;
@@ -301,7 +302,7 @@ export const walletApi = {
    */
   async getTransactionById(id: string): Promise<Transaction> {
     try {
-      const response = await api.get(`/api/v1/billing/transactions/${id}`);
+      const response = await api.get(`${BILLING_ENDPOINTS.TRANSACTIONS}/${id}`);
       const data = response.data.data || response.data;
 
       if (data && typeof data === "object" && "id" in data) {
@@ -337,7 +338,7 @@ export const walletApi = {
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
     try {
-      const response = await api.post("/api/v1/billing/deposit", data);
+      const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
       const result = response.data.data || response.data;
 
       if (result && typeof result === "object" && "id" in result) {
@@ -366,7 +367,7 @@ export const walletApi = {
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
     try {
-      const response = await api.post("/api/v1/billing/withdraw", data);
+      const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
       const result = response.data.data || response.data;
 
       if (result && typeof result === "object" && "id" in result) {
@@ -397,7 +398,7 @@ export const walletApi = {
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
     try {
-      const response = await api.post("/api/v1/billing/transfer", data);
+      const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
       const result = response.data.data || response.data;
 
       if (result && typeof result === "object" && "id" in result) {

@@ -3,6 +3,7 @@
  * طبقة API الموسعة لتقارير الحقول
  */
 
+import { API_PREFIX } from "@sahool/shared-types/contracts";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { logger } from "@/lib/logger";
@@ -124,7 +125,7 @@ const MOCK_FIELD_REPORT: GeneratedReport = {
     "weather_summary",
     "recommendations",
   ],
-  downloadUrl: "/api/v1/reports/report-field-1/download",
+  downloadUrl: `${API_PREFIX}/reports/report-field-1/download`,
   shareUrl: "https://sahool.app/reports/shared/report-field-1",
   fileSize: 2548736, // ~2.5MB
   pageCount: 12,
@@ -238,7 +239,7 @@ export const reportsApi = {
   ): Promise<GeneratedReport> => {
     try {
       const response = await api.post(
-        "/api/v1/reports/field/generate",
+        `${API_PREFIX}/reports/field/generate`,
         request,
       );
       const data = response.data.data || response.data;
@@ -263,7 +264,7 @@ export const reportsApi = {
   ): Promise<GeneratedReport> => {
     try {
       const response = await api.post(
-        "/api/v1/reports/season/generate",
+        `${API_PREFIX}/reports/season/generate`,
         request,
       );
       const data = response.data.data || response.data;
@@ -295,7 +296,7 @@ export const reportsApi = {
       if (filters?.search) params.set("search", filters.search);
 
       const response = await api.get(
-        `/api/v1/reports/history?${params.toString()}`,
+        `${API_PREFIX}/reports/history?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : [];
@@ -315,7 +316,7 @@ export const reportsApi = {
    */
   getReport: async (reportId: string): Promise<GeneratedReport> => {
     try {
-      const response = await api.get(`/api/v1/reports/${reportId}`);
+      const response = await api.get(`${API_PREFIX}/reports/${reportId}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -333,7 +334,7 @@ export const reportsApi = {
    */
   downloadReport: async (reportId: string): Promise<DownloadReportResponse> => {
     try {
-      const response = await api.get(`/api/v1/reports/${reportId}/download`);
+      const response = await api.get(`${API_PREFIX}/reports/${reportId}/download`);
       const data = response.data.data || response.data;
       return {
         success: true,
@@ -355,7 +356,7 @@ export const reportsApi = {
   ): Promise<ShareReportResponse> => {
     try {
       const response = await api.post(
-        `/api/v1/reports/${request.reportId}/share`,
+        `${API_PREFIX}/reports/${request.reportId}/share`,
         request,
       );
       const data = response.data.data || response.data;
@@ -388,7 +389,7 @@ export const reportsApi = {
    */
   deleteReport: async (reportId: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/reports/${reportId}`);
+      await api.delete(`${API_PREFIX}/reports/${reportId}`);
     } catch (error) {
       logger.error("Failed to delete report:", error);
       throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
@@ -411,7 +412,7 @@ export const reportsApi = {
       if (endDate) params.set("end_date", endDate);
 
       const response = await api.get(
-        `/api/v1/reports/field/data?${params.toString()}`,
+        `${API_PREFIX}/reports/field/data?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return data;
@@ -439,7 +440,7 @@ export const reportsApi = {
       if (endDate) params.set("end_date", endDate);
 
       const response = await api.get(
-        `/api/v1/reports/season/data?${params.toString()}`,
+        `${API_PREFIX}/reports/season/data?${params.toString()}`,
       );
       const data = response.data.data || response.data;
       return data;
@@ -455,7 +456,7 @@ export const reportsApi = {
    */
   getReportTemplates: async (): Promise<ReportTemplate[]> => {
     try {
-      const response = await api.get("/api/v1/reports/templates");
+      const response = await api.get(`${API_PREFIX}/reports/templates`);
       const data = response.data.data || response.data;
       return Array.isArray(data) ? data : MOCK_REPORT_TEMPLATES;
     } catch (error) {
@@ -470,7 +471,7 @@ export const reportsApi = {
    */
   checkReportStatus: async (reportId: string): Promise<GeneratedReport> => {
     try {
-      const response = await api.get(`/api/v1/reports/${reportId}/status`);
+      const response = await api.get(`${API_PREFIX}/reports/${reportId}/status`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {

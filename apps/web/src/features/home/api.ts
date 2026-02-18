@@ -3,6 +3,7 @@
  * طبقة API لميزة لوحة التحكم
  */
 
+import { DASHBOARD_ENDPOINTS, TASK_ENDPOINTS, ALERT_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
 import { createApiClient, logger } from "@/lib/api/factory";
 
 /**
@@ -137,7 +138,7 @@ export const dashboardApi = {
    */
   getDashboard: async (): Promise<DashboardData> => {
     try {
-      const response = await api.get("/api/v1/dashboard");
+      const response = await api.get(DASHBOARD_ENDPOINTS.SUMMARY);
 
       // Handle different response formats
       const data = response.data.data || response.data;
@@ -163,7 +164,7 @@ export const dashboardApi = {
    */
   getStats: async (): Promise<DashboardData["stats"]> => {
     try {
-      const response = await api.get("/api/v1/dashboard/stats");
+      const response = await api.get(DASHBOARD_ENDPOINTS.STATS);
       const stats = response.data.data || response.data;
       return stats;
     } catch (error) {
@@ -180,7 +181,7 @@ export const dashboardApi = {
    */
   getWeather: async (): Promise<DashboardData["weather"]> => {
     try {
-      const response = await api.get("/api/v1/dashboard/weather");
+      const response = await api.get(DASHBOARD_ENDPOINTS.WEATHER_WIDGET);
       const weather = response.data.data || response.data;
       return weather;
     } catch (error) {
@@ -203,7 +204,7 @@ export const dashboardApi = {
       params.set("limit", limit.toString());
 
       const response = await api.get(
-        `/api/v1/dashboard/activity?${params.toString()}`,
+        `${DASHBOARD_ENDPOINTS.RECENT_ACTIVITY}?${params.toString()}`,
       );
       const activity = response.data.data || response.data;
 
@@ -236,7 +237,7 @@ export const dashboardApi = {
       params.set("status", "pending");
 
       const response = await api.get(
-        `/api/v1/dashboard/tasks/upcoming?${params.toString()}`,
+        `${API_PREFIX}/dashboard/tasks/upcoming?${params.toString()}`,
       );
       const tasks = response.data.data || response.data;
 
@@ -268,7 +269,7 @@ export const dashboardApi = {
     notes?: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await api.post(`/api/v1/tasks/${taskId}/complete`, {
+      const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId }), {
         notes,
         completedAt: new Date().toISOString(),
       });
@@ -296,7 +297,7 @@ export const dashboardApi = {
     reason?: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await api.post(`/api/v1/alerts/${alertId}/dismiss`, {
+      const response = await api.post(`${buildUrl(ALERT_ENDPOINTS.GET, { alertId })}/dismiss`, {
         reason,
         dismissedAt: new Date().toISOString(),
       });
@@ -323,7 +324,7 @@ export const dashboardApi = {
     activityIds: string[],
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await api.post("/api/v1/dashboard/activity/mark-read", {
+      const response = await api.post(`${DASHBOARD_ENDPOINTS.RECENT_ACTIVITY}/mark-read`, {
         activityIds,
       });
 
@@ -349,7 +350,7 @@ export const dashboardApi = {
     alertId: string,
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const response = await api.post(`/api/v1/alerts/${alertId}/acknowledge`);
+      const response = await api.post(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId }));
 
       if (response.data.success !== false) {
         return { success: true };
@@ -393,7 +394,7 @@ export const dashboardApi = {
       if (options?.severity) params.set("severity", options.severity);
 
       const response = await api.get(
-        `/api/v1/dashboard/alerts?${params.toString()}`,
+        `${DASHBOARD_ENDPOINTS.ALERTS_WIDGET}?${params.toString()}`,
       );
       const alerts = response.data.data || response.data;
 
@@ -433,7 +434,7 @@ export const dashboardApi = {
     };
   }> => {
     try {
-      const response = await api.get("/api/v1/dashboard/stats/enhanced");
+      const response = await api.get(`${DASHBOARD_ENDPOINTS.STATS}/enhanced`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {

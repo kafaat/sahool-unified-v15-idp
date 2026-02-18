@@ -328,26 +328,22 @@ console.log(`  ✓ buildUrl helper validated`);
 // ─────────────────────────────────────────────────────────────────────────────
 section("SERVICE_REGISTRY");
 
-if (SERVICE_REGISTRY) {
-  const registryEntries = Object.entries(SERVICE_REGISTRY);
-  assert(registryEntries.length > 0, "SERVICE_REGISTRY should not be empty");
+const registryEntries = Object.entries(SERVICE_REGISTRY);
+assert(registryEntries.length > 0, "SERVICE_REGISTRY should not be empty");
 
-  for (const [serviceName, info] of registryEntries) {
-    assert(typeof serviceName === "string" && serviceName.length > 0, `Registry key should be a non-empty string`);
-    assert(typeof info.name === "string" && info.name.length > 0, `${serviceName}: name should not be empty`);
-    assert(typeof info.nameAr === "string" && info.nameAr.length > 0, `${serviceName}: nameAr should not be empty`);
-    assert(typeof info.type === "string", `${serviceName}: type should be a string`);
-    assert(
-      ["python", "nodejs", "node", "mixed"].includes(info.type),
-      `${serviceName}: type should be python/nodejs/node/mixed, got: ${info.type}`,
-    );
-    assert(typeof info.port === "number" && info.port > 0, `${serviceName}: port should be a positive number`);
-  }
-
-  console.log(`  ✓ ${registryEntries.length} registry entries validated`);
-} else {
-  console.log(`  ⚠️  SERVICE_REGISTRY not found (optional)`);
+for (const [serviceName, info] of registryEntries) {
+  assert(typeof serviceName === "string" && serviceName.length > 0, `Registry key should be a non-empty string`);
+  assert(typeof info.name === "string" && info.name.length > 0, `${serviceName}: name should not be empty`);
+  assert(typeof info.nameAr === "string" && info.nameAr.length > 0, `${serviceName}: nameAr should not be empty`);
+  assert(typeof info.type === "string", `${serviceName}: type should be a string`);
+  assert(
+    ["python", "nodejs", "node", "mixed"].includes(info.type),
+    `${serviceName}: type should be python/nodejs/node/mixed, got: ${info.type}`,
+  );
+  assert(typeof info.port === "number" && info.port > 0, `${serviceName}: port should be a positive number`);
 }
+
+console.log(`  ✓ ${registryEntries.length} registry entries validated`);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Summary

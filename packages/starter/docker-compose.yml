@@ -179,20 +179,20 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8108
+      - PORT=8092
       - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
       - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "8108:8108"
+      - "8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -219,7 +219,7 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather-service:8108
+      - WEATHER_SERVICE_URL=http://weather-service:8092
     ports:
       - "8111:8111"
     depends_on:
@@ -256,16 +256,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8105
+      - PORT=8093
     ports:
-      - "8105:8105"
+      - "8093:8093"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8093/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

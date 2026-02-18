@@ -146,8 +146,8 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
   },
   auth: {
     name: "auth",
-    baseUrl: `${API_BASE}:8080`,
-    port: 8080,
+    baseUrl: `${API_BASE}:3025`,
+    port: 3025,
     healthEndpoint: "/health",
     timeout: 5000,
     retries: 2,

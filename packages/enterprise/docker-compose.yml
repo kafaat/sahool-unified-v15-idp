@@ -238,20 +238,20 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8108
+      - PORT=8092
       - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
       - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "8108:8108"
+      - "8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -277,7 +277,7 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather_core:8108
+      - WEATHER_SERVICE_URL=http://weather_core:8092
     ports:
       - "8111:8111"
     depends_on:
@@ -313,6 +313,8 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      # NOTE: Uses non-standard port 8105 to avoid conflict with fertilizer_advisor (8093)
+      # This is a legacy instance - prefer fertilizer_advisor at canonical port 8093
       - PORT=8105
     ports:
       - "8105:8105"
@@ -445,16 +447,16 @@ services:
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8107
+      - PORT=8118
     ports:
-      - "8107:8107"
+      - "8118:8118"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8118/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -553,20 +555,20 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-enterprise-virtual-sensors
     environment:
-      - PORT=8096
+      - PORT=8119
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://nats:4222
     ports:
-      - "8096:8096"
+      - "8119:8119"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -661,7 +663,7 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-enterprise-inventory-service
     environment:
-      - PORT=8113
+      - PORT=8116
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
@@ -669,7 +671,7 @@ services:
       - NATS_URL=nats://nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
-      - "8113:8113"
+      - "8116:8116"
     depends_on:
       postgres:
         condition: service_healthy
@@ -678,7 +680,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8116/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -720,10 +722,10 @@ services:
       - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-pro}
       # Service URLs
       - CROP_HEALTH_URL=http://crop_health_ai:8095
-      - WEATHER_URL=http://weather_core:8108
+      - WEATHER_URL=http://weather_core:8092
       - SATELLITE_URL=http://satellite_service:8090
       - AGRO_ADVISOR_URL=http://agro_advisor:8105
-      - NDVI_URL=http://ndvi_engine:8107
+      - NDVI_URL=http://ndvi_engine:8118
       # RAG Configuration
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
@@ -1098,7 +1100,7 @@ services:
       - MAX_TOOL_OUTPUT_SIZE=10485760
       - MAX_FILES_CHANGED=20
       # Agent URLs
-      - CODE_FIX_AGENT_URL=http://code_fix_agent:8161
+      - CODE_FIX_AGENT_URL=http://code_fix_agent:8162
       - AI_ADVISOR_URL=http://ai_advisor:8112
     ports:
       - "8088:8088"
@@ -1136,7 +1138,7 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-enterprise-code-fix-agent
     environment:
-      - PORT=8161
+      - PORT=8162
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # Database & Cache
@@ -1158,7 +1160,7 @@ services:
       - FIX_STRATEGY=${FIX_STRATEGY:-safe}
       - MAX_FILES_CHANGED=20
     ports:
-      - "8161:8161"
+      - "8162:8162"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ../../:/workspace:rw
@@ -1170,7 +1172,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8161/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8162/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

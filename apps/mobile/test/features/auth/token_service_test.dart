@@ -236,14 +236,14 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.clearAll())
+        when(() => mockTokenManager.logout())
             .thenAnswer((_) async {});
 
         // Act
         await authService.logout();
 
-        // Assert
-        verify(() => mockSecureStorage.clearAll()).called(1);
+        // Assert - AuthService delegates logout to TokenManager
+        verify(() => mockTokenManager.logout()).called(1);
       });
     });
   });

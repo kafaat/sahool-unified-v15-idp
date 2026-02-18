@@ -9,7 +9,6 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 
-# Upgrade pip to latest version
 # Upgrade pip to latest version with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
@@ -22,7 +21,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY apps/services/indicators-service/requirements.txt .
 COPY constraints.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
+# Try PyPI first, then fallback to Aliyun, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     -c constraints.txt -r requirements.txt || \

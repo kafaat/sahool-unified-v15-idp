@@ -42,16 +42,16 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --upgrade pip setuptools wheel
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    --trusted-host mirrors.aliyun.com \
+    --trusted-host download.pytorch.org \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    --trusted-host download.pytorch.org \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    --trusted-host mirrors.aliyun.com \
     --trusted-host download.pytorch.org \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -96,7 +96,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 FROM dependencies AS development
 
 # Install development dependencies
-RUN pip install pytest pytest-asyncio pytest-cov mypy
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com pytest pytest-asyncio pytest-cov mypy
 
 # Copy application code
 COPY apps/services/copilot-api/ .

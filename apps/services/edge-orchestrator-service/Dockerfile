@@ -37,13 +37,13 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --upgrade pip setuptools wheel
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
@@ -131,13 +131,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install dev Python packages with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    pytest pytest-asyncio pytest-cov ruff mypy ipython || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    pytest pytest-asyncio pytest-cov ruff mypy ipython || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
     pytest pytest-asyncio pytest-cov ruff mypy ipython || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \

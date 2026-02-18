@@ -49,8 +49,8 @@ RUN apt-get update && \
 
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
-RUN pip install --upgrade pip && \
-    pip install --upgrade "setuptools>=68.0" wheel build
+RUN pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip && \
+    pip install -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade "setuptools>=68.0" wheel build
 
 # Configure pip for better network resilience
 RUN mkdir -p /root/.pip && \
@@ -78,7 +78,7 @@ FROM base AS dependencies
 COPY requirements/ /tmp/requirements/
 
 # Install base dependencies (common to all services)
-RUN pip install --no-cache-dir --timeout=300 --retries=10 -r /tmp/requirements/base.txt
+RUN pip install --no-cache-dir --timeout=300 --retries=10 -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r /tmp/requirements/base.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage

@@ -72,7 +72,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
-RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -105,6 +105,7 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
 
 # Install remaining dependencies with constraints and multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints-ai.txt \
     -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -247,7 +248,7 @@ COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Upgrade pip BEFORE configuring mirrors to avoid hash mismatch from stale mirror packages
-RUN pip install --no-cache-dir --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip>=24.0 setuptools>=75.0 wheel>=0.44.0
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -272,6 +273,7 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
     --index-url https://download.pytorch.org/whl/cpu \
     --extra-index-url https://pypi.org/simple && \
     pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # Create directories

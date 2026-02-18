@@ -51,7 +51,7 @@ prefer-binary = true
 EOF
 
 # Upgrade pip
-RUN pip install --no-cache-dir --upgrade \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
     pip>=24.0 \
     setuptools>=75.0 \
     wheel>=0.44.0
@@ -60,7 +60,7 @@ RUN pip install --no-cache-dir --upgrade \
 COPY --chown=sahool:sahool apps/services/field-intelligence/requirements.txt /tmp/requirements.txt
 COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
-RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Runtime

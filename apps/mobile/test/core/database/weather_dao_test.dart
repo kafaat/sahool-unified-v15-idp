@@ -196,12 +196,13 @@ class WeatherDaoTestDatabase extends _$WeatherDaoTestDatabase {
         .get();
   }
 
-  /// Get unread alerts for tenant
+  /// Get unread alerts for tenant (only non-expired)
   Future<List<WeatherAlert>> getUnreadAlerts(String tenantId) {
     return (select(weatherAlerts)
           ..where((a) => a.tenantId.equals(tenantId))
           ..where((a) => a.isRead.equals(false))
           ..where((a) => a.isActive.equals(true))
+          ..where((a) => a.expiresAt.isBiggerThanValue(DateTime.now()))
           ..orderBy([(a) => OrderingTerm.desc(a.startsAt)]))
         .get();
   }
@@ -563,9 +564,10 @@ void main() {
     test('should get cached weather by coordinates', () async {
       final cached = await db.getCachedWeatherByCoords(
         tenantId: 'tenant-1',
-        latitude: 15.371, // Close to 15.370
-        longitude: 44.191, // Close to 44.190
+        latitude: 15.370, // Exact match to field-1
+        longitude: 44.190, // Exact match to field-1
         weatherType: 'current',
+        tolerance: 0.005, // Tight tolerance to only match field-1 (not field-2 at 15.380)
       );
 
       expect(cached, isNotNull);

@@ -139,7 +139,11 @@ domain.Field createMockDomainField({
 }
 
 /// Internal test implementation of Field database entity
+/// Uses noSuchMethod to handle Drift-generated methods (toColumns, copyWith, etc.)
 class _TestField implements Field {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   @override
   final String id;
   @override

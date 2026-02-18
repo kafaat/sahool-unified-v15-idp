@@ -12,7 +12,7 @@
 /// storing weather data locally for access when network is unavailable.
 import 'dart:convert';
 
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 

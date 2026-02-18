@@ -17,8 +17,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// Mock for Connectivity class
 class MockConnectivity extends Mock implements Connectivity {}
 
-/// Fake ConnectivityResult for stubbing
-class FakeConnectivityResult extends Fake implements ConnectivityResult {}
+// Note: ConnectivityResult is an enum and cannot be faked with mocktail.
+// Use real enum values like ConnectivityResult.none as fallback instead.
 
 /// Mock network status class for testing
 class MockNetworkStatus {

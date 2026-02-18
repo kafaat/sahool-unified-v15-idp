@@ -185,6 +185,7 @@ USER root
 # Mirrors: Aliyun → Tencent → Tsinghua → PyPI
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
     pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://mirrors.cloud.tencent.com/pypi/simple \

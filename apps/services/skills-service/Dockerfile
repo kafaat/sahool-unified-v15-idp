@@ -26,7 +26,7 @@ RUN groupadd --system sahool && \
 
 
 # Upgrade pip (non-fatal in case of network issues)
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip || true
 
 # Install dependencies
 COPY constraints.txt .

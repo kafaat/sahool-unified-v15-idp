@@ -10,7 +10,7 @@ RUN groupadd --system --gid 1000 sahool && \
 
 
 # Upgrade pip to latest version
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade pip
 
 # Install dependencies
 COPY apps/services/indicators-service/requirements.txt .

@@ -21,6 +21,7 @@ void main() {
   late AuthService authService;
   late MockSecureStorageService mockSecureStorage;
   late MockBiometricService mockBiometricService;
+  late MockTokenManager mockTokenManager;
 
   setUpAll(() {
     registerAuthFallbackValues();
@@ -29,12 +30,23 @@ void main() {
   setUp(() {
     mockSecureStorage = MockSecureStorageService();
     mockBiometricService = MockBiometricService();
+    mockTokenManager = MockTokenManager();
     mockSecureStorage.setupDefaults();
     mockBiometricService.setupDefaults();
+    mockTokenManager.setupDefaults();
+
+    // Mock storeTokens and logout used by AuthService
+    when(() => mockTokenManager.storeTokens(
+      accessToken: any(named: 'accessToken'),
+      refreshToken: any(named: 'refreshToken'),
+      expiresIn: any(named: 'expiresIn'),
+    )).thenAnswer((_) async {});
+    when(() => mockTokenManager.logout()).thenAnswer((_) async {});
 
     authService = AuthService(
       secureStorage: mockSecureStorage,
       biometricService: mockBiometricService,
+      tokenManager: mockTokenManager,
     );
   });
 

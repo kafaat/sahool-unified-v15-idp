@@ -130,27 +130,27 @@ void main() {
 
   group('ApiConfig Endpoints - Satellite Service', () {
     test('should have correct ndvi endpoint', () {
-      expect(ApiConfig.ndvi, contains('/v1/analyze'));
+      expect(ApiConfig.ndvi, contains('/satellite/analyze'));
     });
 
     test('should generate correct ndvi by field id endpoint', () {
-      expect(ApiConfig.ndviByFieldId('field-123'), contains('/v1/analyze/field-123'));
+      expect(ApiConfig.ndviByFieldId('field-123'), contains('/satellite/analyze/field-123'));
     });
 
     test('should have correct ndvi timeseries endpoint', () {
-      expect(ApiConfig.ndviTimeseries, contains('/v1/timeseries'));
+      expect(ApiConfig.ndviTimeseries, contains('/satellite/timeseries'));
     });
 
     test('should have correct satellites endpoint', () {
-      expect(ApiConfig.satellites, contains('/v1/satellites'));
+      expect(ApiConfig.satellites, contains('/satellite/satellites'));
     });
 
     test('should have correct regions endpoint', () {
-      expect(ApiConfig.regions, contains('/v1/regions'));
+      expect(ApiConfig.regions, contains('/satellite/regions'));
     });
 
     test('should have correct imagery endpoint', () {
-      expect(ApiConfig.imagery, contains('/v1/imagery'));
+      expect(ApiConfig.imagery, contains('/satellite/imagery'));
     });
   });
 
@@ -182,97 +182,97 @@ void main() {
 
   group('ApiConfig Endpoints - Fertilizer Advisor', () {
     test('should have correct fertilizer crops endpoint', () {
-      expect(ApiConfig.fertilizerCrops, contains('/v1/crops'));
+      expect(ApiConfig.fertilizerCrops, contains('/fertilizer/crops'));
     });
 
     test('should have correct fertilizer types endpoint', () {
-      expect(ApiConfig.fertilizerTypes, contains('/v1/fertilizers'));
+      expect(ApiConfig.fertilizerTypes, contains('/fertilizer/fertilizers'));
     });
 
     test('should have correct fertilizer recommendation endpoint', () {
-      expect(ApiConfig.fertilizerRecommendation, contains('/v1/recommend'));
+      expect(ApiConfig.fertilizerRecommendation, contains('/fertilizer/recommend'));
     });
 
     test('should have correct soil interpretation endpoint', () {
-      expect(ApiConfig.soilInterpretation, contains('/v1/soil/interpret'));
+      expect(ApiConfig.soilInterpretation, contains('/fertilizer/soil/interpret'));
     });
 
     test('should have correct deficiency symptoms endpoint', () {
-      expect(ApiConfig.deficiencySymptoms, contains('/v1/deficiency/symptoms'));
+      expect(ApiConfig.deficiencySymptoms, contains('/fertilizer/deficiency/symptoms'));
     });
   });
 
   group('ApiConfig Endpoints - Irrigation Smart', () {
     test('should have correct irrigation crops endpoint', () {
-      expect(ApiConfig.irrigationCrops, contains('/v1/crops'));
+      expect(ApiConfig.irrigationCrops, contains('/irrigation/crops'));
     });
 
     test('should have correct irrigation methods endpoint', () {
-      expect(ApiConfig.irrigationMethods, contains('/v1/methods'));
+      expect(ApiConfig.irrigationMethods, contains('/irrigation/methods'));
     });
 
     test('should have correct irrigation calculate endpoint', () {
-      expect(ApiConfig.irrigationCalculate, contains('/v1/calculate'));
+      expect(ApiConfig.irrigationCalculate, contains('/irrigation/calculate'));
     });
 
     test('should have correct water balance endpoint', () {
-      expect(ApiConfig.waterBalance, contains('/v1/water-balance'));
+      expect(ApiConfig.waterBalance, contains('/irrigation/water-balance'));
     });
 
     test('should have correct irrigation efficiency endpoint', () {
-      expect(ApiConfig.irrigationEfficiency, contains('/v1/efficiency'));
+      expect(ApiConfig.irrigationEfficiency, contains('/irrigation/efficiency'));
     });
   });
 
   group('ApiConfig Endpoints - Crop Health AI', () {
     test('should have correct diagnose endpoint', () {
-      expect(ApiConfig.diagnose, contains('/v1/diagnose'));
+      expect(ApiConfig.diagnose, contains('/crop-health/diagnose'));
     });
 
     test('should have correct batch diagnose endpoint', () {
-      expect(ApiConfig.diagnoseBatch, contains('/v1/diagnose/batch'));
+      expect(ApiConfig.diagnoseBatch, contains('/crop-health/diagnose/batch'));
     });
 
     test('should have correct supported crops endpoint', () {
-      expect(ApiConfig.supportedCrops, contains('/v1/crops'));
+      expect(ApiConfig.supportedCrops, contains('/crop-health/crops'));
     });
 
     test('should have correct diseases endpoint', () {
-      expect(ApiConfig.diseases, contains('/v1/diseases'));
+      expect(ApiConfig.diseases, contains('/crop-health/diseases'));
     });
 
     test('should generate correct treatment details endpoint', () {
-      expect(ApiConfig.treatmentDetails('rust'), contains('/v1/treatment/rust'));
+      expect(ApiConfig.treatmentDetails('rust'), contains('/crop-health/treatment/rust'));
     });
 
     test('should have correct expert review endpoint', () {
-      expect(ApiConfig.expertReview, contains('/v1/expert-review'));
+      expect(ApiConfig.expertReview, contains('/crop-health/expert-review'));
     });
   });
 
   group('ApiConfig Endpoints - Virtual Sensors', () {
     test('should have correct et0 calculate endpoint', () {
-      expect(ApiConfig.et0Calculate, contains('/v1/et0/calculate'));
+      expect(ApiConfig.et0Calculate, contains('/virtual-sensors/et0/calculate'));
     });
 
     test('should have correct virtual sensors crops endpoint', () {
-      expect(ApiConfig.virtualSensorsCrops, contains('/v1/crops'));
+      expect(ApiConfig.virtualSensorsCrops, contains('/virtual-sensors/crops'));
     });
 
     test('should generate correct crop kc endpoint', () {
-      expect(ApiConfig.cropKc('wheat'), contains('/v1/crops/wheat/kc'));
+      expect(ApiConfig.cropKc('wheat'), contains('/virtual-sensors/crops/wheat/kc'));
     });
 
     test('should have correct etc calculate endpoint', () {
-      expect(ApiConfig.etcCalculate, contains('/v1/etc/calculate'));
+      expect(ApiConfig.etcCalculate, contains('/virtual-sensors/etc/calculate'));
     });
 
     test('should have correct soil moisture estimate endpoint', () {
-      expect(ApiConfig.soilMoistureEstimate, contains('/v1/soil-moisture/estimate'));
+      expect(ApiConfig.soilMoistureEstimate, contains('/virtual-sensors/soil-moisture/estimate'));
     });
 
     test('should have correct irrigation recommend endpoint', () {
-      expect(ApiConfig.irrigationRecommend, contains('/v1/irrigation/recommend'));
+      expect(ApiConfig.irrigationRecommend, contains('/virtual-sensors/irrigation/recommend'));
     });
   });
 

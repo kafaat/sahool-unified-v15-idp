@@ -14,6 +14,24 @@ Indices:
 - NDMI: Normalized Difference Moisture Index
 - GNDVI: Green NDVI
 - NDRE: Normalized Difference Red Edge
+- NBR: Normalized Burn Ratio
+- EVI2: Two-Band Enhanced Vegetation Index
+- BSI: Bare Soil Index
+- SR: Simple Ratio
+- CCCI: Canopy Chlorophyll Content Index
+- MSI: Moisture Stress Index
+- CI_GREEN: Chlorophyll Index Green
+- CI_REDEDGE: Chlorophyll Index Red Edge
+- IRECI: Inverted Red Edge Chlorophyll Index
+- MTCI: MERIS Terrestrial Chlorophyll Index
+- RENDVI: Red Edge NDVI
+- WDRVI: Wide Dynamic Range VI
+- MNDWI: Modified NDWI
+- NBR2: Normalized Burn Ratio 2
+- NDBI: Normalized Difference Built-up Index
+- DVI: Difference Vegetation Index
+- GDVI: Green Difference Vegetation Index
+- TSAVI: Transformed SAVI
 """
 
 import logging
@@ -386,6 +404,312 @@ class SahoolNDRETask(BaseIndexTask):
 
 
 # =============================================================================
+# Phase 1 - Extended Spectral Indices (IDB/ENVI)
+# المرحلة الأولى - المؤشرات الطيفية الموسعة
+# =============================================================================
+
+
+class SahoolNBRTask(BaseIndexTask):
+    """
+    Normalized Burn Ratio (NBR)
+
+    NBR = (NIR - SWIR2) / (NIR + SWIR2)
+
+    Range: -1 to 1
+    Best for: Burn severity, drought stress, post-fire recovery
+    Reference: Key (2001), IDB ID: 53
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="NBR", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        swir2 = self._get_band(data, "SWIR2")
+        return np.clip(self._safe_divide(nir - swir2, nir + swir2), -1, 1)
+
+
+class SahoolEVI2Task(BaseIndexTask):
+    """
+    Two-Band Enhanced Vegetation Index (EVI2)
+
+    EVI2 = 2.5 * (NIR - RED) / (NIR + 2.4 * RED + 1)
+
+    Range: -1 to 1
+    Does not require blue band, more robust than EVI.
+    Reference: Jiang et al. (2008), IDB ID: 237
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="EVI2", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        denominator = nir + 2.4 * red + 1
+        return np.clip(self._safe_divide(2.5 * (nir - red), denominator), -1, 1)
+
+
+class SahoolBSITask(BaseIndexTask):
+    """
+    Bare Soil Index (BSI)
+
+    BSI = ((SWIR1 + RED) - (NIR + BLUE)) / ((SWIR1 + RED) + (NIR + BLUE))
+
+    Range: -1 to 1
+    Higher values = more bare soil.
+    Reference: Rikimaru et al. (2002), IDB ID: 146
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="BSI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        blue = self._get_band(data, "BLUE")
+        swir1 = self._get_band(data, "SWIR1")
+        numerator = (swir1 + red) - (nir + blue)
+        denominator = (swir1 + red) + (nir + blue)
+        return np.clip(self._safe_divide(numerator, denominator), -1, 1)
+
+
+class SahoolSRTask(BaseIndexTask):
+    """
+    Simple Ratio (SR / RVI)
+
+    SR = NIR / RED
+
+    Range: 0 to 30+
+    Oldest vegetation index (Jordan 1969).
+    Reference: IDB ID: 1
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="SR", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        return np.clip(self._safe_divide(nir, red), 0, 30)
+
+
+class SahoolCCCITask(BaseIndexTask):
+    """
+    Canopy Chlorophyll Content Index (CCCI)
+
+    CCCI = NDRE / NDVI
+
+    Range: 0 to 2+
+    Normalizes chlorophyll by canopy density.
+    Reference: Barnes et al. (2000), IDB ID: 224
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="CCCI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        re1 = self._get_band(data, "RE1")
+
+        ndvi = self._safe_divide(nir - red, nir + red)
+        ndre = self._safe_divide(nir - re1, nir + re1)
+
+        # Avoid division by very small NDVI
+        ndvi_safe = np.where(np.abs(ndvi) < 0.05, 0.05, ndvi)
+        return np.clip(self._safe_divide(ndre, ndvi_safe), 0, 3)
+
+
+class SahoolMSITask(BaseIndexTask):
+    """
+    Moisture Stress Index (MSI)
+
+    MSI = SWIR1 / NIR
+
+    Range: 0 to 5
+    INVERSE: higher = more stress (drier).
+    Reference: Hunt & Rock (1989), IDB ID: 49
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="MSI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        swir1 = self._get_band(data, "SWIR1")
+        return np.clip(self._safe_divide(swir1, nir), 0, 5)
+
+
+# =============================================================================
+# Phase 2 - Chlorophyll & Red Edge Enhancement
+# المرحلة الثانية - تعزيز الكلوروفيل والحافة الحمراء
+# =============================================================================
+
+
+class SahoolCIGreenTask(BaseIndexTask):
+    """Chlorophyll Index Green: (NIR/GREEN) - 1 (Gitelson 2003, IDB: 128)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="CI_GREEN", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        green = self._get_band(data, "GREEN")
+        return np.clip(self._safe_divide(nir, green) - 1, 0, 20)
+
+
+class SahoolCIRedEdgeTask(BaseIndexTask):
+    """Chlorophyll Index Red Edge: (NIR/RE1) - 1 (Gitelson 2003, IDB: 131)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="CI_REDEDGE", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        re1 = self._get_band(data, "RE1")
+        return np.clip(self._safe_divide(nir, re1) - 1, 0, 15)
+
+
+class SahoolIRECITask(BaseIndexTask):
+    """Inverted Red Edge Chlorophyll: (RE3-RED)/(RE1/RE2) (Frampton 2013, IDB: 199)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="IRECI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        red = self._get_band(data, "RED")
+        re1 = self._get_band(data, "RE1")
+        re2 = self._get_band(data, "RE2")
+        re3 = self._get_band(data, "RE3")
+        ratio = self._safe_divide(re1, re2)
+        ratio_safe = np.where(ratio == 0, 1e-10, ratio)
+        return np.clip(self._safe_divide(re3 - red, ratio_safe), 0, 15)
+
+
+class SahoolMTCITask(BaseIndexTask):
+    """MERIS Terrestrial Chlorophyll: (RE2-RE1)/(RE1-RED) (Dash & Curran 2004, IDB: 137)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="MTCI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        red = self._get_band(data, "RED")
+        re1 = self._get_band(data, "RE1")
+        re2 = self._get_band(data, "RE2")
+        return np.clip(self._safe_divide(re2 - re1, re1 - red), 0, 15)
+
+
+class SahoolRENDVITask(BaseIndexTask):
+    """Red Edge NDVI: (RE2-RE1)/(RE2+RE1) (Gitelson & Merzlyak 1994, IDB: 170)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="RENDVI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        re1 = self._get_band(data, "RE1")
+        re2 = self._get_band(data, "RE2")
+        return np.clip(self._safe_divide(re2 - re1, re2 + re1), -1, 1)
+
+
+class SahoolWDRVITask(BaseIndexTask):
+    """Wide Dynamic Range VI: (α*NIR-RED)/(α*NIR+RED), α=0.2 (Gitelson 2004, IDB: 155)"""
+
+    def __init__(self, alpha: float = 0.2, **kwargs):
+        super().__init__(output_feature="WDRVI", **kwargs)
+        self.alpha = alpha
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        weighted_nir = self.alpha * nir
+        return np.clip(self._safe_divide(weighted_nir - red, weighted_nir + red), -1, 1)
+
+
+# =============================================================================
+# Phase 3 - Water, Drought & Land Cover
+# المرحلة الثالثة - المياه والجفاف والغطاء الأرضي
+# =============================================================================
+
+
+class SahoolMNDWITask(BaseIndexTask):
+    """Modified NDWI: (GREEN-SWIR1)/(GREEN+SWIR1) (Xu 2006, IDB: 112)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="MNDWI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        green = self._get_band(data, "GREEN")
+        swir1 = self._get_band(data, "SWIR1")
+        return np.clip(self._safe_divide(green - swir1, green + swir1), -1, 1)
+
+
+class SahoolNBR2Task(BaseIndexTask):
+    """Normalized Burn Ratio 2: (SWIR1-SWIR2)/(SWIR1+SWIR2) (USGS, IDB: 210)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="NBR2", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        swir1 = self._get_band(data, "SWIR1")
+        swir2 = self._get_band(data, "SWIR2")
+        return np.clip(self._safe_divide(swir1 - swir2, swir1 + swir2), -1, 1)
+
+
+class SahoolNDBITask(BaseIndexTask):
+    """Normalized Difference Built-up: (SWIR1-NIR)/(SWIR1+NIR) (Zha 2003, IDB: 100)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="NDBI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        swir1 = self._get_band(data, "SWIR1")
+        return np.clip(self._safe_divide(swir1 - nir, swir1 + nir), -1, 1)
+
+
+class SahoolDVITask(BaseIndexTask):
+    """Difference Vegetation Index: NIR - RED (Richardson & Wiegand 1977, IDB: 28)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="DVI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        return nir - red
+
+
+class SahoolGDVITask(BaseIndexTask):
+    """Green Difference Vegetation Index: NIR - GREEN (Sripada 2006)"""
+
+    def __init__(self, **kwargs):
+        super().__init__(output_feature="GDVI", **kwargs)
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        green = self._get_band(data, "GREEN")
+        return nir - green
+
+
+class SahoolTSAVITask(BaseIndexTask):
+    """Transformed SAVI: s*(NIR-s*RED-a)/(a*NIR+RED-a*s+X*(1+s²)) (Baret & Guyot 1991, IDB: 88)"""
+
+    def __init__(self, s: float = 0.5, a: float = 0.08, X: float = 0.08, **kwargs):
+        super().__init__(output_feature="TSAVI", **kwargs)
+        self.s = s
+        self.a = a
+        self.X = X
+
+    def calculate(self, data: np.ndarray) -> np.ndarray:
+        nir = self._get_band(data, "NIR")
+        red = self._get_band(data, "RED")
+        numerator = self.s * (nir - self.s * red - self.a)
+        denominator = self.a * nir + red - self.a * self.s + self.X * (1 + self.s**2)
+        return np.clip(self._safe_divide(numerator, denominator), 0, 1.5)
+
+
+# =============================================================================
 # All Indices Task
 # =============================================================================
 
@@ -437,6 +761,27 @@ class AllIndicesTask:
             "NDMI": SahoolNDMITask,
             "GNDVI": SahoolGNDVITask,
             "NDRE": SahoolNDRETask,
+            # Phase 1 - Extended Spectral Indices
+            "NBR": SahoolNBRTask,
+            "EVI2": SahoolEVI2Task,
+            "BSI": SahoolBSITask,
+            "SR": SahoolSRTask,
+            "CCCI": SahoolCCCITask,
+            "MSI": SahoolMSITask,
+            # Phase 2 - Chlorophyll & Red Edge
+            "CI_GREEN": SahoolCIGreenTask,
+            "CI_REDEDGE": SahoolCIRedEdgeTask,
+            "IRECI": SahoolIRECITask,
+            "MTCI": SahoolMTCITask,
+            "RENDVI": SahoolRENDVITask,
+            "WDRVI": SahoolWDRVITask,
+            # Phase 3 - Water, Drought & Land Cover
+            "MNDWI": SahoolMNDWITask,
+            "NBR2": SahoolNBR2Task,
+            "NDBI": SahoolNDBITask,
+            "DVI": SahoolDVITask,
+            "GDVI": SahoolGDVITask,
+            "TSAVI": SahoolTSAVITask,
         }
 
         self.indices = indices or list(self.available_indices.keys())

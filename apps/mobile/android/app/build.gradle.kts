@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "io.sahool.sahool_field_app"
-    compileSdk = 35  // Android 15 (stable) - avoid Android 16 beta APIs
+    compileSdk = 36  // Android 16 - required by flutter_tts and mobile_scanner plugins
     ndkVersion = "28.2.13676358"  // Updated to match plugin requirements (integration_test, speech_to_text)
 
     compileOptions {

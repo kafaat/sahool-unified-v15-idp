@@ -254,7 +254,7 @@ void main() {
 
       test('should handle rain alert', () {
         // Arrange
-        final json = WeatherFixtures.rainyWeatherJson['alerts'][0];
+        final json = (WeatherFixtures.rainyWeatherJson['alerts'] as List)[0] as Map<String, dynamic>;
 
         // Act
         final alert = WeatherAlert.fromJson(json);
@@ -266,7 +266,7 @@ void main() {
 
       test('should handle thunderstorm alert', () {
         // Arrange
-        final json = WeatherFixtures.thunderstormWeatherJson['alerts'][0];
+        final json = (WeatherFixtures.thunderstormWeatherJson['alerts'] as List)[0] as Map<String, dynamic>;
 
         // Act
         final alert = WeatherAlert.fromJson(json);
@@ -777,7 +777,7 @@ void main() {
     group('fromJson - التحليل من JSON', () {
       test('should parse temperature in Celsius', () {
         // Arrange
-        final json = WeatherFixtures.currentWeatherJson['current'];
+        final json = WeatherFixtures.currentWeatherJson['current'] as Map<String, dynamic>;
 
         // Act
         final weather = CurrentWeather.fromJson(json);
@@ -788,7 +788,7 @@ void main() {
 
       test('should parse wind speed in km/h', () {
         // Arrange
-        final json = WeatherFixtures.currentWeatherJson['current'];
+        final json = WeatherFixtures.currentWeatherJson['current'] as Map<String, dynamic>;
 
         // Act
         final weather = CurrentWeather.fromJson(json);
@@ -799,7 +799,7 @@ void main() {
 
       test('should parse Arabic condition', () {
         // Arrange
-        final json = WeatherFixtures.currentWeatherJson['current'];
+        final json = WeatherFixtures.currentWeatherJson['current'] as Map<String, dynamic>;
 
         // Act
         final weather = CurrentWeather.fromJson(json);
@@ -830,7 +830,7 @@ void main() {
 
       test('should parse humidity as percentage', () {
         // Arrange
-        final json = WeatherFixtures.currentWeatherJson['current'];
+        final json = WeatherFixtures.currentWeatherJson['current'] as Map<String, dynamic>;
 
         // Act
         final weather = CurrentWeather.fromJson(json);
@@ -843,7 +843,7 @@ void main() {
     group('temperatureDisplay - عرض درجة الحرارة', () {
       test('should round and format with degree symbol', () {
         // Arrange
-        final json = WeatherFixtures.currentWeatherJson['current'];
+        final json = WeatherFixtures.currentWeatherJson['current'] as Map<String, dynamic>;
         final weather = CurrentWeather.fromJson(json);
 
         // Assert - 28.5 rounds to 29

@@ -23,30 +23,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Upgrade pip and install build tools
 # nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade pip "setuptools>=68.0" wheel build || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    --upgrade pip "setuptools>=68.0" wheel build || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
     --upgrade pip "setuptools>=68.0" wheel build
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY archive/deprecated-services/ndvi-processor/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
+    --index-url https://pypi.org/simple \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
     --user -c constraints.txt -r requirements.txt
 
 # Stage 2: Production

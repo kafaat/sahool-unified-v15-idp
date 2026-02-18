@@ -15,6 +15,8 @@ import os
 import re
 import sys
 from pathlib import Path
+import shlex
+from urllib.parse import urlparse
 
 
 def find_dockerfiles(root: str) -> list[str]:
@@ -89,8 +91,48 @@ def extract_pip_install_commands(run_cmd: str) -> list[str]:
 
 
 def has_aliyun_mirror(pip_cmd: str) -> bool:
-    """Check if a pip install command uses Aliyun as primary mirror."""
-    return "mirrors.aliyun.com" in pip_cmd
+    """Check if a pip install command uses Aliyun as primary mirror.
+
+    We look specifically for primary index flags (-i/--index-url) that point to
+    mirrors.aliyun.com, rather than doing a simple substring check.
+    """
+    try:
+        args = shlex.split(pip_cmd)
+    except ValueError:
+        # Fallback to conservative behavior if the command cannot be parsed
+        return False
+
+    aliyun_host = "mirrors.aliyun.com"
+
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        # Handle '--index-url=https://...'
+        if arg.startswith("--index-url="):
+            url = arg.split("=", 1)[1]
+        # Handle '--index-url https://...'
+        elif arg == "--index-url" and i + 1 < len(args):
+            url = args[i + 1]
+            i += 1
+        # Handle '-ihttps://...'
+        elif arg.startswith("-i") and arg != "-i":
+            url = arg[2:]
+        # Handle '-i https://...'
+        elif arg == "-i" and i + 1 < len(args):
+            url = args[i + 1]
+            i += 1
+        else:
+            i += 1
+            continue
+
+        parsed = urlparse(url)
+        host = parsed.hostname
+        if host and host.lower() == aliyun_host:
+            return True
+
+        i += 1
+
+    return False
 
 
 def is_pytorch_exception(pip_cmd: str, run_cmd: str) -> bool:

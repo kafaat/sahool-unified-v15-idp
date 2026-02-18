@@ -3,9 +3,8 @@
  * طبقة API لميزة تقييم الكوارث
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { DISASTER_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   RiskAssessment,
   DisasterEvent,
@@ -15,25 +14,8 @@ import type {
   WeatherAlert,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
@@ -195,7 +177,7 @@ export const disasterApi = {
       if (filters?.riskLevel) params.set("risk_level", filters.riskLevel);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/disaster/risks?${params.toString()}`);
+      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -212,7 +194,7 @@ export const disasterApi = {
 
   getRiskById: async (id: string): Promise<RiskAssessment> => {
     try {
-      const response = await api.get(`/api/v1/disaster/risks/${id}`);
+      const response = await api.get(`${DISASTER_ENDPOINTS.ASSESS}/risks/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch risk ${id}, using mock data:`, error);
@@ -230,7 +212,7 @@ export const disasterApi = {
       if (filters?.dateFrom) params.set("date_from", filters.dateFrom);
       if (filters?.dateTo) params.set("date_to", filters.dateTo);
 
-      const response = await api.get(`/api/v1/disaster/events?${params.toString()}`);
+      const response = await api.get(`${API_PREFIX}/disaster/events?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -246,7 +228,7 @@ export const disasterApi = {
 
   getEventById: async (id: string): Promise<DisasterEvent> => {
     try {
-      const response = await api.get(`/api/v1/disaster/events/${id}`);
+      const response = await api.get(`${API_PREFIX}/disaster/events/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch event ${id}, using mock data:`, error);
@@ -258,7 +240,7 @@ export const disasterApi = {
 
   createEvent: async (data: DisasterFormData): Promise<DisasterEvent> => {
     try {
-      const response = await api.post("/api/v1/disaster/events", data);
+      const response = await api.post(`${API_PREFIX}/disaster/events`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create disaster event:", error);
@@ -268,7 +250,7 @@ export const disasterApi = {
 
   updateEvent: async (id: string, data: Partial<DisasterFormData>): Promise<DisasterEvent> => {
     try {
-      const response = await api.put(`/api/v1/disaster/events/${id}`, data);
+      const response = await api.put(`${API_PREFIX}/disaster/events/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update event ${id}:`, error);
@@ -278,7 +260,7 @@ export const disasterApi = {
 
   updateEventStatus: async (id: string, status: string): Promise<DisasterEvent> => {
     try {
-      const response = await api.patch(`/api/v1/disaster/events/${id}/status`, { status });
+      const response = await api.patch(`${API_PREFIX}/disaster/events/${id}/status`, { status });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update event status ${id}:`, error);
@@ -288,7 +270,7 @@ export const disasterApi = {
 
   getWeatherAlerts: async (): Promise<WeatherAlert[]> => {
     try {
-      const response = await api.get("/api/v1/disaster/weather-alerts");
+      const response = await api.get(DISASTER_ENDPOINTS.ALERTS);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch weather alerts:", error);
@@ -298,7 +280,7 @@ export const disasterApi = {
 
   getStats: async (): Promise<DisasterStats> => {
     try {
-      const response = await api.get("/api/v1/disaster/stats");
+      const response = await api.get(`${API_PREFIX}/disaster/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch disaster stats, using mock data:", error);

@@ -3,38 +3,11 @@
  * طبقة API لميزة المستشار الزراعي
  */
 
-import axios from "axios";
+import { createApiClient } from "@/lib/api/factory";
+import { ADVISORY_ENDPOINTS } from "@sahool/shared-types/contracts";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Add auth token interceptor
-// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from "js-cookie";
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // Types
 export type RecommendationType =
@@ -123,7 +96,7 @@ export const advisorApi = {
     if (filters?.cropType) params.set("crop_type", filters.cropType);
 
     const response = await api.get(
-      `/api/v1/advice/recommendations?${params.toString()}`,
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}?${params.toString()}`,
     );
     return response.data;
   },
@@ -132,7 +105,7 @@ export const advisorApi = {
    * Get a specific recommendation
    */
   getRecommendation: async (id: string): Promise<Recommendation> => {
-    const response = await api.get(`/api/v1/advice/recommendations/${id}`);
+    const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${id}`);
     return response.data;
   },
 
@@ -140,7 +113,7 @@ export const advisorApi = {
    * Ask the AI advisor a question
    */
   askAdvisor: async (query: AdvisorQuery): Promise<AdvisorResponse> => {
-    const response = await api.post("/api/v1/advice/ask", query);
+    const response = await api.post(ADVISORY_ENDPOINTS.AGRO_ADVICE, query);
     return response.data;
   },
 
@@ -152,7 +125,7 @@ export const advisorApi = {
     notes?: string,
   ): Promise<Recommendation> => {
     const response = await api.post(
-      `/api/v1/advice/recommendations/${id}/apply`,
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${id}/apply`,
       { notes },
     );
     return response.data;
@@ -162,7 +135,7 @@ export const advisorApi = {
    * Dismiss a recommendation
    */
   dismissRecommendation: async (id: string, reason?: string): Promise<void> => {
-    await api.post(`/api/v1/advice/recommendations/${id}/dismiss`, { reason });
+    await api.post(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${id}/dismiss`, { reason });
   },
 
   /**
@@ -173,7 +146,7 @@ export const advisorApi = {
     actionId: string,
   ): Promise<Recommendation> => {
     const response = await api.post(
-      `/api/v1/advice/recommendations/${recommendationId}/actions/${actionId}/complete`,
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${recommendationId}/actions/${actionId}/complete`,
     );
     return response.data;
   },
@@ -183,7 +156,7 @@ export const advisorApi = {
    */
   getChatHistory: async (limit?: number): Promise<AdvisorResponse[]> => {
     const params = limit ? `?limit=${limit}` : "";
-    const response = await api.get(`/api/v1/advice/history${params}`);
+    const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/history${params}`);
     return response.data;
   },
 
@@ -197,7 +170,7 @@ export const advisorApi = {
     byType: Record<RecommendationType, number>;
     byPriority: Record<RecommendationPriority, number>;
   }> => {
-    const response = await api.get("/api/v1/advice/stats");
+    const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/stats`);
     return response.data;
   },
 };

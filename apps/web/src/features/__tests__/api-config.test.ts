@@ -74,7 +74,7 @@ describe("API Configuration Tests", () => {
       delete process.env.NEXT_PUBLIC_API_URL;
     });
 
-    it("should warn in development when API_BASE_URL is empty", async () => {
+    it("should use empty baseURL in development when API_BASE_URL is empty", async () => {
       delete process.env.NEXT_PUBLIC_API_URL;
 
       // Mock window object to simulate browser environment
@@ -82,9 +82,11 @@ describe("API Configuration Tests", () => {
 
       await import("../advisor/api");
 
-      // The warning should be logged
-      expect(consoleWarnMock).toHaveBeenCalledWith(
-        "NEXT_PUBLIC_API_URL environment variable is not set",
+      // Factory should create client with empty baseURL
+      expect(mockedAxios.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          baseURL: "",
+        }),
       );
 
       delete (global as any).window;
@@ -281,7 +283,8 @@ describe("API Configuration Tests", () => {
 
       const calls = mockedAxios.create.mock.calls;
       calls.forEach((call) => {
-        expect(call[0]).toHaveProperty("timeout", 10000);
+        // Default factory timeout is 15000ms
+        expect(call[0]).toHaveProperty("timeout", 15000);
       });
     });
 

@@ -3,10 +3,15 @@
 library;
 
 import 'env_config.dart';
+import '../contracts/service_ports.dart' as contracts;
 
 /// Service ports for local development
 /// منافذ الخدمات للتطوير المحلي
-/// @deprecated Use EnvConfig.{serviceName}Port instead
+/// @deprecated Use EnvConfig.{serviceName}Port or contracts.ServicePorts instead
+///
+/// Default port values are sourced from the unified contracts
+/// (packages/shared-types/src/contracts/service-ports.ts)
+/// EnvConfig overrides these at runtime via environment variables.
 class ServicePorts {
   static int get fieldCore => EnvConfig.fieldCorePort;
   static int get marketplace => EnvConfig.marketplacePort;
@@ -24,6 +29,40 @@ class ServicePorts {
   static int get notifications => EnvConfig.notificationsPort;
   static int get spray => EnvConfig.sprayPort;
   static int get gateway => EnvConfig.gatewayPort;
+
+  /// Verify that EnvConfig defaults match unified contracts.
+  /// Call during development/testing to detect port drift.
+  static Map<String, String> verifyPortAlignment() {
+    final mismatches = <String, String>{};
+    if (EnvConfig.fieldCorePort != contracts.ServicePorts.fieldManagement) {
+      mismatches['fieldCore'] = 'env=${EnvConfig.fieldCorePort} contract=${contracts.ServicePorts.fieldManagement}';
+    }
+    if (EnvConfig.marketplacePort != contracts.ServicePorts.marketplace) {
+      mismatches['marketplace'] = 'env=${EnvConfig.marketplacePort} contract=${contracts.ServicePorts.marketplace}';
+    }
+    if (EnvConfig.satellitePort != contracts.ServicePorts.vegetationAnalysis) {
+      mismatches['satellite'] = 'env=${EnvConfig.satellitePort} contract=${contracts.ServicePorts.vegetationAnalysis}';
+    }
+    if (EnvConfig.indicatorsPort != contracts.ServicePorts.indicators) {
+      mismatches['indicators'] = 'env=${EnvConfig.indicatorsPort} contract=${contracts.ServicePorts.indicators}';
+    }
+    if (EnvConfig.weatherPort != contracts.ServicePorts.weather) {
+      mismatches['weather'] = 'env=${EnvConfig.weatherPort} contract=${contracts.ServicePorts.weather}';
+    }
+    if (EnvConfig.irrigationPort != contracts.ServicePorts.irrigationSmart) {
+      mismatches['irrigation'] = 'env=${EnvConfig.irrigationPort} contract=${contracts.ServicePorts.irrigationSmart}';
+    }
+    if (EnvConfig.cropHealthPort != contracts.ServicePorts.cropIntelligence) {
+      mismatches['cropHealth'] = 'env=${EnvConfig.cropHealthPort} contract=${contracts.ServicePorts.cropIntelligence}';
+    }
+    if (EnvConfig.equipmentPort != contracts.ServicePorts.equipment) {
+      mismatches['equipment'] = 'env=${EnvConfig.equipmentPort} contract=${contracts.ServicePorts.equipment}';
+    }
+    if (EnvConfig.notificationsPort != contracts.ServicePorts.notifications) {
+      mismatches['notifications'] = 'env=${EnvConfig.notificationsPort} contract=${contracts.ServicePorts.notifications}';
+    }
+    return mismatches;
+  }
 }
 
 /// API configuration class

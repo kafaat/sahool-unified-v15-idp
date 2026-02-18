@@ -23,6 +23,9 @@ import Cookies from "js-cookie";
 import { logger } from "./logger";
 import { getCsrfHeaders } from "./security/security";
 import { sanitizers, validators, validationErrors } from "./validation";
+import {
+  ERROR_MESSAGES as UNIFIED_ERROR_MESSAGES,
+} from "@sahool/shared-types/contracts";
 
 // =============================================================================
 // Types & Interfaces | الأنواع والواجهات
@@ -102,54 +105,18 @@ const CIRCUIT_BREAKER_THRESHOLD = 5;
 const CIRCUIT_BREAKER_RESET_MS = 30000;
 const TOKEN_REFRESH_BUFFER_MS = 60000; // Refresh 1 minute before expiry
 
-// Bilingual error messages | رسائل الخطأ ثنائية اللغة
-const ERROR_MESSAGES: Record<string, ErrorMessage> = {
-  NETWORK_ERROR: {
-    code: "NETWORK_ERROR",
-    message: "Network error - please check your connection",
-    messageAr: "خطأ في الشبكة - يرجى التحقق من اتصالك",
-  },
-  TIMEOUT: {
-    code: "TIMEOUT",
-    message: "Request timed out - please try again",
-    messageAr: "انتهت مهلة الطلب - يرجى المحاولة مرة أخرى",
-  },
-  UNAUTHORIZED: {
-    code: "UNAUTHORIZED",
-    message: "Session expired. Please login again.",
-    messageAr: "انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.",
-  },
-  FORBIDDEN: {
-    code: "FORBIDDEN",
-    message: "Access denied - insufficient permissions",
-    messageAr: "الوصول مرفوض - صلاحيات غير كافية",
-  },
-  NOT_FOUND: {
-    code: "NOT_FOUND",
-    message: "Resource not found",
-    messageAr: "المورد غير موجود",
-  },
-  RATE_LIMITED: {
-    code: "RATE_LIMITED",
-    message: "Too many requests. Please wait.",
-    messageAr: "طلبات كثيرة جداً. يرجى الانتظار.",
-  },
-  SERVER_ERROR: {
-    code: "SERVER_ERROR",
-    message: "Server error - please try again later",
-    messageAr: "خطأ في الخادم - يرجى المحاولة لاحقاً",
-  },
-  CIRCUIT_OPEN: {
-    code: "CIRCUIT_OPEN",
-    message: "Service temporarily unavailable",
-    messageAr: "الخدمة غير متاحة مؤقتاً",
-  },
-  INVALID_RESPONSE: {
-    code: "INVALID_RESPONSE",
-    message: "Invalid response from server",
-    messageAr: "استجابة غير صالحة من الخادم",
-  },
-};
+// Bilingual error messages - sourced from @sahool/shared-types/contracts
+// رسائل الخطأ ثنائية اللغة - مصدرها العقود الموحدة
+const ERROR_MESSAGES: Record<string, ErrorMessage> = Object.fromEntries(
+  Object.entries(UNIFIED_ERROR_MESSAGES).map(([key, unified]) => [
+    key,
+    {
+      code: unified.code,
+      message: unified.en,
+      messageAr: unified.ar,
+    },
+  ]),
+);
 
 // =============================================================================
 // Helper Functions | الدوال المساعدة

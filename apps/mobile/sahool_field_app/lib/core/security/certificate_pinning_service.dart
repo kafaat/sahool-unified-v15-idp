@@ -297,8 +297,11 @@ class CertificatePinningService {
           description: 'Wildcard backup certificate',
         ),
       ],
-      // Staging: use production certificates until staging has its own certs
-      // TODO: Replace with actual staging certificate fingerprints when staging environment is deployed
+      // Staging: mirrors production certificates until staging has dedicated certs
+      // NOTE: When staging environment is deployed with its own TLS certificate,
+      // extract the SHA256 fingerprint using:
+      //   openssl s_client -connect api-staging.sahool.app:443 | openssl x509 -pubkey -noout | \
+      //   openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64
       'api-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,

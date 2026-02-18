@@ -54,6 +54,11 @@
       "import": "./dist/edge.js",
       "require": "./dist/edge.js",
       "types": "./dist/edge.d.ts"
+    },
+    "./contracts": {
+      "import": "./dist/contracts/index.js",
+      "require": "./dist/contracts/index.js",
+      "types": "./dist/contracts/index.d.ts"
     }
   },
   "scripts": {

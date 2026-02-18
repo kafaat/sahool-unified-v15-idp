@@ -3,9 +3,8 @@
  * طبقة API لميزة المخزون
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { createApiClient, logger } from "@/lib/api/factory";
+import { INVENTORY_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import type {
   InventoryItem,
   InventoryFilters,
@@ -14,25 +13,8 @@ import type {
   InventoryStats,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
@@ -166,7 +148,7 @@ export const inventoryApi = {
       if (filters?.search) params.set("search", filters.search);
       if (filters?.lowStock) params.set("low_stock", "true");
 
-      const response = await api.get(`/api/v1/inventory?${params.toString()}`);
+      const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -183,7 +165,7 @@ export const inventoryApi = {
 
   getInventoryById: async (id: string): Promise<InventoryItem> => {
     try {
-      const response = await api.get(`/api/v1/inventory/${id}`);
+      const response = await api.get(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }));
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch inventory item ${id}, using mock data:`, error);
@@ -195,7 +177,7 @@ export const inventoryApi = {
 
   createInventory: async (data: InventoryFormData): Promise<InventoryItem> => {
     try {
-      const response = await api.post("/api/v1/inventory", data);
+      const response = await api.post(INVENTORY_ENDPOINTS.CREATE, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create inventory item:", error);
@@ -205,7 +187,7 @@ export const inventoryApi = {
 
   updateInventory: async (id: string, data: Partial<InventoryFormData>): Promise<InventoryItem> => {
     try {
-      const response = await api.put(`/api/v1/inventory/${id}`, data);
+      const response = await api.put(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }), data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update inventory item ${id}:`, error);
@@ -215,7 +197,7 @@ export const inventoryApi = {
 
   deleteInventory: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/inventory/${id}`);
+      await api.delete(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: id }));
     } catch (error) {
       logger.error(`Failed to delete inventory item ${id}:`, error);
       throw error;
@@ -227,7 +209,7 @@ export const inventoryApi = {
     adjustment: { quantity: number; type: "in" | "out" | "adjustment"; reason: string }
   ): Promise<InventoryItem> => {
     try {
-      const response = await api.post(`/api/v1/inventory/${id}/adjust`, adjustment);
+      const response = await api.post(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id })}/adjust`, adjustment);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to adjust inventory ${id}:`, error);
@@ -238,7 +220,7 @@ export const inventoryApi = {
   getTransactions: async (itemId?: string): Promise<InventoryTransaction[]> => {
     try {
       const params = itemId ? `?item_id=${itemId}` : "";
-      const response = await api.get(`/api/v1/inventory/transactions${params}`);
+      const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}/transactions${params}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch transactions, returning empty:", error);
@@ -248,7 +230,7 @@ export const inventoryApi = {
 
   getStats: async (): Promise<InventoryStats> => {
     try {
-      const response = await api.get("/api/v1/inventory/stats");
+      const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch inventory stats, using mock data:", error);

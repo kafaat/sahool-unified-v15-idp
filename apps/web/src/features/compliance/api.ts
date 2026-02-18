@@ -3,9 +3,8 @@
  * طبقة API لميزة الامتثال والجودة
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { COMPLIANCE_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   ComplianceItem,
   Certification,
@@ -14,25 +13,8 @@ import type {
   ComplianceStats,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
@@ -194,7 +176,7 @@ export const complianceApi = {
       if (filters?.status) params.set("status", filters.status);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/compliance?${params.toString()}`);
+      const response = await api.get(`${COMPLIANCE_ENDPOINTS.CHECKLISTS}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -211,7 +193,7 @@ export const complianceApi = {
 
   getComplianceById: async (id: string): Promise<ComplianceItem> => {
     try {
-      const response = await api.get(`/api/v1/compliance/${id}`);
+      const response = await api.get(`${API_PREFIX}/compliance/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch compliance item ${id}, using mock data:`, error);
@@ -223,7 +205,7 @@ export const complianceApi = {
 
   updateCompliance: async (id: string, data: Partial<ComplianceItem>): Promise<ComplianceItem> => {
     try {
-      const response = await api.put(`/api/v1/compliance/${id}`, data);
+      const response = await api.put(`${API_PREFIX}/compliance/${id}`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update compliance item ${id}:`, error);
@@ -233,7 +215,7 @@ export const complianceApi = {
 
   getCertifications: async (): Promise<Certification[]> => {
     try {
-      const response = await api.get("/api/v1/compliance/certifications");
+      const response = await api.get(COMPLIANCE_ENDPOINTS.CERTIFICATES);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -249,7 +231,7 @@ export const complianceApi = {
 
   getCertificationById: async (id: string): Promise<Certification> => {
     try {
-      const response = await api.get(`/api/v1/compliance/certifications/${id}`);
+      const response = await api.get(`${COMPLIANCE_ENDPOINTS.CERTIFICATES}/${id}`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch certification ${id}, using mock data:`, error);
@@ -261,7 +243,7 @@ export const complianceApi = {
 
   getAuditReports: async (): Promise<AuditReport[]> => {
     try {
-      const response = await api.get("/api/v1/compliance/audits");
+      const response = await api.get(COMPLIANCE_ENDPOINTS.AUDITS);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch audit reports:", error);
@@ -271,7 +253,7 @@ export const complianceApi = {
 
   createAuditReport: async (data: Partial<AuditReport>): Promise<AuditReport> => {
     try {
-      const response = await api.post("/api/v1/compliance/audits", data);
+      const response = await api.post(COMPLIANCE_ENDPOINTS.AUDITS, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create audit report:", error);
@@ -281,7 +263,7 @@ export const complianceApi = {
 
   getStats: async (): Promise<ComplianceStats> => {
     try {
-      const response = await api.get("/api/v1/compliance/stats");
+      const response = await api.get(`${API_PREFIX}/compliance/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch compliance stats, using mock data:", error);

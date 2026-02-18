@@ -848,6 +848,56 @@ GET /metrics         # Prometheus metrics (some services)
 /api/v1/edge/sync             # Data synchronization
 ```
 
+### Unified API Contracts
+
+All service ports, error codes, and API endpoints are defined in a single source of truth:
+
+```
+packages/shared-types/src/contracts/
+├── index.ts              # CONTRACT_VERSION (semver), barrel export
+├── service-ports.ts      # SERVICE_PORTS, SERVICE_PORT_ALIASES
+├── error-codes.ts        # ERROR_CODES, ERROR_MESSAGES (bilingual EN/AR)
+├── api-endpoints.ts      # *_ENDPOINTS constants, buildUrl() helper
+└── api-responses.ts      # Unified response shapes (ApiResponse, PaginatedResponse)
+```
+
+**Import convention** (enforced by ESLint `no-restricted-imports`):
+
+```typescript
+// Correct - import from unified contracts
+import { SERVICE_PORTS, AUTH_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+
+// Incorrect - do not define local port/error constants
+const AUTH_PORT = 3025; // ❌ Use SERVICE_PORTS.AUTH instead
+```
+
+**Dart (Mobile)**: Generated from TypeScript via `npx tsx scripts/sync-contracts-to-dart.ts`. Located in `apps/mobile/lib/core/contracts/`. Do NOT edit Dart contract files manually.
+
+**CONTRACT_VERSION**: Follows semver. Bump on every contract change:
+- **Patch** (1.0.x): New additive constants (new port, new error code)
+- **Minor** (1.x.0): New contract modules or structural additions
+- **Major** (x.0.0): Removed/renamed exports (breaking change)
+
+### Contract Deprecation Policy
+
+When deprecating a contract constant (port, error code, or endpoint):
+
+1. **Add to `SERVICE_PORT_ALIASES`** (or equivalent alias map) mapping old name → new name
+2. **Add `@deprecated` JSDoc tag** with migration target and sunset version
+3. **Bump `CONTRACT_VERSION`** minor version
+4. **Update Dart codegen** to include deprecation annotations
+5. **Allow 2 minor versions** before removing the deprecated constant
+6. **CI guard** (`api-contracts-guard.yml`) will flag removed exports as breaking changes
+
+Example:
+```typescript
+/** @deprecated Use SERVICE_PORTS.FIELD_MANAGEMENT instead. Removal: v2.0.0 */
+export const SERVICE_PORT_ALIASES = {
+  FIELD_CORE: "FIELD_MANAGEMENT",
+  FIELD_SERVICE: "FIELD_MANAGEMENT",
+} as const;
+```
+
 ### Rate Limiting Tiers
 
 | Tier       | Requests/min | Requests/hour |

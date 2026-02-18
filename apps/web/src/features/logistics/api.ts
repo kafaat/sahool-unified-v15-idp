@@ -3,9 +3,8 @@
  * طبقة API لميزة اللوجستيات
  */
 
-import axios from "axios";
-import { logger } from "@/lib/logger";
-import Cookies from "js-cookie";
+import { LOGISTICS_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   Shipment,
   ShipmentFilters,
@@ -16,25 +15,8 @@ import type {
   LogisticsStats,
 } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000,
-});
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
@@ -159,7 +141,7 @@ export const logisticsApi = {
       if (filters?.dateTo) params.set("date_to", filters.dateTo);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/logistics/shipments?${params.toString()}`);
+      const response = await api.get(`${LOGISTICS_ENDPOINTS.SHIPMENTS}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -176,7 +158,7 @@ export const logisticsApi = {
 
   getShipmentById: async (id: string): Promise<Shipment> => {
     try {
-      const response = await api.get(`/api/v1/logistics/shipments/${id}`);
+      const response = await api.get(buildUrl(LOGISTICS_ENDPOINTS.SHIPMENT_GET, { shipmentId: id }));
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch shipment ${id}, using mock data:`, error);
@@ -188,7 +170,7 @@ export const logisticsApi = {
 
   createShipment: async (data: ShipmentFormData): Promise<Shipment> => {
     try {
-      const response = await api.post("/api/v1/logistics/shipments", data);
+      const response = await api.post(LOGISTICS_ENDPOINTS.SHIPMENT_CREATE, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to create shipment:", error);
@@ -198,7 +180,7 @@ export const logisticsApi = {
 
   updateShipment: async (id: string, data: Partial<ShipmentFormData>): Promise<Shipment> => {
     try {
-      const response = await api.put(`/api/v1/logistics/shipments/${id}`, data);
+      const response = await api.put(buildUrl(LOGISTICS_ENDPOINTS.SHIPMENT_GET, { shipmentId: id }), data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update shipment ${id}:`, error);
@@ -208,7 +190,7 @@ export const logisticsApi = {
 
   updateStatus: async (id: string, status: string, notes?: string): Promise<Shipment> => {
     try {
-      const response = await api.patch(`/api/v1/logistics/shipments/${id}/status`, { status, notes });
+      const response = await api.patch(`${buildUrl(LOGISTICS_ENDPOINTS.SHIPMENT_GET, { shipmentId: id })}/status`, { status, notes });
       return response.data.data || response.data;
     } catch (error) {
       logger.error(`Failed to update shipment status ${id}:`, error);
@@ -218,7 +200,7 @@ export const logisticsApi = {
 
   getTracking: async (shipmentId: string): Promise<ShipmentTracking[]> => {
     try {
-      const response = await api.get(`/api/v1/logistics/shipments/${shipmentId}/tracking`);
+      const response = await api.get(buildUrl(LOGISTICS_ENDPOINTS.TRACKING, { shipmentId }));
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(`Failed to fetch tracking for shipment ${shipmentId}:`, error);
@@ -228,7 +210,7 @@ export const logisticsApi = {
 
   getDrivers: async (): Promise<Driver[]> => {
     try {
-      const response = await api.get("/api/v1/logistics/drivers");
+      const response = await api.get(`${API_PREFIX}/logistics/drivers`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch drivers:", error);
@@ -238,7 +220,7 @@ export const logisticsApi = {
 
   getVehicles: async (): Promise<Vehicle[]> => {
     try {
-      const response = await api.get("/api/v1/logistics/vehicles");
+      const response = await api.get(LOGISTICS_ENDPOINTS.VEHICLES);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch vehicles:", error);
@@ -248,7 +230,7 @@ export const logisticsApi = {
 
   getStats: async (): Promise<LogisticsStats> => {
     try {
-      const response = await api.get("/api/v1/logistics/stats");
+      const response = await api.get(`${API_PREFIX}/logistics/stats`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn("Failed to fetch logistics stats, using mock data:", error);

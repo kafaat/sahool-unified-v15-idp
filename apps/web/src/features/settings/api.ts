@@ -3,7 +3,9 @@
  * طبقة API لميزة الإعدادات
  */
 
-import axios, { type AxiosError } from "axios";
+import { type AxiosError } from "axios";
+import { createApiClient, logger } from "@/lib/api/factory";
+import { API_PREFIX } from "@sahool/shared-types/contracts";
 import type {
   UserProfile,
   NotificationPreferences,
@@ -15,38 +17,9 @@ import type {
   UpdateProfilePayload,
   UpdatePasswordPayload,
 } from "./types";
-import { logger } from "@/lib/logger";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!process.env.NEXT_PUBLIC_API_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Add auth token interceptor
-// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from "js-cookie";
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
@@ -277,7 +250,7 @@ export const settingsApi = {
    */
   getProfile: async (): Promise<UserProfile> => {
     try {
-      const response = await api.get("/api/v1/users/profile");
+      const response = await api.get(`${API_PREFIX}/users/profile`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -293,7 +266,7 @@ export const settingsApi = {
    */
   updateProfile: async (data: UpdateProfilePayload): Promise<UserProfile> => {
     try {
-      const response = await api.put("/api/v1/users/profile", data);
+      const response = await api.put(`${API_PREFIX}/users/profile`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to update user profile:", error);
@@ -327,7 +300,7 @@ export const settingsApi = {
       formData.append("avatar", file);
 
       const response = await api.post(
-        "/api/v1/users/profile/avatar",
+        `${API_PREFIX}/users/profile/avatar`,
         formData,
         {
           headers: {
@@ -365,7 +338,7 @@ export const settingsApi = {
    */
   getNotificationSettings: async (): Promise<NotificationPreferences> => {
     try {
-      const response = await api.get("/api/v1/users/settings/notifications");
+      const response = await api.get(`${API_PREFIX}/users/settings/notifications`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -384,7 +357,7 @@ export const settingsApi = {
   ): Promise<NotificationPreferences> => {
     try {
       const response = await api.put(
-        "/api/v1/users/settings/notifications",
+        `${API_PREFIX}/users/settings/notifications`,
         data,
       );
       return response.data.data || response.data;
@@ -416,7 +389,7 @@ export const settingsApi = {
    */
   getSecuritySettings: async (): Promise<SecuritySettings> => {
     try {
-      const response = await api.get("/api/v1/users/settings/security");
+      const response = await api.get(`${API_PREFIX}/users/settings/security`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -432,7 +405,7 @@ export const settingsApi = {
    */
   changePassword: async (data: UpdatePasswordPayload): Promise<void> => {
     try {
-      await api.put("/api/v1/users/settings/security/password", data);
+      await api.put(`${API_PREFIX}/users/settings/security/password`, data);
     } catch (error) {
       logger.error("Failed to change password:", error);
 
@@ -465,7 +438,7 @@ export const settingsApi = {
   }): Promise<SecuritySettings> => {
     try {
       const response = await api.put(
-        "/api/v1/users/settings/security/2fa",
+        `${API_PREFIX}/users/settings/security/2fa`,
         data,
       );
       return response.data.data || response.data;
@@ -497,7 +470,7 @@ export const settingsApi = {
    */
   terminateSession: async (sessionId: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/users/settings/security/sessions/${sessionId}`);
+      await api.delete(`${API_PREFIX}/users/settings/security/sessions/${sessionId}`);
     } catch (error) {
       logger.error(`Failed to terminate session ${sessionId}:`, error);
 
@@ -526,7 +499,7 @@ export const settingsApi = {
    */
   getPrivacySettings: async (): Promise<PrivacySettings> => {
     try {
-      const response = await api.get("/api/v1/users/settings/privacy");
+      const response = await api.get(`${API_PREFIX}/users/settings/privacy`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -544,7 +517,7 @@ export const settingsApi = {
     data: PrivacySettings,
   ): Promise<PrivacySettings> => {
     try {
-      const response = await api.put("/api/v1/users/settings/privacy", data);
+      const response = await api.put(`${API_PREFIX}/users/settings/privacy`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to update privacy settings:", error);
@@ -574,7 +547,7 @@ export const settingsApi = {
    */
   getDisplayPreferences: async (): Promise<DisplayPreferences> => {
     try {
-      const response = await api.get("/api/v1/users/settings/display");
+      const response = await api.get(`${API_PREFIX}/users/settings/display`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -592,7 +565,7 @@ export const settingsApi = {
     data: DisplayPreferences,
   ): Promise<DisplayPreferences> => {
     try {
-      const response = await api.put("/api/v1/users/settings/display", data);
+      const response = await api.put(`${API_PREFIX}/users/settings/display`, data);
       return response.data.data || response.data;
     } catch (error) {
       logger.error("Failed to update display preferences:", error);
@@ -622,7 +595,7 @@ export const settingsApi = {
    */
   getIntegrationSettings: async (): Promise<IntegrationSettings> => {
     try {
-      const response = await api.get("/api/v1/users/settings/integrations");
+      const response = await api.get(`${API_PREFIX}/users/settings/integrations`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -641,7 +614,7 @@ export const settingsApi = {
   ): Promise<IntegrationSettings> => {
     try {
       const response = await api.put(
-        "/api/v1/users/settings/integrations",
+        `${API_PREFIX}/users/settings/integrations`,
         data,
       );
       return response.data.data || response.data;
@@ -674,7 +647,7 @@ export const settingsApi = {
   disconnectAccount: async (accountId: string): Promise<void> => {
     try {
       await api.delete(
-        `/api/v1/users/settings/integrations/accounts/${accountId}`,
+        `${API_PREFIX}/users/settings/integrations/accounts/${accountId}`,
       );
     } catch (error) {
       logger.error(`Failed to disconnect account ${accountId}:`, error);
@@ -704,7 +677,7 @@ export const settingsApi = {
    */
   getSubscriptionInfo: async (): Promise<SubscriptionInfo> => {
     try {
-      const response = await api.get("/api/v1/users/subscription");
+      const response = await api.get(`${API_PREFIX}/users/subscription`);
       return response.data.data || response.data;
     } catch (error) {
       logger.warn(
@@ -720,7 +693,7 @@ export const settingsApi = {
    */
   cancelSubscription: async (): Promise<void> => {
     try {
-      await api.post("/api/v1/users/subscription/cancel");
+      await api.post(`${API_PREFIX}/users/subscription/cancel`);
     } catch (error) {
       logger.error("Failed to cancel subscription:", error);
 
@@ -749,7 +722,7 @@ export const settingsApi = {
    */
   deleteAccount: async (password: string): Promise<void> => {
     try {
-      await api.delete("/api/v1/users/account", {
+      await api.delete(`${API_PREFIX}/users/account`, {
         data: { password },
       });
     } catch (error) {

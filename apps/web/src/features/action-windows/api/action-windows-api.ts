@@ -5,6 +5,7 @@
  * API functions for fetching spray windows, irrigation windows, and action recommendations
  */
 
+import { FIELD_ENDPOINTS, WEATHER_ENDPOINTS, AGRO_RULES_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { logger } from "@/lib/logger";
@@ -95,7 +96,7 @@ async function fetchWeatherForecast(
 ): Promise<WeatherCondition[]> {
   try {
     // Try to get field location
-    const fieldResponse = await api.get(`/api/v1/fields/${fieldId}`);
+    const fieldResponse = await api.get(buildUrl(FIELD_ENDPOINTS.GET, { fieldId }));
     const field = fieldResponse.data.data || fieldResponse.data;
 
     let lat = 15.3694; // Default: Sana'a, Yemen
@@ -113,7 +114,7 @@ async function fetchWeatherForecast(
     }
 
     // Fetch weather forecast
-    const weatherResponse = await api.get(`/api/v1/weather/forecast`, {
+    const weatherResponse = await api.get(WEATHER_ENDPOINTS.FORECAST, {
       params: { lat, lon, days },
     });
 
@@ -211,7 +212,7 @@ export async function getSprayWindows(
   try {
     // Try to fetch from backend API first
     try {
-      const response = await api.get(`/api/v1/action-windows/spray`, {
+      const response = await api.get(`${AGRO_RULES_ENDPOINTS.SPRAY_WINDOWS}`, {
         params: { fieldId, days },
       });
 
@@ -320,7 +321,7 @@ export async function getIrrigationWindows(
   try {
     // Try to fetch from backend API first
     try {
-      const response = await api.get(`/api/v1/action-windows/irrigation`, {
+      const response = await api.get(`${API_PREFIX}/action-windows/irrigation`, {
         params: { fieldId, days },
       });
 
@@ -549,7 +550,7 @@ export async function getActionRecommendations(
   try {
     // Try to fetch from backend API first
     try {
-      const response = await api.get(`/api/v1/action-windows/recommendations`, {
+      const response = await api.get(`${API_PREFIX}/action-windows/recommendations`, {
         params: { fieldId, days, actionTypes: actionTypes?.join(",") },
       });
 

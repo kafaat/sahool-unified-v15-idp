@@ -3,9 +3,10 @@
  * طبقة API لميزة الحقول
  */
 
-import axios, { type AxiosError } from "axios";
+import { type AxiosError } from "axios";
 import type { Field, FieldFormData, FieldFilters, GeoPolygon } from "./types";
-import { logger } from "@/lib/logger";
+import { createApiClient, logger } from "@/lib/api/factory";
+import { FIELD_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 
 /**
  * API Field Response Type
@@ -35,36 +36,8 @@ interface ApiFieldResponse {
   updatedAt?: string;
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Add auth token interceptor
-// SECURITY: Use js-cookie library for safe cookie parsing instead of manual parsing
-import Cookies from "js-cookie";
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
@@ -248,7 +221,7 @@ export const fieldsApi = {
       if (filters?.maxArea) params.set("maxArea", filters.maxArea.toString());
       if (filters?.status) params.set("status", filters.status);
 
-      const response = await api.get(`/api/v1/fields?${params.toString()}`);
+      const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
 
       // Handle different response formats
       const fields = response.data.data || response.data;
@@ -270,7 +243,7 @@ export const fieldsApi = {
    */
   getFieldById: async (id: string): Promise<Field> => {
     try {
-      const response = await api.get(`/api/v1/fields/${id}`);
+      const response = await api.get(buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }));
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -298,7 +271,7 @@ export const fieldsApi = {
   ): Promise<Field> => {
     try {
       const apiData = mapFieldToApiField(data, tenantId);
-      const response = await api.post("/api/v1/fields", apiData);
+      const response = await api.post(FIELD_ENDPOINTS.CREATE, apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -334,7 +307,7 @@ export const fieldsApi = {
   ): Promise<Field> => {
     try {
       const apiData = mapFieldToApiField(data as FieldFormData, tenantId);
-      const response = await api.put(`/api/v1/fields/${id}`, apiData);
+      const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), apiData);
       const field = response.data.data || response.data;
       return mapApiFieldToField(field);
     } catch (error) {
@@ -365,7 +338,7 @@ export const fieldsApi = {
    */
   deleteField: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/fields/${id}`);
+      await api.delete(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }));
     } catch (error) {
       logger.error(`Failed to delete field ${id}:`, error);
 
@@ -404,7 +377,7 @@ export const fieldsApi = {
       if (farmId) params.set("tenantId", farmId);
 
       const response = await api.get(
-        `/api/v1/fields/stats?${params.toString()}`,
+        `${FIELD_ENDPOINTS.LIST}/stats?${params.toString()}`,
       );
       return response.data.data || response.data;
     } catch {

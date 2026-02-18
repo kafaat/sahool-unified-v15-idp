@@ -3,9 +3,8 @@
  * طبقة API لميزة التنبيهات
  */
 
-import axios from "axios";
-import Cookies from "js-cookie";
-import { logger } from "@/lib/logger";
+import { createApiClient, logger } from "@/lib/api/factory";
+import { ALERT_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
 import type {
   Alert,
   AlertFilters,
@@ -31,40 +30,8 @@ export type {
   UpdateAlertPayload,
 };
 
-// ═══════════════════════════════════════════════════════════════════════════
-// API Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Auth Token Interceptor
-// ═══════════════════════════════════════════════════════════════════════════
-
-api.interceptors.request.use((config) => {
-  // Get token from cookie using secure cookie parser
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient();
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages (Bilingual)
@@ -299,7 +266,7 @@ export const alertsApi = {
       if (filters?.endDate) params.set("end_date", filters.endDate);
       if (filters?.search) params.set("search", filters.search);
 
-      const response = await api.get(`/api/v1/alerts?${params.toString()}`);
+      const response = await api.get(`${ALERT_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
 
       if (Array.isArray(data)) {
@@ -320,7 +287,7 @@ export const alertsApi = {
    */
   getActiveCount: async (): Promise<AlertCount> => {
     try {
-      const response = await api.get("/api/v1/alerts/count");
+      const response = await api.get(`${ALERT_ENDPOINTS.LIST}/count`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -338,7 +305,7 @@ export const alertsApi = {
    */
   getAlertById: async (id: string): Promise<Alert> => {
     try {
-      const response = await api.get(`/api/v1/alerts/${id}`);
+      const response = await api.get(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -360,7 +327,7 @@ export const alertsApi = {
    */
   createAlert: async (payload: CreateAlertPayload): Promise<Alert> => {
     try {
-      const response = await api.post("/api/v1/alerts", payload);
+      const response = await api.post(ALERT_ENDPOINTS.CREATE, payload);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -378,7 +345,7 @@ export const alertsApi = {
     payload: UpdateAlertPayload,
   ): Promise<Alert> => {
     try {
-      const response = await api.patch(`/api/v1/alerts/${id}`, payload);
+      const response = await api.patch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }), payload);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -393,7 +360,7 @@ export const alertsApi = {
    */
   acknowledgeAlert: async (id: string): Promise<Alert> => {
     try {
-      const response = await api.post(`/api/v1/alerts/${id}/acknowledge`);
+      const response = await api.post(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }));
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -408,7 +375,7 @@ export const alertsApi = {
    */
   resolveAlert: async (id: string, resolution?: string): Promise<Alert> => {
     try {
-      const response = await api.post(`/api/v1/alerts/${id}/resolve`, {
+      const response = await api.post(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), {
         resolution,
         resolvedAt: new Date().toISOString(),
       });
@@ -426,7 +393,7 @@ export const alertsApi = {
    */
   dismissAlert: async (id: string, reason?: string): Promise<void> => {
     try {
-      await api.post(`/api/v1/alerts/${id}/dismiss`, {
+      await api.post(`${buildUrl(ALERT_ENDPOINTS.GET, { alertId: id })}/dismiss`, {
         reason,
         dismissedAt: new Date().toISOString(),
       });
@@ -442,7 +409,7 @@ export const alertsApi = {
    */
   deleteAlert: async (id: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/alerts/${id}`);
+      await api.delete(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
     } catch (error) {
       logger.error("Failed to delete alert:", error);
       throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
@@ -456,7 +423,7 @@ export const alertsApi = {
   getStats: async (governorate?: string): Promise<AlertStats> => {
     try {
       const params = governorate ? `?governorate=${governorate}` : "";
-      const response = await api.get(`/api/v1/alerts/stats${params}`);
+      const response = await api.get(`${ALERT_ENDPOINTS.LIST}/stats${params}`);
       const data = response.data.data || response.data;
       return data;
     } catch (error) {
@@ -476,7 +443,7 @@ export const alertsApi = {
     alertIds: string[],
   ): Promise<{ success: boolean; updated: number }> => {
     try {
-      const response = await api.post("/api/v1/alerts/bulk/acknowledge", {
+      const response = await api.post(`${ALERT_ENDPOINTS.LIST}/bulk/acknowledge`, {
         alertIds,
       });
       return response.data;
@@ -495,7 +462,7 @@ export const alertsApi = {
     reason?: string,
   ): Promise<{ success: boolean; updated: number }> => {
     try {
-      const response = await api.post("/api/v1/alerts/bulk/dismiss", {
+      const response = await api.post(`${ALERT_ENDPOINTS.LIST}/bulk/dismiss`, {
         alertIds,
         reason,
       });
@@ -511,6 +478,6 @@ export const alertsApi = {
    * الاشتراك في التنبيهات في الوقت الفعلي
    */
   getStreamUrl: (): string => {
-    return `${api.defaults.baseURL}/api/v1/alerts/stream`;
+    return `${api.defaults.baseURL}${ALERT_ENDPOINTS.LIST}/stream`;
   },
 };

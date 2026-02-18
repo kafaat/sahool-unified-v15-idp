@@ -20,6 +20,8 @@ import type {
 // إعداد واجهة برمجة التطبيقات - API Configuration
 // ═══════════════════════════════════════════════════════════════════════════════
 
+import { ASTRONOMICAL_ENDPOINTS } from "@sahool/shared-types/contracts";
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // تحذير في التطوير فقط - Only warn during development
@@ -27,7 +29,7 @@ if (!API_BASE_URL && typeof window !== "undefined") {
   console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
 }
 
-const ASTRONOMICAL_API_BASE = `${API_BASE_URL}/api/v1/astronomical`;
+const ASTRONOMICAL_API_BASE = `${API_BASE_URL}${ASTRONOMICAL_ENDPOINTS.CALENDAR.replace("/calendar", "")}`;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // دوال مساعدة - Helper Functions

@@ -53,88 +53,118 @@ export const API_BASE_HOST =
   process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Service Ports
+// Service Ports (from unified contracts)
+// Sourced from @sahool/shared-types/contracts/service-ports.ts
 // ═══════════════════════════════════════════════════════════════════════════
+
+import {
+  SERVICE_PORTS as UNIFIED_PORTS,
+  HEALTH_ENDPOINTS,
+  AUTH_ENDPOINTS,
+  FIELD_ENDPOINTS,
+  CROP_HEALTH_ENDPOINTS,
+  IRRIGATION_ENDPOINTS,
+  ADVISORY_ENDPOINTS,
+  TASK_ENDPOINTS,
+  EQUIPMENT_ENDPOINTS,
+  NOTIFICATION_ENDPOINTS,
+  IOT_ENDPOINTS,
+  INDICATOR_ENDPOINTS,
+  BILLING_ENDPOINTS,
+  AUDIT_ENDPOINTS,
+  SOIL_ENDPOINTS,
+  DRONE_ENDPOINTS,
+  INVENTORY_ENDPOINTS,
+  TRACEABILITY_ENDPOINTS,
+  TERRAIN_ENDPOINTS,
+  CHAT_ENDPOINTS,
+  YIELD_ENDPOINTS,
+  buildUrl,
+} from "@sahool/shared-types/contracts";
 
 /**
  * Port mapping for all backend services
+ * Now sourced from @sahool/shared-types/contracts (single source of truth)
+ *
+ * FIXED: auth was 8080 → now 3025 (USER_SERVICE via Kong)
+ * FIXED: soilAnalysis was 8124 → now 8134
  */
 export const SERVICE_PORTS = {
   // Core Services
-  fieldCore: 3000, // @deprecated - use fieldManagement
-  fieldManagement: 3000,
-  auth: 8080,
-  users: 3025,
-  wsGateway: 8081,
+  fieldCore: UNIFIED_PORTS.FIELD_MANAGEMENT,
+  fieldManagement: UNIFIED_PORTS.FIELD_MANAGEMENT,
+  auth: UNIFIED_PORTS.USER_SERVICE,
+  users: UNIFIED_PORTS.USER_SERVICE,
+  wsGateway: UNIFIED_PORTS.WS_GATEWAY,
 
   // Satellite & Remote Sensing
-  satellite: 8090, // vegetation-analysis-service
-  ndviProcessor: 8118,
+  satellite: UNIFIED_PORTS.VEGETATION_ANALYSIS,
+  ndviProcessor: UNIFIED_PORTS.NDVI_PROCESSOR,
 
   // Weather Services
-  weather: 8092,
+  weather: UNIFIED_PORTS.WEATHER,
 
   // AI & Analytics
-  indicators: 8091,
-  cropIntelligence: 8095,
-  advisory: 8093,
-  yieldPrediction: 8152,
-  fieldIntelligence: 8120,
+  indicators: UNIFIED_PORTS.INDICATORS,
+  cropIntelligence: UNIFIED_PORTS.CROP_INTELLIGENCE,
+  advisory: UNIFIED_PORTS.ADVISORY,
+  yieldPrediction: UNIFIED_PORTS.YIELD_PREDICTION,
+  fieldIntelligence: UNIFIED_PORTS.FIELD_INTELLIGENCE,
   analytics: 8100,
-  copilot: 8088,
-  aiAdvisor: 8112,
-  aiAgents: 8161,
-  knowledgeGraph: 8140,
+  copilot: UNIFIED_PORTS.COPILOT_API,
+  aiAdvisor: UNIFIED_PORTS.AI_ADVISOR,
+  aiAgents: UNIFIED_PORTS.AI_AGENTS_CORE,
+  knowledgeGraph: UNIFIED_PORTS.KNOWLEDGE_GRAPH,
 
   // IoT & Sensors
-  virtualSensors: 8119,
-  iotGateway: 8106,
-  iotService: 8117,
+  virtualSensors: UNIFIED_PORTS.VIRTUAL_SENSORS,
+  iotGateway: UNIFIED_PORTS.IOT_GATEWAY,
+  iotService: UNIFIED_PORTS.IOT_SERVICE,
 
   // Operations
-  irrigation: 8094,
-  task: 8103,
-  equipment: 8101,
-  inventory: 8116,
-  logistics: 8167,
-  supplyChain: 8230,
+  irrigation: UNIFIED_PORTS.IRRIGATION_SMART,
+  task: UNIFIED_PORTS.TASK_SERVICE,
+  equipment: UNIFIED_PORTS.EQUIPMENT,
+  inventory: UNIFIED_PORTS.INVENTORY,
+  logistics: UNIFIED_PORTS.LOGISTICS,
+  supplyChain: UNIFIED_PORTS.SUPPLY_CHAIN,
 
   // Communication
-  notifications: 8110,
-  fieldChat: 8099,
-  chatService: 8000,
-  communityChat: 8097,
+  notifications: UNIFIED_PORTS.NOTIFICATIONS,
+  fieldChat: UNIFIED_PORTS.FIELD_CHAT,
+  chatService: UNIFIED_PORTS.CHAT_SERVICE,
+  communityChat: UNIFIED_PORTS.COMMUNITY_CHAT,
 
   // Configuration & Misc
-  providerConfig: 8104,
-  alerts: 8113,
+  providerConfig: UNIFIED_PORTS.PROVIDER_CONFIG,
+  alerts: UNIFIED_PORTS.ALERT_SERVICE,
   reports: 8084,
-  astronomicalCalendar: 8111,
-  lowcode: 8132,
+  astronomicalCalendar: UNIFIED_PORTS.ASTRONOMICAL_CALENDAR,
+  lowcode: UNIFIED_PORTS.LOWCODE_ENGINE,
 
   // Billing & Audit
-  billing: 8089,
-  audit: 8114,
+  billing: UNIFIED_PORTS.BILLING_CORE,
+  audit: UNIFIED_PORTS.AUDIT_SERVICE,
 
   // Agriculture Domain
-  drone: 8126,
-  soilAnalysis: 8124,
-  pestDetection: 8125,
-  traceability: 8123,
-  globalgap: 8128,
-  cooperative: 8127,
-  crm: 8131,
+  drone: UNIFIED_PORTS.DRONE_SERVICE,
+  soilAnalysis: UNIFIED_PORTS.SOIL_ANALYSIS,
+  pestDetection: UNIFIED_PORTS.PEST_DETECTION,
+  traceability: UNIFIED_PORTS.TRACEABILITY,
+  globalgap: UNIFIED_PORTS.GLOBALGAP,
+  cooperative: UNIFIED_PORTS.COOPERATIVE,
+  crm: UNIFIED_PORTS.CRM_SERVICE,
 
   // Community & Business
-  marketplace: 3010,
-  research: 3015,
+  marketplace: UNIFIED_PORTS.MARKETPLACE,
+  research: UNIFIED_PORTS.RESEARCH_CORE,
 
   // Vision & Terrain
-  yoloVision: 8150,
-  terrainCore: 8185,
-  hydrology: 8165,
-  levelingOptimizer: 8170,
-  edgeOrchestrator: 8180,
+  yoloVision: UNIFIED_PORTS.YOLO_VISION,
+  terrainCore: UNIFIED_PORTS.TERRAIN_CORE,
+  hydrology: UNIFIED_PORTS.HYDROLOGY,
+  levelingOptimizer: UNIFIED_PORTS.LEVELING_OPTIMIZER,
+  edgeOrchestrator: UNIFIED_PORTS.EDGE_ORCHESTRATOR,
 } as const;
 
 /**
@@ -257,41 +287,41 @@ export type ServiceUrlKey = keyof typeof SERVICE_URLS;
  * These are relative paths that can be combined with SERVICE_URLS
  */
 export const API_PATHS = {
-  // Health Endpoints
+  // Health Endpoints (from unified contracts)
   health: {
-    live: "/healthz",
-    ready: "/readyz",
-    check: "/health",
-    metrics: "/metrics",
+    live: HEALTH_ENDPOINTS.LIVENESS,
+    ready: HEALTH_ENDPOINTS.READINESS,
+    check: HEALTH_ENDPOINTS.HEALTH,
+    metrics: HEALTH_ENDPOINTS.METRICS,
   },
 
-  // Authentication
+  // Authentication (from unified contracts)
   auth: {
-    login: "/api/v1/auth/login",
-    logout: "/api/v1/auth/logout",
-    refresh: "/api/v1/auth/refresh",
-    me: "/api/v1/auth/me",
-    activity: "/api/v1/auth/activity",
+    login: AUTH_ENDPOINTS.LOGIN,
+    logout: AUTH_ENDPOINTS.LOGOUT,
+    refresh: AUTH_ENDPOINTS.REFRESH,
+    me: AUTH_ENDPOINTS.ME,
+    activity: AUTH_ENDPOINTS.ACTIVITY,
   },
 
-  // Fields & Farms
+  // Fields & Farms (from unified contracts)
   fields: {
-    list: "/api/v1/fields",
-    byId: (id: string) => `/api/v1/fields/${id}`,
-    create: "/api/v1/fields",
-    update: (id: string) => `/api/v1/fields/${id}`,
-    delete: (id: string) => `/api/v1/fields/${id}`,
+    list: FIELD_ENDPOINTS.LIST,
+    byId: (id: string) => buildUrl(FIELD_ENDPOINTS.GET, { fieldId: id }),
+    create: FIELD_ENDPOINTS.CREATE,
+    update: (id: string) => buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }),
+    delete: (id: string) => buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId: id }),
   },
 
-  // Crop Health & Diagnoses
+  // Crop Health & Diagnoses (from unified contracts)
   cropHealth: {
-    diagnoses: "/api/v1/crop-health/diagnoses",
-    diagnosisById: (id: string) => `/api/v1/crop-health/diagnoses/${id}`,
-    stats: "/api/v1/crop-health/diagnoses/stats",
-    analyze: "/api/v1/crop-health/analyze",
+    diagnoses: CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST,
+    diagnosisById: (id: string) => buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }),
+    stats: CROP_HEALTH_ENDPOINTS.DIAGNOSES_STATS,
+    analyze: CROP_HEALTH_ENDPOINTS.ANALYZE,
   },
 
-  // Weather Services
+  // Weather Services (direct service paths - not Kong-routed)
   weather: {
     current: "/weather/current",
     forecast: "/weather/forecast",
@@ -302,7 +332,7 @@ export const API_PATHS = {
     forecastByLocation: (locationId: string) => `/v1/forecast/${locationId}`,
   },
 
-  // Satellite & Vegetation
+  // Satellite & Vegetation (direct service paths - not Kong-routed)
   satellite: {
     timeseries: (fieldId: string) => `/v1/timeseries/${fieldId}`,
     analyze: "/v1/analyze",
@@ -310,78 +340,78 @@ export const API_PATHS = {
     satellites: "/v1/satellites",
   },
 
-  // Dashboard & Indicators
+  // Dashboard & Indicators (from unified contracts)
   indicators: {
-    dashboard: "/api/v1/indicators/dashboard",
-    summary: "/api/v1/indicators/summary",
-    trends: "/api/v1/indicators/trends",
+    dashboard: INDICATOR_ENDPOINTS.DASHBOARD,
+    summary: INDICATOR_ENDPOINTS.SUMMARY,
+    trends: INDICATOR_ENDPOINTS.TRENDS,
   },
 
-  // IoT & Sensors
+  // IoT & Sensors (from unified contracts)
   sensors: {
-    readings: (farmId: string) => `/api/v1/iot/readings/${farmId}`,
-    devices: "/api/v1/iot/devices",
-    deviceById: (id: string) => `/api/v1/iot/devices/${id}`,
+    readings: (farmId: string) => buildUrl(IOT_ENDPOINTS.READINGS_BY_FARM, { farmId }),
+    devices: IOT_ENDPOINTS.DEVICES,
+    deviceById: (id: string) => buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }),
   },
 
-  // Irrigation
+  // Irrigation (from unified contracts)
   irrigation: {
-    schedules: "/api/v1/irrigation/schedules",
-    recommendations: "/api/v1/irrigation/recommendations",
-    history: (fieldId: string) => `/api/v1/irrigation/history/${fieldId}`,
+    schedules: IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
+    recommendations: IRRIGATION_ENDPOINTS.RECOMMENDATIONS,
+    history: (fieldId: string) => buildUrl(IRRIGATION_ENDPOINTS.HISTORY, { fieldId }),
   },
 
-  // Notifications
+  // Notifications (from unified contracts)
   notifications: {
-    list: "/api/v1/notifications",
-    byId: (id: string) => `/api/v1/notifications/${id}`,
-    markRead: (id: string) => `/api/v1/notifications/${id}/read`,
-    markAllRead: "/api/v1/notifications/read-all",
+    list: NOTIFICATION_ENDPOINTS.LIST,
+    byId: (id: string) => buildUrl(NOTIFICATION_ENDPOINTS.GET, { notificationId: id }),
+    markRead: (id: string) => buildUrl(NOTIFICATION_ENDPOINTS.MARK_READ, { notificationId: id }),
+    markAllRead: NOTIFICATION_ENDPOINTS.MARK_ALL_READ,
   },
 
-  // Tasks
+  // Tasks (from unified contracts)
   tasks: {
-    list: "/api/v1/tasks",
-    byId: (id: string) => `/api/v1/tasks/${id}`,
-    create: "/api/v1/tasks",
-    update: (id: string) => `/api/v1/tasks/${id}`,
+    list: TASK_ENDPOINTS.LIST,
+    byId: (id: string) => buildUrl(TASK_ENDPOINTS.GET, { taskId: id }),
+    create: TASK_ENDPOINTS.CREATE,
+    update: (id: string) => buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }),
   },
 
-  // Equipment
+  // Equipment (from unified contracts)
   equipment: {
-    list: "/api/v1/equipment",
-    byId: (id: string) => `/api/v1/equipment/${id}`,
-    maintenance: (id: string) => `/api/v1/equipment/${id}/maintenance`,
+    list: EQUIPMENT_ENDPOINTS.LIST,
+    byId: (id: string) => buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }),
+    maintenance: (id: string) => buildUrl(EQUIPMENT_ENDPOINTS.MAINTENANCE, { equipmentId: id }),
   },
 
-  // Community
+  // Community (from unified contracts)
   community: {
-    posts: "/api/v1/posts",
-    postById: (id: string) => `/api/v1/posts/${id}`,
-    comments: (postId: string) => `/api/v1/posts/${postId}/comments`,
+    posts: CHAT_ENDPOINTS.COMMUNITY_POSTS,
+    postById: (id: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id }),
+    comments: (postId: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_COMMENTS, { postId }),
   },
 
-  // Advisory (fertilizer + crop recommendations)
+  // Advisory (from unified contracts)
   advisory: {
-    recommendations: "/api/v1/advisory/recommendations",
-    fertilizer: "/api/v1/advisory/fertilizer",
-    calculate: "/api/v1/advisory/fertilizer/calculate",
+    recommendations: ADVISORY_ENDPOINTS.RECOMMENDATIONS,
+    fertilizer: ADVISORY_ENDPOINTS.FERTILIZER_ADVISORY,
+    calculate: ADVISORY_ENDPOINTS.FERTILIZER_CALCULATE,
   },
 
-  // Yield
+  // Yield (from unified contracts)
   yield: {
-    predictions: "/api/v1/yield/predictions",
-    history: (fieldId: string) => `/api/v1/yield/history/${fieldId}`,
+    predictions: YIELD_ENDPOINTS.PREDICTIONS,
+    history: (fieldId: string) => buildUrl(YIELD_ENDPOINTS.HISTORY, { fieldId }),
   },
 
-  // Analytics
+  // Analytics (admin-specific, no unified contract)
   analytics: {
     overview: "/api/v1/analytics/overview",
     reports: "/api/v1/analytics/reports",
     export: "/api/v1/analytics/export",
   },
 
-  // Copilot (AI Assistant)
+  // Copilot (admin-specific routing, different from Kong paths)
   copilot: {
     chat: "/api/v1/chat",
     chatHistory: "/api/v1/chat/history",
@@ -393,52 +423,52 @@ export const API_PATHS = {
     guardLogs: "/api/v1/security/guard-logs",
   },
 
-  // Billing
+  // Billing (from unified contracts)
   billing: {
-    invoices: "/api/v1/billing/invoices",
-    invoiceById: (id: string) => `/api/v1/billing/invoices/${id}`,
-    subscriptions: "/api/v1/billing/subscriptions",
-    usage: "/api/v1/billing/usage",
+    invoices: BILLING_ENDPOINTS.INVOICES,
+    invoiceById: (id: string) => buildUrl(BILLING_ENDPOINTS.INVOICE_GET, { invoiceId: id }),
+    subscriptions: BILLING_ENDPOINTS.SUBSCRIPTIONS,
+    usage: BILLING_ENDPOINTS.USAGE,
   },
 
-  // Audit
+  // Audit (from unified contracts)
   audit: {
-    logs: "/api/v1/audit/logs",
-    logById: (id: string) => `/api/v1/audit/logs/${id}`,
-    stats: "/api/v1/audit/stats",
+    logs: AUDIT_ENDPOINTS.LOGS,
+    logById: (id: string) => buildUrl(AUDIT_ENDPOINTS.LOG_GET, { logId: id }),
+    stats: AUDIT_ENDPOINTS.STATS,
   },
 
-  // Inventory
+  // Inventory (from unified contracts)
   inventory: {
-    items: "/api/v1/inventory",
-    itemById: (id: string) => `/api/v1/inventory/${id}`,
-    stockLevels: "/api/v1/inventory/stock-levels",
+    items: INVENTORY_ENDPOINTS.LIST,
+    itemById: (id: string) => buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }),
+    stockLevels: INVENTORY_ENDPOINTS.STOCK_LEVELS,
   },
 
-  // Drone
+  // Drone (from unified contracts)
   drone: {
-    flights: "/api/v1/drone/flights",
-    flightById: (id: string) => `/api/v1/drone/flights/${id}`,
-    plan: "/api/v1/drone/flights/plan",
-    devices: "/api/v1/drone/devices",
+    flights: DRONE_ENDPOINTS.FLIGHTS,
+    flightById: (id: string) => buildUrl(DRONE_ENDPOINTS.FLIGHT_GET, { flightId: id }),
+    plan: DRONE_ENDPOINTS.FLIGHT_PLAN,
+    devices: DRONE_ENDPOINTS.DEVICES,
   },
 
-  // Soil Analysis
+  // Soil Analysis (from unified contracts)
   soilAnalysis: {
-    tests: "/api/v1/soil/tests",
-    testById: (id: string) => `/api/v1/soil/tests/${id}`,
-    recommendations: "/api/v1/soil/recommendations",
+    tests: SOIL_ENDPOINTS.TESTS,
+    testById: (id: string) => buildUrl(SOIL_ENDPOINTS.TEST_GET, { testId: id }),
+    recommendations: SOIL_ENDPOINTS.RECOMMENDATIONS,
   },
 
-  // Traceability
+  // Traceability (from unified contracts)
   traceability: {
-    batches: "/api/v1/traceability/batches",
-    batchById: (id: string) => `/api/v1/traceability/batches/${id}`,
-    events: "/api/v1/traceability/events",
-    qrCode: (batchId: string) => `/api/v1/traceability/batches/${batchId}/qr`,
+    batches: TRACEABILITY_ENDPOINTS.BATCHES,
+    batchById: (id: string) => buildUrl(TRACEABILITY_ENDPOINTS.BATCH_GET, { batchId: id }),
+    events: TRACEABILITY_ENDPOINTS.EVENTS,
+    qrCode: (batchId: string) => buildUrl(TRACEABILITY_ENDPOINTS.QR_CODE, { batchId }),
   },
 
-  // Vision
+  // Vision (direct service paths - vision service internal routing)
   vision: {
     detectPest: "/api/v1/detect/pest",
     detectDisease: "/api/v1/detect/disease",
@@ -446,11 +476,11 @@ export const API_PATHS = {
     models: "/api/v1/models/versions",
   },
 
-  // Terrain
+  // Terrain (from unified contracts)
   terrain: {
-    analyze: "/api/v1/terrain/dem",
-    slope: "/api/v1/terrain/slope",
-    aspect: "/api/v1/terrain/aspect",
+    analyze: TERRAIN_ENDPOINTS.DEM,
+    slope: TERRAIN_ENDPOINTS.SLOPE,
+    aspect: TERRAIN_ENDPOINTS.ASPECT,
   },
 } as const;
 

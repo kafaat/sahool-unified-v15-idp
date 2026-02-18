@@ -3,6 +3,7 @@
  * طبقة API لميزة الكشافة الحقلية
  */
 
+import { SCOUTING_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
 import axios, { type AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { logger } from "@/lib/logger";
@@ -123,7 +124,7 @@ async function uploadPhoto(file: File, sessionId: string): Promise<string> {
   formData.append("sessionId", sessionId);
 
   try {
-    const response = await api.post("/api/v1/scouting/photos", formData, {
+    const response = await api.post(`${API_PREFIX}/scouting/photos`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -190,7 +191,7 @@ export const scoutingApi = {
   ): Promise<ScoutingSession> => {
     try {
       const response = await api.post<ApiSessionResponse>(
-        "/api/v1/scouting/sessions",
+        `${API_PREFIX}/scouting/sessions`,
         {
           fieldId,
           notes,
@@ -222,7 +223,7 @@ export const scoutingApi = {
   ): Promise<ScoutingSession> => {
     try {
       const response = await api.put<ApiSessionResponse>(
-        `/api/v1/scouting/sessions/${sessionId}/end`,
+        `${API_PREFIX}/scouting/sessions/${sessionId}/end`,
         {
           endTime: new Date().toISOString(),
           notes,
@@ -263,7 +264,7 @@ export const scoutingApi = {
   getSession: async (sessionId: string): Promise<ScoutingSession> => {
     try {
       const response = await api.get<ApiSessionResponse>(
-        `/api/v1/scouting/sessions/${sessionId}`,
+        `${API_PREFIX}/scouting/sessions/${sessionId}`,
       );
       return response.data.data || { ...MOCK_SESSION, id: sessionId };
     } catch (error) {
@@ -281,7 +282,7 @@ export const scoutingApi = {
   ): Promise<ScoutingSession | null> => {
     try {
       const response = await api.get<ApiSessionResponse>(
-        `/api/v1/scouting/sessions/active`,
+        `${API_PREFIX}/scouting/sessions/active`,
         {
           params: { fieldId },
         },
@@ -300,7 +301,7 @@ export const scoutingApi = {
   getSessionSummary: async (sessionId: string): Promise<SessionSummary> => {
     try {
       const response = await api.get<ApiScoutingResponse<SessionSummary>>(
-        `/api/v1/scouting/sessions/${sessionId}/summary`,
+        `${API_PREFIX}/scouting/sessions/${sessionId}/summary`,
       );
       return (
         response.data.data || {
@@ -364,7 +365,7 @@ export const scoutingApi = {
       };
 
       const response = await api.post<ApiObservationResponse>(
-        "/api/v1/scouting/observations",
+        `${API_PREFIX}/scouting/observations`,
         observationData,
       );
 
@@ -409,7 +410,7 @@ export const scoutingApi = {
   ): Promise<Observation> => {
     try {
       const response = await api.put<ApiObservationResponse>(
-        `/api/v1/scouting/observations/${observationId}`,
+        `${API_PREFIX}/scouting/observations/${observationId}`,
         data,
       );
 
@@ -440,7 +441,7 @@ export const scoutingApi = {
    */
   deleteObservation: async (observationId: string): Promise<void> => {
     try {
-      await api.delete(`/api/v1/scouting/observations/${observationId}`);
+      await api.delete(`${API_PREFIX}/scouting/observations/${observationId}`);
     } catch (error) {
       logger.error(`Failed to delete observation ${observationId}:`, error);
 
@@ -468,7 +469,7 @@ export const scoutingApi = {
   getObservations: async (sessionId: string): Promise<Observation[]> => {
     try {
       const response = await api.get<ApiObservationsListResponse>(
-        `/api/v1/scouting/sessions/${sessionId}/observations`,
+        `${API_PREFIX}/scouting/sessions/${sessionId}/observations`,
       );
       return response.data.data || [];
     } catch (error) {
@@ -507,7 +508,7 @@ export const scoutingApi = {
       if (filters?.status) params.set("status", filters.status);
 
       const response = await api.get<ApiSessionsListResponse>(
-        `/api/v1/scouting/sessions?${params.toString()}`,
+        `${API_PREFIX}/scouting/sessions?${params.toString()}`,
       );
 
       return response.data.data || [];
@@ -525,7 +526,7 @@ export const scoutingApi = {
     try {
       const params = fieldId ? `?fieldId=${fieldId}` : "";
       const response = await api.get<ApiStatisticsResponse>(
-        `/api/v1/scouting/statistics${params}`,
+        `${SCOUTING_ENDPOINTS.STATS}${params}`,
       );
 
       return (
@@ -574,7 +575,7 @@ export const scoutingApi = {
   ): Promise<{ downloadUrl: string }> => {
     try {
       const response = await api.post(
-        `/api/v1/scouting/sessions/${sessionId}/report`,
+        `${API_PREFIX}/scouting/sessions/${sessionId}/report`,
         {
           includePhotos: config.includePhotos ?? true,
           includeMap: config.includeMap ?? true,
@@ -612,7 +613,7 @@ export const scoutingApi = {
 
     for (const observation of cached) {
       try {
-        await api.post("/api/v1/scouting/observations", observation);
+        await api.post(`${API_PREFIX}/scouting/observations`, observation);
         synced++;
       } catch (error) {
         logger.error("Failed to sync observation:", error);

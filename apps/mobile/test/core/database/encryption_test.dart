@@ -10,6 +10,7 @@
 ///
 /// Note: Full SQLCipher tests require native libraries.
 /// These tests focus on the encryption key management logic.
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -50,6 +51,7 @@ class DatabaseEncryptionTest {
   static const int _keyLengthBytes = 32; // 256 bits
 
   final MockSecureStorage _secureStorage;
+  Completer<String>? _keyCreationLock;
 
   DatabaseEncryptionTest(this._secureStorage);
 
@@ -61,24 +63,43 @@ class DatabaseEncryptionTest {
   }
 
   /// Get or create the database encryption key
+  /// Uses a Completer-based lock to handle concurrent calls safely
   Future<String> getOrCreateKey() async {
-    String? existingKey = await _secureStorage.read(key: _keyStorageKey);
-
-    if (existingKey != null && existingKey.isNotEmpty) {
-      if (isValidKey(existingKey)) {
-        return existingKey;
-      }
+    // If another call is already creating a key, wait for it
+    if (_keyCreationLock != null) {
+      return _keyCreationLock!.future;
     }
 
-    // Generate new key
-    final newKey = generateKey();
-    await _secureStorage.write(key: _keyStorageKey, value: newKey);
-    await _secureStorage.write(
-      key: _keyVersionKey,
-      value: _currentKeyVersion.toString(),
-    );
+    // Set lock synchronously BEFORE any await to prevent concurrent generation
+    final completer = Completer<String>();
+    _keyCreationLock = completer;
 
-    return newKey;
+    try {
+      String? existingKey = await _secureStorage.read(key: _keyStorageKey);
+
+      if (existingKey != null && existingKey.isNotEmpty) {
+        if (isValidKey(existingKey)) {
+          completer.complete(existingKey);
+          return existingKey;
+        }
+      }
+
+      // Generate new key
+      final newKey = generateKey();
+      await _secureStorage.write(key: _keyStorageKey, value: newKey);
+      await _secureStorage.write(
+        key: _keyVersionKey,
+        value: _currentKeyVersion.toString(),
+      );
+
+      completer.complete(newKey);
+      return newKey;
+    } catch (e) {
+      completer.completeError(e);
+      rethrow;
+    } finally {
+      _keyCreationLock = null;
+    }
   }
 
   /// Check if an encryption key exists

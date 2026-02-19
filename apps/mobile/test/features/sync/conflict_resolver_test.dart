@@ -481,11 +481,14 @@ void main() {
 
   group('ConflictResolution', () {
     test('should create valid conflict resolution record', () {
+      // Capture data once to avoid timestamp drift between getter calls
+      final serverData = SyncTestFixtures.sampleServerData;
+
       final details = ConflictDetails(
         entityType: 'field',
         entityId: 'field_001',
         local: SyncTestFixtures.sampleLocalData,
-        server: SyncTestFixtures.sampleServerData,
+        server: serverData,
         base: SyncTestFixtures.sampleBaseData,
         conflictingFields: {'name'},
         detectedAt: DateTime.now(),
@@ -494,13 +497,13 @@ void main() {
       final resolution = ConflictResolution(
         conflict: details,
         strategy: ConflictStrategy.serverWins,
-        resolvedData: SyncTestFixtures.sampleServerData,
+        resolvedData: serverData,
         resolvedAt: DateTime.now(),
         resolvedBy: 'system',
       );
 
       expect(resolution.strategy, equals(ConflictStrategy.serverWins));
-      expect(resolution.resolvedData, equals(SyncTestFixtures.sampleServerData));
+      expect(resolution.resolvedData, equals(serverData));
       expect(resolution.resolvedBy, equals('system'));
     });
   });
@@ -517,7 +520,8 @@ void main() {
         base: base,
       );
 
-      expect(hasConflict, isTrue); // description changed locally from null
+      // No conflict: only local changed (name + description), server matches base
+      expect(hasConflict, isFalse);
     });
 
     test('should handle empty maps', () async {

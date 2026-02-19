@@ -99,8 +99,8 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
       `${API_URLS.indicators}/api/v1/indicators/dashboard`,
     );
     return response.data;
-  } catch {
-    // Return mock data for development
+  } catch (error) {
+    logger.warn("fetchDashboardStats failed, returning mock data", { error });
     return {
       totalFarms: 156,
       activeFarms: 142,

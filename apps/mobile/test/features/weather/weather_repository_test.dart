@@ -56,7 +56,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.currentWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('sanaa');
@@ -73,7 +73,7 @@ void main() {
         // Arrange - Test clear weather
         final responseBody = jsonEncode(WeatherFixtures.clearWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('aden');
@@ -87,7 +87,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.rainyWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('taiz');
@@ -102,7 +102,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.thunderstormWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('hodeidah');
@@ -117,7 +117,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.foggyWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('marib');
@@ -132,7 +132,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.currentWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getCurrentWeather('sanaa');
@@ -190,7 +190,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.currentWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getWeatherByCoordinates(15.3694, 44.1910);
@@ -204,7 +204,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.currentWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getWeatherByCoordinates(-15.0, 44.0);
@@ -235,7 +235,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode(WeatherFixtures.currentWeatherJson);
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getFieldWeather('field-001');
@@ -268,7 +268,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -284,7 +284,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -301,7 +301,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -317,7 +317,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -333,7 +333,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -349,7 +349,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa');
@@ -374,7 +374,7 @@ void main() {
         final forecasts = WeatherFixtures.generateForecastDays(14);
         final responseBody = jsonEncode({'forecasts': forecasts});
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getForecast('sanaa', days: 14);
@@ -407,7 +407,7 @@ void main() {
           'hourly': WeatherFixtures.hourlyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getHourlyForecast('sanaa');
@@ -423,7 +423,7 @@ void main() {
           'hourly': WeatherFixtures.hourlyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getHourlyForecast('sanaa');
@@ -439,7 +439,7 @@ void main() {
           'hourly': WeatherFixtures.hourlyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getHourlyForecast('sanaa');
@@ -460,7 +460,7 @@ void main() {
           'forecasts': WeatherFixtures.dailyForecastsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getDailyForecast('field-001');
@@ -482,7 +482,7 @@ void main() {
           'alerts': WeatherFixtures.weatherAlertsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAlerts('sanaa');
@@ -498,7 +498,7 @@ void main() {
           'alerts': WeatherFixtures.weatherAlertsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAlerts('sanaa');
@@ -514,7 +514,7 @@ void main() {
           'alerts': WeatherFixtures.weatherAlertsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAlerts('sanaa');
@@ -528,7 +528,7 @@ void main() {
         // Arrange
         final responseBody = jsonEncode({'alerts': []});
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAlerts('sanaa');
@@ -561,7 +561,7 @@ void main() {
           'alerts': WeatherFixtures.weatherAlertsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getWeatherAlerts('field-001');
@@ -582,7 +582,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -598,7 +598,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -616,7 +616,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -634,7 +634,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -651,7 +651,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -669,7 +669,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(location: 'sanaa');
@@ -687,7 +687,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalCalendar(
@@ -711,7 +711,7 @@ void main() {
           'impacts': WeatherFixtures.agriculturalImpactsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAgriculturalImpacts('field-001');
@@ -732,7 +732,7 @@ void main() {
           'locations': WeatherFixtures.locationsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAvailableLocations();
@@ -748,7 +748,7 @@ void main() {
           'locations': WeatherFixtures.locationsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAvailableLocations();
@@ -765,7 +765,7 @@ void main() {
           'locations': WeatherFixtures.locationsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAvailableLocations();
@@ -781,7 +781,7 @@ void main() {
           'locations': WeatherFixtures.locationsJson,
         });
         when(() => mockClient.get(any(), headers: any(named: 'headers')))
-            .thenAnswer((_) async => http.Response(responseBody, 200));
+            .thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         final result = await weatherApi.getAvailableLocations();
@@ -877,7 +877,7 @@ void main() {
         when(() => mockClient.get(
               any(),
               headers: any(named: 'headers'),
-            )).thenAnswer((_) async => http.Response(responseBody, 200));
+            )).thenAnswer((_) async => http.Response(responseBody, 200, headers: {'content-type': 'application/json; charset=utf-8'}));
 
         // Act
         await apiWithAuth.getCurrentWeather('sanaa');

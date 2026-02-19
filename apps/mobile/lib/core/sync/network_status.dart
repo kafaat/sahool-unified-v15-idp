@@ -4,6 +4,12 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 /// Network Status Monitor
 /// مراقب حالة الشبكة
 class NetworkStatus {
+  static NetworkStatus? _instance;
+  static NetworkStatus get instance {
+    _instance ??= NetworkStatus();
+    return _instance!;
+  }
+
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<List<ConnectivityResult>>? _subscription;
 
@@ -12,6 +18,9 @@ class NetworkStatus {
 
   Stream<bool> get onlineStream => _onlineController.stream;
   bool get isOnline => _isOnline;
+
+  /// Future-based connected check for async usage
+  Future<bool> get isConnected => checkOnline();
 
   NetworkStatus() {
     _init();

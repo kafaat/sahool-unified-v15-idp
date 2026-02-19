@@ -448,7 +448,7 @@ class AuthService {
     }
 
     // Refresh token to get new access token
-    await refreshToken();
+    await this.refreshToken();
 
     // Get current user
     return getCurrentUser();
@@ -467,7 +467,7 @@ class AuthService {
         AppLogger.i('Logout API call successful', tag: 'AUTH');
       } catch (e) {
         // Log but don't fail - local logout should always succeed
-        AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', error: e);
+        AppLogger.w('Logout API call failed (continuing with local logout)', tag: 'AUTH', data: {'error': e.toString()});
       }
     }
 

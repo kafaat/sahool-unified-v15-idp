@@ -90,12 +90,6 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
         when(() => mockSecureStorage.setUserData(any()))
             .thenAnswer((_) async {});
         when(() => mockSecureStorage.setTenantId(any()))
@@ -104,10 +98,12 @@ void main() {
         // Act
         await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert
-        verify(() => mockSecureStorage.setAccessToken(any())).called(1);
-        verify(() => mockSecureStorage.setRefreshToken(any())).called(1);
-        verify(() => mockSecureStorage.setTokenExpiry(any())).called(1);
+        // Assert - token storage is now delegated to tokenManager.storeTokens()
+        verify(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+          expiresIn: any(named: 'expiresIn'),
+        )).called(1);
       });
 
       test('should store user data after login', () async {
@@ -227,14 +223,11 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
-
         // Act
         await authService.logout();
 
-        // Assert
-        verify(() => mockSecureStorage.clearAll()).called(1);
+        // Assert - logout is now delegated to tokenManager.logout()
+        verify(() => mockTokenManager.logout()).called(1);
       });
 
       test('should cancel token refresh timer on logout', () async {
@@ -277,14 +270,11 @@ void main() {
           apiClient: mockApiClient,
         );
 
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
-
         // Act
         await authService.logout();
 
-        // Assert
-        verify(() => mockApiClient.setAuthToken('')).called(1);
+        // Assert - token clearing is handled by tokenManager.logout()
+        verify(() => mockTokenManager.logout()).called(1);
       });
     });
 
@@ -359,21 +349,14 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validAccessToken);
         when(() => mockSecureStorage.getTokenExpiry())
             .thenAnswer((_) async => AuthFixtures.expiredTokenExpiry);
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
 
         // Act
         final result = await authService.isLoggedIn();
 
         // Assert
         expect(result, isTrue);
-        verify(() => mockSecureStorage.getRefreshToken()).called(1);
+        // Token refresh is now delegated to tokenManager.refreshToken()
+        verify(() => mockTokenManager.refreshToken()).called(1);
       });
 
       test('should return false when token refresh fails', () async {
@@ -388,10 +371,9 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validAccessToken);
         when(() => mockSecureStorage.getTokenExpiry())
             .thenAnswer((_) async => AuthFixtures.expiredTokenExpiry);
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => null); // No refresh token
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
+        // Make tokenManager.refreshToken() throw to simulate refresh failure
+        when(() => mockTokenManager.refreshToken())
+            .thenThrow(Exception('Refresh failed'));
 
         // Act
         final result = await authService.isLoggedIn();

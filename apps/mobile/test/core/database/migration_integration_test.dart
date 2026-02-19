@@ -190,8 +190,8 @@ void main() {
           version, from_version, started_at, completed_at, status
         ) VALUES (5, 4, ?, ?, 'completed')
       ''', [
-        Variable.withString(DateTime.now().toIso8601String()),
-        Variable.withString(DateTime.now().toIso8601String()),
+        DateTime.now().toIso8601String(),
+        DateTime.now().toIso8601String(),
       ]);
 
       final records = await db.customSelect(

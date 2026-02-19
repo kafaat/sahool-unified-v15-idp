@@ -114,6 +114,7 @@ class CircuitBreaker {
   final int failureThreshold;
   final Duration openTimeout;
   final int halfOpenMaxAttempts;
+  final DateTime Function() _clock;
 
   CircuitState _state = CircuitState.closed;
   int _failureCount = 0;
@@ -126,7 +127,8 @@ class CircuitBreaker {
     this.failureThreshold = 5,
     this.openTimeout = const Duration(minutes: 2),
     this.halfOpenMaxAttempts = 3,
-  });
+    DateTime Function()? clock,
+  }) : _clock = clock ?? DateTime.now;
 
   CircuitState get state => _state;
   int get failureCount => _failureCount;
@@ -141,7 +143,7 @@ class CircuitBreaker {
     if (_state == CircuitState.open) {
       // Check if timeout elapsed
       if (_openedAt != null &&
-          DateTime.now().difference(_openedAt!) > openTimeout) {
+          _clock().difference(_openedAt!) > openTimeout) {
         _transitionToHalfOpen();
         return true;
       }
@@ -164,7 +166,7 @@ class CircuitBreaker {
   /// Record failed operation
   void recordFailure() {
     _failureCount++;
-    _lastFailureTime = DateTime.now();
+    _lastFailureTime = _clock();
 
     if (_state == CircuitState.halfOpen) {
       _halfOpenAttempts++;
@@ -189,7 +191,7 @@ class CircuitBreaker {
 
   void _transitionToOpen() {
     _state = CircuitState.open;
-    _openedAt = DateTime.now();
+    _openedAt = _clock();
     _halfOpenAttempts = 0;
     AppLogger.w('Circuit breaker OPEN - too many failures', tag: 'CircuitBreaker', data: {'name': name});
   }

@@ -317,13 +317,16 @@ void main() {
 
   group('CircuitBreaker', () {
     late CircuitBreaker circuitBreaker;
+    late DateTime fakeNow;
 
     setUp(() {
+      fakeNow = DateTime(2026, 1, 1);
       circuitBreaker = CircuitBreaker(
         name: 'test-endpoint',
         failureThreshold: 3,
         openTimeout: const Duration(seconds: 30),
         halfOpenMaxAttempts: 2,
+        clock: () => fakeNow,
       );
     });
 
@@ -359,62 +362,56 @@ void main() {
     });
 
     test('should transition to half-open after timeout', () {
-      fakeAsync((async) {
-        // Open the circuit
-        for (int i = 0; i < 3; i++) {
-          circuitBreaker.recordFailure();
-        }
-        expect(circuitBreaker.state, equals(CircuitState.open));
-        expect(circuitBreaker.canAttempt(), isFalse);
+      // Open the circuit
+      for (int i = 0; i < 3; i++) {
+        circuitBreaker.recordFailure();
+      }
+      expect(circuitBreaker.state, equals(CircuitState.open));
+      expect(circuitBreaker.canAttempt(), isFalse);
 
-        // Wait for timeout
-        async.elapse(const Duration(seconds: 31));
+      // Advance fake clock past timeout
+      fakeNow = fakeNow.add(const Duration(seconds: 31));
 
-        // Should now allow attempts (half-open)
-        expect(circuitBreaker.canAttempt(), isTrue);
-        expect(circuitBreaker.state, equals(CircuitState.halfOpen));
-      });
+      // Should now allow attempts (half-open)
+      expect(circuitBreaker.canAttempt(), isTrue);
+      expect(circuitBreaker.state, equals(CircuitState.halfOpen));
     });
 
     test('should close on success in half-open state', () {
-      fakeAsync((async) {
-        // Open the circuit
-        for (int i = 0; i < 3; i++) {
-          circuitBreaker.recordFailure();
-        }
+      // Open the circuit
+      for (int i = 0; i < 3; i++) {
+        circuitBreaker.recordFailure();
+      }
 
-        // Wait for timeout
-        async.elapse(const Duration(seconds: 31));
+      // Advance fake clock past timeout
+      fakeNow = fakeNow.add(const Duration(seconds: 31));
 
-        // Trigger half-open check
-        circuitBreaker.canAttempt();
+      // Trigger half-open check
+      circuitBreaker.canAttempt();
 
-        // Success in half-open should close
-        circuitBreaker.recordSuccess();
+      // Success in half-open should close
+      circuitBreaker.recordSuccess();
 
-        expect(circuitBreaker.state, equals(CircuitState.closed));
-      });
+      expect(circuitBreaker.state, equals(CircuitState.closed));
     });
 
     test('should re-open on failures in half-open state', () {
-      fakeAsync((async) {
-        // Open the circuit
-        for (int i = 0; i < 3; i++) {
-          circuitBreaker.recordFailure();
-        }
-
-        // Wait for timeout
-        async.elapse(const Duration(seconds: 31));
-
-        // Trigger half-open
-        circuitBreaker.canAttempt();
-
-        // Fail in half-open
+      // Open the circuit
+      for (int i = 0; i < 3; i++) {
         circuitBreaker.recordFailure();
-        circuitBreaker.recordFailure();
+      }
 
-        expect(circuitBreaker.state, equals(CircuitState.open));
-      });
+      // Advance fake clock past timeout
+      fakeNow = fakeNow.add(const Duration(seconds: 31));
+
+      // Trigger half-open
+      circuitBreaker.canAttempt();
+
+      // Fail in half-open
+      circuitBreaker.recordFailure();
+      circuitBreaker.recordFailure();
+
+      expect(circuitBreaker.state, equals(CircuitState.open));
     });
 
     test('reset should restore initial state', () {

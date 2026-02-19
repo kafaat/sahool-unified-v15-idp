@@ -1,12 +1,22 @@
 /**
  * SAHOOL Admin API Services v16.0.0
  * خدمات API الإدارية - سهول
- * 
+ *
  * Comprehensive API integration for all backend services
  * Dynamic CRUD operations with proper type safety
+ *
+ * Uses unified API contracts from @sahool/shared-types/contracts
  */
 
 import { logger } from "../logger";
+import {
+  USER_ENDPOINTS,
+  IOT_ENDPOINTS,
+  IRRIGATION_ENDPOINTS,
+  ALERT_ENDPOINTS,
+  EQUIPMENT_ENDPOINTS,
+  buildUrl,
+} from "@sahool/shared-types/contracts";
 
 // =============================================================================
 // Common Types | الأنواع الشائعة
@@ -83,7 +93,7 @@ export const userService = {
       if (params?.status) queryParams.set("status", params.status);
 
       const response = await fetch(
-        `/api/v1/users?${queryParams.toString()}`,
+        `${USER_ENDPOINTS.LIST}?${queryParams.toString()}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -108,7 +118,7 @@ export const userService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/users/${id}`);
+      const response = await fetch(buildUrl(USER_ENDPOINTS.GET, { userId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as User;
     } catch (error) {
@@ -123,7 +133,7 @@ export const userService = {
    */
   async create(data: CreateUserData) {
     try {
-      const response = await fetch("/api/v1/users", {
+      const response = await fetch(USER_ENDPOINTS.CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -142,7 +152,7 @@ export const userService = {
    */
   async update(id: string, data: UpdateUserData) {
     try {
-      const response = await fetch(`/api/v1/users/${id}`, {
+      const response = await fetch(buildUrl(USER_ENDPOINTS.UPDATE, { userId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -161,7 +171,7 @@ export const userService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/users/${id}`, {
+      const response = await fetch(buildUrl(USER_ENDPOINTS.DELETE, { userId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -226,7 +236,7 @@ export const iotService = {
       if (params?.type) queryParams.set("type", params.type);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`/api/v1/iot-service/devices?${queryParams.toString()}`);
+      const response = await fetch(`${IOT_ENDPOINTS.DEVICES}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<IoTDevice>;
     } catch (error) {
@@ -241,7 +251,7 @@ export const iotService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/iot-service/devices/${id}`);
+      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as IoTDevice;
     } catch (error) {
@@ -262,7 +272,7 @@ export const iotService = {
       if (params?.metric) queryParams.set("metric", params.metric);
 
       const response = await fetch(
-        `/api/v1/iot-service/devices/${deviceId}/readings?${queryParams.toString()}`
+        `${buildUrl(IOT_ENDPOINTS.DEVICE_READINGS, { deviceId })}?${queryParams.toString()}`
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<SensorReading>;
@@ -278,7 +288,7 @@ export const iotService = {
    */
   async create(data: CreateDeviceData) {
     try {
-      const response = await fetch("/api/v1/iot-service/devices", {
+      const response = await fetch(IOT_ENDPOINTS.DEVICE_CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -297,7 +307,7 @@ export const iotService = {
    */
   async update(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice["status"] }) {
     try {
-      const response = await fetch(`/api/v1/iot-service/devices/${id}`, {
+      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_UPDATE, { deviceId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -316,7 +326,7 @@ export const iotService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/iot-service/devices/${id}`, {
+      const response = await fetch(buildUrl(IOT_ENDPOINTS.DEVICE_DELETE, { deviceId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -379,7 +389,7 @@ export const irrigationService = {
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`/api/v1/irrigation/schedules?${queryParams.toString()}`);
+      const response = await fetch(`${IRRIGATION_ENDPOINTS.SCHEDULES_LIST}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<IrrigationSchedule>;
     } catch (error) {
@@ -394,7 +404,7 @@ export const irrigationService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/irrigation/schedules/${id}`);
+      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as IrrigationSchedule;
     } catch (error) {
@@ -409,7 +419,7 @@ export const irrigationService = {
    */
   async create(data: CreateIrrigationData) {
     try {
-      const response = await fetch("/api/v1/irrigation/schedules", {
+      const response = await fetch(IRRIGATION_ENDPOINTS.SCHEDULES_CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -428,7 +438,7 @@ export const irrigationService = {
    */
   async update(id: string, data: Partial<CreateIrrigationData> & { status?: IrrigationSchedule["status"] }) {
     try {
-      const response = await fetch(`/api/v1/irrigation/schedules/${id}`, {
+      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_UPDATE, { scheduleId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -447,7 +457,7 @@ export const irrigationService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/irrigation/schedules/${id}`, {
+      const response = await fetch(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_DELETE, { scheduleId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -511,7 +521,7 @@ export const alertService = {
       if (params?.status) queryParams.set("status", params.status);
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
 
-      const response = await fetch(`/api/v1/alerts?${queryParams.toString()}`);
+      const response = await fetch(`${ALERT_ENDPOINTS.LIST}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Alert>;
     } catch (error) {
@@ -526,7 +536,7 @@ export const alertService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/alerts/${id}`);
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.GET, { alertId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Alert;
     } catch (error) {
@@ -541,7 +551,7 @@ export const alertService = {
    */
   async create(data: CreateAlertData) {
     try {
-      const response = await fetch("/api/v1/alerts", {
+      const response = await fetch(ALERT_ENDPOINTS.CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -560,7 +570,7 @@ export const alertService = {
    */
   async acknowledge(id: string) {
     try {
-      const response = await fetch(`/api/v1/alerts/${id}/acknowledge`, {
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId: id }), {
         method: "POST",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -577,7 +587,7 @@ export const alertService = {
    */
   async resolve(id: string, resolution?: string) {
     try {
-      const response = await fetch(`/api/v1/alerts/${id}/resolve`, {
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.RESOLVE, { alertId: id }), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resolution }),
@@ -596,7 +606,7 @@ export const alertService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/alerts/${id}`, {
+      const response = await fetch(buildUrl(ALERT_ENDPOINTS.DELETE, { alertId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -662,7 +672,7 @@ export const equipmentService = {
       if (params?.status) queryParams.set("status", params.status);
       if (params?.search) queryParams.set("search", params.search);
 
-      const response = await fetch(`/api/v1/equipment?${queryParams.toString()}`);
+      const response = await fetch(`${EQUIPMENT_ENDPOINTS.LIST}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Equipment>;
     } catch (error) {
@@ -677,7 +687,7 @@ export const equipmentService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/equipment/${id}`);
+      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Equipment;
     } catch (error) {
@@ -692,7 +702,7 @@ export const equipmentService = {
    */
   async create(data: CreateEquipmentData) {
     try {
-      const response = await fetch("/api/v1/equipment", {
+      const response = await fetch(EQUIPMENT_ENDPOINTS.CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -711,7 +721,7 @@ export const equipmentService = {
    */
   async update(id: string, data: Partial<CreateEquipmentData> & { status?: Equipment["status"] }) {
     try {
-      const response = await fetch(`/api/v1/equipment/${id}`, {
+      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.UPDATE, { equipmentId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -730,7 +740,7 @@ export const equipmentService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/equipment/${id}`, {
+      const response = await fetch(buildUrl(EQUIPMENT_ENDPOINTS.DELETE, { equipmentId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

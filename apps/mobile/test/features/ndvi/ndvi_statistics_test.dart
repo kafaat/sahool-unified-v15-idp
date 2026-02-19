@@ -326,7 +326,7 @@ void main() {
         expect(stats.current, equals(0.7));
         expect(stats.min, equals(0.5));
         expect(stats.max, equals(0.7));
-        expect(stats.trend, equals(0.2)); // (0.7 - 0.5) / 1
+        expect(stats.trend, closeTo(0.2, 1e-10)); // (0.7 - 0.5) / 1
       });
 
       test('should sort history by date', () {
@@ -586,7 +586,7 @@ void main() {
         );
 
         // Assert - (0.6 - 0.5) / 0.5 * 100 = 20%
-        expect(analytics.changeRate, equals(20.0));
+        expect(analytics.changeRate, closeTo(20.0, 1e-10));
       });
 
       test('should calculate negative change rate', () {

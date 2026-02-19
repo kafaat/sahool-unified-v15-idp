@@ -139,7 +139,12 @@ domain.Field createMockDomainField({
 }
 
 /// Internal test implementation of Field database entity
-class _TestField implements Field {
+/// Extends Fake so that unimplemented DataClass/Insertable methods
+/// (toColumns, toJson, toJsonString, copyWith) compile via noSuchMethod.
+class _TestField extends Fake implements Field {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+
   @override
   final String id;
   @override

@@ -1,12 +1,21 @@
 /**
  * SAHOOL Admin Extended API Services v16.0.0
  * خدمات API الإدارية الموسعة - سهول
- * 
+ *
  * Additional API integration for tasks, inventory, research, marketplace, and community
+ *
+ * Uses unified API contracts from @sahool/shared-types/contracts
  */
 
 import { logger } from "../logger";
 import { PaginationParams, PaginatedResponse } from "./services";
+import {
+  TASK_ENDPOINTS,
+  INVENTORY_ENDPOINTS,
+  MARKETPLACE_ENDPOINTS,
+  API_PREFIX,
+  buildUrl,
+} from "@sahool/shared-types/contracts";
 
 // =============================================================================
 // Task Management Service | خدمة إدارة المهام
@@ -57,9 +66,9 @@ export const taskService = {
    * Get all tasks
    * جلب جميع المهام
    */
-  async getAll(params?: PaginationParams & { 
-    status?: string; 
-    priority?: string; 
+  async getAll(params?: PaginationParams & {
+    status?: string;
+    priority?: string;
     type?: string;
     assignedTo?: string;
     fieldId?: string;
@@ -74,7 +83,7 @@ export const taskService = {
       if (params?.assignedTo) queryParams.set("assigned_to", params.assignedTo);
       if (params?.fieldId) queryParams.set("field_id", params.fieldId);
 
-      const response = await fetch(`/api/v1/tasks?${queryParams.toString()}`);
+      const response = await fetch(`${TASK_ENDPOINTS.LIST}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Task>;
     } catch (error) {
@@ -89,7 +98,7 @@ export const taskService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/tasks/${id}`);
+      const response = await fetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as Task;
     } catch (error) {
@@ -104,7 +113,7 @@ export const taskService = {
    */
   async create(data: CreateTaskData) {
     try {
-      const response = await fetch("/api/v1/tasks", {
+      const response = await fetch(TASK_ENDPOINTS.CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -123,7 +132,7 @@ export const taskService = {
    */
   async update(id: string, data: Partial<CreateTaskData> & { status?: Task["status"] }) {
     try {
-      const response = await fetch(`/api/v1/tasks/${id}`, {
+      const response = await fetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -142,7 +151,7 @@ export const taskService = {
    */
   async complete(id: string, notes?: string, actualDuration?: number) {
     try {
-      const response = await fetch(`/api/v1/tasks/${id}/complete`, {
+      const response = await fetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notes, actualDuration }),
@@ -161,7 +170,7 @@ export const taskService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/tasks/${id}`, {
+      const response = await fetch(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -245,7 +254,7 @@ export const inventoryService = {
       if (params?.category) queryParams.set("category", params.category);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`/api/v1/inventory?${queryParams.toString()}`);
+      const response = await fetch(`${INVENTORY_ENDPOINTS.LIST}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<InventoryItem>;
     } catch (error) {
@@ -260,7 +269,7 @@ export const inventoryService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/inventory/${id}`);
+      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }));
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as InventoryItem;
     } catch (error) {
@@ -279,7 +288,7 @@ export const inventoryService = {
       if (params?.page) queryParams.set("page", params.page.toString());
       if (params?.limit) queryParams.set("limit", params.limit.toString());
 
-      const response = await fetch(`/api/v1/inventory/${itemId}/transactions?${queryParams.toString()}`);
+      const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId })}/transactions?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<InventoryTransaction>;
     } catch (error) {
@@ -294,7 +303,7 @@ export const inventoryService = {
    */
   async create(data: CreateInventoryData) {
     try {
-      const response = await fetch("/api/v1/inventory", {
+      const response = await fetch(INVENTORY_ENDPOINTS.CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -313,7 +322,7 @@ export const inventoryService = {
    */
   async update(id: string, data: Partial<CreateInventoryData>) {
     try {
-      const response = await fetch(`/api/v1/inventory/${id}`, {
+      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -332,7 +341,7 @@ export const inventoryService = {
    */
   async adjustQuantity(id: string, quantity: number, type: InventoryTransaction["type"], reason?: string) {
     try {
-      const response = await fetch(`/api/v1/inventory/${id}/adjust`, {
+      const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id })}/adjust`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ quantity, type, reason }),
@@ -351,7 +360,7 @@ export const inventoryService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/inventory/${id}`, {
+      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: id }), {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -440,7 +449,7 @@ export const researchService = {
       if (params?.search) queryParams.set("search", params.search);
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`/api/v1/research/projects?${queryParams.toString()}`);
+      const response = await fetch(`${API_PREFIX}/research/projects?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<ResearchProject>;
     } catch (error) {
@@ -455,7 +464,7 @@ export const researchService = {
    */
   async getProjectById(id: string) {
     try {
-      const response = await fetch(`/api/v1/research/projects/${id}`);
+      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as ResearchProject;
     } catch (error) {
@@ -470,7 +479,7 @@ export const researchService = {
    */
   async createProject(data: CreateProjectData) {
     try {
-      const response = await fetch("/api/v1/research/projects", {
+      const response = await fetch(`${API_PREFIX}/research/projects`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -489,7 +498,7 @@ export const researchService = {
    */
   async updateProject(id: string, data: Partial<CreateProjectData> & { status?: ResearchProject["status"]; findings?: string }) {
     try {
-      const response = await fetch(`/api/v1/research/projects/${id}`, {
+      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -508,7 +517,7 @@ export const researchService = {
    */
   async deleteProject(id: string) {
     try {
-      const response = await fetch(`/api/v1/research/projects/${id}`, {
+      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -530,7 +539,7 @@ export const researchService = {
       if (params?.limit) queryParams.set("limit", params.limit.toString());
       if (params?.projectId) queryParams.set("project_id", params.projectId);
 
-      const response = await fetch(`/api/v1/research/experiments?${queryParams.toString()}`);
+      const response = await fetch(`${API_PREFIX}/research/experiments?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<Experiment>;
     } catch (error) {
@@ -545,7 +554,7 @@ export const researchService = {
    */
   async createExperiment(data: CreateExperimentData) {
     try {
-      const response = await fetch("/api/v1/research/experiments", {
+      const response = await fetch(`${API_PREFIX}/research/experiments`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -602,9 +611,9 @@ export const marketplaceService = {
    * Get all listings
    * جلب جميع القوائم
    */
-  async getAll(params?: PaginationParams & { 
-    category?: string; 
-    minPrice?: number; 
+  async getAll(params?: PaginationParams & {
+    category?: string;
+    minPrice?: number;
     maxPrice?: number;
     status?: string;
   }) {
@@ -618,7 +627,7 @@ export const marketplaceService = {
       if (params?.maxPrice) queryParams.set("max_price", params.maxPrice.toString());
       if (params?.status) queryParams.set("status", params.status);
 
-      const response = await fetch(`/api/v1/marketplace/listings?${queryParams.toString()}`);
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}?${queryParams.toString()}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as PaginatedResponse<MarketplaceListing>;
     } catch (error) {
@@ -633,7 +642,7 @@ export const marketplaceService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`/api/v1/marketplace/listings/${id}`);
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       return await response.json() as MarketplaceListing;
     } catch (error) {
@@ -648,7 +657,7 @@ export const marketplaceService = {
    */
   async create(data: CreateListingData) {
     try {
-      const response = await fetch("/api/v1/marketplace/listings", {
+      const response = await fetch(MARKETPLACE_ENDPOINTS.LISTING_CREATE, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -667,7 +676,7 @@ export const marketplaceService = {
    */
   async update(id: string, data: Partial<CreateListingData> & { status?: MarketplaceListing["status"] }) {
     try {
-      const response = await fetch(`/api/v1/marketplace/listings/${id}`, {
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -686,7 +695,7 @@ export const marketplaceService = {
    */
   async delete(id: string) {
     try {
-      const response = await fetch(`/api/v1/marketplace/listings/${id}`, {
+      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);

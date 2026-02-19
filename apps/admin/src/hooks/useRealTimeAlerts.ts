@@ -154,7 +154,9 @@ export function useRealTimeAlerts(
       // Show browser notification
       if (enableNotifications && !alert.notified) {
         showBrowserNotification(alert);
-        alert.notified = true;
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === alert.id ? { ...a, notified: true } : a))
+        );
       }
 
       // Call custom handler

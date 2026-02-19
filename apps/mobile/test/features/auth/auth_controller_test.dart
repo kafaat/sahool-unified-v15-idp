@@ -21,6 +21,7 @@ void main() {
   late AuthService authService;
   late MockSecureStorageService mockSecureStorage;
   late MockBiometricService mockBiometricService;
+  late MockTokenManager mockTokenManager;
 
   setUpAll(() {
     registerAuthFallbackValues();
@@ -29,12 +30,23 @@ void main() {
   setUp(() {
     mockSecureStorage = MockSecureStorageService();
     mockBiometricService = MockBiometricService();
+    mockTokenManager = MockTokenManager();
     mockSecureStorage.setupDefaults();
     mockBiometricService.setupDefaults();
+    mockTokenManager.setupDefaults();
+
+    // Mock storeTokens and logout used by AuthService
+    when(() => mockTokenManager.storeTokens(
+      accessToken: any(named: 'accessToken'),
+      refreshToken: any(named: 'refreshToken'),
+      expiresIn: any(named: 'expiresIn'),
+    )).thenAnswer((_) async {});
+    when(() => mockTokenManager.logout()).thenAnswer((_) async {});
 
     authService = AuthService(
       secureStorage: mockSecureStorage,
       biometricService: mockBiometricService,
+      tokenManager: mockTokenManager,
     );
   });
 
@@ -45,7 +57,7 @@ void main() {
 
   group('AuthStateNotifier', () {
     group('initialization', () {
-      test('should start with initial status', () async {
+      test('should start with loading status during init', () async {
         // Arrange
         when(() => mockSecureStorage.getAccessToken())
             .thenAnswer((_) async => null);
@@ -53,8 +65,8 @@ void main() {
         // Act
         final notifier = AuthStateNotifier(authService);
 
-        // Assert - initial state before async completes
-        expect(notifier.state.status, AuthStatus.initial);
+        // Assert - constructor immediately calls _init() which sets loading
+        expect(notifier.state.status, AuthStatus.loading);
       });
 
       test('should transition to loading during initialization', () async {
@@ -112,24 +124,17 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validAccessToken);
         when(() => mockSecureStorage.getTokenExpiry())
             .thenAnswer((_) async => AuthFixtures.expiredTokenExpiry);
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
         when(() => mockSecureStorage.getUserData())
             .thenAnswer((_) async => AuthFixtures.validUserData);
+        // tokenManager.refreshToken() succeeds (default mock behavior)
 
         // Act
         final notifier = AuthStateNotifier(authService);
         await Future.delayed(const Duration(milliseconds: 200));
 
-        // Assert
+        // Assert - expired token triggers refreshToken() via tokenManager, which succeeds
         expect(notifier.state.status, AuthStatus.authenticated);
-        verify(() => mockSecureStorage.getRefreshToken()).called(greaterThan(0));
+        verify(() => mockTokenManager.refreshToken()).called(greaterThan(0));
       });
 
       test('should handle initialization error gracefully', () async {
@@ -213,12 +218,6 @@ void main() {
         // Arrange
         when(() => mockSecureStorage.getAccessToken())
             .thenAnswer((_) async => null);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
         when(() => mockSecureStorage.setUserData(any()))
             .thenAnswer((_) async {});
         when(() => mockSecureStorage.setTenantId(any()))
@@ -230,10 +229,12 @@ void main() {
         // Act
         await notifier.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert
-        verify(() => mockSecureStorage.setAccessToken(any())).called(1);
-        verify(() => mockSecureStorage.setRefreshToken(any())).called(1);
-        verify(() => mockSecureStorage.setTokenExpiry(any())).called(1);
+        // Assert - token storage delegated to tokenManager.storeTokens()
+        verify(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+          expiresIn: any(named: 'expiresIn'),
+        )).called(1);
       });
 
       test('should store user data after successful login', () async {
@@ -266,8 +267,12 @@ void main() {
         // Arrange
         when(() => mockSecureStorage.getAccessToken())
             .thenAnswer((_) async => null);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenThrow(Exception('Storage error'));
+        // Mock login uses tokenManager.storeTokens(), so make it throw to simulate failure
+        when(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+          expiresIn: any(named: 'expiresIn'),
+        )).thenThrow(Exception('Storage error'));
 
         final notifier = AuthStateNotifier(authService);
         await Future.delayed(const Duration(milliseconds: 100));
@@ -294,8 +299,6 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validTokenExpiry);
         when(() => mockSecureStorage.getUserData())
             .thenAnswer((_) async => AuthFixtures.validUserData);
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
         await Future.delayed(const Duration(milliseconds: 150));
@@ -307,7 +310,8 @@ void main() {
         // Assert
         expect(notifier.state.status, AuthStatus.unauthenticated);
         expect(notifier.state.user, isNull);
-        verify(() => mockSecureStorage.clearAll()).called(1);
+        // Logout is now delegated to tokenManager.logout()
+        verify(() => mockTokenManager.logout()).called(1);
       });
 
       test('should transition to unauthenticated state after logout', () async {
@@ -391,10 +395,9 @@ void main() {
             .thenAnswer((_) async => AuthFixtures.validTokenExpiry);
         when(() => mockSecureStorage.getUserData())
             .thenAnswer((_) async => AuthFixtures.validUserData);
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => null); // No refresh token
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
+        // Make tokenManager.refreshToken() throw to simulate refresh failure
+        when(() => mockTokenManager.refreshToken())
+            .thenThrow(Exception('Refresh failed'));
 
         final notifier = AuthStateNotifier(authService);
         await Future.delayed(const Duration(milliseconds: 150));
@@ -409,23 +412,12 @@ void main() {
 
       test('should update access token after successful refresh', () async {
         // Arrange
-        String? storedToken;
         when(() => mockSecureStorage.getAccessToken())
             .thenAnswer((_) async => AuthFixtures.validAccessToken);
         when(() => mockSecureStorage.getTokenExpiry())
             .thenAnswer((_) async => AuthFixtures.validTokenExpiry);
         when(() => mockSecureStorage.getUserData())
             .thenAnswer((_) async => AuthFixtures.validUserData);
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((invocation) async {
-          storedToken = invocation.positionalArguments[0] as String;
-        });
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
 
         final notifier = AuthStateNotifier(authService);
         await Future.delayed(const Duration(milliseconds: 150));
@@ -433,9 +425,9 @@ void main() {
         // Act
         await notifier.refreshSession();
 
-        // Assert
+        // Assert - refreshSession delegates to tokenManager.refreshToken() then reads token from secureStorage
         expect(notifier.state.accessToken, isNotNull);
-        verify(() => mockSecureStorage.setAccessToken(any())).called(greaterThan(0));
+        verify(() => mockTokenManager.refreshToken()).called(greaterThan(0));
       });
     });
   });

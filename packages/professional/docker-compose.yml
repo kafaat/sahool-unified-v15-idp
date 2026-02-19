@@ -124,6 +124,7 @@ services:
   # Core Services (from Starter)
   # ─────────────────────────────────────────────────────────────────────────────
 
+  # Field Management Service - إدارة الحقول (canonical name: field-management-service)
   field_core:
     build:
       context: ../../apps/services/field-management-service
@@ -135,7 +136,7 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-sahool}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - DB_NAME=${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -164,32 +165,33 @@ services:
     networks:
       - sahool-pro-network
 
+  # Weather Service - خدمة الطقس (canonical name: weather-service)
   weather_core:
     build:
       context: ../../apps/services/weather-service
       dockerfile: Dockerfile
     container_name: sahool-pro-weather-service
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8108
+      - PORT=8092
       - USE_MULTI_PROVIDER=${USE_MULTI_PROVIDER:-true}
       - USE_MOCK_WEATHER=${USE_MOCK_WEATHER:-false}
       - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-}
       - WEATHERAPI_KEY=${WEATHERAPI_KEY:-}
     ports:
-      - "8108:8108"
+      - "8092:8092"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8108/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -215,7 +217,7 @@ services:
       - PORT=8111
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - WEATHER_SERVICE_URL=http://weather_core:8108
+      - WEATHER_SERVICE_URL=http://weather_core:8092
     ports:
       - "8111:8111"
     depends_on:
@@ -239,43 +241,8 @@ services:
     networks:
       - sahool-pro-network
 
-  agro_advisor:
-    build:
-      context: ../../apps/services/advisory-service
-      dockerfile: Dockerfile
-    container_name: sahool-pro-advisory-service
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8105
-    ports:
-      - "8105:8105"
-    depends_on:
-      postgres:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8105/healthz')"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 10s
-    deploy:
-      resources:
-        limits:
-          cpus: '1.0'
-          memory: 1G
-        reservations:
-          cpus: '0.5'
-          memory: 512M
-    restart: unless-stopped
-    networks:
-      - sahool-pro-network
+  # NOTE: agro_advisor service REMOVED - deprecated and replaced by advisory-service
+  # (fertilizer_advisor below runs advisory-service at canonical port 8093)
 
   notification_service:
     build:
@@ -286,9 +253,9 @@ services:
       - PORT=8110
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
@@ -325,7 +292,8 @@ services:
   # Professional Tier Services
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Satellite Service - خدمة الأقمار الصناعية
+  # Vegetation Analysis Service - خدمة تحليل الغطاء النباتي
+  # (legacy alias: satellite_service → canonical: vegetation-analysis-service)
   satellite_service:
     build:
       context: ../../apps/services/vegetation-analysis-service
@@ -341,8 +309,8 @@ services:
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8090:8090"
     depends_on:
@@ -370,29 +338,30 @@ services:
     networks:
       - sahool-pro-network
 
-  # NDVI Engine - محرك NDVI
+  # NDVI Processor - معالج NDVI
+  # (legacy alias: ndvi_engine → canonical: ndvi-processor, port 8118)
   ndvi_engine:
     build:
       context: ../../apps/services/vegetation-analysis-service
       dockerfile: Dockerfile
     container_name: sahool-pro-vegetation-analysis-service
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - PORT=8107
+      - PORT=8118
     ports:
-      - "8107:8107"
+      - "8118:8118"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8107/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8118/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -409,7 +378,8 @@ services:
     networks:
       - sahool-pro-network
 
-  # Crop Health AI - الذكاء الاصطناعي لصحة المحاصيل
+  # Crop Intelligence Service - ذكاء المحاصيل
+  # (legacy alias: crop_health_ai → canonical: crop-intelligence-service)
   crop_health_ai:
     build:
       context: ../../apps/services/crop-intelligence-service
@@ -420,8 +390,8 @@ services:
       - MODEL_PATH=/app/models/plant_disease.tflite
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8095:8095"
     volumes:
@@ -459,8 +429,8 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8094:8094"
     depends_on:
@@ -493,20 +463,20 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-pro-virtual-sensors
     environment:
-      - PORT=8096
+      - PORT=8119
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
-      - "8096:8096"
+      - "8119:8119"
     depends_on:
       postgres:
         condition: service_healthy
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8096/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8119/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -523,8 +493,9 @@ services:
     networks:
       - sahool-pro-network
 
-  # Yield Engine - محرك التنبؤ بالإنتاجية
-  yield_engine:
+  # Yield Prediction Service - خدمة التنبؤ بالإنتاجية
+  # (migrated from yield_engine → yield-prediction-service, port 8152)
+  yield-prediction-service:
     build:
       context: ../../apps/services/yield-prediction-service
       dockerfile: Dockerfile
@@ -533,8 +504,8 @@ services:
       - PORT=8152
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8152:8152"
     depends_on:
@@ -560,7 +531,8 @@ services:
     networks:
       - sahool-pro-network
 
-  # Fertilizer Advisor - مستشار التسميد
+  # Advisory Service - خدمة الاستشارات الزراعية
+  # (legacy alias: fertilizer_advisor → canonical: advisory-service, port 8093)
   fertilizer_advisor:
     build:
       context: ../../apps/services/advisory-service
@@ -570,8 +542,8 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8093:8093"
     depends_on:
@@ -604,15 +576,15 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-pro-inventory-service
     environment:
-      - PORT=8113
+      - PORT=8116
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
-      - "8113:8113"
+      - "8116:8116"
     depends_on:
       postgres:
         condition: service_healthy
@@ -621,7 +593,7 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8113/healthz')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8116/healthz')"]
       interval: 30s
       timeout: 10s
       retries: 3

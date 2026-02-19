@@ -273,7 +273,7 @@ export function RealTimeActivityFeed({
    * Connect to WebSocket
    */
   const connectWebSocket = useCallback(() => {
-    const url = wsUrl || process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8081/ws";
+    const url = wsUrl || process.env.NEXT_PUBLIC_WS_URL || `${typeof window !== "undefined" && window.location.protocol === "https:" ? "wss:" : "ws:"}//${typeof window !== "undefined" ? window.location.host : "localhost:8081"}/ws`;
 
     try {
       const ws = new WebSocket(url);
@@ -306,8 +306,8 @@ export function RealTimeActivityFeed({
               metadata: data.metadata,
             });
           }
-        } catch (e) {
-          console.error("Failed to parse WebSocket message:", e);
+        } catch {
+          // Failed to parse WebSocket message - non-critical, continue
         }
       };
 
@@ -322,8 +322,8 @@ export function RealTimeActivityFeed({
       };
 
       wsRef.current = ws;
-    } catch (e) {
-      console.error("WebSocket connection failed:", e);
+    } catch {
+      // WebSocket connection failed - fallback to mock data
       // Start mock data generation as fallback
       // Note: startMockGeneration is defined below but hoisted, intentionally not in deps
       startMockGeneration();

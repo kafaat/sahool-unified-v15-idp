@@ -61,6 +61,7 @@ void main() {
             .thenAnswer((_) async => http.Response(
                   jsonEncode({'data': cropsJson}),
                   200,
+                  headers: {'content-type': 'application/json; charset=utf-8'},
                 ));
 
         // Act
@@ -123,6 +124,7 @@ void main() {
             .thenAnswer((_) async => http.Response(
                   jsonEncode({'data': methodsJson}),
                   200,
+                  headers: {'content-type': 'application/json; charset=utf-8'},
                 ));
 
         // Act
@@ -169,6 +171,7 @@ void main() {
             )).thenAnswer((_) async => http.Response(
               jsonEncode({'data': IrrigationApiFixtures.sampleCalculationJson}),
               200,
+              headers: {'content-type': 'application/json; charset=utf-8'},
             ));
 
         // Act
@@ -198,6 +201,7 @@ void main() {
           return http.Response(
             jsonEncode({'data': IrrigationApiFixtures.sampleCalculationJson}),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         });
 
@@ -310,6 +314,7 @@ void main() {
             )).thenAnswer((_) async => http.Response(
               jsonEncode({'data': IrrigationApiFixtures.sampleEfficiency}),
               200,
+              headers: {'content-type': 'application/json; charset=utf-8'},
             ));
 
         // Act
@@ -338,6 +343,7 @@ void main() {
           return http.Response(
             jsonEncode({'data': IrrigationApiFixtures.sampleEfficiency}),
             200,
+            headers: {'content-type': 'application/json; charset=utf-8'},
           );
         });
 

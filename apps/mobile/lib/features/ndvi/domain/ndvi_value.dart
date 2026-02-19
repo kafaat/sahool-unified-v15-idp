@@ -37,7 +37,7 @@ class NdviValue {
   /// Normalized percentage for vegetation only (0-100 where 0.2=0%, 0.8=100%)
   double get vegetationPercentage {
     if (value < 0.2) return 0;
-    if (value > 0.8) return 100;
+    if (value >= 0.8) return 100;
     return ((value - 0.2) / 0.6 * 100);
   }
 

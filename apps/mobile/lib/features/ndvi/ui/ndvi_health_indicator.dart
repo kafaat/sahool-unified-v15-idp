@@ -355,7 +355,9 @@ class _NdviChartPainter extends CustomPainter {
     final range = maxValue - minValue;
 
     for (int i = 0; i < history.length; i++) {
-      final x = padding + chartWidth * (i / (history.length - 1));
+      final x = history.length > 1
+          ? padding + chartWidth * (i / (history.length - 1))
+          : padding + chartWidth / 2;
       final normalizedY = range > 0
           ? (history[i].value - minValue) / range
           : 0.5;

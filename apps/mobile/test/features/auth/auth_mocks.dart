@@ -238,7 +238,13 @@ class MockTokenManager extends Mock implements TokenManager {
     when(() => authStateStream).thenAnswer((_) => _authStateController.stream);
     when(() => setApiClient(any())).thenReturn(null);
     when(() => refreshToken()).thenAnswer((_) async {});
+    when(() => logout()).thenAnswer((_) async {});
     when(() => dispose()).thenReturn(null);
+    when(() => storeTokens(
+      accessToken: any(named: 'accessToken'),
+      refreshToken: any(named: 'refreshToken'),
+      expiresIn: any(named: 'expiresIn'),
+    )).thenAnswer((_) async {});
   }
 
   void emitAuthState(bool isAuthenticated) {
@@ -293,8 +299,12 @@ class FakeAuthService extends Fake implements AuthService {
   }
 }
 
+/// Fake ApiClient for fallback registration
+class _FakeApiClient extends Fake implements ApiClient {}
+
 /// Register fallback values for mocktail
 void registerAuthFallbackValues() {
   registerFallbackValue(DateTime.now());
   registerFallbackValue(<String, dynamic>{});
+  registerFallbackValue(_FakeApiClient());
 }

@@ -19,10 +19,13 @@ final biometricServiceProvider = Provider<BiometricService>((ref) {
 });
 
 class BiometricService {
-  final LocalAuthentication _localAuth = LocalAuthentication();
+  final LocalAuthentication _localAuth;
   final SecureStorageService secureStorage;
 
-  BiometricService({required this.secureStorage});
+  BiometricService({
+    required this.secureStorage,
+    LocalAuthentication? localAuth,
+  }) : _localAuth = localAuth ?? LocalAuthentication();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Availability Checks

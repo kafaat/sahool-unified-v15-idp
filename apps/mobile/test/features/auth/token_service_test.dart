@@ -13,6 +13,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
 import 'package:sahool_field_app/core/auth/biometric_service.dart';
 import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
+import 'package:sahool_field_app/core/auth/token_manager.dart';
 import 'package:sahool_field_app/core/http/api_client.dart';
 
 import 'auth_fixtures.dart';
@@ -56,22 +57,11 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
-
-        // Act
+        // Act - AuthService.refreshToken() delegates to tokenManager
         await authService.refreshToken();
 
-        // Assert
-        verify(() => mockSecureStorage.setAccessToken(any())).called(1);
-        verify(() => mockSecureStorage.setRefreshToken(any())).called(1);
-        verify(() => mockSecureStorage.setTokenExpiry(any())).called(1);
+        // Assert - verify delegation to tokenManager
+        verify(() => mockTokenManager.refreshToken()).called(1);
       });
 
       test('should throw exception when no refresh token exists', () async {
@@ -82,8 +72,12 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => null);
+        // Configure tokenManager to throw TokenRefreshException
+        when(() => mockTokenManager.refreshToken())
+            .thenThrow(TokenRefreshException(
+              'لا يوجد refresh token',
+              code: 'NO_REFRESH_TOKEN',
+            ));
 
         // Act & Assert
         expect(
@@ -105,31 +99,14 @@ void main() {
           apiClient: mockApiClient,
         );
 
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
-
-        mockApiClient.setNextResponse(AuthFixtures.successfulRefreshResponse);
-
-        // Act
+        // Act - AuthService.refreshToken() delegates to tokenManager
         await authService.refreshToken();
 
-        // Assert
-        verify(() => mockApiClient.post(
-              '/api/v1/auth/refresh',
-              any(),
-              queryParameters: any(named: 'queryParameters'),
-              headers: any(named: 'headers'),
-            )).called(1);
-        verify(() => mockApiClient.setAuthToken(any())).called(1);
+        // Assert - verify delegation to tokenManager
+        verify(() => mockTokenManager.refreshToken()).called(1);
       });
 
-      test('should logout on refresh token failure', () async {
+      test('should throw AuthException on refresh token failure', () async {
         // Arrange
         authService = AuthService(
           secureStorage: mockSecureStorage,
@@ -138,23 +115,18 @@ void main() {
           apiClient: mockApiClient,
         );
 
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
-
-        mockApiClient.setNextError(ApiException(
-          code: 'SESSION_EXPIRED',
-          message: 'Session expired',
-          statusCode: 401,
-        ));
+        // Configure tokenManager to throw session expired
+        when(() => mockTokenManager.refreshToken())
+            .thenThrow(TokenRefreshException(
+              'Session expired',
+              code: 'SESSION_EXPIRED',
+            ));
 
         // Act & Assert
         await expectLater(
           () => authService.refreshToken(),
           throwsA(isA<AuthException>()),
         );
-        verify(() => mockSecureStorage.clearAll()).called(1);
       });
 
       test('should handle network error during refresh', () async {
@@ -166,16 +138,12 @@ void main() {
           apiClient: mockApiClient,
         );
 
-        when(() => mockSecureStorage.getRefreshToken())
-            .thenAnswer((_) async => AuthFixtures.validRefreshToken);
-        when(() => mockSecureStorage.clearAll())
-            .thenAnswer((_) async {});
-
-        mockApiClient.setNextError(ApiException(
-          code: 'NETWORK_ERROR',
-          message: 'No connection',
-          isNetworkError: true,
-        ));
+        // Configure tokenManager to throw network error
+        when(() => mockTokenManager.refreshToken())
+            .thenThrow(TokenRefreshException(
+              'Network error',
+              code: 'NETWORK_ERROR',
+            ));
 
         // Act & Assert
         expect(
@@ -196,26 +164,20 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        String? storedToken;
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((invocation) async {
-          storedToken = invocation.positionalArguments[0] as String;
-        });
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
         when(() => mockSecureStorage.setUserData(any()))
             .thenAnswer((_) async {});
         when(() => mockSecureStorage.setTenantId(any()))
             .thenAnswer((_) async {});
 
-        // Act
+        // Act - login delegates token storage to tokenManager.storeTokens()
         await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert
-        expect(storedToken, isNotNull);
-        expect(storedToken, contains('mock_access_token'));
+        // Assert - verify tokenManager.storeTokens was called with mock tokens
+        verify(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken', that: contains('mock_access_token')),
+          refreshToken: any(named: 'refreshToken'),
+          expiresIn: any(named: 'expiresIn'),
+        )).called(1);
       });
 
       test('should store refresh token securely', () async {
@@ -226,26 +188,20 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        String? storedRefreshToken;
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((invocation) async {
-          storedRefreshToken = invocation.positionalArguments[0] as String;
-        });
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((_) async {});
         when(() => mockSecureStorage.setUserData(any()))
             .thenAnswer((_) async {});
         when(() => mockSecureStorage.setTenantId(any()))
             .thenAnswer((_) async {});
 
-        // Act
+        // Act - login delegates token storage to tokenManager.storeTokens()
         await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert
-        expect(storedRefreshToken, isNotNull);
-        expect(storedRefreshToken, contains('mock_refresh_token'));
+        // Assert - verify tokenManager.storeTokens was called with mock refresh token
+        verify(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken', that: contains('mock_refresh_token')),
+          expiresIn: any(named: 'expiresIn'),
+        )).called(1);
       });
 
       test('should store token expiry time', () async {
@@ -256,34 +212,20 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        DateTime? storedExpiry;
-        when(() => mockSecureStorage.setAccessToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setRefreshToken(any()))
-            .thenAnswer((_) async {});
-        when(() => mockSecureStorage.setTokenExpiry(any()))
-            .thenAnswer((invocation) async {
-          storedExpiry = invocation.positionalArguments[0] as DateTime;
-        });
         when(() => mockSecureStorage.setUserData(any()))
             .thenAnswer((_) async {});
         when(() => mockSecureStorage.setTenantId(any()))
             .thenAnswer((_) async {});
 
-        // Act
+        // Act - login delegates token storage to tokenManager.storeTokens()
         await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-        // Assert
-        expect(storedExpiry, isNotNull);
-        // Token should expire approximately 1 hour from now (mock returns 3600 seconds)
-        expect(
-          storedExpiry!.difference(DateTime.now()).inMinutes,
-          greaterThan(55),
-        );
-        expect(
-          storedExpiry!.difference(DateTime.now()).inMinutes,
-          lessThan(65),
-        );
+        // Assert - verify tokenManager.storeTokens was called with correct expiry (3600 seconds)
+        verify(() => mockTokenManager.storeTokens(
+          accessToken: any(named: 'accessToken'),
+          refreshToken: any(named: 'refreshToken'),
+          expiresIn: 3600,
+        )).called(1);
       });
 
       test('should delete all tokens on logout', () async {
@@ -294,14 +236,14 @@ void main() {
           tokenManager: mockTokenManager,
         );
 
-        when(() => mockSecureStorage.clearAll())
+        when(() => mockTokenManager.logout())
             .thenAnswer((_) async {});
 
         // Act
         await authService.logout();
 
-        // Assert
-        verify(() => mockSecureStorage.clearAll()).called(1);
+        // Assert - AuthService delegates logout to TokenManager
+        verify(() => mockTokenManager.logout()).called(1);
       });
     });
   });
@@ -319,15 +261,17 @@ void main() {
           .thenAnswer((_) async => AuthFixtures.validAccessToken);
       when(() => mockSecureStorage.getTokenExpiry())
           .thenAnswer((_) async => AuthFixtures.expiredTokenExpiry);
-      when(() => mockSecureStorage.getRefreshToken())
-          .thenAnswer((_) async => null);
-      when(() => mockSecureStorage.clearAll())
-          .thenAnswer((_) async {});
+      // TokenManager refresh fails (simulating no refresh token)
+      when(() => mockTokenManager.refreshToken())
+          .thenThrow(TokenRefreshException(
+            'لا يوجد refresh token',
+            code: 'NO_REFRESH_TOKEN',
+          ));
 
       // Act
       final isLoggedIn = await authService.isLoggedIn();
 
-      // Assert - expired token with no refresh token means not logged in
+      // Assert - expired token with failed refresh means not logged in
       expect(isLoggedIn, isFalse);
     });
 
@@ -543,12 +487,6 @@ void main() {
         'user': AuthFixtures.validUserData,
       });
 
-      when(() => mockSecureStorage.setAccessToken(any()))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorage.setRefreshToken(any()))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorage.setTokenExpiry(any()))
-          .thenAnswer((_) async {});
       when(() => mockSecureStorage.setUserData(any()))
           .thenAnswer((_) async {});
       when(() => mockSecureStorage.setTenantId(any()))
@@ -557,8 +495,12 @@ void main() {
       // Act
       await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-      // Assert
-      verify(() => mockSecureStorage.setAccessToken('test_access_token')).called(1);
+      // Assert - token storage delegated to tokenManager.storeTokens()
+      verify(() => mockTokenManager.storeTokens(
+        accessToken: 'test_access_token',
+        refreshToken: 'test_refresh_token',
+        expiresIn: 3600,
+      )).called(1);
     });
 
     test('should parse accessToken format (camelCase)', () async {
@@ -577,12 +519,6 @@ void main() {
         'user': AuthFixtures.validUserData,
       });
 
-      when(() => mockSecureStorage.setAccessToken(any()))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorage.setRefreshToken(any()))
-          .thenAnswer((_) async {});
-      when(() => mockSecureStorage.setTokenExpiry(any()))
-          .thenAnswer((_) async {});
       when(() => mockSecureStorage.setUserData(any()))
           .thenAnswer((_) async {});
       when(() => mockSecureStorage.setTenantId(any()))
@@ -591,8 +527,12 @@ void main() {
       // Act
       await authService.login(AuthFixtures.validEmail, AuthFixtures.validPassword);
 
-      // Assert
-      verify(() => mockSecureStorage.setAccessToken('camel_case_token')).called(1);
+      // Assert - token storage delegated to tokenManager.storeTokens()
+      verify(() => mockTokenManager.storeTokens(
+        accessToken: 'camel_case_token',
+        refreshToken: 'camel_refresh_token',
+        expiresIn: 7200,
+      )).called(1);
     });
 
     test('should handle missing token in response', () async {

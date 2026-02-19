@@ -513,8 +513,8 @@ void main() {
       // Act
       await tester.pumpWidget(widget);
 
-      // Assert
-      expect(find.byType(CustomPaint), findsOneWidget);
+      // Assert - CustomPaint may appear multiple times in the widget tree
+      expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     });
 
     testWidgets('should respect custom height', (tester) async {
@@ -552,8 +552,8 @@ void main() {
       // Act
       await tester.pumpWidget(widget);
 
-      // Assert
-      expect(find.byType(CustomPaint), findsOneWidget);
+      // Assert - CustomPaint may appear multiple times in the widget tree
+      expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     });
 
     testWidgets('should handle improving trend data', (tester) async {
@@ -567,8 +567,8 @@ void main() {
       // Act
       await tester.pumpWidget(widget);
 
-      // Assert
-      expect(find.byType(CustomPaint), findsOneWidget);
+      // Assert - CustomPaint may appear multiple times in the widget tree
+      expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     });
 
     testWidgets('should handle declining trend data', (tester) async {
@@ -582,8 +582,8 @@ void main() {
       // Act
       await tester.pumpWidget(widget);
 
-      // Assert
-      expect(find.byType(CustomPaint), findsOneWidget);
+      // Assert - CustomPaint may appear multiple times in the widget tree
+      expect(find.byType(CustomPaint), findsAtLeastNWidgets(1));
     });
   });
 

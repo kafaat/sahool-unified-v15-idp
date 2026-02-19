@@ -306,7 +306,7 @@ export function RealTimeActivityFeed({
               metadata: data.metadata,
             });
           }
-        } catch (e) {
+        } catch {
           // Failed to parse WebSocket message - non-critical, continue
         }
       };
@@ -322,7 +322,7 @@ export function RealTimeActivityFeed({
       };
 
       wsRef.current = ws;
-    } catch (e) {
+    } catch {
       // WebSocket connection failed - fallback to mock data
       // Start mock data generation as fallback
       // Note: startMockGeneration is defined below but hoisted, intentionally not in deps

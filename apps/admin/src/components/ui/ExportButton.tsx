@@ -73,7 +73,7 @@ export default function ExportButton({
       });
 
       setIsOpen(false);
-    } catch (error) {
+    } catch {
       // Export failed - error is handled by the export utility
     } finally {
       setIsExporting(false);

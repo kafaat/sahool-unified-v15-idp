@@ -869,7 +869,7 @@ upstreams:
         unhealthy:
           http_failures: 5
     targets:
-      - target: copilot-api:8163
+      - target: copilot-api:8088
         weight: 100
         tags:
           - ai

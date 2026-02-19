@@ -1098,7 +1098,7 @@ services:
     status: active  # Restored from archive with complete src/ (mock/dev implementation)
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: development  # Mock implementation - not yet production-ready
+    lifecycle: experimental  # Mock/dev implementation - not yet production-ready
     tier: tier-2
     events:
       produces:

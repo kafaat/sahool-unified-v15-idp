@@ -18,7 +18,6 @@ Updated: February 2026
 """
 
 import importlib.util
-import sys
 from pathlib import Path
 
 import pytest

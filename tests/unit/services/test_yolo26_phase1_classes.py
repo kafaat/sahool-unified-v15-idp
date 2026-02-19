@@ -120,8 +120,8 @@ class TestPhase1DiseaseClasses:
     """Tests for Phase 1 crop-specific disease classes (IDs 34-55)."""
 
     def test_total_disease_count(self):
-        """Total disease classes should be 56 (34 original + 22 new)."""
-        assert len(DISEASE_CLASSES) == 56
+        """Total disease classes should be 66 (34 original + 22 Phase1 + 10 Phase2)."""
+        assert len(DISEASE_CLASSES) == 66
 
     @pytest.mark.parametrize("class_id,expected", list(ALL_PHASE1_DISEASES.items()))
     def test_disease_class_exists(self, class_id: int, expected: tuple):
@@ -213,8 +213,8 @@ class TestPhase1PestClasses:
     """Tests for Phase 1 crop-specific pest classes (IDs 22-26)."""
 
     def test_total_pest_count(self):
-        """Total pest classes should be 27 (22 original + 5 new)."""
-        assert len(PEST_CLASSES) == 27
+        """Total pest classes should be 32 (22 original + 5 Phase1 + 5 Phase2)."""
+        assert len(PEST_CLASSES) == 32
 
     @pytest.mark.parametrize("class_id,expected", list(PHASE1_PESTS.items()))
     def test_pest_class_exists(self, class_id: int, expected: tuple):

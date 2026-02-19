@@ -127,6 +127,32 @@ PEST_CLASSES: dict[int, BilingualLabel] = {
         ar="حفار قرون فول الصويا",
         scientific_name="Maruca vitrata",
     ),
+    # Phase 2: Cotton & Peanut Pests
+    27: BilingualLabel(
+        en="Cotton Bollworm",
+        ar="دودة لوز القطن",
+        scientific_name="Helicoverpa armigera",
+    ),
+    28: BilingualLabel(
+        en="Pink Bollworm",
+        ar="دودة اللوز القرنفلية",
+        scientific_name="Pectinophora gossypiella",
+    ),
+    29: BilingualLabel(
+        en="Cotton Whitefly",
+        ar="ذبابة القطن البيضاء",
+        scientific_name="Bemisia tabaci",
+    ),
+    30: BilingualLabel(
+        en="Peanut Leaf Miner",
+        ar="حفار أوراق الفول السوداني",
+        scientific_name="Aproaerema modicella",
+    ),
+    31: BilingualLabel(
+        en="Groundnut Aphid",
+        ar="من الفول السوداني",
+        scientific_name="Aphis craccivora",
+    ),
 }
 
 # Agricultural Disease Classes (30+ diseases)
@@ -311,6 +337,61 @@ DISEASE_CLASSES: dict[int, BilingualLabel] = {
         en="Soybean Sudden Death Syndrome",
         ar="متلازمة الموت المفاجئ لفول الصويا",
         scientific_name="Fusarium virguliforme",
+    ),
+    # =========================================================================
+    # Phase 2: Cotton & Peanut Diseases (القطن والفول السوداني)
+    # =========================================================================
+    # --- Cotton (القطن) ---
+    56: BilingualLabel(
+        en="Cotton Leaf Curl Virus",
+        ar="فيروس تجعد أوراق القطن",
+        scientific_name="Begomovirus",
+    ),
+    57: BilingualLabel(
+        en="Cotton Verticillium Wilt",
+        ar="ذبول الفرتيسيليوم للقطن",
+        scientific_name="Verticillium dahliae",
+    ),
+    58: BilingualLabel(
+        en="Cotton Bacterial Blight",
+        ar="اللفحة البكتيرية للقطن",
+        scientific_name="Xanthomonas citri pv. malvacearum",
+    ),
+    59: BilingualLabel(
+        en="Cotton Boll Rot",
+        ar="تعفن لوز القطن",
+        scientific_name="Aspergillus flavus",
+    ),
+    60: BilingualLabel(
+        en="Cotton Alternaria Leaf Spot",
+        ar="تبقع أوراق القطن الألتيرناري",
+        scientific_name="Alternaria macrospora",
+    ),
+    # --- Peanut (الفول السوداني) ---
+    61: BilingualLabel(
+        en="Peanut Early Leaf Spot",
+        ar="التبقع المبكر للفول السوداني",
+        scientific_name="Cercospora arachidicola",
+    ),
+    62: BilingualLabel(
+        en="Peanut Late Leaf Spot",
+        ar="التبقع المتأخر للفول السوداني",
+        scientific_name="Cercosporidium personatum",
+    ),
+    63: BilingualLabel(
+        en="Peanut Rust",
+        ar="صدأ الفول السوداني",
+        scientific_name="Puccinia arachidis",
+    ),
+    64: BilingualLabel(
+        en="Peanut Stem Rot",
+        ar="تعفن ساق الفول السوداني",
+        scientific_name="Sclerotium rolfsii",
+    ),
+    65: BilingualLabel(
+        en="Peanut Aspergillus Crown Rot",
+        ar="تعفن تاج الفول السوداني",
+        scientific_name="Aspergillus niger",
     ),
 }
 

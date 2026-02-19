@@ -242,6 +242,27 @@ PEST_RECOMMENDATIONS: dict[int, dict[str, str]] = {
         "en": "Apply Bacillus thuringiensis (Bt) or lambda-cyhalothrin at flowering stage. Use pheromone traps. Practice early planting to avoid peak infestation.",
         "ar": "طبق باسيلوس ثورنجينسيس أو لامبدا سيهالوثرين في مرحلة الإزهار. استخدم مصائد الفرمونات. مارس الزراعة المبكرة لتجنب ذروة الإصابة.",
     },
+    # Phase 2: Cotton & Peanut Pest Recommendations
+    27: {  # Cotton Bollworm
+        "en": "Apply chlorantraniliprole or emamectin benzoate at early boll stage. Use pheromone traps for monitoring. Release Trichogramma parasitoids. Scout at dusk when moths are active.",
+        "ar": "طبق كلورانترانيليبرول أو إمامكتين بنزوات في مرحلة اللوز المبكرة. استخدم مصائد الفرمونات للمراقبة. أطلق طفيل التريكوجراما. تفقد عند الغسق عندما تنشط الفراشات.",
+    },
+    28: {  # Pink Bollworm
+        "en": "Use sterile insect technique (SIT) where available. Apply Bt cotton varieties. Install pheromone traps (5/ha). Destroy crop residues after harvest immediately.",
+        "ar": "استخدم تقنية الحشرات العقيمة حيث تتوفر. ازرع أصناف القطن Bt. ثبّت مصائد فرمونات (5/هكتار). دمر بقايا المحصول بعد الحصاد فورًا.",
+    },
+    29: {  # Cotton Whitefly (Bemisia tabaci)
+        "en": "Apply neem oil or spiromesifen at nymph stage. Use yellow sticky traps. Introduce Eretmocerus parasitoids. Avoid excessive nitrogen which promotes whitefly.",
+        "ar": "طبق زيت النيم أو سبيروميسيفين في مرحلة الحورية. استخدم المصائد اللاصقة الصفراء. أدخل طفيل إريتموسيروس. تجنب الإفراط في النيتروجين الذي يعزز الذبابة البيضاء.",
+    },
+    30: {  # Peanut Leaf Miner
+        "en": "Apply triazophos or profenofos at early infestation. Use neem-based pesticides. Remove and destroy infested leaves. Maintain field hygiene.",
+        "ar": "طبق ترايازوفوس أو بروفينوفوس عند الإصابة المبكرة. استخدم مبيدات النيم. أزل الأوراق المصابة ودمرها. حافظ على نظافة الحقل.",
+    },
+    31: {  # Groundnut Aphid
+        "en": "Apply imidacloprid seed treatment. Use neem oil or dimethoate foliar spray. Introduce ladybird beetles and lacewings. Remove volunteer plants.",
+        "ar": "طبق معاملة البذور بالإيميداكلوبريد. استخدم رش ورقي بزيت النيم أو الدايمثويت. أدخل خنافس الدعسوقة وأسد المن. أزل النباتات التطوعية.",
+    },
 }
 
 # =============================================================================
@@ -382,6 +403,51 @@ DISEASE_TREATMENTS: dict[int, dict[str, str]] = {
     55: {  # Soybean Sudden Death Syndrome
         "en": "Plant resistant varieties. Improve soil drainage. Delay planting until soil warms. Manage soybean cyst nematode which worsens SDS. Avoid soil compaction.",
         "ar": "ازرع أصنافًا مقاومة. حسّن صرف التربة. أخّر الزراعة حتى تسخن التربة. كافح نيماتودا كيس فول الصويا التي تفاقم المرض. تجنب ضغط التربة.",
+    },
+    # =========================================================================
+    # Phase 2: Cotton & Peanut Disease Treatments
+    # =========================================================================
+    # --- Cotton (القطن) ---
+    56: {  # Cotton Leaf Curl Virus
+        "en": "Control whitefly vectors (Bemisia tabaci) with imidacloprid or spiromesifen. Use virus-resistant Bt cotton varieties. Remove infected plants early. Destroy alternate weed hosts.",
+        "ar": "كافح ذباب القطن الأبيض الناقل بالإيميداكلوبريد أو سبيروميسيفين. استخدم أصناف قطن Bt المقاومة للفيروس. أزل النباتات المصابة مبكرًا. دمر الحشائش المضيفة البديلة.",
+    },
+    57: {  # Cotton Verticillium Wilt
+        "en": "Rotate with non-host crops (cereals) for 3+ years. Use tolerant varieties. Improve soil drainage. Avoid excessive irrigation. Soil fumigation in severe cases.",
+        "ar": "قم بالدورة الزراعية مع محاصيل غير مضيفة (حبوب) لأكثر من 3 سنوات. استخدم أصنافًا متحملة. حسّن صرف التربة. تجنب الإفراط في الري. تعقيم التربة في الحالات الشديدة.",
+    },
+    58: {  # Cotton Bacterial Blight
+        "en": "Use acid-delinted treated seed. Apply copper hydroxide at first symptoms. Plant resistant varieties. Avoid working in wet fields. Destroy crop residues after harvest.",
+        "ar": "استخدم بذورًا منزوعة الزغب ومعالجة. طبق هيدروكسيد النحاس عند أول الأعراض. ازرع أصنافًا مقاومة. تجنب العمل في الحقول الرطبة. دمر بقايا المحصول بعد الحصاد.",
+    },
+    59: {  # Cotton Boll Rot
+        "en": "Ensure proper plant spacing for air circulation. Apply copper-based fungicide. Avoid late-season irrigation. Control bollworm which creates entry wounds. Pick bolls promptly.",
+        "ar": "تأكد من التباعد المناسب بين النباتات لدوران الهواء. طبق مبيدًا فطريًا نحاسيًا. تجنب الري المتأخر في الموسم. كافح دودة اللوز التي تسبب جروح الدخول. اجنِ اللوز فورًا.",
+    },
+    60: {  # Cotton Alternaria Leaf Spot
+        "en": "Apply mancozeb or chlorothalonil fungicide. Maintain balanced fertilization. Remove infected leaves. Rotate crops. Use resistant varieties where available.",
+        "ar": "طبق مبيد مانكوزيب أو كلوروثالونيل. حافظ على التسميد المتوازن. أزل الأوراق المصابة. قم بالدورة الزراعية. استخدم أصنافًا مقاومة حيث تتوفر.",
+    },
+    # --- Peanut (الفول السوداني) ---
+    61: {  # Peanut Early Leaf Spot
+        "en": "Apply chlorothalonil or tebuconazole at 30-35 days after planting. Rotate with cereals for 2+ years. Use resistant varieties. Maintain proper plant spacing.",
+        "ar": "طبق كلوروثالونيل أو تيبوكونازول بعد 30-35 يومًا من الزراعة. قم بالدورة مع الحبوب لأكثر من سنتين. استخدم أصنافًا مقاومة. حافظ على التباعد المناسب.",
+    },
+    62: {  # Peanut Late Leaf Spot
+        "en": "Apply mancozeb or propiconazole at first symptoms. Remove crop debris after harvest. Avoid planting in previously infected fields. Use certified disease-free seed.",
+        "ar": "طبق مانكوزيب أو بروبيكونازول عند أول الأعراض. أزل بقايا المحصول بعد الحصاد. تجنب الزراعة في الحقول المصابة سابقًا. استخدم بذورًا معتمدة خالية من المرض.",
+    },
+    63: {  # Peanut Rust
+        "en": "Apply triazole fungicide (hexaconazole or propiconazole) at first appearance. Scout regularly from 50 days after planting. Use early-maturing resistant varieties.",
+        "ar": "طبق مبيدًا فطريًا تريازول (هيكساكونازول أو بروبيكونازول) عند أول ظهور. تفقد بانتظام من 50 يومًا بعد الزراعة. استخدم أصنافًا مقاومة مبكرة النضج.",
+    },
+    64: {  # Peanut Stem Rot
+        "en": "Treat seed with carboxin + thiram before planting. Apply Trichoderma viride as biocontrol. Deep plowing to bury sclerotia. Avoid excess moisture at soil level.",
+        "ar": "عالج البذور بالكاربوكسين + ثيرام قبل الزراعة. طبق تريكوديرما كمكافحة حيوية. احرث عميقًا لدفن الأجسام الحجرية. تجنب الرطوبة الزائدة عند مستوى التربة.",
+    },
+    65: {  # Peanut Aspergillus Crown Rot
+        "en": "Treat seed with mancozeb or thiram. Ensure proper drainage. Avoid injury to crown area during weeding. Maintain soil calcium levels. Apply gypsum at pegging.",
+        "ar": "عالج البذور بالمانكوزيب أو ثيرام. تأكد من الصرف الجيد. تجنب إصابة منطقة التاج أثناء التعشيب. حافظ على مستويات الكالسيوم في التربة. طبق الجبس عند التوتيد.",
     },
 }
 
@@ -669,8 +735,9 @@ async def detect_diseases(
             # Estimate spread risk based on disease type and severity
             spread_risk = severity
             # Late Blight, Mosaic Virus, YLCV, Maize Streak Virus, Wheat Yellow Rust,
-            # Potato Virus Y, Citrus Tristeza, Soybean Rust - high spread risk
-            if class_id in [4, 12, 13, 37, 38, 42, 44, 52]:
+            # Potato Virus Y, Citrus Tristeza, Soybean Rust, Cotton Leaf Curl Virus,
+            # Peanut Rust - high spread risk
+            if class_id in [4, 12, 13, 37, 38, 42, 44, 52, 56, 63]:
                 spread_risk = (
                     SeverityLevel.HIGH
                     if severity != SeverityLevel.CRITICAL

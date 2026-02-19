@@ -51,12 +51,13 @@ ENV PYTHONPATH=/app
 USER sahool
 
 # Default port (can be overridden via MCP_SERVER_PORT env var)
-ENV MCP_SERVER_PORT=8200
-EXPOSE 8200
+# Changed from 8200 to 8201 to resolve conflict with HashiCorp Vault
+ENV MCP_SERVER_PORT=8201
+EXPOSE 8201
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
-    CMD python -c "import os,httpx; httpx.get(f'http://localhost:{os.environ.get(\"MCP_SERVER_PORT\",8200)}/health')" || exit 1
+    CMD python -c "import os,httpx; httpx.get(f'http://localhost:{os.environ.get(\"MCP_SERVER_PORT\",8201)}/health')" || exit 1
 
 # Run server
 CMD ["sh", "-c", "python -m uvicorn src.main:app --host 0.0.0.0 --port ${MCP_SERVER_PORT}"]

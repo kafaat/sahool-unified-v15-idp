@@ -13,6 +13,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONPATH=/app
 
+# Copy constraints for version pinning consistency
+COPY constraints.txt .
+
 # Install dependencies with multi-mirror fallback for network resilience
 # Mirrors: Aliyun (primary) → PyPI (official) → Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
@@ -22,24 +25,28 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --trusted-host mirrors.aliyun.com \
+    -c constraints.txt \
     httpx[http2] || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
+    -c constraints.txt \
     httpx[http2] || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
+    -c constraints.txt \
     httpx[http2]
 
 # Copy application
 COPY apps/services/demo-data/main.py .
 
-# Create non-root user
-RUN useradd -m -u 1000 appuser && \
-    chown -R appuser:appuser /app
+# Create non-root user (standard sahool user)
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool && \
+    chown -R sahool:sahool /app
 
-USER appuser
+USER sahool
 
 # Environment defaults
 ENV KONG_URL=http://kong:8000 \

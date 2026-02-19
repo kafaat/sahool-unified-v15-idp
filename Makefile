@@ -1080,7 +1080,7 @@ dev-mcp: ## تشغيل خادم MCP - Start MCP server
 	@echo "$(GREEN)🔌 تشغيل خادم MCP - Starting MCP server...$(RESET)"
 	docker compose up -d mcp-server
 	@echo "$(GREEN)✅ خادم MCP جاهز - MCP server ready!$(RESET)"
-	@echo "$(BLUE)MCP Server:$(RESET) http://localhost:8200"
+	@echo "$(BLUE)MCP Server:$(RESET) http://localhost:8201"
 
 build-mcp: ## بناء خادم MCP - Build MCP server image
 	@echo "$(YELLOW)🔨 بناء خادم MCP - Building MCP server...$(RESET)"

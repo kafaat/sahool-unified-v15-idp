@@ -124,9 +124,7 @@ NODE_SERVICES = [
 ]
 
 # Services with known incomplete implementations (documented in analysis)
-KNOWN_INCOMPLETE_SERVICES = {
-    "ndvi-processor",  # No main.py implementation, only Dockerfile and config
-}
+KNOWN_INCOMPLETE_SERVICES: set[str] = set()  # All services now have complete implementations
 
 # Services that MUST have Dockerfiles
 ALL_BUILDABLE_SERVICES = PYTHON_SERVICES + NODE_SERVICES
@@ -263,13 +261,7 @@ class TestDockerComposeStructure:
         assert "networks" in compose_data
 
     def test_no_duplicate_ports(self, compose_data):
-        """No two services should expose the same host port (except known conflicts)."""
-        # Known port conflicts documented in the platform
-        # vault (8200) and mcp-server (8200) share a port - vault is typically
-        # disabled when mcp-server is active, or they run in separate profiles
-        known_conflicts = {
-            "8200": {"vault", "mcp-server"},
-        }
+        """No two services should expose the same host port."""
         host_ports = {}
         conflicts = []
         for svc_name, svc_def in compose_data["services"].items():
@@ -284,15 +276,12 @@ class TestDockerComposeStructure:
                 else:
                     continue
                 if host_port in host_ports:
-                    pair = {host_ports[host_port], svc_name}
-                    if host_port in known_conflicts and pair == known_conflicts[host_port]:
-                        continue  # Skip known documented conflicts
                     conflicts.append(
                         f"Port {host_port} used by both "
                         f"'{host_ports[host_port]}' and '{svc_name}'"
                     )
                 host_ports[host_port] = svc_name
-        assert not conflicts, f"Unexpected port conflicts: {conflicts}"
+        assert not conflicts, f"Port conflicts detected: {conflicts}"
 
 
 class TestBackboneContainers:
@@ -546,14 +535,7 @@ class TestDockerfileBestPractices:
 
     @pytest.mark.parametrize("service_name", ALL_BUILDABLE_SERVICES)
     def test_dockerfile_uses_non_root_user(self, service_name):
-        """Dockerfiles must create and use a non-root user (sahool)."""
-        # Known exceptions: services that haven't been updated to non-root yet
-        known_no_user = {"copilot-api", "code-review-agent"}
-        if service_name in known_no_user:
-            pytest.xfail(
-                f"'{service_name}' Dockerfile does not yet use non-root user "
-                "(documented security finding)"
-            )
+        """Dockerfiles must create and use a non-root user."""
         svc_dir = SERVICES_DIR / service_name
         if not svc_dir.exists():
             pytest.skip(f"Service directory not found: {service_name}")
@@ -561,7 +543,7 @@ class TestDockerfileBestPractices:
         if dockerfile is None:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
-        has_user = bool(re.search(r'USER\s+(sahool|appuser|app|node|\d+)', content))
+        has_user = bool(re.search(r'USER\s+(sahool|appuser|app|agent|node|\d+)', content))
         assert has_user, (
             f"Dockerfile for '{service_name}' does not switch to a non-root user"
         )

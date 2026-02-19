@@ -5,7 +5,7 @@ SAHOOL MCP Server - Standalone Service
 Standalone MCP server that exposes all SAHOOL capabilities via Model Context Protocol.
 Supports both stdio and SSE (HTTP) transports.
 
-Port: 8200
+Port: 8201
 Endpoints:
   - POST /mcp - JSON-RPC 2.0 endpoint
   - GET /mcp/sse - Server-Sent Events endpoint
@@ -16,7 +16,7 @@ Endpoints:
 
 Environment Variables:
   - SAHOOL_API_URL: Base URL for SAHOOL API (default: http://localhost:8000)
-  - MCP_SERVER_PORT: Port to run on (default: 8200)
+  - MCP_SERVER_PORT: Port to run on (default: 8201)
   - MCP_SERVER_HOST: Host to bind to (default: 0.0.0.0)
   - LOG_LEVEL: Logging level (default: INFO)
 """
@@ -66,7 +66,7 @@ except ImportError:
 from shared.mcp.server import MCPServer
 
 # Configuration
-PORT = int(os.getenv("MCP_SERVER_PORT", "8200"))
+PORT = int(os.getenv("MCP_SERVER_PORT", "8201"))
 HOST = os.getenv("MCP_SERVER_HOST", "0.0.0.0")
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 SAHOOL_API_URL = os.getenv("SAHOOL_API_URL", "http://localhost:8000")

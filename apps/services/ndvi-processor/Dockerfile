@@ -29,7 +29,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --upgrade pip "setuptools>=68.0" wheel build
 
 # Install dependencies with resilient multi-mirror fallback strategy
-COPY archive/deprecated-services/ndvi-processor/requirements.txt .
+COPY apps/services/ndvi-processor/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
@@ -83,8 +83,8 @@ COPY --chown=sahool:sahool apps/services/shared/ ./apps/services/shared/
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
 RUN cp -r ./apps/services/shared/errors_py ./shared/ || true
 
-# Copy source code from archive location
-COPY --chown=sahool:sahool archive/deprecated-services/ndvi-processor/src/ ./src/
+# Copy source code
+COPY --chown=sahool:sahool apps/services/ndvi-processor/src/ ./src/
 
 # Create temp directory
 RUN mkdir -p /tmp/ndvi && chown -R sahool:sahool /tmp/ndvi && \

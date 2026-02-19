@@ -238,7 +238,7 @@ run_health_checks() {
     check_http_service "Admin Dashboard" "http://localhost:3001" 200 || true
 
     # New Services
-    check_http_service "MCP Server" "http://localhost:8200/healthz" 200 || true
+    check_http_service "MCP Server" "http://localhost:8201/healthz" 200 || true
     check_http_service "Vision Service" "http://localhost:8150/healthz" 200 || true
     check_http_service "Terrain Service" "http://localhost:8185/healthz" 200 || true
 

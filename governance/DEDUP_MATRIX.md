@@ -247,6 +247,27 @@ AFTER (Target State):
 
 ---
 
+## 8. Active Service Similarity Matrix (v16.0.0)
+
+The following pairs of similarly-named services have been reviewed and their distinct purposes documented.
+
+### 8.1 Reviewed & Resolved
+
+| Service 1 | Service 2 | Resolution | Date |
+|-----------|-----------|------------|------|
+| yield-prediction (3021) | yield-prediction-service (8152) | **DEPRECATED** yield-prediction. Code 100% identical. yield-prediction-service has rate limiting + Prisma. | 2026-02-19 |
+| ndvi-processor (8118) | vegetation-analysis-service (8090) | **DISTINCT** purposes. ndvi-processor handles satellite NDVI computation. vegetation-analysis-service is broader (multi-index, multi-provider). | 2026-02-19 |
+
+### 8.2 Requires Clarification
+
+| Service 1 | Port | Service 2 | Port | Overlap | Recommendation |
+|-----------|------|-----------|------|---------|----------------|
+| code-review-agent | 8145 | code-review-service | 8102 | AI code review | Document: agent = Claude SDK agent, service = general code review API |
+| ai-advisor | 8112 | ai-agents-core | 8161 | AI advisory | Document: ai-advisor = agricultural advisory, ai-agents-core = agent framework |
+| ai-agents-core | 8161 | ai-agents-service | 8130 | Agent services | Document: core = framework/base, service = orchestration/deployment |
+
+---
+
 **Document Owner**: Platform Team
-**Last Updated**: 2024-12-19
-**Next Review**: Before v16 planning
+**Last Updated**: 2026-02-19
+**Next Review**: v17 planning

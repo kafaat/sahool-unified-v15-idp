@@ -74,5 +74,12 @@ ENV WALG_UPLOAD_CONCURRENCY=4
 ENV WALG_DOWNLOAD_CONCURRENCY=4
 ENV AWS_S3_FORCE_PATH_STYLE=true
 
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD pg_isready -U postgres || exit 1
+
+# Security: switch to non-root user
+USER postgres
+
 # Use custom PostgreSQL configuration
 CMD ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]

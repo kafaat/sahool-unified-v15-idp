@@ -5,6 +5,9 @@ _transform: true
 # SAHOOL Kong Gateway - High Availability Declarative Configuration
 # تكوين Kong للتوفر العالي
 # Synced with: infrastructure/gateway/kong/kong.yml
+# WARNING: This HA config is BEHIND the primary. Missing 30+ services.
+# TODO: Full sync with primary kong.yml (copilot-api, audit-service, etc.)
+# Last partial sync: 2026-02-19 (yield-prediction-service port, deprecation markers)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Global plugins
@@ -335,16 +338,17 @@ services:
   # Decision Layer Services - طبقة القرار
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Yield Engine
+  # DEPRECATED: yield-engine → yield-prediction-service (SERVICE_PORTS.YIELD_PREDICTION = 8152)
+  # Kept for backward compatibility. Remove in v17.0.0.
   - name: yield-engine
     url: http://yield-engine:8098
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
     routes:
-      - name: yield-route
+      - name: yield-engine-legacy-route
         paths:
-          - /api/v1/yield
+          - /api/v1/yield-engine
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -359,9 +363,9 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Yield Prediction
-  - name: yield-prediction
-    url: http://yield-prediction:3021
+  # Yield Prediction Service (NestJS) - SERVICE_PORTS.YIELD_PREDICTION = 8152
+  - name: yield-prediction-service
+    url: http://yield-prediction-service:8152
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
@@ -369,6 +373,7 @@ services:
       - name: yield-prediction-route
         paths:
           - /api/v1/yield-prediction
+          - /api/v1/yield
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -480,7 +485,8 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Agro Advisor
+  # DEPRECATED: agro-advisor → advisory-service (SERVICE_PORTS.ADVISORY = 8093)
+  # Kept for backward compatibility. Remove in v17.0.0.
   - name: agro-advisor
     url: http://agro-advisor:8105
     connect_timeout: 5000
@@ -707,7 +713,8 @@ services:
   # Communication Services - خدمات الاتصال
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Community Chat
+  # DEPRECATED: community-chat → chat-service (SERVICE_PORTS.CHAT_SERVICE = 8000)
+  # Archived. Remove in v17.0.0.
   - name: community-chat
     url: http://community-chat:8097
     connect_timeout: 3000
@@ -732,7 +739,8 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Field Chat
+  # DEPRECATED: field-chat → chat-service (SERVICE_PORTS.CHAT_SERVICE = 8000)
+  # Archived. Remove in v17.0.0.
   - name: field-chat
     url: http://field-chat:8099
     connect_timeout: 3000

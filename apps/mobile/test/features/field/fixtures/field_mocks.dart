@@ -143,9 +143,6 @@ domain.Field createMockDomainField({
 /// (toColumns, toJson, toJsonString, copyWith) compile via noSuchMethod.
 class _TestField extends Fake implements Field {
   @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-
-  @override
   final String id;
   @override
   final String? remoteId;

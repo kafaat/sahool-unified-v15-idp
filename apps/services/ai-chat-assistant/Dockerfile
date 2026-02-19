@@ -1,49 +1,86 @@
+# SAHOOL AI Chat Assistant Service
+# خدمة مساعد الشات الذكي
+# Multi-stage build for optimized image size
+# Port: 8260
+
 ARG PYTHON_VERSION=3.11
-FROM python:${PYTHON_VERSION}-slim-bookworm AS base
 
-# Set working directory
-WORKDIR /app
+# Stage 1: Builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    g++ \
+WORKDIR /build
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential gcc g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and constraints
-COPY constraints.txt .
-COPY requirements.txt .
-
-# Install Python dependencies with multi-mirror fallback
+# Upgrade pip and install build tools
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade pip "setuptools>=68.0" wheel build || \
+    pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade pip "setuptools>=68.0" wheel build
+
+# Install dependencies with resilient multi-mirror fallback strategy
+COPY apps/services/ai-chat-assistant/requirements.txt .
+COPY constraints.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
-    -c constraints.txt -r requirements.txt || \
+    --user -c constraints.txt -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     --trusted-host mirrors.cloud.tencent.com \
-    -c constraints.txt -r requirements.txt
+    --user -c constraints.txt -r requirements.txt
 
-# Copy application code
-COPY src/ ./src/
+# Stage 2: Production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
+
+# Labels
+LABEL maintainer="KAFAAT <dev@kafaat.sa>"
+LABEL service="ai-chat-assistant"
+LABEL version="16.0.0"
+
+# Environment
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DEFAULT_TIMEOUT=300 \
+    PIP_RETRIES=10 \
+    PORT=8260
+
+WORKDIR /app
 
 # Create non-root user
-RUN useradd -m -u 1000 sahool && \
-    chown -R sahool:sahool /app
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
+# Copy installed Python packages from builder
+COPY --from=builder /root/.local /home/sahool/.local
+ENV PATH=/home/sahool/.local/bin:$PATH
+
+# Copy source code
+COPY --chown=sahool:sahool apps/services/ai-chat-assistant/src/ ./src/
+
+# Set ownership
+RUN chown -R sahool:sahool /app
+
+# Switch to non-root user
 USER sahool
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import httpx; httpx.get('http://localhost:${PORT:-8260}/healthz', timeout=5)" || exit 1
 
 # Expose port
 EXPOSE 8260
 
+# Health check using Python (no curl dependency needed)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8260/healthz')" || exit 1
+
 # Run application
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8260"]
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8260}"]

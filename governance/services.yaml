@@ -30,7 +30,7 @@ event_architecture:
 
     decision:
       description: "Advisory & planning layer - طبقة القرار"
-      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, ai-advisor, leveling-optimizer-service, drone-service]
+      services: [crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction-service, ai-advisor, leveling-optimizer-service, drone-service]  # yield-prediction deprecated in favor of yield-prediction-service
       rules:
         - "Consumes from Intelligence"
         - "Produces recommendations/plans"
@@ -283,10 +283,10 @@ services:
     port: 3021
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Deprecated 2026-02-19 - use yield-prediction-service (port 8152) instead
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -907,7 +907,7 @@ services:
     category: integration
     layer: business
     path: "apps/services/mcp-server"
-    port: 8200
+    port: 8201  # Changed from 8200 to resolve conflict with HashiCorp Vault
     protocol: http
     health_endpoint: "/healthz"
     status: active
@@ -1091,14 +1091,14 @@ services:
     type: python
     category: analytics
     layer: intelligence
-    path: "archive/deprecated-services/ndvi-processor"
+    path: "apps/services/ndvi-processor"
     port: 8118
     protocol: http
     health_endpoint: "/healthz"
-    status: deprecated  # Archived - use vegetation-analysis-service instead
+    status: active  # Restored from archive with complete src/ (mock/dev implementation)
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: deprecated
+    lifecycle: experimental  # Mock/dev implementation - not yet production-ready
     tier: tier-2
     events:
       produces:
@@ -2216,6 +2216,7 @@ services:
     port: 8145
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, ai-agents]  # Not started by default
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -2475,6 +2476,7 @@ services:
     port: 8183  # Changed from 8180 (conflict with edge-orchestrator) to 8183
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, integrations]  # Not started by default
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -2895,6 +2897,7 @@ services:
     port: 8240
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, integrations]  # Not started by default
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -3107,6 +3110,7 @@ services:
     port: 8260
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, ai]  # Not started by default
     status: active
     owner: "platform-team@sahool.io"
     team: platform

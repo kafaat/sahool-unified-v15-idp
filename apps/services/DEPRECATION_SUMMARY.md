@@ -241,6 +241,20 @@ The following services have completed their deprecation lifecycle and have been 
 - `governance/services.yaml`: Status changed to `archived`, paths updated to `archive/deprecated-services/`
 - `infrastructure/gateway/kong/kong.yml`: Removed routes, replaced with archive comments
 
+## Deprecated Services (2026-02-19)
+
+### 9. yield-prediction → yield-prediction-service
+
+- **Service Path**: `apps/services/yield-prediction`
+- **Port**: 3021
+- **Replacement**: `yield-prediction-service` (port 8152)
+- **Deprecation Date**: 2026-02-19
+- **Sunset Date**: 2026-06-19
+- **Analysis**: Code is 100% identical between yield-prediction (3021) and yield-prediction-service (8152). yield-prediction-service adds @nestjs/throttler rate limiting (3 tiers) and @prisma/client ORM integration. yield-prediction README already stated it was deprecated in favor of yield-prediction-service.
+- **Configuration Changes**:
+  - `docker-compose.yml`: Added `profiles: [deprecated]` to prevent default startup
+  - `governance/services.yaml`: Status changed to `deprecated`, lifecycle to `deprecated`
+
 ## Next Steps
 
 1. **Update Documentation**: Ensure all documentation references the new services
@@ -257,6 +271,6 @@ The following services have completed their deprecation lifecycle and have been 
 ---
 
 **Implementation Date**: 2025-12-31
-**Last Updated**: 2026-02-14
+**Last Updated**: 2026-02-19
 **Author**: Claude Code
 **Status**: Complete

@@ -62,9 +62,9 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -f tsconfig.tsbuildinfo && tsc",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "keywords": [
     "sahool",

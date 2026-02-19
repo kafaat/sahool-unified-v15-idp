@@ -72,10 +72,11 @@ COPY shared/ ./shared/
 # Copy application code
 COPY apps/services/copilot-api/src/ ./src/
 
-# Create non-root user for security
-RUN groupadd -r copilot && useradd -r -g copilot copilot
-RUN chown -R copilot:copilot /app
-USER copilot
+# Create non-root user for security (standard sahool user)
+RUN groupadd --system sahool && \
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
+RUN chown -R sahool:sahool /app
+USER sahool
 
 # Expose port
 EXPOSE 8088

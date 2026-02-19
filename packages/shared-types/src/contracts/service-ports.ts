@@ -172,8 +172,8 @@ export const SERVICE_PORTS = {
   IRRIGATION_CYCLE_ENGINE: 8250,
   /** Digital twin simulation - المحاكاة الرقمية */
   DIGITAL_TWIN: 8253,
-  /** MCP server - خادم MCP */
-  MCP_SERVER: 8200,
+  /** MCP server - خادم MCP (changed from 8200 to avoid Vault conflict) */
+  MCP_SERVER: 8201,
   /** Demo data generator - مولد البيانات التجريبية */
   DEMO_DATA: 8261,
 

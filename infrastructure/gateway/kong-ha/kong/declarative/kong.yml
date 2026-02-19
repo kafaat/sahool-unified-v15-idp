@@ -5,20 +5,21 @@ _transform: true
 # SAHOOL Kong Gateway - High Availability Declarative Configuration
 # تكوين Kong للتوفر العالي
 # Synced with: infrastructure/gateway/kong/kong.yml
+# Full sync completed: 2026-02-19
+# Total services: 79 (aligned with primary kong.yml)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Global plugins
+# ==============================================================================
+# Global Plugins (applies to all routes/services)
+# الإضافات العالمية (تُطبق على جميع المسارات والخدمات)
+# ==============================================================================
 plugins:
-  - name: correlation-id
-    config:
-      header_name: X-Request-ID
-      generator: uuid
-      echo_downstream: true
-
+  # CORS Configuration - Environment-based security
+  # تكوين CORS - أمان يعتمد على البيئة
   - name: cors
     config:
       origins:
-        - "*"
+        - "*"  # Replace with specific domains in production
       methods:
         - GET
         - POST
@@ -34,18 +35,73 @@ plugins:
         - Content-Type
         - Date
         - X-Request-Id
-        - X-Tenant-ID
+        - X-Correlation-Id
       exposed_headers:
         - X-Request-Id
-      credentials: true
+        - X-Correlation-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+      # SECURITY FIX: credentials cannot be true with wildcard origin
+      credentials: false
       max_age: 3600
       preflight_continue: false
 
+  # Prometheus metrics for monitoring
   - name: prometheus
     config: {}
 
+  # Request correlation ID for distributed tracing
+  # معرف ارتباط الطلب للتتبع الموزع
+  - name: correlation-id
+    config:
+      header_name: X-Correlation-Id
+      generator: uuid#counter
+      echo_downstream: true
+
+  # Request size limiting to prevent large payload attacks
+  # تحديد حجم الطلب لمنع هجمات الحمولة الكبيرة
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10  # MB
+      size_unit: megabytes
+      require_content_length: false
+
+  # Security Headers - Added for all responses
+  # رؤوس الأمان - مضافة لجميع الاستجابات
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Content-Type-Options: nosniff"
+          - "X-Frame-Options: DENY"
+          - "X-XSS-Protection: 1; mode=block"
+          - "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+          - "Referrer-Policy: strict-origin-when-cross-origin"
+          - "Permissions-Policy: geolocation=(), microphone=(), camera=()"
+      remove:
+        headers:
+          - "Server"
+          - "X-Powered-By"
+
+  # Bot Detection - Block malicious bots and scrapers
+  # كشف الروبوتات - حظر الروبوتات الخبيثة
+  - name: bot-detection
+    config:
+      deny:
+        - "sqlmap"
+        - "Nikto"
+        - "masscan"
+        - "ZmEu"
+        - "dirbuster"
+        - "gobuster"
+        - "nuclei"
+        - "nmap"
+      allow:
+        - "Googlebot"
+        - "bingbot"
+
 # ═══════════════════════════════════════════════════════════════════════════════
-# Services + Routes (Aligned with services.yaml)
+# Services + Routes (Aligned with primary kong.yml and services.yaml)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 services:
@@ -306,6 +362,31 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
+  # Crop Health - Basic crop monitoring
+  # صحة المحاصيل - مراقبة أساسية
+  - name: crop-health
+    url: http://crop-health:8100
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: crop-health-basic-route
+        paths:
+          - /api/v1/crop-health-basic
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
   # Field Intelligence
   - name: field-intelligence
     url: http://field-intelligence:8120
@@ -331,20 +412,75 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
+  # Pest Detection Service - AI pest detection
+  # خدمة كشف الآفات - الكشف عن الآفات بالذكاء الاصطناعي
+  - name: pest-detection-service
+    url: http://pest-detection-service:8125
+    connect_timeout: 15000
+    read_timeout: 60000
+    write_timeout: 60000
+    retries: 2
+    routes:
+      - name: pest-detection-route
+        paths:
+          - /api/v1/pest-detection
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+
+  # Soil Analysis Service - Soil testing and analysis
+  # خدمة تحليل التربة - اختبار وتحليل التربة
+  - name: soil-analysis-service
+    url: http://soil-analysis-service:8134
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: soil-analysis-route
+        paths:
+          - /api/v1/soil
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Decision Layer Services - طبقة القرار
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Yield Engine
+  # Yield Engine (legacy)
   - name: yield-engine
     url: http://yield-engine:8098
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
     routes:
-      - name: yield-route
+      - name: yield-engine-legacy-route
         paths:
-          - /api/v1/yield
+          - /api/v1/yield-engine
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -359,9 +495,9 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Yield Prediction
-  - name: yield-prediction
-    url: http://yield-prediction:3021
+  # Yield Prediction Service (NestJS) - SERVICE_PORTS.YIELD_PREDICTION = 8152
+  - name: yield-prediction-service
+    url: http://yield-prediction-service:8152
     connect_timeout: 5000
     read_timeout: 60000
     retries: 2
@@ -369,6 +505,7 @@ services:
       - name: yield-prediction-route
         paths:
           - /api/v1/yield-prediction
+          - /api/v1/yield
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -407,7 +544,7 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Advisory Service (Replaces fertilizer-advisor)
+  # Advisory Service (Replaces fertilizer-advisor, agro-advisor)
   - name: advisory-service
     url: http://advisory-service:8093
     connect_timeout: 5000
@@ -480,16 +617,16 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Agro Advisor
-  - name: agro-advisor
-    url: http://agro-advisor:8105
+  # Agro Rules Worker (has HTTP endpoints)
+  - name: agro-rules
+    url: http://agro-rules:8151
     connect_timeout: 5000
-    read_timeout: 45000
+    read_timeout: 30000
     retries: 2
     routes:
-      - name: agro-advisor-route
+      - name: agro-rules-route
         paths:
-          - /api/v1/agro-advisor
+          - /api/v1/agro-rules
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -544,13 +681,38 @@ services:
     routes:
       - name: alert-service-route
         paths:
-          - /api/v1/alert-service
+          - /api/v1/alert-management
         strip_path: true
     plugins:
       - name: rate-limiting
         config:
           minute: 1000
           hour: 50000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Audit Service - Compliance logging
+  # خدمة التدقيق - تسجيل الامتثال
+  - name: audit-service
+    url: http://audit-service:8114
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: audit-service-route
+        paths:
+          - /api/v1/audit
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
           policy: redis
           redis_host: redis
           redis_port: 6379
@@ -703,11 +865,212 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
+  # CRM Service - Farmer relationship management
+  # خدمة إدارة علاقات المزارعين
+  - name: crm-service
+    url: http://crm-service:8131
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: crm-route
+        paths:
+          - /api/v1/crm
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # GlobalGAP Compliance - Certification tracking
+  # خدمة الامتثال لـ GlobalGAP - تتبع الشهادات
+  - name: globalgap-compliance
+    url: http://globalgap-compliance:8128
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: globalgap-route
+        paths:
+          - /api/v1/globalgap
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Logistics Service - Farm logistics
+  # خدمة اللوجستيات الزراعية
+  - name: logistics-service
+    url: http://logistics-service:8167
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: logistics-route
+        paths:
+          - /api/v1/logistics
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Supply Chain Service - Agricultural supply chain management
+  # خدمة سلسلة التوريد - إدارة سلسلة التوريد الزراعية
+  - name: supply-chain-service
+    url: http://supply-chain-service:8230
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: supply-chain-route
+        paths:
+          - /api/v1/supply-chain
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Traceability Service - Product traceability and tracking
+  # خدمة التتبع - تتبع المنتجات والتعقب
+  - name: traceability-service
+    url: http://traceability-service:8123
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: traceability-route
+        paths:
+          - /api/v1/traceability
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Cooperative Service - Farmer cooperative management
+  # خدمة التعاونيات - إدارة تعاونيات المزارعين
+  - name: cooperative-service
+    url: http://cooperative-service:8127
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: cooperative-route
+        paths:
+          - /api/v1/cooperatives
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Low-Code Engine - Application builder
+  # محرك اللو-كود - بناء التطبيقات
+  - name: lowcode-engine
+    url: http://lowcode-engine:8132
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: lowcode-route
+        paths:
+          - /api/v1/lowcode
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Communication Services - خدمات الاتصال
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # Community Chat
+  # Chat Service - Real-time messaging
+  # خدمة الدردشة - المراسلة في الوقت الحقيقي
+  - name: chat-service
+    url: http://chat-service:8000
+    connect_timeout: 3000
+    read_timeout: 10000
+    retries: 2
+    routes:
+      - name: chat-service-route
+        paths:
+          - /api/v1/chat
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 2000
+          hour: 100000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # DEPRECATED: community-chat → chat-service (SERVICE_PORTS.CHAT_SERVICE = 8000)
+  # Archived. Remove in v17.0.0.
   - name: community-chat
     url: http://community-chat:8097
     connect_timeout: 3000
@@ -773,6 +1136,62 @@ services:
         config:
           minute: 5000
           hour: 250000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # WhatsApp Bot Service - WhatsApp Business API integration
+  # خدمة بوت واتساب - تكامل واجهة واتساب للأعمال
+  - name: whatsapp-bot-service
+    url: http://whatsapp-bot-service:8240
+    connect_timeout: 30000
+    read_timeout: 120000
+    write_timeout: 120000
+    retries: 2
+    routes:
+      - name: whatsapp-bot-route
+        paths:
+          - /api/v1/whatsapp
+        strip_path: true
+      - name: whatsapp-webhook-route
+        paths:
+          - /api/v1/whatsapp/webhook
+        strip_path: false
+        methods: ["GET", "POST"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # WeChat Service - WeChat integration
+  # خدمة ويتشات - تكامل ويتشات
+  - name: wechat-service
+    url: http://wechat-service:8133
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: wechat-route
+        paths:
+          - /api/v1/wechat
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
           policy: redis
           redis_host: redis
           redis_port: 6379
@@ -907,6 +1326,39 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
+  # Drone Service - Agricultural drone integration
+  # خدمة الطائرات بدون طيار - تكامل الطائرات بدون طيار الزراعية
+  - name: drone-service
+    url: http://drone-service:8126
+    connect_timeout: 5000
+    read_timeout: 30000
+    retries: 2
+    routes:
+      - name: drone-route
+        paths:
+          - /api/v1/drones
+        strip_path: false
+      - name: drone-flights-route
+        paths:
+          - /api/v1/flights
+        strip_path: false
+      - name: drone-missions-route
+        paths:
+          - /api/v1/missions
+        strip_path: false
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
   # ─────────────────────────────────────────────────────────────────────────────
   # AI & Skills Services - خدمات الذكاء الاصطناعي
   # ─────────────────────────────────────────────────────────────────────────────
@@ -935,16 +1387,42 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # Agro Rules Worker (has HTTP endpoints)
-  - name: agro-rules
-    url: http://agro-rules:8151
+  # AI Advisor - AI advisory service
+  # خدمة المستشار الذكي
+  - name: ai-advisor
+    url: http://ai-advisor:8112
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: ai-advisor-route
+        paths:
+          - /api/v1/ai-advisor
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Agent Registry - AI agent management
+  # سجل الوكلاء - إدارة وكلاء الذكاء الاصطناعي
+  - name: agent-registry
+    url: http://agent-registry:8160
     connect_timeout: 5000
     read_timeout: 30000
     retries: 2
     routes:
-      - name: agro-rules-route
+      - name: agent-registry-route
         paths:
-          - /api/v1/agro-rules
+          - /api/v1/agents
         strip_path: true
     plugins:
       - name: rate-limiting
@@ -959,8 +1437,186 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
+  # AI Agents Core - Agent infrastructure
+  # البنية التحتية لوكلاء الذكاء الاصطناعي
+  - name: ai-agents-core
+    url: http://ai-agents-core:8161
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: ai-agents-core-route
+        paths:
+          - /api/v1/ai-agents
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # AI Agents Service - Agent orchestration
+  # خدمة تنسيق وكلاء الذكاء الاصطناعي
+  - name: ai-agents-service
+    url: http://ai-agents-service:8130
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: ai-agents-service-route
+        paths:
+          - /api/v1/ai-agents-service
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Knowledge Graph - Agricultural knowledge
+  # خدمة رسم المعرفة الزراعية
+  - name: knowledge-graph
+    url: http://knowledge-graph:8140
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: knowledge-graph-route
+        paths:
+          - /api/v1/knowledge
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 500
+          hour: 25000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Code Review Service - Code quality analysis
+  # خدمة مراجعة الكود
+  - name: code-review-service
+    url: http://code-review-service:8102
+    connect_timeout: 5000
+    read_timeout: 60000
+    retries: 2
+    routes:
+      - name: code-review-route
+        paths:
+          - /api/v1/code-review
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Code Fix Agent - AI-powered code diagnostics and fixing
+  # وكيل إصلاح الكود - تشخيص وإصلاح الكود بالذكاء الاصطناعي
+  - name: code-fix-agent
+    url: http://code-fix-agent:8162
+    connect_timeout: 30000
+    read_timeout: 120000
+    write_timeout: 120000
+    retries: 2
+    routes:
+      - name: code-fix-route
+        paths:
+          - /api/v1/code-fix
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # Copilot API - AI copilot for agricultural advisory
+  # واجهة برمجة المساعد الذكي
+  - name: copilot-api
+    url: http://copilot-api:8088
+    connect_timeout: 30000
+    read_timeout: 120000
+    write_timeout: 120000
+    retries: 2
+    routes:
+      - name: copilot-route
+        paths:
+          - /api/v1/copilot
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
+  # LLM Orchestrator Service - AI model orchestration
+  # خدمة تنسيق نماذج الذكاء الاصطناعي
+  - name: llm-orchestrator-service
+    url: http://llm-orchestrator-service:8164
+    connect_timeout: 30000
+    read_timeout: 180000
+    write_timeout: 180000
+    retries: 2
+    routes:
+      - name: llm-orchestrator-route
+        paths:
+          - /api/v1/llm
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+
   # ─────────────────────────────────────────────────────────────────────────────
-  # Intelligence & Edge Services - خدمات الذكاء والحافة (Added 2026-01-31)
+  # Intelligence & Edge Services - خدمات الذكاء والحافة
   # ─────────────────────────────────────────────────────────────────────────────
 
   # Vision API - YOLOv26 AI Vision Service
@@ -1016,6 +1672,36 @@ services:
       - name: request-size-limiting
         config:
           allowed_payload_size: 25
+          size_unit: megabytes
+
+  # Ground Vision Service - Tower-based agricultural monitoring
+  # خدمة الرؤية الأرضية - المراقبة الزراعية من الأبراج
+  - name: ground-vision-service
+    url: http://ground-vision-service:8182
+    connect_timeout: 30000
+    read_timeout: 120000
+    write_timeout: 120000
+    retries: 2
+    routes:
+      - name: ground-vision-route
+        paths:
+          - /api/v1/ground-vision
+        strip_path: true
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+          redis_database: 1
+          redis_timeout: 2000
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
           size_unit: megabytes
 
   # Terrain API - Terrain Analysis Service
@@ -1196,3 +1882,29 @@ services:
         config:
           status_code: 200
           message: "SAHOOL Platform is healthy (HA Mode)"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Intentionally NOT added to Kong (non-HTTP APIs / internal infra / workers)
+# لم تُضَف عمداً إلى Kong (واجهات برمجة غير HTTP / بنية تحتية داخلية / عمال)
+# - postgres, pgbouncer, redis, nats, nats-prometheus-exporter, mqtt, qdrant
+# - etcd, etcd-init, minio, milvus
+# - ollama / ollama-model-loader (internal LLM)
+#
+# Deprecated/archived services NOT included in HA config:
+# الخدمات المهملة/المؤرشفة غير مضمنة:
+# - agro-advisor → advisory-service (archived 2026-02)
+# - field-ops → field-management-service (archived)
+# - field-core → field-management-service (archived)
+# - field-service → field-management-service (archived)
+# - satellite-service → vegetation-analysis-service (archived)
+# - weather-advanced → weather-service (archived)
+# - crop-health-ai → crop-intelligence-service (archived)
+# - fertilizer-advisor → advisory-service (archived)
+# - ndvi-engine → vegetation-analysis-service (archived)
+# - weather-core → weather-service (archived)
+# - yield-prediction (Node.js 3021) → yield-prediction-service (8152)
+#
+# Full sync completed: 2026-02-19
+# Synced with: infrastructure/gateway/kong/kong.yml
+# Total active services configured: 55
+# ─────────────────────────────────────────────────────────────────────────────

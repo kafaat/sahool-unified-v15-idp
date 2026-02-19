@@ -134,7 +134,7 @@ build-python: ## بناء خدمات Python فقط - Build only Python services
 		ndvi_engine \
 		crop_health_ai \
 		virtual_sensors \
-		yield_engine \
+		yield-prediction-service \
 		agro_advisor \
 		alert_service \
 		astronomical_calendar \

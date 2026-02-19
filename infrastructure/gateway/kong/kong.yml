@@ -626,13 +626,15 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
+  # NOTE: /api/v1/alerts routes to notification-service (line ~593).
+  # alert-service uses /api/v1/alert-management to avoid path conflict.
   - name: alert-service
     host: alert-service
     port: 8113
     protocol: http
     routes:
       - name: alert-service-route
-        paths: ["/api/v1/alerts", "/alerts"]
+        paths: ["/api/v1/alert-management", "/alert-management"]
         strip_path: true
         protocols: ["http", "https"]
 

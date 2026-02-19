@@ -101,7 +101,7 @@ services:
           cpus: '0.15'
           memory: 128M
 
-  yield_engine:
+  yield-prediction-service:
     environment:
       - LOG_LEVEL=DEBUG
       - ENVIRONMENT=development

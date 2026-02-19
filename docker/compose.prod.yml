@@ -148,7 +148,7 @@ services:
           cpus: '0.5'
           memory: 512M
 
-  yield_engine:
+  yield-prediction-service:
     environment:
       - LOG_LEVEL=WARN
       - ENVIRONMENT=production

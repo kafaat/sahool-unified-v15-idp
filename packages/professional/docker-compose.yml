@@ -493,8 +493,9 @@ services:
     networks:
       - sahool-pro-network
 
-  # Yield Engine - محرك التنبؤ بالإنتاجية
-  yield_engine:
+  # Yield Prediction Service - خدمة التنبؤ بالإنتاجية
+  # (migrated from yield_engine → yield-prediction-service, port 8152)
+  yield-prediction-service:
     build:
       context: ../../apps/services/yield-prediction-service
       dockerfile: Dockerfile

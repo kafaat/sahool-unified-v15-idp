@@ -136,7 +136,7 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=${POSTGRES_USER:-sahool}
-      - DB_PASSWORD=${POSTGRES_PASSWORD:-sahool}
+      - DB_PASSWORD=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
       - DB_NAME=${POSTGRES_DB:-sahool}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -172,8 +172,8 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-pro-weather-service
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -253,9 +253,9 @@ services:
       - PORT=8110
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
       - SMTP_USER=${SMTP_USER:-}
@@ -309,8 +309,8 @@ services:
       - NASA_EARTHDATA_USERNAME=${NASA_EARTHDATA_USERNAME:-}
       - NASA_EARTHDATA_PASSWORD=${NASA_EARTHDATA_PASSWORD:-}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8090:8090"
     depends_on:
@@ -346,8 +346,8 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-pro-vegetation-analysis-service
     environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -390,8 +390,8 @@ services:
       - MODEL_PATH=/app/models/plant_disease.tflite
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8095:8095"
     volumes:
@@ -429,8 +429,8 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8094:8094"
     depends_on:
@@ -466,8 +466,8 @@ services:
       - PORT=8119
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8119:8119"
     depends_on:
@@ -503,8 +503,8 @@ services:
       - PORT=8152
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8152:8152"
     depends_on:
@@ -541,8 +541,8 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
-      - NATS_URL=nats://nats:4222
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
     ports:
       - "8093:8093"
     depends_on:
@@ -578,9 +578,9 @@ services:
       - PORT=8116
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:-sahool}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
-      - NATS_URL=nats://nats:4222
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "8116:8116"

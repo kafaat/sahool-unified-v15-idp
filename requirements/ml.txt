@@ -1,7 +1,7 @@
 # SAHOOL Machine Learning Requirements
 # =====================================
 # ML/AI dependencies for intelligent services
-# Updated: December 2025
+# Updated: February 2026
 
 # Include base requirements
 -r base.txt
@@ -10,7 +10,7 @@
 Pillow==11.3.0
 
 # Numerical Computing
-numpy==2.4.2
+numpy>=1.26.0,<2.5.0  # Aligned with constraints.txt for TensorFlow 2.20.0 compatibility
 
 # Machine Learning
 tensorflow-cpu==2.20.0

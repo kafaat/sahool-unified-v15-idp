@@ -159,7 +159,7 @@ services:
     - vegetation-analysis-service
   ndvi-processor:
     build:
-      context: ../../archive/deprecated-services/ndvi-processor
+      context: ../../apps/services/ndvi-processor
       dockerfile: Dockerfile
     ports:
     - 8118:8118

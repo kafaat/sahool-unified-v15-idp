@@ -540,7 +540,7 @@ services:
     - vegetation-analysis-service
   ndvi-processor:
     build:
-      context: ../../archive/deprecated-services/ndvi-processor
+      context: ../../apps/services/ndvi-processor
       dockerfile: Dockerfile
     ports:
     - 8118:8118
@@ -1119,16 +1119,16 @@ services:
       context: ../../apps/services/mcp-server
       dockerfile: Dockerfile
     ports:
-    - 8200:8200
+    - 8201:8201
     environment:
-    - PORT=8200
+    - PORT=8201
     - ENVIRONMENT=production
     healthcheck:
       test:
       - CMD
       - curl
       - -f
-      - http://localhost:8200/healthz
+      - http://localhost:8201/healthz
       interval: 30s
       timeout: 10s
       retries: 3

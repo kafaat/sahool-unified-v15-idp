@@ -7,7 +7,7 @@
 /// Note: These tests use an unencrypted in-memory database for testing
 /// as SQLCipher is not available in the test environment.
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 
 part 'migration_integration_test.g.dart';

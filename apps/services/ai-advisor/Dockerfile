@@ -55,7 +55,7 @@ prefer-binary = true
 EOF
 
 # Upgrade pip and build tools
-RUN pip install --no-cache-dir --upgrade \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
     pip>=24.0 \
     setuptools>=75.0 \
     wheel>=0.44.0 \
@@ -67,6 +67,7 @@ COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
 # Install Python dependencies | تثبيت تبعيات Python
 RUN pip install --no-cache-dir --timeout=300 --retries=10 \
+    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints-ai.txt \
     -r /tmp/requirements.txt
 

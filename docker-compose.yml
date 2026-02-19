@@ -1423,49 +1423,6 @@ services:
   # ⚠️ DEPRECATED: community_chat - Migrating to chat-service
   # This service is being consolidated into chat-service (Port 8114)
   # Kept temporarily for backwards compatibility
-  community-chat:
-    build:
-      context: .
-      dockerfile: apps/services/community-chat/Dockerfile
-    container_name: sahool-community-chat
-    environment:
-      - PORT=8097
-      - NODE_ENV=production
-      # FIX: Add sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-    ports:
-      - "127.0.0.1:8097:8097"
-    depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8097/healthz" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 384M
-        reservations:
-          cpus: '0.25'
-          memory: 128M
-    networks:
-      - sahool-network
-
   # User Service - Authentication & User Management
   # خدمة المستخدمين - المصادقة وإدارة المستخدمين
   user-service:
@@ -1979,51 +1936,6 @@ services:
       - sahool-network
 
   # Field Chat Service
-  field-chat:
-    build:
-      context: .
-      dockerfile: apps/services/field-chat/Dockerfile
-    container_name: sahool-field-chat
-    environment:
-      - PORT=8099
-      # FIX: Use standard postgresql scheme (service doesn't recognize postgresql+asyncpg)
-      # sslmode=disable since PgBouncer has TLS disabled in dev
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
-      - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
-      - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
-      - ENVIRONMENT=${ENVIRONMENT:-development}
-    ports:
-      - "127.0.0.1:8099:8099"
-    depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
-      nats:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8099/healthz')" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 15s
-    restart: unless-stopped
-    security_opt:
-      - no-new-privileges:true
-    deploy:
-      resources:
-        limits:
-          cpus: '0.50'
-          memory: 512M
-        reservations:
-          cpus: '0.25'
-          memory: 256M
-    networks:
-      - sahool-network
 
   # Equipment Service
   equipment-service:

@@ -34,7 +34,7 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip and build tools BEFORE configuring mirrors to avoid hash mismatch
-RUN pip install --no-cache-dir --upgrade \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
     pip>=24.0 \
     setuptools>=75.0 \
     wheel>=0.44.0
@@ -64,6 +64,7 @@ COPY --chown=sahool:sahool apps/services/weather-service/requirements.txt /tmp/r
 COPY --chown=sahool:sahool constraints.txt /tmp/constraints.txt
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     -c /tmp/constraints.txt -r /tmp/requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://mirrors.cloud.tencent.com/pypi/simple \

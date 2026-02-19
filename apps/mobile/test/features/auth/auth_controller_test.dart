@@ -35,6 +35,14 @@ void main() {
     mockBiometricService.setupDefaults();
     mockTokenManager.setupDefaults();
 
+    // Mock storeTokens and logout used by AuthService
+    when(() => mockTokenManager.storeTokens(
+      accessToken: any(named: 'accessToken'),
+      refreshToken: any(named: 'refreshToken'),
+      expiresIn: any(named: 'expiresIn'),
+    )).thenAnswer((_) async {});
+    when(() => mockTokenManager.logout()).thenAnswer((_) async {});
+
     authService = AuthService(
       secureStorage: mockSecureStorage,
       biometricService: mockBiometricService,

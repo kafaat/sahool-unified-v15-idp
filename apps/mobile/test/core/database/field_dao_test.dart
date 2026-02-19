@@ -10,7 +10,7 @@
 /// - Complex queries
 import 'dart:convert';
 
-import 'package:drift/drift.dart' hide isNotNull, isNull;
+import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -25,7 +25,7 @@ class GeoPolygonConverter extends TypeConverter<List<Map<String, double>>, Strin
   List<Map<String, double>> fromSql(String fromDb) {
     if (fromDb.isEmpty) return [];
     try {
-      final List<dynamic> jsonList = jsonDecode(fromDb);
+      final jsonList = jsonDecode(fromDb) as List<dynamic>;
       return jsonList.map((point) {
         if (point is List && point.length >= 2) {
           return {
@@ -56,7 +56,7 @@ class GeoPointConverter extends TypeConverter<Map<String, double>?, String?> {
   Map<String, double>? fromSql(String? fromDb) {
     if (fromDb == null || fromDb.isEmpty) return null;
     try {
-      final List<dynamic> point = jsonDecode(fromDb);
+      final point = jsonDecode(fromDb) as List<dynamic>;
       if (point.length >= 2) {
         return {
           'lng': (point[0] as num).toDouble(),

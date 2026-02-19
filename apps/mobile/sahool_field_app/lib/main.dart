@@ -133,8 +133,8 @@ void main() async {
                           category: 'security',
                           level: BreadcrumbLevel.warning,
                         );
-                        // Restart app initialization
-                        main();
+                        // Initialize app despite security warning (user accepted risk)
+                        _initializeApp(crashReporting);
                       },
               ),
             ),

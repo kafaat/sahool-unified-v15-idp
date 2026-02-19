@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -85,7 +86,7 @@ class AppRouter {
   static final GoRouter router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/home',
-    debugLogDiagnostics: true,
+    debugLogDiagnostics: kDebugMode, // Only enable in debug builds
 
     routes: [
       // ═══════════════════════════════════════════════════════════════════════

@@ -86,7 +86,7 @@ prefer-binary = true
 EOF
 
 # Upgrade pip, setuptools, wheel
-RUN pip install --no-cache-dir --upgrade \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com --upgrade \
     pip>=24.0 \
     setuptools>=75.0 \
     wheel>=0.44.0
@@ -96,7 +96,7 @@ COPY --chown=sahool:sahool docker/constraints-ai.txt /tmp/constraints-ai.txt
 
 # Install common AI dependencies from constraints
 # This layer is cached and reused across all AI services
-RUN pip install --no-cache-dir -c /tmp/constraints-ai.txt \
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -c /tmp/constraints-ai.txt \
     fastapi \
     uvicorn[standard] \
     pydantic \

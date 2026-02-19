@@ -849,10 +849,10 @@ services:
       dockerfile: Dockerfile
     container_name: sahool-mcp-server
     ports:
-    - 8200:8200
+    - 8201:8201
     environment:
     - NODE_ENV=${NODE_ENV:-development}
-    - PORT=8200
+    - PORT=8201
     - DATABASE_URL=${DATABASE_URL}
     - REDIS_URL=${REDIS_URL}
     - NATS_URL=${NATS_URL:-nats://nats:4222}
@@ -861,7 +861,7 @@ services:
       - CMD
       - curl
       - -f
-      - http://localhost:8200/healthz
+      - http://localhost:8201/healthz
       interval: 30s
       timeout: 10s
       retries: 3
@@ -878,7 +878,7 @@ services:
     restart: unless-stopped
     labels:
     - sahool.service=mcp-server
-    - sahool.port=8200
+    - sahool.port=8201
     - sahool.category=integration
     - traefik.enable=true
     - traefik.http.routers.mcp-server.rule=PathPrefix(`/api/v1/mcp/server`)
@@ -1081,7 +1081,7 @@ services:
     - traefik.http.routers.ws-gateway.rule=PathPrefix(`/api/v1/ws/gateway`)
   ndvi-processor:
     build:
-      context: ./archive/deprecated-services/ndvi-processor
+      context: ./apps/services/ndvi-processor
       dockerfile: Dockerfile
     container_name: sahool-ndvi-processor
     ports:

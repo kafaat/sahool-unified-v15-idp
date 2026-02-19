@@ -108,7 +108,7 @@ services:
       prometheus.io/port: '3022'
       prometheus.io/path: /metrics
   yield-prediction:
-    enabled: true
+    enabled: false
     name: yield-prediction
     image:
       repository: ghcr.io/kafaat/sahool-yield-prediction
@@ -627,7 +627,7 @@ services:
       tag: latest
       pullPolicy: IfNotPresent
     replicaCount: 1
-    port: 8200
+    port: 8201
     healthCheck:
       path: /healthz
       initialDelaySeconds: 30
@@ -643,13 +643,13 @@ services:
     - name: NODE_ENV
       value: production
     - name: PORT
-      value: '8200'
+      value: '8201'
     serviceAccount:
       create: true
       name: sahool-mcp-server
     podAnnotations:
       prometheus.io/scrape: 'true'
-      prometheus.io/port: '8200'
+      prometheus.io/port: '8201'
       prometheus.io/path: /metrics
   agro-rules:
     enabled: true
@@ -812,7 +812,7 @@ services:
       prometheus.io/port: '8081'
       prometheus.io/path: /metrics
   ndvi-processor:
-    enabled: false
+    enabled: true
     name: ndvi-processor
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-processor
@@ -2804,7 +2804,7 @@ ingress:
     - path: /api/v1/mcp/server
       pathType: Prefix
       service: mcp-server
-      port: 8200
+      port: 8201
     - path: /api/v1/agro/rules
       pathType: Prefix
       service: agro-rules

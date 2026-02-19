@@ -76,7 +76,7 @@ abstract final class ServicePorts {
   static const int fertigationEngine = 8252;
   static const int irrigationCycleEngine = 8250;
   static const int digitalTwin = 8253;
-  static const int mcpServer = 8200;
+  static const int mcpServer = 8201;
   static const int demoData = 8261;
   static const int kongGateway = 8000;
   static const int kongAdmin = 8001;

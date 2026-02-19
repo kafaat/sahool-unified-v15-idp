@@ -2216,6 +2216,7 @@ services:
     port: 8145
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, ai-agents]  # Not started by default
     status: active
     owner: "data-team@sahool.io"
     team: data
@@ -2475,6 +2476,7 @@ services:
     port: 8183  # Changed from 8180 (conflict with edge-orchestrator) to 8183
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, integrations]  # Not started by default
     status: active
     owner: "iot-team@sahool.io"
     team: iot
@@ -2895,6 +2897,7 @@ services:
     port: 8240
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, integrations]  # Not started by default
     status: active
     owner: "platform-team@sahool.io"
     team: platform
@@ -3107,6 +3110,7 @@ services:
     port: 8260
     protocol: http
     health_endpoint: "/healthz"
+    docker_compose_profiles: [optional, ai]  # Not started by default
     status: active
     owner: "platform-team@sahool.io"
     team: platform

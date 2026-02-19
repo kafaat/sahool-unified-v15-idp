@@ -3,7 +3,7 @@ SAHOOL NDVI Processor - Data Models
 نماذج بيانات معالج NDVI
 """
 
-from enum import Enum, StrEnum
+from enum import StrEnum
 from typing import Any
 
 from pydantic import BaseModel, Field

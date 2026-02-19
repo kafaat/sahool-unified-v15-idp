@@ -60,8 +60,8 @@ jobs:
 
       - name: Clean previous builds
         run: |
-          rm -rf packages/*/dist packages/*/build
-          echo "✅ Cleaned previous package builds"
+          rm -rf packages/*/dist packages/*/build packages/*/tsconfig.tsbuildinfo
+          echo "✅ Cleaned previous package builds (including tsbuildinfo cache)"
 
       - name: Build shared packages
         run: |

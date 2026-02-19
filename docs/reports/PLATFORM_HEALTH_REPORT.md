@@ -60,7 +60,7 @@ Five levels of verification were performed:
 
 | Service | Reason |
 |---------|--------|
-| `ndvi-processor` | Missing src/main.py - incomplete service |
+| `ndvi-processor` | Previously missing src/main.py; now restored with complete implementation |
 | `code-review-agent` | Node.js - missing some expected files |
 | Various | Service-specific expected skips |
 
@@ -225,8 +225,8 @@ Five levels of verification were performed:
 
 | # | Finding | Impact | Services Affected |
 |---|---------|--------|-------------------|
-| C1 | **Port 8200 conflict** between vault and mcp-server | Cannot run simultaneously | vault, mcp-server |
-| C2 | **ndvi-processor incomplete** - missing src/main.py | Service non-functional | ndvi-processor |
+| - | ~~Port 8200 conflict~~ **RESOLVED** - mcp-server migrated to port 8201 | N/A | vault, mcp-server |
+| - | ~~ndvi-processor incomplete~~ **RESOLVED** - service restored with full src/ | N/A | ndvi-processor |
 
 ### 7.2 High Priority Findings
 
@@ -256,42 +256,13 @@ Five levels of verification were performed:
 
 ### 8.1 Critical (Immediate)
 
-#### R1: Resolve Port 8200 Conflict
+#### R1: ~~Resolve Port 8200 Conflict~~ RESOLVED
 
-**Problem**: Both `vault` and `mcp-server` bind to port 8200.
+**Status**: Fixed in this PR. mcp-server migrated from port 8200 to 8201 across all configs.
 
-**Solution**: Change mcp-server to use a different port.
+#### R2: ~~Complete ndvi-processor Service~~ RESOLVED
 
-```yaml
-# docker-compose.yml - mcp-server
-ports:
-  - "127.0.0.1:8201:8200"  # Changed from 8200 to 8201
-```
-
-Or use Docker profiles to prevent simultaneous startup:
-
-```yaml
-mcp-server:
-  profiles:
-    - mcp
-```
-
-#### R2: Complete ndvi-processor Service
-
-**Problem**: Service has Dockerfile and tests but no `src/main.py`.
-
-**Solution**: Either implement the service or remove it from docker-compose.yml and mark as deprecated.
-
-```python
-# apps/services/ndvi-processor/src/main.py
-from fastapi import FastAPI
-
-app = FastAPI(title="NDVI Processor", version="16.0.0")
-
-@app.get("/healthz")
-def health():
-    return {"status": "ok", "service": "ndvi-processor", "version": "16.0.0"}
-```
+**Status**: Fixed in this PR. ndvi-processor restored under `apps/services/ndvi-processor/` with complete FastAPI implementation (mock/dev data, 10+ endpoints). Note: processing logic uses in-memory mock data suitable for development/testing.
 
 ---
 

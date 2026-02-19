@@ -7,7 +7,7 @@ Port: 8118
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 

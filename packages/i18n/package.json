@@ -17,7 +17,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "rm -f tsconfig.tsbuildinfo && tsc",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

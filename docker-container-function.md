@@ -140,7 +140,7 @@
 | 55 | **wechat-service** | Python/FastAPI | 8133 | 10+ (WeChat messaging) | **FULLY FUNCTIONAL** |
 | 56 | **whatsapp-bot-service** | Python/FastAPI | 8240 | 5+ (WhatsApp + LLM + vision) | **FULLY FUNCTIONAL** |
 | 57 | **ussd-gateway** | Python/FastAPI | 8183 | 11 (USSD/SMS/WhatsApp) | **FULLY FUNCTIONAL** |
-| 58 | **mcp-server** | Python/FastAPI | 8200 | 6+ (Model Context Protocol) | **FULLY FUNCTIONAL** |
+| 58 | **mcp-server** | Python/FastAPI | 8201 | 6+ (Model Context Protocol) | **FULLY FUNCTIONAL** |
 
 ### 2.8 Partially Functional Services
 

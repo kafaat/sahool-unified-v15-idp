@@ -1095,10 +1095,10 @@ services:
     port: 8118
     protocol: http
     health_endpoint: "/healthz"
-    status: active  # Restored from archive with complete src/
+    status: active  # Restored from archive with complete src/ (mock/dev implementation)
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: development  # Mock implementation - not yet production-ready
     tier: tier-2
     events:
       produces:

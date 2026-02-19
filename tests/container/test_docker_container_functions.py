@@ -3,7 +3,7 @@ SAHOOL Docker Container Function Tests
 =======================================
 Comprehensive tests validating Docker container definitions, Dockerfiles,
 service completeness, and the categorization documented in
-docker-contianer-function.md.
+docker-container-function.md.
 
 Tests cover:
 1. Container structure validation (docker-compose.yml integrity)
@@ -12,7 +12,6 @@ Tests cover:
 4. Docker-compose cross-file consistency
 """
 
-import os
 import re
 from pathlib import Path
 
@@ -56,6 +55,7 @@ PYTHON_SERVICES = [
     "ai-advisor",
     "ai-agents-core",
     "ai-agents-service",
+    "ai-chat-assistant",
     "alert-service",
     "astronomical-calendar",
     "audit-service",
@@ -139,7 +139,7 @@ MIN_MAIN_LINES_THRESHOLD = 50
 
 def _load_compose(path: Path) -> dict:
     """Load and parse a docker-compose YAML file."""
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -425,7 +425,7 @@ class TestNodeServiceDirectories:
 class TestServiceNotPassThrough:
     """
     Verify services have REAL business logic and are not just pass-through stubs.
-    This is the core test matching the analysis in docker-contianer-function.md.
+    This is the core test matching the analysis in docker-container-function.md.
     """
 
     @pytest.mark.parametrize("service_name", PYTHON_SERVICES)
@@ -728,7 +728,7 @@ class TestComposeServiceDependencies:
 
 class TestContainerCategorization:
     """
-    Validate the 4-category classification from docker-contianer-function.md.
+    Validate the 4-category classification from docker-container-function.md.
     Ensures every service in docker-compose.yml is accounted for.
     """
 
@@ -757,7 +757,7 @@ class TestContainerCategorization:
         categorized = self._categorized_services()
         uncategorized = all_services - categorized
         # Allow some tolerance for special containers
-        allowed_uncategorized = {"ussd-gateway", "whatsapp-bot-service", "ai-chat-assistant"}
+        allowed_uncategorized = {"ussd-gateway", "whatsapp-bot-service"}
         truly_uncategorized = uncategorized - allowed_uncategorized
         # Filter out containers already in our lists
         truly_uncategorized = {
@@ -899,12 +899,12 @@ class TestConfigurationFiles:
 
 
 class TestDockerDocumentation:
-    """Validate the docker-contianer-function.md documentation file."""
+    """Validate the docker-container-function.md documentation file."""
 
-    DOC_FILE = REPO_ROOT / "docker-contianer-function.md"
+    DOC_FILE = REPO_ROOT / "docker-container-function.md"
 
     def test_documentation_file_exists(self):
-        """docker-contianer-function.md must exist."""
+        """docker-container-function.md must exist."""
         assert self.DOC_FILE.exists()
 
     def test_documentation_has_four_sections(self):

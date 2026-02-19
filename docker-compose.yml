@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL v16.0.0 Unified Docker Compose
-# Complete platform deployment with ALL 43 services + 4 optional + infrastructure (v3.1: +4 optional profile services)
+# Complete platform deployment with all core, optional, and infrastructure services (v3.1: +4 optional profile services)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 services:
@@ -3970,7 +3970,7 @@ services:
     environment:
       - NODE_ENV=production
       - LOG_LEVEL=${LOG_LEVEL:-info}
-    restart: unless-stopped
+    restart: "no"
     security_opt:
       - no-new-privileges:true
     deploy:

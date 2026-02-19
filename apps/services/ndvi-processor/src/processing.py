@@ -5,7 +5,7 @@ SAHOOL NDVI Processor - Processing Logic
 
 import os
 import random
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 from .models import (
@@ -24,7 +24,11 @@ from .models import (
     ZoneChange,
 )
 
-# ============== Mock Data Store ==============
+# ============== Mock Data Store (in-memory, dev/test only) ==============
+# NOTE: This module provides a mock, in-memory implementation intended for
+# development and testing. State does not persist across restarts and results
+# are non-deterministic. For production use, replace with database-backed
+# storage and real satellite processing pipelines.
 
 _jobs: dict[str, dict] = {}
 _results: dict[str, list[dict]] = {}  # field_id -> [NDVIResult]

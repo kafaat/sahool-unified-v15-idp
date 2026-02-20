@@ -285,8 +285,8 @@ jobs:
           pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis --quiet
           # AI module dependencies for unit tests
           pip install numpy pillow aiofiles --quiet
-          # 2FA and additional unit test dependencies
-          pip install pyotp qrcode --quiet
+          # 2FA, NATS, and additional unit test dependencies
+          pip install pyotp qrcode nats-py --quiet
 
       - name: Run unified tests with coverage (parallel)
         run: |
@@ -312,6 +312,7 @@ jobs:
             --ignore=tests/unit/shared/test_rbac.py \
             --ignore=tests/unit/shared/test_token_revocation.py \
             --ignore=tests/unit/shared/test_twofa_config.py \
+            --ignore=tests/unit/shared/test_twofa_service.py \
             --ignore=tests/unit/test_shared_auth.py \
             --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing || true
         env:

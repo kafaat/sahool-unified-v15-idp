@@ -2909,9 +2909,10 @@ async def create_refund(
 
         await repo.invoices.update(invoice.id, **update_kwargs)
 
+    safe_reason = str(request.reason).replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
     logger.info(
         f"Refund processed: payment={payment.id}, amount={refund_amount}, "
-        f"full={is_full_refund}, reason={request.reason}"
+        f"full={is_full_refund}, reason={safe_reason}"
     )
 
     # Publish refund event
@@ -3040,8 +3041,8 @@ async def tharwatt_webhook(
     if payload.reference:
         try:
             payment = await repo.payments.get_by_id(uuid.UUID(payload.reference))
-        except (ValueError, AttributeError):
-            pass
+        except (ValueError, AttributeError) as e:
+            logger.warning(f"Failed to resolve payment reference {payload.reference}: {e}")
 
     if not payment:
         logger.warning(f"Tharwatt webhook: Payment not found for reference {payload.reference}")

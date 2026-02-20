@@ -501,7 +501,7 @@ export class WalletService {
 
     const hashedPin = this.hashPin(pin);
 
-    const updatedWallet = await this.prisma.wallet.update({
+    await this.prisma.wallet.update({
       where: { id: walletId },
       data: { pin: hashedPin },
     });

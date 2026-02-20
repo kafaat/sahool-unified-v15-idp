@@ -1080,7 +1080,7 @@ class TestEdgeCasesExtremeWeather:
 
     @pytest.mark.unit
     def test_extreme_heat_wave(self, sample_soil, sample_crop):
-        """Test prediction during extreme heat wave"""
+        """Test prediction during extreme heat wave with depleted soil"""
         predictor = IrrigationPredictor()
 
         weather_extreme = WeatherFeatures(
@@ -1097,9 +1097,24 @@ class TestEdgeCasesExtremeWeather:
             et0=12.0,  # Very high ET
         )
 
+        # Use highly depleted soil to trigger irrigation need
+        # depletion_fraction = (45 - 20) / (45 - 15) = 0.833 > allowable 0.45
+        depleted_soil = SoilFeatures(
+            moisture_current=20.0,  # Well below field capacity
+            moisture_field_capacity=sample_soil.moisture_field_capacity,
+            moisture_wilting_point=sample_soil.moisture_wilting_point,
+            moisture_depth_cm=sample_soil.moisture_depth_cm,
+            soil_type=sample_soil.soil_type,
+            infiltration_rate=sample_soil.infiltration_rate,
+            water_holding_capacity=sample_soil.water_holding_capacity,
+            ec=sample_soil.ec,
+            ph=sample_soil.ph,
+            soil_temperature=sample_soil.soil_temperature,
+        )
+
         features = IrrigationFeatures(
             weather=weather_extreme,
-            soil=sample_soil,
+            soil=depleted_soil,
             crop=sample_crop,
             irrigation_type=IrrigationType.DRIP,
             system_efficiency=0.90,

@@ -366,11 +366,8 @@ export default function CopilotPage() {
     setMessages([WELCOME_MESSAGE]);
     setError(null);
     setIsStreaming(false);
-    // Rotate session
-    if (typeof window !== "undefined") {
-      const newId = generateSessionId();
-      sessionStorage.setItem("sahool_copilot_session_id", newId);
-    }
+    // Rotate session (in-memory only, no storage persistence)
+    _cachedSessionId = generateSessionId();
   };
 
   const handleRetry = () => {

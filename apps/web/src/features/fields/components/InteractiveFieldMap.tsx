@@ -15,7 +15,7 @@
  * - Interactive click handlers / معالجات النقر التفاعلية
  */
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -25,11 +25,21 @@ import {
   LayersControl,
   ZoomControl,
   useMapEvents,
+  useMap,
   Circle,
 } from "react-leaflet";
 import type { LatLngExpression, LatLngTuple } from "leaflet";
 import L from "leaflet";
-import { Layers, Cloud, Droplets, Thermometer, Wind } from "lucide-react";
+import {
+  Layers,
+  Cloud,
+  Droplets,
+  Thermometer,
+  Wind,
+  Maximize2,
+  Minimize2,
+  Ruler,
+} from "lucide-react";
 import type { Field, GeoPolygon, GeoPoint } from "../types";
 import type { Task, TaskStatus, Priority } from "../../tasks/types";
 import type { WeatherData } from "@sahool/api-client";
@@ -153,6 +163,39 @@ const getHealthColor = (score: number): string => {
 };
 
 /**
+ * Arabic labels for health zone status
+ * التسميات العربية لحالة منطقة الصحة
+ */
+const HEALTH_STATUS_LABELS: Record<string, string> = {
+  healthy: "صحي",
+  moderate: "متوسط",
+  stressed: "مجهد",
+  critical: "حرج",
+};
+
+/**
+ * Arabic labels for task status
+ * التسميات العربية لحالة المهمة
+ */
+const TASK_STATUS_LABELS: Record<string, string> = {
+  pending: "معلق",
+  in_progress: "قيد التنفيذ",
+  completed: "مكتمل",
+  cancelled: "ملغي",
+};
+
+/**
+ * Arabic labels for task priority
+ * التسميات العربية لأولوية المهمة
+ */
+const TASK_PRIORITY_LABELS: Record<string, string> = {
+  urgent: "عاجل",
+  high: "عالي",
+  medium: "متوسط",
+  low: "منخفض",
+};
+
+/**
  * Get task marker color based on priority and status
  * الحصول على لون علامة المهمة بناءً على الأولوية والحالة
  */
@@ -223,6 +266,64 @@ const MapEventsHandler: React.FC<MapEventsHandlerProps> = ({ onMapClick }) => {
     },
   });
   return null;
+};
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Fullscreen Control Component / مكون التحكم في وضع ملء الشاشة
+// ═══════════════════════════════════════════════════════════════════════════
+
+interface FullscreenControlProps {
+  containerRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const FullscreenControl: React.FC<FullscreenControlProps> = ({
+  containerRef,
+}) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const map = useMap();
+
+  const toggleFullscreen = useCallback(() => {
+    if (!containerRef.current) return;
+
+    if (!isFullscreen) {
+      containerRef.current.requestFullscreen?.();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen?.();
+      setIsFullscreen(false);
+    }
+
+    // Invalidate map size after transition
+    setTimeout(() => map.invalidateSize(), 200);
+  }, [isFullscreen, containerRef, map]);
+
+  // Listen for fullscreen change events
+  React.useEffect(() => {
+    const handler = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+      setTimeout(() => map.invalidateSize(), 200);
+    };
+    document.addEventListener("fullscreenchange", handler);
+    return () => document.removeEventListener("fullscreenchange", handler);
+  }, [map]);
+
+  return (
+    <div className="leaflet-top leaflet-right" style={{ marginTop: "80px" }}>
+      <div className="leaflet-control leaflet-bar">
+        <button
+          onClick={toggleFullscreen}
+          className="flex items-center justify-center w-[30px] h-[30px] bg-white hover:bg-gray-100 border-none cursor-pointer"
+          title={isFullscreen ? "تصغير" : "ملء الشاشة"}
+        >
+          {isFullscreen ? (
+            <Minimize2 className="w-4 h-4 text-gray-700" />
+          ) : (
+            <Maximize2 className="w-4 h-4 text-gray-700" />
+          )}
+        </button>
+      </div>
+    </div>
+  );
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -361,6 +462,8 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
   // State Management / إدارة الحالة
   // ─────────────────────────────────────────────────────────────────────────
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [activeLayers, setActiveLayers] = useState<LayerConfig>({
     fields: true,
     ndvi: true,
@@ -448,6 +551,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
 
   return (
     <div
+      ref={containerRef}
       className={`relative rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg ${className}`}
       style={{ height }}
     >
@@ -481,6 +585,9 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
 
         {/* Zoom Controls / أدوات التكبير */}
         <ZoomControl position="bottomright" />
+
+        {/* Fullscreen Control / التحكم في ملء الشاشة */}
+        <FullscreenControl containerRef={containerRef} />
 
         {/* Map Click Events / أحداث النقر على الخريطة */}
         <MapEventsHandler onMapClick={onMapClick} />
@@ -577,12 +684,20 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2">
+                  <div className="p-2 min-w-[200px]" dir="rtl">
                     <h4 className="font-bold text-gray-900 mb-2">منطقة صحة</h4>
                     <div className="space-y-1 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">الحالة:</span>
-                        <span className="font-semibold">{zone.status}</span>
+                        <span
+                          className="font-semibold px-2 py-0.5 rounded-full text-xs"
+                          style={{
+                            backgroundColor: `${zone.color || getHealthColor(zone.healthScore)}20`,
+                            color: zone.color || getHealthColor(zone.healthScore),
+                          }}
+                        >
+                          {HEALTH_STATUS_LABELS[zone.status] || zone.status}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600">درجة الصحة:</span>
@@ -624,7 +739,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                 {...({} as any)}
               >
                 <Popup>
-                  <div className="p-2 min-w-[200px]">
+                  <div className="p-2 min-w-[200px]" dir="rtl">
                     <h4 className="font-bold text-gray-900 mb-2">
                       {task.title_ar || task.title}
                     </h4>
@@ -640,7 +755,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                                 : "bg-gray-100 text-gray-800"
                           }`}
                         >
-                          {task.status}
+                          {TASK_STATUS_LABELS[task.status] || task.status}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -656,7 +771,7 @@ export const InteractiveFieldMap: React.FC<InteractiveFieldMapProps> = ({
                                   : "bg-blue-100 text-blue-800"
                           }`}
                         >
-                          {task.priority}
+                          {TASK_PRIORITY_LABELS[task.priority] || task.priority}
                         </span>
                       </div>
                       {task.due_date && (

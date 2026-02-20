@@ -89,6 +89,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
   const [, setSelectedField] = useState<string | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [fields, setFields] = useState<Field[]>(propFields || []);
+  const [activeBaseLayer, setActiveBaseLayer] = useState<"osm" | "satellite">("osm");
 
   // Fetch fields if not provided
   useEffect(() => {
@@ -112,7 +113,7 @@ const MapView = React.memo<MapViewProps>(function MapView({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Initialize map centered on Yemen
+    // Initialize map centered on Yemen with both OSM and Satellite sources
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: {
@@ -124,12 +125,28 @@ const MapView = React.memo<MapViewProps>(function MapView({
             tileSize: 256,
             attribution: "&copy; OpenStreetMap contributors",
           },
+          satellite: {
+            type: "raster",
+            tiles: [
+              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+            ],
+            tileSize: 256,
+            attribution: "&copy; Esri, Maxar, Earthstar Geographics",
+          },
         },
         layers: [
           {
             id: "osm",
             type: "raster",
             source: "osm",
+          },
+          {
+            id: "satellite",
+            type: "raster",
+            source: "satellite",
+            layout: {
+              visibility: "none",
+            },
           },
         ],
       },
@@ -161,6 +178,19 @@ const MapView = React.memo<MapViewProps>(function MapView({
       }
     };
   }, []);
+
+  // Handle base layer switching
+  useEffect(() => {
+    if (!map.current || !mapLoaded) return;
+
+    if (activeBaseLayer === "satellite") {
+      map.current.setLayoutProperty("osm", "visibility", "none");
+      map.current.setLayoutProperty("satellite", "visibility", "visible");
+    } else {
+      map.current.setLayoutProperty("osm", "visibility", "visible");
+      map.current.setLayoutProperty("satellite", "visibility", "none");
+    }
+  }, [activeBaseLayer, mapLoaded]);
 
   // Update fields on map when data changes
   useEffect(() => {
@@ -345,6 +375,30 @@ const MapView = React.memo<MapViewProps>(function MapView({
   return (
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="w-full h-full" />
+
+      {/* Base Layer Toggle */}
+      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-1.5 flex gap-1">
+        <button
+          onClick={() => setActiveBaseLayer("osm")}
+          className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+            activeBaseLayer === "osm"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          خريطة
+        </button>
+        <button
+          onClick={() => setActiveBaseLayer("satellite")}
+          className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+            activeBaseLayer === "satellite"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+        >
+          قمر صناعي
+        </button>
+      </div>
 
       {/* Legend */}
       <div className="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3">

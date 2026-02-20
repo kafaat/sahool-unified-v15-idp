@@ -2,6 +2,7 @@
 
 // Satellite Map Component
 // خريطة البيانات الفضائية
+// Updated: supports actual satellite imagery tiles with layer switching
 
 import { useEffect, useRef, useState } from "react";
 
@@ -21,16 +22,37 @@ interface SatelliteMapProps {
   onFieldClick?: (fieldId: string) => void;
 }
 
+// Tile layer definitions
+const TILE_LAYERS = {
+  satellite: {
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "© Esri, Maxar, Earthstar Geographics",
+    label: "صور فضائية",
+  },
+  osm: {
+    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: "© OpenStreetMap contributors",
+    label: "خريطة الشوارع",
+  },
+  terrain: {
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution: "© OpenTopoMap contributors",
+    label: "التضاريس",
+  },
+} as const;
+
+type LayerType = keyof typeof TILE_LAYERS;
+
 export default function SatelliteMap({
   fields,
   selectedFieldId,
   onFieldClick,
 }: SatelliteMapProps) {
-   
   const mapRef = useRef<any>(null);
-   
+  const tileLayerRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
   const [isClient, setIsClient] = useState(false);
+  const [activeLayer, setActiveLayer] = useState<LayerType>("satellite");
 
   useEffect(() => {
     setIsClient(true);
@@ -45,6 +67,24 @@ export default function SatelliteMap({
       document.head.removeChild(link);
     };
   }, []);
+
+  // Handle tile layer switching
+  useEffect(() => {
+    if (!mapRef.current || !tileLayerRef.current) return;
+
+    const L = (window as any).L;
+    if (!L) return;
+
+    // Remove current tile layer
+    mapRef.current.removeLayer(tileLayerRef.current);
+
+    // Add new tile layer
+    const layerConfig = TILE_LAYERS[activeLayer];
+    tileLayerRef.current = L.tileLayer(layerConfig.url, {
+      attribution: layerConfig.attribution,
+      maxZoom: 18,
+    }).addTo(mapRef.current);
+  }, [activeLayer]);
 
   useEffect(() => {
     if (!isClient) return;
@@ -61,9 +101,10 @@ export default function SatelliteMap({
           zoomControl: true,
         });
 
-        // Add tile layer
-        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-          attribution: "© OpenStreetMap contributors",
+        // Start with satellite tile layer
+        const layerConfig = TILE_LAYERS[activeLayer];
+        tileLayerRef.current = L.tileLayer(layerConfig.url, {
+          attribution: layerConfig.attribution,
           maxZoom: 18,
         }).addTo(map);
 
@@ -84,7 +125,7 @@ export default function SatelliteMap({
           {
             radius: selectedFieldId === field.id ? 12 : 8,
             fillColor: color,
-            color: "#fff",
+            color: selectedFieldId === field.id ? "#1e40af" : "#fff",
             weight: selectedFieldId === field.id ? 3 : 2,
             opacity: 1,
             fillOpacity: 0.8,
@@ -93,7 +134,8 @@ export default function SatelliteMap({
 
         // SECURITY: Use DOM methods to prevent XSS from user data
         const popupContent = document.createElement("div");
-        popupContent.style.cssText = "direction: rtl; text-align: right; min-width: 200px;";
+        popupContent.style.cssText =
+          "direction: rtl; text-align: right; min-width: 220px;";
 
         const title = document.createElement("h3");
         title.style.cssText = "margin: 0 0 8px 0; font-weight: bold;";
@@ -104,18 +146,24 @@ export default function SatelliteMap({
         subtitle.textContent = field.fieldName;
 
         const hr = document.createElement("hr");
-        hr.style.cssText = "margin: 8px 0; border: none; border-top: 1px solid #eee;";
+        hr.style.cssText =
+          "margin: 8px 0; border: none; border-top: 1px solid #eee;";
 
-        const trendText = field.ndvi.trend === "up" ? "↑ صاعد" : field.ndvi.trend === "down" ? "↓ هابط" : "→ ثابت";
+        const trendText =
+          field.ndvi.trend === "up"
+            ? "↑ صاعد"
+            : field.ndvi.trend === "down"
+              ? "↓ هابط"
+              : "→ ثابت";
 
-        // SECURITY: Use DOM methods instead of innerHTML to prevent XSS
         popupContent.appendChild(title);
         popupContent.appendChild(subtitle);
         popupContent.appendChild(hr);
 
         // Current NDVI row
         const currentRow = document.createElement("div");
-        currentRow.style.cssText = "display: flex; justify-content: space-between; margin-bottom: 4px;";
+        currentRow.style.cssText =
+          "display: flex; justify-content: space-between; margin-bottom: 4px;";
         const currentLabel = document.createElement("span");
         currentLabel.textContent = "NDVI الحالي:";
         const currentValue = document.createElement("strong");
@@ -127,7 +175,8 @@ export default function SatelliteMap({
 
         // Average row
         const avgRow = document.createElement("div");
-        avgRow.style.cssText = "display: flex; justify-content: space-between; margin-bottom: 4px;";
+        avgRow.style.cssText =
+          "display: flex; justify-content: space-between; margin-bottom: 4px;";
         const avgLabel = document.createElement("span");
         avgLabel.textContent = "المتوسط:";
         const avgValue = document.createElement("strong");
@@ -138,7 +187,8 @@ export default function SatelliteMap({
 
         // Trend row
         const trendRow = document.createElement("div");
-        trendRow.style.cssText = "display: flex; justify-content: space-between;";
+        trendRow.style.cssText =
+          "display: flex; justify-content: space-between; margin-bottom: 4px;";
         const trendLabel = document.createElement("span");
         trendLabel.textContent = "الاتجاه:";
         const trendValue = document.createElement("strong");
@@ -146,6 +196,20 @@ export default function SatelliteMap({
         trendRow.appendChild(trendLabel);
         trendRow.appendChild(trendValue);
         popupContent.appendChild(trendRow);
+
+        // Health status row
+        const healthLabel = getHealthLabel(ndvi);
+        const statusRow = document.createElement("div");
+        statusRow.style.cssText =
+          "display: flex; justify-content: space-between; margin-top: 4px;";
+        const statusLabel = document.createElement("span");
+        statusLabel.textContent = "الحالة:";
+        const statusValue = document.createElement("strong");
+        statusValue.style.cssText = `color: ${color}; padding: 2px 8px; border-radius: 9999px; background: ${color}20; font-size: 12px;`;
+        statusValue.textContent = healthLabel;
+        statusRow.appendChild(statusLabel);
+        statusRow.appendChild(statusValue);
+        popupContent.appendChild(statusRow);
 
         marker.bindPopup(popupContent);
 
@@ -179,7 +243,7 @@ export default function SatelliteMap({
         mapRef.current = null;
       }
     };
-  }, [isClient, fields, selectedFieldId, onFieldClick]);
+  }, [isClient, fields, selectedFieldId, onFieldClick, activeLayer]);
 
   if (!isClient) {
     return (
@@ -193,12 +257,70 @@ export default function SatelliteMap({
   }
 
   return (
-    <div
-      id="satellite-map"
-      className="w-full h-full"
-      role="region"
-      aria-label="خريطة البيانات الفضائية - Satellite Map"
-    />
+    <div className="relative w-full h-full">
+      <div
+        id="satellite-map"
+        className="w-full h-full"
+        role="region"
+        aria-label="خريطة البيانات الفضائية - Satellite Map"
+      />
+
+      {/* Layer Switcher */}
+      <div className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-2">
+        <div className="flex gap-1">
+          {(Object.keys(TILE_LAYERS) as LayerType[]).map((layerKey) => (
+            <button
+              key={layerKey}
+              onClick={() => setActiveLayer(layerKey)}
+              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
+                activeLayer === layerKey
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+            >
+              {TILE_LAYERS[layerKey].label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* NDVI Legend */}
+      <div className="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3">
+        <h4 className="text-xs font-bold text-gray-700 mb-2">
+          مؤشر الغطاء النباتي
+        </h4>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#2E7D32" }}
+            ></span>
+            <span>ممتاز (NDVI &gt; 0.7)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#4CAF50" }}
+            ></span>
+            <span>جيد (0.5 - 0.7)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#FDD835" }}
+            ></span>
+            <span>متوسط (0.3 - 0.5)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: "#F44336" }}
+            ></span>
+            <span>ضعيف (&lt; 0.3)</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -207,4 +329,11 @@ function getNDVIColor(ndvi: number): string {
   if (ndvi >= 0.5) return "#4CAF50"; // Green
   if (ndvi >= 0.3) return "#FDD835"; // Yellow
   return "#F44336"; // Red
+}
+
+function getHealthLabel(ndvi: number): string {
+  if (ndvi >= 0.7) return "ممتاز";
+  if (ndvi >= 0.5) return "جيد";
+  if (ndvi >= 0.3) return "متوسط";
+  return "ضعيف";
 }

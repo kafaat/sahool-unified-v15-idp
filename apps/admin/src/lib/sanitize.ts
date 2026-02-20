@@ -14,21 +14,24 @@
 export function sanitizeInput(input: string): string {
     if (typeof input !== "string") return input;
 
-    // Remove HTML tags using regex
-    let sanitized = input.replace(/<[^>]*>/g, "");
+    // Remove null bytes and control characters first (except newlines and tabs)
+    // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
+    let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-    // Decode common HTML entities
+    // Decode HTML entities BEFORE stripping tags, so encoded tags like
+    // &lt;script&gt; are decoded first, then stripped in the next step.
+    // This prevents the incomplete sanitization where entity decoding
+    // after tag removal could reconstruct dangerous HTML.
     sanitized = sanitized
+        .replace(/&#x27;/g, "'")
+        .replace(/&#x2F;/g, "/")
+        .replace(/&quot;/g, '"')
         .replace(/&lt;/g, "<")
         .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&")
-        .replace(/&quot;/g, '"')
-        .replace(/&#x27;/g, "'")
-        .replace(/&#x2F;/g, "/");
+        .replace(/&amp;/g, "&");
 
-    // Remove null bytes and control characters (except newlines and tabs)
-    // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
-    sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+    // Remove HTML tags AFTER entity decoding to catch decoded tags
+    sanitized = sanitized.replace(/<[^>]*>/g, "");
 
     // Remove any script-like content
     sanitized = sanitized.replace(/javascript:/gi, "");
@@ -54,8 +57,11 @@ export function sanitizeHtml(
         return sanitizeInput(html);
     }
 
-    // Build regex pattern for allowed tags
-    const allowedPattern = allowedTags.join("|");
+    // Escape regex metacharacters in tag names to prevent regex injection
+    const escapedTags = allowedTags.map((tag) =>
+        tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+    );
+    const allowedPattern = escapedTags.join("|");
     const tagRegex = new RegExp(
         `<(?!\\/?(${allowedPattern})\\b)[^>]*>`,
         "gi"

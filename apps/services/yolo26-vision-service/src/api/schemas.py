@@ -101,6 +101,58 @@ PEST_CLASSES: dict[int, BilingualLabel] = {
     21: BilingualLabel(
         en="Citrus Psyllid", ar="سيليد الحمضيات", scientific_name="Diaphorina citri"
     ),
+    # Phase 1: Crop-Specific Pests
+    22: BilingualLabel(
+        en="Colorado Potato Beetle",
+        ar="خنفساء كولورادو",
+        scientific_name="Leptinotarsa decemlineata",
+    ),
+    23: BilingualLabel(
+        en="Fall Armyworm",
+        ar="دودة الحشد الخريفية",
+        scientific_name="Spodoptera frugiperda",
+    ),
+    24: BilingualLabel(
+        en="Mango Seed Weevil",
+        ar="سوسة بذور المانجو",
+        scientific_name="Sternochetus mangiferae",
+    ),
+    25: BilingualLabel(
+        en="Strawberry Crown Moth",
+        ar="فراشة تاج الفراولة",
+        scientific_name="Synanthedon bibionipennis",
+    ),
+    26: BilingualLabel(
+        en="Soybean Pod Borer",
+        ar="حفار قرون فول الصويا",
+        scientific_name="Maruca vitrata",
+    ),
+    # Phase 2: Cotton & Peanut Pests
+    27: BilingualLabel(
+        en="Cotton Bollworm",
+        ar="دودة لوز القطن",
+        scientific_name="Helicoverpa armigera",
+    ),
+    28: BilingualLabel(
+        en="Pink Bollworm",
+        ar="دودة اللوز القرنفلية",
+        scientific_name="Pectinophora gossypiella",
+    ),
+    29: BilingualLabel(
+        en="Cotton Whitefly",
+        ar="ذبابة القطن البيضاء",
+        scientific_name="Bemisia tabaci",
+    ),
+    30: BilingualLabel(
+        en="Peanut Leaf Miner",
+        ar="حفار أوراق الفول السوداني",
+        scientific_name="Aproaerema modicella",
+    ),
+    31: BilingualLabel(
+        en="Groundnut Aphid",
+        ar="من الفول السوداني",
+        scientific_name="Aphis craccivora",
+    ),
 }
 
 # Agricultural Disease Classes (30+ diseases)
@@ -165,6 +217,182 @@ DISEASE_CLASSES: dict[int, BilingualLabel] = {
     31: BilingualLabel(en="Nitrogen Deficiency", ar="نقص النيتروجين", scientific_name=None),
     32: BilingualLabel(en="Phosphorus Deficiency", ar="نقص الفوسفور", scientific_name=None),
     33: BilingualLabel(en="Potassium Deficiency", ar="نقص البوتاسيوم", scientific_name=None),
+    # =========================================================================
+    # Phase 1: Crop-Specific Diseases (Corn, Wheat, Potato, Citrus, Mango,
+    #          Strawberry, Soybean)
+    # =========================================================================
+    # --- Corn (الذرة) ---
+    34: BilingualLabel(
+        en="Corn Gray Leaf Spot",
+        ar="تبقع أوراق الذرة الرمادي",
+        scientific_name="Cercospora zeae-maydis",
+    ),
+    35: BilingualLabel(
+        en="Corn Northern Leaf Blight",
+        ar="لفحة أوراق الذرة الشمالية",
+        scientific_name="Exserohilum turcicum",
+    ),
+    36: BilingualLabel(
+        en="Corn Common Rust",
+        ar="صدأ الذرة الشائع",
+        scientific_name="Puccinia sorghi",
+    ),
+    37: BilingualLabel(
+        en="Maize Streak Virus",
+        ar="فيروس تخطط الذرة",
+        scientific_name="Mastrevirus",
+    ),
+    # --- Wheat (القمح) ---
+    38: BilingualLabel(
+        en="Wheat Yellow Rust",
+        ar="الصدأ الأصفر للقمح",
+        scientific_name="Puccinia striiformis",
+    ),
+    39: BilingualLabel(
+        en="Wheat Karnal Bunt",
+        ar="التفحم الكرنالي للقمح",
+        scientific_name="Tilletia indica",
+    ),
+    40: BilingualLabel(
+        en="Wheat Helminthosporium Blight",
+        ar="لفحة هلمنثوسبوريوم القمح",
+        scientific_name="Bipolaris sorokiniana",
+    ),
+    # --- Potato (البطاطس) ---
+    41: BilingualLabel(
+        en="Potato Black Scurf",
+        ar="الجرب الأسود للبطاطس",
+        scientific_name="Rhizoctonia solani",
+    ),
+    42: BilingualLabel(
+        en="Potato Virus Y",
+        ar="فيروس البطاطس Y",
+        scientific_name="Potyvirus",
+    ),
+    # --- Citrus (الحمضيات) ---
+    43: BilingualLabel(
+        en="Citrus Black Spot",
+        ar="البقعة السوداء للحمضيات",
+        scientific_name="Phyllosticta citricarpa",
+    ),
+    44: BilingualLabel(
+        en="Citrus Tristeza Virus",
+        ar="فيروس تريستيزا الحمضيات",
+        scientific_name="Closterovirus",
+    ),
+    45: BilingualLabel(
+        en="Citrus Melanose",
+        ar="ميلانوز الحمضيات",
+        scientific_name="Diaporthe citri",
+    ),
+    # --- Mango (المانجو) ---
+    46: BilingualLabel(
+        en="Mango Malformation",
+        ar="تشوه المانجو",
+        scientific_name="Fusarium mangiferae",
+    ),
+    47: BilingualLabel(
+        en="Mango Bacterial Black Spot",
+        ar="التبقع البكتيري الأسود للمانجو",
+        scientific_name="Xanthomonas citri pv. mangiferaeindicae",
+    ),
+    48: BilingualLabel(
+        en="Mango Stem End Rot",
+        ar="تعفن نهاية ساق المانجو",
+        scientific_name="Lasiodiplodia theobromae",
+    ),
+    # --- Strawberry (الفراولة) ---
+    49: BilingualLabel(
+        en="Strawberry Leaf Scorch",
+        ar="احتراق أوراق الفراولة",
+        scientific_name="Diplocarpon earlianum",
+    ),
+    50: BilingualLabel(
+        en="Strawberry Angular Leaf Spot",
+        ar="التبقع الزاوي للفراولة",
+        scientific_name="Xanthomonas fragariae",
+    ),
+    51: BilingualLabel(
+        en="Strawberry Leather Rot",
+        ar="التعفن الجلدي للفراولة",
+        scientific_name="Phytophthora cactorum",
+    ),
+    # --- Soybean (فول الصويا) ---
+    52: BilingualLabel(
+        en="Soybean Rust",
+        ar="صدأ فول الصويا",
+        scientific_name="Phakopsora pachyrhizi",
+    ),
+    53: BilingualLabel(
+        en="Soybean Frogeye Leaf Spot",
+        ar="تبقع عين الضفدع لفول الصويا",
+        scientific_name="Cercospora sojina",
+    ),
+    54: BilingualLabel(
+        en="Soybean Brown Spot",
+        ar="التبقع البني لفول الصويا",
+        scientific_name="Septoria glycines",
+    ),
+    55: BilingualLabel(
+        en="Soybean Sudden Death Syndrome",
+        ar="متلازمة الموت المفاجئ لفول الصويا",
+        scientific_name="Fusarium virguliforme",
+    ),
+    # =========================================================================
+    # Phase 2: Cotton & Peanut Diseases (القطن والفول السوداني)
+    # =========================================================================
+    # --- Cotton (القطن) ---
+    56: BilingualLabel(
+        en="Cotton Leaf Curl Virus",
+        ar="فيروس تجعد أوراق القطن",
+        scientific_name="Begomovirus",
+    ),
+    57: BilingualLabel(
+        en="Cotton Verticillium Wilt",
+        ar="ذبول الفرتيسيليوم للقطن",
+        scientific_name="Verticillium dahliae",
+    ),
+    58: BilingualLabel(
+        en="Cotton Bacterial Blight",
+        ar="اللفحة البكتيرية للقطن",
+        scientific_name="Xanthomonas citri pv. malvacearum",
+    ),
+    59: BilingualLabel(
+        en="Cotton Boll Rot",
+        ar="تعفن لوز القطن",
+        scientific_name="Aspergillus flavus",
+    ),
+    60: BilingualLabel(
+        en="Cotton Alternaria Leaf Spot",
+        ar="تبقع أوراق القطن الألتيرناري",
+        scientific_name="Alternaria macrospora",
+    ),
+    # --- Peanut (الفول السوداني) ---
+    61: BilingualLabel(
+        en="Peanut Early Leaf Spot",
+        ar="التبقع المبكر للفول السوداني",
+        scientific_name="Cercospora arachidicola",
+    ),
+    62: BilingualLabel(
+        en="Peanut Late Leaf Spot",
+        ar="التبقع المتأخر للفول السوداني",
+        scientific_name="Cercosporidium personatum",
+    ),
+    63: BilingualLabel(
+        en="Peanut Rust",
+        ar="صدأ الفول السوداني",
+        scientific_name="Puccinia arachidis",
+    ),
+    64: BilingualLabel(
+        en="Peanut Stem Rot",
+        ar="تعفن ساق الفول السوداني",
+        scientific_name="Sclerotium rolfsii",
+    ),
+    65: BilingualLabel(
+        en="Peanut Aspergillus Crown Rot",
+        ar="تعفن تاج الفول السوداني",
+        scientific_name="Aspergillus niger",
+    ),
 }
 
 # Weed Classes

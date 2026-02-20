@@ -1,41 +1,34 @@
 /**
- * Lightweight HTML Sanitization Utility
- * SSR-safe alternative to isomorphic-dompurify for Next.js
- * 
- * This utility provides basic HTML sanitization without requiring DOM APIs,
- * making it safe to use in both server-side and client-side contexts.
+ * HTML Sanitization Utility
+ * Uses isomorphic-dompurify for robust, SSR-safe HTML sanitization.
+ *
+ * This replaces hand-rolled regex sanitization which was flagged by CodeQL
+ * for incomplete multi-character sanitization (e.g. partial <script tags
+ * surviving regex-based stripping).
  */
 
+import DOMPurify from "isomorphic-dompurify";
+
 /**
- * Sanitize user input by removing HTML tags and control characters
+ * Sanitize user input by removing ALL HTML tags and control characters.
+ * Returns plain text safe for display.
  * @param input - The string to sanitize
- * @returns Sanitized string with HTML tags removed
+ * @returns Sanitized plain text string with all HTML removed
  */
 export function sanitizeInput(input: string): string {
     if (typeof input !== "string") return input;
 
-    // Remove null bytes and control characters first (except newlines and tabs)
+    // Remove null bytes and control characters (except newlines and tabs)
     // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
     let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-    // Decode HTML entities BEFORE stripping tags, so encoded tags like
-    // &lt;script&gt; are decoded first, then stripped in the next step.
-    // This prevents the incomplete sanitization where entity decoding
-    // after tag removal could reconstruct dangerous HTML.
-    sanitized = sanitized
-        .replace(/&#x27;/g, "'")
-        .replace(/&#x2F;/g, "/")
-        .replace(/&quot;/g, '"')
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&");
-
-    // Remove HTML tags AFTER entity decoding to catch decoded tags
-    sanitized = sanitized.replace(/<[^>]*>/g, "");
-
-    // Remove any script-like content
-    sanitized = sanitized.replace(/javascript:/gi, "");
-    sanitized = sanitized.replace(/on\w+\s*=/gi, "");
+    // Use DOMPurify with no allowed tags/attributes to strip all HTML.
+    // This properly handles incomplete tags, encoded entities, and nested markup
+    // that regex-based stripping cannot reliably catch.
+    sanitized = DOMPurify.sanitize(sanitized, {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+    });
 
     return sanitized.trim();
 }
@@ -52,29 +45,12 @@ export function sanitizeHtml(
 ): string {
     if (typeof html !== "string") return html;
 
-    if (allowedTags.length === 0) {
-        // No tags allowed, strip everything
-        return sanitizeInput(html);
-    }
-
-    // Escape regex metacharacters in tag names to prevent regex injection
-    const escapedTags = allowedTags.map((tag) =>
-        tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
-    );
-    const allowedPattern = escapedTags.join("|");
-    const tagRegex = new RegExp(
-        `<(?!\\/?(${allowedPattern})\\b)[^>]*>`,
-        "gi"
-    );
-
-    // Remove disallowed tags
-    let sanitized = html.replace(tagRegex, "");
-
-    // Remove dangerous attributes from allowed tags
-    sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, "");
-    sanitized = sanitized.replace(/\s+javascript:\s*/gi, "");
-
-    return sanitized.trim();
+    // DOMPurify handles tag allowlisting, attribute stripping, and all
+    // edge cases (incomplete tags, encoded payloads, event handlers, etc.)
+    return DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: allowedTags,
+        ALLOWED_ATTR: [],
+    }).trim();
 }
 
 /**

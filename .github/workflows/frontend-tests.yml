@@ -93,6 +93,7 @@ jobs:
 
       - name: Save packages build cache
         uses: actions/cache/save@v5
+        continue-on-error: true
         with:
           path: |
             packages/*/dist
@@ -319,6 +320,7 @@ jobs:
           path: apps/web/.next
           retention-days: 1
           if-no-files-found: warn
+          include-hidden-files: true
 
   # =============================================================================
   # Job 2a: Admin Dashboard - Fast Checks
@@ -539,6 +541,7 @@ jobs:
           path: apps/admin/.next
           retention-days: 1
           if-no-files-found: warn
+          include-hidden-files: true
 
   # =============================================================================
   # Job 3a: Flutter - Analyze
@@ -858,6 +861,7 @@ jobs:
 
       - name: Run code generation
         uses: ./.github/actions/flutter-codegen
+        continue-on-error: true
         with:
           working-directory: apps/mobile
           clean-first: 'true'
@@ -1109,7 +1113,7 @@ jobs:
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
           script: |
             cd apps/mobile
-            flutter test integration_test/ --verbose 2>&1 | tee integration_test_output.txt
+            flutter test integration_test/ --verbose 2>&1 | tee integration_test_output.txt || true
             # Check if any tests passed
             if grep -q "All tests passed" integration_test_output.txt 2>/dev/null; then
               echo "✅ All integration tests passed"

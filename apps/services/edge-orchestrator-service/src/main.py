@@ -248,12 +248,22 @@ app = FastAPI(
 )
 
 # CORS middleware
+# Security: Never use allow_origins=["*"] with allow_credentials=True
+# الأمان: لا تستخدم أبداً allow_origins=["*"] مع allow_credentials=True
+_cors_origins = (
+    ["http://localhost:3000", "http://localhost:8080", "http://127.0.0.1:3000"]
+    if settings.is_development
+    else [
+        "https://app.sahool.app",
+        "https://admin.sahool.app",
+    ]
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if settings.is_development else [],
+    allow_origins=_cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
 

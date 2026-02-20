@@ -67,11 +67,11 @@ A full-depth review of the SAHOOL National Agricultural Intelligence Platform wa
 - **Risk**: Complete authentication bypass if this service is deployed
 - **Fix**: Remove hardcoded value; enforce `JWT_SECRET_KEY` from environment only
 
-#### C-SEC-04: Authentication Bypass in Admin Middleware (Dev Mode)
+#### C-SEC-04: Authentication Bypass in Admin Middleware (Dev Mode) — DOWNGRADED to MEDIUM
 - **File**: `apps/admin/src/middleware.ts`, lines 40-84
-- **Impact**: `ENABLE_AUTH_BYPASS=true` skips ALL authentication
-- **Risk**: If accidentally deployed to production, admin portal is fully open
-- **Fix**: Remove bypass entirely or enforce `NODE_ENV !== "production"` hard check
+- **Impact**: Auth bypass requires BOTH `NODE_ENV=development` AND `ENABLE_AUTH_BYPASS=true`
+- **Risk**: Lower than initially reported — will NOT activate in production unless `NODE_ENV` is misconfigured
+- **Recommendation**: Add explicit `process.env.NODE_ENV !== "production"` guard as defense-in-depth
 
 #### C-SEC-05: sessionStorage Used Without Encryption
 - **File**: `apps/web/src/app/(dashboard)/copilot/page.tsx`, lines 118-121
@@ -83,10 +83,10 @@ A full-depth review of the SAHOOL National Agricultural Intelligence Platform wa
 - **Impact**: `allow_origins=["*"]` combined with `allow_credentials=True`
 - **Fix**: Whitelist specific origins; never combine wildcard with credentials
 
-#### C-SEC-07: Vertical Privilege Escalation in Notification Service
-- **File**: `apps/services/notification-service/src/main.py`, line 1368
-- **Impact**: Users can mark other users' notifications as read (no ownership check)
-- **Fix**: Add `if notification.user_id != farmer_id: raise 403`
+#### C-SEC-07: Privilege Escalation in Notification Service via Query Parameter
+- **File**: `apps/services/notification-service/src/main.py`, lines 1315-1395
+- **Impact**: `farmer_id` comes from Query parameter, not JWT token. Any authenticated user can access/modify another user's notifications by sending a different `farmer_id` in the query string. The ownership check at line 1379 only compares against the user-supplied `farmer_id`, defeating its purpose.
+- **Fix**: APPLIED — Use JWT `user.id` as the authoritative farmer identity instead of the query parameter
 
 #### C-SEC-08: Bare Except Clause in Code-Fix Agent Sandbox
 - **File**: `apps/services/code-fix-agent/src/tools/sandbox.py`, line 360
@@ -151,15 +151,13 @@ A full-depth review of the SAHOOL National Agricultural Intelligence Platform wa
 
 ### 1.4 Infrastructure-Critical Issues
 
-#### C-INFRA-01: Missing Health Check for Kong API Gateway
-- **File**: `docker-compose.yml`, lines 804-850
-- **Impact**: Gateway failures not detected by orchestrator
-- **Fix**: Add curl-based healthcheck on `/status`
+#### ~~C-INFRA-01: Missing Health Check for Kong API Gateway~~ — RETRACTED
+- **Status**: FALSE POSITIVE — Kong already has healthcheck at `docker-compose.yml:904-909`
+- **Actual**: `test: ["CMD", "kong", "health"]` with 30s interval, 3 retries
 
-#### C-INFRA-02: Missing Health Check for Vault
-- **File**: `docker-compose.yml`, lines 209-245
-- **Impact**: Secret management failures undetected
-- **Fix**: Add healthcheck on `v1/sys/health`
+#### ~~C-INFRA-02: Missing Health Check for Vault~~ — RETRACTED
+- **Status**: FALSE POSITIVE — Vault already has healthcheck at `docker-compose.yml:223-228`
+- **Actual**: `test: ["CMD", "vault", "status"]` with 30s interval, 3 retries
 
 #### C-INFRA-03: Hardcoded Test Database Passwords
 - **File**: `docker-compose.test.yml`, lines 25, 40, 99

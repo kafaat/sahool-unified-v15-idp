@@ -85,6 +85,9 @@ export class WalletService {
         const wallet = await this.prisma.wallet.findUnique({
           where: { id: walletId },
         });
+        if (!wallet) {
+          throw new NotFoundException("المحفظة غير موجودة");
+        }
         return { wallet, transaction: existingTransaction, duplicate: true };
       }
     }
@@ -188,6 +191,9 @@ export class WalletService {
         const wallet = await this.prisma.wallet.findUnique({
           where: { id: walletId },
         });
+        if (!wallet) {
+          throw new NotFoundException("المحفظة غير موجودة");
+        }
         return { wallet, transaction: existingTransaction, duplicate: true };
       }
     }

@@ -324,9 +324,9 @@ jobs:
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
           # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Current coverage: ~11% - threshold set to 10% to allow CI to pass
-          # TODO: Increase to 15% once more tests are added
-          MIN_COVERAGE=10
+          # Raised from 10% to 25% as part of pilot launch readiness (2026-02-20)
+          # Next milestone: 40% after Phase 2 testing improvements
+          MIN_COVERAGE=25
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

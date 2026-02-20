@@ -45,6 +45,9 @@ export class EscrowService {
         const escrow = await this.prisma.escrow.findUnique({
           where: { orderId },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للطلب المكرر");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }
@@ -190,6 +193,9 @@ export class EscrowService {
             sellerWallet: true,
           },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للمعاملة المكررة");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }
@@ -402,6 +408,9 @@ export class EscrowService {
           where: { id: escrowId },
           include: { buyerWallet: true },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للمعاملة المكررة");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }

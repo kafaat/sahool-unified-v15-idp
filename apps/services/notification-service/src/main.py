@@ -1322,6 +1322,15 @@ async def get_farmer_notifications(
     user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
     """الحصول على إشعارات مزارع معين"""
+    # Security: Verify the authenticated user can only access their own notifications
+    # التحقق من أن المستخدم المصادق يصل فقط إلى إشعاراته الخاصة
+    if AUTH_AVAILABLE and user is not None:
+        if str(user.id) != farmer_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Not authorized to access notifications for another user",
+            )
+
     # Get notifications from database
     notifications = await NotificationRepository.get_by_user(
         user_id=farmer_id,
@@ -1365,9 +1374,19 @@ async def get_farmer_notifications(
 
 
 @app.patch("/{notification_id}/read")
-async def mark_notification_read(notification_id: str, farmer_id: str = Query(...)):
+async def mark_notification_read(
+    notification_id: str,
+    farmer_id: str = Query(...),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
     """تحديد إشعار كمقروء"""
     try:
+        # Security: Use authenticated user ID when auth is available
+        # الأمان: استخدام معرف المستخدم المصادق عندما يكون المصادقة متاحة
+        authorized_farmer_id = farmer_id
+        if AUTH_AVAILABLE and user is not None:
+            authorized_farmer_id = str(user.id)
+
         # Convert string to UUID
         notif_uuid = UUID(notification_id)
 
@@ -1376,7 +1395,7 @@ async def mark_notification_read(notification_id: str, farmer_id: str = Query(..
         if not notification:
             raise HTTPException(status_code=404, detail="Notification not found")
 
-        if notification.user_id != farmer_id:
+        if notification.user_id != authorized_farmer_id:
             raise HTTPException(status_code=403, detail="Not authorized to mark this notification")
 
         # Mark as read

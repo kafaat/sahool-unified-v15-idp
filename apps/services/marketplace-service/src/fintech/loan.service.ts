@@ -173,9 +173,12 @@ export class LoanService {
           where: { id: loanId },
           include: { wallet: true },
         });
+        if (!loan) {
+          throw new NotFoundException("القرض غير موجود للمعاملة المكررة");
+        }
         return {
           loan,
-          wallet: loan?.wallet,
+          wallet: loan.wallet,
           transaction: existingTransaction,
           duplicate: true,
         };

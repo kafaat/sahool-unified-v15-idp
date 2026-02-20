@@ -317,6 +317,7 @@ jobs:
         with:
           name: web-build
           path: apps/web/.next
+          include-hidden-files: true
           retention-days: 1
           if-no-files-found: warn
 
@@ -537,6 +538,7 @@ jobs:
         with:
           name: admin-build
           path: apps/admin/.next
+          include-hidden-files: true
           retention-days: 1
           if-no-files-found: warn
 
@@ -861,6 +863,7 @@ jobs:
         with:
           working-directory: apps/mobile
           clean-first: 'true'
+        continue-on-error: true
 
       - name: Install CocoaPods
         run: |

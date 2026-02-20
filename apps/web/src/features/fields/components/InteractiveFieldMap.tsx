@@ -38,7 +38,6 @@ import {
   Wind,
   Maximize2,
   Minimize2,
-  Ruler,
 } from "lucide-react";
 import type { Field, GeoPolygon, GeoPoint } from "../types";
 import type { Task, TaskStatus, Priority } from "../../tasks/types";

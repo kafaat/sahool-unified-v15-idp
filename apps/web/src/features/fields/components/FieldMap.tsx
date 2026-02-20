@@ -226,13 +226,16 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 key={fieldItem.id}
                 center={[lat, lng] as LatLngTuple}
                 radius={8}
-                fillColor={color}
-                color="#ffffff"
-                weight={2}
-                fillOpacity={0.8}
+                pathOptions={{
+                  fillColor: color,
+                  color: "#ffffff",
+                  weight: 2,
+                  fillOpacity: 0.8,
+                }}
                 eventHandlers={{
                   click: () => onFieldClick?.(fieldItem.id),
                 }}
+                {...({} as any)}
               >
                 <Popup>
                   <div className="p-2 min-w-[180px]" dir="rtl">

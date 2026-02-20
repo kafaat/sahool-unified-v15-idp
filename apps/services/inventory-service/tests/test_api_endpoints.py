@@ -36,9 +36,17 @@ def client(mock_env_vars, mock_db_dependencies):
         mock_session = AsyncMock()
         yield mock_session
 
-    from src.main import app, get_db
+    def override_get_current_user():
+        """Return a mock user for tests"""
+        user = Mock()
+        user.id = "test-user-id"
+        user.tenant_id = "test-tenant"
+        return user
+
+    from src.main import app, get_current_user, get_db
 
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
 
     with TestClient(app) as test_client:
         yield test_client

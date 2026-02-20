@@ -443,10 +443,15 @@ async def get_waste_analysis(
 
 
 @app.get("/v1/analytics/dashboard")
-async def get_dashboard_metrics(tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)):
-    analytics = InventoryAnalytics(db, tenant_id)
+async def get_dashboard_metrics(
+    tenant_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     metrics = await analytics.generate_dashboard_metrics()
-    return {"tenant_id": tenant_id, **metrics}
+    return {"tenant_id": verified_tenant, **metrics}
 
 
 if __name__ == "__main__":

@@ -30,9 +30,11 @@ sahool-unified-v15-idp/
 │   │   └── field_ops/          # Field operations logic
 │   ├── mobile/                 # Flutter mobile apps
 │   │   ├── sahool_field_app/   # Main field app
+│   │   ├── sahol_atmosphere/   # Weather/atmosphere companion app
+│   │   ├── sahool-mobile/      # Secondary mobile variant
 │   │   ├── lib/                # Core Flutter code
 │   │   └── integration_test/   # Integration tests
-│   ├── services/               # 73 microservices (Python FastAPI & Node.js NestJS)
+│   ├── services/               # 71 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
 │   │   ├── terrain-core-service/       # DEM processing & terrain analysis
 │   │   ├── hydrology-service/          # Hydrology & drainage analysis
@@ -40,7 +42,7 @@ sahool-unified-v15-idp/
 │   │   ├── edge-orchestrator-service/  # Edge device management (Jetson Orin)
 │   ├── services-docs/           # Service documentation & API specs
 │   └── web/                    # Web dashboard (Next.js/React)
-├── packages/                   # Shared packages (25 npm workspaces)
+├── packages/                   # Shared packages (24 npm workspaces)
 │   ├── shared-utils/           # Common utilities
 │   ├── shared-ui/              # UI components
 │   ├── shared-types/           # TypeScript types
@@ -61,10 +63,11 @@ sahool-unified-v15-idp/
 │   ├── field_suite/            # Field suite components
 │   ├── kernel_domain/          # Kernel domain logic
 │   ├── sahool-eo/              # Earth Observation (eo-learn integration)
+│   ├── shared/                 # Shared package utilities
 │   ├── starter/                # Starter package config
 │   ├── professional/           # Professional package config
 │   └── enterprise/             # Enterprise package config
-├── shared/                     # Python shared modules (64+ modules)
+├── shared/                     # Python shared modules (65+ modules)
 │   ├── auth/                   # Authentication (JWT, 2FA, token revocation)
 │   ├── cache/                  # Caching layer (Redis Sentinel HA)
 │   ├── contracts/              # API contracts & event schemas
@@ -140,12 +143,17 @@ sahool-unified-v15-idp/
 │   ├── audit_trail/            # Audit trail utilities
 │   ├── crm/                    # Farmer CRM module
 │   ├── db/                     # Database utilities
+│   ├── design-system/          # Design system tokens & utilities
+│   ├── lowcode/                # Low-code workflow automation
+│   ├── scraping/               # Data scraping utilities
+│   ├── service_enhancements/   # Service improvement modules
+│   ├── templates/              # Configuration/code templates
 │   └── python-lib/             # Python library utilities
 ├── config/                     # Configuration files
 │   ├── certs/                  # TLS certificates
 │   └── nats/                   # NATS configuration
 ├── docker/                     # Docker configurations
-├── docs/                       # Technical documentation (365+ docs)
+├── docs/                       # Technical documentation (385+ docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
 ├── helm/                       # Kubernetes Helm charts
@@ -182,7 +190,7 @@ sahool-unified-v15-idp/
 
 | Layer                  | Technology                                                            |
 | ---------------------- | --------------------------------------------------------------------- |
-| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.21.7, asyncpg 0.30.0, Pydantic v2.10+ |
+| **Python Services**    | FastAPI 0.128.5, Tortoise ORM 0.25.4, asyncpg 0.31.0, Pydantic v2.10+ |
 | **Python Version**     | >= 3.11 (target: py311)                                                |
 | **Node.js Services**   | NestJS 10.x, Prisma 5.x, TypeScript 5.9.x, React 19.x               |
 | **Node.js Version**    | >= 20.0.0 (npm >= 10.0.0)                                             |
@@ -196,7 +204,7 @@ sahool-unified-v15-idp/
 
 | Layer                | Technology                             |
 | -------------------- | -------------------------------------- |
-| **Framework**        | Flutter 3.27.x (Dart >=3.2.0)          |
+| **Framework**        | Flutter 3.27.x (Dart 3.6.0, SDK >=3.2.0) |
 | **State Management** | Riverpod 2.6.x                         |
 | **Local Database**   | Drift 2.24+ with SQLCipher (encrypted) |
 | **Background Tasks** | Workmanager                            |
@@ -220,7 +228,7 @@ sahool-unified-v15-idp/
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
 | **IaC**          | Terraform (AWS me-south-1), Helm Charts (32)      |
-| **CI/CD**        | GitHub Actions (48 workflows), Argo CD (18 apps)  |
+| **CI/CD**        | GitHub Actions (49 workflows), Argo CD (18 apps)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -240,8 +248,8 @@ The platform uses a 4-layer event architecture via NATS:
 | ---------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
 | **Acquisition**  | vegetation-analysis-service, iot-service, weather-service, virtual-sensors, iot-gateway, edge-orchestrator-service | Data ingestion & normalization |
 | **Intelligence** | indicators-service, lai-estimation, crop-intelligence-service, vegetation-analysis-service, ndvi-processor, field-intelligence, skills-service, yolo26-vision-service, terrain-core-service | Feature extraction & AI        |
-| **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-engine, yield-prediction, agro-advisor, hydrology-service, leveling-optimizer-service | Recommendations & planning     |
-| **Business**     | notification-service, marketplace-service, billing-core, community-chat, task-service, equipment-service, ws-gateway | User-facing operations         |
+| **Decision**     | crop-growth-model, advisory-service, irrigation-smart, yield-prediction, yield-prediction-service, hydrology-service, leveling-optimizer-service | Recommendations & planning     |
+| **Business**     | notification-service, marketplace-service, billing-core, chat-service, task-service, equipment-service, ws-gateway | User-facing operations         |
 
 Event subject patterns:
 - Base: `sahool.{domain}.{action}` (e.g., `sahool.field.created`)
@@ -1076,7 +1084,7 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (48):
+GitHub Workflows (49):
 
 - **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`
 - **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`
@@ -1084,6 +1092,7 @@ GitHub Workflows (48):
 - **Testing**: `frontend-tests.yml`, `container-tests.yml`, `e2e-tests.yml`, `load-testing.yml`, `load-test-validation.yml`
 - **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`
 - **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`
+- **Contracts**: `api-contracts-guard.yml`
 - **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `skills-tests.yml`
 - **Frontend/Mobile**: `frontend-ci.yml`, `flutter-apk.yml`, `mobile-ci.yml`, `mobile-release.yml`
 - **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`
@@ -1098,7 +1107,7 @@ GitHub Workflows (48):
 
 ### Overview
 
-Total deprecated: **11 services** (all archived).
+Total deprecated: **15 services** (all archived).
 All deprecated services emit HTTP headers (RFC 8594): `X-API-Deprecated: true`, `X-API-Sunset`, `Deprecation: true`.
 Active-deprecated services require `--profile deprecated` to start.
 
@@ -1107,7 +1116,7 @@ DEPRECATION WARNING: [service] is DEPRECATED
 This service has been migrated to [new-service]
 ```
 
-### Archived Services (8) - Moved to `archive/deprecated-services/`
+### Archived Services (15) - Moved to `archive/deprecated-services/`
 
 | Deprecated Service   | Replaced By                   | Deprecation Date | Sunset Date |
 | -------------------- | ----------------------------- | ---------------- | ----------- |
@@ -1119,14 +1128,13 @@ This service has been migrated to [new-service]
 | `field-ops`          | `field-management-service`    | 2026-01-06       | v17.0.0     |
 | `field-core`         | `field-management-service`    | Legacy           | v17.0.0     |
 | `field-service`      | `field-management-service`    | Legacy           | v17.0.0     |
-
-### Previously Active Deprecated Services (3) - Now Archived
-
-| Deprecated Service   | Replaced By                   | Deprecation Date | Archived   |
-| -------------------- | ----------------------------- | ---------------- | ---------- |
-| `agro-advisor`       | `advisory-service`            | 2025-01-06       | 2026-02    |
-| `ndvi-engine`        | `vegetation-analysis-service` | 2026-01-06       | 2026-02    |
-| `weather-core`       | `weather-service`             | Implicit         | 2026-02    |
+| `agro-advisor`       | `advisory-service`            | 2025-01-06       | 2026-02     |
+| `ndvi-engine`        | `vegetation-analysis-service` | 2026-01-06       | 2026-02     |
+| `weather-core`       | `weather-service`             | Implicit         | 2026-02     |
+| `community-chat`     | `chat-service`                | 2026-01-15       | 2026-02     |
+| `field-chat`         | `chat-service`                | 2026-01-15       | 2026-02     |
+| `ndvi-processor`     | `vegetation-analysis-service` | 2026-01-15       | 2026-02     |
+| `yield-engine`       | `yield-prediction-service`    | 2026-01-15       | 2026-02     |
 
 ### Migration Documentation
 
@@ -1153,14 +1161,14 @@ docker-compose --profile legacy up
 
 ## Key Services Overview
 
-**Platform Totals**: 73 microservices (75 active in registry, 11 archived) + 4 applications (admin, web, mobile, kernel)
+**Platform Totals**: 71 microservices (active service directories) + 4 applications (admin, web, mobile, kernel), 15 archived
 
 ### Service Status Summary
 
 | Status | Count | Description |
 | ------ | ----- | ----------- |
-| Active | 75 | Registered in governance/services.yaml as active |
-| Archived | 11 | Deprecated and moved to archive (see Deprecated Services) |
+| Active | 71 | Service directories in apps/services/ |
+| Archived | 15 | Deprecated and moved to archive (see Deprecated Services) |
 
 ### Applications
 
@@ -1192,7 +1200,7 @@ docker-compose --profile legacy up
 | vegetation-analysis-service  | Python  | 8090 | Satellite imagery analysis     |
 | crop-intelligence-service    | Python  | 8095 | Crop health AI                 |
 | indicators-service           | Python  | 8091 | Field indicators computation   |
-| ndvi-processor               | Python  | 8118 | NDVI processing                |
+| ndvi-processor               | Python  | 8118 | NDVI processing (deprecating)  |
 | field-intelligence           | Python  | 8120 | Field analytics                |
 | lai-estimation               | Node.js | 3022 | Leaf Area Index estimation     |
 | skills-service               | Python  | 8121 | Farmer skills assessment       |
@@ -1209,7 +1217,6 @@ docker-compose --profile legacy up
 | advisory-service         | Python  | 8093 | Advisory & recommendations   |
 | irrigation-smart         | Python  | 8094 | Smart irrigation             |
 | yield-prediction         | Node.js | 3021 | Yield prediction (legacy)    |
-| yield-engine             | Python  | 8098 | Yield estimation (legacy)    |
 | agro-rules               | Python  | 8151 | Agronomic rules engine       |
 
 ### Integration & IoT
@@ -1222,11 +1229,9 @@ docker-compose --profile legacy up
 | weather-service       | Python  | 8092 | Weather data                 |
 | virtual-sensors       | Python  | 8119 | Virtual sensor computation   |
 | ws-gateway            | Python  | 8081 | WebSocket gateway            |
-| mcp-server            | Python  | 8200 | Model Context Protocol (skeleton) |
+| mcp-server            | Python  | 8201 | Model Context Protocol (skeleton) |
 | astronomical-calendar | Python  | 8111 | Islamic calendar & timings   |
 | drone-service         | Python  | 8126 | Drone integration (skeleton) |
-| ussd-gateway          | Python  | 8183 | USSD gateway                 |
-| whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 | ussd-gateway          | Python  | 8183 | USSD gateway                 |
 | whatsapp-bot-service  | Python  | 8240 | WhatsApp bot integration     |
 
@@ -1235,11 +1240,9 @@ docker-compose --profile legacy up
 | Service              | Type    | Port | Description              |
 | -------------------- | ------- | ---- | ------------------------ |
 | marketplace-service  | Node.js | 3010 | Agricultural marketplace |
-| community-chat       | Node.js | 8097 | Community features (deprecated, use chat-service) |
 | chat-service         | Node.js | 8000 | Real-time messaging      |
 | research-core        | Node.js | 3015 | Research trials          |
 | disaster-assessment  | Node.js | 3020 | Disaster risk assessment |
-| field-chat           | Python  | 8099 | Field-level chat         |
 | inventory-service    | Python  | 8116 | Inventory management     |
 | cooperative-service  | Python  | 8127 | Cooperative management (skeleton) |
 | crm-service          | Python  | 8131 | Farmer CRM               |
@@ -2569,7 +2572,7 @@ claude code --skill farm-documentation --field "FIELD-003" --format obsidian
 
 ## Shared Agricultural Domain Modules
 
-The `shared/` directory contains 64+ Python modules organized by domain. Below is the complete listing:
+The `shared/` directory contains 65+ Python modules organized by domain. Below is the complete listing:
 
 ### Core Infrastructure
 
@@ -2594,6 +2597,7 @@ The `shared/` directory contains 64+ Python modules organized by domain. Below i
 | `notification_preferences/` | Notification preference management |
 | `audit_trail/` | Audit trail utilities |
 | `service_enhancements/` | Service improvement modules |
+| `design-system/` | Design system tokens and utilities |
 | `templates/` | Configuration/code templates |
 | `integrations/` | External system integrations |
 | `python-lib/` | Python library utilities |
@@ -2684,9 +2688,9 @@ The `shared/` directory contains 64+ Python modules organized by domain. Below i
 
 ## Platform Documentation Map
 
-The platform contains **365+ documentation files** spread across multiple directories. Here is the complete reference:
+The platform contains **385+ documentation files** spread across multiple directories. Here is the complete reference:
 
-### Main Documentation (`docs/` - 365+ files)
+### Main Documentation (`docs/` - 385+ files)
 
 | Directory | Files | Purpose |
 | --------- | ----- | ------- |

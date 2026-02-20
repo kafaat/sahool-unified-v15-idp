@@ -101,7 +101,6 @@ jobs:
       - name: Build Flutter Web
         working-directory: apps/mobile
         run: flutter build web --release
-        continue-on-error: true
 
       - name: Install Lighthouse
         run: npm install -g @lhci/cli

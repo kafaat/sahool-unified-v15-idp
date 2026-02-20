@@ -452,9 +452,9 @@ jobs:
         with:
           project: 'sahool-platform'
           path: '.'
-          format: 'HTML,JSON,SARIF'
+          format: 'ALL'
           out: 'owasp-reports'
-          args: >
+          args: >-
             --enableExperimental
             --failOnCVSS 9
             --suppression .dependency-check-suppression.xml

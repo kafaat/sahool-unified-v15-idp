@@ -96,16 +96,18 @@ export class WalletService {
     // Use SERIALIZABLE isolation level for critical financial transactions
     return await this.prisma.$transaction(
       async (tx) => {
-        // Lock wallet row with SELECT FOR UPDATE
-        const wallet = await tx.$queryRaw<any[]>`
-          SELECT * FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE
-        `;
+        // Lock wallet row then fetch with Prisma for proper field names
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE`;
+        const currentWallet = await tx.wallet.findUnique({ where: { id: walletId } });
 
-        if (!wallet || wallet.length === 0) {
+        if (!currentWallet) {
           throw new NotFoundException("المحفظة غير موجودة");
         }
 
-        const currentWallet = wallet[0];
+        if (currentWallet.deletedAt) {
+          throw new BadRequestException("المحفظة مجمدة أو محذوفة. يرجى التواصل مع الدعم");
+        }
+
         const balanceBefore = currentWallet.balance;
         const versionBefore = currentWallet.version;
         const newBalance = balanceBefore + amount;
@@ -178,6 +180,7 @@ export class WalletService {
     idempotencyKey?: string,
     userId?: string,
     ipAddress?: string,
+    pin?: string,
   ) {
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
@@ -199,19 +202,23 @@ export class WalletService {
       }
     }
 
+    // Pre-check: PIN enforcement for large amounts
+    await this.enforcePinForAmount(walletId, amount, pin);
+
     // Use SERIALIZABLE isolation level to prevent race conditions
     return await this.prisma.$transaction(
       async (tx) => {
-        // CRITICAL: Lock wallet row with SELECT FOR UPDATE
-        const walletRows = await tx.$queryRaw<any[]>`
-          SELECT * FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE
-        `;
+        // CRITICAL: Lock wallet row then fetch with Prisma for proper field names
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE`;
+        const wallet = await tx.wallet.findUnique({ where: { id: walletId } });
 
-        if (!walletRows || walletRows.length === 0) {
+        if (!wallet) {
           throw new NotFoundException("المحفظة غير موجودة");
         }
 
-        const wallet = walletRows[0];
+        // Check wallet is not frozen
+        this.assertWalletActive(wallet);
+
         const balanceBefore = wallet.balance;
         const versionBefore = wallet.version;
 
@@ -441,6 +448,8 @@ export class WalletService {
   private readonly PIN_KEY_LENGTH = 32;
   private readonly PIN_SCRYPT_COST = 16384;
   private readonly MAX_PIN_ATTEMPTS = 5;
+  private readonly PIN_LOCKOUT_WINDOW_MS = 30 * 60 * 1000; // 30 دقيقة
+  private readonly KYC_REQUIRED_AMOUNT = 50000;
 
   /**
    * تشفير رمز PIN باستخدام scrypt
@@ -592,6 +601,125 @@ export class WalletService {
     };
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // أمان المحفظة - Wallet Security
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * التحقق من أن المحفظة نشطة وغير مجمدة
+   */
+  private assertWalletActive(wallet: any): void {
+    if (wallet.deletedAt) {
+      throw new BadRequestException(
+        "المحفظة مجمدة أو محذوفة. يرجى التواصل مع الدعم",
+      );
+    }
+  }
+
+  /**
+   * فرض رمز PIN للمبالغ الكبيرة مع حماية KYC
+   */
+  private async enforcePinForAmount(
+    walletId: string,
+    amount: number,
+    pin?: string,
+  ): Promise<void> {
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+      select: {
+        requiresPinForAmount: true,
+        pin: true,
+        isVerified: true,
+        kycStatus: true,
+      },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    // Enforce KYC for large amounts
+    if (amount >= this.KYC_REQUIRED_AMOUNT) {
+      if (!wallet.isVerified || wallet.kycStatus !== "approved") {
+        throw new BadRequestException(
+          `المعاملات التي تزيد عن ${this.KYC_REQUIRED_AMOUNT} ر.ي تتطلب التحقق من الهوية (KYC)`,
+        );
+      }
+    }
+
+    // Check if PIN is required for this amount
+    if (amount >= wallet.requiresPinForAmount) {
+      if (!wallet.pin) {
+        throw new BadRequestException(
+          "يجب تعيين رمز PIN قبل إجراء معاملات كبيرة. استخدم set-pin أولاً",
+        );
+      }
+
+      await this.checkPinLockout(walletId);
+
+      if (!pin) {
+        throw new BadRequestException(
+          `المبلغ يتطلب رمز PIN (للمبالغ أكبر من ${wallet.requiresPinForAmount} ر.ي)`,
+        );
+      }
+
+      const valid = this.verifyPinHash(pin, wallet.pin);
+      await this.recordPinAttempt(walletId, valid);
+
+      if (!valid) {
+        throw new BadRequestException("رمز PIN غير صحيح");
+      }
+    }
+  }
+
+  /**
+   * التحقق من قفل PIN بسبب محاولات فاشلة متكررة
+   */
+  private async checkPinLockout(walletId: string): Promise<void> {
+    const windowStart = new Date(Date.now() - this.PIN_LOCKOUT_WINDOW_MS);
+
+    const recentFailures = await this.prisma.walletAuditLog.count({
+      where: {
+        walletId,
+        operation: "PIN_FAILED",
+        createdAt: { gte: windowStart },
+      },
+    });
+
+    if (recentFailures >= this.MAX_PIN_ATTEMPTS) {
+      throw new BadRequestException(
+        `تم قفل المحفظة بسبب ${this.MAX_PIN_ATTEMPTS} محاولات PIN فاشلة. حاول مرة أخرى بعد 30 دقيقة`,
+      );
+    }
+  }
+
+  /**
+   * تسجيل محاولة PIN فاشلة في سجل التدقيق
+   */
+  private async recordPinAttempt(
+    walletId: string,
+    success: boolean,
+  ): Promise<void> {
+    if (!success) {
+      const wallet = await this.prisma.wallet.findUnique({
+        where: { id: walletId },
+        select: { balance: true, version: true },
+      });
+
+      await this.prisma.walletAuditLog.create({
+        data: {
+          walletId,
+          operation: "PIN_FAILED",
+          balanceBefore: wallet?.balance ?? 0,
+          balanceAfter: wallet?.balance ?? 0,
+          amount: 0,
+          versionBefore: wallet?.version ?? 0,
+          versionAfter: wallet?.version ?? 0,
+        },
+      });
+    }
+  }
+
   /**
    * الحصول على إحصائيات لوحة تحكم المحفظة
    */
@@ -698,6 +826,270 @@ export class WalletService {
       },
       monthlyChart,
       recentTransactions: transactions.slice(-10),
+    };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // التحويلات - Wallet-to-Wallet Transfers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تحويل بين المحافظ مع حماية كاملة من الصرف المزدوج
+   * Atomic wallet-to-wallet transfer with deadlock prevention
+   */
+  async transfer(
+    fromWalletId: string,
+    toWalletId: string,
+    amount: number,
+    description?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+    pin?: string,
+  ) {
+    if (amount <= 0) {
+      throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
+    }
+
+    if (fromWalletId === toWalletId) {
+      throw new BadRequestException("لا يمكن التحويل إلى نفس المحفظة");
+    }
+
+    // Check idempotency
+    if (idempotencyKey) {
+      const existing = await this.prisma.transaction.findUnique({
+        where: { idempotencyKey },
+      });
+      if (existing) {
+        return { transaction: existing, duplicate: true };
+      }
+    }
+
+    // PIN + KYC enforcement on sender
+    await this.enforcePinForAmount(fromWalletId, amount, pin);
+
+    return await this.prisma.$transaction(
+      async (tx) => {
+        // Lock both wallets ordered by ID to prevent deadlocks
+        const [firstId, secondId] =
+          fromWalletId < toWalletId
+            ? [fromWalletId, toWalletId]
+            : [toWalletId, fromWalletId];
+
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${firstId}::uuid FOR UPDATE`;
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${secondId}::uuid FOR UPDATE`;
+
+        const fromWallet = await tx.wallet.findUnique({ where: { id: fromWalletId } });
+        const toWallet = await tx.wallet.findUnique({ where: { id: toWalletId } });
+
+        if (!fromWallet || !toWallet) {
+          throw new NotFoundException("إحدى المحفظتين غير موجودة");
+        }
+
+        this.assertWalletActive(fromWallet);
+        this.assertWalletActive(toWallet);
+
+        if (fromWallet.balance < amount) {
+          throw new BadRequestException(
+            `الرصيد غير كافي. الرصيد الحالي: ${fromWallet.balance}`,
+          );
+        }
+
+        await this.checkWithdrawLimitsInTransaction(fromWallet, amount);
+
+        const fromNewBalance = fromWallet.balance - amount;
+        const toNewBalance = toWallet.balance + amount;
+        const fromNewVersion = fromWallet.version + 1;
+        const toNewVersion = toWallet.version + 1;
+        const dailyWithdrawn = this.updateDailyWithdrawn(fromWallet, amount);
+
+        // Update sender
+        await tx.wallet.update({
+          where: { id: fromWalletId, version: fromWallet.version },
+          data: {
+            balance: fromNewBalance,
+            version: fromNewVersion,
+            dailyWithdrawnToday: dailyWithdrawn.dailyWithdrawnToday,
+            lastWithdrawReset: dailyWithdrawn.lastWithdrawReset,
+          },
+        });
+
+        // Update receiver
+        await tx.wallet.update({
+          where: { id: toWalletId, version: toWallet.version },
+          data: {
+            balance: toNewBalance,
+            version: toNewVersion,
+          },
+        });
+
+        // Create outbound transaction
+        const outTransaction = await tx.transaction.create({
+          data: {
+            walletId: fromWalletId,
+            type: "TRANSFER_OUT",
+            amount: -amount,
+            balanceAfter: fromNewBalance,
+            balanceBefore: fromWallet.balance,
+            description: description || "Transfer to wallet",
+            descriptionAr: description || "تحويل إلى محفظة أخرى",
+            status: "COMPLETED",
+            idempotencyKey,
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Create inbound transaction
+        await tx.transaction.create({
+          data: {
+            walletId: toWalletId,
+            type: "TRANSFER_IN",
+            amount,
+            balanceAfter: toNewBalance,
+            balanceBefore: toWallet.balance,
+            description: description || "Transfer from wallet",
+            descriptionAr: description || "تحويل من محفظة أخرى",
+            status: "COMPLETED",
+            userId,
+            ipAddress,
+          },
+        });
+
+        // Audit logs
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: fromWalletId,
+            transactionId: outTransaction.id,
+            userId,
+            operation: "TRANSFER_OUT",
+            balanceBefore: fromWallet.balance,
+            balanceAfter: fromNewBalance,
+            amount: -amount,
+            versionBefore: fromWallet.version,
+            versionAfter: fromNewVersion,
+            idempotencyKey,
+            ipAddress,
+            metadata: { toWalletId },
+          },
+        });
+
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: toWalletId,
+            userId,
+            operation: "TRANSFER_IN",
+            balanceBefore: toWallet.balance,
+            balanceAfter: toNewBalance,
+            amount,
+            versionBefore: toWallet.version,
+            versionAfter: toNewVersion,
+            ipAddress,
+            metadata: { fromWalletId },
+          },
+        });
+
+        return { outTransaction, duplicate: false };
+      },
+      {
+        isolationLevel: "Serializable",
+        maxWait: 5000,
+        timeout: 15000,
+      },
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // تجميد المحفظة - Wallet Freeze/Suspend
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تجميد المحفظة (للإدارة فقط)
+   */
+  async freezeWallet(walletId: string, userId: string, reason?: string) {
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    if (wallet.deletedAt) {
+      throw new BadRequestException("المحفظة مجمدة بالفعل");
+    }
+
+    await this.prisma.wallet.update({
+      where: { id: walletId },
+      data: {
+        deletedAt: new Date(),
+        deletedBy: userId,
+      },
+    });
+
+    await this.prisma.walletAuditLog.create({
+      data: {
+        walletId,
+        userId,
+        operation: "WALLET_FROZEN",
+        balanceBefore: wallet.balance,
+        balanceAfter: wallet.balance,
+        amount: 0,
+        versionBefore: wallet.version,
+        versionAfter: wallet.version,
+        metadata: { reason: reason || "Admin action" },
+      },
+    });
+
+    return {
+      success: true,
+      message: "تم تجميد المحفظة بنجاح",
+      walletId,
+    };
+  }
+
+  /**
+   * إلغاء تجميد المحفظة (للإدارة فقط)
+   */
+  async unfreezeWallet(walletId: string, userId: string, reason?: string) {
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    if (!wallet.deletedAt) {
+      throw new BadRequestException("المحفظة ليست مجمدة");
+    }
+
+    await this.prisma.wallet.update({
+      where: { id: walletId },
+      data: {
+        deletedAt: null,
+        deletedBy: null,
+      },
+    });
+
+    await this.prisma.walletAuditLog.create({
+      data: {
+        walletId,
+        userId,
+        operation: "WALLET_UNFROZEN",
+        balanceBefore: wallet.balance,
+        balanceAfter: wallet.balance,
+        amount: 0,
+        versionBefore: wallet.version,
+        versionAfter: wallet.version,
+        metadata: { reason: reason || "Admin action" },
+      },
+    });
+
+    return {
+      success: true,
+      message: "تم إلغاء تجميد المحفظة بنجاح",
+      walletId,
     };
   }
 }

@@ -95,6 +95,7 @@ export class FintechService {
     idempotencyKey?: string,
     userId?: string,
     ipAddress?: string,
+    pin?: string,
   ) {
     return this.walletService.withdraw(
       walletId,
@@ -103,6 +104,29 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      pin,
+    );
+  }
+
+  async transfer(
+    fromWalletId: string,
+    toWalletId: string,
+    amount: number,
+    description?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+    pin?: string,
+  ) {
+    return this.walletService.transfer(
+      fromWalletId,
+      toWalletId,
+      amount,
+      description,
+      idempotencyKey,
+      userId,
+      ipAddress,
+      pin,
     );
   }
 
@@ -389,6 +413,15 @@ export class FintechService {
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper Methods
   // ═══════════════════════════════════════════════════════════════════════════
+
+  // Wallet Freeze/Unfreeze
+  async freezeWallet(walletId: string, userId: string, reason?: string) {
+    return this.walletService.freezeWallet(walletId, userId, reason);
+  }
+
+  async unfreezeWallet(walletId: string, userId: string, reason?: string) {
+    return this.walletService.unfreezeWallet(walletId, userId, reason);
+  }
 
   /**
    * الحصول على ترجمة التصنيف الائتماني

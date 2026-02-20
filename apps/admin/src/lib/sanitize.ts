@@ -1,38 +1,42 @@
 /**
- * Lightweight HTML Sanitization Utility
- * SSR-safe alternative to isomorphic-dompurify for Next.js
- * 
- * This utility provides basic HTML sanitization without requiring DOM APIs,
- * making it safe to use in both server-side and client-side contexts.
+ * HTML Sanitization Utility
+ * Uses the xss library for robust, SSR-safe HTML sanitization.
+ *
+ * xss is a pure-JavaScript library with no native dependencies (unlike
+ * isomorphic-dompurify which requires jsdom). This avoids CI build failures
+ * caused by --ignore-scripts skipping jsdom's postinstall hooks.
+ *
+ * Replaces hand-rolled regex sanitization which was flagged by CodeQL for
+ * incomplete multi-character sanitization (partial tags like <script without
+ * closing > surviving regex-based stripping).
  */
 
+import xss, { type IFilterXSSOptions } from "xss";
+
+// Plain-text mode: strip ALL tags and attributes, returning only text content
+const PLAIN_TEXT_OPTIONS: IFilterXSSOptions = {
+    whiteList: {},          // No tags allowed
+    stripIgnoreTag: true,   // Strip tags not in whitelist (all of them)
+    stripIgnoreTagBody: ["script", "style", "noscript"], // Also strip body of these
+};
+
 /**
- * Sanitize user input by removing HTML tags and control characters
+ * Sanitize user input by removing ALL HTML tags and control characters.
+ * Returns plain text safe for display.
  * @param input - The string to sanitize
- * @returns Sanitized string with HTML tags removed
+ * @returns Sanitized plain text string with all HTML removed
  */
 export function sanitizeInput(input: string): string {
     if (typeof input !== "string") return input;
 
-    // Remove HTML tags using regex
-    let sanitized = input.replace(/<[^>]*>/g, "");
-
-    // Decode common HTML entities
-    sanitized = sanitized
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&amp;/g, "&")
-        .replace(/&quot;/g, '"')
-        .replace(/&#x27;/g, "'")
-        .replace(/&#x2F;/g, "/");
-
     // Remove null bytes and control characters (except newlines and tabs)
     // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
-    sanitized = sanitized.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+    let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-    // Remove any script-like content
-    sanitized = sanitized.replace(/javascript:/gi, "");
-    sanitized = sanitized.replace(/on\w+\s*=/gi, "");
+    // Use xss library to strip all HTML tags and dangerous content.
+    // Properly handles incomplete tags, encoded entities, event handlers,
+    // and nested markup that regex cannot reliably catch.
+    sanitized = xss(sanitized, PLAIN_TEXT_OPTIONS);
 
     return sanitized.trim();
 }
@@ -50,25 +54,20 @@ export function sanitizeHtml(
     if (typeof html !== "string") return html;
 
     if (allowedTags.length === 0) {
-        // No tags allowed, strip everything
         return sanitizeInput(html);
     }
 
-    // Build regex pattern for allowed tags
-    const allowedPattern = allowedTags.join("|");
-    const tagRegex = new RegExp(
-        `<(?!\\/?(${allowedPattern})\\b)[^>]*>`,
-        "gi"
-    );
+    // Build whitelist object for xss library: { tagName: [] } (no attributes)
+    const whiteList: Record<string, string[]> = {};
+    for (const tag of allowedTags) {
+        whiteList[tag] = [];
+    }
 
-    // Remove disallowed tags
-    let sanitized = html.replace(tagRegex, "");
-
-    // Remove dangerous attributes from allowed tags
-    sanitized = sanitized.replace(/\s+on\w+\s*=\s*["'][^"']*["']/gi, "");
-    sanitized = sanitized.replace(/\s+javascript:\s*/gi, "");
-
-    return sanitized.trim();
+    return xss(html, {
+        whiteList,
+        stripIgnoreTag: true,
+        stripIgnoreTagBody: ["script", "style", "noscript"],
+    }).trim();
 }
 
 /**

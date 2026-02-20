@@ -189,7 +189,12 @@ async def publish_event(subject: str, data: dict):
         except Exception as e:
             logger.warning(f"Failed to publish event {subject}: {e}")
     else:
-        logger.info(f"Event (local): {subject} - {data}")
+        safe_data = (
+            {k: str(v).replace("\n", " ").replace("\r", " ") for k, v in data.items()}
+            if isinstance(data, dict)
+            else str(data).replace("\n", " ").replace("\r", " ")
+        )
+        logger.info(f"Event (local): {subject} - {safe_data}")
 
 
 # =============================================================================
@@ -2601,7 +2606,7 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPError as e:
-            logger.error(f"Tharwatt API error: {e}")
+            logger.error("Tharwatt API error: %s", str(e).replace("\n", " ").replace("\r", " "))
             # Security: Don't expose internal error details to client
             raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
 
@@ -2626,7 +2631,7 @@ async def call_stripe_api(payment: Any, token: str) -> dict:
         )
         return {"stripe_charge_id": charge.id, "status": charge.status}
     except Exception as e:
-        logger.error(f"Stripe API error: {e}")
+        logger.error("Stripe API error: %s", str(e).replace("\n", " ").replace("\r", " "))
         # Security: Don't expose internal error details to client
         raise HTTPException(502, "Payment processing failed. Please try again or contact support.")
 
@@ -2711,7 +2716,8 @@ async def create_payment(
             )()
             tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
             await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
-            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {_sanitize_log(tharwatt_response)}")
+            safe_resp = str(tharwatt_response).replace("\n", " ").replace("\r", " ")
+            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {safe_resp}")
 
     elif request.method == PaymentMethod.CASH:
         await repo.payments.mark_succeeded(payment.id)
@@ -2723,7 +2729,8 @@ async def create_payment(
     if payment.status == db_models.PaymentStatus.SUCCEEDED:
         await repo.invoices.mark_paid(invoice.id, request.amount)
 
-    logger.info(f"Payment {payment.id} created for invoice {_sanitize_log(request.invoice_id)}")
+    safe_inv_id = str(request.invoice_id).replace("\n", " ").replace("\r", " ")
+    logger.info(f"Payment {payment.id} created for invoice {safe_inv_id}")
 
     # Publish payment event
     background_tasks.add_task(
@@ -2915,9 +2922,10 @@ async def create_refund(
 
         await repo.invoices.update(invoice.id, **update_kwargs)
 
+    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
     logger.info(
         f"Refund processed: payment={payment.id}, amount={refund_amount}, "
-        f"full={is_full_refund}, reason={_sanitize_log(request.reason)}"
+        f"full={is_full_refund}, reason={safe_reason}"
     )
 
     # Publish refund event
@@ -3047,10 +3055,12 @@ async def tharwatt_webhook(
         try:
             payment = await repo.payments.get_by_id(uuid.UUID(payload.reference))
         except (ValueError, AttributeError) as e:
-            logger.warning(f"Failed to resolve payment reference {_sanitize_log(payload.reference)}: {e}")
+            safe_ref = str(payload.reference).replace("\n", " ").replace("\r", " ")
+            logger.warning(f"Failed to resolve payment reference {safe_ref}: {e}")
 
     if not payment:
-        logger.warning(f"Tharwatt webhook: Payment not found for reference {_sanitize_log(payload.reference)}")
+        safe_ref = str(payload.reference).replace("\n", " ").replace("\r", " ")
+        logger.warning(f"Tharwatt webhook: Payment not found for reference {safe_ref}")
         raise HTTPException(404, "Payment not found")
 
     # Update payment status in database
@@ -3084,7 +3094,8 @@ async def tharwatt_webhook(
             payment.id,
             failure_reason=payload.error_message or "Payment failed",
         )
-        logger.warning(f"Tharwatt payment failed: {payment.id} - {_sanitize_log(payload.error_message)}")
+        safe_err = str(payload.error_message).replace("\n", " ").replace("\r", " ")
+        logger.warning(f"Tharwatt payment failed: {payment.id} - {safe_err}")
 
         # Publish payment failed event
         background_tasks.add_task(

@@ -348,8 +348,12 @@ class RedisTokenRevocationStore:
             return False
 
         except Exception as e:
-            logger.error(f"Error checking user token revocation: {e}")
-            return False
+            logger.error(
+                "SECURITY: Cannot verify user token revocation status, failing closed",
+                extra={"error": str(e), "user_id": user_id},
+            )
+            # Fail closed: treat as revoked when store is unavailable
+            return True
 
     async def clear_user_revocation(self, user_id: str) -> bool:
         """
@@ -463,8 +467,12 @@ class RedisTokenRevocationStore:
             return False
 
         except Exception as e:
-            logger.error(f"Error checking tenant token revocation: {e}")
-            return False
+            logger.error(
+                "SECURITY: Cannot verify tenant token revocation status, failing closed",
+                extra={"error": str(e), "tenant_id": tenant_id},
+            )
+            # Fail closed: treat as revoked when store is unavailable
+            return True
 
     # ─────────────────────────────────────────────────────────────────────────
     # Combined Check

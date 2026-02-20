@@ -105,10 +105,15 @@ class TestRateLimiter:
         self,
         ip: str = "127.0.0.1",
         tenant_id: str = "default",
-        tier: str = "standard",
+        tier: str = "free",
         user_id: str = None,
+        is_service_request: bool = False,
     ) -> Mock:
-        """Create a mock request for testing"""
+        """Create a mock request for testing.
+
+        Tier is derived from request.state.user (set by auth middleware),
+        not from client-supplied headers.
+        """
         request = Mock(spec=Request)
         request.client = Mock()
         request.client.host = ip
@@ -116,19 +121,23 @@ class TestRateLimiter:
         request.headers.get = Mock(
             side_effect=lambda key, default=None: {
                 "X-Tenant-ID": tenant_id,
-                "X-Rate-Limit-Tier": tier,
             }.get(key, default)
         )
         request.url = Mock()
         request.url.path = "/test"
 
-        # Mock user state if provided
+        # Simulate auth middleware setting user state with tier
+        request.state = Mock(spec=[])  # spec=[] prevents auto-creating attributes
         if user_id:
-            request.state = Mock()
-            request.state.user = Mock()
-            request.state.user.id = user_id
+            user = Mock()
+            user.id = user_id
+            user.tier = tier
+            request.state.user = user
         else:
-            request.state = Mock()
+            request.state.user = None
+
+        # Simulate ServiceAuthMiddleware for internal service calls
+        request.state.is_service_request = is_service_request
 
         return request
 
@@ -214,20 +223,37 @@ class TestRateLimiter:
         """Test that different tiers have different limits"""
         limiter = RateLimiter()
 
-        # Internal service should have higher limits
-        request_internal = self.create_mock_request()
-        request_internal.headers.get = Mock(
-            side_effect=lambda key, default=None: {
-                "X-Internal-Service": "true",
-                "X-Tenant-ID": "default",
-            }.get(key, default)
-        )
+        # Internal service request (verified via ServiceAuthMiddleware)
+        request_internal = self.create_mock_request(is_service_request=True)
 
         allowed, headers = limiter.check_rate_limit(request_internal)
         assert allowed is True
         # Internal tier has higher limit
         limit = int(headers.get("X-RateLimit-Limit", "0"))
         assert limit >= 1000  # Internal tier minimum
+
+    def test_rate_limiter_user_tier_from_jwt(self):
+        """Test that tier is derived from verified JWT claims, not headers"""
+        limiter = RateLimiter()
+
+        # User with premium tier from JWT
+        request_premium = self.create_mock_request(
+            user_id="user-1", tier="premium"
+        )
+        allowed, headers = limiter.check_rate_limit(request_premium)
+        assert allowed is True
+        limit = int(headers.get("X-RateLimit-Limit", "0"))
+        assert limit >= 120  # Premium tier minimum
+
+    def test_rate_limiter_unauthenticated_gets_free_tier(self):
+        """Test unauthenticated requests default to free (most restrictive) tier"""
+        limiter = RateLimiter()
+
+        request_anon = self.create_mock_request()
+        allowed, headers = limiter.check_rate_limit(request_anon)
+        assert allowed is True
+        limit = int(headers.get("X-RateLimit-Limit", "0"))
+        assert limit <= 30  # Free tier maximum
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

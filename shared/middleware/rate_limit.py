@@ -123,8 +123,9 @@ class RateLimiter:
             if isinstance(tier, str) and tier.lower() in ["free", "standard", "premium", "internal"]:
                 return tier.lower()
 
-        # Internal service calls verified via mutual TLS or signed token
-        if hasattr(request.state, "is_internal_service") and request.state.is_internal_service:
+        # Internal service calls verified via ServiceAuthMiddleware (X-Service-Token)
+        # ServiceAuthMiddleware sets request.state.is_service_request = True
+        if getattr(request.state, "is_service_request", False):
             return "internal"
 
         # Default to most restrictive tier for unauthenticated requests

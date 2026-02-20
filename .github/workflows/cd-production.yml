@@ -543,7 +543,8 @@ jobs:
           echo "✅ Failed Green deployment removed"
 
       - name: Notify team of rollback
-        if: ${{ failure() }}
+        if: failure()
+        continue-on-error: true
         uses: 8398a7/action-slack@v3
         with:
           status: custom
@@ -628,7 +629,8 @@ jobs:
           echo "- **Status:** https://status.sahool.io" >> $GITHUB_STEP_SUMMARY
 
       - name: Notify success
-        if: ${{ needs.validate-release.outputs.kubeconfig_available == 'true' && success() }}
+        if: needs.validate-release.outputs.kubeconfig_available == 'true' && success()
+        continue-on-error: true
         uses: 8398a7/action-slack@v3
         with:
           status: custom

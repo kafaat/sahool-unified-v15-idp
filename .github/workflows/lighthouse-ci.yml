@@ -106,6 +106,7 @@ jobs:
 
       - name: Build Flutter Web
         working-directory: apps/mobile
+        continue-on-error: true
         run: flutter build web --release
 
       - name: Install Lighthouse

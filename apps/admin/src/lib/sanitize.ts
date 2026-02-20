@@ -1,13 +1,24 @@
 /**
  * HTML Sanitization Utility
- * Uses isomorphic-dompurify for robust, SSR-safe HTML sanitization.
+ * Uses the xss library for robust, SSR-safe HTML sanitization.
  *
- * This replaces hand-rolled regex sanitization which was flagged by CodeQL
- * for incomplete multi-character sanitization (e.g. partial <script tags
- * surviving regex-based stripping).
+ * xss is a pure-JavaScript library with no native dependencies (unlike
+ * isomorphic-dompurify which requires jsdom). This avoids CI build failures
+ * caused by --ignore-scripts skipping jsdom's postinstall hooks.
+ *
+ * Replaces hand-rolled regex sanitization which was flagged by CodeQL for
+ * incomplete multi-character sanitization (partial tags like <script without
+ * closing > surviving regex-based stripping).
  */
 
-import DOMPurify from "isomorphic-dompurify";
+import xss, { type IFilterXSSOptions } from "xss";
+
+// Plain-text mode: strip ALL tags and attributes, returning only text content
+const PLAIN_TEXT_OPTIONS: IFilterXSSOptions = {
+    whiteList: {},          // No tags allowed
+    stripIgnoreTag: true,   // Strip tags not in whitelist (all of them)
+    stripIgnoreTagBody: ["script", "style", "noscript"], // Also strip body of these
+};
 
 /**
  * Sanitize user input by removing ALL HTML tags and control characters.
@@ -22,13 +33,10 @@ export function sanitizeInput(input: string): string {
     // eslint-disable-next-line no-control-regex -- Intentional: sanitizing dangerous control characters
     let sanitized = input.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
 
-    // Use DOMPurify with no allowed tags/attributes to strip all HTML.
-    // This properly handles incomplete tags, encoded entities, and nested markup
-    // that regex-based stripping cannot reliably catch.
-    sanitized = DOMPurify.sanitize(sanitized, {
-        ALLOWED_TAGS: [],
-        ALLOWED_ATTR: [],
-    });
+    // Use xss library to strip all HTML tags and dangerous content.
+    // Properly handles incomplete tags, encoded entities, event handlers,
+    // and nested markup that regex cannot reliably catch.
+    sanitized = xss(sanitized, PLAIN_TEXT_OPTIONS);
 
     return sanitized.trim();
 }
@@ -45,11 +53,20 @@ export function sanitizeHtml(
 ): string {
     if (typeof html !== "string") return html;
 
-    // DOMPurify handles tag allowlisting, attribute stripping, and all
-    // edge cases (incomplete tags, encoded payloads, event handlers, etc.)
-    return DOMPurify.sanitize(html, {
-        ALLOWED_TAGS: allowedTags,
-        ALLOWED_ATTR: [],
+    if (allowedTags.length === 0) {
+        return sanitizeInput(html);
+    }
+
+    // Build whitelist object for xss library: { tagName: [] } (no attributes)
+    const whiteList: Record<string, string[]> = {};
+    for (const tag of allowedTags) {
+        whiteList[tag] = [];
+    }
+
+    return xss(html, {
+        whiteList,
+        stripIgnoreTag: true,
+        stripIgnoreTagBody: ["script", "style", "noscript"],
     }).trim();
 }
 

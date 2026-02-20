@@ -300,6 +300,21 @@ class GPSMapper:
         """
         config = session.config
 
+        # Validate coordinate ranges
+        lat, lon = point.coordinates[0], point.coordinates[1]
+        if not (-90 <= lat <= 90):
+            return (
+                False,
+                f"Invalid latitude {lat}: must be between -90 and 90 | "
+                f"خط العرض غير صالح",
+            )
+        if not (-180 <= lon <= 180):
+            return (
+                False,
+                f"Invalid longitude {lon}: must be between -180 and 180 | "
+                f"خط الطول غير صالح",
+            )
+
         # Check accuracy threshold
         if point.accuracy_m > config.max_accuracy_m:
             return (

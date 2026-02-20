@@ -3,6 +3,7 @@
   "ci": {
     "collect": {
       "numberOfRuns": 3,
+      "url": ["http://localhost:3000"],
       "startServerCommand": "npm run start --workspace=apps/web",
       "startServerReadyPattern": "Ready|ready|Starting|Local:",
       "startServerReadyTimeout": 60000

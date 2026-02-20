@@ -3705,6 +3705,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
       - NATS_URL=nats://${NATS_USER}:${NATS_PASSWORD}@nats:4222
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
       - "127.0.0.1:8170:8170"
     depends_on:

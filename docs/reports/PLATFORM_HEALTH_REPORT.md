@@ -64,12 +64,13 @@ Five levels of verification were performed:
 | `code-review-agent` | Node.js - missing some expected files |
 | Various | Service-specific expected skips |
 
-### Expected Failures (2 xfail)
+### Expected Failures (1 xfail)
 
 | Service | Issue |
 |---------|-------|
-| `copilot-api` | Missing non-root USER directive in Dockerfile |
 | `code-review-agent` | Missing non-root USER directive in Dockerfile |
+
+> **Note**: `copilot-api` was previously listed here but has been fixed in this PR (USER sahool added to Dockerfile).
 
 ---
 
@@ -177,7 +178,7 @@ Five levels of verification were performed:
 
 | Practice | Compliance | Status |
 |----------|-----------|--------|
-| Non-root USER (sahool) | 68/70 (97%) | GOOD |
+| Non-root USER (sahool) | 69/70 (99%) | GOOD |
 | HEALTHCHECK directive | 70/70 (100%) | PASS |
 | EXPOSE directive | 68/70 (97%) | GOOD |
 | Multi-stage builds | 35+ services | GOOD |
@@ -203,7 +204,7 @@ Five levels of verification were performed:
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Non-root containers | 97% | 2 exceptions (copilot-api, code-review-agent) |
+| Non-root containers | 99% | 1 exception (code-review-agent) |
 | HEALTHCHECK present | 100% | All services |
 | Constraints for CVE patches | 95% | Applied via constraints.txt |
 | Secret scanning | CONFIGURED | Gitleaks in CI |
@@ -232,7 +233,7 @@ Five levels of verification were performed:
 
 | # | Finding | Impact | Services Affected |
 |---|---------|--------|-------------------|
-| H1 | **Missing non-root USER** in 2 Dockerfiles | Security risk | copilot-api, code-review-agent |
+| H1 | **Missing non-root USER** in 1 Dockerfile | Security risk | code-review-agent |
 | H2 | **Duplicate services**: yield-prediction vs yield-prediction-service | Maintenance overhead, confusion | 2 services |
 
 ### 7.3 Medium Priority Findings
@@ -268,11 +269,14 @@ Five levels of verification were performed:
 
 ### 8.2 High Priority (Within Sprint)
 
-#### R3: Add Non-Root USER to copilot-api and code-review-agent
+#### R3: Add Non-Root USER to code-review-agent
 
 **Problem**: Running containers as root is a security risk.
 
-**Solution**: Add standard user creation pattern:
+**Status**: `copilot-api` — **RESOLVED** in this PR (USER sahool added to Dockerfile).
+Only `code-review-agent` remains.
+
+**Solution**: Add standard user creation pattern to code-review-agent Dockerfile:
 
 ```dockerfile
 RUN groupadd --system sahool && \
@@ -370,7 +374,7 @@ def get_items():
 | Endpoint coverage | 99.6% real implementations |
 | Dependency constraint coverage | 95% |
 | HEALTHCHECK coverage | 100% |
-| Non-root user coverage | 97% |
+| Non-root user coverage | 99% |
 | Pip mirror coverage | 97% |
 
 ---
@@ -384,9 +388,9 @@ The SAHOOL platform demonstrates **strong overall health** with a score of **96.
 3. **Zero broken imports** from shared modules
 4. **100% HEALTHCHECK coverage** across all containers
 5. **100% critical dependency consistency** for both Python (via constraints.txt) and Node.js
-6. **97% security compliance** with non-root container execution
+6. **99% security compliance** with non-root container execution
 
-The 2 critical findings (port conflict and incomplete service) and 2 high-priority findings (missing USER directive and duplicate services) should be addressed in the current sprint. The remaining medium and low priority items can be scheduled for the next release.
+The 2 critical findings (port conflict and incomplete service) were resolved in this PR. The remaining high-priority findings (1 missing USER directive and duplicate services) should be addressed in the current sprint. The remaining medium and low priority items can be scheduled for the next release.
 
 ---
 

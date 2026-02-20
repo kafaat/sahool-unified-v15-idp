@@ -4,7 +4,7 @@ Configuration settings for Leveling Optimizer Service.
 إعدادات خدمة تحسين التسوية
 """
 
-from typing import Optional
+import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -31,9 +31,19 @@ class Settings(BaseSettings):
     # Redis
     REDIS_URL: str | None = None
 
-    # JWT
-    JWT_SECRET_KEY: str = "test-secret-key-for-unit-tests-only-32chars"
+    # JWT - must be provided via environment variable, no hardcoded default
+    # يجب توفير مفتاح JWT عبر متغير البيئة، بدون قيمة افتراضية مشفرة
+    JWT_SECRET_KEY: str = ""
     JWT_ALGORITHM: str = "HS256"
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        env = os.getenv("ENVIRONMENT", "production")
+        if env != "test" and (not self.JWT_SECRET_KEY or len(self.JWT_SECRET_KEY) < 32):
+            raise ValueError(
+                "JWT_SECRET_KEY must be set via environment variable and be at least 32 characters. "
+                "يجب تعيين JWT_SECRET_KEY عبر متغير البيئة وأن يكون 32 حرفاً على الأقل"
+            )
 
     # Equipment costs in SAR (Saudi Riyal) per hour
     # تكاليف المعدات بالريال السعودي في الساعة

@@ -84,7 +84,7 @@ class DLQConfig(BaseModel):
 
     # Retention
     dlq_max_age_days: int = Field(
-        default=30, ge=1, description="Maximum age of messages in DLQ (days)"
+        default=30, ge=1, le=90, description="Maximum age of messages in DLQ (days), capped at 90"
     )
     dlq_max_messages: int = Field(
         default=100000, ge=1000, description="Maximum number of messages in DLQ stream"

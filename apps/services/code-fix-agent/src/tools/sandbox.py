@@ -357,7 +357,7 @@ else:
     if '_result' in dir() and _result is not None:
         try:
             print("__SANDBOX_RETURN__:" + json.dumps(_result))
-        except:
+        except (TypeError, ValueError, OverflowError):
             print("__SANDBOX_RETURN__:" + repr(_result))
 """
 

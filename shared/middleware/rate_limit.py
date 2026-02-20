@@ -109,17 +109,26 @@ class RateLimiter:
         self._request_counts[key] = [t for t in self._request_counts[key] if t > cutoff]
 
     def _get_tier(self, request: Request) -> str:
-        """Get rate limit tier from request headers or default"""
-        # Check for internal service calls
-        if request.headers.get("X-Internal-Service"):
+        """Get rate limit tier from verified auth context, not client headers.
+
+        Security: Tier is derived from the authenticated user's JWT claims
+        (set by auth middleware on request.state), never from untrusted
+        client-supplied headers.
+        الأمان: يتم تحديد المستوى من بيانات JWT الموثقة وليس من رؤوس العميل
+        """
+        # Use verified user context set by auth middleware
+        if hasattr(request.state, "user") and request.state.user:
+            user = request.state.user
+            tier = getattr(user, "tier", "free")
+            if isinstance(tier, str) and tier.lower() in ["free", "standard", "premium", "internal"]:
+                return tier.lower()
+
+        # Internal service calls verified via mutual TLS or signed token
+        if hasattr(request.state, "is_internal_service") and request.state.is_internal_service:
             return "internal"
 
-        # Check for API key tier
-        tier = request.headers.get("X-Rate-Limit-Tier", "free").lower()
-        if tier not in ["free", "standard", "premium", "internal"]:
-            tier = "free"
-
-        return tier
+        # Default to most restrictive tier for unauthenticated requests
+        return "free"
 
     def _get_config(self, tier: str) -> RateLimitConfig:
         """Get rate limit config for tier"""

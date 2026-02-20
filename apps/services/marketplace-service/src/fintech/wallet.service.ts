@@ -15,6 +15,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import * as crypto from "crypto";
 
 @Injectable()
 export class WalletService {
@@ -430,6 +431,165 @@ export class WalletService {
         requiresPinForAmount: pinAmount,
       },
     });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // إدارة رمز PIN - PIN Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  private readonly PIN_SALT_LENGTH = 16;
+  private readonly PIN_KEY_LENGTH = 32;
+  private readonly PIN_SCRYPT_COST = 16384;
+  private readonly MAX_PIN_ATTEMPTS = 5;
+
+  /**
+   * تشفير رمز PIN باستخدام scrypt
+   */
+  private hashPin(pin: string): string {
+    const salt = crypto.randomBytes(this.PIN_SALT_LENGTH);
+    const derived = crypto.scryptSync(pin, salt, this.PIN_KEY_LENGTH, {
+      N: this.PIN_SCRYPT_COST,
+    });
+    return `${salt.toString("hex")}:${derived.toString("hex")}`;
+  }
+
+  /**
+   * التحقق من رمز PIN
+   */
+  private verifyPinHash(pin: string, storedHash: string): boolean {
+    const [saltHex, hashHex] = storedHash.split(":");
+    if (!saltHex || !hashHex) return false;
+    const salt = Buffer.from(saltHex, "hex");
+    const derived = crypto.scryptSync(pin, salt, this.PIN_KEY_LENGTH, {
+      N: this.PIN_SCRYPT_COST,
+    });
+    return crypto.timingSafeEqual(derived, Buffer.from(hashHex, "hex"));
+  }
+
+  /**
+   * تعيين رمز PIN للمحفظة
+   */
+  async setPin(walletId: string, pin: string, userId?: string) {
+    if (!/^\d{4,6}$/.test(pin)) {
+      throw new BadRequestException(
+        "رمز PIN يجب أن يكون 4-6 أرقام",
+      );
+    }
+
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    if (wallet.pin) {
+      throw new BadRequestException(
+        "رمز PIN موجود بالفعل. استخدم تغيير رمز PIN",
+      );
+    }
+
+    const hashedPin = this.hashPin(pin);
+
+    const updatedWallet = await this.prisma.wallet.update({
+      where: { id: walletId },
+      data: { pin: hashedPin },
+    });
+
+    await this.prisma.walletAuditLog.create({
+      data: {
+        walletId,
+        userId,
+        operation: "PIN_SET",
+        balanceBefore: wallet.balance,
+        balanceAfter: wallet.balance,
+        amount: 0,
+        versionBefore: wallet.version,
+        versionAfter: wallet.version,
+      },
+    });
+
+    return {
+      success: true,
+      message: "تم تعيين رمز PIN بنجاح",
+    };
+  }
+
+  /**
+   * التحقق من رمز PIN
+   */
+  async verifyPin(walletId: string, pin: string): Promise<boolean> {
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    if (!wallet.pin) {
+      throw new BadRequestException("لم يتم تعيين رمز PIN بعد");
+    }
+
+    return this.verifyPinHash(pin, wallet.pin);
+  }
+
+  /**
+   * تغيير رمز PIN
+   */
+  async changePin(
+    walletId: string,
+    oldPin: string,
+    newPin: string,
+    userId?: string,
+  ) {
+    if (!/^\d{4,6}$/.test(newPin)) {
+      throw new BadRequestException(
+        "رمز PIN الجديد يجب أن يكون 4-6 أرقام",
+      );
+    }
+
+    const wallet = await this.prisma.wallet.findUnique({
+      where: { id: walletId },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException("المحفظة غير موجودة");
+    }
+
+    if (!wallet.pin) {
+      throw new BadRequestException("لم يتم تعيين رمز PIN بعد");
+    }
+
+    if (!this.verifyPinHash(oldPin, wallet.pin)) {
+      throw new BadRequestException("رمز PIN الحالي غير صحيح");
+    }
+
+    const hashedPin = this.hashPin(newPin);
+
+    await this.prisma.wallet.update({
+      where: { id: walletId },
+      data: { pin: hashedPin },
+    });
+
+    await this.prisma.walletAuditLog.create({
+      data: {
+        walletId,
+        userId,
+        operation: "PIN_CHANGED",
+        balanceBefore: wallet.balance,
+        balanceAfter: wallet.balance,
+        amount: 0,
+        versionBefore: wallet.version,
+        versionAfter: wallet.version,
+      },
+    });
+
+    return {
+      success: true,
+      message: "تم تغيير رمز PIN بنجاح",
+    };
   }
 
   /**

@@ -388,6 +388,100 @@ export class AppController {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // إدارة رمز PIN - PIN Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تعيين رمز PIN للمحفظة
+   * POST /api/v1/fintech/wallet/:walletId/set-pin
+   */
+  @Post("fintech/wallet/:walletId/set-pin")
+  @UseGuards(JwtAuthGuard)
+  async setPin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { pin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to set PIN for this wallet",
+      );
+    }
+
+    return this.fintechService.setPin(walletId, body.pin, authenticatedUser.id);
+  }
+
+  /**
+   * التحقق من رمز PIN
+   * POST /api/v1/fintech/wallet/:walletId/verify-pin
+   */
+  @Post("fintech/wallet/:walletId/verify-pin")
+  @UseGuards(JwtAuthGuard)
+  async verifyPin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { pin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to verify PIN for this wallet",
+      );
+    }
+
+    const valid = await this.fintechService.verifyPin(walletId, body.pin);
+    return { valid };
+  }
+
+  /**
+   * تغيير رمز PIN
+   * POST /api/v1/fintech/wallet/:walletId/change-pin
+   */
+  @Post("fintech/wallet/:walletId/change-pin")
+  @UseGuards(JwtAuthGuard)
+  async changePin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { oldPin: string; newPin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to change PIN for this wallet",
+      );
+    }
+
+    return this.fintechService.changePin(
+      walletId,
+      body.oldPin,
+      body.newPin,
+      authenticatedUser.id,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // الإسكرو - Escrow
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -441,6 +535,55 @@ export class AppController {
     @Body() body: { reason?: string },
   ) {
     return this.fintechService.refundEscrow(id, body.reason);
+  }
+
+  /**
+   * فتح نزاع على الإسكرو
+   * POST /api/v1/fintech/escrow/:id/dispute
+   */
+  @Post("fintech/escrow/:id/dispute")
+  @UseGuards(JwtAuthGuard)
+  async disputeEscrow(
+    @Req() request: any,
+    @Param("id") id: string,
+    @Body() body: { reason: string },
+  ) {
+    const authenticatedUser = request.user;
+    return this.fintechService.disputeEscrow(
+      id,
+      body.reason,
+      authenticatedUser.id,
+      request.ip,
+    );
+  }
+
+  /**
+   * حل النزاع (للإدارة فقط)
+   * POST /api/v1/fintech/escrow/:id/resolve-dispute
+   */
+  @Post("fintech/escrow/:id/resolve-dispute")
+  @UseGuards(JwtAuthGuard)
+  async resolveDispute(
+    @Req() request: any,
+    @Param("id") id: string,
+    @Body() body: { resolution: "release" | "refund"; adminNotes: string },
+  ) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can resolve escrow disputes",
+      );
+    }
+
+    return this.fintechService.resolveDispute(
+      id,
+      body.resolution,
+      body.adminNotes,
+      authenticatedUser.id,
+      request.ip,
+    );
   }
 
   /**
@@ -577,6 +720,25 @@ export class AppController {
     }
 
     return this.fintechService.executeScheduledPayment(id);
+  }
+
+  /**
+   * معالجة الدفعات المستحقة (للإدارة)
+   * POST /api/v1/fintech/scheduled-payments/process-due
+   */
+  @Post("fintech/scheduled-payments/process-due")
+  @UseGuards(JwtAuthGuard)
+  async processDuePayments(@Req() request: any) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can trigger payment processing",
+      );
+    }
+
+    return this.fintechService.processDuePayments();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

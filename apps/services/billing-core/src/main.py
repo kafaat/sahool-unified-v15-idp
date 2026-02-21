@@ -2716,8 +2716,11 @@ async def create_payment(
             )()
             tharwatt_response = await call_tharwatt_api(temp_payment, phone_number)
             await repo.payments.update(payment.id, status=db_models.PaymentStatus.PROCESSING)
-            safe_resp = str(tharwatt_response).replace("\n", " ").replace("\r", " ")
-            logger.info(f"Tharwatt payment initiated: {payment.id} - Response: {safe_resp}")
+            logger.info(
+                "Tharwatt payment initiated: %s - Response: %s",
+                payment.id,
+                str(tharwatt_response).replace("\n", " ").replace("\r", " "),
+            )
 
     elif request.method == PaymentMethod.CASH:
         await repo.payments.mark_succeeded(payment.id)
@@ -2729,8 +2732,11 @@ async def create_payment(
     if payment.status == db_models.PaymentStatus.SUCCEEDED:
         await repo.invoices.mark_paid(invoice.id, request.amount)
 
-    safe_inv_id = str(request.invoice_id).replace("\n", " ").replace("\r", " ")
-    logger.info(f"Payment {payment.id} created for invoice {safe_inv_id}")
+    logger.info(
+        "Payment %s created for invoice %s",
+        payment.id,
+        str(request.invoice_id).replace("\n", " ").replace("\r", " "),
+    )
 
     # Publish payment event
     background_tasks.add_task(
@@ -2851,6 +2857,7 @@ async def create_refund(
         try:
             import stripe
             stripe.api_key = STRIPE_API_KEY
+            safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
             refund = stripe.Refund.create(
                 charge=payment.stripe_payment_id,
                 amount=int(refund_amount * 100),  # cents
@@ -2858,12 +2865,12 @@ async def create_refund(
                 metadata={
                     "payment_id": str(payment.id),
                     "tenant_id": payment.tenant_id,
-                    "reason": request.reason,
+                    "reason": safe_reason,
                 },
             )
             refund_external_id = refund.id
         except Exception as e:
-            logger.error(f"Stripe refund failed: {e}")
+            logger.error("Stripe refund failed: %s", str(e).replace("\n", " ").replace("\r", " "))
             raise HTTPException(502, "فشل في معالجة الاسترداد عبر بوابة الدفع")
 
     elif payment.method == db_models.PaymentMethod.THARWATT and THARWATT_API_KEY:
@@ -2881,29 +2888,30 @@ async def create_refund(
                         "reference": str(payment.id),
                         "amount": float(refund_amount),
                         "currency": "YER",
-                        "reason": request.reason,
+                        "reason": str(request.reason).replace("\n", " ").replace("\r", " "),
                     },
                 )
                 response.raise_for_status()
                 refund_data = response.json()
                 refund_external_id = refund_data.get("transaction_id")
         except httpx.HTTPError as e:
-            logger.error(f"Tharwatt refund failed: {e}")
+            logger.error("Tharwatt refund failed: %s", str(e).replace("\n", " ").replace("\r", " "))
             raise HTTPException(502, "فشل في معالجة الاسترداد عبر بوابة ثروات")
 
     # Update payment status
     is_full_refund = refund_amount >= payment.amount
+    sanitized_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
     if is_full_refund:
         await repo.payments.update(
             payment.id,
             status=db_models.PaymentStatus.REFUNDED,
-            failure_reason=f"Refunded: {request.reason}",
+            failure_reason=f"Refunded: {sanitized_reason}",
         )
     else:
         # Partial refund - record in metadata
         await repo.payments.update(
             payment.id,
-            failure_reason=f"Partial refund ({refund_amount}): {request.reason}",
+            failure_reason=f"Partial refund ({refund_amount}): {sanitized_reason}",
         )
 
     # Update invoice - reverse the payment
@@ -2922,10 +2930,12 @@ async def create_refund(
 
         await repo.invoices.update(invoice.id, **update_kwargs)
 
-    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
     logger.info(
-        f"Refund processed: payment={payment.id}, amount={refund_amount}, "
-        f"full={is_full_refund}, reason={safe_reason}"
+        "Refund processed: payment=%s, amount=%s, full=%s, reason=%s",
+        payment.id,
+        refund_amount,
+        is_full_refund,
+        str(request.reason).replace("\n", " ").replace("\r", " "),
     )
 
     # Publish refund event

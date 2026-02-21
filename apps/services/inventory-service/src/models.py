@@ -203,7 +203,7 @@ class BatchLotBase(BaseModel):
     productionDate: datetime | None = None
     expiryDate: datetime | None = None
     qualityGrade: str | None = None
-    certifications: list[str] | None = []
+    certifications: list[str] | None = None
     supplierId: str | None = None
     invoiceNumber: str | None = None
     unitCost: float | None = None

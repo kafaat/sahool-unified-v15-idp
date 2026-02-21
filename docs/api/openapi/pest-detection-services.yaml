@@ -1,0 +1,1049 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Pest Detection Services API
+  description: |
+    # SAHOOL Pest Detection API
+    ## خدمة كشف الآفات والأمراض
+
+    AI-powered pest detection with Middle East pest database and
+    IPM (Integrated Pest Management) recommendations.
+    - Pest identification from images and symptom descriptions
+    - Economic threshold assessment
+    - Treatment protocols and IPM calendars
+    - Scout report management
+    - Alert management for pest outbreaks
+
+    ## Authentication
+    All endpoints require JWT authentication via `Authorization: Bearer <token>`.
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+  license:
+    name: Proprietary
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production
+  - url: http://localhost:8125
+    description: Development (direct)
+
+tags:
+  - name: Pests
+    description: Pest identification and database - تحديد الآفات وقاعدة البيانات
+  - name: Treatments
+    description: Treatment protocols and IPM - بروتوكولات العلاج والإدارة المتكاملة
+  - name: Thresholds
+    description: Economic thresholds and assessment - العتبات الاقتصادية والتقييم
+  - name: Alerts
+    description: Pest alert management - إدارة تنبيهات الآفات
+  - name: Scouts
+    description: Scout report management - إدارة تقارير الاستكشاف
+  - name: Health
+    description: Service health checks
+
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      operationId: readinessCheck
+      security: []
+      responses:
+        '200':
+          description: Service is ready
+
+  /api/v1/pests:
+    get:
+      tags: [Pests]
+      summary: List all pests
+      description: |
+        Get list of pests in the Middle East pest database.
+        الحصول على قائمة الآفات في قاعدة بيانات آفات الشرق الأوسط
+      operationId: listPests
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [insect, mite, disease, weed, rodent, bird, nematode]
+        - name: crop
+          in: query
+          schema:
+            type: string
+          description: Filter by target crop
+      responses:
+        '200':
+          description: List of pests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pest'
+
+  /api/v1/pests/search:
+    get:
+      tags: [Pests]
+      summary: Search pests
+      description: Search pests by name (Arabic or English) or symptoms
+      operationId: searchPests
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query (supports Arabic)
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pest'
+
+  /api/v1/pests/crop/{crop}:
+    get:
+      tags: [Pests]
+      summary: Get pests by crop
+      description: Get pests that affect a specific crop
+      operationId: getPestsByCrop
+      parameters:
+        - name: crop
+          in: path
+          required: true
+          schema:
+            type: string
+          example: wheat
+      responses:
+        '200':
+          description: Pests for the specified crop
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pest'
+
+  /api/v1/pests/identify:
+    post:
+      tags: [Pests]
+      summary: Identify pest from image
+      description: |
+        AI-powered pest identification from field images using YOLO26 vision service.
+        تحديد الآفات بالذكاء الاصطناعي من صور الحقل
+      operationId: identifyPest
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  format: binary
+                crop:
+                  type: string
+                field_id:
+                  type: string
+                confidence_threshold:
+                  type: number
+                  format: float
+                  default: 0.25
+      responses:
+        '200':
+          description: Detection results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/pests/identify/symptoms:
+    post:
+      tags: [Pests]
+      summary: Identify pest from symptoms
+      description: |
+        Identify pests based on symptom description (Arabic or English).
+        تحديد الآفات بناءً على وصف الأعراض
+      operationId: identifyPestBySymptoms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [symptoms]
+              properties:
+                symptoms:
+                  type: string
+                  description: Symptom description (Arabic or English)
+                  example: اصفرار الأوراق وبقع بنية
+                crop:
+                  type: string
+                  example: wheat
+                growth_stage:
+                  type: string
+      responses:
+        '200':
+          description: Symptom-based identification results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  matches:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PestMatch'
+
+  /api/v1/pests/quarantine:
+    get:
+      tags: [Pests]
+      summary: List quarantine pests
+      description: Get pests that are under quarantine regulations
+      operationId: getQuarantinePests
+      responses:
+        '200':
+          description: Quarantine pest list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pest'
+
+  /api/v1/pests/seasonal:
+    get:
+      tags: [Pests]
+      summary: Get seasonal pest forecast
+      description: Get pests expected for the current season and region
+      operationId: getSeasonalPests
+      parameters:
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: month
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+      responses:
+        '200':
+          description: Seasonal pest forecast
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SeasonalPest'
+
+  /api/v1/pests/{pest_id}:
+    get:
+      tags: [Pests]
+      summary: Get pest details
+      operationId: getPest
+      parameters:
+        - name: pest_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pest details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/treatments/recommend:
+    post:
+      tags: [Treatments]
+      summary: Get treatment recommendation
+      description: |
+        Get IPM-based treatment recommendation for a detected pest.
+        الحصول على توصية علاج قائمة على الإدارة المتكاملة للآفات
+      operationId: recommendTreatment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pest_id, crop, severity]
+              properties:
+                pest_id:
+                  type: string
+                crop:
+                  type: string
+                severity:
+                  type: string
+                  enum: [low, medium, high, critical]
+                growth_stage:
+                  type: string
+                organic_only:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Treatment recommendation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreatmentRecommendation'
+
+  /api/v1/treatments/protocols/{pest_id}:
+    get:
+      tags: [Treatments]
+      summary: Get treatment protocol
+      description: Get full IPM treatment protocol for a specific pest
+      operationId: getTreatmentProtocol
+      parameters:
+        - name: pest_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Treatment protocol
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreatmentProtocol'
+
+  /api/v1/treatments/ipm-calendar:
+    get:
+      tags: [Treatments]
+      summary: Get IPM calendar
+      description: Get integrated pest management calendar for a crop/region
+      operationId: getIPMCalendar
+      parameters:
+        - name: crop
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: IPM calendar
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IPMCalendarEntry'
+
+  /api/v1/treatments/rotation:
+    get:
+      tags: [Treatments]
+      summary: Get pesticide rotation schedule
+      description: Get recommended pesticide rotation to prevent resistance
+      operationId: getPesticideRotation
+      parameters:
+        - name: pest_id
+          in: query
+          schema:
+            type: string
+        - name: crop
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rotation schedule
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    sequence:
+                      type: integer
+                    product:
+                      type: string
+                    product_ar:
+                      type: string
+                    mode_of_action:
+                      type: string
+                    interval_days:
+                      type: integer
+
+  /api/v1/thresholds:
+    get:
+      tags: [Thresholds]
+      summary: List economic thresholds
+      operationId: listThresholds
+      responses:
+        '200':
+          description: Economic thresholds
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EconomicThreshold'
+
+  /api/v1/thresholds/crop/{crop}/pest/{pest_id}:
+    get:
+      tags: [Thresholds]
+      summary: Get threshold for crop-pest combination
+      operationId: getThreshold
+      parameters:
+        - name: crop
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: pest_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Economic threshold
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EconomicThreshold'
+
+  /api/v1/thresholds/assess:
+    post:
+      tags: [Thresholds]
+      summary: Assess pest population against threshold
+      description: |
+        Assess whether observed pest population exceeds the economic threshold.
+        تقييم ما إذا كانت أعداد الآفات المرصودة تتجاوز العتبة الاقتصادية
+      operationId: assessThreshold
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pest_id, crop, observed_count, area_m2]
+              properties:
+                pest_id:
+                  type: string
+                crop:
+                  type: string
+                observed_count:
+                  type: integer
+                area_m2:
+                  type: number
+                  format: float
+                trap_type:
+                  type: string
+      responses:
+        '200':
+          description: Threshold assessment result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThresholdResult'
+
+  /api/v1/alerts:
+    get:
+      tags: [Alerts]
+      summary: List pest alerts
+      operationId: listAlerts
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, acknowledged, resolved]
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: List of pest alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PestAlert'
+
+  /api/v1/alerts/create:
+    post:
+      tags: [Alerts]
+      summary: Create pest alert
+      operationId: createAlert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAlertRequest'
+      responses:
+        '201':
+          description: Alert created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestAlert'
+
+  /api/v1/alerts/{alert_id}:
+    get:
+      tags: [Alerts]
+      summary: Get alert details
+      operationId: getAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PestAlert'
+
+  /api/v1/alerts/{alert_id}/acknowledge:
+    post:
+      tags: [Alerts]
+      summary: Acknowledge alert
+      operationId: acknowledgeAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert acknowledged
+
+  /api/v1/alerts/{alert_id}/resolve:
+    post:
+      tags: [Alerts]
+      summary: Resolve alert
+      operationId: resolveAlert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                resolution_notes:
+                  type: string
+                treatment_applied:
+                  type: string
+      responses:
+        '200':
+          description: Alert resolved
+
+  /api/v1/scouts/reports:
+    get:
+      tags: [Scouts]
+      summary: List scout reports
+      operationId: listScoutReports
+      parameters:
+        - name: field_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scout reports
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScoutReport'
+    post:
+      tags: [Scouts]
+      summary: Create scout report
+      operationId: createScoutReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScoutReport'
+      responses:
+        '201':
+          description: Scout report created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+
+  /api/v1/scouts/reports/{report_id}:
+    get:
+      tags: [Scouts]
+      summary: Get scout report
+      operationId: getScoutReport
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scout report details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+    put:
+      tags: [Scouts]
+      summary: Update scout report
+      operationId: updateScoutReport
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScoutReport'
+      responses:
+        '200':
+          description: Updated scout report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+    delete:
+      tags: [Scouts]
+      summary: Delete scout report
+      operationId: deleteScoutReport
+      parameters:
+        - name: report_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Scout report deleted
+
+  /api/v1/scouts/reports/field/{field_id}:
+    get:
+      tags: [Scouts]
+      summary: Get scout reports by field
+      operationId: getScoutReportsByField
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scout reports for the field
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScoutReport'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        version:
+          type: string
+
+    Pest:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: Red Palm Weevil
+        name_ar:
+          type: string
+          example: سوسة النخيل الحمراء
+        scientific_name:
+          type: string
+          example: Rhynchophorus ferrugineus
+        category:
+          type: string
+          enum: [insect, mite, disease, weed, rodent, bird, nematode]
+        target_crops:
+          type: array
+          items:
+            type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        symptoms:
+          type: array
+          items:
+            type: string
+        symptoms_ar:
+          type: array
+          items:
+            type: string
+        quarantine:
+          type: boolean
+        image_url:
+          type: string
+          format: uri
+
+    PestMatch:
+      type: object
+      properties:
+        pest:
+          $ref: '#/components/schemas/Pest'
+        confidence:
+          type: number
+          format: float
+        matching_symptoms:
+          type: array
+          items:
+            type: string
+
+    DetectionResult:
+      type: object
+      properties:
+        detections:
+          type: array
+          items:
+            type: object
+            properties:
+              pest_id:
+                type: string
+              name:
+                type: string
+              name_ar:
+                type: string
+              confidence:
+                type: number
+                format: float
+              bbox:
+                type: array
+                items:
+                  type: number
+              severity:
+                type: string
+        image_metadata:
+          type: object
+        processing_time_ms:
+          type: number
+
+    SeasonalPest:
+      type: object
+      properties:
+        pest:
+          $ref: '#/components/schemas/Pest'
+        risk_level:
+          type: string
+          enum: [low, medium, high]
+        peak_months:
+          type: array
+          items:
+            type: integer
+        prevention_tips:
+          type: array
+          items:
+            type: string
+        prevention_tips_ar:
+          type: array
+          items:
+            type: string
+
+    TreatmentRecommendation:
+      type: object
+      properties:
+        pest_id:
+          type: string
+        treatment_options:
+          type: array
+          items:
+            type: object
+            properties:
+              method:
+                type: string
+              method_ar:
+                type: string
+              product:
+                type: string
+              product_ar:
+                type: string
+              dosage:
+                type: string
+              phi_days:
+                type: integer
+                description: Pre-Harvest Interval
+              safety_precautions:
+                type: array
+                items:
+                  type: string
+              organic:
+                type: boolean
+        ipm_priority:
+          type: string
+          description: IPM approach priority
+
+    TreatmentProtocol:
+      type: object
+      properties:
+        pest_id:
+          type: string
+        phases:
+          type: array
+          items:
+            type: object
+            properties:
+              phase:
+                type: string
+              phase_ar:
+                type: string
+              actions:
+                type: array
+                items:
+                  type: string
+              timeline:
+                type: string
+
+    IPMCalendarEntry:
+      type: object
+      properties:
+        month:
+          type: integer
+        pests:
+          type: array
+          items:
+            type: string
+        actions:
+          type: array
+          items:
+            type: string
+        actions_ar:
+          type: array
+          items:
+            type: string
+
+    EconomicThreshold:
+      type: object
+      properties:
+        pest_id:
+          type: string
+        crop:
+          type: string
+        threshold_value:
+          type: number
+          format: float
+        threshold_unit:
+          type: string
+        monitoring_method:
+          type: string
+        monitoring_method_ar:
+          type: string
+
+    ThresholdResult:
+      type: object
+      properties:
+        exceeds_threshold:
+          type: boolean
+        observed_density:
+          type: number
+          format: float
+        threshold_value:
+          type: number
+          format: float
+        action_required:
+          type: string
+          enum: [none, monitor, treat_biological, treat_chemical, emergency]
+        recommendation:
+          type: string
+        recommendation_ar:
+          type: string
+
+    PestAlert:
+      type: object
+      properties:
+        id:
+          type: string
+        pest_id:
+          type: string
+        pest_name:
+          type: string
+        pest_name_ar:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        status:
+          type: string
+          enum: [active, acknowledged, resolved]
+        field_id:
+          type: string
+        description:
+          type: string
+        description_ar:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+
+    CreateAlertRequest:
+      type: object
+      required: [pest_id, severity, field_id]
+      properties:
+        pest_id:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        field_id:
+          type: string
+        description:
+          type: string
+        description_ar:
+          type: string
+
+    ScoutReport:
+      type: object
+      properties:
+        id:
+          type: string
+        field_id:
+          type: string
+        scout_name:
+          type: string
+        observations:
+          type: array
+          items:
+            type: object
+            properties:
+              pest_id:
+                type: string
+              count:
+                type: integer
+              severity:
+                type: string
+              location_in_field:
+                type: string
+              notes:
+                type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    CreateScoutReport:
+      type: object
+      required: [field_id, observations]
+      properties:
+        field_id:
+          type: string
+        scout_name:
+          type: string
+        observations:
+          type: array
+          items:
+            type: object
+            properties:
+              pest_id:
+                type: string
+              count:
+                type: integer
+              severity:
+                type: string
+              location_in_field:
+                type: string
+              notes:
+                type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        message_ar:
+          type: string
+        request_id:
+          type: string
+
+security:
+  - bearerAuth: []

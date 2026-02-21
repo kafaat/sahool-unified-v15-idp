@@ -97,7 +97,10 @@ def extraterrestrial_radiation(doy: int, lat_rad: float) -> float:
         (24.0 * 60.0 / math.pi)
         * 0.0820
         * dr
-        * (ws * math.sin(lat_rad) * math.sin(declin) + math.cos(lat_rad) * math.cos(declin) * math.sin(ws))
+        * (
+            ws * math.sin(lat_rad) * math.sin(declin)
+            + math.cos(lat_rad) * math.cos(declin) * math.sin(ws)
+        )
     )
     return ra
 
@@ -124,7 +127,13 @@ def net_radiation(
         rs_clear = rs_mj_m2 * 1.35  # rough approximation
     tmax_k4 = (tmax_c + 273.16) ** 4
     tmin_k4 = (tmin_c + 273.16) ** 4
-    rnl = _SIGMA * (tmax_k4 + tmin_k4) / 2.0 * (0.34 - 0.14 * math.sqrt(ea_kpa)) * (1.35 * rs_mj_m2 / rs_clear - 0.35)
+    rnl = (
+        _SIGMA
+        * (tmax_k4 + tmin_k4)
+        / 2.0
+        * (0.34 - 0.14 * math.sqrt(ea_kpa))
+        * (1.35 * rs_mj_m2 / rs_clear - 0.35)
+    )
     return rns - rnl
 
 
@@ -173,7 +182,14 @@ def penman_monteith_et0(
     # Radiation
     ra = extraterrestrial_radiation(doy, lat_rad)
     rs_clear = (0.75 + 2e-5 * elevation_m) * ra
-    rn = net_radiation(weather.solar_radiation_mj_m2, albedo, weather.tmax_c, weather.tmin_c, ea, rs_clear)
+    rn = net_radiation(
+        weather.solar_radiation_mj_m2,
+        albedo,
+        weather.tmax_c,
+        weather.tmin_c,
+        ea,
+        rs_clear,
+    )
 
     # Soil heat flux G ≈ 0 for daily step
     g = 0.0
@@ -181,7 +197,9 @@ def penman_monteith_et0(
     # Wind speed at 2 m (if measured at different height, apply log correction elsewhere)
     u2 = max(0.5, weather.wind_speed_m_s)
 
-    numerator = 0.408 * delta * (rn - g) + gamma * (900.0 / (tmean + 273.0)) * u2 * (es - ea)
+    numerator = 0.408 * delta * (rn - g) + gamma * (900.0 / (tmean + 273.0)) * u2 * (
+        es - ea
+    )
     denominator = delta + gamma * (1.0 + 0.34 * u2)
     et0 = numerator / denominator
     return max(0.0, et0)
@@ -285,7 +303,9 @@ class AgroMeteorologyEngine:
         print(result.outputs["total_et0_mm"])
     """
 
-    def __init__(self, elevation_m: float = 50.0, lat_deg: float = 24.0, albedo: float = 0.23) -> None:
+    def __init__(
+        self, elevation_m: float = 50.0, lat_deg: float = 24.0, albedo: float = 0.23
+    ) -> None:
         self.elevation_m = elevation_m
         self.lat_deg = lat_deg
         self.albedo = albedo
@@ -307,7 +327,9 @@ class AgroMeteorologyEngine:
 
         for w in weather_series:
             et0 = penman_monteith_et0(w, self.elevation_m, self.lat_deg, self.albedo)
-            sw = shuttleworth_wallace_et(w, lai, fractional_cover, et0, crop_coefficient)
+            sw = shuttleworth_wallace_et(
+                w, lai, fractional_cover, et0, crop_coefficient
+            )
             total_et0 += et0
             total_etc += sw.et_total_mm
             daily.append(

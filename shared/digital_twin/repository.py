@@ -34,8 +34,12 @@ logger = structlog.get_logger()
 # In-memory fallback storage (used when DB pool is None)
 # ---------------------------------------------------------------------------
 _mem_states: dict[tuple, FieldDailyState] = {}  # (tenant_id, field_id, day) → state
-_mem_observations: dict[tuple, list[FieldObservation]] = defaultdict(list)  # (tid, fid) → obs list
-_mem_recommendations: dict[tuple, IrrigationRecommendation] = {}  # (tid, fid, day) → rec
+_mem_observations: dict[tuple, list[FieldObservation]] = defaultdict(
+    list
+)  # (tid, fid) → obs list
+_mem_recommendations: dict[tuple, IrrigationRecommendation] = (
+    {}
+)  # (tid, fid, day) → rec
 
 
 # ---------------------------------------------------------------------------
@@ -204,7 +208,9 @@ class TwinRepository:
                     if row:
                         return _row_to_state(row)
             except Exception as exc:
-                logger.warning("twin_repo.get_state failed, using memory", error=str(exc))
+                logger.warning(
+                    "twin_repo.get_state failed, using memory", error=str(exc)
+                )
 
         return _mem_states.get(key)
 
@@ -219,10 +225,14 @@ class TwinRepository:
         if self._pool is not None:
             try:
                 async with self._pool.acquire() as conn:
-                    rows = await conn.fetch(_SQL_GET_STATES_RANGE, tenant_id, field_id, from_date, to_date)
+                    rows = await conn.fetch(
+                        _SQL_GET_STATES_RANGE, tenant_id, field_id, from_date, to_date
+                    )
                     return [_row_to_state(r) for r in rows]
             except Exception as exc:
-                logger.warning("twin_repo.get_states failed, using memory", error=str(exc))
+                logger.warning(
+                    "twin_repo.get_states failed, using memory", error=str(exc)
+                )
 
         # Fallback: filter in-memory
         tid, fid = str(tenant_id), str(field_id)
@@ -230,7 +240,9 @@ class TwinRepository:
             [
                 s
                 for k, s in _mem_states.items()
-                if k[0] == tid and k[1] == fid and from_date <= date.fromisoformat(k[2]) <= to_date
+                if k[0] == tid
+                and k[1] == fid
+                and from_date <= date.fromisoformat(k[2]) <= to_date
             ],
             key=lambda s: s.day,
         )
@@ -263,7 +275,9 @@ class TwinRepository:
                     obs.created_at,
                 )
         except Exception as exc:
-            logger.warning("twin_repo.save_observation failed, using memory", error=str(exc))
+            logger.warning(
+                "twin_repo.save_observation failed, using memory", error=str(exc)
+            )
 
     async def get_recent_observations(
         self,
@@ -276,15 +290,27 @@ class TwinRepository:
         if self._pool is not None:
             try:
                 async with self._pool.acquire() as conn:
-                    rows = await conn.fetch(_SQL_GET_OBSERVATIONS, tenant_id, field_id, obs_type.value, days_back)
+                    rows = await conn.fetch(
+                        _SQL_GET_OBSERVATIONS,
+                        tenant_id,
+                        field_id,
+                        obs_type.value,
+                        days_back,
+                    )
                     return [_row_to_observation(r) for r in rows]
             except Exception as exc:
-                logger.warning("twin_repo.get_observations failed, using memory", error=str(exc))
+                logger.warning(
+                    "twin_repo.get_observations failed, using memory", error=str(exc)
+                )
 
         # In-memory fallback
         cutoff = datetime.now().timestamp() - days_back * 86400
         mem_key = (str(tenant_id), str(field_id))
-        return [o for o in _mem_observations.get(mem_key, []) if o.obs_type == obs_type and o.ts.timestamp() >= cutoff]
+        return [
+            o
+            for o in _mem_observations.get(mem_key, [])
+            if o.obs_type == obs_type and o.ts.timestamp() >= cutoff
+        ]
 
     # ------------------------------------------------------------------
     # IrrigationRecommendation
@@ -313,7 +339,9 @@ class TwinRepository:
                     rec.created_at,
                 )
         except Exception as exc:
-            logger.warning("twin_repo.save_recommendation failed, using memory", error=str(exc))
+            logger.warning(
+                "twin_repo.save_recommendation failed, using memory", error=str(exc)
+            )
 
     async def get_recommendation(
         self,
@@ -327,11 +355,15 @@ class TwinRepository:
         if self._pool is not None:
             try:
                 async with self._pool.acquire() as conn:
-                    row = await conn.fetchrow(_SQL_GET_RECOMMENDATION, tenant_id, field_id, day)
+                    row = await conn.fetchrow(
+                        _SQL_GET_RECOMMENDATION, tenant_id, field_id, day
+                    )
                     if row:
                         return _row_to_recommendation(row)
             except Exception as exc:
-                logger.warning("twin_repo.get_recommendation failed, using memory", error=str(exc))
+                logger.warning(
+                    "twin_repo.get_recommendation failed, using memory", error=str(exc)
+                )
 
         return _mem_recommendations.get(key)
 
@@ -343,7 +375,11 @@ class TwinRepository:
 
 def _row_to_state(row: Any) -> FieldDailyState:
     flags_raw = row["assimilation_flags"] or []
-    flags = [AssimilationFlag(f) for f in flags_raw if f in AssimilationFlag.__members__.values()]
+    flags = [
+        AssimilationFlag(f)
+        for f in flags_raw
+        if f in AssimilationFlag.__members__.values()
+    ]
     return FieldDailyState(
         id=row["id"],
         tenant_id=row["tenant_id"],

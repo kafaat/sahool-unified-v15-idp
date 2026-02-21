@@ -26,8 +26,15 @@ import structlog
 
 from shared.digital_twin.models import AssimilationFlag, FieldDailyState
 from shared.digital_twin.repository import TwinRepository
-from shared.process_models.agro_meteorology import AgroMeteorologyEngine, penman_monteith_et0
-from shared.process_models.crop_growth import CropGrowthEngine, compute_gdd, partition_biomass
+from shared.process_models.agro_meteorology import (
+    AgroMeteorologyEngine,
+    penman_monteith_et0,
+)
+from shared.process_models.crop_growth import (
+    CropGrowthEngine,
+    compute_gdd,
+    partition_biomass,
+)
 from shared.process_models.hydrology import SoilWaterState, soil_water_daily_step
 from shared.process_models.models import CropParameters, DailyWeather, SoilProfile
 
@@ -201,17 +208,24 @@ class TwinPipeline:
         # ── 5. Crop growth step ───────────────────────────────────────────
         gdd = compute_gdd(weather, base_temp=crop.base_temp_c, max_temp_cap=35.0)
         new_gdd = prev_gdd + gdd
-        new_dvs = min(2.0, new_dvs if (new_dvs := new_gdd / max(1.0, crop.gdd_maturity)) else prev_dvs)
+        new_dvs = min(
+            2.0,
+            new_dvs if (new_dvs := new_gdd / max(1.0, crop.gdd_maturity)) else prev_dvs,
+        )
 
         # N stress from total available N supply (simple: applied / requirement)
-        n_demand_today = (crop.n_requirement_kg_per_ton * 5.0) / max(1.0, crop.gdd_maturity / max(gdd, 0.01))
+        n_demand_today = (crop.n_requirement_kg_per_ton * 5.0) / max(
+            1.0, crop.gdd_maturity / max(gdd, 0.01)
+        )
         n_available = nitrogen_applied_kg_ha + 1.0  # soil background
         n_stress = min(1.0, n_available / max(0.1, n_demand_today))
 
         # RUE-based biomass increment (Beer-Lambert, stress-adjusted)
         from shared.process_models.crop_growth import compute_intercepted_radiation
 
-        ipar = compute_intercepted_radiation(weather.solar_radiation_mj_m2 * 0.5, prev_lai)
+        ipar = compute_intercepted_radiation(
+            weather.solar_radiation_mj_m2 * 0.5, prev_lai
+        )
         delta_bm_potential = ipar * crop.rue_g_mj  # g m⁻² d⁻¹
         delta_bm = delta_bm_potential * water_stress * n_stress
         new_bm = prev_bm + delta_bm * 10.0  # g m⁻² → kg ha⁻¹

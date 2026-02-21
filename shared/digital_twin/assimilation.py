@@ -28,7 +28,11 @@ from typing import Any
 
 import structlog
 
-from shared.digital_twin.models import AssimilationFlag, FieldDailyState, ObservationType
+from shared.digital_twin.models import (
+    AssimilationFlag,
+    FieldDailyState,
+    ObservationType,
+)
 from shared.digital_twin.repository import TwinRepository
 
 logger = structlog.get_logger()

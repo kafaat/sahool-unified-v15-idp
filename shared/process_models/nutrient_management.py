@@ -30,7 +30,12 @@ from enum import StrEnum
 
 import structlog
 
-from shared.process_models.models import CropParameters, CropType, ModelResult, ModelType
+from shared.process_models.models import (
+    CropParameters,
+    CropType,
+    ModelResult,
+    ModelType,
+)
 
 logger = structlog.get_logger()
 
@@ -72,7 +77,9 @@ class SoilNutrientSupply:
     n_supply_kg_ha: float = 80.0  # Available N from soil (kg ha⁻¹) | النيتروجين المتاح
     p_supply_kg_ha: float = 15.0  # Available P₂O₅ (kg ha⁻¹) | الفوسفور المتاح
     k_supply_kg_ha: float = 120.0  # Available K₂O (kg ha⁻¹) | البوتاسيوم المتاح
-    organic_n_mineralisation_kg_ha: float = 20.0  # Mineral N from OM (kg ha⁻¹) | معدنة النيتروجين
+    organic_n_mineralisation_kg_ha: float = (
+        20.0  # Mineral N from OM (kg ha⁻¹) | معدنة النيتروجين
+    )
 
     @property
     def total_n_available(self) -> float:
@@ -121,7 +128,9 @@ _QUEFTS_PARAMS: dict[CropType, dict[str, tuple[float, float]]] = {
 _QUEFTS_DEFAULT = {"N": (32.0, 12.0), "P": (5.5, 1.8), "K": (10.0, 4.0)}
 
 
-def _quefts_envelope(supply_kg_ha: float, max_acc: float, max_dil: float, target_yield_t_ha: float) -> float:
+def _quefts_envelope(
+    supply_kg_ha: float, max_acc: float, max_dil: float, target_yield_t_ha: float
+) -> float:
     """
     QUEFTS nutrient constraint: yield limited by single nutrient.
     قيد المغذي المفرد في نموذج QUEFTS.
@@ -211,8 +220,12 @@ class QueftsNutrientModel:
         # Compute single-nutrient limited yields
         n_total = soil_supply.total_n_available
         y_n = _quefts_envelope(n_total, *params["N"], target_yield_t_ha)
-        y_p = _quefts_envelope(soil_supply.p_supply_kg_ha, *params["P"], target_yield_t_ha)
-        y_k = _quefts_envelope(soil_supply.k_supply_kg_ha, *params["K"], target_yield_t_ha)
+        y_p = _quefts_envelope(
+            soil_supply.p_supply_kg_ha, *params["P"], target_yield_t_ha
+        )
+        y_k = _quefts_envelope(
+            soil_supply.k_supply_kg_ha, *params["K"], target_yield_t_ha
+        )
 
         # Balanced yield = minimum of the three constraints
         balanced_yield = min(y_n, y_p, y_k)
@@ -224,12 +237,18 @@ class QueftsNutrientModel:
 
         # Fertiliser to add = requirement minus soil supply (recovery factor ≈ 0.6 for N, 0.25 P, 0.75 K)
         n_fert = max(0.0, (n_req - soil_supply.total_n_available) / 0.60)
-        p_fert = max(0.0, (p_req * 2.29 - soil_supply.p_supply_kg_ha) / 0.25)  # P → P₂O₅: ×2.29
-        k_fert = max(0.0, (k_req * 1.20 - soil_supply.k_supply_kg_ha) / 0.75)  # K → K₂O: ×1.20
+        p_fert = max(
+            0.0, (p_req * 2.29 - soil_supply.p_supply_kg_ha) / 0.25
+        )  # P → P₂O₅: ×2.29
+        k_fert = max(
+            0.0, (k_req * 1.20 - soil_supply.k_supply_kg_ha) / 0.75
+        )  # K → K₂O: ×1.20
 
         # 4R timing guidance
         n_timing = "Split: 1/3 at sowing, 1/3 at tillering, 1/3 at stem elongation"
-        n_timing_ar = "مقسّم: الثلث عند الزراعة، الثلث عند التفريع، الثلث عند استطالة الساق"
+        n_timing_ar = (
+            "مقسّم: الثلث عند الزراعة، الثلث عند التفريع، الثلث عند استطالة الساق"
+        )
         p_timing = "Full dose at sowing or pre-sowing incorporation"
         p_timing_ar = "جرعة كاملة عند الزراعة أو قبلها مع تقليب التربة"
         k_timing = "Half at sowing, half at mid-season"

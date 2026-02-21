@@ -146,7 +146,9 @@ class DecisionEngine:
             ar_text = f"لا حاجة للري. العجز {depletion:.0f} ملم < RAW {raw_mm:.0f} ملم (المرحلة={stage})."
 
         confidence = state.confidence * (
-            0.9 if "ASSIMILATED" not in [f.value for f in state.assimilation_flags] else 1.0
+            0.9
+            if "ASSIMILATED" not in [f.value for f in state.assimilation_flags]
+            else 1.0
         )
 
         rec = IrrigationRecommendation(
@@ -195,7 +197,10 @@ class DecisionEngine:
         توصية الأسمدة القائمة على QUEFTS من الحالة الراهنة.
         """
         from shared.process_models.models import CropParameters, CropType
-        from shared.process_models.nutrient_management import QueftsNutrientModel, SoilNutrientSupply
+        from shared.process_models.nutrient_management import (
+            QueftsNutrientModel,
+            SoilNutrientSupply,
+        )
 
         crop_map = {
             "wheat": CropType.WHEAT,

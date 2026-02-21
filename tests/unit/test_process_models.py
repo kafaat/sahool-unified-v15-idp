@@ -89,7 +89,9 @@ class TestSharedModels:
         assert w.tmean_c == pytest.approx(20.0)
 
     def test_soil_available_water(self):
-        soil = SoilProfile(field_capacity_mm_per_m=300.0, wilting_point_mm_per_m=150.0, depth_m=1.0)
+        soil = SoilProfile(
+            field_capacity_mm_per_m=300.0, wilting_point_mm_per_m=150.0, depth_m=1.0
+        )
         assert soil.available_water_capacity_mm == pytest.approx(150.0)
 
     def test_model_result_defaults(self):
@@ -140,9 +142,16 @@ class TestCropGrowthEngine:
         assert result.outputs["biomass_t_ha"] >= result.outputs["grain_yield_t_ha"]
 
     def test_n_stress_reduces_yield(self):
-        result_rich = self.engine.simulate(self.crop, self.soil, self.weather, n_supply_kg_ha=200.0)
-        result_poor = self.engine.simulate(self.crop, self.soil, self.weather, n_supply_kg_ha=10.0)
-        assert result_rich.outputs["grain_yield_t_ha"] >= result_poor.outputs["grain_yield_t_ha"]
+        result_rich = self.engine.simulate(
+            self.crop, self.soil, self.weather, n_supply_kg_ha=200.0
+        )
+        result_poor = self.engine.simulate(
+            self.crop, self.soil, self.weather, n_supply_kg_ha=10.0
+        )
+        assert (
+            result_rich.outputs["grain_yield_t_ha"]
+            >= result_poor.outputs["grain_yield_t_ha"]
+        )
 
     def test_daily_log_present(self):
         result = self.engine.simulate(self.crop, self.soil, self.weather[:30])
@@ -243,14 +252,20 @@ class TestAgroMeteorology:
         from shared.process_models.agro_meteorology import shuttleworth_wallace_et
 
         w = _make_weather(tmax=28.0, tmin=16.0, solar=18.0)
-        sw = shuttleworth_wallace_et(w, lai=3.0, fractional_cover=0.8, et0_mm=5.0, crop_coefficient=1.1)
+        sw = shuttleworth_wallace_et(
+            w, lai=3.0, fractional_cover=0.8, et0_mm=5.0, crop_coefficient=1.1
+        )
         assert sw.et_canopy_mm >= 0.0
         assert sw.et_soil_mm >= 0.0
-        assert sw.et_total_mm == pytest.approx(sw.et_canopy_mm + sw.et_soil_mm, abs=0.01)
+        assert sw.et_total_mm == pytest.approx(
+            sw.et_canopy_mm + sw.et_soil_mm, abs=0.01
+        )
 
     def test_engine_run_returns_valid_result(self):
         weather = _make_season(30)
-        result = self.engine.run(weather, lai=2.5, fractional_cover=0.7, crop_coefficient=1.05)
+        result = self.engine.run(
+            weather, lai=2.5, fractional_cover=0.7, crop_coefficient=1.05
+        )
         assert result.success is True
         assert result.outputs["total_et0_mm"] > 0.0
         assert result.outputs["n_days"] == 30
@@ -301,7 +316,10 @@ class TestSoilCarbonModel:
         result_warm = self.model.simulate(SoilProfile(), years=20, mean_temp_c=28.0)
         result_cool = self.model.simulate(SoilProfile(), years=20, mean_temp_c=10.0)
         # Warm soil should decompose more → lower final SOC (if inputs equal)
-        assert result_warm.outputs["soc_change_t_ha"] <= result_cool.outputs["soc_change_t_ha"]
+        assert (
+            result_warm.outputs["soc_change_t_ha"]
+            <= result_cool.outputs["soc_change_t_ha"]
+        )
 
     def test_annual_log_length(self):
         result = self.model.simulate(SoilProfile(), years=10)
@@ -335,7 +353,9 @@ class TestRadiativeTransferModel:
         )
 
         self.rtm = RadiativeTransferModel()
-        self.leaf = LeafOpticalProperties(chlorophyll_ug_cm2=45.0, water_cm=0.015, n_layers=1.5)
+        self.leaf = LeafOpticalProperties(
+            chlorophyll_ug_cm2=45.0, water_cm=0.015, n_layers=1.5
+        )
         self.canopy = CanopyParameters(lai=3.5, sun_zenith_deg=25.0)
 
     def test_forward_run(self):
@@ -386,7 +406,9 @@ class TestRadiativeTransferModel:
     def test_vegetation_indices_keys(self):
         from shared.process_models.radiative_transfer import compute_vegetation_indices
 
-        indices = compute_vegetation_indices({"nir": 0.5, "red": 0.1, "blue": 0.05, "red_edge": 0.2, "swir": 0.1})
+        indices = compute_vegetation_indices(
+            {"nir": 0.5, "red": 0.1, "blue": 0.05, "red_edge": 0.2, "swir": 0.1}
+        )
         for key in ("ndvi", "evi", "ndre", "ndwi"):
             assert key in indices
 
@@ -398,14 +420,19 @@ class TestRadiativeTransferModel:
 
 class TestPestEpidemiologyEngine:
     def setup_method(self):
-        from shared.process_models.pest_epidemiology import PestEpidemiologyEngine, PestType
+        from shared.process_models.pest_epidemiology import (
+            PestEpidemiologyEngine,
+            PestType,
+        )
 
         self.engine = PestEpidemiologyEngine()
         self.PestType = PestType
 
     def test_sir_disease_simulation(self):
         weather = _make_season(60, base_rain=0.0)
-        result = self.engine.simulate_disease(self.PestType.WHEAT_RUST, weather, initial_infected_fraction=0.01)
+        result = self.engine.simulate_disease(
+            self.PestType.WHEAT_RUST, weather, initial_infected_fraction=0.01
+        )
         assert result.success is True
         assert "r0_reproduction_number" in result.outputs
 
@@ -435,17 +462,24 @@ class TestPestEpidemiologyEngine:
         assert result.outputs.get("adult_emergence_day") is not None
 
     def test_lotka_volterra_runs(self):
-        result = self.engine.simulate_predator_prey(initial_pest_density=100.0, initial_enemy_density=5.0, days=30)
+        result = self.engine.simulate_predator_prey(
+            initial_pest_density=100.0, initial_enemy_density=5.0, days=30
+        )
         assert result.success is True
         assert result.outputs["final_pest_density"] >= 0.0
 
     def test_predator_reduces_pest(self):
         """High predator density should lead to lower pest densities."""
-        r_low_pred = self.engine.simulate_predator_prey(initial_pest_density=200.0, initial_enemy_density=1.0, days=40)
+        r_low_pred = self.engine.simulate_predator_prey(
+            initial_pest_density=200.0, initial_enemy_density=1.0, days=40
+        )
         r_high_pred = self.engine.simulate_predator_prey(
             initial_pest_density=200.0, initial_enemy_density=50.0, days=40
         )
-        assert r_high_pred.outputs["final_pest_density"] <= r_low_pred.outputs["final_pest_density"]
+        assert (
+            r_high_pred.outputs["final_pest_density"]
+            <= r_low_pred.outputs["final_pest_density"]
+        )
 
     def test_degree_days_zero_below_base(self):
         from shared.process_models.pest_epidemiology import daily_degree_days
@@ -462,7 +496,10 @@ class TestPestEpidemiologyEngine:
 
 class TestQueftsNutrientModel:
     def setup_method(self):
-        from shared.process_models.nutrient_management import QueftsNutrientModel, SoilNutrientSupply
+        from shared.process_models.nutrient_management import (
+            QueftsNutrientModel,
+            SoilNutrientSupply,
+        )
 
         self.model = QueftsNutrientModel()
         self.SoilNutrientSupply = SoilNutrientSupply
@@ -482,11 +519,17 @@ class TestQueftsNutrientModel:
         assert result.outputs["k2o_fertiliser_kg_ha"] >= 0.0
 
     def test_rich_soil_needs_less_fertiliser(self):
-        supply_rich = self.SoilNutrientSupply(n_supply_kg_ha=200.0, p_supply_kg_ha=80.0, k_supply_kg_ha=400.0)
-        supply_poor = self.SoilNutrientSupply(n_supply_kg_ha=20.0, p_supply_kg_ha=5.0, k_supply_kg_ha=30.0)
+        supply_rich = self.SoilNutrientSupply(
+            n_supply_kg_ha=200.0, p_supply_kg_ha=80.0, k_supply_kg_ha=400.0
+        )
+        supply_poor = self.SoilNutrientSupply(
+            n_supply_kg_ha=20.0, p_supply_kg_ha=5.0, k_supply_kg_ha=30.0
+        )
         r_rich = self.model.recommend(self.crop, supply_rich, target_yield_t_ha=4.0)
         r_poor = self.model.recommend(self.crop, supply_poor, target_yield_t_ha=4.0)
-        assert r_rich.outputs["n_fertiliser_kg_ha"] <= r_poor.outputs["n_fertiliser_kg_ha"]
+        assert (
+            r_rich.outputs["n_fertiliser_kg_ha"] <= r_poor.outputs["n_fertiliser_kg_ha"]
+        )
 
     def test_balanced_yield_le_target(self):
         supply = self.SoilNutrientSupply()
@@ -506,7 +549,9 @@ class TestQueftsNutrientModel:
             assert result.success is True
 
     def test_zero_yield_target_no_fertiliser(self):
-        supply = self.SoilNutrientSupply(n_supply_kg_ha=500.0, p_supply_kg_ha=200.0, k_supply_kg_ha=500.0)
+        supply = self.SoilNutrientSupply(
+            n_supply_kg_ha=500.0, p_supply_kg_ha=200.0, k_supply_kg_ha=500.0
+        )
         result = self.model.recommend(self.crop, supply, target_yield_t_ha=0.5)
         # With very rich soil and low target, fertiliser should be 0
         assert result.outputs["n_fertiliser_kg_ha"] >= 0.0
@@ -545,18 +590,28 @@ class TestHydrologyEngine:
             scs_cn_runoff(50.0, cn=100)
 
     def test_green_ampt_high_rate_produces_runoff(self):
-        from shared.process_models.hydrology import GreenAmptParams, green_ampt_infiltration
+        from shared.process_models.hydrology import (
+            GreenAmptParams,
+            green_ampt_infiltration,
+        )
 
         params = GreenAmptParams(hydraulic_conductivity_mm_h=5.0)
-        result = green_ampt_infiltration(rainfall_rate_mm_h=50.0, duration_h=2.0, params=params)
+        result = green_ampt_infiltration(
+            rainfall_rate_mm_h=50.0, duration_h=2.0, params=params
+        )
         assert result["total_runoff_mm"] > 0.0
         assert result["total_infiltration_mm"] > 0.0
 
     def test_green_ampt_no_runoff_light_rain(self):
-        from shared.process_models.hydrology import GreenAmptParams, green_ampt_infiltration
+        from shared.process_models.hydrology import (
+            GreenAmptParams,
+            green_ampt_infiltration,
+        )
 
         params = GreenAmptParams(hydraulic_conductivity_mm_h=50.0)
-        result = green_ampt_infiltration(rainfall_rate_mm_h=5.0, duration_h=1.0, params=params)
+        result = green_ampt_infiltration(
+            rainfall_rate_mm_h=5.0, duration_h=1.0, params=params
+        )
         assert result["total_runoff_mm"] == pytest.approx(0.0)
 
     def test_water_balance_runs(self):
@@ -592,7 +647,11 @@ class TestHydrologyEngine:
 
 class TestEnsembleModelFramework:
     def setup_method(self):
-        from shared.process_models.ensemble import EnsembleModelFramework, ModelType, RegisteredModel
+        from shared.process_models.ensemble import (
+            EnsembleModelFramework,
+            ModelType,
+            RegisteredModel,
+        )
 
         self.EnsembleModelFramework = EnsembleModelFramework
         self.RegisteredModel = RegisteredModel
@@ -792,7 +851,8 @@ class TestModelsRouter:
 
         # The service directory contains a hyphen so we use importlib
         router_path = os.path.join(
-            os.path.dirname(__file__), "../../apps/services/crop-intelligence-service/src/models_router.py"
+            os.path.dirname(__file__),
+            "../../apps/services/crop-intelligence-service/src/models_router.py",
         )
         spec = importlib.util.spec_from_file_location("models_router", router_path)
         mod = importlib.util.module_from_spec(spec)

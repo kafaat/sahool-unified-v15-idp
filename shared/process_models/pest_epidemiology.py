@@ -130,22 +130,40 @@ class InsectPhenoParams:
     t_upper_c: float = 35.0  # Upper threshold (°C) | العتبة العليا
     dd_egg_hatch: float = 120.0  # DD to egg hatch | وحدات الحرارة للفقس
     dd_adult_emergence: float = 350.0  # DD to adult | وحدات الحرارة للبلوغ
-    dd_generation: float = 600.0  # DD per complete generation | وحدات الحرارة للجيل الكامل
+    dd_generation: float = (
+        600.0  # DD per complete generation | وحدات الحرارة للجيل الكامل
+    )
 
 
 # Pre-calibrated insect parameters for key regional pests
 INSECT_PARAMS: dict[PestType, InsectPhenoParams] = {
     PestType.RED_PALM_WEEVIL: InsectPhenoParams(
-        t_base_c=10.0, t_upper_c=38.0, dd_egg_hatch=100.0, dd_adult_emergence=320.0, dd_generation=550.0
+        t_base_c=10.0,
+        t_upper_c=38.0,
+        dd_egg_hatch=100.0,
+        dd_adult_emergence=320.0,
+        dd_generation=550.0,
     ),
     PestType.APHID: InsectPhenoParams(
-        t_base_c=4.0, t_upper_c=32.0, dd_egg_hatch=80.0, dd_adult_emergence=200.0, dd_generation=350.0
+        t_base_c=4.0,
+        t_upper_c=32.0,
+        dd_egg_hatch=80.0,
+        dd_adult_emergence=200.0,
+        dd_generation=350.0,
     ),
     PestType.ARMYWORM: InsectPhenoParams(
-        t_base_c=9.0, t_upper_c=36.0, dd_egg_hatch=130.0, dd_adult_emergence=400.0, dd_generation=700.0
+        t_base_c=9.0,
+        t_upper_c=36.0,
+        dd_egg_hatch=130.0,
+        dd_adult_emergence=400.0,
+        dd_generation=700.0,
     ),
     PestType.LOCUST: InsectPhenoParams(
-        t_base_c=14.0, t_upper_c=40.0, dd_egg_hatch=200.0, dd_adult_emergence=500.0, dd_generation=800.0
+        t_base_c=14.0,
+        t_upper_c=40.0,
+        dd_egg_hatch=200.0,
+        dd_adult_emergence=500.0,
+        dd_generation=800.0,
     ),
     PestType.GENERIC: InsectPhenoParams(),
 }
@@ -176,7 +194,9 @@ class LVState:
     """
 
     pest_density: float = 100.0  # Pest population (ind. m⁻²) | كثافة الآفة
-    enemy_density: float = 5.0  # Natural enemy population (ind. m⁻²) | كثافة العدو الطبيعي
+    enemy_density: float = (
+        5.0  # Natural enemy population (ind. m⁻²) | كثافة العدو الطبيعي
+    )
 
 
 def lv_daily_step(
@@ -339,7 +359,9 @@ class PestEpidemiologyEngine:
                 generation_1_day = day_idx + 1
                 break  # stop after first generation
 
-            daily_log.append({"day": day_idx + 1, "dd": round(dd, 2), "cum_dd": round(cum_dd, 1)})
+            daily_log.append(
+                {"day": day_idx + 1, "dd": round(dd, 2), "cum_dd": round(cum_dd, 1)}
+            )
 
         logger.info(
             "pest_phenology_simulation_complete",
@@ -375,7 +397,9 @@ class PestEpidemiologyEngine:
         Lotka-Volterra predator-prey dynamics for IPM.
         ديناميكيات المفترس-الفريسة لإدارة الآفات المتكاملة.
         """
-        state = LVState(pest_density=initial_pest_density, enemy_density=initial_enemy_density)
+        state = LVState(
+            pest_density=initial_pest_density, enemy_density=initial_enemy_density
+        )
         daily_log = []
 
         for day in range(1, days + 1):

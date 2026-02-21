@@ -123,14 +123,18 @@ async def save_result(field_id: str, tenant_id: str, result_dict: dict) -> None:
                 json.dumps(result_dict),
             )
         except Exception:
-            logger.exception("NDVIStore: failed to persist result to DB (field=%s)", field_id)
+            logger.exception(
+                "NDVIStore: failed to persist result to DB (field=%s)", field_id
+            )
 
     # 3. NATS events
     if _cfg.nats_client is not None:
         await _publish_ndvi_events(field_id, tenant_id, result_dict)
 
 
-async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict) -> None:
+async def _publish_ndvi_events(
+    field_id: str, tenant_id: str, result_dict: dict
+) -> None:
     """Publish sahool.satellite.ndvi.computed and sahool.field.observation.ingested.v1."""
     now = datetime.now(UTC).isoformat()
     ndvi_mean = result_dict["statistics"]["mean"]
@@ -154,7 +158,9 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
     ).encode()
 
     try:
-        await _cfg.nats_client.publish("sahool.satellite.ndvi.computed", computed_payload)
+        await _cfg.nats_client.publish(
+            "sahool.satellite.ndvi.computed", computed_payload
+        )
     except Exception:
         logger.warning("NDVIStore: failed to publish ndvi.computed event")
 
@@ -180,7 +186,9 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
     ).encode()
 
     try:
-        await _cfg.nats_client.publish("sahool.field.observation.ingested.v1", obs_payload)
+        await _cfg.nats_client.publish(
+            "sahool.field.observation.ingested.v1", obs_payload
+        )
     except Exception:
         logger.warning("NDVIStore: failed to publish observation.ingested event")
 
@@ -188,7 +196,9 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
 # ── Composite persistence ───────────────────────────────────────────────────
 
 
-async def save_composite(composite_id: str, tenant_id: str, composite_dict: dict) -> None:
+async def save_composite(
+    composite_id: str, tenant_id: str, composite_dict: dict
+) -> None:
     """Persist a monthly composite (in-memory + DB)."""
     _composites[composite_id] = composite_dict
 
@@ -232,7 +242,9 @@ async def save_composite(composite_id: str, tenant_id: str, composite_dict: dict
                 json.dumps(composite_dict),
             )
         except Exception:
-            logger.exception("NDVIStore: failed to persist composite to DB (id=%s)", composite_id)
+            logger.exception(
+                "NDVIStore: failed to persist composite to DB (id=%s)", composite_id
+            )
 
 
 # ── DB table creation helper (run once at startup if tables missing) ────────
@@ -291,4 +303,6 @@ async def ensure_tables(db_pool) -> None:
         await db_pool.execute(_CREATE_TABLES_SQL)
         logger.info("NDVIStore: DB tables verified/created")
     except Exception:
-        logger.exception("NDVIStore: could not create DB tables – continuing without persistence")
+        logger.exception(
+            "NDVIStore: could not create DB tables – continuing without persistence"
+        )

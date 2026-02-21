@@ -276,9 +276,7 @@ class TwinRepository:
         if self._pool is not None:
             try:
                 async with self._pool.acquire() as conn:
-                    rows = await conn.fetch(
-                        _SQL_GET_OBSERVATIONS, tenant_id, field_id, obs_type.value, days_back
-                    )
+                    rows = await conn.fetch(_SQL_GET_OBSERVATIONS, tenant_id, field_id, obs_type.value, days_back)
                     return [_row_to_observation(r) for r in rows]
             except Exception as exc:
                 logger.warning("twin_repo.get_observations failed, using memory", error=str(exc))
@@ -286,11 +284,7 @@ class TwinRepository:
         # In-memory fallback
         cutoff = datetime.now().timestamp() - days_back * 86400
         mem_key = (str(tenant_id), str(field_id))
-        return [
-            o
-            for o in _mem_observations.get(mem_key, [])
-            if o.obs_type == obs_type and o.ts.timestamp() >= cutoff
-        ]
+        return [o for o in _mem_observations.get(mem_key, []) if o.obs_type == obs_type and o.ts.timestamp() >= cutoff]
 
     # ------------------------------------------------------------------
     # IrrigationRecommendation

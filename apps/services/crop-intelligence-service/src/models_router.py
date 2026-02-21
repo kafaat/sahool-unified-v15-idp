@@ -76,7 +76,9 @@ class ET0Request(BaseModel):
     day_of_year: int = Field(default=180, ge=1, le=366, description="Day of year (1-366)")
     # Optional Shuttleworth-Wallace dual-source
     lai: float | None = Field(default=None, ge=0, le=15, description="Leaf Area Index (for dual-source ET)")
-    kc: float | None = Field(default=None, ge=0, le=2.0, description="Crop coefficient Kc (overrides LAI-based estimate)")
+    kc: float | None = Field(
+        default=None, ge=0, le=2.0, description="Crop coefficient Kc (overrides LAI-based estimate)"
+    )
 
     @field_validator("tmax_c")
     @classmethod
@@ -131,8 +133,7 @@ def run_et0(req: ET0Request) -> ModelRunResponse:
         if lai is not None:
             fc = min(1.0, 1 - (1 / (1 + lai)))  # simple fractional cover estimate
             sw_result = shuttleworth_wallace_et(
-                weather, lai=lai, fractional_cover=fc,
-                et0_mm=et0, crop_coefficient=(kc or 1.0)
+                weather, lai=lai, fractional_cover=fc, et0_mm=et0, crop_coefficient=(kc or 1.0)
             )
             result["sw_et_total_mm"] = round(sw_result.et_total_mm, 3)
             result["sw_et_canopy_mm"] = round(sw_result.et_canopy_mm, 3)
@@ -321,9 +322,7 @@ def run_swb(req: SWBRequest) -> ModelRunResponse:
 
         # Runoff via SCS-CN
         cn = int(round(req.curve_number))
-        runoff_data = hydro.estimate_event_runoff(
-            precipitation_mm=req.precipitation_mm, cn=cn
-        )
+        runoff_data = hydro.estimate_event_runoff(precipitation_mm=req.precipitation_mm, cn=cn)
 
         # Simple daily balance
         effective_rain = req.precipitation_mm - runoff_data.get("runoff_mm", 0.0)
@@ -390,8 +389,7 @@ def run_prosail_inversion(req: PROSAILRequest) -> ModelRunResponse:
 
         warnings = [
             "PROSAIL inversion is a simplified lookup-table approach.",
-            "Results require spectral calibration against field measurements before "
-            "use in production recommendations.",
+            "Results require spectral calibration against field measurements before use in production recommendations.",
         ]
 
         return ModelRunResponse(
@@ -412,5 +410,6 @@ def run_prosail_inversion(req: PROSAILRequest) -> ModelRunResponse:
 def _doy_to_date(doy: int):
     """Convert day-of-year to a date object (current year)."""
     from datetime import date
+
     year = date.today().year
     return date(year, 1, 1).replace(year=year) + __import__("datetime").timedelta(days=doy - 1)

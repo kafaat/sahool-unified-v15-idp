@@ -20,7 +20,7 @@ References:
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import structlog
 
@@ -167,17 +167,9 @@ def annual_decomposition(
         pools.active_t_ha - dec_active + carbon_input_t_ha * 0.50  # FOM → active
     )
     new_slow = (
-        pools.slow_t_ha
-        + fluxes.active_to_slow
-        - dec_slow
-        + carbon_input_t_ha * 0.25  # FOM → slow
+        pools.slow_t_ha + fluxes.active_to_slow - dec_slow + carbon_input_t_ha * 0.25  # FOM → slow
     )
-    new_passive = (
-        pools.passive_t_ha
-        + fluxes.active_to_passive
-        + fluxes.slow_to_passive
-        - dec_passive
-    )
+    new_passive = pools.passive_t_ha + fluxes.active_to_passive + fluxes.slow_to_passive - dec_passive
     # Inert pool is unchanged by decomposition
     new_pools = CarbonPools(
         active_t_ha=max(0.01, new_active),
@@ -296,9 +288,7 @@ class SoilCarbonModel:
             )
 
         final_soc = pools.total_soc_t_ha
-        final_soc_pct = (
-            final_soc / (soil.bulk_density_g_cm3 * soil.depth_m * 10000.0) * 100.0
-        )
+        final_soc_pct = final_soc / (soil.bulk_density_g_cm3 * soil.depth_m * 10000.0) * 100.0
 
         logger.info(
             "soil_carbon_simulation_complete",

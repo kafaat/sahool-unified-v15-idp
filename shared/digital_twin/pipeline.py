@@ -18,7 +18,7 @@ Designed to run daily (scheduled or on-demand via API).
 from __future__ import annotations
 
 import json
-from datetime import date, datetime, timezone
+from datetime import date
 from typing import Any
 from uuid import UUID
 
@@ -29,7 +29,7 @@ from shared.digital_twin.repository import TwinRepository
 from shared.process_models.agro_meteorology import AgroMeteorologyEngine, penman_monteith_et0
 from shared.process_models.crop_growth import CropGrowthEngine, compute_gdd, partition_biomass
 from shared.process_models.hydrology import SoilWaterState, soil_water_daily_step
-from shared.process_models.models import CropParameters, CropType, DailyWeather, SoilProfile, SoilTextureClass
+from shared.process_models.models import CropParameters, DailyWeather, SoilProfile
 
 logger = structlog.get_logger()
 

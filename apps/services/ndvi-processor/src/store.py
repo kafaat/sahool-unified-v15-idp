@@ -32,8 +32,8 @@ logger = logging.getLogger(__name__)
 
 # ── Shared in-memory stores (same objects as before, re-exported) ──────────
 _jobs: dict[str, dict] = {}
-_results: dict[str, list[dict]] = {}   # field_id -> [NDVIResult dict]
-_composites: dict[str, dict] = {}      # composite_id -> composite dict
+_results: dict[str, list[dict]] = {}  # field_id -> [NDVIResult dict]
+_composites: dict[str, dict] = {}  # composite_id -> composite dict
 
 # ── Runtime configuration (injected by main.py on startup) ─────────────────
 
@@ -41,7 +41,8 @@ _composites: dict[str, dict] = {}      # composite_id -> composite dict
 @dataclasses.dataclass
 class _StoreConfig:
     """Encapsulates live DB/NATS connections so they can be swapped atomically."""
-    db_pool: object = None    # asyncpg.Pool | None
+
+    db_pool: object = None  # asyncpg.Pool | None
     nats_client: object = None  # nats.aio.client.Client | None
 
 
@@ -62,6 +63,7 @@ def configure(db_pool=None, nats_client=None) -> None:
 
 
 # ── Result persistence ──────────────────────────────────────────────────────
+
 
 async def save_result(field_id: str, tenant_id: str, result_dict: dict) -> None:
     """
@@ -128,28 +130,28 @@ async def save_result(field_id: str, tenant_id: str, result_dict: dict) -> None:
         await _publish_ndvi_events(field_id, tenant_id, result_dict)
 
 
-async def _publish_ndvi_events(
-    field_id: str, tenant_id: str, result_dict: dict
-) -> None:
+async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict) -> None:
     """Publish sahool.satellite.ndvi.computed and sahool.field.observation.ingested.v1."""
     now = datetime.now(UTC).isoformat()
     ndvi_mean = result_dict["statistics"]["mean"]
 
     # ── sahool.satellite.ndvi.computed ──────────────────────────────────────
-    computed_payload = json.dumps({
-        "schema_version": "1.0",
-        "event_type": "ndvi.computed",
-        "correlation_id": result_dict.get("id"),
-        "tenant_id": tenant_id,
-        "field_id": field_id,
-        "date": result_dict.get("date"),
-        "ndvi_mean": ndvi_mean,
-        "ndvi_min": result_dict["statistics"]["min"],
-        "ndvi_max": result_dict["statistics"]["max"],
-        "cloud_cover_percent": result_dict["quality"]["cloud_cover_percent"],
-        "satellite": result_dict["source"]["satellite"],
-        "produced_at": now,
-    }).encode()
+    computed_payload = json.dumps(
+        {
+            "schema_version": "1.0",
+            "event_type": "ndvi.computed",
+            "correlation_id": result_dict.get("id"),
+            "tenant_id": tenant_id,
+            "field_id": field_id,
+            "date": result_dict.get("date"),
+            "ndvi_mean": ndvi_mean,
+            "ndvi_min": result_dict["statistics"]["min"],
+            "ndvi_max": result_dict["statistics"]["max"],
+            "cloud_cover_percent": result_dict["quality"]["cloud_cover_percent"],
+            "satellite": result_dict["source"]["satellite"],
+            "produced_at": now,
+        }
+    ).encode()
 
     try:
         await _cfg.nats_client.publish("sahool.satellite.ndvi.computed", computed_payload)
@@ -157,33 +159,34 @@ async def _publish_ndvi_events(
         logger.warning("NDVIStore: failed to publish ndvi.computed event")
 
     # ── sahool.field.observation.ingested.v1 ────────────────────────────────
-    obs_payload = json.dumps({
-        "schema_version": "1.0",
-        "event_type": "field.observation.ingested",
-        "tenant_id": tenant_id,
-        "field_id": field_id,
-        "ts": result_dict.get("processing", {}).get("processed_at", now),
-        "source": "sentinel",
-        "obs_type": "ndvi",
-        "value": ndvi_mean,
-        "quality": result_dict["quality"]["valid_pixels_percent"] / 100.0,
-        "meta": {
-            "satellite": result_dict["source"]["satellite"],
-            "scene_id": result_dict["source"]["scene_id"],
-            "cloud_cover_percent": result_dict["quality"]["cloud_cover_percent"],
-        },
-        "produced_at": now,
-    }).encode()
+    obs_payload = json.dumps(
+        {
+            "schema_version": "1.0",
+            "event_type": "field.observation.ingested",
+            "tenant_id": tenant_id,
+            "field_id": field_id,
+            "ts": result_dict.get("processing", {}).get("processed_at", now),
+            "source": "sentinel",
+            "obs_type": "ndvi",
+            "value": ndvi_mean,
+            "quality": result_dict["quality"]["valid_pixels_percent"] / 100.0,
+            "meta": {
+                "satellite": result_dict["source"]["satellite"],
+                "scene_id": result_dict["source"]["scene_id"],
+                "cloud_cover_percent": result_dict["quality"]["cloud_cover_percent"],
+            },
+            "produced_at": now,
+        }
+    ).encode()
 
     try:
-        await _cfg.nats_client.publish(
-            "sahool.field.observation.ingested.v1", obs_payload
-        )
+        await _cfg.nats_client.publish("sahool.field.observation.ingested.v1", obs_payload)
     except Exception:
         logger.warning("NDVIStore: failed to publish observation.ingested event")
 
 
 # ── Composite persistence ───────────────────────────────────────────────────
+
 
 async def save_composite(composite_id: str, tenant_id: str, composite_dict: dict) -> None:
     """Persist a monthly composite (in-memory + DB)."""
@@ -229,9 +232,7 @@ async def save_composite(composite_id: str, tenant_id: str, composite_dict: dict
                 json.dumps(composite_dict),
             )
         except Exception:
-            logger.exception(
-                "NDVIStore: failed to persist composite to DB (id=%s)", composite_id
-            )
+            logger.exception("NDVIStore: failed to persist composite to DB (id=%s)", composite_id)
 
 
 # ── DB table creation helper (run once at startup if tables missing) ────────

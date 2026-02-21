@@ -21,13 +21,12 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import date, timedelta
+from datetime import date
 
 import structlog
 
 from shared.process_models.models import (
     CropParameters,
-    CropType,
     DailyWeather,
     GrowthStage,
     ModelResult,

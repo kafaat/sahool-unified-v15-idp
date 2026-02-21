@@ -8,7 +8,7 @@ Pydantic / dataclass value objects for the field Digital Twin layer.
 
 from __future__ import annotations
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, UTC
 from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
@@ -121,8 +121,8 @@ class FieldDailyState(BaseModel):
     """Flags describing what observations were used | رايات البيانات المستخدمة"""
     notes: str | None = None
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
     def summary(self) -> dict[str, Any]:
         """Compact summary for NATS event payload. ملخص مضغوط لحمولة الحدث."""
@@ -161,7 +161,7 @@ class FieldObservation(BaseModel):
     value: float
     quality: float = Field(default=0.7, ge=0.0, le=1.0)
     meta: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
 # ---------------------------------------------------------------------------
@@ -192,4 +192,4 @@ class IrrigationRecommendation(BaseModel):
     """Bilingual explanation (en/ar) | الشرح ثنائي اللغة"""
     confidence: float = Field(default=0.7, ge=0.0, le=1.0)
 
-    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

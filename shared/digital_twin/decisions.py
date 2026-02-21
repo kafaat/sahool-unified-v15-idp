@@ -22,9 +22,7 @@ Irrigation logic (FAO-56 §7):
 from __future__ import annotations
 
 import json
-from datetime import date
 from typing import Any
-from uuid import UUID
 
 import structlog
 
@@ -147,7 +145,9 @@ class DecisionEngine:
             en_text = f"No irrigation needed. Depletion {depletion:.0f} mm < RAW {raw_mm:.0f} mm (stage={stage})."
             ar_text = f"لا حاجة للري. العجز {depletion:.0f} ملم < RAW {raw_mm:.0f} ملم (المرحلة={stage})."
 
-        confidence = state.confidence * (0.9 if "ASSIMILATED" not in [f.value for f in state.assimilation_flags] else 1.0)
+        confidence = state.confidence * (
+            0.9 if "ASSIMILATED" not in [f.value for f in state.assimilation_flags] else 1.0
+        )
 
         rec = IrrigationRecommendation(
             tenant_id=state.tenant_id,
@@ -198,8 +198,12 @@ class DecisionEngine:
         from shared.process_models.nutrient_management import QueftsNutrientModel, SoilNutrientSupply
 
         crop_map = {
-            "wheat": CropType.WHEAT, "rice": CropType.RICE, "maize": CropType.MAIZE,
-            "barley": CropType.BARLEY, "tomato": CropType.TOMATO, "potato": CropType.POTATO,
+            "wheat": CropType.WHEAT,
+            "rice": CropType.RICE,
+            "maize": CropType.MAIZE,
+            "barley": CropType.BARLEY,
+            "tomato": CropType.TOMATO,
+            "potato": CropType.POTATO,
         }
         ct = crop_map.get(crop_type, CropType.WHEAT)
         model = QueftsNutrientModel()

@@ -113,21 +113,15 @@ class DailyWeather:
     def __post_init__(self) -> None:
         """Validate physical plausibility of weather inputs."""
         if self.tmax_c < self.tmin_c:
-            raise ValueError(
-                f"tmax_c ({self.tmax_c}) must be ≥ tmin_c ({self.tmin_c})"
-            )
+            raise ValueError(f"tmax_c ({self.tmax_c}) must be ≥ tmin_c ({self.tmin_c})")
         if not (-50 <= self.tmax_c <= 60):
             raise ValueError(f"tmax_c ({self.tmax_c}) out of realistic range [-50, 60] °C")
         if not (-50 <= self.tmin_c <= 60):
             raise ValueError(f"tmin_c ({self.tmin_c}) out of realistic range [-50, 60] °C")
         if not (0 <= self.solar_radiation_mj_m2 <= 50):
-            raise ValueError(
-                f"solar_radiation_mj_m2 ({self.solar_radiation_mj_m2}) out of range [0, 50]"
-            )
+            raise ValueError(f"solar_radiation_mj_m2 ({self.solar_radiation_mj_m2}) out of range [0, 50]")
         if not (0 <= self.relative_humidity_pct <= 100):
-            raise ValueError(
-                f"relative_humidity_pct ({self.relative_humidity_pct}) must be 0-100"
-            )
+            raise ValueError(f"relative_humidity_pct ({self.relative_humidity_pct}) must be 0-100")
         if self.wind_speed_m_s < 0:
             raise ValueError(f"wind_speed_m_s ({self.wind_speed_m_s}) cannot be negative")
         if self.precipitation_mm < 0:

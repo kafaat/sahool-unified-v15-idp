@@ -24,13 +24,11 @@ Reference:
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import Any
-from uuid import UUID
 
 import structlog
 
-from shared.digital_twin.models import AssimilationFlag, FieldDailyState, FieldObservation, ObservationType
+from shared.digital_twin.models import AssimilationFlag, FieldDailyState, ObservationType
 from shared.digital_twin.repository import TwinRepository
 
 logger = structlog.get_logger()
@@ -39,6 +37,7 @@ logger = structlog.get_logger()
 # ---------------------------------------------------------------------------
 # NDVI → LAI look-up (Baret & Guyot 1991; WOFOST calibration)
 # ---------------------------------------------------------------------------
+
 
 def ndvi_to_lai(ndvi: float, crop_type: str = "wheat") -> float:
     """
@@ -57,6 +56,7 @@ def ndvi_to_lai(ndvi: float, crop_type: str = "wheat") -> float:
     scaled = min(0.99, ndvi / nmax)
     k = 0.5
     import math
+
     lai = -math.log(1.0 - scaled) / k
     return max(0.0, min(10.0, lai))
 
@@ -64,6 +64,7 @@ def ndvi_to_lai(ndvi: float, crop_type: str = "wheat") -> float:
 # ---------------------------------------------------------------------------
 # Kalman-lite gain
 # ---------------------------------------------------------------------------
+
 
 def _kalman_gain(obs_quality: float, model_confidence: float) -> float:
     """

@@ -751,7 +751,7 @@ class TestInputValidation:
     def test_soil_fc_below_wp_raises(self):
         with pytest.raises(ValueError, match="field_capacity"):
             SoilProfile(
-                field_capacity_mm_per_m=80.0,   # < wilting_point → invalid
+                field_capacity_mm_per_m=80.0,  # < wilting_point → invalid
                 wilting_point_mm_per_m=120.0,
             )
 
@@ -811,71 +811,89 @@ class TestModelsRouter:
 
     def test_et0_run_valid(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/et0/run", json={
-            "tmax_c": 32.0,
-            "tmin_c": 18.0,
-            "solar_radiation_mj_m2": 22.0,
-            "relative_humidity_pct": 45.0,
-            "wind_speed_m_s": 2.5,
-        })
+        resp = client.post(
+            "/api/v1/models/et0/run",
+            json={
+                "tmax_c": 32.0,
+                "tmin_c": 18.0,
+                "solar_radiation_mj_m2": 22.0,
+                "relative_humidity_pct": 45.0,
+                "wind_speed_m_s": 2.5,
+            },
+        )
         assert resp.status_code == 200
         body = resp.json()
         assert body["result"]["et0_mm"] > 0
 
     def test_et0_tmax_below_tmin_rejected(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/et0/run", json={
-            "tmax_c": 10.0,
-            "tmin_c": 20.0,
-            "solar_radiation_mj_m2": 18.0,
-            "relative_humidity_pct": 55.0,
-            "wind_speed_m_s": 2.0,
-        })
+        resp = client.post(
+            "/api/v1/models/et0/run",
+            json={
+                "tmax_c": 10.0,
+                "tmin_c": 20.0,
+                "solar_radiation_mj_m2": 18.0,
+                "relative_humidity_pct": 55.0,
+                "wind_speed_m_s": 2.0,
+            },
+        )
         assert resp.status_code == 422
 
     def test_quefts_run_valid(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/quefts/recommend", json={
-            "crop_type": "wheat",
-            "target_yield_t_ha": 4.0,
-            "soil_n_kg_ha": 40.0,
-            "soil_p_kg_ha": 15.0,
-            "soil_k_kg_ha": 80.0,
-        })
+        resp = client.post(
+            "/api/v1/models/quefts/recommend",
+            json={
+                "crop_type": "wheat",
+                "target_yield_t_ha": 4.0,
+                "soil_n_kg_ha": 40.0,
+                "soil_p_kg_ha": 15.0,
+                "soil_k_kg_ha": 80.0,
+            },
+        )
         assert resp.status_code == 200
         body = resp.json()
         assert "n_fertiliser_kg_ha" in body["result"]
 
     def test_swb_run_valid(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/swb/run", json={
-            "tmax_c": 30.0,
-            "tmin_c": 16.0,
-            "solar_radiation_mj_m2": 20.0,
-            "relative_humidity_pct": 50.0,
-            "wind_speed_m_s": 2.0,
-            "precipitation_mm": 5.0,
-            "soil_water_mm": 200.0,
-            "field_capacity_mm": 250.0,
-            "wilting_point_mm": 100.0,
-            "total_available_water_mm": 150.0,
-        })
+        resp = client.post(
+            "/api/v1/models/swb/run",
+            json={
+                "tmax_c": 30.0,
+                "tmin_c": 16.0,
+                "solar_radiation_mj_m2": 20.0,
+                "relative_humidity_pct": 50.0,
+                "wind_speed_m_s": 2.0,
+                "precipitation_mm": 5.0,
+                "soil_water_mm": 200.0,
+                "field_capacity_mm": 250.0,
+                "wilting_point_mm": 100.0,
+                "total_available_water_mm": 150.0,
+            },
+        )
         assert resp.status_code == 200
         assert "et0_mm" in resp.json()["result"]
 
     def test_soil_carbon_returns_needs_calibration(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/soil-carbon/simulate", json={
-            "carbon_input_t_ha_yr": 3.0,
-        })
+        resp = client.post(
+            "/api/v1/models/soil-carbon/simulate",
+            json={
+                "carbon_input_t_ha_yr": 3.0,
+            },
+        )
         assert resp.status_code == 200
         assert resp.json()["quality_flag"] == "needs_calibration"
 
     def test_prosail_returns_needs_calibration(self):
         client = self._get_client_safe()
-        resp = client.post("/api/v1/models/prosail/invert", json={
-            "red": 0.08,
-            "nir": 0.45,
-        })
+        resp = client.post(
+            "/api/v1/models/prosail/invert",
+            json={
+                "red": 0.08,
+                "nir": 0.45,
+            },
+        )
         assert resp.status_code == 200
         assert resp.json()["quality_flag"] == "needs_calibration"

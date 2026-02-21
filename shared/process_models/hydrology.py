@@ -20,8 +20,7 @@ References:
 
 from __future__ import annotations
 
-import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import structlog
 
@@ -337,19 +336,29 @@ class HydrologyEngine:
         from shared.process_models.models import SoilTextureClass
 
         ks_map = {
-            SoilTextureClass.SAND: 117.8, SoilTextureClass.LOAMY_SAND: 29.9,
-            SoilTextureClass.SANDY_LOAM: 10.9, SoilTextureClass.LOAM: 3.3,
-            SoilTextureClass.SILT_LOAM: 6.8, SoilTextureClass.SANDY_CLAY_LOAM: 1.5,
-            SoilTextureClass.CLAY_LOAM: 1.0, SoilTextureClass.SILTY_CLAY_LOAM: 1.0,
-            SoilTextureClass.SANDY_CLAY: 0.6, SoilTextureClass.SILTY_CLAY: 0.5,
+            SoilTextureClass.SAND: 117.8,
+            SoilTextureClass.LOAMY_SAND: 29.9,
+            SoilTextureClass.SANDY_LOAM: 10.9,
+            SoilTextureClass.LOAM: 3.3,
+            SoilTextureClass.SILT_LOAM: 6.8,
+            SoilTextureClass.SANDY_CLAY_LOAM: 1.5,
+            SoilTextureClass.CLAY_LOAM: 1.0,
+            SoilTextureClass.SILTY_CLAY_LOAM: 1.0,
+            SoilTextureClass.SANDY_CLAY: 0.6,
+            SoilTextureClass.SILTY_CLAY: 0.5,
             SoilTextureClass.CLAY: 0.3,
         }
         psi_map = {
-            SoilTextureClass.SAND: 49.5, SoilTextureClass.LOAMY_SAND: 61.3,
-            SoilTextureClass.SANDY_LOAM: 110.1, SoilTextureClass.LOAM: 88.9,
-            SoilTextureClass.SILT_LOAM: 166.8, SoilTextureClass.SANDY_CLAY_LOAM: 218.5,
-            SoilTextureClass.CLAY_LOAM: 208.8, SoilTextureClass.SILTY_CLAY_LOAM: 273.0,
-            SoilTextureClass.SANDY_CLAY: 239.0, SoilTextureClass.SILTY_CLAY: 292.2,
+            SoilTextureClass.SAND: 49.5,
+            SoilTextureClass.LOAMY_SAND: 61.3,
+            SoilTextureClass.SANDY_LOAM: 110.1,
+            SoilTextureClass.LOAM: 88.9,
+            SoilTextureClass.SILT_LOAM: 166.8,
+            SoilTextureClass.SANDY_CLAY_LOAM: 218.5,
+            SoilTextureClass.CLAY_LOAM: 208.8,
+            SoilTextureClass.SILTY_CLAY_LOAM: 273.0,
+            SoilTextureClass.SANDY_CLAY: 239.0,
+            SoilTextureClass.SILTY_CLAY: 292.2,
             SoilTextureClass.CLAY: 316.3,
         }
         ks = ks_map.get(soil.texture, 11.0)

@@ -20,12 +20,11 @@ References:
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from datetime import date
+from dataclasses import dataclass
 
 import structlog
 
-from shared.process_models.models import DailyWeather, ModelResult, ModelType, SoilProfile
+from shared.process_models.models import DailyWeather, ModelResult, ModelType
 
 logger = structlog.get_logger()
 
@@ -94,8 +93,11 @@ def extraterrestrial_radiation(doy: int, lat_rad: float) -> float:
     dr = 1.0 + 0.033 * math.cos(2 * math.pi * doy / 365.0)
     declin = 0.409 * math.sin(2 * math.pi * doy / 365.0 - 1.39)
     ws = math.acos(-math.tan(lat_rad) * math.tan(declin))
-    ra = (24.0 * 60.0 / math.pi) * 0.0820 * dr * (
-        ws * math.sin(lat_rad) * math.sin(declin) + math.cos(lat_rad) * math.cos(declin) * math.sin(ws)
+    ra = (
+        (24.0 * 60.0 / math.pi)
+        * 0.0820
+        * dr
+        * (ws * math.sin(lat_rad) * math.sin(declin) + math.cos(lat_rad) * math.cos(declin) * math.sin(ws))
     )
     return ra
 
@@ -122,9 +124,7 @@ def net_radiation(
         rs_clear = rs_mj_m2 * 1.35  # rough approximation
     tmax_k4 = (tmax_c + 273.16) ** 4
     tmin_k4 = (tmin_c + 273.16) ** 4
-    rnl = _SIGMA * (tmax_k4 + tmin_k4) / 2.0 * (0.34 - 0.14 * math.sqrt(ea_kpa)) * (
-        1.35 * rs_mj_m2 / rs_clear - 0.35
-    )
+    rnl = _SIGMA * (tmax_k4 + tmin_k4) / 2.0 * (0.34 - 0.14 * math.sqrt(ea_kpa)) * (1.35 * rs_mj_m2 / rs_clear - 0.35)
     return rns - rnl
 
 
@@ -160,8 +160,10 @@ def penman_monteith_et0(
 
     # Vapour pressures
     es = mean_saturation_vapour_pressure(weather.tmax_c, weather.tmin_c)
-    ea = weather.actual_vapor_pressure_kpa if weather.actual_vapor_pressure_kpa else (
-        weather.relative_humidity_pct / 100.0 * es
+    ea = (
+        weather.actual_vapor_pressure_kpa
+        if weather.actual_vapor_pressure_kpa
+        else (weather.relative_humidity_pct / 100.0 * es)
     )
 
     # Psychrometric constant and Δ

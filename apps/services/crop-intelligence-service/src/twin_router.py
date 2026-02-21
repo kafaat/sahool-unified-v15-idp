@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, UTC
 from typing import Any
 from uuid import UUID
 
@@ -292,7 +292,7 @@ async def ingest_observations(
             obs = FieldObservation(
                 tenant_id=body.tenant_id,
                 field_id=field_id,
-                ts=raw.ts or datetime.now(timezone.utc),
+                ts=raw.ts or datetime.now(UTC),
                 source=source_map.get(raw.source, ObservationSource.MANUAL),
                 obs_type=obs_type_map.get(raw.obs_type, ObservationType.NDVI),
                 value=raw.value,
@@ -358,8 +358,7 @@ async def get_irrigation_recommendation(
     if state is None:
         raise HTTPException(
             http_status.HTTP_404_NOT_FOUND,
-            f"No twin state found for field {field_id} on {target_day}. "
-            "Run POST /fields/{field_id}/twin/step first.",
+            f"No twin state found for field {field_id} on {target_day}. Run POST /fields/{{field_id}}/twin/step first.",
         )
 
     decision = DecisionEngine(repo=repo, nats_client=nats)
@@ -403,7 +402,7 @@ async def _publish_observation_ingested(
             {
                 "tenant_id": str(tenant_id),
                 "field_id": str(field_id),
-                "ts": datetime.now(timezone.utc).isoformat(),
+                "ts": datetime.now(UTC).isoformat(),
                 "obs_type": obs_type,
                 "value": value,
             }

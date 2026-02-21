@@ -245,10 +245,7 @@ class EnsembleModelFramework:
 
     def list_models(self) -> list[dict[str, str]]:
         """List registered models. قائمة النماذج المسجّلة."""
-        return [
-            {"name": m.name, "name_ar": m.name_ar, "type": m.model_type, "weight": m.weight}
-            for m in self._models
-        ]
+        return [{"name": m.name, "name_ar": m.name_ar, "type": m.model_type, "weight": m.weight} for m in self._models]
 
     def run_ensemble(
         self,

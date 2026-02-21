@@ -15,7 +15,7 @@ Covers:
 from __future__ import annotations
 
 import os
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone, UTC
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import UUID, uuid4
@@ -40,28 +40,28 @@ TODAY = date.today()
 def _make_state(**kwargs) -> Any:
     from shared.digital_twin.models import FieldDailyState
 
-    defaults = dict(
-        tenant_id=TENANT,
-        field_id=FIELD,
-        day=TODAY,
-        et0_mm=5.2,
-        etc_mm=4.5,
-        phenology_stage="tillering",
-        gdd_cum=320.0,
-        lai=2.5,
-        biomass_kg_ha=1800.0,
-        root_depth_m=0.40,
-        soil_water_mm=240.0,
-        depletion_mm=60.0,
-        water_stress=0.85,
-        n_stress=0.90,
-        runoff_mm=0.0,
-        deep_perc_mm=0.0,
-        rainfall_mm=0.0,
-        irrigation_applied_mm=0.0,
-        nitrogen_applied_kg_ha=0.0,
-        confidence=0.70,
-    )
+    defaults = {
+        "tenant_id": TENANT,
+        "field_id": FIELD,
+        "day": TODAY,
+        "et0_mm": 5.2,
+        "etc_mm": 4.5,
+        "phenology_stage": "tillering",
+        "gdd_cum": 320.0,
+        "lai": 2.5,
+        "biomass_kg_ha": 1800.0,
+        "root_depth_m": 0.40,
+        "soil_water_mm": 240.0,
+        "depletion_mm": 60.0,
+        "water_stress": 0.85,
+        "n_stress": 0.90,
+        "runoff_mm": 0.0,
+        "deep_perc_mm": 0.0,
+        "rainfall_mm": 0.0,
+        "irrigation_applied_mm": 0.0,
+        "nitrogen_applied_kg_ha": 0.0,
+        "confidence": 0.70,
+    }
     defaults.update(kwargs)
     return FieldDailyState(**defaults)
 
@@ -69,15 +69,15 @@ def _make_state(**kwargs) -> Any:
 def _make_observation(**kwargs) -> Any:
     from shared.digital_twin.models import FieldObservation, ObservationSource, ObservationType
 
-    defaults = dict(
-        tenant_id=TENANT,
-        field_id=FIELD,
-        ts=datetime.now(timezone.utc),
-        source=ObservationSource.SENTINEL_2,
-        obs_type=ObservationType.NDVI,
-        value=0.72,
-        quality=0.85,
-    )
+    defaults = {
+        "tenant_id": TENANT,
+        "field_id": FIELD,
+        "ts": datetime.now(UTC),
+        "source": ObservationSource.SENTINEL_2,
+        "obs_type": ObservationType.NDVI,
+        "value": 0.72,
+        "quality": 0.85,
+    }
     defaults.update(kwargs)
     return FieldObservation(**defaults)
 
@@ -145,9 +145,7 @@ class TestDomainModels:
     def test_irrigation_recommendation_defaults(self):
         from shared.digital_twin.models import IrrigationRecommendation
 
-        rec = IrrigationRecommendation(
-            tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=25.0
-        )
+        rec = IrrigationRecommendation(tenant_id=TENANT, field_id=FIELD, day=TODAY, recommended_mm=25.0)
         assert rec.confidence == pytest.approx(0.7)
         assert rec.reason_codes == []
 
@@ -178,6 +176,7 @@ class TestDomainModels:
 class TestTwinRepositoryMemory:
     def setup_method(self):
         from shared.digital_twin.repository import TwinRepository, _mem_states, _mem_observations, _mem_recommendations
+
         # Clear in-memory stores
         _mem_states.clear()
         _mem_observations.clear()
@@ -255,6 +254,7 @@ class TestTwinRepositoryMemory:
 class TestTwinPipeline:
     def setup_method(self):
         from shared.digital_twin.repository import _mem_states, _mem_observations, _mem_recommendations
+
         _mem_states.clear()
         _mem_observations.clear()
         _mem_recommendations.clear()
@@ -305,9 +305,13 @@ class TestTwinPipeline:
         repo = TwinRepository(db_pool=None)
         pipeline = TwinPipeline(repo=repo, nats_client=None)
         weather = DailyWeather(
-            date=TODAY, tmax_c=25.0, tmin_c=12.0,
-            solar_radiation_mj_m2=16.0, relative_humidity_pct=60.0,
-            wind_speed_m_s=2.0, precipitation_mm=0.0
+            date=TODAY,
+            tmax_c=25.0,
+            tmin_c=12.0,
+            solar_radiation_mj_m2=16.0,
+            relative_humidity_pct=60.0,
+            wind_speed_m_s=2.0,
+            precipitation_mm=0.0,
         )
         await pipeline.step(TENANT, FIELD, TODAY, weather, SoilProfile(), CropParameters())
         saved = await repo.get_state(TENANT, FIELD, TODAY)
@@ -327,9 +331,13 @@ class TestTwinPipeline:
 
         for day in (day1, day2):
             weather = DailyWeather(
-                date=day, tmax_c=26.0, tmin_c=12.0,
-                solar_radiation_mj_m2=16.0, relative_humidity_pct=60.0,
-                wind_speed_m_s=2.0, precipitation_mm=0.0
+                date=day,
+                tmax_c=26.0,
+                tmin_c=12.0,
+                solar_radiation_mj_m2=16.0,
+                relative_humidity_pct=60.0,
+                wind_speed_m_s=2.0,
+                precipitation_mm=0.0,
             )
             await pipeline.step(TENANT, FIELD, day, weather, SoilProfile(), CropParameters())
 
@@ -346,6 +354,7 @@ class TestTwinPipeline:
 class TestAssimilationEngine:
     def setup_method(self):
         from shared.digital_twin.repository import _mem_observations
+
         _mem_observations.clear()
 
     @pytest.mark.asyncio
@@ -388,11 +397,12 @@ class TestAssimilationEngine:
 
         repo = TwinRepository(db_pool=None)
         obs = FieldObservation(
-            tenant_id=TENANT, field_id=FIELD,
-            ts=datetime.now(timezone.utc),
+            tenant_id=TENANT,
+            field_id=FIELD,
+            ts=datetime.now(UTC),
             source=ObservationSource.IOT_SENSOR,
             obs_type=ObservationType.SOIL_MOISTURE,
-            value=0.32,   # 32% VWC
+            value=0.32,  # 32% VWC
             quality=0.80,
             meta={"soil_depth_m": 0.6},
         )
@@ -435,6 +445,7 @@ class TestAssimilationEngine:
 class TestDecisionEngine:
     def setup_method(self):
         from shared.digital_twin.repository import _mem_recommendations
+
         _mem_recommendations.clear()
 
     @pytest.mark.asyncio
@@ -550,8 +561,11 @@ class TestNATSSubjects:
             is_valid_subject,
         )
 
-        for subj in (SAHOOL_FIELD_OBSERVATION_INGESTED, SAHOOL_FIELD_STATE_UPDATED,
-                     SAHOOL_IRRIGATION_RECOMMENDATION_READY):
+        for subj in (
+            SAHOOL_FIELD_OBSERVATION_INGESTED,
+            SAHOOL_FIELD_STATE_UPDATED,
+            SAHOOL_IRRIGATION_RECOMMENDATION_READY,
+        ):
             assert is_valid_subject(subj), f"Invalid subject: {subj}"
 
 

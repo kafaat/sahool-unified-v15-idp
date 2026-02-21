@@ -6,9 +6,9 @@ from datetime import UTC, datetime, timedelta, timezone
 
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement, Supplier
-from stock_manager import StockManager
+from .stock_manager import StockManager
 
-from models import (
+from .models import (
     ConsumptionReport,
     InventoryItemCreate,
     InventoryItemUpdate,

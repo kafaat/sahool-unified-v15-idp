@@ -16,8 +16,13 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "shared"))
-from database.base import Base
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+from sqlalchemy.orm import DeclarativeBase
+
+
+class Base(DeclarativeBase):
+    """Test base class for SQLAlchemy models"""
+    pass
 
 
 @pytest.fixture(scope="function")
@@ -56,7 +61,7 @@ def mock_env_vars():
         "DATABASE_URL": "postgresql+asyncpg://test:test@localhost:5432/test_db",
         "ALLOW_DEV_DEFAULTS": "true",
         "CORS_ALLOWED_ORIGINS": "http://localhost:3000",
-        "SERVICE_PORT": "8115",
+        "SERVICE_PORT": "8116",
     }
 
     with patch.dict(os.environ, env_vars, clear=False):

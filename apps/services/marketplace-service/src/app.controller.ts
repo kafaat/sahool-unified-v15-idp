@@ -204,19 +204,25 @@ export class AppController {
   }
 
   /**
-   * سحب من المحفظة
+   * سحب من المحفظة (مع رمز PIN للمبالغ الكبيرة)
    * POST /api/v1/fintech/wallet/:walletId/withdraw
    */
   @Post("fintech/wallet/:walletId/withdraw")
   @UseGuards(JwtAuthGuard)
   async withdraw(
+    @Req() request: any,
     @Param("walletId") walletId: string,
-    @Body(ValidationPipe) body: WalletTransactionDto,
+    @Body(ValidationPipe) body: WalletTransactionDto & { pin?: string },
   ) {
+    const authenticatedUser = request.user;
     return this.fintechService.withdraw(
       walletId,
       body.amount,
       body.description,
+      undefined,
+      authenticatedUser.id,
+      request.ip,
+      body.pin,
     );
   }
 
@@ -388,6 +394,100 @@ export class AppController {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // إدارة رمز PIN - PIN Management
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تعيين رمز PIN للمحفظة
+   * POST /api/v1/fintech/wallet/:walletId/set-pin
+   */
+  @Post("fintech/wallet/:walletId/set-pin")
+  @UseGuards(JwtAuthGuard)
+  async setPin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { pin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to set PIN for this wallet",
+      );
+    }
+
+    return this.fintechService.setPin(walletId, body.pin, authenticatedUser.id);
+  }
+
+  /**
+   * التحقق من رمز PIN
+   * POST /api/v1/fintech/wallet/:walletId/verify-pin
+   */
+  @Post("fintech/wallet/:walletId/verify-pin")
+  @UseGuards(JwtAuthGuard)
+  async verifyPin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { pin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to verify PIN for this wallet",
+      );
+    }
+
+    const valid = await this.fintechService.verifyPin(walletId, body.pin);
+    return { valid };
+  }
+
+  /**
+   * تغيير رمز PIN
+   * POST /api/v1/fintech/wallet/:walletId/change-pin
+   */
+  @Post("fintech/wallet/:walletId/change-pin")
+  @UseGuards(JwtAuthGuard)
+  async changePin(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { oldPin: string; newPin: string },
+  ) {
+    const wallet = await this.fintechService.getWalletById(walletId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to change PIN for this wallet",
+      );
+    }
+
+    return this.fintechService.changePin(
+      walletId,
+      body.oldPin,
+      body.newPin,
+      authenticatedUser.id,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // الإسكرو - Escrow
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -441,6 +541,55 @@ export class AppController {
     @Body() body: { reason?: string },
   ) {
     return this.fintechService.refundEscrow(id, body.reason);
+  }
+
+  /**
+   * فتح نزاع على الإسكرو
+   * POST /api/v1/fintech/escrow/:id/dispute
+   */
+  @Post("fintech/escrow/:id/dispute")
+  @UseGuards(JwtAuthGuard)
+  async disputeEscrow(
+    @Req() request: any,
+    @Param("id") id: string,
+    @Body() body: { reason: string },
+  ) {
+    const authenticatedUser = request.user;
+    return this.fintechService.disputeEscrow(
+      id,
+      body.reason,
+      authenticatedUser.id,
+      request.ip,
+    );
+  }
+
+  /**
+   * حل النزاع (للإدارة فقط)
+   * POST /api/v1/fintech/escrow/:id/resolve-dispute
+   */
+  @Post("fintech/escrow/:id/resolve-dispute")
+  @UseGuards(JwtAuthGuard)
+  async resolveDispute(
+    @Req() request: any,
+    @Param("id") id: string,
+    @Body() body: { resolution: "release" | "refund"; adminNotes: string },
+  ) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can resolve escrow disputes",
+      );
+    }
+
+    return this.fintechService.resolveDispute(
+      id,
+      body.resolution,
+      body.adminNotes,
+      authenticatedUser.id,
+      request.ip,
+    );
   }
 
   /**
@@ -579,6 +728,25 @@ export class AppController {
     return this.fintechService.executeScheduledPayment(id);
   }
 
+  /**
+   * معالجة الدفعات المستحقة (للإدارة)
+   * POST /api/v1/fintech/scheduled-payments/process-due
+   */
+  @Post("fintech/scheduled-payments/process-due")
+  @UseGuards(JwtAuthGuard)
+  async processDuePayments(@Req() request: any) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can trigger payment processing",
+      );
+    }
+
+    return this.fintechService.processDuePayments();
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // لوحة تحكم المحفظة - Wallet Dashboard
   // ═══════════════════════════════════════════════════════════════════════════
@@ -590,5 +758,111 @@ export class AppController {
   @Get("fintech/wallet/:walletId/dashboard")
   async getWalletDashboard(@Param("walletId") walletId: string) {
     return this.fintechService.getWalletDashboard(walletId);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // التحويلات - Wallet Transfers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تحويل بين المحافظ
+   * POST /api/v1/fintech/wallet/transfer
+   */
+  @Post("fintech/wallet/transfer")
+  @UseGuards(JwtAuthGuard)
+  async transfer(
+    @Req() request: any,
+    @Body()
+    body: {
+      fromWalletId: string;
+      toWalletId: string;
+      amount: number;
+      description?: string;
+      pin?: string;
+    },
+  ) {
+    // Verify sender wallet ownership
+    const wallet = await this.fintechService.getWalletById(body.fromWalletId);
+    if (!wallet) {
+      throw new ForbiddenException("Sender wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner) {
+      throw new ForbiddenException(
+        "You are not authorized to transfer from this wallet",
+      );
+    }
+
+    return this.fintechService.transfer(
+      body.fromWalletId,
+      body.toWalletId,
+      body.amount,
+      body.description,
+      undefined,
+      authenticatedUser.id,
+      request.ip,
+      body.pin,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // تجميد المحفظة - Wallet Freeze (Admin Only)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * تجميد محفظة (للإدارة فقط)
+   * POST /api/v1/fintech/wallet/:walletId/freeze
+   */
+  @Post("fintech/wallet/:walletId/freeze")
+  @UseGuards(JwtAuthGuard)
+  async freezeWallet(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { reason?: string },
+  ) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can freeze wallets",
+      );
+    }
+
+    return this.fintechService.freezeWallet(
+      walletId,
+      authenticatedUser.id,
+      body.reason,
+    );
+  }
+
+  /**
+   * إلغاء تجميد محفظة (للإدارة فقط)
+   * POST /api/v1/fintech/wallet/:walletId/unfreeze
+   */
+  @Post("fintech/wallet/:walletId/unfreeze")
+  @UseGuards(JwtAuthGuard)
+  async unfreezeWallet(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+    @Body() body: { reason?: string },
+  ) {
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+
+    if (!isAdmin) {
+      throw new ForbiddenException(
+        "Only administrators can unfreeze wallets",
+      );
+    }
+
+    return this.fintechService.unfreezeWallet(
+      walletId,
+      authenticatedUser.id,
+      body.reason,
+    );
   }
 }

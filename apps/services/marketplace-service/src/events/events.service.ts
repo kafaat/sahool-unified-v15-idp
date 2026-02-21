@@ -156,11 +156,70 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   };
 
   /**
-   * Auto-connect to NATS on module initialization
+   * Auto-connect to NATS on module initialization and set up consumers
    */
   async onModuleInit(): Promise<void> {
     this.logger.log("Initializing NATS connection...");
     await this.connect();
+    await this.setupEventConsumers();
+  }
+
+  /**
+   * Set up event consumers for incoming events from other services
+   */
+  private async setupEventConsumers(): Promise<void> {
+    if (!this.isConnected()) {
+      this.logger.warn("Skipping event consumer setup - NATS not connected");
+      return;
+    }
+
+    const queueGroup = "marketplace-service";
+
+    // Listen for order completion events from delivery/fulfillment
+    await this.subscribe(
+      "sahool.delivery.completed",
+      async (event) => {
+        this.logger.log(
+          `Received delivery completed event for order: ${event.payload?.orderId}`,
+        );
+      },
+      { queue: queueGroup },
+    );
+
+    // Listen for inventory restock events
+    await this.subscribe(
+      "sahool.inventory.restocked",
+      async (event) => {
+        this.logger.log(
+          `Received inventory restocked event for product: ${event.payload?.productId}`,
+        );
+      },
+      { queue: queueGroup },
+    );
+
+    // Listen for payment confirmation from payment gateway
+    await this.subscribe(
+      "sahool.payment.confirmed",
+      async (event) => {
+        this.logger.log(
+          `Received payment confirmed event for order: ${event.payload?.orderId}`,
+        );
+      },
+      { queue: queueGroup },
+    );
+
+    // Listen for user verification events (KYC updates)
+    await this.subscribe(
+      "sahool.user.verified",
+      async (event) => {
+        this.logger.log(
+          `Received user verification event for user: ${event.payload?.userId}`,
+        );
+      },
+      { queue: queueGroup },
+    );
+
+    this.logger.log("Event consumers set up successfully");
   }
 
   /**

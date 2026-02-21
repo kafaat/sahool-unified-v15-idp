@@ -505,4 +505,4 @@ class GPSTrack(BaseModel):
                 )
                 self.points.append(closing_point)
             self.is_closed = True
-            self.end_time = datetime.now(UTC).replace(tzinfo=None)()
+            self.end_time = datetime.now(UTC).replace(tzinfo=None)

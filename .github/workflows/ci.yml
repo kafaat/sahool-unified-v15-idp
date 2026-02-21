@@ -285,6 +285,8 @@ jobs:
           pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout httpx pyjwt fastapi pydantic jsonschema sqlalchemy tortoise-orm structlog langchain-anthropic redis --quiet
           # AI module dependencies for unit tests
           pip install numpy pillow aiofiles --quiet
+          # 2FA, NATS, and additional unit test dependencies
+          pip install pyotp qrcode nats-py --quiet
 
       - name: Run unified tests with coverage (parallel)
         run: |
@@ -300,9 +302,19 @@ jobs:
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short --timeout=60 \
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing || true
 
-          # Run AI unit tests (these work reliably)
-          pytest tests/unit/ai/ -v --tb=short --timeout=60 \
-            --cov-append --cov=shared/ai --cov-report=xml --cov-report=term-missing || true
+          # Run all unit tests (excluding auth tests with pyo3 compatibility issues)
+          pytest tests/unit/ -v --tb=short --timeout=60 \
+            --ignore=tests/unit/auth \
+            --ignore=tests/unit/shared/auth \
+            --ignore=tests/unit/shared/test_auth_dependencies.py \
+            --ignore=tests/unit/shared/test_auth_jwt_handler.py \
+            --ignore=tests/unit/shared/test_jwt.py \
+            --ignore=tests/unit/shared/test_rbac.py \
+            --ignore=tests/unit/shared/test_token_revocation.py \
+            --ignore=tests/unit/shared/test_twofa_config.py \
+            --ignore=tests/unit/shared/test_twofa_service.py \
+            --ignore=tests/unit/test_shared_auth.py \
+            --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing || true
         env:
           ENVIRONMENT: test
           PYTHONPATH: .
@@ -324,9 +336,9 @@ jobs:
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
           # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Current coverage: ~11% - threshold set to 10% to allow CI to pass
-          # TODO: Increase to 15% once more tests are added
-          MIN_COVERAGE=10
+          # Raised from 10% to 25% as part of pilot launch readiness (2026-02-20)
+          # Next milestone: 40% after Phase 2 testing improvements
+          MIN_COVERAGE=25
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "

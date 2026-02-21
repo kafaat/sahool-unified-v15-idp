@@ -95,6 +95,7 @@ export class FintechService {
     idempotencyKey?: string,
     userId?: string,
     ipAddress?: string,
+    pin?: string,
   ) {
     return this.walletService.withdraw(
       walletId,
@@ -103,6 +104,29 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      pin,
+    );
+  }
+
+  async transfer(
+    fromWalletId: string,
+    toWalletId: string,
+    amount: number,
+    description?: string,
+    idempotencyKey?: string,
+    userId?: string,
+    ipAddress?: string,
+    pin?: string,
+  ) {
+    return this.walletService.transfer(
+      fromWalletId,
+      toWalletId,
+      amount,
+      description,
+      idempotencyKey,
+      userId,
+      ipAddress,
+      pin,
     );
   }
 
@@ -131,6 +155,24 @@ export class FintechService {
 
   async getWalletDashboard(walletId: string) {
     return this.walletService.getWalletDashboard(walletId);
+  }
+
+  // PIN Management
+  async setPin(walletId: string, pin: string, userId?: string) {
+    return this.walletService.setPin(walletId, pin, userId);
+  }
+
+  async verifyPin(walletId: string, pin: string) {
+    return this.walletService.verifyPin(walletId, pin);
+  }
+
+  async changePin(
+    walletId: string,
+    oldPin: string,
+    newPin: string,
+    userId?: string,
+  ) {
+    return this.walletService.changePin(walletId, oldPin, newPin, userId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -225,6 +267,10 @@ export class FintechService {
     return this.loanService.executeScheduledPayment(paymentId);
   }
 
+  async processDuePayments() {
+    return this.loanService.processDuePayments();
+  }
+
   /**
    * Get scheduled payment by ID for authorization checks
    * Returns payment with wallet info for ownership verification
@@ -300,6 +346,36 @@ export class FintechService {
     );
   }
 
+  async disputeEscrow(
+    escrowId: string,
+    reason: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    return this.escrowService.disputeEscrow(
+      escrowId,
+      reason,
+      userId,
+      ipAddress,
+    );
+  }
+
+  async resolveDispute(
+    escrowId: string,
+    resolution: "release" | "refund",
+    adminNotes: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    return this.escrowService.resolveDispute(
+      escrowId,
+      resolution,
+      adminNotes,
+      userId,
+      ipAddress,
+    );
+  }
+
   async getEscrowByOrder(orderId: string) {
     return this.escrowService.getEscrowByOrder(orderId);
   }
@@ -337,6 +413,15 @@ export class FintechService {
   // ═══════════════════════════════════════════════════════════════════════════
   // Helper Methods
   // ═══════════════════════════════════════════════════════════════════════════
+
+  // Wallet Freeze/Unfreeze
+  async freezeWallet(walletId: string, userId: string, reason?: string) {
+    return this.walletService.freezeWallet(walletId, userId, reason);
+  }
+
+  async unfreezeWallet(walletId: string, userId: string, reason?: string) {
+    return this.walletService.unfreezeWallet(walletId, userId, reason);
+  }
 
   /**
    * الحصول على ترجمة التصنيف الائتماني

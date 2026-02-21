@@ -11,8 +11,11 @@
 
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
+  OnModuleInit,
+  OnModuleDestroy,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -27,8 +30,108 @@ interface CreateLoanDto {
 }
 
 @Injectable()
-export class LoanService {
+export class LoanService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(LoanService.name);
+  private schedulerInterval: NodeJS.Timeout | null = null;
+  private readonly SCHEDULER_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+  private readonly MAX_FAILED_ATTEMPTS = 3;
+
   constructor(private prisma: PrismaService) {}
+
+  async onModuleInit() {
+    this.startPaymentScheduler();
+  }
+
+  async onModuleDestroy() {
+    this.stopPaymentScheduler();
+  }
+
+  /**
+   * بدء جدولة الدفعات التلقائية
+   */
+  private startPaymentScheduler() {
+    this.logger.log("Starting scheduled payment processor...");
+    this.schedulerInterval = setInterval(() => {
+      this.processDuePayments().catch((err) => {
+        this.logger.error(`Scheduled payment processing failed: ${err.message}`);
+      });
+    }, this.SCHEDULER_INTERVAL_MS);
+
+    // Run once on startup after a short delay
+    setTimeout(() => {
+      this.processDuePayments().catch((err) => {
+        this.logger.error(`Initial payment processing failed: ${err.message}`);
+      });
+    }, 10_000);
+  }
+
+  private stopPaymentScheduler() {
+    if (this.schedulerInterval) {
+      clearInterval(this.schedulerInterval);
+      this.schedulerInterval = null;
+      this.logger.log("Stopped scheduled payment processor");
+    }
+  }
+
+  /**
+   * معالجة الدفعات المستحقة
+   */
+  async processDuePayments(): Promise<{ processed: number; failed: number }> {
+    const now = new Date();
+
+    const duePayments = await this.prisma.scheduledPayment.findMany({
+      where: {
+        isActive: true,
+        nextPaymentDate: { lte: now },
+        failedAttempts: { lt: this.MAX_FAILED_ATTEMPTS },
+      },
+      take: 50, // Process in batches
+      orderBy: { nextPaymentDate: "asc" },
+    });
+
+    if (duePayments.length === 0) {
+      return { processed: 0, failed: 0 };
+    }
+
+    this.logger.log(`Processing ${duePayments.length} due scheduled payments`);
+
+    let processed = 0;
+    let failed = 0;
+
+    for (const payment of duePayments) {
+      try {
+        await this.executeScheduledPayment(payment.id);
+        processed++;
+      } catch (error) {
+        failed++;
+        this.logger.warn(
+          `Failed to execute scheduled payment ${payment.id}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+
+        // Auto-deactivate if max attempts exceeded
+        const updated = await this.prisma.scheduledPayment.findUnique({
+          where: { id: payment.id },
+        });
+        if (updated && updated.failedAttempts >= this.MAX_FAILED_ATTEMPTS) {
+          await this.prisma.scheduledPayment.update({
+            where: { id: payment.id },
+            data: {
+              isActive: false,
+              lastFailureReason: `تم تعطيل الدفعة بعد ${this.MAX_FAILED_ATTEMPTS} محاولات فاشلة`,
+            },
+          });
+          this.logger.warn(
+            `Deactivated scheduled payment ${payment.id} after ${this.MAX_FAILED_ATTEMPTS} failed attempts`,
+          );
+        }
+      }
+    }
+
+    this.logger.log(
+      `Scheduled payments processed: ${processed} success, ${failed} failed`,
+    );
+    return { processed, failed };
+  }
 
   /**
    * ترجمة غرض القرض
@@ -173,9 +276,12 @@ export class LoanService {
           where: { id: loanId },
           include: { wallet: true },
         });
+        if (!loan) {
+          throw new NotFoundException("القرض غير موجود للمعاملة المكررة");
+        }
         return {
           loan,
-          wallet: loan?.wallet,
+          wallet: loan.wallet,
           transaction: existingTransaction,
           duplicate: true,
         };

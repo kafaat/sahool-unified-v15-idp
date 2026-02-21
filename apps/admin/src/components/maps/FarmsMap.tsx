@@ -2,6 +2,7 @@
 
 // Sahool Farms Map Component - Fixed for React re-renders
 // خريطة المزارع التفاعلية
+// Updated: satellite toggle, polygon boundaries, enhanced Arabic UI
 
 import { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
@@ -18,6 +19,7 @@ export interface BaseFarmData {
   crops: string[];
   governorate?: string;
   status?: string;
+  boundary?: number[][][]; // GeoJSON polygon coordinates [[[lng,lat],...]]
 }
 
 // Loading fallback component for map imports
@@ -40,10 +42,18 @@ const CircleMarker = dynamic(
   () => import("react-leaflet").then((mod) => mod.CircleMarker),
   { ssr: false, loading: () => null },
 ) as any;
+const Polygon = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Polygon),
+  { ssr: false, loading: () => null },
+) as any;
 const Popup = dynamic(() => import("react-leaflet").then((mod) => mod.Popup), {
   ssr: false,
   loading: () => null,
 }) as any;
+const LayersControl = dynamic(
+  () => import("react-leaflet").then((mod) => mod.LayersControl),
+  { ssr: false, loading: () => null },
+) as any;
 
 interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
   farms: T[];
@@ -56,6 +66,16 @@ interface FarmsMapProps<T extends BaseFarmData = BaseFarmData> {
 // Yemen center coordinates
 const YEMEN_CENTER: [number, number] = [15.5527, 48.5164];
 const DEFAULT_ZOOM = 6;
+
+/**
+ * Get Arabic health status label
+ */
+const getHealthLabel = (score: number): string => {
+  if (score >= 80) return "ممتاز";
+  if (score >= 60) return "جيد";
+  if (score >= 40) return "متوسط";
+  return "ضعيف";
+};
 
 export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
   farms,
@@ -122,7 +142,7 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
       className={`relative rounded-lg overflow-hidden ${className}`}
     >
       {/* Map Legend */}
-      <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-lg p-3">
+      <div className="absolute top-4 left-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3">
         <h4 className="text-sm font-semibold mb-2 text-gray-700">
           مستوى الصحة
         </h4>
@@ -146,6 +166,13 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
         </div>
       </div>
 
+      {/* Farm count badge */}
+      <div className="absolute top-4 right-4 z-[1000] bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-3 py-2">
+        <p className="text-xs text-gray-700 font-medium">
+          {farms.length} مزرعة
+        </p>
+      </div>
+
       <MapContainer
         center={YEMEN_CENTER}
         zoom={DEFAULT_ZOOM}
@@ -159,69 +186,160 @@ export default function FarmsMap<T extends BaseFarmData = BaseFarmData>({
           }
         }}
       >
-        {/* Base tile layer - OpenStreetMap */}
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        {/* Base Layers with satellite option */}
+        <LayersControl position="topright">
+          <LayersControl.BaseLayer checked name="خريطة الشوارع">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="صور الأقمار الصناعية">
+            <TileLayer
+              attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+            />
+          </LayersControl.BaseLayer>
+          <LayersControl.BaseLayer name="التضاريس">
+            <TileLayer
+              attribution='&copy; <a href="https://opentopomap.org">OpenTopoMap</a>'
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+            />
+          </LayersControl.BaseLayer>
+        </LayersControl>
 
-        {/* Farm markers */}
-        {farms.map((farm) => (
-          <CircleMarker
-            key={farm.id}
-            center={[farm.coordinates.lat, farm.coordinates.lng]}
-            radius={selectedFarmId === farm.id ? 12 : 8}
-            fillColor={
-              showHealthOverlay ? getMarkerColor(farm.healthScore) : "#3b82f6"
-            }
-            color={selectedFarmId === farm.id ? "#1e40af" : "#ffffff"}
-            weight={selectedFarmId === farm.id ? 3 : 2}
-            fillOpacity={0.8}
-            eventHandlers={{
-              click: () => onFarmClick?.(farm),
-            }}
-          >
-            <Popup>
-              <div className="text-right font-arabic" dir="rtl">
-                <h3 className="font-bold text-lg mb-2">
-                  {farm.nameAr || farm.name || "مزرعة"}
-                </h3>
-                <div className="space-y-1 text-sm">
-                  {farm.governorate && (
-                    <p>
-                      <span className="text-gray-500">المحافظة:</span>{" "}
-                      <span className="font-medium">{farm.governorate}</span>
-                    </p>
-                  )}
-                  <p>
-                    <span className="text-gray-500">المساحة:</span>{" "}
-                    <span className="font-medium">
-                      {farm.area.toFixed(1)} هكتار
-                    </span>
-                  </p>
-                  <p>
-                    <span className="text-gray-500">المحاصيل:</span>{" "}
-                    <span className="font-medium">{farm.crops.join(", ")}</span>
-                  </p>
-                  <p>
-                    <span className="text-gray-500">مستوى الصحة:</span>{" "}
-                    <span
-                      className={`font-bold px-2 py-0.5 rounded ${getHealthScoreColor(farm.healthScore)}`}
+        {/* Farm markers - polygon boundaries where available, circle markers as fallback */}
+        {farms.map((farm) => {
+          const markerColor = showHealthOverlay
+            ? getMarkerColor(farm.healthScore)
+            : "#3b82f6";
+
+          // Render polygon boundary if available
+          if (farm.boundary && farm.boundary.length > 0) {
+            // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+            const positions = farm.boundary.map((ring) =>
+              ring.map(([lng, lat]: number[]) => [lat, lng] as [number, number]),
+            );
+
+            return (
+              <Polygon
+                key={farm.id}
+                positions={positions}
+                pathOptions={{
+                  color: selectedFarmId === farm.id ? "#1e40af" : markerColor,
+                  fillColor: markerColor,
+                  fillOpacity: selectedFarmId === farm.id ? 0.5 : 0.3,
+                  weight: selectedFarmId === farm.id ? 3 : 2,
+                }}
+                eventHandlers={{
+                  click: () => onFarmClick?.(farm),
+                }}
+              >
+                <Popup>
+                  <div className="text-right font-arabic" dir="rtl">
+                    <h3 className="font-bold text-lg mb-2">
+                      {farm.nameAr || farm.name || "مزرعة"}
+                    </h3>
+                    <div className="space-y-1 text-sm">
+                      {farm.governorate && (
+                        <p>
+                          <span className="text-gray-500">المحافظة:</span>{" "}
+                          <span className="font-medium">
+                            {farm.governorate}
+                          </span>
+                        </p>
+                      )}
+                      <p>
+                        <span className="text-gray-500">المساحة:</span>{" "}
+                        <span className="font-medium">
+                          {farm.area.toFixed(1)} هكتار
+                        </span>
+                      </p>
+                      <p>
+                        <span className="text-gray-500">المحاصيل:</span>{" "}
+                        <span className="font-medium">
+                          {farm.crops.join(", ")}
+                        </span>
+                      </p>
+                      <p>
+                        <span className="text-gray-500">مستوى الصحة:</span>{" "}
+                        <span
+                          className={`font-bold px-2 py-0.5 rounded ${getHealthScoreColor(farm.healthScore)}`}
+                        >
+                          {farm.healthScore}% - {getHealthLabel(farm.healthScore)}
+                        </span>
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => onFarmClick?.(farm)}
+                      className="mt-3 w-full bg-sahool-600 text-white py-1 px-3 rounded text-sm hover:bg-sahool-700 transition-colors"
                     >
-                      {farm.healthScore}%
-                    </span>
-                  </p>
+                      عرض التفاصيل
+                    </button>
+                  </div>
+                </Popup>
+              </Polygon>
+            );
+          }
+
+          // Fallback to circle marker
+          return (
+            <CircleMarker
+              key={farm.id}
+              center={[farm.coordinates.lat, farm.coordinates.lng]}
+              radius={selectedFarmId === farm.id ? 12 : 8}
+              fillColor={markerColor}
+              color={selectedFarmId === farm.id ? "#1e40af" : "#ffffff"}
+              weight={selectedFarmId === farm.id ? 3 : 2}
+              fillOpacity={0.8}
+              eventHandlers={{
+                click: () => onFarmClick?.(farm),
+              }}
+            >
+              <Popup>
+                <div className="text-right font-arabic" dir="rtl">
+                  <h3 className="font-bold text-lg mb-2">
+                    {farm.nameAr || farm.name || "مزرعة"}
+                  </h3>
+                  <div className="space-y-1 text-sm">
+                    {farm.governorate && (
+                      <p>
+                        <span className="text-gray-500">المحافظة:</span>{" "}
+                        <span className="font-medium">{farm.governorate}</span>
+                      </p>
+                    )}
+                    <p>
+                      <span className="text-gray-500">المساحة:</span>{" "}
+                      <span className="font-medium">
+                        {farm.area.toFixed(1)} هكتار
+                      </span>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">المحاصيل:</span>{" "}
+                      <span className="font-medium">
+                        {farm.crops.join(", ")}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">مستوى الصحة:</span>{" "}
+                      <span
+                        className={`font-bold px-2 py-0.5 rounded ${getHealthScoreColor(farm.healthScore)}`}
+                      >
+                        {farm.healthScore}% - {getHealthLabel(farm.healthScore)}
+                      </span>
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onFarmClick?.(farm)}
+                    className="mt-3 w-full bg-sahool-600 text-white py-1 px-3 rounded text-sm hover:bg-sahool-700 transition-colors"
+                  >
+                    عرض التفاصيل
+                  </button>
                 </div>
-                <button
-                  onClick={() => onFarmClick?.(farm)}
-                  className="mt-3 w-full bg-sahool-600 text-white py-1 px-3 rounded text-sm hover:bg-sahool-700 transition-colors"
-                >
-                  عرض التفاصيل
-                </button>
-              </div>
-            </Popup>
-          </CircleMarker>
-        ))}
+              </Popup>
+            </CircleMarker>
+          );
+        })}
       </MapContainer>
     </div>
   );

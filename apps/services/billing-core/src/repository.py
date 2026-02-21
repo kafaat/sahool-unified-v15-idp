@@ -537,13 +537,16 @@ class InvoiceRepository:
 
     async def list_by_tenant(
         self,
-        tenant_id: str,
+        tenant_id: str | None,
         status: InvoiceStatus | None = None,
         limit: int = 100,
         offset: int = 0,
     ) -> list[Invoice]:
-        """List invoices for tenant - قائمة فواتير المستأجر"""
-        query = select(Invoice).where(Invoice.tenant_id == tenant_id)
+        """List invoices for tenant (or all if tenant_id is None) - قائمة فواتير المستأجر"""
+        query = select(Invoice)
+
+        if tenant_id is not None:
+            query = query.where(Invoice.tenant_id == tenant_id)
 
         if status:
             query = query.where(Invoice.status == status)

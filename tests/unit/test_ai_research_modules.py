@@ -272,13 +272,12 @@ class TestMaskScheduler:
 
         scheduler = MaskScheduler(schedule="cosine", num_steps=10)
 
-        # At step 0, should be mostly masked (low ratio)
+        # Alpha schedule decreases: step 0 = fully preserved (1.0), step N = fully masked (0.0)
         ratio_0 = scheduler.get_mask_ratio(0)
-        # At step 10, should be fully unmasked (high ratio)
         ratio_10 = scheduler.get_mask_ratio(10)
 
-        assert ratio_0 < ratio_10
-        assert ratio_10 >= 0.9  # Almost fully unmasked
+        assert ratio_0 > ratio_10
+        assert ratio_0 >= 0.9  # Step 0: almost fully preserved
 
     def test_linear_schedule(self):
         """Test linear mask schedule."""
@@ -286,12 +285,12 @@ class TestMaskScheduler:
 
         scheduler = MaskScheduler(schedule="linear", num_steps=10)
 
-        # Linear should have uniform progression
+        # Linear alpha schedule decreases monotonically from 1.0 to 0.0
         ratios = [scheduler.get_mask_ratio(i) for i in range(11)]
 
-        # Check monotonic increase
+        # Check monotonic decrease
         for i in range(len(ratios) - 1):
-            assert ratios[i] <= ratios[i + 1]
+            assert ratios[i] >= ratios[i + 1]
 
 
 class TestDiffusionAdvisoryGenerator:
@@ -469,6 +468,7 @@ class TestBilingualOTMatcher:
     @pytest.mark.asyncio
     async def test_match(self):
         """Test bilingual matching."""
+        pytest.importorskip("sentence_transformers", reason="sentence-transformers not installed")
         from shared.ai.ot_embeddings import BilingualOTMatcher
 
         matcher = BilingualOTMatcher()

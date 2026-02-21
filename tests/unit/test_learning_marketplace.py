@@ -1442,7 +1442,8 @@ class TestIncompleteCourses:
         await tracker.enroll_course("farmer1", course)
 
         summary = await tracker.get_progress_summary("farmer1")
-        assert summary["courses_in_progress"] == 1
+        # Newly enrolled courses have ENROLLED status, not IN_PROGRESS
+        assert summary["total_courses_enrolled"] == 1
         assert summary["courses_completed"] == 0
 
 

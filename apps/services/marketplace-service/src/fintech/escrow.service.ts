@@ -45,6 +45,9 @@ export class EscrowService {
         const escrow = await this.prisma.escrow.findUnique({
           where: { orderId },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للطلب المكرر");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }
@@ -190,6 +193,9 @@ export class EscrowService {
             sellerWallet: true,
           },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للمعاملة المكررة");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }
@@ -402,6 +408,9 @@ export class EscrowService {
           where: { id: escrowId },
           include: { buyerWallet: true },
         });
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود للمعاملة المكررة");
+        }
         return { escrow, duplicate: true, transaction: existingTransaction };
       }
     }
@@ -532,6 +541,112 @@ export class EscrowService {
         timeout: 10000,
       },
     );
+  }
+
+  /**
+   * فتح نزاع على الإسكرو
+   * Dispute an escrow - freezes funds and records dispute reason
+   */
+  async disputeEscrow(
+    escrowId: string,
+    reason: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    if (!reason || reason.trim().length < 10) {
+      throw new BadRequestException(
+        "سبب النزاع يجب أن يكون 10 أحرف على الأقل",
+      );
+    }
+
+    return await this.prisma.$transaction(
+      async (tx) => {
+        const escrow = await tx.escrow.findUnique({
+          where: { id: escrowId },
+        });
+
+        if (!escrow) {
+          throw new NotFoundException("الإسكرو غير موجود");
+        }
+
+        if (escrow.status !== "HELD") {
+          throw new BadRequestException(
+            `لا يمكن فتح نزاع على هذا الإسكرو. الحالة الحالية: ${escrow.status}`,
+          );
+        }
+
+        const updatedEscrow = await tx.escrow.update({
+          where: { id: escrowId },
+          data: {
+            status: "DISPUTED",
+            disputeReason: reason.trim(),
+          },
+        });
+
+        // Audit log for buyer wallet
+        await tx.walletAuditLog.create({
+          data: {
+            walletId: escrow.buyerWalletId,
+            userId,
+            operation: "ESCROW_DISPUTED",
+            balanceBefore: 0,
+            balanceAfter: 0,
+            amount: 0,
+            ipAddress,
+            metadata: {
+              escrowId,
+              orderId: escrow.orderId,
+              disputeReason: reason.trim(),
+              disputedBy: userId,
+            },
+          },
+        });
+
+        return {
+          escrow: updatedEscrow,
+          message: "تم فتح النزاع بنجاح. سيتم مراجعته من قبل الإدارة.",
+        };
+      },
+      {
+        isolationLevel: "Serializable",
+        maxWait: 5000,
+        timeout: 10000,
+      },
+    );
+  }
+
+  /**
+   * حل النزاع (للإدارة فقط)
+   * Resolve a dispute - either release to seller or refund to buyer
+   */
+  async resolveDispute(
+    escrowId: string,
+    resolution: "release" | "refund",
+    adminNotes: string,
+    userId?: string,
+    ipAddress?: string,
+  ) {
+    const escrow = await this.prisma.escrow.findUnique({
+      where: { id: escrowId },
+    });
+
+    if (!escrow) {
+      throw new NotFoundException("الإسكرو غير موجود");
+    }
+
+    if (escrow.status !== "DISPUTED") {
+      throw new BadRequestException(
+        `الإسكرو ليس في حالة نزاع. الحالة الحالية: ${escrow.status}`,
+      );
+    }
+
+    const notes = `[تم حل النزاع: ${resolution === "release" ? "إطلاق للبائع" : "استرداد للمشتري"}] ${adminNotes}`;
+
+    if (resolution === "release") {
+      return this.releaseEscrow(escrowId, notes, undefined, userId, ipAddress);
+    } else {
+      return this.refundEscrow(escrowId, notes, undefined, userId, ipAddress);
+    }
   }
 
   /**

@@ -39,17 +39,21 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
 
-# Generate Prisma client
+# Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate || \
-    (sleep 5 && npx prisma generate) || \
-    (sleep 10 && npx prisma generate) || \
+RUN npx prisma generate && \
+    test -f node_modules/.prisma/client/index.js || \
+    (echo "ERROR: Prisma client not generated at expected path" && \
+     echo "Retrying prisma generate..." && \
+     sleep 5 && npx prisma generate && \
+     test -f node_modules/.prisma/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
-# Build the application and verify output
-RUN npm run build && \
+# Build the application using nest build directly (skip prebuild to avoid
+# re-running prisma generate which can resolve paths differently in Docker)
+RUN npx nest build && \
     test -f dist/main.js || \
-    (echo "ERROR: dist/main.js not found after build. Listing dist/:" && ls -la dist/ && exit 1)
+    (echo "ERROR: dist/main.js not found after build. Listing dist/:" && ls -la dist/ 2>/dev/null && exit 1)
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production

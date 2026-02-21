@@ -42,15 +42,17 @@ RUN npm config set registry https://registry.npmmirror.com && \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
 
-# Generate Prisma client
+# Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
-RUN npx prisma generate || \
-    (sleep 5 && npx prisma generate) || \
-    (sleep 10 && npx prisma generate) || \
+RUN npx prisma generate && \
+    test -f node_modules/.prisma/client/index.js || \
+    (echo "Retrying prisma generate..." && sleep 5 && npx prisma generate && \
+     test -f node_modules/.prisma/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
-# Build NestJS application
-RUN npm run build
+# Build NestJS application using nest build directly (skip prebuild to avoid
+# re-running prisma generate which can resolve paths differently in Docker)
+RUN npx nest build
 
 # ───────────────────────────────────────────
 # Stage 2: Production

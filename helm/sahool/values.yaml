@@ -35,7 +35,8 @@ serviceAccount:
   create: true
   annotations: {}
   name: "sahool-sa"
-  automountServiceAccountToken: true
+  # SECURITY: Disable auto-mounting K8s API token - services don't need cluster API access
+  automountServiceAccountToken: false
 
 podAnnotations:
   prometheus.io/scrape: "true"
@@ -1108,8 +1109,12 @@ networkPolicy:
         - protocol: TCP
           port: 8080
   egress:
+    # SECURITY: Restrict egress to sahool namespace only (prevent lateral movement)
+    # الأمان: تقييد الخروج على نطاق sahool فقط (منع التنقل الجانبي)
     - to:
-        - namespaceSelector: {}
+        - namespaceSelector:
+            matchLabels:
+              name: sahool
       ports:
         - protocol: TCP
           port: 5432  # PostgreSQL
@@ -1117,6 +1122,12 @@ networkPolicy:
           port: 6379  # Redis
         - protocol: TCP
           port: 4222  # NATS
+    # DNS resolution (kube-system namespace)
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
         - protocol: TCP
           port: 53    # DNS TCP
         - protocol: UDP

@@ -25,5 +25,6 @@ chmod 600 /mosquitto/config/acl
 # Create modified mosquitto.conf that points to the fixed ACL file
 sed 's|acl_file /mosquitto/config/acl.source|acl_file /mosquitto/config/acl|' /mosquitto/config/mosquitto.conf.orig > /mosquitto/config/mosquitto.conf
 
-# Start mosquitto - it will drop privileges to mosquitto user
-exec /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
+# SECURITY: Explicitly drop root privileges and run as mosquitto user
+# الأمان: إسقاط صلاحيات root بشكل صريح والتشغيل كمستخدم mosquitto
+exec su -s /bin/sh mosquitto -c "/usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf"

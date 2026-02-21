@@ -202,9 +202,10 @@ services:
   # ═══════════════════════════════════════════════════════════════════════════
   # VAULT - HashiCorp Vault for Secrets Management
   # ═══════════════════════════════════════════════════════════════════════════
-  # SECURITY: Development mode only - use proper backend in production
+  # SECURITY WARNING: Development mode only - NEVER deploy to production
+  # تحذير أمني: وضع التطوير فقط - لا تنشر أبداً في الإنتاج
   # Access UI: http://localhost:8200/ui
-  # Dev Token: dev-root-token (DO NOT use in production)
+  # For production: use docker-compose.prod.yml with proper Vault backend
   vault:
     image: hashicorp/vault:1.17
     container_name: sahool-vault
@@ -212,8 +213,10 @@ services:
     ports:
       - "127.0.0.1:8200:8200"
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:-dev-root-token}"
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      # SECURITY: Token MUST be overridden via VAULT_DEV_TOKEN env var
+      VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:?VAULT_DEV_TOKEN is required - do not use default}"
+      # Bind to localhost only in development
+      VAULT_DEV_LISTEN_ADDRESS: "127.0.0.1:8200"
       VAULT_LOG_LEVEL: "info"
       VAULT_ADDR: "http://127.0.0.1:8200"
     cap_add:
@@ -397,6 +400,9 @@ services:
   mqtt:
     image: eclipse-mosquitto:2
     container_name: sahool-mqtt
+    # SECURITY: Starts as root for init (passwd/ACL setup) then drops to mosquitto user
+    # الأمان: يبدأ كـ root للإعداد (كلمة المرور/ACL) ثم ينتقل لمستخدم mosquitto
+    # NOTE: Mosquitto process runs as non-root (see init-mqtt.sh exec mosquitto)
     user: root
     environment:
       - MQTT_USER=${MQTT_USER:-sahool_iot}
@@ -408,9 +414,6 @@ services:
       - mqtt_passwd:/mosquitto/config
       - mqtt_data:/mosquitto/data
       - mqtt_logs:/mosquitto/log
-    # Fix file permissions using root user to eliminate warnings
-    # The Docker entrypoint chowns /mosquitto to mosquitto:mosquitto when running as root
-    # Our init script fixes permissions after entrypoint and starts mosquitto
     entrypoint: [ "/bin/sh", "/init-mqtt.sh" ]
     command: []
     ports:
@@ -449,14 +452,14 @@ services:
       - "127.0.0.1:6334:6334"
     environment:
       - QDRANT__SERVICE__GRPC_PORT=6334
-      # SECURITY: API Key authentication (set QDRANT_API_KEY in .env for production)
-      # الأمان: مصادقة مفتاح API (اضبط QDRANT_API_KEY في .env للإنتاج)
-      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:-}
+      # SECURITY: API Key authentication - REQUIRED for all environments
+      # الأمان: مصادقة مفتاح API - مطلوب لجميع البيئات
+      - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required}
       - QDRANT__LOG_LEVEL=INFO
-    # Qdrant healthcheck - uses TCP check to verify service is responding
-    # فحص صحة Qdrant - يستخدم فحص TCP للتحقق من استجابة الخدمة
+    # Qdrant healthcheck - uses HTTP check to verify service is healthy
+    # فحص صحة Qdrant - يستخدم فحص HTTP للتحقق من صحة الخدمة
     healthcheck:
-      test: [ "CMD", "sh", "-c", "test -f /proc/1/cmdline" ]
+      test: [ "CMD-SHELL", "wget -q --spider http://localhost:6333/healthz || exit 1" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -494,9 +497,9 @@ services:
       - "127.0.0.1:11434:11434"
     environment:
       - OLLAMA_HOST=0.0.0.0
-      # SECURITY: CORS origin restrictions (set specific origins in production)
-      # الأمان: قيود منشأ CORS (حدد المنشآت المحددة في الإنتاج)
-      - OLLAMA_ORIGINS=${OLLAMA_ORIGINS:-*}
+      # SECURITY: CORS origin restrictions - restrict to SAHOOL domains only
+      # الأمان: قيود منشأ CORS - تقييد على نطاقات سهول فقط
+      - OLLAMA_ORIGINS=${OLLAMA_ORIGINS:-http://localhost:*,https://*.sahool.app,https://*.sahool.io}
       - OLLAMA_KEEP_ALIVE=24h
       - OLLAMA_NUM_PARALLEL=24
       - OLLAMA_MAX_LOADED_MODELS=2

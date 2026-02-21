@@ -229,6 +229,11 @@ jobs:
           # Deploy with green label
           DEPLOYMENT_SLOT="green"
 
+          # TODO: SECURITY - Migrate from --set secrets.* to External Secrets Operator
+          # Helm --set exposes secrets in Helm release history and process listings
+          # الأمان: يجب الانتقال إلى External Secrets Operator بدلاً من --set
+          # See: https://external-secrets.io/
+
           # Starter Package (field-ops → field-management-service)
           helm upgrade --install field-management-service-green ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \

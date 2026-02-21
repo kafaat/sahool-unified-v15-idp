@@ -3,6 +3,7 @@ Authentication dependencies for copilot-api - تبعيات المصادقة لل
 """
 
 import os
+from datetime import UTC, datetime
 
 import jwt
 import structlog

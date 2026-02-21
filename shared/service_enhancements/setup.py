@@ -27,6 +27,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+import os
 from dataclasses import dataclass, field
 from typing import Callable
 
@@ -56,11 +57,11 @@ class ServiceConfig:
     rate_limit_requests_per_hour: int = 1000
 
     # CORS
-    cors_origins: list[str] = field(default_factory=lambda: ["*"])
+    cors_origins: list[str] = field(default_factory=lambda: os.getenv("CORS_ORIGINS", "http://localhost:3000").split(","))
     cors_methods: list[str] = field(
         default_factory=lambda: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]
     )
-    cors_headers: list[str] = field(default_factory=lambda: ["*"])
+    cors_headers: list[str] = field(default_factory=lambda: ["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"])
 
     # Health check
     health_path: str = "/healthz"

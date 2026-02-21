@@ -14,9 +14,10 @@ from jwt import PyJWTError
 from .config import config
 from .models import AuthErrors, AuthException, TokenPayload
 
-# SECURITY FIX: Hardcoded whitelist of allowed algorithms to prevent algorithm confusion attacks
-# Never trust algorithm from environment variables or token header
-ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512", "RS256", "RS384", "RS512"]
+# SECURITY FIX: Restrict to HS256 only — the platform's actual algorithm policy.
+# Including RS* algorithms alongside HS* enables algorithm confusion attacks
+# where an attacker signs with an RSA public key as an HMAC secret.
+ALLOWED_ALGORITHMS = ["HS256"]
 
 
 def create_access_token(

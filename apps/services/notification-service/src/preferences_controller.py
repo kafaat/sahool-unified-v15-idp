@@ -36,37 +36,37 @@ class UpdateEventPreferenceRequest(BaseModel):
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "user_id": "farmer-123",
-            "event_type": "weather_alert",
-            "channels": ["email", "sms", "push"],
-            "enabled": True,
-            "tenant_id": "tenant-1",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "user_id": "farmer-123",
+                "event_type": "weather_alert",
+                "channels": ["email", "sms", "push"],
+                "enabled": True,
+                "tenant_id": "tenant-1",
+            }
         }
-    })
+    )
 
 
 class SetQuietHoursRequest(BaseModel):
     """طلب تحديد ساعات الهدوء - Set Quiet Hours Request"""
 
     user_id: str = Field(..., description="User ID")
-    quiet_hours_start: str | None = Field(
-        None, description="Start time in HH:MM format (e.g., '22:00')"
-    )
-    quiet_hours_end: str | None = Field(
-        None, description="End time in HH:MM format (e.g., '06:00')"
-    )
+    quiet_hours_start: str | None = Field(None, description="Start time in HH:MM format (e.g., '22:00')")
+    quiet_hours_end: str | None = Field(None, description="End time in HH:MM format (e.g., '06:00')")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "user_id": "farmer-123",
-            "quiet_hours_start": "22:00",
-            "quiet_hours_end": "06:00",
-            "tenant_id": "tenant-1",
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "user_id": "farmer-123",
+                "quiet_hours_start": "22:00",
+                "quiet_hours_end": "06:00",
+                "tenant_id": "tenant-1",
+            }
         }
-    })
+    )
 
 
 class BulkUpdatePreferencesRequest(BaseModel):
@@ -76,29 +76,31 @@ class BulkUpdatePreferencesRequest(BaseModel):
     preferences: list[dict[str, Any]] = Field(..., description="List of preference updates")
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
 
-    model_config = ConfigDict(json_schema_extra={
-        "example": {
-            "user_id": "farmer-123",
-            "tenant_id": "tenant-1",
-            "preferences": [
-                {
-                    "event_type": "weather_alert",
-                    "channels": ["email", "sms", "push"],
-                    "enabled": True,
-                },
-                {
-                    "event_type": "pest_outbreak",
-                    "channels": ["sms", "push"],
-                    "enabled": True,
-                },
-                {
-                    "event_type": "irrigation_reminder",
-                    "channels": ["push"],
-                    "enabled": False,
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "user_id": "farmer-123",
+                "tenant_id": "tenant-1",
+                "preferences": [
+                    {
+                        "event_type": "weather_alert",
+                        "channels": ["email", "sms", "push"],
+                        "enabled": True,
+                    },
+                    {
+                        "event_type": "pest_outbreak",
+                        "channels": ["sms", "push"],
+                        "enabled": True,
+                    },
+                    {
+                        "event_type": "irrigation_reminder",
+                        "channels": ["push"],
+                        "enabled": False,
                     },
                 ],
             }
         }
+    )
 
 
 # =============================================================================

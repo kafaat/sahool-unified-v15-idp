@@ -849,3 +849,21 @@ groups:
           summary_ar: "نموذج الذكاء الاصطناعي لصحة المحاصيل يواجه أخطاء"
           description: "Model error rate: {{ $value }}/sec"
           description_ar: "معدل أخطاء النموذج: {{ $value }}/ثانية"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Watchdog / Dead Man's Switch - مراقب حيوية نظام التنبيهات
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: sahool_watchdog
+    interval: 30s
+    rules:
+      - alert: Watchdog
+        expr: vector(1)
+        labels:
+          severity: none
+          category: watchdog
+          platform: sahool
+        annotations:
+          summary: "Alerting pipeline is functional"
+          summary_ar: "خط أنابيب التنبيهات يعمل بشكل سليم"
+          description: "This is a Dead Man's Switch alert. It fires continuously to verify that the entire alerting pipeline (Prometheus → Alertmanager → receiver) is functional. If this alert stops firing, the monitoring system itself has failed."
+          description_ar: "هذا تنبيه مراقب حيوية النظام. يعمل باستمرار للتحقق من أن خط أنابيب التنبيهات بالكامل يعمل بشكل صحيح. إذا توقف هذا التنبيه، فإن نظام المراقبة نفسه قد تعطل."

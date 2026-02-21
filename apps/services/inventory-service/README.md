@@ -2,9 +2,9 @@
 
 > Agricultural inventory management with advanced analytics and forecasting
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](package.json)
+[![Version](https://img.shields.io/badge/version-16.0.0-blue.svg)](package.json)
 [![Python](https://img.shields.io/badge/python-3.11-green.svg)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.126.0-red.svg)](https://fastapi.tiangolo.com)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128.5-red.svg)](https://fastapi.tiangolo.com)
 
 ## Overview | نظرة عامة
 
@@ -44,7 +44,7 @@ All health endpoints support Kubernetes probes and container health checks.
 {
     "status": "healthy",
     "service": "inventory-service",
-    "version": "1.0.0"
+    "version": "16.0.0"
 }
 ```
 
@@ -73,7 +73,7 @@ All health endpoints support Kubernetes probes and container health checks.
 {
     "status": "healthy",
     "service": "inventory-service",
-    "version": "1.0.0",
+    "version": "16.0.0",
     "dependencies": {
         "postgres": "connected"
     }
@@ -140,10 +140,10 @@ See full endpoint documentation at `/docs`.
 
 ```bash
 DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/sahool_inventory
-PORT=8115
+PORT=8116
 SQL_ECHO=false
 ```
 
 ## Port
 
-Default: **8115**
+Default: **8116**

@@ -1,8 +1,6 @@
 # Docker Compose configuration for SAHOOL Profitability Analysis Service
 # This runs alongside the main field-core TypeScript service
 
-version: '3.8'
-
 services:
   # Main field-core service (TypeScript/Node.js)
   field-core:

@@ -149,7 +149,7 @@ async def get_current_user(
         payload = jwt.decode(
             token,
             jwt_secret,
-            algorithms=[os.getenv("JWT_ALGORITHM", "HS256")],
+            algorithms=["HS256", "HS384", "HS512"],
         )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))
         return payload
@@ -1222,4 +1222,5 @@ def record_sensor_reading_with_action(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8094)
+    port = int(os.getenv("PORT", 8094))
+    uvicorn.run(app, host="0.0.0.0", port=port)

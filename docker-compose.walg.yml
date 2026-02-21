@@ -8,8 +8,6 @@
 # This overlay adds WAL-G continuous archiving to the main PostgreSQL service
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: '3.8'
-
 services:
   # ─────────────────────────────────────────────────────────────────────────────
   # PostgreSQL with WAL-G Support

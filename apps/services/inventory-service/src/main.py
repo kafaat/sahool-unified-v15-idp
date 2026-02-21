@@ -163,7 +163,7 @@ app.add_middleware(
 
 # Setup rate limiting middleware
 try:
-    from middleware.rate_limiter import setup_rate_limiting
+    from shared.middleware.rate_limiter import setup_rate_limiting
 
     setup_rate_limiting(app, use_redis=os.getenv("REDIS_URL") is not None)
     logger.info("Rate limiting enabled")

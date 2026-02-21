@@ -61,7 +61,7 @@ class Settings(BaseSettings):
     # Security | الأمان
     api_key_header: str = "X-API-Key"
     enable_cors: bool = True
-    cors_origins: list[str] = ["*"]
+    cors_origins: list[str] = ["http://localhost:3000"]
 
     model_config = SettingsConfigDict(
         env_file=".env",

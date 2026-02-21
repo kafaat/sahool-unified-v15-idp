@@ -26,10 +26,10 @@ spec:
           spec:
             containers:
               - securityContext:
-                  privileged: "false"
+                  privileged: false
             initContainers:
               - securityContext:
-                  privileged: "false"
+                  privileged: false
     - name: disallow-host-namespaces
       match:
         any:
@@ -40,6 +40,6 @@ spec:
         message: "Host namespaces are not allowed."
         pattern:
           spec:
-            hostNetwork: "false"
-            hostIPC: "false"
-            hostPID: "false"
+            hostNetwork: false
+            hostIPC: false
+            hostPID: false

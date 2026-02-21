@@ -9,7 +9,7 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from .channels_service import ChannelsService
 
@@ -35,16 +35,15 @@ class AddChannelRequest(BaseModel):
     tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "user_id": "farmer-123",
-                "channel_type": "email",
-                "address": "farmer@example.com",
-                "tenant_id": "tenant-1",
-                "metadata": {"device": "web"},
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "user_id": "farmer-123",
+            "channel_type": "email",
+            "address": "farmer@example.com",
+            "tenant_id": "tenant-1",
+            "metadata": {"device": "web"},
         }
+    })
 
 
 class VerifyChannelRequest(BaseModel):
@@ -54,14 +53,13 @@ class VerifyChannelRequest(BaseModel):
     verification_code: str = Field(..., description="Verification code")
     user_id: str = Field(..., description="User ID")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "channel_id": "550e8400-e29b-41d4-a716-446655440000",
-                "verification_code": "123456",
-                "user_id": "farmer-123",
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "channel_id": "550e8400-e29b-41d4-a716-446655440000",
+            "verification_code": "123456",
+            "user_id": "farmer-123",
         }
+    })
 
 
 class UpdateChannelStatusRequest(BaseModel):
@@ -71,14 +69,13 @@ class UpdateChannelStatusRequest(BaseModel):
     user_id: str = Field(..., description="User ID")
     enabled: bool = Field(..., description="Whether channel should be enabled")
 
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "channel_id": "550e8400-e29b-41d4-a716-446655440000",
-                "user_id": "farmer-123",
-                "enabled": True,
-            }
+    model_config = ConfigDict(json_schema_extra={
+        "example": {
+            "channel_id": "550e8400-e29b-41d4-a716-446655440000",
+            "user_id": "farmer-123",
+            "enabled": True,
         }
+    })
 
 
 # =============================================================================

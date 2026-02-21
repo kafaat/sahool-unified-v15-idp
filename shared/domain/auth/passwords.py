@@ -67,12 +67,12 @@ def verify_password(password: str, hashed: str) -> bool:
         return False
 
 
-def generate_otp(length: int = 4) -> str:
+def generate_otp(length: int = 6) -> str:
     """
     Generate a numeric OTP code.
 
     Args:
-        length: Number of digits (default 4)
+        length: Number of digits (default 6)
 
     Returns:
         Numeric OTP string

@@ -595,7 +595,7 @@ class FarmerCreatedEvent(BaseEvent):
     tenant_id: str = Field(..., description="Tenant identifier")
     name: str = Field(..., description="Farmer name")
     name_ar: str | None = Field(None, description="Arabic name")
-    phone: str = Field(..., description="Phone number")
+    phone_last4: str | None = Field(None, description="Last 4 digits of phone (masked for privacy)")
     status: str = Field(default="lead", description="Initial status")
     farm_size_hectares: float | None = Field(None, ge=0, description="Farm size")
     primary_crops: list[str] = Field(default_factory=list, description="Primary crops")

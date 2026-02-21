@@ -26,11 +26,11 @@ class AlertTopics:
     """موضوعات NATS للتنبيهات"""
 
     # نشر التنبيهات
-    ALERT_CREATED = "sahool.alerts.created"
-    ALERT_UPDATED = "sahool.alerts.updated"
-    ALERT_ACKNOWLEDGED = "sahool.alerts.acknowledged"
-    ALERT_RESOLVED = "sahool.alerts.resolved"
-    ALERT_EXPIRED = "sahool.alerts.expired"
+    ALERT_CREATED = "sahool.alert.created"
+    ALERT_UPDATED = "sahool.alert.updated"
+    ALERT_ACKNOWLEDGED = "sahool.alert.acknowledged"
+    ALERT_RESOLVED = "sahool.alert.resolved"
+    ALERT_EXPIRED = "sahool.alert.expired"
 
     # استقبال من خدمات أخرى
     NDVI_ANOMALY = "sahool.ndvi.anomaly"

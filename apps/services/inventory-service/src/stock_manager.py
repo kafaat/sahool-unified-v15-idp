@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timezone
 from prisma import Prisma
 from prisma.models import BatchLot, InventoryItem, StockMovement
 
-from models import MovementType
+from .models import MovementType
 
 
 class StockManager:

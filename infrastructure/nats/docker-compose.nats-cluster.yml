@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # SAHOOL NATS Cluster - Docker Compose Configuration
 # High Availability 3-Node NATS Cluster with JetStream

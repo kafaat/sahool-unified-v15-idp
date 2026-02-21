@@ -14,7 +14,7 @@ LABEL version="16.0.0"
 WORKDIR /workspace
 
 # Copy shared modules first (required for imports from ../../shared/)
-COPY apps/services/shared ./shared/
+COPY shared ./shared/
 
 # Copy service to maintain relative path
 COPY apps/services/marketplace-service ./marketplace-service/

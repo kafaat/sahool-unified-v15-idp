@@ -149,7 +149,7 @@ async def get_current_user(
         payload = jwt.decode(
             token,
             jwt_secret,
-            algorithms=[os.getenv("JWT_ALGORITHM", "HS256")],
+            algorithms=["HS256", "HS384", "HS512"],
         )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))
         return payload

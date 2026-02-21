@@ -32,7 +32,7 @@ except ImportError:
     def get_current_user():
         return None
 
-    class User:  # type: ignore[no-redef]
+    class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
         tenant_id: str = ""
 

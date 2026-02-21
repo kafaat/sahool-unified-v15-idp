@@ -331,10 +331,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Note: deprecated services migrated to new names
+        # Note: weather-core removed (deprecated, archived to archive/deprecated-services/)
         service:
           - field-management-service
-          - weather-core
           - vegetation-analysis-service
           - crop-intelligence-service
           - billing-core
@@ -362,7 +361,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ matrix.service }}:scan apps/services/${{ matrix.service }}
+          docker build -t ${{ matrix.service }}:scan -f apps/services/${{ matrix.service }}/Dockerfile .
 
       - name: Run Trivy vulnerability scanner
         run: |

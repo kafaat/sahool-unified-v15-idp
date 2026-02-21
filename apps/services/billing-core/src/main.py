@@ -2183,7 +2183,7 @@ async def update_subscription(
                 amount_due=net_proration,
                 line_items=line_items,
                 status=db_models.InvoiceStatus.PENDING,
-                notes=f"Proration invoice for plan change",
+                notes="Proration invoice for plan change",
                 notes_ar="فاتورة تناسبية لتغيير الخطة",
             )
             changes.append(f"Proration invoice generated: {invoice_number}")

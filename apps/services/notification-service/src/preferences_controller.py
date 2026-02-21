@@ -95,10 +95,10 @@ class BulkUpdatePreferencesRequest(BaseModel):
                     "event_type": "irrigation_reminder",
                     "channels": ["push"],
                     "enabled": False,
-                    },
-                ],
-            }
+                },
+            ],
         }
+    })
 
 
 # =============================================================================

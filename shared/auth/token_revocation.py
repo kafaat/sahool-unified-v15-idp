@@ -214,9 +214,14 @@ class RedisTokenRevocationStore:
             return exists > 0
 
         except Exception as e:
-            logger.error(f"Error checking token revocation: {e}")
-            # Fail open: don't block access on Redis errors
-            return False
+            logger.error(
+                "SECURITY: Cannot verify token revocation status, failing closed",
+                extra={"error": str(e), "jti": jti},
+            )
+            # Fail closed: treat token as revoked when revocation store is unavailable.
+            # This prevents revoked tokens from being accepted during Redis outages.
+            # الأمان: معاملة الرمز كملغي عندما لا يمكن التحقق من حالة الإلغاء
+            return True
 
     async def get_revocation_info(self, jti: str) -> dict[str, Any] | None:
         """
@@ -343,8 +348,12 @@ class RedisTokenRevocationStore:
             return False
 
         except Exception as e:
-            logger.error(f"Error checking user token revocation: {e}")
-            return False
+            logger.error(
+                "SECURITY: Cannot verify user token revocation status, failing closed",
+                extra={"error": str(e), "user_id": user_id},
+            )
+            # Fail closed: treat as revoked when store is unavailable
+            return True
 
     async def clear_user_revocation(self, user_id: str) -> bool:
         """
@@ -458,8 +467,12 @@ class RedisTokenRevocationStore:
             return False
 
         except Exception as e:
-            logger.error(f"Error checking tenant token revocation: {e}")
-            return False
+            logger.error(
+                "SECURITY: Cannot verify tenant token revocation status, failing closed",
+                extra={"error": str(e), "tenant_id": tenant_id},
+            )
+            # Fail closed: treat as revoked when store is unavailable
+            return True
 
     # ─────────────────────────────────────────────────────────────────────────
     # Combined Check

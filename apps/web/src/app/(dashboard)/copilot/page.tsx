@@ -112,15 +112,18 @@ function generateSessionId(): string {
   return "00000000-0000-4000-8000-000000000000";
 }
 
+// Session ID is generated per page load - not persisted to storage.
+// This avoids XSS exposure via sessionStorage while maintaining
+// session continuity within a single browser tab.
+// معرف الجلسة يُنشأ لكل تحميل صفحة - لا يُخزن في التخزين المحلي
+let _cachedSessionId: string | null = null;
+
 function getStoredSessionId(): string {
   if (typeof window === "undefined") return generateSessionId();
-  const key = "sahool_copilot_session_id";
-  let id = sessionStorage.getItem(key);
-  if (!id) {
-    id = generateSessionId();
-    sessionStorage.setItem(key, id);
+  if (!_cachedSessionId) {
+    _cachedSessionId = generateSessionId();
   }
-  return id;
+  return _cachedSessionId;
 }
 
 function formatTime(date: Date): string {
@@ -363,11 +366,8 @@ export default function CopilotPage() {
     setMessages([WELCOME_MESSAGE]);
     setError(null);
     setIsStreaming(false);
-    // Rotate session
-    if (typeof window !== "undefined") {
-      const newId = generateSessionId();
-      sessionStorage.setItem("sahool_copilot_session_id", newId);
-    }
+    // Rotate session (in-memory only, no storage persistence)
+    _cachedSessionId = generateSessionId();
   };
 
   const handleRetry = () => {

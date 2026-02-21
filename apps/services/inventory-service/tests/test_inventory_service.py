@@ -10,7 +10,7 @@ try:
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from src.main import app, get_db
+from src.main import app, get_current_user, get_db
 from src.models.inventory import Base
 
 # Test database URL
@@ -42,7 +42,17 @@ def client(test_db_session):
     async def override_get_db():
         yield test_db_session
 
+    def override_get_current_user():
+        """Return a mock user for tests"""
+        from unittest.mock import Mock
+
+        user = Mock()
+        user.id = "test-user-id"
+        user.tenant_id = "tenant_123"
+        return user
+
     app.dependency_overrides[get_db] = override_get_db
+    app.dependency_overrides[get_current_user] = override_get_current_user
 
     with TestClient(app) as test_client:
         yield test_client

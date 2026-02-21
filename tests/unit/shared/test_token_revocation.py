@@ -212,13 +212,14 @@ class TestTokenRevocation:
 
     @pytest.mark.asyncio
     async def test_is_token_revoked_redis_error(self, revocation_store, test_jti):
-        """Test Redis error handling during revocation check"""
+        """Test Redis error handling during revocation check - fails closed for security"""
         revocation_store._redis.exists = AsyncMock(side_effect=Exception("Redis error"))
 
         result = await revocation_store.is_token_revoked(test_jti)
 
-        # Should fail open on Redis errors
-        assert result is False
+        # Must fail closed: treat as revoked when Redis is unavailable
+        # to prevent revoked tokens from being accepted during outages
+        assert result is True
 
     @pytest.mark.asyncio
     async def test_get_revocation_info(self, revocation_store, test_jti):

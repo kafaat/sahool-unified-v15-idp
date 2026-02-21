@@ -20,6 +20,22 @@ from pydantic import BaseModel
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Authentication - المصادقة
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    AUTH_AVAILABLE = True
+except ImportError:
+    AUTH_AVAILABLE = False
+
+    def get_current_user():
+        return None
+
+    class User:  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -218,7 +234,11 @@ class ItemCategoryResponse(BaseModel):
 
 
 @app.post("/v1/categories", response_model=ItemCategoryResponse)
-async def create_category(category: ItemCategoryCreate, db: AsyncSession = Depends(get_db)):
+async def create_category(
+    category: ItemCategoryCreate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
     db_category = ItemCategory(
         name_en=category.name_en,
         name_ar=category.name_ar,
@@ -236,14 +256,25 @@ async def create_category(category: ItemCategoryCreate, db: AsyncSession = Depen
     )
 
 
+def _get_tenant_id(user, tenant_id_param: str | None) -> str:
+    """Extract tenant_id from JWT user or validated query param.
+    استخراج معرف المستأجر من JWT أو معلمة الاستعلام الموثقة
+    """
+    if AUTH_AVAILABLE and user is not None:
+        return str(getattr(user, "tenant_id", "")) or tenant_id_param or ""
+    return tenant_id_param or ""
+
+
 @app.get("/v1/analytics/forecast/{item_id}")
 async def get_forecast(
     item_id: str,
     tenant_id: str = Query(...),
     forecast_days: int = Query(90, ge=1, le=365),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     forecast = await analytics.get_consumption_forecast(item_id, forecast_days)
     if not forecast:
         raise HTTPException(status_code=404, detail="Item not found")
@@ -256,20 +287,25 @@ async def get_all_forecasts(
     category: str | None = None,
     low_stock_only: bool = False,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     forecasts = await analytics.get_all_forecasts(category, low_stock_only)
     return [f.to_dict() for f in forecasts]
 
 
 @app.get("/v1/analytics/reorder-recommendations")
 async def get_reorder_recommendations(
-    tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)
+    tenant_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     recommendations = await analytics.get_reorder_recommendations()
     return {
-        "tenant_id": tenant_id,
+        "tenant_id": verified_tenant,
         "count": len(recommendations),
         "recommendations": recommendations,
     }
@@ -280,8 +316,10 @@ async def get_valuation(
     tenant_id: str = Query(...),
     warehouse_id: str | None = None,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     valuation = await analytics.get_inventory_valuation(warehouse_id=warehouse_id)
     return valuation.to_dict()
 
@@ -291,11 +329,13 @@ async def get_turnover(
     tenant_id: str = Query(...),
     period_days: int = Query(365, ge=30, le=730),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     metrics = await analytics.get_turnover_analysis(period_days)
     return {
-        "tenant_id": tenant_id,
+        "tenant_id": verified_tenant,
         "period_days": period_days,
         "items": [m.to_dict() for m in metrics],
     }
@@ -306,11 +346,13 @@ async def get_slow_moving(
     tenant_id: str = Query(...),
     days_threshold: int = Query(90, ge=30, le=365),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     items = await analytics.identify_slow_moving(days_threshold)
     return {
-        "tenant_id": tenant_id,
+        "tenant_id": verified_tenant,
         "days_threshold": days_threshold,
         "count": len(items),
         "total_value": sum(item["total_value"] for item in items),
@@ -323,11 +365,13 @@ async def get_dead_stock(
     tenant_id: str = Query(...),
     days_threshold: int = Query(180, ge=90, le=730),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     items = await analytics.identify_dead_stock(days_threshold)
     return {
-        "tenant_id": tenant_id,
+        "tenant_id": verified_tenant,
         "days_threshold": days_threshold,
         "count": len(items),
         "total_value": sum(item["total_value"] for item in items),
@@ -336,17 +380,26 @@ async def get_dead_stock(
 
 
 @app.get("/v1/analytics/abc-analysis")
-async def get_abc_analysis(tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)):
-    analytics = InventoryAnalytics(db, tenant_id)
+async def get_abc_analysis(
+    tenant_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     analysis = await analytics.get_abc_analysis()
-    return {"tenant_id": tenant_id, **analysis}
+    return {"tenant_id": verified_tenant, **analysis}
 
 
 @app.get("/v1/analytics/seasonal-patterns/{item_id}")
 async def get_seasonal_patterns(
-    item_id: str, tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)
+    item_id: str,
+    tenant_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     pattern = await analytics.get_seasonal_patterns(item_id)
     if not pattern:
         raise HTTPException(
@@ -363,15 +416,17 @@ async def get_cost_analysis(
     start_date: date | None = None,
     end_date: date | None = None,
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     analysis = await analytics.get_cost_analysis(
         field_id=field_id,
         crop_season_id=crop_season_id,
         start_date=start_date,
         end_date=end_date,
     )
-    return {"tenant_id": tenant_id, **analysis}
+    return {"tenant_id": verified_tenant, **analysis}
 
 
 @app.get("/v1/analytics/waste-analysis")
@@ -379,17 +434,24 @@ async def get_waste_analysis(
     tenant_id: str = Query(...),
     period_days: int = Query(365, ge=30, le=730),
     db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
 ):
-    analytics = InventoryAnalytics(db, tenant_id)
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     analysis = await analytics.get_waste_analysis(period_days)
-    return {"tenant_id": tenant_id, **analysis}
+    return {"tenant_id": verified_tenant, **analysis}
 
 
 @app.get("/v1/analytics/dashboard")
-async def get_dashboard_metrics(tenant_id: str = Query(...), db: AsyncSession = Depends(get_db)):
-    analytics = InventoryAnalytics(db, tenant_id)
+async def get_dashboard_metrics(
+    tenant_id: str = Query(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+):
+    verified_tenant = _get_tenant_id(user, tenant_id)
+    analytics = InventoryAnalytics(db, verified_tenant)
     metrics = await analytics.generate_dashboard_metrics()
-    return {"tenant_id": tenant_id, **metrics}
+    return {"tenant_id": verified_tenant, **metrics}
 
 
 if __name__ == "__main__":

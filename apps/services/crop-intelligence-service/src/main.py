@@ -750,6 +750,18 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# ── Digital Twin Router ────────────────────────────────────────────────────
+try:
+    from .twin_router import router as twin_router
+
+    app.include_router(twin_router, prefix="/api/v1")
+except Exception as _twin_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Digital Twin router not loaded: %s", _twin_import_error
+    )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints

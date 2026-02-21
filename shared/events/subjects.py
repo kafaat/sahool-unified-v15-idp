@@ -104,6 +104,23 @@ SAHOOL_HEALTH_STRESS_ALL = "sahool.health.stress.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Digital Twin Subjects - موضوعات التوأم الرقمي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted when a new field observation (NDVI, LAI, sensor) is ingested
+SAHOOL_FIELD_OBSERVATION_INGESTED = "sahool.field.observation.ingested.v1"
+
+# Emitted after the daily twin step (pipeline + optional assimilation)
+SAHOOL_FIELD_STATE_UPDATED = "sahool.field.state.updated.v1"
+
+# Emitted when an irrigation recommendation is ready
+SAHOOL_IRRIGATION_RECOMMENDATION_READY = "sahool.irrigation.recommendation.ready.v1"
+
+# Wildcards
+SAHOOL_DIGITAL_TWIN_ALL = "sahool.field.state.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Inventory Subjects - موضوعات المخزون
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -528,6 +545,10 @@ SUBJECT_REGISTRY = {
     "edge.model_deployment_failed": SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED,
     "edge.firmware_update_available": SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
     "edge.data_collected": SAHOOL_EDGE_DATA_COLLECTED,
+    # Digital Twin
+    "field.observation.ingested": SAHOOL_FIELD_OBSERVATION_INGESTED,
+    "field.state.updated": SAHOOL_FIELD_STATE_UPDATED,
+    "irrigation.recommendation.ready": SAHOOL_IRRIGATION_RECOMMENDATION_READY,
 }
 
 

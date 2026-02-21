@@ -7,8 +7,6 @@
 # Components: Prometheus, Grafana, Alertmanager
 # Services Monitored: 39 microservices + infrastructure
 
-version: '3.8'
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # Services - الخدمات
 # ═══════════════════════════════════════════════════════════════════════════════

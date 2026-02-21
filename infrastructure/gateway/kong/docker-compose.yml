@@ -1,5 +1,3 @@
-version: '3.9'
-
 # ==============================================================================
 # Kong API Gateway Docker Compose Configuration
 # تكوين Docker Compose لبوابة Kong API

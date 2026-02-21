@@ -79,8 +79,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     let errorCode: string = "";
     let message: string = "An unexpected error occurred";
     let messageAr: string = "حدث خطأ غير متوقع";
-    let details: any;
-    let validationErrors: any[] | undefined;
+    let details: any = undefined;
+    let validationErrors: any[] | undefined = undefined;
 
     // Handle different exception types
     if (exception instanceof HttpException) {

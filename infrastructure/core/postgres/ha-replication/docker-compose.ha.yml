@@ -6,8 +6,6 @@
 # Description: 3-node PostgreSQL cluster with Patroni and automated failover
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: '3.8'
-
 networks:
   sahool-ha-network:
     driver: bridge

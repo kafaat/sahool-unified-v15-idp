@@ -3,7 +3,7 @@ Authentication dependencies for copilot-api - تبعيات المصادقة لل
 """
 
 import os
-from datetime import datetime
+from datetime import UTC, datetime
 
 import jwt
 import structlog
@@ -14,8 +14,13 @@ logger = structlog.get_logger()
 
 security = HTTPBearer(auto_error=False)
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "changeme-in-production-minimum-32-chars")
+# Security: JWT_SECRET_KEY must be set via environment variable
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+if not JWT_SECRET_KEY:
+    logger.warning("jwt_secret_missing", msg="JWT_SECRET_KEY not set - authentication will fail")
+    JWT_SECRET_KEY = ""  # Will cause decode to fail, preventing auth bypass
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+ALLOWED_ALGORITHMS = ["HS256", "HS384", "HS512"]
 
 
 async def get_current_user(
@@ -34,15 +39,14 @@ async def get_current_user(
 
     token = credentials.credentials
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        # Validate algorithm against whitelist to prevent algorithm confusion attacks
+        if JWT_ALGORITHM not in ALLOWED_ALGORITHMS:
+            raise jwt.InvalidTokenError(f"Algorithm {JWT_ALGORITHM} not allowed")
 
-        # Check expiration
-        exp = payload.get("exp")
-        if exp and datetime.utcfromtimestamp(exp) < datetime.utcnow():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail={"error": "Token expired", "error_ar": "انتهت صلاحية الرمز"},
-            )
+        payload = jwt.decode(
+            token, JWT_SECRET_KEY, algorithms=ALLOWED_ALGORITHMS,
+            options={"require": ["exp", "sub"]}
+        )
 
         user_id = payload.get("sub") or payload.get("user_id")
         if not user_id:
@@ -77,10 +81,19 @@ async def get_optional_user(
     """
     Optional auth - returns None if no token provided.
     مصادقة اختيارية - تُرجع None إذا لم يتم توفير رمز.
+
+    Security: If a token IS provided but is invalid/expired, we log a warning
+    and return None rather than silently ignoring the failure.
     """
     if not credentials:
         return None
     try:
         return await get_current_user(credentials)
-    except HTTPException:
+    except HTTPException as e:
+        logger.warning(
+            "optional_auth_token_rejected",
+            status_code=e.status_code,
+            detail=e.detail,
+            msg="Token provided but failed validation - treating as unauthenticated",
+        )
         return None

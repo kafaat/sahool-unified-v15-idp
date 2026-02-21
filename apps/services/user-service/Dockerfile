@@ -39,20 +39,20 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
-# Copy prisma schema and generate client
-# Use environment variables to improve Prisma binary download reliability
+# Generate Prisma client and verify output
 ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 ENV PRISMA_CLI_QUERY_ENGINE_TYPE=binary
 ENV PRISMA_CLIENT_ENGINE_TYPE=binary
-# Try multiple times with increasing delays, and skip binary download if already cached
-RUN npx prisma generate --schema=./prisma/schema.prisma 2>/dev/null || \
-    (echo "Retry 1..." && sleep 5 && npx prisma generate --schema=./prisma/schema.prisma) || \
-    (echo "Retry 2..." && sleep 10 && npx prisma generate --schema=./prisma/schema.prisma) || \
-    (echo "Retry 3..." && sleep 15 && npx prisma generate --schema=./prisma/schema.prisma) || \
+RUN npx prisma generate --schema=./prisma/schema.prisma && \
+    test -f node_modules/.prisma/client/index.js || \
+    (echo "Retrying prisma generate..." && sleep 5 && \
+     npx prisma generate --schema=./prisma/schema.prisma && \
+     test -f node_modules/.prisma/client/index.js) || \
     (echo "Prisma generate failed after retries" && exit 1)
 
-# Build the application
-RUN npm run build
+# Build the application using nest build directly (skip prebuild to avoid
+# re-running prisma generate which can resolve paths differently in Docker)
+RUN npx nest build
 
 # Production stage
 FROM node:${NODE_VERSION}-bookworm-slim AS production

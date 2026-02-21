@@ -178,9 +178,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for order completion events from delivery/fulfillment
     await this.subscribe(
       "sahool.delivery.completed",
-      async (event: any) => {
+      async (event) => {
+        const payload = event.payload as Record<string, unknown>;
         this.logger.log(
-          `Received delivery completed event for order: ${event.payload?.orderId}`,
+          `Received delivery completed event for order: ${payload?.orderId}`,
         );
       },
       { queue: queueGroup },
@@ -189,9 +190,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for inventory restock events
     await this.subscribe(
       "sahool.inventory.restocked",
-      async (event: any) => {
+      async (event) => {
+        const payload = event.payload as Record<string, unknown>;
         this.logger.log(
-          `Received inventory restocked event for product: ${event.payload?.productId}`,
+          `Received inventory restocked event for product: ${payload?.productId}`,
         );
       },
       { queue: queueGroup },
@@ -200,9 +202,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for payment confirmation from payment gateway
     await this.subscribe(
       "sahool.payment.confirmed",
-      async (event: any) => {
+      async (event) => {
+        const payload = event.payload as Record<string, unknown>;
         this.logger.log(
-          `Received payment confirmed event for order: ${event.payload?.orderId}`,
+          `Received payment confirmed event for order: ${payload?.orderId}`,
         );
       },
       { queue: queueGroup },
@@ -211,9 +214,10 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for user verification events (KYC updates)
     await this.subscribe(
       "sahool.user.verified",
-      async (event: any) => {
+      async (event) => {
+        const payload = event.payload as Record<string, unknown>;
         this.logger.log(
-          `Received user verification event for user: ${event.payload?.userId}`,
+          `Received user verification event for user: ${payload?.userId}`,
         );
       },
       { queue: queueGroup },

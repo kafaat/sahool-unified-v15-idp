@@ -410,13 +410,19 @@ async def list_sessions(
         return []
 
 
-async def delete_session(session_id: str) -> bool:
+async def delete_session(
+    session_id: str,
+    user_id: str | None = None,
+    tenant_id: str | None = None,
+) -> bool:
     """
     Delete a chat session and all its messages (cascade).
     حذف جلسة محادثة وجميع رسائلها
 
     Args:
         session_id: Client-provided session identifier.
+        user_id: If provided, validates session ownership before deletion.
+        tenant_id: If provided, validates tenant isolation before deletion.
 
     Returns:
         True if the session was deleted, False otherwise.
@@ -428,10 +434,25 @@ async def delete_session(session_id: str) -> bool:
         session_uuid = uuid.uuid5(uuid.NAMESPACE_URL, f"sahool:copilot:session:{session_id}")
 
         async with _pool.acquire() as conn:
-            result = await conn.execute(
-                "DELETE FROM copilot_sessions WHERE id = $1",
-                session_uuid,
-            )
+            # Build query with optional ownership validation
+            if user_id and tenant_id:
+                result = await conn.execute(
+                    "DELETE FROM copilot_sessions WHERE id = $1 AND user_id = $2 AND tenant_id = $3",
+                    session_uuid,
+                    user_id,
+                    tenant_id,
+                )
+            elif tenant_id:
+                result = await conn.execute(
+                    "DELETE FROM copilot_sessions WHERE id = $1 AND tenant_id = $2",
+                    session_uuid,
+                    tenant_id,
+                )
+            else:
+                result = await conn.execute(
+                    "DELETE FROM copilot_sessions WHERE id = $1",
+                    session_uuid,
+                )
 
             deleted = result == "DELETE 1"
             if deleted:

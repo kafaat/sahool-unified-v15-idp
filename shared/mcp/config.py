@@ -98,7 +98,7 @@ class ServerConfig:
     )
     debug: bool = field(default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true")
     cors_origins: list[str] = field(
-        default_factory=lambda: os.getenv("MCP_CORS_ORIGINS", "*").split(",")
+        default_factory=lambda: os.getenv("MCP_CORS_ORIGINS", "http://localhost:3000,http://localhost:8200").split(",")
     )
     protocol_version: str = "2024-11-05"
 

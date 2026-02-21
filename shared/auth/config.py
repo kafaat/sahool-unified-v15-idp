@@ -17,9 +17,9 @@ logger = logging.getLogger(__name__)
 # Security constants
 MIN_SECRET_KEY_LENGTH = 32
 MIN_ACCESS_TOKEN_MINUTES = 1
-MAX_ACCESS_TOKEN_MINUTES = 1440  # 24 hours
+MAX_ACCESS_TOKEN_MINUTES = 60  # 1 hour — industry standard max for access tokens
 MIN_REFRESH_TOKEN_DAYS = 1
-MAX_REFRESH_TOKEN_DAYS = 365  # 1 year
+MAX_REFRESH_TOKEN_DAYS = 30  # 30 days max
 MIN_RATE_LIMIT_REQUESTS = 1
 MAX_RATE_LIMIT_REQUESTS = 10000
 MIN_RATE_LIMIT_WINDOW_SECONDS = 1
@@ -100,6 +100,12 @@ class JWTConfig:
                 warnings.append(f"WARNING: {msg} (development mode)")
         elif len(cls.JWT_SECRET) < MIN_SECRET_KEY_LENGTH:
             msg = f"JWT_SECRET_KEY must be at least {MIN_SECRET_KEY_LENGTH} characters (currently {len(cls.JWT_SECRET)} characters)"
+            if env in ("production", "staging"):
+                errors.append(msg)
+            else:
+                warnings.append(f"WARNING: {msg} (development mode)")
+        elif cls.JWT_SECRET.startswith("MUST_SET") or cls.JWT_SECRET.startswith("change_"):
+            msg = "JWT_SECRET_KEY appears to be a placeholder value — set a real secret"
             if env in ("production", "staging"):
                 errors.append(msg)
             else:

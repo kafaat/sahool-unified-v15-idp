@@ -1,5 +1,3 @@
-version: '3.8'
-
 # SAHOOL Platform - Load Testing Infrastructure
 # Includes k6, InfluxDB for metrics storage, and Grafana for visualization
 

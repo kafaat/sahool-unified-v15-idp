@@ -1587,4 +1587,5 @@ async def get_notification_stats():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8110)
+    port = int(os.getenv("PORT", 8110))
+    uvicorn.run(app, host="0.0.0.0", port=port)

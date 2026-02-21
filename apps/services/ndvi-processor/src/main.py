@@ -524,6 +524,12 @@ async def create_monthly_composite(request: CompositeRequest, user: User = Depen
         method=request.method,
         source=request.source,
     )
+    # Persist composite to DB + publish NATS event when store is configured
+    await ndvi_store.save_composite(
+        composite_id=composite["composite_id"],
+        tenant_id=request.tenant_id,
+        composite_dict=composite,
+    )
     return CompositeResponse(**composite)
 
 

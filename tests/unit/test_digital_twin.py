@@ -24,7 +24,8 @@ import pytest
 
 # Make async tests work without extra CLI flags (mirrors tests/unit/ai/test_ai_metrics.py)
 pytest_plugins = ("pytest_asyncio",)
-pytestmark = pytest.mark.asyncio
+# NOTE: do NOT set a module-level pytestmark here – it would apply asyncio marks
+# to synchronous helper tests and produce spurious PytestWarnings.
 
 
 # ---------------------------------------------------------------------------

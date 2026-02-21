@@ -178,7 +178,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for order completion events from delivery/fulfillment
     await this.subscribe(
       "sahool.delivery.completed",
-      async (event) => {
+      async (event: any) => {
         this.logger.log(
           `Received delivery completed event for order: ${event.payload?.orderId}`,
         );
@@ -189,7 +189,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for inventory restock events
     await this.subscribe(
       "sahool.inventory.restocked",
-      async (event) => {
+      async (event: any) => {
         this.logger.log(
           `Received inventory restocked event for product: ${event.payload?.productId}`,
         );
@@ -200,7 +200,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for payment confirmation from payment gateway
     await this.subscribe(
       "sahool.payment.confirmed",
-      async (event) => {
+      async (event: any) => {
         this.logger.log(
           `Received payment confirmed event for order: ${event.payload?.orderId}`,
         );
@@ -211,7 +211,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     // Listen for user verification events (KYC updates)
     await this.subscribe(
       "sahool.user.verified",
-      async (event) => {
+      async (event: any) => {
         this.logger.log(
           `Received user verification event for user: ${event.payload?.userId}`,
         );

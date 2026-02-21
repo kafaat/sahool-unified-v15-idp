@@ -75,12 +75,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const requestId =
       (request.headers["x-request-id"] as string) || this.generateRequestId();
 
-    let status: number;
-    let errorCode: string;
-    let message: string;
-    let messageAr: string;
+    let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
+    let errorCode: string = "";
+    let message: string = "An unexpected error occurred";
+    let messageAr: string = "حدث خطأ غير متوقع";
     let details: any;
-    let validationErrors: any[];
+    let validationErrors: any[] | undefined;
 
     // Handle different exception types
     if (exception instanceof HttpException) {

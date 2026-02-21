@@ -762,6 +762,18 @@ except Exception as _twin_import_error:  # pragma: no cover
         "Digital Twin router not loaded: %s", _twin_import_error
     )
 
+# ── Process Models Router ──────────────────────────────────────────────────
+try:
+    from .models_router import router as models_router
+
+    app.include_router(models_router, prefix="/api/v1")
+except Exception as _models_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Process Models router not loaded: %s", _models_import_error
+    )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints

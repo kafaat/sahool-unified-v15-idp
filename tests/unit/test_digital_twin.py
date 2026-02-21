@@ -22,6 +22,10 @@ from uuid import UUID, uuid4
 
 import pytest
 
+# Make async tests work without extra CLI flags (mirrors tests/unit/ai/test_ai_metrics.py)
+pytest_plugins = ("pytest_asyncio",)
+pytestmark = pytest.mark.asyncio
+
 
 # ---------------------------------------------------------------------------
 # Helpers

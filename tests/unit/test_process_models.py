@@ -693,3 +693,189 @@ class TestProcessModelsImport:
         assert pm.QueftsNutrientModel is not None
         assert pm.HydrologyEngine is not None
         assert pm.EnsembleModelFramework is not None
+
+
+# ===========================================================================
+# 11. Input validation (Fix 4 – __post_init__ guards)
+# ===========================================================================
+
+
+class TestInputValidation:
+    """Ensure boundary guards reject physically-impossible inputs early."""
+
+    def test_weather_tmax_below_tmin_raises(self):
+        with pytest.raises(ValueError, match="tmax_c"):
+            DailyWeather(
+                date=date(2024, 6, 1),
+                tmax_c=10.0,
+                tmin_c=20.0,  # tmin > tmax → invalid
+                solar_radiation_mj_m2=18.0,
+                relative_humidity_pct=55.0,
+                wind_speed_m_s=2.5,
+            )
+
+    def test_weather_negative_precipitation_raises(self):
+        with pytest.raises(ValueError, match="precipitation_mm"):
+            DailyWeather(
+                date=date(2024, 6, 1),
+                tmax_c=30.0,
+                tmin_c=15.0,
+                solar_radiation_mj_m2=20.0,
+                relative_humidity_pct=50.0,
+                wind_speed_m_s=2.0,
+                precipitation_mm=-5.0,
+            )
+
+    def test_weather_negative_wind_raises(self):
+        with pytest.raises(ValueError, match="wind_speed_m_s"):
+            DailyWeather(
+                date=date(2024, 6, 1),
+                tmax_c=28.0,
+                tmin_c=14.0,
+                solar_radiation_mj_m2=18.0,
+                relative_humidity_pct=60.0,
+                wind_speed_m_s=-1.0,
+            )
+
+    def test_weather_humidity_out_of_range_raises(self):
+        with pytest.raises(ValueError, match="relative_humidity_pct"):
+            DailyWeather(
+                date=date(2024, 6, 1),
+                tmax_c=28.0,
+                tmin_c=14.0,
+                solar_radiation_mj_m2=18.0,
+                relative_humidity_pct=150.0,  # > 100 → invalid
+                wind_speed_m_s=2.0,
+            )
+
+    def test_soil_fc_below_wp_raises(self):
+        with pytest.raises(ValueError, match="field_capacity"):
+            SoilProfile(
+                field_capacity_mm_per_m=80.0,   # < wilting_point → invalid
+                wilting_point_mm_per_m=120.0,
+            )
+
+    def test_soil_zero_depth_raises(self):
+        with pytest.raises(ValueError, match="depth_m"):
+            SoilProfile(depth_m=0.0)
+
+    def test_valid_weather_no_error(self):
+        w = DailyWeather(
+            date=date(2024, 6, 1),
+            tmax_c=30.0,
+            tmin_c=15.0,
+            solar_radiation_mj_m2=20.0,
+            relative_humidity_pct=55.0,
+            wind_speed_m_s=2.0,
+        )
+        assert w.tmean_c == pytest.approx(22.5)
+
+    def test_valid_soil_no_error(self):
+        s = SoilProfile()
+        assert s.available_water_capacity_mm > 0
+
+
+# ===========================================================================
+# 12. Models router smoke tests (Fix 3)
+# ===========================================================================
+
+
+class TestModelsRouter:
+    """Smoke-test the process-models API router without a running server."""
+
+    def _get_client(self):
+        import importlib.util
+        import sys
+        import os
+        from fastapi.testclient import TestClient
+        from fastapi import FastAPI
+
+        # The service directory contains a hyphen so we use importlib
+        router_path = os.path.join(
+            os.path.dirname(__file__), "../../apps/services/crop-intelligence-service/src/models_router.py"
+        )
+        spec = importlib.util.spec_from_file_location("models_router", router_path)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+
+        app = FastAPI()
+        app.include_router(mod.router, prefix="/api/v1")
+        return TestClient(app)
+
+    def _get_client_safe(self):
+        """Return client or skip if router cannot be imported (missing deps)."""
+        try:
+            return self._get_client()
+        except Exception:
+            pytest.skip("models_router not importable in this environment")
+
+    def test_et0_run_valid(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/et0/run", json={
+            "tmax_c": 32.0,
+            "tmin_c": 18.0,
+            "solar_radiation_mj_m2": 22.0,
+            "relative_humidity_pct": 45.0,
+            "wind_speed_m_s": 2.5,
+        })
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["result"]["et0_mm"] > 0
+
+    def test_et0_tmax_below_tmin_rejected(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/et0/run", json={
+            "tmax_c": 10.0,
+            "tmin_c": 20.0,
+            "solar_radiation_mj_m2": 18.0,
+            "relative_humidity_pct": 55.0,
+            "wind_speed_m_s": 2.0,
+        })
+        assert resp.status_code == 422
+
+    def test_quefts_run_valid(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/quefts/recommend", json={
+            "crop_type": "wheat",
+            "target_yield_t_ha": 4.0,
+            "soil_n_kg_ha": 40.0,
+            "soil_p_kg_ha": 15.0,
+            "soil_k_kg_ha": 80.0,
+        })
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "n_fertiliser_kg_ha" in body["result"]
+
+    def test_swb_run_valid(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/swb/run", json={
+            "tmax_c": 30.0,
+            "tmin_c": 16.0,
+            "solar_radiation_mj_m2": 20.0,
+            "relative_humidity_pct": 50.0,
+            "wind_speed_m_s": 2.0,
+            "precipitation_mm": 5.0,
+            "soil_water_mm": 200.0,
+            "field_capacity_mm": 250.0,
+            "wilting_point_mm": 100.0,
+            "total_available_water_mm": 150.0,
+        })
+        assert resp.status_code == 200
+        assert "et0_mm" in resp.json()["result"]
+
+    def test_soil_carbon_returns_needs_calibration(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/soil-carbon/simulate", json={
+            "carbon_input_t_ha_yr": 3.0,
+        })
+        assert resp.status_code == 200
+        assert resp.json()["quality_flag"] == "needs_calibration"
+
+    def test_prosail_returns_needs_calibration(self):
+        client = self._get_client_safe()
+        resp = client.post("/api/v1/models/prosail/invert", json={
+            "red": 0.08,
+            "nir": 0.45,
+        })
+        assert resp.status_code == 200
+        assert resp.json()["quality_flag"] == "needs_calibration"

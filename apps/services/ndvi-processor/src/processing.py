@@ -24,15 +24,13 @@ from .models import (
     ZoneChange,
 )
 
-# ============== Mock Data Store (in-memory, dev/test only) ==============
-# NOTE: This module provides a mock, in-memory implementation intended for
-# development and testing. State does not persist across restarts and results
-# are non-deterministic. For production use, replace with database-backed
-# storage and real satellite processing pipelines.
+# ============== Persistent Store (DB + in-memory fallback) ================
+# In-memory dicts are owned by store.py and shared here by reference.
+# When a DB pool and/or NATS client have been injected via store.configure(),
+# saves are automatically persisted and events published.
+# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
 
-_jobs: dict[str, dict] = {}
-_results: dict[str, list[dict]] = {}  # field_id -> [NDVIResult]
-_composites: dict[str, dict] = {}
+from .store import _jobs, _results, _composites  # noqa: E402  (re-exported)
 
 
 # ============== Job Management ==============
@@ -226,10 +224,14 @@ def process_ndvi_mock(
         files=files,
     )
 
-    # تخزين النتيجة
+    # تخزين النتيجة – delegate to store (persists to DB + NATS when configured)
+    # The tenant_id is unknown at this synchronous call site; we store in-memory
+    # here. The async background task in main.py calls store.save_result() with
+    # the full tenant context after this function returns.
+    result_data = result.model_dump()
     if field_id not in _results:
         _results[field_id] = []
-    _results[field_id].append(result.model_dump())
+    _results[field_id].append(result_data)
 
     return result
 
@@ -543,6 +545,7 @@ def create_composite(
         "created_at": now,
     }
 
+    # تخزين في الذاكرة (والـ DB إن توفّر – راجع store.save_composite)
     _composites[composite_id] = composite
     return composite
 

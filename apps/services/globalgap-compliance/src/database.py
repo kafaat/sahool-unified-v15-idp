@@ -48,7 +48,9 @@ logger = logging.getLogger("globalgap-compliance")
 # - التطوير: sslmode=disable مقبول لشبكة Docker الداخلية
 # - Production: sslmode=require is MANDATORY
 # - الإنتاج: sslmode=require إلزامي
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:5432/sahool_globalgap")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
+if not DATABASE_URL:
+    logger.warning("DATABASE_URL not set - database operations will fail")
 
 # Connection pool settings
 # إعدادات مجموعة الاتصال

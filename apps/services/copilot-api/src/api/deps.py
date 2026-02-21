@@ -81,10 +81,19 @@ async def get_optional_user(
     """
     Optional auth - returns None if no token provided.
     مصادقة اختيارية - تُرجع None إذا لم يتم توفير رمز.
+
+    Security: If a token IS provided but is invalid/expired, we log a warning
+    and return None rather than silently ignoring the failure.
     """
     if not credentials:
         return None
     try:
         return await get_current_user(credentials)
-    except HTTPException:
+    except HTTPException as e:
+        logger.warning(
+            "optional_auth_token_rejected",
+            status_code=e.status_code,
+            detail=e.detail,
+            msg="Token provided but failed validation - treating as unauthenticated",
+        )
         return None

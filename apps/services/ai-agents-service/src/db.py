@@ -156,17 +156,24 @@ async def create_execution(
         return None
 
 
-async def get_execution(execution_id: str) -> dict[str, Any] | None:
-    """Get an execution by ID."""
+async def get_execution(execution_id: str, tenant_id: str | None = None) -> dict[str, Any] | None:
+    """Get an execution by ID, scoped to tenant for isolation."""
     if not _pool:
         return None
 
     try:
         async with _pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT * FROM agent_executions WHERE id = $1",
-                UUID(execution_id),
-            )
+            if tenant_id:
+                row = await conn.fetchrow(
+                    "SELECT * FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                    UUID(execution_id),
+                    tenant_id,
+                )
+            else:
+                row = await conn.fetchrow(
+                    "SELECT * FROM agent_executions WHERE id = $1",
+                    UUID(execution_id),
+                )
             return _row_to_dict(row) if row else None
     except Exception as e:
         print(f"⚠️ Failed to get execution: {e}")
@@ -182,8 +189,9 @@ async def update_execution(
     error: str | None = None,
     completed_at: datetime | None = None,
     total_duration_ms: int | None = None,
+    tenant_id: str | None = None,
 ) -> dict[str, Any] | None:
-    """Update an execution record."""
+    """Update an execution record, optionally scoped to tenant for isolation."""
     if not _pool:
         return None
 
@@ -230,11 +238,19 @@ async def update_execution(
 
         # Add execution_id as last parameter
         params.append(UUID(execution_id))
+        param_idx += 1
+
+        # Build WHERE clause with optional tenant isolation
+        where_parts = [f"id = ${param_idx - 1}"]
+        if tenant_id:
+            where_parts.append(f"tenant_id = ${param_idx}")
+            params.append(tenant_id)
+            param_idx += 1
 
         query = f"""
             UPDATE agent_executions
             SET {", ".join(updates)}
-            WHERE id = ${param_idx}
+            WHERE {" AND ".join(where_parts)}
             RETURNING *
         """
 
@@ -290,35 +306,50 @@ async def list_executions(
         return []
 
 
-async def delete_execution(execution_id: str) -> bool:
-    """Delete an execution record."""
+async def delete_execution(execution_id: str, tenant_id: str | None = None) -> bool:
+    """Delete an execution record, optionally scoped to tenant for isolation."""
     if not _pool:
         return False
 
     try:
         async with _pool.acquire() as conn:
-            result = await conn.execute(
-                "DELETE FROM agent_executions WHERE id = $1",
-                UUID(execution_id),
-            )
+            if tenant_id:
+                result = await conn.execute(
+                    "DELETE FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                    UUID(execution_id),
+                    tenant_id,
+                )
+            else:
+                result = await conn.execute(
+                    "DELETE FROM agent_executions WHERE id = $1",
+                    UUID(execution_id),
+                )
             return result == "DELETE 1"
     except Exception as e:
         print(f"⚠️ Failed to delete execution: {e}")
         return False
 
 
-async def get_execution_counts() -> dict[str, int]:
-    """Get execution counts by status for metrics."""
+async def get_execution_counts(tenant_id: str | None = None) -> dict[str, int]:
+    """Get execution counts by status for metrics, optionally scoped to tenant."""
     if not _pool:
         return {"total": 0, "running": 0, "completed": 0, "failed": 0}
 
     try:
         async with _pool.acquire() as conn:
-            rows = await conn.fetch("""
-                SELECT status, COUNT(*) as count
-                FROM agent_executions
-                GROUP BY status
-            """)
+            if tenant_id:
+                rows = await conn.fetch("""
+                    SELECT status, COUNT(*) as count
+                    FROM agent_executions
+                    WHERE tenant_id = $1
+                    GROUP BY status
+                """, tenant_id)
+            else:
+                rows = await conn.fetch("""
+                    SELECT status, COUNT(*) as count
+                    FROM agent_executions
+                    GROUP BY status
+                """)
 
             counts = {"total": 0, "running": 0, "completed": 0, "failed": 0}
             for row in rows:

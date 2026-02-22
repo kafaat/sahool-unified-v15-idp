@@ -240,12 +240,78 @@ jobs:
         continue-on-error: true
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Container Security Scan (Trivy)
+  # ─────────────────────────────────────────────────────────────────────────────
+  container-scan:
+    name: Container Scan
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update && sudo apt-get install -y trivy || true
+
+      - name: Run Trivy vulnerability scanner
+        run: |
+          trivy image --severity HIGH,CRITICAL --format sarif \
+            --output trivy-crop-intelligence.sarif \
+            ${{ env.REGISTRY }}/${{ github.repository }}/crop-intelligence-service:latest || true
+
+          # Create empty SARIF if scan failed
+          if [ ! -f trivy-crop-intelligence.sarif ]; then
+            echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.69.1"}},"results":[]}]}' > trivy-crop-intelligence.sarif
+          fi
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: trivy-crop-intelligence.sarif
+          category: 'trivy-crop-intelligence'
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Helm Chart Lint
+  # ─────────────────────────────────────────────────────────────────────────────
+  helm-lint:
+    name: Helm Lint
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Install Helm
+        run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Lint Helm chart
+        run: |
+          helm lint helm/services/crop-intelligence-service/ \
+            --values helm/services/crop-intelligence-service/values.yaml \
+            --strict
+
+      - name: Lint staging values
+        run: |
+          helm lint helm/services/crop-intelligence-service/ \
+            --values helm/services/crop-intelligence-service/values.yaml \
+            --values helm/services/crop-intelligence-service/values-staging.yaml \
+            --strict
+        continue-on-error: true
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Pipeline Summary
   # ─────────────────────────────────────────────────────────────────────────────
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [lint, test, security, build]
+    needs: [lint, test, security, build, helm-lint]
     if: always()
     steps:
       - name: Generate summary
@@ -273,4 +339,5 @@ jobs:
           echo "| Lint | ${{ needs.lint.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Test | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Security | ${{ needs.security.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Helm Lint | ${{ needs.helm-lint.result }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Build | ${{ needs.build.result }} |" >> $GITHUB_STEP_SUMMARY

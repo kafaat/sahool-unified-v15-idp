@@ -1,0 +1,39 @@
+# SAHOOL Crop Intelligence Service - Staging Environment Values
+# Version: 16.0.0
+
+environment: staging
+deploymentSlot: blue
+
+replicaCount: 1
+
+image:
+  tag: "16.0.0-staging"
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 500m
+    memory: 768Mi
+
+env:
+  LOG_LEVEL: "DEBUG"
+  CALIBRATION_ENABLED: "true"
+  ASSIMILATION_ENABLED: "true"
+  ENVIRONMENT: "staging"
+
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
+  targetMemoryUtilizationPercentage: 85
+
+pdb:
+  enabled: true
+  minAvailable: 1
+
+vpa:
+  enabled: true
+  updateMode: "Initial"

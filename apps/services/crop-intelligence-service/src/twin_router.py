@@ -280,14 +280,33 @@ async def twin_step(
         elevation_m=body.elevation_m,
     )
 
+    # ── Extract calibrated k_extinction & thresholds for downstream ─────
+    calibrated_k_ext: float | None = None
+    calibrated_thresholds: dict[str, float] = {}
+    if calibrated_source:
+        # Re-use already-loaded params to extract assimilation / decision overrides
+        try:
+            _loaded_ps = crop.__dict__  # CropParameters fields
+            calibrated_k_ext = getattr(crop, "k_extinction", None)
+        except Exception:
+            pass
+
     # Optional assimilation pass
     if _flags.assimilation_enabled:
         assimilator = AssimilationEngine(repo=repo)
-        state = await assimilator.assimilate(state, crop_type=body.crop_type)
+        state = await assimilator.assimilate(
+            state,
+            crop_type=body.crop_type,
+            calibrated_k_extinction=calibrated_k_ext if calibrated_source else None,
+        )
         await repo.save_state(state)
 
     # Auto-generate irrigation recommendation
-    decision = DecisionEngine(repo=repo, nats_client=nats)
+    decision = DecisionEngine(
+        repo=repo,
+        nats_client=nats,
+        calibrated_thresholds=calibrated_thresholds or None,
+    )
     rec = await decision.recommend_irrigation(state, taw_mm=body.taw_mm)
     await repo.save_recommendation(rec)
 

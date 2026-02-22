@@ -813,6 +813,18 @@ except Exception as _cal_import_error:  # pragma: no cover
         "Calibration router not loaded: %s", _cal_import_error
     )
 
+# ── Soil & Fertility Router ──────────────────────────────────────────────
+try:
+    from .soil_fertility_router import router as soil_fertility_router
+
+    app.include_router(soil_fertility_router, prefix="/api/v1")
+except Exception as _sf_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Soil & Fertility router not loaded: %s", _sf_import_error
+    )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints

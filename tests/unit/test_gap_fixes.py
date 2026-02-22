@@ -469,3 +469,295 @@ class TestCalibrationRouterEvents:
         assert "SAHOOL_CALIBRATION_RUN_QUEUED" in content
         assert "SAHOOL_CALIBRATION_PARAMS_ACTIVATED" in content
         assert "_publish_calibration_event" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 15. Assimilation with Calibrated k_extinction (GAP-16)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestAssimilationCalibratedK:
+
+    def test_ndvi_to_lai_default_k(self):
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        # Default k=0.5
+        lai = ndvi_to_lai(0.6, crop_type="wheat")
+        assert lai > 0.0
+        assert lai < 10.0
+
+    def test_ndvi_to_lai_custom_k(self):
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        lai_default = ndvi_to_lai(0.6, crop_type="wheat")
+        lai_low_k = ndvi_to_lai(0.6, crop_type="wheat", k_extinction=0.3)
+        lai_high_k = ndvi_to_lai(0.6, crop_type="wheat", k_extinction=0.8)
+        # Lower k → higher LAI (less extinction means more leaf area needed to explain NDVI)
+        assert lai_low_k > lai_default
+        assert lai_high_k < lai_default
+
+    def test_ndvi_to_lai_k_clamped(self):
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        # k_extinction out of range should be clamped
+        lai_extreme_low = ndvi_to_lai(0.5, k_extinction=0.001)  # clamped to 0.1
+        lai_at_min = ndvi_to_lai(0.5, k_extinction=0.1)
+        assert lai_extreme_low == pytest.approx(lai_at_min, rel=1e-3)
+
+        lai_extreme_high = ndvi_to_lai(0.5, k_extinction=5.0)  # clamped to 1.0
+        lai_at_max = ndvi_to_lai(0.5, k_extinction=1.0)
+        assert lai_extreme_high == pytest.approx(lai_at_max, rel=1e-3)
+
+    def test_calibrated_params_used_flag(self):
+        from shared.digital_twin.models import AssimilationFlag
+        assert hasattr(AssimilationFlag, "CALIBRATED_PARAMS_USED")
+        assert AssimilationFlag.CALIBRATED_PARAMS_USED == "CALIBRATED_PARAMS_USED"
+
+    def test_twin_router_passes_calibrated_k(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "calibrated_k_ext" in content
+        assert "calibrated_k_extinction" in content
+        assert "calibrated_thresholds" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 16. Soil & Fertility Router (GAP-17)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestSoilFertilityRouter:
+
+    def test_module_exists(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
+        )
+        assert os.path.exists(path)
+
+    def test_endpoints_present(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "/soil/interpret" in content
+        assert "/soil/amendment-plan" in content
+        assert "/soil/trends" in content
+        assert "/fertilizer/crops" in content
+        assert "/fertilizer/recommend" in content
+        assert "/fertilizer/blend" in content
+
+    def test_imports_shared_modules(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "soil_fertility_router.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "shared.soil_testing" in content
+        assert "shared.fertilizer_management" in content
+
+    def test_registered_in_main(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "main.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "soil_fertility_router" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 17. Fertilizer Management Module (GAP-18)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestFertilizerManagement:
+
+    def test_imports(self):
+        from shared.fertilizer_management import (
+            CROP_NUTRIENT_REQUIREMENTS,
+            FertilizerCalculator,
+            FertilizerRecommendationEngine,
+            calculate_blend_for_targets,
+            get_supported_crops,
+        )
+        assert CROP_NUTRIENT_REQUIREMENTS is not None
+        assert FertilizerCalculator is not None
+        assert FertilizerRecommendationEngine is not None
+        assert callable(calculate_blend_for_targets)
+        assert callable(get_supported_crops)
+
+    def test_crop_requirements_structure(self):
+        from shared.fertilizer_management import CROP_NUTRIENT_REQUIREMENTS
+        assert "wheat" in CROP_NUTRIENT_REQUIREMENTS
+        wheat = CROP_NUTRIENT_REQUIREMENTS["wheat"]
+        assert "N" in wheat
+        assert "P2O5" in wheat
+        assert "K2O" in wheat
+        assert "name_ar" in wheat
+        assert "typical_yield" in wheat
+
+    def test_supported_crops_list(self):
+        from shared.fertilizer_management import get_supported_crops
+        crops = get_supported_crops()
+        assert isinstance(crops, list)
+        assert len(crops) >= 5  # wheat, barley, tomato, date_palm, etc.
+
+    def test_quick_recommendation(self):
+        from shared.fertilizer_management import calculate_quick_recommendation
+        rec = calculate_quick_recommendation(
+            crop="wheat", soil_n_ppm=20, soil_p_ppm=15, soil_k_ppm=150,
+        )
+        assert isinstance(rec, dict)
+        assert "crop" in rec
+        assert "recommendations" in rec
+        assert rec["crop"] == "wheat"
+
+    def test_quick_recommendation_unknown_crop(self):
+        from shared.fertilizer_management import calculate_quick_recommendation
+        rec = calculate_quick_recommendation(
+            crop="unknown_crop", soil_n_ppm=20, soil_p_ppm=15, soil_k_ppm=150,
+        )
+        assert "error" in rec
+
+    def test_blend_for_targets(self):
+        from shared.fertilizer_management import calculate_blend_for_targets
+        blend = calculate_blend_for_targets(n_kg_ha=100, p_kg_ha=50, k_kg_ha=60)
+        assert isinstance(blend, dict)
+
+    def test_recommendation_engine(self):
+        from shared.fertilizer_management import FertilizerRecommendationEngine
+        engine = FertilizerRecommendationEngine()
+        reqs = engine.calculate_crop_requirements("wheat", target_yield_tons_ha=5.0)
+        assert "N" in reqs
+        assert reqs["N"] > 0
+
+    def test_nutrient_status(self):
+        from shared.fertilizer_management import FertilizerRecommendationEngine
+        engine = FertilizerRecommendationEngine()
+        status, desc_en, desc_ar = engine.get_nutrient_status("N", 5.0)
+        assert desc_ar  # has Arabic description
+        status2, _, _ = engine.get_nutrient_status("N", 50.0)
+        # 5 ppm should be worse than 50 ppm
+        assert status != status2
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 18. Soil Testing Module (GAP-18)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestSoilTestingModule:
+
+    def test_imports(self):
+        from shared.soil_testing import (
+            NUTRIENT_THRESHOLDS,
+            SoilAmendmentRecommender,
+            SoilTestInterpreter,
+            SoilTrendAnalyzer,
+            get_nutrient_status,
+            get_ph_status,
+            get_ec_status,
+        )
+        assert NUTRIENT_THRESHOLDS is not None
+        assert SoilTestInterpreter is not None
+        assert SoilAmendmentRecommender is not None
+        assert SoilTrendAnalyzer is not None
+        assert callable(get_nutrient_status)
+        assert callable(get_ph_status)
+        assert callable(get_ec_status)
+
+    def test_nutrient_thresholds_structure(self):
+        from shared.soil_testing import NUTRIENT_THRESHOLDS
+        assert "N" in NUTRIENT_THRESHOLDS
+        n_thresh = NUTRIENT_THRESHOLDS["N"]
+        assert "deficient" in n_thresh
+        assert "adequate" in n_thresh
+        assert "name_ar" in n_thresh
+
+    def test_get_nutrient_status(self):
+        from shared.soil_testing import get_nutrient_status
+        status, en, ar = get_nutrient_status("N", 5.0)
+        assert ar  # has Arabic text
+        status2, _, _ = get_nutrient_status("N", 50.0)
+        # 5 ppm should be worse status than 50 ppm
+        assert status != status2
+
+    def test_ph_status(self):
+        from shared.soil_testing import get_ph_status
+        en, ar = get_ph_status(7.0)
+        assert en  # has English text
+        assert ar  # has Arabic text
+
+    def test_ec_status(self):
+        from shared.soil_testing import get_ec_status
+        en, ar = get_ec_status(1.5)
+        assert en  # has English text
+        assert ar  # has Arabic text
+
+    def test_interpreter_instantiation(self):
+        from shared.soil_testing import SoilTestInterpreter
+        interpreter = SoilTestInterpreter()
+        assert interpreter is not None
+
+    def test_recommender_instantiation(self):
+        from shared.soil_testing import SoilAmendmentRecommender
+        recommender = SoilAmendmentRecommender()
+        assert recommender is not None
+
+    def test_trend_analyzer_instantiation(self):
+        from shared.soil_testing import SoilTrendAnalyzer
+        analyzer = SoilTrendAnalyzer()
+        assert analyzer is not None
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 19. CI Workflow & Helm Chart Existence (GAP-12, GAP-13)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestCIAndHelmChart:
+
+    def test_ci_workflow_exists(self):
+        path = os.path.join(_ROOT, ".github", "workflows", "ci-crop-intelligence.yml")
+        assert os.path.exists(path)
+
+    def test_ci_workflow_covers_shared_modules(self):
+        path = os.path.join(_ROOT, ".github", "workflows", "ci-crop-intelligence.yml")
+        with open(path) as f:
+            content = f.read()
+        assert "crop-intelligence-service" in content
+        assert "shared/digital_twin" in content
+        assert "shared/calibration" in content
+        assert "shared/process_models" in content
+        assert "shared/fertilizer_management" in content
+        assert "shared/soil_testing" in content
+
+    def test_helm_chart_exists(self):
+        chart_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "Chart.yaml")
+        assert os.path.exists(chart_path)
+
+    def test_helm_values_exists(self):
+        values_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "values.yaml")
+        assert os.path.exists(values_path)
+
+    def test_helm_chart_metadata(self):
+        chart_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "Chart.yaml")
+        with open(chart_path) as f:
+            content = f.read()
+        assert "crop-intelligence-service" in content
+        assert "16.0.0" in content
+
+    def test_helm_values_port(self):
+        values_path = os.path.join(_ROOT, "helm", "services", "crop-intelligence-service", "values.yaml")
+        with open(values_path) as f:
+            content = f.read()
+        assert "8095" in content
+
+    def test_helm_templates_exist(self):
+        templates_dir = os.path.join(
+            _ROOT, "helm", "services", "crop-intelligence-service", "templates"
+        )
+        for tpl in ["deployment.yaml", "service.yaml", "hpa.yaml", "pdb.yaml",
+                     "configmap.yaml", "serviceaccount.yaml", "_helpers.tpl"]:
+            assert os.path.exists(os.path.join(templates_dir, tpl)), f"Missing template: {tpl}"

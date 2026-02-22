@@ -51,6 +51,7 @@ class AssimilationFlag(StrEnum):
     ASSIMILATED = "ASSIMILATED"
     MODEL_ONLY = "MODEL_ONLY"
     LOW_CONFIDENCE = "LOW_CONFIDENCE"
+    CALIBRATED_PARAMS_USED = "CALIBRATED_PARAMS_USED"
 
 
 # ---------------------------------------------------------------------------

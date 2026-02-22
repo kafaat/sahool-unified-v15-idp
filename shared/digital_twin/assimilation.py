@@ -43,7 +43,11 @@ logger = structlog.get_logger()
 # ---------------------------------------------------------------------------
 
 
-def ndvi_to_lai(ndvi: float, crop_type: str = "wheat") -> float:
+def ndvi_to_lai(
+    ndvi: float,
+    crop_type: str = "wheat",
+    k_extinction: float | None = None,
+) -> float:
     """
     Convert NDVI to LAI using an exponential relationship.
     تحويل NDVI إلى LAI باستخدام علاقة أسية.
@@ -52,13 +56,20 @@ def ndvi_to_lai(ndvi: float, crop_type: str = "wheat") -> float:
     For best accuracy use PROSAIL inversion (feature-flagged separately).
 
     LAI ≈ −(ln(1 − NDVI_scaled) / k)   with k ≈ 0.5 (Beer-Lambert proxy)
+
+    Args:
+        ndvi: Observed NDVI value.
+        crop_type: Crop type for NDVI_max lookup.
+        k_extinction: Field-calibrated light-extinction coefficient. When
+            provided from a calibration parameter set, overrides the default 0.5.
     """
     ndvi = max(0.01, min(0.99, ndvi))
     # Scale NDVI to fractional cover approximation
     ndvi_max = {"wheat": 0.85, "maize": 0.90, "rice": 0.80, "date_palm": 0.70}
     nmax = ndvi_max.get(crop_type, 0.85)
     scaled = min(0.99, ndvi / nmax)
-    k = 0.5
+    k = k_extinction if k_extinction is not None else 0.5
+    k = max(0.1, min(1.0, k))  # clamp to physically valid range
     import math
 
     lai = -math.log(1.0 - scaled) / k
@@ -119,10 +130,17 @@ class AssimilationEngine:
         self,
         state: FieldDailyState,
         crop_type: str = "wheat",
+        calibrated_k_extinction: float | None = None,
     ) -> FieldDailyState:
         """
         Correct state with any available observations from the last 7 days.
         تصحيح الحالة بالأرصاد المتاحة خلال 7 أيام الأخيرة.
+
+        Args:
+            state: Current model state.
+            crop_type: Crop type for NDVI→LAI conversion table.
+            calibrated_k_extinction: Field-calibrated k value from a
+                calibration parameter set. Passed through to ``ndvi_to_lai()``.
 
         Returns a new FieldDailyState (does NOT mutate the input).
         """
@@ -130,13 +148,17 @@ class AssimilationEngine:
         flags: list[AssimilationFlag] = list(state.assimilation_flags)
         corrections: dict[str, Any] = {}
 
+        if calibrated_k_extinction is not None:
+            if AssimilationFlag.CALIBRATED_PARAMS_USED not in flags:
+                flags.append(AssimilationFlag.CALIBRATED_PARAMS_USED)
+
         # ── NDVI → LAI correction ─────────────────────────────────────────
         ndvi_obs = await self._repo.get_recent_observations(
             state.tenant_id, state.field_id, ObservationType.NDVI, days_back=7
         )
         if ndvi_obs:
             best = max(ndvi_obs, key=lambda o: o.quality)
-            lai_obs = ndvi_to_lai(best.value, crop_type)
+            lai_obs = ndvi_to_lai(best.value, crop_type, k_extinction=calibrated_k_extinction)
             gain = _kalman_gain(best.quality, state.confidence)
             new_lai = _update_value(state.lai, lai_obs, gain)
             corrections["lai_before"] = state.lai

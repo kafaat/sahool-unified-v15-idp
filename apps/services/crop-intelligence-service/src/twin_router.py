@@ -130,6 +130,11 @@ class TwinStepIn(BaseModel):
 
     day: date | None = None
     tenant_id: UUID
+    season_id: str | None = Field(
+        default=None,
+        description="Season/campaign ID for calibrated parameter lookup. "
+        "When provided, active calibrated CropParameters are loaded from DB.",
+    )
     weather: WeatherIn
     crop_type: str = Field(default="wheat")
     irrigation_applied_mm: float = Field(default=0.0, ge=0)
@@ -209,6 +214,55 @@ async def twin_step(
     crop_map = {t.value: t for t in CropType}
     crop = CropParameters(crop_type=crop_map.get(body.crop_type, CropType.WHEAT))
 
+    # ── GAP-01: Load calibrated parameters when season_id is provided ───
+    calibrated_source: str | None = None
+    if body.season_id:
+        try:
+            from shared.calibration.repository import CalibrationRepository
+
+            cal_pool = getattr(getattr(request.app, "state", None), "db_pool", None)
+            cal_repo = CalibrationRepository(db_pool=cal_pool)
+            active_ps = await cal_repo.get_active_parameter_set(
+                tenant_id=str(body.tenant_id),
+                field_id=str(field_id),
+                season_id=body.season_id,
+                model_name="crop_growth",
+            )
+            if active_ps and active_ps.get("parameters"):
+                import json as _json
+
+                params = active_ps["parameters"]
+                if isinstance(params, str):
+                    params = _json.loads(params)
+                # Apply calibrated parameters to CropParameters
+                crop = CropParameters(
+                    crop_type=crop_map.get(body.crop_type, CropType.WHEAT),
+                    rue_g_mj=params.get("rue_g_mj", crop.rue_g_mj),
+                    k_extinction=params.get("k_extinction", crop.k_extinction),
+                    base_temp_c=params.get("base_temp_c", crop.base_temp_c),
+                    gdd_maturity=params.get("gdd_maturity", crop.gdd_maturity),
+                    max_lai=params.get("max_lai", crop.max_lai),
+                    harvest_index=params.get("harvest_index", crop.harvest_index),
+                    n_requirement_kg_per_ton=params.get(
+                        "n_requirement_kg_per_ton", crop.n_requirement_kg_per_ton
+                    ),
+                    root_depth_max_m=params.get("root_depth_max_m", crop.root_depth_max_m),
+                    sla_cm2_g=params.get("sla_cm2_g", crop.sla_cm2_g),
+                )
+                calibrated_source = str(active_ps.get("id", "unknown"))
+                logger.info(
+                    "twin_step_using_calibrated_params",
+                    field_id=str(field_id),
+                    season_id=body.season_id,
+                    param_set_id=calibrated_source,
+                )
+        except Exception as exc:
+            logger.warning(
+                "twin_step_calibrated_params_fallback",
+                error=str(exc),
+                msg="Falling back to default CropParameters",
+            )
+
     repo = _get_repo(request)
     nats = _get_nats(request)
 
@@ -246,12 +300,15 @@ async def twin_step(
         value=state.depletion_mm or 0.0,
     )
 
-    return {
+    result: dict[str, Any] = {
         "field_id": str(field_id),
         "day": step_day.isoformat(),
         "state": state.model_dump(mode="json"),
         "irrigation_recommendation": rec.model_dump(mode="json"),
     }
+    if calibrated_source:
+        result["calibrated_parameter_set_id"] = calibrated_source
+    return result
 
 
 # ---------------------------------------------------------------------------

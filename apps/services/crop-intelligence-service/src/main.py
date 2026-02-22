@@ -634,6 +634,33 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("NATS_URL not configured - event publishing disabled")
 
+    # Register NATS event subscribers (Intelligence→Decision wiring)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            from .event_subscribers import setup_nats_subscriptions
+
+            app.state.nats_subs = await setup_nats_subscriptions(app.state.nc, app.state)
+            logger.info("nats_subscribers_registered", count=len(app.state.nats_subs))
+        except Exception as _sub_err:
+            logger.warning("nats_subscribers_failed", error=str(_sub_err))
+
+    # Initialize calibration worker (processes queued runs on startup)
+    try:
+        from shared.calibration.worker import CalibrationWorker
+
+        cal_worker = CalibrationWorker(
+            db_pool=app.state.db_pool,
+            nats_client=app.state.nc,
+        )
+        app.state.calibration_worker = cal_worker
+        # Process any pending runs from previous shutdown
+        if app.state.db_connected:
+            processed = await cal_worker.process_pending(max_runs=3)
+            if processed:
+                logger.info("calibration_startup_processed", run_ids=processed)
+    except Exception as _cal_err:
+        logger.warning("calibration_worker_init_failed", error=str(_cal_err))
+
     port = os.getenv("PORT", "8095")
     logger.info("Crop Intelligence Service ready", port=port)
     yield

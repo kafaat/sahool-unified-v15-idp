@@ -17,6 +17,8 @@ Endpoints:
 
 from __future__ import annotations
 
+import json as _json
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -120,6 +122,23 @@ def _get_actor(request: Request) -> str:
     if user and hasattr(user, "id"):
         return str(user.id)
     return "system"
+
+
+def _get_nats(request: Request) -> Any:
+    return getattr(getattr(request.app, "state", None), "nc", None)
+
+
+async def _publish_calibration_event(
+    nats: Any, subject: str, payload: dict[str, Any]
+) -> None:
+    """Publish a calibration lifecycle event to NATS."""
+    if nats is None:
+        return
+    try:
+        payload["ts"] = datetime.now(timezone.utc).isoformat()
+        await nats.publish(subject, _json.dumps(payload).encode())
+    except Exception as exc:
+        logger.warning("calibration_nats_publish_failed", subject=subject, error=str(exc))
 
 
 def _dto_to_targets(dtos: list[TargetDTO]) -> list[CalibrationTarget]:
@@ -238,6 +257,19 @@ async def create_run(
         n_targets=len(targets),
     )
 
+    # Publish NATS event
+    from shared.events.subjects import SAHOOL_CALIBRATION_RUN_QUEUED
+
+    nats = _get_nats(request)
+    await _publish_calibration_event(nats, SAHOOL_CALIBRATION_RUN_QUEUED, {
+        "run_id": run_id,
+        "tenant_id": tenant_id,
+        "field_id": payload.field_id,
+        "season_id": payload.season_id,
+        "method": payload.method,
+        "dataset_fingerprint": dataset_fp,
+    })
+
     return {
         "run_id": run_id,
         "status": "queued",
@@ -347,5 +379,19 @@ async def activate_parameter_set(
         field_id=field_id,
         actor=actor,
     )
+
+    # Publish NATS event
+    from shared.events.subjects import SAHOOL_CALIBRATION_PARAMS_ACTIVATED
+
+    nats = _get_nats(request)
+    await _publish_calibration_event(nats, SAHOOL_CALIBRATION_PARAMS_ACTIVATED, {
+        "parameter_set_id": set_id,
+        "tenant_id": tenant_id,
+        "field_id": field_id,
+        "season_id": season_id,
+        "model_name": model_name,
+        "actor": actor,
+        "reason": body.reason,
+    })
 
     return {"status": "activated", "parameter_set_id": set_id}

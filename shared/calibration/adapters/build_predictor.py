@@ -99,6 +99,129 @@ def build_predictor_from_config(
 # ---------------------------------------------------------------------------
 
 
+async def _load_soil_profile(pool: Any, tenant_id: str, field_id: str) -> SoilProfile:
+    """Load soil profile from field_soil_profile table."""
+    from shared.process_models.models import SoilTextureClass
+
+    sql = """
+    SELECT field_capacity_mm_per_m, wilting_point_mm_per_m,
+           saturation_mm_per_m, depth_m, texture
+    FROM field_soil_profile
+    WHERE tenant_id = $1 AND field_id = $2
+    ORDER BY updated_at DESC
+    LIMIT 1
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, tenant_id, field_id)
+
+    if row is None:
+        logger.warning("soil_profile_not_found", tenant_id=tenant_id, field_id=field_id)
+        return SoilProfile()
+
+    texture_map = {t.value: t for t in SoilTextureClass}
+    return SoilProfile(
+        field_capacity_mm_per_m=row["field_capacity_mm_per_m"],
+        wilting_point_mm_per_m=row["wilting_point_mm_per_m"],
+        saturation_mm_per_m=row.get("saturation_mm_per_m", 450.0),
+        depth_m=row.get("depth_m", 0.6),
+        texture=texture_map.get(row.get("texture", "loam"), SoilTextureClass.LOAM),
+    )
+
+
+async def _load_sowing_date(
+    pool: Any, tenant_id: str, field_id: str, season_id: str
+) -> date:
+    """Load sowing date from field_season table."""
+    sql = """
+    SELECT sowing_date
+    FROM field_season
+    WHERE tenant_id = $1 AND field_id = $2 AND id = $3::uuid
+    LIMIT 1
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, tenant_id, field_id, season_id)
+
+    if row is None or row["sowing_date"] is None:
+        logger.warning(
+            "sowing_date_not_found",
+            tenant_id=tenant_id, field_id=field_id, season_id=season_id,
+        )
+        return date(2026, 1, 1)
+    return row["sowing_date"]
+
+
+async def _load_crop_type(
+    pool: Any, tenant_id: str, field_id: str, season_id: str
+) -> CropType:
+    """Load crop type from field_season table."""
+    sql = """
+    SELECT crop_type
+    FROM field_season
+    WHERE tenant_id = $1 AND field_id = $2 AND id = $3::uuid
+    LIMIT 1
+    """
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, tenant_id, field_id, season_id)
+
+    crop_map = {t.value: t for t in CropType}
+    if row and row["crop_type"]:
+        return crop_map.get(row["crop_type"], CropType.WHEAT)
+    return CropType.WHEAT
+
+
+async def _load_weather_series(
+    pool: Any,
+    tenant_id: str,
+    field_id: str,
+    sowing: date,
+    end: date,
+) -> list[DailyWeather]:
+    """Load daily weather records from weather_daily cache table."""
+    sql = """
+    SELECT day, tmax_c, tmin_c, solar_radiation_mj_m2,
+           relative_humidity_pct, wind_speed_m_s, precipitation_mm
+    FROM weather_daily
+    WHERE tenant_id = $1 AND field_id = $2
+      AND day >= $3 AND day <= $4
+    ORDER BY day
+    """
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(sql, tenant_id, field_id, sowing, end)
+
+    if not rows:
+        logger.warning(
+            "weather_series_not_found",
+            tenant_id=tenant_id, field_id=field_id,
+            sowing=str(sowing), end=str(end),
+            msg="Falling back to synthetic mild weather",
+        )
+        from datetime import timedelta
+        return [
+            DailyWeather(
+                date=sowing + timedelta(days=d),
+                tmax_c=28.0, tmin_c=14.0,
+                solar_radiation_mj_m2=18.0,
+                relative_humidity_pct=55.0,
+                wind_speed_m_s=2.0,
+                precipitation_mm=0.0,
+            )
+            for d in range((end - sowing).days + 1)
+        ]
+
+    return [
+        DailyWeather(
+            date=r["day"],
+            tmax_c=r["tmax_c"],
+            tmin_c=r["tmin_c"],
+            solar_radiation_mj_m2=r.get("solar_radiation_mj_m2", 18.0),
+            relative_humidity_pct=r.get("relative_humidity_pct", 55.0),
+            wind_speed_m_s=r.get("wind_speed_m_s", 2.0),
+            precipitation_mm=r.get("precipitation_mm", 0.0),
+        )
+        for r in rows
+    ]
+
+
 async def build_predictor_from_db(
     *,
     tenant_id: str,
@@ -110,14 +233,12 @@ async def build_predictor_from_db(
     Build a CropGrowthPredictor by loading field configuration from DB.
     بناء المتنبئ عبر تحميل تكوين الحقل من قاعدة البيانات.
 
-    This is a placeholder — wire the actual DB queries for production.
+    Loads:
+      1. Soil profile from ``field_soil_profile``
+      2. Sowing date + crop type from ``field_season``
+      3. Weather series from ``weather_daily``
 
-    Steps:
-      1. Load soil profile for field
-      2. Load sowing date for season
-      3. Load weather series (from weather_service cache or precomputed table)
-      4. Determine crop type
-      5. Build predictor
+    Falls back to defaults when tables are empty or missing.
 
     Args:
         tenant_id: Tenant UUID string.
@@ -128,42 +249,29 @@ async def build_predictor_from_db(
     Returns:
         CropGrowthPredictor ready for calibration.
     """
-    # TODO: Replace with actual DB queries
-    # soil = await _load_soil_profile(pool, tenant_id, field_id)
-    # sowing = await _load_sowing_date(pool, tenant_id, field_id, season_id)
-    # weather = await _load_weather_series(pool, tenant_id, field_id, sowing, end)
-    # crop_type = await _load_crop_type(pool, tenant_id, field_id, season_id)
+    from datetime import timedelta
 
-    logger.warning(
-        "build_predictor_from_db_placeholder",
+    soil = await _load_soil_profile(pool, tenant_id, field_id)
+    sowing = await _load_sowing_date(pool, tenant_id, field_id, season_id)
+    crop_type = await _load_crop_type(pool, tenant_id, field_id, season_id)
+
+    # Weather from sowing to sowing+365d
+    end = sowing + timedelta(days=365)
+    weather_series = await _load_weather_series(pool, tenant_id, field_id, sowing, end)
+
+    logger.info(
+        "build_predictor_from_db",
         tenant_id=tenant_id,
         field_id=field_id,
         season_id=season_id,
-        msg="Using default soil/weather — replace with real DB queries",
+        crop_type=crop_type.value,
+        sowing=str(sowing),
+        weather_days=len(weather_series),
     )
-
-    soil = SoilProfile()
-    sowing = date(2026, 1, 1)
-
-    # Stub weather: constant mild conditions
-    from datetime import timedelta
-
-    weather_series = [
-        DailyWeather(
-            date=sowing + timedelta(days=d),
-            tmax_c=28.0,
-            tmin_c=14.0,
-            solar_radiation_mj_m2=18.0,
-            relative_humidity_pct=55.0,
-            wind_speed_m_s=2.0,
-            precipitation_mm=0.0,
-        )
-        for d in range(370)
-    ]
 
     return build_predictor_from_config(
         weather_series=weather_series,
         soil_profile=soil,
         sowing_date=sowing,
-        crop_type=CropType.WHEAT,
+        crop_type=crop_type,
     )

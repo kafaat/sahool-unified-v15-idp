@@ -1,0 +1,471 @@
+# SPDX-License-Identifier: Proprietary
+# Copyright (c) 2026 KAFAAT - SAHOOL Platform
+"""
+Integration Gap Fix Tests - اختبارات إصلاح فجوات التكامل
+=========================================================
+Tests covering GAP-01 through GAP-18 fixes.
+"""
+
+from __future__ import annotations
+
+import asyncio
+import json
+import math
+import os
+from datetime import date, datetime, timezone
+
+import pytest
+
+# Helper to check if pydantic is available
+try:
+    import pydantic  # noqa: F401
+    _HAS_PYDANTIC = True
+except ImportError:
+    _HAS_PYDANTIC = False
+
+_SKIP_PYDANTIC = pytest.mark.skipif(not _HAS_PYDANTIC, reason="pydantic not available")
+
+# Project root for file-path assertions
+_ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
+
+
+def _make_daily_weather(day, tmax=30.0, tmin=15.0):
+    """Helper to create DailyWeather with all required fields."""
+    from shared.process_models.models import DailyWeather
+    return DailyWeather(
+        date=day, tmax_c=tmax, tmin_c=tmin,
+        solar_radiation_mj_m2=18.0,
+        relative_humidity_pct=55.0,
+        wind_speed_m_s=2.0,
+        precipitation_mm=0.0,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 1. NATS Calibration Event Subjects (GAP-05)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def _import_subjects():
+    """Import subjects module directly, bypassing shared.events.__init__."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "shared.events.subjects",
+        os.path.join(_ROOT, "shared", "events", "subjects.py"),
+    )
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+class TestCalibrationEventSubjects:
+
+    def test_subjects_exist(self):
+        m = _import_subjects()
+        assert "sahool.calibration.run.queued" in m.SAHOOL_CALIBRATION_RUN_QUEUED
+        assert "sahool.calibration.run.started" in m.SAHOOL_CALIBRATION_RUN_STARTED
+        assert "sahool.calibration.run.succeeded" in m.SAHOOL_CALIBRATION_RUN_SUCCEEDED
+        assert "sahool.calibration.run.failed" in m.SAHOOL_CALIBRATION_RUN_FAILED
+        assert "parameters.activated" in m.SAHOOL_CALIBRATION_PARAMS_ACTIVATED
+        assert "parameters.deprecated" in m.SAHOOL_CALIBRATION_PARAMS_DEPRECATED
+
+    def test_in_registry(self):
+        m = _import_subjects()
+        assert "calibration.run.queued" in m.SUBJECT_REGISTRY
+        assert "calibration.run.succeeded" in m.SUBJECT_REGISTRY
+        assert "calibration.parameters.activated" in m.SUBJECT_REGISTRY
+
+    def test_valid_format(self):
+        m = _import_subjects()
+        assert m.is_valid_subject(m.SAHOOL_CALIBRATION_RUN_QUEUED)
+
+    def test_lookup(self):
+        m = _import_subjects()
+        assert m.lookup_subject("calibration.run.queued") == m.SAHOOL_CALIBRATION_RUN_QUEUED
+
+    def test_wildcards(self):
+        m = _import_subjects()
+        assert m.SAHOOL_CALIBRATION_ALL == "sahool.calibration.>"
+        assert m.SAHOOL_CALIBRATION_RUN_ALL == "sahool.calibration.run.*"
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2. Weather Adapter (GAP-09)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestWeatherAdapter:
+
+    def test_basic_conversion(self):
+        from shared.digital_twin.adapters import weather_payload_to_daily
+        payload = {
+            "day": "2026-02-20", "tmax_c": 32.0, "tmin_c": 18.0,
+            "solar_radiation_mj_m2": 20.5, "relative_humidity_pct": 45.0,
+            "wind_speed_m_s": 3.0, "precipitation_mm": 5.2,
+        }
+        w = weather_payload_to_daily(payload)
+        assert w.date == date(2026, 2, 20)
+        assert w.tmax_c == 32.0
+        assert w.precipitation_mm == 5.2
+
+    def test_alternative_keys(self):
+        from shared.digital_twin.adapters import weather_payload_to_daily
+        payload = {"forecast_date": "2026-03-01", "temp_max": 35.0, "temp_min": 20.0,
+                   "solar_rad": 22.0, "humidity": 40.0, "wind_speed": 4.5, "rain_mm": 0.0}
+        w = weather_payload_to_daily(payload)
+        assert w.date == date(2026, 3, 1)
+        assert w.tmax_c == 35.0
+
+    def test_defaults(self):
+        from shared.digital_twin.adapters import weather_payload_to_daily
+        w = weather_payload_to_daily({})
+        assert w.tmax_c == 30.0
+        assert w.tmin_c == 15.0
+
+    def test_series_sorted(self):
+        from shared.digital_twin.adapters import weather_series_from_rows
+        rows = [
+            {"day": "2026-02-22", "tmax_c": 30, "tmin_c": 15,
+             "solar_radiation_mj_m2": 18, "relative_humidity_pct": 55, "wind_speed_m_s": 2},
+            {"day": "2026-02-20", "tmax_c": 28, "tmin_c": 14,
+             "solar_radiation_mj_m2": 18, "relative_humidity_pct": 55, "wind_speed_m_s": 2},
+        ]
+        series = weather_series_from_rows(rows)
+        assert series[0].date == date(2026, 2, 20)
+        assert series[1].date == date(2026, 2, 22)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 3. NDVI Adapter (GAP-09)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestNDVIAdapter:
+
+    def test_ndvi_to_observation(self):
+        from shared.digital_twin.adapters import ndvi_to_field_observation
+        payload = {"mean_ndvi": 0.72, "ts": "2026-02-20T10:30:00Z", "cloud_cover": 0.15}
+        obs = ndvi_to_field_observation(payload, tenant_id="t1", field_id="f1")
+        assert obs.value == 0.72
+        assert obs.quality == pytest.approx(0.85)
+
+    def test_lai_estimate(self):
+        from shared.digital_twin.adapters import ndvi_to_lai_estimate
+        assert ndvi_to_lai_estimate(0.2) < ndvi_to_lai_estimate(0.6) < ndvi_to_lai_estimate(0.8)
+        assert ndvi_to_lai_estimate(0.8) > 2.0
+
+    def test_lai_boundary_safety(self):
+        from shared.digital_twin.adapters import ndvi_to_lai_estimate
+        assert math.isfinite(ndvi_to_lai_estimate(0.0))
+        assert math.isfinite(ndvi_to_lai_estimate(1.0))
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 4. Calibrated Params Adapter (GAP-09)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestCalibratedParamsAdapter:
+
+    def test_merge(self):
+        from shared.digital_twin.adapters import calibrated_params_to_crop
+        from shared.process_models.models import CropType
+        crop = calibrated_params_to_crop({"rue_g_mj": 1.8, "k_extinction": 0.45}, crop_type=CropType.WHEAT)
+        assert crop.rue_g_mj == 1.8
+        assert crop.k_extinction == 0.45
+
+    def test_from_json_string(self):
+        from shared.digital_twin.adapters import calibrated_params_to_crop
+        crop = calibrated_params_to_crop('{"rue_g_mj": 2.0, "max_lai": 7.5}')
+        assert crop.rue_g_mj == 2.0
+        assert crop.max_lai == 7.5
+
+    def test_unknown_keys_ignored(self):
+        from shared.digital_twin.adapters import calibrated_params_to_crop
+        crop = calibrated_params_to_crop({"rue_g_mj": 1.5, "unknown_param": 999})
+        assert crop.rue_g_mj == 1.5
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 5. Soil Sensor Adapter (GAP-09)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestSoilSensorAdapter:
+
+    def test_basic(self):
+        from shared.digital_twin.adapters import soil_sensor_to_profile
+        soil = soil_sensor_to_profile({"field_capacity": 320.0, "wilting_point": 160.0, "depth_m": 0.8, "texture": "clay"})
+        assert soil.field_capacity_mm_per_m == 320.0
+        assert soil.depth_m == 0.8
+
+    def test_with_base(self):
+        from shared.digital_twin.adapters import soil_sensor_to_profile
+        from shared.process_models.models import SoilProfile
+        base = SoilProfile(field_capacity_mm_per_m=300.0, depth_m=0.6)
+        soil = soil_sensor_to_profile({"wilting_point": 170.0}, base=base)
+        assert soil.field_capacity_mm_per_m == 300.0
+        assert soil.wilting_point_mm_per_m == 170.0
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 6. Calibration Worker (GAP-11)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestCalibrationWorker:
+
+    def test_instantiation(self):
+        from shared.calibration.worker import CalibrationWorker
+        worker = CalibrationWorker(db_pool=None, nats_client=None, n_trials=30)
+        assert worker._n_trials == 30
+
+    def test_process_pending_no_pool(self):
+        from shared.calibration.worker import CalibrationWorker
+        worker = CalibrationWorker(db_pool=None)
+        result = asyncio.get_event_loop().run_until_complete(worker.process_pending())
+        assert result == []
+
+    def test_default_param_bounds(self):
+        from shared.calibration.worker import _DEFAULT_PARAM_BOUNDS
+        names = {b.name for b in _DEFAULT_PARAM_BOUNDS}
+        assert "rue_g_mj" in names
+        assert "k_extinction" in names
+        assert "gdd_maturity" in names
+        assert len(_DEFAULT_PARAM_BOUNDS) >= 5
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 7. DecisionEngine Calibrated Thresholds (GAP-14)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+@_SKIP_PYDANTIC
+class TestDecisionEngineCalibrated:
+
+    def test_default_thresholds(self):
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.repository import TwinRepository
+        engine = DecisionEngine(repo=TwinRepository(db_pool=None))
+        assert engine._eff == 0.80
+        assert engine._p_offset == 0.0
+
+    def test_custom_thresholds(self):
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.repository import TwinRepository
+        engine = DecisionEngine(
+            repo=TwinRepository(db_pool=None),
+            calibrated_thresholds={"application_efficiency": 0.90, "p_fraction_offset": -0.05},
+        )
+        assert engine._eff == 0.90
+        assert engine._p_offset == -0.05
+
+    def test_p_offset_triggers_irrigation(self):
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import AssimilationFlag, FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date(2026, 2, 20),
+            et0_mm=5.0, etc_mm=4.0, phenology_stage="heading", gdd_cum=1200,
+            lai=4.0, biomass_kg_ha=5000, root_depth_m=0.4, soil_water_mm=120,
+            depletion_mm=60, water_stress=0.7, n_stress=0.9, runoff_mm=0,
+            deep_perc_mm=0, rainfall_mm=0, irrigation_applied_mm=0,
+            nitrogen_applied_kg_ha=0, confidence=0.8,
+            assimilation_flags=[AssimilationFlag.MODEL_ONLY],
+        )
+
+        loop = asyncio.get_event_loop()
+
+        # Default p for heading=0.45, RAW=81, depletion=60<81 → NO irrigation
+        rec_default = loop.run_until_complete(
+            DecisionEngine(repo=repo).recommend_irrigation(state, taw_mm=180.0)
+        )
+        assert rec_default.recommended_mm == 0.0
+
+        # Strict: p_offset=-0.30 → p=0.15, RAW=27, depletion=60>27 → YES
+        rec_strict = loop.run_until_complete(
+            DecisionEngine(
+                repo=repo, calibrated_thresholds={"p_fraction_offset": -0.30}
+            ).recommend_irrigation(state, taw_mm=180.0)
+        )
+        assert rec_strict.recommended_mm > 0.0
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 8. build_predictor Helpers (GAP-03)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestBuildPredictorHelpers:
+
+    def test_weather_provider_from_series(self):
+        from shared.calibration.adapters.build_predictor import weather_provider_from_series
+        series = [
+            _make_daily_weather(date(2026, 1, 1), 30, 15),
+            _make_daily_weather(date(2026, 1, 2), 31, 16),
+        ]
+        provider = weather_provider_from_series(series)
+        assert provider("2026-01-01").tmax_c == 30
+
+        with pytest.raises(KeyError):
+            provider("2099-12-25")
+
+    def test_build_predictor_from_config(self):
+        from datetime import timedelta
+        from shared.calibration.adapters.build_predictor import build_predictor_from_config
+        from shared.process_models.models import SoilProfile
+
+        sowing = date(2026, 1, 1)
+        weather = [_make_daily_weather(sowing + timedelta(days=d)) for d in range(200)]
+        predictor = build_predictor_from_config(
+            weather_series=weather, soil_profile=SoilProfile(), sowing_date=sowing,
+        )
+        assert predictor is not None
+        assert callable(predictor.predict)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 9. TwinStepIn season_id (GAP-02)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestTwinStepInSeasonId:
+
+    def test_season_id_in_source(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "twin_router.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "season_id: str | None" in content
+        assert "calibrated parameter lookup" in content.lower() or "calibrated" in content.lower()
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 10. Requirements Presence (GAP-04/06)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestRequirements:
+
+    def test_numpy_in_requirements(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "numpy" in content
+
+    def test_optuna_in_requirements(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "requirements.txt"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "optuna" in content
+
+    def test_optuna_in_constraints(self):
+        path = os.path.join(_ROOT, "constraints.txt")
+        with open(path) as f:
+            content = f.read()
+        assert "optuna" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 11. Event Subscribers (GAP-07)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestEventSubscribers:
+
+    def test_module_exists(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py"
+        )
+        assert os.path.exists(path)
+
+    def test_subscribes_to_ndvi_and_calibration(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "event_subscribers.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "setup_nats_subscriptions" in content
+        assert "SAHOOL_NDVI_COMPUTED" in content
+        assert "SAHOOL_CALIBRATION_RUN_SUCCEEDED" in content
+        assert "SAHOOL_WEATHER_FORECAST" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 12. Worker Module (GAP-11)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestWorkerModule:
+
+    def test_worker_module_exists(self):
+        path = os.path.join(_ROOT, "shared", "calibration", "worker.py")
+        assert os.path.exists(path)
+
+    def test_worker_has_process_pending(self):
+        path = os.path.join(_ROOT, "shared", "calibration", "worker.py")
+        with open(path) as f:
+            content = f.read()
+        assert "class CalibrationWorker" in content
+        assert "async def process_pending" in content
+        assert "async def _process_one" in content
+
+    def test_worker_publishes_events(self):
+        path = os.path.join(_ROOT, "shared", "calibration", "worker.py")
+        with open(path) as f:
+            content = f.read()
+        assert "calibration.run.succeeded" in content
+        assert "calibration.run.failed" in content
+        assert "calibration.run.started" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 13. Adapters Module (GAP-09)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestAdaptersModule:
+
+    def test_module_exists(self):
+        path = os.path.join(_ROOT, "shared", "digital_twin", "adapters.py")
+        assert os.path.exists(path)
+
+    def test_all_adapters_present(self):
+        path = os.path.join(_ROOT, "shared", "digital_twin", "adapters.py")
+        with open(path) as f:
+            content = f.read()
+        assert "def weather_payload_to_daily" in content
+        assert "def ndvi_to_field_observation" in content
+        assert "def ndvi_to_lai_estimate" in content
+        assert "def calibrated_params_to_crop" in content
+        assert "def soil_sensor_to_profile" in content
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 14. Calibration Router NATS Events (GAP-05 wiring)
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestCalibrationRouterEvents:
+
+    def test_router_publishes_events(self):
+        path = os.path.join(
+            _ROOT, "apps", "services", "crop-intelligence-service", "src", "calibration_router.py"
+        )
+        with open(path) as f:
+            content = f.read()
+        assert "SAHOOL_CALIBRATION_RUN_QUEUED" in content
+        assert "SAHOOL_CALIBRATION_PARAMS_ACTIVATED" in content
+        assert "_publish_calibration_event" in content

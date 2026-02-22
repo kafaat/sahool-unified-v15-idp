@@ -27,3 +27,9 @@ cryptography>=42.0.0
 
 # Redis (required by shared.auth token revocation)
 redis>=7.1.0,<8.0.0
+
+# Scientific computing (shared.process_models, shared.calibration)
+numpy>=1.26.0,<2.5.0
+
+# Bayesian optimization (shared.calibration.optimizer)
+optuna>=3.6.0,<5.0.0

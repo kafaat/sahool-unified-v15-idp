@@ -67,6 +67,11 @@ class DecisionEngine:
         engine = DecisionEngine(repo=TwinRepository(pool), nats_client=nc)
         rec = await engine.recommend_irrigation(state, taw_mm=180.0)
         await repo.save_recommendation(rec)
+
+    Supports calibrated thresholds via ``calibrated_thresholds`` dict:
+        - ``kc_peak``: Peak Kc at heading stage (default 1.15)
+        - ``p_fraction_offset``: Additive offset to FAO-56 p values (default 0.0)
+        - ``application_efficiency``: Override default efficiency
     """
 
     def __init__(
@@ -76,12 +81,15 @@ class DecisionEngine:
         application_efficiency: float = 0.80,
         min_irrigation_mm: float = 5.0,
         max_irrigation_mm: float = 80.0,
+        calibrated_thresholds: dict[str, float] | None = None,
     ) -> None:
         self._repo = repo
         self._nats = nats_client
-        self._eff = application_efficiency
+        ct = calibrated_thresholds or {}
+        self._eff = ct.get("application_efficiency", application_efficiency)
         self._min = min_irrigation_mm
         self._max = max_irrigation_mm
+        self._p_offset = ct.get("p_fraction_offset", 0.0)
 
     async def recommend_irrigation(
         self,
@@ -101,7 +109,8 @@ class DecisionEngine:
             IrrigationRecommendation (not yet persisted; caller must save).
         """
         stage = state.phenology_stage
-        p = _p_for_stage(stage)
+        p = _p_for_stage(stage) + self._p_offset
+        p = max(0.1, min(0.9, p))  # clamp to valid range
         raw_mm = p * taw_mm  # Readily Available Water threshold
 
         depletion = state.depletion_mm or 0.0

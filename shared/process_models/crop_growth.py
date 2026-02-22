@@ -330,9 +330,9 @@ class CropGrowthEngine:
             ipar = compute_intercepted_radiation(
                 weather.solar_radiation_mj_m2, state.lai, crop.k_extinction
             )
-            delta_bm = (
-                compute_biomass_increment(ipar, crop.rue_g_mj, combined_stress) * 100.0
-            )  # g m⁻² d⁻¹
+            delta_bm = compute_biomass_increment(
+                ipar, crop.rue_g_mj, combined_stress
+            )  # g m⁻² d⁻¹ (IPAR_MJ × RUE_g/MJ × stress = g m⁻²)
 
             # 5. Partitioning
             part = partition_biomass(delta_bm, dvs)
@@ -360,7 +360,11 @@ class CropGrowthEngine:
                 }
             )
 
-        grain_yield_t_ha = state.storage_g_m2 * crop.harvest_index / 100.0
+        # Convert g m⁻² → t ha⁻¹ (÷ 100).
+        # storage_g_m2 already represents the grain/storage organ fraction
+        # allocated by the DVS-based partition table, so harvest_index is
+        # NOT re-applied here (that would double-count the partitioning).
+        grain_yield_t_ha = state.storage_g_m2 / 100.0
         biomass_t_ha = state.total_biomass_g_m2 / 100.0
 
         logger.info(

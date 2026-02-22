@@ -60,7 +60,26 @@ from shared.process_models.models import (
 )
 
 logger = structlog.get_logger()
-router = APIRouter(prefix="/fields", tags=["Digital Twin"])
+
+# ---------------------------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------------------------
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User as AuthUser
+
+    _AUTH_AVAILABLE = True
+except ImportError:
+    _AUTH_AVAILABLE = False
+
+    class AuthUser:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str = "default"
+
+    async def get_current_user() -> AuthUser:  # type: ignore[misc]
+        return AuthUser()
+
+router = APIRouter(prefix="/fields", tags=["Digital Twin"], dependencies=[Depends(get_current_user)])
 _flags = DigitalTwinFlags()
 
 

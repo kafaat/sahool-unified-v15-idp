@@ -38,8 +38,27 @@ sys.path.insert(0, "/app")
 sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+# ---------------------------------------------------------------------------
+# Authentication dependency
+# ---------------------------------------------------------------------------
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+
+    _AUTH_AVAILABLE = True
+except ImportError:
+    _AUTH_AVAILABLE = False
+
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str = "default"
+
+    async def get_current_user() -> User:  # type: ignore[misc]
+        """Fallback when shared.auth is not importable (dev/test)."""
+        return User()
 
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"
@@ -754,7 +773,7 @@ def readiness():
 
 # Simulation endpoints
 @app.post("/api/v1/digital-twin/simulate", response_model=SimulationResult)
-async def simulate_field(req: SimulationRequest):
+async def simulate_field(req: SimulationRequest, user: User = Depends(get_current_user)):
     """
     Simulate field state over time with soil moisture, crop growth,
     and water balance modeling.
@@ -787,7 +806,7 @@ async def simulate_field(req: SimulationRequest):
 
 
 @app.post("/api/v1/digital-twin/scenarios", response_model=ScenarioComparison)
-async def compare_scenarios(req: ScenarioRequest):
+async def compare_scenarios(req: ScenarioRequest, user: User = Depends(get_current_user)):
     """
     Compare multiple irrigation scenarios with what-if analysis.
     Returns comparison metrics and recommendation.
@@ -801,7 +820,7 @@ async def compare_scenarios(req: ScenarioRequest):
 
 
 @app.post("/api/v1/digital-twin/optimize", response_model=OptimizationResult)
-async def optimize_irrigation(req: OptimizationRequest):
+async def optimize_irrigation(req: OptimizationRequest, user: User = Depends(get_current_user)):
     """
     Multi-objective optimization for irrigation scheduling.
     Optimizes across water usage, yield, cost, and environmental impact.
@@ -814,7 +833,7 @@ async def optimize_irrigation(req: OptimizationRequest):
 
 # State management
 @app.post("/api/v1/digital-twin/state/update")
-async def update_field_state(state: FieldState):
+async def update_field_state(state: FieldState, user: User = Depends(get_current_user)):
     """
     Update digital twin state with real-time sensor data.
     Uses Kalman filter for state estimation.

@@ -38,13 +38,24 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status as http_status
 from pydantic import BaseModel, Field, field_validator
 
+# ---------------------------------------------------------------------------
+# Authentication
+# ---------------------------------------------------------------------------
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+
+    async def get_current_user() -> dict:  # type: ignore[misc]
+        """Fallback for dev/test when shared.auth is not importable."""
+        return {"id": "anonymous", "tenant_id": "default"}
+
 logger = logging.getLogger(__name__)
 
-router = APIRouter(prefix="/models", tags=["Process Models"])
+router = APIRouter(prefix="/models", tags=["Process Models"], dependencies=[Depends(get_current_user)])
 
 
 # ── Common response wrapper ──────────────────────────────────────────────────

@@ -223,8 +223,10 @@ class TwinPipeline:
         # RUE-based biomass increment (Beer-Lambert, stress-adjusted)
         from shared.process_models.crop_growth import compute_intercepted_radiation
 
+        # NOTE: compute_intercepted_radiation already applies the 0.5 PAR
+        # fraction internally, so we pass total solar radiation here.
         ipar = compute_intercepted_radiation(
-            weather.solar_radiation_mj_m2 * 0.5, prev_lai
+            weather.solar_radiation_mj_m2, prev_lai
         )
         delta_bm_potential = ipar * crop.rue_g_mj  # g m⁻² d⁻¹
         delta_bm = delta_bm_potential * water_stress * n_stress

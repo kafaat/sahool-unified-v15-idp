@@ -774,6 +774,18 @@ except Exception as _models_import_error:  # pragma: no cover
         "Process Models router not loaded: %s", _models_import_error
     )
 
+# ── Calibration Router ────────────────────────────────────────────────────
+try:
+    from .calibration_router import router as calibration_router
+
+    app.include_router(calibration_router, prefix="/api/v1")
+except Exception as _cal_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Calibration router not loaded: %s", _cal_import_error
+    )
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints

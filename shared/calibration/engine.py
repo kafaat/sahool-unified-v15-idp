@@ -5,16 +5,16 @@ Calibration Engine - محرك المعايرة
 ====================================
 Iterative parameter optimizer for process-based models.
 
-Supports:
-  • Random-restart hill climbing (no external dependencies)
-  • SciPy differential_evolution (if scipy is installed)
+Two optimization strategies:
+  1. CalibrationEngine     – Random-restart hill climbing (no external deps)
+  2. BayesianCalibration   – Optuna TPE + weighted NLL + holdout validation
 
-The engine is model-agnostic: any predictor that implements
+Both are model-agnostic: any predictor implementing::
+
     predictor(theta: dict, targets: list[CalibrationTarget])
         -> dict[str, dict[str, float]]
-can be calibrated.
 
-Cost function: weighted RMSE across all targets.
+can be calibrated.
 """
 
 from __future__ import annotations
@@ -22,15 +22,19 @@ from __future__ import annotations
 import math
 import random
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 import structlog
 
+from shared.calibration.objective import ObjectiveResult, build_weighted_nll_objective
 from shared.calibration.types import (
     CalibrationResult,
     CalibrationTarget,
     ParameterBound,
+    ValidationMetrics,
 )
+from shared.calibration.validation import validate_holdout
 
 logger = structlog.get_logger()
 
@@ -40,7 +44,7 @@ Predictor = Callable[[dict[str, float], list[CalibrationTarget]], dict[str, dict
 
 
 # ---------------------------------------------------------------------------
-# Cost functions
+# Cost functions (legacy support)
 # ---------------------------------------------------------------------------
 
 
@@ -60,7 +64,12 @@ def weighted_rmse(
             yhat = preds.get(obs.t)
             if yhat is None:
                 continue
-            residual = (yhat - obs.value) / max(0.01, obs.uncertainty)
+            uncertainty = getattr(obs, "uncertainty", 0.1)
+            if hasattr(obs, "obs"):
+                uncertainty = max(obs.obs.std, 0.01)
+            else:
+                uncertainty = max(uncertainty, 0.01)
+            residual = (yhat - obs.value) / uncertainty
             total_se += tgt.weight * residual * residual
             total_n += 1
     if total_n == 0:
@@ -69,19 +78,16 @@ def weighted_rmse(
 
 
 # ---------------------------------------------------------------------------
-# Engine
+# Legacy Engine (random-restart hill climbing)
 # ---------------------------------------------------------------------------
 
 
 class CalibrationEngine:
     """
-    Model-agnostic calibration engine.
-    محرك معايرة مستقل عن النموذج.
+    Model-agnostic calibration engine (random-restart hill climbing).
+    محرك معايرة مستقل عن النموذج (تسلق تلال مع إعادة تشغيل عشوائية).
 
     Usage::
-
-        from shared.calibration import CalibrationEngine
-        from shared.calibration.types import ParameterBound, CalibrationTarget
 
         engine = CalibrationEngine(
             predictor=my_predictor.predict,
@@ -91,7 +97,6 @@ class CalibrationEngine:
             ],
         )
         result = engine.calibrate(targets=[...], max_iter=200)
-        print(result.best_theta)
     """
 
     def __init__(
@@ -110,13 +115,11 @@ class CalibrationEngine:
         self._rng = random.Random(seed)
 
     def _sample_theta(self) -> dict[str, float]:
-        """Sample a random parameter set within bounds."""
         return {
             b.name: self._rng.uniform(b.lower, b.upper) for b in self._bounds
         }
 
     def _initial_theta(self) -> dict[str, float]:
-        """Return initial (or midpoint) parameter set."""
         return {
             b.name: (
                 b.initial if b.initial is not None else (b.lower + b.upper) / 2.0
@@ -125,7 +128,6 @@ class CalibrationEngine:
         }
 
     def _perturb(self, theta: dict[str, float], scale: float = 0.1) -> dict[str, float]:
-        """Perturb theta within bounds by ±scale fraction of range."""
         perturbed = {}
         for b in self._bounds:
             span = b.upper - b.lower
@@ -137,7 +139,6 @@ class CalibrationEngine:
     def _evaluate(
         self, theta: dict[str, float], targets: list[CalibrationTarget]
     ) -> tuple[float, dict[str, dict[str, float]]]:
-        """Run predictor and compute cost."""
         try:
             preds = self._predictor(theta, targets)
             cost = self._cost_fn(preds, targets)
@@ -156,18 +157,6 @@ class CalibrationEngine:
         """
         Run calibration optimisation.
         تشغيل عملية المعايرة.
-
-        Uses random-restart local search (no scipy required).
-        Each restart starts from a random point; the best overall is returned.
-
-        Args:
-            targets: Observed data to calibrate against.
-            max_iter: Maximum iterations per restart.
-            n_restarts: Number of random restarts.
-            tolerance: Stop if cost < tolerance.
-
-        Returns:
-            CalibrationResult with best parameters and diagnostics.
         """
         if not targets:
             return CalibrationResult(
@@ -185,7 +174,6 @@ class CalibrationEngine:
         cost_history: list[float] = []
 
         for restart in range(n_restarts):
-            # First restart uses initial theta; others are random
             theta = self._initial_theta() if restart == 0 else self._sample_theta()
             cost, preds = self._evaluate(theta, targets)
             total_evals += 1
@@ -196,7 +184,6 @@ class CalibrationEngine:
                 global_best_theta = dict(theta)
                 global_best_preds = preds
 
-            # Local search from this start point
             scale = 0.15
             stagnant = 0
             for _it in range(max_iter):
@@ -216,7 +203,6 @@ class CalibrationEngine:
                         global_best_preds = preds
                 else:
                     stagnant += 1
-                    # Adaptive scale reduction
                     if stagnant > 10:
                         scale *= 0.8
                         stagnant = 0
@@ -247,4 +233,142 @@ class CalibrationEngine:
             n_evaluations=total_evals,
             cost_history=cost_history,
             predictions=global_best_preds,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Bayesian Calibration (Optuna + NLL + holdout validation)
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class CalibrationConfig:
+    """
+    Configuration for BayesianCalibration.
+    إعدادات المعايرة البايزية.
+    """
+
+    n_trials: int = 60
+    seed: int = 42
+    timeout_s: float | None = None
+    # Quality gates for safe_for_decision
+    max_rmse_lai: float = 0.8
+    max_rmse_biomass: float = 500.0  # kg/ha
+
+
+@dataclass(frozen=True)
+class CalibrationOutput:
+    """
+    Rich output from BayesianCalibration.calibrate().
+    مخرجات غنية من المعايرة البايزية.
+    """
+
+    best_params: dict[str, float]
+    best_objective: float
+    n_trials: int
+    objective_breakdown: dict[str, float]
+    validation: ValidationMetrics
+    safe_for_decision: bool
+    gate_violations: dict[str, str]
+
+
+class BayesianCalibration:
+    """
+    End-to-end Bayesian calibration with NLL objective and holdout validation.
+    معايرة بايزية شاملة مع هدف NLL وتحقق بالاحتجاز.
+
+    Usage::
+
+        cal = BayesianCalibration(
+            predictor=my_predictor.predict,
+            param_space=[ParameterBound("rue", 0.8, 2.5), ...],
+            config=CalibrationConfig(n_trials=80),
+        )
+        output = cal.calibrate(targets=train, holdout_targets=test)
+        if output.safe_for_decision:
+            print("Safe to activate:", output.best_params)
+    """
+
+    def __init__(
+        self,
+        predictor: Predictor,
+        param_space: list[ParameterBound],
+        config: CalibrationConfig | None = None,
+    ) -> None:
+        self._predictor = predictor
+        self._param_space = param_space
+        self._config = config or CalibrationConfig()
+
+    def calibrate(
+        self,
+        targets: list[CalibrationTarget],
+        holdout_targets: list[CalibrationTarget] | None = None,
+    ) -> CalibrationOutput:
+        """
+        Run Bayesian optimization + holdout validation.
+        تشغيل التحسين البايزي + التحقق بالاحتجاز.
+        """
+        from shared.calibration.optimizer import BayesianOptimizer
+
+        obj_fn = build_weighted_nll_objective(targets, self._predictor)
+
+        optimizer = BayesianOptimizer(
+            param_space=self._param_space,
+            n_trials=self._config.n_trials,
+            seed=self._config.seed,
+            timeout_s=self._config.timeout_s,
+        )
+
+        # Evaluate objective to get per-target breakdown
+        def scalar_obj(theta: dict[str, float]) -> float:
+            return obj_fn(theta).value
+
+        result = optimizer.optimize(scalar_obj)
+
+        # Get per-target breakdown for the best params
+        best_obj = obj_fn(result.best_params)
+
+        # Holdout validation
+        holdout = holdout_targets or []
+        if holdout:
+            val = validate_holdout(result.best_params, holdout, self._predictor)
+        else:
+            val = ValidationMetrics(rmse={}, mae={}, bias={})
+
+        # Quality gates
+        safe = True
+        violations: dict[str, str] = {}
+
+        rmse_lai = val.rmse.get("LAI")
+        if rmse_lai is not None and rmse_lai == rmse_lai:  # NaN check
+            if rmse_lai > self._config.max_rmse_lai:
+                safe = False
+                violations["LAI"] = (
+                    f"RMSE {rmse_lai:.3f} > threshold {self._config.max_rmse_lai}"
+                )
+
+        rmse_bio = val.rmse.get("biomass")
+        if rmse_bio is not None and rmse_bio == rmse_bio:
+            if rmse_bio > self._config.max_rmse_biomass:
+                safe = False
+                violations["biomass"] = (
+                    f"RMSE {rmse_bio:.1f} > threshold {self._config.max_rmse_biomass}"
+                )
+
+        logger.info(
+            "bayesian_calibration_complete",
+            best_objective=round(result.best_value, 4),
+            n_trials=result.n_trials,
+            safe_for_decision=safe,
+            validation_rmse={k: round(v, 4) for k, v in val.rmse.items() if v == v},
+        )
+
+        return CalibrationOutput(
+            best_params=result.best_params,
+            best_objective=result.best_value,
+            n_trials=result.n_trials,
+            objective_breakdown=best_obj.per_target,
+            validation=val,
+            safe_for_decision=safe,
+            gate_violations=violations,
         )

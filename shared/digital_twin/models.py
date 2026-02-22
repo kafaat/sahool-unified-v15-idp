@@ -97,9 +97,9 @@ class FieldDailyState(BaseModel):
     """Current soil water in root zone (mm) | مياه التربة الحالية"""
     depletion_mm: float | None = None
     """Water depletion below field capacity (mm) | عجز الرطوبة"""
-    water_stress: float | None = None
+    water_stress: float | None = Field(default=None, ge=0.0, le=1.0)
     """Water stress factor Ks ∈ [0, 1] (0=max stress) | معامل إجهاد الرطوبة"""
-    n_stress: float | None = None
+    n_stress: float | None = Field(default=None, ge=0.0, le=1.0)
     """Nitrogen stress factor ∈ [0, 1] | معامل إجهاد النيتروجين"""
     runoff_mm: float | None = None
     """Surface runoff (mm) | الجريان السطحي"""

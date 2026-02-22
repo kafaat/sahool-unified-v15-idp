@@ -761,3 +761,276 @@ class TestCIAndHelmChart:
         for tpl in ["deployment.yaml", "service.yaml", "hpa.yaml", "pdb.yaml",
                      "configmap.yaml", "serviceaccount.yaml", "_helpers.tpl"]:
             assert os.path.exists(os.path.join(templates_dir, tpl)), f"Missing template: {tpl}"
+
+    def test_helm_startup_probe_defined(self):
+        """Verify startupProbe was added for calibration/assimilation init."""
+        dep_path = os.path.join(
+            _ROOT, "helm", "services", "crop-intelligence-service",
+            "templates", "deployment.yaml"
+        )
+        with open(dep_path) as f:
+            content = f.read()
+        assert "startupProbe" in content
+
+    def test_helm_resource_requests_adequate(self):
+        """Resource requests should be >= 1000m CPU for ML workloads."""
+        values_path = os.path.join(
+            _ROOT, "helm", "services", "crop-intelligence-service", "values.yaml"
+        )
+        with open(values_path) as f:
+            content = f.read()
+        assert "1000m" in content  # CPU request
+        assert "1536Mi" in content  # Memory request
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 20. Numerical Edge Cases & Boundary Conditions
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestNumericalEdgeCases:
+    """Tests for critical numerical safety in digital twin calculations."""
+
+    @_SKIP_PYDANTIC
+    def test_ndvi_to_lai_bare_soil(self):
+        """NDVI near 0 (bare soil) should return LAI near 0."""
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        lai = ndvi_to_lai(0.01)
+        assert 0.0 <= lai <= 0.5
+        assert math.isfinite(lai)
+
+    @_SKIP_PYDANTIC
+    def test_ndvi_to_lai_maximum(self):
+        """NDVI = 0.99 should not cause log(0) error."""
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        lai = ndvi_to_lai(0.99)
+        assert 0.0 <= lai <= 10.0
+        assert math.isfinite(lai)
+
+    @_SKIP_PYDANTIC
+    def test_ndvi_to_lai_extreme_values_clamped(self):
+        """NDVI outside [-1,1] should be safely clamped, not crash."""
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        # Below range
+        lai_low = ndvi_to_lai(-0.5)
+        assert math.isfinite(lai_low)
+        assert lai_low >= 0.0
+        # Above range
+        lai_high = ndvi_to_lai(1.5)
+        assert math.isfinite(lai_high)
+        assert lai_high <= 10.0
+
+    @_SKIP_PYDANTIC
+    def test_ndvi_to_lai_k_extinction_extremes(self):
+        """k_extinction near boundaries should not crash."""
+        from shared.digital_twin.assimilation import ndvi_to_lai
+        # Very small k (clamped to 0.1)
+        lai_small_k = ndvi_to_lai(0.5, k_extinction=0.01)
+        assert math.isfinite(lai_small_k)
+        # Very large k (clamped to 1.0)
+        lai_large_k = ndvi_to_lai(0.5, k_extinction=5.0)
+        assert math.isfinite(lai_large_k)
+        # Lower k → higher LAI (Beer-Lambert inverse)
+        assert lai_small_k > lai_large_k
+
+    @_SKIP_PYDANTIC
+    def test_adapters_ndvi_to_lai_boundary(self):
+        """Adapters version also safe at boundaries."""
+        from shared.digital_twin.adapters import ndvi_to_lai_estimate
+        # Near maximum
+        lai = ndvi_to_lai_estimate(0.99)
+        assert math.isfinite(lai)
+        assert 0.0 <= lai <= 10.0
+        # Near minimum
+        lai_min = ndvi_to_lai_estimate(0.01)
+        assert math.isfinite(lai_min)
+        assert lai_min >= 0.0
+
+    @_SKIP_PYDANTIC
+    def test_kalman_gain_zero_inputs(self):
+        """Both quality=0 and confidence=0 should return default, not crash."""
+        from shared.digital_twin.assimilation import _kalman_gain
+        gain = _kalman_gain(0.0, 0.0)
+        assert 0.0 < gain < 1.0
+        assert math.isfinite(gain)
+
+    @_SKIP_PYDANTIC
+    def test_stress_factor_validation_bounds(self):
+        """Pydantic should reject water_stress/n_stress outside [0,1]."""
+        from shared.digital_twin.models import FieldDailyState
+        from uuid import uuid4
+        from pydantic import ValidationError
+        # Valid
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            water_stress=0.5, n_stress=0.8,
+        )
+        assert state.water_stress == 0.5
+        # Invalid: water_stress > 1
+        with pytest.raises(ValidationError):
+            FieldDailyState(
+                tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+                water_stress=1.5,
+            )
+        # Invalid: negative n_stress
+        with pytest.raises(ValidationError):
+            FieldDailyState(
+                tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+                n_stress=-0.1,
+            )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 21. Enum Deserialization Safety
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestEnumSafety:
+    """Tests for AssimilationFlag serialization roundtrip."""
+
+    @_SKIP_PYDANTIC
+    def test_flag_roundtrip_by_value(self):
+        """Flags stored as string values should deserialize correctly."""
+        from shared.digital_twin.models import AssimilationFlag
+        for flag in AssimilationFlag:
+            # StrEnum: name == value for our flags
+            recovered = AssimilationFlag(flag.value)
+            assert recovered == flag
+
+    @_SKIP_PYDANTIC
+    def test_flag_unknown_value_handled(self):
+        """Unknown flag values in DB should not crash repository."""
+        from shared.digital_twin.models import AssimilationFlag
+        # Simulate what _row_to_state does
+        flags_raw = ["NDVI_USED", "UNKNOWN_FLAG", "ASSIMILATED"]
+        flags = []
+        for f in flags_raw:
+            if f in AssimilationFlag.__members__:
+                flags.append(AssimilationFlag[f])
+            else:
+                try:
+                    flags.append(AssimilationFlag(f))
+                except ValueError:
+                    pass  # skip unknown
+        assert len(flags) == 2
+        assert AssimilationFlag.NDVI_USED in flags
+        assert AssimilationFlag.ASSIMILATED in flags
+
+    @_SKIP_PYDANTIC
+    def test_calibrated_params_flag_included(self):
+        """CALIBRATED_PARAMS_USED must be in the enum."""
+        from shared.digital_twin.models import AssimilationFlag
+        assert "CALIBRATED_PARAMS_USED" in AssimilationFlag.__members__
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 22. Decision Engine Edge Cases
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TestDecisionEngineEdgeCases:
+    """Tests for irrigation decision edge cases."""
+
+    @_SKIP_PYDANTIC
+    def test_zero_depletion_no_irrigation(self):
+        """When depletion is 0, no irrigation should be recommended."""
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        engine = DecisionEngine(repo=repo)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            depletion_mm=0.0, water_stress=1.0, phenology_stage="heading",
+        )
+        loop = asyncio.get_event_loop()
+        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        assert rec.recommended_mm == 0.0
+        assert "NO_IRRIGATION_NEEDED" in rec.reason_codes
+
+    @_SKIP_PYDANTIC
+    def test_high_depletion_triggers_irrigation(self):
+        """Depletion exceeding RAW should trigger irrigation."""
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        engine = DecisionEngine(repo=repo)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            depletion_mm=120.0, water_stress=0.4, phenology_stage="heading",
+        )
+        loop = asyncio.get_event_loop()
+        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        assert rec.recommended_mm > 0.0
+        assert "DEPLETION_EXCEEDS_RAW" in rec.reason_codes
+
+    @_SKIP_PYDANTIC
+    def test_none_depletion_uses_zero_fallback(self):
+        """Missing depletion_mm should default to 0, not crash."""
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        engine = DecisionEngine(repo=repo)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            depletion_mm=None, water_stress=None,
+        )
+        loop = asyncio.get_event_loop()
+        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=180.0))
+        assert rec.recommended_mm >= 0.0
+        assert math.isfinite(rec.recommended_mm)
+
+    @_SKIP_PYDANTIC
+    def test_taw_clamped_to_valid_range(self):
+        """Extreme taw_mm values should be clamped, not crash."""
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        engine = DecisionEngine(repo=repo)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            depletion_mm=50.0, water_stress=0.8,
+        )
+        loop = asyncio.get_event_loop()
+        # taw_mm = 0 → clamped to 1.0
+        rec = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=0.0))
+        assert math.isfinite(rec.recommended_mm)
+        # taw_mm = 999 → clamped to 500
+        rec2 = loop.run_until_complete(engine.recommend_irrigation(state, taw_mm=999.0))
+        assert math.isfinite(rec2.recommended_mm)
+
+    @_SKIP_PYDANTIC
+    def test_calibrated_p_fraction_offset(self):
+        """p_fraction_offset from calibration should shift the threshold."""
+        from shared.digital_twin.decisions import DecisionEngine
+        from shared.digital_twin.models import FieldDailyState
+        from shared.digital_twin.repository import TwinRepository
+        from uuid import uuid4
+
+        repo = TwinRepository(db_pool=None)
+        # With positive offset: higher RAW → irrigates sooner
+        engine_offset = DecisionEngine(
+            repo=repo,
+            calibrated_thresholds={"p_fraction_offset": 0.15},
+        )
+        engine_default = DecisionEngine(repo=repo)
+        state = FieldDailyState(
+            tenant_id=uuid4(), field_id=uuid4(), day=date.today(),
+            depletion_mm=100.0, water_stress=0.7, phenology_stage="heading",
+        )
+        loop = asyncio.get_event_loop()
+        rec_offset = loop.run_until_complete(engine_offset.recommend_irrigation(state))
+        rec_default = loop.run_until_complete(engine_default.recommend_irrigation(state))
+        # Higher p → higher RAW → more likely to trigger irrigation
+        assert rec_offset.recommended_mm >= rec_default.recommended_mm

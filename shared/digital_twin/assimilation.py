@@ -63,14 +63,15 @@ def ndvi_to_lai(
         k_extinction: Field-calibrated light-extinction coefficient. When
             provided from a calibration parameter set, overrides the default 0.5.
     """
+    import math
+
     ndvi = max(0.01, min(0.99, ndvi))
     # Scale NDVI to fractional cover approximation
     ndvi_max = {"wheat": 0.85, "maize": 0.90, "rice": 0.80, "date_palm": 0.70}
     nmax = ndvi_max.get(crop_type, 0.85)
-    scaled = min(0.99, ndvi / nmax)
+    scaled = max(0.001, min(0.995, ndvi / nmax))  # guard log(0) at both ends
     k = k_extinction if k_extinction is not None else 0.5
     k = max(0.1, min(1.0, k))  # clamp to physically valid range
-    import math
 
     lai = -math.log(1.0 - scaled) / k
     return max(0.0, min(10.0, lai))

@@ -143,9 +143,9 @@ def ndvi_to_lai_estimate(ndvi: float) -> float:
     LAI ≈ -ln(1 - NDVI) / k_ext  (k_ext ≈ 0.5 for most crops)
     """
     import math
-    ndvi_clamped = max(0.01, min(0.98, ndvi))
+    ndvi_clamped = max(0.01, min(0.995, ndvi))  # guard log(0) at upper bound
     k_ext = 0.5
-    return -math.log(1.0 - ndvi_clamped) / k_ext
+    return max(0.0, min(10.0, -math.log(1.0 - ndvi_clamped) / k_ext))
 
 
 # ---------------------------------------------------------------------------

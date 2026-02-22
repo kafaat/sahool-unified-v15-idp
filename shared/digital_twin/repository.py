@@ -375,11 +375,17 @@ class TwinRepository:
 
 def _row_to_state(row: Any) -> FieldDailyState:
     flags_raw = row["assimilation_flags"] or []
-    flags = [
-        AssimilationFlag(f)
-        for f in flags_raw
-        if f in AssimilationFlag.__members__.values()
-    ]
+    flags = []
+    for f in flags_raw:
+        # Handle both enum member names ("NDVI_USED") and values ("NDVI_USED")
+        # StrEnum: name == value, so both lookups converge
+        if f in AssimilationFlag.__members__:
+            flags.append(AssimilationFlag[f])
+        else:
+            try:
+                flags.append(AssimilationFlag(f))
+            except ValueError:
+                logger.warning("unknown_assimilation_flag", flag=f)
     return FieldDailyState(
         id=row["id"],
         tenant_id=row["tenant_id"],

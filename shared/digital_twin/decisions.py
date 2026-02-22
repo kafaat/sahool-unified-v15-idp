@@ -108,13 +108,21 @@ class DecisionEngine:
         Returns:
             IrrigationRecommendation (not yet persisted; caller must save).
         """
+        if not (1.0 <= taw_mm <= 500.0):
+            logger.warning("taw_mm_out_of_range", taw_mm=taw_mm, field_id=str(state.field_id))
+            taw_mm = max(1.0, min(500.0, taw_mm))
+
         stage = state.phenology_stage
         p = _p_for_stage(stage) + self._p_offset
         p = max(0.1, min(0.9, p))  # clamp to valid range
         raw_mm = p * taw_mm  # Readily Available Water threshold
 
-        depletion = state.depletion_mm or 0.0
-        water_stress = state.water_stress or 1.0
+        if state.depletion_mm is None:
+            logger.debug("depletion_mm_missing", field_id=str(state.field_id))
+        depletion = state.depletion_mm if state.depletion_mm is not None else 0.0
+        if state.water_stress is None:
+            logger.debug("water_stress_missing", field_id=str(state.field_id))
+        water_stress = state.water_stress if state.water_stress is not None else 1.0
 
         reason_codes: list[str] = []
         recommended_mm = 0.0

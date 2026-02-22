@@ -26,8 +26,8 @@ resources:
     cpu: 2000m
     memory: 4Gi
   requests:
-    cpu: 500m
-    memory: 1Gi
+    cpu: 1000m
+    memory: 1536Mi
 
 environment: staging
 deploymentSlot: blue
@@ -82,6 +82,12 @@ probes:
     periodSeconds: 5
     timeoutSeconds: 3
     failureThreshold: 3
+  startup:
+    path: /readyz
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 12  # ~70s max startup for calibration/assimilation init
 
 nodeSelector: {}
 

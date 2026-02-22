@@ -153,7 +153,7 @@ class TwinPipeline:
         # ── 1. Load previous state ────────────────────────────────────────
         from datetime import timedelta
 
-        prev_day = date(day.year, day.month, day.day) - timedelta(days=1)
+        prev_day = day - timedelta(days=1)
         prev_state = await self._repo.get_state(tenant_id, field_id, prev_day)
 
         # ── 2. ET₀ (Penman-Monteith FAO-56) ──────────────────────────────
@@ -203,22 +203,19 @@ class TwinPipeline:
         taw = max(1.0, fc_mm - wp_mm)
         raw = 0.5 * taw
         sw_adj = max(0.0, sw_state_out.water_mm - wp_mm)
-        water_stress = 1.0 if sw_adj >= raw else max(0.0, sw_adj / raw)
+        water_stress = 1.0 if (raw < 0.001 or sw_adj >= raw) else max(0.0, sw_adj / raw)
 
         # ── 5. Crop growth step ───────────────────────────────────────────
         gdd = compute_gdd(weather, base_temp=crop.base_temp_c, max_temp_cap=35.0)
         new_gdd = prev_gdd + gdd
-        new_dvs = min(
-            2.0,
-            new_dvs if (new_dvs := new_gdd / max(1.0, crop.gdd_maturity)) else prev_dvs,
-        )
+        new_dvs = min(2.0, new_gdd / max(1.0, crop.gdd_maturity))
 
         # N stress from total available N supply (simple: applied / requirement)
-        n_demand_today = (crop.n_requirement_kg_per_ton * 5.0) / max(
-            1.0, crop.gdd_maturity / max(gdd, 0.01)
-        )
+        # daily_fraction = gdd / gdd_maturity → proportion of N demand today
+        daily_fraction = max(0.001, gdd / max(1.0, crop.gdd_maturity))
+        n_demand_today = crop.n_requirement_kg_per_ton * 5.0 * daily_fraction
         n_available = nitrogen_applied_kg_ha + 1.0  # soil background
-        n_stress = min(1.0, n_available / max(0.1, n_demand_today))
+        n_stress = min(1.0, n_available / max(1.0, n_demand_today))
 
         # RUE-based biomass increment (Beer-Lambert, stress-adjusted)
         from shared.process_models.crop_growth import compute_intercepted_radiation

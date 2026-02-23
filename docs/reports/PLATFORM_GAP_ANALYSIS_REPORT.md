@@ -252,16 +252,48 @@ Every service that connects to NATS should call `ensure_streams(js)` in its life
 
 ---
 
-## GAP-8: No NATS Subscriber Header Extraction (HIGH)
+## GAP-8: NATS Subscriber Compliance (HIGH)
 
 ### Problem
 
-When NATS messages arrive with the 7 canonical headers, subscribers need to extract them for:
-- Distributed tracing continuation
-- Correlation ID propagation
-- Tenant isolation verification
+Of 8 services that subscribe to NATS events, only **1 service** (crop-intelligence-service) follows the proper subscriber pattern. All others lack durable consumers, queue groups, ack/nak handling, header extraction, and DB-level idempotency.
 
-Only `crop-intelligence-service/src/event_subscribers.py` implements `_extract_headers()`. All other subscribers ignore incoming headers entirely.
+### Subscriber Compliance Matrix
+
+| Service | Durable | Queue Group | Ack/Nak | Headers | DB Dedup | In-Memory Dedup | Risk |
+|---------|---------|-------------|---------|---------|----------|-----------------|------|
+| **crop-intelligence-service** | YES | YES | YES | YES | YES | - | **LOW** |
+| notification-service | NO | NO | NO | NO | NO | NO | **MEDIUM** |
+| alert-service | NO | NO | NO | NO | NO | NO | **MEDIUM** |
+| agro-rules | NO | NO | NO | NO | NO | YES (set, 10K cap) | **HIGH** |
+| ws-gateway | NO | NO | NO | NO | NO | NO | LOW* |
+| ground-vision-service | NO | NO | NO | NO | NO | NO | **MEDIUM** |
+| ai-chat-assistant | NO | NO | NO | NO | NO | NO | LOW |
+| edge-orchestrator-service | NO | NO | NO | NO | NO | NO | LOW* |
+
+*ws-gateway and edge-orchestrator are real-time broadcast services where message loss is acceptable.
+
+### Key Issues
+
+1. **No queue groups** → Duplicate processing when services scale to multiple replicas
+2. **No durable consumers** → Messages lost on service restart
+3. **No ack/nak** → JetStream cannot track message delivery
+4. **No header extraction** → Distributed tracing chain broken at every subscriber
+5. **agro-rules in-memory dedup** → Lost on restart, unbounded growth risk (cap at 10K then truncate to 5K)
+
+### Recommendation
+
+Create a `NATSSubscriberBase` class in `shared/events/subscriber.py` that enforces:
+- Durable consumer with configurable name
+- Queue group for horizontal scaling
+- Ack after success, nak on failure
+- Header extraction with correlation propagation
+- DB-level idempotency check
+
+Priority migration order:
+1. **alert-service** (alerts must not be lost or duplicated)
+2. **notification-service** (user-facing, duplicate notifications harm UX)
+3. **agro-rules** (task generation, duplicates waste resources)
 
 ---
 

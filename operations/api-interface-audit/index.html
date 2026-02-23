@@ -1,0 +1,1585 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>SAHOOL API Interface Audit Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-api-interface-audit-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL API Interface Audit Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-api-interface-audit-report">SAHOOL API Interface Audit Report<a class="headerlink" href="#sahool-api-interface-audit-report" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Audit Date</strong>: 2026-02-23
+<strong>Scope</strong>: All Python service endpoints, Kong gateway configuration, auth coverage, input validation
+<strong>Platform Version</strong>: 16.0.0</p>
+</blockquote>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>Direct audit of all API interfaces across 56 Python services and the Kong gateway configuration.
+Identified <strong>22 findings</strong> including critical authentication gaps and route inconsistencies.</p>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Critical (P0)</strong></td>
+<td>3</td>
+<td>Unauthenticated mutation endpoints on public-facing services</td>
+</tr>
+<tr>
+<td><strong>High (P1)</strong></td>
+<td>6</td>
+<td>Kong gateway auth gaps, CORS wildcard, missing rate limits</td>
+</tr>
+<tr>
+<td><strong>Medium (P2)</strong></td>
+<td>8</td>
+<td>Route inconsistencies, missing response models, readiness probes</td>
+</tr>
+<tr>
+<td><strong>Low (P3)</strong></td>
+<td>5</td>
+<td>Naming inconsistencies, deprecated route artifacts</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="critical-findings-p0">Critical Findings (P0)<a class="headerlink" href="#critical-findings-p0" title="Permanent link">&para;</a></h2>
+<h3 id="api-001-35-services-have-mutation-endpoints-with-no-authentication">API-001: 35+ services have mutation endpoints with NO authentication<a class="headerlink" href="#api-001-35-services-have-mutation-endpoints-with-no-authentication" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P0 Critical
+<strong>Category</strong>: Security / Authentication</p>
+<p>Of 56 Python services with API endpoints, only <strong>21 services</strong> use <code>get_current_user</code> for
+authentication. The remaining <strong>35 services</strong> expose POST/PUT/PATCH/DELETE endpoints with
+no authentication at the service level.</p>
+<p><strong>Services with unprotected mutation endpoints</strong> (sample):</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Unprotected Endpoints</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alert-service</code></td>
+<td>POST /alerts, PATCH /alerts/{id}, DELETE /alerts/{id}, POST /alerts/rules</td>
+<td>Creates/modifies/deletes alert rules</td>
+</tr>
+<tr>
+<td><code>code-review-service</code></td>
+<td>POST /review, POST /review/file, POST /review/pr, POST /cache/clear</td>
+<td>Triggers code reviews, clears cache</td>
+</tr>
+<tr>
+<td><code>code-fix-agent</code></td>
+<td>POST /api/v1/analyze, POST /api/v1/fix, POST /api/v1/review</td>
+<td>Executes code analysis/fixing</td>
+</tr>
+<tr>
+<td><code>agent-registry</code></td>
+<td>POST /api/v1/agents, PUT /api/v1/agents/{id}, DELETE /api/v1/agents/{id}</td>
+<td>Manages AI agent registry</td>
+</tr>
+<tr>
+<td><code>ai-agents-core</code></td>
+<td>POST /api/v1/tasks, POST /api/v1/agents/{id}/execute</td>
+<td>Executes AI agent tasks</td>
+</tr>
+<tr>
+<td><code>ground-vision-service</code></td>
+<td>POST /api/v1/cameras, POST /api/v1/frames/process</td>
+<td>Creates cameras, processes frames</td>
+</tr>
+<tr>
+<td><code>fertigation-engine</code></td>
+<td>POST /api/v1/fertigation/plan</td>
+<td>Creates fertigation plans</td>
+</tr>
+<tr>
+<td><code>globalgap-compliance</code></td>
+<td>POST /api/v1/audits, PUT /api/v1/audits/{id}</td>
+<td>Manages GlobalGAP audits</td>
+</tr>
+<tr>
+<td><code>provider-config</code></td>
+<td>POST /api/v1/providers, PUT /api/v1/providers/{id}</td>
+<td>Modifies provider configurations</td>
+</tr>
+<tr>
+<td><code>ussd-gateway</code></td>
+<td>POST /api/v1/ussd/session, POST /api/v1/ussd/respond</td>
+<td>Creates USSD sessions</td>
+</tr>
+<tr>
+<td><code>iot-sensor-hub</code></td>
+<td>POST /api/v1/sensors, POST /api/v1/readings</td>
+<td>Creates sensors and readings</td>
+</tr>
+<tr>
+<td><code>mcp-server</code></td>
+<td>POST /api/v1/tools/execute</td>
+<td>Executes MCP tools</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Why this matters</strong>: Even though Kong sits in front, the Kong JWT plugin is only enabled on
+5 services (vision, terrain, hydrology, leveling, edge). The other 50+ routes pass through
+Kong <strong>without JWT validation</strong>. If any service is accidentally exposed (port forwarding,
+misconfigured network policy), the endpoints are completely open.</p>
+<p><strong>Recommendation</strong>:
+1. Enable Kong JWT plugin globally or on all service routes (not just 5)
+2. Add <code>Depends(get_current_user)</code> to all service-level endpoints as defense-in-depth
+3. Use the shared <code>require_roles()</code> dependency for authorization</p>
+<hr />
+<h3 id="api-002-kong-jwt-plugin-enabled-on-only-5-of-50-service-routes">API-002: Kong JWT plugin enabled on only 5 of 50+ service routes<a class="headerlink" href="#api-002-kong-jwt-plugin-enabled-on-only-5-of-50-service-routes" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>Severity</strong>: P0 Critical
+<strong>Category</strong>: Security / Gateway</p>
+<p>Only these 5 services have the <code>jwt</code> plugin configured at the Kong route level:
+- <code>yolo26-vision-service</code> (line 1225)
+- <code>terrain-core-service</code> (line 1297)
+- <code>hydrology-service</code> (line 1354)
+- <code>leveling-optimizer-service</code> (line 1411)
+- <code>edge-orchestrator-service</code> (line 1468)</p>
+<p><strong>All other services</strong> (including billing, advisory, weather, notification, inventory,
+equipment, CRM, logistics, etc.) have <strong>no Kong-level JWT validation</strong>.</p>
+<p>This means:
+- Anyone who can reach Kong can call billing-core, advisory-service, alert-service, etc.
+- The <code>ip-restriction</code> plugin is only set on billing-core and iot-gateway
+- Defense depends entirely on service-level auth (which is also missing on many services)</p>
+<p><strong>Recommendation</strong>: Add global JWT plugin to Kong with exceptions only for:
+- <code>/api/v1/auth/login</code>, <code>/api/v1/auth/register</code> (public auth routes)
+- <code>/healthz</code>, <code>/readyz</code>, <code>/health</code> (health checks)
+- Webhook endpoints (WhatsApp, GitHub)</p>
+<hr />
+<h3 id="api-003-cors-origin-set-to-wildcard-in-production-config">API-003: CORS origin set to wildcard "*" in production config<a class="headerlink" href="#api-003-cors-origin-set-to-wildcard-in-production-config" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml:28</code>
+<strong>Severity</strong>: P0 Critical
+<strong>Category</strong>: Security / CORS</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;*&quot;</span><span class="w">  </span><span class="c1"># Replace with ${KONG_CORS_ORIGINS:-*} in production</span>
+</code></pre></div>
+
+<p>The CORS origin is set to <code>"*"</code> (wildcard) and relies on a comment instructing operators
+to change it in production. If this file is deployed as-is, any website can make
+authenticated API requests to the platform (especially when combined with <code>credentials: true</code>
+if switched later).</p>
+<p><strong>Recommendation</strong>: Use environment variable substitution:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">origins</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${KONG_CORS_ORIGINS:-https://app.sahool.com,https://admin.sahool.com}</span>
+</code></pre></div>
+
+<hr />
+<h2 id="high-severity-findings-p1">High Severity Findings (P1)<a class="headerlink" href="#high-severity-findings-p1" title="Permanent link">&para;</a></h2>
+<h3 id="api-004-inconsistent-strip_path-behavior-across-kong-routes">API-004: Inconsistent strip_path behavior across Kong routes<a class="headerlink" href="#api-004-inconsistent-strip_path-behavior-across-kong-routes" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>Severity</strong>: P1 High
+<strong>Category</strong>: Routing Consistency</p>
+<p>76 routes use <code>strip_path: true</code>, 28 routes use <code>strip_path: false</code>. This inconsistency
+means services receive different URL prefixes depending on the route.</p>
+<p><strong>Examples of confusion</strong>:
+- <code>weather-service</code>: strip_path=true → service receives <code>/current</code> (path: <code>/api/v1/weather</code>)
+- <code>soil-analysis-service</code>: strip_path=false → service receives <code>/api/v1/soil/...</code> (path: <code>/api/v1/soil</code>)
+- <code>yolo26-vision-service</code>: Mixed! Base route strips, specific detection routes don't</p>
+<p>This creates confusion for developers implementing new endpoints.</p>
+<p><strong>Recommendation</strong>: Standardize to <code>strip_path: false</code> for all routes, ensuring all
+services handle their full <code>/api/v1/*</code> prefix consistently.</p>
+<hr />
+<h3 id="api-005-rate-limiting-uses-local-policy-on-most-services-not-redis">API-005: Rate limiting uses "local" policy on most services (not Redis)<a class="headerlink" href="#api-005-rate-limiting-uses-local-policy-on-most-services-not-redis" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>Severity</strong>: P1 High
+<strong>Category</strong>: Security / Rate Limiting</p>
+<p>Only marketplace-service, billing-core, and iot-gateway use <code>policy: redis</code> for rate limiting.
+All other services use <code>policy: local</code>, which means each Kong instance maintains its own
+counter. With multiple Kong instances behind a load balancer, effective rate limits are
+multiplied by the number of Kong replicas.</p>
+<p><strong>Recommendation</strong>: Configure all rate limiting to use <code>policy: redis</code> with the kong-redis
+instance already defined in the config.</p>
+<hr />
+<h3 id="api-006-17-services-have-no-kong-rate-limiting-at-all">API-006: 17 services have no Kong rate limiting at all<a class="headerlink" href="#api-006-17-services-have-no-kong-rate-limiting-at-all" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P1 High
+<strong>Category</strong>: Security / DoS</p>
+<p>These services have Kong routes but <strong>no rate-limiting plugin</strong>:</p>
+<ul>
+<li>field-management-service, chat-service, iot-service, community-chat, field-ops, ws-gateway,
+  vegetation-analysis-service, indicators-service, advisory-service, irrigation-smart,
+  crop-intelligence-service, virtual-sensors, yield-prediction-service, equipment-service,
+  task-service, field-intelligence, mcp-server, skills-service, audit-service, astronomical-calendar,
+  ai-advisor, alert-service, crm-service, lowcode-engine, wechat-service, globalgap-compliance,
+  logistics-service, agent-registry, ai-agents-core, knowledge-graph, yield-engine,
+  ai-agents-service, field-core, ndvi-processor</li>
+</ul>
+<p><strong>Recommendation</strong>: Add rate limiting to all Kong routes. Use tiered limits matching the
+platform's rate limiting tiers (Starter: 30/min, Professional: 60/min, Enterprise: 120/min).</p>
+<hr />
+<h3 id="api-007-deprecated-services-still-have-active-kong-routes">API-007: Deprecated services still have active Kong routes<a class="headerlink" href="#api-007-deprecated-services-still-have-active-kong-routes" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml</code>
+<strong>Severity</strong>: P1 High
+<strong>Category</strong>: Maintenance</p>
+<p>These deprecated services still have active routes in Kong:
+- <code>field-ops</code> → <code>/field-ops-legacy</code> (deprecated, should be field-management-service)
+- <code>yield-prediction</code> → <code>/yield-legacy</code> (deprecated)
+- <code>lai-estimation</code> → <code>/lai-legacy</code> (deprecated)
+- <code>crop-growth-model</code> → <code>/crop-growth-legacy</code> (deprecated)
+- <code>satellite-service</code> → <code>/api/v1/satellite-legacy</code> (deprecated)
+- <code>weather-advanced</code> → <code>/api/v1/weather-advanced</code> (deprecated)
+- <code>crop-health-ai</code> → <code>/api/v1/crop-health-ai</code> (deprecated)
+- <code>fertilizer-advisor</code> → <code>/api/v1/fertilizer-advisor</code> (deprecated)
+- <code>field-core</code> → <code>/api/v1/field-core</code> (deprecated)
+- <code>field-service</code> → <code>/field-service-legacy</code> (deprecated)</p>
+<p><strong>Recommendation</strong>: Remove deprecated routes or add deprecation headers and sunset dates
+via Kong response-transformer plugin.</p>
+<hr />
+<h3 id="api-008-no-request-validation-plugin-on-most-kong-routes">API-008: No request validation plugin on most Kong routes<a class="headerlink" href="#api-008-no-request-validation-plugin-on-most-kong-routes" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P1 High
+<strong>Category</strong>: Security / Input Validation</p>
+<p>Only <code>pest-detection-service</code> and <code>ground-vision-service</code> have <code>request-size-limiting</code>
+configured at the route level (25MB and 50MB respectively). The global limit is 10MB.</p>
+<p>Services like <code>code-fix-agent</code> and <code>code-review-service</code> accept code payloads that could be
+very large but have no size limits beyond the global 10MB.</p>
+<hr />
+<h3 id="api-009-notification-service-routes-expose-apiv1farmers-without-scoping">API-009: notification-service routes expose /api/v1/farmers without scoping<a class="headerlink" href="#api-009-notification-service-routes-expose-apiv1farmers-without-scoping" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml:604-607</code>
+<strong>Severity</strong>: P1 High
+<strong>Category</strong>: Security / Data Exposure</p>
+<div class="codehilite"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">notification-farmers-route</span>
+<span class="w">  </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;/api/v1/farmers&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+
+<p>This route maps <code>/api/v1/farmers</code> to the notification-service, which could conflict with
+the user-service's farmer management. More critically, it exposes farmer data through the
+notification service without JWT validation at the Kong level.</p>
+<hr />
+<h2 id="medium-severity-findings-p2">Medium Severity Findings (P2)<a class="headerlink" href="#medium-severity-findings-p2" title="Permanent link">&para;</a></h2>
+<h3 id="api-010-7-services-dont-use-response_model-on-endpoints">API-010: 7 services don't use response_model on endpoints<a class="headerlink" href="#api-010-7-services-dont-use-response_model-on-endpoints" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<p>Services like <code>irrigation-smart</code>, <code>iot-sensor-hub</code>, and <code>inventory-service</code> have endpoints
+that return raw dicts without <code>response_model=</code>, which means:
+1. No automatic response validation
+2. No OpenAPI schema generation for those endpoints
+3. Risk of leaking internal data structures</p>
+<hr />
+<h3 id="api-011-inconsistent-api-versioning-across-services">API-011: Inconsistent API versioning across services<a class="headerlink" href="#api-011-inconsistent-api-versioning-across-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Count</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/api/v1/*</code></td>
+<td>38</td>
+<td>Most services (standard)</td>
+</tr>
+<tr>
+<td><code>/*</code> (no version)</td>
+<td>18</td>
+<td>notification-service, weather-service, code-review-service, ndvi-processor, etc.</td>
+</tr>
+</tbody>
+</table>
+<p>Notification-service uses <code>/</code>, <code>/weather</code>, <code>/pest</code>, <code>/irrigation</code> without version prefix.
+Code-review-service uses <code>/review</code>, <code>/cache/stats</code> without prefix.
+NDVI-processor uses <code>/process</code>, <code>/fields/*</code> without prefix.</p>
+<p><strong>Recommendation</strong>: Standardize all endpoints to <code>/api/v1/*</code> prefix.</p>
+<hr />
+<h3 id="api-012-weather-service-readiness-always-returns-ready">API-012: Weather service readiness always returns "ready"<a class="headerlink" href="#api-012-weather-service-readiness-always-returns-ready" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>apps/services/weather-service/src/main.py:167-180</code>
+<strong>Severity</strong>: P2 Medium (duplicate of GAP-014 in platform gap report)</p>
+<p>The <code>/readyz</code> endpoint always returns <code>{"status": "ready"}</code> regardless of provider health.</p>
+<hr />
+<h3 id="api-013-health-endpoint-inconsistency-across-services">API-013: Health endpoint inconsistency across services<a class="headerlink" href="#api-013-health-endpoint-inconsistency-across-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Service Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/healthz</code> + <code>/readyz</code></td>
+<td>38 (standard)</td>
+</tr>
+<tr>
+<td><code>/health</code> + <code>/healthz</code> + <code>/readyz</code></td>
+<td>15 (triple)</td>
+</tr>
+<tr>
+<td><code>/health/live</code> + <code>/health/ready</code></td>
+<td>5 (alternative)</td>
+</tr>
+<tr>
+<td>Only <code>/healthz</code></td>
+<td>3 (missing readyz)</td>
+</tr>
+</tbody>
+</table>
+<p>Standard K8s convention is <code>/healthz</code> (liveness) + <code>/readyz</code> (readiness). Some services
+also expose <code>/health</code> (which overlaps). 5 services use <code>/health/live</code> and <code>/health/ready</code>.</p>
+<hr />
+<h3 id="api-014-missing-tenant-isolation-on-several-services">API-014: Missing tenant isolation on several services<a class="headerlink" href="#api-014-missing-tenant-isolation-on-several-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<p>Services that handle tenant data but don't enforce <code>_enforce_tenant()</code>:
+- <code>notification-service</code>: Uses tenant_id in requests but no enforcement helper
+- <code>fertigation-engine</code>: No tenant_id enforcement
+- <code>astronomical-calendar</code>: No tenant_id at all</p>
+<hr />
+<h3 id="api-015-kong-routes-for-non-existent-services">API-015: Kong routes for non-existent services<a class="headerlink" href="#api-015-kong-routes-for-non-existent-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<p>These Kong routes point to services that don't exist in <code>docker-compose.yml</code>:
+- <code>community-chat</code> (port 8097) — archived, moved to chat-service
+- <code>field-chat</code> (port 8099) — archived, moved to chat-service
+- <code>crop-health</code> (port 8100) — archived, moved to crop-intelligence-service</p>
+<hr />
+<h3 id="api-016-inconsistent-error-response-format">API-016: Inconsistent error response format<a class="headerlink" href="#api-016-inconsistent-error-response-format" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<p>Services using <code>shared.errors_py</code> return the unified format:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;success&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E1001&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;message_ar&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}}</span>
+</code></pre></div>
+
+<p>But 18+ services also raise raw <code>HTTPException</code> directly, returning:</p>
+<div class="codehilite"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;detail&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">}</span>
+</code></pre></div>
+
+<p>This creates inconsistent error formats for API consumers.</p>
+<hr />
+<h3 id="api-017-get-endpoints-used-for-mutation-operations">API-017: GET endpoints used for mutation operations<a class="headerlink" href="#api-017-get-endpoints-used-for-mutation-operations" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P2 Medium</p>
+<ul>
+<li><code>weather-service</code>: GET <code>/weather/heat-stress/{temp_c}</code> — should be POST</li>
+<li>Some services use GET for operations that should be POST (side effects like event publishing)</li>
+</ul>
+<hr />
+<h2 id="low-severity-findings-p3">Low Severity Findings (P3)<a class="headerlink" href="#low-severity-findings-p3" title="Permanent link">&para;</a></h2>
+<h3 id="api-018-kong-http-log-plugin-points-to-non-existent-logging-service">API-018: Kong http-log plugin points to non-existent logging-service<a class="headerlink" href="#api-018-kong-http-log-plugin-points-to-non-existent-logging-service" title="Permanent link">&para;</a></h3>
+<p><strong>File</strong>: <code>infrastructure/gateway/kong/kong.yml</code> (lines 1251, 1318, 1375, 1432, 1489)
+<strong>Severity</strong>: P3 Low</p>
+<p><code>http_endpoint: http://logging-service:8080/logs</code> — there is no <code>logging-service</code> in
+docker-compose.yml. These log shipping configurations will silently fail.</p>
+<hr />
+<h3 id="api-019-duplicate-route-paths-could-cause-kong-conflicts">API-019: Duplicate route paths could cause Kong conflicts<a class="headerlink" href="#api-019-duplicate-route-paths-could-cause-kong-conflicts" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P3 Low</p>
+<ul>
+<li><code>/api/v1/field-core</code> maps to both <code>field-intelligence</code> and <code>field-core</code> (deprecated)</li>
+<li><code>/api/v1/alerts</code> maps to <code>notification-service</code> AND <code>alert-service</code> has <code>/alerts/*</code> routes</li>
+</ul>
+<hr />
+<h3 id="api-020-openapi-documentation-not-standardized">API-020: OpenAPI documentation not standardized<a class="headerlink" href="#api-020-openapi-documentation-not-standardized" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P3 Low</p>
+<ul>
+<li>15 services use <code>tags=["..."]</code> on endpoints, 40+ don't</li>
+<li>8 services have <code>description</code> on the FastAPI app, others don't</li>
+<li>OpenAPI schemas are incomplete for response models</li>
+</ul>
+<hr />
+<h3 id="api-021-kong-proxy-cache-on-weather-and-vegetation-could-serve-stale-data">API-021: Kong proxy-cache on weather and vegetation could serve stale data<a class="headerlink" href="#api-021-kong-proxy-cache-on-weather-and-vegetation-could-serve-stale-data" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P3 Low</p>
+<p>Weather data cached for 15 minutes and vegetation data for 30 minutes. If an alert is
+published (frost, pest), the cached response won't reflect the new alert until TTL expires.</p>
+<hr />
+<h3 id="api-022-missing-patch-support-on-most-crud-services">API-022: Missing PATCH support on most CRUD services<a class="headerlink" href="#api-022-missing-patch-support-on-most-crud-services" title="Permanent link">&para;</a></h3>
+<p><strong>Severity</strong>: P3 Low</p>
+<p>Most services that support UPDATE use PUT (full replace). PATCH (partial update) is only
+used by notification-service and alert-service. Standard REST practice recommends
+supporting both.</p>
+<hr />
+<h2 id="recommended-priority-actions">Recommended Priority Actions<a class="headerlink" href="#recommended-priority-actions" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-p0-this-sprint">Immediate (P0 — this sprint)<a class="headerlink" href="#immediate-p0-this-sprint" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>API-002</strong>: Enable Kong JWT plugin globally with path exceptions</li>
+<li><strong>API-003</strong>: Replace CORS wildcard with environment-variable-driven origins</li>
+<li><strong>API-001</strong>: Add <code>get_current_user</code> to all service mutation endpoints</li>
+</ol>
+<h3 id="short-term-p1-next-2-sprints">Short-term (P1 — next 2 sprints)<a class="headerlink" href="#short-term-p1-next-2-sprints" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>API-006</strong>: Add rate limiting to all Kong routes</li>
+<li><strong>API-005</strong>: Migrate rate limiting from <code>local</code> to <code>redis</code> policy</li>
+<li><strong>API-007</strong>: Remove or sunset deprecated Kong routes</li>
+<li><strong>API-008</strong>: Review request size limits per service</li>
+</ol>
+<h3 id="medium-term-p2-quarter">Medium-term (P2 — quarter)<a class="headerlink" href="#medium-term-p2-quarter" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>API-011</strong>: Standardize API versioning to <code>/api/v1/*</code></li>
+<li><strong>API-016</strong>: Migrate all error handling to unified <code>shared.errors_py</code></li>
+<li><strong>API-013</strong>: Standardize health check endpoint patterns</li>
+</ol>
+<hr />
+<p><em>Generated by API interface audit on 2026-02-23</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

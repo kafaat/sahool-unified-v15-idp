@@ -1,0 +1,2359 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>SAHOOL Operational Runbook (Production) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-operational-runbook-production" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Operational Runbook (Production)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-operational-runbook-production">SAHOOL Operational Runbook (Production)<a class="headerlink" href="#sahool-operational-runbook-production" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Version</strong>: 1.0.0
+<strong>Platform</strong>: SAHOOL v16.0.0
+<strong>Last Updated</strong>: 2026-02-23
+<strong>Owner</strong>: KAFAAT — Platform Engineering
+<strong>Scope</strong>: Event-Driven Architecture (NATS JetStream + Outbox + PostgreSQL + K8s)</p>
+</blockquote>
+<hr />
+<h2 id="0-purpose">0. Purpose<a class="headerlink" href="#0-purpose" title="Permanent link">&para;</a></h2>
+<p>This runbook defines:</p>
+<ul>
+<li>How to <strong>detect</strong> incidents (alerts, dashboards, symptoms)</li>
+<li>How to <strong>diagnose</strong> rapidly (commands, queries, log patterns)</li>
+<li>How to <strong>remediate</strong> (step-by-step procedures)</li>
+<li>When to <strong>escalate</strong> (severity matrix, response windows)</li>
+<li>How to <strong>verify recovery</strong> (exit criteria, post-incident checks)</li>
+</ul>
+<h3 id="applicable-services">Applicable Services<a class="headerlink" href="#applicable-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Services</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Acquisition</strong></td>
+<td><code>weather-service</code>, <code>iot-service</code>, <code>iot-gateway</code>, <code>virtual-sensors</code>, <code>edge-orchestrator-service</code></td>
+</tr>
+<tr>
+<td><strong>Intelligence</strong></td>
+<td><code>crop-intelligence-service</code>, <code>vegetation-analysis-service</code>, <code>indicators-service</code>, <code>yolo26-vision-service</code>, <code>terrain-core-service</code></td>
+</tr>
+<tr>
+<td><strong>Decision</strong></td>
+<td><code>advisory-service</code>, <code>irrigation-smart</code>, <code>crop-growth-model</code>, <code>yield-prediction-service</code>, <code>hydrology-service</code>, <code>leveling-optimizer-service</code></td>
+</tr>
+<tr>
+<td><strong>Business</strong></td>
+<td><code>notification-service</code>, <code>marketplace-service</code>, <code>billing-core</code>, <code>chat-service</code>, <code>task-service</code>, <code>equipment-service</code>, <code>ws-gateway</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="jetstream-streams-9-pre-defined">JetStream Streams (9 Pre-Defined)<a class="headerlink" href="#jetstream-streams-9-pre-defined" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Stream</th>
+<th>Subjects</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SAHOOL_FIELD</code></td>
+<td><code>sahool.field.&gt;</code>, <code>sahool.satellite.&gt;</code></td>
+<td>30 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_WEATHER</code></td>
+<td><code>sahool.weather.&gt;</code></td>
+<td>7 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_INTELLIGENCE</code></td>
+<td><code>sahool.calibration.&gt;</code>, <code>sahool.irrigation.&gt;</code>, <code>sahool.health.&gt;</code>, <code>sahool.recommendation.&gt;</code></td>
+<td>30 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_VISION</code></td>
+<td><code>sahool.vision.&gt;</code></td>
+<td>14 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_TERRAIN</code></td>
+<td><code>sahool.terrain.&gt;</code></td>
+<td>30 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_EDGE</code></td>
+<td><code>sahool.edge.&gt;</code></td>
+<td>14 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_BUSINESS</code></td>
+<td><code>sahool.billing.&gt;</code>, <code>sahool.notification.&gt;</code>, <code>sahool.task.&gt;</code>, etc.</td>
+<td>90 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_AGENT</code></td>
+<td><code>sahool.agent.&gt;</code></td>
+<td>14 days</td>
+</tr>
+<tr>
+<td><code>SAHOOL_DLQ</code></td>
+<td><code>sahool.dlq.&gt;</code></td>
+<td>30 days</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Streams defined in <code>shared/events/streams.py</code>. Each stream: <code>max_messages=1,000,000</code>, <code>max_bytes=5GB</code>, <code>storage=file</code>, <code>dedup_window=120s</code>.</p>
+</blockquote>
+<hr />
+<h2 id="1-severity-levels">1. Severity Levels<a class="headerlink" href="#1-severity-levels" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Definition</th>
+<th>Response Window</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td>Total system outage or data loss</td>
+<td>Immediate</td>
+<td>Rollback + incident bridge</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Recommendations, calibration, or billing impacted</td>
+<td>15 minutes</td>
+<td>Investigate and remediate</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Latency degradation or non-critical feature failure</td>
+<td>Same day</td>
+<td>Fix within working hours</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>Non-impacting error or cosmetic issue</td>
+<td>Scheduled</td>
+<td>Fix in next sprint</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-incident-dlq-growth">2. Incident: DLQ Growth<a class="headerlink" href="#2-incident-dlq-growth" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms">Symptoms<a class="headerlink" href="#symptoms" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Alert: <code>DLQMessageCountHigh</code> (threshold: 100 messages — <code>shared/events/dlq_config.py</code>)</li>
+<li>Increasing messages in <code>SAHOOL_DLQ</code> stream</li>
+<li>Repeated subject pattern in DLQ (e.g., <code>sahool.dlq.calibration.run.failed.v1</code>)</li>
+<li>Dashboard: DLQ message count graph trending upward</li>
+</ul>
+<h3 id="diagnosis">Diagnosis<a class="headerlink" href="#diagnosis" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1</strong> — Inspect DLQ stream info:</p>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_DLQ
+</code></pre></div>
+
+<p><strong>Step 2</strong> — Read sample message from DLQ:</p>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>consumer<span class="w"> </span>next<span class="w"> </span>SAHOOL_DLQ<span class="w"> </span>&lt;consumer-name&gt;
+</code></pre></div>
+
+<p><strong>Step 3</strong> — Use the DLQ management API:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Get DLQ statistics (messages by subject, error type, service)</span>
+curl<span class="w"> </span>http://localhost:8150/dlq/stats
+
+<span class="c1"># List DLQ messages with pagination</span>
+curl<span class="w"> </span><span class="s2">&quot;http://localhost:8150/dlq/messages?limit=10&amp;offset=0&quot;</span>
+
+<span class="c1"># Get specific message details</span>
+curl<span class="w"> </span>http://localhost:8150/dlq/messages/&lt;msg_id&gt;
+</code></pre></div>
+
+<p><strong>Step 4</strong> — Examine message metadata fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>What to Check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>original_subject</code></td>
+<td>Which event failed?</td>
+</tr>
+<tr>
+<td><code>correlation_id</code></td>
+<td>Trace the full request chain</td>
+</tr>
+<tr>
+<td><code>retry_count</code></td>
+<td>Should be 3 (max retries from <code>DLQ_MAX_RETRIES</code>)</td>
+</tr>
+<tr>
+<td><code>failure_reason</code></td>
+<td>Root cause string</td>
+</tr>
+<tr>
+<td><code>error_type</code></td>
+<td><code>ValidationError</code> = non-retriable, <code>TimeoutError</code> = retriable</td>
+</tr>
+<tr>
+<td><code>consumer_service</code></td>
+<td>Which service failed to process?</td>
+</tr>
+<tr>
+<td><code>retry_timestamps</code></td>
+<td>Backoff pattern: 1s → 2s → 4s</td>
+</tr>
+<tr>
+<td><code>retry_errors</code></td>
+<td>Error history per attempt</td>
+</tr>
+</tbody>
+</table>
+<h3 id="remediation">Remediation<a class="headerlink" href="#remediation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Root Cause</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ValidationError</code> / <code>ValueError</code> / <code>KeyError</code> / <code>TypeError</code></td>
+<td>Fix source data or publisher schema. These are <strong>non-retriable</strong> — they went directly to DLQ.</td>
+</tr>
+<tr>
+<td><code>TimeoutError</code> / <code>ConnectionError</code></td>
+<td>Check downstream DB or service health. These retried 3 times with exponential backoff before DLQ.</td>
+</tr>
+<tr>
+<td>Schema mismatch (<code>X-Schema-Version</code> header)</td>
+<td>Check for version drift between publisher and consumer. Verify <code>BaseEvent.version</code> field.</td>
+</tr>
+<tr>
+<td>DB lock / high CPU</td>
+<td>See <a href="#6-incident-db-high-cpu--lock-contention">Incident: DB High CPU</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="do-not">Do NOT<a class="headerlink" href="#do-not" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Do NOT replay all DLQ messages at once — this can cause event storms</li>
+<li>Do NOT delete DLQ messages without analysis</li>
+<li>Do NOT disable DLQ (<code>DLQ_ENABLED=false</code>) as a workaround</li>
+</ul>
+<h3 id="after-fix">After Fix<a class="headerlink" href="#after-fix" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Replay specific messages only (by sequence number)</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/replay/&lt;sequence_number&gt;
+
+<span class="c1"># Or bulk replay (with caution, specific sequences only)</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/replay/bulk<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Content-Type: application/json&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-d<span class="w"> </span><span class="s1">&#39;{&quot;sequences&quot;: [1, 2, 3]}&#39;</span>
+
+<span class="c1"># Archive old DLQ messages</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/archive
+</code></pre></div>
+
+<ul>
+<li>Monitor consumer lag for 10 minutes after replay</li>
+<li>Verify no new DLQ entries for the same subject</li>
+</ul>
+<hr />
+<h2 id="3-incident-consumer-lag">3. Incident: Consumer Lag<a class="headerlink" href="#3-incident-consumer-lag" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_1">Symptoms<a class="headerlink" href="#symptoms_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>JetStream consumer lag is high (increasing <code>num_ack_pending</code>)</li>
+<li>Dashboard not updating with fresh data</li>
+<li>Recommendations are delayed</li>
+<li>Alert: <code>JetStreamLag</code> (from <code>infrastructure/monitoring/prometheus/rules/nats-alerts.yml</code>)</li>
+</ul>
+<h3 id="diagnosis_1">Diagnosis<a class="headerlink" href="#diagnosis_1" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check specific consumer info</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>SAHOOL_INTELLIGENCE<span class="w"> </span>decision-consumer
+
+<span class="c1"># Check all consumers for a stream</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>ls<span class="w"> </span>SAHOOL_INTELLIGENCE
+</code></pre></div>
+
+<p><strong>Key metrics to inspect</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Healthy</th>
+<th>Concerning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>num_ack_pending</code></td>
+<td>&lt; 100</td>
+<td>&gt; 1,000</td>
+</tr>
+<tr>
+<td><code>num_redelivered</code></td>
+<td>0</td>
+<td>Increasing</td>
+</tr>
+<tr>
+<td><code>num_waiting</code></td>
+<td>&gt; 0</td>
+<td>0 (no workers pulling)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="remediation_1">Remediation<a class="headerlink" href="#remediation_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Check consumer pod resource usage</strong>:</li>
+</ol>
+<p><code>bash
+   kubectl top pods -l app=crop-intelligence-service</code></p>
+<ol>
+<li><strong>Check DB latency</strong> (slow queries block event processing):</li>
+</ol>
+<p><code>bash
+   kubectl exec -it postgres-0 -- psql -U sahool -c \
+     "SELECT pid, now() - query_start AS duration, query FROM pg_stat_activity WHERE state = 'active' ORDER BY duration DESC LIMIT 5;"</code></p>
+<ol>
+<li><strong>Restart stuck consumer</strong> (if <code>num_waiting=0</code> and pod is running):</li>
+</ol>
+<p><code>bash
+   kubectl delete pod &lt;consumer-pod-name&gt;</code></p>
+<ol>
+<li><strong>Scale horizontally</strong> (manual HPA override):</li>
+</ol>
+<p><code>bash
+   kubectl scale deployment crop-intelligence-service --replicas=4</code></p>
+<blockquote>
+<p>HPA is configured for 14 services with scale-up: 100% per 15s or +2 pods per 60s, scale-down: -10% per 60s with 5-min stabilization. See <code>helm/charts/*/templates/hpa.yaml</code>.</p>
+</blockquote>
+<ol>
+<li><strong>Check <code>max_concurrent_messages</code></strong> setting (default: 10 in <code>SubscriberConfig</code>):</li>
+</ol>
+<p>If processing is CPU-bound, reduce concurrency to prevent overload.</p>
+<hr />
+<h2 id="4-incident-duplicate-recommendation-suspected">4. Incident: Duplicate Recommendation Suspected<a class="headerlink" href="#4-incident-duplicate-recommendation-suspected" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_2">Symptoms<a class="headerlink" href="#symptoms_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Farmer receives the same irrigation or fertilizer recommendation twice</li>
+<li>Duplicate entries in database recommendation tables</li>
+<li>Duplicate notification delivery</li>
+</ul>
+<h3 id="diagnosis_2">Diagnosis<a class="headerlink" href="#diagnosis_2" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1</strong> — Check <code>processed_events</code> table:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- PK is (tenant_id, event_id) — dedup guard</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Check for multiple entries with same correlation</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">tenant_id</span><span class="p">,</span><span class="w"> </span><span class="n">event_id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">service</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">processed_at</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">processed_at</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Step 2</strong> — Check in-memory dedup (LRU cache, 50K entries in <code>EventSubscriber</code>):</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check subscriber dedup stats in service logs</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Duplicate event_id skipped&quot;</span>
+<span class="c1"># Or check dedup hit count</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>&lt;pod&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;dedup_hit_count&quot;</span>
+</code></pre></div>
+
+<p><strong>Step 3</strong> — Check outbox replay:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Check if outbox event was published more than once</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">status</span><span class="p">,</span><span class="w"> </span><span class="n">retry_count</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="n">sent_at</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;correlation_id&gt;&#39;</span><span class="p">;</span>
+</code></pre></div>
+
+<p><strong>Step 4</strong> — Check NATS dedup window:</p>
+<blockquote>
+<p>Streams have <code>dedup_window=120s</code>. If the same <code>event_id</code> is published within 120s, NATS deduplicates it. Beyond 120s, the consumer-side <code>processed_events</code> table is the guard.</p>
+</blockquote>
+<h3 id="remediation_2">Remediation<a class="headerlink" href="#remediation_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Root Cause</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>processed_events</code> PK not enforced</td>
+<td>Verify <code>PRIMARY KEY (tenant_id, event_id)</code> exists</td>
+</tr>
+<tr>
+<td>In-memory LRU evicted (cache full)</td>
+<td>Check <code>_dedup_max_size=50000</code> — increase if needed</td>
+</tr>
+<tr>
+<td>ACK sent before DB commit</td>
+<td><strong>Critical bug</strong> — ACK must happen AFTER successful DB write. Check <code>auto_ack</code> setting in <code>Subscription</code>.</td>
+</tr>
+<tr>
+<td>Outbox relay published twice</td>
+<td>Check <code>_SQL_MARK_SENT</code> is atomic — verify <code>sent_at IS NULL</code> guard</td>
+</tr>
+<tr>
+<td>NATS dedup window expired</td>
+<td>Events published &gt;120s apart with same ID. Increase <code>dedup_window</code> or rely on <code>processed_events</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-incident-outbox-backlog">5. Incident: Outbox Backlog<a class="headerlink" href="#5-incident-outbox-backlog" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_3">Symptoms<a class="headerlink" href="#symptoms_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>outbox_events</code> table growing rapidly (status=<code>pending</code>)</li>
+<li>Downstream services not receiving events</li>
+<li>Stale data in dashboards</li>
+</ul>
+<h3 id="diagnosis_3">Diagnosis<a class="headerlink" href="#diagnosis_3" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Count pending outbox events</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pending&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Check oldest pending event</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">,</span><span class="w"> </span><span class="n">retry_count</span><span class="p">,</span><span class="w"> </span><span class="n">last_error</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;pending&#39;</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">created_at</span><span class="w"> </span><span class="k">ASC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+
+<span class="c1">-- Check failed outbox events</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">subject</span><span class="p">,</span><span class="w"> </span><span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">),</span><span class="w"> </span><span class="k">MAX</span><span class="p">(</span><span class="n">retry_count</span><span class="p">),</span><span class="w"> </span><span class="k">MAX</span><span class="p">(</span><span class="n">last_error</span><span class="p">)</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">outbox_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">status</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;failed&#39;</span>
+<span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">subject</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="remediation_3">Remediation<a class="headerlink" href="#remediation_3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Check NATS availability</strong>:</li>
+</ol>
+<p><code>bash
+   nats server ping
+   nats server info</code></p>
+<ol>
+<li><strong>Check OutboxRelay status</strong> in service logs:</li>
+</ol>
+<p><code>bash
+   kubectl logs &lt;pod&gt; | grep "outbox_relay"
+   # Look for: outbox_relay_started, outbox_relay_batch, outbox_relay_error</code></p>
+<ol>
+<li><strong>Verify OutboxRelay is running</strong> (background task in service lifespan):</li>
+</ol>
+<blockquote>
+<p>OutboxRelay: <code>poll_interval=1.0s</code>, <code>batch_size=50</code>. Defined in <code>shared/events/outbox.py</code>.</p>
+</blockquote>
+<ol>
+<li><strong>Scale outbox relay</strong> if NATS is healthy but backlog persists:</li>
+</ol>
+<p><code>bash
+   kubectl scale deployment &lt;service-with-outbox&gt; --replicas=3</code></p>
+<ol>
+<li><strong>Run cleanup</strong> for old sent events (24h TTL):</li>
+</ol>
+<p><code>sql
+   -- Check sent events that should be cleaned
+   SELECT COUNT(*) FROM outbox_events
+   WHERE status = 'sent' AND sent_at &lt; NOW() - INTERVAL '24 hours';</code></p>
+<h3 id="escalation">Escalation<a class="headerlink" href="#escalation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>P1</strong> if <code>pending</code> backlog &gt; 50,000</li>
+<li><strong>P0</strong> if NATS is completely unreachable</li>
+</ul>
+<hr />
+<h2 id="6-incident-db-high-cpu-lock-contention">6. Incident: DB High CPU / Lock Contention<a class="headerlink" href="#6-incident-db-high-cpu-lock-contention" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_4">Symptoms<a class="headerlink" href="#symptoms_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>PostgreSQL CPU &gt; 80%</li>
+<li>Slow queries across services</li>
+<li>Connection timeouts (PgBouncer: max 250 connections, transaction mode)</li>
+<li>Alert: <code>PostgresCPUHigh</code></li>
+</ul>
+<h3 id="diagnosis_4">Diagnosis<a class="headerlink" href="#diagnosis_4" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1">-- Active queries and their duration</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">pid</span><span class="p">,</span><span class="w"> </span><span class="n">now</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">query_start</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">duration</span><span class="p">,</span><span class="w"> </span><span class="k">state</span><span class="p">,</span><span class="w"> </span><span class="n">query</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s1">&#39;idle&#39;</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">duration</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">20</span><span class="p">;</span>
+
+<span class="c1">-- Lock waits</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">blocked</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_pid</span><span class="p">,</span>
+<span class="w">       </span><span class="n">blocked</span><span class="p">.</span><span class="n">query</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocked_query</span><span class="p">,</span>
+<span class="w">       </span><span class="n">blocking</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocking_pid</span><span class="p">,</span>
+<span class="w">       </span><span class="n">blocking</span><span class="p">.</span><span class="n">query</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">blocking_query</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="w"> </span><span class="n">blocked</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">pg_locks</span><span class="w"> </span><span class="n">bl</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">bl</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">blocked</span><span class="p">.</span><span class="n">pid</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">pg_locks</span><span class="w"> </span><span class="n">bk</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">bk</span><span class="p">.</span><span class="n">locktype</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bl</span><span class="p">.</span><span class="n">locktype</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">bk</span><span class="p">.</span><span class="n">relation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bl</span><span class="p">.</span><span class="n">relation</span>
+<span class="w">  </span><span class="k">AND</span><span class="w"> </span><span class="n">bk</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">bl</span><span class="p">.</span><span class="n">pid</span>
+<span class="k">JOIN</span><span class="w"> </span><span class="n">pg_stat_activity</span><span class="w"> </span><span class="n">blocking</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">blocking</span><span class="p">.</span><span class="n">pid</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">bk</span><span class="p">.</span><span class="n">pid</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">bl</span><span class="p">.</span><span class="k">granted</span><span class="p">;</span>
+
+<span class="c1">-- Table bloat / missing indexes</span>
+<span class="k">SELECT</span><span class="w"> </span><span class="n">schemaname</span><span class="p">,</span><span class="w"> </span><span class="n">tablename</span><span class="p">,</span><span class="w"> </span><span class="n">n_tup_ins</span><span class="p">,</span><span class="w"> </span><span class="n">n_tup_upd</span><span class="p">,</span><span class="w"> </span><span class="n">n_tup_del</span><span class="p">,</span>
+<span class="w">       </span><span class="n">n_live_tup</span><span class="p">,</span><span class="w"> </span><span class="n">n_dead_tup</span><span class="p">,</span><span class="w"> </span><span class="n">last_vacuum</span><span class="p">,</span><span class="w"> </span><span class="n">last_autovacuum</span>
+<span class="k">FROM</span><span class="w"> </span><span class="n">pg_stat_user_tables</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">n_dead_tup</span><span class="w"> </span><span class="k">DESC</span>
+<span class="k">LIMIT</span><span class="w"> </span><span class="mi">10</span><span class="p">;</span>
+</code></pre></div>
+
+<h3 id="remediation_4">Remediation<a class="headerlink" href="#remediation_4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Root Cause</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Long-running query</td>
+<td><code>SELECT pg_cancel_backend(&lt;pid&gt;);</code> (safe) or <code>pg_terminate_backend(&lt;pid&gt;)</code> (force)</td>
+</tr>
+<tr>
+<td>Missing index</td>
+<td>Add index — check <code>processed_events</code>, <code>outbox_events</code> indexes exist</td>
+</tr>
+<tr>
+<td><code>processed_events</code> table bloat</td>
+<td>Run <code>VACUUM ANALYZE processed_events;</code> — TTL cleanup should run every 7 days</td>
+</tr>
+<tr>
+<td><code>outbox_events</code> table bloat</td>
+<td>Run <code>VACUUM ANALYZE outbox_events;</code> — sent events should be cleaned after 24h</td>
+</tr>
+<tr>
+<td>High connection count</td>
+<td>Check PgBouncer stats: <code>SHOW POOLS;</code> and <code>SHOW CLIENTS;</code></td>
+</tr>
+<tr>
+<td>Batch size too large</td>
+<td>Reduce <code>batch_size</code> in OutboxRelay (default: 50) or consumer processing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="vertical-scaling-emergency">Vertical Scaling (Emergency)<a class="headerlink" href="#vertical-scaling-emergency" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Increase DB resources</span>
+kubectl<span class="w"> </span>edit<span class="w"> </span>statefulset<span class="w"> </span>postgres
+<span class="c1"># Adjust resources.limits.cpu and resources.limits.memory</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-incident-event-storm">7. Incident: Event Storm<a class="headerlink" href="#7-incident-event-storm" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_5">Symptoms<a class="headerlink" href="#symptoms_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Sudden spike in publish rate on specific subjects</li>
+<li>Outbox backlog growing</li>
+<li>Consumer lag increasing across streams</li>
+<li>NATS: high message rate in <code>nats server info</code></li>
+</ul>
+<h3 id="diagnosis_5">Diagnosis<a class="headerlink" href="#diagnosis_5" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check NATS server stats</span>
+nats<span class="w"> </span>server<span class="w"> </span>info
+
+<span class="c1"># Check stream message rates</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_INTELLIGENCE
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_FIELD
+
+<span class="c1"># Identify high-volume subjects</span>
+nats<span class="w"> </span>stream<span class="w"> </span>subjects<span class="w"> </span>SAHOOL_INTELLIGENCE
+</code></pre></div>
+
+<ul>
+<li>Check producer service logs for correlation_id patterns (is one request generating many events?)</li>
+<li>Check if a batch operation or bulk import is running</li>
+</ul>
+<h3 id="remediation_5">Remediation<a class="headerlink" href="#remediation_5" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Apply rate limiting</strong> at API gateway (Kong):</li>
+</ol>
+<blockquote>
+<p>Rate limit tiers defined in <code>shared/middleware/rate_limit.py</code>:
+- Starter: 30 req/min, 500/hour
+- Professional: 60 req/min, 2000/hour
+- Enterprise: 120 req/min, 5000/hour
+- Internal: 1000 req/min, 50000/hour</p>
+</blockquote>
+<ol>
+<li><strong>Throttle specific subject</strong> at publisher level:</li>
+</ol>
+<p>Temporarily reduce batch sizes or add delays in the producing service.</p>
+<ol>
+<li><strong>Scale consumers horizontally</strong>:</li>
+</ol>
+<p><code>bash
+   kubectl scale deployment advisory-service --replicas=6
+   kubectl scale deployment crop-intelligence-service --replicas=4</code></p>
+<ol>
+<li><strong>Check circuit breakers</strong>:</li>
+</ol>
+<blockquote>
+<p>Pre-configured breakers in <code>shared/ai/circuit_breaker.py</code>:
+- <code>ollama</code>: 3 failures, 30s timeout
+- <code>anthropic</code>: 5 failures, 60s timeout
+- <code>openai</code>: 5 failures, 60s timeout</p>
+</blockquote>
+<hr />
+<h2 id="8-correlation-debugging-procedure">8. Correlation Debugging Procedure<a class="headerlink" href="#8-correlation-debugging-procedure" title="Permanent link">&para;</a></h2>
+<h3 id="objective">Objective<a class="headerlink" href="#objective" title="Permanent link">&para;</a></h3>
+<p>Trace the full journey of an irrigation recommendation from HTTP request through event chain to notification delivery.</p>
+<h3 id="steps">Steps<a class="headerlink" href="#steps" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1</strong> — Get <code>correlation_id</code> from the initial HTTP request log:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Search service logs for the correlation ID</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>advisory-service<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;correlation_id=&lt;XYZ&gt;&quot;</span>
+</code></pre></div>
+
+<blockquote>
+<p>Correlation ID is generated by <code>shared/middleware/request_logging.py</code> from <code>X-Correlation-ID</code> or <code>X-Request-ID</code> header, or auto-generated as UUID.</p>
+</blockquote>
+<p><strong>Step 2</strong> — Search across all services in the chain:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Search each service in the event chain</span>
+<span class="k">for</span><span class="w"> </span>svc<span class="w"> </span><span class="k">in</span><span class="w"> </span>advisory-service<span class="w"> </span>irrigation-smart<span class="w"> </span>crop-intelligence-service<span class="w"> </span>notification-service<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$svc</span><span class="s2"> ===&quot;</span>
+<span class="w">  </span>kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span><span class="nv">$svc</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;&lt;correlation_id&gt;&quot;</span>
+<span class="k">done</span>
+</code></pre></div>
+
+<p><strong>Step 3</strong> — Verify the event chain:</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>X-Correlation-ID</code></td>
+<td>Same across entire request chain</td>
+</tr>
+<tr>
+<td><code>X-Causation-ID</code></td>
+<td>Points to the upstream <code>event_id</code> that caused this event</td>
+</tr>
+<tr>
+<td><code>X-Event-ID</code></td>
+<td>Unique ID of this specific event</td>
+</tr>
+<tr>
+<td><code>X-Tenant-ID</code></td>
+<td>Tenant scope (from JWT <code>tid</code> claim)</td>
+</tr>
+<tr>
+<td><code>X-Schema-Version</code></td>
+<td>Event schema version for compatibility</td>
+</tr>
+<tr>
+<td><code>traceparent</code></td>
+<td>W3C OpenTelemetry trace format: <code>00-{trace_id}-{span_id}-01</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>BaseEvent fields</strong> (from <code>shared/events/contracts.py</code>):</p>
+<blockquote>
+<p>Every event carries: <code>event_id</code>, <code>correlation_id</code>, <code>causation_id</code>, <code>trace_id</code>, <code>span_id</code>, <code>version</code>, <code>source_service</code>, <code>tenant_id_header</code>.</p>
+</blockquote>
+<p><strong>Step 4</strong> — Verify:</p>
+<ul>
+<li>No missing hop in the causation chain (<code>causation_id</code> must point to parent <code>event_id</code>)</li>
+<li>No broken <code>traceparent</code> (OpenTelemetry)</li>
+<li><code>processed_events</code> table has entries for each service in the chain</li>
+<li>No DLQ entries for this correlation_id</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">processed_events</span>
+<span class="k">WHERE</span><span class="w"> </span><span class="n">correlation_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;&lt;XYZ&gt;&#39;</span>
+<span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">processed_at</span><span class="p">;</span>
+</code></pre></div>
+
+<hr />
+<h2 id="9-pod-crash-during-processing">9. Pod Crash During Processing<a class="headerlink" href="#9-pod-crash-during-processing" title="Permanent link">&para;</a></h2>
+<h3 id="symptoms_6">Symptoms<a class="headerlink" href="#symptoms_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Pod restart count increasing (<code>kubectl get pods</code> → RESTARTS column)</li>
+<li>NATS <code>num_redelivered</code> count increasing</li>
+<li>Possible duplicate processing</li>
+</ul>
+<h3 id="diagnosis_6">Diagnosis<a class="headerlink" href="#diagnosis_6" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check pod restart reason</span>
+kubectl<span class="w"> </span>describe<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-A<span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="s2">&quot;Last State&quot;</span>
+
+<span class="c1"># Check if OOMKilled</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>&lt;pod-name&gt;<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">&#39;{.status.containerStatuses[0].lastState.terminated.reason}&#39;</span>
+</code></pre></div>
+
+<p><strong>Key questions</strong>:</p>
+<ol>
+<li>Did ACK happen before crash? → If yes, message is lost (violates at-least-once)</li>
+<li>Did <code>processed_events</code> record the event? → If yes, replay is safe (dedup will skip)</li>
+<li>Is the event in DLQ? → If yes, retry logic detected the failure</li>
+</ol>
+<h3 id="remediation_6">Remediation<a class="headerlink" href="#remediation_6" title="Permanent link">&para;</a></h3>
+<p><strong>Usually no intervention needed.</strong> The system recovers automatically:</p>
+<ol>
+<li>NATS redelivers the message (since ACK was not sent)</li>
+<li>Consumer processes the message again</li>
+<li><code>processed_events</code> table prevents duplicate side effects (PK: <code>tenant_id, event_id</code>)</li>
+<li>In-memory LRU dedup (50K cache) provides fast-path dedup</li>
+</ol>
+<p><strong>If duplication occurred</strong> (ACK before commit — a bug):</p>
+<ul>
+<li>Review <code>auto_ack</code> setting in the <code>Subscription</code> config</li>
+<li>Ensure ACK happens AFTER successful DB commit</li>
+<li>Check idempotency layer in <code>shared/events/subscriber.py</code></li>
+</ul>
+<hr />
+<h2 id="10-emergency-rollback-procedure">10. Emergency Rollback Procedure<a class="headerlink" href="#10-emergency-rollback-procedure" title="Permanent link">&para;</a></h2>
+<h3 id="trigger">Trigger<a class="headerlink" href="#trigger" title="Permanent link">&para;</a></h3>
+<p>A new deployment caused failures (errors, DLQ growth, wrong recommendations).</p>
+<h3 id="steps_1">Steps<a class="headerlink" href="#steps_1" title="Permanent link">&para;</a></h3>
+<p><strong>Step 1</strong> — Rollback the deployment:</p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w"> </span>deployment/&lt;service-name&gt;
+</code></pre></div>
+
+<p><strong>Step 2</strong> — Verify consumers reconnected:</p>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>&lt;stream&gt;<span class="w"> </span>&lt;consumer-name&gt;
+<span class="c1"># Check: num_waiting &gt; 0 (workers are pulling)</span>
+</code></pre></div>
+
+<p><strong>Step 3</strong> — Check consumer lag:</p>
+<div class="codehilite"><pre><span></span><code>nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>&lt;stream&gt;<span class="w"> </span>&lt;consumer-name&gt;
+<span class="c1"># Check: num_ack_pending is decreasing</span>
+</code></pre></div>
+
+<p><strong>Step 4</strong> — Monitor DLQ for 15 minutes:</p>
+<div class="codehilite"><pre><span></span><code>watch<span class="w"> </span>-n<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="s1">&#39;nats stream info SAHOOL_DLQ&#39;</span>
+</code></pre></div>
+
+<p><strong>Step 5</strong> — Verify no new failures:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Check error rate in Prometheus</span>
+<span class="c1"># Alert: error rate &lt; 1% for 15 minutes</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>&lt;service-name&gt;<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-i<span class="w"> </span>error
+</code></pre></div>
+
+<hr />
+<h2 id="11-health-check-routine-daily">11. Health Check Routine (Daily)<a class="headerlink" href="#11-health-check-routine-daily" title="Permanent link">&para;</a></h2>
+<p>Run this checklist daily (or automate with <code>make health</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Target</th>
+<th>Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DLQ count</td>
+<td>= 0 (or near zero)</td>
+<td><code>nats stream info SAHOOL_DLQ</code></td>
+</tr>
+<tr>
+<td>Outbox pending</td>
+<td>&lt; 100</td>
+<td><code>SELECT COUNT(*) FROM outbox_events WHERE status='pending';</code></td>
+</tr>
+<tr>
+<td>No redeliver spike</td>
+<td><code>num_redelivered</code> stable</td>
+<td><code>nats consumer info &lt;stream&gt; &lt;consumer&gt;</code></td>
+</tr>
+<tr>
+<td>DB CPU</td>
+<td>&lt; 70%</td>
+<td>Grafana: Infrastructure Overview dashboard</td>
+</tr>
+<tr>
+<td>HPA stable</td>
+<td>No flapping</td>
+<td><code>kubectl get hpa</code></td>
+</tr>
+<tr>
+<td>Error rate</td>
+<td>&lt; 1% per service</td>
+<td>Grafana: Service Overview dashboard</td>
+</tr>
+<tr>
+<td>All health endpoints</td>
+<td>200 OK</td>
+<td><code>make health</code> or <code>for port in 8090 8091 8092 8093 8094 8095; do curl -sf http://localhost:$port/healthz; done</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="automated-health-endpoints">Automated Health Endpoints<a class="headerlink" href="#automated-health-endpoints" title="Permanent link">&para;</a></h3>
+<p>All services expose (per <code>shared/monitoring/health_enhanced.py</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Endpoint</th>
+<th>Purpose</th>
+<th>K8s Probe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /healthz</code></td>
+<td>Liveness (is the process alive?)</td>
+<td><code>livenessProbe</code></td>
+</tr>
+<tr>
+<td><code>GET /readyz</code></td>
+<td>Readiness (can it handle traffic?)</td>
+<td><code>readinessProbe</code></td>
+</tr>
+<tr>
+<td><code>GET /health</code></td>
+<td>Comprehensive status (dependencies, metrics)</td>
+<td>Manual check</td>
+</tr>
+<tr>
+<td><code>GET /metrics</code></td>
+<td>Prometheus metrics</td>
+<td>Prometheus scrape</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="12-weekly-review">12. Weekly Review<a class="headerlink" href="#12-weekly-review" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Task</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Check stream retention</td>
+<td>Ensure no streams approaching <code>max_messages</code> (1M) or <code>max_bytes</code> (5GB)</td>
+</tr>
+<tr>
+<td>Check <code>processed_events</code> growth</td>
+<td>Run TTL cleanup if table &gt; 1M rows (7-day retention)</td>
+</tr>
+<tr>
+<td>Archive old correlation logs</td>
+<td>Reduce log storage costs</td>
+</tr>
+<tr>
+<td>Review slow queries</td>
+<td><code>pg_stat_statements</code> — optimize top 5 slow queries</td>
+</tr>
+<tr>
+<td>Review retry patterns</td>
+<td>Check <code>retry_count</code> distribution in <code>outbox_events</code> and DLQ</td>
+</tr>
+<tr>
+<td>Check circuit breaker states</td>
+<td>Ensure no breakers are stuck in OPEN state</td>
+</tr>
+<tr>
+<td>Verify backup health</td>
+<td>WAL archiving, PITR readiness (see <code>docs/disaster-recovery/</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13-escalation-matrix">13. Escalation Matrix<a class="headerlink" href="#13-escalation-matrix" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Response</th>
+<th>Who</th>
+<th>Channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0</strong></td>
+<td>Immediate rollback + incident bridge</td>
+<td>On-call engineer + Team Lead</td>
+<td>War room / incident channel</td>
+</tr>
+<tr>
+<td><strong>P1</strong></td>
+<td>Investigate within 15 min</td>
+<td>On-call engineer</td>
+<td>Alert channel</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Fix within same business day</td>
+<td>Assigned engineer</td>
+<td>Team channel</td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td>Schedule in next sprint</td>
+<td>Product team</td>
+<td>Backlog</td>
+</tr>
+</tbody>
+</table>
+<h3 id="escalation-triggers">Escalation Triggers<a class="headerlink" href="#escalation-triggers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>All pods down for a service</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>Data loss confirmed</td>
+<td>P0</td>
+</tr>
+<tr>
+<td>DLQ &gt; 1000 messages in 1 hour</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Outbox backlog &gt; 50,000</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Consumer lag &gt; 10,000 and growing</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>DB CPU &gt; 90% for 10 minutes</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>NATS connection lost</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Single service error rate &gt; 5%</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Latency p99 &gt; 5s</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="14-golden-rules">14. Golden Rules<a class="headerlink" href="#14-golden-rules" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>These rules are absolute. Violating them can cause data loss, duplicate side effects, or cascading failures.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Never replay all DLQ messages at once</strong></td>
+<td>Causes event storms; replay selectively after root cause fix</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Never delete <code>processed_events</code> data</strong></td>
+<td>Removes idempotency guard; duplicates will occur on replay</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Never disable idempotency temporarily</strong></td>
+<td>Even "just for testing" can cause production duplicates</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Never ACK before DB commit</strong></td>
+<td>Message is lost if pod crashes between ACK and commit</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Never publish events outside outbox transaction</strong></td>
+<td>Breaks exactly-once guarantee; event may publish without business write</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Never force-delete NATS streams</strong></td>
+<td>Use retention policies; force-delete loses unprocessed messages</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>Never bypass rate limiting for debugging</strong></td>
+<td>Use internal tier (1000 req/min) instead of disabling</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-exit-criteria-incident-resolved">15. Exit Criteria (Incident Resolved)<a class="headerlink" href="#15-exit-criteria-incident-resolved" title="Permanent link">&para;</a></h2>
+<p>An incident is considered <strong>resolved</strong> when ALL of the following hold for <strong>30 minutes</strong>:</p>
+<ul>
+<li>[ ] DLQ message count is stable (no new messages)</li>
+<li>[ ] No new error logs for the affected service</li>
+<li>[ ] Consumer lag is at normal levels (<code>num_ack_pending</code> &lt; 100)</li>
+<li>[ ] DB CPU is stable (&lt; 70%)</li>
+<li>[ ] No duplicate side effects detected</li>
+<li>[ ] Outbox <code>pending</code> count &lt; 100</li>
+<li>[ ] Health endpoints return 200 for all affected services</li>
+<li>[ ] HPA is not flapping (replicas stable)</li>
+</ul>
+<hr />
+<h2 id="16-platform-maturity-assessment">16. Platform Maturity Assessment<a class="headerlink" href="#16-platform-maturity-assessment" title="Permanent link">&para;</a></h2>
+<p>If the patterns described in this runbook are fully implemented and operational:</p>
+<ul>
+<li><strong>Outbox pattern</strong> ensures exactly-once event delivery (no lost events)</li>
+<li><strong>DLQ with retry</strong> handles transient failures automatically (3 retries, exponential backoff)</li>
+<li><strong>Processed events table</strong> prevents duplicate processing on replay</li>
+<li><strong>In-memory LRU dedup</strong> (50K cache) provides fast-path deduplication</li>
+<li><strong>W3C correlation tracing</strong> enables full request chain debugging</li>
+<li><strong>Circuit breakers</strong> prevent cascading failures to external services</li>
+<li><strong>HPA</strong> scales services automatically under load</li>
+</ul>
+<p>The platform is at a <strong>Production-Mature</strong> level, resilient against:</p>
+<ul>
+<li>Pod restarts and crashes</li>
+<li>Transient network failures and retries</li>
+<li>Message duplication and replay</li>
+<li>Partial failures across the event chain</li>
+<li>External service outages (circuit breaker protection)</li>
+</ul>
+<hr />
+<h2 id="appendix-a-key-file-references">Appendix A: Key File References<a class="headerlink" href="#appendix-a-key-file-references" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>File Path</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DLQ Configuration</td>
+<td><code>shared/events/dlq_config.py</code></td>
+</tr>
+<tr>
+<td>DLQ Service API</td>
+<td><code>shared/events/dlq_service.py</code></td>
+</tr>
+<tr>
+<td>DLQ Handler (retry + move)</td>
+<td><code>shared/events/subscriber_dlq.py</code></td>
+</tr>
+<tr>
+<td>DLQ Monitoring</td>
+<td><code>shared/events/dlq_monitoring.py</code></td>
+</tr>
+<tr>
+<td>Outbox Pattern</td>
+<td><code>shared/events/outbox.py</code></td>
+</tr>
+<tr>
+<td>Outbox Models (SQLAlchemy)</td>
+<td><code>shared/libs/outbox/models.py</code></td>
+</tr>
+<tr>
+<td>Event Publisher (trace headers)</td>
+<td><code>shared/events/publisher.py</code></td>
+</tr>
+<tr>
+<td>Event Subscriber (dedup)</td>
+<td><code>shared/events/subscriber.py</code></td>
+</tr>
+<tr>
+<td>Event Contracts (BaseEvent)</td>
+<td><code>shared/events/contracts.py</code></td>
+</tr>
+<tr>
+<td>Subject Constants</td>
+<td><code>shared/events/subjects.py</code></td>
+</tr>
+<tr>
+<td>Stream Definitions</td>
+<td><code>shared/events/streams.py</code></td>
+</tr>
+<tr>
+<td>Correlation ID Middleware</td>
+<td><code>shared/middleware/request_logging.py</code></td>
+</tr>
+<tr>
+<td>Circuit Breaker</td>
+<td><code>shared/ai/circuit_breaker.py</code></td>
+</tr>
+<tr>
+<td>Rate Limiting</td>
+<td><code>shared/middleware/rate_limit.py</code></td>
+</tr>
+<tr>
+<td>Health Check (Enhanced)</td>
+<td><code>shared/monitoring/health_enhanced.py</code></td>
+</tr>
+<tr>
+<td>Prometheus Metrics</td>
+<td><code>shared/monitoring/metrics.py</code></td>
+</tr>
+<tr>
+<td>NATS Server Config</td>
+<td><code>config/nats/nats.conf</code></td>
+</tr>
+<tr>
+<td>Prometheus Alert Rules</td>
+<td><code>infrastructure/monitoring/prometheus/rules/</code></td>
+</tr>
+<tr>
+<td>Grafana Dashboards</td>
+<td><code>infrastructure/grafana/dashboards/</code></td>
+</tr>
+<tr>
+<td>DLQ Docker Compose</td>
+<td><code>docker/docker-compose.dlq.yml</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-b-environment-variables-event-infrastructure">Appendix B: Environment Variables (Event Infrastructure)<a class="headerlink" href="#appendix-b-environment-variables-event-infrastructure" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># NATS</span>
+<span class="nv">NATS_URL</span><span class="o">=</span>nats://nats:4222
+<span class="nv">JETSTREAM_DOMAIN</span><span class="o">=</span>sahool
+<span class="nv">SERVICE_NAME</span><span class="o">=</span>&lt;service-name&gt;
+
+<span class="c1"># DLQ</span>
+<span class="nv">DLQ_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">DLQ_MAX_RETRIES</span><span class="o">=</span><span class="m">3</span>
+<span class="nv">DLQ_INITIAL_DELAY</span><span class="o">=</span><span class="m">1</span>.0
+<span class="nv">DLQ_MAX_DELAY</span><span class="o">=</span><span class="m">60</span>.0
+<span class="nv">DLQ_BACKOFF_MULTIPLIER</span><span class="o">=</span><span class="m">2</span>.0
+<span class="nv">DLQ_STREAM_NAME</span><span class="o">=</span>SAHOOL_DLQ
+<span class="nv">DLQ_MAX_AGE_DAYS</span><span class="o">=</span><span class="m">30</span>
+<span class="nv">DLQ_MAX_MESSAGES</span><span class="o">=</span><span class="m">100000</span>
+<span class="nv">DLQ_ALERT_ENABLED</span><span class="o">=</span><span class="nb">true</span>
+<span class="nv">DLQ_ALERT_THRESHOLD</span><span class="o">=</span><span class="m">100</span>
+<span class="nv">DLQ_ALERT_CHECK_INTERVAL</span><span class="o">=</span><span class="m">300</span>
+
+<span class="c1"># Database (outbox + processed_events)</span>
+<span class="nv">DATABASE_URL</span><span class="o">=</span>postgresql://user:pass@pgbouncer:6432/sahool?sslmode<span class="o">=</span>require
+
+<span class="c1"># Monitoring</span>
+<span class="nv">ENVIRONMENT</span><span class="o">=</span>production
+<span class="nv">LOG_LEVEL</span><span class="o">=</span>INFO
+</code></pre></div>
+
+<h2 id="appendix-c-quick-command-reference">Appendix C: Quick Command Reference<a class="headerlink" href="#appendix-c-quick-command-reference" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># === NATS ===</span>
+nats<span class="w"> </span>stream<span class="w"> </span>ls<span class="w">                                  </span><span class="c1"># List all streams</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_DLQ<span class="w">                     </span><span class="c1"># DLQ stream status</span>
+nats<span class="w"> </span>stream<span class="w"> </span>info<span class="w"> </span>SAHOOL_INTELLIGENCE<span class="w">            </span><span class="c1"># Intelligence stream status</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>ls<span class="w"> </span>SAHOOL_INTELLIGENCE<span class="w">            </span><span class="c1"># List consumers</span>
+nats<span class="w"> </span>consumer<span class="w"> </span>info<span class="w"> </span>SAHOOL_INTELLIGENCE<span class="w"> </span>&lt;name&gt;<span class="w">   </span><span class="c1"># Consumer lag details</span>
+nats<span class="w"> </span>server<span class="w"> </span>info<span class="w">                                </span><span class="c1"># NATS server health</span>
+
+<span class="c1"># === Database ===</span>
+SELECT<span class="w"> </span>COUNT<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>outbox_events<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">status</span><span class="o">=</span><span class="s1">&#39;pending&#39;</span><span class="p">;</span><span class="w">    </span><span class="c1"># Outbox backlog</span>
+SELECT<span class="w"> </span>COUNT<span class="o">(</span>*<span class="o">)</span><span class="w"> </span>FROM<span class="w"> </span>processed_events<span class="p">;</span><span class="w">                        </span><span class="c1"># Dedup table size</span>
+SELECT<span class="w"> </span>*<span class="w"> </span>FROM<span class="w"> </span>pg_stat_activity<span class="w"> </span>WHERE<span class="w"> </span><span class="nv">state</span><span class="o">=</span><span class="s1">&#39;active&#39;</span><span class="p">;</span><span class="w">          </span><span class="c1"># Active queries</span>
+VACUUM<span class="w"> </span>ANALYZE<span class="w"> </span>outbox_events<span class="p">;</span><span class="w">                                 </span><span class="c1"># Cleanup bloat</span>
+VACUUM<span class="w"> </span>ANALYZE<span class="w"> </span>processed_events<span class="p">;</span><span class="w">                              </span><span class="c1"># Cleanup bloat</span>
+
+<span class="c1"># === Kubernetes ===</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>&lt;service&gt;<span class="w">               </span><span class="c1"># Pod status</span>
+kubectl<span class="w"> </span>top<span class="w"> </span>pods<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>&lt;service&gt;<span class="w">               </span><span class="c1"># Resource usage</span>
+kubectl<span class="w"> </span>logs<span class="w"> </span>-l<span class="w"> </span><span class="nv">app</span><span class="o">=</span>&lt;service&gt;<span class="w"> </span>--tail<span class="o">=</span><span class="m">100</span><span class="w">        </span><span class="c1"># Recent logs</span>
+kubectl<span class="w"> </span>rollout<span class="w"> </span>undo<span class="w"> </span>deployment/&lt;service&gt;<span class="w">       </span><span class="c1"># Emergency rollback</span>
+kubectl<span class="w"> </span>scale<span class="w"> </span>deployment/&lt;service&gt;<span class="w"> </span>--replicas<span class="o">=</span>N<span class="w"> </span><span class="c1"># Manual scale</span>
+kubectl<span class="w"> </span>get<span class="w"> </span>hpa<span class="w">                                 </span><span class="c1"># Autoscaler status</span>
+
+<span class="c1"># === DLQ Management API ===</span>
+curl<span class="w"> </span>http://localhost:8150/dlq/stats<span class="w">            </span><span class="c1"># DLQ statistics</span>
+curl<span class="w"> </span>http://localhost:8150/dlq/messages<span class="w">         </span><span class="c1"># List DLQ messages</span>
+curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8150/dlq/replay/&lt;seq&gt;<span class="w">  </span><span class="c1"># Replay one message</span>
+
+<span class="c1"># === Health ===</span>
+make<span class="w"> </span>health<span class="w">                                     </span><span class="c1"># Check all services</span>
+make<span class="w"> </span>status<span class="w">                                     </span><span class="c1"># Service status &amp; URLs</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

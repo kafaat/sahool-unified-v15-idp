@@ -15,7 +15,7 @@ httpx==0.28.1
 # Database & ORM (sync SQLAlchemy - uses psycopg2)
 # Note: Tortoise ORM removed - using SQLAlchemy only for consistency
 sqlalchemy==2.0.46
-alembic==1.18.3
+alembic==1.18.4
 psycopg2-binary==2.9.9
 
 # NATS Messaging

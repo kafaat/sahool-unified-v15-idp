@@ -12,7 +12,7 @@ python-dotenv==1.0.1
 # Database
 sqlalchemy==2.0.46
 psycopg2-binary==2.9.10
-alembic==1.18.3
+alembic==1.18.4
 
 # Testing requirements
 pytest==8.3.4

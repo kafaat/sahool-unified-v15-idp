@@ -22,7 +22,7 @@ python-multipart==0.0.22
 
 # Database dependencies
 SQLAlchemy==2.0.46
-alembic==1.18.3
+alembic==1.18.4
 psycopg2-binary==2.9.9
 
 structlog>=24.1.0

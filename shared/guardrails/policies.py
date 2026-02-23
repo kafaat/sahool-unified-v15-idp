@@ -179,8 +179,12 @@ class TopicPolicy:
             # Illegal content
             "terrorism",
             "إرهاب",
+            "weapon",
             "weapons",
             "أسلحة",
+            "سلاح",
+            "bomb",
+            "explosive",
             "drugs",
             "مخدرات",
             "violence",

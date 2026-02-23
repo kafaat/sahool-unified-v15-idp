@@ -145,9 +145,10 @@ class TestWeatherAdapter:
 class TestNDVIAdapter:
 
     def test_ndvi_to_observation(self):
+        from uuid import uuid4
         from shared.digital_twin.adapters import ndvi_to_field_observation
         payload = {"mean_ndvi": 0.72, "ts": "2026-02-20T10:30:00Z", "cloud_cover": 0.15}
-        obs = ndvi_to_field_observation(payload, tenant_id="t1", field_id="f1")
+        obs = ndvi_to_field_observation(payload, tenant_id=uuid4(), field_id=uuid4())
         assert obs.value == 0.72
         assert obs.quality == pytest.approx(0.85)
 
@@ -179,9 +180,9 @@ class TestCalibratedParamsAdapter:
 
     def test_from_json_string(self):
         from shared.digital_twin.adapters import calibrated_params_to_crop
-        crop = calibrated_params_to_crop('{"rue_g_mj": 2.0, "max_lai": 7.5}')
+        crop = calibrated_params_to_crop('{"rue_g_mj": 2.0, "lai_max": 7.5}')
         assert crop.rue_g_mj == 2.0
-        assert crop.max_lai == 7.5
+        assert crop.lai_max == 7.5
 
     def test_unknown_keys_ignored(self):
         from shared.digital_twin.adapters import calibrated_params_to_crop
@@ -1019,7 +1020,7 @@ class TestDecisionEngineEdgeCases:
         from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
-        # With positive offset: higher RAW → irrigates sooner
+        # Positive offset raises RAW threshold → less likely to trigger irrigation
         engine_offset = DecisionEngine(
             repo=repo,
             calibrated_thresholds={"p_fraction_offset": 0.15},
@@ -1032,5 +1033,5 @@ class TestDecisionEngineEdgeCases:
         loop = asyncio.get_event_loop()
         rec_offset = loop.run_until_complete(engine_offset.recommend_irrigation(state))
         rec_default = loop.run_until_complete(engine_default.recommend_irrigation(state))
-        # Higher p → higher RAW → more likely to trigger irrigation
-        assert rec_offset.recommended_mm >= rec_default.recommended_mm
+        # Higher p → higher RAW → needs more depletion to trigger → less irrigation
+        assert rec_offset.recommended_mm <= rec_default.recommended_mm

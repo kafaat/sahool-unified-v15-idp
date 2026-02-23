@@ -241,13 +241,11 @@ async def twin_step(
                     k_extinction=params.get("k_extinction", crop.k_extinction),
                     base_temp_c=params.get("base_temp_c", crop.base_temp_c),
                     gdd_maturity=params.get("gdd_maturity", crop.gdd_maturity),
-                    max_lai=params.get("max_lai", crop.max_lai),
+                    lai_max=params.get("lai_max", crop.lai_max),
                     harvest_index=params.get("harvest_index", crop.harvest_index),
                     n_requirement_kg_per_ton=params.get(
                         "n_requirement_kg_per_ton", crop.n_requirement_kg_per_ton
                     ),
-                    root_depth_max_m=params.get("root_depth_max_m", crop.root_depth_max_m),
-                    sla_cm2_g=params.get("sla_cm2_g", crop.sla_cm2_g),
                 )
                 calibrated_source = str(active_ps.get("id", "unknown"))
                 logger.info(
@@ -285,11 +283,7 @@ async def twin_step(
     calibrated_thresholds: dict[str, float] = {}
     if calibrated_source:
         # Re-use already-loaded params to extract assimilation / decision overrides
-        try:
-            _loaded_ps = crop.__dict__  # CropParameters fields
-            calibrated_k_ext = getattr(crop, "k_extinction", None)
-        except Exception:
-            pass
+        calibrated_k_ext = getattr(crop, "k_extinction", None)
 
     # Optional assimilation pass
     if _flags.assimilation_enabled:
@@ -416,7 +410,8 @@ async def ingest_observations(
             )
             saved += 1
         except Exception as exc:
-            errors.append(str(exc))
+            logger.warning("observation_ingest_error", error=str(exc), field_id=str(field_id))
+            errors.append(f"Failed to ingest observation at index {len(errors)}")
 
     # If assimilation enabled, re-correct today's state
     if _flags.assimilation_enabled and saved > 0:

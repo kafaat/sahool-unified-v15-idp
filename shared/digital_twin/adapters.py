@@ -177,13 +177,11 @@ def calibrated_params_to_crop(
         k_extinction=float(parameters.get("k_extinction", b.k_extinction)),
         base_temp_c=float(parameters.get("base_temp_c", b.base_temp_c)),
         gdd_maturity=float(parameters.get("gdd_maturity", b.gdd_maturity)),
-        max_lai=float(parameters.get("max_lai", b.max_lai)),
+        lai_max=float(parameters.get("lai_max", b.lai_max)),
         harvest_index=float(parameters.get("harvest_index", b.harvest_index)),
         n_requirement_kg_per_ton=float(
             parameters.get("n_requirement_kg_per_ton", b.n_requirement_kg_per_ton)
         ),
-        root_depth_max_m=float(parameters.get("root_depth_max_m", b.root_depth_max_m)),
-        sla_cm2_g=float(parameters.get("sla_cm2_g", b.sla_cm2_g)),
     )
 
 

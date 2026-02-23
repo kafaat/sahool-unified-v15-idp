@@ -223,10 +223,18 @@ class DriftDetector:
             registry = yaml.safe_load(f)
 
         registered_services = {}
-        for svc in registry.get("services", []):
-            name = svc.get("name", "")
-            if name:
-                registered_services[name] = svc
+        services_data = registry.get("services", {})
+
+        # services.yaml uses a map structure: service-key -> {details}
+        if isinstance(services_data, dict):
+            for svc_key, svc_info in services_data.items():
+                if isinstance(svc_info, dict):
+                    registered_services[svc_key] = svc_info
+        elif isinstance(services_data, list):
+            for svc in services_data:
+                name = svc.get("name", "")
+                if name:
+                    registered_services[name] = svc
 
         # Get actual service directories
         actual_services = set()
@@ -325,12 +333,19 @@ class DriftDetector:
             catalog = yaml.safe_load(f)
 
         # Parse catalog subjects
+        # catalog.yaml uses map structure: events: { "field.created": {...}, ... }
         catalog_subjects: set[str] = set()
-        for category in catalog.get("categories", []):
-            for event in category.get("events", []):
-                subject = event.get("subject", "")
-                if subject:
-                    catalog_subjects.add(subject)
+        events_data = catalog.get("events", {})
+        if isinstance(events_data, dict):
+            for event_key in events_data:
+                # Convert event key to NATS subject: "field.created" -> "sahool.field.created"
+                catalog_subjects.add(f"sahool.{event_key}")
+        elif isinstance(events_data, list):
+            for event in events_data:
+                if isinstance(event, dict):
+                    subject = event.get("subject", "")
+                    if subject:
+                        catalog_subjects.add(subject)
 
         # Subjects in code but not in catalog
         for subject in code_subjects - catalog_subjects:

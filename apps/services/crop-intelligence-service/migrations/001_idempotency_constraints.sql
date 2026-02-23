@@ -13,20 +13,29 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_field_observation_natural_key
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2. Processed events table for consumer-side event_id deduplication.
---    Services can INSERT-or-IGNORE before processing a message and skip
---    if the event_id was already handled.
+--    Services INSERT-or-IGNORE before processing; skip if already handled.
+--    PK = (tenant_id, event_id) for tenant-scoped uniqueness (Spec §4).
 -- ─────────────────────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS processed_events (
-    event_id    TEXT        PRIMARY KEY,
-    subject     TEXT        NOT NULL,
-    service     TEXT        NOT NULL,
-    processed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    tenant_id      TEXT        NOT NULL DEFAULT '_global',
+    event_id       TEXT        NOT NULL,
+    subject        TEXT        NOT NULL,
+    service        TEXT        NOT NULL,
+    correlation_id TEXT,
+    status         TEXT        NOT NULL DEFAULT 'processed',  -- processed | failed
+    processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (tenant_id, event_id)
 );
 
 -- Auto-purge entries older than 7 days (lightweight, no TimescaleDB needed)
 CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
     ON processed_events (processed_at);
+
+-- Fast lookup by correlation chain for debugging
+CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
+    ON processed_events (correlation_id)
+    WHERE correlation_id IS NOT NULL;
 
 -- Cleanup job (run via pg_cron or application-level scheduled task):
 -- DELETE FROM processed_events WHERE processed_at < NOW() - INTERVAL '7 days';

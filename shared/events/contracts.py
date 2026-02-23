@@ -48,6 +48,12 @@ class BaseEvent(BaseModel):
     )
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
+    tenant_id_header: str | None = Field(
+        None,
+        alias="tenant_id_meta",
+        description="Tenant ID propagated in NATS headers (X-Tenant-ID). "
+        "Use domain-specific tenant_id in child events for business logic.",
+    )
     correlation_id: str | None = Field(None, description="Correlation ID for tracing across services")
     causation_id: str | None = Field(
         None,

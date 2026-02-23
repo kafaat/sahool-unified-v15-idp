@@ -86,6 +86,13 @@ from .contracts import (
     WorkflowExecutedEvent,
 )
 
+# Outbox Pattern (transactional event publishing)
+from .outbox import (
+    OutboxRelay,
+    ensure_outbox_table,
+    write_outbox_event,
+)
+
 # DLQ Support
 from .dlq_config import (
     DLQConfig,
@@ -176,6 +183,7 @@ from .models import (
 from .publisher import (
     EventPublisher,
     PublisherConfig,
+    chain_event,
     close_publisher,
     get_publisher,
     publish_event,
@@ -450,6 +458,11 @@ __all__ = [
     "get_publisher",
     "close_publisher",
     "publish_event",
+    "chain_event",
+    # Outbox Pattern
+    "OutboxRelay",
+    "write_outbox_event",
+    "ensure_outbox_table",
     # Subscriber
     "EventSubscriber",
     "SubscriberConfig",

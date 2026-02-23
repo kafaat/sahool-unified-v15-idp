@@ -45,11 +45,17 @@ class SubscriberConfig(BaseModel):
     password: str | None = Field(default=None)
 
     # Subscription subjects
+    #
+    # Best practice (Spec §7): notification-service consumes from the
+    # Decision layer via broad `sahool.recommendation.>` instead of
+    # reaching into individual services.  The Decision Engine publishes;
+    # notification-service decides push/tasks/ws updates.
     analysis_subjects: list[str] = Field(
         default_factory=lambda: [
-            "sahool.analysis.*",  # All analysis events
-            "sahool.actions.*",  # All action events
-            "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1 fix)
+            "sahool.analysis.*",                            # Analysis events
+            "sahool.actions.*",                             # Action events
+            "sahool.irrigation.recommendation.ready.v1",   # Irrigation recommendations (H1)
+            "sahool.recommendation.>",                      # All Decision-layer recommendations (Spec §7)
         ]
     )
 
@@ -171,8 +177,9 @@ class NATSSubscriber:
                 self._subscriptions.append(sub)
                 logger.info(f"Subscribed to: {subject}")
 
-            # Register the dedicated irrigation recommendation handler
+            # Register dedicated handlers per recommendation type
             self._handlers["irrigation.recommendation.ready"] = self._handle_irrigation_recommendation
+            self._handlers["recommendation.created"] = self._handle_decision_recommendation
 
             return True
         except Exception as e:
@@ -224,6 +231,59 @@ class NATSSubscriber:
                 f"Irrigation recommendation notification created for field={field_id}",
             )
 
+    async def _handle_decision_recommendation(self, event: ReceivedEvent):
+        """
+        Handle generic decision-layer recommendation events (Spec §7).
+        Routes sahool.recommendation.{type} events to appropriate notification
+        channels (push, in_app, ws) without the Decision Engine needing to
+        know about notification details.
+        """
+        field_id = event.field_id or event.data.get("field_id")
+        tenant_id = event.tenant_id or event.data.get("tenant_id")
+        rec = event.data.get("recommendation", {})
+        rec_type = rec.get("type", event.event_type or "general")
+
+        title_en = rec.get("title", f"New Recommendation: {rec_type}")
+        title_ar = rec.get("title_ar", f"توصية جديدة: {rec_type}")
+        body_en = rec.get("description", "")
+        body_ar = rec.get("description_ar", "")
+
+        # Map recommendation type to notification type
+        type_map = {
+            "irrigation": "irrigation_reminder",
+            "fertilizer": "task_reminder",
+            "pest_control": "pest_outbreak",
+            "harvest": "task_reminder",
+        }
+        notification_type = type_map.get(rec_type, "system")
+        priority = rec.get("priority", event.notification_priority or "medium")
+
+        notification_data = {
+            "type": notification_type,
+            "priority": priority,
+            "title": title_en,
+            "title_ar": title_ar,
+            "body": body_en,
+            "body_ar": body_ar,
+            "data": {
+                "event_id": event.event_id,
+                "event_type": event.event_type,
+                "source_service": event.source_service,
+                "field_id": field_id,
+                "tenant_id": tenant_id,
+                "recommendation": rec,
+            },
+            "target_farmers": [event.farmer_id] if event.farmer_id else [],
+            "channels": event.notification_channels or ["in_app", "push"],
+            "expires_in_hours": 48,
+        }
+
+        if self._notification_callback:
+            self._notification_callback(notification_data)
+            logger.info(
+                f"Decision recommendation notification: type={rec_type} field={field_id}",
+            )
+
     async def close(self):
         """Close NATS connection"""
         for sub in self._subscriptions:
@@ -256,8 +316,11 @@ class NATSSubscriber:
 
             # Derive event_type from payload or subject
             event_type = data.get("event_type", "")
-            if not event_type and "irrigation.recommendation" in subject:
-                event_type = "irrigation.recommendation.ready"
+            if not event_type:
+                if "irrigation.recommendation" in subject:
+                    event_type = "irrigation.recommendation.ready"
+                elif "recommendation" in subject:
+                    event_type = "recommendation.created"
 
             # Parse event
             event = ReceivedEvent(

@@ -504,27 +504,70 @@ class EventSubscriber:
         )
 
     async def _subscribe_jetstream(self, subscription: Subscription):
-        """Subscribe using JetStream for durable consumers."""
-        return await self._js.subscribe(
-            subscription.subject,
-            durable=subscription.durable_name,
-            cb=lambda msg: asyncio.create_task(self._message_handler(msg, subscription)),
-        )
+        """Subscribe using JetStream with durable consumer and delivery limits."""
+        try:
+            from nats.js.api import ConsumerConfig
+
+            # max_deliver: JetStream redelivery cap before the message is dropped.
+            # ack_wait: time (ns) JetStream waits for ACK before redelivering.
+            consumer_cfg = ConsumerConfig(
+                ack_wait=30 * 1_000_000_000,  # 30 seconds in nanoseconds
+                max_deliver=5,                 # max redeliveries at JetStream level
+            )
+            return await self._js.subscribe(
+                subscription.subject,
+                durable=subscription.durable_name,
+                cb=lambda msg: asyncio.create_task(self._message_handler(msg, subscription)),
+                config=consumer_cfg,
+            )
+        except (ImportError, TypeError):
+            # Fallback for older nats-py without ConsumerConfig support
+            return await self._js.subscribe(
+                subscription.subject,
+                durable=subscription.durable_name,
+                cb=lambda msg: asyncio.create_task(self._message_handler(msg, subscription)),
+            )
 
     # ─────────────────────────────────────────────────────────────────────────
     # Message Handling
     # ─────────────────────────────────────────────────────────────────────────
 
+    def _extract_headers(self, msg) -> dict[str, str]:
+        """
+        Extract canonical NATS headers from inbound message.
+        Returns a dict of header values (empty dict if no headers).
+        """
+        if not hasattr(msg, "headers") or not msg.headers:
+            return {}
+        h = msg.headers
+        return {
+            "correlation_id": h.get("X-Correlation-ID", ""),
+            "causation_id": h.get("X-Causation-ID", ""),
+            "event_id": h.get("X-Event-ID", ""),
+            "tenant_id": h.get("X-Tenant-ID", ""),
+            "schema_version": h.get("X-Schema-Version", ""),
+            "traceparent": h.get("traceparent", ""),
+            "tracestate": h.get("tracestate", ""),
+        }
+
     async def _message_handler(self, msg: Msg, subscription: Subscription):
         """
-        Handle incoming NATS message with DLQ support.
-        معالجة رسالة NATS الواردة مع دعم قائمة الرسائل الفاشلة
+        Handle incoming NATS message.
+
+        Handler Flow (Spec §6):
+          1. Extract headers → start span
+          2. Dedup (LRU in-memory)
+          3. Deserialize
+          4. Execute handler
+          5. Record processed event_id
+          6. ACK  (only after full success)
+          7. On failure → DLQ / NAK (never ACK a failed message)
         """
         async with self._processing_semaphore:
             # Get retry count from message headers
             retry_count = 0
-            retry_timestamps = []
-            retry_errors = []
+            retry_timestamps: list[str] = []
+            retry_errors: list[str] = []
 
             if hasattr(msg, "headers") and msg.headers:
                 retry_count = int(msg.headers.get("Nats-Retry-Count", "0"))
@@ -536,6 +579,9 @@ class EventSubscriber:
                 if retry_errors_str:
                     retry_errors = retry_errors_str.split("||")
 
+            # ── 1. Extract headers ─────────────────────────────────────
+            inbound_headers = self._extract_headers(msg)
+
             try:
                 subject = msg.subject
                 data = msg.data.decode("utf-8")
@@ -544,10 +590,10 @@ class EventSubscriber:
                     f"📨 Received message on {subject}: {len(data)} bytes (retry: {retry_count})"
                 )
 
-                # Deserialize message
+                # ── 2. Deserialize ─────────────────────────────────────
                 event = await self._deserialize_message(data, subscription.event_class)
 
-                # ── Idempotency guard: skip already-processed event_ids ──
+                # ── 3. Idempotency guard: skip already-processed event_ids ──
                 eid = getattr(event, "event_id", None) if not isinstance(event, dict) else event.get("event_id")
                 if eid and eid in self._processed_event_ids:
                     self._dedup_hit_count += 1
@@ -556,13 +602,24 @@ class EventSubscriber:
                         await self._acknowledge_message(msg)
                     return
 
-                # Call handler
+                # Inject inbound correlation context into event if missing
+                if not isinstance(event, dict):
+                    if not getattr(event, "correlation_id", None) and inbound_headers.get("correlation_id"):
+                        event.correlation_id = inbound_headers["correlation_id"]
+                    if not getattr(event, "trace_id", None) and inbound_headers.get("traceparent"):
+                        # Parse W3C traceparent: 00-trace_id-span_id-flags
+                        parts = inbound_headers["traceparent"].split("-")
+                        if len(parts) >= 3:
+                            event.trace_id = parts[1]
+                            event.span_id = parts[2]
+
+                # ── 4. Execute handler ─────────────────────────────────
                 if asyncio.iscoroutinefunction(subscription.handler):
                     await subscription.handler(event)
                 else:
                     subscription.handler(event)
 
-                # Record processed event_id
+                # ── 5. Record processed event_id ───────────────────────
                 if eid:
                     self._processed_event_ids[eid] = asyncio.get_event_loop().time()
                     # Evict oldest entries when over limit
@@ -571,7 +628,7 @@ class EventSubscriber:
                         for old_key in list(self._processed_event_ids)[:excess]:
                             del self._processed_event_ids[old_key]
 
-                # Acknowledge message
+                # ── 6. ACK only after full success ─────────────────────
                 if subscription.auto_ack:
                     await self._acknowledge_message(msg)
 
@@ -579,6 +636,7 @@ class EventSubscriber:
                 logger.debug(f"✅ Processed message on {subject}")
 
             except Exception as e:
+                # ── 7. On failure: NAK / retry / DLQ — never ACK ───────
                 logger.error(f"❌ Error processing message on {msg.subject}: {e}")
                 self._error_count += 1
 

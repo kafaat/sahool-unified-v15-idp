@@ -59,6 +59,7 @@ try:
     _nats_available = True
 except ImportError:
     logger.warning("NATS package not installed. Install with: pip install nats-py")
+    nats = None  # type: ignore[assignment]
     NATSClient = None
     Msg = None
     JetStreamContext = None

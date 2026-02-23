@@ -1,0 +1,2253 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>SAHOOL Platform Gap Analysis Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sahool-platform-gap-analysis-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SAHOOL Platform Gap Analysis Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sahool-platform-gap-analysis-report">SAHOOL Platform Gap Analysis Report<a class="headerlink" href="#sahool-platform-gap-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-02-23
+<strong>Scope</strong>: Full platform audit across 56 Python services
+<strong>Reference</strong>: Event pipeline hardening completed in <code>crop-intelligence-service</code> and <code>notification-service</code></p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>After the successful 8-point event pipeline hardening of <code>crop-intelligence-service</code>, a comprehensive audit was conducted across all 56 Python FastAPI services. <strong>The same categories of gaps found and fixed in crop-intelligence-service exist across virtually every other service on the platform.</strong></p>
+<h3 id="gap-statistics">Gap Statistics<a class="headerlink" href="#gap-statistics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Severity</th>
+<th>Services Affected</th>
+<th>Services Compliant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Raw NATS publish (no headers)</td>
+<td><strong>CRITICAL</strong></td>
+<td>~30 services</td>
+<td>5 (via EventPublisher adapter)</td>
+</tr>
+<tr>
+<td>No outbox pattern</td>
+<td><strong>CRITICAL</strong></td>
+<td>55 services</td>
+<td>1 (crop-intelligence-service)</td>
+</tr>
+<tr>
+<td>No DB idempotency (processed_events)</td>
+<td><strong>HIGH</strong></td>
+<td>54 services</td>
+<td>2 (crop-intelligence-service, agro-rules*)</td>
+</tr>
+<tr>
+<td>No <code>ensure_streams</code> call</td>
+<td><strong>HIGH</strong></td>
+<td>55 services</td>
+<td>1 (crop-intelligence-service)</td>
+</tr>
+<tr>
+<td>Missing unified error handling</td>
+<td><strong>MEDIUM</strong></td>
+<td>12 services</td>
+<td>44 services</td>
+</tr>
+<tr>
+<td><code>print()</code> in production code</td>
+<td><strong>MEDIUM</strong></td>
+<td>10 services</td>
+<td>46 services</td>
+</tr>
+<tr>
+<td>NATS connection leak (no close)</td>
+<td><strong>MEDIUM</strong></td>
+<td>2 services</td>
+<td>~36 services</td>
+</tr>
+<tr>
+<td>No NATS subscriber headers extraction</td>
+<td><strong>HIGH</strong></td>
+<td>~25 services</td>
+<td>1 (crop-intelligence-service)</td>
+</tr>
+</tbody>
+</table>
+<p><em>agro-rules uses in-memory set dedup only, no DB-level idempotency</em></p>
+<hr />
+<h2 id="gap-1-raw-nats-publish-without-headers-critical">GAP-1: Raw NATS Publish Without Headers (CRITICAL)<a class="headerlink" href="#gap-1-raw-nats-publish-without-headers-critical" title="Permanent link">&para;</a></h2>
+<h3 id="problem">Problem<a class="headerlink" href="#problem" title="Permanent link">&para;</a></h3>
+<p>~30 services publish NATS events using raw <code>nc.publish()</code> without injecting the 7 canonical headers:
+- <code>traceparent</code> (W3C Trace Context)
+- <code>tracestate</code>
+- <code>x-correlation-id</code>
+- <code>x-causation-id</code>
+- <code>x-event-id</code>
+- <code>x-tenant-id</code>
+- <code>x-schema-version</code></p>
+<p>This breaks distributed tracing, correlation analysis, and audit trails across the event-driven architecture.</p>
+<h3 id="affected-services-using-raw-ncpublish">Affected Services (using raw nc.publish)<a class="headerlink" href="#affected-services-using-raw-ncpublish" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Location</th>
+<th>Publish Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cooperative-service</td>
+<td><code>src/api/v1/cooperatives.py</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>drone-service</td>
+<td><code>src/api/v1/missions.py</code>, <code>flights.py</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td><code>src/api/v1/pests.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>digital-twin-engine</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>fertigation-engine</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>irrigation-cycle-engine</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>iot-sensor-hub</td>
+<td><code>src/main.py</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td>indicators-service</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>field-intelligence</td>
+<td><code>src/api/routes.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td><code>src/api/endpoints/leveling.py</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>terrain-core-service</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>soil-analysis-service</td>
+<td><code>src/api/v1/soil_tests.py</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>traceability-service</td>
+<td><code>src/api/v1/batches.py</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>skills-service</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>ussd-gateway</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>provider-config</td>
+<td><code>src/main.py</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td><code>src/main.py</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>crop-intelligence-service</td>
+<td><code>src/calibration_router.py</code>, <code>twin_router.py</code></td>
+<td>2 (outside main subscriber)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-using-eventpublisher-compliant">Services Using EventPublisher (Compliant)<a class="headerlink" href="#services-using-eventpublisher-compliant" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>inventory-service</td>
+<td>Shared EventPublisher adapter</td>
+</tr>
+<tr>
+<td>globalgap-compliance</td>
+<td>Shared EventPublisher adapter</td>
+</tr>
+<tr>
+<td>field-management-service</td>
+<td>Shared EventPublisher adapter</td>
+</tr>
+<tr>
+<td>task-service</td>
+<td>Shared EventPublisher adapter</td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td><code>get_publisher()</code> from shared</td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-with-custom-publishers-partial-compliance">Services With Custom Publishers (Partial Compliance)<a class="headerlink" href="#services-with-custom-publishers-partial-compliance" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Custom Publisher</th>
+<th>Has Headers?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>yolo26-vision-service</td>
+<td>VisionEventPublisher</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>AlertEventPublisher</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>Custom publish module</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>Custom publish module</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>Custom publish module</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>Custom publishers</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td>Custom publisher</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>ai-chat-assistant</td>
+<td>Custom publisher</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="recommendation">Recommendation<a class="headerlink" href="#recommendation" title="Permanent link">&para;</a></h3>
+<p>Migrate all services to use <code>shared.events.publisher.EventPublisher</code> which already implements header injection. Priority:
+1. <strong>Decision Layer</strong> (irrigation-smart, advisory-service, fertigation-engine) - affects farmer recommendations
+2. <strong>Intelligence Layer</strong> (indicators-service, field-intelligence, terrain-core-service) - affects data pipeline
+3. <strong>IoT/Acquisition Layer</strong> (iot-sensor-hub, iot-gateway, weather-service) - high event volume</p>
+<hr />
+<h2 id="gap-2-no-outbox-pattern-critical">GAP-2: No Outbox Pattern (CRITICAL)<a class="headerlink" href="#gap-2-no-outbox-pattern-critical" title="Permanent link">&para;</a></h2>
+<h3 id="problem_1">Problem<a class="headerlink" href="#problem_1" title="Permanent link">&para;</a></h3>
+<p>Only <code>crop-intelligence-service</code> uses the transactional outbox pattern (<code>shared/events/outbox.py</code>). All other services publish events directly via NATS, meaning:
+- If NATS is down, events are silently lost
+- No at-least-once delivery guarantee
+- No retry mechanism for failed publishes
+- Database writes can succeed while event publish fails (data inconsistency)</p>
+<h3 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h3>
+<p>The <code>shared/events/outbox.py</code> module and <code>shared/libs/outbox/</code> both exist and are fully implemented, but <strong>adoption is zero</strong> outside of crop-intelligence-service's subscriber code.</p>
+<h3 id="recommendation_1">Recommendation<a class="headerlink" href="#recommendation_1" title="Permanent link">&para;</a></h3>
+<p>Priority adoption for services with transactional data + event publish:
+1. <strong>field-management-service</strong> - Field CRUD → events (most critical business entity)
+2. <strong>task-service</strong> - Task lifecycle → events
+3. <strong>billing-core</strong> - Financial transactions → events
+4. <strong>inventory-service</strong> - Inventory changes → events
+5. <strong>notification-service</strong> - Already a subscriber, needs outbox for forwarding</p>
+<hr />
+<h2 id="gap-3-no-db-level-idempotency-high">GAP-3: No DB-Level Idempotency (HIGH)<a class="headerlink" href="#gap-3-no-db-level-idempotency-high" title="Permanent link">&para;</a></h2>
+<h3 id="problem_2">Problem<a class="headerlink" href="#problem_2" title="Permanent link">&para;</a></h3>
+<p>Only 2 services implement event deduplication:
+- <code>crop-intelligence-service</code>: Full DB-level (<code>processed_events</code> table with <code>_check_processed</code>/<code>_mark_processed</code>)
+- <code>agro-rules</code>: In-memory set only (lost on restart, no persistence)</p>
+<p>All other NATS subscribers will reprocess duplicate events on:
+- JetStream redelivery after ack timeout
+- Service restart during processing
+- Network partition recovery</p>
+<h3 id="high-risk-services-financial-user-facing-impact">High-Risk Services (Financial / User-Facing Impact)<a class="headerlink" href="#high-risk-services-financial-user-facing-impact" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Risk</th>
+<th>Impact of Duplicate Processing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>billing-core</strong></td>
+<td><strong>FINANCIAL</strong></td>
+<td>Duplicate charges, double invoicing</td>
+</tr>
+<tr>
+<td><strong>notification-service</strong></td>
+<td><strong>UX</strong></td>
+<td>Spam notifications to farmers (48 subscriptions)</td>
+</tr>
+<tr>
+<td><strong>alert-service</strong></td>
+<td><strong>TRUST</strong></td>
+<td>Duplicate alerts erode user trust (30+ subscriptions)</td>
+</tr>
+<tr>
+<td><strong>ground-vision-service</strong></td>
+<td><strong>COST</strong></td>
+<td>Duplicate AI vision API calls (GPU cost)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="affected-nats-subscribers">Affected NATS Subscribers<a class="headerlink" href="#affected-nats-subscribers" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Subscribes To</th>
+<th>Has Dedup?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>notification-service</td>
+<td><code>sahool.decision.recommendation.*</code></td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>Field events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>Weather events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>advisory-service</td>
+<td>Advisory events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>irrigation-smart</td>
+<td>Irrigation events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>Alert events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>Sensor events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>IoT events</td>
+<td><strong>No</strong></td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>Multiple subjects</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="migration-required">Migration Required<a class="headerlink" href="#migration-required" title="Permanent link">&para;</a></h3>
+<p>Each subscribing service needs:
+1. <code>migrations/001_idempotency_constraints.sql</code> creating the <code>processed_events</code> table
+2. <code>_check_processed()</code> / <code>_mark_processed()</code> calls in every handler
+3. LRU in-memory cache for hot-path dedup before DB check</p>
+<hr />
+<h2 id="gap-4-no-ensure_streams-call-high">GAP-4: No ensure_streams Call (HIGH)<a class="headerlink" href="#gap-4-no-ensure_streams-call-high" title="Permanent link">&para;</a></h2>
+<h3 id="problem_3">Problem<a class="headerlink" href="#problem_3" title="Permanent link">&para;</a></h3>
+<p><code>shared/events/streams.py</code> defines JetStream stream configurations (FIELD, INTELLIGENCE, DECISION, BUSINESS) with proper dedup windows, retention policies, and subject mappings. However, only <code>crop-intelligence-service</code> calls <code>ensure_streams()</code> at startup.</p>
+<p>Without <code>ensure_streams()</code>:
+- Streams may not exist when services try to publish/subscribe
+- Stream configuration drift between services
+- No dedup window enforcement at JetStream level</p>
+<h3 id="recommendation_2">Recommendation<a class="headerlink" href="#recommendation_2" title="Permanent link">&para;</a></h3>
+<p>Every service that connects to NATS should call <code>ensure_streams(js)</code> in its lifespan startup. This is a single-line addition per service.</p>
+<hr />
+<h2 id="gap-5-missing-unified-error-handling-medium">GAP-5: Missing Unified Error Handling (MEDIUM)<a class="headerlink" href="#gap-5-missing-unified-error-handling-medium" title="Permanent link">&para;</a></h2>
+<h3 id="problem_4">Problem<a class="headerlink" href="#problem_4" title="Permanent link">&para;</a></h3>
+<p>12 Python services do not use <code>shared.errors_py</code> for unified exception handling and request ID middleware:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th><code>setup_exception_handlers</code></th>
+<th><code>add_request_id_middleware</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai-advisor</td>
+<td>Has setup</td>
+<td><strong>Missing request ID</strong></td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td><strong>Missing</strong> (custom impl)</td>
+<td>Custom impl</td>
+</tr>
+<tr>
+<td>ai-chat-assistant</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>code-fix-agent</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td><strong>Missing</strong> (custom impl)</td>
+<td>Custom impl</td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>lowcode-engine</td>
+<td><strong>Missing</strong> (custom impl)</td>
+<td>Custom impl</td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td><strong>Missing</strong> (custom impl)</td>
+<td>Custom impl</td>
+</tr>
+<tr>
+<td>yolo26-vision-service</td>
+<td><strong>Missing</strong></td>
+<td><strong>Missing</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact_1">Impact<a class="headerlink" href="#impact_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Inconsistent error response format across services</li>
+<li>No request ID propagation for debugging</li>
+<li>Harder to correlate logs across service boundaries</li>
+</ul>
+<hr />
+<h2 id="gap-6-print-in-production-code-medium">GAP-6: print() in Production Code (MEDIUM)<a class="headerlink" href="#gap-6-print-in-production-code-medium" title="Permanent link">&para;</a></h2>
+<h3 id="problem_5">Problem<a class="headerlink" href="#problem_5" title="Permanent link">&para;</a></h3>
+<p>10 services use <code>print()</code> statements in production code instead of <code>structlog</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>print() Count</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>vegetation-analysis-service</td>
+<td>13</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>lowcode-engine</td>
+<td>11</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td>11</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>iot-gateway</td>
+<td>20</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td>9</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>ai-agents-service</td>
+<td>8</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>weather-service</td>
+<td>7</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>virtual-sensors</td>
+<td>6</td>
+<td><code>src/main.py</code></td>
+</tr>
+<tr>
+<td>inventory-service</td>
+<td>1</td>
+<td><code>src/main.py</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact_2">Impact<a class="headerlink" href="#impact_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>No structured logging for these services</li>
+<li>Cannot be parsed by log aggregation (ELK/Loki)</li>
+<li>Missing context fields (tenant_id, request_id, trace_id)</li>
+</ul>
+<hr />
+<h2 id="gap-7-nats-connection-resource-leak-medium">GAP-7: NATS Connection Resource Leak (MEDIUM)<a class="headerlink" href="#gap-7-nats-connection-resource-leak-medium" title="Permanent link">&para;</a></h2>
+<h3 id="problem_6">Problem<a class="headerlink" href="#problem_6" title="Permanent link">&para;</a></h3>
+<p>2 services connect to NATS but never close the connection on shutdown:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>NATS connect</th>
+<th>NATS close</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>globalgap-compliance</td>
+<td>1</td>
+<td><strong>0</strong></td>
+<td><strong>LEAK</strong></td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>3</td>
+<td><strong>0</strong></td>
+<td><strong>LEAK</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="impact_3">Impact<a class="headerlink" href="#impact_3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Connection pool exhaustion over time</li>
+<li>Stale consumers remaining after service restart</li>
+<li>NATS server resource waste</li>
+</ul>
+<hr />
+<h2 id="gap-8-nats-subscriber-compliance-high">GAP-8: NATS Subscriber Compliance (HIGH)<a class="headerlink" href="#gap-8-nats-subscriber-compliance-high" title="Permanent link">&para;</a></h2>
+<h3 id="problem_7">Problem<a class="headerlink" href="#problem_7" title="Permanent link">&para;</a></h3>
+<p>Of 8 services that subscribe to NATS events, only <strong>1 service</strong> (crop-intelligence-service) follows the proper subscriber pattern. All others lack durable consumers, queue groups, ack/nak handling, header extraction, and DB-level idempotency.</p>
+<h3 id="subscriber-compliance-matrix">Subscriber Compliance Matrix<a class="headerlink" href="#subscriber-compliance-matrix" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Durable</th>
+<th>Queue Group</th>
+<th>Ack/Nak</th>
+<th>Headers</th>
+<th>DB Dedup</th>
+<th>In-Memory Dedup</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>crop-intelligence-service</strong></td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>YES</td>
+<td>-</td>
+<td><strong>LOW</strong></td>
+</tr>
+<tr>
+<td>notification-service</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td><strong>MEDIUM</strong></td>
+</tr>
+<tr>
+<td>alert-service</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td><strong>MEDIUM</strong></td>
+</tr>
+<tr>
+<td>agro-rules</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>YES (set, 10K cap)</td>
+<td><strong>HIGH</strong></td>
+</tr>
+<tr>
+<td>ws-gateway</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>LOW*</td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td><strong>MEDIUM</strong></td>
+</tr>
+<tr>
+<td>ai-chat-assistant</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>LOW</td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>NO</td>
+<td>LOW*</td>
+</tr>
+</tbody>
+</table>
+<p>*ws-gateway and edge-orchestrator are real-time broadcast services where message loss is acceptable.</p>
+<h3 id="key-issues">Key Issues<a class="headerlink" href="#key-issues" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>No queue groups</strong> → Duplicate processing when services scale to multiple replicas</li>
+<li><strong>No durable consumers</strong> → Messages lost on service restart</li>
+<li><strong>No ack/nak</strong> → JetStream cannot track message delivery</li>
+<li><strong>No header extraction</strong> → Distributed tracing chain broken at every subscriber</li>
+<li><strong>agro-rules in-memory dedup</strong> → Lost on restart, unbounded growth risk (cap at 10K then truncate to 5K)</li>
+</ol>
+<h3 id="recommendation_3">Recommendation<a class="headerlink" href="#recommendation_3" title="Permanent link">&para;</a></h3>
+<p>Create a <code>NATSSubscriberBase</code> class in <code>shared/events/subscriber.py</code> that enforces:
+- Durable consumer with configurable name
+- Queue group for horizontal scaling
+- Ack after success, nak on failure
+- Header extraction with correlation propagation
+- DB-level idempotency check</p>
+<p>Priority migration order:
+1. <strong>alert-service</strong> (alerts must not be lost or duplicated)
+2. <strong>notification-service</strong> (user-facing, duplicate notifications harm UX)
+3. <strong>agro-rules</strong> (task generation, duplicates waste resources)</p>
+<hr />
+<h2 id="priority-remediation-plan">Priority Remediation Plan<a class="headerlink" href="#priority-remediation-plan" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-critical-week-1-2">Phase 1: Critical (Week 1-2)<a class="headerlink" href="#phase-1-critical-week-1-2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Services</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Migrate to EventPublisher</td>
+<td>irrigation-smart, advisory-service, fertigation-engine, indicators-service</td>
+<td>~2h each</td>
+</tr>
+<tr>
+<td>Add ensure_streams to lifespan</td>
+<td>All 38 NATS-connected services</td>
+<td>~15min each</td>
+</tr>
+<tr>
+<td>Add outbox to field-management-service</td>
+<td>field-management-service</td>
+<td>~4h</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-2-high-week-3-4">Phase 2: High (Week 3-4)<a class="headerlink" href="#phase-2-high-week-3-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Services</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add processed_events + idempotency</td>
+<td><strong>billing-core</strong> (financial risk), notification-service, alert-service</td>
+<td>~3h each</td>
+</tr>
+<tr>
+<td>Migrate remaining raw publishers</td>
+<td>20+ services</td>
+<td>~1h each</td>
+</tr>
+<tr>
+<td>Add header extraction to subscribers</td>
+<td>All subscribing services</td>
+<td>~1h each</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-3-medium-week-5-6">Phase 3: Medium (Week 5-6)<a class="headerlink" href="#phase-3-medium-week-5-6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Services</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Add unified error handling</td>
+<td>12 services</td>
+<td>~30min each</td>
+</tr>
+<tr>
+<td>Replace print() with structlog</td>
+<td>10 services</td>
+<td>~1h each</td>
+</tr>
+<tr>
+<td>Fix NATS connection leaks</td>
+<td>globalgap-compliance, ws-gateway</td>
+<td>~30min each</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="gap-10-missing-lifespan-context-manager-critical">GAP-10: Missing Lifespan Context Manager (CRITICAL)<a class="headerlink" href="#gap-10-missing-lifespan-context-manager-critical" title="Permanent link">&para;</a></h2>
+<h3 id="problem_8">Problem<a class="headerlink" href="#problem_8" title="Permanent link">&para;</a></h3>
+<p>4 services do not use the modern <code>@asynccontextmanager async def lifespan(app)</code> pattern, meaning startup initialization and shutdown cleanup are unreliable.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Issue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>equipment-service</strong></td>
+<td>No <code>lifespan=lifespan</code> parameter in <code>FastAPI()</code></td>
+</tr>
+<tr>
+<td><strong>ai-agents-core</strong></td>
+<td>No lifespan defined at all</td>
+</tr>
+<tr>
+<td><strong>provider-config</strong></td>
+<td>Uses only deprecated <code>@app.on_event()</code></td>
+</tr>
+<tr>
+<td><strong>task-service</strong></td>
+<td>No <code>lifespan</code> parameter in <code>FastAPI()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Additionally, 4 services mix both patterns (anti-pattern):
+- <code>ai-advisor</code>, <code>cooperative-service</code>, <code>crm-service</code>, <code>crop-intelligence-service</code></p>
+<h3 id="impact_4">Impact<a class="headerlink" href="#impact_4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Connection pools (DB, Redis, NATS) may not be created or closed properly</li>
+<li>Resource leaks on restart/scaling</li>
+<li>Non-deterministic startup behavior</li>
+</ul>
+<hr />
+<h2 id="gap-11-missing-jwt-authentication-on-public-endpoints-high">GAP-11: Missing JWT Authentication on Public Endpoints (HIGH)<a class="headerlink" href="#gap-11-missing-jwt-authentication-on-public-endpoints-high" title="Permanent link">&para;</a></h2>
+<h3 id="problem_9">Problem<a class="headerlink" href="#problem_9" title="Permanent link">&para;</a></h3>
+<p>25 services lack <code>get_current_user</code> from <code>shared.auth.dependencies</code>, meaning their API endpoints are unauthenticated. While some are intentionally internal-only, others are potentially frontend-facing:</p>
+<p><strong>Services without JWT auth (frontend-facing risk):</strong>
+- agent-registry, billing-core, cooperative-service, drone-service, field-management-service, ground-vision-service, indicators-service, knowledge-graph, notification-service, pest-detection-service, skills-service, soil-analysis-service, terrain-core-service, ws-gateway, yolo26-vision-service</p>
+<p><strong>Services using only X-Tenant-Id header (no JWT verification):</strong>
+- alert-service, audit-service</p>
+<h3 id="impact_5">Impact<a class="headerlink" href="#impact_5" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unauthorized API access if Kong gateway is bypassed</li>
+<li>No user identity in audit logs</li>
+<li>Tenant isolation depends solely on gateway, not defense-in-depth</li>
+</ul>
+<hr />
+<h2 id="gap-9-missing-or-incomplete-health-endpoints-high">GAP-9: Missing or Incomplete Health Endpoints (HIGH)<a class="headerlink" href="#gap-9-missing-or-incomplete-health-endpoints-high" title="Permanent link">&para;</a></h2>
+<h3 id="problem_10">Problem<a class="headerlink" href="#problem_10" title="Permanent link">&para;</a></h3>
+<p>Kubernetes liveness (<code>/healthz</code>) and readiness (<code>/readyz</code>) probes are missing or non-functional in many services.</p>
+<h3 id="services-completely-missing-health-endpoints-20-services">Services Completely Missing Health Endpoints (20 services)<a class="headerlink" href="#services-completely-missing-health-endpoints-20-services" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>astronomical-calendar</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>code-fix-agent</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>copilot-api</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>crm-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>edge-orchestrator-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>field-intelligence</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>ground-vision-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>hydrology-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>knowledge-graph</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>leveling-optimizer-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>llm-orchestrator-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>lowcode-engine</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>pest-detection-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>supply-chain-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>terrain-core-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>wechat-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>whatsapp-bot-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>yolo26-vision-service</td>
+<td><strong>MISSING</strong></td>
+</tr>
+<tr>
+<td>crop-growth-model</td>
+<td><strong>MISSING</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="services-with-static-readyz-no-dependency-checks-24-services">Services With Static /readyz (No Dependency Checks) — 24 services<a class="headerlink" href="#services-with-static-readyz-no-dependency-checks-24-services" title="Permanent link">&para;</a></h3>
+<p>These return hardcoded <code>{"status": "ok"}</code> without verifying DB, NATS, or Redis connectivity:</p>
+<p>ai-agents-core, cooperative-service, digital-twin-engine, drone-service, globalgap-compliance, inventory-service, logistics-service, ndvi-processor, skills-service, soil-analysis-service, traceability-service, ussd-gateway, weather-service, ws-gateway, code-review-service</p>
+<h3 id="impact_6">Impact<a class="headerlink" href="#impact_6" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Kubernetes cannot detect unhealthy pods → traffic routed to broken instances</li>
+<li>No automatic restart on dependency failure</li>
+<li>False readiness means dead pods receive requests</li>
+</ul>
+<h3 id="exemplary-services-reference-pattern">Exemplary Services (Reference Pattern)<a class="headerlink" href="#exemplary-services-reference-pattern" title="Permanent link">&para;</a></h3>
+<p>Only <strong>4 services</strong> implement proper dependency-checking readiness:
+- <code>task-service</code>: checks DB + NATS + Redis
+- <code>alert-service</code>: checks DB + NATS
+- <code>iot-gateway</code>: checks DB + Redis + NATS
+- <code>ai-agents-service</code>: checks DB + Redis + NATS</p>
+<hr />
+<h2 id="updated-gap-statistics">Updated Gap Statistics<a class="headerlink" href="#updated-gap-statistics" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Category</th>
+<th>Severity</th>
+<th>Services Affected</th>
+<th>Services Compliant</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Raw NATS publish (no headers)</td>
+<td><strong>CRITICAL</strong></td>
+<td>~30 services</td>
+<td>5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>No outbox pattern</td>
+<td><strong>CRITICAL</strong></td>
+<td>55 services</td>
+<td>1</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Missing lifespan context manager</td>
+<td><strong>CRITICAL</strong></td>
+<td>4 services</td>
+<td>52</td>
+</tr>
+<tr>
+<td>3</td>
+<td>No DB idempotency</td>
+<td><strong>HIGH</strong></td>
+<td>54 services</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>No <code>ensure_streams</code> call</td>
+<td><strong>HIGH</strong></td>
+<td>55 services</td>
+<td>1</td>
+</tr>
+<tr>
+<td>8</td>
+<td>No subscriber header extraction</td>
+<td><strong>HIGH</strong></td>
+<td>~25 services</td>
+<td>1</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Missing health endpoints entirely</td>
+<td><strong>HIGH</strong></td>
+<td>20 services</td>
+<td>36</td>
+</tr>
+<tr>
+<td>11</td>
+<td>Missing JWT auth on public endpoints</td>
+<td><strong>HIGH</strong></td>
+<td>25 services</td>
+<td>31</td>
+</tr>
+<tr>
+<td>7</td>
+<td>NATS connection leak (no close)</td>
+<td><strong>MEDIUM</strong></td>
+<td>2 services</td>
+<td>~36</td>
+</tr>
+<tr>
+<td>9b</td>
+<td>Static /readyz (no dep checks)</td>
+<td><strong>MEDIUM</strong></td>
+<td>24 services</td>
+<td>4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Missing unified error handling</td>
+<td><strong>MEDIUM</strong></td>
+<td>12 services</td>
+<td>44</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>print()</code> in production code</td>
+<td><strong>MEDIUM</strong></td>
+<td>10 services</td>
+<td>46</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The event pipeline hardening applied to <code>crop-intelligence-service</code> established the correct pattern. The platform now has a <strong>reference implementation</strong> but needs systematic rollout to remaining services. The most critical gaps are:</p>
+<ol>
+<li><strong>~30 services publish events without trace headers</strong> → breaks observability</li>
+<li><strong>55 services lack outbox pattern</strong> → events can be silently lost</li>
+<li><strong>54 services lack DB-level idempotency</strong> → duplicate processing risk</li>
+<li><strong>55 services don't call ensure_streams</strong> → JetStream config drift</li>
+<li><strong>20 services have no health endpoints</strong> → Kubernetes can't manage them</li>
+<li><strong>24 services have static /readyz</strong> → false readiness masking failures</li>
+<li><strong>4 services missing lifespan</strong> → resource leaks on startup/shutdown</li>
+<li><strong>25 services missing JWT auth</strong> → no defense-in-depth beyond gateway</li>
+</ol>
+<p><strong>Total: 12 gap categories, 3 CRITICAL, 5 HIGH, 4 MEDIUM.</strong></p>
+<p>All the infrastructure code exists in <code>shared/events/</code>, <code>shared/auth/</code>, and <code>shared/errors_py/</code> — the gap is <strong>adoption</strong>, not implementation.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

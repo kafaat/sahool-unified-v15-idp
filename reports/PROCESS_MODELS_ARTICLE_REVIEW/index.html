@@ -1,0 +1,1940 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.2">
+    
+    
+      
+        <title>مراجعة تغطية النماذج الزراعية القائمة على العمليات - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              مراجعة تغطية النماذج الزراعية القائمة على العمليات
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="_1">مراجعة تغطية النماذج الزراعية القائمة على العمليات<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<h1 id="process-based-agricultural-models-coverage-review">Process-Based Agricultural Models – Coverage Review<a class="headerlink" href="#process-based-agricultural-models-coverage-review" title="Permanent link">&para;</a></h1>
+<p><strong>التاريخ</strong>: 2026-02-22
+<strong>المرجع</strong>: مقال WeChat – النماذج الزراعية القائمة على العمليات (12 فصلاً)
+<strong>المراجع</strong>: Claude Code Agent
+<strong>الحالة</strong>: مراجعة مكتملة مع إصلاحات عاجلة</p>
+<hr />
+<h2 id="executive-summary">ملخص تنفيذي | Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>تم مراجعة كامل الكود في <code>shared/process_models/</code> و الخدمات المرتبطة مقارنةً بالمقال المرجعي
+الذي يغطي 12 فصلاً من النماذج الزراعية. <strong>النتيجة: تغطية جيدة (8/12 فصل)</strong> مع
+<strong>إصلاحين حسابيين حرجين</strong> و <strong>3 ملفات خدمات بدون مصادقة</strong>.</p>
+<h3 id="_2">الإصلاحات العاجلة المُنفذة<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>الخطورة</th>
+<th>الوصف</th>
+<th>الملف</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>حرج</strong></td>
+<td>تضخيم 100x في حساب الكتلة الحيوية</td>
+<td><code>shared/process_models/crop_growth.py:334</code></td>
+<td><strong>تم الإصلاح</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>حرج</strong></td>
+<td>حصاد مزدوج (harvest_index مُطبق مرتين)</td>
+<td><code>shared/process_models/crop_growth.py:363</code></td>
+<td><strong>تم الإصلاح</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>حرج</strong></td>
+<td>غياب مصادقة JWT</td>
+<td><code>digital-twin-engine/src/main.py</code></td>
+<td><strong>تم الإصلاح</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>حرج</strong></td>
+<td>غياب مصادقة JWT</td>
+<td><code>crop-intelligence-service/src/twin_router.py</code></td>
+<td><strong>تم الإصلاح</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>حرج</strong></td>
+<td>غياب مصادقة JWT</td>
+<td><code>crop-intelligence-service/src/models_router.py</code></td>
+<td><strong>تم الإصلاح</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_3">تحليل التغطية فصلاً بفصل<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h2>
+<h3 id="1">الفصل 1: نماذج نمو المحاصيل ✅ مُغطى بالكامل<a class="headerlink" href="#1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>الفينولوجيا (GDD)</strong></td>
+<td>GDD = Σ max(0, Tavg - Tbase)</td>
+<td><code>crop_growth.py:compute_gdd()</code> + NestJS phenology.service.ts</td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>التمثيل الضوئي (RUE)</strong></td>
+<td>ΔBM = IPAR × RUE × stress</td>
+<td><code>crop_growth.py:compute_biomass_increment()</code></td>
+<td>✅ جيد (بعد الإصلاح)</td>
+</tr>
+<tr>
+<td><strong>Farquhar FvCB</strong></td>
+<td>Ac, Aj, Rd</td>
+<td><code>photosynthesis.service.ts</code> (NestJS)</td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>التقسيم (Source-Sink)</strong></td>
+<td>DVS-based partitioning</td>
+<td><code>crop_growth.py:_PARTITION_TABLE</code> (WOFOST-style)</td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>إجهاد الرطوبة</strong></td>
+<td>Ws ∈ [0,1]</td>
+<td><code>crop_growth.py:water_stress_factor()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>إجهاد النيتروجين</strong></td>
+<td>Wn ∈ [0,1]</td>
+<td><code>crop_growth.py:nitrogen_stress_factor()</code></td>
+<td>✅ جيد</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الأنظمة المرجعية المُغطاة</strong>: WOFOST ✅, AquaCrop ✅, APSIM (جزئي)
+<strong>الأنظمة المفقودة</strong>: DSSAT/CERES (لم يُطبق بالكامل), STICS, ORYZA</p>
+<p><strong>الخطأ المُصلح #1</strong>: <code>* 100.0</code> في السطر 334 كان يُضخّم الكتلة الحيوية 100 مرة.
+المعادلة الصحيحة: <code>IPAR(MJ) × RUE(g/MJ) = g m⁻²</code> — لا حاجة للضرب.</p>
+<p><strong>الخطأ المُصلح #2</strong>: <code>storage_g_m2 * harvest_index / 100.0</code> كان يُطبق مؤشر الحصاد
+مرتين — مرة عبر جدول التقسيم ومرة عند حساب المحصول. الصحيح: <code>storage_g_m2 / 100.0</code>.</p>
+<hr />
+<h3 id="2">الفصل 2: نماذج عمليات التربة ✅ مُغطى جيداً<a class="headerlink" href="#2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>أحواض الكربون (3-pool)</strong></td>
+<td>Active, Slow, Passive</td>
+<td><code>soil_carbon.py:CarbonPools</code> (RothC-inspired)</td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>دورة النيتروجين</strong></td>
+<td>NH₄⁺, NO₃⁻, mineralization</td>
+<td><code>soil_carbon.py:NitrogenPools</code> + annual_decomposition</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>انبعاثات N₂O</strong></td>
+<td>DNDC-inspired</td>
+<td><code>soil_carbon.py:n2o_factor</code> (1.25% aerobic, 3% anaerobic)</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>انبعاثات CH₄</strong></td>
+<td>Flooded rice/wetland</td>
+<td><code>soil_carbon.py:ch4_kg_ha</code> (anaerobic condition)</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>معدّل الحرارة</strong></td>
+<td>Q₁₀ = 2.0</td>
+<td><code>soil_carbon.py:temperature_modifier()</code></td>
+<td>✅ دقيق</td>
+</tr>
+<tr>
+<td><strong>معدّل الرطوبة</strong></td>
+<td>Bell-shaped WFPS</td>
+<td><code>soil_carbon.py:moisture_modifier()</code></td>
+<td>✅ دقيق</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الأنظمة المرجعية المُغطاة</strong>: RothC ✅, DNDC (جزئي) ✅
+<strong>الأنظمة المفقودة</strong>: HYDRUS (نقل ريتشاردز), Century/DayCent (C-N balance), CoupModel, Daisy</p>
+<p><strong>ملاحظة</strong>: نموذج معادلة ريتشاردز (Richards equation) للتدفق في التربة غير المشبعة غير مُطبق.
+هذا مقبول لأن SAHOOL يستخدم FAO-56 bucket model وهو كافٍ للتطبيقات الميدانية.</p>
+<hr />
+<h3 id="3">الفصل 3: نماذج الأرصاد الجوية الزراعية ✅ مُغطى بالكامل<a class="headerlink" href="#3" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Penman-Monteith FAO-56</strong></td>
+<td>المعيار الدولي لـ ET₀</td>
+<td><code>agro_meteorology.py:penman_monteith_et0()</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Shuttleworth-Wallace</strong></td>
+<td>نموذج ثنائي المصدر</td>
+<td><code>agro_meteorology.py:shuttleworth_wallace_et()</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Hargreaves-Samani</strong></td>
+<td>ET₀ من الحرارة فقط</td>
+<td><code>agro_meteorology.py:hargreaves_et0()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>توازن الطاقة</strong></td>
+<td>Rn = Rns - Rnl</td>
+<td><code>agro_meteorology.py:net_radiation()</code> (FAO-56 Eq.40)</td>
+<td>✅ دقيق</td>
+</tr>
+<tr>
+<td><strong>ضغط البخار المشبع</strong></td>
+<td>FAO-56 Eq.11-13</td>
+<td><code>agro_meteorology.py:saturation_vapour_pressure()</code></td>
+<td>✅ دقيق</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الأنظمة المرجعية المُغطاة</strong>: FAO-56 PM ✅, Shuttleworth-Wallace ✅, Hargreaves ✅
+<strong>المفقود</strong>: ENVI-met (3D microclimate), WRF-Crop (regional), مولدات الطقس (WGEN/LARS-WG)</p>
+<hr />
+<h3 id="4">الفصل 4: نماذج الهيدرولوجيا الزراعية ✅ مُغطى جيداً<a class="headerlink" href="#4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>معادلة توازن الماء</strong></td>
+<td>P+I = ET+R+D+ΔS</td>
+<td><code>hydrology.py:soil_water_daily_step()</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>SCS-CN Runoff</strong></td>
+<td>Q = (P-Ia)²/(P-Ia+S)</td>
+<td><code>hydrology.py:scs_cn_runoff()</code></td>
+<td>✅ دقيق</td>
+</tr>
+<tr>
+<td><strong>Green-Ampt Infiltration</strong></td>
+<td>fp = Ks(1 + ψΔθ/F)</td>
+<td><code>hydrology.py:green_ampt_infiltration()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>Drainage (Darcy-based)</strong></td>
+<td>Deep percolation</td>
+<td><code>hydrology.py:soil_water_daily_step()</code> (k_drain)</td>
+<td>✅ مبسط</td>
+</tr>
+<tr>
+<td><strong>جدول CN</strong></td>
+<td>USDA soil groups A-D</td>
+<td><code>hydrology.py:_CN_TABLE</code> (6 land uses × 4 groups)</td>
+<td>✅ شامل</td>
+</tr>
+<tr>
+<td><strong>Green-Ampt Params</strong></td>
+<td>Rawls et al. 1983</td>
+<td><code>hydrology.py:ks_map, psi_map</code> (11 texture classes)</td>
+<td>✅ شامل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>الأنظمة المرجعية المُغطاة</strong>: FAO-56 SWB ✅, SCS-CN ✅, Green-Ampt ✅, SWAP (جزئي) ✅
+<strong>المفقود</strong>: SWAT (مستجمعات مياه), DRAINMOD (صرف تحتي), RZWQM (جودة مياه)</p>
+<hr />
+<h3 id="5">الفصل 5: نماذج الاستشعار عن بعد ✅ مُغطى جيداً<a class="headerlink" href="#5" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PROSPECT (leaf)</strong></td>
+<td>6 نطاقات طيفية</td>
+<td><code>radiative_transfer.py:prospect_reflectance()</code></td>
+<td>✅ مبسط جيد</td>
+</tr>
+<tr>
+<td><strong>SAIL (canopy)</strong></td>
+<td>Beer-Lambert turbid medium</td>
+<td><code>radiative_transfer.py:sail_canopy_reflectance()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>PROSAIL (combined)</strong></td>
+<td>Forward + Inverse</td>
+<td><code>radiative_transfer.py:RadiativeTransferModel</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>مؤشرات الغطاء النباتي</strong></td>
+<td>NDVI, EVI, NDRE, NDWI</td>
+<td><code>radiative_transfer.py:compute_vegetation_indices()</code></td>
+<td>✅ شامل</td>
+</tr>
+<tr>
+<td><strong>عكس النموذج (LUT)</strong></td>
+<td>LAI + Chl من NDVI/NDRE</td>
+<td><code>radiative_transfer.py:invert_lai_chlorophyll()</code></td>
+<td>✅ مبسط</td>
+</tr>
+<tr>
+<td><strong>Hot-spot correction</strong></td>
+<td>BRDF</td>
+<td><code>radiative_transfer.py:sail_canopy_reflectance()</code></td>
+<td>✅ مبسط</td>
+</tr>
+</tbody>
+</table>
+<p><strong>المُغطى</strong>: PROSAIL ✅ (مبسط), Forward ✅, Inverse ✅
+<strong>المفقود</strong>: SCOPE (SIF fluorescence), DART (3D ray-tracing)</p>
+<hr />
+<h3 id="6">الفصل 6: النماذج البيئية الزراعية ⚠️ تغطية جزئية<a class="headerlink" href="#6" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SIR (وبائيات)</strong></td>
+<td>Susceptible-Infected-Removed</td>
+<td><code>pest_epidemiology.py:sir_daily_step()</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Degree-Day insects</strong></td>
+<td>فينولوجيا الحشرات</td>
+<td><code>pest_epidemiology.py:daily_degree_days()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>Lotka-Volterra</strong></td>
+<td>مفترس-فريسة</td>
+<td><code>pest_epidemiology.py:lv_daily_step()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>CLIMEX</strong></td>
+<td>توزيع أنواع غازية</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>InVEST</strong></td>
+<td>خدمات النظام البيئي</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>EcoSys</strong></td>
+<td>نظم بيئية متكاملة</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="7-dss">الفصل 7: نماذج إدارة الحقول و DSS ✅ مُغطى جيداً<a class="headerlink" href="#7-dss" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>QUEFTS</strong></td>
+<td>إدارة المغذيات الكمية</td>
+<td><code>nutrient_management.py:QueftsNutrientModel</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>4R Stewardship</strong></td>
+<td>Right source/rate/time/place</td>
+<td><code>nutrient_management.py</code> (timing guidance)</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>إدارة N-P-K</strong></td>
+<td>Balanced nutrition envelope</td>
+<td><code>nutrient_management.py:_quefts_envelope()</code></td>
+<td>✅ دقيق</td>
+</tr>
+<tr>
+<td><strong>CPP (تخطيط المسار)</strong></td>
+<td>ملاحة آلية</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>WinSRFR</strong></td>
+<td>ري سطحي</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>IFSM</strong></td>
+<td>نظام المزرعة المتكامل</td>
+<td>❌ غير مُطبق</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>Nutrient Expert</strong></td>
+<td>4R مُحسّن</td>
+<td>❌ (QUEFTS يغطي جزئياً)</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="8-fspm-">الفصل 8: FSPM (نماذج بنيوية-وظيفية) ❌ غير مُغطى<a class="headerlink" href="#8-fspm-" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>الحالة</th>
+<th>الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>L-System algorithms</strong></td>
+<td>❌ غير مُطبق</td>
+<td>يتطلب رسومات 3D</td>
+</tr>
+<tr>
+<td><strong>OpenAlea</strong></td>
+<td>❌ غير مُطبق</td>
+<td>أولوية منخفضة</td>
+</tr>
+<tr>
+<td><strong>GroIMP</strong></td>
+<td>❌ غير مُطبق</td>
+<td>أولوية منخفضة</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التبرير</strong>: FSPM نماذج بحثية أكثر منها إنتاجية. غير ضرورية لمنصة ميدانية.</p>
+<hr />
+<h3 id="9-gem">الفصل 9: نماذج G×E×M (التنوع الوراثي × البيئة × الإدارة) ❌ غير مُغطى<a class="headerlink" href="#9-gem" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>الحالة</th>
+<th>الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Genomic Prediction</strong></td>
+<td>❌</td>
+<td>يتطلب بيانات جينومية</td>
+</tr>
+<tr>
+<td><strong>CGM-WGP</strong></td>
+<td>❌</td>
+<td>بحث متقدم</td>
+</tr>
+<tr>
+<td><strong>Virtual Breeding</strong></td>
+<td>❌</td>
+<td>خارج نطاق المنصة الحالي</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التبرير</strong>: يتطلب بيانات SNP وبنية تحتية للتنبؤ الجينومي. خارج النطاق الحالي.</p>
+<hr />
+<h3 id="10">الفصل 10: نماذج وبائيات الآفات والأمراض ✅ مُغطى بالكامل<a class="headerlink" href="#10" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SIR compartmental</strong></td>
+<td>dS/dt, dI/dt, dR/dt</td>
+<td><code>pest_epidemiology.py:sir_daily_step()</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Temperature-modulated</strong></td>
+<td>Q₁₀ × leaf wetness</td>
+<td><code>simulate_disease()</code> (temp_mod × wetness_mod)</td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Insect Degree-Days</strong></td>
+<td>Single-triangle method</td>
+<td><code>daily_degree_days()</code> (8 pest types calibrated)</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>IPM (Lotka-Volterra)</strong></td>
+<td>Predator-prey dynamics</td>
+<td><code>lv_daily_step()</code> with carrying capacity</td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>R₀ (reproduction number)</strong></td>
+<td>Epidemic threshold</td>
+<td><code>r0 = beta / gamma</code></td>
+<td>✅ دقيق</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="11">الفصل 11: نماذج الماشية والدواجن ❌ غير مُغطى<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>الحالة</th>
+<th>الملاحظة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Molly (dairy cow)</strong></td>
+<td>❌</td>
+<td>خارج نطاق المنصة</td>
+</tr>
+<tr>
+<td><strong>PigIT</strong></td>
+<td>❌</td>
+<td>خارج نطاق المنصة</td>
+</tr>
+<tr>
+<td><strong>Heat stress model</strong></td>
+<td>❌</td>
+<td>المنصة تركز على المحاصيل</td>
+</tr>
+</tbody>
+</table>
+<p><strong>التبرير</strong>: SAHOOL منصة زراعة محاصيل بالدرجة الأولى. نماذج الماشية خارج النطاق الحالي.</p>
+<hr />
+<h3 id="12-mips">الفصل 12: مشاريع مقارنة النماذج (MIPs) ✅ مُغطى<a class="headerlink" href="#12-mips" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>المكوّن</th>
+<th>المقال</th>
+<th>التطبيق في SAHOOL</th>
+<th>الجودة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AgMIP Ensemble</strong></td>
+<td>Multi-model averaging</td>
+<td><code>ensemble.py:EnsembleModelFramework</code></td>
+<td>✅ ممتاز</td>
+</tr>
+<tr>
+<td><strong>Skill Scores</strong></td>
+<td>RMSE, bias, Pearson r, Willmott d</td>
+<td><code>ensemble.py:compute_skill_scores()</code></td>
+<td>✅ شامل</td>
+</tr>
+<tr>
+<td><strong>Weighted Mean</strong></td>
+<td>Per-model weights</td>
+<td><code>ensemble.py:compute_ensemble_stats()</code></td>
+<td>✅ جيد</td>
+</tr>
+<tr>
+<td><strong>Percentile Bands</strong></td>
+<td>p10, p25, p75, p90</td>
+<td><code>ensemble.py:EnsembleStats</code></td>
+<td>✅ شامل</td>
+</tr>
+<tr>
+<td><strong>Model Registration</strong></td>
+<td>Dynamic model registry</td>
+<td><code>ensemble.py:RegisteredModel</code></td>
+<td>✅ مرن</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_4">ملخص التغطية<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>الفصل</th>
+<th>الموضوع</th>
+<th>التغطية</th>
+<th>الدرجة</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>نمو المحاصيل</td>
+<td>✅ كامل (WOFOST + AquaCrop + Farquhar)</td>
+<td><strong>9/10</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>عمليات التربة</td>
+<td>✅ جيد (RothC + DNDC pools)</td>
+<td><strong>7/10</strong></td>
+</tr>
+<tr>
+<td>3</td>
+<td>الأرصاد الجوية</td>
+<td>✅ كامل (PM + S-W + Hargreaves)</td>
+<td><strong>9/10</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>الهيدرولوجيا</td>
+<td>✅ جيد (FAO-56 + SCS-CN + Green-Ampt)</td>
+<td><strong>8/10</strong></td>
+</tr>
+<tr>
+<td>5</td>
+<td>الاستشعار عن بعد</td>
+<td>✅ جيد (PROSAIL forward + inverse)</td>
+<td><strong>7/10</strong></td>
+</tr>
+<tr>
+<td>6</td>
+<td>النماذج البيئية</td>
+<td>⚠️ جزئي (SIR + LV فقط)</td>
+<td><strong>5/10</strong></td>
+</tr>
+<tr>
+<td>7</td>
+<td>إدارة الحقول / DSS</td>
+<td>✅ جيد (QUEFTS + 4R)</td>
+<td><strong>7/10</strong></td>
+</tr>
+<tr>
+<td>8</td>
+<td>FSPM (3D بنيوي)</td>
+<td>❌ غير مُغطى</td>
+<td><strong>0/10</strong></td>
+</tr>
+<tr>
+<td>9</td>
+<td>G×E×M (وراثي)</td>
+<td>❌ غير مُغطى</td>
+<td><strong>0/10</strong></td>
+</tr>
+<tr>
+<td>10</td>
+<td>وبائيات الآفات</td>
+<td>✅ كامل (SIR + DD + LV)</td>
+<td><strong>9/10</strong></td>
+</tr>
+<tr>
+<td>11</td>
+<td>ماشية ودواجن</td>
+<td>❌ غير مُغطى (خارج النطاق)</td>
+<td><strong>N/A</strong></td>
+</tr>
+<tr>
+<td>12</td>
+<td>مقارنة النماذج (MIPs)</td>
+<td>✅ جيد (AgMIP-style ensemble)</td>
+<td><strong>8/10</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>الدرجة الإجمالية: 69/100</strong> (ممتاز للفصول المُغطاة، مع فجوات متوقعة في المجالات خارج النطاق)</p>
+<hr />
+<h2 id="_5">توحيد الحاويات – أفضل الممارسات<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h2>
+<h3 id="_6">الوضع الحالي<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h3>
+<p>الخدمات المتعلقة بمراقبة المحاصيل مُوزعة حالياً على عدة حاويات:</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">crop</span><span class="o">-</span><span class="nx">growth</span><span class="o">-</span><span class="nx">model</span><span class="w"> </span><span class="p">(</span><span class="nx">NestJS</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">3023</span><span class="p">)</span><span class="w">        </span><span class="err">←</span><span class="w"> </span><span class="nx">phenology</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">photosynthesis</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">biomass</span>
+<span class="nx">crop</span><span class="o">-</span><span class="nx">intelligence</span><span class="o">-</span><span class="nx">service</span><span class="w"> </span><span class="p">(</span><span class="nx">Python</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">8095</span><span class="p">)</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="nx">yield</span><span class="w"> </span><span class="nx">prediction</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">twin</span><span class="w"> </span><span class="nx">router</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">models</span><span class="w"> </span><span class="nx">router</span>
+<span class="nx">vegetation</span><span class="o">-</span><span class="nx">analysis</span><span class="o">-</span><span class="nx">service</span><span class="w"> </span><span class="p">(</span><span class="nx">Python</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">8090</span><span class="p">)</span><span class="w"> </span><span class="err">←</span><span class="w"> </span><span class="nx">NDVI</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">satellite</span>
+<span class="nx">digital</span><span class="o">-</span><span class="nx">twin</span><span class="o">-</span><span class="nx">engine</span><span class="w"> </span><span class="p">(</span><span class="nx">Python</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">8253</span><span class="p">)</span><span class="w">       </span><span class="err">←</span><span class="w"> </span><span class="nx">simulation</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">optimization</span>
+<span class="nx">weather</span><span class="o">-</span><span class="nx">service</span><span class="w"> </span><span class="p">(</span><span class="nx">Python</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">8092</span><span class="p">)</span><span class="w">           </span><span class="err">←</span><span class="w"> </span><span class="nx">weather</span><span class="w"> </span><span class="nx">data</span>
+<span class="nx">irrigation</span><span class="o">-</span><span class="nx">smart</span><span class="w"> </span><span class="p">(</span><span class="nx">Python</span><span class="p">,</span><span class="w"> </span><span class="nx">port</span><span class="w"> </span><span class="mi">8094</span><span class="p">)</span><span class="w">          </span><span class="err">←</span><span class="w"> </span><span class="nx">irrigation</span><span class="w"> </span><span class="nx">scheduling</span>
+<span class="nx">shared</span><span class="o">/</span><span class="nx">process_models</span><span class="o">/</span><span class="w"> </span><span class="p">(</span><span class="kn">library</span><span class="p">)</span><span class="w">              </span><span class="err">←</span><span class="w"> </span><span class="nx">core</span><span class="w"> </span><span class="nx">mechanistic</span><span class="w"> </span><span class="nx">models</span>
+</code></pre></div>
+
+<h3 id="_7">التوصية: وحدة موحدة وفقاً للمقال<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>المقال يُؤكد على أن مستقبل الزراعة الذكية هو <strong>"دمج النماذج المتعددة"</strong> و <strong>"استيعاب البيانات"</strong>:</p>
+<blockquote>
+<p>"الآلية + الذكاء الاصطناعي... تكامل آليات الفضاء والجو والأرض"</p>
+</blockquote>
+<h4 id="_8">الخطة المقترحة:<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h4>
+<ol>
+<li><strong><code>shared/process_models/</code></strong> يبقى كمكتبة نماذج مشتركة (هذا صحيح حالياً) ✅</li>
+<li><strong><code>digital-twin-engine</code></strong> يُصبح <strong>نقطة الدخول الموحدة</strong> لجميع نماذج المحاكاة:</li>
+<li>يستورد من <code>shared/process_models/</code> (crop_growth, hydrology, agro_meteorology, etc.)</li>
+<li>يُوفر Ensemble Framework (AgMIP-style)</li>
+<li>يُطبق Kalman Filter لاستيعاب البيانات</li>
+<li>واجهة API واحدة لجميع النماذج</li>
+<li><strong><code>crop-intelligence-service</code></strong> يبقى كوسيط بين البيانات والنماذج</li>
+<li><strong>خدمات البيانات</strong> (weather, vegetation, irrigation) تبقى مستقلة لأنها مصادر بيانات</li>
+</ol>
+<div class="codehilite"><pre><span></span><code>┌─────────────────────────────────────────┐
+│         Digital Twin Engine             │  ← نقطة الدخول الموحدة
+│  ┌──────┐ ┌─────────┐ ┌──────────┐    │
+│  │Crop  │ │Agro-Met │ │Hydrology │    │
+│  │Growth│ │ET₀+S-W  │ │SWB+SCS   │    │
+│  └──────┘ └─────────┘ └──────────┘    │
+│  ┌──────┐ ┌─────────┐ ┌──────────┐    │
+│  │Soil  │ │PROSAIL  │ │Pest      │    │
+│  │Carbon│ │RTM      │ │Epidemiol.│    │
+│  └──────┘ └─────────┘ └──────────┘    │
+│  ┌────────────┐  ┌──────────────────┐  │
+│  │QUEFTS      │  │Ensemble (AgMIP)  │  │
+│  │Nutrients   │  │+ Kalman Filter   │  │
+│  └────────────┘  └──────────────────┘  │
+│         ↕ NATS Events                   │
+└─────────────────────────────────────────┘
+         ↕                ↕
+    Data Services     crop-intelligence
+    (weather,         (yield prediction,
+     vegetation,       advisory)
+     irrigation)
+</code></pre></div>
+
+<hr />
+<h2 id="_9">خلاصة الإصلاحات المُنفذة<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="1-100x">1. إصلاح حسابي: تضخيم 100x<a class="headerlink" href="#1-100x" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>الملف</strong>: <code>shared/process_models/crop_growth.py:334</code></li>
+<li><strong>قبل</strong>: <code>delta_bm = compute_biomass_increment(...) * 100.0</code></li>
+<li><strong>بعد</strong>: <code>delta_bm = compute_biomass_increment(...)</code></li>
+<li><strong>السبب</strong>: IPAR(MJ) × RUE(g/MJ) = g m⁻² مباشرة</li>
+</ul>
+<h3 id="2_1">2. إصلاح حسابي: حصاد مزدوج<a class="headerlink" href="#2_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>الملف</strong>: <code>shared/process_models/crop_growth.py:363</code></li>
+<li><strong>قبل</strong>: <code>grain_yield_t_ha = state.storage_g_m2 * crop.harvest_index / 100.0</code></li>
+<li><strong>بعد</strong>: <code>grain_yield_t_ha = state.storage_g_m2 / 100.0</code></li>
+<li><strong>السبب</strong>: storage_g_m2 ناتج عن partition table الذي يُوزع الكتلة الحيوية بالفعل</li>
+</ul>
+<h3 id="3-jwt">3. إضافة مصادقة JWT<a class="headerlink" href="#3-jwt" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>digital-twin-engine/src/main.py</code>: أضيف <code>Depends(get_current_user)</code> لـ 4 endpoints</li>
+<li><code>crop-intelligence-service/src/twin_router.py</code>: أضيف <code>dependencies=[Depends(get_current_user)]</code> للـ router</li>
+<li><code>crop-intelligence-service/src/models_router.py</code>: أضيف <code>dependencies=[Depends(get_current_user)]</code> للـ router</li>
+</ul>
+<hr />
+<p><em>مراجعة مُنجزة بتاريخ 2026-02-22</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

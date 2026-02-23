@@ -207,7 +207,8 @@ class TestEventPublisherConnection:
         publisher._connected = True
         publisher._nc = MagicMock()
 
-        result = await publisher.connect()
+        with patch("shared.events.publisher._nats_available", True):
+            result = await publisher.connect()
 
         assert result is True
 
@@ -302,7 +303,7 @@ class TestEventPublisherPublish:
         publisher._nc = mock_nc
         publisher._connected = True
 
-        # Create an event that will fail validation
+        # Create an event that will fail serialization
         invalid_event = MagicMock(spec=BaseEvent)
         invalid_event.source_service = "test"
         invalid_event.correlation_id = None
@@ -310,8 +311,10 @@ class TestEventPublisherPublish:
         invalid_event.trace_id = None
         invalid_event.span_id = None
         invalid_event.tenant_id = None
-        invalid_event.model_validate = MagicMock(side_effect=ValueError("Invalid"))
-        invalid_event.model_dump = MagicMock(return_value={})
+        invalid_event.tenant_id_header = None
+        invalid_event.event_id = str(uuid4())
+        invalid_event.version = "1.0.0"
+        invalid_event.model_dump_json = MagicMock(side_effect=ValueError("Invalid"))
 
         result = await publisher.publish_event("test.subject", invalid_event)
 

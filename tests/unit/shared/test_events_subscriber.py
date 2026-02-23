@@ -253,7 +253,8 @@ class TestEventSubscriberConnection:
         subscriber._connected = True
         subscriber._nc = MagicMock()
 
-        result = await subscriber.connect()
+        with patch("shared.events.subscriber._nats_available", True):
+            result = await subscriber.connect()
 
         assert result is True
 

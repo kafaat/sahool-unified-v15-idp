@@ -25,8 +25,6 @@ The predictor interface consumed by CalibrationEngine::
 
 from __future__ import annotations
 
-import math
-from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from typing import Protocol

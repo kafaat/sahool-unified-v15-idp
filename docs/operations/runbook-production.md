@@ -109,7 +109,7 @@ curl http://localhost:8150/dlq/messages/<msg_id>
 
 | Root Cause | Action |
 |------------|--------|
-| `ValidationError` / `ValueError` / `KeyError` | Fix source data or publisher schema. These are **non-retriable** — they went directly to DLQ. |
+| `ValidationError` / `ValueError` / `KeyError` / `TypeError` | Fix source data or publisher schema. These are **non-retriable** — they went directly to DLQ. |
 | `TimeoutError` / `ConnectionError` | Check downstream DB or service health. These retried 3 times with exponential backoff before DLQ. |
 | Schema mismatch (`X-Schema-Version` header) | Check for version drift between publisher and consumer. Verify `BaseEvent.version` field. |
 | DB lock / high CPU | See [Incident: DB High CPU](#6-incident-db-high-cpu--lock-contention) |
@@ -484,9 +484,13 @@ done
 | `X-Schema-Version` | Event schema version for compatibility |
 | `traceparent` | W3C OpenTelemetry trace format: `00-{trace_id}-{span_id}-01` |
 
+**BaseEvent fields** (from `shared/events/contracts.py`):
+
+> Every event carries: `event_id`, `correlation_id`, `causation_id`, `trace_id`, `span_id`, `version`, `source_service`, `tenant_id_header`.
+
 **Step 4** — Verify:
 
-- No missing hop in the causation chain
+- No missing hop in the causation chain (`causation_id` must point to parent `event_id`)
 - No broken `traceparent` (OpenTelemetry)
 - `processed_events` table has entries for each service in the chain
 - No DLQ entries for this correlation_id

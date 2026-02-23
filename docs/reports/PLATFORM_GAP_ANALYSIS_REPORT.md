@@ -293,6 +293,50 @@ Only `crop-intelligence-service/src/event_subscribers.py` implements `_extract_h
 
 ---
 
+## GAP-10: Missing Lifespan Context Manager (CRITICAL)
+
+### Problem
+
+4 services do not use the modern `@asynccontextmanager async def lifespan(app)` pattern, meaning startup initialization and shutdown cleanup are unreliable.
+
+| Service | Issue |
+|---------|-------|
+| **equipment-service** | No `lifespan=lifespan` parameter in `FastAPI()` |
+| **ai-agents-core** | No lifespan defined at all |
+| **provider-config** | Uses only deprecated `@app.on_event()` |
+| **task-service** | No `lifespan` parameter in `FastAPI()` |
+
+Additionally, 4 services mix both patterns (anti-pattern):
+- `ai-advisor`, `cooperative-service`, `crm-service`, `crop-intelligence-service`
+
+### Impact
+
+- Connection pools (DB, Redis, NATS) may not be created or closed properly
+- Resource leaks on restart/scaling
+- Non-deterministic startup behavior
+
+---
+
+## GAP-11: Missing JWT Authentication on Public Endpoints (HIGH)
+
+### Problem
+
+25 services lack `get_current_user` from `shared.auth.dependencies`, meaning their API endpoints are unauthenticated. While some are intentionally internal-only, others are potentially frontend-facing:
+
+**Services without JWT auth (frontend-facing risk):**
+- agent-registry, billing-core, cooperative-service, drone-service, field-management-service, ground-vision-service, indicators-service, knowledge-graph, notification-service, pest-detection-service, skills-service, soil-analysis-service, terrain-core-service, ws-gateway, yolo26-vision-service
+
+**Services using only X-Tenant-Id header (no JWT verification):**
+- alert-service, audit-service
+
+### Impact
+
+- Unauthorized API access if Kong gateway is bypassed
+- No user identity in audit logs
+- Tenant isolation depends solely on gateway, not defense-in-depth
+
+---
+
 ## GAP-9: Missing or Incomplete Health Endpoints (HIGH)
 
 ### Problem
@@ -348,18 +392,20 @@ Only **4 services** implement proper dependency-checking readiness:
 
 ## Updated Gap Statistics
 
-| Category | Severity | Services Affected | Services Compliant |
-|----------|----------|-------------------|-------------------|
-| Raw NATS publish (no headers) | **CRITICAL** | ~30 services | 5 |
-| No outbox pattern | **CRITICAL** | 55 services | 1 |
-| No DB idempotency | **HIGH** | 54 services | 2 |
-| No `ensure_streams` call | **HIGH** | 55 services | 1 |
-| No subscriber header extraction | **HIGH** | ~25 services | 1 |
-| Missing health endpoints entirely | **HIGH** | 20 services | 36 |
-| Static /readyz (no dep checks) | **MEDIUM** | 24 services | 4 |
-| Missing unified error handling | **MEDIUM** | 12 services | 44 |
-| `print()` in production code | **MEDIUM** | 10 services | 46 |
-| NATS connection leak | **MEDIUM** | 2 services | ~36 |
+| # | Category | Severity | Services Affected | Services Compliant |
+|---|----------|----------|-------------------|-------------------|
+| 1 | Raw NATS publish (no headers) | **CRITICAL** | ~30 services | 5 |
+| 2 | No outbox pattern | **CRITICAL** | 55 services | 1 |
+| 10 | Missing lifespan context manager | **CRITICAL** | 4 services | 52 |
+| 3 | No DB idempotency | **HIGH** | 54 services | 2 |
+| 4 | No `ensure_streams` call | **HIGH** | 55 services | 1 |
+| 8 | No subscriber header extraction | **HIGH** | ~25 services | 1 |
+| 9 | Missing health endpoints entirely | **HIGH** | 20 services | 36 |
+| 11 | Missing JWT auth on public endpoints | **HIGH** | 25 services | 31 |
+| 7 | NATS connection leak (no close) | **MEDIUM** | 2 services | ~36 |
+| 9b | Static /readyz (no dep checks) | **MEDIUM** | 24 services | 4 |
+| 5 | Missing unified error handling | **MEDIUM** | 12 services | 44 |
+| 6 | `print()` in production code | **MEDIUM** | 10 services | 46 |
 
 ---
 
@@ -373,5 +419,9 @@ The event pipeline hardening applied to `crop-intelligence-service` established 
 4. **55 services don't call ensure_streams** → JetStream config drift
 5. **20 services have no health endpoints** → Kubernetes can't manage them
 6. **24 services have static /readyz** → false readiness masking failures
+7. **4 services missing lifespan** → resource leaks on startup/shutdown
+8. **25 services missing JWT auth** → no defense-in-depth beyond gateway
 
-All the infrastructure code exists in `shared/events/` — the gap is **adoption**, not implementation.
+**Total: 12 gap categories, 3 CRITICAL, 5 HIGH, 4 MEDIUM.**
+
+All the infrastructure code exists in `shared/events/`, `shared/auth/`, and `shared/errors_py/` — the gap is **adoption**, not implementation.

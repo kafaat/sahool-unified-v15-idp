@@ -33,7 +33,7 @@ google-generativeai>=0.3.0
 
 # Embeddings and Vector Search
 # التضمينات والبحث الموجه
-sentence-transformers==5.2.2
+sentence-transformers==5.2.3
 qdrant-client==1.11.1
 
 # NATS Messaging

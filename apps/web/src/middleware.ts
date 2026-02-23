@@ -10,21 +10,43 @@
  * - CSRF protection for state-changing requests
  * - Security headers (CSP, X-Frame-Options, HSTS, etc.)
  * - Secure redirect handling
+ *
+ * Edge Bundle Optimization:
+ * - Locale detection is done inline (no next-intl/middleware import ~200KB+)
+ * - Logger is edge-safe console-only (no @sentry/nextjs import ~300KB+)
+ * - Locale constants are inlined (no @sahool/i18n barrel import ~24KB+ JSON)
  */
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import createMiddleware from "next-intl/middleware";
 import {
   generateNonce,
   getCSPHeader,
   getCSPHeaderName,
   getCSPConfig,
 } from "@/lib/security/csp-config";
-import { locales, defaultLocale } from "@sahool/i18n";
 import { validateJwtToken } from "@/lib/security/jwt-middleware";
 import { validateCsrfRequest } from "@/lib/security/csrf-server";
-import { logger } from "@/lib/logger";
+
+// ---------------------------------------------------------------------------
+// Inline locale constants to avoid pulling in the full @sahool/i18n barrel
+// which imports all locale JSON files and re-exports next-intl client code.
+// These MUST stay in sync with packages/i18n/src/index.ts.
+// ---------------------------------------------------------------------------
+const locales = ["ar", "en"] as const;
+const defaultLocale: (typeof locales)[number] = "ar";
+
+// ---------------------------------------------------------------------------
+// Edge-safe logger - avoids importing @/lib/logger which references
+// @sentry/nextjs (~300KB). In the edge middleware we only need console output.
+// ---------------------------------------------------------------------------
+const edgeLogger = {
+  error: (...args: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.error(...args);
+    }
+  },
+};
 
 // Routes that don't require authentication
 const publicRoutes = [
@@ -53,12 +75,38 @@ const protectedRoutes = [
   "/copilot",
 ];
 
-// Create i18n middleware
-const intlMiddleware = createMiddleware({
-  locales,
-  defaultLocale,
-  localePrefix: "never", // Don't use locale prefixes in URL
-});
+/**
+ * Detect preferred locale from the request.
+ *
+ * Lightweight replacement for next-intl/middleware createMiddleware() which
+ * pulls in the entire next-intl runtime (~200KB+). Since we use
+ * localePrefix: "never" (no locale segment in the URL), the only job of
+ * the i18n middleware was to:
+ *   1. Detect locale from NEXT_LOCALE cookie or Accept-Language header
+ *   2. Set the NEXT_LOCALE cookie so next-intl server picks it up
+ *
+ * This function replicates that behaviour at a fraction of the bundle cost.
+ */
+function detectLocale(request: NextRequest): (typeof locales)[number] {
+  // 1. Explicit cookie takes priority
+  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  if (cookieLocale && (locales as readonly string[]).includes(cookieLocale)) {
+    return cookieLocale as (typeof locales)[number];
+  }
+
+  // 2. Parse Accept-Language header (first match wins)
+  const acceptLang = request.headers.get("accept-language") ?? "";
+  for (const part of acceptLang.split(",")) {
+    const lang = part.split(";")[0].trim().toLowerCase();
+    // Match exact ("ar", "en") or prefix ("ar-SA" -> "ar", "en-US" -> "en")
+    const prefix = lang.split("-")[0];
+    if ((locales as readonly string[]).includes(prefix)) {
+      return prefix as (typeof locales)[number];
+    }
+  }
+
+  return defaultLocale;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
@@ -76,15 +124,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 2. Handle i18n routing
+  // 2. Lightweight locale detection (replaces next-intl/middleware)
+  //    Sets NEXT_LOCALE cookie so that next-intl server config picks it up.
   // ═══════════════════════════════════════════════════════════════════════════
-  const intlResponse = intlMiddleware(request);
-  if (intlResponse) {
-    // If i18n middleware returns a redirect, use that
-    if (intlResponse.headers.get("location")) {
-      return intlResponse;
-    }
-  }
+  const detectedLocale = detectLocale(request);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // 3. CSRF Protection for state-changing requests
@@ -92,7 +135,7 @@ export async function middleware(request: NextRequest) {
   const csrfValidation = validateCsrfRequest(request);
   if (!csrfValidation.valid) {
     // Log CSRF failure
-    logger.error(`[CSRF] Validation failed: ${csrfValidation.error}`, {
+    edgeLogger.error(`[CSRF] Validation failed: ${csrfValidation.error}`, {
       method: request.method,
       path: pathname,
     });
@@ -118,6 +161,7 @@ export async function middleware(request: NextRequest) {
     // Still add basic security headers for public routes
     const response = NextResponse.next();
     addSecurityHeaders(response);
+    setLocaleCookie(response, detectedLocale);
     return response;
   }
 
@@ -132,6 +176,7 @@ export async function middleware(request: NextRequest) {
     // Not a protected route - allow with security headers
     const response = NextResponse.next();
     addSecurityHeaders(response);
+    setLocaleCookie(response, detectedLocale);
     return response;
   }
 
@@ -142,7 +187,7 @@ export async function middleware(request: NextRequest) {
 
   if (!jwtValidation.valid) {
     // Log JWT failure
-    logger.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
+    edgeLogger.error(`[JWT] Validation failed: ${jwtValidation.error}`, {
       path: pathname,
     });
 
@@ -168,8 +213,9 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   const response = NextResponse.next();
 
-  // Add all security headers
+  // Add all security headers and locale cookie
   addSecurityHeaders(response);
+  setLocaleCookie(response, detectedLocale);
 
   // Generate CSRF token if not present
   let csrfToken = request.cookies.get("csrf_token")?.value;
@@ -191,6 +237,23 @@ export async function middleware(request: NextRequest) {
   }
 
   return response;
+}
+
+/**
+ * Persist the detected locale in the NEXT_LOCALE cookie so that
+ * next-intl's server-side getRequestConfig() can read it on
+ * subsequent requests. This replaces the cookie-setting behaviour
+ * that was previously handled by next-intl/middleware.
+ */
+function setLocaleCookie(
+  response: NextResponse,
+  locale: (typeof locales)[number],
+): void {
+  response.cookies.set("NEXT_LOCALE", locale, {
+    path: "/",
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    sameSite: "lax",
+  });
 }
 
 /**

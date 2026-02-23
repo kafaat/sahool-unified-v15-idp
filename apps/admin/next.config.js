@@ -149,7 +149,6 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: [
       "lucide-react",
-      "@tanstack/react-query",
       "recharts",
       "date-fns",
       "clsx",

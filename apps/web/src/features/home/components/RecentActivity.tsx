@@ -7,7 +7,7 @@
 
 import React from "react";
 import { Activity, Clock } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useRecentActivity } from "../hooks/useRecentActivity";
 
 interface ActivityItem {
   id: string;
@@ -64,7 +64,7 @@ const ActivityItemComponent: React.FC<{ activity: ActivityItem }> = ({
 };
 
 export const RecentActivity: React.FC = () => {
-  const { data, isLoading } = useDashboardData();
+  const { data: activityData, isLoading } = useRecentActivity({ limit: 10 });
 
   if (isLoading) {
     return (
@@ -82,7 +82,7 @@ export const RecentActivity: React.FC = () => {
     );
   }
 
-  const activities: ActivityItem[] = data?.recentActivity || [];
+  const activities: ActivityItem[] = activityData || [];
 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-6">

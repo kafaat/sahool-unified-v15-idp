@@ -7,7 +7,7 @@
 
 import React from "react";
 import { CheckCircle2, Clock, Calendar, ArrowLeft } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useUpcomingTasks } from "../hooks/useUpcomingTasks";
 import Link from "next/link";
 
 interface TaskItemProps {
@@ -65,7 +65,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
 };
 
 export const TasksSummary: React.FC = () => {
-  const { data, isLoading } = useDashboardData();
+  const { data: tasksData, isLoading } = useUpcomingTasks({ limit: 8 });
 
   if (isLoading) {
     return (
@@ -83,7 +83,7 @@ export const TasksSummary: React.FC = () => {
     );
   }
 
-  const tasks = data?.upcomingTasks || [];
+  const tasks = tasksData || [];
 
   return (
     <div className="bg-white rounded-xl border-2 border-gray-200 p-6">

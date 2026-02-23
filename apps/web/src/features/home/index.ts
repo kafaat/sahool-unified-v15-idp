@@ -21,6 +21,7 @@ export { useDashboardData } from "./hooks/useDashboardData";
 export { useStats, useEnhancedStats } from "./hooks/useStats";
 export { useUpcomingTasks } from "./hooks/useUpcomingTasks";
 export { useRecentActivity } from "./hooks/useRecentActivity";
+export { useWeather } from "./hooks/useWeather";
 export { useAlerts } from "./hooks/useAlerts";
 export { useDashboardMutations } from "./hooks/useDashboardMutations";
 
@@ -32,6 +33,7 @@ export type { DashboardData } from "./hooks/useDashboardData";
 export type { DashboardStats as DashboardStatsType } from "./hooks/useStats";
 export type { UpcomingTask } from "./hooks/useUpcomingTasks";
 export type { ActivityItem } from "./hooks/useRecentActivity";
+export type { WeatherData } from "./hooks/useWeather";
 
 // Export all types from types.ts
 export type {

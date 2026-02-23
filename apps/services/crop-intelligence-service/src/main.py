@@ -634,6 +634,17 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("NATS_URL not configured - event publishing disabled")
 
+    # Ensure JetStream domain streams exist (C1 fix — streams must exist before durable consumers)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            js = app.state.nc.jetstream()
+            from shared.events.streams import ensure_streams
+
+            stream_count = await ensure_streams(js)
+            logger.info("jetstream_streams_ensured", count=stream_count)
+        except Exception as _stream_err:
+            logger.warning("jetstream_streams_ensure_failed", error=str(_stream_err))
+
     # Register NATS event subscribers (Intelligence→Decision wiring)
     if app.state.nats_connected and app.state.nc:
         try:

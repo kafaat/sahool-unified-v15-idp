@@ -34,6 +34,84 @@ from .contracts import BaseEvent
 
 logger = logging.getLogger(__name__)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# H4 + M1: Correlation & OTel Trace Propagation Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _get_current_correlation_id() -> str | None:
+    """
+    H4 fix: Extract correlation_id from the current HTTP request context.
+    Works with shared.middleware.request_logging which stores correlation_id
+    in contextvars or starlette request.state.
+    """
+    # Try contextvars first (set by shared.middleware.request_logging)
+    try:
+        from contextvars import copy_context
+        import contextvars
+
+        # shared.middleware.request_logging uses a ContextVar for correlation_id
+        from shared.middleware.request_logging import correlation_id_var
+
+        return correlation_id_var.get(None)
+    except (ImportError, AttributeError):
+        pass
+
+    # Fallback: check if there's a thread-local or global correlation_id
+    try:
+        import threading
+
+        local = getattr(threading, "_sahool_local", None)
+        if local:
+            return getattr(local, "correlation_id", None)
+    except Exception:
+        pass
+
+    return None
+
+
+def _get_otel_trace_context() -> tuple[str | None, str | None]:
+    """
+    M1 fix: Extract OTel trace_id and span_id from the current span.
+    Returns (trace_id_hex, span_id_hex) or (None, None) if unavailable.
+    """
+    try:
+        from opentelemetry import trace
+
+        current_span = trace.get_current_span()
+        ctx = current_span.get_span_context()
+        if ctx and ctx.trace_id != 0:
+            trace_id = format(ctx.trace_id, "032x")
+            span_id = format(ctx.span_id, "016x")
+            return trace_id, span_id
+    except (ImportError, AttributeError, Exception):
+        pass
+
+    return None, None
+
+
+def _build_nats_headers(event: "BaseEvent") -> dict | None:
+    """
+    M1 fix: Build NATS message headers with W3C traceparent for distributed tracing.
+    Returns None if no trace context is available (core NATS ignores None headers).
+    """
+    headers = {}
+
+    if event.trace_id and event.span_id:
+        # W3C Trace Context: traceparent = version-trace_id-span_id-flags
+        traceparent = f"00-{event.trace_id}-{event.span_id}-01"
+        headers["traceparent"] = traceparent
+
+    if event.correlation_id:
+        headers["X-Correlation-ID"] = event.correlation_id
+
+    if event.causation_id:
+        headers["X-Causation-ID"] = event.causation_id
+
+    return headers if headers else None
+
+
 # NATS client - lazy import for optional dependency
 _nats_available = False
 
@@ -241,6 +319,18 @@ class EventPublisher:
         if not event.source_service:
             event.source_service = self.service_name
 
+        # H4 fix: Auto-propagate correlation_id from HTTP context if not set
+        if not event.correlation_id:
+            event.correlation_id = _get_current_correlation_id()
+
+        # M1 fix: Inject OTel trace context into the event if not set
+        if not event.trace_id:
+            trace_id, span_id = _get_otel_trace_context()
+            if trace_id:
+                event.trace_id = trace_id
+            if span_id:
+                event.span_id = span_id
+
         # Validate event
         try:
             event.model_validate(event.model_dump())
@@ -257,15 +347,18 @@ class EventPublisher:
             self._error_count += 1
             return False
 
+        # Build NATS headers for trace propagation (M1 fix)
+        headers = _build_nats_headers(event)
+
         # Publish
         timeout = timeout or self.config.default_timeout
         use_jetstream = use_jetstream if use_jetstream is not None else self.config.enable_jetstream
 
         try:
             if use_jetstream and self._js:
-                await self._publish_jetstream(subject, data, timeout)
+                await self._publish_jetstream(subject, data, timeout, headers=headers)
             else:
-                await self._publish_core(subject, data, timeout)
+                await self._publish_core(subject, data, timeout, headers=headers)
 
             self._publish_count += 1
             logger.info(
@@ -351,13 +444,19 @@ class EventPublisher:
     # Internal Methods
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _publish_core(self, subject: str, data: bytes, timeout: float):
+    async def _publish_core(self, subject: str, data: bytes, timeout: float, headers: dict | None = None):
         """Publish using core NATS."""
-        await asyncio.wait_for(self._nc.publish(subject, data), timeout=timeout)
+        await asyncio.wait_for(
+            self._nc.publish(subject, data, headers=headers),
+            timeout=timeout,
+        )
 
-    async def _publish_jetstream(self, subject: str, data: bytes, timeout: float):
+    async def _publish_jetstream(self, subject: str, data: bytes, timeout: float, headers: dict | None = None):
         """Publish using JetStream for guaranteed delivery."""
-        ack = await asyncio.wait_for(self._js.publish(subject, data), timeout=timeout)
+        ack = await asyncio.wait_for(
+            self._js.publish(subject, data, headers=headers),
+            timeout=timeout,
+        )
         logger.debug(f"JetStream ACK: stream={ack.stream}, seq={ack.seq}")
 
     async def _retry_publish(

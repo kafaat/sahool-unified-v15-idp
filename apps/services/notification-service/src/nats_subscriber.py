@@ -49,6 +49,7 @@ class SubscriberConfig(BaseModel):
         default_factory=lambda: [
             "sahool.analysis.*",  # All analysis events
             "sahool.actions.*",  # All action events
+            "sahool.irrigation.recommendation.ready.v1",  # Irrigation recommendations (H1 fix)
         ]
     )
 
@@ -170,10 +171,58 @@ class NATSSubscriber:
                 self._subscriptions.append(sub)
                 logger.info(f"Subscribed to: {subject}")
 
+            # Register the dedicated irrigation recommendation handler
+            self._handlers["irrigation.recommendation.ready"] = self._handle_irrigation_recommendation
+
             return True
         except Exception as e:
             logger.error(f"Failed to subscribe: {e}")
             return False
+
+    async def _handle_irrigation_recommendation(self, event: ReceivedEvent):
+        """
+        Handle irrigation recommendation ready events (H1 fix).
+        Converts the recommendation into a high-priority notification.
+        """
+        field_id = event.field_id or event.data.get("field_id")
+        tenant_id = event.tenant_id or event.data.get("tenant_id")
+        recommendation = event.data.get("recommendation", {})
+
+        title_en = recommendation.get("title", "Irrigation Recommendation Ready")
+        title_ar = recommendation.get("title_ar", "توصية ري جاهزة")
+        amount_mm = recommendation.get("amount_mm")
+        description = recommendation.get("description", "")
+        description_ar = recommendation.get("description_ar", "")
+
+        if amount_mm is not None:
+            title_en = f"Irrigation: Apply {amount_mm}mm"
+            title_ar = f"الري: تطبيق {amount_mm} ملم"
+
+        notification_data = {
+            "type": "irrigation_reminder",
+            "priority": event.notification_priority or "high",
+            "title": title_en,
+            "title_ar": title_ar,
+            "body": description or f"New irrigation recommendation for field {field_id}",
+            "body_ar": description_ar or f"توصية ري جديدة للحقل {field_id}",
+            "data": {
+                "event_id": event.event_id,
+                "event_type": event.event_type,
+                "source_service": event.source_service,
+                "field_id": field_id,
+                "tenant_id": tenant_id,
+                "recommendation": recommendation,
+            },
+            "target_farmers": [event.farmer_id] if event.farmer_id else [],
+            "channels": event.notification_channels or ["in_app", "push"],
+            "expires_in_hours": 24,
+        }
+
+        if self._notification_callback:
+            self._notification_callback(notification_data)
+            logger.info(
+                f"Irrigation recommendation notification created for field={field_id}",
+            )
 
     async def close(self):
         """Close NATS connection"""
@@ -205,10 +254,15 @@ class NATSSubscriber:
 
             logger.info(f"Received message on {subject}")
 
+            # Derive event_type from payload or subject
+            event_type = data.get("event_type", "")
+            if not event_type and "irrigation.recommendation" in subject:
+                event_type = "irrigation.recommendation.ready"
+
             # Parse event
             event = ReceivedEvent(
                 event_id=data.get("event_id", ""),
-                event_type=data.get("event_type", ""),
+                event_type=event_type,
                 source_service=data.get("source_service", ""),
                 timestamp=datetime.fromisoformat(
                     data.get("timestamp", datetime.now(UTC).isoformat())

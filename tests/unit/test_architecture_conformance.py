@@ -4,11 +4,15 @@
 Architecture Conformance Tests
 ==============================
 Tests validating the critical architecture fixes from the conformance audit:
-  C1 - Durable consumers in crop-intelligence-service
+  C1 - Durable consumers + ensure_streams() in crop-intelligence-service
   C2 - JetStream stream definitions
   C3 - Event_id deduplication in subscriber
   C4 - Observation idempotent upsert
   C5 - BaseEvent causation_id / trace_id / span_id fields
+  H1 - Irrigation recommendation consumer in notification-service
+  H3 - NDVI observation → assimilation trigger chain
+  H4 - Correlation_id auto-propagation in publisher
+  M1 - OTel trace context injection in NATS headers
 """
 
 from __future__ import annotations
@@ -264,3 +268,152 @@ class TestObservationIdempotency:
 
         assert "uq_field_observation_natural_key" in content
         assert "processed_events" in content
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# H1: Irrigation recommendation consumer in notification-service
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestIrrigationConsumer:
+    """Verify notification-service consumes irrigation recommendation events."""
+
+    @pytest.fixture
+    def notif_subscriber_content(self):
+        path = os.path.join(
+            _ROOT,
+            "apps/services/notification-service/src/nats_subscriber.py",
+        )
+        with open(path) as f:
+            return f.read()
+
+    def test_subscribes_to_irrigation_recommendation(self, notif_subscriber_content):
+        assert (
+            "sahool.irrigation.recommendation.ready.v1" in notif_subscriber_content
+        ), "notification-service must subscribe to irrigation recommendation subject"
+
+    def test_has_irrigation_handler(self, notif_subscriber_content):
+        assert (
+            "_handle_irrigation_recommendation" in notif_subscriber_content
+        ), "Must have dedicated handler for irrigation recommendations"
+
+    def test_handler_creates_notification(self, notif_subscriber_content):
+        assert (
+            "irrigation_reminder" in notif_subscriber_content
+        ), "Handler must create irrigation_reminder notification type"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# H3: NDVI observation → assimilation trigger chain
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestAssimilationChain:
+    """Verify NDVI handler triggers assimilation after observation save."""
+
+    @pytest.fixture
+    def event_subscribers_content(self):
+        path = os.path.join(
+            _ROOT,
+            "apps/services/crop-intelligence-service/src/event_subscribers.py",
+        )
+        with open(path) as f:
+            return f.read()
+
+    def test_ndvi_handler_triggers_assimilation(self, event_subscribers_content):
+        assert (
+            "_trigger_assimilation" in event_subscribers_content
+        ), "NDVI handler must trigger assimilation after observation save"
+
+    def test_assimilation_uses_pipeline(self, event_subscribers_content):
+        assert (
+            "TwinPipeline" in event_subscribers_content
+        ), "Assimilation trigger must use TwinPipeline"
+
+    def test_assimilation_is_best_effort(self, event_subscribers_content):
+        # Must not fail the handler on assimilation error
+        assert (
+            "assimilation_trigger_failed" in event_subscribers_content
+        ), "Assimilation must log failure without failing the handler"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# H4: Correlation_id auto-propagation in publisher
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestCorrelationPropagation:
+    """Verify publisher auto-propagates correlation_id from HTTP context."""
+
+    @pytest.fixture
+    def publisher_content(self):
+        path = os.path.join(_ROOT, "shared/events/publisher.py")
+        with open(path) as f:
+            return f.read()
+
+    def test_publisher_propagates_correlation_id(self, publisher_content):
+        assert (
+            "_get_current_correlation_id" in publisher_content
+        ), "Publisher must auto-extract correlation_id from HTTP context"
+
+    def test_publisher_sets_correlation_id_on_event(self, publisher_content):
+        assert (
+            "event.correlation_id" in publisher_content
+        ), "Publisher must set correlation_id on event before publishing"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# M1: OTel trace context injection in NATS headers
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestOTelTraceInjection:
+    """Verify publisher injects OTel trace context into NATS message headers."""
+
+    @pytest.fixture
+    def publisher_content(self):
+        path = os.path.join(_ROOT, "shared/events/publisher.py")
+        with open(path) as f:
+            return f.read()
+
+    def test_publisher_extracts_otel_context(self, publisher_content):
+        assert (
+            "_get_otel_trace_context" in publisher_content
+        ), "Publisher must extract OTel trace context from current span"
+
+    def test_publisher_builds_nats_headers(self, publisher_content):
+        assert (
+            "_build_nats_headers" in publisher_content
+        ), "Publisher must build NATS headers with trace context"
+
+    def test_publisher_injects_traceparent(self, publisher_content):
+        assert (
+            "traceparent" in publisher_content
+        ), "Publisher must inject W3C traceparent header"
+
+    def test_publisher_passes_headers_to_publish(self, publisher_content):
+        assert (
+            "headers=headers" in publisher_content
+        ), "Publisher must pass headers to _publish_core and _publish_jetstream"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# C1 Completion: ensure_streams() called in service lifespan
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+class TestEnsureStreamsCalled:
+    """Verify crop-intelligence-service calls ensure_streams() on startup."""
+
+    def test_main_calls_ensure_streams(self):
+        path = os.path.join(
+            _ROOT,
+            "apps/services/crop-intelligence-service/src/main.py",
+        )
+        with open(path) as f:
+            content = f.read()
+
+        assert "ensure_streams" in content, "main.py must call ensure_streams() during startup"
+        assert (
+            "from shared.events.streams import ensure_streams" in content
+        ), "Must import ensure_streams from shared.events.streams"

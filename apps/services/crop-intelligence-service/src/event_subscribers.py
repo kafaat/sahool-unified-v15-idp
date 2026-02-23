@@ -173,6 +173,10 @@ async def _handle_ndvi_computed(msg: Any, app_state: Any) -> None:
             ndvi=ndvi_value,
             event_id=event_id,
         )
+
+        # H3 fix: Trigger assimilation immediately after observation ingest
+        # instead of deferring to the next scheduled pipeline.step() call.
+        await _trigger_assimilation(app_state, tenant_id, field_id, obs, event_id)
     except Exception as exc:
         logger.warning("handle_ndvi_computed_failed", error=str(exc))
     finally:
@@ -230,6 +234,70 @@ async def _handle_calibration_succeeded(msg: Any, app_state: Any) -> None:
                 await msg.ack()
             except Exception:
                 pass
+
+
+async def _trigger_assimilation(
+    app_state: Any,
+    tenant_id: str,
+    field_id: str,
+    observation: Any,
+    event_id: str | None = None,
+) -> None:
+    """
+    H3 fix: Trigger twin pipeline assimilation immediately after NDVI observation.
+    Runs assimilation step so observations don't sit unprocessed until next cron.
+    Failures are logged but do NOT block the handler (best-effort).
+    """
+    try:
+        from shared.digital_twin.pipeline import TwinPipeline
+        from shared.digital_twin.repository import TwinRepository
+
+        pool = getattr(app_state, "db_pool", None)
+        if pool is None:
+            return
+
+        repo = TwinRepository(db_pool=pool)
+        pipeline = TwinPipeline(repo=repo)
+
+        # Look up cached weather if available
+        weather_cache = getattr(app_state, "weather_cache", {})
+        cache_key = f"{tenant_id}:{field_id}"
+        weather_payload = weather_cache.get(cache_key)
+
+        weather = None
+        if weather_payload:
+            try:
+                from shared.digital_twin.adapters import weather_payload_to_daily
+
+                weather = weather_payload_to_daily(weather_payload)
+            except Exception:
+                pass  # Run without weather; assimilation still useful
+
+        # Look up calibrated params if available
+        calibrated_params = getattr(app_state, "calibrated_params", {})
+        field_params = calibrated_params.get(field_id, {}).get("params")
+
+        await pipeline.step(
+            tenant_id=tenant_id,
+            field_id=field_id,
+            weather=weather,
+            calibrated_params=field_params,
+        )
+
+        logger.info(
+            "assimilation_triggered_by_ndvi",
+            tenant_id=tenant_id,
+            field_id=field_id,
+            event_id=event_id,
+        )
+    except Exception as exc:
+        # Best-effort: log but don't fail the handler
+        logger.warning(
+            "assimilation_trigger_failed",
+            tenant_id=tenant_id,
+            field_id=field_id,
+            error=str(exc),
+        )
 
 
 async def _handle_weather_forecast(msg: Any, app_state: Any) -> None:

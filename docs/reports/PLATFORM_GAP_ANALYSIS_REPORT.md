@@ -137,6 +137,15 @@ All other NATS subscribers will reprocess duplicate events on:
 - Service restart during processing
 - Network partition recovery
 
+### High-Risk Services (Financial / User-Facing Impact)
+
+| Service | Risk | Impact of Duplicate Processing |
+|---------|------|-------------------------------|
+| **billing-core** | **FINANCIAL** | Duplicate charges, double invoicing |
+| **notification-service** | **UX** | Spam notifications to farmers (48 subscriptions) |
+| **alert-service** | **TRUST** | Duplicate alerts erode user trust (30+ subscriptions) |
+| **ground-vision-service** | **COST** | Duplicate AI vision API calls (GPU cost) |
+
 ### Affected NATS Subscribers
 
 | Service | Subscribes To | Has Dedup? |
@@ -311,7 +320,7 @@ Priority migration order:
 
 | Action | Services | Effort |
 |--------|----------|--------|
-| Add processed_events + idempotency | notification-service, vegetation-analysis-service, alert-service | ~3h each |
+| Add processed_events + idempotency | **billing-core** (financial risk), notification-service, alert-service | ~3h each |
 | Migrate remaining raw publishers | 20+ services | ~1h each |
 | Add header extraction to subscribers | All subscribing services | ~1h each |
 

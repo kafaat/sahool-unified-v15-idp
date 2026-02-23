@@ -110,7 +110,7 @@ python-dotenv>=1.0.1,<2.0.0  # Allow upgrade to 1.2.1 (constraints.txt pin)
 aiofiles>=24.1.0,<25.0.0
 tenacity>=8.5.0,<10.0.0
 click>=8.1.0,<9.0.0
-rich>=13.7.0,<14.0.0
+rich>=13.7.0,<15.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Arabic NLP (AraBERT integration)

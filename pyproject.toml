@@ -11,8 +11,8 @@ authors = [
 
 [project.optional-dependencies]
 base = [
-    "fastapi==0.128.5",
-    "uvicorn[standard]==0.40.0",
+    "fastapi==0.131.0",
+    "uvicorn[standard]==0.41.0",
     "pydantic>=2.10.0,<3.0.0",
     "httpx==0.28.1",
     "python-dotenv==1.2.1",
@@ -52,7 +52,7 @@ ml = [
     "tensorflow-cpu==2.20.0",
 ]
 dev = [
-    "ruff==0.15.0",
+    "ruff==0.15.2",
     "pre-commit==4.5.1",
     "black==24.10.0",
     "isort==5.13.2",

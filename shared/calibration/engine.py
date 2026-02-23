@@ -23,11 +23,9 @@ import math
 import random
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Any
-
 import structlog
 
-from shared.calibration.objective import ObjectiveResult, build_weighted_nll_objective
+from shared.calibration.objective import build_weighted_nll_objective
 from shared.calibration.types import (
     CalibrationResult,
     CalibrationTarget,

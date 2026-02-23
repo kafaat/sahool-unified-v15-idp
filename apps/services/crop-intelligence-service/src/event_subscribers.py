@@ -31,6 +31,7 @@ Subscriptions:
 
 from __future__ import annotations
 
+import asyncio
 import json
 from typing import Any
 
@@ -79,18 +80,21 @@ async def setup_nats_subscriptions(nc: Any, app_state: Any) -> list[Any]:
     try:
         from shared.events.subjects import SAHOOL_NDVI_COMPUTED
 
+        async def _cb_ndvi(msg: Any) -> None:
+            await _handle_ndvi_computed(msg, app_state)
+
         if js is not None:
             sub = await js.subscribe(
                 SAHOOL_NDVI_COMPUTED,
                 durable=_DURABLE_NDVI,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_ndvi_computed(msg, app_state),
+                cb=_cb_ndvi,
             )
         else:
             sub = await nc.subscribe(
                 SAHOOL_NDVI_COMPUTED,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_ndvi_computed(msg, app_state),
+                cb=_cb_ndvi,
             )
         subs.append(sub)
         logger.info("nats_subscribed", subject=SAHOOL_NDVI_COMPUTED, durable=_DURABLE_NDVI)
@@ -101,18 +105,21 @@ async def setup_nats_subscriptions(nc: Any, app_state: Any) -> list[Any]:
     try:
         from shared.events.subjects import SAHOOL_CALIBRATION_RUN_SUCCEEDED
 
+        async def _cb_calibration(msg: Any) -> None:
+            await _handle_calibration_succeeded(msg, app_state)
+
         if js is not None:
             sub = await js.subscribe(
                 SAHOOL_CALIBRATION_RUN_SUCCEEDED,
                 durable=_DURABLE_CALIBRATION,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_calibration_succeeded(msg, app_state),
+                cb=_cb_calibration,
             )
         else:
             sub = await nc.subscribe(
                 SAHOOL_CALIBRATION_RUN_SUCCEEDED,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_calibration_succeeded(msg, app_state),
+                cb=_cb_calibration,
             )
         subs.append(sub)
         logger.info("nats_subscribed", subject=SAHOOL_CALIBRATION_RUN_SUCCEEDED, durable=_DURABLE_CALIBRATION)
@@ -123,18 +130,21 @@ async def setup_nats_subscriptions(nc: Any, app_state: Any) -> list[Any]:
     try:
         from shared.events.subjects import SAHOOL_WEATHER_FORECAST
 
+        async def _cb_weather(msg: Any) -> None:
+            await _handle_weather_forecast(msg, app_state)
+
         if js is not None:
             sub = await js.subscribe(
                 SAHOOL_WEATHER_FORECAST,
                 durable=_DURABLE_WEATHER,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_weather_forecast(msg, app_state),
+                cb=_cb_weather,
             )
         else:
             sub = await nc.subscribe(
                 SAHOOL_WEATHER_FORECAST,
                 queue=_QUEUE_GROUP,
-                cb=lambda msg: _handle_weather_forecast(msg, app_state),
+                cb=_cb_weather,
             )
         subs.append(sub)
         logger.info("nats_subscribed", subject=SAHOOL_WEATHER_FORECAST, durable=_DURABLE_WEATHER)
@@ -215,8 +225,8 @@ async def _ack(msg: Any) -> None:
     if hasattr(msg, "ack"):
         try:
             await msg.ack()
-        except Exception:
-            pass
+        except (AttributeError, RuntimeError, asyncio.CancelledError):
+            logger.debug("message_ack_failed")
 
 
 async def _nak(msg: Any) -> None:
@@ -224,8 +234,8 @@ async def _nak(msg: Any) -> None:
     if hasattr(msg, "nak"):
         try:
             await msg.nak()
-        except Exception:
-            pass
+        except (AttributeError, RuntimeError, asyncio.CancelledError):
+            logger.debug("message_nak_failed")
 
 
 # ─────────────────────────────────────────────────────────────────────────────

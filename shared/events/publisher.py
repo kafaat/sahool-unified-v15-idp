@@ -74,7 +74,6 @@ def _get_otel_trace_context() -> tuple[str | None, str | None, str | None]:
     """
     try:
         from opentelemetry import trace
-        from opentelemetry.context import get_current
 
         current_span = trace.get_current_span()
         ctx = current_span.get_span_context()

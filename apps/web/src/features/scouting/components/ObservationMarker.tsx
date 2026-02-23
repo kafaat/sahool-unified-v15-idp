@@ -24,7 +24,7 @@ import { CATEGORY_OPTIONS, SEVERITY_LABELS } from "../types/scouting";
 // Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-interface ObservationMarkerProps {
+export interface ObservationMarkerProps {
   observation: Observation;
   onEdit?: (observation: Observation) => void;
   onDelete?: (observationId: string) => void;

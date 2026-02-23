@@ -4,7 +4,20 @@
  */
 
 import { jwtVerify, decodeJwt, JWTPayload } from "jose";
-import { User } from "@/lib/auth";
+
+// ---------------------------------------------------------------------------
+// Inline User type to avoid importing the @/lib/auth barrel which pulls in
+// api-middleware -> @/lib/logger -> @sentry/nextjs (~300KB in edge bundle).
+// This type MUST stay in sync with the User interface in @/lib/auth.ts.
+// ---------------------------------------------------------------------------
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  name_ar?: string;
+  role: "admin" | "supervisor" | "viewer";
+  tenant_id?: string;
+}
 
 /**
  * Extended JWT payload with user information

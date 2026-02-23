@@ -9,7 +9,7 @@ import { useState, useEffect, useRef, Suspense, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Shield, Clock, RefreshCw, Leaf, ArrowRight, CheckCircle } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL } from "@/config/api-base";
 
 // OTP expiration time in seconds
 const OTP_EXPIRATION_TIME = 300; // 5 minutes

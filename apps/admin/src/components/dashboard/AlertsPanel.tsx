@@ -3,7 +3,7 @@
 // Alerts Panel Component
 // لوحة التنبيهات
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AlertTriangle, Bell, X, Eye, CheckCircle } from "lucide-react";
 import AlertBadge from "@/components/ui/AlertBadge";
 import { formatDate } from "@/lib/utils";
@@ -33,7 +33,7 @@ interface AlertsPanelProps {
   className?: string;
 }
 
-export default function AlertsPanel({
+function AlertsPanelInner({
   alerts,
   maxItems = 10,
   showFilters = true,
@@ -263,3 +263,7 @@ export default function AlertsPanel({
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders when alerts array reference hasn't changed
+const AlertsPanel = React.memo(AlertsPanelInner);
+export default AlertsPanel;

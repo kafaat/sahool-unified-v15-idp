@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { ArrowUpRight, ArrowDownLeft, CreditCard, Filter } from "lucide-react";
 import { useTransactions } from "../hooks/useWallet";
 import type {
@@ -18,7 +18,7 @@ interface TransactionHistoryProps {
   onTransactionClick?: (transactionId: string) => void;
 }
 
-export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
+export const TransactionHistory: React.FC<TransactionHistoryProps> = React.memo(({
   onTransactionClick,
 }) => {
   const [filters, setFilters] = useState<TransactionFilters>({});
@@ -145,17 +145,18 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       )}
     </div>
   );
-};
+});
 
 /**
  * Transaction Item Component
+ * Memoized to prevent re-renders when sibling transactions update
  */
 interface TransactionItemProps {
   transaction: Transaction;
   onClick?: () => void;
 }
 
-const TransactionItem: React.FC<TransactionItemProps> = ({
+const TransactionItem: React.FC<TransactionItemProps> = React.memo(({
   transaction,
   onClick,
 }) => {
@@ -245,7 +246,7 @@ const TransactionItem: React.FC<TransactionItemProps> = ({
       </div>
     </div>
   );
-};
+});
 
 /**
  * Get status label in Arabic

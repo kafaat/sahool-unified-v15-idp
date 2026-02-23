@@ -11,6 +11,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import type { Equipment } from "../types";
 import { Wrench, Calendar, MapPin, TrendingUp } from "lucide-react";
@@ -89,11 +90,16 @@ const EquipmentCardComponent: React.FC<EquipmentCardProps> = ({
 
         {/* Image or Placeholder */}
         {equipment.imageUrl ? (
-          <img
-            src={equipment.imageUrl}
-            alt={equipment.nameAr}
-            className="w-full h-48 object-cover rounded-lg"
-          />
+          <div className="relative w-full h-48">
+            <Image
+              src={equipment.imageUrl}
+              alt={equipment.nameAr}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover rounded-lg"
+              loading="lazy"
+            />
+          </div>
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-green-100 to-green-200 rounded-lg flex items-center justify-center">
             <Wrench className="w-16 h-16 text-green-600 opacity-50" />

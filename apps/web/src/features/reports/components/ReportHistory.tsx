@@ -7,7 +7,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import {
   FileText,
   Download,
@@ -52,7 +52,7 @@ interface ReportHistoryProps {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const ReportHistory: React.FC<ReportHistoryProps> = ({
+export const ReportHistory: React.FC<ReportHistoryProps> = React.memo(({
   fieldId,
   onViewReport,
   onShareReport,
@@ -79,7 +79,7 @@ export const ReportHistory: React.FC<ReportHistoryProps> = ({
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleDelete = async (reportId: string, reportTitle: string) => {
+  const handleDelete = useCallback(async (reportId: string, reportTitle: string) => {
     if (
       window.confirm(
         `هل تريد حذف التقرير "${reportTitle}"؟\nAre you sure you want to delete "${reportTitle}"?`,
@@ -91,15 +91,15 @@ export const ReportHistory: React.FC<ReportHistoryProps> = ({
         logger.error("Failed to delete report:", error);
       }
     }
-  };
+  }, [deleteMutation]);
 
-  const handleDownload = async (reportId: string) => {
+  const handleDownload = useCallback(async (reportId: string) => {
     try {
       await downloadMutation.mutateAsync(reportId);
     } catch (error) {
       logger.error("Failed to download report:", error);
     }
-  };
+  }, [downloadMutation]);
 
   const clearFilters = () => {
     setFilters({
@@ -318,10 +318,10 @@ export const ReportHistory: React.FC<ReportHistoryProps> = ({
       )}
     </div>
   );
-};
+});
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Report Card Component
+// Report Card Component - Memoized to prevent re-renders when sibling cards change
 // ═══════════════════════════════════════════════════════════════════════════
 
 interface ReportCardProps {
@@ -335,7 +335,7 @@ interface ReportCardProps {
   isDownloading?: boolean;
 }
 
-const ReportCard: React.FC<ReportCardProps> = ({
+const ReportCard: React.FC<ReportCardProps> = React.memo(({
   report,
   compact = false,
   onView,
@@ -522,6 +522,6 @@ const ReportCard: React.FC<ReportCardProps> = ({
       )}
     </div>
   );
-};
+});
 
 export default ReportHistory;

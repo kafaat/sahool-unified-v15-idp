@@ -13,6 +13,7 @@ export {
   hasRequiredRole,
   hasAnyRole,
   type TokenPayload,
+  type User,
 } from "./jwt-verify";
 
 // Route Protection

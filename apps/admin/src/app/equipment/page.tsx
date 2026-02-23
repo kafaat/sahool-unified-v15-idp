@@ -56,16 +56,42 @@ interface CreateEquipmentPayload {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Constants & Mock Data (extracted to separate file for bundle optimization)
-// الثوابت والبيانات الوهمية (مستخرجة لتحسين حجم الحزمة)
+// Constants (inline - always needed for UI rendering)
+// الثوابت (مضمنة - مطلوبة دائماً لعرض الواجهة)
 // ═══════════════════════════════════════════════════════════════════════════
 
-import {
-  EQUIPMENT_TYPES,
-  EQUIPMENT_STATUSES,
-  MOCK_FARMS_LIST,
-  MOCK_EQUIPMENT,
-} from "./equipment.mock";
+const EQUIPMENT_TYPES: { value: EquipmentType; label: string; labelEn: string }[] = [
+  { value: "tractor", label: "جرار", labelEn: "Tractor" },
+  { value: "harvester", label: "حصادة", labelEn: "Harvester" },
+  { value: "pump", label: "مضخة", labelEn: "Pump" },
+  { value: "sprayer", label: "رشاش", labelEn: "Sprayer" },
+  { value: "drone", label: "طائرة بدون طيار", labelEn: "Drone" },
+];
+
+const EQUIPMENT_STATUSES: { value: EquipmentStatus; label: string; labelEn: string }[] = [
+  { value: "operational", label: "تعمل", labelEn: "Operational" },
+  { value: "maintenance", label: "صيانة", labelEn: "Maintenance" },
+  { value: "idle", label: "متوقفة", labelEn: "Idle" },
+  { value: "broken", label: "معطلة", labelEn: "Broken" },
+];
+
+const MOCK_FARMS_LIST = [
+  { id: "farm-1", name: "مزرعة ١" },
+  { id: "farm-2", name: "مزرعة ٢" },
+  { id: "farm-3", name: "مزرعة ٣" },
+  { id: "farm-4", name: "مزرعة ٤" },
+  { id: "farm-5", name: "مزرعة ٥" },
+];
+
+// Mock equipment data - dynamic import for dead-code elimination in production builds.
+// In production, the .mock module is never bundled because the import() is unreachable.
+async function getMockEquipment(): Promise<EquipmentItem[]> {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_EQUIPMENT } = await import("./equipment.mock");
+    return MOCK_EQUIPMENT;
+  }
+  return [];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
@@ -150,7 +176,7 @@ async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
     return response.data;
   } catch {
     logger.log("Falling back to static mock equipment data");
-    return MOCK_EQUIPMENT;
+    return getMockEquipment();
   }
 }
 

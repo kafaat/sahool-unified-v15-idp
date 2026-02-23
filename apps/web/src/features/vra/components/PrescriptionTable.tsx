@@ -27,7 +27,7 @@ export interface PrescriptionTableProps {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
+export const PrescriptionTable: React.FC<PrescriptionTableProps> = React.memo(({
   prescription,
   showExport = true,
 }) => {
@@ -321,6 +321,6 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = ({
       </CardContent>
     </Card>
   );
-};
+});
 
 export default PrescriptionTable;

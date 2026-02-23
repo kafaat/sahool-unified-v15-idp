@@ -1,6 +1,5 @@
 "use client";
 import * as React from "react";
-import { apiClient } from "@/lib/api-client";
 import { logger } from "@/lib/logger";
 
 interface User {
@@ -57,7 +56,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       logger.error("Logout error:", error);
     } finally {
-      apiClient.clearToken();
       setUser(null);
       // Redirect to login
       if (typeof window !== "undefined") {

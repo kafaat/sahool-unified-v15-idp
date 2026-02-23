@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import Cookies from "js-cookie";
-import { apiClient } from "@/lib/api/client";
+import { authApiClient } from "@/lib/api/auth-client";
 import { logger } from "@/lib/logger";
 
 /**
@@ -107,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = React.useState(true);
 
   const login = React.useCallback(async (email: string, password: string) => {
-    const response = await apiClient.login(email, password);
+    const response = await authApiClient.login(email, password);
     if (response.success && response.data) {
       const { access_token, refresh_token, user } = response.data;
 
@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Set token in API client for immediate use
       // Note: Subsequent requests will use the httpOnly cookie automatically
-      apiClient.setToken(access_token);
+      authApiClient.setToken(access_token);
 
       // User type from API matches our User interface
       setUser(user);
@@ -157,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     Cookies.remove("csrf_token");
 
     // Clear client-side state
-    apiClient.clearToken();
+    authApiClient.clearToken();
     setUser(null);
   }, []);
 
@@ -179,7 +179,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       // Attempt to get current user - httpOnly cookie will be sent automatically
-      const response = await apiClient.getCurrentUser();
+      const response = await authApiClient.getCurrentUser();
       if (response.success && response.data) {
         // User type from API matches our User interface
         setUser(response.data);
@@ -192,7 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         setUser(null);
-        apiClient.clearToken();
+        authApiClient.clearToken();
         // Clear session via API
         await fetch("/api/auth/session", { method: "DELETE" });
       }
@@ -207,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(null);
-      apiClient.clearToken();
+      authApiClient.clearToken();
       // Clear session via API
       try {
         await fetch("/api/auth/session", { method: "DELETE" });

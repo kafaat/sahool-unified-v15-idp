@@ -67,11 +67,15 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "api.sahool.io",
+        hostname: "**.sahool.ye",
       },
       {
         protocol: "https",
-        hostname: "api.sahool.app",
+        hostname: "**.sahool.io",
+      },
+      {
+        protocol: "https",
+        hostname: "**.sahool.app",
       },
       {
         protocol: "http",
@@ -80,6 +84,10 @@ const nextConfig = {
     ],
     // Serve modern formats for smaller image payloads
     formats: ["image/avif", "image/webp"],
+    // Breakpoints for srcset generation matching common device widths
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Sizes for images rendered smaller than the viewport (icons, thumbnails, avatars)
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   // RTL support is handled in layout.tsx via lang="ar" dir="rtl"
   // For full i18n with App Router, use next-intl or similar library

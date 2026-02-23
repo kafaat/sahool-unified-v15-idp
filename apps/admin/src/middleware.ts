@@ -11,6 +11,12 @@
  * - Idle timeout (30 minutes)
  * - Security headers (CSP, HSTS, etc.)
  * - 403 Forbidden for unauthorized access
+ *
+ * Edge Bundle Optimization:
+ * - Logger is edge-safe console-only (no @sentry/nextjs import ~300KB+)
+ * - JWT verification uses jose directly (no @/lib/auth barrel import)
+ * - Route protection is imported directly (no barrel re-exports)
+ * - CSP & CSRF modules are edge-native (Web Crypto API)
  */
 
 import { NextResponse } from "next/server";
@@ -25,14 +31,33 @@ import {
   validateCsrfRequest,
   generateCsrfToken,
 } from "@/lib/security/csrf-server";
+// ---------------------------------------------------------------------------
+// Import jwt-verify directly — NOT through @/lib/auth barrel.
+// The barrel re-exports api-middleware.ts which imports @/lib/logger which
+// references @sentry/nextjs (~300KB). Importing the leaf module avoids this.
+// ---------------------------------------------------------------------------
 import { verifyToken, isTokenExpired } from "@/lib/auth/jwt-verify";
+// ---------------------------------------------------------------------------
+// route-protection.ts is a pure module with no heavy transitive deps.
+// ---------------------------------------------------------------------------
 import {
   isPublicRoute,
   getRequiredRoles,
   hasRouteAccess,
   getUnauthorizedRedirect,
 } from "@/lib/auth/route-protection";
-import { logger } from "@/lib/logger";
+
+// ---------------------------------------------------------------------------
+// Edge-safe logger — avoids importing @/lib/logger which references
+// @sentry/nextjs (~300KB). In the edge middleware we only need console output.
+// ---------------------------------------------------------------------------
+const edgeLogger = {
+  error: (...args: unknown[]) => {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[admin-middleware]", ...args);
+    }
+  },
+};
 
 // Idle timeout: 30 minutes in milliseconds
 const IDLE_TIMEOUT = 30 * 60 * 1000;
@@ -141,7 +166,7 @@ export async function middleware(request: NextRequest) {
     }
   } catch (error) {
     // Token verification failed (invalid signature, malformed, etc.)
-    logger.error("Token verification failed:", error);
+    edgeLogger.error("Token verification failed:", error);
 
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("returnTo", pathname);

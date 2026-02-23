@@ -11,6 +11,10 @@
  */
 
 import { logger } from "./logger";
+// User type is now defined in ./auth/jwt-verify.ts (canonical location) to
+// avoid circular barrel imports that pull @sentry/nextjs into the edge bundle.
+// Import it here for local use; it is re-exported via `export *` below.
+import type { User } from "./auth/jwt-verify";
 
 // Re-export server-side authorization utilities
 export * from "./auth/jwt-verify";
@@ -18,15 +22,6 @@ export * from "./auth/route-protection";
 export * from "./auth/api-middleware";
 
 const AUTH_USER_KEY = "sahool_admin_user";
-
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  name_ar?: string;
-  role: "admin" | "supervisor" | "viewer";
-  tenant_id?: string;
-}
 
 export interface AuthResponse {
   access_token: string;

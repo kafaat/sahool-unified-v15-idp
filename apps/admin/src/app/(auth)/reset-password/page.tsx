@@ -9,7 +9,7 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Lock, Leaf, ArrowRight, CheckCircle, Eye, EyeOff, AlertTriangle } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL } from "@/config/api-base";
 
 function ResetPasswordForm() {
   const router = useRouter();

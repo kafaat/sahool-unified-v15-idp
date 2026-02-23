@@ -73,8 +73,31 @@ export const ERROR_MESSAGES = {
   },
 };
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_POSTS, MOCK_GROUPS, MOCK_EXPERTS } from "./api.mock";
+// Mock data helpers - dynamic import for dead-code elimination in production builds.
+// In production, mock modules are never bundled because the import() is unreachable.
+async function getMockPosts() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_POSTS } = await import("./api.mock");
+    return MOCK_POSTS;
+  }
+  return [];
+}
+
+async function getMockGroups() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_GROUPS } = await import("./api.mock");
+    return MOCK_GROUPS;
+  }
+  return [];
+}
+
+async function getMockExperts() {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_EXPERTS } = await import("./api.mock");
+    return MOCK_EXPERTS;
+  }
+  return [];
+}
 
 // API Functions
 export const communityApi = {
@@ -108,10 +131,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS;
+      return getMockPosts();
     } catch (error) {
       logger.warn("Failed to fetch posts from API, using mock data:", error);
-      return MOCK_POSTS;
+      return getMockPosts();
     }
   },
 
@@ -128,13 +151,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.slice(0, 2);
+      return (await getMockPosts()).slice(0, 2);
     } catch (error) {
       logger.warn(
         "Failed to fetch trending posts from API, using mock data:",
         error,
       );
-      return MOCK_POSTS.slice(0, 2);
+      return (await getMockPosts()).slice(0, 2);
     }
   },
 
@@ -151,13 +174,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.filter((p) => p.isSaved);
+      return (await getMockPosts()).filter((p) => p.isSaved);
     } catch (error) {
       logger.warn(
         "Failed to fetch saved posts from API, using mock data:",
         error,
       );
-      return MOCK_POSTS.filter((p) => p.isSaved);
+      return (await getMockPosts()).filter((p) => p.isSaved);
     }
   },
 
@@ -174,10 +197,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_POSTS.slice(0, 1);
+      return (await getMockPosts()).slice(0, 1);
     } catch (error) {
       logger.warn("Failed to fetch my posts from API, using mock data:", error);
-      return MOCK_POSTS.slice(0, 1);
+      return (await getMockPosts()).slice(0, 1);
     }
   },
 
@@ -196,7 +219,8 @@ export const communityApi = {
       );
 
       // Fallback to mock data
-      const mockPost = MOCK_POSTS.find((p) => p.id === id);
+      const mockPosts = await getMockPosts();
+      const mockPost = mockPosts.find((p) => p.id === id);
       if (mockPost) {
         return mockPost;
       }
@@ -447,10 +471,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_GROUPS;
+      return getMockGroups();
     } catch (error) {
       logger.warn("Failed to fetch groups from API, using mock data:", error);
-      return MOCK_GROUPS;
+      return getMockGroups();
     }
   },
 
@@ -469,7 +493,8 @@ export const communityApi = {
       );
 
       // Fallback to mock data
-      const mockGroup = MOCK_GROUPS.find((g) => g.id === id);
+      const mockGroups = await getMockGroups();
+      const mockGroup = mockGroups.find((g) => g.id === id);
       if (mockGroup) {
         return mockGroup;
       }
@@ -491,13 +516,13 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_GROUPS.filter((g) => g.isJoined);
+      return (await getMockGroups()).filter((g) => g.isJoined);
     } catch (error) {
       logger.warn(
         "Failed to fetch my groups from API, using mock data:",
         error,
       );
-      return MOCK_GROUPS.filter((g) => g.isJoined);
+      return (await getMockGroups()).filter((g) => g.isJoined);
     }
   },
 
@@ -702,10 +727,10 @@ export const communityApi = {
       }
 
       logger.warn("API returned unexpected format, using mock data");
-      return MOCK_EXPERTS;
+      return getMockExperts();
     } catch (error) {
       logger.warn("Failed to fetch experts from API, using mock data:", error);
-      return MOCK_EXPERTS;
+      return getMockExperts();
     }
   },
 

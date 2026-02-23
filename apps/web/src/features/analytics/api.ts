@@ -67,15 +67,15 @@ export const ERROR_MESSAGES = {
   },
 };
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import {
-  MOCK_SUMMARY,
-  MOCK_YIELD_DATA,
-  MOCK_COST_DATA,
-  MOCK_REVENUE_DATA,
-  MOCK_KPI_METRICS,
-  MOCK_RESOURCE_USAGE,
-} from "./api.mock";
+// Mock data helpers - dynamic import for dead-code elimination in production builds.
+// In production, mock modules are never bundled because the import() is unreachable.
+type MockModule = typeof import("./api.mock");
+async function loadMockModule(): Promise<MockModule | null> {
+  if (process.env.NODE_ENV !== "production") {
+    return import("./api.mock");
+  }
+  return null;
+}
 
 /**
  * Build query string from analytics filters
@@ -111,7 +111,9 @@ export const analyticsApi = {
         "Failed to fetch analytics summary from API, using mock data:",
         error,
       );
-      return MOCK_SUMMARY;
+      const mock = await loadMockModule();
+      if (mock) return mock.MOCK_SUMMARY;
+      throw error;
     }
   },
 
@@ -127,13 +129,16 @@ export const analyticsApi = {
         `${YIELD_ENDPOINTS.PREDICTIONS}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
-      return Array.isArray(data) ? data : MOCK_YIELD_DATA;
+      if (Array.isArray(data)) return data;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_YIELD_DATA : [];
     } catch (error) {
       logger.warn(
         "Failed to fetch yield analytics from API, using mock data:",
         error,
       );
-      return MOCK_YIELD_DATA;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_YIELD_DATA : [];
     }
   },
 
@@ -147,13 +152,16 @@ export const analyticsApi = {
         `${YIELD_ENDPOINTS.PROFITABILITY}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
-      return Array.isArray(data) ? data : MOCK_COST_DATA;
+      if (Array.isArray(data)) return data;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_COST_DATA : [];
     } catch (error) {
       logger.warn(
         "Failed to fetch cost analytics from API, using mock data:",
         error,
       );
-      return MOCK_COST_DATA;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_COST_DATA : [];
     }
   },
 
@@ -169,13 +177,16 @@ export const analyticsApi = {
         `${YIELD_ENDPOINTS.PROFITABILITY}?${params.toString()}&type=revenue`,
       );
       const data = response.data.data || response.data;
-      return Array.isArray(data) ? data : MOCK_REVENUE_DATA;
+      if (Array.isArray(data)) return data;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_REVENUE_DATA : [];
     } catch (error) {
       logger.warn(
         "Failed to fetch revenue analytics from API, using mock data:",
         error,
       );
-      return MOCK_REVENUE_DATA;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_REVENUE_DATA : [];
     }
   },
 
@@ -189,13 +200,16 @@ export const analyticsApi = {
         `${INDICATOR_ENDPOINTS.DASHBOARD}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
-      return Array.isArray(data) ? data : MOCK_KPI_METRICS;
+      if (Array.isArray(data)) return data;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_KPI_METRICS : [];
     } catch (error) {
       logger.warn(
         "Failed to fetch KPI metrics from API, using mock data:",
         error,
       );
-      return MOCK_KPI_METRICS;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_KPI_METRICS : [];
     }
   },
 
@@ -223,6 +237,8 @@ export const analyticsApi = {
       );
 
       // Generate mock comparison data
+      const mock = await loadMockModule();
+      const yieldData = mock ? mock.MOCK_YIELD_DATA : [];
       return {
         type,
         metric,
@@ -232,7 +248,7 @@ export const analyticsApi = {
           ).toISOString(),
           end: new Date().toISOString(),
         },
-        items: MOCK_YIELD_DATA.map((yd) => ({
+        items: yieldData.map((yd) => ({
           id: yd.fieldId,
           name: yd.fieldName,
           nameAr: yd.fieldNameAr,
@@ -255,13 +271,16 @@ export const analyticsApi = {
         `${INDICATOR_ENDPOINTS.DEFINITIONS}?${params.toString()}`,
       );
       const data = response.data.data || response.data;
-      return Array.isArray(data) ? data : MOCK_RESOURCE_USAGE;
+      if (Array.isArray(data)) return data;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_RESOURCE_USAGE : [];
     } catch (error) {
       logger.warn(
         "Failed to fetch resource usage from API, using mock data:",
         error,
       );
-      return MOCK_RESOURCE_USAGE;
+      const mock = await loadMockModule();
+      return mock ? mock.MOCK_RESOURCE_USAGE : [];
     }
   },
 

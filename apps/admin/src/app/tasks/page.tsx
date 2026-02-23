@@ -60,11 +60,18 @@ const INITIAL_FORM_DATA: TaskFormData = {
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Mock Data (extracted to separate file for bundle optimization)
-// بيانات وهمية (مستخرجة لتحسين حجم الحزمة)
+// Mock Data - dynamic import for dead-code elimination in production builds.
+// بيانات وهمية - استيراد ديناميكي لإزالة الكود الميت في بيئة الإنتاج
+// In production, the .mock module is never bundled because the import() is unreachable.
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { MOCK_TASKS } from "./tasks.mock";
+async function getMockTasks(): Promise<Task[]> {
+  if (process.env.NODE_ENV !== "production") {
+    const { MOCK_TASKS } = await import("./tasks.mock");
+    return MOCK_TASKS;
+  }
+  return [];
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Helper Functions
@@ -176,7 +183,8 @@ export default function TasksPage() {
       setTasks(response.data);
     } catch {
       logger.log("Falling back to static mock tasks data");
-      setTasks(MOCK_TASKS);
+      const mockTasks = await getMockTasks();
+      setTasks(mockTasks);
     } finally {
       setIsLoading(false);
     }

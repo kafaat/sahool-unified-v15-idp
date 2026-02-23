@@ -145,6 +145,12 @@ const nextConfig = {
       "lucide-react",
       "@tanstack/react-query",
       "recharts",
+      "date-fns",
+      "clsx",
+      "tailwind-merge",
+      "@sahool/shared-ui",
+      "@sahool/shared-utils",
+      "@sahool/shared-hooks",
     ],
   },
 

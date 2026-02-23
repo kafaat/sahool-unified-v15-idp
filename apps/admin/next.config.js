@@ -95,6 +95,13 @@ const nextConfig = {
 
   // Note: swcMinify is enabled by default in Next.js 15+
 
+  // Security: Remove X-Powered-By header
+  poweredByHeader: false,
+
+  // Performance optimizations
+  compress: true,
+  productionBrowserSourceMaps: false,
+
   // Turbopack configuration (Next.js 16 default bundler)
   turbopack: {
     // Empty config to acknowledge Turbopack usage and silence warnings
@@ -144,6 +151,12 @@ const nextConfig = {
       "lucide-react",
       "@tanstack/react-query",
       "recharts",
+      "date-fns",
+      "clsx",
+      "tailwind-merge",
+      "@sahool/shared-ui",
+      "@sahool/shared-utils",
+      "@sahool/shared-hooks",
     ],
   },
   // Note: missingSuspenseWithCSRBailout was removed in Next.js 15

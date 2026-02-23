@@ -200,7 +200,8 @@ class TestSoilSensorAdapter:
 
     def test_basic(self):
         from shared.digital_twin.adapters import soil_sensor_to_profile
-        soil = soil_sensor_to_profile({"field_capacity": 320.0, "wilting_point": 160.0, "depth_m": 0.8, "texture": "clay"})
+        payload = {"field_capacity": 320.0, "wilting_point": 160.0, "depth_m": 0.8, "texture": "clay"}
+        soil = soil_sensor_to_profile(payload)
         assert soil.field_capacity_mm_per_m == 320.0
         assert soil.depth_m == 0.8
 

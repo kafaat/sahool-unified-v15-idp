@@ -379,7 +379,8 @@ class TestAlgorithmSecurity:
     def test_allowed_algorithms_hardcoded(self):
         """Test that allowed algorithms are hardcoded"""
         assert "HS256" in ALLOWED_ALGORITHMS
-        assert "RS256" in ALLOWED_ALGORITHMS
+        # RS256 is intentionally excluded to prevent algorithm confusion attacks
+        assert "RS256" not in ALLOWED_ALGORITHMS
         assert "none" not in ALLOWED_ALGORITHMS
 
     def test_algorithm_whitelist_prevents_confusion(self):

@@ -215,7 +215,8 @@ class TestVerifyToken:
     def test_algorithm_whitelist(self):
         """Test that only whitelisted algorithms are accepted."""
         assert "HS256" in ALLOWED_ALGORITHMS
-        assert "RS256" in ALLOWED_ALGORITHMS
+        # RS256 is intentionally excluded to prevent algorithm confusion attacks
+        assert "RS256" not in ALLOWED_ALGORITHMS
         assert "none" not in ALLOWED_ALGORITHMS
 
 

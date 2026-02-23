@@ -99,11 +99,9 @@ class TestAllowedAlgorithms:
         assert len(ALLOWED_ALGORITHMS) > 0
 
     def test_contains_secure_algorithms(self):
-        """Test that secure algorithms are included."""
+        """Test that only HS256 is allowed (other algorithms excluded to prevent confusion attacks)."""
         assert "HS256" in ALLOWED_ALGORITHMS
-        assert "HS384" in ALLOWED_ALGORITHMS
-        assert "HS512" in ALLOWED_ALGORITHMS
-        assert "RS256" in ALLOWED_ALGORITHMS
+        assert len(ALLOWED_ALGORITHMS) == 1
 
     def test_none_algorithm_not_allowed(self):
         """Test that 'none' algorithm is NOT in the whitelist."""

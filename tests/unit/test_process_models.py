@@ -860,6 +860,19 @@ class TestModelsRouter:
 
         app = FastAPI()
         app.include_router(mod.router, prefix="/api/v1")
+
+        # Override auth dependency so tests don't require a JWT token
+        try:
+            from shared.auth.dependencies import get_current_user
+
+            class _FakeUser:
+                id: str = "test-user"
+                tenant_id: str = "test-tenant"
+
+            app.dependency_overrides[get_current_user] = lambda: _FakeUser()
+        except ImportError:
+            pass
+
         return TestClient(app)
 
     def _get_client_safe(self):

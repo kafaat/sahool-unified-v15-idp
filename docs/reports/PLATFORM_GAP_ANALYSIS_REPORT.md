@@ -293,6 +293,76 @@ Only `crop-intelligence-service/src/event_subscribers.py` implements `_extract_h
 
 ---
 
+## GAP-9: Missing or Incomplete Health Endpoints (HIGH)
+
+### Problem
+
+Kubernetes liveness (`/healthz`) and readiness (`/readyz`) probes are missing or non-functional in many services.
+
+### Services Completely Missing Health Endpoints (20 services)
+
+| Service | Status |
+|---------|--------|
+| astronomical-calendar | **MISSING** |
+| audit-service | **MISSING** |
+| code-fix-agent | **MISSING** |
+| copilot-api | **MISSING** |
+| crm-service | **MISSING** |
+| edge-orchestrator-service | **MISSING** |
+| field-intelligence | **MISSING** |
+| ground-vision-service | **MISSING** |
+| hydrology-service | **MISSING** |
+| knowledge-graph | **MISSING** |
+| leveling-optimizer-service | **MISSING** |
+| llm-orchestrator-service | **MISSING** |
+| lowcode-engine | **MISSING** |
+| pest-detection-service | **MISSING** |
+| supply-chain-service | **MISSING** |
+| terrain-core-service | **MISSING** |
+| wechat-service | **MISSING** |
+| whatsapp-bot-service | **MISSING** |
+| yolo26-vision-service | **MISSING** |
+| crop-growth-model | **MISSING** |
+
+### Services With Static /readyz (No Dependency Checks) — 24 services
+
+These return hardcoded `{"status": "ok"}` without verifying DB, NATS, or Redis connectivity:
+
+ai-agents-core, cooperative-service, digital-twin-engine, drone-service, globalgap-compliance, inventory-service, logistics-service, ndvi-processor, skills-service, soil-analysis-service, traceability-service, ussd-gateway, weather-service, ws-gateway, code-review-service
+
+### Impact
+
+- Kubernetes cannot detect unhealthy pods → traffic routed to broken instances
+- No automatic restart on dependency failure
+- False readiness means dead pods receive requests
+
+### Exemplary Services (Reference Pattern)
+
+Only **4 services** implement proper dependency-checking readiness:
+- `task-service`: checks DB + NATS + Redis
+- `alert-service`: checks DB + NATS
+- `iot-gateway`: checks DB + Redis + NATS
+- `ai-agents-service`: checks DB + Redis + NATS
+
+---
+
+## Updated Gap Statistics
+
+| Category | Severity | Services Affected | Services Compliant |
+|----------|----------|-------------------|-------------------|
+| Raw NATS publish (no headers) | **CRITICAL** | ~30 services | 5 |
+| No outbox pattern | **CRITICAL** | 55 services | 1 |
+| No DB idempotency | **HIGH** | 54 services | 2 |
+| No `ensure_streams` call | **HIGH** | 55 services | 1 |
+| No subscriber header extraction | **HIGH** | ~25 services | 1 |
+| Missing health endpoints entirely | **HIGH** | 20 services | 36 |
+| Static /readyz (no dep checks) | **MEDIUM** | 24 services | 4 |
+| Missing unified error handling | **MEDIUM** | 12 services | 44 |
+| `print()` in production code | **MEDIUM** | 10 services | 46 |
+| NATS connection leak | **MEDIUM** | 2 services | ~36 |
+
+---
+
 ## Summary
 
 The event pipeline hardening applied to `crop-intelligence-service` established the correct pattern. The platform now has a **reference implementation** but needs systematic rollout to remaining services. The most critical gaps are:
@@ -301,5 +371,7 @@ The event pipeline hardening applied to `crop-intelligence-service` established 
 2. **55 services lack outbox pattern** → events can be silently lost
 3. **54 services lack DB-level idempotency** → duplicate processing risk
 4. **55 services don't call ensure_streams** → JetStream config drift
+5. **20 services have no health endpoints** → Kubernetes can't manage them
+6. **24 services have static /readyz** → false readiness masking failures
 
 All the infrastructure code exists in `shared/events/` — the gap is **adoption**, not implementation.

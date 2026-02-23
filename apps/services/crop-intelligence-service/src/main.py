@@ -634,6 +634,44 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("NATS_URL not configured - event publishing disabled")
 
+    # Ensure JetStream domain streams exist (C1 fix — streams must exist before durable consumers)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            js = app.state.nc.jetstream()
+            from shared.events.streams import ensure_streams
+
+            stream_count = await ensure_streams(js)
+            logger.info("jetstream_streams_ensured", count=stream_count)
+        except Exception as _stream_err:
+            logger.warning("jetstream_streams_ensure_failed", error=str(_stream_err))
+
+    # Register NATS event subscribers (Intelligence→Decision wiring)
+    if app.state.nats_connected and app.state.nc:
+        try:
+            from .event_subscribers import setup_nats_subscriptions
+
+            app.state.nats_subs = await setup_nats_subscriptions(app.state.nc, app.state)
+            logger.info("nats_subscribers_registered", count=len(app.state.nats_subs))
+        except Exception as _sub_err:
+            logger.warning("nats_subscribers_failed", error=str(_sub_err))
+
+    # Initialize calibration worker (processes queued runs on startup)
+    try:
+        from shared.calibration.worker import CalibrationWorker
+
+        cal_worker = CalibrationWorker(
+            db_pool=app.state.db_pool,
+            nats_client=app.state.nc,
+        )
+        app.state.calibration_worker = cal_worker
+        # Process any pending runs from previous shutdown
+        if app.state.db_connected:
+            processed = await cal_worker.process_pending(max_runs=3)
+            if processed:
+                logger.info("calibration_startup_processed", run_ids=processed)
+    except Exception as _cal_err:
+        logger.warning("calibration_worker_init_failed", error=str(_cal_err))
+
     port = os.getenv("PORT", "8095")
     logger.info("Crop Intelligence Service ready", port=port)
     yield
@@ -749,6 +787,54 @@ except ImportError:
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+# ── Digital Twin Router ────────────────────────────────────────────────────
+try:
+    from .twin_router import router as twin_router
+
+    app.include_router(twin_router, prefix="/api/v1")
+except Exception as _twin_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Digital Twin router not loaded: %s", _twin_import_error
+    )
+
+# ── Process Models Router ──────────────────────────────────────────────────
+try:
+    from .models_router import router as models_router
+
+    app.include_router(models_router, prefix="/api/v1")
+except Exception as _models_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Process Models router not loaded: %s", _models_import_error
+    )
+
+# ── Calibration Router ────────────────────────────────────────────────────
+try:
+    from .calibration_router import router as calibration_router
+
+    app.include_router(calibration_router, prefix="/api/v1")
+except Exception as _cal_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Calibration router not loaded: %s", _cal_import_error
+    )
+
+# ── Soil & Fertility Router ──────────────────────────────────────────────
+try:
+    from .soil_fertility_router import router as soil_fertility_router
+
+    app.include_router(soil_fertility_router, prefix="/api/v1")
+except Exception as _sf_import_error:  # pragma: no cover
+    import logging
+
+    logging.getLogger(__name__).warning(
+        "Soil & Fertility router not loaded: %s", _sf_import_error
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

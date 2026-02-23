@@ -305,6 +305,11 @@ class TestEventPublisherPublish:
         # Create an event that will fail validation
         invalid_event = MagicMock(spec=BaseEvent)
         invalid_event.source_service = "test"
+        invalid_event.correlation_id = None
+        invalid_event.causation_id = None
+        invalid_event.trace_id = None
+        invalid_event.span_id = None
+        invalid_event.tenant_id = None
         invalid_event.model_validate = MagicMock(side_effect=ValueError("Invalid"))
         invalid_event.model_dump = MagicMock(return_value={})
 

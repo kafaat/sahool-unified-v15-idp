@@ -826,19 +826,13 @@ class TestEventSubscriberHealthCheck:
 
         health = await subscriber.health_check()
 
-        # Status is 'degraded' because source uses stream_name instead of dlq_stream_name
-        assert health["status"] == "degraded"
+        # DLQ stream_name bug was fixed; DLQ check now succeeds
+        assert health["status"] == "healthy"
         assert health["dlq_initialized"] is True
-        assert "DLQ check failed" in health["details"]["dlq"]
 
     @pytest.mark.asyncio
     async def test_health_check_dlq_warning(self, subscriber):
-        """Test health check with DLQ having many messages.
-
-        Note: Due to the same stream_name vs dlq_stream_name bug in source,
-        the DLQ check always fails with AttributeError, resulting in
-        'degraded' status regardless of message count.
-        """
+        """Test health check with DLQ having many messages (>1000 triggers warning)."""
         mock_nc = AsyncMock()
         mock_js = AsyncMock()
 
@@ -870,9 +864,9 @@ class TestEventSubscriberHealthCheck:
 
         health = await subscriber.health_check()
 
-        # Status is 'degraded' because source uses stream_name instead of dlq_stream_name
-        assert health["status"] == "degraded"
-        assert "DLQ check failed" in health["details"]["dlq"]
+        # DLQ stream_name bug was fixed; with 5000 messages DLQ check returns warning
+        assert health["status"] == "warning"
+        assert "dlq" in health["details"]
 
     @pytest.mark.asyncio
     async def test_health_check_dlq_not_initialized(self, subscriber):

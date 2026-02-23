@@ -1,0 +1,16 @@
+apiVersion: v2
+name: crop-intelligence-service
+description: SAHOOL Crop Intelligence Service - crop health diagnostics, digital twin, fertilizer & soil advisory
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - crop-intelligence
+  - digital-twin
+  - fertilizer
+  - soil
+  - irrigation
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

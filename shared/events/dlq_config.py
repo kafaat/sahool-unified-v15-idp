@@ -40,9 +40,12 @@ Usage:
 
 from __future__ import annotations
 
+import logging
 import os
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # DLQ Configuration
@@ -259,7 +262,7 @@ async def create_dlq_streams(js, config: DLQConfig | None = None):
     try:
         # Try to get existing stream
         await js.stream_info(stream_config.name)
-        print(f"✅ DLQ stream '{stream_config.name}' already exists")
+        logger.info("DLQ stream '%s' already exists", stream_config.name)
 
         # Update if needed
         await js.update_stream(
@@ -274,7 +277,7 @@ async def create_dlq_streams(js, config: DLQConfig | None = None):
             num_replicas=stream_config.replicas,
             discard=stream_config.discard,
         )
-        print("✅ Updated DLQ stream configuration")
+        logger.info("Updated DLQ stream configuration")
 
     except Exception:
         # Stream doesn't exist, create it
@@ -291,13 +294,16 @@ async def create_dlq_streams(js, config: DLQConfig | None = None):
                 num_replicas=stream_config.replicas,
                 discard=stream_config.discard,
             )
-            print(f"✅ Created DLQ stream '{stream_config.name}'")
-            print(f"   Subjects: {stream_config.subjects}")
-            print(f"   Max age: {config.dlq_max_age_days} days")
-            print(f"   Max messages: {config.dlq_max_messages:,}")
+            logger.info(
+                "Created DLQ stream '%s' subjects=%s max_age=%dd max_msgs=%d",
+                stream_config.name,
+                stream_config.subjects,
+                config.dlq_max_age_days,
+                config.dlq_max_messages,
+            )
 
         except Exception as create_error:
-            print(f"❌ Failed to create DLQ stream: {create_error}")
+            logger.error("Failed to create DLQ stream: %s", create_error)
             raise
 
 

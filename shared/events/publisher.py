@@ -34,6 +34,124 @@ from .contracts import BaseEvent
 
 logger = logging.getLogger(__name__)
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# H4 + M1: Correlation & OTel Trace Propagation Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _get_current_correlation_id() -> str | None:
+    """
+    H4 fix: Extract correlation_id from the current HTTP request context.
+    Works with shared.middleware.request_logging which stores correlation_id
+    in contextvars or starlette request.state.
+    """
+    # Primary: shared.logging_config defines ContextVars set by middleware
+    try:
+        from shared.logging_config import correlation_id_var
+
+        return correlation_id_var.get(None)
+    except (ImportError, AttributeError):
+        pass
+
+    # Fallback: check if there's a thread-local or global correlation_id
+    try:
+        import threading
+
+        local = getattr(threading, "_sahool_local", None)
+        if local:
+            return getattr(local, "correlation_id", None)
+    except Exception:
+        pass
+
+    return None
+
+
+def _get_otel_trace_context() -> tuple[str | None, str | None, str | None]:
+    """
+    M1 fix: Extract OTel trace_id, span_id, and tracestate from the current span.
+    Returns (trace_id_hex, span_id_hex, tracestate_str) or (None, None, None).
+    """
+    try:
+        from opentelemetry import trace
+        from opentelemetry.context import get_current
+
+        current_span = trace.get_current_span()
+        ctx = current_span.get_span_context()
+        if ctx and ctx.trace_id != 0:
+            trace_id = format(ctx.trace_id, "032x")
+            span_id = format(ctx.span_id, "016x")
+            # Extract tracestate if available
+            tracestate = None
+            if ctx.trace_state:
+                tracestate = str(ctx.trace_state)
+            return trace_id, span_id, tracestate
+    except (ImportError, AttributeError, Exception):
+        pass
+
+    return None, None, None
+
+
+def _get_current_tenant_id() -> str | None:
+    """Extract tenant_id from the current request context (JWT tid claim)."""
+    try:
+        from shared.logging_config import tenant_id_var
+
+        return tenant_id_var.get(None)
+    except (ImportError, AttributeError):
+        pass
+    return None
+
+
+def _build_nats_headers(event: "BaseEvent") -> dict | None:
+    """
+    Build canonical NATS message headers for distributed tracing & routing.
+
+    Headers (7 standard):
+      - traceparent   (W3C Trace Context)
+      - tracestate    (W3C, optional)
+      - X-Correlation-ID
+      - X-Causation-ID
+      - X-Event-ID
+      - X-Tenant-ID
+      - X-Schema-Version
+
+    Returns None if no headers are available (core NATS ignores None headers).
+    """
+    headers: dict[str, str] = {}
+
+    # W3C traceparent
+    if event.trace_id and event.span_id:
+        traceparent = f"00-{event.trace_id}-{event.span_id}-01"
+        headers["traceparent"] = traceparent
+
+    # W3C tracestate (optional, propagated from OTel)
+    tracestate = getattr(event, "_tracestate", None)
+    if tracestate:
+        headers["tracestate"] = tracestate
+
+    # Correlation & causation chain
+    if event.correlation_id:
+        headers["X-Correlation-ID"] = event.correlation_id
+    if event.causation_id:
+        headers["X-Causation-ID"] = event.causation_id
+
+    # Event identity
+    if event.event_id:
+        headers["X-Event-ID"] = event.event_id
+
+    # Tenant scoping (from JWT tid claim or event field)
+    tenant_id = getattr(event, "tenant_id_header", None) or getattr(event, "tenant_id", None)
+    if tenant_id:
+        headers["X-Tenant-ID"] = str(tenant_id)
+
+    # Schema version for consumer compatibility checks
+    if event.version:
+        headers["X-Schema-Version"] = event.version
+
+    return headers if headers else None
+
+
 # NATS client - lazy import for optional dependency
 _nats_available = False
 
@@ -237,9 +355,32 @@ class EventPublisher:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
 
-        # Add source metadata if not already set
+        # ── Metadata enrichment ──────────────────────────────────────────
         if not event.source_service:
             event.source_service = self.service_name
+
+        # H4: Auto-propagate correlation_id from HTTP entrypoint context.
+        # Rule: correlation_id is created ONLY at HTTP entrypoint (middleware),
+        #        never inside workers.  Workers inherit it from the inbound message.
+        if not event.correlation_id:
+            event.correlation_id = _get_current_correlation_id()
+
+        # Tenant propagation: pull from request context if not set on event
+        if not getattr(event, "tenant_id_header", None):
+            ctx_tenant = _get_current_tenant_id()
+            if ctx_tenant:
+                event.tenant_id_header = ctx_tenant
+
+        # M1: Inject OTel trace context (trace_id, span_id, tracestate)
+        if not event.trace_id:
+            trace_id, span_id, tracestate = _get_otel_trace_context()
+            if trace_id:
+                event.trace_id = trace_id
+            if span_id:
+                event.span_id = span_id
+            if tracestate:
+                # Store tracestate transiently (not serialized in JSON, only in headers)
+                event._tracestate = tracestate  # type: ignore[attr-defined]
 
         # Validate event
         try:
@@ -257,15 +398,18 @@ class EventPublisher:
             self._error_count += 1
             return False
 
+        # Build NATS headers for trace propagation (M1 fix)
+        headers = _build_nats_headers(event)
+
         # Publish
         timeout = timeout or self.config.default_timeout
         use_jetstream = use_jetstream if use_jetstream is not None else self.config.enable_jetstream
 
         try:
             if use_jetstream and self._js:
-                await self._publish_jetstream(subject, data, timeout)
+                await self._publish_jetstream(subject, data, timeout, headers=headers)
             else:
-                await self._publish_core(subject, data, timeout)
+                await self._publish_core(subject, data, timeout, headers=headers)
 
             self._publish_count += 1
             logger.info(
@@ -351,13 +495,19 @@ class EventPublisher:
     # Internal Methods
     # ─────────────────────────────────────────────────────────────────────────
 
-    async def _publish_core(self, subject: str, data: bytes, timeout: float):
+    async def _publish_core(self, subject: str, data: bytes, timeout: float, headers: dict | None = None):
         """Publish using core NATS."""
-        await asyncio.wait_for(self._nc.publish(subject, data), timeout=timeout)
+        await asyncio.wait_for(
+            self._nc.publish(subject, data, headers=headers),
+            timeout=timeout,
+        )
 
-    async def _publish_jetstream(self, subject: str, data: bytes, timeout: float):
+    async def _publish_jetstream(self, subject: str, data: bytes, timeout: float, headers: dict | None = None):
         """Publish using JetStream for guaranteed delivery."""
-        ack = await asyncio.wait_for(self._js.publish(subject, data), timeout=timeout)
+        ack = await asyncio.wait_for(
+            self._js.publish(subject, data, headers=headers),
+            timeout=timeout,
+        )
         logger.debug(f"JetStream ACK: stream={ack.stream}, seq={ack.seq}")
 
     async def _retry_publish(
@@ -493,3 +643,43 @@ async def publish_event(subject: str, event: BaseEvent) -> bool:
     """
     publisher = await get_publisher()
     return await publisher.publish_event(subject, event)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Correlation/Causation Chain Helper
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def chain_event(
+    parent: BaseEvent | dict[str, Any],
+    child: BaseEvent,
+) -> BaseEvent:
+    """
+    Propagate correlation/causation from a parent (inbound) event to a child
+    (outbound) event.  This is the canonical way to link events in a chain.
+
+    Rules (Spec §2):
+      - child.correlation_id = parent.correlation_id  (never changes)
+      - child.causation_id   = parent.event_id        (links to direct cause)
+      - child.event_id       = new uuid                (already set by default)
+
+    Usage in handlers:
+        from shared.events.publisher import chain_event
+
+        inbound_event = ...   # deserialized from NATS
+        outbound = SomeEvent(field_id=..., ...)
+        chain_event(inbound_event, outbound)
+        await publisher.publish_event(subject, outbound)
+    """
+    if isinstance(parent, dict):
+        child.correlation_id = parent.get("correlation_id")
+        child.causation_id = parent.get("event_id")
+        tid = parent.get("trace_id")
+        if tid:
+            child.trace_id = tid
+    else:
+        child.correlation_id = parent.correlation_id
+        child.causation_id = parent.event_id
+        if parent.trace_id:
+            child.trace_id = parent.trace_id
+    return child

@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "crop-intelligence-service.fullname" . }}-config
+  labels:
+    {{- include "crop-intelligence-service.labels" . | nindent 4 }}
+data:
+  SERVICE_NAME: "crop-intelligence-service"
+  SERVICE_VERSION: {{ .Chart.AppVersion | quote }}
+  LOG_LEVEL: {{ .Values.env.LOG_LEVEL | default "INFO" | quote }}
+  LOG_FORMAT: "json"
+
+  # Feature Flags
+  CALIBRATION_ENABLED: {{ .Values.env.CALIBRATION_ENABLED | default "true" | quote }}
+  ASSIMILATION_ENABLED: {{ .Values.env.ASSIMILATION_ENABLED | default "true" | quote }}
+
+  # Infrastructure
+  {{- if .Values.nats.url }}
+  NATS_URL: {{ .Values.nats.url | quote }}
+  {{- else }}
+  NATS_URL: "nats://nats:4222"
+  {{- end }}
+
+  {{- if .Values.redis.url }}
+  REDIS_URL: {{ .Values.redis.url | quote }}
+  {{- else }}
+  REDIS_URL: "redis://redis:6379"
+  {{- end }}
+
+  # Metrics
+  ENABLE_METRICS: "true"
+  ENABLE_TRACING: "false"
+  METRICS_PORT: "8095"

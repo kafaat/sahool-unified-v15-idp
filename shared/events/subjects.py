@@ -104,6 +104,50 @@ SAHOOL_HEALTH_STRESS_ALL = "sahool.health.stress.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Digital Twin Subjects - موضوعات التوأم الرقمي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted when a new field observation (NDVI, LAI, sensor) is ingested
+SAHOOL_FIELD_OBSERVATION_INGESTED = "sahool.field.observation.ingested.v1"
+
+# Emitted after the daily twin step (pipeline + optional assimilation)
+SAHOOL_FIELD_STATE_UPDATED = "sahool.field.state.updated.v1"
+
+# Emitted when an irrigation recommendation is ready
+SAHOOL_IRRIGATION_RECOMMENDATION_READY = "sahool.irrigation.recommendation.ready.v1"
+
+# Wildcards
+SAHOOL_DIGITAL_TWIN_ALL = "sahool.field.state.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Calibration Subjects - موضوعات المعايرة
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Emitted when a calibration run is queued
+SAHOOL_CALIBRATION_RUN_QUEUED = "sahool.calibration.run.queued.v1"
+
+# Emitted when a calibration run starts processing
+SAHOOL_CALIBRATION_RUN_STARTED = "sahool.calibration.run.started.v1"
+
+# Emitted when a calibration run succeeds
+SAHOOL_CALIBRATION_RUN_SUCCEEDED = "sahool.calibration.run.succeeded.v1"
+
+# Emitted when a calibration run fails
+SAHOOL_CALIBRATION_RUN_FAILED = "sahool.calibration.run.failed.v1"
+
+# Emitted when a parameter set is promoted to active
+SAHOOL_CALIBRATION_PARAMS_ACTIVATED = "sahool.calibration.parameters.activated.v1"
+
+# Emitted when a parameter set is deprecated (replaced by a new active set)
+SAHOOL_CALIBRATION_PARAMS_DEPRECATED = "sahool.calibration.parameters.deprecated.v1"
+
+# Wildcards
+SAHOOL_CALIBRATION_ALL = "sahool.calibration.>"
+SAHOOL_CALIBRATION_RUN_ALL = "sahool.calibration.run.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Inventory Subjects - موضوعات المخزون
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -528,6 +572,17 @@ SUBJECT_REGISTRY = {
     "edge.model_deployment_failed": SAHOOL_EDGE_MODEL_DEPLOYMENT_FAILED,
     "edge.firmware_update_available": SAHOOL_EDGE_FIRMWARE_UPDATE_AVAILABLE,
     "edge.data_collected": SAHOOL_EDGE_DATA_COLLECTED,
+    # Digital Twin
+    "field.observation.ingested": SAHOOL_FIELD_OBSERVATION_INGESTED,
+    "field.state.updated": SAHOOL_FIELD_STATE_UPDATED,
+    "irrigation.recommendation.ready": SAHOOL_IRRIGATION_RECOMMENDATION_READY,
+    # Calibration
+    "calibration.run.queued": SAHOOL_CALIBRATION_RUN_QUEUED,
+    "calibration.run.started": SAHOOL_CALIBRATION_RUN_STARTED,
+    "calibration.run.succeeded": SAHOOL_CALIBRATION_RUN_SUCCEEDED,
+    "calibration.run.failed": SAHOOL_CALIBRATION_RUN_FAILED,
+    "calibration.parameters.activated": SAHOOL_CALIBRATION_PARAMS_ACTIVATED,
+    "calibration.parameters.deprecated": SAHOOL_CALIBRATION_PARAMS_DEPRECATED,
 }
 
 

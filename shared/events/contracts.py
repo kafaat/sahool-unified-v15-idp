@@ -34,6 +34,10 @@ class BaseEvent(BaseModel):
     """
     Base class for all SAHOOL events with common metadata.
     النموذج الأساسي لجميع الأحداث مع البيانات الوصفية المشتركة
+
+    Canonical event envelope — all other BaseEvent definitions should
+    import from this module.  Fields added 2026-02-23 for Architecture
+    Conformance: causation_id, trace_id, span_id.
     """
 
     event_id: str = Field(
@@ -44,7 +48,19 @@ class BaseEvent(BaseModel):
     )
     version: str = Field(default="1.0", description="Event schema version")
     source_service: str | None = Field(None, description="Service that emitted the event")
-    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
+    tenant_id_header: str | None = Field(
+        None,
+        alias="tenant_id_meta",
+        description="Tenant ID propagated in NATS headers (X-Tenant-ID). "
+        "Use domain-specific tenant_id in child events for business logic.",
+    )
+    correlation_id: str | None = Field(None, description="Correlation ID for tracing across services")
+    causation_id: str | None = Field(
+        None,
+        description="Event ID of the upstream event that caused this event (event chain linking)",
+    )
+    trace_id: str | None = Field(None, description="OpenTelemetry trace ID (W3C hex)")
+    span_id: str | None = Field(None, description="OpenTelemetry span ID (W3C hex)")
 
     @property
     def event_type(self) -> str:

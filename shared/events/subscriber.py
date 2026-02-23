@@ -265,7 +265,7 @@ class EventSubscriber:
             else:
                 try:
                     # Check DLQ stream exists and is healthy
-                    dlq_stream_name = self._dlq_config.stream_name
+                    dlq_stream_name = self._dlq_config.dlq_stream_name
                     stream_info = await self._js.stream_info(dlq_stream_name)
                     health["details"]["dlq"] = {
                         "status": "healthy",

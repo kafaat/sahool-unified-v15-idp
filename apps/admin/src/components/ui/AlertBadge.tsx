@@ -1,5 +1,3 @@
-"use client";
-
 // Alert Badge Component
 // شارة التنبيه
 

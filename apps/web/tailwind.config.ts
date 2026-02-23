@@ -43,7 +43,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        tajawal: ["Tajawal", "sans-serif"],
+        tajawal: ["var(--font-tajawal)", "sans-serif"],
         cairo: ["Cairo", "sans-serif"],
       },
       backgroundImage: {

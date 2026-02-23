@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { Tajawal } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-tajawal",
+});
 
 export const metadata: Metadata = {
   title: "لوحة تحكم سهول | Sahool Admin Dashboard",
@@ -32,26 +40,13 @@ export default async function RootLayout({
   return (
     // suppressHydrationWarning prevents errors from browser extensions (e.g., Dark Reader)
     // that modify DOM attributes during hydration
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
       <head suppressHydrationWarning>
         {/*
           Always render nonce attribute to prevent hydration mismatch.
           The nonce value may be empty string on client, but the attribute must be present.
         */}
         { }
-        {/* Font preconnect for faster font loading */}
-        <link
-          rel="preconnect"
-          href="https://fonts.googleapis.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-          rel="stylesheet"
-          nonce={nonce}
-          suppressHydrationWarning
-        />
         {/* Leaflet CSS loaded asynchronously - not render-blocking for non-map pages */}
         <link
           rel="stylesheet"

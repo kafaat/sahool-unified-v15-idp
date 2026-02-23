@@ -1,5 +1,3 @@
-"use client";
-
 // Status Badge Component
 // شارة الحالة
 

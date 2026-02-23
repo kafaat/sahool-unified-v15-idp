@@ -68,10 +68,10 @@ module.exports = {
       // Typography - الخطوط العربية
       // ─────────────────────────────────────────────────────────────────────────
       fontFamily: {
-        arabic: ["Tajawal", "Cairo", "IBM Plex Sans Arabic", "sans-serif"],
-        tajawal: ["Tajawal", "Cairo", "sans-serif"],
-        cairo: ["Cairo", "Tajawal", "sans-serif"],
-        ibm: ["IBM Plex Sans Arabic", "Tajawal", "sans-serif"],
+        arabic: ["var(--font-tajawal)", "Cairo", "IBM Plex Sans Arabic", "sans-serif"],
+        tajawal: ["var(--font-tajawal)", "Cairo", "sans-serif"],
+        cairo: ["Cairo", "var(--font-tajawal)", "sans-serif"],
+        ibm: ["IBM Plex Sans Arabic", "var(--font-tajawal)", "sans-serif"],
       },
 
       // ─────────────────────────────────────────────────────────────────────────

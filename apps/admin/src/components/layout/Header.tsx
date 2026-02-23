@@ -3,15 +3,33 @@
 /**
  * Admin Header
  * رأس الصفحة مع دعم الوضع الداكن
+ *
+ * Optimized: Notification dropdown, user menu dropdown, and mobile search overlay
+ * are lazy-loaded via next/dynamic since they are hidden by default.
  */
 
-import { useState, useEffect, useRef } from "react";
-import { Bell, Search, LogOut, Settings, HelpCircle, X } from "lucide-react";
+import { useState, useEffect, useRef, Suspense } from "react";
+import { Bell, Search, X } from "lucide-react";
 import { useAuth } from "@/stores/auth.store";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// Lazy-load dropdown panels -- they are only visible after user interaction
+const NotificationsDropdown = dynamic(
+  () => import("@/components/layout/NotificationsDropdown"),
+  { ssr: false },
+);
+
+const UserMenuDropdown = dynamic(
+  () => import("@/components/layout/UserMenuDropdown"),
+  { ssr: false },
+);
+
+const MobileSearchOverlay = dynamic(
+  () => import("@/components/layout/MobileSearchOverlay"),
+  { ssr: false },
+);
 
 interface HeaderProps {
   title: string;
@@ -174,59 +192,14 @@ export default function Header({
               )}
             </button>
 
-            {/* Notifications dropdown */}
+            {/* Notifications dropdown - lazy loaded */}
             {showNotifications && (
-              <div className="absolute left-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                  <h3 className="font-bold text-gray-900 dark:text-gray-100">
-                    التنبيهات
-                  </h3>
-                  {unreadCount > 0 && (
-                    <span className="text-xs text-sahool-600 dark:text-sahool-400">
-                      {unreadCount} جديد
-                    </span>
-                  )}
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={cn(
-                        "px-4 py-3 border-b border-gray-50 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer",
-                        notification.unread && "bg-sahool-50/50 dark:bg-sahool-900/10"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div
-                          className={cn(
-                            "w-2 h-2 rounded-full mt-2 flex-shrink-0",
-                            notification.type === "alert" && "bg-red-500",
-                            notification.type === "success" && "bg-green-500",
-                            notification.type === "info" && "bg-blue-500"
-                          )}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            {notification.title}
-                          </p>
-                          <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                            {notification.time}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <Link
-                  href="/alerts"
-                  className="block px-4 py-3 text-center text-sm text-sahool-600 dark:text-sahool-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                >
-                  عرض كل التنبيهات
-                </Link>
-              </div>
+              <Suspense fallback={null}>
+                <NotificationsDropdown
+                  notifications={notifications}
+                  unreadCount={unreadCount}
+                />
+              </Suspense>
             )}
           </div>
 
@@ -250,53 +223,15 @@ export default function Header({
               </span>
             </button>
 
-            {/* User dropdown */}
+            {/* User dropdown - lazy loaded */}
             {showUserMenu && (
-              <div
-                role="menu"
-                aria-label="خيارات المستخدم"
-                className="absolute left-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2"
-              >
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    {user?.name_ar || user?.name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                    {user?.email}
-                  </p>
-                </div>
-
-                <div className="py-1">
-                  <Link
-                    href="/settings"
-                    role="menuitem"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <Settings className="w-4 h-4" />
-                    <span>الإعدادات</span>
-                  </Link>
-                  <Link
-                    href="/support"
-                    role="menuitem"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <HelpCircle className="w-4 h-4" />
-                    <span>المساعدة</span>
-                  </Link>
-                </div>
-
-                <div className="border-t border-gray-100 dark:border-gray-700 py-1">
-                  <button
-                    onClick={handleLogout}
-                    role="menuitem"
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                    suppressHydrationWarning
-                  >
-                    <LogOut className="w-4 h-4" aria-hidden="true" />
-                    <span>تسجيل الخروج</span>
-                  </button>
-                </div>
-              </div>
+              <Suspense fallback={null}>
+                <UserMenuDropdown
+                  userName={user?.name_ar || user?.name}
+                  userEmail={user?.email}
+                  onLogout={handleLogout}
+                />
+              </Suspense>
             )}
           </div>
         </div>
@@ -309,34 +244,15 @@ export default function Header({
         </div>
       )}
 
-      {/* Mobile search overlay */}
+      {/* Mobile search overlay - lazy loaded */}
       {showSearchOverlay && (
-        <div className="fixed inset-0 z-50 bg-black/50 md:hidden">
-          <div className="bg-white dark:bg-gray-900 p-4">
-            <div className="flex items-center gap-3">
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="بحث..."
-                  autoFocus
-                  className="w-full pl-10 pr-4 py-3 text-base border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:border-transparent bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                />
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </div>
-              <button
-                onClick={() => setShowSearchOverlay(false)}
-                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-        </div>
+        <Suspense fallback={null}>
+          <MobileSearchOverlay
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            onClose={() => setShowSearchOverlay(false)}
+          />
+        </Suspense>
       )}
     </header>
   );

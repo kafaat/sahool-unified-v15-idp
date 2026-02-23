@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * SAHOOL Quick Actions Component
  * مكون الإجراءات السريعة

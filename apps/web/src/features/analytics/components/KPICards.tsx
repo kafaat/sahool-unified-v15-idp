@@ -3,8 +3,6 @@
  * بطاقات مؤشرات الأداء الرئيسية
  */
 
-"use client";
-
 import React from "react";
 import {
   TrendingUp,

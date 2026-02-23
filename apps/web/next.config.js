@@ -1,3 +1,4 @@
+const { withSentryConfig } = require("@sentry/nextjs");
 const createNextIntlPlugin = require("next-intl/plugin");
 const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
@@ -133,7 +134,17 @@ const nextConfig = {
   },
 
   // Output configuration for Docker/standalone deployments
-  output: process.env.DOCKER_BUILD === "true" ? "standalone" : undefined,
+  // Always use standalone for optimal Docker image size (copies only needed files)
+  output: "standalone",
+
+  // Compiler optimizations
+  compiler: {
+    // Strip console.log in production (keep error/warn for debugging)
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? { exclude: ["error", "warn"] }
+        : false,
+  },
 
   // Performance optimizations
   compress: true,
@@ -141,6 +152,7 @@ const nextConfig = {
 
   // Experimental features
   experimental: {
+    // Tree-shake barrel exports for these packages to reduce bundle size
     optimizePackageImports: [
       "lucide-react",
       "@tanstack/react-query",
@@ -151,6 +163,11 @@ const nextConfig = {
       "@sahool/shared-ui",
       "@sahool/shared-utils",
       "@sahool/shared-hooks",
+      "@sahool/shared-types",
+      "@sahool/api-client",
+      "react-leaflet",
+      "jose",
+      "axios",
     ],
   },
 
@@ -188,8 +205,75 @@ const nextConfig = {
       },
     ];
 
+    // Optimize chunk splitting for better caching and smaller bundles
+    if (!isServer) {
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization?.splitChunks,
+          cacheGroups: {
+            ...config.optimization?.splitChunks?.cacheGroups,
+            // Separate heavy visualization libs into their own chunk
+            charts: {
+              test: /[\\/]node_modules[\\/](recharts|d3-.*|victory.*)[\\/]/,
+              name: "charts",
+              chunks: "all",
+              priority: 30,
+            },
+            // Separate mapping libraries (leaflet, maplibre) into their own chunk
+            maps: {
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl)[\\/]/,
+              name: "maps",
+              chunks: "all",
+              priority: 30,
+            },
+            // Group framework-level dependencies that rarely change
+            framework: {
+              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
+              name: "framework",
+              chunks: "all",
+              priority: 40,
+              enforce: true,
+            },
+          },
+        },
+      };
+    }
+
     return config;
   },
 };
 
-module.exports = withBundleAnalyzer(withNextIntl(nextConfig));
+module.exports = withSentryConfig(withBundleAnalyzer(withNextIntl(nextConfig)), {
+  // Sentry Build-Time Optimizations
+  // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
+
+  // Suppress source map upload logs during build
+  silent: !process.env.CI,
+
+  // Upload source maps to Sentry for production builds only
+  sourcemaps: {
+    disable: !process.env.SENTRY_AUTH_TOKEN,
+  },
+
+  // Tree-shake Sentry debug logger statements from the client bundle (~10KB savings)
+  disableLogger: true,
+
+  // Automatically tree-shake unused Sentry client code
+  // Removes code for features not used (e.g., Profiling, Feedback widget)
+  bundleSizeOptimizations: {
+    excludeDebugStatements: true,
+    excludeReplayIframe: true,
+    excludeReplayShadowDom: true,
+    excludeReplayWorker: true,
+  },
+
+  // Tunnel Sentry events through the Next.js server to avoid ad-blockers and CSP issues
+  tunnelRoute: "/monitoring",
+
+  // Hides Sentry source maps from client-side devtools
+  hideSourceMaps: true,
+
+  // Widen file upload scope so Sentry can match source maps across chunks
+  widenClientFileUpload: true,
+});

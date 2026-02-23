@@ -1,5 +1,3 @@
-"use client";
-
 // Metrics Grid Component
 // شبكة المقاييس
 

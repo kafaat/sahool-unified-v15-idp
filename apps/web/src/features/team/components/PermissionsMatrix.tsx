@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * SAHOOL Permissions Matrix Component
  * مكون مصفوفة الصلاحيات

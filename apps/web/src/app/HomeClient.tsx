@@ -1,5 +1,3 @@
-"use client";
-
 import { Cockpit } from "@/components/dashboard";
 
 export default function HomeClient() {

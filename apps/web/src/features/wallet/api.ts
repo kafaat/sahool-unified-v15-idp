@@ -3,7 +3,7 @@
  * واجهة برمجية لميزة المحفظة
  */
 
-import axios from "axios";
+import { isAxiosError } from "axios";
 import { createApiClient, logger } from "@/lib/api/factory";
 import { BILLING_ENDPOINTS } from "@sahool/shared-types/contracts";
 import type {
@@ -349,7 +349,7 @@ export const walletApi = {
     } catch (error) {
       logger.error("Failed to create deposit:", error);
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         if (error.response?.status === 400) {
           throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
         } else if (error.response?.status === 401) {
@@ -378,7 +378,7 @@ export const walletApi = {
     } catch (error) {
       logger.error("Failed to create withdrawal:", error);
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         if (error.response?.status === 400) {
           throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
         } else if (error.response?.status === 402) {
@@ -409,7 +409,7 @@ export const walletApi = {
     } catch (error) {
       logger.error("Failed to create transfer:", error);
 
-      if (axios.isAxiosError(error)) {
+      if (isAxiosError(error)) {
         if (error.response?.status === 400) {
           throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
         } else if (error.response?.status === 402) {

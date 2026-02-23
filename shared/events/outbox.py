@@ -211,7 +211,7 @@ class OutboxRelay:
             return
         self._running = True
         self._task = asyncio.create_task(self._loop())
-        logger.info("outbox_relay_started", poll_interval=self._poll_interval)
+        logger.info("outbox_relay_started poll_interval=%s", self._poll_interval)
 
     async def stop(self) -> None:
         """Stop the relay gracefully."""
@@ -222,7 +222,7 @@ class OutboxRelay:
                 await self._task
             except asyncio.CancelledError:
                 pass
-        logger.info("outbox_relay_stopped", published=self.published_count)
+        logger.info("outbox_relay_stopped published=%d", self.published_count)
 
     async def _loop(self) -> None:
         """Main polling loop."""
@@ -230,11 +230,11 @@ class OutboxRelay:
             try:
                 count = await self._relay_batch()
                 if count > 0:
-                    logger.debug("outbox_relay_batch", count=count)
+                    logger.debug("outbox_relay_batch count=%d", count)
                     # No sleep if we found work — poll immediately for more
                     continue
             except Exception as exc:
-                logger.warning("outbox_relay_error", error=str(exc))
+                logger.warning("outbox_relay_error: %s", str(exc))
 
             await asyncio.sleep(self._poll_interval)
 
@@ -277,10 +277,10 @@ class OutboxRelay:
                     if retry_count + 1 >= _MAX_RELAY_RETRIES:
                         await conn.execute(_SQL_MARK_DLQ, row_id, str(exc)[:500])
                         logger.warning(
-                            "outbox_event_moved_to_failed",
-                            id=row_id,
-                            subject=subject,
-                            error=str(exc),
+                            "outbox_event_moved_to_failed id=%s subject=%s error=%s",
+                            row_id,
+                            subject,
+                            str(exc),
                         )
                     else:
                         await conn.execute(_SQL_MARK_FAILED, row_id, str(exc)[:500])
@@ -295,7 +295,7 @@ class OutboxRelay:
             result = await conn.execute(_SQL_CLEANUP_SENT)
             count = int(result.split()[-1]) if result else 0
             if count > 0:
-                logger.info("outbox_cleanup", deleted=count)
+                logger.info("outbox_cleanup deleted=%d", count)
             return count
 
 
@@ -313,4 +313,4 @@ async def ensure_outbox_table(db_pool: Any) -> None:
             await conn.execute(SQL_CREATE_OUTBOX_TABLE)
         logger.info("outbox_table_ensured")
     except Exception as exc:
-        logger.warning("outbox_table_ensure_failed", error=str(exc))
+        logger.warning("outbox_table_ensure_failed: %s", str(exc))

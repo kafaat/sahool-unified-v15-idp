@@ -382,14 +382,6 @@ class EventPublisher:
                 # Store tracestate transiently (not serialized in JSON, only in headers)
                 event._tracestate = tracestate  # type: ignore[attr-defined]
 
-        # Validate event
-        try:
-            event.model_validate(event.model_dump())
-        except Exception as e:
-            logger.error(f"Event validation failed: {e}")
-            self._error_count += 1
-            return False
-
         # Serialize event
         try:
             data = self._serialize_event(event)
@@ -423,7 +415,7 @@ class EventPublisher:
 
             # Retry if enabled
             if self.config.enable_retry:
-                return await self._retry_publish(subject, data, timeout, use_jetstream)
+                return await self._retry_publish(subject, data, timeout, use_jetstream, headers=headers)
 
             return False
 
@@ -516,6 +508,7 @@ class EventPublisher:
         data: bytes,
         timeout: float,
         use_jetstream: bool,
+        headers: dict | None = None,
     ) -> bool:
         """Retry publishing with exponential backoff."""
         for attempt in range(1, self.config.max_retry_attempts + 1):
@@ -526,9 +519,9 @@ class EventPublisher:
 
             try:
                 if use_jetstream and self._js:
-                    await self._publish_jetstream(subject, data, timeout)
+                    await self._publish_jetstream(subject, data, timeout, headers=headers)
                 else:
-                    await self._publish_core(subject, data, timeout)
+                    await self._publish_core(subject, data, timeout, headers=headers)
 
                 logger.info(f"✅ Retry successful on attempt {attempt}")
                 self._publish_count += 1

@@ -426,12 +426,19 @@ async def create_notification(
             try:
                 # Convert channel name string to enum
                 channel_enum = NotificationChannel(channel_name)
-                asyncio.create_task(
+                task = asyncio.create_task(
                     send_notification_via_channel(
                         notification=notification,
                         channel=channel_enum,
                         farmer_id=notification.user_id,
-                    )
+                    ),
+                    name=f"send_{channel_name}_{notification.id}",
+                )
+                # Prevent unhandled exception warnings on fire-and-forget tasks
+                task.add_done_callback(
+                    lambda t: logger.error(f"Background send failed: {t.exception()}")
+                    if t.exception()
+                    else None
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")

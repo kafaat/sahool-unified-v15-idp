@@ -21,6 +21,30 @@ from .dlq_config import DLQMessageMetadata, is_retriable_error, should_retry
 logger = logging.getLogger(__name__)
 
 
+def _extract_correlation_id(msg) -> str | None:
+    """
+    Extract correlation_id from NATS message headers or payload.
+
+    Checks (in order):
+      1. NATS headers: X-Correlation-ID / Nats-Msg-Id
+      2. Parsed JSON payload: correlation_id field
+      3. Falls back to None
+    """
+    # Try headers first (W3C trace context convention)
+    if hasattr(msg, "headers") and msg.headers:
+        for key in ("X-Correlation-ID", "Nats-Msg-Id", "correlation_id"):
+            val = msg.headers.get(key)
+            if val:
+                return val if isinstance(val, str) else val[0]
+
+    # Try payload
+    try:
+        data = json.loads(msg.data.decode("utf-8"))
+        return data.get("correlation_id")
+    except Exception:
+        return None
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # DLQ Handler Methods (to be added to EventSubscriber)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -183,7 +207,7 @@ async def _move_to_dlq(
         metadata = DLQMessageMetadata(
             original_subject=msg.subject,
             original_event_id=original_event_id,
-            correlation_id=getattr(msg, "reply", None),
+            correlation_id=_extract_correlation_id(msg),
             retry_count=retry_count,
             failure_reason=str(error),
             failure_timestamp=datetime.now(UTC).isoformat(),

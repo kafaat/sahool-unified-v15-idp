@@ -97,6 +97,10 @@ _SQL_INSERT_OBSERVATION = """
 INSERT INTO field_observation
     (id, tenant_id, field_id, ts, source, obs_type, value, quality, meta, created_at)
 VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+ON CONFLICT (tenant_id, field_id, obs_type, ts, source)
+DO UPDATE SET value   = EXCLUDED.value,
+              quality = EXCLUDED.quality,
+              meta    = EXCLUDED.meta
 """
 
 _SQL_GET_OBSERVATIONS = """

@@ -180,11 +180,16 @@ class EventSubscriber:
         self._error_count = 0
         self._dlq_count = 0
         self._retry_count = 0
+        self._dedup_hit_count = 0
         self._processing_semaphore = asyncio.Semaphore(self.config.max_concurrent_messages)
 
         # DLQ configuration
         self._dlq_config = self.config.dlq_config or DLQConfig()
         self._dlq_initialized = False
+
+        # In-memory event_id deduplication (LRU, bounded)
+        self._processed_event_ids: dict[str, float] = {}
+        self._dedup_max_size: int = 50_000
 
     @property
     def is_connected(self) -> bool:
@@ -200,6 +205,7 @@ class EventSubscriber:
             "error_count": self._error_count,
             "dlq_count": self._dlq_count,
             "retry_count": self._retry_count,
+            "dedup_hit_count": self._dedup_hit_count,
             "active_subscriptions": len(self._subscriptions),
             "service_name": self.service_name,
             "service_version": self.service_version,
@@ -541,11 +547,29 @@ class EventSubscriber:
                 # Deserialize message
                 event = await self._deserialize_message(data, subscription.event_class)
 
+                # ── Idempotency guard: skip already-processed event_ids ──
+                eid = getattr(event, "event_id", None) if not isinstance(event, dict) else event.get("event_id")
+                if eid and eid in self._processed_event_ids:
+                    self._dedup_hit_count += 1
+                    logger.debug(f"⏭️  Duplicate event_id skipped: {eid} on {subject}")
+                    if subscription.auto_ack:
+                        await self._acknowledge_message(msg)
+                    return
+
                 # Call handler
                 if asyncio.iscoroutinefunction(subscription.handler):
                     await subscription.handler(event)
                 else:
                     subscription.handler(event)
+
+                # Record processed event_id
+                if eid:
+                    self._processed_event_ids[eid] = asyncio.get_event_loop().time()
+                    # Evict oldest entries when over limit
+                    if len(self._processed_event_ids) > self._dedup_max_size:
+                        excess = len(self._processed_event_ids) - self._dedup_max_size
+                        for old_key in list(self._processed_event_ids)[:excess]:
+                            del self._processed_event_ids[old_key]
 
                 # Acknowledge message
                 if subscription.auto_ack:

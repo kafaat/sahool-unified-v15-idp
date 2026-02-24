@@ -109,6 +109,11 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
+# Runtime API Gateway URL (overrides build-time NEXT_PUBLIC_API_URL for server-side rewrites)
+# In K8s: set to http://kong.kong.svc.cluster.local:8000
+# In Docker Compose: set to http://kong-gateway:8000
+ENV API_GATEWAY_URL=""
+
 # Health check to ensure the application is running
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1

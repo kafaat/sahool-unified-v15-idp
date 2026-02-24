@@ -1,0 +1,33 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL OpenAPI Linting Configuration
+# إعدادات فحص مواصفات OpenAPI
+#
+# Used by @redocly/cli to validate OpenAPI specifications.
+# Run: npx @redocly/cli lint api/gateway-openapi.yaml
+# ═══════════════════════════════════════════════════════════════════════════════
+
+extends:
+  - recommended
+
+rules:
+  # Relaxed rules for SAHOOL's bilingual API
+  no-unused-components: warn
+  operation-description: off    # Many ops have bilingual summary, description optional
+  operation-operationId: warn   # Recommend but don't enforce operationId
+  tag-description: off          # Tags have bilingual inline descriptions
+
+  # Enforce important rules
+  no-ambiguous-paths: error
+  no-path-trailing-slash: error
+  path-not-include-query: error
+  no-identical-paths: error
+
+  # Security
+  security-defined: warn
+
+  # Response structure
+  no-undefined-server-variable: error
+
+apis:
+  gateway:
+    root: ./gateway-openapi.yaml

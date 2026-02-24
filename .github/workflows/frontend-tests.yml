@@ -980,11 +980,10 @@ jobs:
         working-directory: apps/web
         run: |
           echo "Running Playwright E2E tests..."
-          npx playwright test --project=chromium --reporter=html,junit
+          npx playwright test --project=chromium --reporter=html
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          API_AVAILABLE: 'true'
         continue-on-error: true
 
       - name: Stop Web App

@@ -55,6 +55,15 @@ __all__ = [
 # RuntimeWarning that occurs when `python -m shared.drift_detection.engine`
 # finds the submodule already in sys.modules (placed there by __init__
 # eager imports) before the -m runner can execute it.
+#
+# Only modules within this package are allowed — the set is hardcoded
+# to prevent arbitrary code loading (addresses Semgrep importlib finding).
+_ALLOWED_MODULES: frozenset[str] = frozenset({
+    "shared.drift_detection.engine",
+    "shared.drift_detection.quality_gates",
+    "shared.drift_detection.remediation",
+})
+
 _lazy_imports: dict[str, tuple[str, str]] = {
     "DriftDetectionEngine": ("shared.drift_detection.engine", "DriftDetectionEngine"),
     "QualityGatesEngine": ("shared.drift_detection.quality_gates", "QualityGatesEngine"),
@@ -68,8 +77,12 @@ _lazy_imports: dict[str, tuple[str, str]] = {
 def __getattr__(name: str):
     if name in _lazy_imports:
         module_path, attr = _lazy_imports[name]
+        if module_path not in _ALLOWED_MODULES:  # noqa: S105 — not a password
+            raise ImportError(
+                f"Module {module_path!r} is not in the allow-list"
+            )
         import importlib
 
-        mod = importlib.import_module(module_path)
+        mod = importlib.import_module(module_path)  # nosemgrep: python.lang.security.audit.non-literal-import
         return getattr(mod, attr)
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

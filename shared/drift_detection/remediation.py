@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import json
 import logging
+import shlex
 import subprocess
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -319,9 +320,10 @@ class AutoRemediationEngine:
         """Apply automatic fix."""
         if action.command:
             try:
+                argv = shlex.split(action.command)
                 result = subprocess.run(
-                    action.command,
-                    shell=True,
+                    argv,
+                    shell=False,
                     capture_output=True,
                     text=True,
                     cwd=self.working_dir,

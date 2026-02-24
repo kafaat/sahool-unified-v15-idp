@@ -369,7 +369,7 @@ class TestExecuteAutoFix:
         engine = AutoRemediationEngine(working_dir="/tmp", dry_run=False)
         action = RemediationAction(
             strategy=RemediationStrategy.AUTO_FIX,
-            command="exit 1",
+            command="/bin/false",
             requires_approval=False,
             dry_run=False,
         )

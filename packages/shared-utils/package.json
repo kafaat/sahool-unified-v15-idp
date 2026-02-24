@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.1"
   },
   "devDependencies": {
     "@sentry/nextjs": "^8.0.0",

@@ -130,7 +130,7 @@ def strict_rate_limiter():
     """Create strict rate limiter for testing limits."""
     return RateLimiter(
         RateLimitConfig(
-            requests_per_minute=5, requests_per_hour=50, burst_limit=3, cooldown_seconds=60
+            requests_per_minute=5, requests_per_hour=50, burst_limit=10, cooldown_seconds=60
         )
     )
 

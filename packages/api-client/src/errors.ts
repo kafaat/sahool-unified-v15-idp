@@ -5,6 +5,11 @@
 
 import { AxiosError } from "axios";
 
+/** V8-specific captureStackTrace (available in Node.js and Chrome) */
+interface ErrorWithCaptureStackTrace extends ErrorConstructor {
+  captureStackTrace(targetObject: object, constructorOpt?: Function): void;
+}
+
 /**
  * Base API Error class
  * All custom API errors extend from this
@@ -40,8 +45,8 @@ export class ApiError extends Error {
     this.context = options.context;
 
     // Maintains proper stack trace for where our error was thrown (only available on V8)
-    if (Error.captureStackTrace) {
-      Error.captureStackTrace(this, this.constructor);
+    if (typeof (Error as ErrorWithCaptureStackTrace).captureStackTrace === "function") {
+      (Error as ErrorWithCaptureStackTrace).captureStackTrace(this, this.constructor);
     }
   }
 

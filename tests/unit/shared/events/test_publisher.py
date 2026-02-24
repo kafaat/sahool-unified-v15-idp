@@ -175,13 +175,14 @@ class TestEventPublisherConnection:
         """Test successful connection."""
         mock_nc, mock_js = mock_nats_client
 
-        with patch("shared.events.publisher.nats") as mock_nats:
-            mock_nats.connect = AsyncMock(return_value=mock_nc)
+        with patch("shared.events.publisher._nats_available", True):
+            with patch("shared.events.publisher.nats") as mock_nats:
+                mock_nats.connect = AsyncMock(return_value=mock_nc)
 
-            result = await publisher.connect()
+                result = await publisher.connect()
 
-            assert result is True
-            assert publisher._connected is True
+                assert result is True
+                assert publisher._connected is True
 
     @pytest.mark.asyncio
     async def test_connect_already_connected(self, publisher, mock_nats_client):
@@ -190,20 +191,22 @@ class TestEventPublisherConnection:
         publisher._connected = True
         publisher._nc = mock_nc
 
-        result = await publisher.connect()
+        with patch("shared.events.publisher._nats_available", True):
+            result = await publisher.connect()
 
         assert result is True  # Should return True without reconnecting
 
     @pytest.mark.asyncio
     async def test_connect_failure(self, publisher):
         """Test connection failure."""
-        with patch("shared.events.publisher.nats") as mock_nats:
-            mock_nats.connect = AsyncMock(side_effect=Exception("Connection failed"))
+        with patch("shared.events.publisher._nats_available", True):
+            with patch("shared.events.publisher.nats") as mock_nats:
+                mock_nats.connect = AsyncMock(side_effect=Exception("Connection failed"))
 
-            result = await publisher.connect()
+                result = await publisher.connect()
 
-            assert result is False
-            assert publisher._connected is False
+                assert result is False
+                assert publisher._connected is False
 
     @pytest.mark.asyncio
     async def test_close_connection(self, publisher, mock_nats_client):
@@ -411,13 +414,14 @@ class TestContextManager:
         """Test async context manager."""
         mock_nc, _ = mock_nats_client
 
-        with patch("shared.events.publisher.nats") as mock_nats:
-            mock_nats.connect = AsyncMock(return_value=mock_nc)
+        with patch("shared.events.publisher._nats_available", True):
+            with patch("shared.events.publisher.nats") as mock_nats:
+                mock_nats.connect = AsyncMock(return_value=mock_nc)
 
-            async with EventPublisher(config=publisher_config) as pub:
-                assert pub._connected is True
+                async with EventPublisher(config=publisher_config) as pub:
+                    assert pub._connected is True
 
-            mock_nc.drain.assert_called()
+                mock_nc.drain.assert_called()
 
 
 # =============================================================================

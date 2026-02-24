@@ -68,7 +68,7 @@ class PromptInjectionDetector:
     def __init__(self):
         # System prompt override patterns
         self.override_patterns = [
-            r"ignore\s+(previous|above|prior)\s+(instructions|prompts?|commands?)",
+            r"ignore\s+(previous|above|prior|all)\s+(\w+\s+)?(instructions|prompts?|commands?)",
             r"disregard\s+(previous|above|all)\s+(instructions|prompts?)",
             r"forget\s+(everything|all|previous|above)",
             r"new\s+(instructions|commands?|task|role)",
@@ -81,8 +81,8 @@ class PromptInjectionDetector:
 
         # Data exfiltration patterns
         self.exfiltration_patterns = [
-            r"show\s+(me\s+)?(the\s+)?system\s+(prompt|instructions)",
-            r"reveal\s+(the\s+)?(system|hidden)\s+(prompt|instructions)",
+            r"show\s+(me\s+)?(the\s+|your\s+)?system\s+(prompt|instructions)",
+            r"reveal\s+(the\s+|your\s+)?(system|hidden)\s+(prompt|instructions)",
             r"what\s+(are|were)\s+your\s+(original|system)\s+instructions",
             r"repeat\s+(your|the)\s+(instructions|prompt)",
             r"أظهر\s+التعليمات",
@@ -211,8 +211,14 @@ class PIIDetector:
                     # Handle tuple matches (from groups)
                     match_str = match if isinstance(match, str) else match[0]
 
-                    # Keep first and last 2 characters visible for debugging
-                    if len(match_str) > 6:
+                    # For emails, preserve @ sign structure
+                    if pii_type == "email" and "@" in match_str:
+                        local, domain = match_str.split("@", 1)
+                        masked_local = local[:2] + mask_char * max(len(local) - 2, 0) if len(local) > 2 else mask_char * len(local)
+                        masked_domain = mask_char * max(len(domain) - 2, 0) + domain[-2:] if len(domain) > 2 else mask_char * len(domain)
+                        masked = masked_local + "@" + masked_domain
+                    elif len(match_str) > 6:
+                        # Keep first and last 2 characters visible for debugging
                         masked = match_str[:2] + mask_char * (len(match_str) - 4) + match_str[-2:]
                     else:
                         masked = mask_char * len(match_str)
@@ -510,8 +516,8 @@ def sanitize_input(text: str) -> str:
     Returns:
         Sanitized text
     """
-    # Remove null bytes
-    text = text.replace("\x00", "")
+    # Replace null bytes with space (preserves word boundaries)
+    text = text.replace("\x00", " ")
 
     # Normalize whitespace
     text = " ".join(text.split())

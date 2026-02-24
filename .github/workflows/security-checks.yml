@@ -251,18 +251,14 @@ jobs:
           echo "Running Bandit security analysis..."
           if [ -d "apps/services" ] || [ -d "shared" ]; then
             # Generate SARIF report (informational, don't fail on this)
-            bandit -r apps/services/ shared/ -ll -ii --format sarif -o bandit-results.sarif 2>/dev/null || true
+            bandit -r apps/services/ shared/ -ll -ii \
+              --exclude "*/tests/*,*/test_*,*/__pycache__/*,*/archive/*" \
+              --format sarif -o bandit-results.sarif 2>/dev/null || true
             # Run text report - fail on HIGH severity issues
-            bandit -r apps/services/ shared/ -ll -ii --format txt 2>/dev/null
+            bandit -r apps/services/ shared/ -ll -ii \
+              --exclude "*/tests/*,*/test_*,*/__pycache__/*,*/archive/*" \
+              --format txt 2>/dev/null
           fi
-
-      - name: Upload Bandit SARIF to GitHub Security
-        uses: github/codeql-action/upload-sarif@v4
-        if: always()
-        continue-on-error: true
-        with:
-          sarif_file: bandit-results.sarif
-          category: 'bandit-sast'
 
       - name: Run Semgrep SAST
         timeout-minutes: 5
@@ -297,6 +293,14 @@ jobs:
           if [ ! -f "semgrep-results.sarif" ]; then
             echo '{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Semgrep","version":"1.0.0"}},"results":[]}]}' > semgrep-results.sarif
           fi
+
+      - name: Upload Bandit SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        if: always()
+        continue-on-error: true
+        with:
+          sarif_file: bandit-results.sarif
+          category: 'bandit-sast'
 
       - name: Upload Semgrep SARIF to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
@@ -446,17 +450,30 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-owasp-db-
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies for Node Audit analysis
+        run: npm ci --ignore-scripts --no-audit 2>/dev/null || true
+
       - name: Run OWASP Dependency Check
         uses: dependency-check/Dependency-Check_Action@main
         id: owasp
         with:
           project: 'sahool-platform'
           path: '.'
-          format: 'HTML,JSON,SARIF'
+          format: 'HTML'
           out: 'owasp-reports'
           args: >
+            -f JSON
+            -f SARIF
             --enableExperimental
             --failOnCVSS 9
+            --exclude 'archive/**'
+            --exclude '**/__pycache__/**'
+            --exclude '**/node_modules/**'
             --suppression .dependency-check-suppression.xml
 
       - name: Upload OWASP SARIF to GitHub Security

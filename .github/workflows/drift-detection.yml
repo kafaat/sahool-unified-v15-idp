@@ -167,7 +167,7 @@ jobs:
             --environment "$ENVIRONMENT" \
             --triggered-by "$TRIGGERED_BY" \
             $BASELINE_FLAG \
-            --format json > drift-report.json 2>&1 || true
+            --format json > drift-report.json 2>drift-stderr.log || true
 
           # Also generate text report
           python -m shared.drift_detection.engine \
@@ -176,7 +176,7 @@ jobs:
             --environment "$ENVIRONMENT" \
             --triggered-by "$TRIGGERED_BY" \
             $BASELINE_FLAG \
-            --format text > drift-report.txt 2>&1 || true
+            --format text > drift-report.txt 2>/dev/null || true
 
           # Generate markdown for PR comment
           python -m shared.drift_detection.engine \
@@ -184,21 +184,31 @@ jobs:
             --categories $CATEGORIES \
             --environment "$ENVIRONMENT" \
             --triggered-by "$TRIGGERED_BY" \
-            --format markdown > drift-report.md 2>&1 || true
+            --format markdown > drift-report.md 2>/dev/null || true
 
-          # Extract exit code using baseline-aware comparison
+          # Show engine stderr for debugging
+          if [ -s drift-stderr.log ]; then
+            echo "::group::Drift engine stderr"
+            cat drift-stderr.log
+            echo "::endgroup::"
+          fi
+
+          # Extract exit code — self-contained, no shared module imports
+          # (importing shared.drift_detection.engine pulls in ALL detectors
+          #  and their transitive deps which may not be installed in CI)
           EXIT_CODE=$(python -c "
-          import json, sys
-          sys.path.insert(0, '.')
-          from shared.drift_detection.engine import load_baseline, compare_with_baseline
-          from shared.drift_detection.models import DriftReport, DriftResult, DriftSeverity
+          import json, sys, os
           try:
               with open('drift-report.json') as f:
                   report = json.load(f)
               summary = report.get('summary', {})
-              baseline = load_baseline('.drift-baseline.json')
+              # Load baseline (inline, no external imports needed)
+              baseline = None
+              bl_path = '.drift-baseline.json'
+              if os.path.exists(bl_path):
+                  with open(bl_path) as bf:
+                      baseline = json.load(bf)
               if baseline is not None:
-                  # Diff-aware: only fail on regressions above baseline
                   current_critical = summary.get('critical', 0)
                   current_high = summary.get('high', 0)
                   current_total = summary.get('total_drifts', 0)
@@ -208,6 +218,8 @@ jobs:
                   new_critical = max(0, current_critical - bl_critical)
                   new_high = max(0, current_high - bl_high)
                   new_total = max(0, current_total - bl_total)
+                  print(f'Drift comparison: critical={current_critical}(+{new_critical}) high={current_high}(+{new_high}) total={current_total}(+{new_total})', file=sys.stderr)
+                  print(f'Baseline: critical={bl_critical} high={bl_high} total={bl_total}', file=sys.stderr)
                   if new_critical > 0 or new_high > 0:
                       sys.exit(1)
                   elif new_total > 0:
@@ -215,7 +227,7 @@ jobs:
                   else:
                       sys.exit(0)
               else:
-                  # No baseline — strict mode
+                  print('No baseline found — strict mode', file=sys.stderr)
                   critical = summary.get('critical', 0)
                   high = summary.get('high', 0)
                   if critical > 0 or high > 0:
@@ -224,7 +236,8 @@ jobs:
                       sys.exit(2)
                   else:
                       sys.exit(0)
-          except Exception:
+          except Exception as e:
+              print(f'Exit code extraction error: {e}', file=sys.stderr)
               sys.exit(0)
           " && echo 0 || echo $?)
 

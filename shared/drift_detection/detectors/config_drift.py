@@ -110,7 +110,7 @@ class ConfigDriftDetector(BaseDriftDetector):
             with open(compose_file) as f:
                 compose = yaml.safe_load(f)
         except Exception as e:
-            logger.warning(f"Failed to parse YAML files: {e}")
+            logger.warning("Failed to parse YAML files: %s", e)
             return
 
         if not governance or not compose:
@@ -254,7 +254,7 @@ class ConfigDriftDetector(BaseDriftDetector):
                     remediation_hint_ar="استبدل '*' بأصول نطاقات محددة لكل بيئة",
                 ))
         except Exception as e:
-            logger.warning(f"Failed to check CORS config: {e}")
+            logger.warning("Failed to check CORS config: %s", e)
 
 
 def _parse_env_file(path: Path) -> set[str]:

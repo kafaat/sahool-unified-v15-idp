@@ -69,7 +69,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_hardcoded_secrets(self) -> None:
         """Scan code for hardcoded secrets."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve().resolve()
         scan_extensions = {".py", ".ts", ".tsx", ".js", ".jsx", ".yaml", ".yml", ".json", ".env"}
 
         for ext in scan_extensions:
@@ -125,7 +125,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_docker_security(self) -> None:
         """Check Dockerfiles for security best practices."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         dockerfiles = list(root.glob("apps/services/*/Dockerfile"))
         dockerfiles += list(root.glob("docker/Dockerfile.*"))
@@ -187,7 +187,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_security_headers(self) -> None:
         """Check services implement required security headers."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         # Check shared security headers middleware
         sec_headers = root / "shared" / "middleware" / "security_headers.py"
@@ -225,7 +225,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_rate_limiting(self) -> None:
         """Check rate limiting is consistently configured."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         rate_limit = root / "shared" / "middleware" / "rate_limit.py"
         if not rate_limit.exists():
@@ -239,7 +239,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_auth_patterns(self) -> None:
         """Check authentication patterns are consistent across services."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         service_dirs = list(root.glob("apps/services/*/src"))
 
@@ -294,7 +294,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_dependency_security(self) -> None:
         """Check for known security patterns in dependency files."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         # Check for constraints file
         constraints = root / "constraints.txt"
@@ -323,7 +323,7 @@ class SecurityDriftDetector(BaseDriftDetector):
 
     async def _check_tls_config(self) -> None:
         """Check TLS/SSL configuration consistency."""
-        root = Path(self.working_dir)
+        root = Path(self.working_dir).resolve()
 
         # Check for TLS compose
         tls_compose = root / "docker-compose.tls.yml"

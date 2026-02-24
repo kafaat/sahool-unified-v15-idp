@@ -229,7 +229,7 @@ class AutoRemediationEngine:
 
         for action in actions:
             if action.requires_approval and not self.dry_run:
-                logger.info(f"Skipping action {action.id} - requires approval")
+                logger.info("Skipping action %s - requires approval", action.id)
                 self._results.append(RemediationResult(
                     action_id=action.id,
                     success=False,
@@ -275,7 +275,7 @@ class AutoRemediationEngine:
                     error=f"Unknown strategy: {action.strategy}",
                 )
         except Exception as e:
-            logger.error(f"Remediation failed for action {action.id}: {e}")
+            logger.error("Remediation failed for action %s: %s", action.id, e)
             return RemediationResult(
                 action_id=action.id,
                 success=False,
@@ -308,7 +308,7 @@ class AutoRemediationEngine:
         }
 
         # In CI, this would use gh CLI; here we just log the intent
-        logger.info(f"Would create issue: {json.dumps(issue_body, indent=2)}")
+        logger.info("Would create issue: %s", json.dumps(issue_body, indent=2))
 
         return RemediationResult(
             action_id=action.id,
@@ -358,7 +358,7 @@ class AutoRemediationEngine:
             )
 
         cmd = f"docker compose restart {action.target_service}"
-        logger.info(f"Would restart service: {cmd}")
+        logger.info("Would restart service: %s", cmd)
 
         return RemediationResult(
             action_id=action.id,

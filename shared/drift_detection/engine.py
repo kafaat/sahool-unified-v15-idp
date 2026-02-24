@@ -120,7 +120,7 @@ class DriftDetectionEngine:
                 try:
                     cats_to_run.append(DriftCategory(cat))
                 except ValueError:
-                    logger.warning(f"Unknown drift category: {cat}")
+                    logger.warning("Unknown drift category: %s", cat)
             else:
                 cats_to_run.append(cat)
 
@@ -130,16 +130,16 @@ class DriftDetectionEngine:
         for category in cats_to_run:
             detector = self._detectors.get(category)
             if not detector:
-                logger.warning(f"No detector for category: {category}")
+                logger.warning("No detector for category: %s", category)
                 continue
 
             try:
-                logger.info(f"Running {category.value} drift detection...")
+                logger.info("Running %s drift detection...", category.value)
                 results = await detector.detect()
                 report.results.extend(results)
-                logger.info(f"  {category.value}: {len(results)} drifts found")
+                logger.info("  %s: %d drifts found", category.value, len(results))
             except Exception as e:
-                logger.error(f"Error in {category.value} detector: {e}")
+                logger.error("Error in %s detector: %s", category.value, e)
                 report.results.append(DriftResult(
                     category=category,
                     severity=DriftSeverity.HIGH,
@@ -358,12 +358,12 @@ def load_baseline(path: str) -> dict[str, Any] | None:
     """Load a baseline file, returning None if it doesn't exist."""
     p = Path(path)
     if not p.exists():
-        logger.info(f"No baseline file at {path} — strict mode")
+        logger.info("No baseline file at %s — strict mode", path)
         return None
     try:
         return json.loads(p.read_text())
     except (json.JSONDecodeError, OSError) as e:
-        logger.warning(f"Failed to read baseline {path}: {e}")
+        logger.warning("Failed to read baseline %s: %s", path, e)
         return None
 
 
@@ -493,7 +493,7 @@ async def _main() -> int:
     if args.update_baseline:
         bl = create_baseline(report)
         Path(args.update_baseline).write_text(json.dumps(bl, indent=2) + "\n")
-        logger.info(f"Baseline written to {args.update_baseline}")
+        logger.info("Baseline written to %s", args.update_baseline)
 
     # Load baseline for diff-aware gating
     baseline = load_baseline(args.baseline) if args.baseline else None

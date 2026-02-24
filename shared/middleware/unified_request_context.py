@@ -43,9 +43,7 @@ from starlette.responses import JSONResponse, Response
 logger = logging.getLogger(__name__)
 
 # Context variable for unified request context (async-safe)
-_request_context: ContextVar["RequestContext | None"] = ContextVar(
-    "unified_request_context", default=None
-)
+_request_context: ContextVar[RequestContext | None] = ContextVar("unified_request_context", default=None)
 
 
 @dataclass(frozen=True)
@@ -103,9 +101,7 @@ def get_request_context() -> RequestContext:
     """
     ctx = _request_context.get()
     if ctx is None:
-        raise RuntimeError(
-            "Request context not available. Ensure UnifiedRequestContextMiddleware is configured."
-        )
+        raise RuntimeError("Request context not available. Ensure UnifiedRequestContextMiddleware is configured.")
     return ctx
 
 
@@ -157,16 +153,11 @@ class UnifiedRequestContextMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
 
         # Extract request ID
-        request_id = (
-            request.headers.get("X-Request-ID")
-            or str(uuid.uuid4())
-        )
+        request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
 
         # Extract correlation ID (generate if missing)
         correlation_id = (
-            request.headers.get("X-Correlation-ID")
-            or request.headers.get("X-Request-ID")
-            or str(uuid.uuid4())
+            request.headers.get("X-Correlation-ID") or request.headers.get("X-Request-ID") or str(uuid.uuid4())
         )
 
         # Extract tenant context

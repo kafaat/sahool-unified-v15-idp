@@ -17,9 +17,8 @@ import json
 import logging
 import shlex
 import subprocess
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from pathlib import Path
+from dataclasses import dataclass
+from datetime import datetime, UTC
 from typing import Any
 
 from shared.drift_detection.models import (
@@ -45,7 +44,7 @@ class RemediationPolicy:
     category: DriftCategory
     min_severity: DriftSeverity
     strategy: RemediationStrategy
-    auto_approve: bool = False    # If True, apply without human approval
+    auto_approve: bool = False  # If True, apply without human approval
     max_retries: int = 3
     description: str = ""
     description_ar: str = ""
@@ -70,7 +69,6 @@ DEFAULT_POLICIES: list[RemediationPolicy] = [
         description="Create issue for medium config drift",
         description_ar="إنشاء مشكلة لانحراف التكوين المتوسط",
     ),
-
     # Schema drift
     RemediationPolicy(
         category=DriftCategory.SCHEMA,
@@ -87,7 +85,6 @@ DEFAULT_POLICIES: list[RemediationPolicy] = [
         description="Alert on schema drift (tenant isolation issues)",
         description_ar="تنبيه عند انحراف المخطط (مشاكل عزل المستأجر)",
     ),
-
     # API drift
     RemediationPolicy(
         category=DriftCategory.API,
@@ -104,7 +101,6 @@ DEFAULT_POLICIES: list[RemediationPolicy] = [
         description="Auto-fix stale contract generation",
         description_ar="إصلاح تلقائي لإنشاء العقود القديمة",
     ),
-
     # Event drift
     RemediationPolicy(
         category=DriftCategory.EVENT,
@@ -113,7 +109,6 @@ DEFAULT_POLICIES: list[RemediationPolicy] = [
         description="Alert on missing idempotency/envelope patterns",
         description_ar="تنبيه عند فقدان أنماط التكافؤ/المغلف",
     ),
-
     # Data drift
     RemediationPolicy(
         category=DriftCategory.DATA,
@@ -122,7 +117,6 @@ DEFAULT_POLICIES: list[RemediationPolicy] = [
         description="Alert on data validation gaps",
         description_ar="تنبيه عند ثغرات التحقق من البيانات",
     ),
-
     # Security drift
     RemediationPolicy(
         category=DriftCategory.SECURITY,
@@ -196,7 +190,9 @@ class AutoRemediationEngine:
             policy_sev_order = SEVERITY_ORDER.get(policy.min_severity, 4)
 
             if drift_sev_order <= policy_sev_order:
-                if best_policy is None or SEVERITY_ORDER.get(policy.min_severity, 4) < SEVERITY_ORDER.get(best_policy.min_severity, 4):
+                if best_policy is None or SEVERITY_ORDER.get(policy.min_severity, 4) < SEVERITY_ORDER.get(
+                    best_policy.min_severity, 4
+                ):
                     best_policy = policy
 
         if best_policy is None:
@@ -230,12 +226,14 @@ class AutoRemediationEngine:
         for action in actions:
             if action.requires_approval and not self.dry_run:
                 logger.info("Skipping action %s - requires approval", action.id)
-                self._results.append(RemediationResult(
-                    action_id=action.id,
-                    success=False,
-                    output="Requires human approval",
-                    error="",
-                ))
+                self._results.append(
+                    RemediationResult(
+                        action_id=action.id,
+                        success=False,
+                        output="Requires human approval",
+                        error="",
+                    )
+                )
                 continue
 
             result = await self._execute_action(action)
@@ -368,18 +366,20 @@ class AutoRemediationEngine:
 
     def _log_audit(self, action: RemediationAction, result: RemediationResult) -> None:
         """Log remediation to audit trail."""
-        self._audit_log.append({
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "action_id": action.id,
-            "strategy": action.strategy.value,
-            "drift_result_id": action.drift_result_id,
-            "target_service": action.target_service,
-            "target_file": action.target_file,
-            "dry_run": action.dry_run,
-            "success": result.success,
-            "output": result.output[:500],
-            "error": result.error[:500] if result.error else "",
-        })
+        self._audit_log.append(
+            {
+                "timestamp": datetime.now(UTC).isoformat(),
+                "action_id": action.id,
+                "strategy": action.strategy.value,
+                "drift_result_id": action.drift_result_id,
+                "target_service": action.target_service,
+                "target_file": action.target_file,
+                "dry_run": action.dry_run,
+                "success": result.success,
+                "output": result.output[:500],
+                "error": result.error[:500] if result.error else "",
+            }
+        )
 
     @property
     def audit_log(self) -> list[dict[str, Any]]:

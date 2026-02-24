@@ -229,7 +229,7 @@ function extractOpenAPIPaths(openapiDir: string): Map<string, string> {
 
   const { readdirSync } = require("fs");
   const files: string[] = readdirSync(openapiDir).filter(
-    (f: string) => f.endsWith(".yaml") || f.endsWith(".yml")
+    (f: string) => (f.endsWith(".yaml") || f.endsWith(".yml")) && !f.includes("..") && !f.includes("/")
   );
 
   for (const file of files) {
@@ -399,6 +399,8 @@ function validate(): ValidationResult {
 
   // 6. Check for localhost in OpenAPI specs
   for (const [, specFile] of openapiPaths) {
+    // Guard against path traversal (specFile comes from readdirSync but validate anyway)
+    if (specFile.includes("..") || specFile.includes("/")) continue;
     const specContent = readFileSync(
       join(OPENAPI_DIR, specFile),
       "utf-8"

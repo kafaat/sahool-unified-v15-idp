@@ -79,9 +79,13 @@ jobs:
         uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --no-save --install-strategy=nested js-yaml
+        run: |
+          npm install --no-save "js-yaml@^4.1.1" 2>/dev/null || \
+          npm install --no-save --install-strategy=nested js-yaml 2>/dev/null || \
+          echo "js-yaml install skipped - validation script will use regex fallback"
 
       - name: Run Kong vs OpenAPI validation
         run: |

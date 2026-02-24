@@ -97,8 +97,11 @@ export default function SprayPage() {
       if (!acc[type]) {
         acc[type] = { type, quantity: 0, cost: 0 };
       }
-      acc[type].quantity += h.quantity;
-      acc[type].cost += h.cost;
+      const entry = acc[type];
+      if (entry) {
+        entry.quantity += h.quantity;
+        entry.cost += h.cost;
+      }
       return acc;
     },
     {} as Record<string, { type: string; quantity: number; cost: number }>,

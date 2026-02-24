@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 import logging
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -96,15 +97,17 @@ class APIDriftDetector(BaseDriftDetector):
             ))
             return
 
-        # Check modification times
+        # Check if TypeScript contracts were committed more recently than Dart
+        # Use git log instead of file mtime to avoid false positives in CI
+        # (git clone sets all files to the same timestamp)
         ts_files = list(ts_contracts.glob("*.ts"))
         dart_files = list(dart_contracts.glob("*.dart"))
 
         if ts_files and dart_files:
-            latest_ts = max(f.stat().st_mtime for f in ts_files)
-            latest_dart = max(f.stat().st_mtime for f in dart_files)
+            latest_ts_commit = _get_latest_git_commit_ts(ts_contracts)
+            latest_dart_commit = _get_latest_git_commit_ts(dart_contracts)
 
-            if latest_ts > latest_dart:
+            if latest_ts_commit and latest_dart_commit and latest_ts_commit > latest_dart_commit:
                 self.add_result(DriftResult(
                     category=DriftCategory.API,
                     severity=DriftSeverity.HIGH,
@@ -117,7 +120,7 @@ class APIDriftDetector(BaseDriftDetector):
                     remediation_hint="Run 'npx tsx scripts/sync-contracts-to-dart.ts'",
                 ))
 
-    async def _check_port_uniqueness(self) -> None:
+    async def _check_port_uniqueness(self) -> None:  # noqa: C901
         """Check that all service ports are unique."""
         root = Path(self.working_dir)
         ports_file = root / "packages" / "shared-types" / "src" / "contracts" / "service-ports.ts"
@@ -220,3 +223,26 @@ class APIDriftDetector(BaseDriftDetector):
                     auto_fixable=False,
                     remediation_hint="Add /healthz and /readyz endpoints per platform convention",
                 ))
+
+
+def _get_latest_git_commit_ts(directory: Path) -> int | None:
+    """
+    Get the latest git commit timestamp for files in a directory.
+    Uses git log instead of file mtime to avoid false positives in CI
+    where git clone sets all file timestamps to the checkout time.
+
+    Returns Unix timestamp or None if git is unavailable.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", str(directory)],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            cwd=directory.parent,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return int(result.stdout.strip())
+    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+        pass
+    return None

@@ -96,15 +96,15 @@ export function CostDistributionChart({
               cx="50%"
               cy="50%"
               outerRadius={80}
-              label={({ type, percent }) =>
-                `${productTypeLabels[type]} ${((percent || 0) * 100).toFixed(0)}%`
+              label={({ type, percent }: { type: string; percent: number }) =>
+                `${productTypeLabels[type] ?? type} ${((percent || 0) * 100).toFixed(0)}%`
               }
               labelLine={false}
             >
               {data.map((_entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={PIE_COLORS[index % PIE_COLORS.length]}
+                  fill={PIE_COLORS[index % PIE_COLORS.length] ?? "#2E7D32"}
                 />
               ))}
             </Pie>

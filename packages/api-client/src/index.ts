@@ -3,7 +3,7 @@
 // عميل API الموحد لمنصة سهول
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, type AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import type {
   ApiClientConfig,
   ServicePorts,
@@ -229,10 +229,9 @@ export class SahoolApiClient {
           );
         }
         return fallback;
-      } else {
-        // In throw mode, let handleError do its job
-        this.handleError(error, context?.endpoint, context?.method);
       }
+      // In throw mode, let handleError do its job
+      return this.handleError(error, context?.endpoint, context?.method);
     }
   }
 
@@ -296,7 +295,7 @@ export class SahoolApiClient {
 
       return response.data;
     } catch (error) {
-      this.handleError(error, url, options.method?.toUpperCase() || "GET");
+      return this.handleError(error, url, options.method?.toUpperCase() || "GET");
     }
   }
 

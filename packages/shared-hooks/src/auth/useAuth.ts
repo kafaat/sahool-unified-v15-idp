@@ -5,7 +5,7 @@
 
 "use client";
 
-import { createContext, useContext, useCallback, useMemo } from "react";
+import { createContext, useContext } from "react";
 import type { Role, Permission } from "./permissions";
 import {
   hasPermission,

@@ -366,9 +366,10 @@ export function parseAxiosError(
         context: { statusCode },
       });
 
-    case 429:
-      const retryAfter = response.headers["retry-after"]
-        ? parseInt(response.headers["retry-after"], 10)
+    case 429: {
+      const retryAfterHeader = response.headers["retry-after"];
+      const retryAfter = typeof retryAfterHeader === "string"
+        ? parseInt(retryAfterHeader, 10)
         : undefined;
       return new RateLimitError(errorMessage || "Rate limit exceeded", {
         retryAfter,
@@ -377,6 +378,7 @@ export function parseAxiosError(
         originalError: error,
         context: { statusCode },
       });
+    }
 
     case 500:
     case 502:

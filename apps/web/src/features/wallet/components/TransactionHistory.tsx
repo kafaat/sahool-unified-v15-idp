@@ -5,7 +5,7 @@
 
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { ArrowUpRight, ArrowDownLeft, CreditCard, Filter } from "lucide-react";
 import { useTransactions } from "../hooks/useWallet";
 import type {

@@ -69,7 +69,8 @@ class FieldTask {
       title: json['title'] as String,
       description: json['description'] as String?,
       status: TaskStatus.fromString(json['status'] as String? ?? 'open'),
-      priority: TaskPriority.fromString(json['priority'] as String? ?? 'medium'),
+      priority:
+          TaskPriority.fromString(json['priority'] as String? ?? 'medium'),
       dueDate: json['due_date'] != null
           ? DateTime.parse(json['due_date'] as String)
           : null,

@@ -491,7 +491,8 @@ class CropCalendar {
     return CropCalendar(
       cropName: json['crop_name'] as String,
       cropNameEn: json['crop_name_en'] as String,
-      bestPlantingMansions: List<int>.from(json['best_planting_mansions'] ?? []),
+      bestPlantingMansions:
+          List<int>.from(json['best_planting_mansions'] ?? []),
       bestMoonPhases: List<String>.from(json['best_moon_phases'] ?? []),
       bestZodiacSigns: List<String>.from(json['best_zodiac_signs'] ?? []),
       optimalMonths: List<int>.from(json['optimal_months'] ?? []),
@@ -576,9 +577,8 @@ class BestDaysResult {
     return BestDaysResult(
       activity: json['activity'] as String,
       searchPeriodDays: json['search_period_days'] as int,
-      bestDays: (json['best_days'] as List)
-          .map((d) => BestDay.fromJson(d))
-          .toList(),
+      bestDays:
+          (json['best_days'] as List).map((d) => BestDay.fromJson(d)).toList(),
       totalFound: json['total_found'] as int,
     );
   }

@@ -119,12 +119,12 @@ class AppLogger {
     dynamic body,
   }) {
     final emoji = _getNetworkEmoji(statusCode);
-    final durationStr = duration != null ? ' (${duration.inMilliseconds}ms)' : '';
+    final durationStr =
+        duration != null ? ' (${duration.inMilliseconds}ms)' : '';
 
     // Sanitize network data
-    final sanitizedData = _piiFilteringEnabled && data != null
-        ? PiiFilter.sanitize(data)
-        : data;
+    final sanitizedData =
+        _piiFilteringEnabled && data != null ? PiiFilter.sanitize(data) : data;
 
     final sanitizedHeaders = _piiFilteringEnabled && headers != null
         ? PiiFilter.sanitizeHeaders(headers)

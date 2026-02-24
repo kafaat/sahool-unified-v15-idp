@@ -180,7 +180,9 @@ class ZoneLegendWidget extends StatelessWidget {
             const Divider(),
             _buildSummaryRow(
               isRTL ? 'المجموع' : 'Total',
-              zones.fold<double>(0, (sum, zone) => sum + zone.area).toStringAsFixed(1),
+              zones
+                  .fold<double>(0, (sum, zone) => sum + zone.area)
+                  .toStringAsFixed(1),
               isRTL ? 'هكتار' : 'ha',
               isRTL,
             ),

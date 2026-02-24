@@ -28,17 +28,23 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ndviDetailProvider.notifier).loadNdviDetails(widget.fieldId, days: _selectedDays);
+      ref
+          .read(ndviDetailProvider.notifier)
+          .loadNdviDetails(widget.fieldId, days: _selectedDays);
     });
   }
 
   Future<void> _refreshData() async {
-    await ref.read(ndviDetailProvider.notifier).refreshNdviDetails(widget.fieldId, days: _selectedDays);
+    await ref
+        .read(ndviDetailProvider.notifier)
+        .refreshNdviDetails(widget.fieldId, days: _selectedDays);
   }
 
   void _changePeriod(int days) {
     setState(() => _selectedDays = days);
-    ref.read(ndviDetailProvider.notifier).loadNdviDetails(widget.fieldId, days: days);
+    ref
+        .read(ndviDetailProvider.notifier)
+        .loadNdviDetails(widget.fieldId, days: days);
   }
 
   @override
@@ -61,7 +67,10 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
         onRefresh: _refreshData,
         color: const Color(0xFF367C2B),
         child: state.isLoading
-            ? const Center(child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF367C2B))))
+            ? const Center(
+                child: CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF367C2B))))
             : state.error != null
                 ? _buildErrorState(state.error!, isArabic)
                 : _buildContent(state, isArabic),
@@ -108,15 +117,18 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
         const SizedBox(height: 16),
 
         // Current values
-        if (state.analysis != null) _buildCurrentValues(state.analysis, isArabic),
+        if (state.analysis != null)
+          _buildCurrentValues(state.analysis, isArabic),
         const SizedBox(height: 16),
 
         // Vegetation Indices Grid
-        if (state.indices.isNotEmpty) _buildIndicesGrid(state.indices, isArabic),
+        if (state.indices.isNotEmpty)
+          _buildIndicesGrid(state.indices, isArabic),
         const SizedBox(height: 16),
 
         // Health Status & Recommendations
-        if (state.analysis != null) _buildHealthStatus(state.analysis, isArabic),
+        if (state.analysis != null)
+          _buildHealthStatus(state.analysis, isArabic),
       ],
     );
   }
@@ -138,15 +150,18 @@ class _NdviDetailScreenState extends ConsumerState<NdviDetailScreen> {
       child: Row(
         children: [
           Expanded(
-            child: _buildPeriodButton(7, isArabic ? '7 أيام' : '7 Days', isArabic),
+            child:
+                _buildPeriodButton(7, isArabic ? '7 أيام' : '7 Days', isArabic),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildPeriodButton(30, isArabic ? '30 يوم' : '30 Days', isArabic),
+            child: _buildPeriodButton(
+                30, isArabic ? '30 يوم' : '30 Days', isArabic),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildPeriodButton(90, isArabic ? '90 يوم' : '90 Days', isArabic),
+            child: _buildPeriodButton(
+                90, isArabic ? '90 يوم' : '90 Days', isArabic),
           ),
         ],
       ),

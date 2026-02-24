@@ -38,8 +38,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(responseData));
         });
 
@@ -64,8 +64,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'answer': 'Response',
             'confidence': 0.8,
@@ -99,17 +99,19 @@ void main() {
             )).called(1);
       });
 
-      test('should throw AiAdvisorException on failure with no fallback', () async {
+      test('should throw AiAdvisorException on failure with no fallback',
+          () async {
         // Arrange - both copilot and advisory fail
         when(() => mockGateway.post<Map<String, dynamic>>(
-              any(),
-              any(),
-              data: any(named: 'data'),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
-                errorResponse<Map<String, dynamic>>('ERR_503', 'Service unavailable'));
+                  any(),
+                  any(),
+                  data: any(named: 'data'),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async => errorResponse<Map<String, dynamic>>(
+                'ERR_503', 'Service unavailable'));
 
         // Act & Assert
         expect(
@@ -143,8 +145,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as List<dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(searchData));
         });
 
@@ -162,12 +164,13 @@ void main() {
       test('should return empty list on failure', () async {
         // Arrange
         when(() => mockGateway.get<List<dynamic>>(
-              any(),
-              any(),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
+                  any(),
+                  any(),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async =>
                 errorResponse<List<dynamic>>('ERR_500', 'Server error'));
 
         // Act
@@ -203,8 +206,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(recData));
         });
 
@@ -247,8 +250,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as List<dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(historyData));
         });
 
@@ -264,12 +267,13 @@ void main() {
       test('should return empty list on failure', () async {
         // Arrange
         when(() => mockGateway.get<List<dynamic>>(
-              any(),
-              any(),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
+                  any(),
+                  any(),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async =>
                 errorResponse<List<dynamic>>('ERR_500', 'Server error'));
 
         // Act
@@ -302,8 +306,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as List<dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(toolsData));
         });
 

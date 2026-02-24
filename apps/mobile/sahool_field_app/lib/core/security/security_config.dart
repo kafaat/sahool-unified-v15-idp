@@ -105,7 +105,8 @@ class SecurityConfig {
     strictCertificatePinning: false,
     allowPinningDebugBypass: true,
     requestTimeout: Duration(seconds: 30),
-    deviceIntegrityPolicy: DeviceIntegrityPolicy.disabled, // Disabled to prevent crash on emulators
+    deviceIntegrityPolicy: DeviceIntegrityPolicy
+        .disabled, // Disabled to prevent crash on emulators
     enforceSecurityInDebug: false,
     allowEmulators: true,
     logSecurityEvents: false,
@@ -150,12 +151,17 @@ class SecurityConfig {
     bool? logSecurityEvents,
   }) {
     return SecurityConfig(
-      enableCertificatePinning: enableCertificatePinning ?? this.enableCertificatePinning,
-      strictCertificatePinning: strictCertificatePinning ?? this.strictCertificatePinning,
-      allowPinningDebugBypass: allowPinningDebugBypass ?? this.allowPinningDebugBypass,
+      enableCertificatePinning:
+          enableCertificatePinning ?? this.enableCertificatePinning,
+      strictCertificatePinning:
+          strictCertificatePinning ?? this.strictCertificatePinning,
+      allowPinningDebugBypass:
+          allowPinningDebugBypass ?? this.allowPinningDebugBypass,
       requestTimeout: requestTimeout ?? this.requestTimeout,
-      deviceIntegrityPolicy: deviceIntegrityPolicy ?? this.deviceIntegrityPolicy,
-      enforceSecurityInDebug: enforceSecurityInDebug ?? this.enforceSecurityInDebug,
+      deviceIntegrityPolicy:
+          deviceIntegrityPolicy ?? this.deviceIntegrityPolicy,
+      enforceSecurityInDebug:
+          enforceSecurityInDebug ?? this.enforceSecurityInDebug,
       allowEmulators: allowEmulators ?? this.allowEmulators,
       logSecurityEvents: logSecurityEvents ?? this.logSecurityEvents,
     );

@@ -12,7 +12,8 @@ import '../../data/repositories/virtual_sensors_repository.dart';
 
 /// Provider for VirtualSensorsRepository instance
 /// موفر لنسخة مستودع المستشعرات الافتراضية
-final virtualSensorsRepositoryProvider = Provider<VirtualSensorsRepository>((ref) {
+final virtualSensorsRepositoryProvider =
+    Provider<VirtualSensorsRepository>((ref) {
   final repository = VirtualSensorsRepository();
   ref.onDispose(() => repository.dispose());
   return repository;
@@ -37,7 +38,8 @@ final virtualSensorsAvailableProvider = FutureProvider<bool>((ref) async {
 
 /// Provider for supported crops with Kc values
 /// موفر المحاصيل المدعومة مع قيم Kc
-final supportedCropsKcProvider = FutureProvider<List<CropKcOption>>((ref) async {
+final supportedCropsKcProvider =
+    FutureProvider<List<CropKcOption>>((ref) async {
   final repository = ref.watch(virtualSensorsRepositoryProvider);
   return repository.getSupportedCrops();
 });
@@ -51,7 +53,8 @@ final soilTypesProvider = FutureProvider<List<SoilTypeInfo>>((ref) async {
 
 /// Provider for irrigation methods
 /// موفر طرق الري
-final irrigationMethodsProvider = FutureProvider<List<IrrigationMethodInfo>>((ref) async {
+final irrigationMethodsProvider =
+    FutureProvider<List<IrrigationMethodInfo>>((ref) async {
   final repository = ref.watch(virtualSensorsRepositoryProvider);
   return repository.getIrrigationMethods();
 });
@@ -166,7 +169,8 @@ class IrrigationState {
       selectedCropType: selectedCropType ?? this.selectedCropType,
       selectedGrowthStage: selectedGrowthStage ?? this.selectedGrowthStage,
       selectedSoilType: selectedSoilType ?? this.selectedSoilType,
-      selectedIrrigationMethod: selectedIrrigationMethod ?? this.selectedIrrigationMethod,
+      selectedIrrigationMethod:
+          selectedIrrigationMethod ?? this.selectedIrrigationMethod,
       fieldAreaHectares: fieldAreaHectares ?? this.fieldAreaHectares,
       lastIrrigationDate: lastIrrigationDate ?? this.lastIrrigationDate,
       lastIrrigationAmount: lastIrrigationAmount ?? this.lastIrrigationAmount,
@@ -231,7 +235,8 @@ class IrrigationNotifier extends StateNotifier<IrrigationState> {
 
   /// Get full irrigation recommendation
   /// الحصول على توصية الري الكاملة
-  Future<IrrigationRecommendation?> getRecommendation(WeatherInput weather) async {
+  Future<IrrigationRecommendation?> getRecommendation(
+      WeatherInput weather) async {
     if (state.selectedCropType == null ||
         state.selectedGrowthStage == null ||
         state.selectedSoilType == null ||
@@ -264,7 +269,8 @@ class IrrigationNotifier extends StateNotifier<IrrigationState> {
 
       return recommendation;
     } catch (e) {
-      final error = e is VirtualSensorsException ? e : VirtualSensorsException('$e');
+      final error =
+          e is VirtualSensorsException ? e : VirtualSensorsException('$e');
       state = state.copyWith(
         isLoading: false,
         error: error.message,
@@ -308,7 +314,8 @@ class IrrigationNotifier extends StateNotifier<IrrigationState> {
 
       return quickCheck;
     } catch (e) {
-      final error = e is VirtualSensorsException ? e : VirtualSensorsException('$e');
+      final error =
+          e is VirtualSensorsException ? e : VirtualSensorsException('$e');
       state = state.copyWith(
         isLoading: false,
         error: error.message,

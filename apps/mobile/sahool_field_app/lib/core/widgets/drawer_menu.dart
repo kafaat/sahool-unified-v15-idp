@@ -274,9 +274,8 @@ class SahoolDrawerMenu extends ConsumerWidget {
         ),
         child: Icon(
           NavigationConstants.getIcon(key),
-          color: isMain
-              ? SahoolTheme.primary
-              : NavigationConstants.getColor(key),
+          color:
+              isMain ? SahoolTheme.primary : NavigationConstants.getColor(key),
           size: 24,
         ),
       ),

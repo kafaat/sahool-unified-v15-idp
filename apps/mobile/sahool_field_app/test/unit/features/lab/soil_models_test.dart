@@ -71,64 +71,76 @@ void main() {
 
     group('sampleStatus getter', () {
       test('should map pending status', () {
-        final model = SoilSampleModel.fromJson({'status': 'pending', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'pending', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.pending);
       });
 
       test('should map in_transit status', () {
-        final model = SoilSampleModel.fromJson({'status': 'in_transit', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'in_transit', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.inTransit);
       });
 
       test('should map received status', () {
-        final model = SoilSampleModel.fromJson({'status': 'received', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'received', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.received);
       });
 
       test('should map processing status', () {
-        final model = SoilSampleModel.fromJson({'status': 'processing', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'processing', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.processing);
       });
 
       test('should map analyzed status', () {
-        final model = SoilSampleModel.fromJson({'status': 'analyzed', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'analyzed', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.analyzed);
       });
 
       test('should default to pending for unknown status', () {
-        final model = SoilSampleModel.fromJson({'status': 'unknown', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'status': 'unknown', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.sampleStatus, SampleStatus.pending);
       });
     });
 
     group('typeAr getter', () {
       test('should return Arabic for soil type', () {
-        final model = SoilSampleModel.fromJson({'type': 'soil', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'soil', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'تربة');
       });
 
       test('should return Arabic for leaf type', () {
-        final model = SoilSampleModel.fromJson({'type': 'leaf', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'leaf', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'أوراق');
       });
 
       test('should return Arabic for water type', () {
-        final model = SoilSampleModel.fromJson({'type': 'water', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'water', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'ماء');
       });
 
       test('should return Arabic for fruit type', () {
-        final model = SoilSampleModel.fromJson({'type': 'fruit', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'fruit', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'ثمار');
       });
 
       test('should return Arabic for seed type', () {
-        final model = SoilSampleModel.fromJson({'type': 'seed', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'seed', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'بذور');
       });
 
       test('should return raw type for unknown type', () {
-        final model = SoilSampleModel.fromJson({'type': 'custom', 'collected_at': '2026-01-01T00:00:00Z'});
+        final model = SoilSampleModel.fromJson(
+            {'type': 'custom', 'collected_at': '2026-01-01T00:00:00Z'});
         expect(model.typeAr, 'custom');
       });
     });

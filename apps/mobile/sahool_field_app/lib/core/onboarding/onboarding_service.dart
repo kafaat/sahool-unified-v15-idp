@@ -163,8 +163,7 @@ class OnboardingState {
       OnboardingStepExtension.totalSteps - completedSteps.length;
 
   /// Whether the field setup step has been completed
-  bool get hasSetupField =>
-      completedSteps.contains(OnboardingStep.fieldSetup);
+  bool get hasSetupField => completedSteps.contains(OnboardingStep.fieldSetup);
 
   /// Whether IoT devices have been paired
   bool get hasIotDevices => pairedDeviceIds.isNotEmpty;
@@ -318,7 +317,8 @@ class OnboardingService {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Provider for the onboarding service
-final onboardingServiceProvider = FutureProvider<OnboardingService>((ref) async {
+final onboardingServiceProvider =
+    FutureProvider<OnboardingService>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   return OnboardingService(prefs);
 });

@@ -71,7 +71,8 @@ class TasksRepo {
         tasks.map((t) => t.toJson()).toList(),
       );
 
-      AppLogger.i('Tasks refreshed from server', tag: _tag, data: {'count': tasks.length});
+      AppLogger.i('Tasks refreshed from server',
+          tag: _tag, data: {'count': tasks.length});
       return tasks.length;
     } catch (e, stackTrace) {
       final appException = ErrorHandler().handle(
@@ -122,7 +123,8 @@ class TasksRepo {
         }),
       );
 
-      AppLogger.i('Task marked done locally and queued for sync', tag: _tag, data: {'taskId': taskId});
+      AppLogger.i('Task marked done locally and queued for sync',
+          tag: _tag, data: {'taskId': taskId});
     } catch (e, stackTrace) {
       if (e is AppException) rethrow;
       throw ErrorHandler().handle(e, stackTrace: stackTrace, tag: _tag);
@@ -169,7 +171,8 @@ class TasksRepo {
         }),
       );
 
-      AppLogger.i('Task status updated', tag: _tag, data: {'taskId': taskId, 'status': status.value});
+      AppLogger.i('Task status updated',
+          tag: _tag, data: {'taskId': taskId, 'status': status.value});
     } catch (e, stackTrace) {
       if (e is AppException) rethrow;
       throw ErrorHandler().handle(e, stackTrace: stackTrace, tag: _tag);
@@ -240,7 +243,8 @@ class TasksRepo {
         payload: jsonEncode(task.toJson()),
       );
 
-      AppLogger.i('Task created', tag: _tag, data: {'taskId': taskId, 'title': title});
+      AppLogger.i('Task created',
+          tag: _tag, data: {'taskId': taskId, 'title': title});
       return task;
     } catch (e, stackTrace) {
       if (e is AppException) rethrow;
@@ -275,10 +279,13 @@ class TasksRepo {
         TasksCompanion(
           id: Value(taskId),
           title: title != null ? Value(title) : const Value.absent(),
-          description: description != null ? Value(description) : const Value.absent(),
-          priority: priority != null ? Value(priority.value) : const Value.absent(),
+          description:
+              description != null ? Value(description) : const Value.absent(),
+          priority:
+              priority != null ? Value(priority.value) : const Value.absent(),
           dueDate: dueDate != null ? Value(dueDate) : const Value.absent(),
-          assignedTo: assignedTo != null ? Value(assignedTo) : const Value.absent(),
+          assignedTo:
+              assignedTo != null ? Value(assignedTo) : const Value.absent(),
           updatedAt: Value(now),
           synced: const Value(false),
         ),
@@ -336,7 +343,8 @@ class TasksRepo {
         entityId: taskId,
         apiEndpoint: '/api/v1/tasks/$taskId',
         method: 'DELETE',
-        payload: jsonEncode({'task_id': taskId, 'tenant_id': existingTask.tenantId}),
+        payload:
+            jsonEncode({'task_id': taskId, 'tenant_id': existingTask.tenantId}),
       );
 
       AppLogger.i('Task deleted (soft)', tag: _tag, data: {'taskId': taskId});
@@ -355,7 +363,9 @@ class TasksRepo {
   /// Get tasks due today for a tenant
   Future<List<FieldTask>> getTasksDueToday(String tenantId) async {
     final allTasks = await getAllTasks(tenantId);
-    return allTasks.where((t) => t.isDueToday && t.status != TaskStatus.done).toList();
+    return allTasks
+        .where((t) => t.isDueToday && t.status != TaskStatus.done)
+        .toList();
   }
 
   /// Get tasks due within specified days
@@ -366,7 +376,8 @@ class TasksRepo {
 
     return allTasks.where((t) {
       if (t.dueDate == null) return false;
-      if (t.status == TaskStatus.done || t.status == TaskStatus.cancelled) return false;
+      if (t.status == TaskStatus.done || t.status == TaskStatus.cancelled)
+        return false;
       return t.dueDate!.isAfter(now) && t.dueDate!.isBefore(deadline);
     }).toList();
   }

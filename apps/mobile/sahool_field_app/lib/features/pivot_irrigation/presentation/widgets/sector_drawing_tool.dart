@@ -56,9 +56,18 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
 
   // Default sector colors
   static const List<String> _defaultColors = [
-    '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-    '#FF9800', '#FF5722', '#E91E63', '#9C27B0',
-    '#673AB7', '#3F51B5', '#2196F3', '#00BCD4',
+    '#4CAF50',
+    '#8BC34A',
+    '#CDDC39',
+    '#FFC107',
+    '#FF9800',
+    '#FF5722',
+    '#E91E63',
+    '#9C27B0',
+    '#673AB7',
+    '#3F51B5',
+    '#2196F3',
+    '#00BCD4',
   ];
 
   @override
@@ -1063,9 +1072,18 @@ class _SectorEditSheetState extends State<_SectorEditSheet> {
   late String _color;
 
   static const List<String> _colors = [
-    '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-    '#FF9800', '#FF5722', '#E91E63', '#9C27B0',
-    '#673AB7', '#3F51B5', '#2196F3', '#00BCD4',
+    '#4CAF50',
+    '#8BC34A',
+    '#CDDC39',
+    '#FFC107',
+    '#FF9800',
+    '#FF5722',
+    '#E91E63',
+    '#9C27B0',
+    '#673AB7',
+    '#3F51B5',
+    '#2196F3',
+    '#00BCD4',
   ];
 
   @override
@@ -1193,8 +1211,7 @@ class _SectorEditSheetState extends State<_SectorEditSheet> {
               spacing: 8,
               runSpacing: 8,
               children: _colors.map((color) {
-                final isSelected =
-                    color.toLowerCase() == _color.toLowerCase();
+                final isSelected = color.toLowerCase() == _color.toLowerCase();
                 return GestureDetector(
                   onTap: () => setState(() => _color = color),
                   child: Container(

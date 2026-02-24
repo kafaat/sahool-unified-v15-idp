@@ -94,7 +94,8 @@ void main() {
         final originalError = Exception('Original error');
 
         // Act
-        final result = Failure<String>('Wrapped error', originalError: originalError);
+        final result =
+            Failure<String>('Wrapped error', originalError: originalError);
 
         // Assert
         expect(result.message, 'Wrapped error');
@@ -322,8 +323,8 @@ void main() {
 
         // Act
         final mapped = result
-            .map((x) => x * 2)  // 20
-            .map((x) => x + 5)  // 25
+            .map((x) => x * 2) // 20
+            .map((x) => x + 5) // 25
             .map((x) => x.toString()); // "25"
 
         // Assert
@@ -335,10 +336,8 @@ void main() {
         const result = Failure<int>('Initial error', statusCode: 500);
 
         // Act
-        final mapped = result
-            .map((x) => x * 2)
-            .map((x) => x + 5)
-            .map((x) => x.toString());
+        final mapped =
+            result.map((x) => x * 2).map((x) => x + 5).map((x) => x.toString());
 
         // Assert
         expect(mapped.isFailure, isTrue);
@@ -363,7 +362,8 @@ void main() {
         const result = Success<List<int>>(numbers);
 
         // Act
-        final mapped = result.map((list) => list.where((n) => n.isEven).toList());
+        final mapped =
+            result.map((list) => list.where((n) => n.isEven).toList());
 
         // Assert
         expect(mapped.dataOrNull, [2, 4]);

@@ -217,8 +217,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     return SecureScreen(
       screenType: SecuredScreenType.authentication,
       showWarning: ref.watch(securityConfigProvider).showScreenSecurityWarning,
-      warningMessageAr:
-          'لا يمكن أخذ لقطات شاشة في شاشة التسجيل لحماية بياناتك',
+      warningMessageAr: 'لا يمكن أخذ لقطات شاشة في شاشة التسجيل لحماية بياناتك',
       warningMessageEn:
           'Screenshots are disabled on registration screen to protect your credentials',
       child: Scaffold(
@@ -389,8 +388,8 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                             : Icons.visibility_outlined,
                         color: Colors.grey[600],
                       ),
-                      onPressed: () => setState(
-                          () => _obscureConfirmPassword = !_obscureConfirmPassword),
+                      onPressed: () => setState(() =>
+                          _obscureConfirmPassword = !_obscureConfirmPassword),
                     ),
                   ),
 
@@ -567,15 +566,18 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: SahoolColors.primary, width: 2),
+              borderSide:
+                  const BorderSide(color: SahoolColors.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: SahoolColors.danger, width: 2),
+              borderSide:
+                  const BorderSide(color: SahoolColors.danger, width: 2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: SahoolColors.danger, width: 2),
+              borderSide:
+                  const BorderSide(color: SahoolColors.danger, width: 2),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

@@ -119,7 +119,8 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
       isTracking: false,
     );
 
-    AppLogger.i('Scout session completed: ${completedSession.id}', tag: 'SCOUT');
+    AppLogger.i('Scout session completed: ${completedSession.id}',
+        tag: 'SCOUT');
     return completedSession;
   }
 
@@ -255,12 +256,15 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     // For now, simulate with dummy data
     final lastPoint = state.currentSession!.trackPoints.isNotEmpty
         ? state.currentSession!.trackPoints.last
-        : const GeoPoint(latitude: 15.3694, longitude: 44.1910); // Sanaa default
+        : const GeoPoint(
+            latitude: 15.3694, longitude: 44.1910); // Sanaa default
 
     // Simulate slight movement
     final newPoint = GeoPoint(
-      latitude: lastPoint.latitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      longitude: lastPoint.longitude + (0.00001 * (DateTime.now().second % 3 - 1)),
+      latitude:
+          lastPoint.latitude + (0.00001 * (DateTime.now().second % 3 - 1)),
+      longitude:
+          lastPoint.longitude + (0.00001 * (DateTime.now().second % 3 - 1)),
       accuracy: 5.0,
       timestamp: DateTime.now(),
     );
@@ -314,7 +318,8 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
         lastAnalysis: analysis,
       );
 
-      AppLogger.i('AI analysis completed: ${analysis.detectedIssue}', tag: 'SCOUT_AI');
+      AppLogger.i('AI analysis completed: ${analysis.detectedIssue}',
+          tag: 'SCOUT_AI');
       return analysis;
     } catch (e) {
       state = state.copyWith(
@@ -461,7 +466,8 @@ class FieldScoutState {
 // Providers
 // ═══════════════════════════════════════════════════════════════════════════
 
-final fieldScoutProvider = StateNotifierProvider<FieldScoutNotifier, FieldScoutState>((ref) {
+final fieldScoutProvider =
+    StateNotifierProvider<FieldScoutNotifier, FieldScoutState>((ref) {
   return FieldScoutNotifier(ref);
 });
 

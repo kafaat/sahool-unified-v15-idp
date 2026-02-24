@@ -64,7 +64,8 @@ class PhenologyTimeline extends StatelessWidget {
     required bool isLast,
     required bool isArabic,
   }) {
-    final stageColor = Color(int.parse(stage.stage.colorHex.replaceFirst('#', '0xFF')));
+    final stageColor =
+        Color(int.parse(stage.stage.colorHex.replaceFirst('#', '0xFF')));
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +122,8 @@ class PhenologyTimeline extends StatelessWidget {
                   isArabic ? stage.nameAr : stage.name,
                   style: TextStyle(
                     fontSize: 16,
-                    fontWeight: stage.isCurrent ? FontWeight.bold : FontWeight.normal,
+                    fontWeight:
+                        stage.isCurrent ? FontWeight.bold : FontWeight.normal,
                     color: stage.isCurrent ? stageColor : Colors.black87,
                   ),
                 ),
@@ -162,24 +164,28 @@ class PhenologyTimeline extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        ...((isArabic ? stage.tasksAr : stage.tasks).take(2).map((task) => Padding(
-                              padding: const EdgeInsets.only(top: 2),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('• ', style: TextStyle(color: stageColor)),
-                                  Expanded(
-                                    child: Text(
-                                      task,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey[700],
+                        ...((isArabic ? stage.tasksAr : stage.tasks)
+                            .take(2)
+                            .map((task) => Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text('• ',
+                                          style: TextStyle(color: stageColor)),
+                                      Expanded(
+                                        child: Text(
+                                          task,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ))),
+                                ))),
                       ],
                     ),
                   ),

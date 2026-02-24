@@ -84,8 +84,9 @@ class MessageBubble extends StatelessWidget {
     return CircleAvatar(
       radius: 16,
       backgroundColor: SahoolTheme.primary.withOpacity(0.1),
-      backgroundImage:
-          message.senderAvatar != null ? NetworkImage(message.senderAvatar!) : null,
+      backgroundImage: message.senderAvatar != null
+          ? NetworkImage(message.senderAvatar!)
+          : null,
       child: message.senderAvatar == null
           ? Icon(
               Icons.person,
@@ -122,9 +123,7 @@ class MessageBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: message.isMine
-            ? SahoolTheme.primary
-            : Colors.grey[200],
+        color: message.isMine ? SahoolTheme.primary : Colors.grey[200],
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(16),
           topRight: const Radius.circular(16),
@@ -149,9 +148,8 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildImageMessage() {
     return Column(
-      crossAxisAlignment: message.isMine
-          ? CrossAxisAlignment.end
-          : CrossAxisAlignment.start,
+      crossAxisAlignment:
+          message.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
         if (message.attachmentUrl != null)
           ClipRRect(
@@ -181,9 +179,7 @@ class MessageBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: message.isMine
-            ? SahoolTheme.primary
-            : Colors.grey[200],
+        color: message.isMine ? SahoolTheme.primary : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -212,9 +208,7 @@ class MessageBubble extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: message.isMine
-            ? SahoolTheme.primary
-            : Colors.grey[200],
+        color: message.isMine ? SahoolTheme.primary : Colors.grey[200],
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

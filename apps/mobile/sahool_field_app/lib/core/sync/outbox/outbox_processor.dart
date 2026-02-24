@@ -205,7 +205,8 @@ class OutboxProcessor {
         // Check circuit breaker
         if (!_canProcessEndpoint(entry.apiEndpoint)) {
           skipped++;
-          AppLogger.d('Skipping ${entry.entityType}/${entry.entityId} - circuit open',
+          AppLogger.d(
+              'Skipping ${entry.entityType}/${entry.entityId} - circuit open',
               tag: 'PROCESSOR');
           continue;
         }
@@ -470,7 +471,8 @@ class OutboxProcessor {
     await _db.addSyncEvent(
       tenantId: entry.tenantId,
       type: 'CONFLICT',
-      message: 'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(entry.entityType)}',
+      message:
+          'تم تطبيق نسخة السيرفر بسبب تعارض في ${_getEntityTypeAr(entry.entityType)}',
       entityType: entry.entityType,
       entityId: entry.entityId,
     );

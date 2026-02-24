@@ -27,7 +27,8 @@ void main() {
         expect(hasConflict, isTrue);
       });
 
-      test('should not detect conflict when same field changed to same value', () {
+      test('should not detect conflict when same field changed to same value',
+          () {
         // Arrange
         final base = {'name': 'Task 1', 'status': 'pending'};
         final local = {'name': 'Task 1 Updated', 'status': 'pending'};
@@ -47,8 +48,16 @@ void main() {
       test('should not detect conflict when different fields changed', () {
         // Arrange
         final base = {'name': 'Task 1', 'status': 'pending', 'priority': 'low'};
-        final local = {'name': 'Task 1 Updated', 'status': 'pending', 'priority': 'low'};
-        final server = {'name': 'Task 1', 'status': 'completed', 'priority': 'low'};
+        final local = {
+          'name': 'Task 1 Updated',
+          'status': 'pending',
+          'priority': 'low'
+        };
+        final server = {
+          'name': 'Task 1',
+          'status': 'completed',
+          'priority': 'low'
+        };
 
         // Act
         final hasConflict = resolver.detectConflict(
@@ -127,9 +136,18 @@ void main() {
       test('should return local data when local is newer', () async {
         // Arrange
         final now = DateTime.now();
-        final base = {'name': 'Task 1', 'updatedAt': now.subtract(const Duration(hours: 2)).toIso8601String()};
-        final local = {'name': 'Task 1 Local', 'updatedAt': now.toIso8601String()};
-        final server = {'name': 'Task 1 Server', 'updatedAt': now.subtract(const Duration(hours: 1)).toIso8601String()};
+        final base = {
+          'name': 'Task 1',
+          'updatedAt': now.subtract(const Duration(hours: 2)).toIso8601String()
+        };
+        final local = {
+          'name': 'Task 1 Local',
+          'updatedAt': now.toIso8601String()
+        };
+        final server = {
+          'name': 'Task 1 Server',
+          'updatedAt': now.subtract(const Duration(hours: 1)).toIso8601String()
+        };
 
         // Act
         final resolved = await resolver.resolve(
@@ -147,9 +165,18 @@ void main() {
       test('should return server data when server is newer', () async {
         // Arrange
         final now = DateTime.now();
-        final base = {'name': 'Task 1', 'updatedAt': now.subtract(const Duration(hours: 2)).toIso8601String()};
-        final local = {'name': 'Task 1 Local', 'updatedAt': now.subtract(const Duration(hours: 1)).toIso8601String()};
-        final server = {'name': 'Task 1 Server', 'updatedAt': now.toIso8601String()};
+        final base = {
+          'name': 'Task 1',
+          'updatedAt': now.subtract(const Duration(hours: 2)).toIso8601String()
+        };
+        final local = {
+          'name': 'Task 1 Local',
+          'updatedAt': now.subtract(const Duration(hours: 1)).toIso8601String()
+        };
+        final server = {
+          'name': 'Task 1 Server',
+          'updatedAt': now.toIso8601String()
+        };
 
         // Act
         final resolved = await resolver.resolve(
@@ -187,8 +214,16 @@ void main() {
       test('should merge local and server changes', () async {
         // Arrange
         final base = {'name': 'Task 1', 'status': 'pending', 'priority': 'low'};
-        final local = {'name': 'Task 1 Updated', 'status': 'pending', 'priority': 'low'};
-        final server = {'name': 'Task 1', 'status': 'in_progress', 'priority': 'low'};
+        final local = {
+          'name': 'Task 1 Updated',
+          'status': 'pending',
+          'priority': 'low'
+        };
+        final server = {
+          'name': 'Task 1',
+          'status': 'in_progress',
+          'priority': 'low'
+        };
 
         // Act
         final resolved = await resolver.resolve(
@@ -200,15 +235,27 @@ void main() {
 
         // Assert
         expect(resolved['name'], 'Task 1 Updated'); // Local change
-        expect(resolved['status'], 'in_progress'); // Server change overwritten by local
+        expect(resolved['status'],
+            'in_progress'); // Server change overwritten by local
         expect(resolved['priority'], 'low'); // Unchanged
       });
 
       test('should handle field deletions in merge', () async {
         // Arrange
-        final base = {'name': 'Task 1', 'status': 'pending', 'description': 'Old description'};
-        final local = {'name': 'Task 1', 'status': 'pending'}; // description deleted
-        final server = {'name': 'Task 1', 'status': 'completed', 'description': 'Old description'};
+        final base = {
+          'name': 'Task 1',
+          'status': 'pending',
+          'description': 'Old description'
+        };
+        final local = {
+          'name': 'Task 1',
+          'status': 'pending'
+        }; // description deleted
+        final server = {
+          'name': 'Task 1',
+          'status': 'completed',
+          'description': 'Old description'
+        };
 
         // Act
         final resolved = await resolver.resolve(
@@ -314,9 +361,12 @@ void main() {
 
         // Assert
         expect(resolved.length, 4); // 4 unique items
-        expect(resolved.where((i) => i['id'] == '1').first['name'], 'Item 1 Local');
-        expect(resolved.where((i) => i['id'] == '3').first['name'], 'Item 3 Local');
-        expect(resolved.where((i) => i['id'] == '4').first['name'], 'Item 4 Server');
+        expect(resolved.where((i) => i['id'] == '1').first['name'],
+            'Item 1 Local');
+        expect(resolved.where((i) => i['id'] == '3').first['name'],
+            'Item 3 Local');
+        expect(resolved.where((i) => i['id'] == '4').first['name'],
+            'Item 4 Server');
       });
 
       test('should keep server-only items', () {

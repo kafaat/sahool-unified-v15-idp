@@ -49,9 +49,10 @@ class WeatherAlertCard extends StatelessWidget {
                       children: [
                         Text(
                           alert.titleAr,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style:
+                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
                         ),
                         const SizedBox(height: 4),
                         Container(

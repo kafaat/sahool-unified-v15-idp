@@ -53,8 +53,8 @@ final dateAstronomicalProvider = FutureProvider.autoDispose
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// مزود التوقعات الأسبوعية
-final weeklyForecastProvider =
-    FutureProvider.autoDispose.family<WeeklyForecast, String?>((ref, startDate) async {
+final weeklyForecastProvider = FutureProvider.autoDispose
+    .family<WeeklyForecast, String?>((ref, startDate) async {
   final api = ref.watch(astronomicalApiProvider);
   return api.getWeeklyForecast(startDate: startDate);
 });

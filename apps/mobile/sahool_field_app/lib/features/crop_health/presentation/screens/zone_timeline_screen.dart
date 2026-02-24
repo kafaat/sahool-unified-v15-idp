@@ -253,7 +253,8 @@ class _ChartPainter extends CustomPainter {
     final points = <Offset>[];
     for (var i = 0; i < values.length; i++) {
       final x = (i / (values.length - 1)) * size.width;
-      final y = size.height - ((values[i] - minValue) / (maxValue - minValue)) * size.height;
+      final y = size.height -
+          ((values[i] - minValue) / (maxValue - minValue)) * size.height;
       points.add(Offset(x, y));
     }
 
@@ -289,7 +290,8 @@ class _ChartPainter extends CustomPainter {
       ..strokeWidth = 1;
 
     // خط الصفر
-    final zeroY = size.height - ((0 - minValue) / (maxValue - minValue)) * size.height;
+    final zeroY =
+        size.height - ((0 - minValue) / (maxValue - minValue)) * size.height;
     canvas.drawLine(
       Offset(0, zeroY),
       Offset(size.width, zeroY),

@@ -9,7 +9,8 @@ final connectivityPlusProvider = Provider<Connectivity>((ref) {
 });
 
 /// مزود حالة الاتصال
-final connectivityProvider = StateNotifierProvider<ConnectivityNotifier, ConnectivityState>((ref) {
+final connectivityProvider =
+    StateNotifierProvider<ConnectivityNotifier, ConnectivityState>((ref) {
   final connectivity = ref.watch(connectivityPlusProvider);
   return ConnectivityNotifier(connectivity);
 });
@@ -425,7 +426,8 @@ class SyncStatusCard extends ConsumerWidget {
                 onPressed: connectivity.isSyncing
                     ? null
                     : () async {
-                        final notifier = ref.read(connectivityProvider.notifier);
+                        final notifier =
+                            ref.read(connectivityProvider.notifier);
                         await notifier.manualSync();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -443,7 +445,9 @@ class SyncStatusCard extends ConsumerWidget {
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
                     : const Icon(Icons.sync),
-                label: Text(connectivity.isSyncing ? 'جاري المزامنة...' : 'مزامنة الآن'),
+                label: Text(connectivity.isSyncing
+                    ? 'جاري المزامنة...'
+                    : 'مزامنة الآن'),
               ),
             ),
           ],

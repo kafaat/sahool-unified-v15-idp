@@ -3,9 +3,9 @@ import '../../../main.dart';
 
 /// حالة المزامنة للواجهة
 enum SyncStatus {
-  synced,   // كل شيء متزامن
-  syncing,  // جاري المزامنة
-  offline,  // غير متصل
+  synced, // كل شيء متزامن
+  syncing, // جاري المزامنة
+  offline, // غير متصل
 }
 
 /// مزود حالة المزامنة للواجهة
@@ -23,9 +23,11 @@ final pendingOperationsProvider = FutureProvider<int>((ref) async {
 
   // حساب عدد السجلات في الـ Outbox
   try {
-    final outbox = await db.customSelect(
-      'SELECT COUNT(*) as count FROM outbox WHERE synced = 0',
-    ).getSingle();
+    final outbox = await db
+        .customSelect(
+          'SELECT COUNT(*) as count FROM outbox WHERE synced = 0',
+        )
+        .getSingle();
     return outbox.read<int>('count');
   } catch (e) {
     return 0;

@@ -89,10 +89,12 @@ class CurrentWeatherCard extends StatelessWidget {
               ],
             ),
 
-            if (weather.precipitation != null && weather.precipitation! > 0) ...[
+            if (weather.precipitation != null &&
+                weather.precipitation! > 0) ...[
               const SizedBox(height: 16),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(20),

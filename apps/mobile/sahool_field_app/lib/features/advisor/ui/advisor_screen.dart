@@ -71,7 +71,9 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
     if (query.contains('سماد') || query.contains('تسميد')) {
       return 'يحتاج حقل القمح إلى تسميد نيتروجيني. أنصح بإضافة:\n\n• يوريا: 50 كجم/هكتار\n• الوقت الأفضل: الصباح الباكر\n\nهل تريد إضافة هذه المهمة إلى قائمتك؟';
     }
-    if (query.contains('آفة') || query.contains('مرض') || query.contains('حشرة')) {
+    if (query.contains('آفة') ||
+        query.contains('مرض') ||
+        query.contains('حشرة')) {
       return '🔬 بناءً على وصفك، قد يكون هذا:\n\n**صدأ القمح**\nالاحتمالية: 85%\n\n**العلاج المقترح:**\n• رش مبيد فطري (مانكوزيب)\n• الجرعة: 2.5 كجم/هكتار\n\n⚠️ يُنصح بالتصوير للتأكد';
     }
     return 'شكراً لسؤالك. يمكنني مساعدتك في:\n\n• توصيات الري والتسميد\n• تشخيص الآفات والأمراض\n• متابعة صحة المحاصيل\n\nما الذي تحتاج مساعدة فيه؟';
@@ -107,7 +109,8 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.psychology, color: Colors.white, size: 24),
+              child:
+                  const Icon(Icons.psychology, color: Colors.white, size: 24),
             ),
             const SizedBox(width: 12),
             Column(
@@ -259,7 +262,9 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: _isRecording ? SahoolColors.danger : SahoolColors.primary.withOpacity(0.1),
+                  color: _isRecording
+                      ? SahoolColors.danger
+                      : SahoolColors.primary.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -281,7 +286,8 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                     borderRadius: BorderRadius.circular(24),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 ),
                 onSubmitted: _sendMessage,
               ),
@@ -337,7 +343,9 @@ class _ChatBubble extends StatelessWidget {
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         child: Column(
-          crossAxisAlignment: message.isUser ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+          crossAxisAlignment: message.isUser
+              ? CrossAxisAlignment.start
+              : CrossAxisAlignment.end,
           children: [
             Container(
               padding: const EdgeInsets.all(16),
@@ -366,7 +374,8 @@ class _ChatBubble extends StatelessWidget {
                 icon: const Icon(Icons.add_task, size: 18),
                 label: const Text('إضافة كمهمة'),
                 style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 ),
               ),
             ],

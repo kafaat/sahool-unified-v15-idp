@@ -13,7 +13,9 @@ on:
       - main
       - develop
       - 'feature/**'
-      - 'claude/**'
+      - 'claude/mobile-**'
+      - 'claude/fix-mobile-**'
+      - 'claude/flutter-**'
     paths:
       - 'apps/mobile/**'
       - '.github/workflows/mobile-ci.yml'

@@ -59,7 +59,8 @@ class WeatherCardWidget extends StatelessWidget {
                           Text(
                             _formatTime(weather.timestamp, isArabic),
                             style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.6),
                             ),
                           ),
                         ],
@@ -249,7 +250,8 @@ class WeatherCardWidget extends StatelessWidget {
   String _formatTime(DateTime time, bool isArabic) {
     final hour = time.hour;
     final minute = time.minute.toString().padLeft(2, '0');
-    final period = hour >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
+    final period =
+        hour >= 12 ? (isArabic ? 'م' : 'PM') : (isArabic ? 'ص' : 'AM');
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
 
     return '$displayHour:$minute $period';

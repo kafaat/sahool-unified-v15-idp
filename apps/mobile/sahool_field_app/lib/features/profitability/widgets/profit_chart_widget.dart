@@ -244,7 +244,8 @@ class ProfitTrendChart extends StatelessWidget {
                         getTitlesWidget: (value, meta) {
                           final index = value.toInt();
                           if (index >= 0 && index < historicalData.length) {
-                            final season = historicalData[index].getSeason(locale);
+                            final season =
+                                historicalData[index].getSeason(locale);
                             return Padding(
                               padding: const EdgeInsets.only(top: 8.0),
                               child: Text(
@@ -296,7 +297,8 @@ class ProfitTrendChart extends StatelessWidget {
                         return touchedSpots.map((spot) {
                           final index = spot.x.toInt();
                           if (index >= 0 && index < historicalData.length) {
-                            final season = historicalData[index].getSeason(locale);
+                            final season =
+                                historicalData[index].getSeason(locale);
                             return LineTooltipItem(
                               '$season\n${currencyFormat.format(spot.y)} ${locale == 'ar' ? 'ريال' : 'YER'}',
                               const TextStyle(
@@ -461,9 +463,8 @@ class RevenuePerHectareChart extends StatelessWidget {
 
   double _getMaxY() {
     if (crops.isEmpty) return 100;
-    final maxRevenue = crops
-        .map((c) => c.revenuePerHectare)
-        .reduce((a, b) => a > b ? a : b);
+    final maxRevenue =
+        crops.map((c) => c.revenuePerHectare).reduce((a, b) => a > b ? a : b);
     return maxRevenue * 1.2; // Add 20% padding
   }
 }

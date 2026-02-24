@@ -49,8 +49,10 @@ class NotificationPayload {
 
   factory NotificationPayload.fromJson(Map<String, dynamic> json) {
     return NotificationPayload(
-      id: json['id'] as String? ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      type: SAHOOLNotificationType.fromString(json['type'] as String? ?? 'system'),
+      id: json['id'] as String? ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      type: SAHOOLNotificationType.fromString(
+          json['type'] as String? ?? 'system'),
       priority: NotificationPriority.fromString(json['priority'] as String?),
       title: json['title'] as String? ?? '',
       body: json['body'] as String? ?? '',
@@ -89,8 +91,10 @@ class NotificationHandler {
   int get unreadCount => _unreadCount;
 
   /// Notification stream controller
-  final _notificationStreamController = StreamController<NotificationPayload>.broadcast();
-  Stream<NotificationPayload> get onNotification => _notificationStreamController.stream;
+  final _notificationStreamController =
+      StreamController<NotificationPayload>.broadcast();
+  Stream<NotificationPayload> get onNotification =>
+      _notificationStreamController.stream;
 
   /// Notification count stream controller
   final _countStreamController = StreamController<int>.broadcast();
@@ -410,7 +414,8 @@ extension NotificationHandlerExtension on BuildContext {
   }
 
   /// Navigate to notification screen
-  Future<void> goToNotificationScreen(String route, {Map<String, dynamic>? args}) async {
+  Future<void> goToNotificationScreen(String route,
+      {Map<String, dynamic>? args}) async {
     await NotificationHandler.instance.navigateToScreen(route, arguments: args);
   }
 }

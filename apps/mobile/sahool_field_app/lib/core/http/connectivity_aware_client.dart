@@ -139,13 +139,11 @@ extension NetworkQualityExtension on NetworkQuality {
 
   /// Whether this quality is acceptable for real-time operations
   bool get isAcceptableForRealtime =>
-      this == NetworkQuality.excellent ||
-      this == NetworkQuality.good;
+      this == NetworkQuality.excellent || this == NetworkQuality.good;
 
   /// Whether this quality is acceptable for background sync
   bool get isAcceptableForSync =>
-      this != NetworkQuality.none &&
-      this != NetworkQuality.unknown;
+      this != NetworkQuality.none && this != NetworkQuality.unknown;
 }
 
 /// Network connectivity monitor service
@@ -160,7 +158,8 @@ class NetworkConnectivityService {
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _healthCheckTimer;
 
-  final _stateController = StreamController<NetworkConnectivityState>.broadcast();
+  final _stateController =
+      StreamController<NetworkConnectivityState>.broadcast();
   NetworkConnectivityState _currentState = NetworkConnectivityState.offline();
 
   NetworkConnectivityService({
@@ -196,7 +195,8 @@ class NetworkConnectivityService {
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       _handleConnectivityChange,
       onError: (error) {
-        AppLogger.e('Connectivity stream error', tag: 'NetworkConnectivity', error: error);
+        AppLogger.e('Connectivity stream error',
+            tag: 'NetworkConnectivity', error: error);
       },
     );
 
@@ -206,7 +206,8 @@ class NetworkConnectivityService {
     }
 
     if (kDebugMode) {
-      AppLogger.i('Network connectivity monitoring started', tag: 'NetworkConnectivity');
+      AppLogger.i('Network connectivity monitoring started',
+          tag: 'NetworkConnectivity');
     }
   }
 
@@ -218,7 +219,8 @@ class NetworkConnectivityService {
     _healthCheckTimer = null;
 
     if (kDebugMode) {
-      AppLogger.i('Network connectivity monitoring stopped', tag: 'NetworkConnectivity');
+      AppLogger.i('Network connectivity monitoring stopped',
+          tag: 'NetworkConnectivity');
     }
   }
 
@@ -229,7 +231,8 @@ class NetworkConnectivityService {
       await _handleConnectivityChange(results);
       return _currentState;
     } catch (e) {
-      AppLogger.e('Error checking connectivity', tag: 'NetworkConnectivity', error: e);
+      AppLogger.e('Error checking connectivity',
+          tag: 'NetworkConnectivity', error: e);
       _updateState(NetworkConnectivityState.offline().copyWith(
         errorMessage: e.toString(),
       ));
@@ -270,10 +273,12 @@ class NetworkConnectivityService {
         ));
 
         if (kDebugMode) {
-          AppLogger.d('Connectivity verified', tag: 'NetworkConnectivity', data: {
-            'latency': latencyMs,
-            'quality': _currentState.quality.name,
-          });
+          AppLogger.d('Connectivity verified',
+              tag: 'NetworkConnectivity',
+              data: {
+                'latency': latencyMs,
+                'quality': _currentState.quality.name,
+              });
         }
 
         return true;
@@ -294,20 +299,21 @@ class NetworkConnectivityService {
         ));
       }
     } catch (e) {
-      AppLogger.e('Error verifying connectivity', tag: 'NetworkConnectivity', error: e);
+      AppLogger.e('Error verifying connectivity',
+          tag: 'NetworkConnectivity', error: e);
     }
 
     return false;
   }
 
   /// Handle connectivity change events
-  Future<void> _handleConnectivityChange(List<ConnectivityResult> results) async {
+  Future<void> _handleConnectivityChange(
+      List<ConnectivityResult> results) async {
     final hasConnection = results.isNotEmpty &&
         !results.every((r) => r == ConnectivityResult.none);
 
-    final connectionType = results.isNotEmpty
-        ? results.first
-        : ConnectivityResult.none;
+    final connectionType =
+        results.isNotEmpty ? results.first : ConnectivityResult.none;
 
     if (hasConnection) {
       _updateState(NetworkConnectivityState(
@@ -346,10 +352,12 @@ class NetworkConnectivityService {
     if (_currentState.isConnected != newState.isConnected ||
         _currentState.quality != newState.quality) {
       if (kDebugMode) {
-        AppLogger.i('Connectivity state changed', tag: 'NetworkConnectivity', data: {
-          'from': _currentState.toString(),
-          'to': newState.toString(),
-        });
+        AppLogger.i('Connectivity state changed',
+            tag: 'NetworkConnectivity',
+            data: {
+              'from': _currentState.toString(),
+              'to': newState.toString(),
+            });
       }
     }
 
@@ -365,14 +373,16 @@ class NetworkConnectivityService {
 }
 
 /// Riverpod provider for network connectivity service
-final networkConnectivityServiceProvider = Provider<NetworkConnectivityService>((ref) {
+final networkConnectivityServiceProvider =
+    Provider<NetworkConnectivityService>((ref) {
   final service = NetworkConnectivityService();
   ref.onDispose(() => service.dispose());
   return service;
 });
 
 /// Riverpod provider for current network connectivity state
-final networkConnectivityStateProvider = StreamProvider<NetworkConnectivityState>((ref) {
+final networkConnectivityStateProvider =
+    StreamProvider<NetworkConnectivityState>((ref) {
   final service = ref.watch(networkConnectivityServiceProvider);
   return service.stateStream;
 });
@@ -417,10 +427,12 @@ class ConnectivityInterceptor extends Interceptor {
       }
 
       if (kDebugMode) {
-        AppLogger.w('Request while offline', tag: 'ConnectivityInterceptor', data: {
-          'path': options.path,
-          'queued': queueOfflineRequests,
-        });
+        AppLogger.w('Request while offline',
+            tag: 'ConnectivityInterceptor',
+            data: {
+              'path': options.path,
+              'queued': queueOfflineRequests,
+            });
       }
     }
 

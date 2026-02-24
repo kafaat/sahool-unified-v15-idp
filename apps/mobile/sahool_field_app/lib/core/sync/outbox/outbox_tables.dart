@@ -17,7 +17,8 @@ import 'package:drift/drift.dart';
 @TableIndex(name: 'outbox_v2_tenant_idx', columns: {#tenantId})
 @TableIndex(name: 'outbox_v2_status_idx', columns: {#status})
 @TableIndex(name: 'outbox_v2_entity_idx', columns: {#entityType, #entityId})
-@TableIndex(name: 'outbox_v2_priority_status_idx', columns: {#priority, #status})
+@TableIndex(
+    name: 'outbox_v2_priority_status_idx', columns: {#priority, #status})
 @TableIndex(name: 'outbox_v2_tenant_status_idx', columns: {#tenantId, #status})
 @TableIndex(name: 'outbox_v2_next_retry_idx', columns: {#nextRetryAt})
 @TableIndex(name: 'outbox_v2_idempotency_idx', columns: {#idempotencyKey})
@@ -149,13 +150,16 @@ class OutboxAggregationRules extends Table {
   TextColumn get entityType => text()();
 
   /// Whether to aggregate consecutive updates
-  BoolColumn get aggregateUpdates => boolean().withDefault(const Constant(true))();
+  BoolColumn get aggregateUpdates =>
+      boolean().withDefault(const Constant(true))();
 
   /// Maximum number of updates to aggregate
-  IntColumn get maxAggregateCount => integer().withDefault(const Constant(10))();
+  IntColumn get maxAggregateCount =>
+      integer().withDefault(const Constant(10))();
 
   /// Time window for aggregation (milliseconds)
-  IntColumn get aggregateWindowMs => integer().withDefault(const Constant(5000))();
+  IntColumn get aggregateWindowMs =>
+      integer().withDefault(const Constant(5000))();
 
   /// Fields to merge (JSON array, null means all)
   TextColumn get mergeFields => text().nullable()();

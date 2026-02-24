@@ -21,7 +21,8 @@ class SeasonSummaryScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SeasonSummaryScreen> createState() => _SeasonSummaryScreenState();
+  ConsumerState<SeasonSummaryScreen> createState() =>
+      _SeasonSummaryScreenState();
 }
 
 class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
@@ -110,7 +111,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                       ElevatedButton.icon(
                         onPressed: _refresh,
                         icon: const Icon(Icons.refresh),
-                        label: Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
+                        label:
+                            Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
                       ),
                     ],
                   ),
@@ -128,7 +130,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                         padding: const EdgeInsets.all(16),
                         children: [
                           // Season Overview
-                          _buildSeasonOverview(seasonState.data!, currencyFormat),
+                          _buildSeasonOverview(
+                              seasonState.data!, currencyFormat),
                           const SizedBox(height: 16),
 
                           // Revenue per Hectare Chart
@@ -151,7 +154,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
     );
   }
 
-  Widget _buildSeasonOverview(SeasonSummary summary, NumberFormat currencyFormat) {
+  Widget _buildSeasonOverview(
+      SeasonSummary summary, NumberFormat currencyFormat) {
     final theme = Theme.of(context);
     final dateFormat = DateFormat('yyyy-MM-dd', locale);
 
@@ -232,7 +236,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
     );
   }
 
-  Widget _buildOverviewItem(String label, String value, IconData icon, Color color) {
+  Widget _buildOverviewItem(
+      String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -354,7 +359,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                       onTap: () => _navigateToCropDetails(crop),
                     ),
                     DataCell(
-                      Text('${crop.area.toStringAsFixed(1)} ${locale == 'ar' ? 'هكتار' : 'ha'}'),
+                      Text(
+                          '${crop.area.toStringAsFixed(1)} ${locale == 'ar' ? 'هكتار' : 'ha'}'),
                     ),
                     DataCell(
                       Text(
@@ -372,7 +378,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                       Text(
                         currencyFormat.format(crop.netProfit),
                         style: TextStyle(
-                          color: crop.isProfitable ? Colors.green : Colors.orange,
+                          color:
+                              crop.isProfitable ? Colors.green : Colors.orange,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -392,7 +399,9 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
                         child: Text(
                           '${crop.profitMargin.toStringAsFixed(1)}%',
                           style: TextStyle(
-                            color: crop.isProfitable ? Colors.green : Colors.orange,
+                            color: crop.isProfitable
+                                ? Colors.green
+                                : Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -418,7 +427,8 @@ class _SeasonSummaryScreenState extends ConsumerState<SeasonSummaryScreen> {
     );
   }
 
-  Widget _buildRankingsCard(SeasonSummary summary, NumberFormat currencyFormat) {
+  Widget _buildRankingsCard(
+      SeasonSummary summary, NumberFormat currencyFormat) {
     final theme = Theme.of(context);
     final topProfitCrops = summary.getTopCropsByProfit(limit: 3);
     final topRoiCrops = summary.getTopCropsByRoi(limit: 3);

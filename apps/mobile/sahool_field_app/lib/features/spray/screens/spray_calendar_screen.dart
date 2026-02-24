@@ -19,7 +19,8 @@ class SprayCalendarScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<SprayCalendarScreen> createState() => _SprayCalendarScreenState();
+  ConsumerState<SprayCalendarScreen> createState() =>
+      _SprayCalendarScreenState();
 }
 
 class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
@@ -87,7 +88,9 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  isArabic ? 'فشل في جلب نوافذ الرش' : 'Failed to load spray windows',
+                  isArabic
+                      ? 'فشل في جلب نوافذ الرش'
+                      : 'Failed to load spray windows',
                   style: theme.textTheme.titleMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -271,11 +274,14 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
     );
   }
 
-  Widget _buildSelectedDayWindows(ThemeData theme, bool isArabic, String locale) {
+  Widget _buildSelectedDayWindows(
+      ThemeData theme, bool isArabic, String locale) {
     if (_selectedDay == null) {
       return Center(
         child: Text(
-          isArabic ? 'اختر يوماً لعرض نوافذ الرش' : 'Select a day to view spray windows',
+          isArabic
+              ? 'اختر يوماً لعرض نوافذ الرش'
+              : 'Select a day to view spray windows',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.6),
           ),
@@ -297,7 +303,9 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              isArabic ? 'لا توجد نوافذ رش في هذا اليوم' : 'No spray windows for this day',
+              isArabic
+                  ? 'لا توجد نوافذ رش في هذا اليوم'
+                  : 'No spray windows for this day',
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withOpacity(0.6),
               ),
@@ -358,7 +366,8 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
     }
   }
 
-  void _showWindowDetails(SprayWindow window, ThemeData theme, bool isArabic, String locale) {
+  void _showWindowDetails(
+      SprayWindow window, ThemeData theme, bool isArabic, String locale) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,

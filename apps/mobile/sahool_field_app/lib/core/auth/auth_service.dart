@@ -51,12 +51,19 @@ final authServiceProvider = Provider<AuthService>((ref) {
   }
 });
 
-final authStateProvider = StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
+final authStateProvider =
+    StateNotifierProvider<AuthStateNotifier, AuthState>((ref) {
   return AuthStateNotifier(ref.read(authServiceProvider));
 });
 
 /// Auth State
-enum AuthStatus { initial, authenticated, unauthenticated, loading, sessionExpired }
+enum AuthStatus {
+  initial,
+  authenticated,
+  unauthenticated,
+  loading,
+  sessionExpired
+}
 
 /// Session information for tracking session health
 class SessionInfo {
@@ -138,7 +145,8 @@ class AuthState {
 }
 
 /// Auth State Notifier with session management
-class AuthStateNotifier extends StateNotifier<AuthState> with WidgetsBindingObserver {
+class AuthStateNotifier extends StateNotifier<AuthState>
+    with WidgetsBindingObserver {
   final AuthService _authService;
   Timer? _sessionCheckTimer;
   DateTime? _lastActiveTime;
@@ -197,7 +205,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> with WidgetsBindingObse
       if (_lastActiveTime != null) {
         final idleDuration = DateTime.now().difference(_lastActiveTime!);
         if (idleDuration > _maxIdleTime) {
-          AppLogger.w('Session idle for too long, requiring re-authentication', tag: 'AUTH');
+          AppLogger.w('Session idle for too long, requiring re-authentication',
+              tag: 'AUTH');
           await _handleSessionExpired(reason: 'انتهت الجلسة بسبب عدم النشاط');
           return;
         }
@@ -216,7 +225,8 @@ class AuthStateNotifier extends StateNotifier<AuthState> with WidgetsBindingObse
       if (tokenExpiry != null) {
         final timeUntilExpiry = tokenExpiry.difference(DateTime.now());
         if (timeUntilExpiry < const Duration(minutes: 10)) {
-          AppLogger.i('Token expiring soon, proactively refreshing', tag: 'AUTH');
+          AppLogger.i('Token expiring soon, proactively refreshing',
+              tag: 'AUTH');
           await refreshSession();
         }
       }
@@ -498,7 +508,8 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final data =
+          response is Map<String, dynamic> ? response : response['data'];
 
       // Extract tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
@@ -513,7 +524,8 @@ class AuthService {
       final tokens = TokenPair(
         accessToken: accessToken as String,
         refreshToken: refreshToken as String,
-        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+        expiresIn:
+            expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
       );
 
       // Extract user data
@@ -523,7 +535,9 @@ class AuthService {
         email: userData['email'] ?? email,
         name: userData['name'] ?? userData['username'] ?? 'مستخدم',
         role: userData['role'] ?? 'farmer',
-        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
+        tenantId: userData['tenant_id'] ??
+            userData['tenantId'] ??
+            EnvConfig.defaultTenantId,
         phone: userData['phone'],
         avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
       );
@@ -551,14 +565,16 @@ class AuthService {
       // Schedule token refresh
       _scheduleTokenRefresh(tokens.expiresIn);
 
-      AppLogger.i('API login successful', tag: 'AUTH', data: {'userId': user.id});
+      AppLogger.i('API login successful',
+          tag: 'AUTH', data: {'userId': user.id});
       return user;
     } on ApiException catch (e) {
       AppLogger.e('API login failed', tag: 'AUTH', error: e);
 
       // Convert API exceptions to auth exceptions with Arabic messages
       if (e.statusCode == 401 || e.statusCode == 403) {
-        throw AuthException('البريد الإلكتروني أو كلمة المرور غير صحيحة', code: 'INVALID_CREDENTIALS');
+        throw AuthException('البريد الإلكتروني أو كلمة المرور غير صحيحة',
+            code: 'INVALID_CREDENTIALS');
       } else if (e.isNetworkError) {
         throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
       } else {
@@ -577,7 +593,8 @@ class AuthService {
     // Simulated response for development
     final tokens = TokenPair(
       accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken:
+          'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
       expiresIn: 3600, // 1 hour
     );
 
@@ -612,7 +629,8 @@ class AuthService {
   bool _shouldUseMockMode() {
     // Use mock mode only in debug builds when explicitly enabled
     // In production builds, always use real API
-    return kDebugMode && const bool.fromEnvironment('USE_MOCK_AUTH', defaultValue: false);
+    return kDebugMode &&
+        const bool.fromEnvironment('USE_MOCK_AUTH', defaultValue: false);
   }
 
   /// Reset password with token
@@ -662,7 +680,8 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final data =
+          response is Map<String, dynamic> ? response : response['data'];
       final success = data['success'] ?? false;
 
       if (!success) {
@@ -676,9 +695,11 @@ class AuthService {
 
       // Convert API exceptions to auth exceptions with Arabic messages
       if (e.statusCode == 400) {
-        throw AuthException('رمز التحقق غير صالح أو منتهي الصلاحية', code: 'INVALID_TOKEN');
+        throw AuthException('رمز التحقق غير صالح أو منتهي الصلاحية',
+            code: 'INVALID_TOKEN');
       } else if (e.statusCode == 429) {
-        throw AuthException('محاولات كثيرة جداً. يرجى المحاولة لاحقاً', code: 'TOO_MANY_ATTEMPTS');
+        throw AuthException('محاولات كثيرة جداً. يرجى المحاولة لاحقاً',
+            code: 'TOO_MANY_ATTEMPTS');
       } else if (e.isNetworkError) {
         throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
       } else {
@@ -703,7 +724,8 @@ class AuthService {
 
     // Check if biometric is available and enabled
     if (!await biometricService.isAvailable()) {
-      throw AuthException('البصمة غير متاحة على هذا الجهاز', code: 'BIOMETRIC_NOT_AVAILABLE');
+      throw AuthException('البصمة غير متاحة على هذا الجهاز',
+          code: 'BIOMETRIC_NOT_AVAILABLE');
     }
 
     if (!await biometricService.isEnabled()) {
@@ -713,7 +735,8 @@ class AuthService {
     // Verify a valid session exists before attempting biometric auth
     final storedRefreshToken = await secureStorage.getRefreshToken();
     if (storedRefreshToken == null) {
-      throw AuthException('لا توجد جلسة محفوظة. يرجى تسجيل الدخول أولاً', code: 'NO_STORED_SESSION');
+      throw AuthException('لا توجد جلسة محفوظة. يرجى تسجيل الدخول أولاً',
+          code: 'NO_STORED_SESSION');
     }
 
     // Check if refresh token might be expired (stored user data exists)
@@ -721,7 +744,8 @@ class AuthService {
     if (userData == null) {
       // User data missing, session is invalid
       await clearLocalSession();
-      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى', code: 'SESSION_INVALID');
+      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى',
+          code: 'SESSION_INVALID');
     }
 
     // Authenticate with biometric
@@ -747,9 +771,11 @@ class AuthService {
       return user;
     } catch (e) {
       // If refresh fails, the session is invalid
-      AppLogger.e('Biometric login failed during token refresh', error: e, tag: 'AUTH');
+      AppLogger.e('Biometric login failed during token refresh',
+          error: e, tag: 'AUTH');
       await clearLocalSession();
-      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى', code: 'SESSION_EXPIRED');
+      throw AuthException('انتهت صلاحية الجلسة. يرجى تسجيل الدخول مرة أخرى',
+          code: 'SESSION_EXPIRED');
     }
   }
 
@@ -761,7 +787,8 @@ class AuthService {
 
     // Get refresh token before clearing storage (for revocation)
     final refreshToken = await secureStorage.getRefreshToken();
-    final sessionId = _currentSessionId ?? await secureStorage.read('session_id');
+    final sessionId =
+        _currentSessionId ?? await secureStorage.read('session_id');
 
     // Call logout API if available (best effort - don't fail if it errors)
     if (apiClient != null && !_shouldUseMockMode()) {
@@ -775,7 +802,8 @@ class AuthService {
         AppLogger.i('Logout API call successful - tokens revoked', tag: 'AUTH');
       } catch (e) {
         // Log but don't fail - local logout should always succeed
-        AppLogger.w('Logout API call failed (continuing with local logout): $e', tag: 'AUTH');
+        AppLogger.w('Logout API call failed (continuing with local logout): $e',
+            tag: 'AUTH');
       }
     }
 
@@ -950,7 +978,8 @@ class AuthService {
 
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
-        AppLogger.w('API unavailable, falling back to mock refresh', tag: 'AUTH');
+        AppLogger.w('API unavailable, falling back to mock refresh',
+            tag: 'AUTH');
         try {
           await _refreshTokenWithMock();
           _refreshRetryCount = 0;
@@ -1066,11 +1095,13 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final data =
+          response is Map<String, dynamic> ? response : response['data'];
 
       // Extract new tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
-      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;
+      final newRefreshToken =
+          data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;
       final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
 
       if (accessToken == null) {
@@ -1080,7 +1111,8 @@ class AuthService {
       final tokens = TokenPair(
         accessToken: accessToken as String,
         refreshToken: newRefreshToken as String,
-        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
+        expiresIn:
+            expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
       );
 
       // Update auth token in API client
@@ -1113,8 +1145,10 @@ class AuthService {
 
     // Simulated response
     final tokens = TokenPair(
-      accessToken: 'mock_new_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      accessToken:
+          'mock_new_access_token_${DateTime.now().millisecondsSinceEpoch}',
+      refreshToken:
+          'mock_new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
       expiresIn: 3600,
     );
 

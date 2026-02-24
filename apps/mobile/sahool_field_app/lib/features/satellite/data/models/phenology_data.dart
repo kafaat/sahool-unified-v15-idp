@@ -42,7 +42,8 @@ class PhenologyData extends Equatable {
   factory PhenologyData.fromJson(Map<String, dynamic> json) {
     final stagesData = json['stages'] ?? [];
     final tasksData = json['current_tasks'] ?? json['currentTasks'] ?? [];
-    final tasksArData = json['current_tasks_ar'] ?? json['currentTasksAr'] ?? [];
+    final tasksArData =
+        json['current_tasks_ar'] ?? json['currentTasksAr'] ?? [];
 
     return PhenologyData(
       fieldId: json['field_id'] ?? json['fieldId'] ?? '',
@@ -51,11 +52,14 @@ class PhenologyData extends Equatable {
       currentStage: GrowthStage.fromString(
         json['current_stage'] ?? json['currentStage'] ?? 'unknown',
       ),
-      daysInCurrentStage: json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0,
+      daysInCurrentStage:
+          json['days_in_current_stage'] ?? json['daysInCurrentStage'] ?? 0,
       daysToNextStage: json['days_to_next_stage'] ?? json['daysToNextStage'],
       daysToHarvest: json['days_to_harvest'] ?? json['daysToHarvest'],
       plantingDate: DateTime.parse(
-        json['planting_date'] ?? json['plantingDate'] ?? DateTime.now().toIso8601String(),
+        json['planting_date'] ??
+            json['plantingDate'] ??
+            DateTime.now().toIso8601String(),
       ),
       expectedHarvestDate: json['expected_harvest_date'] != null
           ? DateTime.parse(json['expected_harvest_date'])
@@ -64,11 +68,15 @@ class PhenologyData extends Equatable {
           .map((item) => GrowthStageInfo.fromJson(item as Map<String, dynamic>))
           .toList(),
       currentTasks: (tasksData as List).map((task) => task.toString()).toList(),
-      currentTasksAr: (tasksArData as List).map((task) => task.toString()).toList(),
-      completionPercentage: (json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0)
-          .toDouble(),
+      currentTasksAr:
+          (tasksArData as List).map((task) => task.toString()).toList(),
+      completionPercentage:
+          (json['completion_percentage'] ?? json['completionPercentage'] ?? 0.0)
+              .toDouble(),
       analyzedAt: DateTime.parse(
-        json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String(),
+        json['analyzed_at'] ??
+            json['analyzedAt'] ??
+            DateTime.now().toIso8601String(),
       ),
     );
   }
@@ -178,8 +186,11 @@ class GrowthStageInfo extends Equatable {
       name: json['name'] ?? '',
       nameAr: json['name_ar'] ?? json['nameAr'] ?? '',
       durationDays: json['duration_days'] ?? json['durationDays'] ?? 0,
-      startDate: json['start_date'] != null ? DateTime.parse(json['start_date']) : null,
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      startDate: json['start_date'] != null
+          ? DateTime.parse(json['start_date'])
+          : null,
+      endDate:
+          json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
       isCompleted: json['is_completed'] ?? json['isCompleted'] ?? false,
       isCurrent: json['is_current'] ?? json['isCurrent'] ?? false,
       description: json['description'] ?? '',

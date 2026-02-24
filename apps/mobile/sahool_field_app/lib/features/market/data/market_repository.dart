@@ -23,18 +23,22 @@ final marketRepoProvider = Provider<MarketRepository>((ref) {
 final currentUserIdProvider = StateProvider<String>((ref) => 'user-demo-123');
 
 /// مزود المحفظة
-final walletFutureProvider = FutureProvider<ApiResult<WalletModel>>((ref) async {
+final walletFutureProvider =
+    FutureProvider<ApiResult<WalletModel>>((ref) async {
   final userId = ref.watch(currentUserIdProvider);
   return ref.read(marketRepoProvider).getWallet(userId);
 });
 
 /// مزود المنتجات
-final productsFutureProvider = FutureProvider.family<ApiResult<List<ProductModel>>, String?>((ref, category) async {
+final productsFutureProvider =
+    FutureProvider.family<ApiResult<List<ProductModel>>, String?>(
+        (ref, category) async {
   return ref.read(marketRepoProvider).getProducts(category: category);
 });
 
 /// مزود المنتجات المميزة
-final featuredProductsProvider = FutureProvider<ApiResult<List<ProductModel>>>((ref) async {
+final featuredProductsProvider =
+    FutureProvider<ApiResult<List<ProductModel>>>((ref) async {
   return ref.read(marketRepoProvider).getFeaturedProducts();
 });
 
@@ -44,13 +48,16 @@ final marketStatsProvider = FutureProvider<ApiResult<MarketStats>>((ref) async {
 });
 
 /// مزود طلبات المستخدم
-final userOrdersProvider = FutureProvider<ApiResult<List<OrderModel>>>((ref) async {
+final userOrdersProvider =
+    FutureProvider<ApiResult<List<OrderModel>>>((ref) async {
   final userId = ref.watch(currentUserIdProvider);
   return ref.read(marketRepoProvider).getUserOrders(userId);
 });
 
 /// مزود قروض المستخدم
-final userLoansProvider = FutureProvider.family<ApiResult<List<LoanModel>>, String>((ref, walletId) async {
+final userLoansProvider =
+    FutureProvider.family<ApiResult<List<LoanModel>>, String>(
+        (ref, walletId) async {
   return ref.read(marketRepoProvider).getUserLoans(walletId);
 });
 
@@ -91,7 +98,8 @@ class MarketRepository {
   }
 
   /// إيداع في المحفظة
-  Future<ApiResult<WalletModel>> deposit(String walletId, double amount, {String? description}) async {
+  Future<ApiResult<WalletModel>> deposit(String walletId, double amount,
+      {String? description}) async {
     try {
       final response = await _dio.post(
         ApiConfig.walletDeposit(walletId),
@@ -113,7 +121,8 @@ class MarketRepository {
   }
 
   /// سحب من المحفظة
-  Future<ApiResult<WalletModel>> withdraw(String walletId, double amount, {String? description}) async {
+  Future<ApiResult<WalletModel>> withdraw(String walletId, double amount,
+      {String? description}) async {
     try {
       final response = await _dio.post(
         ApiConfig.walletWithdraw(walletId),
@@ -135,7 +144,8 @@ class MarketRepository {
   }
 
   /// جلب سجل المعاملات
-  Future<ApiResult<List<TransactionModel>>> getTransactions(String walletId, {int limit = 20}) async {
+  Future<ApiResult<List<TransactionModel>>> getTransactions(String walletId,
+      {int limit = 20}) async {
     try {
       final response = await _dio.get(
         ApiConfig.walletTransactions(walletId),
@@ -155,7 +165,8 @@ class MarketRepository {
   }
 
   /// حساب التصنيف الائتماني
-  Future<ApiResult<CreditScoreResult>> calculateCreditScore(String userId, FarmData farmData) async {
+  Future<ApiResult<CreditScoreResult>> calculateCreditScore(
+      String userId, FarmData farmData) async {
     try {
       final response = await _dio.post(
         ApiConfig.calculateCreditScore,
@@ -233,7 +244,8 @@ class MarketRepository {
   }
 
   /// سداد قرض
-  Future<ApiResult<LoanRepaymentResult>> repayLoan(String loanId, double amount) async {
+  Future<ApiResult<LoanRepaymentResult>> repayLoan(
+      String loanId, double amount) async {
     try {
       final response = await _dio.post(
         ApiConfig.repayLoan(loanId),
@@ -359,10 +371,12 @@ class MarketRepository {
         ApiConfig.marketOrders,
         data: {
           'buyerId': buyerId,
-          'items': items.map((item) => {
-            'productId': item.productId,
-            'quantity': item.quantity,
-          }).toList(),
+          'items': items
+              .map((item) => {
+                    'productId': item.productId,
+                    'quantity': item.quantity,
+                  })
+              .toList(),
           'deliveryAddress': deliveryAddress,
           'paymentMethod': paymentMethod,
         },
@@ -380,7 +394,8 @@ class MarketRepository {
   }
 
   /// جلب طلبات المستخدم
-  Future<ApiResult<List<OrderModel>>> getUserOrders(String userId, {String role = 'buyer'}) async {
+  Future<ApiResult<List<OrderModel>>> getUserOrders(String userId,
+      {String role = 'buyer'}) async {
     try {
       final response = await _dio.get(
         ApiConfig.userMarketOrders(userId),
@@ -416,7 +431,8 @@ class MarketRepository {
   }
 
   /// دالة مبسطة لإرسال طلب بيع الحصاد
-  Future<ApiResult<bool>> listHarvestForSale(String userId, Map<String, dynamic> yieldData) async {
+  Future<ApiResult<bool>> listHarvestForSale(
+      String userId, Map<String, dynamic> yieldData) async {
     try {
       await _dio.post(
         ApiConfig.listHarvest,

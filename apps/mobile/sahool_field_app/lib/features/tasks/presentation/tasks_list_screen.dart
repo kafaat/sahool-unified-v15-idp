@@ -74,7 +74,8 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
               setState(() {
                 _showOverdueOnly = !_showOverdueOnly;
                 if (_showOverdueOnly) {
-                  _statusFilter = null; // Clear status filter when showing overdue
+                  _statusFilter =
+                      null; // Clear status filter when showing overdue
                 }
               });
             },
@@ -88,7 +89,8 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
             onSelected: (status) {
               setState(() {
                 _statusFilter = status;
-                _showOverdueOnly = false; // Clear overdue filter when selecting status
+                _showOverdueOnly =
+                    false; // Clear overdue filter when selecting status
               });
             },
             itemBuilder: (context) => [
@@ -143,9 +145,8 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
               filteredTasks = tasks.where((t) => t.isOverdue).toList();
             } else if (_statusFilter != null) {
               // Apply status filter
-              filteredTasks = tasks
-                  .where((t) => t.status == _statusFilter)
-                  .toList();
+              filteredTasks =
+                  tasks.where((t) => t.status == _statusFilter).toList();
             }
 
             // Count overdue tasks for badge
@@ -159,7 +160,9 @@ class _TasksListScreenState extends ConsumerState<TasksListScreen> {
                     Icon(
                       _showOverdueOnly ? Icons.check_circle : Icons.task_alt,
                       size: 64,
-                      color: _showOverdueOnly ? Colors.green[400] : Colors.grey[400],
+                      color: _showOverdueOnly
+                          ? Colors.green[400]
+                          : Colors.grey[400],
                     ),
                     const SizedBox(height: 16),
                     Text(

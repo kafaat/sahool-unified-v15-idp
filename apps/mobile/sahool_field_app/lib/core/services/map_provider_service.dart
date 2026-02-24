@@ -48,10 +48,10 @@ class MapProviderStatus {
 
 /// Map layer type for user selection
 enum MapLayerType {
-  streets,    // الشوارع
-  satellite,  // القمر الصناعي
-  hybrid,     // هجين
-  terrain,    // التضاريس
+  streets, // الشوارع
+  satellite, // القمر الصناعي
+  hybrid, // هجين
+  terrain, // التضاريس
 }
 
 /// Current map state
@@ -124,7 +124,8 @@ class MapProviderService extends ChangeNotifier {
     for (final entry in _statusMap.entries) {
       if (!entry.value.isHealthy) {
         // Try to recover failed providers
-        final isAvailable = await _checkProviderAvailability(entry.value.provider);
+        final isAvailable =
+            await _checkProviderAvailability(entry.value.provider);
         if (isAvailable) {
           entry.value.reset();
         }
@@ -142,7 +143,8 @@ class MapProviderService extends ChangeNotifier {
           .replaceAll('{x}', '512')
           .replaceAll('{y}', '512');
 
-      final response = await http.head(Uri.parse(testUrl))
+      final response = await http
+          .head(Uri.parse(testUrl))
           .timeout(const Duration(seconds: 5));
 
       return response.statusCode == 200;
@@ -163,7 +165,8 @@ class MapProviderService extends ChangeNotifier {
 
     // Find next healthy provider
     final healthyProviders = _statusMap.values
-        .where((s) => s.isHealthy && s.provider.name != _state.activeProvider.name)
+        .where(
+            (s) => s.isHealthy && s.provider.name != _state.activeProvider.name)
         .toList();
 
     if (healthyProviders.isNotEmpty) {
@@ -197,7 +200,8 @@ class MapProviderService extends ChangeNotifier {
 
     switch (type) {
       case MapLayerType.streets:
-        newProvider = _findProviderByKeyword(['street', 'osm', 'openstreetmap']);
+        newProvider =
+            _findProviderByKeyword(['street', 'osm', 'openstreetmap']);
         break;
       case MapLayerType.satellite:
         newProvider = _findProviderByKeyword(['satellite', 'imagery']);
@@ -239,22 +243,22 @@ class MapProviderService extends ChangeNotifier {
         .where((s) => s.isHealthy)
         .map((s) => s.provider)
         .where((p) {
-          if (forLayerType == null) return true;
+      if (forLayerType == null) return true;
 
-          final name = p.name.toLowerCase();
-          switch (forLayerType) {
-            case MapLayerType.streets:
-              return name.contains('street') || name.contains('osm') ||
-                     (!name.contains('satellite') && !name.contains('hybrid'));
-            case MapLayerType.satellite:
-              return name.contains('satellite') || name.contains('imagery');
-            case MapLayerType.hybrid:
-              return name.contains('hybrid');
-            case MapLayerType.terrain:
-              return name.contains('topo') || name.contains('terrain');
-          }
-        })
-        .toList();
+      final name = p.name.toLowerCase();
+      switch (forLayerType) {
+        case MapLayerType.streets:
+          return name.contains('street') ||
+              name.contains('osm') ||
+              (!name.contains('satellite') && !name.contains('hybrid'));
+        case MapLayerType.satellite:
+          return name.contains('satellite') || name.contains('imagery');
+        case MapLayerType.hybrid:
+          return name.contains('hybrid');
+        case MapLayerType.terrain:
+          return name.contains('topo') || name.contains('terrain');
+      }
+    }).toList();
   }
 
   /// Get provider statistics
@@ -265,11 +269,11 @@ class MapProviderService extends ChangeNotifier {
       'healthy_count': _statusMap.values.where((s) => s.isHealthy).length,
       'total_count': _statusMap.length,
       'providers': _statusMap.map((key, value) => MapEntry(key, {
-        'status': value.status.name,
-        'failure_count': value.failureCount,
-        'last_failure': value.lastFailure?.toIso8601String(),
-        'last_success': value.lastSuccess?.toIso8601String(),
-      })),
+            'status': value.status.name,
+            'failure_count': value.failureCount,
+            'last_failure': value.lastFailure?.toIso8601String(),
+            'last_success': value.lastSuccess?.toIso8601String(),
+          })),
     };
   }
 

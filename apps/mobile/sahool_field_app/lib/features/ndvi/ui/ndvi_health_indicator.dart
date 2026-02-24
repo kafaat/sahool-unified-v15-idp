@@ -23,7 +23,8 @@ class NdviHealthIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final category = NdviHealthCategory.fromValue(ndviValue);
-    final color = NdviColormap.getColor(ndviValue, stops: NdviColormap.yemenStops);
+    final color =
+        NdviColormap.getColor(ndviValue, stops: NdviColormap.yemenStops);
 
     // Normalize to 0-1 for gauge (treating -1 to 1 as 0 to 1)
     final normalizedValue = ((ndviValue + 1) / 2).clamp(0.0, 1.0);
@@ -50,7 +51,8 @@ class NdviHealthIndicator extends StatelessWidget {
 
               // Progress arc
               TweenAnimationBuilder<double>(
-                duration: animate ? const Duration(milliseconds: 800) : Duration.zero,
+                duration:
+                    animate ? const Duration(milliseconds: 800) : Duration.zero,
                 curve: Curves.easeOutCubic,
                 tween: Tween(begin: 0, end: normalizedValue),
                 builder: (context, value, child) {
@@ -90,7 +92,6 @@ class NdviHealthIndicator extends StatelessWidget {
             ],
           ),
         ),
-
         if (showLabel) ...[
           const SizedBox(height: 8),
           Text(
@@ -356,9 +357,8 @@ class _NdviChartPainter extends CustomPainter {
 
     for (int i = 0; i < history.length; i++) {
       final x = padding + chartWidth * (i / (history.length - 1));
-      final normalizedY = range > 0
-          ? (history[i].value - minValue) / range
-          : 0.5;
+      final normalizedY =
+          range > 0 ? (history[i].value - minValue) / range : 0.5;
       final y = size.height - padding - chartHeight * normalizedY;
       points.add(Offset(x, y));
     }

@@ -320,10 +320,12 @@ class TerrainRepository {
     }
 
     try {
-      final response = await _httpClient.get(
-        Uri.parse('$_baseUrl/analysis/$fieldId'),
-        headers: _headers,
-      ).timeout(const Duration(seconds: 30));
+      final response = await _httpClient
+          .get(
+            Uri.parse('$_baseUrl/analysis/$fieldId'),
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -503,10 +505,12 @@ class TerrainRepository {
     }
 
     try {
-      final response = await _httpClient.get(
-        Uri.parse('$_baseUrl/slope/$fieldId'),
-        headers: _headers,
-      ).timeout(const Duration(seconds: 30));
+      final response = await _httpClient
+          .get(
+            Uri.parse('$_baseUrl/slope/$fieldId'),
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 30));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -603,10 +607,12 @@ class TerrainRepository {
   /// التحقق من توفر خدمة التضاريس
   Future<bool> isServiceAvailable() async {
     try {
-      final response = await _httpClient.get(
-        Uri.parse('$_baseUrl/healthz'),
-        headers: _headers,
-      ).timeout(const Duration(seconds: 5));
+      final response = await _httpClient
+          .get(
+            Uri.parse('$_baseUrl/healthz'),
+            headers: _headers,
+          )
+          .timeout(const Duration(seconds: 5));
 
       return response.statusCode == 200;
     } catch (e) {

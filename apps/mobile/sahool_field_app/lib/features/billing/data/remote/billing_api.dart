@@ -197,7 +197,8 @@ class BillingApi {
 
   /// Set default payment method
   /// تعيين طريقة الدفع الافتراضية
-  Future<void> setDefaultPaymentMethod({required String paymentMethodId}) async {
+  Future<void> setDefaultPaymentMethod(
+      {required String paymentMethodId}) async {
     await _client.post(
       '/api/v1/billing/payment-methods/$paymentMethodId/default',
       {
@@ -253,7 +254,8 @@ class BillingApi {
           message: 'يجب توفير معرف نية الدفع أو طريقة الدفع المحفوظة',
         );
       }
-    } else if (method == PaymentMethod.tharwatt || method == PaymentMethod.mobileMoney) {
+    } else if (method == PaymentMethod.tharwatt ||
+        method == PaymentMethod.mobileMoney) {
       if (phoneNumber == null || phoneNumber.isEmpty) {
         throw ApiException(
           code: 'INVALID_PARAMS',
@@ -533,7 +535,8 @@ class BillingApi {
           message: 'يجب توفير معرف نية الدفع أو طريقة الدفع المحفوظة',
         );
       }
-    } else if (method == PaymentMethod.tharwatt || method == PaymentMethod.mobileMoney) {
+    } else if (method == PaymentMethod.tharwatt ||
+        method == PaymentMethod.mobileMoney) {
       if (phoneNumber == null || phoneNumber.isEmpty) {
         throw ApiException(
           code: 'INVALID_PARAMS',
@@ -627,7 +630,8 @@ class WalletBalance {
       balance: (json['balance'] ?? 0).toDouble(),
       currency: json['currency'] ?? 'YER',
       pendingBalance: (json['pending_balance'] ?? 0).toDouble(),
-      lastUpdated: DateTime.tryParse(json['last_updated'] ?? '') ?? DateTime.now(),
+      lastUpdated:
+          DateTime.tryParse(json['last_updated'] ?? '') ?? DateTime.now(),
     );
   }
 }
@@ -767,7 +771,8 @@ class Subscription {
       status: json['status'] ?? 'active',
       billingCycle: json['billing_cycle'] ?? 'monthly',
       startDate: DateTime.tryParse(json['start_date'] ?? '') ?? DateTime.now(),
-      endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
+      endDate:
+          json['end_date'] != null ? DateTime.tryParse(json['end_date']) : null,
       nextBillingDate: json['next_billing_date'] != null
           ? DateTime.tryParse(json['next_billing_date'])
           : null,
@@ -813,7 +818,9 @@ class Invoice {
       currency: json['currency'] ?? 'USD',
       issueDate: DateTime.tryParse(json['issue_date'] ?? '') ?? DateTime.now(),
       dueDate: DateTime.tryParse(json['due_date'] ?? '') ?? DateTime.now(),
-      paidDate: json['paid_date'] != null ? DateTime.tryParse(json['paid_date']) : null,
+      paidDate: json['paid_date'] != null
+          ? DateTime.tryParse(json['paid_date'])
+          : null,
     );
   }
 }
@@ -856,8 +863,10 @@ class UsageStats {
 
   double get fieldsPercentage => fieldsLimit > 0 ? fieldsUsed / fieldsLimit : 0;
   double get usersPercentage => usersLimit > 0 ? usersUsed / usersLimit : 0;
-  double get storagePercentage => storageLimitMb > 0 ? storageUsedMb / storageLimitMb : 0;
-  double get apiPercentage => apiCallsLimit > 0 ? apiCallsUsed / apiCallsLimit : 0;
+  double get storagePercentage =>
+      storageLimitMb > 0 ? storageUsedMb / storageLimitMb : 0;
+  double get apiPercentage =>
+      apiCallsLimit > 0 ? apiCallsUsed / apiCallsLimit : 0;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -1082,7 +1091,8 @@ class SavedPaymentMethod {
   bool get isExpired {
     if (expMonth == null || expYear == null) return false;
     final now = DateTime.now();
-    final expDate = DateTime(expYear!, expMonth! + 1, 0); // Last day of exp month
+    final expDate =
+        DateTime(expYear!, expMonth! + 1, 0); // Last day of exp month
     return now.isAfter(expDate);
   }
 }

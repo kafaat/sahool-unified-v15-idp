@@ -30,7 +30,8 @@ class AlertServiceApi {
       KongServices.alerts,
       '/field/$fieldId',
       queryParams: queryParams,
-      fromJson: (data) => AlertsPageResponse.fromJson(data as Map<String, dynamic>),
+      fromJson: (data) =>
+          AlertsPageResponse.fromJson(data as Map<String, dynamic>),
     );
   }
 

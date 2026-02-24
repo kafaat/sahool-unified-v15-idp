@@ -31,8 +31,9 @@ final weatherIrrigationProvider = Provider<WeatherIrrigationIntegration>((ref) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Smart Irrigation Calculation Provider
-final smartIrrigationCalculationProvider = FutureProvider.family<
-    SmartIrrigationResult, SmartIrrigationParams>((ref, params) async {
+final smartIrrigationCalculationProvider =
+    FutureProvider.family<SmartIrrigationResult, SmartIrrigationParams>(
+        (ref, params) async {
   final repo = ref.watch(irrigationRepositoryProvider);
   final weatherIntegration = ref.watch(weatherIrrigationProvider);
   final calculator = repo.calculator;
@@ -130,7 +131,8 @@ List<IrrigationRecommendation> _generateRecommendations({
       priority: Priority.medium,
       title: 'Irrigation Recommended',
       titleAr: 'الري موصى به',
-      description: 'Soil moisture is below optimal. Schedule irrigation within 24 hours.',
+      description:
+          'Soil moisture is below optimal. Schedule irrigation within 24 hours.',
       descriptionAr: 'رطوبة التربة أقل من المثلى. جدول الري خلال 24 ساعة.',
     ));
   }
@@ -142,8 +144,10 @@ List<IrrigationRecommendation> _generateRecommendations({
       priority: Priority.medium,
       title: 'Weather-Based Adjustment',
       titleAr: 'تعديل مبني على الطقس',
-      description: 'Reduce irrigation by ${adjustment.savingsPercent.toStringAsFixed(0)}% due to: ${adjustment.reasons.join(", ")}',
-      descriptionAr: 'تقليل الري بنسبة ${adjustment.savingsPercent.toStringAsFixed(0)}% بسبب: ${adjustment.reasonsAr.join("، ")}',
+      description:
+          'Reduce irrigation by ${adjustment.savingsPercent.toStringAsFixed(0)}% due to: ${adjustment.reasons.join(", ")}',
+      descriptionAr:
+          'تقليل الري بنسبة ${adjustment.savingsPercent.toStringAsFixed(0)}% بسبب: ${adjustment.reasonsAr.join("، ")}',
     ));
   }
 
@@ -154,8 +158,10 @@ List<IrrigationRecommendation> _generateRecommendations({
       priority: Priority.low,
       title: 'Optimal Irrigation Time',
       titleAr: 'الوقت الأمثل للري',
-      description: 'Schedule irrigation in early morning (5-8 AM) to minimize evaporation losses.',
-      descriptionAr: 'جدول الري في الصباح الباكر (5-8 صباحًا) لتقليل خسائر التبخر.',
+      description:
+          'Schedule irrigation in early morning (5-8 AM) to minimize evaporation losses.',
+      descriptionAr:
+          'جدول الري في الصباح الباكر (5-8 صباحًا) لتقليل خسائر التبخر.',
     ));
   }
 
@@ -166,8 +172,10 @@ List<IrrigationRecommendation> _generateRecommendations({
       priority: Priority.low,
       title: 'Consider Upgrading Irrigation Method',
       titleAr: 'فكر في ترقية طريقة الري',
-      description: 'Current method has ${(method.efficiency * 100).toStringAsFixed(0)}% efficiency. Drip irrigation can save up to 30% water.',
-      descriptionAr: 'الطريقة الحالية كفاءتها ${(method.efficiency * 100).toStringAsFixed(0)}%. الري بالتنقيط يمكن أن يوفر حتى 30% من المياه.',
+      description:
+          'Current method has ${(method.efficiency * 100).toStringAsFixed(0)}% efficiency. Drip irrigation can save up to 30% water.',
+      descriptionAr:
+          'الطريقة الحالية كفاءتها ${(method.efficiency * 100).toStringAsFixed(0)}%. الري بالتنقيط يمكن أن يوفر حتى 30% من المياه.',
     ));
   }
 
@@ -179,8 +187,9 @@ List<IrrigationRecommendation> _generateRecommendations({
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Smart Schedule Generation Provider
-final smartScheduleProvider = FutureProvider.family<
-    SmartScheduleResult, SmartScheduleParams>((ref, params) async {
+final smartScheduleProvider =
+    FutureProvider.family<SmartScheduleResult, SmartScheduleParams>(
+        (ref, params) async {
   final repo = ref.watch(irrigationRepositoryProvider);
   final weatherIntegration = ref.watch(weatherIrrigationProvider);
   final scheduler = repo.scheduler;
@@ -233,8 +242,9 @@ final nextIrrigationEventProvider =
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Irrigation Weather Alerts Provider
-final irrigationWeatherAlertsProvider = FutureProvider.family<
-    List<IrrigationWeatherAlert>, WeatherAlertParams>((ref, params) async {
+final irrigationWeatherAlertsProvider =
+    FutureProvider.family<List<IrrigationWeatherAlert>, WeatherAlertParams>(
+        (ref, params) async {
   final weatherIntegration = ref.watch(weatherIrrigationProvider);
 
   return weatherIntegration.getIrrigationAlerts(

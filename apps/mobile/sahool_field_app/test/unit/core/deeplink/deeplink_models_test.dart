@@ -19,11 +19,11 @@ void main() {
     });
 
     test('should have Arabic display names', () {
-      expect(DeepLinkType.resetPassword.displayNameAr,
-          'إعادة تعيين كلمة المرور');
-      expect(DeepLinkType.verifyOtp.displayNameAr, 'التحقق من الرمز');
       expect(
-          DeepLinkType.verifyEmail.displayNameAr, 'التحقق من البريد الإلكتروني');
+          DeepLinkType.resetPassword.displayNameAr, 'إعادة تعيين كلمة المرور');
+      expect(DeepLinkType.verifyOtp.displayNameAr, 'التحقق من الرمز');
+      expect(DeepLinkType.verifyEmail.displayNameAr,
+          'التحقق من البريد الإلكتروني');
       expect(DeepLinkType.activateAccount.displayNameAr, 'تفعيل الحساب');
       expect(DeepLinkType.fieldDetails.displayNameAr, 'تفاصيل الحقل');
       expect(DeepLinkType.notification.displayNameAr, 'إشعار');
@@ -145,7 +145,8 @@ void main() {
 
     test('should create with token and email', () {
       final data = PasswordResetLinkData(
-        uri: Uri.parse('sahool://reset-password?token=abc123&email=test@test.com'),
+        uri: Uri.parse(
+            'sahool://reset-password?token=abc123&email=test@test.com'),
         token: 'abc123',
         email: 'test@test.com',
         receivedAt: DateTime.now(),
@@ -180,7 +181,8 @@ void main() {
   group('OtpVerificationLinkData', () {
     test('should create with identifier and purpose', () {
       final data = OtpVerificationLinkData(
-        uri: Uri.parse('sahool://verify-otp?identifier=user@test.com&purpose=email_verification'),
+        uri: Uri.parse(
+            'sahool://verify-otp?identifier=user@test.com&purpose=email_verification'),
         identifier: 'user@test.com',
         purpose: OtpPurpose.emailVerification,
         receivedAt: DateTime.now(),
@@ -228,8 +230,7 @@ void main() {
           OtpPurpose.emailVerification);
       expect(OtpPurposeExtension.fromString('two_factor_auth'),
           OtpPurpose.twoFactorAuth);
-      expect(OtpPurposeExtension.fromString('2fa'),
-          OtpPurpose.twoFactorAuth);
+      expect(OtpPurposeExtension.fromString('2fa'), OtpPurpose.twoFactorAuth);
       expect(OtpPurposeExtension.fromString('account_activation'),
           OtpPurpose.accountActivation);
       expect(OtpPurposeExtension.fromString('transaction_verification'),
@@ -242,10 +243,9 @@ void main() {
     });
 
     test('should have Arabic display names', () {
-      expect(OtpPurpose.passwordReset.displayNameAr,
-          'إعادة تعيين كلمة المرور');
-      expect(OtpPurpose.phoneVerification.displayNameAr,
-          'التحقق من رقم الهاتف');
+      expect(OtpPurpose.passwordReset.displayNameAr, 'إعادة تعيين كلمة المرور');
+      expect(
+          OtpPurpose.phoneVerification.displayNameAr, 'التحقق من رقم الهاتف');
       expect(OtpPurpose.emailVerification.displayNameAr,
           'التحقق من البريد الإلكتروني');
       expect(OtpPurpose.twoFactorAuth.displayNameAr, 'المصادقة الثنائية');
@@ -374,12 +374,8 @@ void main() {
       test('should accept valid tokens', () {
         expect(isValidTokenFormat('abcdefghijklmnopqrstuvwxyz123456'), true);
         expect(
-            isValidTokenFormat(
-                'aBcDeFgHiJkLmNoPqRsTuVwXyZ-123456789'),
-            true);
-        expect(
-            isValidTokenFormat(
-                'token_with_underscores_and-hyphens-1234'),
+            isValidTokenFormat('aBcDeFgHiJkLmNoPqRsTuVwXyZ-123456789'), true);
+        expect(isValidTokenFormat('token_with_underscores_and-hyphens-1234'),
             true);
       });
 
@@ -391,13 +387,8 @@ void main() {
 
       test('should reject tokens with invalid characters', () {
         expect(
-            isValidTokenFormat(
-                'token with spaces xxxxxxxxxxxxxxxxx'),
-            false);
-        expect(
-            isValidTokenFormat(
-                'token!@#\$%^&*()xxxxxxxxxxxxxxxxx'),
-            false);
+            isValidTokenFormat('token with spaces xxxxxxxxxxxxxxxxx'), false);
+        expect(isValidTokenFormat('token!@#\$%^&*()xxxxxxxxxxxxxxxxx'), false);
       });
     });
 

@@ -21,7 +21,8 @@ class StockMovementScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<StockMovementScreen> createState() => _StockMovementScreenState();
+  ConsumerState<StockMovementScreen> createState() =>
+      _StockMovementScreenState();
 }
 
 class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
@@ -164,7 +165,8 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
                               height: 20,
                               child: Padding(
                                 padding: EdgeInsets.all(12),
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               ),
                             )
                           : null,
@@ -181,7 +183,8 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
                       });
                     },
                     validator: (value) {
-                      if (_selectedMovementType == MovementType.fieldApplication &&
+                      if (_selectedMovementType ==
+                              MovementType.fieldApplication &&
                           (value == null || value.isEmpty)) {
                         return 'الرجاء اختيار الحقل';
                       }
@@ -196,7 +199,8 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
             // التاريخ
             ListTile(
               title: const Text('تاريخ الحركة'),
-              subtitle: Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
+              subtitle: Text(
+                  '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
               trailing: const Icon(Icons.calendar_today),
               onTap: () async {
                 final date = await showDatePicker(
@@ -300,7 +304,8 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
               onPressed: _submitMovement,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textStyle:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               child: const Text('تأكيد الحركة'),
             ),
@@ -362,9 +367,12 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
         success = await controller.stockIn(
           itemId: widget.item.itemId,
           quantity: quantity,
-          reference: _referenceController.text.isEmpty ? null : _referenceController.text,
+          reference: _referenceController.text.isEmpty
+              ? null
+              : _referenceController.text,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
-          notesAr: _notesArController.text.isEmpty ? null : _notesArController.text,
+          notesAr:
+              _notesArController.text.isEmpty ? null : _notesArController.text,
           movementDate: _selectedDate,
         );
         break;
@@ -372,9 +380,12 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
         success = await controller.stockOut(
           itemId: widget.item.itemId,
           quantity: quantity,
-          reference: _referenceController.text.isEmpty ? null : _referenceController.text,
+          reference: _referenceController.text.isEmpty
+              ? null
+              : _referenceController.text,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
-          notesAr: _notesArController.text.isEmpty ? null : _notesArController.text,
+          notesAr:
+              _notesArController.text.isEmpty ? null : _notesArController.text,
           movementDate: _selectedDate,
         );
         break;
@@ -385,7 +396,9 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
             quantity: quantity,
             fieldId: _selectedFieldId!,
             notes: _notesController.text.isEmpty ? null : _notesController.text,
-            notesAr: _notesArController.text.isEmpty ? null : _notesArController.text,
+            notesAr: _notesArController.text.isEmpty
+                ? null
+                : _notesArController.text,
             movementDate: _selectedDate,
           );
         }
@@ -395,7 +408,8 @@ class _StockMovementScreenState extends ConsumerState<StockMovementScreen> {
           itemId: widget.item.itemId,
           quantity: quantity,
           notes: _notesController.text.isEmpty ? null : _notesController.text,
-          notesAr: _notesArController.text.isEmpty ? null : _notesArController.text,
+          notesAr:
+              _notesArController.text.isEmpty ? null : _notesArController.text,
           movementDate: _selectedDate,
         );
         break;

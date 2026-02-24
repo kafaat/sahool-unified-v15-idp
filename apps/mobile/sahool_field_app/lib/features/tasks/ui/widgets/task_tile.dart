@@ -97,7 +97,8 @@ class _TaskTileState extends State<TaskTile>
             ),
           ],
           border: task.isOverdue && !_isChecked
-              ? Border.all(color: SahoolColors.danger.withOpacity(0.5), width: 1.5)
+              ? Border.all(
+                  color: SahoolColors.danger.withOpacity(0.5), width: 1.5)
               : null,
         ),
         child: Material(
@@ -208,9 +209,7 @@ class _TaskTileState extends State<TaskTile>
       duration: const Duration(milliseconds: 200),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: _isChecked
-            ? Colors.grey[200]
-            : task.typeLightColor,
+        color: _isChecked ? Colors.grey[200] : task.typeLightColor,
         shape: BoxShape.circle,
       ),
       child: Icon(

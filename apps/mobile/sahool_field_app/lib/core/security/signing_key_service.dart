@@ -62,7 +62,8 @@ class SigningKeyService {
       AppLogger.i('Generating new signing key', tag: 'SigningKeyService');
       return await _generateAndStoreKey();
     } catch (e) {
-      AppLogger.e('Failed to get signing key', tag: 'SigningKeyService', error: e);
+      AppLogger.e('Failed to get signing key',
+          tag: 'SigningKeyService', error: e);
       rethrow;
     }
   }
@@ -147,7 +148,8 @@ class SigningKeyService {
 
       try {
         final androidInfo = await deviceInfo.androidInfo;
-        deviceId = '${androidInfo.id}_${androidInfo.device}_${androidInfo.model}';
+        deviceId =
+            '${androidInfo.id}_${androidInfo.device}_${androidInfo.model}';
       } catch (_) {
         try {
           final iosInfo = await deviceInfo.iosInfo;
@@ -165,7 +167,8 @@ class SigningKeyService {
 
       return deviceId;
     } catch (e) {
-      AppLogger.e('Failed to get device ID', tag: 'SigningKeyService', error: e);
+      AppLogger.e('Failed to get device ID',
+          tag: 'SigningKeyService', error: e);
       // Return empty string as fallback
       return '';
     }
@@ -200,7 +203,10 @@ class SigningKeyService {
         AppLogger.i(
           'Key rotation required: version mismatch',
           tag: 'SigningKeyService',
-          data: {'currentVersion': version, 'requiredVersion': currentKeyVersion},
+          data: {
+            'currentVersion': version,
+            'requiredVersion': currentKeyVersion
+          },
         );
         return true;
       }
@@ -291,7 +297,8 @@ class SigningKeyService {
       ]);
       AppLogger.i('Signing key cleared', tag: 'SigningKeyService');
     } catch (e) {
-      AppLogger.e('Failed to clear signing key', tag: 'SigningKeyService', error: e);
+      AppLogger.e('Failed to clear signing key',
+          tag: 'SigningKeyService', error: e);
       rethrow;
     }
   }

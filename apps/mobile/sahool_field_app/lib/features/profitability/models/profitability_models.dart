@@ -109,7 +109,9 @@ class CostCategory {
 
   /// Get description based on locale
   String? getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr
+        : description;
   }
 
   factory CostCategory.fromJson(Map<String, dynamic> json) {
@@ -192,7 +194,9 @@ class Revenue {
 
   /// Get description based on locale
   String? getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr
+        : description;
   }
 
   factory Revenue.fromJson(Map<String, dynamic> json) {
@@ -389,7 +393,8 @@ class CropProfitability {
   Map<RevenueType, double> getRevenuesByType() {
     final Map<RevenueType, double> revenueMap = {};
     for (final revenue in revenues) {
-      revenueMap[revenue.type] = (revenueMap[revenue.type] ?? 0) + revenue.amount;
+      revenueMap[revenue.type] =
+          (revenueMap[revenue.type] ?? 0) + revenue.amount;
     }
     return revenueMap;
   }
@@ -424,10 +429,13 @@ class CropProfitability {
       revenuePerHectare: (json['revenue_per_hectare'] as num).toDouble(),
       profitPerHectare: (json['profit_per_hectare'] as num).toDouble(),
       breakEvenAnalysis: json['break_even_analysis'] != null
-          ? BreakEvenAnalysis.fromJson(json['break_even_analysis'] as Map<String, dynamic>)
+          ? BreakEvenAnalysis.fromJson(
+              json['break_even_analysis'] as Map<String, dynamic>)
           : null,
       startDate: DateTime.parse(json['start_date'] as String),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+      endDate: json['end_date'] != null
+          ? DateTime.parse(json['end_date'] as String)
+          : null,
       createdAt: DateTime.parse(json['created_at'] as String),
       updatedAt: DateTime.parse(json['updated_at'] as String),
       metadata: json['metadata'] as Map<String, dynamic>?,
@@ -533,7 +541,8 @@ class SeasonSummary {
 
   /// الحصول على أفضل المحاصيل حسب ROI
   List<CropProfitability> getTopCropsByRoi({int limit = 5}) {
-    final sorted = List<CropProfitability>.from(crops)..sort((a, b) => b.roi.compareTo(a.roi));
+    final sorted = List<CropProfitability>.from(crops)
+      ..sort((a, b) => b.roi.compareTo(a.roi));
     return sorted.take(limit).toList();
   }
 
@@ -556,14 +565,19 @@ class SeasonSummary {
       netProfit: (json['net_profit'] as num).toDouble(),
       profitMargin: (json['profit_margin'] as num).toDouble(),
       avgRoi: (json['avg_roi'] as num).toDouble(),
-      costsByCategory: (json['costs_by_category'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
+      costsByCategory:
+          (json['costs_by_category'] as Map<String, dynamic>?)?.map(
+                (k, v) => MapEntry(k, (v as num).toDouble()),
+              ) ??
+              {},
       revenuesByCrop: (json['revenues_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toDouble()),
+          ) ??
+          {},
       startDate: DateTime.parse(json['start_date'] as String),
-      endDate: json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : null,
+      endDate: json['end_date'] != null
+          ? DateTime.parse(json['end_date'] as String)
+          : null,
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -625,20 +639,27 @@ class ProfitabilityComparison {
           .map((e) => CropProfitability.fromJson(e as Map<String, dynamic>))
           .toList(),
       avgYieldByCrop: (json['avg_yield_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toDouble()),
+          ) ??
+          {},
       avgCostByCrop: (json['avg_cost_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
-      avgRevenueByCrop: (json['avg_revenue_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
-      avgProfitByCrop: (json['avg_profit_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toDouble()),
+          ) ??
+          {},
+      avgRevenueByCrop:
+          (json['avg_revenue_by_crop'] as Map<String, dynamic>?)?.map(
+                (k, v) => MapEntry(k, (v as num).toDouble()),
+              ) ??
+              {},
+      avgProfitByCrop:
+          (json['avg_profit_by_crop'] as Map<String, dynamic>?)?.map(
+                (k, v) => MapEntry(k, (v as num).toDouble()),
+              ) ??
+              {},
       avgRoiByCrop: (json['avg_roi_by_crop'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toDouble()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toDouble()),
+          ) ??
+          {},
       bestCropByProfit: json['best_crop_by_profit'] as String?,
       bestCropByRoi: json['best_crop_by_roi'] as String?,
       lowestCostCrop: json['lowest_cost_crop'] as String?,

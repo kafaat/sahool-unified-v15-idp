@@ -286,8 +286,7 @@ class TFLiteHelper {
     final padTop = (config.inputSize - newHeight) ~/ 2;
 
     // Get image bytes
-    final byteData =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     if (byteData == null) {
       throw TFLiteException(
         'Failed to get image bytes',
@@ -379,10 +378,10 @@ class TFLiteHelper {
       final height = row[3] / config.inputSize;
 
       // Remove letterbox padding effect
-      final x =
-          (xCenter - preprocessed.padLeft / config.inputSize) / preprocessed.scaleX;
-      final y =
-          (yCenter - preprocessed.padTop / config.inputSize) / preprocessed.scaleY;
+      final x = (xCenter - preprocessed.padLeft / config.inputSize) /
+          preprocessed.scaleX;
+      final y = (yCenter - preprocessed.padTop / config.inputSize) /
+          preprocessed.scaleY;
       final w = width / preprocessed.scaleX;
       final h = height / preprocessed.scaleY;
 
@@ -445,9 +444,8 @@ class TFLiteHelper {
   double _calculateIoU(BoundingBox a, BoundingBox b) {
     final xA = (a.x > b.x) ? a.x : b.x;
     final yA = (a.y > b.y) ? a.y : b.y;
-    final xB = ((a.x + a.width) < (b.x + b.width))
-        ? (a.x + a.width)
-        : (b.x + b.width);
+    final xB =
+        ((a.x + a.width) < (b.x + b.width)) ? (a.x + a.width) : (b.x + b.width);
     final yB = ((a.y + a.height) < (b.y + b.height))
         ? (a.y + a.height)
         : (b.y + b.height);
@@ -538,7 +536,8 @@ class TFLiteException implements Exception {
   TFLiteException(this.message, this.messageAr, {this.cause});
 
   @override
-  String toString() => 'TFLiteException: $message${cause != null ? ' ($cause)' : ''}';
+  String toString() =>
+      'TFLiteException: $message${cause != null ? ' ($cause)' : ''}';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -599,8 +598,9 @@ class ImageUtils {
 
         // YUV to RGB conversion
         final r = (yVal + 1.402 * (vVal - 128)).clamp(0, 255).toInt();
-        final g =
-            (yVal - 0.344 * (uVal - 128) - 0.714 * (vVal - 128)).clamp(0, 255).toInt();
+        final g = (yVal - 0.344 * (uVal - 128) - 0.714 * (vVal - 128))
+            .clamp(0, 255)
+            .toInt();
         final b = (yVal + 1.772 * (uVal - 128)).clamp(0, 255).toInt();
 
         final rgbIdx = (y * width + x) * 3;

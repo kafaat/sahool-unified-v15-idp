@@ -4,12 +4,14 @@ import 'package:flutter/material.dart';
 /// ألوان صناعية زراعية للرؤية الواضحة تحت أشعة الشمس
 class SahoolProColors {
   // الألوان الأساسية - Industrial Agricultural Colors
-  static const Color johnGreen = Color(0xFF367C2B);      // الأخضر الصناعي (John Deere)
-  static const Color deepJungle = Color(0xFF1B4D3E);     // للخلفيات الداكنة
-  static const Color tractorYellow = Color(0xFFFFDE00);  // للتنبيهات (High Visibility)
-  static const Color alertRed = Color(0xFFD32F2F);       // للخطر
-  static const Color warningOrange = Color(0xFFFF9800);  // للتحذيرات
-  static const Color soilBrown = Color(0xFF5D4037);      // للعناصر الأرضية
+  static const Color johnGreen =
+      Color(0xFF367C2B); // الأخضر الصناعي (John Deere)
+  static const Color deepJungle = Color(0xFF1B4D3E); // للخلفيات الداكنة
+  static const Color tractorYellow =
+      Color(0xFFFFDE00); // للتنبيهات (High Visibility)
+  static const Color alertRed = Color(0xFFD32F2F); // للخطر
+  static const Color warningOrange = Color(0xFFFF9800); // للتحذيرات
+  static const Color soilBrown = Color(0xFF5D4037); // للعناصر الأرضية
 
   // ألوان السطح - Surface Colors
   static const Color surfaceWhite = Color(0xFFFAFAFA);
@@ -81,7 +83,8 @@ class SahoolProTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        extendedPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        extendedPadding:
+            const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       ),
 
       // تصميم الأزرار العادية
@@ -106,7 +109,8 @@ class SahoolProTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -117,11 +121,13 @@ class SahoolProTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: SahoolProColors.johnGreen, width: 2),
+          borderSide:
+              const BorderSide(color: SahoolProColors.johnGreen, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: SahoolProColors.alertRed, width: 2),
+          borderSide:
+              const BorderSide(color: SahoolProColors.alertRed, width: 2),
         ),
       ),
 
@@ -185,7 +191,6 @@ class SahoolProTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-
       colorScheme: ColorScheme.fromSeed(
         seedColor: SahoolProColors.johnGreen,
         brightness: Brightness.dark,
@@ -194,12 +199,10 @@ class SahoolProTheme {
         surface: const Color(0xFF1E1E1E),
         error: SahoolProColors.alertRed,
       ),
-
       fontFamily: 'IBMPlexSansArabic',
       textTheme: ThemeData.dark().textTheme.apply(
-        fontFamily: 'IBMPlexSansArabic',
-      ),
-
+            fontFamily: 'IBMPlexSansArabic',
+          ),
       cardTheme: CardTheme(
         elevation: 4,
         color: const Color(0xFF2D2D2D),
@@ -214,34 +217,34 @@ class SahoolProTheme {
 /// ظلال جاهزة للاستخدام
 class SahoolProShadows {
   static List<BoxShadow> get small => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.08),
-      blurRadius: 4,
-      offset: const Offset(0, 2),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.08),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   static List<BoxShadow> get medium => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.12),
-      blurRadius: 8,
-      offset: const Offset(0, 4),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.12),
+          blurRadius: 8,
+          offset: const Offset(0, 4),
+        ),
+      ];
 
   static List<BoxShadow> get large => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.16),
-      blurRadius: 16,
-      offset: const Offset(0, 8),
-    ),
-  ];
+        BoxShadow(
+          color: Colors.black.withOpacity(0.16),
+          blurRadius: 16,
+          offset: const Offset(0, 8),
+        ),
+      ];
 
   static List<BoxShadow> elevated(Color color) => [
-    BoxShadow(
-      color: color.withOpacity(0.3),
-      blurRadius: 12,
-      offset: const Offset(0, 6),
-    ),
-  ];
+        BoxShadow(
+          color: color.withOpacity(0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
+        ),
+      ];
 }

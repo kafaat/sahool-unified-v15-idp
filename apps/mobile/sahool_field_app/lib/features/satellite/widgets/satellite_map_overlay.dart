@@ -52,7 +52,8 @@ class SatelliteMapOverlay extends StatelessWidget {
                           ? loadingProgress.cumulativeBytesLoaded /
                               loadingProgress.expectedTotalBytes!
                           : null,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF367C2B)),
+                      valueColor: const AlwaysStoppedAnimation<Color>(
+                          Color(0xFF367C2B)),
                     ),
                   );
                 },

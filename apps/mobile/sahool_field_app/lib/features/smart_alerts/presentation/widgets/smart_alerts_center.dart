@@ -168,7 +168,8 @@ class _AlertCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getSeverityColor(alert.severity).withOpacity(0.1),
+                        color:
+                            _getSeverityColor(alert.severity).withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -241,7 +242,8 @@ class _AlertCard extends StatelessWidget {
                             horizontal: 16,
                             vertical: 8,
                           ),
-                          backgroundColor: SahoolColors.primary.withOpacity(0.1),
+                          backgroundColor:
+                              SahoolColors.primary.withOpacity(0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),

@@ -193,8 +193,7 @@ final unreadCountProvider = Provider<int>((ref) {
 });
 
 /// Filtered Notifications Provider
-final filteredNotificationsProvider =
-    Provider<List<AppNotification>>((ref) {
+final filteredNotificationsProvider = Provider<List<AppNotification>>((ref) {
   final notifications = ref.watch(notificationsProvider).notifications;
   final filter = ref.watch(notificationFilterProvider);
 

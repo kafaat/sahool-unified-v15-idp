@@ -243,10 +243,14 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
             chartData.records.length
         : 0.0;
     final maxDaily = chartData.records.isNotEmpty
-        ? chartData.records.map((r) => r.gddValue).reduce((a, b) => a > b ? a : b)
+        ? chartData.records
+            .map((r) => r.gddValue)
+            .reduce((a, b) => a > b ? a : b)
         : 0.0;
     final minDaily = chartData.records.isNotEmpty
-        ? chartData.records.map((r) => r.gddValue).reduce((a, b) => a < b ? a : b)
+        ? chartData.records
+            .map((r) => r.gddValue)
+            .reduce((a, b) => a < b ? a : b)
         : 0.0;
 
     return Card(

@@ -91,7 +91,8 @@ final processorStateStreamProvider = StreamProvider<ProcessorState>((ref) {
 
 /// Current processor state (synchronous)
 final processorStateProvider = StateProvider<ProcessorState>((ref) {
-  ref.listen<AsyncValue<ProcessorState>>(processorStateStreamProvider, (prev, next) {
+  ref.listen<AsyncValue<ProcessorState>>(processorStateStreamProvider,
+      (prev, next) {
     next.whenData((state) {
       ref.controller.state = state;
     });
@@ -112,7 +113,8 @@ final outboxStatsProvider = FutureProvider<OutboxStats>((ref) async {
 });
 
 /// Stream of processing progress
-final processingProgressStreamProvider = StreamProvider<ProcessingProgress>((ref) {
+final processingProgressStreamProvider =
+    StreamProvider<ProcessingProgress>((ref) {
   final processor = ref.watch(outboxProcessorProvider);
   return processor.progressStream;
 });
@@ -237,7 +239,8 @@ final needsAttentionProvider = Provider<bool>((ref) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Force sync action
-final forceSyncProvider = FutureProvider.family<ProcessingResult, void>((ref, _) async {
+final forceSyncProvider =
+    FutureProvider.family<ProcessingResult, void>((ref, _) async {
   final processor = ref.read(outboxProcessorProvider);
   return processor.processNow();
 });

@@ -115,7 +115,8 @@ final subscribedTopicsProvider = Provider<Set<String>>((ref) {
 class NotificationActionsNotifier extends StateNotifier<AsyncValue<void>> {
   final NotificationManager _manager;
 
-  NotificationActionsNotifier(this._manager) : super(const AsyncValue.data(null));
+  NotificationActionsNotifier(this._manager)
+      : super(const AsyncValue.data(null));
 
   /// Show a notification
   Future<void> showNotification({

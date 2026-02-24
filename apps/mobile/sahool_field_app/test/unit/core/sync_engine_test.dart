@@ -85,11 +85,13 @@ void main() {
 
     group('SyncStatus enum', () {
       test('should have all expected statuses', () {
-        expect(SyncStatus.values, containsAll([
-          SyncStatus.idle,
-          SyncStatus.syncing,
-          SyncStatus.error,
-        ]));
+        expect(
+            SyncStatus.values,
+            containsAll([
+              SyncStatus.idle,
+              SyncStatus.syncing,
+              SyncStatus.error,
+            ]));
       });
     });
 

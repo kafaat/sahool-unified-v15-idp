@@ -89,7 +89,8 @@ void main() {
       });
 
       test('performance log should include duration', () {
-        AppLogger.performance('database_query', const Duration(milliseconds: 150));
+        AppLogger.performance(
+            'database_query', const Duration(milliseconds: 150));
 
         final logs = AppLogger.getRecentLogs();
         expect(logs, isNotEmpty);
@@ -167,7 +168,8 @@ void main() {
       });
 
       test('toString should include all components', () {
-        AppLogger.e('Error occurred', tag: 'ErrorTag', error: Exception('Test'));
+        AppLogger.e('Error occurred',
+            tag: 'ErrorTag', error: Exception('Test'));
 
         final log = AppLogger.getRecentLogs().last;
         final str = log.toString();

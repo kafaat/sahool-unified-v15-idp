@@ -135,7 +135,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
                     controller: _appliedRateController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: isArabic ? 'المعدل المطبق *' : 'Applied Rate *',
+                      labelText:
+                          isArabic ? 'المعدل المطبق *' : 'Applied Rate *',
                       hintText: _selectedProduct != null
                           ? '${_selectedProduct!.recommendedRate}'
                           : '',
@@ -184,7 +185,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               onTap: () => _selectDate(context, isArabic),
               child: InputDecorator(
                 decoration: InputDecoration(
-                  labelText: isArabic ? 'تاريخ التطبيق *' : 'Application Date *',
+                  labelText:
+                      isArabic ? 'تاريخ التطبيق *' : 'Application Date *',
                   border: const OutlineInputBorder(),
                 ),
                 child: Row(
@@ -213,7 +215,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               controller: _applicatorNameController,
               decoration: InputDecoration(
                 labelText: isArabic ? 'اسم المطبق' : 'Applicator Name',
-                hintText: isArabic ? 'من قام بتطبيق الرش؟' : 'Who applied the spray?',
+                hintText:
+                    isArabic ? 'من قام بتطبيق الرش؟' : 'Who applied the spray?',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -222,7 +225,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               controller: _equipmentController,
               decoration: InputDecoration(
                 labelText: isArabic ? 'المعدة المستخدمة' : 'Equipment Used',
-                hintText: isArabic ? 'مثال: رشاشة ظهرية' : 'e.g., Backpack Sprayer',
+                hintText:
+                    isArabic ? 'مثال: رشاشة ظهرية' : 'e.g., Backpack Sprayer',
                 border: const OutlineInputBorder(),
               ),
             ),
@@ -294,7 +298,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               _selectedProduct = null; // Reset product when type changes
             });
           },
-          backgroundColor: isSelected ? theme.colorScheme.primaryContainer : null,
+          backgroundColor:
+              isSelected ? theme.colorScheme.primaryContainer : null,
           selectedColor: theme.colorScheme.primary,
           labelStyle: TextStyle(
             color: isSelected ? Colors.white : null,
@@ -368,7 +373,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
             setState(() {
               _selectedProduct = product;
               if (product != null) {
-                _appliedRateController.text = product.recommendedRate.toString();
+                _appliedRateController.text =
+                    product.recommendedRate.toString();
               }
             });
           },
@@ -454,7 +460,8 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => _pickImage(ImageSource.gallery, isArabic),
                 icon: const Icon(Icons.photo_library),
-                label: Text(isArabic ? 'اختر من المعرض' : 'Choose from Gallery'),
+                label:
+                    Text(isArabic ? 'اختر من المعرض' : 'Choose from Gallery'),
               ),
             ),
           ],
@@ -570,7 +577,9 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic ? 'يرجى اختيار نوع الرش والمنتج' : 'Please select spray type and product',
+            isArabic
+                ? 'يرجى اختيار نوع الرش والمنتج'
+                : 'Please select spray type and product',
           ),
           backgroundColor: Colors.red,
         ),
@@ -607,7 +616,9 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
         applicatorName: _applicatorNameController.text.isEmpty
             ? null
             : _applicatorNameController.text,
-        equipmentUsed: _equipmentController.text.isEmpty ? null : _equipmentController.text,
+        equipmentUsed: _equipmentController.text.isEmpty
+            ? null
+            : _equipmentController.text,
         photoUrls: _uploadedPhotoUrls,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
         notesAr: _notesController.text.isEmpty ? null : _notesController.text,

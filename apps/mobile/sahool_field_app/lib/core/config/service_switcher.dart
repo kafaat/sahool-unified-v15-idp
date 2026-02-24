@@ -303,7 +303,8 @@ class ServiceSwitcher {
           _versions[serviceType] = version;
         }
       } catch (e) {
-        AppLogger.e('Failed to load service versions', tag: 'ServiceSwitcher', error: e);
+        AppLogger.e('Failed to load service versions',
+            tag: 'ServiceSwitcher', error: e);
       }
     }
 

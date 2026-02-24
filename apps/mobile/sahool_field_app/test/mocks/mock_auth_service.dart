@@ -4,7 +4,8 @@ import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 import 'package:sahool_field_app/core/auth/biometric_service.dart';
 
 // Re-export User and AuthException for test convenience
-export 'package:sahool_field_app/core/auth/auth_service.dart' show User, AuthException;
+export 'package:sahool_field_app/core/auth/auth_service.dart'
+    show User, AuthException;
 
 /// Mock AuthService for testing
 /// خدمة المصادقة الوهمية للاختبارات

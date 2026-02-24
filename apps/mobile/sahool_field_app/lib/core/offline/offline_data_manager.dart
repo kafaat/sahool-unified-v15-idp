@@ -14,10 +14,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// حالة البيانات المحلية
 enum LocalDataStatus {
-  synced,      // متزامنة مع السيرفر
+  synced, // متزامنة مع السيرفر
   pendingSync, // في انتظار المزامنة
-  conflict,    // تعارض مع السيرفر
-  error,       // خطأ في المزامنة
+  conflict, // تعارض مع السيرفر
+  error, // خطأ في المزامنة
 }
 
 /// عنصر بيانات محلي
@@ -43,31 +43,31 @@ class LocalDataItem {
   });
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'entity_type': entityType,
-    'data': data,
-    'status': status.name,
-    'modified_at': modifiedAt.toIso8601String(),
-    'synced_at': syncedAt?.toIso8601String(),
-    'error_message': errorMessage,
-    'retry_count': retryCount,
-  };
+        'id': id,
+        'entity_type': entityType,
+        'data': data,
+        'status': status.name,
+        'modified_at': modifiedAt.toIso8601String(),
+        'synced_at': syncedAt?.toIso8601String(),
+        'error_message': errorMessage,
+        'retry_count': retryCount,
+      };
 
   factory LocalDataItem.fromJson(Map<String, dynamic> json) => LocalDataItem(
-    id: json['id'] as String,
-    entityType: json['entity_type'] as String,
-    data: Map<String, dynamic>.from(json['data'] as Map),
-    status: LocalDataStatus.values.firstWhere(
-      (e) => e.name == json['status'],
-      orElse: () => LocalDataStatus.pendingSync,
-    ),
-    modifiedAt: DateTime.parse(json['modified_at'] as String),
-    syncedAt: json['synced_at'] != null
-        ? DateTime.parse(json['synced_at'] as String)
-        : null,
-    errorMessage: json['error_message'] as String?,
-    retryCount: json['retry_count'] as int? ?? 0,
-  );
+        id: json['id'] as String,
+        entityType: json['entity_type'] as String,
+        data: Map<String, dynamic>.from(json['data'] as Map),
+        status: LocalDataStatus.values.firstWhere(
+          (e) => e.name == json['status'],
+          orElse: () => LocalDataStatus.pendingSync,
+        ),
+        modifiedAt: DateTime.parse(json['modified_at'] as String),
+        syncedAt: json['synced_at'] != null
+            ? DateTime.parse(json['synced_at'] as String)
+            : null,
+        errorMessage: json['error_message'] as String?,
+        retryCount: json['retry_count'] as int? ?? 0,
+      );
 
   LocalDataItem copyWith({
     String? id,
@@ -78,16 +78,17 @@ class LocalDataItem {
     DateTime? syncedAt,
     String? errorMessage,
     int? retryCount,
-  }) => LocalDataItem(
-    id: id ?? this.id,
-    entityType: entityType ?? this.entityType,
-    data: data ?? this.data,
-    status: status ?? this.status,
-    modifiedAt: modifiedAt ?? this.modifiedAt,
-    syncedAt: syncedAt ?? this.syncedAt,
-    errorMessage: errorMessage ?? this.errorMessage,
-    retryCount: retryCount ?? this.retryCount,
-  );
+  }) =>
+      LocalDataItem(
+        id: id ?? this.id,
+        entityType: entityType ?? this.entityType,
+        data: data ?? this.data,
+        status: status ?? this.status,
+        modifiedAt: modifiedAt ?? this.modifiedAt,
+        syncedAt: syncedAt ?? this.syncedAt,
+        errorMessage: errorMessage ?? this.errorMessage,
+        retryCount: retryCount ?? this.retryCount,
+      );
 }
 
 /// مدير البيانات المحلية
@@ -116,7 +117,8 @@ class OfflineDataManager {
     // مراقبة حالة الاتصال
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       (List<ConnectivityResult> results) {
-        if (results.isNotEmpty && !results.every((r) => r == ConnectivityResult.none)) {
+        if (results.isNotEmpty &&
+            !results.every((r) => r == ConnectivityResult.none)) {
           _onConnectionRestored();
         }
       },
@@ -177,9 +179,11 @@ class OfflineDataManager {
   /// الحصول على جميع العناصر المعلقة
   Future<List<LocalDataItem>> getPendingItems() async {
     final items = await _getLocalItems();
-    return items.where(
-      (item) => item.status == LocalDataStatus.pendingSync,
-    ).toList();
+    return items
+        .where(
+          (item) => item.status == LocalDataStatus.pendingSync,
+        )
+        .toList();
   }
 
   /// الحصول على عدد التغييرات المعلقة
@@ -232,7 +236,7 @@ class OfflineDataManager {
 
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOffline = connectivityResults.isEmpty ||
-                      connectivityResults.every((r) => r == ConnectivityResult.none);
+        connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOffline) {
       return OfflineSyncResult(
         success: false,
@@ -316,7 +320,7 @@ class OfflineDataManager {
   void _trySyncNow() async {
     final connectivityResults = await _connectivity.checkConnectivity();
     final isOnline = connectivityResults.isNotEmpty &&
-                     !connectivityResults.every((r) => r == ConnectivityResult.none);
+        !connectivityResults.every((r) => r == ConnectivityResult.none);
     if (isOnline && !_isSyncing) {
       syncNow();
     }
@@ -367,9 +371,9 @@ class OfflineDataManager {
 
 /// حالة المزامنة
 enum OfflineSyncStatus {
-  idle,    // في وضع الانتظار
+  idle, // في وضع الانتظار
   syncing, // جاري المزامنة
-  error,   // خطأ
+  error, // خطأ
 }
 
 /// نتيجة المزامنة

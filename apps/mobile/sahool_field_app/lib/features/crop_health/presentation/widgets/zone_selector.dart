@@ -77,14 +77,10 @@ class ZoneSelector extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF367C2B)
-              : Colors.white,
+          color: isSelected ? const Color(0xFF367C2B) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF367C2B)
-                : Colors.grey[300]!,
+            color: isSelected ? const Color(0xFF367C2B) : Colors.grey[300]!,
             width: 2,
           ),
           boxShadow: isSelected

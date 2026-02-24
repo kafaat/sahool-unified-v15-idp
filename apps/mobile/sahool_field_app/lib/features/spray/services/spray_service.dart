@@ -127,7 +127,8 @@ class SprayService {
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (sprayType != null) queryParams['spray_type'] = sprayType.value;
       if (status != null) queryParams['status'] = status.value;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String();
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
@@ -171,15 +172,18 @@ class SprayService {
   }
 
   /// جلب توصية محددة
-  Future<ApiResult<SprayRecommendation>> getRecommendationById(String recommendationId) async {
+  Future<ApiResult<SprayRecommendation>> getRecommendationById(
+      String recommendationId) async {
     try {
-      final response = await _dio.get('/v1/spray/recommendations/$recommendationId');
+      final response =
+          await _dio.get('/v1/spray/recommendations/$recommendationId');
       return ApiResult.success(
         SprayRecommendation.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Recommendation not found', 'التوصية غير موجودة');
+        return ApiResult.failure(
+            'Recommendation not found', 'التوصية غير موجودة');
       }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch recommendation',
@@ -278,7 +282,8 @@ class SprayService {
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Recommendation not found', 'التوصية غير موجودة');
+        return ApiResult.failure(
+            'Recommendation not found', 'التوصية غير موجودة');
       }
       return ApiResult.failure(
         e.message ?? 'Failed to delete recommendation',
@@ -353,7 +358,8 @@ class SprayService {
       );
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        return ApiResult.failure('Spray window not found', 'نافذة الرش غير موجودة');
+        return ApiResult.failure(
+            'Spray window not found', 'نافذة الرش غير موجودة');
       }
       return ApiResult.failure(
         e.message ?? 'Failed to fetch spray window',
@@ -603,7 +609,8 @@ class SprayService {
       };
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (sprayType != null) queryParams['spray_type'] = sprayType.value;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String();
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(

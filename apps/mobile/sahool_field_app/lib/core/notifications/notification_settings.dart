@@ -101,8 +101,7 @@ class NotificationSettings {
   }
 
   /// بداية ساعات الهدوء (بالساعة)
-  int get quietHoursStart =>
-      _prefs.getInt('${_prefix}quiet_hours_start') ?? 22;
+  int get quietHoursStart => _prefs.getInt('${_prefix}quiet_hours_start') ?? 22;
 
   set quietHoursStart(int value) {
     _prefs.setInt('${_prefix}quiet_hours_start', value);
@@ -225,18 +224,21 @@ class NotificationSettings {
     for (final key in keys) {
       await _prefs.remove(key);
     }
-    AppLogger.i('Notification settings reset to defaults', tag: 'NOTIFICATIONS');
+    AppLogger.i('Notification settings reset to defaults',
+        tag: 'NOTIFICATIONS');
   }
 }
 
 /// Provider للإعدادات
-final notificationSettingsProvider = FutureProvider<NotificationSettings>((ref) async {
+final notificationSettingsProvider =
+    FutureProvider<NotificationSettings>((ref) async {
   final prefs = await SharedPreferences.getInstance();
   return NotificationSettings(prefs);
 });
 
 /// Notifier للتحكم في الإعدادات
-class NotificationSettingsNotifier extends StateNotifier<NotificationSettingsState> {
+class NotificationSettingsNotifier
+    extends StateNotifier<NotificationSettingsState> {
   final NotificationSettings _settings;
 
   NotificationSettingsNotifier(this._settings)
@@ -312,7 +314,8 @@ class NotificationSettingsState {
     required this.quietHoursEnd,
   });
 
-  factory NotificationSettingsState.fromSettings(NotificationSettings settings) {
+  factory NotificationSettingsState.fromSettings(
+      NotificationSettings settings) {
     return NotificationSettingsState(
       irrigationAlertsEnabled: settings.irrigationAlertsEnabled,
       weatherAlertsEnabled: settings.weatherAlertsEnabled,

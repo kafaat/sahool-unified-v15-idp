@@ -37,11 +37,13 @@ abstract class NotificationService {
 }
 
 class NotificationServiceImpl implements NotificationService {
-  static final NotificationServiceImpl _instance = NotificationServiceImpl._internal();
+  static final NotificationServiceImpl _instance =
+      NotificationServiceImpl._internal();
   factory NotificationServiceImpl() => _instance;
   NotificationServiceImpl._internal();
 
-  final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _localNotifications =
+      FlutterLocalNotificationsPlugin();
   bool _initialized = false;
   NotificationTapCallback? _onTapCallback;
 
@@ -95,7 +97,8 @@ class NotificationServiceImpl implements NotificationService {
     _onTapCallback = onTap;
 
     // Android initialization
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
     final darwinSettings = DarwinInitializationSettings(
@@ -117,13 +120,15 @@ class NotificationServiceImpl implements NotificationService {
     await _localNotifications.initialize(
       initSettings,
       onDidReceiveNotificationResponse: _handleNotificationTap,
-      onDidReceiveBackgroundNotificationResponse: _handleBackgroundNotificationTap,
+      onDidReceiveBackgroundNotificationResponse:
+          _handleBackgroundNotificationTap,
     );
 
     // Create notification channels on Android
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         await androidPlugin.createNotificationChannel(_alertsChannel);
@@ -160,8 +165,9 @@ class NotificationServiceImpl implements NotificationService {
   @override
   Future<bool> requestPermission() async {
     if (Platform.isAndroid) {
-      final androidPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         final granted = await androidPlugin.requestNotificationsPermission();
@@ -169,8 +175,9 @@ class NotificationServiceImpl implements NotificationService {
       }
       return true;
     } else if (Platform.isIOS) {
-      final iosPlugin = _localNotifications
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final iosPlugin =
+          _localNotifications.resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>();
 
       if (iosPlugin != null) {
         final granted = await iosPlugin.requestPermissions(
@@ -207,7 +214,8 @@ class NotificationServiceImpl implements NotificationService {
       type.channelId,
       type.channelName,
       channelDescription: type.channelDescription,
-      importance: type.isUrgent ? Importance.high : Importance.defaultImportance,
+      importance:
+          type.isUrgent ? Importance.high : Importance.defaultImportance,
       priority: type.isUrgent ? Priority.high : Priority.defaultPriority,
       icon: '@mipmap/ic_launcher',
       styleInformation: BigTextStyleInformation(body),
@@ -254,7 +262,8 @@ class NotificationServiceImpl implements NotificationService {
       type.channelId,
       type.channelName,
       channelDescription: type.channelDescription,
-      importance: type.isUrgent ? Importance.high : Importance.defaultImportance,
+      importance:
+          type.isUrgent ? Importance.high : Importance.defaultImportance,
       priority: type.isUrgent ? Priority.high : Priority.defaultPriority,
       icon: '@mipmap/ic_launcher',
     );
@@ -279,7 +288,8 @@ class NotificationServiceImpl implements NotificationService {
       _convertToTZDateTime(scheduledTime),
       details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       payload: data != null ? jsonEncode(data) : null,
     );
 
@@ -324,7 +334,8 @@ class NotificationServiceImpl implements NotificationService {
 /// Simple TZDateTime implementation for scheduling
 /// In production, use the timezone package for proper timezone handling
 class TZDateTime extends DateTime {
-  TZDateTime(super.year, [
+  TZDateTime(
+    super.year, [
     super.month,
     super.day,
     super.hour,

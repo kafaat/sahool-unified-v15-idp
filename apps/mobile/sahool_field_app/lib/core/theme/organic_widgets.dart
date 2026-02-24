@@ -23,7 +23,8 @@ class OrganicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = color ?? (isPrimary ? SahoolColors.forestGreen : Colors.white);
+    final bgColor =
+        color ?? (isPrimary ? SahoolColors.forestGreen : Colors.white);
     final textColor = isPrimary ? Colors.white : SahoolColors.forestGreen;
 
     return GestureDetector(
@@ -160,15 +161,20 @@ class MetricCard extends StatelessWidget {
                   if (trend != null) ...[
                     const SizedBox(width: 4),
                     Icon(
-                      isPositiveTrend ? Icons.arrow_upward : Icons.arrow_downward,
+                      isPositiveTrend
+                          ? Icons.arrow_upward
+                          : Icons.arrow_downward,
                       size: 14,
-                      color: isPositiveTrend ? SahoolColors.sageGreen : Colors.red,
+                      color:
+                          isPositiveTrend ? SahoolColors.sageGreen : Colors.red,
                     ),
                     Text(
                       trend!,
                       style: TextStyle(
                         fontSize: 12,
-                        color: isPositiveTrend ? SahoolColors.sageGreen : Colors.red,
+                        color: isPositiveTrend
+                            ? SahoolColors.sageGreen
+                            : Colors.red,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

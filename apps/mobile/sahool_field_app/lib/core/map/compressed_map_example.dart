@@ -448,11 +448,13 @@ class _CompressedMapExampleState extends State<CompressedMapExample> {
               spacing: 8,
               children: [
                 ElevatedButton(
-                  onPressed: () => _changeQuality(ImageCompressionUtil.mobileQuality),
+                  onPressed: () =>
+                      _changeQuality(ImageCompressionUtil.mobileQuality),
                   child: const Text('جوال - Mobile (60%)'),
                 ),
                 ElevatedButton(
-                  onPressed: () => _changeQuality(ImageCompressionUtil.tabletQuality),
+                  onPressed: () =>
+                      _changeQuality(ImageCompressionUtil.tabletQuality),
                   child: const Text('تابلت - Tablet (80%)'),
                 ),
               ],
@@ -488,7 +490,8 @@ class _CompressedMapExampleState extends State<CompressedMapExample> {
                 ElevatedButton(
                   onPressed: _isPrefetching
                       ? null
-                      : () => _prefetchAroundLocation(hodeidah, 'الحديدة - Hodeidah'),
+                      : () => _prefetchAroundLocation(
+                          hodeidah, 'الحديدة - Hodeidah'),
                   child: const Text('الحديدة'),
                 ),
               ],

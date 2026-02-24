@@ -70,7 +70,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   Future<void> _loadMoreMessages() async {
     setState(() => _isLoadingMore = true);
 
-    await ref.read(chatProvider.notifier).loadMoreMessages(widget.conversationId);
+    await ref
+        .read(chatProvider.notifier)
+        .loadMoreMessages(widget.conversationId);
 
     if (mounted) {
       setState(() => _isLoadingMore = false);
@@ -330,16 +332,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             },
             onFileSelected: (filePath, fileName, fileSize) {
               ref.read(chatProvider.notifier).sendMessage(
-                    widget.conversationId,
-                    content: fileName,
-                    type: MessageType.file,
-                    attachmentUrl: filePath,
-                    metadata: {
-                      'fileName': fileName,
-                      'fileSize': fileSize,
-                      'filePath': filePath,
-                    },
-                  );
+                widget.conversationId,
+                content: fileName,
+                type: MessageType.file,
+                attachmentUrl: filePath,
+                metadata: {
+                  'fileName': fileName,
+                  'fileSize': fileSize,
+                  'filePath': filePath,
+                },
+              );
 
               // Scroll to bottom
               _scrollToBottom();
@@ -464,7 +466,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       case 'view_profile':
         // Navigate to user profile
         final currentUserId = ref.read(chatUserIdProvider);
-        final otherParticipant = conversation.getOtherParticipant(currentUserId);
+        final otherParticipant =
+            conversation.getOtherParticipant(currentUserId);
         if (otherParticipant != null) {
           context.push(
             '/user/${otherParticipant.userId}',
@@ -587,7 +590,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 // Show error message
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('فشل في حظر المستخدم. يرجى المحاولة مرة أخرى.'),
+                    content:
+                        Text('فشل في حظر المستخدم. يرجى المحاولة مرة أخرى.'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -621,7 +625,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               ),
             ),
             const SizedBox(width: 16),
-            Text(newMuteState ? 'جاري كتم المحادثة...' : 'جاري إلغاء كتم المحادثة...'),
+            Text(newMuteState
+                ? 'جاري كتم المحادثة...'
+                : 'جاري إلغاء كتم المحادثة...'),
           ],
         ),
         duration: const Duration(seconds: 30),
@@ -641,7 +647,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(newMuteState ? 'تم كتم المحادثة' : 'تم إلغاء كتم المحادثة'),
+          content:
+              Text(newMuteState ? 'تم كتم المحادثة' : 'تم إلغاء كتم المحادثة'),
           backgroundColor: Colors.green,
         ),
       );
@@ -715,7 +722,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('فشل في مسح المحادثة. يرجى المحاولة مرة أخرى.'),
+                    content:
+                        Text('فشل في مسح المحادثة. يرجى المحاولة مرة أخرى.'),
                     backgroundColor: Colors.red,
                   ),
                 );
@@ -823,14 +831,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                       );
 
-                      final success =
-                          await ref.read(chatProvider.notifier).reportConversation(
-                                conversation.id as String,
-                                reason: selectedReason!,
-                                description: descriptionController.text.isNotEmpty
-                                    ? descriptionController.text
-                                    : null,
-                              );
+                      final success = await ref
+                          .read(chatProvider.notifier)
+                          .reportConversation(
+                            conversation.id as String,
+                            reason: selectedReason!,
+                            description: descriptionController.text.isNotEmpty
+                                ? descriptionController.text
+                                : null,
+                          );
 
                       descriptionController.dispose();
 
@@ -842,15 +851,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                       if (success) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('تم إرسال البلاغ بنجاح. شكرا لمساعدتك.'),
+                            content:
+                                Text('تم إرسال البلاغ بنجاح. شكرا لمساعدتك.'),
                             backgroundColor: Colors.green,
                           ),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content:
-                                Text('فشل في إرسال البلاغ. يرجى المحاولة مرة أخرى.'),
+                            content: Text(
+                                'فشل في إرسال البلاغ. يرجى المحاولة مرة أخرى.'),
                             backgroundColor: Colors.red,
                           ),
                         );

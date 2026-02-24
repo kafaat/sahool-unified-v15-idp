@@ -52,7 +52,7 @@ COPY apps/web/package.json ./apps/web/
 # NOTE: --legacy-peer-deps is required due to React 19 compatibility issues with some packages
 # This is a known issue with Next.js 15 + React 19 ecosystem packages
 # TODO: Remove --legacy-peer-deps once all packages are updated to React 19
-RUN npm config set registry https://registry.npmmirror.com && \
+RUN npm config set registry https://registry.npmmirror.com; \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)

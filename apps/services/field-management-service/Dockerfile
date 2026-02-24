@@ -25,18 +25,18 @@ COPY packages/field-shared ./packages/field-shared
 WORKDIR /app/packages/field-shared
 # Use retry loop and npm cache for resilience against network issues
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmmirror.com; \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing field-shared dependencies..." && \
-        npm install --legacy-peer-deps \
+        echo "Attempt $i: Installing field-shared dependencies..."; \
+        if npm install --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && npm run build && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund && npm run build; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
@@ -50,18 +50,18 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-sh
 
 # Install dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmmirror.com; \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing service dependencies..." && \
-        npm install --legacy-peer-deps \
+        echo "Attempt $i: Installing service dependencies..."; \
+        if npm install --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
@@ -115,18 +115,18 @@ RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-sh
 
 # Install production dependencies only with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmmirror.com; \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing production dependencies..." && \
-        npm install --omit=dev --legacy-peer-deps \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if npm install --omit=dev --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

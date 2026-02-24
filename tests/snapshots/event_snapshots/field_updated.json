@@ -1,0 +1,20 @@
+{
+  "area_hectares": 55.0,
+  "causation_id": null,
+  "correlation_id": null,
+  "event_id": "<VOLATILE>",
+  "field_id": "00000000-0000-0000-0000-000000000001",
+  "geometry_wkt": null,
+  "irrigation_type": null,
+  "name": "Updated Field",
+  "name_ar": null,
+  "ndvi_value": null,
+  "soil_type": null,
+  "source_service": null,
+  "span_id": null,
+  "tenant_id_header": null,
+  "timestamp": "<VOLATILE>",
+  "trace_id": null,
+  "updated_by": null,
+  "version": "1.0"
+}

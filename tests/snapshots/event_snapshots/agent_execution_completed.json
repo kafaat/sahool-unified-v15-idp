@@ -1,0 +1,19 @@
+{
+  "agent_type": "farm_advisor",
+  "causation_id": null,
+  "correlation_id": null,
+  "duration_ms": 1500,
+  "event_id": "<VOLATILE>",
+  "execution_id": "exec-snapshot-001",
+  "result_summary": "Irrigate in 2 days",
+  "result_summary_ar": null,
+  "source_service": null,
+  "span_id": null,
+  "status": "completed",
+  "tenant_id": "tenant-snapshot-001",
+  "tenant_id_header": null,
+  "timestamp": "<VOLATILE>",
+  "total_steps": 0,
+  "trace_id": null,
+  "version": "1.0"
+}

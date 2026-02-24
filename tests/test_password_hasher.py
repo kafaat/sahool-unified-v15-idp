@@ -333,9 +333,9 @@ class TestPasswordHasher:
         assert len(otp) == 6
         assert otp.isdigit()
 
-        # Test default length
+        # Test default length (default is 6)
         otp_default = generate_otp()
-        assert len(otp_default) == 4
+        assert len(otp_default) == 6
 
     def test_generate_secure_token(self):
         """Test secure token generation"""

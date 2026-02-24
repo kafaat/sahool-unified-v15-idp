@@ -1,0 +1,21 @@
+{
+  "area_hectares": 50.0,
+  "causation_id": null,
+  "correlation_id": null,
+  "created_by": null,
+  "event_id": "<VOLATILE>",
+  "farm_id": "00000000-0000-0000-0000-000000000002",
+  "field_id": "00000000-0000-0000-0000-000000000001",
+  "geometry_wkt": "POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
+  "irrigation_type": null,
+  "name": "Snapshot Test Field",
+  "name_ar": null,
+  "soil_type": null,
+  "source_service": null,
+  "span_id": null,
+  "tenant_id": "00000000-0000-0000-0000-000000000003",
+  "tenant_id_header": null,
+  "timestamp": "<VOLATILE>",
+  "trace_id": null,
+  "version": "1.0"
+}

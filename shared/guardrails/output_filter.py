@@ -207,7 +207,8 @@ class SafetyContentChecker:
 
         # Dangerous agricultural advice (specific to SAHOOL)
         self.dangerous_agricultural_patterns = [
-            r"(mix|combine|use) (bleach|ammonia|gasoline) (with|as) (fertilizer|pesticide)",
+            r"(mix|combine|use)\s+\w*\s*(bleach|ammonia|gasoline)\s+\w*\s*(with|as|for)\s+\w*\s*(fertilizer|pesticide)",
+            r"(mix|combine)\s+(bleach|ammonia)\s+(with|and)\s+(ammonia|bleach|gasoline)",
             r"(exceed|use more than|increase) (recommended|safe) (dose|amount|concentration)",
             r"skip (safety|protective) (equipment|gear|measures)",
         ]

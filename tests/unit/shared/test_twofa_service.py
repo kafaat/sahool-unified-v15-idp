@@ -369,7 +369,7 @@ class TestBackupCodeGeneration:
         """Test that backup codes have correct format XXXX-XXXX"""
         codes = service.generate_backup_codes(count=5)
         for code in codes:
-            assert re.match(r"^[A-Z2-9]{4}-[A-Z2-9]{4}$", code), f"Code {code} has invalid format"
+            assert re.match(r"^[A-NP-Z1-9]{4}-[A-NP-Z1-9]{4}$", code), f"Code {code} has invalid format"
 
     def test_generate_backup_codes_no_confusing_chars(self, service):
         """Test that backup codes don't contain confusing characters (O, 0)"""

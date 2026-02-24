@@ -46,6 +46,9 @@ __all__ = [
     "RemediationAction",
     "RemediationResult",
     "RemediationStrategy",
+    "compare_with_baseline",
+    "create_baseline",
+    "load_baseline",
 ]
 
 # Lazy-load engine, quality_gates, and remediation to avoid the
@@ -56,6 +59,9 @@ _lazy_imports: dict[str, tuple[str, str]] = {
     "DriftDetectionEngine": ("shared.drift_detection.engine", "DriftDetectionEngine"),
     "QualityGatesEngine": ("shared.drift_detection.quality_gates", "QualityGatesEngine"),
     "AutoRemediationEngine": ("shared.drift_detection.remediation", "AutoRemediationEngine"),
+    "compare_with_baseline": ("shared.drift_detection.engine", "compare_with_baseline"),
+    "create_baseline": ("shared.drift_detection.engine", "create_baseline"),
+    "load_baseline": ("shared.drift_detection.engine", "load_baseline"),
 }
 
 

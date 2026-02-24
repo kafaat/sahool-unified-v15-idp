@@ -152,11 +152,21 @@ jobs:
             TRIGGERED_BY="manual"
           fi
 
+          # Baseline file for diff-aware CI gating (only flags NEW drifts)
+          BASELINE_FLAG=""
+          if [ -f ".drift-baseline.json" ]; then
+            BASELINE_FLAG="--baseline .drift-baseline.json"
+            echo "Using drift baseline for diff-aware gating"
+          else
+            echo "No baseline found — running in strict mode"
+          fi
+
           python -m shared.drift_detection.engine \
             --dir . \
             --categories $CATEGORIES \
             --environment "$ENVIRONMENT" \
             --triggered-by "$TRIGGERED_BY" \
+            $BASELINE_FLAG \
             --format json > drift-report.json 2>&1 || true
 
           # Also generate text report
@@ -165,6 +175,7 @@ jobs:
             --categories $CATEGORIES \
             --environment "$ENVIRONMENT" \
             --triggered-by "$TRIGGERED_BY" \
+            $BASELINE_FLAG \
             --format text > drift-report.txt 2>&1 || true
 
           # Generate markdown for PR comment
@@ -175,21 +186,44 @@ jobs:
             --triggered-by "$TRIGGERED_BY" \
             --format markdown > drift-report.md 2>&1 || true
 
-          # Extract exit code
+          # Extract exit code using baseline-aware comparison
           EXIT_CODE=$(python -c "
           import json, sys
+          sys.path.insert(0, '.')
+          from shared.drift_detection.engine import load_baseline, compare_with_baseline
+          from shared.drift_detection.models import DriftReport, DriftResult, DriftSeverity
           try:
               with open('drift-report.json') as f:
                   report = json.load(f)
               summary = report.get('summary', {})
-              critical = summary.get('critical', 0)
-              high = summary.get('high', 0)
-              if critical > 0 or high > 0:
-                  sys.exit(1)
-              elif summary.get('total_drifts', 0) > 0:
-                  sys.exit(2)
+              baseline = load_baseline('.drift-baseline.json')
+              if baseline is not None:
+                  # Diff-aware: only fail on regressions above baseline
+                  current_critical = summary.get('critical', 0)
+                  current_high = summary.get('high', 0)
+                  current_total = summary.get('total_drifts', 0)
+                  bl_critical = baseline.get('critical', 0)
+                  bl_high = baseline.get('high', 0)
+                  bl_total = baseline.get('total', 0)
+                  new_critical = max(0, current_critical - bl_critical)
+                  new_high = max(0, current_high - bl_high)
+                  new_total = max(0, current_total - bl_total)
+                  if new_critical > 0 or new_high > 0:
+                      sys.exit(1)
+                  elif new_total > 0:
+                      sys.exit(2)
+                  else:
+                      sys.exit(0)
               else:
-                  sys.exit(0)
+                  # No baseline — strict mode
+                  critical = summary.get('critical', 0)
+                  high = summary.get('high', 0)
+                  if critical > 0 or high > 0:
+                      sys.exit(1)
+                  elif summary.get('total_drifts', 0) > 0:
+                      sys.exit(2)
+                  else:
+                      sys.exit(0)
           except Exception:
               sys.exit(0)
           " && echo 0 || echo $?)
@@ -229,10 +263,12 @@ jobs:
         run: |
           EXIT_CODE="${{ steps.drift.outputs.exit_code }}"
           if [ "$EXIT_CODE" == "1" ]; then
-            echo "::error::Critical/High drift detected - PR blocked"
+            echo "::error::New critical/high drift introduced - PR blocked (above baseline)"
             exit 1
           elif [ "$EXIT_CODE" == "2" ]; then
-            echo "::warning::Medium/Low drift detected - review recommended"
+            echo "::warning::New medium/low drift introduced - review recommended"
+          else
+            echo "No new drift above baseline - gate passed"
           fi
 
   # ─────────────────────────────────────────────────────────────────────────

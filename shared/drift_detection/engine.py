@@ -32,6 +32,7 @@ import json
 import logging
 import sys
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
@@ -196,16 +197,37 @@ class DriftDetectionEngine:
         gate_result = await self.quality_gates.evaluate_pr_gate(report)
         return gate_result.summary()
 
-    def get_ci_exit_code(self, report: DriftReport) -> int:
+    def get_ci_exit_code(
+        self,
+        report: DriftReport,
+        baseline: dict[str, Any] | None = None,
+    ) -> int:
         """
         Get CI-compatible exit code from drift report.
         الحصول على رمز خروج متوافق مع CI من تقرير الانحراف.
 
+        When *baseline* is provided, only **regressions** (new drifts above
+        the baseline counts) trigger a non-zero exit code.  This prevents
+        pre-existing findings from blocking unrelated PRs.
+
         Returns:
-            0: No drift or info-only
-            1: Critical or high severity drift detected
-            2: Medium severity drift (warning)
+            0: No new drift (or within baseline)
+            1: Critical or high severity drift above baseline
+            2: Medium severity drift above baseline
         """
+        if baseline is not None:
+            delta = compare_with_baseline(report, baseline)
+            new_critical = delta.get("critical", 0)
+            new_high = delta.get("high", 0)
+            new_total = delta.get("total", 0)
+
+            if new_critical > 0 or new_high > 0:
+                return 1
+            if new_total > 0:
+                return 2
+            return 0
+
+        # No baseline — strict mode (original behaviour)
         if report.has_critical or report.high_count > 0:
             return 1
         if report.total_drifts > 0:
@@ -221,7 +243,12 @@ class DriftDetectionEngine:
             "quality_gates": self.quality_gates.get_all_results(),
         }, indent=2, default=str)
 
-    def print_report(self, report: DriftReport, format: str = "text") -> None:
+    def print_report(
+        self,
+        report: DriftReport,
+        format: str = "text",
+        baseline: dict[str, Any] | None = None,
+    ) -> None:
         """
         Print drift report to stdout.
         طباعة تقرير الانحراف.
@@ -231,9 +258,13 @@ class DriftDetectionEngine:
         elif format == "markdown":
             print(report.to_markdown())
         else:
-            self._print_text_report(report)
+            self._print_text_report(report, baseline=baseline)
 
-    def _print_text_report(self, report: DriftReport) -> None:
+    def _print_text_report(
+        self,
+        report: DriftReport,
+        baseline: dict[str, Any] | None = None,
+    ) -> None:
         """Print human-readable text report."""
         print("=" * 70)
         print("SAHOOL Drift Detection Report | تقرير كشف الانحراف")
@@ -254,6 +285,14 @@ class DriftDetectionEngine:
             print(f"  High:       {summary['high']}")
             print(f"  Auto-fix:   {summary['auto_fixable']}")
             print()
+
+            if baseline is not None:
+                delta = compare_with_baseline(report, baseline)
+                bl_total = delta["baseline_total"]
+                new_total = delta["total"]
+                print(f"  Baseline:   {bl_total} known drifts")
+                print(f"  New drifts: {new_total}")
+                print()
 
             for cat in DriftCategory:
                 cat_results = report.by_category(cat)
@@ -277,8 +316,93 @@ class DriftDetectionEngine:
                 print()
 
         print("=" * 70)
-        exit_code = self.get_ci_exit_code(report)
+        exit_code = self.get_ci_exit_code(report, baseline=baseline)
         print(f"CI Exit Code: {exit_code}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Baseline Comparison
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def create_baseline(report: DriftReport) -> dict[str, Any]:
+    """
+    Create a baseline snapshot from a drift report.
+    إنشاء لقطة أساسية من تقرير الانحراف.
+
+    The baseline records the current drift counts per category and severity
+    so that future CI runs can compare against it and only flag regressions.
+    """
+    by_cat: dict[str, dict[str, int]] = {}
+    for cat in DriftCategory:
+        cat_results = report.by_category(cat)
+        if cat_results:
+            by_cat[cat.value] = {
+                sev.value: sum(1 for r in cat_results if r.severity == sev)
+                for sev in DriftSeverity
+                if any(r.severity == sev for r in cat_results)
+            }
+
+    return {
+        "version": 1,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "environment": report.environment,
+        "total": report.total_drifts,
+        "critical": report.critical_count,
+        "high": report.high_count,
+        "by_category": by_cat,
+    }
+
+
+def load_baseline(path: str) -> dict[str, Any] | None:
+    """Load a baseline file, returning None if it doesn't exist."""
+    p = Path(path)
+    if not p.exists():
+        logger.info(f"No baseline file at {path} — strict mode")
+        return None
+    try:
+        return json.loads(p.read_text())
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning(f"Failed to read baseline {path}: {e}")
+        return None
+
+
+def compare_with_baseline(
+    report: DriftReport,
+    baseline: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Compare a drift report against a known baseline.
+    مقارنة تقرير الانحراف مع الحالة الأساسية المعروفة.
+
+    Returns a dict of *deltas* — positive values indicate regressions
+    (new drifts above baseline).  Zero or negative means no regression.
+    """
+    bl_total = baseline.get("total", 0)
+    bl_critical = baseline.get("critical", 0)
+    bl_high = baseline.get("high", 0)
+
+    delta_total = max(0, report.total_drifts - bl_total)
+    delta_critical = max(0, report.critical_count - bl_critical)
+    delta_high = max(0, report.high_count - bl_high)
+
+    delta_by_cat: dict[str, int] = {}
+    bl_by_cat = baseline.get("by_category", {})
+    for cat in DriftCategory:
+        current = len(report.by_category(cat))
+        previous = sum(bl_by_cat.get(cat.value, {}).values())
+        diff = max(0, current - previous)
+        if diff > 0:
+            delta_by_cat[cat.value] = diff
+
+    return {
+        "total": delta_total,
+        "critical": delta_critical,
+        "high": delta_high,
+        "by_category": delta_by_cat,
+        "baseline_total": bl_total,
+        "current_total": report.total_drifts,
+    }
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -330,6 +454,17 @@ async def _main() -> int:
         action="store_true",
         help="Apply auto-fixable remediations (CAUTION: modifies files)",
     )
+    parser.add_argument(
+        "--baseline",
+        default=None,
+        help="Path to baseline file for diff-aware CI gating",
+    )
+    parser.add_argument(
+        "--update-baseline",
+        default=None,
+        metavar="PATH",
+        help="Write/update baseline file from current scan results",
+    )
 
     args = parser.parse_args()
 
@@ -354,9 +489,18 @@ async def _main() -> int:
             else:
                 print(f"\nRemediation: {results['successful']}/{results['actions_executed']} successful")
 
-    engine.print_report(report, format=args.format)
+    # Update baseline if requested
+    if args.update_baseline:
+        bl = create_baseline(report)
+        Path(args.update_baseline).write_text(json.dumps(bl, indent=2) + "\n")
+        logger.info(f"Baseline written to {args.update_baseline}")
 
-    return engine.get_ci_exit_code(report)
+    # Load baseline for diff-aware gating
+    baseline = load_baseline(args.baseline) if args.baseline else None
+
+    engine.print_report(report, format=args.format, baseline=baseline)
+
+    return engine.get_ci_exit_code(report, baseline=baseline)
 
 
 def main() -> None:

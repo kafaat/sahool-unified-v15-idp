@@ -154,6 +154,7 @@ paths:
   # ── Health Endpoints ──────────────────────────────────────────────────────
   /healthz:
     get:
+      operationId: getGatewayLiveness
       tags: [Health]
       summary: Gateway liveness probe
       security: []
@@ -167,6 +168,7 @@ paths:
 
   /readyz:
     get:
+      operationId: getGatewayReadiness
       tags: [Health]
       summary: Gateway readiness probe
       security: []
@@ -181,6 +183,7 @@ paths:
   # ── Authentication ────────────────────────────────────────────────────────
   /api/v1/auth/login:
     post:
+      operationId: loginUser
       tags: [Authentication]
       summary: User login | تسجيل الدخول
       security: []
@@ -204,6 +207,7 @@ paths:
 
   /api/v1/auth/register:
     post:
+      operationId: registerUser
       tags: [Authentication]
       summary: User registration | تسجيل مستخدم جديد
       security: []
@@ -227,6 +231,7 @@ paths:
 
   /api/v1/auth/me:
     get:
+      operationId: getCurrentUser
       tags: [Authentication]
       summary: Get current user profile | الملف الشخصي
       responses:
@@ -241,6 +246,7 @@ paths:
 
   /api/v1/auth/refresh:
     post:
+      operationId: refreshToken
       tags: [Authentication]
       summary: Refresh JWT token | تجديد الرمز
       responses:

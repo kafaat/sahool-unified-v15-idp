@@ -33,10 +33,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@c5195efdbf56ddc95b4b4e8f2e8a3e4e26b34f30 # v5.1.0
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -70,7 +70,7 @@ jobs:
         run: flutter pub get
 
       - name: Setup Python for icon generation
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
         with:
           python-version: '3.11'
 
@@ -225,7 +225,7 @@ jobs:
 
       - name: Upload logs on failure
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
         with:
           name: build-logs-${{ github.run_number }}
           path: |
@@ -244,7 +244,7 @@ jobs:
           echo "APK Size: $APK_SIZE"
 
       - name: Upload APK Artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
         with:
           name: sahool-apk-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/**/*.apk
@@ -252,7 +252,7 @@ jobs:
 
       - name: Upload Debug Symbols
         if: ${{ github.event.inputs.build_type == 'release' || github.event.inputs.build_type == '' }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
         with:
           name: sahool-symbols-${{ github.run_number }}
           path: apps/mobile/build/app/outputs/symbols/

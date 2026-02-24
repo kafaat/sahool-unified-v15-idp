@@ -80,8 +80,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install js-yaml
-        run: npm install --no-save js-yaml
+      - name: Install dependencies
+        run: npm install --no-save --install-strategy=nested js-yaml
 
       - name: Run Kong vs OpenAPI validation
         run: |

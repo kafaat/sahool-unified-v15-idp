@@ -35,9 +35,7 @@ COPY apps/web/package.json ./apps/web/
 
 # Copy service workspaces (needed for npm workspace resolution)
 COPY apps/services/field-management-service/package.json ./apps/services/field-management-service/
-COPY apps/services/field-core/package.json ./apps/services/field-core/
 COPY apps/services/chat-service/package.json ./apps/services/chat-service/
-COPY apps/services/community-chat/package.json ./apps/services/community-chat/
 COPY apps/services/crop-growth-model/package.json ./apps/services/crop-growth-model/
 COPY apps/services/disaster-assessment/package.json ./apps/services/disaster-assessment/
 COPY apps/services/iot-service/package.json ./apps/services/iot-service/

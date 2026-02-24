@@ -19,7 +19,6 @@ from shared.drift_detection.models import (
     DriftResult,
     DriftSeverity,
     RemediationAction,
-    RemediationResult,
     RemediationStrategy,
 )
 from shared.drift_detection.remediation import (
@@ -311,7 +310,6 @@ class TestExecuteCreateIssue:
 
     @pytest.mark.asyncio
     async def test_create_issue_via_execute(self):
-        engine = AutoRemediationEngine(dry_run=False)
         custom = [
             RemediationPolicy(
                 category=DriftCategory.CONFIG,
@@ -406,7 +404,6 @@ class TestExecuteAutoFix:
 
     @pytest.mark.asyncio
     async def test_auto_fix_via_execute(self):
-        engine = AutoRemediationEngine(working_dir="/tmp", dry_run=False)
         custom = [
             RemediationPolicy(
                 category=DriftCategory.API,

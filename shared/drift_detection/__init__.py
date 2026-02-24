@@ -24,6 +24,11 @@ Architecture:
     └── QualityGatesEngine
 """
 
+from __future__ import annotations
+
+import sys
+from typing import TYPE_CHECKING
+
 # Models are leaf-level (no intra-package deps) — safe to import eagerly.
 from shared.drift_detection.models import (
     DriftCategory,
@@ -34,6 +39,23 @@ from shared.drift_detection.models import (
     RemediationResult,
     RemediationStrategy,
 )
+
+# TYPE_CHECKING imports satisfy static analysers (CodeQL, mypy, pyright) while
+# avoiding the RuntimeWarning that occurs when ``python -m
+# shared.drift_detection.engine`` finds the submodule already in sys.modules.
+if TYPE_CHECKING:
+    from shared.drift_detection.engine import (
+        DriftDetectionEngine as DriftDetectionEngine,
+        compare_with_baseline as compare_with_baseline,
+        create_baseline as create_baseline,
+        load_baseline as load_baseline,
+    )
+    from shared.drift_detection.quality_gates import (
+        QualityGatesEngine as QualityGatesEngine,
+    )
+    from shared.drift_detection.remediation import (
+        AutoRemediationEngine as AutoRemediationEngine,
+    )
 
 __all__ = [
     "DriftDetectionEngine",
@@ -51,11 +73,9 @@ __all__ = [
     "load_baseline",
 ]
 
-# Lazy-load engine, quality_gates, and remediation to avoid the
-# RuntimeWarning that occurs when `python -m shared.drift_detection.engine`
-# finds the submodule already in sys.modules (placed there by __init__
-# eager imports) before the -m runner can execute it.
-#
+# ---------------------------------------------------------------------------
+# Lazy runtime imports
+# ---------------------------------------------------------------------------
 # Only modules within this package are allowed — the set is hardcoded
 # to prevent arbitrary code loading (addresses Semgrep importlib finding).
 _ALLOWED_MODULES: frozenset[str] = frozenset({
@@ -84,5 +104,8 @@ def __getattr__(name: str):
         import importlib
 
         mod = importlib.import_module(module_path)  # nosemgrep: python.lang.security.audit.non-literal-import
-        return getattr(mod, attr)
+        val = getattr(mod, attr)
+        # Cache on the module so __getattr__ is not called again for this name.
+        setattr(sys.modules[__name__], name, val)
+        return val
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

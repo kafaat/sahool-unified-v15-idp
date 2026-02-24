@@ -11,12 +11,31 @@ spec:
     metadata:
       labels: { app: flagd }
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
       containers:
         - name: flagd
           image: ghcr.io/open-feature/flagd:v0.11.1
           args: ["start", "--uri", "file:/etc/flagd/flags.json"]
           ports:
             - containerPort: 8013
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           volumeMounts:
             - name: cfg
               mountPath: /etc/flagd/flags.json

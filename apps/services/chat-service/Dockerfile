@@ -24,18 +24,18 @@ WORKDIR /workspace/chat-service
 # Install dependencies (with retries for network resilience)
 # Use shell-level retry loop for better handling of network timeouts
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmmirror.com; \
     for i in 1 2 3 4 5; do \
-        echo "Attempt $i: Installing npm dependencies..." && \
-        npm install --legacy-peer-deps \
+        echo "Attempt $i: Installing npm dependencies..."; \
+        if npm install --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=180000 \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=30000 --fetch-retry-maxtimeout=180000 --no-audit --no-fund)
@@ -70,10 +70,10 @@ RUN apt-get update && \
 COPY --from=builder /workspace/chat-service/package.json ./
 COPY --from=builder /workspace/chat-service/package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm \
-    npm config set registry https://registry.npmmirror.com && \
+    npm config set registry https://registry.npmmirror.com; \
     for i in 1 2 3; do \
-        echo "Attempt $i: Installing production dependencies..." && \
-        (npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
+        echo "Attempt $i: Installing production dependencies..."; \
+        if npm ci --omit=dev --ignore-scripts --legacy-peer-deps \
             --fetch-retries=5 \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=180000 \
@@ -88,8 +88,8 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-timeout=300000 \
             --prefer-offline \
             --no-audit \
-            --no-fund) && break || \
-        (echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10))); \
+            --no-fund; then break; fi; \
+        echo "Attempt $i failed, waiting before retry..." && sleep $((i * 10)); \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)

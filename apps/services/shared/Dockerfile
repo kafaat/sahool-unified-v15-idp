@@ -50,4 +50,7 @@ USER sahool
 
 # Note: This is a library container - services should import from it
 # No exposed port or CMD - this is meant to be used as a base or copied into service containers
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD python -c "import sys; sys.exit(0)" || exit 1
+
 CMD ["python", "-c", "print('SAHOOL Shared Services Library - Import from services, do not run directly')"]

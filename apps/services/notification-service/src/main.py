@@ -58,9 +58,12 @@ try:
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -1168,7 +1171,7 @@ async def readiness_check():
 @app.post("/")
 async def create_custom_notification(
     request: CreateNotificationRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """إنشاء إشعار مخصص"""
     notification = await create_notification(
@@ -1326,7 +1329,7 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """الحصول على إشعارات مزارع معين"""
     # Security: Verify the authenticated user can only access their own notifications
@@ -1384,7 +1387,7 @@ async def get_farmer_notifications(
 async def mark_notification_read(
     notification_id: str,
     farmer_id: str = Query(...),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """تحديد إشعار كمقروء"""
     try:

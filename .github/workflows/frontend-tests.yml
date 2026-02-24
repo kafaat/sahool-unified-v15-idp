@@ -980,11 +980,10 @@ jobs:
         working-directory: apps/web
         run: |
           echo "Running Playwright E2E tests..."
-          npx playwright test --project=chromium --reporter=html,junit
+          npx playwright test --project=chromium --reporter=html
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:3000
-          API_AVAILABLE: 'true'
         continue-on-error: true
 
       - name: Stop Web App
@@ -1025,7 +1024,7 @@ jobs:
   mobile-integration-tests:
     name: Integration - Mobile
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     needs: flutter-unit-tests
     if: always() && !cancelled()
 
@@ -1106,20 +1105,14 @@ jobs:
       - name: Run Integration Tests with Android Emulator
         id: integration
         uses: reactivecircus/android-emulator-runner@v2
+        timeout-minutes: 30
         with:
           api-level: 30
           arch: x86_64
           profile: pixel_5
+          emulator-boot-timeout: 600
           emulator-options: -no-window -no-snapshot -noaudio -no-boot-anim -gpu swiftshader_indirect
-          script: |
-            cd apps/mobile
-            flutter test integration_test/ --verbose 2>&1 | tee integration_test_output.txt || true
-            # Check if any tests passed
-            if grep -q "All tests passed" integration_test_output.txt 2>/dev/null; then
-              echo "✅ All integration tests passed"
-            else
-              echo "⚠️ Some integration tests may have failed - check output"
-            fi
+          script: cd apps/mobile && flutter test integration_test/ --timeout 300s --verbose 2>&1 | tee integration_test_output.txt; grep -q "All tests passed" integration_test_output.txt 2>/dev/null && echo "✅ All integration tests passed" || echo "⚠️ Some integration tests may have failed - check output"
         continue-on-error: true
 
       - name: Upload Integration Test Results

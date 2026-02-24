@@ -24,7 +24,7 @@ WORKDIR /workspace/crop-growth-model
 
 # Install dependencies with retry for network resilience
 # Use Taobao mirror for faster downloads in China/MENA region
-RUN npm config set registry https://registry.npmmirror.com && \
+RUN npm config set registry https://registry.npmmirror.com; \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
@@ -46,7 +46,7 @@ RUN apk add --no-cache curl
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/crop-growth-model/package.json ./
 COPY --from=builder /workspace/crop-growth-model/package-lock.json ./
-RUN npm config set registry https://registry.npmmirror.com && \
+RUN npm config set registry https://registry.npmmirror.com; \
     (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000) || \
     (npm config set registry https://registry.npmjs.org && \

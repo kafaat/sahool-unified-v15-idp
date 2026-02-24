@@ -58,11 +58,14 @@ try:
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
-    User = None
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -427,7 +430,7 @@ def seed_demo_data(db: Session):
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def get_tenant_id(user: User = Depends(get_current_user) if AUTH_AVAILABLE else None) -> str:
+def get_tenant_id(user: User | None = Depends(get_current_user)) -> str:
     """Extract tenant ID from authenticated user or header (fallback)"""
     if AUTH_AVAILABLE and user:
         return user.tenant_id
@@ -484,7 +487,7 @@ async def list_equipment(
     field_id: str | None = Query(None, description="Filter by field"),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):
@@ -691,7 +694,7 @@ async def get_equipment_by_qr(
 @app.post("/api/v1/equipment", response_model=Equipment, status_code=201)
 async def create_equipment(
     data: EquipmentCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
 ):

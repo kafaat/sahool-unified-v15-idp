@@ -14,79 +14,85 @@
 
 import dynamic from "next/dynamic";
 
-// Each component is dynamically loaded with SSR disabled since recharts uses browser APIs.
+// Recharts components have wide `defaultProps` types (e.g. `string` instead of
+// union literals) which are incompatible with the strict generic constraints of
+// `next/dynamic`.  Casting the resolved module member to `any` inside the
+// loader avoids the TS2345 mismatch while the outer `dynamic()` still returns a
+// correctly-typed lazy component at runtime.
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export const DynamicAreaChart = dynamic(
-  () => import("recharts").then((mod) => mod.AreaChart),
+  () => import("recharts").then((mod) => mod.AreaChart as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicArea = dynamic(
-  () => import("recharts").then((mod) => mod.Area),
+  () => import("recharts").then((mod) => mod.Area as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicBarChart = dynamic(
-  () => import("recharts").then((mod) => mod.BarChart),
+  () => import("recharts").then((mod) => mod.BarChart as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicBar = dynamic(
-  () => import("recharts").then((mod) => mod.Bar),
+  () => import("recharts").then((mod) => mod.Bar as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicLineChart = dynamic(
-  () => import("recharts").then((mod) => mod.LineChart),
+  () => import("recharts").then((mod) => mod.LineChart as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicLine = dynamic(
-  () => import("recharts").then((mod) => mod.Line),
+  () => import("recharts").then((mod) => mod.Line as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicPieChart = dynamic(
-  () => import("recharts").then((mod) => mod.PieChart),
+  () => import("recharts").then((mod) => mod.PieChart as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicPie = dynamic(
-  () => import("recharts").then((mod) => mod.Pie),
+  () => import("recharts").then((mod) => mod.Pie as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicCell = dynamic(
-  () => import("recharts").then((mod) => mod.Cell),
+  () => import("recharts").then((mod) => mod.Cell as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicXAxis = dynamic(
-  () => import("recharts").then((mod) => mod.XAxis),
+  () => import("recharts").then((mod) => mod.XAxis as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicYAxis = dynamic(
-  () => import("recharts").then((mod) => mod.YAxis),
+  () => import("recharts").then((mod) => mod.YAxis as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicCartesianGrid = dynamic(
-  () => import("recharts").then((mod) => mod.CartesianGrid),
+  () => import("recharts").then((mod) => mod.CartesianGrid as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicTooltip = dynamic(
-  () => import("recharts").then((mod) => mod.Tooltip),
+  () => import("recharts").then((mod) => mod.Tooltip as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicLegend = dynamic(
-  () => import("recharts").then((mod) => mod.Legend),
+  () => import("recharts").then((mod) => mod.Legend as any),
   { ssr: false, loading: () => null },
-) as any;
+);
 
 export const DynamicResponsiveContainer = dynamic(
-  () => import("recharts").then((mod) => mod.ResponsiveContainer),
+  () => import("recharts").then((mod) => mod.ResponsiveContainer as any),
   { ssr: false, loading: () => null },
-) as any;
+);

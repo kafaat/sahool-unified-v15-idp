@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import re
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -178,11 +179,12 @@ class ConfigDriftDetector(BaseDriftDetector):
         if not services_yaml.exists():
             return
 
-        # Check file modification times
-        gen_mtime = generated.stat().st_mtime
-        svc_mtime = services_yaml.stat().st_mtime
+        # Use git commit timestamps instead of file mtime to avoid false
+        # positives in CI where git clone sets all mtimes to checkout time
+        gen_ts = _get_latest_git_commit_ts(generated)
+        svc_ts = _get_latest_git_commit_ts(services_yaml)
 
-        if svc_mtime > gen_mtime:
+        if gen_ts and svc_ts and svc_ts > gen_ts:
             self.add_result(DriftResult(
                 category=DriftCategory.CONFIG,
                 severity=DriftSeverity.HIGH,
@@ -206,10 +208,11 @@ class ConfigDriftDetector(BaseDriftDetector):
         if not generated.exists() or not services_yaml.exists():
             return
 
-        gen_mtime = generated.stat().st_mtime
-        svc_mtime = services_yaml.stat().st_mtime
+        # Use git commit timestamps instead of file mtime (see _check_docker_compose_drift)
+        gen_ts = _get_latest_git_commit_ts(generated)
+        svc_ts = _get_latest_git_commit_ts(services_yaml)
 
-        if svc_mtime > gen_mtime:
+        if gen_ts and svc_ts and svc_ts > gen_ts:
             self.add_result(DriftResult(
                 category=DriftCategory.CONFIG,
                 severity=DriftSeverity.HIGH,
@@ -268,6 +271,29 @@ def _parse_env_file(path: Path) -> set[str]:
             key = line.split("=")[0].strip()
             keys.add(key)
     return keys
+
+
+def _get_latest_git_commit_ts(file_path: Path) -> int | None:
+    """
+    Get the latest git commit timestamp for a specific file.
+    Uses git log instead of file mtime to avoid false positives in CI
+    where git clone sets all file timestamps to the checkout time.
+
+    Returns Unix timestamp or None if git is unavailable.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "log", "-1", "--format=%ct", "--", str(file_path)],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            cwd=file_path.parent if file_path.is_dir() else file_path.parent,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return int(result.stdout.strip())
+    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+        pass
+    return None
 
 
 async def _scan_env_usage(root: Path) -> set[str]:

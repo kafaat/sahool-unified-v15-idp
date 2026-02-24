@@ -2862,18 +2862,19 @@ async def create_refund(
             raise HTTPException(502, "فشل في معالجة الاسترداد عبر بوابة ثروات")
 
     # Update payment status
+    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
     is_full_refund = refund_amount >= payment.amount
     if is_full_refund:
         await repo.payments.update(
             payment.id,
             status=db_models.PaymentStatus.REFUNDED,
-            failure_reason=f"Refunded: {request.reason}",
+            failure_reason=f"Refunded: {safe_reason}",
         )
     else:
         # Partial refund - record in metadata
         await repo.payments.update(
             payment.id,
-            failure_reason=f"Partial refund ({refund_amount}): {request.reason}",
+            failure_reason=f"Partial refund ({refund_amount}): {safe_reason}",
         )
 
     # Update invoice - reverse the payment
@@ -2892,9 +2893,9 @@ async def create_refund(
 
         await repo.invoices.update(invoice.id, **update_kwargs)
 
-    safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
+    safe_refund_amount = str(refund_amount).replace("\n", " ").replace("\r", " ")
     logger.info(
-        f"Refund processed: payment={payment.id}, amount={refund_amount}, full={is_full_refund}, reason={safe_reason}"
+        f"Refund processed: payment={payment.id}, amount={safe_refund_amount}, full={is_full_refund}, reason={safe_reason}"
     )
 
     # Publish refund event

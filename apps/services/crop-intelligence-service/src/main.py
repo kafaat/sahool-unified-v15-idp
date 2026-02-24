@@ -34,9 +34,12 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -1016,7 +1019,7 @@ async def get_zones_data(field_id: str) -> dict[str, dict[str, Any]]:
 async def create_zone(
     field_id: str,
     zone: ZoneCreate,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """إنشاء منطقة جديدة في الحقل"""
     zone_id = f"zone_{uuid4().hex[:8]}"
@@ -1047,7 +1050,7 @@ async def create_zone(
 @app.get("/api/v1/fields/{field_id}/zones")
 async def list_zones(
     field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """قائمة المناطق في الحقل"""
     # Try to get from database first
@@ -1067,7 +1070,7 @@ async def list_zones(
 @app.get("/api/v1/fields/{field_id}/zones.geojson")
 async def get_zones_geojson(
     field_id: str,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """تصدير المناطق كـ GeoJSON"""
     # Try to get from database first
@@ -1112,7 +1115,7 @@ async def ingest_observation(
     field_id: str,
     zone_id: str,
     body: ObservationIn,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     تسجيل رصد جديد لمؤشرات الغطاء النباتي
@@ -1159,7 +1162,7 @@ async def list_observations(
     field_id: str,
     zone_id: str,
     limit: int = Query(default=50, le=200),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """قائمة الأرصاد للمنطقة"""
     # Try to get from database first
@@ -1184,7 +1187,7 @@ async def list_observations(
 async def get_field_diagnosis(
     field_id: str,
     date_str: str = Query(..., alias="date", description="التاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     تشخيص كامل للحقل - "الطبيب الزراعي"
@@ -1288,7 +1291,7 @@ async def get_zone_timeline(
     zone_id: str,
     from_date: str = Query(..., alias="from", description="من تاريخ (YYYY-MM-DD)"),
     to_date: str = Query(..., alias="to", description="إلى تاريخ (YYYY-MM-DD)"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     السلسلة الزمنية لمؤشرات المنطقة

@@ -37,11 +37,14 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
     setup_exception_handlers = None
     add_request_id_middleware = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -566,7 +569,7 @@ def seed_demo_data():
 
 def get_tenant_id(
     x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ) -> str:
     """Extract tenant ID from authenticated user or header"""
     if AUTH_AVAILABLE and user:

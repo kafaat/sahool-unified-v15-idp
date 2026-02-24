@@ -20,7 +20,7 @@ COPY apps/services/code-review-agent/package*.json ./
 COPY apps/services/code-review-agent/tsconfig.json ./
 
 # Install dependencies with mirror fallback
-RUN npm config set registry https://registry.npmmirror.com && \
+RUN npm config set registry https://registry.npmmirror.com; \
     npm ci --ignore-scripts || \
     (npm config set registry https://registry.npmjs.org && npm ci --ignore-scripts)
 

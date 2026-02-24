@@ -48,9 +48,12 @@ try:
 except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    class User(BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
 
@@ -328,7 +331,7 @@ def readiness():
 @app.post("/compress")
 async def compress_skill(
     request: CompressRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Compress skill data using configurable compression levels
@@ -380,7 +383,7 @@ async def compress_skill(
 @app.post("/memory/store")
 async def store_in_memory(
     request: MemoryStoreRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Store skill in volatile memory for fast access
@@ -417,7 +420,7 @@ async def store_in_memory(
 @app.post("/memory/recall")
 async def recall_from_memory(
     request: MemoryRecallRequest,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Recall previously stored skill from memory
@@ -451,7 +454,7 @@ async def recall_from_memory(
 async def evaluate_skill(
     request: EvaluateRequest,
     http_request: Request,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Evaluate skill performance against metrics
@@ -520,7 +523,7 @@ async def evaluate_skill(
 async def assess_skill(
     request: SkillAssessmentRequest,
     http_request: Request,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Assess a farmer's skill level based on assessment data.
@@ -620,7 +623,7 @@ async def assess_skill(
 async def create_learning_path(
     request: LearningPathRequest,
     http_request: Request,
-    user: User = Depends(get_current_user) if AUTH_AVAILABLE else None,
+    user: User | None = Depends(get_current_user),
 ):
     """
     Generate a personalized learning path for a farmer.

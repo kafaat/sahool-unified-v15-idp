@@ -3,7 +3,7 @@
 // Alerts Panel Component
 // لوحة التنبيهات
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { AlertTriangle, Bell, X, Eye, CheckCircle } from "lucide-react";
 import AlertBadge from "@/components/ui/AlertBadge";
 import { formatDate } from "@/lib/utils";

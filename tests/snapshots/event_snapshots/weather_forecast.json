@@ -1,0 +1,21 @@
+{
+  "causation_id": null,
+  "conditions": null,
+  "correlation_id": null,
+  "event_id": "<VOLATILE>",
+  "field_id": "00000000-0000-0000-0000-000000000001",
+  "forecast_date": "2026-01-15T10:30:00Z",
+  "humidity": 65.0,
+  "location_lat": 24.7,
+  "location_lon": 46.7,
+  "precipitation": 5.0,
+  "provider": null,
+  "source_service": null,
+  "span_id": null,
+  "temperature": 28.0,
+  "tenant_id_header": null,
+  "timestamp": "<VOLATILE>",
+  "trace_id": null,
+  "version": "1.0",
+  "wind_speed": 12.0
+}

@@ -102,7 +102,7 @@ def _get_current_tenant_id() -> str | None:
     return None
 
 
-def _build_nats_headers(event: "BaseEvent") -> dict | None:
+def _build_nats_headers(event: BaseEvent) -> dict | None:
     """
     Build canonical NATS message headers for distributed tracing & routing.
 
@@ -404,9 +404,7 @@ class EventPublisher:
                 await self._publish_core(subject, data, timeout, headers=headers)
 
             self._publish_count += 1
-            logger.info(
-                f"📤 Published event: {subject} (id={event.event_id}, service={self.service_name})"
-            )
+            logger.info(f"📤 Published event: {subject} (id={event.event_id}, service={self.service_name})")
             return True
 
         except Exception as e:

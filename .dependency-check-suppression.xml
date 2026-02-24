@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!--
+    SAHOOL Platform - OWASP Dependency-Check Suppressions
+    Add false-positive CVE suppressions here.
+
+    Example:
+    <suppress>
+        <notes>False positive - not affected in our usage</notes>
+        <cve>CVE-2024-XXXXX</cve>
+    </suppress>
+    -->
+</suppressions>

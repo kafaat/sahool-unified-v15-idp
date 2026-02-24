@@ -60,22 +60,10 @@ def weather_payload_to_daily(payload: dict[str, Any]) -> DailyWeather:
         date=day,
         tmax_c=float(payload.get("tmax_c") or payload.get("temp_max") or 30.0),
         tmin_c=float(payload.get("tmin_c") or payload.get("temp_min") or 15.0),
-        solar_radiation_mj_m2=float(
-            payload.get("solar_radiation_mj_m2")
-            or payload.get("solar_rad")
-            or 18.0
-        ),
-        relative_humidity_pct=float(
-            payload.get("relative_humidity_pct")
-            or payload.get("humidity")
-            or 55.0
-        ),
-        wind_speed_m_s=float(
-            payload.get("wind_speed_m_s") or payload.get("wind_speed") or 2.0
-        ),
-        precipitation_mm=float(
-            payload.get("precipitation_mm") or payload.get("rain_mm") or 0.0
-        ),
+        solar_radiation_mj_m2=float(payload.get("solar_radiation_mj_m2") or payload.get("solar_rad") or 18.0),
+        relative_humidity_pct=float(payload.get("relative_humidity_pct") or payload.get("humidity") or 55.0),
+        wind_speed_m_s=float(payload.get("wind_speed_m_s") or payload.get("wind_speed") or 2.0),
+        precipitation_mm=float(payload.get("precipitation_mm") or payload.get("rain_mm") or 0.0),
     )
 
 
@@ -109,8 +97,9 @@ def ndvi_to_field_observation(
     elif isinstance(ts_raw, datetime):
         ts = ts_raw
     else:
-        from datetime import timezone
-        ts = datetime.now(timezone.utc)
+        from datetime import UTC
+
+        ts = datetime.now(UTC)
 
     ndvi_value = float(payload.get("mean_ndvi") or payload.get("value") or payload.get("ndvi", 0.0))
 
@@ -143,6 +132,7 @@ def ndvi_to_lai_estimate(ndvi: float) -> float:
     LAI ≈ -ln(1 - NDVI) / k_ext  (k_ext ≈ 0.5 for most crops)
     """
     import math
+
     ndvi_clamped = max(0.01, min(0.995, ndvi))  # guard log(0) at upper bound
     k_ext = 0.5
     return max(0.0, min(10.0, -math.log(1.0 - ndvi_clamped) / k_ext))
@@ -179,9 +169,7 @@ def calibrated_params_to_crop(
         gdd_maturity=float(parameters.get("gdd_maturity", b.gdd_maturity)),
         lai_max=float(parameters.get("lai_max", b.lai_max)),
         harvest_index=float(parameters.get("harvest_index", b.harvest_index)),
-        n_requirement_kg_per_ton=float(
-            parameters.get("n_requirement_kg_per_ton", b.n_requirement_kg_per_ton)
-        ),
+        n_requirement_kg_per_ton=float(parameters.get("n_requirement_kg_per_ton", b.n_requirement_kg_per_ton)),
     )
 
 

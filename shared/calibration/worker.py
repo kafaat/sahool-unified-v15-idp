@@ -100,9 +100,7 @@ class CalibrationWorker:
                     run_id=run_id,
                     error=str(exc),
                 )
-                await self._repo.update_run_status(
-                    run_id, "failed", notes=str(exc)[:500]
-                )
+                await self._repo.update_run_status(run_id, "failed", notes=str(exc)[:500])
                 await self._publish_event(
                     "sahool.calibration.run.failed.v1",
                     {"run_id": run_id, "error": str(exc)[:200]},
@@ -143,9 +141,7 @@ class CalibrationWorker:
         # 3. Load observation targets from the run's dataset
         targets = await self._load_targets(run)
         if not targets:
-            await self._repo.update_run_status(
-                run_id, "failed", notes="No observation targets found"
-            )
+            await self._repo.update_run_status(run_id, "failed", notes="No observation targets found")
             return
 
         # 4. Split into train/holdout (80/20)
@@ -207,18 +203,20 @@ class CalibrationWorker:
         )
 
         # 7. GAP-10: Auto-persist as candidate parameter set
-        ps_id = await self._repo.create_parameter_set({
-            "tenant_id": run["tenant_id"],
-            "field_id": run["field_id"],
-            "season_id": run["season_id"],
-            "model_name": run["model_name"],
-            "model_version": run["model_version"],
-            "parameters": output.best_params,
-            "param_uncertainty": {},
-            "prior": {},
-            "posterior_summary": metrics,
-            "created_from_run_id": run_id,
-        })
+        ps_id = await self._repo.create_parameter_set(
+            {
+                "tenant_id": run["tenant_id"],
+                "field_id": run["field_id"],
+                "season_id": run["season_id"],
+                "model_name": run["model_name"],
+                "model_version": run["model_version"],
+                "parameters": output.best_params,
+                "param_uncertainty": {},
+                "prior": {},
+                "posterior_summary": metrics,
+                "created_from_run_id": run_id,
+            }
+        )
 
         logger.info(
             "calibration_worker_run_succeeded",
@@ -259,9 +257,7 @@ class CalibrationWorker:
         """
         try:
             async with self._pool.acquire() as conn:
-                rows = await conn.fetch(
-                    sql, run["tenant_id"], run["field_id"]
-                )
+                rows = await conn.fetch(sql, run["tenant_id"], run["field_id"])
         except Exception as exc:
             logger.warning("calibration_load_targets_failed", error=str(exc))
             return []
@@ -276,6 +272,7 @@ class CalibrationWorker:
             # Map NDVI to LAI using Beer-Lambert
             if var == "ndvi":
                 from shared.digital_twin.adapters import ndvi_to_lai_estimate
+
                 val = ndvi_to_lai_estimate(r["value"])
                 var = "LAI"
             elif var == "lai":
@@ -303,8 +300,9 @@ class CalibrationWorker:
         if self._nats is None:
             return
         try:
-            from datetime import datetime, timezone
-            payload["ts"] = datetime.now(timezone.utc).isoformat()
+            from datetime import UTC, datetime
+
+            payload["ts"] = datetime.now(UTC).isoformat()
             await self._nats.publish(subject, json.dumps(payload).encode())
         except Exception as exc:
             logger.warning("calibration_worker_nats_failed", subject=subject, error=str(exc))

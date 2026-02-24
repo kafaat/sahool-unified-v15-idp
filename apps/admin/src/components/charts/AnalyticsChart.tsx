@@ -346,7 +346,7 @@ export default function AnalyticsChart({
               nameKey="nameAr"
               label={
                 showLabels
-                  ? ({ name, percent }) =>
+                  ? ({ name, percent }: { name: string; percent: number }) =>
                       `${name} (${(percent * 100).toFixed(0)}%)`
                   : false
               }

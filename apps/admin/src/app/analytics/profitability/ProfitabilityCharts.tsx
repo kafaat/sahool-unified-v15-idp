@@ -206,7 +206,7 @@ export function CostBreakdownChart({ data }: CostBreakdownChartProps) {
           cx="50%"
           cy="50%"
           outerRadius={100}
-          label={({ categoryAr, percentage }) =>
+          label={({ categoryAr, percentage }: { categoryAr: string; percentage: number }) =>
             `${categoryAr} ${percentage.toFixed(0)}%`
           }
           labelLine={true}
@@ -214,7 +214,7 @@ export function CostBreakdownChart({ data }: CostBreakdownChartProps) {
           {data.map((_entry, index) => (
             <Cell
               key={`cell-${index}`}
-              fill={PIE_COLORS[index % PIE_COLORS.length]}
+              fill={PIE_COLORS[index % PIE_COLORS.length] ?? "#2E7D32"}
             />
           ))}
         </Pie>

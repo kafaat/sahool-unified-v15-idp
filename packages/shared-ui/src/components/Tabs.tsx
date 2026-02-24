@@ -103,11 +103,14 @@ export function Tabs({
   // Keyboard navigation
   const handleKeyDown = (event: React.KeyboardEvent, currentIndex: number) => {
     const enabledTabs = tabs.filter((tab) => !tab.disabled);
+    const currentTab = tabs[currentIndex];
+    if (!currentTab) return;
     const currentEnabledIndex = enabledTabs.findIndex(
-      (tab) => tab.id === tabs[currentIndex].id,
+      (tab) => tab.id === currentTab.id,
     );
 
     let nextIndex: number;
+    let targetTab: Tab | undefined;
 
     const isHorizontal = orientation === "horizontal";
     const prevKey = isHorizontal ? "ArrowLeft" : "ArrowUp";
@@ -120,7 +123,8 @@ export function Tabs({
           currentEnabledIndex > 0
             ? currentEnabledIndex - 1
             : enabledTabs.length - 1;
-        handleTabChange(enabledTabs[nextIndex].id);
+        targetTab = enabledTabs[nextIndex];
+        if (targetTab) handleTabChange(targetTab.id);
         break;
       case nextKey:
         event.preventDefault();
@@ -128,15 +132,18 @@ export function Tabs({
           currentEnabledIndex < enabledTabs.length - 1
             ? currentEnabledIndex + 1
             : 0;
-        handleTabChange(enabledTabs[nextIndex].id);
+        targetTab = enabledTabs[nextIndex];
+        if (targetTab) handleTabChange(targetTab.id);
         break;
       case "Home":
         event.preventDefault();
-        handleTabChange(enabledTabs[0].id);
+        targetTab = enabledTabs[0];
+        if (targetTab) handleTabChange(targetTab.id);
         break;
       case "End":
         event.preventDefault();
-        handleTabChange(enabledTabs[enabledTabs.length - 1].id);
+        targetTab = enabledTabs[enabledTabs.length - 1];
+        if (targetTab) handleTabChange(targetTab.id);
         break;
     }
   };

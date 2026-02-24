@@ -2893,8 +2893,9 @@ async def create_refund(
         await repo.invoices.update(invoice.id, **update_kwargs)
 
     safe_reason = str(request.reason).replace("\n", " ").replace("\r", " ")
+    safe_refund_amount = str(refund_amount).replace("\n", " ").replace("\r", " ")
     logger.info(
-        f"Refund processed: payment={payment.id}, amount={refund_amount}, full={is_full_refund}, reason={safe_reason}"
+        f"Refund processed: payment={payment.id}, amount={safe_refund_amount}, full={is_full_refund}, reason={safe_reason}"
     )
 
     # Publish refund event

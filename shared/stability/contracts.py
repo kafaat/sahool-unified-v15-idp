@@ -311,14 +311,25 @@ class ContractValidator:
         with open(registry_path) as f:
             registry = yaml.safe_load(f)
 
-        services = registry.get("services", [])
-        required_fields = ["name", "owner", "team", "lifecycle", "tier"]
+        services_data = registry.get("services", {})
+        required_fields = ["owner", "team", "lifecycle", "tier"]
 
-        for service in services:
+        # services.yaml uses a map structure: service-key -> {details}
+        if isinstance(services_data, dict):
+            services_iter = services_data.items()
+        elif isinstance(services_data, list):
+            services_iter = ((s.get("name", "<unnamed>"), s) for s in services_data)
+        else:
+            return report
+
+        for svc_key, svc_info in services_iter:
             report.checks_run += 1
-            service_name = service.get("name", "<unnamed>")
+            if not isinstance(svc_info, dict):
+                continue
 
-            missing = [f for f in required_fields if f not in service]
+            service_name = svc_info.get("name", svc_key)
+
+            missing = [f for f in required_fields if f not in svc_info]
             if missing:
                 report.violations.append(ContractViolation(
                     contract_type=ContractType.API_ENDPOINT,
@@ -331,7 +342,7 @@ class ContractValidator:
                 report.checks_passed += 1
 
             # Validate lifecycle is valid
-            lifecycle = service.get("lifecycle", "")
+            lifecycle = svc_info.get("lifecycle", "")
             valid_lifecycles = {"experimental", "internal", "production", "deprecated", "retired"}
             if lifecycle and lifecycle not in valid_lifecycles:
                 report.violations.append(ContractViolation(

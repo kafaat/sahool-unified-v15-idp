@@ -4,9 +4,7 @@
  */
 
 import { API_PREFIX } from "@sahool/shared-types/contracts";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { logger } from "@/lib/logger";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   GeneratedReport,
   GenerateFieldReportRequest,
@@ -22,37 +20,9 @@ import type {
   ReportErrorMessages,
 } from "../types/reports";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// API Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 30000, // 30 seconds for report generation
-});
-
-// ═══════════════════════════════════════════════════════════════════════════
-// Auth Token Interceptor
-// ═══════════════════════════════════════════════════════════════════════════
-
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+// 30 seconds timeout for report generation
+const api = createApiClient({ timeout: 30000 });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages (Bilingual)

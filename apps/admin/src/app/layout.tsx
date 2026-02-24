@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
+import { Tajawal } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
 import { Providers } from "./providers";
+
+const tajawal = Tajawal({
+  subsets: ["arabic", "latin"],
+  weight: ["400", "500", "700"],
+  display: "swap",
+  variable: "--font-tajawal",
+});
 
 export const metadata: Metadata = {
   title: "لوحة تحكم سهول | Sahool Admin Dashboard",
@@ -32,27 +40,33 @@ export default async function RootLayout({
   return (
     // suppressHydrationWarning prevents errors from browser extensions (e.g., Dark Reader)
     // that modify DOM attributes during hydration
-    <html lang="ar" dir="rtl" suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className={tajawal.variable} suppressHydrationWarning>
       <head suppressHydrationWarning>
         {/*
           Always render nonce attribute to prevent hydration mismatch.
           The nonce value may be empty string on client, but the attribute must be present.
         */}
         { }
-        <link
-          href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap"
-          rel="stylesheet"
-          nonce={nonce}
-          suppressHydrationWarning
-        />
+        {/* Leaflet CSS loaded asynchronously - not render-blocking for non-map pages */}
         <link
           rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossOrigin=""
           nonce={nonce}
+          media="print"
+          // @ts-expect-error - onLoad is valid on link elements for async CSS loading
+          onLoad="this.media='all'"
           suppressHydrationWarning
         />
+        <noscript>
+          <link
+            rel="stylesheet"
+            href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+            integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+            crossOrigin=""
+          />
+        </noscript>
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
         <Providers>{children}</Providers>

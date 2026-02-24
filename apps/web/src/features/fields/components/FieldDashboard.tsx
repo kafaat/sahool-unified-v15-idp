@@ -40,7 +40,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { FieldMap } from "./FieldMap";
+import { FieldMap } from "./FieldMap.dynamic";
 import { useField } from "../hooks/useField";
 import { useFieldNDVI, useNDVITimeSeries } from "@/features/ndvi/hooks/useNDVI";
 import { useTasksByField } from "@/features/tasks/hooks/useTasks";

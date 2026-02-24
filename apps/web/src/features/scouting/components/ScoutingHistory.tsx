@@ -11,7 +11,7 @@
  * - Statistics overview
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { useLocale } from "next-intl";
 import {
   Calendar,
@@ -69,7 +69,7 @@ interface FilterState {
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
+export const ScoutingHistory: React.FC<ScoutingHistoryProps> = React.memo(({
   fieldId,
   onSelectSession,
   showFilters = true,
@@ -132,7 +132,7 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
     setFilters({ fieldId });
   };
 
-  const handleGenerateReport = async (sessionId: string) => {
+  const handleGenerateReport = useCallback(async (sessionId: string) => {
     try {
       const result = await generateReport.mutateAsync({
         sessionId,
@@ -151,11 +151,11 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
     } catch (error) {
       console.error("Failed to generate report:", error);
     }
-  };
+  }, [generateReport]);
 
-  const toggleSessionExpansion = (sessionId: string) => {
+  const toggleSessionExpansion = useCallback((sessionId: string) => {
     setExpandedSession((prev) => (prev === sessionId ? null : sessionId));
-  };
+  }, []);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Calculate active filters count
@@ -632,6 +632,6 @@ export const ScoutingHistory: React.FC<ScoutingHistoryProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default ScoutingHistory;

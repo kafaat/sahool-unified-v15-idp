@@ -5,11 +5,20 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { getUserFromToken } from "./jwt-verify";
+import { getUserFromToken, type User } from "./jwt-verify";
 import { hasAnyRole } from "./jwt-verify";
 import type { UserRole } from "./route-protection";
-import type { User } from "@/lib/auth";
-import { logger } from "@/lib/logger";
+
+// ---------------------------------------------------------------------------
+// Server-only logger (NOT used in edge middleware).
+// Uses dynamic import to avoid bundling @sentry/nextjs in non-edge contexts
+// where this module is only imported through barrel files.
+// ---------------------------------------------------------------------------
+const logger = {
+  error: (...args: unknown[]) => {
+    console.error(...args);
+  },
+};
 
 /**
  * Context object passed to API route handlers

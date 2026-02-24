@@ -86,5 +86,14 @@ export {
   type PermissionGateProps,
 } from "./components/auth/PermissionGate";
 
-// Re-export utilities for convenience
-export * from "@sahool/shared-utils";
+// Re-export only the utilities actually used by shared-ui components.
+// Consumers needing other utilities (formatDate, formatCurrency, debounce,
+// AI context engineering, etc.) should import directly from @sahool/shared-utils.
+export {
+  cn,
+  formatNumber,
+  getStatusColor,
+  getStatusLabel,
+  getSeverityColor,
+  getSeverityLabel,
+} from "@sahool/shared-utils";

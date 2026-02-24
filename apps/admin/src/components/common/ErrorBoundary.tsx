@@ -1,7 +1,6 @@
 "use client";
 
 import React, { Component, ErrorInfo, ReactNode } from "react";
-import * as Sentry from "@sentry/nextjs";
 import { logger } from "../../lib/logger";
 
 interface Props {
@@ -27,7 +26,12 @@ interface State {
  * - Logs errors to console (development) and Sentry (all environments)
  * - Provides user-friendly Arabic error messages
  * - Includes retry mechanism
- * - Reports to error tracking service (Sentry)
+ * - Reports to error tracking service (Sentry via lazy import)
+ *
+ * Bundle Optimization:
+ * - Sentry is dynamically imported instead of statically imported.
+ *   This avoids pulling ~300KB of @sentry/nextjs into the ErrorBoundary chunk,
+ *   which is only needed when an error actually occurs.
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -54,7 +58,7 @@ export class ErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    // Report to Sentry with full context
+    // Report to Sentry with full context (lazy-loaded)
     this.reportToSentry(error, errorInfo);
 
     // Also log to server for additional tracking
@@ -62,30 +66,33 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   /**
-   * Report error to Sentry with React component context
+   * Report error to Sentry with React component context.
+   * Uses dynamic import to avoid bundling @sentry/nextjs into this chunk.
    */
   private reportToSentry = (error: Error, errorInfo: ErrorInfo): void => {
-    try {
-      const eventId = Sentry.captureException(error, {
-        contexts: {
-          react: {
-            componentStack: errorInfo.componentStack,
+    import("@sentry/nextjs")
+      .then((Sentry) => {
+        const eventId = Sentry.captureException(error, {
+          contexts: {
+            react: {
+              componentStack: errorInfo.componentStack,
+            },
           },
-        },
-        tags: {
-          errorBoundary: "admin",
-          componentName: this.props.componentName || "unknown",
-        },
-        extra: {
-          componentStack: errorInfo.componentStack,
-          url: typeof window !== "undefined" ? window.location.href : undefined,
-        },
-      });
+          tags: {
+            errorBoundary: "admin",
+            componentName: this.props.componentName || "unknown",
+          },
+          extra: {
+            componentStack: errorInfo.componentStack,
+            url: typeof window !== "undefined" ? window.location.href : undefined,
+          },
+        });
 
-      this.setState({ eventId });
-    } catch (sentryError) {
-      logger.critical("Failed to report error to Sentry:", sentryError);
-    }
+        this.setState({ eventId });
+      })
+      .catch((sentryError) => {
+        logger.critical("Failed to report error to Sentry:", sentryError);
+      });
   };
 
   private logErrorToServer = async (

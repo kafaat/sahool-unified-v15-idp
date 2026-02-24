@@ -9,7 +9,7 @@ import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, Lock, Mail, Eye, EyeOff, Leaf, User, Phone } from "lucide-react";
-import { API_BASE_URL } from "@/config/api";
+import { API_BASE_URL } from "@/config/api-base";
 
 interface RegisterFormData {
   email: string;

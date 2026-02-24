@@ -88,7 +88,7 @@ const MONITORED_SERVICES = [
 // Component
 // ═══════════════════════════════════════════════════════════════════════════
 
-export function ServiceHealthDashboard({
+const ServiceHealthDashboardInner = React.memo(function ServiceHealthDashboard({
   className = "",
   showTitle = true,
   compact = false,
@@ -336,6 +336,8 @@ export function ServiceHealthDashboard({
       </div>
     </div>
   );
-}
+});
 
-export default ServiceHealthDashboard;
+export { ServiceHealthDashboardInner as ServiceHealthDashboard };
+export default ServiceHealthDashboardInner;
+export type { ServiceHealthDashboardProps };

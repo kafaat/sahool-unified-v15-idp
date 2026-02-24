@@ -3,8 +3,14 @@
 /**
  * Admin Sidebar Navigation - Enhanced with CRUD Management
  * شريط التنقل الجانبي المحسن مع إدارة CRUD
+ *
+ * Optimized:
+ * - Wrapped in React.memo to avoid re-renders from parent layout changes
+ * - Mobile overlay/close button dynamically imported (hidden on desktop)
+ * - Icons individually imported from lucide-react (tree-shakeable)
  */
 
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -30,7 +36,6 @@ import {
   ChevronRight,
   CircleDot,
   Menu,
-  X,
   Users,
   Package,
   CheckSquare,
@@ -38,8 +43,23 @@ import {
   ShoppingCart,
   FlaskConical,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 import { useAuth } from "@/stores/auth.store";
+import dynamic from "next/dynamic";
+
+// Lazy-load mobile drawer overlay -- only needed on small screens after user interaction
+const MobileSidebarDrawer = dynamic(
+  () => import("@/components/layout/MobileSidebarDrawer"),
+  { ssr: false },
+);
+
+// Lazy-load mobile close button from the same module
+const MobileSidebarCloseButtonLazy = dynamic(
+  () =>
+    import("@/components/layout/MobileSidebarDrawer").then((mod) => ({
+      default: mod.MobileSidebarCloseButton,
+    })),
+  { ssr: false },
+);
 
 // Main navigation sections
 const mainNavigation = [
@@ -71,7 +91,7 @@ const managementNav = [
   { name: "البحوث", href: "/research", icon: FlaskConical },
 ];
 
-// System section  
+// System section
 const systemNav = [
   { name: "الدعم الفني", href: "/support", icon: MessageCircle, badge: 5 },
   { name: "الإعدادات", href: "/settings", icon: Settings },
@@ -97,7 +117,7 @@ const analyticsNav = [
   { name: "تحليلات الأقمار", href: "/analytics/satellite", icon: Satellite },
 ];
 
-export default function Sidebar() {
+export default React.memo(function Sidebar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [precisionExpanded, setPrecisionExpanded] = useState(
@@ -136,12 +156,11 @@ export default function Sidebar() {
         <Menu className="w-6 h-6 text-gray-600 dark:text-gray-300" />
       </button>
 
-      {/* Mobile overlay */}
+      {/* Mobile overlay - lazy loaded, only rendered when menu is open */}
       {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
+        <Suspense fallback={null}>
+          <MobileSidebarDrawer onClose={() => setIsMobileMenuOpen(false)} />
+        </Suspense>
       )}
 
       {/* Sidebar */}
@@ -151,14 +170,12 @@ export default function Sidebar() {
           isMobileMenuOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
-        {/* Mobile close button */}
-        <button
-          onClick={() => setIsMobileMenuOpen(false)}
-          className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
-          aria-label="إغلاق القائمة"
-        >
-          <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-        </button>
+        {/* Mobile close button - lazy loaded */}
+        {isMobileMenuOpen && (
+          <Suspense fallback={null}>
+            <MobileSidebarCloseButtonLazy onClose={() => setIsMobileMenuOpen(false)} />
+          </Suspense>
+        )}
 
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-gray-100 dark:border-gray-800">
@@ -515,4 +532,4 @@ export default function Sidebar() {
       </aside>
     </>
   );
-}
+});

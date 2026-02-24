@@ -1,8 +1,7 @@
-"use client";
-
 // Metrics Grid Component
 // شبكة المقاييس
 
+import React from "react";
 import StatCard from "@/components/ui/StatCard";
 import { LucideIcon } from "lucide-react";
 
@@ -25,7 +24,7 @@ interface MetricsGridProps {
   className?: string;
 }
 
-export default function MetricsGrid({
+const MetricsGrid = React.memo(function MetricsGrid({
   metrics,
   columns = 4,
   className = "",
@@ -53,4 +52,6 @@ export default function MetricsGrid({
       ))}
     </div>
   );
-}
+});
+
+export default MetricsGrid;

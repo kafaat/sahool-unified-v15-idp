@@ -3,6 +3,7 @@
 // Data Table Component
 // جدول البيانات
 
+import React, { useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface Column<T> {
@@ -22,7 +23,7 @@ interface DataTableProps<T> {
   isLoading?: boolean;
 }
 
-export default function DataTable<T>({
+function DataTableInner<T>({
   columns,
   data,
   keyExtractor,
@@ -65,6 +66,16 @@ export default function DataTable<T>({
     );
   }
 
+  const handleRowKeyDown = useCallback(
+    (e: React.KeyboardEvent, item: T) => {
+      if (onRowClick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        onRowClick(item);
+      }
+    },
+    [onRowClick],
+  );
+
   return (
     <div
       className={cn("bg-white rounded-xl shadow-sm overflow-hidden", className)}
@@ -91,12 +102,7 @@ export default function DataTable<T>({
               <tr
                 key={keyExtractor(item)}
                 onClick={() => onRowClick?.(item)}
-                onKeyDown={(e) => {
-                  if (onRowClick && (e.key === "Enter" || e.key === " ")) {
-                    e.preventDefault();
-                    onRowClick(item);
-                  }
-                }}
+                onKeyDown={(e) => handleRowKeyDown(e, item)}
                 tabIndex={onRowClick ? 0 : undefined}
                 role={onRowClick ? "button" : undefined}
                 aria-label={onRowClick ? "اضغط للتفاصيل" : undefined}
@@ -125,3 +131,7 @@ export default function DataTable<T>({
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders when parent state changes
+const DataTable = React.memo(DataTableInner) as typeof DataTableInner;
+export default DataTable;

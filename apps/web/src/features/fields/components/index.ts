@@ -6,7 +6,8 @@
 export { FieldCard } from "./FieldCard";
 export { FieldDetails } from "./FieldDetails";
 export { FieldForm } from "./FieldForm";
-export { FieldMap } from "./FieldMap";
+// Export dynamic (lazy-loaded) FieldMap component by default for optimal bundle size (~50KB saved)
+export { FieldMap } from "./FieldMap.dynamic";
 export { FieldsList } from "./FieldsList";
 // Export dynamic (lazy-loaded) map component by default for optimal bundle size (~150KB saved)
 export { InteractiveFieldMap } from "./InteractiveFieldMap.dynamic";

@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * SAHOOL Weather Conditions Display Component
  * مكون عرض الظروف الجوية

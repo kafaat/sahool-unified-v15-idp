@@ -18,21 +18,10 @@ import {
 } from "lucide-react";
 import { logger } from "../../../lib/logger";
 import {
-  BarChart,
-  Bar,
-  Line,
-  PieChart,
-  Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  Area,
-  AreaChart,
-} from "recharts";
+  DynamicMonthlyTrendChart,
+  DynamicCropProfitabilityChart,
+  DynamicCostBreakdownChart,
+} from "./ProfitabilityCharts.dynamic";
 
 interface ProfitabilityData {
   summary: {
@@ -73,24 +62,6 @@ interface ProfitabilityData {
   }>;
 }
 
-const CHART_COLORS = {
-  primary: "#2E7D32",
-  secondary: "#4CAF50",
-  accent: "#81C784",
-  warning: "#FF9800",
-  danger: "#F44336",
-  info: "#2196F3",
-};
-
-const PIE_COLORS = [
-  "#2E7D32",
-  "#4CAF50",
-  "#81C784",
-  "#A5D6A7",
-  "#C8E6C9",
-  "#E8F5E9",
-];
-
 export default function ProfitabilityPage() {
   const [data, setData] = useState<ProfitabilityData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -100,7 +71,7 @@ export default function ProfitabilityPage() {
 
   useEffect(() => {
     loadData();
-     
+
   }, [selectedPeriod]);
 
   async function loadData() {
@@ -189,78 +160,7 @@ export default function ProfitabilityPage() {
       <div className="mt-6 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
         <h3 className="font-bold text-gray-900 mb-4">اتجاه الربحية الشهري</h3>
         <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data.byMonth}>
-              <defs>
-                <linearGradient
-                  id="revenueGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop
-                    offset="5%"
-                    stopColor={CHART_COLORS.primary}
-                    stopOpacity={0.3}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={CHART_COLORS.primary}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-                <linearGradient id="costsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop
-                    offset="5%"
-                    stopColor={CHART_COLORS.danger}
-                    stopOpacity={0.3}
-                  />
-                  <stop
-                    offset="95%"
-                    stopColor={CHART_COLORS.danger}
-                    stopOpacity={0}
-                  />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "8px",
-                  direction: "rtl",
-                }}
-              />
-              <Legend />
-              <Area
-                type="monotone"
-                dataKey="revenue"
-                stroke={CHART_COLORS.primary}
-                fill="url(#revenueGradient)"
-                strokeWidth={2}
-                name="الإيرادات"
-              />
-              <Area
-                type="monotone"
-                dataKey="costs"
-                stroke={CHART_COLORS.danger}
-                fill="url(#costsGradient)"
-                strokeWidth={2}
-                name="التكاليف"
-              />
-              <Line
-                type="monotone"
-                dataKey="profit"
-                stroke={CHART_COLORS.info}
-                strokeWidth={3}
-                dot={{ fill: CHART_COLORS.info, r: 4 }}
-                name="الربح الصافي"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <DynamicMonthlyTrendChart data={data.byMonth} />
         </div>
       </div>
 
@@ -272,45 +172,7 @@ export default function ProfitabilityPage() {
             مقارنة ربحية المحاصيل
           </h3>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data.byCrop} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis type="number" tick={{ fontSize: 12 }} />
-                <YAxis
-                  dataKey="cropAr"
-                  type="category"
-                  tick={{ fontSize: 11 }}
-                  width={80}
-                />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    direction: "rtl",
-                  }}
-                />
-                <Legend />
-                <Bar
-                  dataKey="revenue"
-                  fill={CHART_COLORS.primary}
-                  name="الإيرادات"
-                  radius={[0, 4, 4, 0]}
-                />
-                <Bar
-                  dataKey="costs"
-                  fill={CHART_COLORS.danger}
-                  name="التكاليف"
-                  radius={[0, 4, 4, 0]}
-                />
-                <Bar
-                  dataKey="profit"
-                  fill={CHART_COLORS.info}
-                  name="الربح"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            <DynamicCropProfitabilityChart data={data.byCrop} />
           </div>
         </div>
 
@@ -318,37 +180,7 @@ export default function ProfitabilityPage() {
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
           <h3 className="font-bold text-gray-900 mb-4">توزيع التكاليف</h3>
           <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data.costBreakdown}
-                  dataKey="amount"
-                  nameKey="categoryAr"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label={({ categoryAr, percentage }) =>
-                    `${categoryAr} ${percentage.toFixed(0)}%`
-                  }
-                  labelLine={true}
-                >
-                  {data.costBreakdown.map((_entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={PIE_COLORS[index % PIE_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    direction: "rtl",
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <DynamicCostBreakdownChart data={data.costBreakdown} />
           </div>
         </div>
       </div>

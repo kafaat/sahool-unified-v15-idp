@@ -5,8 +5,6 @@
  * Renders a printable field report layout with RTL support for Arabic PDF generation
  */
 
-"use client";
-
 import React from "react";
 import {
   MapPin,

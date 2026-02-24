@@ -4,9 +4,7 @@
  */
 
 import { USER_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { logger } from "@/lib/logger";
+import { createApiClient, logger } from "@/lib/api/factory";
 import {
   Role,
   type TeamMember,
@@ -16,31 +14,8 @@ import {
   type Permission,
 } from "../types/team";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 10000, // 10 seconds timeout
-});
-
-// Add auth token interceptor
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient({ timeout: 10000 });
 
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {

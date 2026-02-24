@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * SAHOOL Permissions Matrix Component
  * مكون مصفوفة الصلاحيات
@@ -54,7 +52,7 @@ interface PermissionsMatrixProps {
   selectedRole?: Role;
 }
 
-export const PermissionsMatrix: React.FC<PermissionsMatrixProps> = ({
+export const PermissionsMatrix: React.FC<PermissionsMatrixProps> = React.memo(({
   selectedRole,
 }) => {
   const roles = Object.values(Role);
@@ -196,6 +194,6 @@ export const PermissionsMatrix: React.FC<PermissionsMatrixProps> = ({
       </div>
     </div>
   );
-};
+});
 
 export default PermissionsMatrix;

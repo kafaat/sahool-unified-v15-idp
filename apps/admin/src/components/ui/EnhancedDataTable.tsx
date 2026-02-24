@@ -5,7 +5,7 @@
  * جدول البيانات المحسن مع الفرز والتصفية والتحديد المتعدد
  */
 
-import { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { cn } from "@/lib/utils";
 import {
   ChevronUp,
@@ -64,7 +64,7 @@ export interface EnhancedDataTableProps<T> {
   maxHeight?: string;
 }
 
-export default function EnhancedDataTable<T>({
+function EnhancedDataTableInner<T>({
   columns,
   data,
   keyExtractor,
@@ -500,3 +500,7 @@ export default function EnhancedDataTable<T>({
     </div>
   );
 }
+
+// Memoize to prevent unnecessary re-renders when parent state changes
+const EnhancedDataTable = React.memo(EnhancedDataTableInner) as typeof EnhancedDataTableInner;
+export default EnhancedDataTable;

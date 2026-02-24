@@ -4,9 +4,8 @@
  */
 
 import { SCOUTING_ENDPOINTS, API_PREFIX } from "@sahool/shared-types/contracts";
-import axios, { type AxiosError } from "axios";
-import Cookies from "js-cookie";
-import { logger } from "@/lib/logger";
+import { type AxiosError } from "axios";
+import { createApiClient, logger } from "@/lib/api/factory";
 import type {
   ScoutingSession,
   Observation,
@@ -24,34 +23,8 @@ import type {
   ApiStatisticsResponse,
 } from "../types/scouting";
 
-// ═══════════════════════════════════════════════════════════════════════════
-// API Configuration
-// ═══════════════════════════════════════════════════════════════════════════
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-if (!API_BASE_URL && typeof window !== "undefined") {
-  console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-}
-
-const api = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 15000, // 15 seconds timeout for uploads
-});
-
-// Add auth token interceptor
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = Cookies.get("access_token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
+// Use shared API factory (handles auth, CSRF, error standardization)
+const api = createApiClient({ timeout: 15000 });
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages

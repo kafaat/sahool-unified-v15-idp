@@ -99,6 +99,7 @@ export const ProfileForm: React.FC = () => {
         <div className="flex items-center gap-6">
           <div className="relative">
             {avatarPreview ? (
+              /* eslint-disable-next-line @next/next/no-img-element -- Avatar preview uses data: URL from FileReader; next/image cannot optimize blob previews */
               <img
                 src={avatarPreview}
                 alt="Profile"

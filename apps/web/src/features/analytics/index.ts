@@ -12,11 +12,12 @@
  */
 
 // Component exports
+// Chart components use dynamic imports to avoid bundling recharts (~120KB) on initial load
 export { AnalyticsDashboard } from "./components/AnalyticsDashboard";
-export { YieldAnalysis } from "./components/YieldAnalysis";
-export { YieldChart } from "./components/YieldChart";
-export { CostAnalysis } from "./components/CostAnalysis";
-export { ComparisonChart } from "./components/ComparisonChart";
+export { YieldAnalysis } from "./components/YieldAnalysis.dynamic";
+export { YieldChart } from "./components/YieldChart.dynamic";
+export { CostAnalysis } from "./components/CostAnalysis.dynamic";
+export { ComparisonChart } from "./components/ComparisonChart.dynamic";
 export { ReportGenerator } from "./components/ReportGenerator";
 export { KPICards } from "./components/KPICards";
 

@@ -9,6 +9,7 @@
       "@sahool/shared-types/*": ["../shared-types/dist/*"]
     },
     "lib": ["ES2020", "DOM"],
+    "types": ["node"],
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,

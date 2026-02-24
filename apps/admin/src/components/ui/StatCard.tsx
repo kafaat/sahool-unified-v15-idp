@@ -1,5 +1,3 @@
-"use client";
-
 // Statistics Card Component
 // بطاقة الإحصائيات
 

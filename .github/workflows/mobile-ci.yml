@@ -457,9 +457,7 @@ jobs:
           api-level: 30
           arch: x86_64
           profile: pixel_5
-          script: |
-            cd apps/mobile/sahool_field_app
-            flutter test integration_test/ --verbose
+          script: cd apps/mobile/sahool_field_app && flutter test integration_test/ --verbose
         continue-on-error: true
 
       - name: Upload integration test results

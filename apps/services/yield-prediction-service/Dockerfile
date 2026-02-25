@@ -39,6 +39,9 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 
 # Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
+# Install redis (nestjs-auth devDep) - required for token-revocation.ts compilation
+RUN cd /workspace/yield-prediction-service && \
+    npm install --no-save redis 2>/dev/null || true
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/yield-prediction-service/node_modules ./node_modules && \
     npx tsc --skipLibCheck || \

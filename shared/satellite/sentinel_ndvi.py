@@ -299,6 +299,9 @@ class SentinelNDVIAnalyzer:
             import numpy as np
 
             ndvi_array = np.array(data[0])
+            # NDVI valid range is -1 to 1; clip to remove sensor noise
+            NDVI_MIN, NDVI_MAX = -1.0, 1.0
+            ndvi_array = np.clip(ndvi_array, NDVI_MIN, NDVI_MAX)
             valid_pixels = ndvi_array[ndvi_array != -9999]
 
             if len(valid_pixels) == 0:

@@ -17,6 +17,9 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
+# Copy nestjs-auth package (workspace dependency: @sahool/nestjs-auth)
+COPY packages/nestjs-auth ./nestjs-auth/
+
 # Copy service to maintain relative path: ../../shared/ from crop-growth-model/src/
 COPY apps/services/crop-growth-model ./crop-growth-model/
 
@@ -24,7 +27,9 @@ WORKDIR /workspace/crop-growth-model
 
 # Install dependencies with retry for network resilience
 # Use Taobao mirror for faster downloads in China/MENA region
-RUN npm config set registry https://registry.npmmirror.com; \
+# Replace workspace dependency with local file path for Docker build
+RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json && \
+    npm config set registry https://registry.npmmirror.com; \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
@@ -42,6 +47,9 @@ WORKDIR /app
 
 # Install curl for health checks
 RUN apk add --no-cache curl
+
+# Copy nestjs-auth package for runtime dependency resolution
+COPY --from=builder /workspace/nestjs-auth ./nestjs-auth/
 
 # Copy package files from builder (includes generated package-lock.json)
 COPY --from=builder /workspace/crop-growth-model/package.json ./

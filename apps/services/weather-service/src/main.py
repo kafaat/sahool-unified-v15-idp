@@ -131,6 +131,13 @@ add_request_id_middleware(app)
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ============== Tenant Isolation ==============
 

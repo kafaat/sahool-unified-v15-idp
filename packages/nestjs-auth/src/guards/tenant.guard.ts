@@ -15,6 +15,7 @@ import {
   ForbiddenException,
   BadRequestException,
   Logger,
+  SetMetadata,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 
@@ -25,8 +26,6 @@ const SKIP_TENANT_KEY = "skipTenantCheck";
  * (e.g., admin endpoints that query across tenants)
  */
 export const SkipTenantCheck = () => SetMetadata(SKIP_TENANT_KEY, true);
-
-import { SetMetadata } from "@nestjs/common";
 
 /**
  * TenantGuard - Enforces tenant isolation on every request.

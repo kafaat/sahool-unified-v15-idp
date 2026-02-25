@@ -1002,6 +1002,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # API Endpoints

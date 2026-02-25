@@ -56,6 +56,8 @@ except ImportError:
     def add_request_id_middleware(app):
         _logger.debug("Request ID middleware not configured (module unavailable)")
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 
 from shared.middleware.tenant_context import TenantContextMiddleware
 

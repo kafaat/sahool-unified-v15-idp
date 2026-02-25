@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -13,54 +13,55 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
+import { IsString, IsNumber, IsOptional, IsBoolean, IsArray, IsObject, IsIn, IsDateString, Min, Max } from "class-validator";
 import { IrrigationDecisionService } from "./irrigation-decision.service";
 
 class ScenarioInput {
-  budget: "high" | "medium" | "low";
-  terrain: "plain" | "mountain" | "greenhouse" | "terrace";
-  cropType: string;
-  cropValue: "high" | "medium" | "low";
-  technicalCapability: "advanced" | "basic" | "minimal";
-  waterAvailability: "abundant" | "limited" | "scarce";
+  @IsIn(["high", "medium", "low"]) budget: "high" | "medium" | "low";
+  @IsIn(["plain", "mountain", "greenhouse", "terrace"]) terrain: "plain" | "mountain" | "greenhouse" | "terrace";
+  @IsString() cropType: string;
+  @IsIn(["high", "medium", "low"]) cropValue: "high" | "medium" | "low";
+  @IsIn(["advanced", "basic", "minimal"]) technicalCapability: "advanced" | "basic" | "minimal";
+  @IsIn(["abundant", "limited", "scarce"]) waterAvailability: "abundant" | "limited" | "scarce";
 }
 
 class ETcInput {
-  cropType: string;
-  daysAfterPlanting: number;
-  et0: number;
-  soilType: "sandy" | "loam" | "clay" | "silt";
-  stressCoefficient?: number;
-  growthStageAdjustment?: boolean;
+  @IsString() cropType: string;
+  @IsNumber() @Min(0) daysAfterPlanting: number;
+  @IsNumber() @Min(0) et0: number;
+  @IsIn(["sandy", "loam", "clay", "silt"]) soilType: "sandy" | "loam" | "clay" | "silt";
+  @IsOptional() @IsNumber() @Min(0) @Max(1) stressCoefficient?: number;
+  @IsOptional() @IsBoolean() growthStageAdjustment?: boolean;
 }
 
 class ThresholdInput {
-  cropType: string;
-  soilType: "sandy" | "loam" | "clay" | "silt";
-  currentSoilMoisture: number;
-  growthStage: "seedling" | "vegetative" | "flowering" | "maturity";
-  rootDepth: number;
+  @IsString() cropType: string;
+  @IsIn(["sandy", "loam", "clay", "silt"]) soilType: "sandy" | "loam" | "clay" | "silt";
+  @IsNumber() @Min(0) @Max(100) currentSoilMoisture: number;
+  @IsIn(["seedling", "vegetative", "flowering", "maturity"]) growthStage: "seedling" | "vegetative" | "flowering" | "maturity";
+  @IsNumber() @Min(0) rootDepth: number;
 }
 
 class SmartScheduleInput {
-  cropType: string;
-  sowingDate: string;
-  soilParams: {
+  @IsString() cropType: string;
+  @IsDateString() sowingDate: string;
+  @IsObject() soilParams: {
     fieldCapacity: number;
     wiltingPoint: number;
     currentMoisture: number;
     soilType: "sandy" | "loam" | "clay" | "silt";
   };
-  weatherForecast: Array<{
+  @IsArray() weatherForecast: Array<{
     date: string;
     et0: number;
     precipitation: number;
     temperature: number;
   }>;
-  irrigationSystem: {
+  @IsObject() irrigationSystem: {
     type: "drip" | "sprinkler" | "furrow" | "flood";
     efficiency: number;
   };
-  budget: "high" | "medium" | "low";
+  @IsIn(["high", "medium", "low"]) budget: "high" | "medium" | "low";
 }
 
 @ApiTags("irrigation-decision")

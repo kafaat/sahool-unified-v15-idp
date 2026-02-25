@@ -1,11 +1,17 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { AuthModule } from "@sahool/nestjs-auth";
 import { YieldController } from "./yield/yield.controller";
 import { YieldService } from "./yield/yield.service";
 
 @Module({
   imports: [
+    // Shared JWT authentication (replaces local custom guard)
+    AuthModule.forRoot({
+      enableUserValidation: false,
+      enableTokenRevocation: false,
+    }),
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {

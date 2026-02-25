@@ -9,7 +9,7 @@ import {
   HttpStatus,
   UseGuards,
 } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   GISIntegrationService,
   GeoJSONFeatureCollection,

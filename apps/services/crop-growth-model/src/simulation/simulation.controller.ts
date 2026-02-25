@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -12,15 +12,16 @@ import {
   ApiQuery,
   ApiBody,
 } from "@nestjs/swagger";
+import { IsNumber, IsString, IsOptional, IsBoolean, IsArray, IsObject, IsDateString, Min } from "class-validator";
 import { GrowthSimulationService } from "./simulation.service";
 
 class SimulationInput {
-  cropType: string;
-  sowingDate: string;
-  fieldLocation?: { latitude: number; longitude: number };
-  soilType?: string;
-  irrigated?: boolean;
-  weatherData: Array<{
+  @IsString() cropType: string;
+  @IsDateString() sowingDate: string;
+  @IsOptional() @IsObject() fieldLocation?: { latitude: number; longitude: number };
+  @IsOptional() @IsString() soilType?: string;
+  @IsOptional() @IsBoolean() irrigated?: boolean;
+  @IsArray() weatherData: Array<{
     date: string;
     tmin: number;
     tmax: number;
@@ -30,10 +31,10 @@ class SimulationInput {
 }
 
 class QuickEstimateInput {
-  cropType: string;
-  avgTemperature: number;
-  avgRadiation: number;
-  seasonLength: number;
+  @IsString() cropType: string;
+  @IsNumber() avgTemperature: number;
+  @IsNumber() @Min(0) avgRadiation: number;
+  @IsNumber() @Min(1) seasonLength: number;
 }
 
 @ApiTags("simulation")

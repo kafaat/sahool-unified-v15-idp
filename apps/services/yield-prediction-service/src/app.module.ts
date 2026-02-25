@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import { AuthModule } from "@sahool/nestjs-auth";
+import { HealthController } from "./health/health.controller";
 import { YieldController } from "./yield/yield.controller";
 import { YieldService } from "./yield/yield.service";
 
@@ -31,7 +32,7 @@ import { YieldService } from "./yield/yield.service";
       },
     ]),
   ],
-  controllers: [YieldController],
+  controllers: [HealthController, YieldController],
   providers: [
     YieldService,
     // Global rate limiting guard

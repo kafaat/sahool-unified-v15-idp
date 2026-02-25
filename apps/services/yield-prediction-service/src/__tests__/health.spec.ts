@@ -1,17 +1,15 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { YieldController } from "../yield/yield.controller";
-import { YieldService } from "../yield/yield.service";
+import { HealthController } from "../health/health.controller";
 
-describe("YieldController (Health)", () => {
-  let controller: YieldController;
+describe("YieldPrediction HealthController", () => {
+  let controller: HealthController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [YieldController],
-      providers: [YieldService],
+      controllers: [HealthController],
     }).compile();
 
-    controller = module.get<YieldController>(YieldController);
+    controller = module.get<HealthController>(HealthController);
   });
 
   it("should be defined", () => {
@@ -23,5 +21,12 @@ describe("YieldController (Health)", () => {
     expect(result).toHaveProperty("status", "ok");
     expect(result).toHaveProperty("service", "yield-prediction");
     expect(result).toHaveProperty("timestamp");
+  });
+
+  it("should return readiness status", () => {
+    const result = controller.readinessCheck();
+    expect(result).toHaveProperty("status", "ready");
+    expect(result).toHaveProperty("service", "yield-prediction");
+    expect(result).toHaveProperty("checks");
   });
 });

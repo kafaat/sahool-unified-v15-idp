@@ -156,8 +156,8 @@ async def metrics():
         "# HELP cooperative_service_up Service is up\n"
         "# TYPE cooperative_service_up gauge\n"
         "cooperative_service_up 1\n"
-        '# HELP cooperative_service_info Service version info\n'
-        '# TYPE cooperative_service_info gauge\n'
+        "# HELP cooperative_service_info Service version info\n"
+        "# TYPE cooperative_service_info gauge\n"
         'cooperative_service_info{service="cooperative-service",version="16.0.0"} 1\n'
         "# HELP cooperative_service_db_up Database connection status\n"
         "# TYPE cooperative_service_db_up gauge\n"

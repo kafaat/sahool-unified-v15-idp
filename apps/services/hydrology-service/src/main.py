@@ -386,9 +386,7 @@ async def save_analysis(
     return False
 
 
-async def get_analysis(
-    field_id: str, analysis_type: str, tenant_id: str | None = None
-) -> dict | None:
+async def get_analysis(field_id: str, analysis_type: str, tenant_id: str | None = None) -> dict | None:
     """
     Retrieve analysis result from database.
     استرجاع نتيجة التحليل من قاعدة البيانات

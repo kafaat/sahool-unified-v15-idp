@@ -515,11 +515,7 @@ class CodeFixAgent:
 
         # Calculate combined utility
         utility = (
-            0.25 * severity_score
-            + 0.25 * confidence_score
-            + 0.15 * size_score
-            + 0.25 * success_rate
-            - breaking_penalty
+            0.25 * severity_score + 0.25 * confidence_score + 0.15 * size_score + 0.25 * success_rate - breaking_penalty
         )
 
         return max(0.0, min(1.0, utility))
@@ -699,9 +695,7 @@ class CodeFixAgent:
 
         # Extract context for observability
         file_path = percept.data.get("file_path") if isinstance(percept.data, dict) else None
-        language = (
-            percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
-        )
+        language = percept.data.get("language", "python") if isinstance(percept.data, dict) else "python"
 
         # Use observability context if available
         if self._observability and OBSERVABILITY_AVAILABLE:
@@ -816,9 +810,7 @@ class CodeFixAgent:
                     }
                 },
                 confidence=0.85,
-                priority=2
-                if top_issue.severity in [IssueSeverity.CRITICAL, IssueSeverity.HIGH]
-                else 3,
+                priority=2 if top_issue.severity in [IssueSeverity.CRITICAL, IssueSeverity.HIGH] else 3,
                 reasoning=f"Found {len(issues)} issues, highest severity: {top_issue.severity.value}",
                 reasoning_ar=f"تم العثور على {len(issues)} مشكلة، أعلى شدة: {top_issue.severity.value}",
                 source_agent=self.agent_id,
@@ -986,9 +978,7 @@ class CodeFixAgent:
 
         return issues
 
-    async def _analyze_with_auto_fix(
-        self, code: str, language: SupportedLanguage
-    ) -> list[CodeIssue]:
+    async def _analyze_with_auto_fix(self, code: str, language: SupportedLanguage) -> list[CodeIssue]:
         """
         تحليل الكود باستخدام AutoFixEngine
         Analyze code using AutoFixEngine diagnostics
@@ -1412,16 +1402,10 @@ class CodeFixAgent:
                 return None
 
             elif rule.startswith("UP017"):  # datetime.utcnow() deprecated
-                fixed_line = original_line.replace(
-                    "datetime.utcnow()", "datetime.now(timezone.utc)"
-                )
+                fixed_line = original_line.replace("datetime.utcnow()", "datetime.now(timezone.utc)")
                 if fixed_line != original_line:
-                    explanation = (
-                        "Replace deprecated datetime.utcnow() with datetime.now(timezone.utc)"
-                    )
-                    explanation_ar = (
-                        "استبدال datetime.utcnow() المهمل بـ datetime.now(timezone.utc)"
-                    )
+                    explanation = "Replace deprecated datetime.utcnow() with datetime.now(timezone.utc)"
+                    explanation_ar = "استبدال datetime.utcnow() المهمل بـ datetime.now(timezone.utc)"
 
             elif rule.startswith("B006"):  # Mutable default argument
                 # Complex, skip for rule-based
@@ -1599,9 +1583,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
         self.status = AgentStatus.LEARNING
 
         # Store feedback
-        self.feedback_history.append(
-            {"feedback": feedback, "timestamp": datetime.now(UTC).isoformat()}
-        )
+        self.feedback_history.append({"feedback": feedback, "timestamp": datetime.now(UTC).isoformat()})
 
         # Extract reward
         reward = feedback.get("reward", 0.0)
@@ -1982,15 +1964,9 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
 
     def get_metrics(self) -> dict[str, Any]:
         """الحصول على مقاييس الأداء"""
-        avg_response_time = (
-            self.total_response_time_ms / self.total_requests if self.total_requests > 0 else 0
-        )
-        success_rate = (
-            self.successful_requests / self.total_requests * 100 if self.total_requests > 0 else 0
-        )
-        avg_reward = (
-            sum(self.reward_history) / len(self.reward_history) if self.reward_history else 0
-        )
+        avg_response_time = self.total_response_time_ms / self.total_requests if self.total_requests > 0 else 0
+        success_rate = self.successful_requests / self.total_requests * 100 if self.total_requests > 0 else 0
+        avg_reward = sum(self.reward_history) / len(self.reward_history) if self.reward_history else 0
 
         return {
             "agent_id": self.agent_id,
@@ -2005,9 +1981,7 @@ Provide ONLY the fixed code without any explanation. Return the complete fixed c
             "avg_response_time_ms": round(avg_response_time, 2),
             "avg_reward": round(avg_reward, 4),
             "patterns_learned": len(self.success_patterns),
-            "last_action_time": self.last_action_time.isoformat()
-            if self.last_action_time
-            else None,
+            "last_action_time": self.last_action_time.isoformat() if self.last_action_time else None,
         }
 
     def to_dict(self) -> dict[str, Any]:

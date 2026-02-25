@@ -154,9 +154,7 @@ class IoTRulesWorker:
                     continue  # Skip fields without tenant context
 
                 # Evaluate combined rules
-                recommendations = evaluate_combined_rules(
-                    [{"sensor_type": k, "value": v} for k, v in latest.items()]
-                )
+                recommendations = evaluate_combined_rules([{"sensor_type": k, "value": v} for k, v in latest.items()])
 
                 for rec in recommendations:
                     await self._create_task_from_recommendation(

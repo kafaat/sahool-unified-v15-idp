@@ -160,8 +160,8 @@ async def metrics():
         "# HELP traceability_service_up Service is up\n"
         "# TYPE traceability_service_up gauge\n"
         "traceability_service_up 1\n"
-        '# HELP traceability_service_info Service version info\n'
-        '# TYPE traceability_service_info gauge\n'
+        "# HELP traceability_service_info Service version info\n"
+        "# TYPE traceability_service_info gauge\n"
         'traceability_service_info{service="traceability-service",version="16.0.0"} 1\n'
         "# HELP traceability_service_db_up Database connection status\n"
         "# TYPE traceability_service_db_up gauge\n"

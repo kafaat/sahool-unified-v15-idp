@@ -256,9 +256,7 @@ async def lifespan(app: FastAPI):
 
     # Initialize phenology detector
     _phenology_detector = PhenologyDetector()
-    print(
-        f"🌱 Phenology detector loaded: {len(_phenology_detector.YEMEN_CROP_SEASONS)} crops supported"
-    )
+    print(f"🌱 Phenology detector loaded: {len(_phenology_detector.YEMEN_CROP_SEASONS)} crops supported")
 
     # Initialize field boundary detector
     global _boundary_detector
@@ -329,6 +327,7 @@ add_request_id_middleware(app)
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass
@@ -709,18 +708,14 @@ def assess_vegetation_health(
     return score, status, anomalies
 
 
-def generate_recommendations(
-    indices: VegetationIndices, anomalies: list[str]
-) -> tuple[list[str], list[str]]:
+def generate_recommendations(indices: VegetationIndices, anomalies: list[str]) -> tuple[list[str], list[str]]:
     """Generate bilingual recommendations based on analysis"""
     recommendations_ar = []
     recommendations_en = []
 
     if "low_vegetation_cover" in anomalies:
         recommendations_ar.append("🌱 الغطاء النباتي منخفض - تحقق من صحة المحصول أو أعد الزراعة")
-        recommendations_en.append(
-            "🌱 Low vegetation cover - check crop health or consider replanting"
-        )
+        recommendations_en.append("🌱 Low vegetation cover - check crop health or consider replanting")
 
     if "water_stress_detected" in anomalies:
         recommendations_ar.append("💧 إجهاد مائي - زيادة الري فوراً")
@@ -1409,20 +1404,14 @@ async def analyze_ndvi_timeseries(
         "seasonal_metrics": seasonal_metrics.to_dict(),
         "forecast": {
             "period_days": 7,
-            "predictions": [
-                {"date": p[0].isoformat(), "predicted_ndvi": round(p[1], 4)} for p in predictions
-            ],
+            "predictions": [{"date": p[0].isoformat(), "predicted_ndvi": round(p[1], 4)} for p in predictions],
         },
         "summary": {
             "current_ndvi": round(values[-1], 4) if values else None,
             "average_ndvi": round(sum(values) / len(values), 4) if values else None,
             "has_anomalies": len(anomalies) > 0,
             "trend_direction": trend.trend_type.value,
-            "health_status": "good"
-            if values[-1] > 0.4
-            else "moderate"
-            if values[-1] > 0.2
-            else "poor",
+            "health_status": "good" if values[-1] > 0.4 else "moderate" if values[-1] > 0.2 else "poor",
         },
     }
 
@@ -1472,17 +1461,13 @@ async def compare_ndvi_periods(
             "start": period1_start,
             "end": period1_end,
             "days": (p1_end - p1_start).days,
-            "mean_ndvi": round(sum(period1_values) / len(period1_values), 4)
-            if period1_values
-            else None,
+            "mean_ndvi": round(sum(period1_values) / len(period1_values), 4) if period1_values else None,
         },
         "period2": {
             "start": period2_start,
             "end": period2_end,
             "days": (p2_end - p2_start).days,
-            "mean_ndvi": round(sum(period2_values) / len(period2_values), 4)
-            if period2_values
-            else None,
+            "mean_ndvi": round(sum(period2_values) / len(period2_values), 4) if period2_values else None,
         },
         "change_analysis": change_result.to_dict(),
         "recommendation_ar": change_result.description_ar,
@@ -1519,9 +1504,7 @@ async def get_phenology(
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(field_id, days)
-    ndvi_series = [
-        {"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]
-    ]
+    ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
     planting_dt = None
@@ -1529,9 +1512,7 @@ async def get_phenology(
         try:
             planting_dt = datetime.fromisoformat(planting_date).date()
         except ValueError:
-            raise HTTPException(
-                status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD"
-            )
+            raise HTTPException(status_code=400, detail="Invalid planting_date format. Use YYYY-MM-DD")
 
     # Detect phenology
     try:
@@ -1552,9 +1533,7 @@ async def get_phenology(
             "name_ar": result.current_stage.label_ar,
             "name_en": result.current_stage.label_en,
             "days_in_stage": result.days_in_stage,
-            "stage_start_date": (
-                result.stage_start_date.isoformat() if result.stage_start_date else None
-            ),
+            "stage_start_date": (result.stage_start_date.isoformat() if result.stage_start_date else None),
         },
         "next_stage": {
             "id": result.expected_next_stage.value,
@@ -1725,9 +1704,7 @@ async def analyze_phenology_with_action(
 
     # Get NDVI time series
     timeseries_data = await get_timeseries(request.field_id, request.days)
-    ndvi_series = [
-        {"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]
-    ]
+    ndvi_series = [{"date": point["date"], "value": point["ndvi"]} for point in timeseries_data["timeseries"]]
 
     # Parse planting date
     planting_dt = None
@@ -2340,9 +2317,9 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
     }
 
     if interpretations:
-        avg_weight = sum(
-            status_weights.get(HealthStatus(i["status"]), 3) for i in interpretations
-        ) / len(interpretations)
+        avg_weight = sum(status_weights.get(HealthStatus(i["status"]), 3) for i in interpretations) / len(
+            interpretations
+        )
         if avg_weight >= 4.5:
             overall_status = "excellent"
             overall_ar = "ممتاز"
@@ -2546,9 +2523,7 @@ class VRARequest(BaseModel):
     field_id: str = Field(..., description="معرف الحقل")
     latitude: float = Field(..., ge=-90, le=90, description="خط العرض")
     longitude: float = Field(..., ge=-180, le=180, description="خط الطول")
-    vra_type: str = Field(
-        ..., description="نوع التطبيق (fertilizer, seed, lime, pesticide, irrigation)"
-    )
+    vra_type: str = Field(..., description="نوع التطبيق (fertilizer, seed, lime, pesticide, irrigation)")
     target_rate: float = Field(..., gt=0, description="المعدل المستهدف")
     unit: str = Field(..., description="وحدة القياس (kg/ha, seeds/ha, L/ha, mm/ha)")
     num_zones: int = Field(default=3, ge=3, le=5, description="عدد مناطق الإدارة (3 أو 5)")
@@ -2687,8 +2662,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
             logger.warning(f"Failed to fetch NDVI timeseries: {e}")
             # Generate realistic NDVI series based on crop growth
             request.ndvi_series = [
-                max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05)))
-                for i in range(10)
+                max(0.2, min(0.8, 0.3 + (i / 10) * 0.5 + random.uniform(-0.05, 0.05))) for i in range(10)
             ]
             data_sources.append("simulated_ndvi")
     else:
@@ -2801,9 +2775,7 @@ async def get_yield_history(
     # Import shared crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-        )
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
@@ -2871,9 +2843,7 @@ async def get_yield_history(
             "total_predictions": len(history),
             "completed_harvests": len([h for h in history if h.actual_yield_ton_ha]),
             "average_predicted_yield": (
-                round(sum(h.predicted_yield_ton_ha for h in history) / len(history), 2)
-                if history
-                else 0
+                round(sum(h.predicted_yield_ton_ha for h in history) / len(history), 2) if history else 0
             ),
             "average_actual_yield": (
                 round(
@@ -2915,9 +2885,7 @@ async def get_regional_yields(
     # Import crop catalog
     try:
         # Add project root to path for shared imports (dynamic path instead of hardcoded)
-        _proj_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "..", "..", "..")
-        )
+        _proj_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
         if _proj_root not in sys.path:
             sys.path.insert(0, _proj_root)
         from apps.services.shared.crops import ALL_CROPS
@@ -2991,9 +2959,7 @@ async def get_regional_yields(
             "total_crops": len(regional_stats),
             "total_fields": sum(s.field_count for s in regional_stats),
             "highest_yield_crop": (
-                max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en
-                if regional_stats
-                else None
+                max(regional_stats, key=lambda x: x.average_yield_ton_ha).crop_name_en if regional_stats else None
             ),
         },
         "note": "Production system would aggregate real field data. Currently showing simulated regional averages.",
@@ -3290,15 +3256,11 @@ async def export_analysis(
 
         # Export data
         exporter = DataExporter()
-        result = exporter.export_field_analysis(
-            field_id=field_id, analysis_data=analysis_data, format=export_format
-        )
+        result = exporter.export_field_analysis(field_id=field_id, analysis_data=analysis_data, format=export_format)
 
         # Create streaming response
         return StreamingResponse(
-            io.BytesIO(
-                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
-            ),
+            io.BytesIO(result.data.encode("utf-8") if isinstance(result.data, str) else result.data),
             media_type=result.content_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{result.filename}"',
@@ -3373,15 +3335,11 @@ async def export_timeseries(
 
         # Export data
         exporter = DataExporter()
-        result = exporter.export_timeseries(
-            field_id=field_id, timeseries_data=timeseries_data, format=export_format
-        )
+        result = exporter.export_timeseries(field_id=field_id, timeseries_data=timeseries_data, format=export_format)
 
         # Create streaming response
         return StreamingResponse(
-            io.BytesIO(
-                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
-            ),
+            io.BytesIO(result.data.encode("utf-8") if isinstance(result.data, str) else result.data),
             media_type=result.content_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{result.filename}"',
@@ -3457,9 +3415,7 @@ async def export_boundaries(
 
         # Create streaming response
         return StreamingResponse(
-            io.BytesIO(
-                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
-            ),
+            io.BytesIO(result.data.encode("utf-8") if isinstance(result.data, str) else result.data),
             media_type=result.content_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{result.filename}"',
@@ -3534,12 +3490,9 @@ async def export_report(
                 "changes": {
                     "ndvi_change": current_ndvi - historical_ndvi,
                     "ndvi_change_percent": (
-                        ((current_ndvi - historical_ndvi) / historical_ndvi * 100)
-                        if historical_ndvi
-                        else 0
+                        ((current_ndvi - historical_ndvi) / historical_ndvi * 100) if historical_ndvi else 0
                     ),
-                    "health_score_change": analysis_data.get("health_score", 0)
-                    - historical.get("health_score", 0),
+                    "health_score_change": analysis_data.get("health_score", 0) - historical.get("health_score", 0),
                     "status_change": f"{historical.get('health_status')} → {analysis_data.get('health_status')}",
                 },
                 "current": {
@@ -3560,15 +3513,11 @@ async def export_report(
             result = exporter.export_changes_report(changes=[report_data], format=export_format)
         else:
             # Use field analysis export
-            result = exporter.export_field_analysis(
-                field_id=field_id, analysis_data=report_data, format=export_format
-            )
+            result = exporter.export_field_analysis(field_id=field_id, analysis_data=report_data, format=export_format)
 
         # Create streaming response
         return StreamingResponse(
-            io.BytesIO(
-                result.data.encode("utf-8") if isinstance(result.data, str) else result.data
-            ),
+            io.BytesIO(result.data.encode("utf-8") if isinstance(result.data, str) else result.data),
             media_type=result.content_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{result.filename}"',
@@ -3582,9 +3531,7 @@ async def export_report(
         raise HTTPException(status_code=500, detail=f"Export failed: {str(e)}") from e
 
 
-async def _perform_analysis(
-    field_id: str, lat: float, lon: float, analysis_date: date = None
-) -> dict:
+async def _perform_analysis(field_id: str, lat: float, lon: float, analysis_date: date = None) -> dict:
     """
     Helper function to perform field analysis.
     This reuses logic from the existing /v1/analyze endpoint.
@@ -3640,9 +3587,7 @@ async def _perform_analysis(
             "ndmi": round(random.uniform(0.2, 0.6), 3),
         },
         "health_score": round(health_score, 1),
-        "health_status": (
-            "excellent" if health_score > 80 else "good" if health_score > 60 else "fair"
-        ),
+        "health_status": ("excellent" if health_score > 80 else "good" if health_score > 60 else "fair"),
         "anomalies": [],
         "recommendations_ar": ["مراقبة مستمرة"],
         "recommendations_en": ["Continue monitoring"],
@@ -3668,9 +3613,7 @@ async def detect_changes(
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
-    crop_type: str | None = Query(
-        None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"
-    ),
+    crop_type: str | None = Query(None, description="Crop type (e.g., wheat, sorghum, coffee, qat)"),
 ):
     """
     كشف التغييرات الزراعية | Detect Agricultural Changes
@@ -3835,9 +3778,7 @@ async def get_anomalies(
         # Calculate expected pattern if crop type provided
         expected_pattern = None
         if crop_type:
-            expected_pattern = _change_detector._calculate_expected_pattern(
-                ndvi_timeseries, crop_type.lower()
-            )
+            expected_pattern = _change_detector._calculate_expected_pattern(ndvi_timeseries, crop_type.lower())
 
         # Detect anomalies
         anomalies = await _change_detector.detect_anomalies(ndvi_timeseries, expected_pattern)
@@ -3860,11 +3801,7 @@ async def get_anomalies(
                     "severity": (
                         "severe"
                         if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["severe"]
-                        else (
-                            "moderate"
-                            if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"]
-                            else "mild"
-                        )
+                        else ("moderate" if a["z_score"] >= _change_detector.ANOMALY_THRESHOLDS["moderate"] else "mild")
                     ),
                     "ndwi": a.get("ndwi"),
                     "ndmi": a.get("ndmi"),

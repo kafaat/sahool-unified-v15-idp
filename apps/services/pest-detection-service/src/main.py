@@ -197,8 +197,8 @@ async def metrics():
         "# HELP pest_detection_up Service is up\n"
         "# TYPE pest_detection_up gauge\n"
         "pest_detection_up 1\n"
-        f'# HELP pest_detection_info Service version info\n'
-        f'# TYPE pest_detection_info gauge\n'
+        f"# HELP pest_detection_info Service version info\n"
+        f"# TYPE pest_detection_info gauge\n"
         f'pest_detection_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
     )
     return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")

@@ -87,9 +87,7 @@ async def get_current_user(
                     )
 
                 if not cached_user.get("is_verified", False):
-                    logger.warning(
-                        f"Authentication failed: User {user_id} is not verified (cached)"
-                    )
+                    logger.warning(f"Authentication failed: User {user_id} is not verified (cached)")
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
@@ -404,9 +402,7 @@ def require_farm_access(farm_id_param: str = "farm_id") -> Callable:
         ```
     """
 
-    async def farm_access_checker(
-        request: Request, user: User = Depends(get_current_active_user)
-    ) -> User:
+    async def farm_access_checker(request: Request, user: User = Depends(get_current_active_user)) -> User:
         farm_id = request.path_params.get(farm_id_param)
 
         if not farm_id:
@@ -461,9 +457,7 @@ class RateLimiter:
         window_start = now - self.window_seconds
 
         # Clean old requests
-        self.storage[key] = [
-            timestamp for timestamp in self.storage[key] if timestamp > window_start
-        ]
+        self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
 
         current_count = len(self.storage[key])
         remaining = max(0, self.requests - current_count)
@@ -533,9 +527,7 @@ async def rate_limit_dependency(
 
     if not allowed:
         violation_count = _rate_limiter.get_violation_count(key)
-        logger.error(
-            f"Rate limit exceeded for user {user.id} (total violations: {violation_count})"
-        )
+        logger.error(f"Rate limit exceeded for user {user.id} (total violations: {violation_count})")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=AuthErrors.RATE_LIMIT_EXCEEDED.en,

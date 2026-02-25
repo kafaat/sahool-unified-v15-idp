@@ -73,9 +73,7 @@ from .repository import (
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -142,18 +140,14 @@ async def lifespan(app: FastAPI):
             app.state.db_available = True
         else:
             if is_ci_or_test:
-                logger.warning(
-                    "Database not available in CI/test environment - continuing without database"
-                )
+                logger.warning("Database not available in CI/test environment - continuing without database")
                 app.state.db_available = False
             else:
                 logger.error("Database connection failed")
                 raise RuntimeError("Database connection failed")
     except Exception as e:
         if is_ci_or_test:
-            logger.warning(
-                f"Database connection error in CI/test: {e} - continuing without database"
-            )
+            logger.warning(f"Database connection error in CI/test: {e} - continuing without database")
             app.state.db_available = False
         else:
             logger.error(f"Database connection error: {e}")
@@ -206,9 +200,7 @@ async def handle_ndvi_anomaly(data: dict):
                 field_id=data.get("field_id", "unknown"),
                 tenant_id=data.get("tenant_id"),
                 type=AlertType.NDVI_ANOMALY,
-                severity=(
-                    AlertSeverity.HIGH if data.get("severity") == "high" else AlertSeverity.MEDIUM
-                ),
+                severity=(AlertSeverity.HIGH if data.get("severity") == "high" else AlertSeverity.MEDIUM),
                 title=f"شذوذ في مؤشر NDVI - {data.get('anomaly_type', 'غير محدد')}",
                 title_en=f"NDVI Anomaly Detected - {data.get('anomaly_type', 'unknown')}",
                 message=f"تم اكتشاف شذوذ في قيمة NDVI. القيمة الحالية: {data.get('current_ndvi', 'N/A')}",
@@ -257,9 +249,7 @@ async def handle_weather_alert(data: dict):
                 recommendations_en=data.get("recommendations_en", []),
                 metadata=data,
                 source_service="weather-service",
-                expires_at=(
-                    datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None
-                ),
+                expires_at=(datetime.fromisoformat(data["expires_at"]) if data.get("expires_at") else None),
             )
         )
         logger.info(f"Created alert {alert['id']} from weather event")
@@ -342,9 +332,7 @@ def health():
         "version": "16.0.0",
         "timestamp": datetime.now(UTC).isoformat(),
         "dependencies": {
-            "nats": (
-                "connected" if getattr(app.state, "publisher", None) is not None else "disconnected"
-            )
+            "nats": ("connected" if getattr(app.state, "publisher", None) is not None else "disconnected")
         },
     }
 
@@ -836,9 +824,7 @@ async def acknowledge_alert(
     db.refresh(updated_alert)
 
     if hasattr(app.state, "publisher") and app.state.publisher:
-        await app.state.publisher.publish_alert_acknowledged(
-            str(alert_uuid), updated_alert.field_id, user_id
-        )
+        await app.state.publisher.publish_alert_acknowledged(str(alert_uuid), updated_alert.field_id, user_id)
 
     return updated_alert.to_dict()
 
@@ -885,9 +871,7 @@ async def resolve_alert(
     db.refresh(updated_alert)
 
     if hasattr(app.state, "publisher") and app.state.publisher:
-        await app.state.publisher.publish_alert_resolved(
-            str(alert_uuid), updated_alert.field_id, user_id, note
-        )
+        await app.state.publisher.publish_alert_resolved(str(alert_uuid), updated_alert.field_id, user_id, note)
 
     return updated_alert.to_dict()
 

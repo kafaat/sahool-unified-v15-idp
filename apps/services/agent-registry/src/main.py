@@ -535,9 +535,7 @@ async def get_all_health_statuses():
 
         return {
             "status": "success",
-            "health_statuses": {
-                agent_id: health.model_dump() for agent_id, health in health_statuses.items()
-            },
+            "health_statuses": {agent_id: health.model_dump() for agent_id, health in health_statuses.items()},
             "total": len(health_statuses),
         }
 

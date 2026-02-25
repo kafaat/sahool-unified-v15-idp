@@ -61,9 +61,7 @@ async def lifespan(app: FastAPI):
             logger.info("NATS connection established")
 
             # Subscribe to alert events for SMS forwarding
-            await app.state.nc.subscribe(
-                "sahool.*.alert.*", cb=lambda msg: handle_alert_for_sms(app, msg)
-            )
+            await app.state.nc.subscribe("sahool.*.alert.*", cb=lambda msg: handle_alert_for_sms(app, msg))
         except Exception as e:
             logger.error(f"NATS connection failed: {e}")
             app.state.nats_connected = False
@@ -325,9 +323,7 @@ async def ussd_callback(request: Request):
     language = await get_user_language(app, phone_number)
 
     # Process USSD input and generate response
-    response_text, end_session = await process_ussd_input(
-        app, session_id, phone_number, text, language
-    )
+    response_text, end_session = await process_ussd_input(app, session_id, phone_number, text, language)
 
     # Format response for telecom provider
     if end_session:
@@ -347,9 +343,7 @@ async def ussd_simulate(request: Request):
     text = data.get("text", "")
     language = data.get("language", "ar")
 
-    response_text, end_session = await process_ussd_input(
-        app, "test-session", phone_number, text, language
-    )
+    response_text, end_session = await process_ussd_input(app, "test-session", phone_number, text, language)
 
     return {
         "response": response_text,
@@ -522,9 +516,7 @@ async def send_whatsapp(request: Request):
     language = await get_user_language(app, phone_number)
     final_message = message_ar if language == "ar" else message
 
-    result = await send_whatsapp_via_provider(
-        phone_number, final_message, template, buttons, language
-    )
+    result = await send_whatsapp_via_provider(phone_number, final_message, template, buttons, language)
 
     return {
         "success": result.get("success", False),
@@ -583,9 +575,7 @@ async def process_ussd_input(
                     current_menu = option["next"]
                 elif "action" in option:
                     # Execute action and return result
-                    result = await execute_ussd_action(
-                        app, option["action"], phone_number, language
-                    )
+                    result = await execute_ussd_action(app, option["action"], phone_number, language)
                     return result, True
                 break
 

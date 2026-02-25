@@ -140,6 +140,7 @@ if REVOCATION_AVAILABLE:
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass
@@ -243,6 +244,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
     if user.tenant_id and user.tenant_id != requested_tenant_id:
         from fastapi import HTTPException
+
         raise HTTPException(
             status_code=403,
             detail={
@@ -257,9 +259,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 
 
 @app.post("/disease/assess")
-async def assess_disease(
-    req: DiseaseAssessRequest, user: User = Depends(get_current_user)
-):
+async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_current_user)):
     """Assess disease from image classification result"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -302,9 +302,7 @@ async def assess_disease(
 
 
 @app.post("/disease/symptoms")
-async def assess_symptoms(
-    req: SymptomAssessRequest, user: User = Depends(get_current_user)
-):
+async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_current_user)):
     """Assess possible diseases from reported symptoms"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -380,9 +378,7 @@ def get_disease_info(disease_id: str, lang: str = "ar"):
 
 
 @app.post("/nutrient/ndvi")
-async def assess_from_ndvi_endpoint(
-    req: NDVIAssessRequest, user: User = Depends(get_current_user)
-):
+async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from NDVI data"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -419,9 +415,7 @@ async def assess_from_ndvi_endpoint(
 
 
 @app.post("/nutrient/visual")
-async def assess_visual_endpoint(
-    req: VisualAssessRequest, user: User = Depends(get_current_user)
-):
+async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(get_current_user)):
     """Assess nutrient deficiency from visual indicators"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -472,9 +466,7 @@ def get_deficiency_info(deficiency_id: str):
 
 
 @app.post("/fertilizer/plan")
-async def create_fertilizer_plan(
-    req: FertilizerPlanRequest, user: User = Depends(get_current_user)
-):
+async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
     """Generate fertilizer plan for crop and stage"""
     _enforce_tenant(user, req.tenant_id)
 
@@ -581,9 +573,7 @@ def search_crops_endpoint(q: str):
 
 @app.get("/crops")
 def list_all_crops(
-    limit: int = Query(
-        default=100, ge=1, le=500, description="Maximum number of crops per category"
-    ),
+    limit: int = Query(default=100, ge=1, le=500, description="Maximum number of crops per category"),
     offset: int = Query(default=0, ge=0, description="Number of crops to skip per category"),
 ):
     """List all crops grouped by category with pagination"""

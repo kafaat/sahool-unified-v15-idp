@@ -159,8 +159,8 @@ async def metrics():
         "# HELP soil_analysis_service_up Service is up\n"
         "# TYPE soil_analysis_service_up gauge\n"
         "soil_analysis_service_up 1\n"
-        '# HELP soil_analysis_service_info Service version info\n'
-        '# TYPE soil_analysis_service_info gauge\n'
+        "# HELP soil_analysis_service_info Service version info\n"
+        "# TYPE soil_analysis_service_info gauge\n"
         'soil_analysis_service_info{service="soil-analysis-service",version="16.0.0"} 1\n'
         "# HELP soil_analysis_service_db_up Database connection status\n"
         "# TYPE soil_analysis_service_db_up gauge\n"

@@ -48,6 +48,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication dependencies
@@ -390,9 +391,7 @@ async def create_notification(
         )
 
         if not should_send:
-            logger.debug(
-                f"Skipping notification for user {farmer_id} - event type disabled in preferences"
-            )
+            logger.debug(f"Skipping notification for user {farmer_id} - event type disabled in preferences")
             continue
 
         # Use preferred channels if available, otherwise use provided channels
@@ -417,9 +416,7 @@ async def create_notification(
                 "priority_ar": PRIORITY_AR[priority],
                 "channels": final_channels,
             },
-            target_governorates=(
-                [g.value for g in target_governorates] if target_governorates else None
-            ),
+            target_governorates=([g.value for g in target_governorates] if target_governorates else None),
             target_crops=[c.value for c in target_crops] if target_crops else None,
             expires_in_hours=expires_in_hours,
         )
@@ -440,9 +437,7 @@ async def create_notification(
                 )
                 # Prevent unhandled exception warnings on fire-and-forget tasks
                 task.add_done_callback(
-                    lambda t: logger.error(f"Background send failed: {t.exception()}")
-                    if t.exception()
-                    else None
+                    lambda t: logger.error(f"Background send failed: {t.exception()}") if t.exception() else None
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")
@@ -898,12 +893,9 @@ async def create_notification_from_nats(notification_data: dict[str, Any]):
         }
 
         ntype = type_mapping.get(notification_data.get("type", "system"), NotificationType.SYSTEM)
-        priority = priority_mapping.get(
-            notification_data.get("priority", "medium"), NotificationPriority.MEDIUM
-        )
+        priority = priority_mapping.get(notification_data.get("priority", "medium"), NotificationPriority.MEDIUM)
         channels = [
-            channel_mapping.get(ch, NotificationChannel.IN_APP)
-            for ch in notification_data.get("channels", ["in_app"])
+            channel_mapping.get(ch, NotificationChannel.IN_APP) for ch in notification_data.get("channels", ["in_app"])
         ]
 
         await create_notification(
@@ -975,9 +967,7 @@ async def lifespan(app: FastAPI):
         if whatsapp_client._initialized:
             logger.info("✅ WhatsApp client initialized")
         else:
-            logger.info(
-                "ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)"
-            )
+            logger.info("ℹ️  WhatsApp client not configured (set TWILIO_WHATSAPP_NUMBER or META_WHATSAPP_* env vars)")
     except Exception as e:
         logger.warning(f"⚠️  Failed to initialize WhatsApp client: {e}")
 
@@ -1219,9 +1209,7 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
-    title, title_ar, body, body_ar = get_weather_alert_message(
-        request.alert_type, request.governorates[0]
-    )
+    title, title_ar, body, body_ar = get_weather_alert_message(request.alert_type, request.governorates[0])
 
     notification = await create_notification(
         type=NotificationType.WEATHER_ALERT,
@@ -1530,9 +1518,7 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
                 else None
             ),
             quiet_hours_end=(
-                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time()
-                if preferences.quiet_hours_end
-                else None
+                datetime.strptime(preferences.quiet_hours_end, "%H:%M").time() if preferences.quiet_hours_end else None
             ),
             metadata={
                 "min_priority": preferences.min_priority.value,

@@ -41,9 +41,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
-        if settings.is_production
-        else structlog.dev.ConsoleRenderer(),
+        structlog.processors.JSONRenderer() if settings.is_production else structlog.dev.ConsoleRenderer(),
     ],
     wrapper_class=structlog.stdlib.BoundLogger,
     context_class=dict,
@@ -102,9 +100,7 @@ async def lifespan(app: FastAPI):
             logger.info("preloading_default_models")
             try:
                 await manager.load_model(ModelTask.PEST_DETECTION, settings.default_model_variant)
-                await manager.load_model(
-                    ModelTask.DISEASE_DETECTION, settings.default_model_variant
-                )
+                await manager.load_model(ModelTask.DISEASE_DETECTION, settings.default_model_variant)
                 logger.info("default_models_preloaded")
             except Exception as e:
                 logger.warning("model_preload_failed", error=str(e))
@@ -416,9 +412,7 @@ async def metrics(request: Request) -> str:
     # Basic metrics (would integrate with prometheus_client in production)
     gpu_available = 1 if torch.cuda.is_available() else 0
     models_loaded = len(
-        request.app.state.model_manager.get_loaded_models()
-        if hasattr(request.app.state, "model_manager")
-        else []
+        request.app.state.model_manager.get_loaded_models() if hasattr(request.app.state, "model_manager") else []
     )
 
     metrics_output = f"""# HELP yolo26_gpu_available GPU availability (1=available, 0=not)

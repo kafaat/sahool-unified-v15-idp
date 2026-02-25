@@ -245,9 +245,7 @@ class AlertManager:
         logger.info(f"Out of stock check: Found {len(alerts)} alerts")
         return alerts
 
-    async def check_expiring_items(
-        self, warning_days: int = 30, critical_days: int = 7
-    ) -> list[InventoryAlert]:
+    async def check_expiring_items(self, warning_days: int = 30, critical_days: int = 7) -> list[InventoryAlert]:
         """
         Check items expiring soon.
         - 7-30 days: MEDIUM (warning)
@@ -282,7 +280,9 @@ class AlertManager:
                 priority = AlertPriority.CRITICAL
                 title_en = f"Expired: {item.get('name', 'Unknown')}"
                 title_ar = f"منتهي الصلاحية: {item.get('name_ar', 'غير معروف')}"
-                message_en = f"This item expired {abs(days_until_expiry)} day(s) ago. Remove from inventory immediately."
+                message_en = (
+                    f"This item expired {abs(days_until_expiry)} day(s) ago. Remove from inventory immediately."
+                )
                 message_ar = f"انتهت صلاحية هذا الصنف منذ {abs(days_until_expiry)} يوم. قم بإزالته من المخزون فوراً."
                 action_en = "Remove expired item from inventory and dispose safely"
                 action_ar = "قم بإزالة الصنف المنتهي الصلاحية من المخزون والتخلص منه بشكل آمن"
@@ -292,12 +292,8 @@ class AlertManager:
                 priority = AlertPriority.HIGH
                 title_en = f"Expiring Soon: {item.get('name', 'Unknown')}"
                 title_ar = f"ينتهي قريبا: {item.get('name_ar', 'غير معروف')}"
-                message_en = (
-                    f"This item expires in {days_until_expiry} day(s). Use or discount immediately."
-                )
-                message_ar = (
-                    f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. استخدمه أو قدم خصم فوراً."
-                )
+                message_en = f"This item expires in {days_until_expiry} day(s). Use or discount immediately."
+                message_ar = f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. استخدمه أو قدم خصم فوراً."
                 action_en = f"Use item within {days_until_expiry} days or offer discount"
                 action_ar = f"استخدم الصنف خلال {days_until_expiry} يوم أو قدم خصم"
             elif days_until_expiry <= warning_days:
@@ -306,12 +302,8 @@ class AlertManager:
                 priority = AlertPriority.MEDIUM
                 title_en = f"Expiring in {days_until_expiry} Days: {item.get('name', 'Unknown')}"
                 title_ar = f"ينتهي خلال {days_until_expiry} يوم: {item.get('name_ar', 'غير معروف')}"
-                message_en = (
-                    f"This item expires in {days_until_expiry} day(s). Plan usage accordingly."
-                )
-                message_ar = (
-                    f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. خطط للاستخدام وفقاً لذلك."
-                )
+                message_en = f"This item expires in {days_until_expiry} day(s). Plan usage accordingly."
+                message_ar = f"ينتهي هذا الصنف خلال {days_until_expiry} يوم. خطط للاستخدام وفقاً لذلك."
                 action_en = f"Plan to use item within {days_until_expiry} days"
                 action_ar = f"خطط لاستخدام الصنف خلال {days_until_expiry} يوم"
             else:
@@ -679,10 +671,6 @@ class AlertManager:
     def _find_existing_alert(self, item_id: str, alert_type: AlertType) -> InventoryAlert | None:
         """Find existing active alert for item and type"""
         for alert in self.alerts_db.values():
-            if (
-                alert.item_id == item_id
-                and alert.alert_type == alert_type
-                and alert.status == AlertStatus.ACTIVE
-            ):
+            if alert.item_id == item_id and alert.alert_type == alert_type and alert.status == AlertStatus.ACTIVE:
                 return alert
         return None

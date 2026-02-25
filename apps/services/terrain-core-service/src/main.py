@@ -307,12 +307,8 @@ def readiness():
     Kubernetes readiness probe - is the service ready to accept traffic?
     فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الطلبات؟
     """
-    dem_processor_ready = (
-        hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
-    )
-    terrain_calc_ready = (
-        hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
-    )
+    dem_processor_ready = hasattr(app.state, "dem_processor") and app.state.dem_processor is not None
+    terrain_calc_ready = hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator is not None
     nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
     db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
 
@@ -365,12 +361,8 @@ def metrics():
     from fastapi.responses import PlainTextResponse
 
     # Basic service metrics in Prometheus format
-    dem_processor_ready = (
-        1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
-    )
-    terrain_calc_ready = (
-        1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
-    )
+    dem_processor_ready = 1 if (hasattr(app.state, "dem_processor") and app.state.dem_processor) else 0
+    terrain_calc_ready = 1 if (hasattr(app.state, "terrain_calculator") and app.state.terrain_calculator) else 0
     nats_connected = 1 if (hasattr(app.state, "nc") and app.state.nc) else 0
     db_connected = 1 if (hasattr(app.state, "db_pool") and app.state.db_pool) else 0
 

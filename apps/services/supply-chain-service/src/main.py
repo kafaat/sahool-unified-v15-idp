@@ -236,8 +236,7 @@ async def health() -> dict[str, str]:
     "/readyz",
     tags=["health"],
     summary="Readiness Probe | فحص الجاهزية",
-    description="Check if the service is ready to accept traffic. "
-    "فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
+    description="Check if the service is ready to accept traffic. فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
 )
 @app.get("/health/ready", tags=["health"], include_in_schema=False)
 async def readiness(request: Request) -> dict[str, Any]:

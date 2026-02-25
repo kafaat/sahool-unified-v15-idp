@@ -267,9 +267,7 @@ class CodeReviewService:
         logger.info("SAHOOL Code Review Service v2.0 Initialized")
         logger.info(f"Primary Model: {self.settings.ollama_model}")
         logger.info(f"Fallback Enabled: {self.settings.enable_fallback}")
-        logger.info(
-            f"Cache: {self.settings.cache_backend if self.settings.enable_cache else 'disabled'}"
-        )
+        logger.info(f"Cache: {self.settings.cache_backend if self.settings.enable_cache else 'disabled'}")
         logger.info(f"GitHub: {'enabled' if self.github else 'disabled'}")
         logger.info(f"Agricultural Rules: {self.settings.enable_agricultural_rules}")
         logger.info("═" * 60)
@@ -279,12 +277,8 @@ class CodeReviewService:
         self._available_models = []
 
         # Check primary model
-        primary_available = await self._check_model_available(
-            self.settings.ollama_model, self.settings.ollama_url
-        )
-        self._available_models.append(
-            (self.settings.ollama_model, self.settings.ollama_url, primary_available)
-        )
+        primary_available = await self._check_model_available(self.settings.ollama_model, self.settings.ollama_url)
+        self._available_models.append((self.settings.ollama_model, self.settings.ollama_url, primary_available))
 
         # Check fallback models
         if self.settings.enable_fallback:
@@ -298,9 +292,7 @@ class CodeReviewService:
     async def _check_model_available(self, model: str, url: str) -> bool:
         """Check if a specific model is available"""
         try:
-            async with self.session.get(
-                f"{url}/api/tags", timeout=aiohttp.ClientTimeout(total=5)
-            ) as response:
+            async with self.session.get(f"{url}/api/tags", timeout=aiohttp.ClientTimeout(total=5)) as response:
                 if response.status == 200:
                     data = await response.json()
                     models = [m.get("name", "").split(":")[0] for m in data.get("models", [])]
@@ -389,9 +381,7 @@ class CodeReviewService:
         if agri_analysis and agri_analysis.issues:
             review["agricultural_issues"] = agri_analysis.get_issue_messages()
             # Adjust score based on agricultural analysis
-            review["score"] = max(
-                0, min(100, review.get("score", 75) + agri_analysis.score_modifier)
-            )
+            review["score"] = max(0, min(100, review.get("score", 75) + agri_analysis.score_modifier))
 
         review["model_used"] = model_used
         review["cached"] = False
@@ -454,9 +444,7 @@ Code:
                 if hasattr(self.agricultural_engine, "get_enhanced_prompt")
                 else ""
             )
-            prompt += (
-                f"\n\nDetected agricultural domains: {', '.join(agri_analysis.detected_domains)}\n"
-            )
+            prompt += f"\n\nDetected agricultural domains: {', '.join(agri_analysis.detected_domains)}\n"
 
         prompt += """
 Provide a concise review with:
@@ -478,9 +466,7 @@ Format your response as JSON:
 """
         return prompt
 
-    async def _get_review_with_fallback(
-        self, prompt: str, preferred_model: str | None = None
-    ) -> tuple[dict, str]:
+    async def _get_review_with_fallback(self, prompt: str, preferred_model: str | None = None) -> tuple[dict, str]:
         """Get review with automatic model fallback"""
 
         # Build model priority list
@@ -622,9 +608,7 @@ Format your response as JSON:
     ) -> PRReviewResult:
         """Review all files in a GitHub PR"""
         if not self.github:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="GitHub integration not configured"
-            )
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="GitHub integration not configured")
 
         owner = owner or self.settings.github_repo_owner
         repo = repo or self.settings.github_repo_name
@@ -634,9 +618,7 @@ Format your response as JSON:
         # Get PR details
         pr = await self.github.get_pr(owner, repo, pr_number)
         if not pr:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND, detail=f"PR #{pr_number} not found"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"PR #{pr_number} not found")
 
         # Get changed files
         files = await self.github.get_pr_files(owner, repo, pr_number)
@@ -672,10 +654,7 @@ Format your response as JSON:
         if post_comment and result.file_reviews:
             comment_body = self.github.format_pr_summary(result.file_reviews)
 
-            if (
-                result.total_score < self.settings.github_comment_threshold
-                or result.has_critical_issues()
-            ):
+            if result.total_score < self.settings.github_comment_threshold or result.has_critical_issues():
                 await self.github.create_pr_comment(owner, repo, pr_number, comment_body)
                 logger.info(f"Posted review comment on PR #{pr_number}")
 

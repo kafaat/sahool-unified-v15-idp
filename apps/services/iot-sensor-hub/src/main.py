@@ -476,9 +476,7 @@ class IoTSensorEngine:
         """
         # Normalize factors to 0-1 (higher = more stress)
         # Soil moisture: lower = more stress
-        sm_stress = max(
-            0.0, min(1.0, 1.0 - (req.soil_moisture / max(req.soil_moisture_threshold * 2, 1.0)))
-        )
+        sm_stress = max(0.0, min(1.0, 1.0 - (req.soil_moisture / max(req.soil_moisture_threshold * 2, 1.0))))
 
         # Temperature stress: deviation from optimal
         temp_stress = min(1.0, abs(req.temperature - req.temperature_optimal) / 20.0)

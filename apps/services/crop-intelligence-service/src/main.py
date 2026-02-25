@@ -55,6 +55,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .decision_engine import (
@@ -807,9 +808,7 @@ try:
 except Exception as _twin_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Digital Twin router not loaded: %s", _twin_import_error
-    )
+    logging.getLogger(__name__).warning("Digital Twin router not loaded: %s", _twin_import_error)
 
 # ── Process Models Router ──────────────────────────────────────────────────
 try:
@@ -819,9 +818,7 @@ try:
 except Exception as _models_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Process Models router not loaded: %s", _models_import_error
-    )
+    logging.getLogger(__name__).warning("Process Models router not loaded: %s", _models_import_error)
 
 # ── Calibration Router ────────────────────────────────────────────────────
 try:
@@ -831,9 +828,7 @@ try:
 except Exception as _cal_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Calibration router not loaded: %s", _cal_import_error
-    )
+    logging.getLogger(__name__).warning("Calibration router not loaded: %s", _cal_import_error)
 
 # ── Soil & Fertility Router ──────────────────────────────────────────────
 try:
@@ -843,9 +838,7 @@ try:
 except Exception as _sf_import_error:  # pragma: no cover
     import logging
 
-    logging.getLogger(__name__).warning(
-        "Soil & Fertility router not loaded: %s", _sf_import_error
-    )
+    logging.getLogger(__name__).warning("Soil & Fertility router not loaded: %s", _sf_import_error)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

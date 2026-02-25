@@ -159,8 +159,8 @@ async def metrics():
         "# HELP drone_service_up Service is up\n"
         "# TYPE drone_service_up gauge\n"
         "drone_service_up 1\n"
-        '# HELP drone_service_info Service version info\n'
-        '# TYPE drone_service_info gauge\n'
+        "# HELP drone_service_info Service version info\n"
+        "# TYPE drone_service_info gauge\n"
         'drone_service_info{service="drone-service",version="16.0.0"} 1\n'
         "# HELP drone_service_db_up Database connection status\n"
         "# TYPE drone_service_db_up gauge\n"

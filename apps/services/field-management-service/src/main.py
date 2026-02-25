@@ -29,9 +29,7 @@ from profitability_analyzer import (
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -131,6 +129,7 @@ except Exception as e:
 # Add tenant context middleware
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
+
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass
@@ -356,9 +355,7 @@ async def compare_crops(
 
         crop_codes = [c.strip() for c in crops.split(",")]
 
-        comparisons = await analyzer.compare_crops(
-            crop_codes=crop_codes, area_ha=area_ha, region=region
-        )
+        comparisons = await analyzer.compare_crops(crop_codes=crop_codes, area_ha=area_ha, region=region)
 
         return {
             "region": region,
@@ -412,9 +409,7 @@ async def get_historical(
     try:
         analyzer: ProfitabilityAnalyzer = app.state.analyzer
 
-        history = await analyzer.get_historical_profitability(
-            field_id=field_id, crop_code=crop_code, years=years
-        )
+        history = await analyzer.get_historical_profitability(field_id=field_id, crop_code=crop_code, years=years)
 
         return {
             "field_id": field_id,
@@ -428,9 +423,7 @@ async def get_historical(
 
 
 @app.get("/v1/profitability/benchmarks/{crop_code}")
-async def get_benchmarks(
-    crop_code: str, region: str = Query("sanaa", description="Region for benchmarks")
-):
+async def get_benchmarks(crop_code: str, region: str = Query("sanaa", description="Region for benchmarks")):
     """
     Get regional benchmark costs, yields, and revenues for a crop.
     Useful for comparison and planning.
@@ -455,9 +448,7 @@ async def get_benchmarks(
 
 
 @app.get("/v1/profitability/cost-breakdown/{crop_code}")
-async def get_cost_breakdown(
-    crop_code: str, area_ha: float = Query(1.0, gt=0, description="Area in hectares")
-):
+async def get_cost_breakdown(crop_code: str, area_ha: float = Query(1.0, gt=0, description="Area in hectares")):
     """
     Get detailed cost breakdown by category for a crop.
     Shows what percentage each cost category represents.
@@ -468,9 +459,7 @@ async def get_cost_breakdown(
         breakdown = await analyzer.get_cost_breakdown(crop_code=crop_code, area_ha=area_ha)
 
         if not breakdown:
-            raise HTTPException(
-                status_code=404, detail=f"No cost data available for crop {crop_code}"
-            )
+            raise HTTPException(status_code=404, detail=f"No cost data available for crop {crop_code}")
 
         return {"crop_code": crop_code, "area_ha": area_ha, "breakdown": breakdown}
     except HTTPException:

@@ -33,15 +33,26 @@
     "passport-jwt": "^4.0.0",
     "jsonwebtoken": "^9.0.0",
     "ioredis": "^5.0.0",
+    "redis": "^4.0.0",
     "@liaoliaots/nestjs-redis": "^9.0.0",
     "rxjs": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "redis": {
+      "optional": true
+    },
+    "ioredis": {
+      "optional": true
+    },
+    "@liaoliaots/nestjs-redis": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.19.33",
     "@types/passport-jwt": "^4.0.0",
     "@types/jsonwebtoken": "^9.0.0",
     "typescript": "^5.9.3",
-    "redis": "^4.0.0",
     "@liaoliaots/nestjs-redis": "^9.0.0"
   }
 }

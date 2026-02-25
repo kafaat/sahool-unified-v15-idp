@@ -17,7 +17,24 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from "@nestjs/common";
-import { createClient, RedisClientType } from "redis";
+// redis is loaded lazily to avoid crashing services that don't use token revocation
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+let redisModule: { createClient: (...args: unknown[]) => unknown } | null =
+  null;
+
+function getRedisModule() {
+  if (!redisModule) {
+    try {
+      redisModule = require("redis");
+    } catch {
+      throw new Error(
+        'Package "redis" is required for token revocation. Install it with: npm install redis',
+      );
+    }
+  }
+  return redisModule;
+}
+
 import { JWTConfig } from "../config/jwt.config";
 
 /**
@@ -78,7 +95,8 @@ export class RedisTokenRevocationStore
   private readonly USER_PREFIX = "revoked:user:";
   private readonly TENANT_PREFIX = "revoked:tenant:";
 
-  private redis: RedisClientType | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private redis: any | null = null;
   private initialized = false;
 
   constructor(private readonly redisUrl?: string) {}
@@ -133,6 +151,7 @@ export class RedisTokenRevocationStore
     try {
       const url = this.buildRedisUrl();
 
+      const { createClient } = getRedisModule();
       this.redis = createClient({
         url,
         socket: {

@@ -8,10 +8,18 @@
  * - User status validation (active, verified, deleted, suspended)
  */
 
-import { Injectable, Logger, UnauthorizedException } from "@nestjs/common";
-import { InjectRedis } from "@liaoliaots/nestjs-redis";
-import Redis from "ioredis";
+import { Injectable, Inject, Logger, UnauthorizedException } from "@nestjs/common";
 import { AuthErrors } from "../config/jwt.config";
+
+// Lazy-load redis decorators and types to avoid crashing services that don't use them
+let _InjectRedis: (...args: unknown[]) => PropertyDecorator & ParameterDecorator;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  _InjectRedis = require("@liaoliaots/nestjs-redis").InjectRedis;
+} catch {
+  // Fallback: create a no-op decorator that injects by token string
+  _InjectRedis = () => Inject("default_IORedisModuleConnectionToken");
+}
 
 /**
  * User validation data interface
@@ -53,7 +61,8 @@ export class UserValidationService {
   private readonly cacheTTL = 300; // 5 minutes
 
   constructor(
-    @InjectRedis() private readonly redis: Redis,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    @_InjectRedis() private readonly redis: any,
     private readonly userRepository?: IUserRepository,
   ) {}
 

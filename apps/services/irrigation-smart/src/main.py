@@ -54,6 +54,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 try:
     from shared.contracts.actions import (
@@ -119,6 +120,9 @@ add_request_id_middleware(app)
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # =============================================================================

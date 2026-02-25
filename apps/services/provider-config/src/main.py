@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .database_service import CacheManager, ProviderConfigService
 
@@ -61,6 +62,9 @@ except ImportError:
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENUMS & MODELS

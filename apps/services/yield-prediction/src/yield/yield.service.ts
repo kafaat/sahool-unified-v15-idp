@@ -782,7 +782,7 @@ export class YieldService {
    * Get harvest readiness with ActionTemplate
    * فحص جاهزية الحصاد مع قالب إجراء
    */
-  async getHarvestReadiness(fieldId: string, farmerId?: string) {
+  async getHarvestReadiness(fieldId: string, farmerId?: string, tenantId?: string) {
     const maturity = await this.getMaturityMonitoring(fieldId);
     const actionId = uuidv4();
 

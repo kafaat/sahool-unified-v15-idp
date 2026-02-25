@@ -48,6 +48,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication dependencies
 try:
@@ -1103,6 +1104,9 @@ except ImportError as e:
     logger.warning(f"Rate limiting not available: {e}")
 except Exception as e:
     logger.warning(f"Failed to setup rate limiting: {e}")
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # =============================================================================

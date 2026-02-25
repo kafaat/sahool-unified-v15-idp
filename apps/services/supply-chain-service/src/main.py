@@ -13,6 +13,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .api.endpoints import (
     auto_purchase_router,
     orders_router,
@@ -184,6 +186,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID middleware

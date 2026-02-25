@@ -35,6 +35,8 @@ try:
 except ImportError:
     SHARED_ERRORS_AVAILABLE = False
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # Local imports
 from .algorithms.dem_processor import DEMProcessor, DEMSource
 from .algorithms.terrain_indicators import TerrainIndicatorCalculator
@@ -252,6 +254,11 @@ if SHARED_ERRORS_AVAILABLE:
     add_request_id_middleware(app)
 else:
     logger.warning("shared.errors_py not available, using basic error handling")
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
+if not SHARED_ERRORS_AVAILABLE:
 
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):

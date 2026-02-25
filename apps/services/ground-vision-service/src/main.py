@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timezone
 from fastapi import Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import unified error handling
 try:
@@ -216,6 +217,8 @@ if HAS_ERROR_HANDLERS:
     setup_exception_handlers(app)
     add_request_id_middleware(app)
     logger.info("Unified error handling configured")
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

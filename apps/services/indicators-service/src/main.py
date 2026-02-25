@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pydantic import BaseModel
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 logger = structlog.get_logger()
 
@@ -108,6 +109,7 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+app.add_middleware(TenantContextMiddleware)
 
 
 async def publish_event(subject: str, data: dict):

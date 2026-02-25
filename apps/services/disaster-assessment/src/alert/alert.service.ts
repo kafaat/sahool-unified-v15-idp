@@ -38,7 +38,6 @@ const GOVERNORATE_AR: Record<string, string> = {
 @Injectable()
 export class AlertService {
   private readonly logger = new Logger(AlertService.name);
-  private readonly DEFAULT_TENANT_ID = "default";
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -92,7 +91,7 @@ export class AlertService {
           "حماية المحاصيل المحصودة",
           "تأجيل تطبيق الأسمدة",
         ],
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
       {
         alertType: DisasterAlertType.pest,
@@ -118,7 +117,7 @@ export class AlertService {
           "التنسيق مع الجيران",
           "الإبلاغ عن المشاهدات",
         ],
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
       {
         alertType: DisasterAlertType.disease,
@@ -144,7 +143,7 @@ export class AlertService {
           "مراقبة النباتات يومياً",
           "إزالة النباتات المصابة",
         ],
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
       {
         alertType: DisasterAlertType.frost,
@@ -170,7 +169,7 @@ export class AlertService {
           "الري قبل غروب الشمس",
           "استخدام مواد مضادة للصقيع",
         ],
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
     ];
 
@@ -185,12 +184,13 @@ export class AlertService {
   // Get Active Alerts
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getActiveAlerts(params: {
+  async getActiveAlerts(tenantId: string, params: {
     governorate?: string;
     type?: string;
     severity?: string;
   }) {
     const where: any = {
+      tenantId,
       isActive: true,
     };
 
@@ -246,8 +246,9 @@ export class AlertService {
   // Get Weather Alerts
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getWeatherAlerts(governorate?: string) {
+  async getWeatherAlerts(tenantId: string, governorate?: string) {
     const where: any = {
+      tenantId,
       alertType: DisasterAlertType.weather,
       isActive: true,
     };
@@ -307,11 +308,12 @@ export class AlertService {
   // Get Pest & Disease Alerts (10-day forecast as per article)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getPestDiseaseAlerts(params: {
+  async getPestDiseaseAlerts(tenantId: string, params: {
     governorate?: string;
     cropType?: string;
   }) {
     const where: any = {
+      tenantId,
       alertType: {
         in: [DisasterAlertType.pest, DisasterAlertType.disease],
       },
@@ -384,7 +386,7 @@ export class AlertService {
   // Subscribe to Alerts
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async subscribeToAlerts(dto: {
+  async subscribeToAlerts(tenantId: string, dto: {
     userId: string;
     governorate: string;
     types: string[];
@@ -408,7 +410,7 @@ export class AlertService {
         types: dto.types,
         channels: ["sms", "push", "email"],
         isActive: true,
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId,
       },
     });
 
@@ -431,11 +433,11 @@ export class AlertService {
   // Mark Alert as Read
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async markAsRead(id: string) {
+  async markAsRead(id: string, tenantId: string) {
     // In a full implementation, this would update a user-alert read status table
     // For now, we just return success
-    const alert = await this.prisma.disasterAlert.findUnique({
-      where: { id },
+    const alert = await this.prisma.disasterAlert.findFirst({
+      where: { id, tenantId },
     });
 
     if (!alert) {
@@ -457,7 +459,7 @@ export class AlertService {
   // Create Alert (for internal use or admin)
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async createAlert(data: {
+  async createAlert(tenantId: string, data: {
     alertType: string;
     severity: string;
     title: string;
@@ -487,7 +489,7 @@ export class AlertService {
         recommendations: data.recommendations,
         recommendationsAr: data.recommendationsAr,
         reportId: data.reportId,
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId,
       },
     });
 
@@ -508,7 +510,20 @@ export class AlertService {
   // Deactivate Alert
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async deactivateAlert(id: string) {
+  async deactivateAlert(id: string, tenantId: string) {
+    // Verify the alert belongs to this tenant
+    const existing = await this.prisma.disasterAlert.findFirst({
+      where: { id, tenantId },
+    });
+
+    if (!existing) {
+      return {
+        success: false,
+        error: "Alert not found",
+        errorAr: "التنبيه غير موجود",
+      };
+    }
+
     const alert = await this.prisma.disasterAlert.update({
       where: { id },
       data: { isActive: false },

@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 try:
     from cors_config import setup_cors_middleware
@@ -173,6 +174,8 @@ add_request_id_middleware(app)
 
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============== Health Endpoints ==============

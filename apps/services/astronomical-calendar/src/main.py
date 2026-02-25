@@ -66,6 +66,13 @@ try:
 except ImportError:
     pass  # Shared module not available in standalone mode
 
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    _has_tenant_middleware = True
+except ImportError:
+    _has_tenant_middleware = False
+
 # CORS middleware - secure origins from environment
 CORS_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS",
@@ -84,6 +91,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
     allow_headers=["*"],
 )
+
+if _has_tenant_middleware:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

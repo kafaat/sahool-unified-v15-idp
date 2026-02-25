@@ -15,6 +15,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from src.api.v1 import pests, scouts, thresholds, treatments
 
 # Configure structured logging
@@ -124,6 +126,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
 )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints

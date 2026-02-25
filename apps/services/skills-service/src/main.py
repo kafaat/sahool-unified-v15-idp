@@ -40,6 +40,8 @@ from shared.errors_py import (
 )
 
 # Import authentication dependencies
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
@@ -136,6 +138,9 @@ if REVOCATION_AVAILABLE:
         TokenRevocationMiddleware,
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============== Event Publishing Helper ==============

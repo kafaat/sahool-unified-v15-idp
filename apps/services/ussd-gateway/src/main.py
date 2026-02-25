@@ -20,6 +20,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.logging import get_logger
 
 logger = get_logger(__name__)
@@ -101,6 +102,9 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["Authorization", "Content-Type"],
 )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============================================================

@@ -16,6 +16,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .agent import CodeFixAgent
 
@@ -178,6 +179,8 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
 )
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============================================================================

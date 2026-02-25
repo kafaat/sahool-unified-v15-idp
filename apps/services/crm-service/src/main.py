@@ -36,6 +36,7 @@ from starlette import status
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
 sys.path.insert(
@@ -846,6 +847,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

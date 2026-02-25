@@ -86,6 +86,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Authentication imports
 try:
@@ -300,6 +301,9 @@ except ImportError:
 # Security headers
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 # Include routers
 app.include_router(orchestrator_router)

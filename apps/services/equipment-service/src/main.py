@@ -108,6 +108,10 @@ except ImportError:
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
 
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Enums & Models
 # ═══════════════════════════════════════════════════════════════════════════

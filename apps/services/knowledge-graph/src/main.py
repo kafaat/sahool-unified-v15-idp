@@ -27,6 +27,7 @@ sys.path.insert(0, "../../../../shared")
 
 # Import shared middleware
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add path to shared config
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../../shared/config"))
@@ -96,6 +97,9 @@ add_request_id_middleware(app)
 
 # CORS configuration
 setup_cors_middleware(app)
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

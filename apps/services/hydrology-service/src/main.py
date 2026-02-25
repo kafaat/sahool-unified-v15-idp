@@ -31,6 +31,7 @@ from fastapi import FastAPI
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.endpoints.hydrology import router as hydrology_router
 from .core.config import get_settings
@@ -189,6 +190,7 @@ Agricultural hydrological analysis service for the SAHOOL platform.
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+app.add_middleware(TenantContextMiddleware)
 
 # Include routers
 app.include_router(hydrology_router)

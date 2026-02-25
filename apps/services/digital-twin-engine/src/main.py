@@ -41,6 +41,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # ---------------------------------------------------------------------------
 # Authentication dependency
 # ---------------------------------------------------------------------------
@@ -751,6 +753,9 @@ try:
     add_request_id_middleware(app)
 except ImportError:
     pass
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints

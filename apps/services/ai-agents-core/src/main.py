@@ -29,6 +29,7 @@ from pydantic import BaseModel
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware import setup_cors
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -47,6 +48,8 @@ add_request_id_middleware(app)
 
 # Setup CORS
 setup_cors(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 # Rate Limiting - Critical for AI agent endpoints
 try:

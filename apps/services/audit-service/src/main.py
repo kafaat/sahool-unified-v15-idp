@@ -36,6 +36,7 @@ except ImportError:
 
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Logging Configuration
@@ -252,6 +253,8 @@ add_request_id_middleware(app)
 
 # CORS
 setup_cors_middleware(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

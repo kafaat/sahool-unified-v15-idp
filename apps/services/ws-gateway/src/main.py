@@ -28,6 +28,7 @@ from pydantic import BaseModel
 from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .handlers import WebSocketMessageHandler
 from .nats_bridge import NATSBridge
@@ -169,6 +170,9 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # ============== Health Check ==============

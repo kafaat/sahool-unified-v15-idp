@@ -39,6 +39,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    _has_tenant_middleware = True
+except ImportError:
+    _has_tenant_middleware = False
+
 VERSION = "16.0.0"
 SERVICE_NAME = "fertigation-engine"
 PORT = int(os.getenv("PORT", "8252"))
@@ -698,6 +705,9 @@ try:
     add_request_id_middleware(app)
 except ImportError:
     pass
+
+if _has_tenant_middleware:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints

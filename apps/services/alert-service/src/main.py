@@ -38,6 +38,7 @@ except ImportError:
 
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
@@ -323,6 +324,8 @@ add_request_id_middleware(app)
 
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

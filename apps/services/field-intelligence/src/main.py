@@ -56,6 +56,8 @@ except ImportError:
     def add_request_id_middleware(app):
         _logger.debug("Request ID middleware not configured (module unavailable)")
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 
 # Security headers middleware
 try:
@@ -263,6 +265,8 @@ setup_cors_middleware(app)
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+app.add_middleware(TenantContextMiddleware)
 
 # تضمين المسارات
 app.include_router(router, prefix="/api/v1", tags=["Field Intelligence"])

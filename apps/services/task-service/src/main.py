@@ -127,6 +127,10 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Custom Exception Handler - معالج الاستثناءات المخصص
 # ═══════════════════════════════════════════════════════════════════════════

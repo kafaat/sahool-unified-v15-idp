@@ -10,6 +10,8 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 logger = structlog.get_logger()
 
 
@@ -98,6 +100,9 @@ try:
     logger.info("Unified error handling configured")
 except ImportError:
     logger.warning("shared.errors_py not available, using default error handling")
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # Include API routers

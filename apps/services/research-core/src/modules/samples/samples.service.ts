@@ -23,7 +23,7 @@ export class SamplesService {
     return input.replace(/[\r\n]/g, "").replace(/[\x00-\x1F\x7F]/g, "").slice(0, 100);
   }
 
-  async create(dto: CreateSampleDto) {
+  async create(dto: CreateSampleDto, tenantId: string) {
     this.logger.log("Creating sample", { sampleCode: this.sanitizeForLog(dto.sampleCode) });
 
     // Check if sample code already exists
@@ -46,6 +46,7 @@ export class SamplesService {
         analyzedAt: dto.analyzedAt ? new Date(dto.analyzedAt) : null,
         analysisResults: analysisResults as Prisma.InputJsonValue | undefined,
         metadata: metadata as Prisma.InputJsonValue | undefined,
+        tenantId,
       },
       include: {
         experiment: {
@@ -75,6 +76,7 @@ export class SamplesService {
 
   async findAll(
     experimentId: string,
+    tenantId: string,
     filters?: {
       plotId?: string;
       type?: string;
@@ -91,7 +93,7 @@ export class SamplesService {
     const limit = Math.min(filters?.limit || DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE);
     const skip = (page - 1) * limit;
 
-    const where: any = { experimentId };
+    const where: any = { experimentId, tenantId };
 
     if (filters?.plotId) {
       where.plotId = filters.plotId;
@@ -159,9 +161,9 @@ export class SamplesService {
     };
   }
 
-  async findOne(id: string) {
-    const sample = await this.prisma.labSample.findUnique({
-      where: { id },
+  async findOne(id: string, tenantId: string) {
+    const sample = await this.prisma.labSample.findFirst({
+      where: { id, tenantId },
       include: {
         experiment: {
           select: {
@@ -201,9 +203,9 @@ export class SamplesService {
     return sample;
   }
 
-  async findBySampleCode(sampleCode: string) {
-    const sample = await this.prisma.labSample.findUnique({
-      where: { sampleCode },
+  async findBySampleCode(sampleCode: string, tenantId: string) {
+    const sample = await this.prisma.labSample.findFirst({
+      where: { sampleCode, tenantId },
       include: {
         experiment: true,
         plot: true,
@@ -218,8 +220,8 @@ export class SamplesService {
     return sample;
   }
 
-  async update(id: string, dto: UpdateSampleDto) {
-    await this.findOne(id);
+  async update(id: string, dto: UpdateSampleDto, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     const { analysisResults, metadata, ...restDto } = dto;
 
@@ -266,8 +268,8 @@ export class SamplesService {
     });
   }
 
-  async delete(id: string) {
-    await this.findOne(id);
+  async delete(id: string, tenantId: string) {
+    await this.findOne(id, tenantId);
 
     return this.prisma.labSample.delete({
       where: { id },
@@ -277,10 +279,11 @@ export class SamplesService {
   async updateAnalysisStatus(
     id: string,
     status: string,
+    tenantId: string,
     analyzedBy?: string,
     analysisResults?: Record<string, unknown>,
   ) {
-    await this.findOne(id);
+    await this.findOne(id, tenantId);
 
     return this.prisma.labSample.update({
       where: { id },

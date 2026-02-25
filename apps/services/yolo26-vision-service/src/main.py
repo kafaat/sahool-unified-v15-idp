@@ -24,6 +24,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from src.core.config import settings
 from src.core.errors import VisionError, vision_error_handler
 from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
@@ -224,6 +226,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID Middleware

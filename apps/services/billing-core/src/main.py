@@ -520,6 +520,10 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
+
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")

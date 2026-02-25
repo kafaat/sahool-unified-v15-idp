@@ -364,8 +364,8 @@ plugins:
 
 services:
   # --------------------------------------------------------------------------
-  # Public Health Endpoints - No rate limiting
-  # نقاط فحص الصحة العامة - بدون تحديد معدل
+  # Public Health Endpoints - Generous rate limiting to prevent abuse
+  # نقاط فحص الصحة العامة - تحديد معدل سخي لمنع الإساءة
   # --------------------------------------------------------------------------
   - name: health-endpoints-bypass
     url: http://kong:8000
@@ -376,12 +376,43 @@ services:
           - /healthz
           - /readyz
           - /ping
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 600
+          hour: 10000
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+          error_message: "Health endpoint rate limit exceeded. تم تجاوز حد طلبات فحص الصحة."
+  # Metrics endpoint - separate with IP restriction for internal access
+  # نقطة المقاييس - منفصلة مع تقييد IP للوصول الداخلي
+  - name: metrics-endpoint
+    url: http://kong:8000
+    routes:
+      - name: metrics-ratelimit
+        paths:
           - /metrics
         strip_path: false
         protocols: ["http", "https"]
     plugins:
       - name: rate-limiting
-        enabled: false
+        config:
+          minute: 120
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
+          fault_tolerant: true
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 127.0.0.1/32
 
   # --------------------------------------------------------------------------
   # Package-Specific Rate Limiting Routes

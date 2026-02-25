@@ -299,7 +299,10 @@ class SentinelNDVIAnalyzer:
             import numpy as np
 
             ndvi_array = np.array(data[0])
+            # Filter no-data pixels first, then clip to valid NDVI range
+            NDVI_MIN, NDVI_MAX = -1.0, 1.0
             valid_pixels = ndvi_array[ndvi_array != -9999]
+            valid_pixels = np.clip(valid_pixels, NDVI_MIN, NDVI_MAX)
 
             if len(valid_pixels) == 0:
                 logger.warning("All pixels are cloudy")

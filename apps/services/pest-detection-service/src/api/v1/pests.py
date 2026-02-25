@@ -72,6 +72,25 @@ class LifeStage(StrEnum):
 
 
 # ============================================================================
+# ML Feature Schema for pest detection pipeline
+# ============================================================================
+
+feature_schema = {
+    "detection_output": {
+        "confidence": {"type": "float", "range": [0, 1], "description": "Detection confidence score"},
+        "severity": {"type": "enum", "values": ["none", "low", "medium", "high", "critical"]},
+        "life_stage": {"type": "enum", "values": ["egg", "larva", "pupa", "nymph", "adult"]},
+        "bounding_box": {"type": "dict", "keys": ["x", "y", "width", "height"]},
+    },
+    "input_features": {
+        "image_size": {"type": "int", "range": [64, 4096], "description": "Input image dimension"},
+        "crop_type": {"type": "str", "description": "Target crop for detection context"},
+        "region": {"type": "str", "description": "Geographic region for pest filtering"},
+    },
+}
+
+
+# ============================================================================
 # Models
 # ============================================================================
 

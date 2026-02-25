@@ -409,14 +409,23 @@ IRRIGATION_EFFICIENCY = {
 # Pydantic Models
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Sensor value bounds for data validation
+SENSOR_MIN_MAX = {
+    "temperature": {"min_value": -50.0, "max_value": 65.0, "unit": "°C"},
+    "humidity": {"min_value": 0.0, "max_value": 100.0, "unit": "%"},
+    "wind_speed": {"min_value": 0.0, "max_value": 75.0, "unit": "m/s"},
+    "solar_radiation": {"min_value": 0.0, "max_value": 50.0, "unit": "MJ/m²/day"},
+    "soil_moisture": {"min_value": 0.0, "max_value": 1.0, "unit": "m³/m³"},
+}
+
 
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
 
-    temperature_max: float = Field(..., description="Maximum temperature (°C)")
-    temperature_min: float = Field(..., description="Minimum temperature (°C)")
+    temperature_max: float = Field(..., ge=-50, le=65, description="Maximum temperature (°C)")
+    temperature_min: float = Field(..., ge=-50, le=65, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
-    wind_speed: float = Field(..., ge=0, description="Wind speed at 2m height (m/s)")
+    wind_speed: float = Field(..., ge=0, le=75, description="Wind speed at 2m height (m/s)")
     solar_radiation: float | None = Field(None, description="Solar radiation (MJ/m²/day)")
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")

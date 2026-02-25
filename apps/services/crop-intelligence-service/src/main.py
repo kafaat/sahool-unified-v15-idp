@@ -111,6 +111,23 @@ except ImportError:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
+# ML feature schema for crop health analysis pipeline
+feature_schema = {
+    "vegetation_indices": {
+        "ndvi": {"type": "float", "range": [-1, 1], "description": "Normalized Difference Vegetation Index"},
+        "evi": {"type": "float", "range": [-1, 1], "description": "Enhanced Vegetation Index"},
+        "ndre": {"type": "float", "range": [-1, 1], "description": "Normalized Difference Red Edge"},
+        "lci": {"type": "float", "range": [-1, 1], "description": "Leaf Chlorophyll Index"},
+        "ndwi": {"type": "float", "range": [-1, 1], "description": "Normalized Difference Water Index"},
+        "savi": {"type": "float", "range": [-1, 1], "description": "Soil-Adjusted Vegetation Index"},
+    },
+    "context": {
+        "growth_stage": {"type": "enum", "values": ["germination", "vegetative", "reproductive", "maturity"]},
+        "cloud_pct": {"type": "float", "range": [0, 100]},
+    },
+}
+
+
 class IndicesIn(BaseModel):
     """مؤشرات الغطاء النباتي المدخلة"""
 

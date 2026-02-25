@@ -78,9 +78,11 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_validation = False
-            for py_file in src_dir.rglob("*.py"):
+            # Check both Python (.py) and TypeScript (.ts) files
+            source_files = list(src_dir.rglob("*.py")) + list(src_dir.rglob("*.ts"))
+            for src_file in source_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                     if any(
                         pat in content
                         for pat in [
@@ -94,6 +96,14 @@ class DataDriftDetector(BaseDriftDetector):
                             "schema_validate",
                             "check_range",
                             "assert_range",
+                            # TypeScript/NestJS validation patterns
+                            "class-validator",
+                            "IsString",
+                            "IsNumber",
+                            "IsUUID",
+                            "ValidationPipe",
+                            "IsNotEmpty",
+                            "UseGuards",
                         ]
                     ):
                         has_validation = True
@@ -236,9 +246,11 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_bounds_check = False
-            for py_file in sensor_dir.rglob("*.py"):
+            # Check both Python (.py) and TypeScript (.ts) files
+            source_files = list(sensor_dir.rglob("*.py")) + list(sensor_dir.rglob("*.ts"))
+            for src_file in source_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                 except (OSError, UnicodeDecodeError):
                     continue
 
@@ -254,6 +266,11 @@ class DataDriftDetector(BaseDriftDetector):
                         "> 100",
                         "SENSOR_MIN",
                         "SENSOR_MAX",
+                        # TypeScript patterns
+                        "min:",
+                        "max:",
+                        "SensorType",
+                        "assessReadingQuality",
                     ]
                 ):
                     has_bounds_check = True
@@ -339,9 +356,11 @@ class DataDriftDetector(BaseDriftDetector):
                 continue
 
             has_feature_schema = False
-            for py_file in svc_dir.rglob("*.py"):
+            # Check both Python (.py) and TypeScript (.ts) files
+            source_files = list(svc_dir.rglob("*.py")) + list(svc_dir.rglob("*.ts"))
+            for src_file in source_files:
                 try:
-                    content = py_file.read_text(errors="ignore")
+                    content = src_file.read_text(errors="ignore")
                     if any(
                         pat in content
                         for pat in [
@@ -351,6 +370,10 @@ class DataDriftDetector(BaseDriftDetector):
                             "expected_features",
                             "feature_names",
                             "input_schema",
+                            # TypeScript patterns
+                            "InputSchema",
+                            "FeatureDefinition",
+                            "PredictionInput",
                         ]
                     ):
                         has_feature_schema = True

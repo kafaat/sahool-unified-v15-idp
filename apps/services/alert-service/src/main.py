@@ -315,7 +315,10 @@ add_request_id_middleware(app)
 # CORS - Use centralized secure configuration
 setup_cors_middleware(app)
 
-app.add_middleware(TenantContextMiddleware)
+app.add_middleware(
+    TenantContextMiddleware,
+    exempt_paths=["/healthz", "/readyz", "/health", "/metrics", "/docs", "/openapi.json"],
+)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

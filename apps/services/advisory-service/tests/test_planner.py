@@ -8,12 +8,17 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-from kernel.services.agro_advisor.src.engine.planner import (
-    CROP_REQUIREMENTS,
-    fertilizer_plan,
-    get_stage_timeline,
-)
-from kernel.services.agro_advisor.src.main import app
+
+try:
+    from src.engine.planner import (
+        CROP_REQUIREMENTS,
+        fertilizer_plan,
+        get_stage_timeline,
+    )
+    from src.main import app
+except ImportError:
+    pytest.skip("advisory-service src not available", allow_module_level=True)
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 

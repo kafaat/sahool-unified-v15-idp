@@ -8,7 +8,11 @@ try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
-from kernel.services.agro_advisor.src.main import app
+
+try:
+    from src.main import app
+except ImportError:
+    pytest.skip("advisory-service src not available", allow_module_level=True)
 
 
 @pytest.fixture

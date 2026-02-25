@@ -23,29 +23,26 @@ COPY packages/nestjs-auth ./nestjs-auth/
 # Copy root tsconfig.base.json (nestjs-auth tsconfig extends ../../tsconfig.base.json)
 COPY tsconfig.base.json /tsconfig.base.json
 
-# Build nestjs-auth package (dist/ is gitignored and not in CI build context)
-WORKDIR /workspace/nestjs-auth
-RUN npm config set registry https://registry.npmmirror.com; \
-    npm install --legacy-peer-deps --fetch-retries=3 --ignore-scripts 2>/dev/null || \
-    (npm config set registry https://registry.npmjs.org && \
-    npm install --legacy-peer-deps --fetch-retries=3 --ignore-scripts 2>/dev/null) || true
-RUN npx tsc --skipLibCheck 2>/dev/null || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck 2>/dev/null || \
-    echo "WARN: nestjs-auth build skipped - using source files"
-
 # Copy service to maintain relative path: ../../shared/ from lai-estimation/src/
 COPY apps/services/lai-estimation /workspace/lai-estimation/
 
 WORKDIR /workspace/lai-estimation
 
 # Install dependencies with retry for network resilience
-# Use Taobao mirror for faster downloads in China/MENA region
 # Replace workspace dependency with local file path for Docker build
 RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json && \
     npm config set registry https://registry.npmmirror.com; \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000)
+
+# Build nestjs-auth package (dist/ is gitignored and excluded by .dockerignore)
+# Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
+RUN cd /workspace/nestjs-auth && \
+    ln -sf /workspace/lai-estimation/node_modules ./node_modules && \
+    npx tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    echo "WARN: nestjs-auth build failed"
 
 # Build the application
 RUN npm run build
@@ -62,7 +59,8 @@ WORKDIR /app
 RUN apk add --no-cache curl
 
 # Copy nestjs-auth package for runtime dependency resolution
-COPY --from=builder /workspace/nestjs-auth ./nestjs-auth/
+# Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
+COPY --from=builder /workspace/nestjs-auth /nestjs-auth/
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds with package-lock.json
@@ -82,7 +80,7 @@ COPY --from=builder /workspace/lai-estimation/dist ./dist
 EXPOSE 3022
 
 # Set ownership and switch to non-root user (use existing node user)
-RUN chown -R node:node /app
+RUN chown -R node:node /app /nestjs-auth
 USER node
 
 # Health check

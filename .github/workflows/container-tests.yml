@@ -162,10 +162,7 @@ jobs:
             path: apps/services/irrigation-smart
             port: 8007
             container_port: 8094
-          - name: yield-engine
-            path: apps/services/yield-engine
-            port: 8008
-            container_port: 8098
+          # yield-engine DEPRECATED → yield-prediction-service (archived 2026-01-15)
           - name: notification-service
             path: apps/services/notification-service
             port: 8009
@@ -190,10 +187,7 @@ jobs:
             path: apps/services/agent-registry
             port: 8014
             container_port: 8121
-          - name: agro-advisor
-            path: apps/services/agro-advisor
-            port: 8015
-            container_port: 8105
+          # agro-advisor DEPRECATED → advisory-service (archived 2025-01-06)
           # ai-advisor removed - requires PyTorch/CUDA (~4.5GB), exceeds CI disk space
           # Test locally with: docker build -f apps/services/ai-advisor/Dockerfile .
           - name: alert-service
@@ -235,10 +229,7 @@ jobs:
             path: apps/services/inventory-service
             port: 8026
             container_port: 8116
-          - name: community-chat
-            path: apps/services/community-chat
-            port: 8027
-            container_port: 8097
+          # community-chat DEPRECATED → chat-service (archived 2026-02-16)
           - name: disaster-assessment
             path: apps/services/disaster-assessment
             port: 8028
@@ -258,10 +249,7 @@ jobs:
             path: apps/services/agro-rules
             port: 8032
             container_port: 8151
-          - name: weather-core
-            path: apps/services/weather-core
-            port: 8033
-            container_port: 8092
+          # weather-core DEPRECATED → weather-service (archived)
           - name: user-service
             path: apps/services/user-service
             port: 8034
@@ -282,10 +270,7 @@ jobs:
             path: apps/services/skills-service
             port: 8038
             container_port: 8121
-          - name: field-chat
-            path: apps/services/field-chat
-            port: 8039
-            container_port: 8099
+          # field-chat DEPRECATED → chat-service (archived 2026-01-15)
           - name: astronomical-calendar
             path: apps/services/astronomical-calendar
             port: 8040

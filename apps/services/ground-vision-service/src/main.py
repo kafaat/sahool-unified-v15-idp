@@ -79,6 +79,10 @@ async def lifespan(app: FastAPI):
 
     # Initialize database connection
     database_url = os.getenv("DATABASE_URL")
+    # Enforce sslmode for non-development database connections
+    if database_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in database_url:
+            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
     if database_url:
         try:
             import asyncpg

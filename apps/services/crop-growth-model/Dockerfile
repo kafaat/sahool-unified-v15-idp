@@ -20,8 +20,21 @@ COPY apps/services/shared ./shared/
 # Copy nestjs-auth package (workspace dependency: @sahool/nestjs-auth)
 COPY packages/nestjs-auth ./nestjs-auth/
 
+# Copy root tsconfig.base.json (nestjs-auth tsconfig extends ../../tsconfig.base.json)
+COPY tsconfig.base.json /tsconfig.base.json
+
+# Build nestjs-auth package (dist/ is gitignored and not in CI build context)
+WORKDIR /workspace/nestjs-auth
+RUN npm config set registry https://registry.npmmirror.com; \
+    npm install --legacy-peer-deps --fetch-retries=3 --ignore-scripts 2>/dev/null || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --legacy-peer-deps --fetch-retries=3 --ignore-scripts 2>/dev/null) || true
+RUN npx tsc --skipLibCheck 2>/dev/null || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck 2>/dev/null || \
+    echo "WARN: nestjs-auth build skipped - using source files"
+
 # Copy service to maintain relative path: ../../shared/ from crop-growth-model/src/
-COPY apps/services/crop-growth-model ./crop-growth-model/
+COPY apps/services/crop-growth-model /workspace/crop-growth-model/
 
 WORKDIR /workspace/crop-growth-model
 

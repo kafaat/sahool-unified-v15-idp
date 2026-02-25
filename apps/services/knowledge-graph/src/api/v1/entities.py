@@ -5,9 +5,23 @@ Entity API endpoints
 
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models import Crop, Disease, Treatment
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/entities", tags=["entities"])
 
@@ -21,6 +35,7 @@ router = APIRouter(prefix="/api/v1/entities", tags=["entities"])
 async def list_crops(
     request,
     limit: int = Query(100, ge=1, le=500, description="Maximum crops to return"),
+    _user=Depends(get_current_user),
 ):
     """
     List all crops in the knowledge graph

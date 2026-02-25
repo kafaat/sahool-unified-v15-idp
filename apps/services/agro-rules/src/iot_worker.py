@@ -39,7 +39,7 @@ class IoTRulesWorker:
 
         # Subscribe to sensor readings (unified sahool.* namespace)
         await self.nc.subscribe(
-            "sahool.iot.sensor_reading",
+            "sahool.iot.sensor.reading",
             cb=self._handle_sensor_reading,
         )
 

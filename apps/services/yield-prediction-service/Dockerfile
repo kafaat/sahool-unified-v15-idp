@@ -59,9 +59,10 @@ WORKDIR /app
 # Install curl for health checks
 RUN apk add --no-cache curl
 
-# Copy nestjs-auth package for runtime dependency resolution
+# Copy only nestjs-auth dist + package.json for runtime (avoid builder's node_modules symlink)
 # Path must be /nestjs-auth/ to match file:../nestjs-auth reference from /app/
-COPY --from=builder /workspace/nestjs-auth /nestjs-auth/
+COPY --from=builder /workspace/nestjs-auth/dist /nestjs-auth/dist/
+COPY --from=builder /workspace/nestjs-auth/package.json /nestjs-auth/package.json
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: reflect-metadata MUST be in dependencies (not devDependencies) for NestJS to work
@@ -80,7 +81,7 @@ RUN npm config set registry https://registry.npmmirror.com && \
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)
-RUN ln -sf /app/node_modules /nestjs-auth/node_modules
+RUN ln -s /app/node_modules /nestjs-auth/node_modules
 
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist

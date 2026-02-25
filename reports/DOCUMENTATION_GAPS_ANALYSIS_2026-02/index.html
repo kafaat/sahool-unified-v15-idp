@@ -1,0 +1,2095 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Documentation Gaps Analysis Report - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#documentation-gaps-analysis-report" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Documentation Gaps Analysis Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="documentation-gaps-analysis-report">Documentation Gaps Analysis Report<a class="headerlink" href="#documentation-gaps-analysis-report" title="Permanent link">&para;</a></h1>
+<p><strong>Date</strong>: 2026-02-25
+<strong>Platform Version</strong>: 16.0.0
+<strong>Analyzed By</strong>: Automated Documentation Audit
+<strong>Scope</strong>: Full platform — services, shared modules, packages, tests, infrastructure, governance</p>
+<hr />
+<h2 id="executive-summary">Executive Summary<a class="headerlink" href="#executive-summary" title="Permanent link">&para;</a></h2>
+<p>The SAHOOL platform contains <strong>385+ documentation files</strong> across the codebase. However, significant gaps exist in critical areas. This report identifies <strong>4 critical</strong>, <strong>6 moderate</strong>, and <strong>5 minor</strong> documentation gaps that affect developer onboarding, maintenance, and operational readiness.</p>
+<h3 id="key-metrics">Key Metrics<a class="headerlink" href="#key-metrics" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Total</th>
+<th>Documented</th>
+<th>Undocumented</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Services (<code>apps/services/</code>)</td>
+<td>69</td>
+<td>67</td>
+<td>2</td>
+<td>97%</td>
+</tr>
+<tr>
+<td>Service Docs (<code>services-docs/</code>)</td>
+<td>69</td>
+<td>34</td>
+<td>35</td>
+<td>49%</td>
+</tr>
+<tr>
+<td>Shared Modules (<code>shared/</code>)</td>
+<td>71</td>
+<td>14</td>
+<td>57</td>
+<td>20%</td>
+</tr>
+<tr>
+<td>Packages (<code>packages/</code>)</td>
+<td>24</td>
+<td>11</td>
+<td>13</td>
+<td>46%</td>
+</tr>
+<tr>
+<td>Test Suites (<code>tests/</code>)</td>
+<td>18</td>
+<td>4</td>
+<td>14</td>
+<td>22%</td>
+</tr>
+<tr>
+<td>ADRs (<code>docs/adr/</code>)</td>
+<td>7</td>
+<td>7</td>
+<td>~10+ missing</td>
+<td>~40%</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overall Documentation Health Score: 45/100</strong></p>
+<hr />
+<h2 id="1-critical-gaps-priority-high">1. Critical Gaps (Priority: HIGH)<a class="headerlink" href="#1-critical-gaps-priority-high" title="Permanent link">&para;</a></h2>
+<h3 id="11-shared-modules-57-of-71-without-readme-80-undocumented">1.1 Shared Modules — 57 of 71 Without README (80% Undocumented)<a class="headerlink" href="#11-shared-modules-57-of-71-without-readme-80-undocumented" title="Permanent link">&para;</a></h3>
+<p>The <code>shared/</code> directory is the backbone of the platform with 65+ Python modules, yet <strong>only 14 modules</strong> have a README.md file. The remaining 57 modules rely solely on <code>__init__.py</code> docstrings.</p>
+<p><strong>Most Critical Undocumented Modules:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Python Files</th>
+<th>Impact</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/ai/</code></td>
+<td>82</td>
+<td>Entire AI/RAG/Auto-Fix engine</td>
+<td>Very High</td>
+</tr>
+<tr>
+<td><code>shared/security/</code></td>
+<td>15</td>
+<td>RBAC, JWT, policy engine</td>
+<td>Very High</td>
+</tr>
+<tr>
+<td><code>shared/libs/</code></td>
+<td>24</td>
+<td>Outbox, audit, caching core</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/irrigation/</code></td>
+<td>6</td>
+<td>Smart irrigation scheduling</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/mobile_sync/</code></td>
+<td>5</td>
+<td>Offline-first sync engine</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/monitoring/</code></td>
+<td>7</td>
+<td>Prometheus metrics, SLI/SLO</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/middleware/</code></td>
+<td>15</td>
+<td>Rate limiting, CORS, logging (has 5 .md files but no README)</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/llm/</code></td>
+<td>8</td>
+<td>LLM provider config &amp; routing</td>
+<td>High</td>
+</tr>
+<tr>
+<td><code>shared/terrain/</code></td>
+<td>6</td>
+<td>DEM processing, terrain analysis</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/nlp/</code></td>
+<td>2</td>
+<td>Arabic NLP (AraBERT)</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/satellite/</code></td>
+<td>2</td>
+<td>Sentinel Hub NDVI integration</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/fertilizer_management/</code></td>
+<td>5</td>
+<td>Nutrient recommendations</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/pest_scouting/</code></td>
+<td>5</td>
+<td>Pest identification, IPM</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/field_boundaries/</code></td>
+<td>5</td>
+<td>Field geometry, geospatial ops</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td><code>shared/secrets/</code></td>
+<td>4</td>
+<td>HashiCorp Vault integration</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Full list of undocumented shared modules (57):</strong>
+agents, agri_calendar, ai, audit_trail, batch_operations, calibration, cooperatives, crm, crop_insurance, crop_rotation, db, design-system, digital_twin, drift_detection, drone_integration, edge_cloud, equipment_maintenance, farm_documents, fertilizer_management, field_boundaries, geofencing, harvest_quality, integrations, irrigation, labor_management, learning_marketplace, libs, llm, lowcode, market_prices, ml, ml_irrigation, mobile_sync, monitoring, nlp, notification_preferences, pest_scouting, pesticide_compliance, process_models, python-lib, salinity, satellite, scraping, secrets, security, service_enhancements, smart_agriculture, soil_sensors, soil_testing, stability, templates, terrain, traceability, water_management, weather_alerts, yemen</p>
+<p><strong>Documented shared modules (14):</strong>
+a2a, auth, cache, contracts, domain, events, file_validation, globalgap (partial), guardrails, mcp, middleware (partial — no README), observability, telemetry, versioning</p>
+<h3 id="12-service-docs-35-of-69-services-missing-detailed-documentation">1.2 Service-Docs — 35 of 69 Services Missing Detailed Documentation<a class="headerlink" href="#12-service-docs-35-of-69-services-missing-detailed-documentation" title="Permanent link">&para;</a></h3>
+<p>Only <strong>34 services</strong> have detailed documentation in <code>apps/services-docs/</code>. The remaining <strong>35 active services</strong> lack a dedicated service documentation file.</p>
+<p><strong>Missing Service Documentation (by category):</strong></p>
+<p><strong>AI &amp; Agent Services (9 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| agent-registry | 8160 | 285 |
+| ai-agents-core | 8161 | 373 |
+| ai-chat-assistant | 8260 | 329 |
+| code-fix-agent | 8162 | 147 |
+| code-review-agent | 8145 | 212 |
+| copilot-api | 8088 | 1,491 |
+| knowledge-graph | 8140 | 430 |
+| llm-orchestrator-service | 8164 | 152 |</p>
+<p><strong>Vision, Terrain &amp; Edge Services (6 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| yolo26-vision-service | 8150 | 492 |
+| ground-vision-service | 8182 | 147 |
+| terrain-core-service | 8185 | 416 |
+| hydrology-service | 8165 | 474 |
+| leveling-optimizer-service | 8170 | 479 |
+| edge-orchestrator-service | 8180 | 689 |</p>
+<p><strong>Decision &amp; Analytics Services (6 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| crop-growth-model | 3023 | 255 |
+| digital-twin-engine | 8253 | 1,033 |
+| fertigation-engine | 8252 | 1,015 |
+| irrigation-cycle-engine | 8250 | 642 |
+| lai-estimation | 3022 | 297 |
+| pest-detection-service | 8125 | 298 |</p>
+<p><strong>IoT Services (2 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| iot-sensor-hub | 8251 | 928 |
+| drone-service | 8126 | 319 |</p>
+<p><strong>Business Services (8 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| audit-service | 8114 | 82 |
+| cooperative-service | 8127 | 325 |
+| globalgap-compliance | 8128 | 393 |
+| logistics-service | 8167 | 179 |
+| supply-chain-service | 8230 | 153 |
+| traceability-service | 8123 | 349 |
+| soil-analysis-service | 8134 | 268 |
+| yield-prediction | 3021 | 350 |</p>
+<p><strong>Integration Services (3 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| ussd-gateway | 8183 | 80 |
+| wechat-service | 8133 | 200 |
+| whatsapp-bot-service | 8240 | 227 |</p>
+<p><strong>Utility (2 missing):</strong>
+| Service | Port | README Lines |
+|---------|------|-------------|
+| demo-data | 8261 | 42 |
+| ndvi-processor | 8118 | 0 (NO README) |</p>
+<h3 id="13-test-suites-14-of-18-without-readme-78-undocumented">1.3 Test Suites — 14 of 18 Without README (78% Undocumented)<a class="headerlink" href="#13-test-suites-14-of-18-without-readme-78-undocumented" title="Permanent link">&para;</a></h3>
+<p>Only <strong>4 of 18</strong> test directories have README documentation.</p>
+<table>
+<thead>
+<tr>
+<th>Test Suite</th>
+<th>README</th>
+<th>Test Files</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/unit/</code></td>
+<td>NO</td>
+<td>165</td>
+<td>Largest test suite, no docs</td>
+</tr>
+<tr>
+<td><code>tests/integration/</code></td>
+<td>YES</td>
+<td>39</td>
+<td>Documented</td>
+</tr>
+<tr>
+<td><code>tests/e2e/</code></td>
+<td>NO</td>
+<td>13</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/evaluation/</code></td>
+<td>YES</td>
+<td>11</td>
+<td>Documented</td>
+</tr>
+<tr>
+<td><code>tests/load/</code></td>
+<td>YES</td>
+<td>3</td>
+<td>Documented</td>
+</tr>
+<tr>
+<td><code>tests/golden-datasets/</code></td>
+<td>YES</td>
+<td>1</td>
+<td>Documented</td>
+</tr>
+<tr>
+<td><code>tests/factories/</code></td>
+<td>NO</td>
+<td>5</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/security/</code></td>
+<td>NO</td>
+<td>4</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/smoke/</code></td>
+<td>NO</td>
+<td>4</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/database/</code></td>
+<td>NO</td>
+<td>3</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/guardrails/</code></td>
+<td>NO</td>
+<td>3</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/middleware/</code></td>
+<td>NO</td>
+<td>3</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/simulation/</code></td>
+<td>NO</td>
+<td>3</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/snapshots/</code></td>
+<td>NO</td>
+<td>3</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/a2a/</code></td>
+<td>NO</td>
+<td>2</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/container/</code></td>
+<td>NO</td>
+<td>2</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/frontend/</code></td>
+<td>NO</td>
+<td>1</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>tests/utils/</code></td>
+<td>NO</td>
+<td>4</td>
+<td>No docs</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-packages-13-of-24-without-readme-54-undocumented">1.4 Packages — 13 of 24 Without README (54% Undocumented)<a class="headerlink" href="#14-packages-13-of-24-without-readme-54-undocumented" title="Permanent link">&para;</a></h3>
+<p><strong>Undocumented packages (high impact first):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Package</th>
+<th>Type</th>
+<th>Files</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared-types</code></td>
+<td>npm</td>
+<td>18 .ts</td>
+<td>Very High — contract source of truth</td>
+</tr>
+<tr>
+<td><code>shared-ui</code></td>
+<td>npm</td>
+<td>24 .ts</td>
+<td>High — shared UI components</td>
+</tr>
+<tr>
+<td><code>shared-utils</code></td>
+<td>npm</td>
+<td>10 .ts</td>
+<td>High — common utilities</td>
+</tr>
+<tr>
+<td><code>shared-hooks</code></td>
+<td>npm</td>
+<td>16 .ts</td>
+<td>High — shared React hooks</td>
+</tr>
+<tr>
+<td><code>design-system</code></td>
+<td>npm</td>
+<td>6 .ts</td>
+<td>Medium — design system</td>
+</tr>
+<tr>
+<td><code>sahool-eo</code></td>
+<td>python</td>
+<td>12 .py</td>
+<td>Medium — Earth Observation</td>
+</tr>
+<tr>
+<td><code>mock-data</code></td>
+<td>npm</td>
+<td>7 .ts</td>
+<td>Low — test data</td>
+</tr>
+<tr>
+<td><code>tailwind-config</code></td>
+<td>npm</td>
+<td>1 .ts</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>typescript-config</code></td>
+<td>npm</td>
+<td>0</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><code>enterprise</code></td>
+<td>config</td>
+<td>0</td>
+<td>Low — only docker-compose.yml</td>
+</tr>
+<tr>
+<td><code>professional</code></td>
+<td>config</td>
+<td>0</td>
+<td>Low — only docker-compose.yml</td>
+</tr>
+<tr>
+<td><code>starter</code></td>
+<td>config</td>
+<td>0</td>
+<td>Low — only docker-compose.yml</td>
+</tr>
+<tr>
+<td><code>shared</code></td>
+<td>—</td>
+<td>0</td>
+<td>Low — empty directory</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-moderate-gaps-priority-medium">2. Moderate Gaps (Priority: MEDIUM)<a class="headerlink" href="#2-moderate-gaps-priority-medium" title="Permanent link">&para;</a></h2>
+<h3 id="21-architecture-decision-records-only-7-adrs-for-71-services">2.1 Architecture Decision Records — Only 7 ADRs for 71 Services<a class="headerlink" href="#21-architecture-decision-records-only-7-adrs-for-71-services" title="Permanent link">&para;</a></h3>
+<p>Current ADRs cover only foundational decisions:
+- ADR-001: Offline-first architecture
+- ADR-002: Riverpod state management
+- ADR-003: Drift local database
+- ADR-004: Kong API gateway
+- ADR-005: NATS event bus
+- ADR-006: Circuit breaker
+- ADR-007: Redis caching</p>
+<p><strong>Missing ADRs for:</strong>
+- PostGIS/geospatial data strategy
+- YOLO26 computer vision framework selection
+- Flutter mobile framework choice
+- HashiCorp Vault secrets management
+- Multi-tenancy architecture
+- AI model strategy (Ollama, multi-LLM)
+- Edge computing architecture (Jetson Orin)
+- Event-driven 4-layer architecture design
+- Microservice decomposition strategy
+- Digital twin approach</p>
+<p><strong>Additional issue:</strong> ADR directories are fragmented — <code>docs/adr/</code> (7 ADRs) vs <code>governance/decisions/</code> (1 ADR). Should be consolidated.</p>
+<h3 id="22-api-narrative-documentation-only-5-of-16-domains-covered">2.2 API Narrative Documentation — Only 5 of 16+ Domains Covered<a class="headerlink" href="#22-api-narrative-documentation-only-5-of-16-domains-covered" title="Permanent link">&para;</a></h3>
+<p><code>docs/api/</code> has <strong>16 OpenAPI YAML specs</strong> but narrative (human-readable) docs for only <strong>5 domains</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Domain</th>
+<th>Narrative Doc</th>
+<th>OpenAPI Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fields</td>
+<td>YES (1,107 lines)</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Authentication</td>
+<td>YES (374 lines)</td>
+<td>YES (core-services)</td>
+</tr>
+<tr>
+<td>AI</td>
+<td>YES (381 lines)</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Weather</td>
+<td>YES (294 lines)</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Sensors</td>
+<td>YES (133 lines)</td>
+<td>YES (iot-services)</td>
+</tr>
+<tr>
+<td>Billing</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Marketplace</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>IoT</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Vision (YOLO26)</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Terrain</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Hydrology</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Leveling</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Edge</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Tasks</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Analysis</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+<tr>
+<td>Agent</td>
+<td>NO</td>
+<td>YES</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-knowledge-base-sparse-agricultural-content">2.3 Knowledge Base — Sparse Agricultural Content<a class="headerlink" href="#23-knowledge-base-sparse-agricultural-content" title="Permanent link">&para;</a></h3>
+<p><code>docs/knowledge-base/</code> covers only basic topics:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Documented</th>
+<th>Missing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crops</td>
+<td>wheat, barley, dates</td>
+<td>tomato, cucumber, vegetables, rice, corn</td>
+</tr>
+<tr>
+<td>Diseases</td>
+<td>fungal, pests</td>
+<td>bacterial, viral, nutrient deficiencies</td>
+</tr>
+<tr>
+<td>Irrigation</td>
+<td>drip, scheduling</td>
+<td>flood, sprinkler, fertigation, salinity</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>remote sensing/AI</td>
+<td>soil sensors, weather stations, drone</td>
+</tr>
+<tr>
+<td>Best Practices</td>
+<td>sustainable farming</td>
+<td>crop rotation, IPM, organic, post-harvest</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-deprecated-service-docs-4-stale-files-in-services-docs">2.4 Deprecated Service Docs — 4 Stale Files in services-docs<a class="headerlink" href="#24-deprecated-service-docs-4-stale-files-in-services-docs" title="Permanent link">&para;</a></h3>
+<p>These files document deprecated services but are still in the active <code>services-docs/</code> directory without deprecation notices:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Deprecated Service</th>
+<th>Replaced By</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>agro-advisor.md</code></td>
+<td>1,168</td>
+<td>agro-advisor</td>
+<td>advisory-service</td>
+</tr>
+<tr>
+<td><code>field-chat.md</code></td>
+<td>1,068</td>
+<td>field-chat</td>
+<td>chat-service</td>
+</tr>
+<tr>
+<td><code>weather-core.md</code></td>
+<td>900</td>
+<td>weather-core</td>
+<td>weather-service</td>
+</tr>
+<tr>
+<td><code>community-chat.md</code></td>
+<td>666</td>
+<td>community-chat</td>
+<td>chat-service</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25-infrastructure-documentation-gaps">2.5 Infrastructure Documentation Gaps<a class="headerlink" href="#25-infrastructure-documentation-gaps" title="Permanent link">&para;</a></h3>
+<p>Several infrastructure directories lack documentation:</p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>README</th>
+<th>.md Files</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>infrastructure/deployment/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/istio/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/nats/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/observability/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/resilience/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/security/</code></td>
+<td>NO</td>
+<td>0</td>
+<td>No docs</td>
+</tr>
+<tr>
+<td><code>infrastructure/redis/</code></td>
+<td>NO</td>
+<td>4</td>
+<td>Has guides but no README</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-missing-developer-guides">2.6 Missing Developer Guides<a class="headerlink" href="#26-missing-developer-guides" title="Permanent link">&para;</a></h3>
+<p><code>docs/guides/</code> has 20 guides but is missing several critical ones:</p>
+<table>
+<thead>
+<tr>
+<th>Missing Guide</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Developer Onboarding / Getting Started</td>
+<td>High — new developer friction</td>
+</tr>
+<tr>
+<td>Contributing Guide (CONTRIBUTING.md)</td>
+<td>High — open source standards</td>
+</tr>
+<tr>
+<td>Flutter/Mobile Developer Guide</td>
+<td>High — mobile team onboarding</td>
+</tr>
+<tr>
+<td>Arabic/i18n Developer Guide</td>
+<td>Medium — bilingual support</td>
+</tr>
+<tr>
+<td>Shared Module Usage Guide</td>
+<td>Medium — how to use <code>shared/</code></td>
+</tr>
+<tr>
+<td>Event-Driven Architecture Guide</td>
+<td>Medium — NATS patterns</td>
+</tr>
+<tr>
+<td>Database Migration Guide</td>
+<td>Medium — Prisma/Tortoise</td>
+</tr>
+<tr>
+<td>Debugging &amp; Profiling Guide</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-minor-gaps-priority-low">3. Minor Gaps (Priority: LOW)<a class="headerlink" href="#3-minor-gaps-priority-low" title="Permanent link">&para;</a></h2>
+<h3 id="31-services-with-thin-readme-100-lines">3.1 Services with Thin README (&lt;100 lines)<a class="headerlink" href="#31-services-with-thin-readme-100-lines" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>README Lines</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>demo-data</td>
+<td>42</td>
+<td>Minimal</td>
+</tr>
+<tr>
+<td>ussd-gateway</td>
+<td>80</td>
+<td>Thin</td>
+</tr>
+<tr>
+<td>audit-service</td>
+<td>82</td>
+<td>Thin</td>
+</tr>
+<tr>
+<td>agro-rules</td>
+<td>91</td>
+<td>Thin</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-missing-root-readme">3.2 Missing Root README<a class="headerlink" href="#32-missing-root-readme" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>apps/kernel/</code> — No root README.md (has 16 .md files in subdirectories)</li>
+</ul>
+<h3 id="33-governance-readme-is-minimal">3.3 Governance README is Minimal<a class="headerlink" href="#33-governance-readme-is-minimal" title="Permanent link">&para;</a></h3>
+<p><code>governance/README.md</code> is only 45 lines for a directory governing 71+ services, agent definitions, event schemas, policies, and SLO definitions.</p>
+<h3 id="34-docker-directory-documentation">3.4 Docker Directory Documentation<a class="headerlink" href="#34-docker-directory-documentation" title="Permanent link">&para;</a></h3>
+<p><code>docker/</code> has only 1 .md file (<code>CONSTRAINTS_EXTRAS.md</code>). No README explaining the Docker build system, base images, or multi-stage build patterns.</p>
+<h3 id="35-github-workflows-documentation">3.5 GitHub Workflows Documentation<a class="headerlink" href="#35-github-workflows-documentation" title="Permanent link">&para;</a></h3>
+<p>53 workflow files in <code>.github/workflows/</code> with no accompanying documentation file explaining the CI/CD pipeline structure, workflow dependencies, or trigger conditions.</p>
+<hr />
+<h2 id="4-positive-findings">4. Positive Findings<a class="headerlink" href="#4-positive-findings" title="Permanent link">&para;</a></h2>
+<p>Areas with strong documentation coverage:</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Coverage</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shared/auth/</code></td>
+<td>Excellent</td>
+<td>15 .md files, comprehensive guides</td>
+</tr>
+<tr>
+<td><code>shared/events/</code></td>
+<td>Good</td>
+<td>5 .md files with DLQ docs and examples</td>
+</tr>
+<tr>
+<td><code>shared/mcp/</code></td>
+<td>Good</td>
+<td>4 .md files with quick start</td>
+</tr>
+<tr>
+<td><code>shared/cache/</code></td>
+<td>Good</td>
+<td>3 .md files with implementation summary</td>
+</tr>
+<tr>
+<td><code>apps/mobile/</code></td>
+<td>Excellent</td>
+<td>109+ .md files, most documented app</td>
+</tr>
+<tr>
+<td><code>apps/web/</code></td>
+<td>Good</td>
+<td>12 .md files including security audits</td>
+</tr>
+<tr>
+<td><code>infrastructure/gateway/kong/</code></td>
+<td>Excellent</td>
+<td>16 .md files with runbook</td>
+</tr>
+<tr>
+<td><code>packages/nestjs-auth</code></td>
+<td>Excellent</td>
+<td>6 .md files with migration guide</td>
+</tr>
+<tr>
+<td><code>docs/adr/</code></td>
+<td>Good quality</td>
+<td>Well-structured, follows template</td>
+</tr>
+<tr>
+<td><code>docs/api/openapi/</code></td>
+<td>Good</td>
+<td>16 OpenAPI specs (34,899 lines)</td>
+</tr>
+<tr>
+<td>Service READMEs</td>
+<td>Good</td>
+<td>97% coverage (67/69 have README)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-recommendations">5. Recommendations<a class="headerlink" href="#5-recommendations" title="Permanent link">&para;</a></h2>
+<h3 id="immediate-actions-week-1-2">Immediate Actions (Week 1-2)<a class="headerlink" href="#immediate-actions-week-1-2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Create README.md for <code>shared/ai/</code></strong> — 82 Python files, zero README. This is the most critical gap.</li>
+<li><strong>Create README.md for <code>shared/security/</code></strong> — 15 Python files covering RBAC, JWT, policy engine.</li>
+<li><strong>Add README to <code>apps/kernel/</code></strong> — root-level README missing.</li>
+<li><strong>Add README to <code>apps/services/ndvi-processor/</code></strong> — only service without any README.</li>
+<li><strong>Add deprecation notices</strong> to 4 stale service-docs files.</li>
+</ol>
+<h3 id="short-term-actions-week-3-6">Short-Term Actions (Week 3-6)<a class="headerlink" href="#short-term-actions-week-3-6" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Create service-docs for top 10 missing services</strong> — prioritize: yolo26-vision-service, edge-orchestrator-service, copilot-api, digital-twin-engine, terrain-core-service, hydrology-service, fertigation-engine, knowledge-graph, iot-sensor-hub, irrigation-cycle-engine.</li>
+<li><strong>Add README to <code>shared/</code> high-impact modules</strong> — irrigation, mobile_sync, monitoring, libs, llm, middleware, secrets, field_boundaries.</li>
+<li><strong>Add README to <code>packages/shared-types</code></strong> — contract source of truth needs documentation.</li>
+<li><strong>Add test suite READMEs</strong> — at minimum for <code>tests/unit/</code>, <code>tests/e2e/</code>, <code>tests/security/</code>.</li>
+<li><strong>Create developer onboarding guide</strong> and <strong>contributing guide</strong>.</li>
+</ol>
+<h3 id="medium-term-actions-month-2-3">Medium-Term Actions (Month 2-3)<a class="headerlink" href="#medium-term-actions-month-2-3" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Write missing ADRs</strong> — PostGIS, YOLO26, multi-tenancy, AI model strategy, edge computing.</li>
+<li><strong>Consolidate ADR directories</strong> — merge <code>governance/decisions/</code> into <code>docs/adr/</code>.</li>
+<li><strong>Expand knowledge base</strong> — add tomato, vegetables, bacterial diseases, crop rotation, IPM.</li>
+<li><strong>Create API narrative docs</strong> — billing, marketplace, IoT, vision, terrain.</li>
+<li><strong>Add infrastructure READMEs</strong> — deployment, istio, nats, observability, resilience, security.</li>
+<li><strong>Create Docker build documentation</strong> — explain base images, mirror patterns, multi-stage builds.</li>
+<li><strong>Document CI/CD pipeline</strong> — workflow dependencies, triggers, and required secrets.</li>
+</ol>
+<h3 id="long-term-actions-quarter-2">Long-Term Actions (Quarter 2)<a class="headerlink" href="#long-term-actions-quarter-2" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Achieve 80%+ shared module documentation</strong> — README for all modules with 4+ Python files.</li>
+<li><strong>Achieve 100% service-docs coverage</strong> — all 69 services documented.</li>
+<li><strong>Achieve 100% test suite documentation</strong> — all 18 test directories documented.</li>
+<li><strong>Create automated documentation coverage CI check</strong> — fail PR if new module lacks README.</li>
+<li><strong>Implement doc freshness tracking</strong> — flag docs not updated in 6+ months.</li>
+</ol>
+<hr />
+<h2 id="6-documentation-coverage-matrix">6. Documentation Coverage Matrix<a class="headerlink" href="#6-documentation-coverage-matrix" title="Permanent link">&para;</a></h2>
+<h3 id="by-layer">By Layer<a class="headerlink" href="#by-layer" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>Layer              Documented  Total  Coverage  Grade
+─────────────────────────────────────────────────────
+Service READMEs        67       69      97%      A
+docs/ root            146      146     100%      A
+Mobile app docs       109      109     100%      A
+Service-docs           34       69      49%      F
+Shared modules         14       71      20%      F
+Packages               11       24      46%      F
+Test suites             4       18      22%      F
+Infrastructure          7       13      54%      D
+ADRs                    7      ~17      41%      F
+API narrative           5       16      31%      F
+Knowledge base         14      ~30      47%      F
+</code></pre></div>
+
+<h3 id="by-priority">By Priority<a class="headerlink" href="#by-priority" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">Priority</span><span class="w">   </span><span class="nx">Gaps</span><span class="w">  </span><span class="nx">Description</span>
+<span class="err">────────────────────────────────────</span>
+<span class="nx">Critical</span><span class="w">     </span><span class="mi">4</span><span class="w">   </span><span class="nx">shared</span><span class="o">/</span><span class="w"> </span><span class="nx">modules</span><span class="p">,</span><span class="w"> </span><span class="nx">service</span><span class="o">-</span><span class="nx">docs</span><span class="p">,</span><span class="w"> </span><span class="nx">tests</span><span class="p">,</span><span class="w"> </span><span class="nx">packages</span>
+<span class="nx">Moderate</span><span class="w">     </span><span class="mi">6</span><span class="w">   </span><span class="nx">ADRs</span><span class="p">,</span><span class="w"> </span><span class="nx">API</span><span class="w"> </span><span class="nx">docs</span><span class="p">,</span><span class="w"> </span><span class="nx">knowledge</span><span class="w"> </span><span class="kd">base</span><span class="p">,</span><span class="w"> </span><span class="nx">deprecated</span><span class="w"> </span><span class="nx">docs</span><span class="p">,</span>
+<span class="w">                 </span><span class="nx">infrastructure</span><span class="p">,</span><span class="w"> </span><span class="nx">developer</span><span class="w"> </span><span class="nx">guides</span>
+<span class="nx">Minor</span><span class="w">        </span><span class="mi">5</span><span class="w">   </span><span class="nx">thin</span><span class="w"> </span><span class="nx">READMEs</span><span class="p">,</span><span class="w"> </span><span class="nx">kernel</span><span class="w"> </span><span class="nx">README</span><span class="p">,</span><span class="w"> </span><span class="nx">governance</span><span class="p">,</span><span class="w"> </span><span class="nx">docker</span><span class="p">,</span><span class="w"> </span><span class="nx">CI</span><span class="o">/</span><span class="nx">CD</span>
+</code></pre></div>
+
+<hr />
+<p><em>Report generated: 2026-02-25</em>
+<em>Next review: 2026-03-25</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

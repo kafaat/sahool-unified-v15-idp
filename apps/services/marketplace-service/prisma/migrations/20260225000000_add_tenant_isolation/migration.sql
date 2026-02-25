@@ -21,23 +21,7 @@ ALTER TABLE "wallet_audit_logs" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT
 ALTER TABLE "product_reviews" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "review_responses" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 
--- Step 2: Remove DEFAULT constraint
--- الخطوة 2: إزالة القيمة الافتراضية
-
-ALTER TABLE "products" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "orders" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "order_items" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "wallets" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "transactions" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "loans" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "credit_events" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "escrows" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "scheduled_payments" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "wallet_audit_logs" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "product_reviews" ALTER COLUMN "tenant_id" DROP DEFAULT;
-ALTER TABLE "review_responses" ALTER COLUMN "tenant_id" DROP DEFAULT;
-
--- Step 3: Create tenant isolation indexes
+-- Step 2: Create tenant isolation indexes
 -- الخطوة 3: إنشاء فهارس عزل المستأجر
 
 CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_product_tenant" ON "products" ("tenant_id");

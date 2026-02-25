@@ -55,6 +55,7 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from shared.middleware.tenant_context import TenantContextMiddleware

@@ -5,9 +5,23 @@ Relationship API endpoints
 
 from typing import List, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from models import RelationshipType
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/relationships", tags=["relationships"])
 
@@ -17,6 +31,7 @@ async def get_affected_crops(
     request,
     disease_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get all crops affected by a disease

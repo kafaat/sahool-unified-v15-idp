@@ -11,8 +11,22 @@ from typing import Optional
 from uuid import uuid4
 
 import structlog
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, Field
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 logger = structlog.get_logger(__name__)
 
@@ -246,6 +260,7 @@ ALERTS_DB: dict[str, Alert] = {}
 async def list_thresholds(
     crop: str | None = None,
     pest_id: str | None = None,
+    _user=Depends(get_current_user),
 ):
     """
     List economic thresholds.

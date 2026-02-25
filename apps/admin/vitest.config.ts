@@ -19,11 +19,11 @@ export default defineConfig({
     alias: {
       "@sahool/shared-types/contracts": path.resolve(
         __dirname,
-        "../../packages/shared-types/src/contracts/index.ts",
+        "../../packages/shared-types/src/contracts",
       ),
       "@sahool/shared-types": path.resolve(
         __dirname,
-        "../../packages/shared-types/src/index.ts",
+        "../../packages/shared-types/src",
       ),
       "@": path.resolve(__dirname, "./src"),
     },

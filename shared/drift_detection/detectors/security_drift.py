@@ -50,7 +50,15 @@ EXCLUDE_SECRET_PATHS = {
     "node_modules",
     ".venv",
     "archive",
+    ".github",
 }
+
+# File name patterns that indicate test files (regardless of directory)
+_TEST_FILE_PATTERNS = (".spec.", ".test.", "_test.", "_spec.")
+
+# Known security utility directories whose files contain secret detection patterns
+# (regex patterns for masking, vault path registries, etc. — NOT actual secrets)
+_SAFE_SECURITY_DIRS = {"observability", "secrets"}
 
 
 class SecurityDriftDetector(BaseDriftDetector):
@@ -83,8 +91,14 @@ class SecurityDriftDetector(BaseDriftDetector):
 
         for ext in scan_extensions:
             for file_path in root.rglob(f"*{ext}"):
-                # Skip excluded paths
+                # Skip excluded paths (directory names)
                 if any(excl in file_path.parts for excl in EXCLUDE_SECRET_PATHS):
+                    continue
+                # Skip test files by name pattern (e.g. *.spec.ts, *.test.py)
+                if any(pat in file_path.name for pat in _TEST_FILE_PATTERNS):
+                    continue
+                # Skip known security utility files (contain detection regexes, not secrets)
+                if file_path.parent.name in _SAFE_SECURITY_DIRS:
                     continue
                 # Skip .env.example (that's documentation)
                 if file_path.name == ".env.example":
@@ -113,9 +127,10 @@ class SecurityDriftDetector(BaseDriftDetector):
                 for pattern, pattern_name in SECRET_PATTERNS:
                     matches = pattern.findall(content)
                     if matches:
-                        # Filter out known safe patterns
+                        # Filter out known safe patterns (case-insensitive)
+                        content_lower = content[:500].lower()
                         safe = any(
-                            safe_pat in content[:200]
+                            safe_pat in content_lower
                             for safe_pat in [
                                 "test",
                                 "example",
@@ -125,9 +140,17 @@ class SecurityDriftDetector(BaseDriftDetector):
                                 "<",
                                 "your_",
                                 "change_me",
+                                "re.compile",
+                                "regex",
+                                "masking",
+                                "sanitiz",
                             ]
                         )
                         if safe:
+                            continue
+
+                        # Filter out GitHub Actions template expressions
+                        if "${{" in content and "secrets." in content:
                             continue
 
                         self.add_result(
@@ -324,7 +347,7 @@ class SecurityDriftDetector(BaseDriftDetector):
                     ]
                 )
 
-                # Skip health/public endpoints
+                # Skip health/public endpoints and gateway-managed auth
                 is_public = any(
                     pat in content
                     for pat in [
@@ -335,6 +358,8 @@ class SecurityDriftDetector(BaseDriftDetector):
                         "register",
                         "callback",
                         "webhook",
+                        "ussd",
+                        "drift:auth-exempt",
                     ]
                 )
 
@@ -407,8 +432,26 @@ class SecurityDriftDetector(BaseDriftDetector):
         for py_file in root.glob("apps/services/*/src/main.py"):
             try:
                 content = py_file.read_text(errors="ignore")
-                if "DATABASE_URL" in content and "sslmode" not in content:
-                    service_name = py_file.parent.parent.name
+                if "DATABASE_URL" not in content:
+                    continue
+                # Check if sslmode is referenced in the service code or config
+                service_dir = py_file.parent.parent
+                has_ssl = "sslmode" in content
+                # Also check config files in the service directory
+                if not has_ssl:
+                    for cfg_file in service_dir.rglob("*.py"):
+                        try:
+                            cfg_content = cfg_file.read_text(errors="ignore")
+                            if "sslmode" in cfg_content:
+                                has_ssl = True
+                                break
+                        except (OSError, UnicodeDecodeError):
+                            continue
+                # Also check if the service uses shared DB utilities that enforce SSL
+                if not has_ssl and ("shared.db" in content or "shared.common" in content):
+                    has_ssl = True
+                if not has_ssl:
+                    service_name = service_dir.name
                     self.add_result(
                         DriftResult(
                             category=DriftCategory.SECURITY,

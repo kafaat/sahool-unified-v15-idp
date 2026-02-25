@@ -88,6 +88,10 @@ SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = int(os.getenv("PORT", "8167"))
 NATS_URL = os.getenv("NATS_URL", "nats://localhost:4222")
 DATABASE_URL = os.getenv("DATABASE_URL", "")
+# Enforce sslmode for non-development database connections
+if DATABASE_URL and os.getenv("ENVIRONMENT", "development") != "development":
+    if "sslmode" not in DATABASE_URL:
+        DATABASE_URL += "?sslmode=require" if "?" not in DATABASE_URL else "&sslmode=require"
 
 
 # ==============================================================================

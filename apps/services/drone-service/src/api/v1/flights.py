@@ -8,10 +8,24 @@ import uuid
 from datetime import datetime
 
 import structlog
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 
 logger = structlog.get_logger()
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/flights", tags=["flight-planning"])
 
@@ -60,7 +74,7 @@ class ResourceEstimateRequest(BaseModel):
 
 
 @router.post("/plan/spray", status_code=201)
-async def create_spray_flight_plan(request: SprayFlightRequest, req: Request):
+async def create_spray_flight_plan(request: SprayFlightRequest, req: Request, _user=Depends(get_current_user)):
     """Create spray flight plan - إنشاء خطة رحلة رش"""
     try:
         from shared.drone_integration import Coordinate as DCoord, create_spray_flight_plan

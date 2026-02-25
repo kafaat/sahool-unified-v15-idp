@@ -197,7 +197,7 @@ class NATSPublisher:
         """
         Publish an action event (from ActionTemplate)
 
-        Subject: sahool.actions.{action_type}
+        Subject: sahool.action.{action_type}
         """
         event = AnalysisEvent(
             event_type=f"action.{action_type}",
@@ -210,7 +210,7 @@ class NATSPublisher:
             notification_channels=["push", "in_app"],
         )
 
-        subject = f"sahool.actions.{action_type}"
+        subject = f"sahool.action.{action_type}"
         data = event.to_json().encode("utf-8")
 
         return await self.publish(subject, data)

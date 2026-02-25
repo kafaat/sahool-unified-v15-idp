@@ -163,8 +163,8 @@ async def init_nats():
                 name="BILLING",
                 subjects=[
                     "sahool.billing.*",
-                    "sahool.payment.*",
-                    "sahool.subscription.*",
+                    "sahool.billing.payment.*",
+                    "sahool.billing.subscription.*",
                 ],
                 retention=RetentionPolicy.LIMITS,
                 max_age=86400 * 30,  # 30 days
@@ -343,7 +343,7 @@ async def job_handle_trial_expiry():
                 expired += 1
 
                 await publish_event(
-                    "sahool.subscription.trial_expired",
+                    "sahool.billing.subscription.trial_expired",
                     {
                         "subscription_id": str(sub.id),
                         "tenant_id": sub.tenant_id,
@@ -386,7 +386,7 @@ async def job_suspend_past_due():
                     suspended += 1
 
                     await publish_event(
-                        "sahool.subscription.past_due",
+                        "sahool.billing.subscription.past_due",
                         {
                             "subscription_id": str(sub.id),
                             "tenant_id": tenant_id,
@@ -2161,7 +2161,7 @@ async def update_subscription(
         # Publish plan change event
         background_tasks.add_task(
             publish_event,
-            "sahool.subscription.plan_changed",
+            "sahool.billing.subscription.plan_changed",
             {
                 "subscription_id": str(subscription.id),
                 "tenant_id": tenant_id,
@@ -2703,7 +2703,7 @@ async def create_payment(
     # Publish payment event
     background_tasks.add_task(
         publish_event,
-        "sahool.payment.created",
+        "sahool.billing.payment.created",
         {
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
@@ -2901,7 +2901,7 @@ async def create_refund(
     # Publish refund event
     background_tasks.add_task(
         publish_event,
-        "sahool.payment.refunded",
+        "sahool.billing.payment.refunded",
         {
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
@@ -3044,7 +3044,7 @@ async def tharwatt_webhook(
         # Publish payment success event
         background_tasks.add_task(
             publish_event,
-            "sahool.payment.succeeded",
+            "sahool.billing.payment.succeeded",
             {
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
@@ -3066,7 +3066,7 @@ async def tharwatt_webhook(
         # Publish payment failed event
         background_tasks.add_task(
             publish_event,
-            "sahool.payment.failed",
+            "sahool.billing.payment.failed",
             {
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
@@ -3185,7 +3185,7 @@ async def stripe_webhook(
                 # Publish payment success event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.payment.succeeded",
+                    "sahool.billing.payment.succeeded",
                     {
                         "payment_id": payment_id,
                         "invoice_id": str(payment.invoice_id),
@@ -3212,7 +3212,7 @@ async def stripe_webhook(
                 # Publish payment failed event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.payment.failed",
+                    "sahool.billing.payment.failed",
                     {
                         "payment_id": payment_id,
                         "error": failure_reason,
@@ -3244,7 +3244,7 @@ async def stripe_webhook(
                 # Publish subscription event
                 background_tasks.add_task(
                     publish_event,
-                    "sahool.subscription.updated",
+                    "sahool.billing.subscription.updated",
                     {
                         "subscription_id": subscription_id,
                         "tenant_id": subscription.tenant_id,

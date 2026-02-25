@@ -697,7 +697,7 @@ export class LAIService {
       },
       action_template: actionTemplate,
       task_card: taskCard,
-      nats_topic: "sahool.alerts.stress_detection",
+      nats_topic: "sahool.alert.stress_detection",
     };
   }
 
@@ -831,7 +831,7 @@ export class LAIService {
         trend_ar:
           dropPercent > 5 ? "تراجع" : dropPercent < -5 ? "تحسن" : "مستقر",
       },
-      nats_topic: "sahool.alerts.lai_anomaly",
+      nats_topic: "sahool.alert.lai_anomaly",
     };
   }
 }

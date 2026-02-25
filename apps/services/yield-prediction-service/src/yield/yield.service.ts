@@ -774,7 +774,7 @@ export class YieldService {
       },
       action_template: actionTemplate,
       task_card: taskCard,
-      nats_topic: "sahool.alerts.pre_harvest",
+      nats_topic: "sahool.alert.pre_harvest",
     };
   }
 
@@ -880,7 +880,7 @@ export class YieldService {
       maturity,
       action_template: actionTemplate,
       is_ready: isReady,
-      nats_topic: "sahool.alerts.harvest_readiness",
+      nats_topic: "sahool.alert.harvest_readiness",
     };
   }
 }

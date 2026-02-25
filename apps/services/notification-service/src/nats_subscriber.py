@@ -53,7 +53,7 @@ class SubscriberConfig(BaseModel):
     analysis_subjects: list[str] = Field(
         default_factory=lambda: [
             "sahool.analysis.*",                            # Analysis events
-            "sahool.actions.*",                             # Action events
+            "sahool.action.*",                              # Action events
             "sahool.irrigation.recommendation.ready.v1",   # Irrigation recommendations (H1)
             "sahool.recommendation.>",                      # All Decision-layer recommendations (Spec §7)
         ]

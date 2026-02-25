@@ -52,11 +52,11 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
 
-      - name: Clean npm cache
-        run: npm cache clean --force
-
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --prefer-online
+        run: |
+          npm install --legacy-peer-deps --prefer-online || \
+          npm install --legacy-peer-deps || \
+          (npm cache clean --force && npm install --legacy-peer-deps)
 
       - name: Clean previous builds
         run: |

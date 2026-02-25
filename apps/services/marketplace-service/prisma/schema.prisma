@@ -24,6 +24,7 @@ generator client {
 
 model Product {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   name        String
   nameAr      String   @map("name_ar")
   category    ProductCategory
@@ -62,6 +63,8 @@ model Product {
   orderItems  OrderItem[]
 
   @@map("products")
+  @@index([tenantId], name: "idx_product_tenant")
+  @@index([tenantId, status], name: "idx_product_tenant_status")
   @@index([sellerId, status]) // Optimize seller product queries
   @@index([category, status]) // Optimize category filtering
   @@index([status, featured]) // Optimize featured product queries
@@ -98,6 +101,7 @@ enum ProductStatus {
 
 model Order {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   orderNumber String   @unique @map("order_number")
 
   // المشتري
@@ -132,6 +136,8 @@ model Order {
   transactions Transaction[]
 
   @@map("orders")
+  @@index([tenantId], name: "idx_order_tenant")
+  @@index([tenantId, status], name: "idx_order_tenant_status")
   @@index([buyerId, status]) // Optimize buyer order queries
   @@index([buyerId, createdAt], name: "idx_order_buyer_date") // Optimize buyer order history
   @@index([status, createdAt]) // Optimize order filtering and sorting
@@ -142,6 +148,7 @@ model Order {
 
 model OrderItem {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   orderId     String   @map("order_id")
   productId   String   @map("product_id")
 
@@ -153,6 +160,7 @@ model OrderItem {
   product     Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@map("order_items")
+  @@index([tenantId], name: "idx_order_item_tenant")
   @@index([orderId])
   @@index([productId])
 }
@@ -179,6 +187,7 @@ enum PaymentStatus {
 
 model Wallet {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   userId      String   @unique @map("user_id")
   userType    String   @map("user_type") // farmer, company, buyer
 
@@ -226,6 +235,7 @@ model Wallet {
   auditLogs   WalletAuditLog[]
 
   @@map("wallets")
+  @@index([tenantId], name: "idx_wallet_tenant")
   @@index([deletedAt]) // Optimize soft delete queries
   @@index([creditTier], name: "idx_wallet_credit_tier")
   @@index([isVerified], name: "idx_wallet_verified")
@@ -245,6 +255,7 @@ enum CreditTier {
 
 model Transaction {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   type        TransactionType
@@ -272,6 +283,7 @@ model Transaction {
   order       Order?   @relation(fields: [referenceId], references: [id])
   auditLogs   WalletAuditLog[]
 
+  @@index([tenantId], name: "idx_transaction_tenant")
   @@index([walletId], name: "idx_transaction_wallet")
   @@index([referenceId], name: "idx_transaction_reference")
   @@index([type], name: "idx_transaction_type")
@@ -315,6 +327,7 @@ enum TransactionStatus {
 
 model Loan {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   amount      Float
@@ -347,6 +360,7 @@ model Loan {
   wallet      Wallet   @relation(fields: [walletId], references: [id])
 
   @@map("loans")
+  @@index([tenantId], name: "idx_loan_tenant")
   @@index([walletId], name: "idx_loan_wallet")
   @@index([status], name: "idx_loan_status")
   @@index([walletId, status], name: "idx_loan_wallet_status")
@@ -378,6 +392,7 @@ enum LoanStatus {
 
 model CreditEvent {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   walletId    String   @map("wallet_id")
 
   eventType   CreditEventType @map("event_type")
@@ -390,6 +405,7 @@ model CreditEvent {
 
   wallet      Wallet   @relation(fields: [walletId], references: [id])
 
+  @@index([tenantId], name: "idx_credit_event_tenant")
   @@index([walletId])
   @@index([eventType])
   @@map("credit_events")
@@ -413,6 +429,7 @@ enum CreditEventType {
 
 model Escrow {
   id             String       @id @default(uuid()) @db.Uuid
+  tenantId       String       @map("tenant_id")
   orderId        String       @unique @map("order_id")
 
   // المحافظ
@@ -437,6 +454,7 @@ model Escrow {
   buyerWallet    Wallet       @relation("BuyerEscrows", fields: [buyerWalletId], references: [id])
   sellerWallet   Wallet       @relation("SellerEscrows", fields: [sellerWalletId], references: [id])
 
+  @@index([tenantId], name: "idx_escrow_tenant")
   @@index([buyerWalletId])
   @@index([sellerWalletId])
   @@index([status])
@@ -457,6 +475,7 @@ enum EscrowStatus {
 
 model ScheduledPayment {
   id              String   @id @default(uuid()) @db.Uuid
+  tenantId        String   @map("tenant_id")
   walletId        String   @map("wallet_id")
 
   // المبلغ والتكرار
@@ -481,6 +500,7 @@ model ScheduledPayment {
 
   wallet          Wallet   @relation(fields: [walletId], references: [id])
 
+  @@index([tenantId], name: "idx_scheduled_payment_tenant")
   @@index([walletId])
   @@index([nextPaymentDate])
   @@index([isActive])
@@ -502,6 +522,7 @@ enum PaymentFrequency {
 
 model WalletAuditLog {
   id              String   @id @default(uuid()) @db.Uuid
+  tenantId        String   @map("tenant_id")
   walletId        String   @map("wallet_id")
   transactionId   String?  @map("transaction_id")
 
@@ -532,6 +553,7 @@ model WalletAuditLog {
   wallet          Wallet   @relation(fields: [walletId], references: [id])
   transaction     Transaction? @relation(fields: [transactionId], references: [id])
 
+  @@index([tenantId], name: "idx_wallet_audit_tenant")
   @@index([walletId])
   @@index([transactionId])
   @@index([createdAt])
@@ -620,6 +642,7 @@ model BuyerProfile {
 
 model ProductReview {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   productId   String   @map("product_id")
   buyerId     String   @map("buyer_id")
   orderId     String   @map("order_id")
@@ -643,6 +666,7 @@ model ProductReview {
   buyer       BuyerProfile @relation(fields: [buyerId], references: [id])
   response    ReviewResponse?
 
+  @@index([tenantId], name: "idx_review_tenant")
   @@index([productId])
   @@index([buyerId])
   @@index([orderId])
@@ -653,6 +677,7 @@ model ProductReview {
 
 model ReviewResponse {
   id          String   @id @default(uuid()) @db.Uuid
+  tenantId    String   @map("tenant_id")
   reviewId    String   @unique @map("review_id")
   sellerId    String   @map("seller_id")
 
@@ -664,6 +689,7 @@ model ReviewResponse {
   review      ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
   seller      SellerProfile @relation(fields: [sellerId], references: [id])
 
+  @@index([tenantId], name: "idx_review_response_tenant")
   @@index([reviewId])
   @@index([sellerId])
   @@map("review_responses")

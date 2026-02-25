@@ -78,6 +78,10 @@ RUN npm config set registry https://registry.npmmirror.com && \
     (npm ci --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit || \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --no-audit))
 
+# Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
+# (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)
+RUN ln -sf /app/node_modules /nestjs-auth/node_modules
+
 # Copy built application
 COPY --from=builder /workspace/yield-prediction-service/dist ./dist
 

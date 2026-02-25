@@ -76,8 +76,8 @@ void main() {
     test('should return system for unknown string', () {
       expect(SAHOOLNotificationType.fromString('unknown_type'),
           SAHOOLNotificationType.system);
-      expect(SAHOOLNotificationType.fromString(''),
-          SAHOOLNotificationType.system);
+      expect(
+          SAHOOLNotificationType.fromString(''), SAHOOLNotificationType.system);
     });
 
     test('should map to correct Android channel IDs', () {
@@ -86,10 +86,14 @@ void main() {
       expect(SAHOOLNotificationType.pestOutbreak.channelId, 'sahool_alerts');
       expect(SAHOOLNotificationType.taskReminder.channelId, 'sahool_tasks');
       expect(SAHOOLNotificationType.harvestReminder.channelId, 'sahool_tasks');
-      expect(SAHOOLNotificationType.irrigationReminder.channelId, 'sahool_tasks');
-      expect(SAHOOLNotificationType.fieldUpdate.channelId, 'sahool_field_updates');
-      expect(SAHOOLNotificationType.satelliteReady.channelId, 'sahool_field_updates');
-      expect(SAHOOLNotificationType.cropHealth.channelId, 'sahool_field_updates');
+      expect(
+          SAHOOLNotificationType.irrigationReminder.channelId, 'sahool_tasks');
+      expect(
+          SAHOOLNotificationType.fieldUpdate.channelId, 'sahool_field_updates');
+      expect(SAHOOLNotificationType.satelliteReady.channelId,
+          'sahool_field_updates');
+      expect(
+          SAHOOLNotificationType.cropHealth.channelId, 'sahool_field_updates');
       expect(SAHOOLNotificationType.paymentDue.channelId, 'sahool_financial');
       expect(SAHOOLNotificationType.marketPrice.channelId, 'sahool_financial');
       expect(SAHOOLNotificationType.sprayWindow.channelId, 'sahool_operations');
@@ -108,11 +112,14 @@ void main() {
     });
 
     test('should have Arabic channel names', () {
-      expect(SAHOOLNotificationType.weatherAlert.channelName, 'التنبيهات العاجلة');
-      expect(SAHOOLNotificationType.taskReminder.channelName, 'المهام والتذكيرات');
+      expect(
+          SAHOOLNotificationType.weatherAlert.channelName, 'التنبيهات العاجلة');
+      expect(
+          SAHOOLNotificationType.taskReminder.channelName, 'المهام والتذكيرات');
       expect(SAHOOLNotificationType.fieldUpdate.channelName, 'تحديثات الحقل');
       expect(SAHOOLNotificationType.paymentDue.channelName, 'المالية والأسواق');
-      expect(SAHOOLNotificationType.sprayWindow.channelName, 'العمليات الزراعية');
+      expect(
+          SAHOOLNotificationType.sprayWindow.channelName, 'العمليات الزراعية');
       expect(SAHOOLNotificationType.lowStock.channelName, 'المخزون');
       expect(SAHOOLNotificationType.system.channelName, 'إشعارات سهول');
     });
@@ -132,19 +139,18 @@ void main() {
     test('should parse from string correctly', () {
       expect(NotificationPriority.fromString('critical'),
           NotificationPriority.critical);
-      expect(NotificationPriority.fromString('high'),
-          NotificationPriority.high);
+      expect(
+          NotificationPriority.fromString('high'), NotificationPriority.high);
       expect(NotificationPriority.fromString('medium'),
           NotificationPriority.medium);
-      expect(NotificationPriority.fromString('low'),
-          NotificationPriority.low);
+      expect(NotificationPriority.fromString('low'), NotificationPriority.low);
     });
 
     test('should return medium for unknown string', () {
       expect(NotificationPriority.fromString('unknown'),
           NotificationPriority.medium);
-      expect(NotificationPriority.fromString(null),
-          NotificationPriority.medium);
+      expect(
+          NotificationPriority.fromString(null), NotificationPriority.medium);
     });
 
     test('should have Arabic labels', () {

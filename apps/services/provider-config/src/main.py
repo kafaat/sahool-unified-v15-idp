@@ -685,6 +685,10 @@ async def startup_event():
     # Get configuration from environment
     # Security: No fallback credentials - require env vars to be set
     database_url = os.getenv("DATABASE_URL", "postgresql://pgbouncer:6432/sahool")
+    # Enforce sslmode for non-development database connections
+    if database_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in database_url:
+            database_url += "?sslmode=require" if "?" not in database_url else "&sslmode=require"
     redis_url = os.getenv("REDIS_URL", "redis://redis:6379/0")
     nats_url = os.getenv("NATS_URL")
 

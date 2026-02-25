@@ -76,24 +76,21 @@ class MockAppDatabase extends Mock implements AppDatabase {
   }
 
   void _notifySyncEventsChanged(String tenantId) {
-    final count = _syncEvents.where((e) => e.tenantId == tenantId && !e.isRead).length;
+    final count =
+        _syncEvents.where((e) => e.tenantId == tenantId && !e.isRead).length;
     _syncEventsCountController.add(count);
   }
 
   // Task operations
   @override
   Future<List<Task>> getAllTasks(String tenantId) async {
-    return _tasks.values
-        .where((t) => t.tenantId == tenantId)
-        .toList()
+    return _tasks.values.where((t) => t.tenantId == tenantId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
   @override
   Future<List<Task>> getTasksForField(String fieldId) async {
-    return _tasks.values
-        .where((t) => t.fieldId == fieldId)
-        .toList()
+    return _tasks.values.where((t) => t.fieldId == fieldId).toList()
       ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
   }
 
@@ -126,19 +123,30 @@ class MockAppDatabase extends Mock implements AppDatabase {
       // Update existing task
       _tasks[id] = Task(
         id: id,
-        tenantId: task.tenantId.present ? task.tenantId.value : existing.tenantId,
+        tenantId:
+            task.tenantId.present ? task.tenantId.value : existing.tenantId,
         fieldId: task.fieldId.present ? task.fieldId.value : existing.fieldId,
         farmId: task.farmId.present ? task.farmId.value : existing.farmId,
         title: task.title.present ? task.title.value : existing.title,
-        description: task.description.present ? task.description.value : existing.description,
+        description: task.description.present
+            ? task.description.value
+            : existing.description,
         status: task.status.present ? task.status.value : existing.status,
-        priority: task.priority.present ? task.priority.value : existing.priority,
+        priority:
+            task.priority.present ? task.priority.value : existing.priority,
         dueDate: task.dueDate.present ? task.dueDate.value : existing.dueDate,
-        assignedTo: task.assignedTo.present ? task.assignedTo.value : existing.assignedTo,
-        evidenceNotes: task.evidenceNotes.present ? task.evidenceNotes.value : existing.evidenceNotes,
-        evidencePhotos: task.evidencePhotos.present ? task.evidencePhotos.value : existing.evidencePhotos,
+        assignedTo: task.assignedTo.present
+            ? task.assignedTo.value
+            : existing.assignedTo,
+        evidenceNotes: task.evidenceNotes.present
+            ? task.evidenceNotes.value
+            : existing.evidenceNotes,
+        evidencePhotos: task.evidencePhotos.present
+            ? task.evidencePhotos.value
+            : existing.evidencePhotos,
         createdAt: existing.createdAt,
-        updatedAt: task.updatedAt.present ? task.updatedAt.value : existing.updatedAt,
+        updatedAt:
+            task.updatedAt.present ? task.updatedAt.value : existing.updatedAt,
         synced: task.synced.present ? task.synced.value : existing.synced,
       );
     } else {
@@ -154,8 +162,10 @@ class MockAppDatabase extends Mock implements AppDatabase {
         priority: task.priority.present ? task.priority.value : 'medium',
         dueDate: task.dueDate.present ? task.dueDate.value : null,
         assignedTo: task.assignedTo.present ? task.assignedTo.value : null,
-        evidenceNotes: task.evidenceNotes.present ? task.evidenceNotes.value : null,
-        evidencePhotos: task.evidencePhotos.present ? task.evidencePhotos.value : null,
+        evidenceNotes:
+            task.evidenceNotes.present ? task.evidenceNotes.value : null,
+        evidencePhotos:
+            task.evidencePhotos.present ? task.evidencePhotos.value : null,
         createdAt: task.createdAt.value,
         updatedAt: task.updatedAt.value,
         synced: task.synced.present ? task.synced.value : false,
@@ -177,7 +187,9 @@ class MockAppDatabase extends Mock implements AppDatabase {
         description: item['description'] as String?,
         status: item['status'] as String? ?? 'open',
         priority: item['priority'] as String? ?? 'medium',
-        dueDate: item['due_date'] != null ? DateTime.parse(item['due_date'] as String) : null,
+        dueDate: item['due_date'] != null
+            ? DateTime.parse(item['due_date'] as String)
+            : null,
         assignedTo: item['assigned_to'] as String?,
         evidenceNotes: item['evidence_notes'] as String?,
         evidencePhotos: item['evidence_photos'] != null
@@ -269,13 +281,15 @@ class MockAppDatabase extends Mock implements AppDatabase {
       areaHectares: field.areaHectares.value,
       status: field.status.present ? field.status.value : null,
       ndviCurrent: field.ndviCurrent.present ? field.ndviCurrent.value : null,
-      ndviUpdatedAt: field.ndviUpdatedAt.present ? field.ndviUpdatedAt.value : null,
+      ndviUpdatedAt:
+          field.ndviUpdatedAt.present ? field.ndviUpdatedAt.value : null,
       synced: field.synced.present ? field.synced.value : false,
       isDeleted: field.isDeleted.present ? field.isDeleted.value : false,
       createdAt: field.createdAt.value,
       updatedAt: field.updatedAt.value,
       etag: field.etag.present ? field.etag.value : null,
-      serverUpdatedAt: field.serverUpdatedAt.present ? field.serverUpdatedAt.value : null,
+      serverUpdatedAt:
+          field.serverUpdatedAt.present ? field.serverUpdatedAt.value : null,
     );
     _notifyFieldsChanged(field.tenantId.value);
   }
@@ -288,23 +302,40 @@ class MockAppDatabase extends Mock implements AppDatabase {
     if (existing != null) {
       _fields[id] = Field(
         id: id,
-        remoteId: field.remoteId.present ? field.remoteId.value : existing.remoteId,
-        tenantId: field.tenantId.present ? field.tenantId.value : existing.tenantId,
+        remoteId:
+            field.remoteId.present ? field.remoteId.value : existing.remoteId,
+        tenantId:
+            field.tenantId.present ? field.tenantId.value : existing.tenantId,
         farmId: field.farmId.present ? field.farmId.value : existing.farmId,
         name: field.name.present ? field.name.value : existing.name,
-        cropType: field.cropType.present ? field.cropType.value : existing.cropType,
-        boundary: field.boundary.present ? field.boundary.value : existing.boundary,
-        centroid: field.centroid.present ? field.centroid.value : existing.centroid,
-        areaHectares: field.areaHectares.present ? field.areaHectares.value : existing.areaHectares,
+        cropType:
+            field.cropType.present ? field.cropType.value : existing.cropType,
+        boundary:
+            field.boundary.present ? field.boundary.value : existing.boundary,
+        centroid:
+            field.centroid.present ? field.centroid.value : existing.centroid,
+        areaHectares: field.areaHectares.present
+            ? field.areaHectares.value
+            : existing.areaHectares,
         status: field.status.present ? field.status.value : existing.status,
-        ndviCurrent: field.ndviCurrent.present ? field.ndviCurrent.value : existing.ndviCurrent,
-        ndviUpdatedAt: field.ndviUpdatedAt.present ? field.ndviUpdatedAt.value : existing.ndviUpdatedAt,
+        ndviCurrent: field.ndviCurrent.present
+            ? field.ndviCurrent.value
+            : existing.ndviCurrent,
+        ndviUpdatedAt: field.ndviUpdatedAt.present
+            ? field.ndviUpdatedAt.value
+            : existing.ndviUpdatedAt,
         synced: field.synced.present ? field.synced.value : existing.synced,
-        isDeleted: field.isDeleted.present ? field.isDeleted.value : existing.isDeleted,
+        isDeleted: field.isDeleted.present
+            ? field.isDeleted.value
+            : existing.isDeleted,
         createdAt: existing.createdAt,
-        updatedAt: field.updatedAt.present ? field.updatedAt.value : existing.updatedAt,
+        updatedAt: field.updatedAt.present
+            ? field.updatedAt.value
+            : existing.updatedAt,
         etag: field.etag.present ? field.etag.value : existing.etag,
-        serverUpdatedAt: field.serverUpdatedAt.present ? field.serverUpdatedAt.value : existing.serverUpdatedAt,
+        serverUpdatedAt: field.serverUpdatedAt.present
+            ? field.serverUpdatedAt.value
+            : existing.serverUpdatedAt,
       );
       _notifyFieldsChanged(existing.tenantId);
     }
@@ -572,10 +603,7 @@ class MockAppDatabase extends Mock implements AppDatabase {
 
   @override
   Future<List<OutboxData>> getPendingOutbox({int limit = 50}) async {
-    return _outbox
-        .where((o) => !o.isSynced)
-        .take(limit)
-        .toList();
+    return _outbox.where((o) => !o.isSynced).take(limit).toList();
   }
 
   @override
@@ -637,7 +665,8 @@ class MockAppDatabase extends Mock implements AppDatabase {
   }
 
   @override
-  Future<void> cleanupOldOutbox({Duration olderThan = const Duration(days: 7)}) async {
+  Future<void> cleanupOldOutbox(
+      {Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
     _outbox.removeWhere((o) => o.isSynced && o.createdAt.isBefore(cutoff));
     _notifyOutboxChanged();
@@ -788,8 +817,8 @@ class MockAppDatabase extends Mock implements AppDatabase {
   // Stream watchers for tasks
   @override
   Stream<List<Task>> watchTasksForField(String fieldId) {
-    return _tasksController.stream.map(
-        (tasks) => tasks.where((t) => t.fieldId == fieldId).toList());
+    return _tasksController.stream
+        .map((tasks) => tasks.where((t) => t.fieldId == fieldId).toList());
   }
 
   @override
@@ -823,7 +852,8 @@ class MockAppDatabase extends Mock implements AppDatabase {
   }
 
   @override
-  Future<int> pruneOldOutboxItems({Duration olderThan = const Duration(days: 7)}) async {
+  Future<int> pruneOldOutboxItems(
+      {Duration olderThan = const Duration(days: 7)}) async {
     final cutoff = DateTime.now().subtract(olderThan);
     final before = _outbox.length;
     _outbox.removeWhere((o) => o.isSynced && o.createdAt.isBefore(cutoff));
@@ -832,7 +862,9 @@ class MockAppDatabase extends Mock implements AppDatabase {
 
   @override
   Future<int> getFailedOutboxCount({int maxRetries = 5}) async {
-    return _outbox.where((o) => !o.isSynced && o.retryCount >= maxRetries).length;
+    return _outbox
+        .where((o) => !o.isSynced && o.retryCount >= maxRetries)
+        .length;
   }
 
   @override

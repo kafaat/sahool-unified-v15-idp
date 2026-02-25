@@ -375,16 +375,12 @@ class SmartRecommendationEngine {
 
   /// Recommendations for a specific field
   List<SmartRecommendation> forField(String fieldId) {
-    return activeRecommendations
-        .where((r) => r.fieldId == fieldId)
-        .toList();
+    return activeRecommendations.where((r) => r.fieldId == fieldId).toList();
   }
 
   /// Recommendations by category
   List<SmartRecommendation> byCategory(RecommendationCategory category) {
-    return activeRecommendations
-        .where((r) => r.category == category)
-        .toList();
+    return activeRecommendations.where((r) => r.category == category).toList();
   }
 
   /// Count of active recommendations per priority
@@ -491,14 +487,12 @@ class DashboardState {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Provider for the recommendation engine
-final recommendationEngineProvider =
-    Provider<SmartRecommendationEngine>((ref) {
+final recommendationEngineProvider = Provider<SmartRecommendationEngine>((ref) {
   return SmartRecommendationEngine();
 });
 
 /// Provider for dashboard state
-final dashboardStateProvider =
-    StateProvider<DashboardState>((ref) {
+final dashboardStateProvider = StateProvider<DashboardState>((ref) {
   return const DashboardState();
 });
 

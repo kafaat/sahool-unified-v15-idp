@@ -72,7 +72,10 @@ class SyncMetricsService {
     );
 
     _currentMetrics = _currentMetrics.copyWith(
-      activeOperations: {..._currentMetrics.activeOperations, operation.id: operation},
+      activeOperations: {
+        ..._currentMetrics.activeOperations,
+        operation.id: operation
+      },
     );
 
     _metricsController.add(_currentMetrics);
@@ -97,12 +100,15 @@ class SyncMetricsService {
     // Update current metrics
     _currentMetrics = _currentMetrics.copyWith(
       totalOperations: _currentMetrics.totalOperations + 1,
-      successfulOperations: _currentMetrics.successfulOperations + (success ? 1 : 0),
+      successfulOperations:
+          _currentMetrics.successfulOperations + (success ? 1 : 0),
       failedOperations: _currentMetrics.failedOperations + (success ? 0 : 1),
       totalDuration: _currentMetrics.totalDuration + duration.inMilliseconds,
-      totalBandwidthBytes: _currentMetrics.totalBandwidthBytes + (actualPayloadSize ?? 0),
+      totalBandwidthBytes:
+          _currentMetrics.totalBandwidthBytes + (actualPayloadSize ?? 0),
       conflictCount: _currentMetrics.conflictCount + (wasConflict ? 1 : 0),
-      activeOperations: Map.from(_currentMetrics.activeOperations)..remove(operationId),
+      activeOperations: Map.from(_currentMetrics.activeOperations)
+        ..remove(operationId),
       lastSyncTime: endTime,
     );
 
@@ -120,12 +126,15 @@ class SyncMetricsService {
       final resolutions = Map<ConflictResolution, int>.from(
         _currentMetrics.conflictResolutions,
       );
-      resolutions[conflictResolution] = (resolutions[conflictResolution] ?? 0) + 1;
-      _currentMetrics = _currentMetrics.copyWith(conflictResolutions: resolutions);
+      resolutions[conflictResolution] =
+          (resolutions[conflictResolution] ?? 0) + 1;
+      _currentMetrics =
+          _currentMetrics.copyWith(conflictResolutions: resolutions);
     }
 
     // Update operation history (keep last 100)
-    final history = List<CompletedOperation>.from(_currentMetrics.operationHistory);
+    final history =
+        List<CompletedOperation>.from(_currentMetrics.operationHistory);
     history.add(CompletedOperation(
       type: operation.type,
       entityType: operation.entityType,
@@ -147,7 +156,8 @@ class SyncMetricsService {
 
     // Update queue depth history (keep last 1000 samples)
     final queueDepth = _currentMetrics.activeOperations.length;
-    final queueHistory = List<QueueDepthSample>.from(_currentMetrics.queueDepthHistory);
+    final queueHistory =
+        List<QueueDepthSample>.from(_currentMetrics.queueDepthHistory);
     queueHistory.add(QueueDepthSample(
       timestamp: endTime,
       depth: queueDepth,
@@ -178,7 +188,10 @@ class SyncMetricsService {
         totalRetries: _currentMetrics.retryStatistics.totalRetries + 1,
         retryAttemptsByCount: {
           ..._currentMetrics.retryStatistics.retryAttemptsByCount,
-          attemptNumber: (_currentMetrics.retryStatistics.retryAttemptsByCount[attemptNumber] ?? 0) + 1,
+          attemptNumber: (_currentMetrics
+                      .retryStatistics.retryAttemptsByCount[attemptNumber] ??
+                  0) +
+              1,
         },
       ),
     );
@@ -189,7 +202,8 @@ class SyncMetricsService {
 
   /// Update queue depth (call this periodically)
   Future<void> updateQueueDepth(int depth) async {
-    final queueHistory = List<QueueDepthSample>.from(_currentMetrics.queueDepthHistory);
+    final queueHistory =
+        List<QueueDepthSample>.from(_currentMetrics.queueDepthHistory);
     queueHistory.add(QueueDepthSample(
       timestamp: DateTime.now(),
       depth: depth,
@@ -234,7 +248,8 @@ class SyncMetricsService {
   ) async {
     final weekStart = _getWeekStart(timestamp);
     final weekKey = _formatWeekKey(weekStart);
-    final existing = _weeklyMetrics[weekKey] ?? WeeklyMetrics(weekStart: weekStart);
+    final existing =
+        _weeklyMetrics[weekKey] ?? WeeklyMetrics(weekStart: weekStart);
 
     _weeklyMetrics[weekKey] = existing.copyWith(
       totalOperations: existing.totalOperations + 1,
@@ -259,7 +274,8 @@ class SyncMetricsService {
     return {
       'current': _currentMetrics.toJson(),
       'daily': _dailyMetrics.map((key, value) => MapEntry(key, value.toJson())),
-      'weekly': _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson())),
+      'weekly':
+          _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson())),
       'exportedAt': DateTime.now().toIso8601String(),
     };
   }
@@ -310,12 +326,15 @@ class SyncMetricsService {
   /// Save metrics to SharedPreferences
   Future<void> _saveMetrics() async {
     try {
-      await _prefs.setString(_currentMetricsKey, jsonEncode(_currentMetrics.toJson()));
+      await _prefs.setString(
+          _currentMetricsKey, jsonEncode(_currentMetrics.toJson()));
 
-      final dailyData = _dailyMetrics.map((key, value) => MapEntry(key, value.toJson()));
+      final dailyData =
+          _dailyMetrics.map((key, value) => MapEntry(key, value.toJson()));
       await _prefs.setString(_dailyMetricsKey, jsonEncode(dailyData));
 
-      final weeklyData = _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson()));
+      final weeklyData =
+          _weeklyMetrics.map((key, value) => MapEntry(key, value.toJson()));
       await _prefs.setString(_weeklyMetricsKey, jsonEncode(weeklyData));
     } catch (e) {
       if (kDebugMode) {
@@ -415,32 +434,34 @@ class CompletedOperation {
   });
 
   Map<String, dynamic> toJson() => {
-    'type': type.name,
-    'entityType': entityType,
-    'startTime': startTime.toIso8601String(),
-    'endTime': endTime.toIso8601String(),
-    'durationMs': duration.inMilliseconds,
-    'success': success,
-    'payloadSize': payloadSize,
-    'errorMessage': errorMessage,
-    'wasConflict': wasConflict,
-    'conflictResolution': conflictResolution?.name,
-  };
+        'type': type.name,
+        'entityType': entityType,
+        'startTime': startTime.toIso8601String(),
+        'endTime': endTime.toIso8601String(),
+        'durationMs': duration.inMilliseconds,
+        'success': success,
+        'payloadSize': payloadSize,
+        'errorMessage': errorMessage,
+        'wasConflict': wasConflict,
+        'conflictResolution': conflictResolution?.name,
+      };
 
-  factory CompletedOperation.fromJson(Map<String, dynamic> json) => CompletedOperation(
-    type: SyncOperationType.values.byName(json['type'] as String),
-    entityType: json['entityType'] as String,
-    startTime: DateTime.parse(json['startTime'] as String),
-    endTime: DateTime.parse(json['endTime'] as String),
-    duration: Duration(milliseconds: json['durationMs'] as int),
-    success: json['success'] as bool,
-    payloadSize: json['payloadSize'] as int?,
-    errorMessage: json['errorMessage'] as String?,
-    wasConflict: json['wasConflict'] as bool? ?? false,
-    conflictResolution: json['conflictResolution'] != null
-        ? ConflictResolution.values.byName(json['conflictResolution'] as String)
-        : null,
-  );
+  factory CompletedOperation.fromJson(Map<String, dynamic> json) =>
+      CompletedOperation(
+        type: SyncOperationType.values.byName(json['type'] as String),
+        entityType: json['entityType'] as String,
+        startTime: DateTime.parse(json['startTime'] as String),
+        endTime: DateTime.parse(json['endTime'] as String),
+        duration: Duration(milliseconds: json['durationMs'] as int),
+        success: json['success'] as bool,
+        payloadSize: json['payloadSize'] as int?,
+        errorMessage: json['errorMessage'] as String?,
+        wasConflict: json['wasConflict'] as bool? ?? false,
+        conflictResolution: json['conflictResolution'] != null
+            ? ConflictResolution.values
+                .byName(json['conflictResolution'] as String)
+            : null,
+      );
 }
 
 /// Queue depth sample
@@ -454,14 +475,15 @@ class QueueDepthSample {
   });
 
   Map<String, dynamic> toJson() => {
-    'timestamp': timestamp.toIso8601String(),
-    'depth': depth,
-  };
+        'timestamp': timestamp.toIso8601String(),
+        'depth': depth,
+      };
 
-  factory QueueDepthSample.fromJson(Map<String, dynamic> json) => QueueDepthSample(
-    timestamp: DateTime.parse(json['timestamp'] as String),
-    depth: json['depth'] as int,
-  );
+  factory QueueDepthSample.fromJson(Map<String, dynamic> json) =>
+      QueueDepthSample(
+        timestamp: DateTime.parse(json['timestamp'] as String),
+        depth: json['depth'] as int,
+      );
 }
 
 /// Retry statistics
@@ -485,15 +507,19 @@ class RetryStatistics {
   }
 
   Map<String, dynamic> toJson() => {
-    'totalRetries': totalRetries,
-    'retryAttemptsByCount': retryAttemptsByCount.map((k, v) => MapEntry(k.toString(), v)),
-  };
+        'totalRetries': totalRetries,
+        'retryAttemptsByCount':
+            retryAttemptsByCount.map((k, v) => MapEntry(k.toString(), v)),
+      };
 
-  factory RetryStatistics.fromJson(Map<String, dynamic> json) => RetryStatistics(
-    totalRetries: json['totalRetries'] as int? ?? 0,
-    retryAttemptsByCount: (json['retryAttemptsByCount'] as Map<String, dynamic>?)
-        ?.map((k, v) => MapEntry(int.parse(k), v as int)) ?? {},
-  );
+  factory RetryStatistics.fromJson(Map<String, dynamic> json) =>
+      RetryStatistics(
+        totalRetries: json['totalRetries'] as int? ?? 0,
+        retryAttemptsByCount:
+            (json['retryAttemptsByCount'] as Map<String, dynamic>?)
+                    ?.map((k, v) => MapEntry(int.parse(k), v as int)) ??
+                {},
+      );
 }
 
 /// Main sync metrics
@@ -527,18 +553,18 @@ class SyncMetrics {
   });
 
   factory SyncMetrics.initial() => const SyncMetrics(
-    totalOperations: 0,
-    successfulOperations: 0,
-    failedOperations: 0,
-    totalDuration: 0,
-    totalBandwidthBytes: 0,
-    conflictCount: 0,
-    conflictResolutions: {},
-    retryStatistics: RetryStatistics(),
-    activeOperations: {},
-    operationHistory: [],
-    queueDepthHistory: [],
-  );
+        totalOperations: 0,
+        successfulOperations: 0,
+        failedOperations: 0,
+        totalDuration: 0,
+        totalBandwidthBytes: 0,
+        conflictCount: 0,
+        conflictResolutions: {},
+        retryStatistics: RetryStatistics(),
+        activeOperations: {},
+        operationHistory: [],
+        queueDepthHistory: [],
+      );
 
   /// Success rate (0.0 to 1.0)
   double get successRate {
@@ -573,7 +599,9 @@ class SyncMetrics {
   /// Peak queue depth
   int get peakQueueDepth {
     if (queueDepthHistory.isEmpty) return 0;
-    return queueDepthHistory.map((s) => s.depth).reduce((a, b) => a > b ? a : b);
+    return queueDepthHistory
+        .map((s) => s.depth)
+        .reduce((a, b) => a > b ? a : b);
   }
 
   SyncMetrics copyWith({
@@ -607,42 +635,51 @@ class SyncMetrics {
   }
 
   Map<String, dynamic> toJson() => {
-    'totalOperations': totalOperations,
-    'successfulOperations': successfulOperations,
-    'failedOperations': failedOperations,
-    'totalDuration': totalDuration,
-    'totalBandwidthBytes': totalBandwidthBytes,
-    'conflictCount': conflictCount,
-    'conflictResolutions': conflictResolutions.map((k, v) => MapEntry(k.name, v)),
-    'retryStatistics': retryStatistics.toJson(),
-    'operationHistory': operationHistory.map((o) => o.toJson()).toList(),
-    'queueDepthHistory': queueDepthHistory.map((s) => s.toJson()).toList(),
-    'lastSyncTime': lastSyncTime?.toIso8601String(),
-  };
+        'totalOperations': totalOperations,
+        'successfulOperations': successfulOperations,
+        'failedOperations': failedOperations,
+        'totalDuration': totalDuration,
+        'totalBandwidthBytes': totalBandwidthBytes,
+        'conflictCount': conflictCount,
+        'conflictResolutions':
+            conflictResolutions.map((k, v) => MapEntry(k.name, v)),
+        'retryStatistics': retryStatistics.toJson(),
+        'operationHistory': operationHistory.map((o) => o.toJson()).toList(),
+        'queueDepthHistory': queueDepthHistory.map((s) => s.toJson()).toList(),
+        'lastSyncTime': lastSyncTime?.toIso8601String(),
+      };
 
   factory SyncMetrics.fromJson(Map<String, dynamic> json) => SyncMetrics(
-    totalOperations: json['totalOperations'] as int? ?? 0,
-    successfulOperations: json['successfulOperations'] as int? ?? 0,
-    failedOperations: json['failedOperations'] as int? ?? 0,
-    totalDuration: json['totalDuration'] as int? ?? 0,
-    totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
-    conflictCount: json['conflictCount'] as int? ?? 0,
-    conflictResolutions: (json['conflictResolutions'] as Map<String, dynamic>?)
-        ?.map((k, v) => MapEntry(ConflictResolution.values.byName(k), v as int)) ?? {},
-    retryStatistics: json['retryStatistics'] != null
-        ? RetryStatistics.fromJson(json['retryStatistics'] as Map<String, dynamic>)
-        : const RetryStatistics(),
-    activeOperations: {}, // Don't restore active operations
-    operationHistory: (json['operationHistory'] as List?)
-        ?.map((o) => CompletedOperation.fromJson(o as Map<String, dynamic>))
-        .toList() ?? [],
-    queueDepthHistory: (json['queueDepthHistory'] as List?)
-        ?.map((s) => QueueDepthSample.fromJson(s as Map<String, dynamic>))
-        .toList() ?? [],
-    lastSyncTime: json['lastSyncTime'] != null
-        ? DateTime.parse(json['lastSyncTime'] as String)
-        : null,
-  );
+        totalOperations: json['totalOperations'] as int? ?? 0,
+        successfulOperations: json['successfulOperations'] as int? ?? 0,
+        failedOperations: json['failedOperations'] as int? ?? 0,
+        totalDuration: json['totalDuration'] as int? ?? 0,
+        totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
+        conflictCount: json['conflictCount'] as int? ?? 0,
+        conflictResolutions: (json['conflictResolutions']
+                    as Map<String, dynamic>?)
+                ?.map((k, v) =>
+                    MapEntry(ConflictResolution.values.byName(k), v as int)) ??
+            {},
+        retryStatistics: json['retryStatistics'] != null
+            ? RetryStatistics.fromJson(
+                json['retryStatistics'] as Map<String, dynamic>)
+            : const RetryStatistics(),
+        activeOperations: {}, // Don't restore active operations
+        operationHistory: (json['operationHistory'] as List?)
+                ?.map((o) =>
+                    CompletedOperation.fromJson(o as Map<String, dynamic>))
+                .toList() ??
+            [],
+        queueDepthHistory: (json['queueDepthHistory'] as List?)
+                ?.map(
+                    (s) => QueueDepthSample.fromJson(s as Map<String, dynamic>))
+                .toList() ??
+            [],
+        lastSyncTime: json['lastSyncTime'] != null
+            ? DateTime.parse(json['lastSyncTime'] as String)
+            : null,
+      );
 }
 
 /// Daily metrics aggregation
@@ -692,22 +729,22 @@ class DailyMetrics {
   }
 
   Map<String, dynamic> toJson() => {
-    'date': date.toIso8601String(),
-    'totalOperations': totalOperations,
-    'successfulOperations': successfulOperations,
-    'failedOperations': failedOperations,
-    'totalDurationMs': totalDurationMs,
-    'totalBandwidthBytes': totalBandwidthBytes,
-  };
+        'date': date.toIso8601String(),
+        'totalOperations': totalOperations,
+        'successfulOperations': successfulOperations,
+        'failedOperations': failedOperations,
+        'totalDurationMs': totalDurationMs,
+        'totalBandwidthBytes': totalBandwidthBytes,
+      };
 
   factory DailyMetrics.fromJson(Map<String, dynamic> json) => DailyMetrics(
-    date: DateTime.parse(json['date'] as String),
-    totalOperations: json['totalOperations'] as int? ?? 0,
-    successfulOperations: json['successfulOperations'] as int? ?? 0,
-    failedOperations: json['failedOperations'] as int? ?? 0,
-    totalDurationMs: json['totalDurationMs'] as int? ?? 0,
-    totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
-  );
+        date: DateTime.parse(json['date'] as String),
+        totalOperations: json['totalOperations'] as int? ?? 0,
+        successfulOperations: json['successfulOperations'] as int? ?? 0,
+        failedOperations: json['failedOperations'] as int? ?? 0,
+        totalDurationMs: json['totalDurationMs'] as int? ?? 0,
+        totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
+      );
 }
 
 /// Weekly metrics aggregation
@@ -757,22 +794,22 @@ class WeeklyMetrics {
   }
 
   Map<String, dynamic> toJson() => {
-    'weekStart': weekStart.toIso8601String(),
-    'totalOperations': totalOperations,
-    'successfulOperations': successfulOperations,
-    'failedOperations': failedOperations,
-    'totalDurationMs': totalDurationMs,
-    'totalBandwidthBytes': totalBandwidthBytes,
-  };
+        'weekStart': weekStart.toIso8601String(),
+        'totalOperations': totalOperations,
+        'successfulOperations': successfulOperations,
+        'failedOperations': failedOperations,
+        'totalDurationMs': totalDurationMs,
+        'totalBandwidthBytes': totalBandwidthBytes,
+      };
 
   factory WeeklyMetrics.fromJson(Map<String, dynamic> json) => WeeklyMetrics(
-    weekStart: DateTime.parse(json['weekStart'] as String),
-    totalOperations: json['totalOperations'] as int? ?? 0,
-    successfulOperations: json['successfulOperations'] as int? ?? 0,
-    failedOperations: json['failedOperations'] as int? ?? 0,
-    totalDurationMs: json['totalDurationMs'] as int? ?? 0,
-    totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
-  );
+        weekStart: DateTime.parse(json['weekStart'] as String),
+        totalOperations: json['totalOperations'] as int? ?? 0,
+        successfulOperations: json['successfulOperations'] as int? ?? 0,
+        failedOperations: json['failedOperations'] as int? ?? 0,
+        totalDurationMs: json['totalDurationMs'] as int? ?? 0,
+        totalBandwidthBytes: json['totalBandwidthBytes'] as int? ?? 0,
+      );
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

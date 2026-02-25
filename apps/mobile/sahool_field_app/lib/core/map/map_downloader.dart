@@ -99,7 +99,8 @@ class MapDownloader {
   }
 
   /// تحميل بلاطة واحدة
-  Future<TileDownloadStatus> _downloadTile(TileCoord tile, String cachePath) async {
+  Future<TileDownloadStatus> _downloadTile(
+      TileCoord tile, String cachePath) async {
     final zoomDir = Directory('$cachePath/${tile.z}');
     if (!await zoomDir.exists()) {
       await zoomDir.create(recursive: true);
@@ -164,7 +165,11 @@ class MapDownloader {
     final n = math.pow(2, zoom).toInt();
     final x = ((lng + 180) / 360 * n).floor();
     final latRad = lat * math.pi / 180;
-    final y = ((1 - math.log(math.tan(latRad) + 1 / math.cos(latRad)) / math.pi) / 2 * n).floor();
+    final y =
+        ((1 - math.log(math.tan(latRad) + 1 / math.cos(latRad)) / math.pi) /
+                2 *
+                n)
+            .floor();
 
     return TileCoord(
       x: x.clamp(0, n - 1),
@@ -193,7 +198,8 @@ class MapDownloader {
     int maxZoom = 16,
     double avgTileSizeKb = 15, // متوسط حجم البلاطة
   }) {
-    final count = estimateTileCount(bounds: bounds, minZoom: minZoom, maxZoom: maxZoom);
+    final count =
+        estimateTileCount(bounds: bounds, minZoom: minZoom, maxZoom: maxZoom);
     return (count * avgTileSizeKb) / 1024; // تحويل إلى MB
   }
 }

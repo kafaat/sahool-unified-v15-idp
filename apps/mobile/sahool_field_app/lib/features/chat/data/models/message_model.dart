@@ -5,21 +5,21 @@
 
 /// Message status
 enum MessageStatus {
-  sending,   // قيد الإرسال
-  sent,      // تم الإرسال
+  sending, // قيد الإرسال
+  sent, // تم الإرسال
   delivered, // تم التسليم
-  read,      // تم القراءة
-  failed,    // فشل الإرسال
+  read, // تم القراءة
+  failed, // فشل الإرسال
 }
 
 /// Message type
 enum MessageType {
-  text,         // نص
-  image,        // صورة
-  file,         // ملف
-  location,     // موقع
-  product,      // منتج (من السوق)
-  order,        // طلب (من السوق)
+  text, // نص
+  image, // صورة
+  file, // ملف
+  location, // موقع
+  product, // منتج (من السوق)
+  order, // طلب (من السوق)
 }
 
 /// Message Model

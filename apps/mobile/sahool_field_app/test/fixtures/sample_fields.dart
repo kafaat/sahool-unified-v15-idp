@@ -36,7 +36,8 @@ class SampleFields {
       createdAt: DateTime.now().subtract(const Duration(days: 30)),
       updatedAt: DateTime.now().subtract(const Duration(days: 1)),
       etag: synced ? 'etag_wheat_001' : null,
-      serverUpdatedAt: synced ? DateTime.now().subtract(const Duration(days: 1)) : null,
+      serverUpdatedAt:
+          synced ? DateTime.now().subtract(const Duration(days: 1)) : null,
     );
   }
 
@@ -70,7 +71,8 @@ class SampleFields {
       createdAt: DateTime.now().subtract(const Duration(days: 45)),
       updatedAt: DateTime.now().subtract(const Duration(days: 2)),
       etag: synced ? 'etag_palm_001' : null,
-      serverUpdatedAt: synced ? DateTime.now().subtract(const Duration(days: 2)) : null,
+      serverUpdatedAt:
+          synced ? DateTime.now().subtract(const Duration(days: 2)) : null,
     );
   }
 

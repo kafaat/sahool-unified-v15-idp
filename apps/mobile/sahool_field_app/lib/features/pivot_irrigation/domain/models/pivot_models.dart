@@ -673,10 +673,9 @@ extension PivotStatusX on PivotStatus {
   bool get hasAlerts => activeAlerts.isNotEmpty;
 
   /// Has critical alerts
-  bool get hasCriticalAlerts => activeAlerts.any(
-    (a) => a.severity == AlertSeverity.critical ||
-           a.severity == AlertSeverity.emergency
-  );
+  bool get hasCriticalAlerts => activeAlerts.any((a) =>
+      a.severity == AlertSeverity.critical ||
+      a.severity == AlertSeverity.emergency);
 
   /// Progress percentage for current run (0-100)
   double get progressPercent {

@@ -415,11 +415,16 @@ class VRIZoneStatistics with _$VRIZoneStatistics {
   /// Calculate statistics from a grid
   factory VRIZoneStatistics.fromGrid(VRIZoneGrid grid) {
     final allZones = grid.grid.expand((zones) => zones).toList();
-    final activeZonesList = allZones.where((z) => z.isEnabled && z.applicationRatePercent > 0).toList();
-    final offZonesList = allZones.where((z) => !z.isEnabled || z.applicationRatePercent == 0).toList();
+    final activeZonesList = allZones
+        .where((z) => z.isEnabled && z.applicationRatePercent > 0)
+        .toList();
+    final offZonesList = allZones
+        .where((z) => !z.isEnabled || z.applicationRatePercent == 0)
+        .toList();
 
     final rates = activeZonesList.map((z) => z.applicationRatePercent).toList();
-    final avgRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a + b) / rates.length;
+    final avgRate =
+        rates.isEmpty ? 0.0 : rates.reduce((a, b) => a + b) / rates.length;
     final minRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a < b ? a : b);
     final maxRate = rates.isEmpty ? 0.0 : rates.reduce((a, b) => a > b ? a : b);
 

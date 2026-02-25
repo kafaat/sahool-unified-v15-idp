@@ -17,7 +17,8 @@ import '../../../core/di/providers.dart';
 /// Provider for registration auth service
 /// Note: Renamed from authServiceProvider to avoid conflict with core/auth/auth_service.dart
 /// Use this for user registration flows only
-final registrationAuthServiceProvider = Provider<RegistrationAuthService>((ref) {
+final registrationAuthServiceProvider =
+    Provider<RegistrationAuthService>((ref) {
   final apiClient = ref.watch(apiClientProvider);
   final secureStorage = ref.watch(secureStorageProvider);
   return RegistrationAuthService(
@@ -176,7 +177,8 @@ class RegistrationAuthService {
         );
       }
 
-      final authResponse = AuthResponse.fromJson(response as Map<String, dynamic>);
+      final authResponse =
+          AuthResponse.fromJson(response as Map<String, dynamic>);
 
       // Store tokens securely
       await _storeAuthData(authResponse);
@@ -239,7 +241,8 @@ class RegistrationAuthService {
       case 422:
         return AuthResult.failure(
           message: e.message.isNotEmpty ? e.message : 'Validation error',
-          messageAr: e.message.isNotEmpty ? e.message : 'خطأ في التحقق من البيانات',
+          messageAr:
+              e.message.isNotEmpty ? e.message : 'خطأ في التحقق من البيانات',
         );
       case 500:
         return AuthResult.failure(
@@ -248,7 +251,8 @@ class RegistrationAuthService {
         );
       default:
         return AuthResult.failure(
-          message: e.message.isNotEmpty ? e.message : 'An unexpected error occurred',
+          message:
+              e.message.isNotEmpty ? e.message : 'An unexpected error occurred',
           messageAr: e.message.isNotEmpty ? e.message : 'حدث خطأ غير متوقع',
         );
     }

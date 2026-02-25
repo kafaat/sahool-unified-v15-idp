@@ -79,7 +79,8 @@ class AuthInterceptor extends Interceptor {
   }
 
   @override
-  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
+  Future<void> onError(
+      DioException err, ErrorInterceptorHandler handler) async {
     // Log error with sanitization - NO sensitive data
     AppLogger.network(
       err.requestOptions.method,

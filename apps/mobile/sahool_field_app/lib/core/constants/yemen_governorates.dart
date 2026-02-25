@@ -354,7 +354,8 @@ class YemenGovernorates {
     double minDistance = double.infinity;
 
     for (final gov in all) {
-      final distance = _calculateDistance(lat, lon, gov.latitude, gov.longitude);
+      final distance =
+          _calculateDistance(lat, lon, gov.latitude, gov.longitude);
       if (distance < minDistance) {
         minDistance = distance;
         nearest = gov;

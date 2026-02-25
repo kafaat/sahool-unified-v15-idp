@@ -58,10 +58,11 @@ class GDDGaugeWidget extends StatelessWidget {
                     children: [
                       Text(
                         currentGDD.toStringAsFixed(0),
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: _getProgressColor(progress),
-                            ),
+                        style:
+                            Theme.of(context).textTheme.displaySmall?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                  color: _getProgressColor(progress),
+                                ),
                       ),
                       Text(
                         'من ${totalGDD.toStringAsFixed(0)}',
@@ -82,10 +83,11 @@ class GDDGaugeWidget extends StatelessWidget {
                           ),
                           child: Text(
                             currentStage!.getName('ar'),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: _getProgressColor(progress),
-                                ),
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      color: _getProgressColor(progress),
+                                    ),
                           ),
                         ),
                       ],

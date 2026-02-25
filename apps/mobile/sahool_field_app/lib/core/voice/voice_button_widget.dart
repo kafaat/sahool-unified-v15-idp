@@ -113,7 +113,8 @@ class _VoiceButtonWidgetState extends ConsumerState<VoiceButtonWidget>
                         animation: _animationController,
                         builder: (context, child) {
                           final delay = index * 0.2;
-                          final value = (_animationController.value + delay) % 1.0;
+                          final value =
+                              (_animationController.value + delay) % 1.0;
                           return Container(
                             width: widget.size * (1 + value * 0.5),
                             height: widget.size * (1 + value * 0.5),
@@ -288,7 +289,8 @@ class _VoiceHelpCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.record_voice_over, size: 20, color: Colors.green),
+              const Icon(Icons.record_voice_over,
+                  size: 20, color: Colors.green),
               const SizedBox(width: 8),
               Text(
                 '"${item.command}"',

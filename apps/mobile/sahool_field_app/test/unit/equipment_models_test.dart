@@ -133,8 +133,10 @@ void main() {
     });
 
     test('EquipmentStatus.fromString parses correctly', () {
-      expect(EquipmentStatus.fromString('operational'), EquipmentStatus.operational);
-      expect(EquipmentStatus.fromString('maintenance'), EquipmentStatus.maintenance);
+      expect(EquipmentStatus.fromString('operational'),
+          EquipmentStatus.operational);
+      expect(EquipmentStatus.fromString('maintenance'),
+          EquipmentStatus.maintenance);
       expect(EquipmentStatus.fromString('inactive'), EquipmentStatus.inactive);
       expect(EquipmentStatus.fromString('repair'), EquipmentStatus.repair);
     });

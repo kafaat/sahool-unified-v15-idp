@@ -111,9 +111,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   Widget _buildImageCapture() {
     return OrganicCard(
       padding: EdgeInsets.zero,
-      child: _imagePath == null
-          ? _buildEmptyImageState()
-          : _buildImagePreview(),
+      child:
+          _imagePath == null ? _buildEmptyImageState() : _buildImagePreview(),
     );
   }
 
@@ -225,7 +224,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   SizedBox(height: 16),
                   Text(
                     "جاري التحليل...",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -247,21 +247,25 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             children: [
               Icon(
                 isPositive ? Icons.warning_amber : Icons.check_circle,
-                color: isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
+                color:
+                    isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   isPositive ? "تم اكتشاف إصابة محتملة!" : "النبات يبدو سليماً",
                   style: TextStyle(
-                    color: isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
+                    color: isPositive
+                        ? SahoolColors.danger
+                        : SahoolColors.sageGreen,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
               StatusBadge(
                 label: "دقة ${(diagnosis.confidence * 100).toInt()}%",
-                color: isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
+                color:
+                    isPositive ? SahoolColors.danger : SahoolColors.sageGreen,
               ),
             ],
           ),
@@ -273,7 +277,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                 const Text("التشخيص:", style: TextStyle(color: Colors.grey)),
                 Text(
                   diagnosis.name,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 16),
                 ),
               ],
             ),
@@ -298,11 +303,13 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                 children: [
                   const Row(
                     children: [
-                      Icon(Icons.lightbulb, size: 16, color: SahoolColors.harvestGold),
+                      Icon(Icons.lightbulb,
+                          size: 16, color: SahoolColors.harvestGold),
                       SizedBox(width: 4),
                       Text(
                         "التوصية:",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12),
                       ),
                     ],
                   ),
@@ -397,7 +404,9 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               ),
               child: Icon(
                 _isRecording ? Icons.stop : Icons.mic,
-                color: _isRecording ? SahoolColors.danger : SahoolColors.harvestGold,
+                color: _isRecording
+                    ? SahoolColors.danger
+                    : SahoolColors.harvestGold,
               ),
             ),
           ),
@@ -485,7 +494,8 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           name: "تبقع الأوراق (Leaf Spot)",
           type: "فطري",
           confidence: 0.92,
-          recommendation: "رش مبيد فطري مناسب مثل Mancozeb بتركيز 2.5 جم/لتر. يُفضل الرش في الصباح الباكر.",
+          recommendation:
+              "رش مبيد فطري مناسب مثل Mancozeb بتركيز 2.5 جم/لتر. يُفضل الرش في الصباح الباكر.",
         );
       });
     });
@@ -684,8 +694,10 @@ class _HistoryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(diagnosis, style: const TextStyle(fontWeight: FontWeight.bold)),
-                Text(date, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(diagnosis,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(date,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey)),
               ],
             ),
           ),

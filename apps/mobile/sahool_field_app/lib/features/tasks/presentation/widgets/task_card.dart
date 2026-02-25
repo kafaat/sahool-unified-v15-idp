@@ -115,8 +115,9 @@ class TaskCard extends StatelessWidget {
                             : task.isDueToday
                                 ? Colors.orange
                                 : Colors.grey[600],
-                        fontWeight:
-                            task.isOverdue ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: task.isOverdue
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
                   ],

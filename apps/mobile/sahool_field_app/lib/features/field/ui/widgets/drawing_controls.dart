@@ -66,7 +66,8 @@ class DrawingControls extends ConsumerWidget {
                   icon: Icons.close,
                   label: 'إلغاء',
                   color: SahoolColors.danger,
-                  onPressed: () => ref.read(drawingProvider.notifier).cancelDrawing(),
+                  onPressed: () =>
+                      ref.read(drawingProvider.notifier).cancelDrawing(),
                 ),
 
                 // زر التراجع
@@ -76,7 +77,8 @@ class DrawingControls extends ConsumerWidget {
                   color: SahoolColors.warning,
                   onPressed: drawingState.points.isEmpty
                       ? null
-                      : () => ref.read(drawingProvider.notifier).undoLastPoint(),
+                      : () =>
+                          ref.read(drawingProvider.notifier).undoLastPoint(),
                 ),
 
                 // زر المسح
@@ -232,9 +234,7 @@ class _ControlButton extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(isPrimary ? 14 : 10),
               decoration: BoxDecoration(
-                color: isPrimary && isEnabled
-                    ? color
-                    : color.withOpacity(0.1),
+                color: isPrimary && isEnabled ? color : color.withOpacity(0.1),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: color.withOpacity(0.3),

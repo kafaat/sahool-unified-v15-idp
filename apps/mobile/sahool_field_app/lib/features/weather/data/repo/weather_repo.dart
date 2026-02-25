@@ -13,7 +13,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/weather_entities.dart';
 import '../remote/weather_api.dart';
-import '../../../../core/services/weather_provider_service.dart' hide WeatherData;
+import '../../../../core/services/weather_provider_service.dart'
+    hide WeatherData;
 import '../../../../core/config/providers_config.dart';
 import '../../../../core/utils/app_logger.dart';
 
@@ -116,7 +117,8 @@ class WeatherRepository {
       _cacheWeather(cacheKey, data);
       return data;
     } catch (e) {
-      AppLogger.w('API failed, trying cache', tag: _tag, data: {'error': e.toString()});
+      AppLogger.w('API failed, trying cache',
+          tag: _tag, data: {'error': e.toString()});
 
       // Return stale cache if available
       if (cached != null) {
@@ -131,7 +133,8 @@ class WeatherRepository {
   /// Get weather by coordinates using multi-provider fallback
   /// جلب الطقس بالإحداثيات مع دعم مزودين متعددين
   Future<WeatherData> getWeatherByCoordinates(double lat, double lon) async {
-    final cacheKey = 'coord_${lat.toStringAsFixed(2)}_${lon.toStringAsFixed(2)}';
+    final cacheKey =
+        'coord_${lat.toStringAsFixed(2)}_${lon.toStringAsFixed(2)}';
 
     // Check in-memory cache
     final cached = _weatherCache[cacheKey];
@@ -306,7 +309,8 @@ class WeatherRepository {
     double lon, {
     int days = 7,
   }) async {
-    final cacheKey = 'daily_coord_${lat.toStringAsFixed(2)}_${lon.toStringAsFixed(2)}_$days';
+    final cacheKey =
+        'daily_coord_${lat.toStringAsFixed(2)}_${lon.toStringAsFixed(2)}_$days';
 
     // Check in-memory cache
     final cached = _forecastCache[cacheKey];
@@ -566,7 +570,8 @@ class WeatherRepository {
       }
       await prefs.setString(_forecastStorageKey, jsonEncode(forecastJson));
     } catch (e) {
-      AppLogger.w('Failed to save to storage', tag: _tag, data: {'error': e.toString()});
+      AppLogger.w('Failed to save to storage',
+          tag: _tag, data: {'error': e.toString()});
     }
   }
 
@@ -618,7 +623,8 @@ class WeatherRepository {
         'forecastEntries': _forecastCache.length,
       });
     } catch (e) {
-      AppLogger.w('Failed to load from storage', tag: _tag, data: {'error': e.toString()});
+      AppLogger.w('Failed to load from storage',
+          tag: _tag, data: {'error': e.toString()});
     }
   }
 

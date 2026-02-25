@@ -65,7 +65,8 @@ class RotationRepository {
     int years,
     Map<String, dynamic> preferences,
   ) async {
-    final plan = await _service.generateRotationPlan(fieldId, years, preferences);
+    final plan =
+        await _service.generateRotationPlan(fieldId, years, preferences);
 
     // Save to local storage
     await _localDataSource.saveRotationPlan(plan);
@@ -130,7 +131,8 @@ class RotationRepository {
     int year,
   ) async {
     // Check cache first
-    final cached = await _localDataSource.getCachedRecommendations(fieldId, year);
+    final cached =
+        await _localDataSource.getCachedRecommendations(fieldId, year);
 
     if (!await _hasConnectivity()) {
       // Return cached or generate locally if offline
@@ -143,7 +145,8 @@ class RotationRepository {
     try {
       final recommendations = await _service.getRecommendedCrops(fieldId, year);
       // Cache recommendations
-      await _localDataSource.cacheRecommendations(fieldId, year, recommendations);
+      await _localDataSource.cacheRecommendations(
+          fieldId, year, recommendations);
       return recommendations;
     } catch (e) {
       if (cached != null) {
@@ -154,7 +157,8 @@ class RotationRepository {
   }
 
   /// Get crop compatibility
-  Future<CompatibilityScore> getCropCompatibility(Crop crop1, Crop crop2) async {
+  Future<CompatibilityScore> getCropCompatibility(
+      Crop crop1, Crop crop2) async {
     return _service.getCropCompatibility(crop1, crop2);
   }
 
@@ -228,7 +232,8 @@ class RotationRepository {
   }
 
   /// Generate local recommendations when offline
-  List<CropRecommendation> _generateLocalRecommendations(String fieldId, int year) {
+  List<CropRecommendation> _generateLocalRecommendations(
+      String fieldId, int year) {
     // Return all non-perennial crops with default scores
     return YemenCrops.crops
         .where((c) => !c.isPerennial)
@@ -247,7 +252,8 @@ class RotationRepository {
   }
 
   /// Get compatibility matrix
-  Future<Map<String, Map<String, CompatibilityScore>>> getCompatibilityMatrix() {
+  Future<Map<String, Map<String, CompatibilityScore>>>
+      getCompatibilityMatrix() {
     return _service.getCompatibilityMatrix();
   }
 }

@@ -187,7 +187,9 @@ class ApplicationRate {
 
   /// Get product name based on locale
   String? getProductName(String locale) {
-    return locale == 'ar' && productNameAr != null ? productNameAr : productName;
+    return locale == 'ar' && productNameAr != null
+        ? productNameAr
+        : productName;
   }
 
   /// Get unit based on locale

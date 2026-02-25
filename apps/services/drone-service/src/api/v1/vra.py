@@ -6,9 +6,23 @@ Integrates with shared.drone_integration.vra for prescription map generation.
 from datetime import datetime
 
 import structlog
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 logger = structlog.get_logger()
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/vra", tags=["vra"])
 
@@ -49,7 +63,7 @@ class SpotSprayRequest(BaseModel):
 
 
 @router.post("/prescription/ndvi", status_code=201)
-async def create_ndvi_prescription(request: NDVIPrescriptionRequest):
+async def create_ndvi_prescription(request: NDVIPrescriptionRequest, _user=Depends(get_current_user)):
     """Create NDVI-based prescription map - إنشاء خريطة وصفة مبنية على NDVI"""
     try:
         from shared.drone_integration import create_ndvi_prescription

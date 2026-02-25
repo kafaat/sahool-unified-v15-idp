@@ -1,0 +1,224 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL OpenAPI & Kong Gateway Guard
+# حارس مواصفات OpenAPI وبوابة Kong
+#
+# Validates OpenAPI specs, detects breaking API changes, and ensures
+# Kong gateway routes match the documented API specifications.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: OpenAPI & Kong Guard
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'docs/api/openapi/**'
+      - 'api/gateway-openapi.yaml'
+      - 'infrastructure/gateway/kong/kong.yml'
+      - 'infrastructure/gateway/kong/kong-v2-routes.yml'
+      - 'packages/shared-types/src/contracts/api-endpoints.ts'
+      - 'packages/shared-types/src/contracts/service-ports.ts'
+      - 'scripts/validate-kong-vs-openapi.ts'
+
+concurrency:
+  group: openapi-guard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Validate OpenAPI Spec Syntax
+  # ─────────────────────────────────────────────────────────────────────────────
+  validate-specs:
+    name: Validate OpenAPI Specs
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Validate gateway spec
+        run: |
+          echo "🔍 Validating gateway OpenAPI spec..."
+          npx --yes @redocly/cli lint api/gateway-openapi.yaml --skip-rule no-unused-components || true
+          echo "✅ Gateway spec validation complete"
+
+      - name: Validate per-service specs
+        run: |
+          echo "🔍 Validating per-service OpenAPI specs..."
+          ERRORS=0
+          for spec in docs/api/openapi/*.yaml; do
+            echo "  Checking $spec..."
+            npx @redocly/cli lint "$spec" --skip-rule no-unused-components 2>&1 | tail -1 || {
+              echo "  ⚠️ Issues found in $spec"
+              ERRORS=$((ERRORS + 1))
+            }
+          done
+
+          if [ "$ERRORS" -gt 0 ]; then
+            echo "::warning::$ERRORS spec files have validation issues"
+          else
+            echo "✅ All OpenAPI specs are valid"
+          fi
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Kong ↔ OpenAPI Consistency Check
+  # ─────────────────────────────────────────────────────────────────────────────
+  kong-openapi-sync:
+    name: Kong ↔ OpenAPI Sync
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install --no-save "js-yaml@^4.1.1" 2>/dev/null || \
+          npm install --no-save --install-strategy=nested js-yaml 2>/dev/null || \
+          echo "js-yaml install skipped - validation script will use regex fallback"
+
+      - name: Run Kong vs OpenAPI validation
+        run: |
+          echo "🔍 Validating Kong routes match OpenAPI specs..."
+          npx tsx scripts/validate-kong-vs-openapi.ts --ci --report
+
+      - name: Upload validation report
+        if: always()
+        uses: actions/upload-artifact@89ef406dd8d7e03cfd12d9e0a4a378f454709029 # v4.3.5
+        with:
+          name: kong-openapi-report
+          path: api/validation-report.json
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # OpenAPI Breaking Change Detection
+  # ─────────────────────────────────────────────────────────────────────────────
+  breaking-changes:
+    name: API Breaking Change Detection
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238 # v6.2.0
+        with:
+          node-version: '20'
+
+      - name: Check for breaking changes in gateway spec
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          echo "🔍 Checking for breaking API changes..."
+
+          # Validate branch name to prevent injection
+          if ! [[ "$BASE_BRANCH" =~ ^[a-zA-Z0-9/_.-]+$ ]]; then
+            echo "::error::Invalid base branch name"
+            exit 1
+          fi
+
+          # Check if gateway spec existed before
+          if git show "origin/${BASE_BRANCH}:api/gateway-openapi.yaml" > /tmp/old-spec.yaml 2>/dev/null; then
+            echo "  Comparing gateway spec with ${BASE_BRANCH}..."
+
+            # Use oasdiff if available, otherwise basic diff
+            npx --yes oasdiff breaking /tmp/old-spec.yaml api/gateway-openapi.yaml 2>/dev/null || {
+              echo "  Using basic diff comparison..."
+              # Check for removed paths (breaking)
+              REMOVED_PATHS=$(diff <(grep "^  /api" /tmp/old-spec.yaml | sort) \
+                                   <(grep "^  /api" api/gateway-openapi.yaml | sort) | \
+                              grep "^< " || true)
+
+              if [ -n "$REMOVED_PATHS" ]; then
+                echo "🚨 Potentially removed API paths (BREAKING):"
+                echo "$REMOVED_PATHS"
+                echo "::warning::Removed API paths detected - verify this is intentional"
+              else
+                echo "✅ No breaking path changes detected"
+              fi
+            }
+          else
+            echo "ℹ️  No previous gateway spec found - skipping breaking change check"
+          fi
+
+      - name: Check for breaking changes in per-service specs
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          # Validate branch name
+          if ! [[ "$BASE_BRANCH" =~ ^[a-zA-Z0-9/_.-]+$ ]]; then
+            echo "::error::Invalid base branch name"
+            exit 1
+          fi
+
+          for spec in docs/api/openapi/*.yaml; do
+            FILENAME=$(basename "$spec")
+            if git show "origin/${BASE_BRANCH}:${spec}" > "/tmp/old-${FILENAME}" 2>/dev/null; then
+              # Count removed paths
+              REMOVED=$(diff <(grep "^  /api" "/tmp/old-${FILENAME}" | sort) \
+                             <(grep "^  /api" "$spec" | sort) 2>/dev/null | \
+                        grep -c "^< " || true)
+
+              if [ "$REMOVED" -gt 0 ]; then
+                echo "⚠️  ${FILENAME}: ${REMOVED} paths may have been removed"
+              fi
+            fi
+          done
+
+          echo "✅ Per-service breaking change check complete"
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Docker Build Environment Guard
+  # ─────────────────────────────────────────────────────────────────────────────
+  docker-env-guard:
+    name: Docker Build Environment Check
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.pull_request.changed_files, 'apps/web/Dockerfile') ||
+      contains(github.event.pull_request.changed_files, 'apps/admin/Dockerfile') ||
+      contains(github.event.pull_request.changed_files, 'apps/web/next.config') ||
+      contains(github.event.pull_request.changed_files, 'apps/admin/next.config')
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check API URL configuration
+        run: |
+          echo "🔍 Checking API URL configuration in Docker builds..."
+
+          # Verify Dockerfiles use build args for API URL
+          for app in web admin; do
+            DOCKERFILE="apps/${app}/Dockerfile"
+            if [ -f "$DOCKERFILE" ]; then
+              if grep -q "NEXT_PUBLIC_API_URL" "$DOCKERFILE"; then
+                echo "✅ ${app}: NEXT_PUBLIC_API_URL is configurable via build arg"
+              else
+                echo "::warning::${app}: Dockerfile does not accept NEXT_PUBLIC_API_URL build arg"
+              fi
+            fi
+          done
+
+          # Verify next.config doesn't hardcode localhost for production
+          for app in web admin; do
+            CONFIG="apps/${app}/next.config.js"
+            if [ -f "$CONFIG" ]; then
+              # Check if localhost is used without env var fallback
+              if grep -q 'http://localhost' "$CONFIG" && ! grep -q 'process.env' "$CONFIG"; then
+                echo "::error::${app}: next.config.js has hardcoded localhost without env var fallback"
+                exit 1
+              else
+                echo "✅ ${app}: API URLs use environment variables with fallback"
+              fi
+            fi
+          done

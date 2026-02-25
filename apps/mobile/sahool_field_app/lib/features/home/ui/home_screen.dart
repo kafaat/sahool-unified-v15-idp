@@ -236,7 +236,8 @@ class HomeScreen extends ConsumerWidget {
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: SahoolColors.sageGreen.withOpacity(0.2),
+                                    color:
+                                        SahoolColors.sageGreen.withOpacity(0.2),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Text(

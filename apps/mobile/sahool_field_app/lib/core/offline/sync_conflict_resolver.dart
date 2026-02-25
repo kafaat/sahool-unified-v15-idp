@@ -150,7 +150,9 @@ class SyncConflictResolver {
       }
     }
 
-    AppLogger.i('Conflict resolved: merged ${localChanges.length} local + ${serverChanges.length} server changes', tag: 'CONFLICT');
+    AppLogger.i(
+        'Conflict resolved: merged ${localChanges.length} local + ${serverChanges.length} server changes',
+        tag: 'CONFLICT');
     return merged;
   }
 

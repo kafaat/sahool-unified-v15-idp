@@ -85,28 +85,31 @@ class WalletModel {
       currentLoan: (json['currentLoan'] as num?)?.toDouble() ?? 0,
       availableCredit: (json['availableCredit'] as num?)?.toDouble() ?? 0,
       isVerified: json['isVerified'] as bool? ?? false,
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(
+          json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'userId': userId,
-    'userType': userType,
-    'balance': balance,
-    'currency': currency,
-    'creditScore': creditScore,
-    'creditTier': creditTier.value,
-    'creditTierAr': creditTierAr,
-    'loanLimit': loanLimit,
-    'currentLoan': currentLoan,
-    'availableCredit': availableCredit,
-    'isVerified': isVerified,
-  };
+        'id': id,
+        'userId': userId,
+        'userType': userType,
+        'balance': balance,
+        'currency': currency,
+        'creditScore': creditScore,
+        'creditTier': creditTier.value,
+        'creditTierAr': creditTierAr,
+        'loanLimit': loanLimit,
+        'currentLoan': currentLoan,
+        'availableCredit': availableCredit,
+        'isVerified': isVerified,
+      };
 
   /// نسبة التصنيف الائتماني (0-1)
-  double get creditScorePercentage => ((creditScore - 300) / 550).clamp(0.0, 1.0);
+  double get creditScorePercentage =>
+      ((creditScore - 300) / 550).clamp(0.0, 1.0);
 
   /// لون مؤشر الائتمان
   Color get scoreColor {
@@ -339,32 +342,35 @@ class ProductModel {
       featured: json['featured'] as bool? ?? false,
       organic: json['organic'] as bool? ?? false,
       status: ProductStatus.fromString(json['status'] as String?),
-      createdAt: DateTime.parse(json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
-      updatedAt: DateTime.parse(json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
+      createdAt: DateTime.parse(
+          json['createdAt'] as String? ?? DateTime.now().toIso8601String()),
+      updatedAt: DateTime.parse(
+          json['updatedAt'] as String? ?? DateTime.now().toIso8601String()),
     );
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'sellerId': sellerId,
-    'name': name,
-    'nameAr': nameAr,
-    'description': description,
-    'category': category.value,
-    'price': price,
-    'unit': unit,
-    'quantity': quantity,
-    'governorate': governorate,
-    'qualityGrade': qualityGrade,
-    'harvestDate': harvestDate,
-    'organic': organic,
-  };
+        'id': id,
+        'sellerId': sellerId,
+        'name': name,
+        'nameAr': nameAr,
+        'description': description,
+        'category': category.value,
+        'price': price,
+        'unit': unit,
+        'quantity': quantity,
+        'governorate': governorate,
+        'qualityGrade': qualityGrade,
+        'harvestDate': harvestDate,
+        'organic': organic,
+      };
 
   /// السعر المنسق
   String get formattedPrice => '${price.toStringAsFixed(0)} ر.ي/$unit';
 
   /// هل المنتج متاح للشراء؟
-  bool get isAvailable => status == ProductStatus.available && availableQuantity > 0;
+  bool get isAvailable =>
+      status == ProductStatus.available && availableQuantity > 0;
 }
 
 // =============================================================================
@@ -426,7 +432,9 @@ class OrderItem {
     return OrderItem(
       productId: json['productId'] as String,
       productName: json['productName'] as String? ?? '',
-      productNameAr: json['productNameAr'] as String? ?? json['productName'] as String? ?? '',
+      productNameAr: json['productNameAr'] as String? ??
+          json['productName'] as String? ??
+          '',
       quantity: (json['quantity'] as num).toDouble(),
       unitPrice: (json['unitPrice'] as num).toDouble(),
       totalPrice: (json['totalPrice'] as num).toDouble(),
@@ -478,8 +486,9 @@ class OrderModel {
       sellerId: json['sellerId'] as String,
       sellerName: json['sellerName'] as String?,
       items: (json['items'] as List<dynamic>?)
-          ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
       totalAmount: (json['totalAmount'] as num).toDouble(),
       fees: (json['fees'] as num?)?.toDouble() ?? 0,
       grandTotal: (json['grandTotal'] as num).toDouble(),
@@ -585,14 +594,21 @@ class LoanModel {
       paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
       termMonths: json['termMonths'] as int,
       purpose: json['purpose'] as String,
-      purposeAr: json['purposeAr'] as String? ?? _translatePurpose(json['purpose'] as String),
+      purposeAr: json['purposeAr'] as String? ??
+          _translatePurpose(json['purpose'] as String),
       purposeDetails: json['purposeDetails'] as String?,
       collateralType: json['collateralType'] as String?,
       collateralValue: (json['collateralValue'] as num?)?.toDouble(),
       status: LoanStatus.fromString(json['status'] as String?),
-      approvedAt: json['approvedAt'] != null ? DateTime.parse(json['approvedAt'] as String) : null,
-      startDate: json['startDate'] != null ? DateTime.parse(json['startDate'] as String) : null,
-      dueDate: json['dueDate'] != null ? DateTime.parse(json['dueDate'] as String) : null,
+      approvedAt: json['approvedAt'] != null
+          ? DateTime.parse(json['approvedAt'] as String)
+          : null,
+      startDate: json['startDate'] != null
+          ? DateTime.parse(json['startDate'] as String)
+          : null,
+      dueDate: json['dueDate'] != null
+          ? DateTime.parse(json['dueDate'] as String)
+          : null,
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
@@ -621,10 +637,12 @@ class LoanModel {
   double get remainingAmount => totalDue - paidAmount;
 
   /// نسبة السداد (0-1)
-  double get paymentProgress => totalDue > 0 ? (paidAmount / totalDue).clamp(0.0, 1.0) : 0;
+  double get paymentProgress =>
+      totalDue > 0 ? (paidAmount / totalDue).clamp(0.0, 1.0) : 0;
 
   /// هل القرض نشط؟
-  bool get isActive => status == LoanStatus.active || status == LoanStatus.approved;
+  bool get isActive =>
+      status == LoanStatus.active || status == LoanStatus.approved;
 }
 
 // =============================================================================
@@ -654,15 +672,15 @@ class FarmData {
   });
 
   Map<String, dynamic> toJson() => {
-    'totalArea': totalArea,
-    'activeSeasons': activeSeasons,
-    'fieldCount': fieldCount,
-    'diseaseRisk': diseaseRisk,
-    'irrigationType': irrigationType,
-    'avgYieldScore': avgYieldScore,
-    'onTimePayments': onTimePayments,
-    'latePayments': latePayments,
-  };
+        'totalArea': totalArea,
+        'activeSeasons': activeSeasons,
+        'fieldCount': fieldCount,
+        'diseaseRisk': diseaseRisk,
+        'irrigationType': irrigationType,
+        'avgYieldScore': avgYieldScore,
+        'onTimePayments': onTimePayments,
+        'latePayments': latePayments,
+      };
 }
 
 /// نتيجة حساب التصنيف الائتماني
@@ -688,8 +706,9 @@ class CreditScoreResult {
       tierAr: json['tierAr'] as String? ?? 'برونزي',
       loanLimit: (json['loanLimit'] as num).toDouble(),
       breakdown: (json['breakdown'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toInt()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toInt()),
+          ) ??
+          {},
     );
   }
 }
@@ -716,7 +735,9 @@ class LoanRequestResult {
     return LoanRequestResult(
       approved: json['approved'] as bool? ?? false,
       message: json['message'] as String? ?? '',
-      loan: json['loan'] != null ? LoanModel.fromJson(json['loan'] as Map<String, dynamic>) : null,
+      loan: json['loan'] != null
+          ? LoanModel.fromJson(json['loan'] as Map<String, dynamic>)
+          : null,
       rejectionReason: json['rejectionReason'] as String?,
     );
   }
@@ -744,7 +765,9 @@ class LoanRepaymentResult {
       message: json['message'] as String? ?? '',
       paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
       remainingAmount: (json['remainingAmount'] as num?)?.toDouble() ?? 0,
-      loan: json['loan'] != null ? LoanModel.fromJson(json['loan'] as Map<String, dynamic>) : null,
+      loan: json['loan'] != null
+          ? LoanModel.fromJson(json['loan'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
@@ -782,15 +805,19 @@ class MarketStats {
       totalSellers: json['totalSellers'] as int? ?? 0,
       totalBuyers: json['totalBuyers'] as int? ?? 0,
       totalVolume: (json['totalVolume'] as num?)?.toDouble() ?? 0,
-      productsByCategory: (json['productsByCategory'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toInt()),
-      ) ?? {},
+      productsByCategory:
+          (json['productsByCategory'] as Map<String, dynamic>?)?.map(
+                (k, v) => MapEntry(k, (v as num).toInt()),
+              ) ??
+              {},
       ordersByStatus: (json['ordersByStatus'] as Map<String, dynamic>?)?.map(
-        (k, v) => MapEntry(k, (v as num).toInt()),
-      ) ?? {},
+            (k, v) => MapEntry(k, (v as num).toInt()),
+          ) ??
+          {},
       topSellers: (json['topSellers'] as List<dynamic>?)
-          ?.map((e) => TopSeller.fromJson(e as Map<String, dynamic>))
-          .toList() ?? [],
+              ?.map((e) => TopSeller.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
     );
   }
 }
@@ -848,7 +875,7 @@ class CartItem {
 
   /// تحويل إلى JSON للـ API
   Map<String, dynamic> toJson() => {
-    'productId': productId,
-    'quantity': quantity,
-  };
+        'productId': productId,
+        'quantity': quantity,
+      };
 }

@@ -37,7 +37,8 @@ final webSocketServiceProvider = Provider<WebSocketService>((ref) {
 /// WebSocket connection state provider
 /// مزود حالة اتصال WebSocket
 /// Uses autoDispose to clean up subscriptions when no longer watched
-final webSocketStateProvider = StreamProvider.autoDispose<ConnectionState>((ref) {
+final webSocketStateProvider =
+    StreamProvider.autoDispose<ConnectionState>((ref) {
   final service = ref.watch(webSocketServiceProvider);
   return service.connectionState;
 });
@@ -45,7 +46,8 @@ final webSocketStateProvider = StreamProvider.autoDispose<ConnectionState>((ref)
 /// WebSocket events stream provider
 /// مزود تدفق أحداث WebSocket
 /// Uses autoDispose to clean up subscriptions when no longer watched
-final webSocketEventsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
+final webSocketEventsProvider =
+    StreamProvider.autoDispose<WebSocketEvent>((ref) {
   final service = ref.watch(webSocketServiceProvider);
   return service.events;
 });
@@ -53,7 +55,8 @@ final webSocketEventsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref)
 /// Field-specific events provider
 /// مزود أحداث خاصة بالحقل
 /// Uses autoDispose and onDispose for proper room subscription cleanup
-final fieldEventsProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
+final fieldEventsProvider =
+    StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to field room
@@ -90,7 +93,8 @@ final weatherAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
 /// Chat messages provider for a specific room
 /// مزود رسائل الدردشة لغرفة معينة
 /// Uses autoDispose and onDispose for proper room subscription cleanup
-final chatMessagesProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, roomId) {
+final chatMessagesProvider =
+    StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, roomId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to chat room
@@ -111,7 +115,8 @@ final chatMessagesProvider = StreamProvider.autoDispose.family<WebSocketEvent, S
 /// Inventory alerts provider
 /// مزود تنبيهات المخزون
 /// Uses autoDispose to clean up when no longer watched
-final inventoryAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
+final inventoryAlertsProvider =
+    StreamProvider.autoDispose<WebSocketEvent>((ref) {
   final service = ref.watch(webSocketServiceProvider);
 
   return service.events.where((event) {
@@ -123,7 +128,8 @@ final inventoryAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref)
 /// Crop health alerts provider
 /// مزود تنبيهات صحة المحصول
 /// Uses autoDispose to clean up when no longer watched
-final cropHealthAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
+final cropHealthAlertsProvider =
+    StreamProvider.autoDispose<WebSocketEvent>((ref) {
   final service = ref.watch(webSocketServiceProvider);
 
   return service.events.where((event) {
@@ -147,7 +153,8 @@ final taskUpdatesProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
 /// IoT sensor readings provider for a field
 /// مزود قراءات المستشعرات لحقل معين
 /// Uses autoDispose and onDispose for proper room subscription cleanup
-final iotReadingsProvider = StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
+final iotReadingsProvider =
+    StreamProvider.autoDispose.family<WebSocketEvent, String>((ref, fieldId) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to field's IoT events
@@ -168,7 +175,8 @@ final iotReadingsProvider = StreamProvider.autoDispose.family<WebSocketEvent, St
 /// Satellite imagery updates provider
 /// مزود تحديثات الصور الفضائية
 /// Uses autoDispose to clean up when no longer watched
-final satelliteUpdatesProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
+final satelliteUpdatesProvider =
+    StreamProvider.autoDispose<WebSocketEvent>((ref) {
   final service = ref.watch(webSocketServiceProvider);
 
   return service.events.where((event) {
@@ -206,7 +214,8 @@ final sprayAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
 /// All high-priority alerts provider
 /// مزود جميع التنبيهات ذات الأولوية العالية
 /// Uses autoDispose to clean up when no longer watched
-final highPriorityAlertsProvider = StreamProvider.autoDispose<WebSocketEvent>((ref) {
+final highPriorityAlertsProvider =
+    StreamProvider.autoDispose<WebSocketEvent>((ref) {
   final service = ref.watch(webSocketServiceProvider);
 
   // Subscribe to alerts room
@@ -223,7 +232,8 @@ class WebSocketConnectionNotifier extends StateNotifier<ConnectionState> {
   final WebSocketService _service;
   StreamSubscription<ConnectionState>? _connectionSubscription;
 
-  WebSocketConnectionNotifier(this._service) : super(ConnectionState.disconnected) {
+  WebSocketConnectionNotifier(this._service)
+      : super(ConnectionState.disconnected) {
     // Listen to connection state changes with proper subscription management
     _connectionSubscription = _service.connectionState.listen((newState) {
       if (mounted) {

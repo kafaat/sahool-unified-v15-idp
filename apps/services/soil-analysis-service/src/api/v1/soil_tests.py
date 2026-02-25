@@ -9,10 +9,24 @@ from datetime import datetime
 from typing import Optional
 
 import structlog
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 logger = structlog.get_logger()
+
+# Authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+except ImportError:
+    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    _bearer_scheme = HTTPBearer(auto_error=False)
+    async def get_current_user(
+        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
+    ):
+        """Lightweight auth - validates Authorization header presence."""
+        if not credentials:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return {"token": credentials.credentials}
 
 router = APIRouter(prefix="/api/v1/soil", tags=["soil-analysis"])
 
@@ -106,7 +120,7 @@ class TrendRequest(BaseModel):
 
 
 @router.post("/tests", status_code=201)
-async def create_soil_test(request: SoilTestCreateRequest, req: Request):
+async def create_soil_test(request: SoilTestCreateRequest, req: Request, _user=Depends(get_current_user)):
     """Create a new soil test record - إنشاء سجل تحليل تربة جديد"""
     test_id = f"ST-{uuid.uuid4().hex[:8].upper()}"
     sample_id = f"SMP-{uuid.uuid4().hex[:8].upper()}"

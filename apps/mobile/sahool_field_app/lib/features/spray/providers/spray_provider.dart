@@ -13,7 +13,8 @@ import '../services/spray_service.dart';
 
 /// مزود قائمة توصيات الرش
 final sprayRecommendationsProvider = FutureProvider.autoDispose
-    .family<List<SprayRecommendation>, SprayRecommendationFilter?>((ref, filter) async {
+    .family<List<SprayRecommendation>, SprayRecommendationFilter?>(
+        (ref, filter) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getSprayRecommendations(
     fieldId: filter?.fieldId,
@@ -42,8 +43,8 @@ final recommendationDetailsProvider = FutureProvider.autoDispose
 });
 
 /// مزود نوافذ الرش المثلى
-final sprayWindowsProvider =
-    FutureProvider.autoDispose.family<List<SprayWindow>, SprayWindowParams>((ref, params) async {
+final sprayWindowsProvider = FutureProvider.autoDispose
+    .family<List<SprayWindow>, SprayWindowParams>((ref, params) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getOptimalSprayWindows(
     fieldId: params.fieldId,
@@ -72,8 +73,8 @@ final weatherForecastProvider = FutureProvider.autoDispose
 });
 
 /// مزود الطقس الحالي
-final currentWeatherProvider =
-    FutureProvider.autoDispose.family<WeatherCondition, String>((ref, fieldId) async {
+final currentWeatherProvider = FutureProvider.autoDispose
+    .family<WeatherCondition, String>((ref, fieldId) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getCurrentWeather(fieldId: fieldId);
 
@@ -84,8 +85,8 @@ final currentWeatherProvider =
 });
 
 /// مزود منتجات الرش
-final sprayProductsProvider =
-    FutureProvider.autoDispose.family<List<SprayProduct>, SprayProductFilter?>((ref, filter) async {
+final sprayProductsProvider = FutureProvider.autoDispose
+    .family<List<SprayProduct>, SprayProductFilter?>((ref, filter) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getSprayProducts(
     sprayType: filter?.sprayType,
@@ -100,8 +101,8 @@ final sprayProductsProvider =
 });
 
 /// مزود تفاصيل منتج محدد
-final productDetailsProvider =
-    FutureProvider.autoDispose.family<SprayProduct, String>((ref, productId) async {
+final productDetailsProvider = FutureProvider.autoDispose
+    .family<SprayProduct, String>((ref, productId) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getProductById(productId);
 
@@ -112,8 +113,8 @@ final productDetailsProvider =
 });
 
 /// مزود سجلات تطبيق الرش
-final sprayLogsProvider =
-    FutureProvider.autoDispose.family<List<SprayApplicationLog>, SprayLogFilter?>((ref, filter) async {
+final sprayLogsProvider = FutureProvider.autoDispose
+    .family<List<SprayApplicationLog>, SprayLogFilter?>((ref, filter) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getSprayLogs(
     fieldId: filter?.fieldId,
@@ -129,8 +130,8 @@ final sprayLogsProvider =
 });
 
 /// مزود تفاصيل سجل محدد
-final logDetailsProvider =
-    FutureProvider.autoDispose.family<SprayApplicationLog, String>((ref, logId) async {
+final logDetailsProvider = FutureProvider.autoDispose
+    .family<SprayApplicationLog, String>((ref, logId) async {
   final service = ref.watch(sprayServiceProvider);
   final result = await service.getLogById(logId);
 
@@ -145,21 +146,26 @@ final logDetailsProvider =
 // ═════════════════════════════════════════════════════════════════════════════
 
 /// فلتر التوصيات المحدد - autoDispose for proper cleanup
-final selectedRecommendationFilterProvider = StateProvider.autoDispose<SprayRecommendationFilter?>((ref) => null);
+final selectedRecommendationFilterProvider =
+    StateProvider.autoDispose<SprayRecommendationFilter?>((ref) => null);
 
 /// الحقل المحدد للرش
 /// Note: This is scoped to spray feature. Use core/providers/selected_field_provider.dart
 /// for app-wide field selection.
-final spraySelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
+final spraySelectedFieldIdProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
 
 /// التوصية الحالية (للتعديل) - autoDispose for proper cleanup
-final currentRecommendationProvider = StateProvider.autoDispose<SprayRecommendation?>((ref) => null);
+final currentRecommendationProvider =
+    StateProvider.autoDispose<SprayRecommendation?>((ref) => null);
 
 /// المنتج المحدد - autoDispose for proper cleanup
-final selectedProductProvider = StateProvider.autoDispose<SprayProduct?>((ref) => null);
+final selectedProductProvider =
+    StateProvider.autoDispose<SprayProduct?>((ref) => null);
 
 /// نوع الرش المحدد (للتصفية) - autoDispose for proper cleanup
-final selectedSprayTypeProvider = StateProvider.autoDispose<SprayType?>((ref) => null);
+final selectedSprayTypeProvider =
+    StateProvider.autoDispose<SprayType?>((ref) => null);
 
 // ═════════════════════════════════════════════════════════════════════════════
 // Filter Classes
@@ -203,7 +209,11 @@ class SprayRecommendationFilter {
   }
 
   bool get hasFilters =>
-      fieldId != null || sprayType != null || status != null || startDate != null || endDate != null;
+      fieldId != null ||
+      sprayType != null ||
+      status != null ||
+      startDate != null ||
+      endDate != null;
 }
 
 /// معاملات نوافذ الرش
@@ -219,7 +229,9 @@ class SprayWindowParams {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is SprayWindowParams && other.fieldId == fieldId && other.days == days;
+    return other is SprayWindowParams &&
+        other.fieldId == fieldId &&
+        other.days == days;
   }
 
   @override
@@ -239,7 +251,9 @@ class WeatherForecastParams {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is WeatherForecastParams && other.fieldId == fieldId && other.days == days;
+    return other is WeatherForecastParams &&
+        other.fieldId == fieldId &&
+        other.days == days;
   }
 
   @override
@@ -317,7 +331,11 @@ class SprayLogFilter {
     );
   }
 
-  bool get hasFilters => fieldId != null || sprayType != null || startDate != null || endDate != null;
+  bool get hasFilters =>
+      fieldId != null ||
+      sprayType != null ||
+      startDate != null ||
+      endDate != null;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -328,7 +346,8 @@ class SprayController extends StateNotifier<AsyncValue<void>> {
   final SprayService _service;
   final Ref _ref;
 
-  SprayController(this._service, this._ref) : super(const AsyncValue.data(null));
+  SprayController(this._service, this._ref)
+      : super(const AsyncValue.data(null));
 
   /// إنشاء توصية رش جديدة
   Future<SprayRecommendation?> createRecommendation({
@@ -525,7 +544,8 @@ class SprayController extends StateNotifier<AsyncValue<void>> {
 }
 
 /// مزود Controller
-final sprayControllerProvider = StateNotifierProvider<SprayController, AsyncValue<void>>((ref) {
+final sprayControllerProvider =
+    StateNotifierProvider<SprayController, AsyncValue<void>>((ref) {
   final service = ref.watch(sprayServiceProvider);
   return SprayController(service, ref);
 });

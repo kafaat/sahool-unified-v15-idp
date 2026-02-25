@@ -89,7 +89,9 @@ class GrowthStage {
   }
 
   String? getDescription(String locale) {
-    return locale == 'ar' && descriptionAr != null ? descriptionAr : description;
+    return locale == 'ar' && descriptionAr != null
+        ? descriptionAr
+        : description;
   }
 
   factory GrowthStage.fromJson(Map<String, dynamic> json) {

@@ -20,7 +20,8 @@ class ApiResult<T> {
   final String? errorAr;
   final bool isSuccess;
 
-  const ApiResult._({this.data, this.error, this.errorAr, required this.isSuccess});
+  const ApiResult._(
+      {this.data, this.error, this.errorAr, required this.isSuccess});
 
   factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
   factory ApiResult.failure(String error, [String? errorAr]) =>
@@ -110,7 +111,8 @@ class ProfitabilityService {
         'offset': offset,
       };
       if (season != null) queryParams['season'] = season;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String();
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String();
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(

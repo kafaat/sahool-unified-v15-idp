@@ -37,44 +37,45 @@ class Achievement {
   double get progressPercent => progress.current / progress.target;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'titleEn': titleEn,
-    'description': description,
-    'category': category.name,
-    'tier': tier.name,
-    'iconName': iconName,
-    'pointsValue': pointsValue,
-    'progress': progress.toJson(),
-    'unlockedAt': unlockedAt?.toIso8601String(),
-  };
+        'id': id,
+        'title': title,
+        'titleEn': titleEn,
+        'description': description,
+        'category': category.name,
+        'tier': tier.name,
+        'iconName': iconName,
+        'pointsValue': pointsValue,
+        'progress': progress.toJson(),
+        'unlockedAt': unlockedAt?.toIso8601String(),
+      };
 
   factory Achievement.fromJson(Map<String, dynamic> json) => Achievement(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    titleEn: json['titleEn'] as String,
-    description: json['description'] as String,
-    category: AchievementCategory.values.byName(json['category'] as String),
-    tier: AchievementTier.values.byName(json['tier'] as String),
-    iconName: json['iconName'] as String,
-    pointsValue: json['pointsValue'] as int,
-    progress: AchievementProgress.fromJson(json['progress'] as Map<String, dynamic>),
-    unlockedAt: json['unlockedAt'] != null
-        ? DateTime.parse(json['unlockedAt'] as String)
-        : null,
-  );
+        id: json['id'] as String,
+        title: json['title'] as String,
+        titleEn: json['titleEn'] as String,
+        description: json['description'] as String,
+        category: AchievementCategory.values.byName(json['category'] as String),
+        tier: AchievementTier.values.byName(json['tier'] as String),
+        iconName: json['iconName'] as String,
+        pointsValue: json['pointsValue'] as int,
+        progress: AchievementProgress.fromJson(
+            json['progress'] as Map<String, dynamic>),
+        unlockedAt: json['unlockedAt'] != null
+            ? DateTime.parse(json['unlockedAt'] as String)
+            : null,
+      );
 }
 
 /// فئة الإنجاز
 enum AchievementCategory {
-  irrigation,      // الري
-  monitoring,      // المراقبة
-  tasks,           // المهام
-  scouting,        // المسح
-  consistency,     // الانتظام
-  productivity,    // الإنتاجية
-  teamwork,        // العمل الجماعي
-  learning,        // التعلم
+  irrigation, // الري
+  monitoring, // المراقبة
+  tasks, // المهام
+  scouting, // المسح
+  consistency, // الانتظام
+  productivity, // الإنتاجية
+  teamwork, // العمل الجماعي
+  learning, // التعلم
 }
 
 /// مستوى الإنجاز
@@ -99,10 +100,10 @@ class AchievementProgress {
   });
 
   Map<String, dynamic> toJson() => {
-    'current': current,
-    'target': target,
-    'unit': unit,
-  };
+        'current': current,
+        'target': target,
+        'unit': unit,
+      };
 
   factory AchievementProgress.fromJson(Map<String, dynamic> json) =>
       AchievementProgress(
@@ -136,7 +137,8 @@ class Streak {
 
   bool get isAtRisk {
     if (lastActivityDate == null) return false;
-    final hoursSinceActivity = DateTime.now().difference(lastActivityDate!).inHours;
+    final hoursSinceActivity =
+        DateTime.now().difference(lastActivityDate!).inHours;
     return hoursSinceActivity > 20 && hoursSinceActivity < 24;
   }
 
@@ -146,36 +148,36 @@ class Streak {
   }
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    'type': type.name,
-    'currentDays': currentDays,
-    'bestDays': bestDays,
-    'lastActivityDate': lastActivityDate?.toIso8601String(),
-    'isActive': isActive,
-  };
+        'id': id,
+        'title': title,
+        'description': description,
+        'type': type.name,
+        'currentDays': currentDays,
+        'bestDays': bestDays,
+        'lastActivityDate': lastActivityDate?.toIso8601String(),
+        'isActive': isActive,
+      };
 
   factory Streak.fromJson(Map<String, dynamic> json) => Streak(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String,
-    type: StreakType.values.byName(json['type'] as String),
-    currentDays: json['currentDays'] as int,
-    bestDays: json['bestDays'] as int,
-    lastActivityDate: json['lastActivityDate'] != null
-        ? DateTime.parse(json['lastActivityDate'] as String)
-        : null,
-    isActive: json['isActive'] as bool,
-  );
+        id: json['id'] as String,
+        title: json['title'] as String,
+        description: json['description'] as String,
+        type: StreakType.values.byName(json['type'] as String),
+        currentDays: json['currentDays'] as int,
+        bestDays: json['bestDays'] as int,
+        lastActivityDate: json['lastActivityDate'] != null
+            ? DateTime.parse(json['lastActivityDate'] as String)
+            : null,
+        isActive: json['isActive'] as bool,
+      );
 }
 
 /// نوع السلسلة
 enum StreakType {
-  dailyLogin,          // تسجيل دخول يومي
-  irrigationSchedule,  // ري منتظم
-  taskCompletion,      // إكمال المهام
-  fieldScouting,       // مسح الحقول
+  dailyLogin, // تسجيل دخول يومي
+  irrigationSchedule, // ري منتظم
+  taskCompletion, // إكمال المهام
+  fieldScouting, // مسح الحقول
 }
 
 /// معلم (Milestone)
@@ -204,28 +206,28 @@ class Milestone {
   double get progressPercent => currentValue / targetValue;
 
   Map<String, dynamic> toJson() => {
-    'id': id,
-    'title': title,
-    'description': description,
-    'targetValue': targetValue,
-    'currentValue': currentValue,
-    'unit': unit,
-    'achievedAt': achievedAt?.toIso8601String(),
-    'rewardPoints': rewardPoints,
-  };
+        'id': id,
+        'title': title,
+        'description': description,
+        'targetValue': targetValue,
+        'currentValue': currentValue,
+        'unit': unit,
+        'achievedAt': achievedAt?.toIso8601String(),
+        'rewardPoints': rewardPoints,
+      };
 
   factory Milestone.fromJson(Map<String, dynamic> json) => Milestone(
-    id: json['id'] as String,
-    title: json['title'] as String,
-    description: json['description'] as String,
-    targetValue: json['targetValue'] as int,
-    currentValue: json['currentValue'] as int,
-    unit: json['unit'] as String,
-    achievedAt: json['achievedAt'] != null
-        ? DateTime.parse(json['achievedAt'] as String)
-        : null,
-    rewardPoints: json['rewardPoints'] as int,
-  );
+        id: json['id'] as String,
+        title: json['title'] as String,
+        description: json['description'] as String,
+        targetValue: json['targetValue'] as int,
+        currentValue: json['currentValue'] as int,
+        unit: json['unit'] as String,
+        achievedAt: json['achievedAt'] != null
+            ? DateTime.parse(json['achievedAt'] as String)
+            : null,
+        rewardPoints: json['rewardPoints'] as int,
+      );
 }
 
 /// ملف المستخدم في نظام الإنجازات
@@ -250,7 +252,8 @@ class UserGamificationProfile {
     required this.lastUpdated,
   });
 
-  int get unlockedAchievements => achievements.where((a) => a.isUnlocked).length;
+  int get unlockedAchievements =>
+      achievements.where((a) => a.isUnlocked).length;
   int get activeStreaks => streaks.where((s) => s.isActive).length;
 
   int get pointsToNextLevel {
@@ -261,19 +264,20 @@ class UserGamificationProfile {
   double get levelProgress {
     final currentLevelBase = level * 1000;
     final nextLevelPoints = (level + 1) * 1000;
-    return (totalPoints - currentLevelBase) / (nextLevelPoints - currentLevelBase);
+    return (totalPoints - currentLevelBase) /
+        (nextLevelPoints - currentLevelBase);
   }
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
-    'totalPoints': totalPoints,
-    'level': level,
-    'rank': rank,
-    'achievements': achievements.map((a) => a.toJson()).toList(),
-    'streaks': streaks.map((s) => s.toJson()).toList(),
-    'milestones': milestones.map((m) => m.toJson()).toList(),
-    'lastUpdated': lastUpdated.toIso8601String(),
-  };
+        'userId': userId,
+        'totalPoints': totalPoints,
+        'level': level,
+        'rank': rank,
+        'achievements': achievements.map((a) => a.toJson()).toList(),
+        'streaks': streaks.map((s) => s.toJson()).toList(),
+        'milestones': milestones.map((m) => m.toJson()).toList(),
+        'lastUpdated': lastUpdated.toIso8601String(),
+      };
 
   factory UserGamificationProfile.fromJson(Map<String, dynamic> json) =>
       UserGamificationProfile(
@@ -315,14 +319,14 @@ class LeaderboardEntry {
   });
 
   Map<String, dynamic> toJson() => {
-    'userId': userId,
-    'userName': userName,
-    'avatarUrl': avatarUrl,
-    'rank': rank,
-    'points': points,
-    'level': level,
-    'isCurrentUser': isCurrentUser,
-  };
+        'userId': userId,
+        'userName': userName,
+        'avatarUrl': avatarUrl,
+        'rank': rank,
+        'points': points,
+        'level': level,
+        'isCurrentUser': isCurrentUser,
+      };
 
   factory LeaderboardEntry.fromJson(Map<String, dynamic> json) =>
       LeaderboardEntry(

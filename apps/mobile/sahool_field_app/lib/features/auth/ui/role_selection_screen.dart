@@ -57,7 +57,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                _isArabic ? 'اختر دورك للمتابعة' : 'Select your role to continue',
+                _isArabic
+                    ? 'اختر دورك للمتابعة'
+                    : 'Select your role to continue',
                 style: TextStyle(
                   fontSize: 16,
                   color: Colors.grey[600],
@@ -76,7 +78,8 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         role: 'farmer',
                         icon: Icons.agriculture,
                         title: _isArabic ? 'أنا مزارع' : "I'm a Farmer",
-                        subtitle: _isArabic ? 'واجهة مبسطة' : 'Simple interface',
+                        subtitle:
+                            _isArabic ? 'واجهة مبسطة' : 'Simple interface',
                         color: SahoolColors.primary,
                       ),
                     ),
@@ -86,7 +89,9 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen> {
                         role: 'advisor',
                         icon: Icons.engineering,
                         title: _isArabic ? 'أنا مرشد' : "I'm an Advisor",
-                        subtitle: _isArabic ? 'إدارة وتحليلات' : 'Management & Analytics',
+                        subtitle: _isArabic
+                            ? 'إدارة وتحليلات'
+                            : 'Management & Analytics',
                         color: SahoolColors.info,
                       ),
                     ),

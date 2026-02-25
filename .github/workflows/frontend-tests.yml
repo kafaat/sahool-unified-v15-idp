@@ -67,7 +67,12 @@ jobs:
           key: ${{ runner.os }}-${{ steps.cache-key.outputs.key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Clean stale build artifacts
         run: |
@@ -145,7 +150,12 @@ jobs:
           key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Run Lint
         id: lint
@@ -219,7 +229,12 @@ jobs:
           key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Run Unit Tests
         id: tests
@@ -277,7 +292,12 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Clean and rebuild shared packages
         run: |
@@ -367,7 +387,12 @@ jobs:
           key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Run Lint
         id: lint
@@ -441,7 +466,12 @@ jobs:
           key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Run Unit Tests
         id: tests
@@ -498,7 +528,12 @@ jobs:
             ${{ runner.os }}-admin-node-
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Clean and rebuild shared packages
         run: |
@@ -910,7 +945,12 @@ jobs:
             ${{ runner.os }}-web-node-
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Install Playwright Browsers
         working-directory: apps/web
@@ -1310,7 +1350,12 @@ jobs:
           key: ${{ runner.os }}-${{ needs.build-packages.outputs.cache-key }}
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps --ignore-scripts
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps --ignore-scripts && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Verify and build shared packages
         run: |

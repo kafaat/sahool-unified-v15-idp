@@ -246,9 +246,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
       await _repository.blockUser(userId, conversationId);
 
       // Remove conversation from state
-      final updatedConversations = state.conversations
-          .where((c) => c.id != conversationId)
-          .toList();
+      final updatedConversations =
+          state.conversations.where((c) => c.id != conversationId).toList();
 
       // Clear active conversation if it's the blocked one
       final clearActive = state.activeConversationId == conversationId;
@@ -268,7 +267,8 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   /// Mute a conversation
-  Future<bool> muteConversation(String conversationId, {bool mute = true}) async {
+  Future<bool> muteConversation(String conversationId,
+      {bool mute = true}) async {
     try {
       await _repository.muteConversation(conversationId, mute: mute);
 
@@ -450,7 +450,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
       // Add to state immediately
       final updatedMessagesMap = {...state.messagesMap};
       final existingMessages = updatedMessagesMap[conversationId] ?? [];
-      updatedMessagesMap[conversationId] = [optimisticMessage, ...existingMessages];
+      updatedMessagesMap[conversationId] = [
+        optimisticMessage,
+        ...existingMessages
+      ];
 
       state = state.copyWith(messagesMap: updatedMessagesMap);
 
@@ -496,12 +499,16 @@ class ChatNotifier extends StateNotifier<ChatState> {
 
     // Update state
     final updatedMessagesMap = {...state.messagesMap};
-    final conversationMessages = updatedMessagesMap[message.conversationId] ?? [];
+    final conversationMessages =
+        updatedMessagesMap[message.conversationId] ?? [];
 
     // Check if message already exists
     final exists = conversationMessages.any((m) => m.id == message.id);
     if (!exists) {
-      updatedMessagesMap[message.conversationId] = [message, ...conversationMessages];
+      updatedMessagesMap[message.conversationId] = [
+        message,
+        ...conversationMessages
+      ];
     }
 
     // Update conversations list
@@ -597,7 +604,8 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 /// Chat notifier provider
 /// Uses autoDispose with keepAlive for chat session persistence
 /// Stays alive for 15 minutes to maintain conversation context
-final chatProvider = StateNotifierProvider.autoDispose<ChatNotifier, ChatState>((ref) {
+final chatProvider =
+    StateNotifierProvider.autoDispose<ChatNotifier, ChatState>((ref) {
   final repository = ref.watch(chatRepositoryProvider);
   final userId = ref.watch(chatUserIdProvider);
 

@@ -264,7 +264,8 @@ class _ScannerScreenState extends State<ScannerScreen>
                       padding: const EdgeInsets.all(4),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: _isScanning ? SahoolColors.warning : Colors.white,
+                          color:
+                              _isScanning ? SahoolColors.warning : Colors.white,
                           shape: BoxShape.circle,
                         ),
                         child: _isScanning

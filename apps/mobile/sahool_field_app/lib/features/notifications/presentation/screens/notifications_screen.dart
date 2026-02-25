@@ -9,7 +9,8 @@ class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsScreen> createState() =>
+      _NotificationsScreenState();
 }
 
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
@@ -175,7 +176,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         child: const Icon(Icons.delete, color: Colors.white),
       ),
       onDismissed: (_) {
-        ref.read(notificationsProvider.notifier).deleteNotification(notification.id);
+        ref
+            .read(notificationsProvider.notifier)
+            .deleteNotification(notification.id);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تم حذف الإشعار')),
         );
@@ -192,7 +195,9 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
         child: InkWell(
           onTap: () {
             if (!notification.isRead) {
-              ref.read(notificationsProvider.notifier).markAsRead(notification.id);
+              ref
+                  .read(notificationsProvider.notifier)
+                  .markAsRead(notification.id);
             }
             _showNotificationDetails(notification);
           },
@@ -461,7 +466,8 @@ class _NotificationSettingsScreenState
               value: settings.alertsEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleAlerts(value)
+                  ? (value) =>
+                      ref.read(settingsProvider.notifier).toggleAlerts(value)
                   : null,
             ),
 
@@ -472,7 +478,8 @@ class _NotificationSettingsScreenState
               value: settings.actionsEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleActions(value)
+                  ? (value) =>
+                      ref.read(settingsProvider.notifier).toggleActions(value)
                   : null,
             ),
 
@@ -483,7 +490,8 @@ class _NotificationSettingsScreenState
               value: settings.weatherEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleWeather(value)
+                  ? (value) =>
+                      ref.read(settingsProvider.notifier).toggleWeather(value)
                   : null,
             ),
 
@@ -494,7 +502,9 @@ class _NotificationSettingsScreenState
               value: settings.cropHealthEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleCropHealth(value)
+                  ? (value) => ref
+                      .read(settingsProvider.notifier)
+                      .toggleCropHealth(value)
                   : null,
             ),
 
@@ -519,7 +529,8 @@ class _NotificationSettingsScreenState
               value: settings.soundEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleSound(value)
+                  ? (value) =>
+                      ref.read(settingsProvider.notifier).toggleSound(value)
                   : null,
             ),
 
@@ -530,7 +541,8 @@ class _NotificationSettingsScreenState
               value: settings.vibrationEnabled,
               activeColor: const Color(0xFF367C2B),
               onChanged: settings.enabled
-                  ? (value) => ref.read(settingsProvider.notifier).toggleVibration(value)
+                  ? (value) =>
+                      ref.read(settingsProvider.notifier).toggleVibration(value)
                   : null,
             ),
           ],

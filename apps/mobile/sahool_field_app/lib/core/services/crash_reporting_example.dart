@@ -199,7 +199,8 @@ class ExampleCustomKeys {
     await crashReporting.setCustomKey('sync_status', 'active');
     await crashReporting.setCustomKey('offline_mode', true);
     await crashReporting.setCustomKey('data_size', 1024);
-    await crashReporting.setCustomKey('last_sync', DateTime.now().toIso8601String());
+    await crashReporting.setCustomKey(
+        'last_sync', DateTime.now().toIso8601String());
   }
 }
 

@@ -7,7 +7,9 @@ import 'package:sahool_field_app/core/auth/user_context.dart';
 
 /// Mock dependencies
 class MockSecureStorageService extends Mock implements SecureStorageService {}
+
 class MockBiometricService extends Mock implements BiometricService {}
+
 class MockUserContext extends Mock implements UserContext {}
 
 void main() {
@@ -23,22 +25,29 @@ void main() {
       mockUserContext = MockUserContext();
 
       // Default stubs for SecureStorageService async methods
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getRefreshToken())
+          .thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTokenExpiry())
+          .thenAnswer((_) async => null);
       when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
       when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => null);
       when(() => mockSecureStorage.clearAll()).thenAnswer((_) async {});
       when(() => mockSecureStorage.read(any())).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async {});
-      when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async {});
-      when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setAccessToken(any()))
+          .thenAnswer((_) async {});
+      when(() => mockSecureStorage.setRefreshToken(any()))
+          .thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTokenExpiry(any()))
+          .thenAnswer((_) async {});
       when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async {});
       when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async {});
 
       // Default stubs for UserContext methods
-      when(() => mockUserContext.setUser(any(), tenantId: any(named: 'tenantId'), role: any(named: 'role')))
-          .thenReturn(null);
+      when(() => mockUserContext.setUser(any(),
+          tenantId: any(named: 'tenantId'),
+          role: any(named: 'role'))).thenReturn(null);
       when(() => mockUserContext.clearUser()).thenReturn(null);
 
       authService = AuthService(
@@ -58,11 +67,16 @@ void main() {
         const email = 'test@sahool.com';
         const password = 'password123';
 
-        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setAccessToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setUserData(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTenantId(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         final user = await authService.login(email, password);
@@ -82,11 +96,16 @@ void main() {
         const email = 'test@sahool.com';
         const password = 'password123';
 
-        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setAccessToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setUserData(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTenantId(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await authService.login(email, password);
@@ -114,7 +133,8 @@ void main() {
     group('isLoggedIn', () {
       test('should return false when no access token exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.isLoggedIn();
@@ -125,9 +145,10 @@ void main() {
 
       test('should return true when valid access token exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'valid_token');
-        when(() => mockSecureStorage.getTokenExpiry())
-            .thenAnswer((_) async => DateTime.now().add(const Duration(hours: 1)));
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => 'valid_token');
+        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+            (_) async => DateTime.now().add(const Duration(hours: 1)));
 
         // Act
         final result = await authService.isLoggedIn();
@@ -138,13 +159,18 @@ void main() {
 
       test('should attempt token refresh when token is expired', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'expired_token');
-        when(() => mockSecureStorage.getTokenExpiry())
-            .thenAnswer((_) async => DateTime.now().subtract(const Duration(hours: 1)));
-        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => 'refresh_token');
-        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => 'expired_token');
+        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+            (_) async => DateTime.now().subtract(const Duration(hours: 1)));
+        when(() => mockSecureStorage.getRefreshToken())
+            .thenAnswer((_) async => 'refresh_token');
+        when(() => mockSecureStorage.setAccessToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         final result = await authService.isLoggedIn();
@@ -158,7 +184,8 @@ void main() {
     group('getTokenExpiry', () {
       test('should return null when token expiry is null', () async {
         // Arrange
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getTokenExpiry())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.getTokenExpiry();
@@ -170,7 +197,8 @@ void main() {
       test('should return expiry time when token exists', () async {
         // Arrange
         final futureTime = DateTime.now().add(const Duration(hours: 1));
-        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => futureTime);
+        when(() => mockSecureStorage.getTokenExpiry())
+            .thenAnswer((_) async => futureTime);
 
         // Act
         final result = await authService.getTokenExpiry();
@@ -184,7 +212,8 @@ void main() {
     group('validateSession', () {
       test('should return false when no access token exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.validateSession();
@@ -195,9 +224,10 @@ void main() {
 
       test('should return true when token is valid', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'valid_token');
-        when(() => mockSecureStorage.getTokenExpiry())
-            .thenAnswer((_) async => DateTime.now().add(const Duration(hours: 1)));
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => 'valid_token');
+        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+            (_) async => DateTime.now().add(const Duration(hours: 1)));
 
         // Act
         final result = await authService.validateSession();
@@ -208,13 +238,18 @@ void main() {
 
       test('should attempt token refresh when token is expired', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'expired_token');
-        when(() => mockSecureStorage.getTokenExpiry())
-            .thenAnswer((_) async => DateTime.now().subtract(const Duration(hours: 1)));
-        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => 'refresh_token');
-        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => 'expired_token');
+        when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+            (_) async => DateTime.now().subtract(const Duration(hours: 1)));
+        when(() => mockSecureStorage.getRefreshToken())
+            .thenAnswer((_) async => 'refresh_token');
+        when(() => mockSecureStorage.setAccessToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         final result = await authService.validateSession();
@@ -227,7 +262,8 @@ void main() {
     group('getCurrentUser', () {
       test('should return null when no user data exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getUserData())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.getCurrentUser();
@@ -245,7 +281,8 @@ void main() {
           'role': 'farmer',
           'tenant_id': 'tenant_1',
         };
-        when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => userData);
+        when(() => mockSecureStorage.getUserData())
+            .thenAnswer((_) async => userData);
 
         // Act
         final result = await authService.getCurrentUser();
@@ -261,10 +298,14 @@ void main() {
     group('refreshToken', () {
       test('should successfully refresh token', () async {
         // Arrange
-        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => 'refresh_token');
-        when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-        when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
+        when(() => mockSecureStorage.getRefreshToken())
+            .thenAnswer((_) async => 'refresh_token');
+        when(() => mockSecureStorage.setAccessToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setRefreshToken(any()))
+            .thenAnswer((_) async => {});
+        when(() => mockSecureStorage.setTokenExpiry(any()))
+            .thenAnswer((_) async => {});
 
         // Act
         await authService.refreshToken();
@@ -277,7 +318,8 @@ void main() {
 
       test('should throw exception when refresh token is null', () async {
         // Arrange
-        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getRefreshToken())
+            .thenAnswer((_) async => null);
 
         // Act & Assert
         await expectLater(
@@ -290,7 +332,8 @@ void main() {
     group('loginWithBiometric', () {
       test('should throw exception when biometric is not available', () async {
         // Arrange
-        when(() => mockBiometricService.isAvailable()).thenAnswer((_) async => false);
+        when(() => mockBiometricService.isAvailable())
+            .thenAnswer((_) async => false);
 
         // Act & Assert
         await expectLater(
@@ -301,21 +344,9 @@ void main() {
 
       test('should throw exception when biometric is not enabled', () async {
         // Arrange
-        when(() => mockBiometricService.isAvailable()).thenAnswer((_) async => true);
-        when(() => mockBiometricService.isEnabled()).thenAnswer((_) async => false);
-
-        // Act & Assert
-        await expectLater(
-          authService.loginWithBiometric(),
-          throwsA(isA<AuthException>()),
-        );
-      });
-
-      test('should throw exception when biometric authentication fails', () async {
-        // Arrange
-        when(() => mockBiometricService.isAvailable()).thenAnswer((_) async => true);
-        when(() => mockBiometricService.isEnabled()).thenAnswer((_) async => true);
-        when(() => mockBiometricService.authenticate(reason: any(named: 'reason')))
+        when(() => mockBiometricService.isAvailable())
+            .thenAnswer((_) async => true);
+        when(() => mockBiometricService.isEnabled())
             .thenAnswer((_) async => false);
 
         // Act & Assert
@@ -325,13 +356,36 @@ void main() {
         );
       });
 
-      test('should return user when biometric authentication succeeds', () async {
+      test('should throw exception when biometric authentication fails',
+          () async {
         // Arrange
-        when(() => mockBiometricService.isAvailable()).thenAnswer((_) async => true);
-        when(() => mockBiometricService.isEnabled()).thenAnswer((_) async => true);
-        when(() => mockBiometricService.authenticate(reason: any(named: 'reason')))
+        when(() => mockBiometricService.isAvailable())
             .thenAnswer((_) async => true);
-        when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => 'refresh_token');
+        when(() => mockBiometricService.isEnabled())
+            .thenAnswer((_) async => true);
+        when(() =>
+                mockBiometricService.authenticate(reason: any(named: 'reason')))
+            .thenAnswer((_) async => false);
+
+        // Act & Assert
+        await expectLater(
+          authService.loginWithBiometric(),
+          throwsA(isA<AuthException>()),
+        );
+      });
+
+      test('should return user when biometric authentication succeeds',
+          () async {
+        // Arrange
+        when(() => mockBiometricService.isAvailable())
+            .thenAnswer((_) async => true);
+        when(() => mockBiometricService.isEnabled())
+            .thenAnswer((_) async => true);
+        when(() =>
+                mockBiometricService.authenticate(reason: any(named: 'reason')))
+            .thenAnswer((_) async => true);
+        when(() => mockSecureStorage.getRefreshToken())
+            .thenAnswer((_) async => 'refresh_token');
 
         final userData = {
           'id': 'user_001',
@@ -340,7 +394,8 @@ void main() {
           'role': 'farmer',
           'tenant_id': 'tenant_1',
         };
-        when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => userData);
+        when(() => mockSecureStorage.getUserData())
+            .thenAnswer((_) async => userData);
 
         // Act
         final result = await authService.loginWithBiometric();
@@ -354,7 +409,8 @@ void main() {
     group('getTenantId', () {
       test('should return tenant id when it exists', () async {
         // Arrange
-        when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => 'tenant_001');
+        when(() => mockSecureStorage.getTenantId())
+            .thenAnswer((_) async => 'tenant_001');
 
         // Act
         final result = await authService.getTenantId();
@@ -365,7 +421,8 @@ void main() {
 
       test('should return null when tenant id does not exist', () async {
         // Arrange
-        when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getTenantId())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.getTenantId();
@@ -379,7 +436,8 @@ void main() {
       test('should return access token when it exists', () async {
         // Arrange
         const token = 'test_access_token';
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => token);
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => token);
 
         // Act
         final result = await authService.getAccessToken();
@@ -390,7 +448,8 @@ void main() {
 
       test('should return null when access token does not exist', () async {
         // Arrange
-        when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+        when(() => mockSecureStorage.getAccessToken())
+            .thenAnswer((_) async => null);
 
         // Act
         final result = await authService.getAccessToken();
@@ -414,22 +473,29 @@ void main() {
       mockUserContext = MockUserContext();
 
       // Default stubs for SecureStorageService async methods
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.getRefreshToken()).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getRefreshToken())
+          .thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getTokenExpiry())
+          .thenAnswer((_) async => null);
       when(() => mockSecureStorage.getTenantId()).thenAnswer((_) async => null);
       when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => null);
       when(() => mockSecureStorage.clearAll()).thenAnswer((_) async {});
       when(() => mockSecureStorage.read(any())).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async {});
-      when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async {});
-      when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async {});
+      when(() => mockSecureStorage.setAccessToken(any()))
+          .thenAnswer((_) async {});
+      when(() => mockSecureStorage.setRefreshToken(any()))
+          .thenAnswer((_) async {});
+      when(() => mockSecureStorage.setTokenExpiry(any()))
+          .thenAnswer((_) async {});
       when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async {});
       when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async {});
 
       // Default stubs for UserContext methods
-      when(() => mockUserContext.setUser(any(), tenantId: any(named: 'tenantId'), role: any(named: 'role')))
-          .thenReturn(null);
+      when(() => mockUserContext.setUser(any(),
+          tenantId: any(named: 'tenantId'),
+          role: any(named: 'role'))).thenReturn(null);
       when(() => mockUserContext.clearUser()).thenReturn(null);
 
       authService = AuthService(
@@ -443,9 +509,11 @@ void main() {
       authService.dispose();
     });
 
-    test('should initialize with unauthenticated state when no token exists', () async {
+    test('should initialize with unauthenticated state when no token exists',
+        () async {
       // Arrange
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => null);
 
       // Act
       authStateNotifier = AuthStateNotifier(authService);
@@ -455,11 +523,13 @@ void main() {
       expect(authStateNotifier.state.status, AuthStatus.unauthenticated);
     });
 
-    test('should initialize with authenticated state when valid token exists', () async {
+    test('should initialize with authenticated state when valid token exists',
+        () async {
       // Arrange
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'valid_token');
-      when(() => mockSecureStorage.getTokenExpiry())
-          .thenAnswer((_) async => DateTime.now().add(const Duration(hours: 1)));
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => 'valid_token');
+      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+          (_) async => DateTime.now().add(const Duration(hours: 1)));
 
       final userData = {
         'id': 'user_001',
@@ -468,7 +538,8 @@ void main() {
         'role': 'farmer',
         'tenant_id': 'tenant_1',
       };
-      when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => userData);
+      when(() => mockSecureStorage.getUserData())
+          .thenAnswer((_) async => userData);
 
       // Act
       authStateNotifier = AuthStateNotifier(authService);
@@ -479,20 +550,28 @@ void main() {
       expect(authStateNotifier.state.user, isNotNull);
     });
 
-    test('should update state to authenticated after successful login', () async {
+    test('should update state to authenticated after successful login',
+        () async {
       // Arrange
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => null);
-      when(() => mockSecureStorage.setAccessToken(any())).thenAnswer((_) async => {});
-      when(() => mockSecureStorage.setRefreshToken(any())).thenAnswer((_) async => {});
-      when(() => mockSecureStorage.setTokenExpiry(any())).thenAnswer((_) async => {});
-      when(() => mockSecureStorage.setUserData(any())).thenAnswer((_) async => {});
-      when(() => mockSecureStorage.setTenantId(any())).thenAnswer((_) async => {});
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => null);
+      when(() => mockSecureStorage.setAccessToken(any()))
+          .thenAnswer((_) async => {});
+      when(() => mockSecureStorage.setRefreshToken(any()))
+          .thenAnswer((_) async => {});
+      when(() => mockSecureStorage.setTokenExpiry(any()))
+          .thenAnswer((_) async => {});
+      when(() => mockSecureStorage.setUserData(any()))
+          .thenAnswer((_) async => {});
+      when(() => mockSecureStorage.setTenantId(any()))
+          .thenAnswer((_) async => {});
 
       authStateNotifier = AuthStateNotifier(authService);
       await Future.delayed(const Duration(milliseconds: 100));
 
       // Act
-      final result = await authStateNotifier.login('test@sahool.com', 'password123');
+      final result =
+          await authStateNotifier.login('test@sahool.com', 'password123');
 
       // Assert
       expect(result, true);
@@ -502,9 +581,10 @@ void main() {
 
     test('should update state to unauthenticated after logout', () async {
       // Arrange
-      when(() => mockSecureStorage.getAccessToken()).thenAnswer((_) async => 'token');
-      when(() => mockSecureStorage.getTokenExpiry())
-          .thenAnswer((_) async => DateTime.now().add(const Duration(hours: 1)));
+      when(() => mockSecureStorage.getAccessToken())
+          .thenAnswer((_) async => 'token');
+      when(() => mockSecureStorage.getTokenExpiry()).thenAnswer(
+          (_) async => DateTime.now().add(const Duration(hours: 1)));
 
       final userData = {
         'id': 'user_001',
@@ -513,7 +593,8 @@ void main() {
         'role': 'farmer',
         'tenant_id': 'tenant_1',
       };
-      when(() => mockSecureStorage.getUserData()).thenAnswer((_) async => userData);
+      when(() => mockSecureStorage.getUserData())
+          .thenAnswer((_) async => userData);
       when(() => mockSecureStorage.clearAll()).thenAnswer((_) async => {});
 
       authStateNotifier = AuthStateNotifier(authService);

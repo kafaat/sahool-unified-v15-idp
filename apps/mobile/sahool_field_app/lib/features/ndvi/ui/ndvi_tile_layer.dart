@@ -118,7 +118,8 @@ class CachedNdviTileProvider extends TileProvider {
     return CachedNdviTileImage(
       url: url,
       headers: headers,
-      cacheKey: '$_cacheKeyPrefix${coordinates.z}_${coordinates.x}_${coordinates.y}',
+      cacheKey:
+          '$_cacheKeyPrefix${coordinates.z}_${coordinates.x}_${coordinates.y}',
     );
   }
 }
@@ -137,14 +138,16 @@ class CachedNdviTileImage extends ImageProvider<CachedNdviTileImage> {
   });
 
   @override
-  ImageStreamCompleter loadImage(CachedNdviTileImage key, ImageDecoderCallback decode) {
+  ImageStreamCompleter loadImage(
+      CachedNdviTileImage key, ImageDecoderCallback decode) {
     return MultiFrameImageStreamCompleter(
       codec: _loadAsync(key, decode),
       scale: 1.0,
     );
   }
 
-  Future<ui.Codec> _loadAsync(CachedNdviTileImage key, ImageDecoderCallback decode) async {
+  Future<ui.Codec> _loadAsync(
+      CachedNdviTileImage key, ImageDecoderCallback decode) async {
     try {
       // Try to get from cache first
       final file = await SahoolImageCacheManager.instance.getSingleFile(
@@ -271,7 +274,12 @@ class NdviImageCacheManager {
     final n = 1 << zoom;
     final x = ((lng + 180.0) / 360.0 * n).floor();
     final latRad = lat * 3.141592653589793 / 180.0;
-    final y = ((1.0 - (latRad.tan() + 1.0 / latRad.tan().abs()).log() / 3.141592653589793) / 2.0 * n).floor();
+    final y = ((1.0 -
+                (latRad.tan() + 1.0 / latRad.tan().abs()).log() /
+                    3.141592653589793) /
+            2.0 *
+            n)
+        .floor();
     return _TileCoords(x.clamp(0, n - 1), y.clamp(0, n - 1), zoom);
   }
 

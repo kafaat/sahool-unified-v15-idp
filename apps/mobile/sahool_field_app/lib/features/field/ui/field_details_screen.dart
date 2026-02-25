@@ -91,13 +91,16 @@ class FieldDetailsScreen extends StatelessWidget {
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.download, color: SahoolColors.forestGreen),
+              leading:
+                  const Icon(Icons.download, color: SahoolColors.forestGreen),
               title: const Text("تصدير البيانات"),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: SahoolColors.danger),
-              title: const Text("حذف الحقل", style: TextStyle(color: SahoolColors.danger)),
+              leading:
+                  const Icon(Icons.delete_outline, color: SahoolColors.danger),
+              title: const Text("حذف الحقل",
+                  style: TextStyle(color: SahoolColors.danger)),
               onTap: () => Navigator.pop(context),
             ),
           ],
@@ -141,7 +144,8 @@ class FieldDetailsScreen extends StatelessWidget {
                         ),
                         Text(
                           "متبقي 45 يوم للحصاد",
-                          style: TextStyle(color: Colors.white.withOpacity(0.8)),
+                          style:
+                              TextStyle(color: Colors.white.withOpacity(0.8)),
                         ),
                         const Spacer(),
                         // شريط التقدم
@@ -382,7 +386,8 @@ class FieldDetailsScreen extends StatelessWidget {
                     ),
                     child: const Row(
                       children: [
-                        Icon(Icons.trending_up, color: SahoolColors.sageGreen, size: 16),
+                        Icon(Icons.trending_up,
+                            color: SahoolColors.sageGreen, size: 16),
                         SizedBox(width: 4),
                         Text(
                           "+5%",
@@ -417,8 +422,10 @@ class FieldDetailsScreen extends StatelessWidget {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("ضعيف", style: TextStyle(fontSize: 10, color: Colors.grey)),
-                  Text("ممتاز", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("ضعيف",
+                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  Text("ممتاز",
+                      style: TextStyle(fontSize: 10, color: Colors.grey)),
                 ],
               ),
             ],
@@ -437,7 +444,8 @@ class FieldDetailsScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.satellite_alt, size: 48, color: SahoolColors.sageGreen),
+                  Icon(Icons.satellite_alt,
+                      size: 48, color: SahoolColors.sageGreen),
                   SizedBox(height: 8),
                   Text(
                     "صورة NDVI القمر الصناعي",
@@ -642,7 +650,8 @@ class _TaskItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text(title,
+                    style: const TextStyle(fontWeight: FontWeight.w500)),
                 Text(
                   time,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
@@ -695,7 +704,8 @@ class _ZoneHealthCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(zoneName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(zoneName,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 Text(status, style: TextStyle(fontSize: 12, color: color)),
               ],
             ),
@@ -763,7 +773,8 @@ class _HistoryItem extends StatelessWidget {
                   style: const TextStyle(fontSize: 10, color: Colors.grey),
                 ),
                 const SizedBox(height: 4),
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 Text(
                   subtitle,
                   style: const TextStyle(fontSize: 12, color: Colors.grey),

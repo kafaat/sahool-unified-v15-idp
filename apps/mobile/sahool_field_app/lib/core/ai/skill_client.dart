@@ -312,9 +312,8 @@ class SkillClient {
       }
 
       // Parse response
-      final responseData = response is Map<String, dynamic>
-          ? response
-          : {'result': response};
+      final responseData =
+          response is Map<String, dynamic> ? response : {'result': response};
 
       final skillResponse = SkillResponse.fromJson(requestId, responseData);
 

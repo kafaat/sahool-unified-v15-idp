@@ -74,10 +74,15 @@ async def lifespan(app: FastAPI):
     )
 
     # Database connection
-    if settings.database_url:
+    # Enforce sslmode for non-development database connections
+    db_url = settings.database_url
+    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
+        if "sslmode" not in db_url:
+            db_url += "?sslmode=require" if "?" not in db_url else "&sslmode=require"
+    if db_url:
         try:
             app.state.db_pool = await asyncpg.create_pool(
-                settings.database_url,
+                db_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
             )

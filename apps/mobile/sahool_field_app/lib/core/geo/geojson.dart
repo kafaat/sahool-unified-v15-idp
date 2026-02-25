@@ -268,7 +268,8 @@ class GeoJsonFeature {
   bool get isPoint => geometryType == 'Point';
   bool get isMultiPolygon => geometryType == 'MultiPolygon';
 
-  List<LatLng>? get polygon => isPolygon ? GeoJson.parsePolygon(geometry) : null;
+  List<LatLng>? get polygon =>
+      isPolygon ? GeoJson.parsePolygon(geometry) : null;
   LatLng? get point => isPoint ? GeoJson.parsePoint(geometry) : null;
 }
 

@@ -34,7 +34,8 @@ class CropsApi {
   /// Fetch crops by category
   ///
   /// [category] - cereals, legumes, vegetables, fruits, etc.
-  Future<List<Map<String, dynamic>>> fetchCropsByCategory(String category) async {
+  Future<List<Map<String, dynamic>>> fetchCropsByCategory(
+      String category) async {
     try {
       final response = await _client.get(
         '/crops',
@@ -53,7 +54,8 @@ class CropsApi {
 
       return [];
     } catch (e) {
-      AppLogger.e('Failed to fetch crops by category', tag: 'CropsApi', error: e);
+      AppLogger.e('Failed to fetch crops by category',
+          tag: 'CropsApi', error: e);
       rethrow;
     }
   }

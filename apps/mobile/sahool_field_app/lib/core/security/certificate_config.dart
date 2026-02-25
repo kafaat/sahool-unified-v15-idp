@@ -54,21 +54,24 @@ class CertificateConfig {
         // Primary certificate - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Primary production certificate',
         ),
         // Backup certificate for rotation - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Backup production certificate',
         ),
         // Additional backup for seamless rotation - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: 'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
+          value:
+              'ea0ed0d218a934de81ef856888b824493ec135dcfa320bdb80fb252f926272bd',
           expiryDate: DateTime(2027, 12, 31),
           description: 'Tertiary production certificate',
         ),
@@ -79,14 +82,16 @@ class CertificateConfig {
         // WebSocket certificate - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           expiryDate: DateTime(2026, 12, 31),
           description: 'WebSocket production certificate',
         ),
         // Backup for WebSocket - Using same cert for redundancy
         CertificatePin(
           type: PinType.sha256,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           expiryDate: DateTime(2027, 6, 30),
           description: 'WebSocket backup certificate',
         ),
@@ -97,14 +102,16 @@ class CertificateConfig {
         // Wildcard certificate - Production SHA256 fingerprint
         CertificatePin(
           type: PinType.sha256,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Wildcard sahool.io certificate',
         ),
         // Backup for wildcard - Using same cert for redundancy
         CertificatePin(
           type: PinType.sha256,
-          value: '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
+          value:
+              '42f64a30d2849cb1e2eeb0ad9f2dbc6aeef30991dcb2fc29c47edd8d3ddfe5bc',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Wildcard backup certificate',
         ),
@@ -133,13 +140,15 @@ class CertificateConfig {
       'api-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
-          value: '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
+          value:
+              '1d40606fb292f95c55ca85debd7c7df339f260c9724640932cd96dfc89fdf877',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Staging API certificate (using production cert)',
         ),
         CertificatePin(
           type: PinType.sha256,
-          value: 'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
+          value:
+              'd2e91efcd39a87e0ef8c9744853c3dd47197b0c540fa448d04ca462613c96c9b',
           expiryDate: DateTime(2027, 6, 30),
           description: 'Staging API backup certificate (using production cert)',
         ),
@@ -147,15 +156,18 @@ class CertificateConfig {
       'ws-staging.sahool.app': [
         CertificatePin(
           type: PinType.sha256,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           expiryDate: DateTime(2026, 12, 31),
           description: 'Staging WebSocket certificate (using production cert)',
         ),
         CertificatePin(
           type: PinType.sha256,
-          value: '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
+          value:
+              '7bfbf46c2b363df94bc6289a082fc007fd22a93cc45175736c1d8c18c31b1fa6',
           expiryDate: DateTime(2027, 6, 30),
-          description: 'Staging WebSocket backup certificate (using production cert)',
+          description:
+              'Staging WebSocket backup certificate (using production cert)',
         ),
       ],
     };

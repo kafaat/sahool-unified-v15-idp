@@ -26,11 +26,11 @@ import '../utils/app_logger.dart';
 
 /// Security Threat Level
 enum SecurityThreatLevel {
-  none,       // No threats detected
-  low,        // Minor security concerns (emulator, debug mode)
-  medium,     // Moderate threats (developer options enabled)
-  high,       // Serious threats (root/jailbreak detected)
-  critical,   // Multiple serious threats + hooking frameworks
+  none, // No threats detected
+  low, // Minor security concerns (emulator, debug mode)
+  medium, // Moderate threats (developer options enabled)
+  high, // Serious threats (root/jailbreak detected)
+  critical, // Multiple serious threats + hooking frameworks
 }
 
 /// Security Check Result
@@ -86,7 +86,8 @@ class SecurityCheckResult {
 
 /// Device Integrity Service
 class DeviceIntegrityService {
-  static final DeviceIntegrityService _instance = DeviceIntegrityService._internal();
+  static final DeviceIntegrityService _instance =
+      DeviceIntegrityService._internal();
   factory DeviceIntegrityService() => _instance;
   DeviceIntegrityService._internal();
 
@@ -160,7 +161,8 @@ class DeviceIntegrityService {
 
         // Check for developer options (with timeout)
         try {
-          isDeveloperModeEnabled = await SafeDevice.isDevelopmentModeEnable.timeout(
+          isDeveloperModeEnabled =
+              await SafeDevice.isDevelopmentModeEnable.timeout(
             const Duration(seconds: 5),
             onTimeout: () {
               AppLogger.w('Developer mode check timed out', tag: 'Security');
@@ -174,7 +176,6 @@ class DeviceIntegrityService {
         } catch (e) {
           AppLogger.w('Developer mode check failed: $e', tag: 'Security');
         }
-
       } else if (Platform.isIOS) {
         AppLogger.d('Running iOS security checks...', tag: 'Security');
 
@@ -247,9 +248,9 @@ class DeviceIntegrityService {
 
       AppLogger.i('Security check complete: $result', tag: 'Security');
       return result;
-
     } catch (e, stackTrace) {
-      AppLogger.e('Device integrity check failed: $e', tag: 'Security', error: e, stackTrace: stackTrace);
+      AppLogger.e('Device integrity check failed: $e',
+          tag: 'Security', error: e, stackTrace: stackTrace);
 
       // Return safe defaults on error
       return SecurityCheckResult(
@@ -332,7 +333,8 @@ class DeviceIntegrityService {
 
   /// Check if app should be blocked based on security policy
   /// فحص ما إذا كان يجب حظر التطبيق بناءً على سياسة الأمان
-  bool shouldBlockApp(SecurityCheckResult result, SecurityConfig securityConfig) {
+  bool shouldBlockApp(
+      SecurityCheckResult result, SecurityConfig securityConfig) {
     // Always allow in development mode (unless forced)
     if (kDebugMode && !securityConfig.enforceSecurityInDebug) {
       AppLogger.d('Security checks bypassed in debug mode', tag: 'Security');
@@ -386,24 +388,20 @@ class DeviceIntegrityService {
     switch (level) {
       case SecurityThreatLevel.critical:
         return isArabic
-          ? 'تهديد أمني حرج - لا يمكن تشغيل التطبيق'
-          : 'Critical security threat - Cannot run app';
+            ? 'تهديد أمني حرج - لا يمكن تشغيل التطبيق'
+            : 'Critical security threat - Cannot run app';
       case SecurityThreatLevel.high:
         return isArabic
-          ? 'تهديد أمني عالي - جهاز غير آمن'
-          : 'High security threat - Unsafe device';
+            ? 'تهديد أمني عالي - جهاز غير آمن'
+            : 'High security threat - Unsafe device';
       case SecurityThreatLevel.medium:
         return isArabic
-          ? 'تهديد أمني متوسط - استخدم بحذر'
-          : 'Medium security threat - Use with caution';
+            ? 'تهديد أمني متوسط - استخدم بحذر'
+            : 'Medium security threat - Use with caution';
       case SecurityThreatLevel.low:
-        return isArabic
-          ? 'تحذير أمني بسيط'
-          : 'Minor security warning';
+        return isArabic ? 'تحذير أمني بسيط' : 'Minor security warning';
       case SecurityThreatLevel.none:
-        return isArabic
-          ? 'لا توجد تهديدات أمنية'
-          : 'No security threats';
+        return isArabic ? 'لا توجد تهديدات أمنية' : 'No security threats';
     }
   }
 }

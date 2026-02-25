@@ -114,7 +114,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _shakeAnimation;
 
-  RecoveryChannel get _selectedChannel => _recoveryChannels[_selectedChannelIndex];
+  RecoveryChannel get _selectedChannel =>
+      _recoveryChannels[_selectedChannelIndex];
 
   @override
   void initState() {
@@ -306,7 +307,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                 },
               );
             },
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               return SlideTransition(
                 position: Tween<Offset>(
                   begin: const Offset(1.0, 0.0),
@@ -555,7 +557,8 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
   }
 
   /// Build individual channel card
-  Widget _buildChannelCard(int index, ColorScheme colorScheme, ThemeData theme) {
+  Widget _buildChannelCard(
+      int index, ColorScheme colorScheme, ThemeData theme) {
     final channel = _recoveryChannels[index];
     final isSelected = _selectedChannelIndex == index;
 
@@ -565,14 +568,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
         decoration: BoxDecoration(
-          color: isSelected
-              ? channel.color.withOpacity(0.1)
-              : Colors.white,
+          color: isSelected ? channel.color.withOpacity(0.1) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? channel.color
-                : Colors.grey[200]!,
+            color: isSelected ? channel.color : Colors.grey[200]!,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -947,10 +946,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen>
                   );
 
                   if (await canLaunchUrl(whatsappUrl)) {
-                    await launchUrl(whatsappUrl, mode: LaunchMode.externalApplication);
+                    await launchUrl(whatsappUrl,
+                        mode: LaunchMode.externalApplication);
                   } else {
                     // Fallback to email support
-                    final emailUrl = Uri.parse('mailto:support@sahool.app?subject=Password%20Recovery%20Help');
+                    final emailUrl = Uri.parse(
+                        'mailto:support@sahool.app?subject=Password%20Recovery%20Help');
                     if (await canLaunchUrl(emailUrl)) {
                       await launchUrl(emailUrl);
                     }

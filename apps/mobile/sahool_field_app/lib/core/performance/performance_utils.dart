@@ -31,7 +31,8 @@ class PerformanceMonitor {
 
   // Configuration
   static const int maxFrameHistory = 120; // Keep last 2 seconds at 60fps
-  static const Duration targetFrameDuration = Duration(milliseconds: 16); // ~60fps
+  static const Duration targetFrameDuration =
+      Duration(milliseconds: 16); // ~60fps
   static const double jankThreshold = 16.0; // ms - frame is janky if > 16ms
 
   /// Start monitoring performance
@@ -70,7 +71,8 @@ class PerformanceMonitor {
 
       // Calculate frame duration
       final buildDuration = timing.buildDuration.inMicroseconds / 1000.0; // ms
-      final rasterDuration = timing.rasterDuration.inMicroseconds / 1000.0; // ms
+      final rasterDuration =
+          timing.rasterDuration.inMicroseconds / 1000.0; // ms
       final totalDuration = timing.totalSpan.inMicroseconds / 1000.0; // ms
 
       // Add to frame times
@@ -112,7 +114,8 @@ class PerformanceMonitor {
   double getCurrentFps() {
     if (_frameTimes.isEmpty) return 0.0;
 
-    final avgFrameTime = _frameTimes.reduce((a, b) => a + b) / _frameTimes.length;
+    final avgFrameTime =
+        _frameTimes.reduce((a, b) => a + b) / _frameTimes.length;
     if (avgFrameTime == 0) return 0.0;
 
     return 1000.0 / avgFrameTime; // Convert ms to fps
@@ -133,27 +136,25 @@ class PerformanceMonitor {
   PerformanceSummary getSummary() {
     final currentFps = getCurrentFps();
     final avgFps = getAverageFps();
-    final dropRate = _totalFrames > 0 ? (_droppedFrames / _totalFrames) * 100 : 0.0;
+    final dropRate =
+        _totalFrames > 0 ? (_droppedFrames / _totalFrames) * 100 : 0.0;
 
     double avgBuildTime = 0.0;
     double avgRasterTime = 0.0;
     double avgTotalTime = 0.0;
 
     if (_recentFrames.isNotEmpty) {
-      avgBuildTime = _recentFrames
-              .map((f) => f.buildDuration)
-              .reduce((a, b) => a + b) /
-          _recentFrames.length;
+      avgBuildTime =
+          _recentFrames.map((f) => f.buildDuration).reduce((a, b) => a + b) /
+              _recentFrames.length;
 
-      avgRasterTime = _recentFrames
-              .map((f) => f.rasterDuration)
-              .reduce((a, b) => a + b) /
-          _recentFrames.length;
+      avgRasterTime =
+          _recentFrames.map((f) => f.rasterDuration).reduce((a, b) => a + b) /
+              _recentFrames.length;
 
-      avgTotalTime = _recentFrames
-              .map((f) => f.totalDuration)
-              .reduce((a, b) => a + b) /
-          _recentFrames.length;
+      avgTotalTime =
+          _recentFrames.map((f) => f.totalDuration).reduce((a, b) => a + b) /
+              _recentFrames.length;
     }
 
     final startTime = _monitoringStartTime;

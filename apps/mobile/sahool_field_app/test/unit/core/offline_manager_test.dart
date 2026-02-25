@@ -64,7 +64,8 @@ void main() {
         );
 
         // Assert
-        final savedItem = await offlineManager.getLocalItem(entityId, entityType);
+        final savedItem =
+            await offlineManager.getLocalItem(entityId, entityType);
         expect(savedItem, isNotNull);
         expect(savedItem!.id, entityId);
         expect(savedItem.entityType, entityType);
@@ -93,7 +94,8 @@ void main() {
         );
 
         // Assert
-        final savedItem = await offlineManager.getLocalItem(entityId, entityType);
+        final savedItem =
+            await offlineManager.getLocalItem(entityId, entityType);
         expect(savedItem!.data['title'], 'Updated Task');
         expect(savedItem.data['status'], 'done');
       });
@@ -200,7 +202,8 @@ void main() {
       test('should emit pending count updates', () async {
         // Arrange
         final counts = <int>[];
-        final subscription = offlineManager.pendingChangesCount.listen(counts.add);
+        final subscription =
+            offlineManager.pendingChangesCount.listen(counts.add);
 
         // Act
         await offlineManager.saveLocally(

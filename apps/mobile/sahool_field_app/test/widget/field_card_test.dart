@@ -26,7 +26,8 @@ void main() {
       expect(find.text('100 هكتار'), findsOneWidget);
     });
 
-    testWidgets('should show health indicator with correct color', (tester) async {
+    testWidgets('should show health indicator with correct color',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Directionality(
@@ -54,12 +55,14 @@ void main() {
         ),
       );
 
-      final container = tester.widget<Container>(find.byKey(const Key('health-good')));
+      final container =
+          tester.widget<Container>(find.byKey(const Key('health-good')));
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, Colors.green);
     });
 
-    testWidgets('should show warning indicator for poor health', (tester) async {
+    testWidgets('should show warning indicator for poor health',
+        (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Directionality(
@@ -87,7 +90,8 @@ void main() {
         ),
       );
 
-      final container = tester.widget<Container>(find.byKey(const Key('health-warning')));
+      final container =
+          tester.widget<Container>(find.byKey(const Key('health-warning')));
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.color, Colors.orange);
     });

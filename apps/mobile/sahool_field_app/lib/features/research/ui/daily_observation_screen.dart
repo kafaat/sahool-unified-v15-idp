@@ -264,7 +264,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
               ),
               child: const Text(
                 'الآن',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -299,7 +300,9 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                     color: isSelected ? Colors.green : Colors.grey.shade100,
                     borderRadius: BorderRadius.circular(25),
                     border: Border.all(
-                      color: isSelected ? Colors.green.shade700 : Colors.grey.shade300,
+                      color: isSelected
+                          ? Colors.green.shade700
+                          : Colors.grey.shade300,
                     ),
                   ),
                   child: Center(
@@ -337,12 +340,15 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
             return GestureDetector(
               onTap: () => setState(() => _selectedCategory = cat['id']),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: isSelected ? Colors.green : Colors.white,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: isSelected ? Colors.green.shade700 : Colors.grey.shade300,
+                    color: isSelected
+                        ? Colors.green.shade700
+                        : Colors.grey.shade300,
                   ),
                 ),
                 child: Row(
@@ -354,7 +360,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                       cat['label'],
                       style: TextStyle(
                         color: isSelected ? Colors.white : Colors.black87,
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight:
+                            isSelected ? FontWeight.bold : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -409,13 +416,15 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                 value: entry.type,
                 decoration: const InputDecoration(
                   labelText: 'النوع',
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   border: OutlineInputBorder(),
                 ),
                 items: _measurementTypes
                     .map((t) => DropdownMenuItem(
                           value: t['id'],
-                          child: Text(t['label']!, style: const TextStyle(fontSize: 13)),
+                          child: Text(t['label']!,
+                              style: const TextStyle(fontSize: 13)),
                         ))
                     .toList(),
                 onChanged: (value) {
@@ -431,15 +440,15 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                 decoration: InputDecoration(
                   labelText: 'القيمة',
                   suffix: Text(
-                    _measurementTypes
-                            .firstWhere(
-                              (t) => t['id'] == entry.type,
-                              orElse: () => {'unit': ''},
-                            )['unit'] ??
+                    _measurementTypes.firstWhere(
+                          (t) => t['id'] == entry.type,
+                          orElse: () => {'unit': ''},
+                        )['unit'] ??
                         '',
                     style: const TextStyle(fontSize: 12),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   border: const OutlineInputBorder(),
                 ),
                 onChanged: (value) {
@@ -472,7 +481,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
         fillColor: Colors.grey.shade50,
       ),
       validator: (value) {
-        if ((value == null || value.isEmpty) && _measurements.every((m) => m.value == null)) {
+        if ((value == null || value.isEmpty) &&
+            _measurements.every((m) => m.value == null)) {
           return 'يرجى إدخال ملاحظات أو قياس واحد على الأقل';
         }
         return null;
@@ -523,7 +533,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close, color: Colors.white, size: 14),
+                          child: const Icon(Icons.close,
+                              color: Colors.white, size: 14),
                         ),
                       ),
                     ),
@@ -545,7 +556,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                 label: const Text('الكاميرا'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -557,7 +569,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
                 label: const Text('المعرض'),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
             ),
@@ -577,7 +590,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
             ? const SizedBox(
                 width: 20,
                 height: 20,
-                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                child: CircularProgressIndicator(
+                    color: Colors.white, strokeWidth: 2),
               )
             : Icon(_isOffline ? Icons.save : Icons.cloud_upload),
         label: Text(
@@ -589,7 +603,8 @@ class _DailyObservationScreenState extends State<DailyObservationScreen> {
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.green.shade700,
           foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

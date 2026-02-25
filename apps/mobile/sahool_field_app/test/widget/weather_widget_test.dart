@@ -15,7 +15,9 @@ void main() {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: const [
-                    Text('32°C', style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold)),
+                    Text('32°C',
+                        style: TextStyle(
+                            fontSize: 48, fontWeight: FontWeight.bold)),
                     Text('صنعاء'),
                   ],
                 ),
@@ -134,7 +136,8 @@ void main() {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red, size: 48),
+                    const Icon(Icons.error_outline,
+                        color: Colors.red, size: 48),
                     const SizedBox(height: 16),
                     const Text('فشل تحميل بيانات الطقس'),
                     const SizedBox(height: 8),

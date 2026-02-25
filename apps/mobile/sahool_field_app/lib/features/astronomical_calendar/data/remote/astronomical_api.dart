@@ -372,6 +372,5 @@ class AstronomicalApiException implements Exception {
   AstronomicalApiException(this.message, {this.statusCode});
 
   @override
-  String toString() =>
-      'AstronomicalApiException: $message (code: $statusCode)';
+  String toString() => 'AstronomicalApiException: $message (code: $statusCode)';
 }

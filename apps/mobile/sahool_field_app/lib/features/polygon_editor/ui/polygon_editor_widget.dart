@@ -147,7 +147,9 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: (isSelected ? widget.selectedVertexColor : widget.polygonColor)
+                      color: (isSelected
+                              ? widget.selectedVertexColor
+                              : widget.polygonColor)
                           .withOpacity(0.4),
                       blurRadius: isSelected ? 12 : 6,
                       spreadRadius: isSelected ? 2 : 0,
@@ -160,7 +162,9 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: isSelected || isDragging ? Colors.white : widget.polygonColor,
+                      color: isSelected || isDragging
+                          ? Colors.white
+                          : widget.polygonColor,
                     ),
                   ),
                 ),
@@ -170,7 +174,8 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
               if (widget.showLabels && index == 0)
                 Container(
                   margin: const EdgeInsets.only(top: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: widget.polygonColor,
                     borderRadius: BorderRadius.circular(8),
@@ -252,7 +257,8 @@ class _PolygonEditorWidgetState extends State<PolygonEditorWidget> {
     final currentPoint = points[index];
 
     // Project current point to screen coordinates
-    final screenPoint = widget.mapController.camera.latLngToScreenPoint(currentPoint);
+    final screenPoint =
+        widget.mapController.camera.latLngToScreenPoint(currentPoint);
 
     // Apply delta
     final newScreenPoint = Point<double>(
@@ -361,7 +367,8 @@ class PolygonEditorToolbar extends StatelessWidget {
               // Area display
               if (editorState.isClosed)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
                     color: SahoolColors.success.withOpacity(0.1),
@@ -370,7 +377,8 @@ class PolygonEditorToolbar extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.straighten, size: 20, color: SahoolColors.success),
+                      Icon(Icons.straighten,
+                          size: 20, color: SahoolColors.success),
                       const SizedBox(width: 8),
                       Text(
                         '${area.toStringAsFixed(2)} ${areaUnit.label}',
@@ -404,7 +412,8 @@ class PolygonEditorToolbar extends StatelessWidget {
 
                   // Close polygon
                   _ToolbarButton(
-                    icon: editorState.isClosed ? Icons.edit : Icons.check_circle,
+                    icon:
+                        editorState.isClosed ? Icons.edit : Icons.check_circle,
                     label: editorState.isClosed ? 'تعديل' : 'إغلاق',
                     onPressed: editorState.canClose
                         ? () {
@@ -483,7 +492,8 @@ class _ToolbarButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: isEnabled ? buttonColor.withOpacity(0.1) : Colors.grey[200],
+                color:
+                    isEnabled ? buttonColor.withOpacity(0.1) : Colors.grey[200],
                 shape: BoxShape.circle,
               ),
               child: Icon(

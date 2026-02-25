@@ -31,8 +31,10 @@ void main() {
           )).thenAnswer((_) async => ApiResponse.success(
             AlertsPageResponse.fromJson({
               'alerts': [
-                sampleAlertJson(id: 'a1', type: 'irrigation', severity: 'warning'),
-                sampleAlertJson(id: 'a2', type: 'weather', severity: 'critical'),
+                sampleAlertJson(
+                    id: 'a1', type: 'irrigation', severity: 'warning'),
+                sampleAlertJson(
+                    id: 'a2', type: 'weather', severity: 'critical'),
               ],
               'total': 2,
             }),
@@ -56,10 +58,11 @@ void main() {
     test('should return fallback alerts when API fails', () async {
       // Arrange
       when(() => mockApi.getFieldAlerts(
-            fieldId: any(named: 'fieldId'),
-            status: any(named: 'status'),
-            limit: any(named: 'limit'),
-          )).thenAnswer((_) async =>
+                fieldId: any(named: 'fieldId'),
+                status: any(named: 'status'),
+                limit: any(named: 'limit'),
+              ))
+          .thenAnswer((_) async =>
               errorResponse<AlertsPageResponse>('ERR_500', 'Server error'));
 
       final container = ProviderContainer(
@@ -179,8 +182,9 @@ void main() {
     test('should return null when API fails', () async {
       // Arrange
       when(() => mockApi.getAlertStats(
-            fieldId: any(named: 'fieldId'),
-          )).thenAnswer((_) async =>
+                fieldId: any(named: 'fieldId'),
+              ))
+          .thenAnswer((_) async =>
               errorResponse<AlertStats>('ERR_500', 'Server error'));
 
       final container = ProviderContainer(
@@ -228,9 +232,10 @@ void main() {
     test('should return false when API fails', () async {
       // Arrange
       when(() => mockApi.acknowledgeAlert(
-            alertId: any(named: 'alertId'),
-            userId: any(named: 'userId'),
-          )).thenAnswer((_) async =>
+                alertId: any(named: 'alertId'),
+                userId: any(named: 'userId'),
+              ))
+          .thenAnswer((_) async =>
               errorResponse<AlertModel>('ERR_500', 'Server error'));
 
       final container = ProviderContainer(

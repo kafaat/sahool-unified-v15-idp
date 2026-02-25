@@ -259,9 +259,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: _isLoading
-                      ? null
-                      : (_isOtpSent ? _verifyOtp : _sendOtp),
+                  onPressed:
+                      _isLoading ? null : (_isOtpSent ? _verifyOtp : _sendOtp),
                   child: _isLoading
                       ? const SizedBox(
                           width: 24,
@@ -343,16 +342,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: _phoneErrorMessage != null
-                  ? Colors.red
-                  : Colors.grey[300]!,
+              color:
+                  _phoneErrorMessage != null ? Colors.red : Colors.grey[300]!,
             ),
           ),
           child: Row(
             children: [
               // Country code
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(color: Colors.grey[300]!),
@@ -390,7 +389,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   decoration: const InputDecoration(
                     hintText: '7XX XXX XXX',
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                   ),
                   inputFormatters: InputValidator.phoneFormatters(maxLength: 9),
                   onChanged: (_) => setState(() {

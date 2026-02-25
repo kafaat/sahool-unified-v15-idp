@@ -145,7 +145,8 @@ void main() {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                    const Icon(Icons.error_outline,
+                        size: 48, color: Colors.red),
                     const SizedBox(height: 16),
                     const Text('حدث خطأ في الاتصال'),
                     const SizedBox(height: 16),
@@ -236,7 +237,9 @@ void main() {
               body: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('John Deere 8R 410', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text('John Deere 8R 410',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   Text('جرار زراعي • 410 حصان'),
                   SizedBox(height: 16),
                   Row(
@@ -314,7 +317,9 @@ void main() {
             home: Scaffold(
               body: Column(
                 children: [
-                  Text('إضافة معدة جديدة', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  Text('إضافة معدة جديدة',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   SizedBox(height: 24),
                   TextField(
                     decoration: InputDecoration(
@@ -391,7 +396,9 @@ class _StatBox extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text(count, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          Text(count,
+              style:
+                  const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
           Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
         ],
       ),

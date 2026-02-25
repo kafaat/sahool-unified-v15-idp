@@ -87,10 +87,13 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                                   width: 120,
                                   height: 120,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      Icon(Icons.broken_image, size: 60, color: Colors.grey.shade400),
+                                      Icon(Icons.broken_image,
+                                          size: 60,
+                                          color: Colors.grey.shade400),
                                 ),
                               )
-                            : Icon(Icons.inventory_2, size: 60, color: Colors.grey.shade400),
+                            : Icon(Icons.inventory_2,
+                                size: 60, color: Colors.grey.shade400),
                   ),
                   Positioned(
                     bottom: 0,
@@ -390,7 +393,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
               onPressed: _submitForm,
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                textStyle:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               child: const Text('إضافة العنصر'),
             ),
@@ -437,7 +441,8 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result.errorAr ?? result.error ?? 'فشل في رفع الصورة'),
+              content:
+                  Text(result.errorAr ?? result.error ?? 'فشل في رفع الصورة'),
               backgroundColor: Colors.red,
             ),
           );
@@ -515,13 +520,19 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
       unitPrice: _unitPriceController.text.isEmpty
           ? null
           : double.tryParse(_unitPriceController.text),
-      batchNumber: _batchNumberController.text.isEmpty ? null : _batchNumberController.text,
-      lotNumber: _lotNumberController.text.isEmpty ? null : _lotNumberController.text,
+      batchNumber: _batchNumberController.text.isEmpty
+          ? null
+          : _batchNumberController.text,
+      lotNumber:
+          _lotNumberController.text.isEmpty ? null : _lotNumberController.text,
       expiryDate: _expiryDate,
       imageUrl: _imageUrl,
-      description: _descriptionController.text.isEmpty ? null : _descriptionController.text,
-      descriptionAr:
-          _descriptionArController.text.isEmpty ? null : _descriptionArController.text,
+      description: _descriptionController.text.isEmpty
+          ? null
+          : _descriptionController.text,
+      descriptionAr: _descriptionArController.text.isEmpty
+          ? null
+          : _descriptionArController.text,
     );
 
     if (mounted) {

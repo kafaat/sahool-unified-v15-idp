@@ -31,9 +31,9 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
 
   final List<_MapLayer> _layers = [
     _MapLayer('القمر الصناعي', Icons.satellite_alt,
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
-    _MapLayer('الخريطة', Icons.map,
-      'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'),
+    _MapLayer(
+        'الخريطة', Icons.map, 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'),
   ];
 
   @override
@@ -83,7 +83,8 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                 // طبقة التسميات (فوق القمر الصناعي)
                 if (_selectedLayerIndex == 0)
                   TileLayer(
-                    urlTemplate: 'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png',
+                    urlTemplate:
+                        'https://stamen-tiles.a.ssl.fastly.net/toner-labels/{z}/{x}/{y}.png',
                     userAgentPackageName: 'com.kafaat.sahool',
                     backgroundColor: Colors.transparent,
                   ),
@@ -101,7 +102,8 @@ class _ProHomeScreenState extends ConsumerState<ProHomeScreen> {
                             ? SahoolProColors.tractorYellow.withOpacity(0.4)
                             : (isSynced
                                 ? SahoolProColors.johnGreen.withOpacity(0.3)
-                                : SahoolProColors.warningOrange.withOpacity(0.3)),
+                                : SahoolProColors.warningOrange
+                                    .withOpacity(0.3)),
                         borderColor: isSelected
                             ? Colors.white
                             : (isSynced

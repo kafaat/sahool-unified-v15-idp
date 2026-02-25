@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { AuthModule } from "@sahool/nestjs-auth";
 import { HealthController } from "./health/health.controller";
 import { PhenologyController } from "./phenology/phenology.controller";
 import { PhenologyService } from "./phenology/phenology.service";
@@ -35,6 +36,11 @@ import { GISIntegrationService } from "./gis-integration/gis-integration.service
 
 @Module({
   imports: [
+    // Shared JWT authentication (replaces local custom guard)
+    AuthModule.forRoot({
+      enableUserValidation: false,
+      enableTokenRevocation: false,
+    }),
     // Rate limiting configuration
     ThrottlerModule.forRoot([
       {

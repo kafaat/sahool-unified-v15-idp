@@ -26,15 +26,17 @@ final advisorRepositoryProvider = Provider<AdvisorRepository>((ref) {
 
 /// Provider for available crop types
 /// موفر أنواع المحاصيل المتاحة
-final fertilizerCropsProvider = FutureProvider<List<CropTypeOption>>((ref) async {
+final fertilizerCropsProvider =
+    FutureProvider<List<CropTypeOption>>((ref) async {
   final repository = ref.watch(advisorRepositoryProvider);
   return repository.getFertilizerCrops();
 });
 
 /// Provider for fertilizer recommendation
 /// موفر توصية التسميد
-final fertilizerRecommendationProvider = FutureProvider.family<
-    FertilizerRecommendation, FertilizerRequest>((ref, request) async {
+final fertilizerRecommendationProvider =
+    FutureProvider.family<FertilizerRecommendation, FertilizerRequest>(
+        (ref, request) async {
   final repository = ref.watch(advisorRepositoryProvider);
   return repository.getFertilizerRecommendation(request);
 });
@@ -42,7 +44,8 @@ final fertilizerRecommendationProvider = FutureProvider.family<
 /// Provider for soil interpretation
 /// موفر تفسير التربة
 final soilInterpretationProvider =
-    FutureProvider.family<SoilInterpretation, SoilAnalysis>((ref, soilData) async {
+    FutureProvider.family<SoilInterpretation, SoilAnalysis>(
+        (ref, soilData) async {
   final repository = ref.watch(advisorRepositoryProvider);
   return repository.interpretSoil(soilData);
 });
@@ -83,8 +86,9 @@ final irrigationMethodsProvider =
 
 /// Provider for irrigation calculation
 /// موفر حساب الري
-final irrigationCalculationProvider = FutureProvider.family<
-    IrrigationCalculation, IrrigationRequest>((ref, request) async {
+final irrigationCalculationProvider =
+    FutureProvider.family<IrrigationCalculation, IrrigationRequest>(
+        (ref, request) async {
   final repository = ref.watch(advisorRepositoryProvider);
   return repository.calculateIrrigation(request);
 });

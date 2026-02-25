@@ -141,8 +141,8 @@ class AdvisorRepository {
       if (nutrient != null) queryParams['nutrient'] = nutrient;
       if (cropType != null) queryParams['crop'] = cropType;
 
-      final uri = Uri.parse(ApiConfig.deficiencySymptoms)
-          .replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+      final uri = Uri.parse(ApiConfig.deficiencySymptoms).replace(
+          queryParameters: queryParams.isNotEmpty ? queryParams : null);
 
       final response = await _client.get(uri, headers: _headers);
 

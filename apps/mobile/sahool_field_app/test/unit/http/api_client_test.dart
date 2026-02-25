@@ -9,8 +9,12 @@ import 'package:sahool_field_app/core/security/certificate_pinning_service.dart'
 
 /// Mock dependencies
 class MockDio extends Mock implements Dio {}
-class MockCertificatePinningService extends Mock implements CertificatePinningService {}
+
+class MockCertificatePinningService extends Mock
+    implements CertificatePinningService {}
+
 class MockRequestOptions extends Mock implements RequestOptions {}
+
 class MockResponse extends Mock implements Response {}
 
 void main() {
@@ -210,7 +214,8 @@ void main() {
 
       test('should handle no connection error', () async {
         // Arrange
-        final client = ApiClient(baseUrl: 'https://192.0.2.1'); // Test IP that won't respond
+        final client = ApiClient(
+            baseUrl: 'https://192.0.2.1'); // Test IP that won't respond
 
         try {
           // Act

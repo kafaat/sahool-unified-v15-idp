@@ -24,7 +24,8 @@ class GeoUtils {
       final k = (i + 2) % n;
 
       total += _toRadians(polygon[j].longitude - polygon[i].longitude) *
-          (2 + math.sin(_toRadians(polygon[i].latitude)) +
+          (2 +
+              math.sin(_toRadians(polygon[i].latitude)) +
               math.sin(_toRadians(polygon[j].latitude)));
     }
 
@@ -75,7 +76,8 @@ class GeoUtils {
     final dLat = _toRadians(b.latitude - a.latitude);
     final dLng = _toRadians(b.longitude - a.longitude);
 
-    final h = _haversin(dLat) + math.cos(lat1) * math.cos(lat2) * _haversin(dLng);
+    final h =
+        _haversin(dLat) + math.cos(lat1) * math.cos(lat2) * _haversin(dLng);
     return 2 * _earthRadius * math.asin(math.sqrt(h));
   }
 
@@ -124,7 +126,8 @@ class GeoUtils {
     List<LatLng> vertices, {
     double thresholdMeters = 20,
   }) {
-    final index = findNearestVertex(point, vertices, thresholdMeters: thresholdMeters);
+    final index =
+        findNearestVertex(point, vertices, thresholdMeters: thresholdMeters);
     return index != null ? vertices[index] : null;
   }
 
@@ -193,7 +196,8 @@ class GeoUtils {
       final xi = polygon[i].longitude, yi = polygon[i].latitude;
       final xj = polygon[j].longitude, yj = polygon[j].latitude;
 
-      if (((yi > py) != (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+      if (((yi > py) != (yj > py)) &&
+          (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
         inside = !inside;
       }
     }
@@ -275,13 +279,15 @@ Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
   // إغلاق المضلع إذا لم يكن مغلقاً
   if (coordinates.isNotEmpty &&
       (coordinates.first[0] != coordinates.last[0] ||
-       coordinates.first[1] != coordinates.last[1])) {
+          coordinates.first[1] != coordinates.last[1])) {
     coordinates.add(List.from(coordinates.first));
   }
 
   return {
     "type": "Polygon",
-    "coordinates": [coordinates] // مصفوفة داخل مصفوفة (لأن المضلع قد يحتوي ثقوباً)
+    "coordinates": [
+      coordinates
+    ] // مصفوفة داخل مصفوفة (لأن المضلع قد يحتوي ثقوباً)
   };
 }
 
@@ -306,7 +312,8 @@ List<LatLng> fromGeoJsonPolygon(Map<String, dynamic> geoJson) {
 
   return ring.map<LatLng>((coord) {
     final c = coord as List;
-    return LatLng(c[1] as double, c[0] as double); // [lon, lat] -> LatLng(lat, lon)
+    return LatLng(
+        c[1] as double, c[0] as double); // [lon, lat] -> LatLng(lat, lon)
   }).toList();
 }
 
@@ -372,8 +379,8 @@ Map<String, dynamic> fieldToApiPayload({
     if (irrigationType != null) "irrigationType": irrigationType,
     if (soilType != null) "soilType": soilType,
     if (plantingDate != null) "plantingDate": plantingDate.toIso8601String(),
-    if (expectedHarvest != null) "expectedHarvest": expectedHarvest.toIso8601String(),
+    if (expectedHarvest != null)
+      "expectedHarvest": expectedHarvest.toIso8601String(),
     if (metadata != null) "metadata": metadata,
   };
 }
-

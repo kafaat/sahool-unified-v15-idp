@@ -87,7 +87,8 @@ final cropGDDRequirementsProvider = FutureProvider.autoDispose
 });
 
 /// مزود قائمة المحاصيل المدعومة
-final supportedCropsProvider = FutureProvider.autoDispose<List<CropGDDRequirements>>((ref) async {
+final supportedCropsProvider =
+    FutureProvider.autoDispose<List<CropGDDRequirements>>((ref) async {
   final service = ref.watch(gddServiceProvider);
   final result = await service.getSupportedCrops();
 
@@ -166,10 +167,14 @@ final gddChartDataProvider = FutureProvider.autoDispose
       ? await ref.watch(gddServiceProvider).getGrowthStages(params.fieldId)
       : null;
 
-  final records = recordsResult.isSuccess ? (recordsResult.data ?? []) : <GDDRecord>[];
-  final forecasts =
-      forecastResult?.isSuccess ?? false ? (forecastResult!.data ?? []) : <GDDForecast>[];
-  final stages = stagesResult?.isSuccess ?? false ? (stagesResult!.data ?? []) : <GrowthStage>[];
+  final records =
+      recordsResult.isSuccess ? (recordsResult.data ?? []) : <GDDRecord>[];
+  final forecasts = forecastResult?.isSuccess ?? false
+      ? (forecastResult!.data ?? [])
+      : <GDDForecast>[];
+  final stages = stagesResult?.isSuccess ?? false
+      ? (stagesResult!.data ?? [])
+      : <GrowthStage>[];
 
   return GDDChartData(
     records: records,
@@ -185,10 +190,12 @@ final gddChartDataProvider = FutureProvider.autoDispose
 /// مزود الحقل المحدد حالياً لـ GDD
 /// Note: This is scoped to GDD feature. Use core/providers/selected_field_provider.dart
 /// for app-wide field selection.
-final gddSelectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null);
+final gddSelectedFieldIdProvider =
+    StateProvider.autoDispose<String?>((ref) => null);
 
 /// مزود نطاق التاريخ المحدد - autoDispose for proper cleanup
-final selectedDateRangeProvider = StateProvider.autoDispose<DateRange?>((ref) => null);
+final selectedDateRangeProvider =
+    StateProvider.autoDispose<DateRange?>((ref) => null);
 
 /// مزود عرض التوقعات - autoDispose for proper cleanup
 final showForecastProvider = StateProvider.autoDispose<bool>((ref) => true);
@@ -205,7 +212,8 @@ class GDDSettingsController extends StateNotifier<AsyncValue<void>> {
   final GDDService _service;
   final Ref _ref;
 
-  GDDSettingsController(this._service, this._ref) : super(const AsyncValue.data(null));
+  GDDSettingsController(this._service, this._ref)
+      : super(const AsyncValue.data(null));
 
   /// تحديث إعدادات GDD
   Future<bool> updateSettings(String fieldId, GDDSettings settings) async {

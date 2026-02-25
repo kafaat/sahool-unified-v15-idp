@@ -88,7 +88,8 @@ class ApiResponse<T> {
     return ApiResponse(success: true, data: data, requestId: requestId);
   }
 
-  factory ApiResponse.error(String code, String message, {String? messageAr, String? requestId}) {
+  factory ApiResponse.error(String code, String message,
+      {String? messageAr, String? requestId}) {
     return ApiResponse(
       success: false,
       errorCode: code,
@@ -320,14 +321,40 @@ class KongServices {
   );
 
   static List<KongService> get all => [
-    fields, auth, weather, vegetation, satellite, ndvi,
-    irrigation, advisory, cropHealth, tasks, equipment,
-    alerts, notifications, marketplace, iot, yield_,
-    billing, inventory, spray, userProfile, community,
-    chat, virtualSensors, aiAdvisor, crops, indicators, research,
-    copilot, pestDetection, soilAnalysis, irrigationEngine,
-    fieldIntelligence, astronomicalCalendar,
-  ];
+        fields,
+        auth,
+        weather,
+        vegetation,
+        satellite,
+        ndvi,
+        irrigation,
+        advisory,
+        cropHealth,
+        tasks,
+        equipment,
+        alerts,
+        notifications,
+        marketplace,
+        iot,
+        yield_,
+        billing,
+        inventory,
+        spray,
+        userProfile,
+        community,
+        chat,
+        virtualSensors,
+        aiAdvisor,
+        crops,
+        indicators,
+        research,
+        copilot,
+        pestDetection,
+        soilAnalysis,
+        irrigationEngine,
+        fieldIntelligence,
+        astronomicalCalendar,
+      ];
 
   /// Get service by name
   static KongService? getByName(String name) {
@@ -424,12 +451,14 @@ class KongGatewayClient {
         };
       }
     } catch (e) {
-      AppLogger.e('Error configuring TLS settings', tag: 'KongGateway', error: e);
+      AppLogger.e('Error configuring TLS settings',
+          tag: 'KongGateway', error: e);
     }
   }
 
   /// Set authentication tokens
-  void setTokens({required String accessToken, String? refreshToken, String? tenantId}) {
+  void setTokens(
+      {required String accessToken, String? refreshToken, String? tenantId}) {
     _accessToken = accessToken;
     _refreshToken = refreshToken;
     _tenantId = tenantId;
@@ -590,7 +619,8 @@ class KongGatewayClient {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
-          receiveTimeout: const Duration(seconds: 120), // Longer timeout for uploads
+          receiveTimeout:
+              const Duration(seconds: 120), // Longer timeout for uploads
         ),
         cancelToken: cancelToken,
         onSendProgress: onProgress,
@@ -600,7 +630,8 @@ class KongGatewayClient {
       final requestId = response.headers.value('X-Request-Id');
 
       if (fromJson != null && response.data != null) {
-        return ApiResponse.success(fromJson(response.data), requestId: requestId);
+        return ApiResponse.success(fromJson(response.data),
+            requestId: requestId);
       }
       return ApiResponse.success(response.data as T, requestId: requestId);
     } on DioException catch (e) {
@@ -608,7 +639,8 @@ class KongGatewayClient {
       return _handleDioError<T>(e);
     } catch (e) {
       _recordFailure(service.name);
-      return ApiResponse.error('UPLOAD_ERROR', e.toString(), messageAr: 'فشل في رفع الملف');
+      return ApiResponse.error('UPLOAD_ERROR', e.toString(),
+          messageAr: 'فشل في رفع الملف');
     }
   }
 
@@ -637,9 +669,9 @@ class KongGatewayClient {
     try {
       final files = await Future.wait(
         filePaths.map((path) async => MultipartFile.fromFile(
-          path,
-          filename: path.split('/').last,
-        )),
+              path,
+              filename: path.split('/').last,
+            )),
       );
 
       final formData = FormData.fromMap({
@@ -652,7 +684,8 @@ class KongGatewayClient {
         data: formData,
         options: Options(
           headers: {'Content-Type': 'multipart/form-data'},
-          receiveTimeout: const Duration(seconds: 180), // Longer for multiple files
+          receiveTimeout:
+              const Duration(seconds: 180), // Longer for multiple files
         ),
         cancelToken: cancelToken,
         onSendProgress: onProgress,
@@ -662,7 +695,8 @@ class KongGatewayClient {
       final requestId = response.headers.value('X-Request-Id');
 
       if (fromJson != null && response.data != null) {
-        return ApiResponse.success(fromJson(response.data), requestId: requestId);
+        return ApiResponse.success(fromJson(response.data),
+            requestId: requestId);
       }
       return ApiResponse.success(response.data as T, requestId: requestId);
     } on DioException catch (e) {
@@ -670,7 +704,8 @@ class KongGatewayClient {
       return _handleDioError<T>(e);
     } catch (e) {
       _recordFailure(service.name);
-      return ApiResponse.error('UPLOAD_ERROR', e.toString(), messageAr: 'فشل في رفع الملفات');
+      return ApiResponse.error('UPLOAD_ERROR', e.toString(),
+          messageAr: 'فشل في رفع الملفات');
     }
   }
 
@@ -731,7 +766,8 @@ class KongGatewayClient {
         await NetworkCache.instance.set(cacheKey, response.data, ttl: cacheTtl);
       } catch (e) {
         if (kDebugMode) {
-          AppLogger.w('Failed to cache response: $cacheKey', tag: 'KongGateway');
+          AppLogger.w('Failed to cache response: $cacheKey',
+              tag: 'KongGateway');
         }
       }
     }
@@ -742,9 +778,7 @@ class KongGatewayClient {
   /// Invalidate cache for a specific service/path
   /// إبطال التخزين المؤقت لمسار معين
   Future<void> invalidateCache(KongService service, [String? path]) async {
-    final pattern = path != null
-        ? '${service.name}:$path'
-        : service.name;
+    final pattern = path != null ? '${service.name}:$path' : service.name;
     await NetworkCache.instance.removePattern(pattern);
   }
 
@@ -755,7 +789,8 @@ class KongGatewayClient {
   }
 
   /// Build cache key from request parameters
-  String _buildCacheKey(KongService service, String path, Map<String, dynamic>? queryParams) {
+  String _buildCacheKey(
+      KongService service, String path, Map<String, dynamic>? queryParams) {
     final base = '${service.name}:$path';
     if (queryParams == null || queryParams.isEmpty) {
       return base;
@@ -777,17 +812,29 @@ class KongGatewayClient {
     final futures = requests.map((req) {
       switch (req.method.toUpperCase()) {
         case 'GET':
-          return get(req.service, req.path, queryParams: req.queryParams, fromJson: req.fromJson);
+          return get(req.service, req.path,
+              queryParams: req.queryParams, fromJson: req.fromJson);
         case 'POST':
-          return post(req.service, req.path, data: req.data, queryParams: req.queryParams, fromJson: req.fromJson);
+          return post(req.service, req.path,
+              data: req.data,
+              queryParams: req.queryParams,
+              fromJson: req.fromJson);
         case 'PUT':
-          return put(req.service, req.path, data: req.data, queryParams: req.queryParams, fromJson: req.fromJson);
+          return put(req.service, req.path,
+              data: req.data,
+              queryParams: req.queryParams,
+              fromJson: req.fromJson);
         case 'PATCH':
-          return patch(req.service, req.path, data: req.data, queryParams: req.queryParams, fromJson: req.fromJson);
+          return patch(req.service, req.path,
+              data: req.data,
+              queryParams: req.queryParams,
+              fromJson: req.fromJson);
         case 'DELETE':
-          return delete(req.service, req.path, queryParams: req.queryParams, fromJson: req.fromJson);
+          return delete(req.service, req.path,
+              queryParams: req.queryParams, fromJson: req.fromJson);
         default:
-          return Future.value(ApiResponse<dynamic>.error('INVALID_METHOD', 'Invalid HTTP method: ${req.method}'));
+          return Future.value(ApiResponse<dynamic>.error(
+              'INVALID_METHOD', 'Invalid HTTP method: ${req.method}'));
       }
     });
 
@@ -811,7 +858,9 @@ class KongGatewayClient {
   }) async {
     if (_isCircuitOpen(service.name)) {
       return ConditionalResponse(
-        response: ApiResponse.error('CIRCUIT_OPEN', 'Service temporarily unavailable', messageAr: 'الخدمة غير متاحة مؤقتاً'),
+        response: ApiResponse.error(
+            'CIRCUIT_OPEN', 'Service temporarily unavailable',
+            messageAr: 'الخدمة غير متاحة مؤقتاً'),
         notModified: false,
       );
     }
@@ -824,7 +873,8 @@ class KongGatewayClient {
         queryParameters: queryParams,
         options: Options(
           headers: etag != null ? {'If-None-Match': etag} : null,
-          validateStatus: (status) => status != null && (status < 300 || status == 304),
+          validateStatus: (status) =>
+              status != null && (status < 300 || status == 304),
         ),
         cancelToken: cancelToken,
       );
@@ -886,7 +936,9 @@ class KongGatewayClient {
       if (response.statusCode == 200) {
         return ServiceHealth(
           serviceName: service.name,
-          status: latency > 2000 ? ServiceHealthStatus.degraded : ServiceHealthStatus.healthy,
+          status: latency > 2000
+              ? ServiceHealthStatus.degraded
+              : ServiceHealthStatus.healthy,
           latencyMs: latency,
           timestamp: DateTime.now(),
         );
@@ -919,9 +971,9 @@ class KongGatewayClient {
 
   /// Get rate limit info
   Map<String, dynamic> get rateLimitInfo => {
-    'remaining': _rateLimitRemaining,
-    'resetAt': _rateLimitReset?.toIso8601String(),
-  };
+        'remaining': _rateLimitRemaining,
+        'resetAt': _rateLimitReset?.toIso8601String(),
+      };
 
   // ═══════════════════════════════════════════════════════════════════════════
   // WebSocket Gateway
@@ -959,7 +1011,8 @@ class KongGatewayClient {
   bool get isNetworkConnected => _connectivityService?.isConnected ?? true;
 
   /// Get current connectivity state
-  NetworkConnectivityState? get networkState => _connectivityService?.currentState;
+  NetworkConnectivityState? get networkState =>
+      _connectivityService?.currentState;
 
   /// Check if the client can make requests
   /// (considers circuit breaker and connectivity)
@@ -990,7 +1043,8 @@ class KongGatewayClient {
   void resetServiceCircuitBreaker(KongService service) {
     _resetCircuitBreaker(service.name);
     if (kDebugMode) {
-      AppLogger.d('Circuit breaker reset for ${service.name}', tag: 'KongGateway');
+      AppLogger.d('Circuit breaker reset for ${service.name}',
+          tag: 'KongGateway');
     }
   }
 
@@ -1051,11 +1105,11 @@ class KongGatewayClient {
       _updateRateLimitInfo(response.headers);
 
       if (fromJson != null && responseData != null) {
-        return ApiResponse.success(fromJson(responseData), requestId: requestId);
+        return ApiResponse.success(fromJson(responseData),
+            requestId: requestId);
       }
 
       return ApiResponse.success(responseData as T, requestId: requestId);
-
     } on DioException catch (e) {
       _recordFailure(service.name);
 
@@ -1153,7 +1207,8 @@ class KongGatewayClient {
 
     if (_failureCount[serviceName]! >= _failureThreshold) {
       _circuitOpenTime[serviceName] = DateTime.now();
-      AppLogger.w('Circuit breaker opened for $serviceName', tag: 'KongGateway');
+      AppLogger.w('Circuit breaker opened for $serviceName',
+          tag: 'KongGateway');
     }
   }
 
@@ -1183,8 +1238,10 @@ class KongGatewayClient {
           if (errorData is Map) {
             return ApiResponse.error(
               errorData['code']?.toString() ?? 'BAD_REQUEST',
-              errorData['message']?.toString() ?? ApiErrorCodes.getMessageEn('BAD_REQUEST'),
-              messageAr: errorData['message_ar']?.toString() ?? ApiErrorCodes.getMessageAr('BAD_REQUEST'),
+              errorData['message']?.toString() ??
+                  ApiErrorCodes.getMessageEn('BAD_REQUEST'),
+              messageAr: errorData['message_ar']?.toString() ??
+                  ApiErrorCodes.getMessageAr('BAD_REQUEST'),
               requestId: requestId,
             );
           }
@@ -1227,8 +1284,10 @@ class KongGatewayClient {
           if (errorData is Map) {
             return ApiResponse.error(
               errorData['code']?.toString() ?? 'VALIDATION_ERROR',
-              errorData['message']?.toString() ?? ApiErrorCodes.getMessageEn('VALIDATION_ERROR'),
-              messageAr: errorData['message_ar']?.toString() ?? ApiErrorCodes.getMessageAr('VALIDATION_ERROR'),
+              errorData['message']?.toString() ??
+                  ApiErrorCodes.getMessageEn('VALIDATION_ERROR'),
+              messageAr: errorData['message_ar']?.toString() ??
+                  ApiErrorCodes.getMessageAr('VALIDATION_ERROR'),
               requestId: requestId,
             );
           }
@@ -1289,7 +1348,8 @@ class KongGatewayClient {
           return ApiResponse.error(
             errorData['code']?.toString() ?? 'ERROR',
             errorData['message']?.toString() ?? e.message ?? 'Unknown error',
-            messageAr: errorData['message_ar']?.toString() ?? ApiErrorCodes.getMessageAr('UNKNOWN'),
+            messageAr: errorData['message_ar']?.toString() ??
+                ApiErrorCodes.getMessageAr('UNKNOWN'),
             requestId: requestId,
           );
         }
@@ -1340,7 +1400,8 @@ class KongGatewayClient {
     return InterceptorsWrapper(
       onError: (error, handler) async {
         final extra = error.requestOptions.extra;
-        final maxRetries = extra['maxRetries'] as int? ?? _networkConfig.maxRetries;
+        final maxRetries =
+            extra['maxRetries'] as int? ?? _networkConfig.maxRetries;
         final retryCount = extra['retryCount'] as int? ?? 0;
 
         if (_shouldRetry(error) && retryCount < maxRetries) {

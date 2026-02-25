@@ -144,7 +144,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           sliver: SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
-                final filteredActions = ref.watch(priorityFilteredActionsProvider);
+                final filteredActions =
+                    ref.watch(priorityFilteredActionsProvider);
                 if (index >= filteredActions.length) return null;
 
                 final action = filteredActions[index];
@@ -267,7 +268,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
   Future<void> _refreshData() async {
     final date = ref.read(selectedDateProvider);
-    await ref.read(diagnosisProvider.notifier).loadDiagnosis(widget.fieldId, date);
+    await ref
+        .read(diagnosisProvider.notifier)
+        .loadDiagnosis(widget.fieldId, date);
     await ref.read(zonesProvider.notifier).loadZones(widget.fieldId);
   }
 
@@ -283,7 +286,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
     if (picked != null) {
       ref.read(selectedDateProvider.notifier).state = picked;
-      await ref.read(diagnosisProvider.notifier).loadDiagnosis(widget.fieldId, picked);
+      await ref
+          .read(diagnosisProvider.notifier)
+          .loadDiagnosis(widget.fieldId, picked);
     }
   }
 
@@ -606,8 +611,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                             Text(
                               action.priorityLabel,
                               style: TextStyle(
-                                color: Color(int.parse(
-                                    action.priorityColor.replaceFirst('#', '0xFF'))),
+                                color: Color(int.parse(action.priorityColor
+                                    .replaceFirst('#', '0xFF'))),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -645,7 +650,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                               e.value is num
                                   ? (e.value as num).toStringAsFixed(2)
                                   : e.value.toString(),
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ],
                         ),
@@ -754,7 +760,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           ],
         ),
         backgroundColor: const Color(0xFF367C2B),
-        duration: const Duration(seconds: 30), // Long duration, will be dismissed
+        duration:
+            const Duration(seconds: 30), // Long duration, will be dismissed
       ),
     );
 

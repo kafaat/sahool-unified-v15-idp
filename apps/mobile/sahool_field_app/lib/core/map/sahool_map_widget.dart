@@ -17,10 +17,10 @@ import 'map_providers.dart';
 
 /// Map interaction mode
 enum MapInteractionMode {
-  view,        // View only
+  view, // View only
   selectPoint, // Select a single point
   drawPolygon, // Draw field polygon
-  measure,     // Measure distance/area
+  measure, // Measure distance/area
 }
 
 /// SAHOOL Map Widget
@@ -96,7 +96,8 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
   void initState() {
     super.initState();
     _mapController = MapController();
-    _currentProvider = widget.providerConfig ?? SahoolMapProviders.defaultProvider;
+    _currentProvider =
+        widget.providerConfig ?? SahoolMapProviders.defaultProvider;
   }
 
   @override
@@ -179,15 +180,18 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
             ),
 
             // Field Polygons
-            if (widget.fieldPolygons case final polygons? when polygons.isNotEmpty)
+            if (widget.fieldPolygons case final polygons?
+                when polygons.isNotEmpty)
               PolygonLayer(
-                polygons: polygons.map((points) => Polygon(
-                  points: points,
-                  color: Colors.green.withOpacity(0.3),
-                  borderColor: Colors.green,
-                  borderStrokeWidth: 2,
-                  isFilled: true,
-                )).toList(),
+                polygons: polygons
+                    .map((points) => Polygon(
+                          points: points,
+                          color: Colors.green.withOpacity(0.3),
+                          borderColor: Colors.green,
+                          borderStrokeWidth: 2,
+                          isFilled: true,
+                        ))
+                    .toList(),
               ),
 
             // Drawing polygon
@@ -207,28 +211,32 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
             // Drawing points
             if (_drawnPoints.isNotEmpty)
               MarkerLayer(
-                markers: _drawnPoints.asMap().entries.map((entry) => Marker(
-                  point: entry.value,
-                  width: 24,
-                  height: 24,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${entry.key + 1}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                )).toList(),
+                markers: _drawnPoints
+                    .asMap()
+                    .entries
+                    .map((entry) => Marker(
+                          point: entry.value,
+                          width: 24,
+                          height: 24,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                            ),
+                            child: Center(
+                              child: Text(
+                                '${entry.key + 1}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ))
+                    .toList(),
               ),
 
             // Custom markers
@@ -313,12 +321,14 @@ class _SahoolMapWidgetState extends ConsumerState<SahoolMapWidget> {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     TextButton.icon(
-                      onPressed: _drawnPoints.isNotEmpty ? _undoLastPoint : null,
+                      onPressed:
+                          _drawnPoints.isNotEmpty ? _undoLastPoint : null,
                       icon: const Icon(Icons.undo),
                       label: const Text('تراجع'),
                     ),
                     ElevatedButton.icon(
-                      onPressed: _drawnPoints.length >= 3 ? _completePolygon : null,
+                      onPressed:
+                          _drawnPoints.length >= 3 ? _completePolygon : null,
                       icon: const Icon(Icons.check),
                       label: const Text('إنهاء'),
                       style: ElevatedButton.styleFrom(

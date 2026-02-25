@@ -30,7 +30,8 @@ class ConflictResolutionDialog extends StatefulWidget {
   });
 
   @override
-  State<ConflictResolutionDialog> createState() => _ConflictResolutionDialogState();
+  State<ConflictResolutionDialog> createState() =>
+      _ConflictResolutionDialogState();
 }
 
 class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
@@ -137,7 +138,8 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline, size: 18, color: SahoolColors.warning),
+              const Icon(Icons.info_outline,
+                  size: 18, color: SahoolColors.warning),
               const SizedBox(width: 8),
               const Text(
                 'ماذا حدث؟',
@@ -280,7 +282,8 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
         const SizedBox(height: 8),
         _buildOptionTile(
           title: 'مراجعة يدوياً',
-          subtitle: 'فتح تفاصيل ${_getEntityTypeLabel(widget.conflict.entityType)} للمراجعة',
+          subtitle:
+              'فتح تفاصيل ${_getEntityTypeLabel(widget.conflict.entityType)} للمراجعة',
           icon: Icons.edit_note,
           color: SahoolColors.secondary,
           choice: ConflictChoice.reviewManually,
@@ -371,7 +374,9 @@ class _ConflictResolutionDialogState extends State<ConflictResolutionDialog> {
         const SizedBox(width: 12),
         Expanded(
           child: ElevatedButton(
-            onPressed: _selectedChoice == null || _isProcessing ? null : _handleResolve,
+            onPressed: _selectedChoice == null || _isProcessing
+                ? null
+                : _handleResolve,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -456,7 +461,9 @@ class ConflictListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dismissible(
       key: Key('conflict_${conflict.id}'),
-      direction: onDismiss != null ? DismissDirection.endToStart : DismissDirection.none,
+      direction: onDismiss != null
+          ? DismissDirection.endToStart
+          : DismissDirection.none,
       onDismissed: (_) => onDismiss?.call(),
       background: Container(
         alignment: Alignment.centerLeft,

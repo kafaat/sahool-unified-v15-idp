@@ -352,8 +352,7 @@ final fieldProfitabilityListProvider = FutureProvider.family<
 });
 
 /// Break-Even Analysis Provider
-final breakEvenAnalysisProvider = FutureProvider.family<
-    BreakEvenAnalysis,
+final breakEvenAnalysisProvider = FutureProvider.family<BreakEvenAnalysis,
     ({String fieldId, String? season})>((ref, params) async {
   final service = ref.watch(profitabilityServiceProvider);
   final result = await service.getBreakEvenPoint(
@@ -368,8 +367,7 @@ final breakEvenAnalysisProvider = FutureProvider.family<
 });
 
 /// Historical Trend Provider
-final historicalTrendProvider = FutureProvider.family<
-    List<CropProfitability>,
+final historicalTrendProvider = FutureProvider.family<List<CropProfitability>,
     ({String fieldId, int years})>((ref, params) async {
   final service = ref.watch(profitabilityServiceProvider);
   final result = await service.getHistoricalTrend(

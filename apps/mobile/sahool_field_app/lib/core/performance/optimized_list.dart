@@ -52,10 +52,12 @@ class SahoolOptimizedListView<T> extends StatefulWidget {
   });
 
   @override
-  State<SahoolOptimizedListView<T>> createState() => _SahoolOptimizedListViewState<T>();
+  State<SahoolOptimizedListView<T>> createState() =>
+      _SahoolOptimizedListViewState<T>();
 }
 
-class _SahoolOptimizedListViewState<T> extends State<SahoolOptimizedListView<T>> {
+class _SahoolOptimizedListViewState<T>
+    extends State<SahoolOptimizedListView<T>> {
   late ScrollController _controller;
   bool _isLoadingMore = false;
 
@@ -114,9 +116,10 @@ class _SahoolOptimizedListViewState<T> extends State<SahoolOptimizedListView<T>>
 
     // Loading state (initial)
     if (widget.items.isEmpty && widget.isLoading) {
-      return widget.loadingWidget ?? const Center(
-        child: CircularProgressIndicator(),
-      );
+      return widget.loadingWidget ??
+          const Center(
+            child: CircularProgressIndicator(),
+          );
     }
 
     final itemCount = widget.items.length + (widget.hasMore ? 1 : 0);
@@ -126,7 +129,8 @@ class _SahoolOptimizedListViewState<T> extends State<SahoolOptimizedListView<T>>
       padding: widget.padding,
       shrinkWrap: widget.shrinkWrap,
       physics: widget.physics,
-      itemCount: widget.separatorBuilder != null ? itemCount * 2 - 1 : itemCount,
+      itemCount:
+          widget.separatorBuilder != null ? itemCount * 2 - 1 : itemCount,
       addRepaintBoundaries: widget.addRepaintBoundaries,
       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       itemBuilder: (context, index) {

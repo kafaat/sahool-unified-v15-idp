@@ -78,10 +78,10 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    final startTime = response.requestOptions.extra['request_start_time'] as DateTime?;
-    final duration = startTime != null
-        ? DateTime.now().difference(startTime)
-        : null;
+    final startTime =
+        response.requestOptions.extra['request_start_time'] as DateTime?;
+    final duration =
+        startTime != null ? DateTime.now().difference(startTime) : null;
 
     AppLogger.d(
       '┌─── Response ───────────────────────────────────────────',
@@ -139,10 +139,10 @@ class LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    final startTime = err.requestOptions.extra['request_start_time'] as DateTime?;
-    final duration = startTime != null
-        ? DateTime.now().difference(startTime)
-        : null;
+    final startTime =
+        err.requestOptions.extra['request_start_time'] as DateTime?;
+    final duration =
+        startTime != null ? DateTime.now().difference(startTime) : null;
 
     AppLogger.d(
       '┌─── Error ──────────────────────────────────────────────',
@@ -166,7 +166,8 @@ class LoggingInterceptor extends Interceptor {
     }
 
     // Log sanitized error message
-    final sanitizedMessage = PiiFilter.sanitizeError(err.message ?? 'Unknown error');
+    final sanitizedMessage =
+        PiiFilter.sanitizeError(err.message ?? 'Unknown error');
     AppLogger.d('│ Message: $sanitizedMessage', tag: 'HTTP');
 
     // Log sanitized error response body

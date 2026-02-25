@@ -104,8 +104,8 @@ class IrrigationScheduler {
     }
 
     int eventCount = 0;
-    while (eventDate.isBefore(now.add(Duration(days: days))) &&
-        eventCount < 30) {
+    while (
+        eventDate.isBefore(now.add(Duration(days: days))) && eventCount < 30) {
       // Calculate water need for this event
       double waterNeedMm = requirement.waterNeedMm * intervalDays;
 
@@ -136,7 +136,8 @@ class IrrigationScheduler {
           durationMinutes: durationMinutes,
           waterAmountLiters: waterLiters,
           status: 'pending',
-          notes: 'Auto-generated based on ET: ${requirement.etc.toStringAsFixed(1)} mm/day',
+          notes:
+              'Auto-generated based on ET: ${requirement.etc.toStringAsFixed(1)} mm/day',
         ));
       }
 
@@ -213,7 +214,8 @@ class IrrigationScheduler {
     // Morning irrigation recommendation
     recommendations.add(ScheduleRecommendation(
       type: RecommendationType.timing,
-      message: 'Schedule irrigation in early morning (5-8 AM) to reduce evaporation losses',
+      message:
+          'Schedule irrigation in early morning (5-8 AM) to reduce evaporation losses',
       messageAr: 'جدول الري في الصباح الباكر (5-8 صباحًا) لتقليل فقد التبخر',
       priority: RecommendationPriority.medium,
     ));
@@ -222,8 +224,10 @@ class IrrigationScheduler {
     if (requirement.etc > 7.0) {
       recommendations.add(ScheduleRecommendation(
         type: RecommendationType.waterNeed,
-        message: 'High evapotranspiration (${requirement.etc.toStringAsFixed(1)} mm/day). Consider increasing irrigation frequency.',
-        messageAr: 'نتح عالي (${requirement.etc.toStringAsFixed(1)} ملم/يوم). يُنصح بزيادة تكرار الري.',
+        message:
+            'High evapotranspiration (${requirement.etc.toStringAsFixed(1)} mm/day). Consider increasing irrigation frequency.',
+        messageAr:
+            'نتح عالي (${requirement.etc.toStringAsFixed(1)} ملم/يوم). يُنصح بزيادة تكرار الري.',
         priority: RecommendationPriority.high,
       ));
     }
@@ -232,7 +236,8 @@ class IrrigationScheduler {
     if (method.efficiency < 0.75) {
       recommendations.add(ScheduleRecommendation(
         type: RecommendationType.efficiency,
-        message: 'Consider upgrading to a more efficient irrigation method to save water',
+        message:
+            'Consider upgrading to a more efficient irrigation method to save water',
         messageAr: 'يُنصح بالترقية إلى طريقة ري أكثر كفاءة لتوفير المياه',
         priority: RecommendationPriority.low,
       ));
@@ -421,15 +426,16 @@ class IrrigationScheduler {
 
       final adjustedLiters =
           _calculator.convertMmToLiters(adjustedWaterMm, 5.0);
-      final adjustedDuration = event.durationMinutes *
-          (adjustedLiters / event.waterAmountLiters);
+      final adjustedDuration =
+          event.durationMinutes * (adjustedLiters / event.waterAmountLiters);
 
       return IrrigationEvent(
         scheduledAt: event.scheduledAt,
         durationMinutes: adjustedDuration,
         waterAmountLiters: adjustedLiters,
         status: event.status,
-        notes: 'Weather-adjusted from ${event.waterAmountLiters.toStringAsFixed(0)}L',
+        notes:
+            'Weather-adjusted from ${event.waterAmountLiters.toStringAsFixed(0)}L',
       );
     }).toList();
   }

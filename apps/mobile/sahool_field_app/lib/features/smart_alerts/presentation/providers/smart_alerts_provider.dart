@@ -62,9 +62,8 @@ final alertStatsProvider = FutureProvider.autoDispose
 
 /// Stream provider for real-time alerts (polls every 30s)
 /// Uses autoDispose to clean up subscription when no longer watched
-final alertsStreamProvider =
-    StreamProvider.autoDispose.family<List<SmartAlert>, String?>(
-        (ref, fieldId) async* {
+final alertsStreamProvider = StreamProvider.autoDispose
+    .family<List<SmartAlert>, String?>((ref, fieldId) async* {
   // Initial data
   yield await ref.read(smartAlertsProvider(fieldId).future);
 
@@ -88,9 +87,8 @@ final alertsStreamProvider =
 });
 
 /// Acknowledge alert action provider
-final acknowledgeAlertProvider =
-    FutureProvider.autoDispose.family<bool, ({String alertId, String userId})>(
-        (ref, params) async {
+final acknowledgeAlertProvider = FutureProvider.autoDispose
+    .family<bool, ({String alertId, String userId})>((ref, params) async {
   final api = ref.read(alertServiceApiProvider);
   final response = await api.acknowledgeAlert(
     alertId: params.alertId,
@@ -104,9 +102,8 @@ final acknowledgeAlertProvider =
 });
 
 /// Dismiss alert action provider
-final dismissAlertProvider =
-    FutureProvider.autoDispose.family<bool, ({String alertId, String userId})>(
-        (ref, params) async {
+final dismissAlertProvider = FutureProvider.autoDispose
+    .family<bool, ({String alertId, String userId})>((ref, params) async {
   final api = ref.read(alertServiceApiProvider);
   final response = await api.dismissAlert(
     alertId: params.alertId,

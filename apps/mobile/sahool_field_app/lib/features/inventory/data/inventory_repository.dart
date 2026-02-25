@@ -20,7 +20,8 @@ class ApiResult<T> {
   final String? errorAr;
   final bool isSuccess;
 
-  const ApiResult._({this.data, this.error, this.errorAr, required this.isSuccess});
+  const ApiResult._(
+      {this.data, this.error, this.errorAr, required this.isSuccess});
 
   factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
   factory ApiResult.failure(String error, [String? errorAr]) =>

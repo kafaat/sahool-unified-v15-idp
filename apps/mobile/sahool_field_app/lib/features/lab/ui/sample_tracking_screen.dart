@@ -39,8 +39,8 @@ final labStatsProvider = FutureProvider.autoDispose<LabStats?>((ref) async {
 });
 
 /// Search sample by barcode
-final barcodeSampleProvider = FutureProvider.autoDispose
-    .family<LabSample?, String>((ref, barcode) async {
+final barcodeSampleProvider =
+    FutureProvider.autoDispose.family<LabSample?, String>((ref, barcode) async {
   final api = ref.watch(soilAnalysisApiProvider);
   final response = await api.searchByBarcode(barcode: barcode);
 
@@ -51,9 +51,15 @@ final barcodeSampleProvider = FutureProvider.autoDispose
 });
 
 /// Create new sample action provider
-final createSampleProvider = FutureProvider.autoDispose
-    .family<LabSample?, ({String type, String experiment, String plot, String collector, String? notes})>(
-        (ref, params) async {
+final createSampleProvider = FutureProvider.autoDispose.family<
+    LabSample?,
+    ({
+      String type,
+      String experiment,
+      String plot,
+      String collector,
+      String? notes
+    })>((ref, params) async {
   final api = ref.read(soilAnalysisApiProvider);
   final response = await api.createSample(
     type: params.type,
@@ -126,7 +132,8 @@ class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final samplesState = ref.watch(samplesProvider(_selectedFilter == 'all' ? null : _selectedFilter));
+    final samplesState = ref.watch(
+        samplesProvider(_selectedFilter == 'all' ? null : _selectedFilter));
 
     return Scaffold(
       appBar: AppBar(
@@ -156,8 +163,7 @@ class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
           // Samples List
           Expanded(
             child: samplesState.when(
-              loading: () =>
-                  const Center(child: CircularProgressIndicator()),
+              loading: () => const Center(child: CircularProgressIndicator()),
               error: (error, _) => _buildErrorState(error.toString()),
               data: (samples) {
                 final filtered = _filterSamples(samples);
@@ -626,8 +632,7 @@ class _SampleCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     sample.collectedBy,
-                    style:
-                        TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                   const Spacer(),
                   Icon(Icons.access_time,
@@ -635,8 +640,7 @@ class _SampleCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     _formatTimeAgo(sample.collectedAt),
-                    style:
-                        TextStyle(fontSize: 13, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -981,8 +985,7 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
-                children:
-                    ['تربة', 'أوراق', 'ماء', 'ثمار', 'بذور'].map((type) {
+                children: ['تربة', 'أوراق', 'ماء', 'ثمار', 'بذور'].map((type) {
                   return ChoiceChip(
                     label: Text(type),
                     selected: _selectedType == type,
@@ -1002,8 +1005,7 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: ['تجربة القمح', 'تجربة الطماطم', 'تجربة الري']
-                    .map(
-                        (e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
                 onChanged: (value) =>
                     setState(() => _selectedExperiment = value!),
@@ -1018,11 +1020,9 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
                   border: OutlineInputBorder(),
                 ),
                 items: ['B-01', 'B-02', 'B-03', 'A-01', 'C-01']
-                    .map(
-                        (e) => DropdownMenuItem(value: e, child: Text(e)))
+                    .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                     .toList(),
-                onChanged: (value) =>
-                    setState(() => _selectedPlot = value),
+                onChanged: (value) => setState(() => _selectedPlot = value),
               ),
               const SizedBox(height: 16),
 
@@ -1053,7 +1053,8 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
                           ),
                         )
                       : const Icon(Icons.qr_code),
-                  label: Text(_isSubmitting ? 'جاري الإنشاء...' : 'إنشاء العينة'),
+                  label:
+                      Text(_isSubmitting ? 'جاري الإنشاء...' : 'إنشاء العينة'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.teal,
                     foregroundColor: Colors.white,
@@ -1080,9 +1081,7 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
         experimentName: _selectedExperiment,
         plotCode: _selectedPlot ?? 'B-01',
         collectedBy: 'current_user',
-        notes: _notesController.text.isNotEmpty
-            ? _notesController.text
-            : null,
+        notes: _notesController.text.isNotEmpty ? _notesController.text : null,
       );
 
       if (mounted) {
@@ -1098,8 +1097,7 @@ class _NewSampleScreenState extends ConsumerState<NewSampleScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                  response.errorMessage ?? 'فشل في إنشاء العينة'),
+              content: Text(response.errorMessage ?? 'فشل في إنشاء العينة'),
               backgroundColor: Colors.red,
             ),
           );

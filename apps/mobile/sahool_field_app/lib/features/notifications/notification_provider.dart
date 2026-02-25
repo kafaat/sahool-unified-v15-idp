@@ -291,10 +291,8 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 
   /// تحديد جميع الإشعارات كمقروءة
   Future<void> markAllAsRead() async {
-    final unreadIds = state.notifications
-        .where((n) => !n.isRead)
-        .map((n) => n.id)
-        .toList();
+    final unreadIds =
+        state.notifications.where((n) => !n.isRead).map((n) => n.id).toList();
 
     for (final id in unreadIds) {
       await markAsRead(id);
@@ -338,9 +336,7 @@ final farmerIdProvider = StateProvider<String>((ref) => '');
 final apiBaseUrlProvider = Provider<String>((ref) {
   // يمكن تغييره حسب البيئة
   const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction
-      ? 'https://api.sahool.io'
-      : 'http://localhost:8109';
+  return isProduction ? 'https://api.sahool.io' : 'http://localhost:8109';
 });
 
 /// مزود الإشعارات الرئيسي

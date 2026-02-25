@@ -282,7 +282,8 @@ class NotificationPreferences {
 class NotificationPreferencesService {
   static const _prefsKey = 'notification_preferences';
 
-  static final NotificationPreferencesService instance = NotificationPreferencesService._();
+  static final NotificationPreferencesService instance =
+      NotificationPreferencesService._();
 
   NotificationPreferencesService._();
 
@@ -525,7 +526,8 @@ class _NotificationPreferencesScreenState
             icon: Icons.water,
             value: _prefs.irrigationReminders,
             onChanged: (value) {
-              setState(() => _prefs = _prefs.copyWith(irrigationReminders: value));
+              setState(
+                  () => _prefs = _prefs.copyWith(irrigationReminders: value));
               _savePreferences();
             },
           ),
@@ -575,7 +577,8 @@ class _NotificationPreferencesScreenState
                   initialTime: _prefs.quietHoursStart,
                 );
                 if (time != null) {
-                  setState(() => _prefs = _prefs.copyWith(quietHoursStart: time));
+                  setState(
+                      () => _prefs = _prefs.copyWith(quietHoursStart: time));
                   _savePreferences();
                 }
               },

@@ -28,7 +28,8 @@ class ChatInput extends StatefulWidget {
   final Function(String message) onSendMessage;
   final Function(bool isTyping) onTypingChanged;
   final Function(String imagePath)? onImageCaptured;
-  final Function(String filePath, String fileName, int fileSize)? onFileSelected;
+  final Function(String filePath, String fileName, int fileSize)?
+      onFileSelected;
   final Function(String audioPath, Duration duration)? onVoiceMessageRecorded;
   final Function(double latitude, double longitude)? onLocationSelected;
   final Function(Product product)? onProductSelected;

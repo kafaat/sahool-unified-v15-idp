@@ -45,7 +45,8 @@ class TaskReminderService {
   void startOverdueChecking({Duration interval = const Duration(hours: 1)}) {
     _overdueCheckTimer?.cancel();
     _overdueCheckTimer = Timer.periodic(interval, (_) => checkOverdueTasks());
-    AppLogger.i('Started overdue task checking', tag: _tag, data: {'interval': interval.inMinutes});
+    AppLogger.i('Started overdue task checking',
+        tag: _tag, data: {'interval': interval.inMinutes});
   }
 
   /// Stop periodic overdue checking
@@ -67,10 +68,12 @@ class TaskReminderService {
       }
 
       if (overdueTasks.isNotEmpty) {
-        AppLogger.i('Checked overdue tasks', tag: _tag, data: {'count': overdueTasks.length});
+        AppLogger.i('Checked overdue tasks',
+            tag: _tag, data: {'count': overdueTasks.length});
       }
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to check overdue tasks', tag: _tag, error: e, stackTrace: stackTrace);
+      AppLogger.e('Failed to check overdue tasks',
+          tag: _tag, error: e, stackTrace: stackTrace);
     }
   }
 
@@ -81,7 +84,8 @@ class TaskReminderService {
     Duration reminderBefore = const Duration(hours: 1),
   }) async {
     if (task.dueDate == null) {
-      AppLogger.w('Cannot schedule reminder for task without due date', tag: _tag);
+      AppLogger.w('Cannot schedule reminder for task without due date',
+          tag: _tag);
       return;
     }
 
@@ -100,7 +104,8 @@ class TaskReminderService {
       await _notificationManager.scheduleNotification(
         id: notificationId,
         title: 'تذكير بالمهمة | Task Reminder',
-        body: '${task.title}\nموعد الاستحقاق: ${_formatDateTime(task.dueDate!)}',
+        body:
+            '${task.title}\nموعد الاستحقاق: ${_formatDateTime(task.dueDate!)}',
         scheduledTime: reminderTime,
         type: SAHOOLNotificationType.taskReminder,
         priority: _getPriorityFromTask(task),
@@ -116,7 +121,8 @@ class TaskReminderService {
         'reminderTime': reminderTime.toIso8601String(),
       });
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to schedule task reminder', tag: _tag, error: e, stackTrace: stackTrace);
+      AppLogger.e('Failed to schedule task reminder',
+          tag: _tag, error: e, stackTrace: stackTrace);
     }
   }
 
@@ -132,9 +138,11 @@ class TaskReminderService {
         }
       }
 
-      AppLogger.i('Scheduled reminders for pending tasks', tag: _tag, data: {'count': pendingTasks.length});
+      AppLogger.i('Scheduled reminders for pending tasks',
+          tag: _tag, data: {'count': pendingTasks.length});
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to schedule pending reminders', tag: _tag, error: e, stackTrace: stackTrace);
+      AppLogger.e('Failed to schedule pending reminders',
+          tag: _tag, error: e, stackTrace: stackTrace);
     }
   }
 
@@ -145,9 +153,11 @@ class TaskReminderService {
 
     try {
       await _notificationManager.cancelNotification(notificationId);
-      AppLogger.d('Cancelled task reminder', tag: _tag, data: {'taskId': taskId});
+      AppLogger.d('Cancelled task reminder',
+          tag: _tag, data: {'taskId': taskId});
     } catch (e) {
-      AppLogger.w('Failed to cancel task reminder', tag: _tag, data: {'taskId': taskId});
+      AppLogger.w('Failed to cancel task reminder',
+          tag: _tag, data: {'taskId': taskId});
     }
   }
 
@@ -158,7 +168,8 @@ class TaskReminderService {
     final pending = await _notificationManager.getPendingNotifications();
 
     for (final notification in pending) {
-      if (notification.id >= _reminderIdOffset && notification.id < _overdueIdOffset) {
+      if (notification.id >= _reminderIdOffset &&
+          notification.id < _overdueIdOffset) {
         await _notificationManager.cancelNotification(notification.id);
       }
     }
@@ -172,9 +183,8 @@ class TaskReminderService {
     final notificationId = _overdueIdOffset + task.id.hashCode.abs() % 100000;
 
     final overdueDays = DateTime.now().difference(task.dueDate!).inDays;
-    final overdueText = overdueDays == 0
-        ? 'متأخرة اليوم'
-        : 'متأخرة $overdueDays يوم';
+    final overdueText =
+        overdueDays == 0 ? 'متأخرة اليوم' : 'متأخرة $overdueDays يوم';
 
     try {
       await _notificationManager.showNotification(
@@ -191,7 +201,8 @@ class TaskReminderService {
         },
       );
     } catch (e, stackTrace) {
-      AppLogger.e('Failed to send overdue notification', tag: _tag, error: e, stackTrace: stackTrace);
+      AppLogger.e('Failed to send overdue notification',
+          tag: _tag, error: e, stackTrace: stackTrace);
     }
   }
 
@@ -221,7 +232,8 @@ class TaskReminderService {
 }
 
 /// Task Reminder Service Provider
-final taskReminderServiceProvider = Provider.autoDispose<TaskReminderService>((ref) {
+final taskReminderServiceProvider =
+    Provider.autoDispose<TaskReminderService>((ref) {
   final repo = ref.watch(tasksRepoProvider);
   final notificationManager = ref.watch(notificationManagerProvider);
   final client = ref.watch(apiClientProvider);
@@ -244,14 +256,16 @@ final taskReminderServiceProvider = Provider.autoDispose<TaskReminderService>((r
 });
 
 /// Tasks due today provider
-final tasksDueTodayProvider = FutureProvider.autoDispose<List<FieldTask>>((ref) async {
+final tasksDueTodayProvider =
+    FutureProvider.autoDispose<List<FieldTask>>((ref) async {
   final repo = ref.watch(tasksRepoProvider);
   final client = ref.watch(apiClientProvider);
   return repo.getTasksDueToday(client.tenantId);
 });
 
 /// Tasks due this week provider
-final tasksDueThisWeekProvider = FutureProvider.autoDispose<List<FieldTask>>((ref) async {
+final tasksDueThisWeekProvider =
+    FutureProvider.autoDispose<List<FieldTask>>((ref) async {
   final repo = ref.watch(tasksRepoProvider);
   final client = ref.watch(apiClientProvider);
   return repo.getTasksDueWithin(client.tenantId, 7);

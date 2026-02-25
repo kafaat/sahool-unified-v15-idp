@@ -69,7 +69,8 @@ void main() {
       final localData = {
         'id': '1',
         'name': 'Local Name',
-        'updatedAt': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
+        'updatedAt':
+            DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
       };
       final serverData = {
         'id': '1',
@@ -131,7 +132,9 @@ void main() {
       // Arrange
       final cacheEntry = {
         'data': 'cached_value',
-        'expiresAt': DateTime.now().subtract(const Duration(minutes: 5)).toIso8601String(),
+        'expiresAt': DateTime.now()
+            .subtract(const Duration(minutes: 5))
+            .toIso8601String(),
       };
 
       // Act

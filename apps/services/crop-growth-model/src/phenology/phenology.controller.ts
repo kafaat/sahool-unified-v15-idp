@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -13,31 +13,32 @@ import {
   ApiBody,
   ApiParam,
 } from "@nestjs/swagger";
+import { IsNumber, IsString, IsOptional, IsBoolean, IsArray, IsDateString } from "class-validator";
 import { PhenologyService } from "./phenology.service";
 
 class GDDInput {
-  tmin: number;
-  tmax: number;
-  tbase?: number;
-  tmaxEff?: number;
+  @IsNumber() tmin: number;
+  @IsNumber() tmax: number;
+  @IsOptional() @IsNumber() tbase?: number;
+  @IsOptional() @IsNumber() tmaxEff?: number;
 }
 
 class DVSInput {
-  accumulatedGDD: number;
-  cropType: string;
-  afterFlowering?: boolean;
+  @IsNumber() accumulatedGDD: number;
+  @IsString() cropType: string;
+  @IsOptional() @IsBoolean() afterFlowering?: boolean;
 }
 
 class SimulationInput {
-  cropType: string;
-  sowingDate: string;
-  weatherData: Array<{ date: string; tmin: number; tmax: number }>;
+  @IsString() cropType: string;
+  @IsDateString() sowingDate: string;
+  @IsArray() weatherData: Array<{ date: string; tmin: number; tmax: number }>;
 }
 
 class PredictDatesInput {
-  cropType: string;
-  sowingDate: string;
-  avgDailyGDD?: number;
+  @IsString() cropType: string;
+  @IsDateString() sowingDate: string;
+  @IsOptional() @IsNumber() avgDailyGDD?: number;
 }
 
 @ApiTags("phenology")

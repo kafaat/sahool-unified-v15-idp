@@ -21,7 +21,8 @@ void main() {
       expect(find.text('رسالة فارغة'), findsOneWidget);
     });
 
-    testWidgets('should show action button when onAction provided', (tester) async {
+    testWidgets('should show action button when onAction provided',
+        (tester) async {
       var buttonPressed = false;
 
       await tester.pumpWidget(
@@ -43,7 +44,8 @@ void main() {
       expect(buttonPressed, isTrue);
     });
 
-    testWidgets('should not show action button when onAction is null', (tester) async {
+    testWidgets('should not show action button when onAction is null',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const SahoolEmptyState(
@@ -58,7 +60,8 @@ void main() {
   });
 
   group('Predefined Empty States', () {
-    testWidgets('NoFieldsEmptyState should display correct content', (tester) async {
+    testWidgets('NoFieldsEmptyState should display correct content',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const NoFieldsEmptyState(),
@@ -69,7 +72,8 @@ void main() {
       expect(find.byIcon(Icons.grass_rounded), findsOneWidget);
     });
 
-    testWidgets('NoTasksEmptyState should display correct content', (tester) async {
+    testWidgets('NoTasksEmptyState should display correct content',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const NoTasksEmptyState(),
@@ -80,7 +84,8 @@ void main() {
       expect(find.byIcon(Icons.task_alt_rounded), findsOneWidget);
     });
 
-    testWidgets('NoAlertsEmptyState should display correct content', (tester) async {
+    testWidgets('NoAlertsEmptyState should display correct content',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const NoAlertsEmptyState(),
@@ -91,7 +96,8 @@ void main() {
       expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
     });
 
-    testWidgets('NoSearchResultsEmptyState should show search query', (tester) async {
+    testWidgets('NoSearchResultsEmptyState should show search query',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const NoSearchResultsEmptyState(
@@ -104,7 +110,8 @@ void main() {
       expect(find.textContaining('قمح'), findsOneWidget);
     });
 
-    testWidgets('OfflineEmptyState should display offline message', (tester) async {
+    testWidgets('OfflineEmptyState should display offline message',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const OfflineEmptyState(),
@@ -115,7 +122,8 @@ void main() {
       expect(find.byIcon(Icons.cloud_off_rounded), findsOneWidget);
     });
 
-    testWidgets('ComingSoonEmptyState should show feature name', (tester) async {
+    testWidgets('ComingSoonEmptyState should show feature name',
+        (tester) async {
       await tester.pumpWidget(
         createSimpleTestableWidget(
           const ComingSoonEmptyState(

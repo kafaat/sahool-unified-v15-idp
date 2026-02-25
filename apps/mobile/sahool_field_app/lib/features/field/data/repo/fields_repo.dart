@@ -321,7 +321,8 @@ class FieldsRepo {
       // Upsert to local DB
       await _db.upsertFieldsFromServer(fieldMaps);
 
-      AppLogger.i('Fields refreshed from server', tag: _tag, data: {'count': fieldMaps.length});
+      AppLogger.i('Fields refreshed from server',
+          tag: _tag, data: {'count': fieldMaps.length});
       return fieldMaps.length;
     } catch (e, stackTrace) {
       final appException = ErrorHandler().handle(

@@ -230,8 +230,7 @@ class _ZonesMapExampleState extends State<ZonesMapExample> {
                     decoration: BoxDecoration(
                       color: _selectedZone!.healthStatus == HealthStatus.healthy
                           ? SahoolColors.sageGreen
-                          : _selectedZone!.healthStatus ==
-                                  HealthStatus.moderate
+                          : _selectedZone!.healthStatus == HealthStatus.moderate
                               ? SahoolColors.harvestGold
                               : SahoolColors.danger,
                       borderRadius: BorderRadius.circular(4),

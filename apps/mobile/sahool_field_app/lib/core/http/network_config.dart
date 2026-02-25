@@ -167,11 +167,11 @@ class NetworkConfig {
     final base = NetworkConfig.fromEnvironment();
     return base.copyWith(
       connectTimeout: const Duration(seconds: 60), // Increased from 10-30s
-      sendTimeout: const Duration(seconds: 90),    // For large sync batches
+      sendTimeout: const Duration(seconds: 90), // For large sync batches
       receiveTimeout: const Duration(seconds: 90), // For large server responses
-      maxRetries: 5,                               // More retries for reliability
+      maxRetries: 5, // More retries for reliability
       initialRetryDelay: const Duration(seconds: 1),
-      maxRetryDelay: const Duration(minutes: 5),   // Up to 5 minutes backoff
+      maxRetryDelay: const Duration(minutes: 5), // Up to 5 minutes backoff
       retryBackoffMultiplier: 2.0,
     );
   }
@@ -202,10 +202,12 @@ class NetworkConfig {
       maxRetries: maxRetries ?? this.maxRetries,
       initialRetryDelay: initialRetryDelay ?? this.initialRetryDelay,
       maxRetryDelay: maxRetryDelay ?? this.maxRetryDelay,
-      retryBackoffMultiplier: retryBackoffMultiplier ?? this.retryBackoffMultiplier,
+      retryBackoffMultiplier:
+          retryBackoffMultiplier ?? this.retryBackoffMultiplier,
       enableKeepAlive: enableKeepAlive ?? this.enableKeepAlive,
       keepAliveTimeout: keepAliveTimeout ?? this.keepAliveTimeout,
-      maxConnectionsPerHost: maxConnectionsPerHost ?? this.maxConnectionsPerHost,
+      maxConnectionsPerHost:
+          maxConnectionsPerHost ?? this.maxConnectionsPerHost,
       minTlsVersion: minTlsVersion ?? this.minTlsVersion,
       validateCertificates: validateCertificates ?? this.validateCertificates,
       followRedirects: followRedirects ?? this.followRedirects,
@@ -231,7 +233,8 @@ class NetworkConfig {
     return {
       'Content-Type': contentType,
       'Accept': acceptHeader,
-      'X-Client-Platform': Platform.isAndroid ? 'android' : (Platform.isIOS ? 'ios' : 'unknown'),
+      'X-Client-Platform':
+          Platform.isAndroid ? 'android' : (Platform.isIOS ? 'ios' : 'unknown'),
       'X-Client-Version': EnvConfig.appVersion,
       'Accept-Language': 'ar,en',
     };

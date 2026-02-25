@@ -20,7 +20,8 @@ class SprayDashboardScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<SprayDashboardScreen> createState() => _SprayDashboardScreenState();
+  ConsumerState<SprayDashboardScreen> createState() =>
+      _SprayDashboardScreenState();
 }
 
 class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
@@ -139,7 +140,9 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isArabic ? 'فشل في جلب بيانات الطقس' : 'Failed to load weather data',
+                      isArabic
+                          ? 'فشل في جلب بيانات الطقس'
+                          : 'Failed to load weather data',
                       style: theme.textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -203,7 +206,9 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        isArabic ? 'لا توجد نوافذ رش متاحة' : 'No spray windows available',
+                        isArabic
+                            ? 'لا توجد نوافذ رش متاحة'
+                            : 'No spray windows available',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -247,7 +252,9 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isArabic ? 'فشل في جلب نوافذ الرش' : 'Failed to load spray windows',
+                      isArabic
+                          ? 'فشل في جلب نوافذ الرش'
+                          : 'Failed to load spray windows',
                       style: theme.textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
@@ -314,7 +321,9 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        isArabic ? 'لا توجد توصيات نشطة' : 'No active recommendations',
+                        isArabic
+                            ? 'لا توجد توصيات نشطة'
+                            : 'No active recommendations',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -332,7 +341,8 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               itemCount: recommendations.length,
               itemBuilder: (context, index) {
                 final recommendation = recommendations[index];
-                return _buildRecommendationCard(recommendation, theme, isArabic);
+                return _buildRecommendationCard(
+                    recommendation, theme, isArabic);
               },
             );
           },
@@ -356,13 +366,16 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isArabic ? 'فشل في جلب التوصيات' : 'Failed to load recommendations',
+                      isArabic
+                          ? 'فشل في جلب التوصيات'
+                          : 'Failed to load recommendations',
                       style: theme.textTheme.bodyMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     TextButton(
-                      onPressed: () => ref.invalidate(sprayRecommendationsProvider),
+                      onPressed: () =>
+                          ref.invalidate(sprayRecommendationsProvider),
                       child: Text(isArabic ? 'إعادة المحاولة' : 'Retry'),
                     ),
                   ],
@@ -375,7 +388,8 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
     );
   }
 
-  Widget _buildRecommendationCard(SprayRecommendation recommendation, ThemeData theme, bool isArabic) {
+  Widget _buildRecommendationCard(
+      SprayRecommendation recommendation, ThemeData theme, bool isArabic) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -390,9 +404,11 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: _getSprayTypeColor(recommendation.sprayType).withOpacity(0.1),
+                      color: _getSprayTypeColor(recommendation.sprayType)
+                          .withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -431,11 +447,13 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.science, size: 16, color: theme.colorScheme.primary),
+                    Icon(Icons.science,
+                        size: 16, color: theme.colorScheme.primary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        recommendation.recommendedProduct!.getDisplayName(_locale),
+                        recommendation.recommendedProduct!
+                            .getDisplayName(_locale),
                         style: theme.textTheme.bodySmall,
                       ),
                     ),
@@ -644,7 +662,8 @@ class _SprayDashboardScreenState extends ConsumerState<SprayDashboardScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(_locale == 'ar' ? 'تفاصيل نافذة الرش' : 'Spray Window Details'),
+        title: Text(
+            _locale == 'ar' ? 'تفاصيل نافذة الرش' : 'Spray Window Details'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,

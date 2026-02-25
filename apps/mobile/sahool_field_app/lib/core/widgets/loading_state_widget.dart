@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Reusable Loading State Widget
 /// Provides consistent loading indicators across the app
-/// 
+///
 /// واجهة حالة التحميل - توفر مؤشرات تحميل متسقة
 class LoadingStateWidget extends StatelessWidget {
   final String? message;

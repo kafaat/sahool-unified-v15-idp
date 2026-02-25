@@ -79,7 +79,8 @@ class ResetPasswordState {
       isSuccess: isSuccess ?? this.isSuccess,
       error: error,
       obscurePassword: obscurePassword ?? this.obscurePassword,
-      obscureConfirmPassword: obscureConfirmPassword ?? this.obscureConfirmPassword,
+      obscureConfirmPassword:
+          obscureConfirmPassword ?? this.obscureConfirmPassword,
       strength: strength ?? this.strength,
       requirements: requirements ?? this.requirements,
       passwordsMatch: passwordsMatch ?? this.passwordsMatch,
@@ -99,7 +100,8 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
@@ -221,8 +223,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
     final password = _passwordController.text;
     final requirements = _validatePasswordRequirements(password);
     final strength = _calculatePasswordStrength(password, requirements);
-    final passwordsMatch = password.isNotEmpty &&
-        password == _confirmPasswordController.text;
+    final passwordsMatch =
+        password.isNotEmpty && password == _confirmPasswordController.text;
 
     setState(() {
       _state = _state.copyWith(
@@ -376,9 +378,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
     try {
       // Call API to reset password
       await ref.read(authServiceProvider).resetPassword(
-        token: widget.token,
-        newPassword: _passwordController.text,
-      );
+            token: widget.token,
+            newPassword: _passwordController.text,
+          );
 
       // Success
       setState(() {
@@ -395,7 +397,6 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           context.go('/login');
         }
       });
-
     } catch (e) {
       // Error
       HapticFeedback.heavyImpact();
@@ -614,8 +615,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           const SizedBox(height: 16),
 
           // Error message
-          if (_state.error != null)
-            _buildErrorMessage(colorScheme, theme),
+          if (_state.error != null) _buildErrorMessage(colorScheme, theme),
 
           const SizedBox(height: 24),
 
@@ -753,11 +753,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             fillColor: colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+              borderSide:
+                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+              borderSide:
+                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -831,7 +833,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
               height: 6,
-              width: MediaQuery.of(context).size.width * strengthProgress * 0.85,
+              width:
+                  MediaQuery.of(context).size.width * strengthProgress * 0.85,
               decoration: BoxDecoration(
                 color: strengthColor,
                 borderRadius: BorderRadius.circular(3),
@@ -850,7 +853,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
         // Segment indicators
         Row(
           children: List.generate(5, (index) {
-            final isActive = index < PasswordStrength.values.indexOf(_state.strength) + 1;
+            final isActive =
+                index < PasswordStrength.values.indexOf(_state.strength) + 1;
             return Expanded(
               child: Container(
                 height: 3,
@@ -994,7 +998,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
             fillColor: colorScheme.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: colorScheme.outline.withOpacity(0.3)),
+              borderSide:
+                  BorderSide(color: colorScheme.outline.withOpacity(0.3)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
@@ -1021,7 +1026,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
   }
 
   /// Build passwords match indicator
-  Widget _buildPasswordsMatchIndicator(ColorScheme colorScheme, ThemeData theme) {
+  Widget _buildPasswordsMatchIndicator(
+      ColorScheme colorScheme, ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Row(
@@ -1029,7 +1035,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
           Icon(
             _state.passwordsMatch ? Icons.check_circle : Icons.cancel,
             size: 16,
-            color: _state.passwordsMatch ? SahoolColors.success : colorScheme.error,
+            color: _state.passwordsMatch
+                ? SahoolColors.success
+                : colorScheme.error,
           ),
           const SizedBox(width: 8),
           Text(
@@ -1037,7 +1045,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen>
                 ? 'كلمتا المرور متطابقتان'
                 : 'كلمتا المرور غير متطابقتين',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: _state.passwordsMatch ? SahoolColors.success : colorScheme.error,
+              color: _state.passwordsMatch
+                  ? SahoolColors.success
+                  : colorScheme.error,
               fontWeight: FontWeight.w500,
             ),
           ),

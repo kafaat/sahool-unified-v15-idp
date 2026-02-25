@@ -47,7 +47,8 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                     color: SahoolColors.primary.withOpacity(0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.download, color: SahoolColors.primary),
+                  child:
+                      const Icon(Icons.download, color: SahoolColors.primary),
                 ),
                 const SizedBox(width: 12),
                 const Text(
@@ -140,7 +141,8 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                       : Colors.grey[100],
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: isSelected ? SahoolColors.primary : Colors.transparent,
+                    color:
+                        isSelected ? SahoolColors.primary : Colors.transparent,
                     width: 2,
                   ),
                 ),
@@ -173,7 +175,8 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
                       ),
                     ),
                     if (isSelected)
-                      const Icon(Icons.check_circle, color: SahoolColors.primary),
+                      const Icon(Icons.check_circle,
+                          color: SahoolColors.primary),
                   ],
                 ),
               ),
@@ -254,7 +257,8 @@ class _MapDownloadDialogState extends State<MapDownloadDialog> {
               _buildStatRow('البلاطات المحملة', '$success / $total'),
               _buildStatRow('تم تخطيها (موجودة)', '${_result!.skipped}'),
               if (_result!.failed > 0)
-                _buildStatRow('فشل التحميل', '${_result!.failed}', isError: true),
+                _buildStatRow('فشل التحميل', '${_result!.failed}',
+                    isError: true),
             ],
           ),
         ),

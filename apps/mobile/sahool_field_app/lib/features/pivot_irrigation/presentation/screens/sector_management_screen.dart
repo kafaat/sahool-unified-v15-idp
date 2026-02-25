@@ -108,7 +108,9 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
 
               return Material(
                 key: ValueKey(sector.id),
-                color: isSelected ? const Color(0xFF367C2B).withOpacity(0.1) : null,
+                color: isSelected
+                    ? const Color(0xFF367C2B).withOpacity(0.1)
+                    : null,
                 child: ListTile(
                   leading: Container(
                     width: 36,
@@ -619,9 +621,18 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
     required Function(String) onChanged,
   }) {
     final colors = [
-      '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-      '#FF9800', '#FF5722', '#E91E63', '#9C27B0',
-      '#673AB7', '#3F51B5', '#2196F3', '#00BCD4',
+      '#4CAF50',
+      '#8BC34A',
+      '#CDDC39',
+      '#FFC107',
+      '#FF9800',
+      '#FF5722',
+      '#E91E63',
+      '#9C27B0',
+      '#673AB7',
+      '#3F51B5',
+      '#2196F3',
+      '#00BCD4',
     ];
 
     return Column(
@@ -674,9 +685,8 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
 
   void _addSector() {
     final newSectorNumber = _config.sectors.length + 1;
-    final lastAngle = _config.sectors.isNotEmpty
-        ? _config.sectors.last.endAngle
-        : 0.0;
+    final lastAngle =
+        _config.sectors.isNotEmpty ? _config.sectors.last.endAngle : 0.0;
     final sectorSpan = 360.0 / (newSectorNumber);
 
     final newSector = PivotSector(
@@ -760,18 +770,16 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
 
   void _enableAllSectors() {
     setState(() {
-      final sectors = _config.sectors
-          .map((s) => s.copyWith(isEnabled: true))
-          .toList();
+      final sectors =
+          _config.sectors.map((s) => s.copyWith(isEnabled: true)).toList();
       _config = _config.copyWith(sectors: sectors);
     });
   }
 
   void _disableAllSectors() {
     setState(() {
-      final sectors = _config.sectors
-          .map((s) => s.copyWith(isEnabled: false))
-          .toList();
+      final sectors =
+          _config.sectors.map((s) => s.copyWith(isEnabled: false)).toList();
       _config = _config.copyWith(sectors: sectors);
     });
   }

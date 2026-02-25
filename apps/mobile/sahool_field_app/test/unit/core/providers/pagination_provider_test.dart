@@ -316,12 +316,14 @@ void main() {
       controller.dispose();
     });
 
-    test('hasMore should be false when page has fewer items than pageSize', () async {
+    test('hasMore should be false when page has fewer items than pageSize',
+        () async {
       final controller = PaginatedListController<String>(
         fetchPage: (page, limit) async {
           return PageResult<String>(
             items: List.generate(3, (i) => 'item_$i'), // 3 < pageSize(5)
-            hasMore: true, // Even if server says hasMore, controller detects short page
+            hasMore:
+                true, // Even if server says hasMore, controller detects short page
           );
         },
         pageSize: 5,

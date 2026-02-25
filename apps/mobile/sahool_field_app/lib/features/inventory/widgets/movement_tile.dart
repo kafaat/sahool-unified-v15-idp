@@ -37,7 +37,9 @@ class MovementTile extends StatelessWidget {
             '${movement.isStockIncrease ? '+' : '-'}${movement.quantity.toStringAsFixed(1)} ${movement.unit.getName(locale)}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: movement.isStockIncrease ? Colors.green.shade700 : Colors.red.shade700,
+              color: movement.isStockIncrease
+                  ? Colors.green.shade700
+                  : Colors.red.shade700,
               fontSize: 16,
             ),
           ),

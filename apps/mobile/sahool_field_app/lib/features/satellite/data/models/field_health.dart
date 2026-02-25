@@ -41,7 +41,8 @@ class FieldHealth extends Equatable {
 
     return FieldHealth(
       fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      healthScore: (json['health_score'] ?? json['healthScore'] ?? 0.0).toDouble(),
+      healthScore:
+          (json['health_score'] ?? json['healthScore'] ?? 0.0).toDouble(),
       status: HealthStatus.fromString(
         json['status'] ?? json['health_status'] ?? 'unknown',
       ),
@@ -58,7 +59,9 @@ class FieldHealth extends Equatable {
           .map((item) => Recommendation.fromJson(item as Map<String, dynamic>))
           .toList(),
       assessedAt: DateTime.parse(
-        json['assessed_at'] ?? json['assessedAt'] ?? DateTime.now().toIso8601String(),
+        json['assessed_at'] ??
+            json['assessedAt'] ??
+            DateTime.now().toIso8601String(),
       ),
       zoneScores: zoneScoresData != null
           ? (zoneScoresData as Map<String, dynamic>).map(
@@ -161,7 +164,9 @@ class HealthAlert extends Equatable {
       message: json['message'] ?? '',
       messageAr: json['message_ar'] ?? json['messageAr'] ?? '',
       detectedAt: DateTime.parse(
-        json['detected_at'] ?? json['detectedAt'] ?? DateTime.now().toIso8601String(),
+        json['detected_at'] ??
+            json['detectedAt'] ??
+            DateTime.now().toIso8601String(),
       ),
       affectedZone: json['affected_zone'] ?? json['affectedZone'],
     );
@@ -180,7 +185,8 @@ class HealthAlert extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, type, severity, message, messageAr, detectedAt, affectedZone];
+  List<Object?> get props =>
+      [id, type, severity, message, messageAr, detectedAt, affectedZone];
 }
 
 /// Alert Type
@@ -263,7 +269,8 @@ class Recommendation extends Equatable {
       description: json['description'] ?? '',
       descriptionAr: json['description_ar'] ?? json['descriptionAr'] ?? '',
       priority: RecommendationPriority.fromString(json['priority'] ?? 'medium'),
-      dueDate: json['due_date'] != null ? DateTime.parse(json['due_date']) : null,
+      dueDate:
+          json['due_date'] != null ? DateTime.parse(json['due_date']) : null,
     );
   }
 

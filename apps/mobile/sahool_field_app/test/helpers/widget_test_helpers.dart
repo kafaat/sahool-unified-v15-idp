@@ -176,9 +176,8 @@ Widget createTestWidget({
           ),
       locale: locale,
       home: Directionality(
-        textDirection: locale.languageCode == 'ar'
-            ? TextDirection.rtl
-            : TextDirection.ltr,
+        textDirection:
+            locale.languageCode == 'ar' ? TextDirection.rtl : TextDirection.ltr,
         child: Scaffold(
           body: child,
         ),

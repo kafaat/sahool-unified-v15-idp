@@ -95,7 +95,8 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.location_on, size: 16, color: Colors.white70),
+                            const Icon(Icons.location_on,
+                                size: 16, color: Colors.white70),
                             const SizedBox(width: 4),
                             Text(
                               "الحقل الشمالي • صنعاء",
@@ -110,9 +111,18 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            _WeatherStat(icon: Icons.water_drop, value: "45%", label: "رطوبة"),
-                            _WeatherStat(icon: Icons.air, value: "12 كم/س", label: "الرياح"),
-                            _WeatherStat(icon: Icons.thermostat, value: "24°", label: "الشعور"),
+                            _WeatherStat(
+                                icon: Icons.water_drop,
+                                value: "45%",
+                                label: "رطوبة"),
+                            _WeatherStat(
+                                icon: Icons.air,
+                                value: "12 كم/س",
+                                label: "الرياح"),
+                            _WeatherStat(
+                                icon: Icons.thermostat,
+                                value: "24°",
+                                label: "الشعور"),
                           ],
                         ),
                       ],
@@ -181,7 +191,8 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: const [
-              _HourlyItem(time: "الآن", temp: "32°", icon: Icons.wb_sunny, isNow: true),
+              _HourlyItem(
+                  time: "الآن", temp: "32°", icon: Icons.wb_sunny, isNow: true),
               _HourlyItem(time: "2 م", temp: "34°", icon: Icons.wb_sunny),
               _HourlyItem(time: "3 م", temp: "33°", icon: Icons.wb_sunny),
               _HourlyItem(time: "4 م", temp: "31°", icon: Icons.cloud),
@@ -241,21 +252,39 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
         OrganicCard(
           child: Column(
             children: [
-              _MetricRow(label: "درجة الحرارة القصوى", value: "35°C", icon: Icons.arrow_upward),
+              _MetricRow(
+                  label: "درجة الحرارة القصوى",
+                  value: "35°C",
+                  icon: Icons.arrow_upward),
               const Divider(height: 24),
-              _MetricRow(label: "درجة الحرارة الدنيا", value: "22°C", icon: Icons.arrow_downward),
+              _MetricRow(
+                  label: "درجة الحرارة الدنيا",
+                  value: "22°C",
+                  icon: Icons.arrow_downward),
               const Divider(height: 24),
-              _MetricRow(label: "الرطوبة النسبية", value: "45%", icon: Icons.water_drop),
+              _MetricRow(
+                  label: "الرطوبة النسبية",
+                  value: "45%",
+                  icon: Icons.water_drop),
               const Divider(height: 24),
-              _MetricRow(label: "سرعة الرياح", value: "12 كم/س", icon: Icons.air),
+              _MetricRow(
+                  label: "سرعة الرياح", value: "12 كم/س", icon: Icons.air),
               const Divider(height: 24),
-              _MetricRow(label: "اتجاه الرياح", value: "شمال شرق", icon: Icons.explore),
+              _MetricRow(
+                  label: "اتجاه الرياح",
+                  value: "شمال شرق",
+                  icon: Icons.explore),
               const Divider(height: 24),
-              _MetricRow(label: "الضغط الجوي", value: "1013 hPa", icon: Icons.speed),
+              _MetricRow(
+                  label: "الضغط الجوي", value: "1013 hPa", icon: Icons.speed),
               const Divider(height: 24),
-              _MetricRow(label: "مؤشر الأشعة فوق البنفسجية", value: "8 (عالي)", icon: Icons.wb_sunny),
+              _MetricRow(
+                  label: "مؤشر الأشعة فوق البنفسجية",
+                  value: "8 (عالي)",
+                  icon: Icons.wb_sunny),
               const Divider(height: 24),
-              _MetricRow(label: "نقطة الندى", value: "18°C", icon: Icons.opacity),
+              _MetricRow(
+                  label: "نقطة الندى", value: "18°C", icon: Icons.opacity),
             ],
           ),
         ),
@@ -279,13 +308,32 @@ class _WeatherDetailsScreenState extends State<WeatherDetailsScreen>
           ),
         ),
         const SizedBox(height: 16),
-        const _DayForecast(day: "اليوم", high: "35°", low: "22°", icon: Icons.wb_sunny, isToday: true),
-        const _DayForecast(day: "غداً", high: "33°", low: "21°", icon: Icons.cloud),
-        const _DayForecast(day: "الثلاثاء", high: "30°", low: "20°", icon: Icons.grain, rain: "40%"),
-        const _DayForecast(day: "الأربعاء", high: "28°", low: "19°", icon: Icons.thunderstorm, rain: "70%"),
-        const _DayForecast(day: "الخميس", high: "29°", low: "18°", icon: Icons.cloud),
-        const _DayForecast(day: "الجمعة", high: "31°", low: "20°", icon: Icons.wb_sunny),
-        const _DayForecast(day: "السبت", high: "32°", low: "21°", icon: Icons.wb_sunny),
+        const _DayForecast(
+            day: "اليوم",
+            high: "35°",
+            low: "22°",
+            icon: Icons.wb_sunny,
+            isToday: true),
+        const _DayForecast(
+            day: "غداً", high: "33°", low: "21°", icon: Icons.cloud),
+        const _DayForecast(
+            day: "الثلاثاء",
+            high: "30°",
+            low: "20°",
+            icon: Icons.grain,
+            rain: "40%"),
+        const _DayForecast(
+            day: "الأربعاء",
+            high: "28°",
+            low: "19°",
+            icon: Icons.thunderstorm,
+            rain: "70%"),
+        const _DayForecast(
+            day: "الخميس", high: "29°", low: "18°", icon: Icons.cloud),
+        const _DayForecast(
+            day: "الجمعة", high: "31°", low: "20°", icon: Icons.wb_sunny),
+        const _DayForecast(
+            day: "السبت", high: "32°", low: "21°", icon: Icons.wb_sunny),
 
         const SizedBox(height: 32),
 
@@ -447,7 +495,8 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   _SliverTabBarDelegate(this.tabBar);
 
   @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
     return Container(
       color: Colors.white,
       child: tabBar,
@@ -461,7 +510,8 @@ class _SliverTabBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => tabBar.preferredSize.height;
 
   @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) => false;
+  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
+      false;
 }
 
 class _WeatherStat extends StatelessWidget {
@@ -685,7 +735,8 @@ class _DayForecast extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isToday ? SahoolColors.forestGreen.withOpacity(0.1) : Colors.white,
+        color:
+            isToday ? SahoolColors.forestGreen.withOpacity(0.1) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: isToday
             ? Border.all(color: SahoolColors.forestGreen.withOpacity(0.3))

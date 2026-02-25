@@ -34,6 +34,17 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      "@sahool/shared-types/contracts": path.resolve(__dirname, "./packages/shared-types/src/contracts"),
+      "@sahool/shared-types": path.resolve(__dirname, "./packages/shared-types/src"),
+      "@sahool/shared-ui": path.resolve(__dirname, "./packages/shared-ui/src"),
+      "@sahool/ui": path.resolve(__dirname, "./packages/shared-ui/src"),
+      "@sahool/shared-hooks": path.resolve(__dirname, "./packages/shared-hooks/src"),
+      "@sahool/hooks": path.resolve(__dirname, "./packages/shared-hooks/src"),
+      "@sahool/shared-utils": path.resolve(__dirname, "./packages/shared-utils/src"),
+      "@sahool/utils": path.resolve(__dirname, "./packages/shared-utils/src"),
+      "@sahool/api-client": path.resolve(__dirname, "./packages/api-client/src"),
+      "@sahool/api": path.resolve(__dirname, "./packages/api-client/src"),
+      "@sahool/i18n": path.resolve(__dirname, "./packages/i18n/src"),
       "@": path.resolve(__dirname, "./apps/web/src"),
     },
   },

@@ -25,7 +25,8 @@ class TodayCard extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: theme.colorScheme.primaryContainer,
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -43,14 +44,16 @@ class TodayCard extends StatelessWidget {
                     Text(
                       '${data.dateHijri.day} ${data.dateHijri.monthName} ${data.dateHijri.year}',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onPrimaryContainer.withOpacity(0.8),
+                        color: theme.colorScheme.onPrimaryContainer
+                            .withOpacity(0.8),
                       ),
                     ),
                   ],
                 ),
                 // درجة الزراعة
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: scoreColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -92,7 +95,8 @@ class TodayCard extends StatelessWidget {
                         iconColor: Colors.amber,
                         title: 'طور القمر',
                         value: data.moonPhase.name,
-                        subtitle: '${(data.moonPhase.illumination * 100).toInt()}% إضاءة',
+                        subtitle:
+                            '${(data.moonPhase.illumination * 100).toInt()}% إضاءة',
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -144,11 +148,13 @@ class TodayCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  ...data.recommendations.take(3).map((rec) => _RecommendationTile(
-                        activity: rec.activity,
-                        suitability: rec.suitability,
-                        score: rec.suitabilityScore,
-                      )),
+                  ...data.recommendations
+                      .take(3)
+                      .map((rec) => _RecommendationTile(
+                            activity: rec.activity,
+                            suitability: rec.suitability,
+                            score: rec.suitabilityScore,
+                          )),
                 ],
               ],
             ),

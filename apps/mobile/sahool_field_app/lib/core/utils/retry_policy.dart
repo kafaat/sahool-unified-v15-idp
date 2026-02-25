@@ -191,13 +191,15 @@ class CircuitBreaker {
     _state = CircuitState.open;
     _openedAt = DateTime.now();
     _halfOpenAttempts = 0;
-    AppLogger.w('Circuit breaker OPEN - too many failures', tag: 'CircuitBreaker', data: {'name': name});
+    AppLogger.w('Circuit breaker OPEN - too many failures',
+        tag: 'CircuitBreaker', data: {'name': name});
   }
 
   void _transitionToHalfOpen() {
     _state = CircuitState.halfOpen;
     _halfOpenAttempts = 0;
-    AppLogger.i('Circuit breaker HALF-OPEN - testing recovery', tag: 'CircuitBreaker', data: {'name': name});
+    AppLogger.i('Circuit breaker HALF-OPEN - testing recovery',
+        tag: 'CircuitBreaker', data: {'name': name});
   }
 
   void _transitionToClosed() {
@@ -205,7 +207,8 @@ class CircuitBreaker {
     _failureCount = 0;
     _halfOpenAttempts = 0;
     _openedAt = null;
-    AppLogger.i('Circuit breaker CLOSED - service recovered', tag: 'CircuitBreaker', data: {'name': name});
+    AppLogger.i('Circuit breaker CLOSED - service recovered',
+        tag: 'CircuitBreaker', data: {'name': name});
   }
 
   /// Get human-readable state description

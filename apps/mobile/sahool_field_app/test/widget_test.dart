@@ -8,7 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
   group('App Startup Tests', () {
-    testWidgets('App should display without crashing', (WidgetTester tester) async {
+    testWidgets('App should display without crashing',
+        (WidgetTester tester) async {
       // Build a minimal app widget
       await tester.pumpWidget(
         const ProviderScope(
@@ -46,7 +47,8 @@ void main() {
       expect(find.text('مرحباً'), findsOneWidget);
     });
 
-    testWidgets('Material theme should be applied', (WidgetTester tester) async {
+    testWidgets('Material theme should be applied',
+        (WidgetTester tester) async {
       const primaryColor = Color(0xFF367C2B);
 
       await tester.pumpWidget(

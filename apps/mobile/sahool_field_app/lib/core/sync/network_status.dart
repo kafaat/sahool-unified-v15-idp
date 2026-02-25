@@ -46,7 +46,7 @@ class NetworkStatus {
 
     // Check if any result indicates connectivity (not none)
     _isOnline = results.isNotEmpty &&
-                !results.every((r) => r == ConnectivityResult.none);
+        !results.every((r) => r == ConnectivityResult.none);
 
     if (wasOnline != _isOnline) {
       _onlineController.add(_isOnline);

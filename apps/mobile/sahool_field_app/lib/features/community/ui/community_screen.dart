@@ -147,7 +147,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
         icon: const Icon(Icons.edit, color: Colors.white),
         label: Text(
           l10n.askTheCommunity,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       ),
     );
@@ -355,7 +356,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   _CommentItem(
                     author: "أحمد محمد",
                     isExpert: false,
-                    content: "حصل معي نفس الشيء الموسم الماضي. نصيحة المهندس صحيحة.",
+                    content:
+                        "حصل معي نفس الشيء الموسم الماضي. نصيحة المهندس صحيحة.",
                     time: "منذ 30 دقيقة",
                     likes: 2,
                   ),
@@ -397,7 +399,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   CircleAvatar(
                     backgroundColor: SahoolColors.forestGreen,
                     child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                      icon:
+                          const Icon(Icons.send, color: Colors.white, size: 20),
                       onPressed: () {},
                     ),
                   ),
@@ -467,7 +470,8 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 maxLines: null,
                 expands: true,
                 decoration: InputDecoration(
-                  hintText: "اكتب تفاصيل سؤالك هنا...\n\nمثال: ما هي أعراض نقص البوتاسيوم في الطماطم؟",
+                  hintText:
+                      "اكتب تفاصيل سؤالك هنا...\n\nمثال: ما هي أعراض نقص البوتاسيوم في الطماطم؟",
                   filled: true,
                   fillColor: Colors.grey[100],
                   border: OutlineInputBorder(
@@ -558,7 +562,10 @@ class _StoryItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 gradient: hasNewStory || isAdd
                     ? const LinearGradient(
-                        colors: [SahoolColors.forestGreen, SahoolColors.harvestGold],
+                        colors: [
+                          SahoolColors.forestGreen,
+                          SahoolColors.harvestGold
+                        ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
@@ -574,8 +581,10 @@ class _StoryItem extends StatelessWidget {
                   border: Border.all(color: Colors.white, width: 2),
                 ),
                 child: isAdd
-                    ? const Icon(Icons.add, color: SahoolColors.forestGreen, size: 28)
-                    : const Icon(Icons.person, color: SahoolColors.forestGreen, size: 28),
+                    ? const Icon(Icons.add,
+                        color: SahoolColors.forestGreen, size: 28)
+                    : const Icon(Icons.person,
+                        color: SahoolColors.forestGreen, size: 28),
               ),
             ),
             const SizedBox(height: 6),
@@ -619,7 +628,9 @@ class _CategoryChip extends StatelessWidget {
           color: isSelected ? SahoolColors.forestGreen : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? SahoolColors.forestGreen : Colors.grey.withOpacity(0.3),
+            color: isSelected
+                ? SahoolColors.forestGreen
+                : Colors.grey.withOpacity(0.3),
           ),
         ),
         child: Row(
@@ -693,7 +704,8 @@ class _PostCard extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: SahoolColors.paleOlive,
-                  child: const Icon(Icons.person, color: SahoolColors.forestGreen),
+                  child:
+                      const Icon(Icons.person, color: SahoolColors.forestGreen),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -708,20 +720,23 @@ class _PostCard extends StatelessWidget {
                           ),
                           if (isExpertPost) ...[
                             const SizedBox(width: 4),
-                            const Icon(Icons.verified, size: 16, color: Colors.blue),
+                            const Icon(Icons.verified,
+                                size: 16, color: Colors.blue),
                           ],
                         ],
                       ),
                       Text(
                         "$authorRole • $timeAgo",
-                        style: const TextStyle(fontSize: 11, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 11, color: Colors.grey),
                       ),
                     ],
                   ),
                 ),
                 if (hasExpertReply)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: SahoolColors.forestGreen.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -968,7 +983,8 @@ class _CommentItem extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 author,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
               ),
               if (isExpert) ...[
                 const SizedBox(width: 4),
@@ -990,9 +1006,12 @@ class _CommentItem extends StatelessWidget {
                 onTap: () {},
                 child: Row(
                   children: [
-                    const Icon(Icons.thumb_up_alt_outlined, size: 16, color: Colors.grey),
+                    const Icon(Icons.thumb_up_alt_outlined,
+                        size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text("$likes", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    Text("$likes",
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
                 ),
               ),
@@ -1001,7 +1020,8 @@ class _CommentItem extends StatelessWidget {
                 onTap: () {},
                 child: const Text(
                   "رد",
-                  style: TextStyle(fontSize: 12, color: SahoolColors.forestGreen),
+                  style:
+                      TextStyle(fontSize: 12, color: SahoolColors.forestGreen),
                 ),
               ),
             ],

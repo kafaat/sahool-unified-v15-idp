@@ -1,0 +1,550 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Gateway OpenAPI Specification
+# مواصفات بوابة API لمنصة سهول
+#
+# This is the unified gateway-level OpenAPI spec that references all
+# per-service specifications. It provides environment-driven server URLs
+# and shared components (security, errors, pagination, correlation).
+#
+# Usage:
+#   - Bundle with: npx @redocly/cli join api/gateway-openapi.yaml -o api/bundled.yaml
+#   - Validate:    npx @redocly/cli lint api/gateway-openapi.yaml
+#   - Generate SDK: openapi-generator-cli generate -i api/gateway-openapi.yaml -g typescript-axios
+#
+# @version 16.0.0
+# @see docs/api/openapi/ for per-service specs
+# ═══════════════════════════════════════════════════════════════════════════════
+
+openapi: 3.0.3
+
+info:
+  title: SAHOOL Agricultural Intelligence Platform API
+  description: |
+    # منصة سهول للذكاء الزراعي - بوابة API الموحدة
+    # SAHOOL Agricultural Intelligence Platform - Unified API Gateway
+
+    ## Overview
+    Gateway-level API specification for the SAHOOL platform, providing a single
+    entry point for all 71 microservices. All requests are routed through Kong
+    API Gateway which handles authentication, rate limiting, CORS, and routing.
+
+    ## Authentication
+    All protected endpoints require JWT authentication via `Authorization: Bearer <token>`.
+    Public endpoints (login, register, health checks) are accessible without authentication.
+
+    ## Multi-tenancy
+    Most endpoints require the `X-Tenant-ID` header for tenant isolation.
+
+    ## Rate Limiting
+    | Tier         | Requests/min | Requests/hour |
+    |--------------|-------------|---------------|
+    | Starter      | 30          | 500           |
+    | Professional | 60          | 2,000         |
+    | Enterprise   | 120         | 5,000         |
+    | Research     | 120         | 10,000        |
+    | Internal     | 1,000       | 50,000        |
+
+    ## Error Format
+    All errors follow the unified `ApiResponse` format with bilingual messages (AR/EN).
+
+    ## Service Specifications
+    Detailed per-service specs are available in `docs/api/openapi/`:
+    - [Core Services](./docs/api/openapi/core-services.yaml) - Auth, Users, Notifications, Alerts
+    - [Field Services](./docs/api/openapi/field-services.yaml) - Field Management, Boundaries, NDVI
+    - [Weather Services](./docs/api/openapi/weather-services.yaml) - Weather, Forecasts, GDD
+    - [AI Services](./docs/api/openapi/ai-services.yaml) - Advisory, Crop Intelligence, Disease Detection
+    - [Analysis Services](./docs/api/openapi/analysis-services.yaml) - Vegetation, Indicators, LAI
+    - [IoT Services](./docs/api/openapi/iot-services.yaml) - Devices, Sensors, WebSocket
+    - [Marketplace Services](./docs/api/openapi/marketplace-services.yaml) - Products, Orders
+    - [Billing Services](./docs/api/openapi/billing-services.yaml) - Plans, Subscriptions, Invoices
+    - [Task Services](./docs/api/openapi/task-services.yaml) - Tasks, Equipment, Inventory
+    - [Agent Services](./docs/api/openapi/agent-services.yaml) - AI Agents, Knowledge Graph
+    - [Vision API](./docs/api/openapi/yolo26-vision-api.yaml) - YOLO26 Pest/Disease/Weed Detection
+    - [Terrain API](./docs/api/openapi/terrain-api.yaml) - DEM, Slope, Aspect Analysis
+    - [Hydrology API](./docs/api/openapi/hydrology-api.yaml) - Drainage, Watershed
+    - [Leveling API](./docs/api/openapi/leveling-api.yaml) - Field Leveling Optimization
+    - [Edge API](./docs/api/openapi/edge-api.yaml) - Edge Device Management
+
+  version: "16.0.0"
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Server URLs - Environment-Driven
+# عناوين الخوادم - تعتمد على البيئة
+# ═══════════════════════════════════════════════════════════════════════════════
+servers:
+  - url: https://api.sahool.app
+    description: Production (public gateway)
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging
+  - url: http://localhost:8000
+    description: Local development (Kong Gateway)
+  - url: http://{service}.{namespace}.svc.cluster.local:{port}
+    description: In-cluster (Kubernetes)
+    variables:
+      service:
+        default: kong
+        description: Kubernetes Service name for the gateway
+      namespace:
+        default: kong
+        description: Kubernetes Namespace where the gateway runs
+      port:
+        default: "8000"
+        description: Gateway service port
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Tags - Service Categories
+# ═══════════════════════════════════════════════════════════════════════════════
+tags:
+  - name: Health
+    description: Service health and readiness probes
+  - name: Authentication
+    description: User authentication and token management | المصادقة وإدارة الرموز
+  - name: Users
+    description: User management operations | إدارة المستخدمين
+  - name: Fields
+    description: Agricultural field management | إدارة الحقول الزراعية
+  - name: Weather
+    description: Weather data and forecasts | بيانات الطقس والتنبؤات
+  - name: Crop Health
+    description: Crop health diagnostics and AI | تشخيص صحة المحاصيل
+  - name: Irrigation
+    description: Smart irrigation scheduling | جدولة الري الذكي
+  - name: Advisory
+    description: Agricultural advisory and recommendations | الاستشارات الزراعية
+  - name: Vision
+    description: Computer vision - pest, disease, weed detection | الرؤية الحاسوبية
+  - name: Terrain
+    description: Terrain analysis and DEM processing | تحليل التضاريس
+  - name: IoT
+    description: IoT device and sensor management | إدارة أجهزة إنترنت الأشياء
+  - name: Tasks
+    description: Task management | إدارة المهام
+  - name: Equipment
+    description: Equipment tracking and maintenance | تتبع المعدات
+  - name: Marketplace
+    description: Agricultural marketplace | السوق الزراعي
+  - name: Billing
+    description: Billing and subscriptions | الفوترة والاشتراكات
+  - name: Notifications
+    description: Push and in-app notifications | الإشعارات
+  - name: Alerts
+    description: Agricultural alert management | إدارة التنبيهات
+  - name: AI Agents
+    description: AI agent orchestration | تنسيق وكلاء الذكاء الاصطناعي
+  - name: Satellite
+    description: Satellite imagery and NDVI analysis | صور الأقمار الصناعية
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Security Schemes
+# ═══════════════════════════════════════════════════════════════════════════════
+security:
+  - BearerAuth: []
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Gateway-Level Paths (health, auth - always accessible)
+# ═══════════════════════════════════════════════════════════════════════════════
+paths:
+  # ── Health Endpoints ──────────────────────────────────────────────────────
+  /healthz:
+    get:
+      operationId: getGatewayLiveness
+      tags: [Health]
+      summary: Gateway liveness probe
+      security: []
+      responses:
+        "200":
+          description: Gateway is alive
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /readyz:
+    get:
+      operationId: getGatewayReadiness
+      tags: [Health]
+      summary: Gateway readiness probe
+      security: []
+      responses:
+        "200":
+          description: Gateway is ready
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  # ── Authentication ────────────────────────────────────────────────────────
+  /api/v1/auth/login:
+    post:
+      operationId: loginUser
+      tags: [Authentication]
+      summary: User login | تسجيل الدخول
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /api/v1/auth/register:
+    post:
+      operationId: registerUser
+      tags: [Authentication]
+      summary: User registration | تسجيل مستخدم جديد
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /api/v1/auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [Authentication]
+      summary: Get current user profile | الملف الشخصي
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /api/v1/auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [Authentication]
+      summary: Refresh JWT token | تجديد الرمز
+      responses:
+        "200":
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Shared Components
+# المكونات المشتركة
+# ═══════════════════════════════════════════════════════════════════════════════
+components:
+  # ── Security Schemes ────────────────────────────────────────────────────
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT token obtained from /api/v1/auth/login.
+        Include in all protected requests as: Authorization: Bearer <token>
+
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for service-to-service communication
+
+  # ── Common Parameters ──────────────────────────────────────────────────
+  parameters:
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      description: Request correlation ID for distributed tracing | معرف الارتباط للتتبع الموزع
+      required: false
+      schema:
+        type: string
+        format: uuid
+
+    TenantId:
+      name: X-Tenant-ID
+      in: header
+      description: Tenant ID for multi-tenancy isolation | معرف المستأجر
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-based) | رقم الصفحة
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      description: Items per page | عدد العناصر لكل صفحة
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+
+    FieldIdParam:
+      name: fieldId
+      in: path
+      description: Field UUID | معرف الحقل
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  # ── Shared Schemas ──────────────────────────────────────────────────────
+  schemas:
+    ApiResponse:
+      type: object
+      description: Standard API response wrapper | غلاف الاستجابة القياسي
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        error:
+          type: string
+          description: Error message (English)
+        errorAr:
+          type: string
+          description: Error message (Arabic) | رسالة الخطأ بالعربية
+        errorCode:
+          type: string
+          description: Machine-readable error code
+        requestId:
+          type: string
+          format: uuid
+          description: Request ID for support reference
+        message:
+          type: string
+        pagination:
+          $ref: "#/components/schemas/PaginationMeta"
+
+    PaginationMeta:
+      type: object
+      description: Pagination metadata | بيانات التصفح
+      properties:
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalPages:
+          type: integer
+        hasMore:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, error]
+        service:
+          type: string
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Resource not found"
+        errorAr:
+          type: string
+          example: "المورد غير موجود"
+        errorCode:
+          type: string
+          example: "NOT_FOUND"
+        requestId:
+          type: string
+          format: uuid
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            expiresIn:
+              type: integer
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                email:
+                  type: string
+                name:
+                  type: string
+                role:
+                  type: string
+
+    RegisterRequest:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 8
+        name:
+          type: string
+        phone:
+          type: string
+
+  # ── Shared Responses ────────────────────────────────────────────────────
+  responses:
+    Unauthorized:
+      description: Authentication required or token expired | مطلوب المصادقة
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Authentication required"
+            errorAr: "المصادقة مطلوبة"
+            errorCode: "UNAUTHORIZED"
+
+    Forbidden:
+      description: Insufficient permissions | صلاحيات غير كافية
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Insufficient permissions"
+            errorAr: "صلاحيات غير كافية"
+            errorCode: "FORBIDDEN"
+
+    BadRequest:
+      description: Invalid request parameters | معلمات طلب غير صالحة
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Validation failed"
+            errorAr: "فشل التحقق"
+            errorCode: "VALIDATION_ERROR"
+
+    NotFound:
+      description: Resource not found | المورد غير موجود
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Resource not found"
+            errorAr: "المورد غير موجود"
+            errorCode: "NOT_FOUND"
+
+    RateLimited:
+      description: Rate limit exceeded | تم تجاوز حد المعدل
+      headers:
+        X-RateLimit-Limit-Minute:
+          schema:
+            type: integer
+          description: Request limit per minute
+        X-RateLimit-Remaining-Minute:
+          schema:
+            type: integer
+          description: Remaining requests in current window
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds until rate limit resets
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Rate limit exceeded"
+            errorAr: "تم تجاوز حد المعدل"
+            errorCode: "RATE_LIMITED"
+
+    ServerError:
+      description: Internal server error | خطأ داخلي في الخادم
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          example:
+            success: false
+            error: "Internal server error"
+            errorAr: "خطأ داخلي في الخادم"
+            errorCode: "SERVER_ERROR"

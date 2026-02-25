@@ -24,7 +24,8 @@ class NdviDataPoint extends Equatable {
       date: DateTime.parse(json['date'] ?? json['timestamp']),
       value: (json['value'] ?? json['ndvi'] ?? 0.0).toDouble(),
       source: json['source'] ?? 'sentinel-2',
-      cloudCoverage: (json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0).toDouble(),
+      cloudCoverage:
+          (json['cloud_coverage'] ?? json['cloudCoverage'] ?? 0.0).toDouble(),
     );
   }
 
@@ -86,8 +87,10 @@ class NdviAnalysis extends Equatable {
 
     return NdviAnalysis(
       fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      currentNdvi: (json['current_ndvi'] ?? json['currentNdvi'] ?? 0.0).toDouble(),
-      previousNdvi: (json['previous_ndvi'] ?? json['previousNdvi'] ?? 0.0).toDouble(),
+      currentNdvi:
+          (json['current_ndvi'] ?? json['currentNdvi'] ?? 0.0).toDouble(),
+      previousNdvi:
+          (json['previous_ndvi'] ?? json['previousNdvi'] ?? 0.0).toDouble(),
       changeRate: (json['change_rate'] ?? json['changeRate'] ?? 0.0).toDouble(),
       health: VegetationHealth.fromString(
         json['health_status'] ?? json['healthStatus'] ?? 'unknown',
@@ -96,7 +99,9 @@ class NdviAnalysis extends Equatable {
           .map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>))
           .toList(),
       analyzedAt: DateTime.parse(
-        json['analyzed_at'] ?? json['analyzedAt'] ?? DateTime.now().toIso8601String(),
+        json['analyzed_at'] ??
+            json['analyzedAt'] ??
+            DateTime.now().toIso8601String(),
       ),
       imageUrl: json['image_url'] ?? json['imageUrl'],
       indices: indicesData != null
@@ -259,5 +264,6 @@ class VegetationIndex extends Equatable {
   }
 
   @override
-  List<Object?> get props => [name, nameAr, code, value, unit, description, descriptionAr];
+  List<Object?> get props =>
+      [name, nameAr, code, value, unit, description, descriptionAr];
 }

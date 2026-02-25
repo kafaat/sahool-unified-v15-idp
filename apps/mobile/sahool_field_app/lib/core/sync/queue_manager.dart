@@ -111,7 +111,9 @@ class QueueManager {
           if (log.type == 'conflict') conflictsToday++;
           if (log.status == 'success') processedToday++;
         }
-        if (lastSync == null && log.type.contains('sync') && log.status == 'success') {
+        if (lastSync == null &&
+            log.type.contains('sync') &&
+            log.status == 'success') {
           lastSync = log.timestamp;
         }
       }
@@ -139,7 +141,8 @@ class QueueManager {
   }
 
   /// Get priority for entity type and operation
-  static QueuePriority getPriorityForOperation(String entityType, String method) {
+  static QueuePriority getPriorityForOperation(
+      String entityType, String method) {
     // Delete operations are critical
     if (method.toUpperCase() == 'DELETE') {
       return QueuePriority.critical;
@@ -231,7 +234,8 @@ class QueueManager {
   }
 
   /// Clear old synced items
-  Future<void> cleanupOld({Duration olderThan = const Duration(days: 7)}) async {
+  Future<void> cleanupOld(
+      {Duration olderThan = const Duration(days: 7)}) async {
     await _database.cleanupOldOutbox(olderThan: olderThan);
     await _refreshStats();
   }

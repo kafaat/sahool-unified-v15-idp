@@ -83,7 +83,7 @@ export class TasksService {
   }) {
     const task = await this.prisma.task.create({
       data: {
-        tenantId: data.tenantId || "default",
+        tenantId: data.tenantId,
         fieldId: data.fieldId,
         title: data.title,
         titleAr: data.titleAr,

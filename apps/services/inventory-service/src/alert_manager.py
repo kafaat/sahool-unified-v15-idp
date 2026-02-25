@@ -665,7 +665,7 @@ class AlertManager:
                 }
 
                 # Publish to NATS
-                await nats_client.publish("sahool.alert.inventory", notification_data)
+                await nats_client.publish("sahool.inventory.alert", notification_data)
 
                 sent += 1
                 logger.info(f"Notification sent for alert {alert.id}")

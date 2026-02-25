@@ -262,8 +262,12 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     try {
       // Parse topic: sahool/{tenant}/farm/{farmId}/field/{fieldId}/sensor/{sensorType}
       const parts = topic.split("/");
-      // Extract tenantId from topic (parts[1] after "sahool/"), fallback to "default" for legacy devices
-      const tenantId = parts[1] || "default";
+      // Extract tenantId from topic (parts[1] after "sahool/")
+      const tenantId = parts[1];
+      if (!tenantId) {
+        this.logger.warn("Missing tenantId in MQTT topic, skipping", { topic: this.sanitizeForLog(topic) });
+        return;
+      }
 
       if (parts.includes("sensor")) {
         this.handleSensorData(parts, payload, tenantId);

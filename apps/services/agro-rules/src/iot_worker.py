@@ -72,10 +72,14 @@ class IoTRulesWorker:
             # Extract payload (may be wrapped in envelope or direct)
             if "payload" in data:
                 payload = data["payload"]
-                tenant_id = data.get("tenant_id", "default")
+                tenant_id = data.get("tenant_id") or payload.get("tenant_id")
             else:
                 payload = data
-                tenant_id = "default"
+                tenant_id = data.get("tenant_id")
+
+            if not tenant_id:
+                print("⚠️ Missing tenant_id in sensor reading, skipping")
+                return
 
             field_id = payload.get("field_id")
             sensor_type = payload.get("sensor_type")
@@ -88,7 +92,7 @@ class IoTRulesWorker:
             print(f"📥 Sensor: {sensor_type}={value} from {device_id} (field: {field_id})")
 
             # Store recent reading
-            self._store_reading(field_id, sensor_type, value, device_id)
+            self._store_reading(field_id, sensor_type, value, device_id, tenant_id)
 
             # Evaluate single-sensor rules
             recommendation = rule_from_sensor(sensor_type, value)
@@ -108,7 +112,7 @@ class IoTRulesWorker:
         except Exception as e:
             print(f"❌ Error handling sensor reading: {e}")
 
-    def _store_reading(self, field_id: str, sensor_type: str, value: float, device_id: str):
+    def _store_reading(self, field_id: str, sensor_type: str, value: float, device_id: str, tenant_id: str = None):
         """Store recent reading for combined rule evaluation"""
         if field_id not in self._recent_readings:
             self._recent_readings[field_id] = []
@@ -116,6 +120,7 @@ class IoTRulesWorker:
         # Add reading
         self._recent_readings[field_id].append(
             {
+                "tenant_id": tenant_id,
                 "sensor_type": sensor_type,
                 "value": value,
                 "device_id": device_id,
@@ -140,6 +145,14 @@ class IoTRulesWorker:
                 for r in readings:
                     latest[r["sensor_type"]] = r["value"]
 
+                # Extract tenant_id from the most recent reading
+                tenant_id = next(
+                    (r["tenant_id"] for r in reversed(readings) if r.get("tenant_id")),
+                    None,
+                )
+                if not tenant_id:
+                    continue  # Skip fields without tenant context
+
                 # Evaluate combined rules
                 recommendations = evaluate_combined_rules(
                     [{"sensor_type": k, "value": v} for k, v in latest.items()]
@@ -147,7 +160,7 @@ class IoTRulesWorker:
 
                 for rec in recommendations:
                     await self._create_task_from_recommendation(
-                        tenant_id="default",
+                        tenant_id=tenant_id,
                         field_id=field_id,
                         recommendation=rec,
                     )

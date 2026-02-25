@@ -113,7 +113,7 @@ class NATSPublisher:
 
             # Publish to NATS using shared publisher
             success = await self._publisher.publish_json(
-                "sahool.alert.inventory", notification_data
+                "sahool.inventory.alert", notification_data
             )
 
             if success:

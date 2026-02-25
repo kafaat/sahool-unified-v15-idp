@@ -709,7 +709,7 @@ class CodeFixAgent:
                 name=f"run_{percept.percept_type}",
                 file_path=file_path,
                 language=language,
-                tenant_id=self.context.tenant_id if self.context else "default",
+                tenant_id=self.context.tenant_id if self.context else None,
                 user_id=self.context.user_id if self.context else None,
                 percept_type=percept.percept_type,
             ):

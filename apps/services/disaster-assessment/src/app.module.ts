@@ -5,6 +5,7 @@
 import { Module, OnModuleInit } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { TenantGuard } from "@sahool/nestjs-auth";
 import { PrismaModule } from "./prisma/prisma.module";
 import { HealthController } from "./health/health.controller";
 import { DisasterController } from "./disaster/disaster.controller";
@@ -44,6 +45,11 @@ import { AlertService } from "./alert/alert.service";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

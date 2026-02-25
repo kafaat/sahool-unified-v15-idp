@@ -251,8 +251,10 @@ class IrrigationRepository {
         50000 * method.efficiency, // Estimated flow rate
       ),
       etc: requirement.etc,
-      recommendation: 'Apply ${requirement.waterNeedMm.toStringAsFixed(1)} mm irrigation',
-      recommendationAr: 'قم بري ${requirement.waterNeedMm.toStringAsFixed(1)} ملم',
+      recommendation:
+          'Apply ${requirement.waterNeedMm.toStringAsFixed(1)} mm irrigation',
+      recommendationAr:
+          'قم بري ${requirement.waterNeedMm.toStringAsFixed(1)} ملم',
       nextIrrigationDate: requirement.nextIrrigationDate,
     );
   }
@@ -466,7 +468,8 @@ class IrrigationRepository {
     int failed = 0;
 
     try {
-      final pending = (jsonDecode(pendingJson) as List).cast<Map<String, dynamic>>();
+      final pending =
+          (jsonDecode(pendingJson) as List).cast<Map<String, dynamic>>();
 
       for (final item in pending) {
         final type = item['type'] as String;
@@ -502,10 +505,12 @@ class IrrigationRepository {
       // Update last sync time
       await prefs.setString(_lastSyncKey, DateTime.now().toIso8601String());
     } catch (_) {
-      return SyncResult(success: false, syncedItems: synced, failedItems: failed);
+      return SyncResult(
+          success: false, syncedItems: synced, failedItems: failed);
     }
 
-    return SyncResult(success: failed == 0, syncedItems: synced, failedItems: failed);
+    return SyncResult(
+        success: failed == 0, syncedItems: synced, failedItems: failed);
   }
 
   Future<void> _markForSync(String fieldId, String type) async {
@@ -519,7 +524,11 @@ class IrrigationRepository {
 
     // Add if not already pending
     if (!pending.any((p) => p['field_id'] == fieldId && p['type'] == type)) {
-      pending.add({'field_id': fieldId, 'type': type, 'timestamp': DateTime.now().toIso8601String()});
+      pending.add({
+        'field_id': fieldId,
+        'type': type,
+        'timestamp': DateTime.now().toIso8601String()
+      });
       await prefs.setString(_pendingSyncKey, jsonEncode(pending));
     }
   }

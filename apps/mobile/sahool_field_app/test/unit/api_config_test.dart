@@ -66,13 +66,15 @@ void main() {
       expect('$weatherBase/v1/forecast', contains('/forecast'));
       expect('$weatherBase/v1/alerts', contains('/alerts'));
       expect('$weatherBase/v1/locations', contains('/locations'));
-      expect('$weatherBase/v1/agricultural-calendar', contains('/agricultural'));
+      expect(
+          '$weatherBase/v1/agricultural-calendar', contains('/agricultural'));
     });
 
     test('Indicators Service endpoints (port 8091)', () {
       const indicatorsBase = 'http://localhost:8091';
 
-      expect('$indicatorsBase/v1/indicators/definitions', contains('/definitions'));
+      expect('$indicatorsBase/v1/indicators/definitions',
+          contains('/definitions'));
       expect('$indicatorsBase/v1/dashboard', contains('/dashboard'));
       expect('$indicatorsBase/v1/alerts', contains('/alerts'));
       expect('$indicatorsBase/v1/trends', contains('/trends'));
@@ -85,7 +87,8 @@ void main() {
       expect('$fertilizerBase/v1/fertilizers', contains('/fertilizers'));
       expect('$fertilizerBase/v1/recommend', contains('/recommend'));
       expect('$fertilizerBase/v1/soil/interpret', contains('/soil/'));
-      expect('$fertilizerBase/v1/deficiency/symptoms', contains('/deficiency/'));
+      expect(
+          '$fertilizerBase/v1/deficiency/symptoms', contains('/deficiency/'));
     });
 
     test('Irrigation Smart endpoints (port 8094)', () {
@@ -104,7 +107,8 @@ void main() {
       expect('$equipmentBase/api/v1/equipment', contains('/equipment'));
       expect('$equipmentBase/api/v1/equipment/qr/ABC123', contains('/qr/'));
       expect('$equipmentBase/api/v1/equipment/stats', contains('/stats'));
-      expect('$equipmentBase/api/v1/maintenance/alerts', contains('/maintenance'));
+      expect(
+          '$equipmentBase/api/v1/maintenance/alerts', contains('/maintenance'));
     });
   });
 
@@ -237,9 +241,8 @@ void main() {
         'offset': '0',
       };
 
-      final queryString = params.entries
-          .map((e) => '${e.key}=${e.value}')
-          .join('&');
+      final queryString =
+          params.entries.map((e) => '${e.key}=${e.value}').join('&');
 
       expect(queryString, contains('type=tractor'));
       expect(queryString, contains('status=operational'));

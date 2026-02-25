@@ -89,7 +89,8 @@ class OTPVerificationScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<OTPVerificationScreen> createState() => _OTPVerificationScreenState();
+  ConsumerState<OTPVerificationScreen> createState() =>
+      _OTPVerificationScreenState();
 }
 
 class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
@@ -97,8 +98,7 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
   // OTP Controllers
   final List<TextEditingController> _otpControllers =
       List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _focusNodes =
-      List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
 
   // State
   late OTPVerificationState _state;
@@ -290,10 +290,10 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
 
       // Call API to verify OTP
       final result = await ref.read(otp_svc.otpServiceProvider).verifyOTP(
-        identifier: widget.identifier,
-        otp: otp,
-        purpose: servicePurpose,
-      );
+            identifier: widget.identifier,
+            otp: otp,
+            purpose: servicePurpose,
+          );
 
       // Handle API response
       result.when(
@@ -310,7 +310,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
           HapticFeedback.mediumImpact();
 
           // Notify parent
-          if (widget.purpose == OTPPurpose.passwordReset && _state.resetToken != null) {
+          if (widget.purpose == OTPPurpose.passwordReset &&
+              _state.resetToken != null) {
             widget.onResetTokenReceived?.call(_state.resetToken!);
           }
           widget.onVerified?.call();
@@ -340,7 +341,6 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
           _focusNodes[0].requestFocus();
         },
       );
-
     } catch (e) {
       // Error - shake and clear
       _shakeController.forward(from: 0);
@@ -421,10 +421,10 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
 
       // Call API to resend OTP
       final result = await ref.read(otp_svc.otpServiceProvider).resendOTP(
-        identifier: widget.identifier,
-        channel: serviceChannel,
-        purpose: servicePurpose,
-      );
+            identifier: widget.identifier,
+            channel: serviceChannel,
+            purpose: servicePurpose,
+          );
 
       // Handle API response
       result.when(
@@ -816,7 +816,9 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
         ),
         const SizedBox(width: 8),
         Text(
-          isExpired ? 'انتهى الوقت' : 'صالح لمدة ${_formatTime(_state.remainingSeconds)}',
+          isExpired
+              ? 'انتهى الوقت'
+              : 'صالح لمدة ${_formatTime(_state.remainingSeconds)}',
           style: theme.textTheme.bodyMedium?.copyWith(
             color: isExpired
                 ? colorScheme.error
@@ -834,9 +836,9 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
   /// Build verify button
   Widget _buildVerifyButton(ColorScheme colorScheme, ThemeData theme) {
     final isEnabled = _isOTPComplete() &&
-                      !_state.isLoading &&
-                      _state.remainingSeconds > 0 &&
-                      !_state.isVerified;
+        !_state.isLoading &&
+        _state.remainingSeconds > 0 &&
+        !_state.isVerified;
 
     return SizedBox(
       width: double.infinity,
@@ -844,7 +846,8 @@ class _OTPVerificationScreenState extends ConsumerState<OTPVerificationScreen>
       child: ElevatedButton(
         onPressed: isEnabled ? _verifyOTP : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: _state.isVerified ? Colors.green : colorScheme.primary,
+          backgroundColor:
+              _state.isVerified ? Colors.green : colorScheme.primary,
           foregroundColor: Colors.white,
           disabledBackgroundColor: colorScheme.onBackground.withOpacity(0.1),
           disabledForegroundColor: colorScheme.onBackground.withOpacity(0.4),

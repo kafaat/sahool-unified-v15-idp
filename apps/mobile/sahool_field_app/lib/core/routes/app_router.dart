@@ -57,7 +57,8 @@ import '../../features/scouting/ui/scouting_screen.dart';
 import '../../features/satellite/presentation/screens/satellite_dashboard_screen.dart';
 import '../../features/satellite/presentation/screens/ndvi_detail_screen.dart';
 import '../../features/satellite/presentation/screens/phenology_screen.dart';
-import '../../features/satellite/presentation/screens/weather_screen.dart' as sat_weather;
+import '../../features/satellite/presentation/screens/weather_screen.dart'
+    as sat_weather;
 
 // Features - Other
 import '../../features/alerts/ui/alerts_screen.dart';

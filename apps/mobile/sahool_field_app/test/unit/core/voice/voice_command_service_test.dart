@@ -16,7 +16,8 @@ void main() {
       expect(VoiceCommandType.values.length, 12);
       expect(VoiceCommandType.values, contains(VoiceCommandType.openField));
       expect(VoiceCommandType.values, contains(VoiceCommandType.cropStatus));
-      expect(VoiceCommandType.values, contains(VoiceCommandType.recordIrrigation));
+      expect(
+          VoiceCommandType.values, contains(VoiceCommandType.recordIrrigation));
       expect(VoiceCommandType.values, contains(VoiceCommandType.showTasks));
       expect(VoiceCommandType.values, contains(VoiceCommandType.createTask));
       expect(VoiceCommandType.values, contains(VoiceCommandType.weather));

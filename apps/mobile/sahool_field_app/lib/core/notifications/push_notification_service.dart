@@ -49,8 +49,10 @@ class PushNotificationService {
   String? get fcmToken => _fcmToken;
 
   /// Notification stream controller
-  final _notificationController = StreamController<NotificationPayload>.broadcast();
-  Stream<NotificationPayload> get onNotification => _notificationController.stream;
+  final _notificationController =
+      StreamController<NotificationPayload>.broadcast();
+  Stream<NotificationPayload> get onNotification =>
+      _notificationController.stream;
 
   /// Token refresh stream controller
   final _tokenController = StreamController<String>.broadcast();
@@ -84,7 +86,8 @@ class PushNotificationService {
       }
 
       _isInitialized = true;
-      AppLogger.i('Push notification service initialized (local mode)', tag: 'PUSH');
+      AppLogger.i('Push notification service initialized (local mode)',
+          tag: 'PUSH');
     } catch (e, stackTrace) {
       AppLogger.e(
         'Failed to initialize push notifications',
@@ -133,7 +136,8 @@ class PushNotificationService {
       _subscribedTopics.add(topic);
       AppLogger.d('Subscribed to topic: $topic', tag: 'PUSH');
     } catch (e) {
-      AppLogger.e('Failed to subscribe to topic: $topic', tag: 'PUSH', error: e);
+      AppLogger.e('Failed to subscribe to topic: $topic',
+          tag: 'PUSH', error: e);
     }
   }
 
@@ -149,7 +153,8 @@ class PushNotificationService {
       _subscribedTopics.remove(topic);
       AppLogger.d('Unsubscribed from topic: $topic', tag: 'PUSH');
     } catch (e) {
-      AppLogger.e('Failed to unsubscribe from topic: $topic', tag: 'PUSH', error: e);
+      AppLogger.e('Failed to unsubscribe from topic: $topic',
+          tag: 'PUSH', error: e);
     }
   }
 
@@ -252,7 +257,8 @@ class PushNotificationService {
       _fcmToken = null;
       AppLogger.i('Push notification token deleted', tag: 'PUSH');
     } catch (e) {
-      AppLogger.e('Failed to delete push notification token', tag: 'PUSH', error: e);
+      AppLogger.e('Failed to delete push notification token',
+          tag: 'PUSH', error: e);
     }
   }
 
@@ -270,7 +276,8 @@ class PushNotificationService {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// Provider for PushNotificationService
-final pushNotificationServiceProvider = Provider<PushNotificationService>((ref) {
+final pushNotificationServiceProvider =
+    Provider<PushNotificationService>((ref) {
   return PushNotificationService.instance;
 });
 
@@ -282,7 +289,8 @@ final pushNotificationInitProvider = FutureProvider<bool>((ref) async {
 });
 
 /// Stream provider for push notifications
-final pushNotificationStreamProvider = StreamProvider<NotificationPayload>((ref) {
+final pushNotificationStreamProvider =
+    StreamProvider<NotificationPayload>((ref) {
   return PushNotificationService.instance.onNotification;
 });
 

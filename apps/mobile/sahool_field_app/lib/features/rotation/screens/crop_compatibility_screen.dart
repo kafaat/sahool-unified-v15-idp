@@ -383,7 +383,8 @@ class _CropCompatibilityScreenState
                     ...crops.map((currentCrop) {
                       if (currentCrop.id == nextCrop.id) {
                         return const DataCell(
-                          Center(child: Text('-', style: TextStyle(fontSize: 16))),
+                          Center(
+                              child: Text('-', style: TextStyle(fontSize: 16))),
                         );
                       }
 
@@ -395,8 +396,8 @@ class _CropCompatibilityScreenState
 
                       return DataCell(
                         GestureDetector(
-                          onTap: () => _showCompatibilityDetails(
-                              context, compatibility),
+                          onTap: () =>
+                              _showCompatibilityDetails(context, compatibility),
                           child: Container(
                             width: 60,
                             height: 40,
@@ -405,14 +406,16 @@ class _CropCompatibilityScreenState
                                   .withOpacity(0.3),
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(
-                                color: _getCompatibilityColor(compatibility.score),
+                                color:
+                                    _getCompatibilityColor(compatibility.score),
                                 width: 1,
                               ),
                             ),
                             child: Center(
                               child: Icon(
                                 _getCompatibilityIcon(compatibility.score),
-                                color: _getCompatibilityColor(compatibility.score),
+                                color:
+                                    _getCompatibilityColor(compatibility.score),
                                 size: 20,
                               ),
                             ),
@@ -580,7 +583,8 @@ class _CropCompatibilityScreenState
               const Text('• Rotate between different crop families'),
               const Text('• Include nitrogen-fixing legumes every 2-3 years'),
               const Text('• Avoid planting the same family consecutively'),
-              const Text('• Follow heavy feeders with light feeders or legumes'),
+              const Text(
+                  '• Follow heavy feeders with light feeders or legumes'),
             ],
           ),
         ),

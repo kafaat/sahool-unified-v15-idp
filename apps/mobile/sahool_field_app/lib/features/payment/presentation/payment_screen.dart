@@ -682,10 +682,11 @@ class _DepositSheetState extends ConsumerState<_DepositSheet> {
 
     setState(() => _isLoading = true);
 
-    final success = await ref.read(paymentProvider(widget.walletId).notifier).deposit(
-          amount: amount,
-          phoneNumber: _phoneController.text,
-        );
+    final success =
+        await ref.read(paymentProvider(widget.walletId).notifier).deposit(
+              amount: amount,
+              phoneNumber: _phoneController.text,
+            );
 
     setState(() => _isLoading = false);
 
@@ -918,11 +919,12 @@ class _WithdrawSheetState extends ConsumerState<_WithdrawSheet> {
 
     setState(() => _isLoading = true);
 
-    final success = await ref.read(paymentProvider(widget.walletId).notifier).withdraw(
-          amount: amount,
-          phoneNumber: _phoneController.text,
-          accountNumber: _method == 'bank' ? _accountController.text : null,
-        );
+    final success =
+        await ref.read(paymentProvider(widget.walletId).notifier).withdraw(
+              amount: amount,
+              phoneNumber: _phoneController.text,
+              accountNumber: _method == 'bank' ? _accountController.text : null,
+            );
 
     setState(() => _isLoading = false);
 
@@ -1129,11 +1131,13 @@ class _TransferSheetState extends ConsumerState<_TransferSheet> {
 
     setState(() => _isLoading = true);
 
-    final success = await ref.read(paymentProvider(widget.walletId).notifier).transfer(
-          toPhoneNumber: _phoneController.text,
-          amount: amount,
-          description: _noteController.text.isNotEmpty ? _noteController.text : null,
-        );
+    final success =
+        await ref.read(paymentProvider(widget.walletId).notifier).transfer(
+              toPhoneNumber: _phoneController.text,
+              amount: amount,
+              description:
+                  _noteController.text.isNotEmpty ? _noteController.text : null,
+            );
 
     setState(() => _isLoading = false);
 
@@ -1254,7 +1258,8 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.purple : Colors.white,
                     ),
-                    onSelected: (_) => setState(() => _selectedOperator = op.id),
+                    onSelected: (_) =>
+                        setState(() => _selectedOperator = op.id),
                   );
                 }).toList(),
               ),
@@ -1272,7 +1277,8 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                     labelStyle: TextStyle(
                       color: isSelected ? Colors.purple : Colors.white,
                     ),
-                    onSelected: (_) => setState(() => _selectedOperator = op.id),
+                    onSelected: (_) =>
+                        setState(() => _selectedOperator = op.id),
                   );
                 }).toList(),
               ),
@@ -1320,7 +1326,8 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
                   labelStyle: TextStyle(
                     color: isSelected ? Colors.purple : Colors.white,
                   ),
-                  onSelected: (_) => setState(() => _selectedAmount = amount.toDouble()),
+                  onSelected: (_) =>
+                      setState(() => _selectedAmount = amount.toDouble()),
                 );
               }).toList(),
             ),
@@ -1372,11 +1379,12 @@ class _TopupSheetState extends ConsumerState<_TopupSheet> {
 
     setState(() => _isLoading = true);
 
-    final success = await ref.read(paymentProvider(widget.walletId).notifier).topupMobile(
-          mobileNumber: _phoneController.text,
-          amount: _selectedAmount,
-          operator: _selectedOperator,
-        );
+    final success =
+        await ref.read(paymentProvider(widget.walletId).notifier).topupMobile(
+              mobileNumber: _phoneController.text,
+              amount: _selectedAmount,
+              operator: _selectedOperator,
+            );
 
     setState(() => _isLoading = false);
 
@@ -1428,7 +1436,8 @@ class _MethodChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
+          color:
+              isSelected ? Colors.orange.withOpacity(0.2) : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? Colors.orange : Colors.white.withOpacity(0.3),

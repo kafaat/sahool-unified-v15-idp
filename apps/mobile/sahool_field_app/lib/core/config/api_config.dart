@@ -108,29 +108,37 @@ class ApiConfig {
   // Kong route: /api/v1/satellite
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _satelliteBase => useDirectServices ? satelliteServiceUrl : '$effectiveBaseUrl/api/v1/satellite';
+  static String get _satelliteBase => useDirectServices
+      ? satelliteServiceUrl
+      : '$effectiveBaseUrl/api/v1/satellite';
 
   /// NDVI analysis endpoints
   static String get ndvi => '$_satelliteBase/analyze';
-  static String ndviByFieldId(String fieldId) => '$_satelliteBase/analyze/$fieldId';
+  static String ndviByFieldId(String fieldId) =>
+      '$_satelliteBase/analyze/$fieldId';
   static String get ndviTimeseries => '$_satelliteBase/timeseries';
-  static String ndviTimeseriesByFieldId(String fieldId) => '$_satelliteBase/timeseries/$fieldId';
+  static String ndviTimeseriesByFieldId(String fieldId) =>
+      '$_satelliteBase/timeseries/$fieldId';
   static String get satellites => '$_satelliteBase/satellites';
   static String get regions => '$_satelliteBase/regions';
   static String get imagery => '$_satelliteBase/imagery';
-  static String imageryByFieldId(String fieldId) => '$_satelliteBase/imagery/$fieldId';
+  static String imageryByFieldId(String fieldId) =>
+      '$_satelliteBase/imagery/$fieldId';
 
   /// Vegetation indices endpoints
   static String get indices => '$_satelliteBase/indices';
-  static String indicesByFieldId(String fieldId) => '$_satelliteBase/indices/$fieldId';
+  static String indicesByFieldId(String fieldId) =>
+      '$_satelliteBase/indices/$fieldId';
 
   /// Field health endpoints
   static String get fieldHealth => '$_satelliteBase/health';
-  static String fieldHealthByFieldId(String fieldId) => '$_satelliteBase/health/$fieldId';
+  static String fieldHealthByFieldId(String fieldId) =>
+      '$_satelliteBase/health/$fieldId';
 
   /// Phenology endpoints
   static String get phenology => '$_satelliteBase/phenology';
-  static String phenologyByFieldId(String fieldId) => '$_satelliteBase/phenology/$fieldId';
+  static String phenologyByFieldId(String fieldId) =>
+      '$_satelliteBase/phenology/$fieldId';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Weather Service Endpoints (port 8092)
@@ -138,19 +146,27 @@ class ApiConfig {
   // Kong route: /api/v1/weather
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _weatherBase => useDirectServices ? weatherServiceUrl : '$effectiveBaseUrl/api/v1/weather';
+  static String get _weatherBase => useDirectServices
+      ? weatherServiceUrl
+      : '$effectiveBaseUrl/api/v1/weather';
 
   /// Weather endpoints
   static String get weather => '$_weatherBase/current';
-  static String weatherByLocation(String location) => '$_weatherBase/current/$location';
+  static String weatherByLocation(String location) =>
+      '$_weatherBase/current/$location';
   static String get forecast => '$_weatherBase/forecast';
-  static String forecastByLocation(String location) => '$_weatherBase/forecast/$location';
-  static String forecastByFieldId(String fieldId) => '$_weatherBase/forecast/field/$fieldId';
+  static String forecastByLocation(String location) =>
+      '$_weatherBase/forecast/$location';
+  static String forecastByFieldId(String fieldId) =>
+      '$_weatherBase/forecast/field/$fieldId';
   static String get weatherAlerts => '$_weatherBase/alerts';
-  static String weatherAlertsByLocation(String location) => '$_weatherBase/alerts/$location';
-  static String weatherAlertsByFieldId(String fieldId) => '$_weatherBase/alerts/field/$fieldId';
+  static String weatherAlertsByLocation(String location) =>
+      '$_weatherBase/alerts/$location';
+  static String weatherAlertsByFieldId(String fieldId) =>
+      '$_weatherBase/alerts/field/$fieldId';
   static String get weatherLocations => '$_weatherBase/locations';
-  static String get agriculturalCalendar => '$_weatherBase/agricultural-calendar';
+  static String get agriculturalCalendar =>
+      '$_weatherBase/agricultural-calendar';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Indicators Service Endpoints (port 8091)
@@ -158,13 +174,17 @@ class ApiConfig {
   // Kong route: /api/v1/indicators
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _indicatorsBase => useDirectServices ? indicatorsServiceUrl : '$effectiveBaseUrl/api/v1/indicators';
+  static String get _indicatorsBase => useDirectServices
+      ? indicatorsServiceUrl
+      : '$effectiveBaseUrl/api/v1/indicators';
 
   /// Indicators endpoints
   static String get indicatorDefinitions => '$_indicatorsBase/definitions';
-  static String indicatorsByField(String fieldId) => '$_indicatorsBase/field/$fieldId';
+  static String indicatorsByField(String fieldId) =>
+      '$_indicatorsBase/field/$fieldId';
   static String get dashboard => '$_indicatorsBase/dashboard';
-  static String dashboardByTenant(String tenantId) => '$_indicatorsBase/dashboard/$tenantId';
+  static String dashboardByTenant(String tenantId) =>
+      '$_indicatorsBase/dashboard/$tenantId';
   static String get indicatorAlerts => '$_indicatorsBase/alerts';
   static String get indicatorTrends => '$_indicatorsBase/trends';
 
@@ -174,14 +194,17 @@ class ApiConfig {
   // Kong route: /api/v1/fertilizer
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _fertilizerBase => useDirectServices ? fertilizerServiceUrl : '$effectiveBaseUrl/api/v1/fertilizer';
+  static String get _fertilizerBase => useDirectServices
+      ? fertilizerServiceUrl
+      : '$effectiveBaseUrl/api/v1/fertilizer';
 
   /// Fertilizer recommendation endpoints
   static String get fertilizerCrops => '$_fertilizerBase/crops';
   static String get fertilizerTypes => '$_fertilizerBase/fertilizers';
   static String get fertilizerRecommendation => '$_fertilizerBase/recommend';
   static String get soilInterpretation => '$_fertilizerBase/soil/interpret';
-  static String get deficiencySymptoms => '$_fertilizerBase/deficiency/symptoms';
+  static String get deficiencySymptoms =>
+      '$_fertilizerBase/deficiency/symptoms';
   static String get applicationSchedule => '$_fertilizerBase/schedule';
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -190,7 +213,9 @@ class ApiConfig {
   // Kong route: /api/v1/irrigation
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _irrigationBase => useDirectServices ? irrigationServiceUrl : '$effectiveBaseUrl/api/v1/irrigation';
+  static String get _irrigationBase => useDirectServices
+      ? irrigationServiceUrl
+      : '$effectiveBaseUrl/api/v1/irrigation';
 
   /// Irrigation planning endpoints
   static String get irrigationCrops => '$_irrigationBase/crops';
@@ -207,14 +232,17 @@ class ApiConfig {
   // Kong route: /api/v1/crop-health
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _cropHealthBase => useDirectServices ? cropHealthServiceUrl : '$effectiveBaseUrl/api/v1/crop-health';
+  static String get _cropHealthBase => useDirectServices
+      ? cropHealthServiceUrl
+      : '$effectiveBaseUrl/api/v1/crop-health';
 
   /// Crop health AI diagnosis endpoints
   static String get diagnose => '$_cropHealthBase/diagnose';
   static String get diagnoseBatch => '$_cropHealthBase/diagnose/batch';
   static String get supportedCrops => '$_cropHealthBase/crops';
   static String get diseases => '$_cropHealthBase/diseases';
-  static String treatmentDetails(String diseaseId) => '$_cropHealthBase/treatment/$diseaseId';
+  static String treatmentDetails(String diseaseId) =>
+      '$_cropHealthBase/treatment/$diseaseId';
   static String get expertReview => '$_cropHealthBase/expert-review';
   static String get cropHealthHealthz => '$_cropHealthBase/healthz';
 
@@ -224,18 +252,25 @@ class ApiConfig {
   // Kong route: /api/v1/sensors/virtual
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _virtualSensorsBase => useDirectServices ? virtualSensorsServiceUrl : '$effectiveBaseUrl/api/v1/virtual-sensors';
+  static String get _virtualSensorsBase => useDirectServices
+      ? virtualSensorsServiceUrl
+      : '$effectiveBaseUrl/api/v1/virtual-sensors';
 
   /// Virtual sensors endpoints
   static String get et0Calculate => '$_virtualSensorsBase/et0/calculate';
   static String get virtualSensorsCrops => '$_virtualSensorsBase/crops';
-  static String cropKc(String cropType) => '$_virtualSensorsBase/crops/$cropType/kc';
+  static String cropKc(String cropType) =>
+      '$_virtualSensorsBase/crops/$cropType/kc';
   static String get etcCalculate => '$_virtualSensorsBase/etc/calculate';
   static String get virtualSensorsSoils => '$_virtualSensorsBase/soils';
-  static String get soilMoistureEstimate => '$_virtualSensorsBase/soil-moisture/estimate';
-  static String get irrigationMethodsInfo => '$_virtualSensorsBase/irrigation-methods';
-  static String get irrigationRecommend => '$_virtualSensorsBase/irrigation/recommend';
-  static String get irrigationQuickCheck => '$_virtualSensorsBase/irrigation/quick-check';
+  static String get soilMoistureEstimate =>
+      '$_virtualSensorsBase/soil-moisture/estimate';
+  static String get irrigationMethodsInfo =>
+      '$_virtualSensorsBase/irrigation-methods';
+  static String get irrigationRecommend =>
+      '$_virtualSensorsBase/irrigation/recommend';
+  static String get irrigationQuickCheck =>
+      '$_virtualSensorsBase/irrigation/quick-check';
   static String get virtualSensorsHealthz => '$_virtualSensorsBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -244,7 +279,9 @@ class ApiConfig {
   // Kong route: /api/v1/equipment
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _equipmentBase => useDirectServices ? equipmentServiceUrl : '$effectiveBaseUrl/api/v1/equipment';
+  static String get _equipmentBase => useDirectServices
+      ? equipmentServiceUrl
+      : '$effectiveBaseUrl/api/v1/equipment';
 
   /// Equipment endpoints
   static String get equipment => _equipmentBase;
@@ -252,7 +289,8 @@ class ApiConfig {
   static String equipmentByQr(String qrCode) => '$_equipmentBase/qr/$qrCode';
   static String get equipmentStats => '$_equipmentBase/stats';
   static String get maintenanceAlerts => '$_equipmentBase/maintenance/alerts';
-  static String maintenanceByEquipment(String id) => '$_equipmentBase/maintenance/$id';
+  static String maintenanceByEquipment(String id) =>
+      '$_equipmentBase/maintenance/$id';
 
   // ─────────────────────────────────────────────────────────────────────────────
   // IoT Gateway Endpoints (port 8106)
@@ -265,9 +303,12 @@ class ApiConfig {
   /// IoT Gateway endpoints
   static String get iotDevices => '$_iotBase/devices';
   static String iotDeviceById(String id) => '$_iotBase/devices/$id';
-  static String iotDevicesByField(String fieldId) => '$_iotBase/devices/field/$fieldId';
-  static String iotSensorReadings(String deviceId) => '$_iotBase/sensors/$deviceId/readings';
-  static String iotDeviceCommand(String deviceId) => '$_iotBase/devices/$deviceId/command';
+  static String iotDevicesByField(String fieldId) =>
+      '$_iotBase/devices/field/$fieldId';
+  static String iotSensorReadings(String deviceId) =>
+      '$_iotBase/sensors/$deviceId/readings';
+  static String iotDeviceCommand(String deviceId) =>
+      '$_iotBase/devices/$deviceId/command';
   static String get iotDeviceTypes => '$_iotBase/device-types';
   static String get iotHealthz => '$_iotBase/healthz';
 
@@ -293,28 +334,28 @@ class ApiConfig {
 
   /// Default headers for API requests
   static Map<String, String> get defaultHeaders => {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-    'Accept-Language': 'ar,en',
-  };
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Accept-Language': 'ar,en',
+      };
 
   /// Get headers with authorization token
   static Map<String, String> authHeaders(String token) => {
-    ...defaultHeaders,
-    'Authorization': 'Bearer $token',
-  };
+        ...defaultHeaders,
+        'Authorization': 'Bearer $token',
+      };
 
   /// Get headers with tenant ID for multi-tenancy
   static Map<String, String> tenantHeaders(String token, String tenantId) => {
-    ...authHeaders(token),
-    'X-Tenant-Id': tenantId,
-  };
+        ...authHeaders(token),
+        'X-Tenant-Id': tenantId,
+      };
 
   /// Get headers with ETag for optimistic locking
   static Map<String, String> etagHeaders(String token, String etag) => {
-    ...authHeaders(token),
-    'If-Match': etag,
-  };
+        ...authHeaders(token),
+        'If-Match': etag,
+      };
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Health Check Endpoints
@@ -325,21 +366,21 @@ class ApiConfig {
 
   /// Check all services health
   static Map<String, String> get allHealthChecks => {
-    'satellite': healthCheck(satelliteServiceUrl),
-    'indicators': healthCheck(indicatorsServiceUrl),
-    'weather': healthCheck(weatherServiceUrl),
-    'fertilizer': healthCheck(fertilizerServiceUrl),
-    'irrigation': healthCheck(irrigationServiceUrl),
-    'cropHealth': healthCheck(cropHealthServiceUrl),
-    'virtualSensors': healthCheck(virtualSensorsServiceUrl),
-    'communityChat': healthCheck(communityChatServiceUrl),
-    'chat': healthCheck(chatServiceUrl),
-    'equipment': healthCheck(equipmentServiceUrl),
-    'inventory': healthCheck(inventoryServiceUrl),
-    'notifications': healthCheck(notificationsServiceUrl),
-    'spray': healthCheck(sprayServiceUrl),
-    'marketplace': healthCheck(marketplaceServiceUrl),
-  };
+        'satellite': healthCheck(satelliteServiceUrl),
+        'indicators': healthCheck(indicatorsServiceUrl),
+        'weather': healthCheck(weatherServiceUrl),
+        'fertilizer': healthCheck(fertilizerServiceUrl),
+        'irrigation': healthCheck(irrigationServiceUrl),
+        'cropHealth': healthCheck(cropHealthServiceUrl),
+        'virtualSensors': healthCheck(virtualSensorsServiceUrl),
+        'communityChat': healthCheck(communityChatServiceUrl),
+        'chat': healthCheck(chatServiceUrl),
+        'equipment': healthCheck(equipmentServiceUrl),
+        'inventory': healthCheck(inventoryServiceUrl),
+        'notifications': healthCheck(notificationsServiceUrl),
+        'spray': healthCheck(sprayServiceUrl),
+        'marketplace': healthCheck(marketplaceServiceUrl),
+      };
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Community Chat Service Endpoints (port 8097)
@@ -347,13 +388,18 @@ class ApiConfig {
   // Kong route: /api/v1/community/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _communityChatBase => useDirectServices ? communityChatServiceUrl : '$effectiveBaseUrl/api/v1/community';
+  static String get _communityChatBase => useDirectServices
+      ? communityChatServiceUrl
+      : '$effectiveBaseUrl/api/v1/community';
 
   /// Community chat endpoints
-  static String get communityChatUrl => communityChatServiceUrl; // Socket.io URL
+  static String get communityChatUrl =>
+      communityChatServiceUrl; // Socket.io URL
   static String get communityChatRequests => '$_communityChatBase/requests';
-  static String communityChatRoomMessages(String roomId) => '$_communityChatBase/rooms/$roomId/messages';
-  static String get communityChatOnlineExperts => '$_communityChatBase/experts/online';
+  static String communityChatRoomMessages(String roomId) =>
+      '$_communityChatBase/rooms/$roomId/messages';
+  static String get communityChatOnlineExperts =>
+      '$_communityChatBase/experts/online';
   static String get communityChatStats => '$_communityChatBase/stats';
   static String get communityChatHealthz => '$_communityChatBase/healthz';
 
@@ -363,14 +409,18 @@ class ApiConfig {
   // Kong route: /api/v1/notifications
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _notificationsBase => useDirectServices ? notificationsServiceUrl : '$effectiveBaseUrl/api/v1/notifications';
+  static String get _notificationsBase => useDirectServices
+      ? notificationsServiceUrl
+      : '$effectiveBaseUrl/api/v1/notifications';
 
   /// Notification service endpoints
   static String get notifications => _notificationsBase;
   static String notificationById(String id) => '$_notificationsBase/$id';
-  static String get notificationPreferences => '$_notificationsBase/preferences';
+  static String get notificationPreferences =>
+      '$_notificationsBase/preferences';
   static String get notificationSubscribe => '$_notificationsBase/subscribe';
-  static String get notificationUnsubscribe => '$_notificationsBase/unsubscribe';
+  static String get notificationUnsubscribe =>
+      '$_notificationsBase/unsubscribe';
   static String get notificationMarkRead => '$_notificationsBase/mark-read';
   static String get notificationsHealthz => '$_notificationsBase/healthz';
 
@@ -380,26 +430,37 @@ class ApiConfig {
   // Kong route: /api/v1/marketplace
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _marketplaceBase => useDirectServices ? marketplaceServiceUrl : '$effectiveBaseUrl/api/v1/marketplace';
+  static String get _marketplaceBase => useDirectServices
+      ? marketplaceServiceUrl
+      : '$effectiveBaseUrl/api/v1/marketplace';
 
   /// Wallet endpoints - نقاط المحفظة
-  static String wallet(String userId) => '$_marketplaceBase/fintech/wallet/$userId';
-  static String walletDeposit(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/deposit';
-  static String walletWithdraw(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/withdraw';
-  static String walletTransactions(String walletId) => '$_marketplaceBase/fintech/wallet/$walletId/transactions';
+  static String wallet(String userId) =>
+      '$_marketplaceBase/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) =>
+      '$_marketplaceBase/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) =>
+      '$_marketplaceBase/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) =>
+      '$_marketplaceBase/fintech/wallet/$walletId/transactions';
 
   /// Credit & Loans endpoints - نقاط الائتمان والقروض
-  static String get calculateCreditScore => '$_marketplaceBase/fintech/calculate-score';
+  static String get calculateCreditScore =>
+      '$_marketplaceBase/fintech/calculate-score';
   static String get loans => '$_marketplaceBase/fintech/loans';
-  static String userLoans(String walletId) => '$_marketplaceBase/fintech/loans/$walletId';
-  static String repayLoan(String loanId) => '$_marketplaceBase/fintech/loans/$loanId/repay';
+  static String userLoans(String walletId) =>
+      '$_marketplaceBase/fintech/loans/$walletId';
+  static String repayLoan(String loanId) =>
+      '$_marketplaceBase/fintech/loans/$loanId/repay';
 
   /// Market endpoints - نقاط السوق
   static String get marketProducts => '$_marketplaceBase/products';
-  static String marketProductById(String productId) => '$_marketplaceBase/products/$productId';
+  static String marketProductById(String productId) =>
+      '$_marketplaceBase/products/$productId';
   static String get listHarvest => '$_marketplaceBase/harvest';
   static String get marketOrders => '$_marketplaceBase/orders';
-  static String userMarketOrders(String userId) => '$_marketplaceBase/orders/user/$userId';
+  static String userMarketOrders(String userId) =>
+      '$_marketplaceBase/orders/user/$userId';
   static String get marketStats => '$_marketplaceBase/stats';
   static String get marketplaceHealthz => '$_marketplaceBase/healthz';
 
@@ -409,16 +470,23 @@ class ApiConfig {
   // Kong route: /api/v1/chat
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _chatMessagingBase => useDirectServices ? chatServiceUrl : '$effectiveBaseUrl/api/v1/chat';
+  static String get _chatMessagingBase =>
+      useDirectServices ? chatServiceUrl : '$effectiveBaseUrl/api/v1/chat';
 
   /// Chat REST endpoints
   static String get chatConversations => '$_chatMessagingBase/conversations';
-  static String chatConversationById(String id) => '$_chatMessagingBase/conversations/$id';
-  static String chatMessages(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/messages';
-  static String chatSendMessage(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/messages';
-  static String chatMarkRead(String conversationId) => '$_chatMessagingBase/conversations/$conversationId/read';
-  static String get chatCreateConversation => '$_chatMessagingBase/conversations';
-  static String get chatUnreadCount => '$_chatMessagingBase/conversations/unread-count';
+  static String chatConversationById(String id) =>
+      '$_chatMessagingBase/conversations/$id';
+  static String chatMessages(String conversationId) =>
+      '$_chatMessagingBase/conversations/$conversationId/messages';
+  static String chatSendMessage(String conversationId) =>
+      '$_chatMessagingBase/conversations/$conversationId/messages';
+  static String chatMarkRead(String conversationId) =>
+      '$_chatMessagingBase/conversations/$conversationId/read';
+  static String get chatCreateConversation =>
+      '$_chatMessagingBase/conversations';
+  static String get chatUnreadCount =>
+      '$_chatMessagingBase/conversations/unread-count';
   static String get chatHealthz => '$_chatMessagingBase/healthz';
 
   /// Chat Socket.io URL
@@ -436,8 +504,10 @@ class ApiConfig {
   static String get aiAdvisorQuery => '$_aiAdvisorBase/query';
   static String get aiAdvisorChat => '$_aiAdvisorBase/chat';
   static String get aiAdvisorDiagnose => '$_aiAdvisorBase/diagnose';
-  static String aiAdvisorRecommendations(String fieldId) => '$_aiAdvisorBase/recommendations/$fieldId';
-  static String aiAdvisorAnalyzeField(String fieldId) => '$_aiAdvisorBase/analyze/$fieldId';
+  static String aiAdvisorRecommendations(String fieldId) =>
+      '$_aiAdvisorBase/recommendations/$fieldId';
+  static String aiAdvisorAnalyzeField(String fieldId) =>
+      '$_aiAdvisorBase/analyze/$fieldId';
   static String get aiAdvisorHistory => '$_aiAdvisorBase/history';
   static String get aiAdvisorHealthz => '$_aiAdvisorBase/healthz';
 
@@ -458,7 +528,8 @@ class ApiConfig {
   static String get billingSubscription => '$_billingBase/subscription';
   static String get billingPlans => '$_billingBase/plans';
   static String get billingInvoices => '$_billingBase/invoices';
-  static String billingPayInvoice(String invoiceId) => '$_billingBase/invoices/$invoiceId/pay';
+  static String billingPayInvoice(String invoiceId) =>
+      '$_billingBase/invoices/$invoiceId/pay';
   static String get billingUsage => '$_billingBase/usage';
   static String get billingHealthz => '$_billingBase/healthz';
 
@@ -468,7 +539,9 @@ class ApiConfig {
   // Kong route: /api/v1/inventory
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _inventoryBase => useDirectServices ? inventoryServiceUrl : '$effectiveBaseUrl/api/v1/inventory';
+  static String get _inventoryBase => useDirectServices
+      ? inventoryServiceUrl
+      : '$effectiveBaseUrl/api/v1/inventory';
 
   /// Inventory endpoints
   static String get inventoryItems => _inventoryBase;
@@ -476,7 +549,8 @@ class ApiConfig {
   static String get inventoryCategories => '$_inventoryBase/categories';
   static String get inventoryLowStock => '$_inventoryBase/low-stock';
   static String get inventoryMovements => '$_inventoryBase/movements';
-  static String inventoryByField(String fieldId) => '$_inventoryBase/field/$fieldId';
+  static String inventoryByField(String fieldId) =>
+      '$_inventoryBase/field/$fieldId';
   static String get inventoryHealthz => '$_inventoryBase/healthz';
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -485,7 +559,8 @@ class ApiConfig {
   // Kong route: /api/v1/spray
   // ─────────────────────────────────────────────────────────────────────────────
 
-  static String get _sprayBase => useDirectServices ? sprayServiceUrl : '$effectiveBaseUrl/api/v1/spray';
+  static String get _sprayBase =>
+      useDirectServices ? sprayServiceUrl : '$effectiveBaseUrl/api/v1/spray';
 
   /// Spray operations endpoints
   static String get sprayOperations => _sprayBase;
@@ -526,7 +601,8 @@ class ApiConfig {
   static String get researchTrials => _researchBase;
   static String researchTrialById(String id) => '$_researchBase/$id';
   static String get researchExperiments => '$_researchBase/experiments';
-  static String researchObservations(String trialId) => '$_researchBase/$trialId/observations';
+  static String researchObservations(String trialId) =>
+      '$_researchBase/$trialId/observations';
   static String get researchResults => '$_researchBase/results';
   static String get researchHealthz => '$_researchBase/healthz';
 
@@ -542,7 +618,8 @@ class ApiConfig {
   static String get cropsList => _cropsBase;
   static String cropById(String id) => '$_cropsBase/$id';
   static String get cropVarieties => '$_cropsBase/varieties';
-  static String cropGrowthStages(String cropId) => '$_cropsBase/$cropId/growth-stages';
+  static String cropGrowthStages(String cropId) =>
+      '$_cropsBase/$cropId/growth-stages';
   static String get cropCalendar => '$_cropsBase/calendar';
   static String get cropsHealthz => '$_cropsBase/healthz';
 }

@@ -101,7 +101,8 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
       if (permission == LocationPermission.deniedForever) {
         setState(() {
           _isLoading = false;
-          _errorMessage = 'إذن الموقع مرفوض بشكل دائم. يرجى تفعيله من الإعدادات';
+          _errorMessage =
+              'إذن الموقع مرفوض بشكل دائم. يرجى تفعيله من الإعدادات';
         });
         _setDefaultLocation();
         return;

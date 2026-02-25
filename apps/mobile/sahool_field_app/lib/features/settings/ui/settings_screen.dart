@@ -78,7 +78,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 color: SahoolProColors.johnGreen.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.download, color: SahoolProColors.johnGreen),
+              child:
+                  const Icon(Icons.download, color: SahoolProColors.johnGreen),
             ),
             title: const Text("تنزيل منطقة جديدة"),
             trailing: const Icon(Icons.arrow_forward_ios, size: 16),

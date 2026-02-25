@@ -136,7 +136,8 @@ class VoiceCommandService {
     _resultController.add(result);
     _updateStatus(VoiceStatus.ready);
 
-    AppLogger.i('Voice command parsed: ${command?.type.name ?? "unknown"}', tag: 'VOICE');
+    AppLogger.i('Voice command parsed: ${command?.type.name ?? "unknown"}',
+        tag: 'VOICE');
   }
 
   /// تحليل الأمر من النص
@@ -145,7 +146,8 @@ class VoiceCommandService {
     final normalized = _normalizeText(text);
 
     // فتح حقل
-    if (_matchesPattern(normalized, ['افتح', 'فتح', 'اعرض', 'شوف'], ['حقل', 'الحقل'])) {
+    if (_matchesPattern(
+        normalized, ['افتح', 'فتح', 'اعرض', 'شوف'], ['حقل', 'الحقل'])) {
       final fieldId = _extractFieldIdentifier(normalized);
       return VoiceCommand(
         type: VoiceCommandType.openField,
@@ -155,7 +157,8 @@ class VoiceCommandService {
     }
 
     // حالة المحصول
-    if (_matchesPattern(normalized, ['حالة', 'كيف', 'ما'], ['محصول', 'المحصول', 'الزراعة'])) {
+    if (_matchesPattern(
+        normalized, ['حالة', 'كيف', 'ما'], ['محصول', 'المحصول', 'الزراعة'])) {
       return VoiceCommand(
         type: VoiceCommandType.cropStatus,
         parameters: {},
@@ -164,7 +167,8 @@ class VoiceCommandService {
     }
 
     // تسجيل ري
-    if (_matchesPattern(normalized, ['سجل', 'اضف', 'ابدأ'], ['ري', 'الري', 'سقي'])) {
+    if (_matchesPattern(
+        normalized, ['سجل', 'اضف', 'ابدأ'], ['ري', 'الري', 'سقي'])) {
       final fieldId = _extractFieldIdentifier(normalized);
       return VoiceCommand(
         type: VoiceCommandType.recordIrrigation,
@@ -174,7 +178,8 @@ class VoiceCommandService {
     }
 
     // عرض المهام
-    if (_matchesPattern(normalized, ['عرض', 'اعرض', 'شوف', 'ما'], ['مهام', 'المهام', 'الأعمال'])) {
+    if (_matchesPattern(normalized, ['عرض', 'اعرض', 'شوف', 'ما'],
+        ['مهام', 'المهام', 'الأعمال'])) {
       return VoiceCommand(
         type: VoiceCommandType.showTasks,
         parameters: {},
@@ -183,7 +188,8 @@ class VoiceCommandService {
     }
 
     // إضافة مهمة
-    if (_matchesPattern(normalized, ['اضف', 'سجل', 'انشئ'], ['مهمة', 'عمل', 'شغل'])) {
+    if (_matchesPattern(
+        normalized, ['اضف', 'سجل', 'انشئ'], ['مهمة', 'عمل', 'شغل'])) {
       return VoiceCommand(
         type: VoiceCommandType.createTask,
         parameters: {},
@@ -192,7 +198,8 @@ class VoiceCommandService {
     }
 
     // الطقس
-    if (_matchesPattern(normalized, ['كيف', 'ما', 'شو'], ['طقس', 'الطقس', 'الجو'])) {
+    if (_matchesPattern(
+        normalized, ['كيف', 'ما', 'شو'], ['طقس', 'الطقس', 'الجو'])) {
       return VoiceCommand(
         type: VoiceCommandType.weather,
         parameters: {},
@@ -201,7 +208,8 @@ class VoiceCommandService {
     }
 
     // بدء مسح
-    if (_matchesPattern(normalized, ['ابدأ', 'بدء', 'شغل'], ['مسح', 'فحص', 'جولة'])) {
+    if (_matchesPattern(
+        normalized, ['ابدأ', 'بدء', 'شغل'], ['مسح', 'فحص', 'جولة'])) {
       return VoiceCommand(
         type: VoiceCommandType.startScout,
         parameters: {},
@@ -210,7 +218,8 @@ class VoiceCommandService {
     }
 
     // تسجيل مشكلة
-    if (_matchesPattern(normalized, ['سجل', 'في'], ['مشكلة', 'آفة', 'مرض', 'حشرة'])) {
+    if (_matchesPattern(
+        normalized, ['سجل', 'في'], ['مشكلة', 'آفة', 'مرض', 'حشرة'])) {
       return VoiceCommand(
         type: VoiceCommandType.reportIssue,
         parameters: {},
@@ -228,7 +237,8 @@ class VoiceCommandService {
     }
 
     // ملخص اليوم
-    if (_matchesPattern(normalized, ['ملخص', 'تقرير', 'ايش', 'شو'], ['اليوم', 'يومي'])) {
+    if (_matchesPattern(
+        normalized, ['ملخص', 'تقرير', 'ايش', 'شو'], ['اليوم', 'يومي'])) {
       return VoiceCommand(
         type: VoiceCommandType.dailySummary,
         parameters: {},
@@ -237,7 +247,8 @@ class VoiceCommandService {
     }
 
     // مساعدة
-    if (_matchesPattern(normalized, ['مساعدة', 'ساعدني', 'كيف', 'شو'], ['اقول', 'اسوي', 'استخدم'])) {
+    if (_matchesPattern(normalized, ['مساعدة', 'ساعدني', 'كيف', 'شو'],
+        ['اقول', 'اسوي', 'استخدم'])) {
       return VoiceCommand(
         type: VoiceCommandType.help,
         parameters: {},
@@ -267,7 +278,8 @@ class VoiceCommandService {
 
   /// التحقق من تطابق النمط
   /// Normalizes both input text and pattern words for consistent matching
-  bool _matchesPattern(String text, List<String> actions, List<String> targets) {
+  bool _matchesPattern(
+      String text, List<String> actions, List<String> targets) {
     final hasAction = actions.any((a) => text.contains(_normalizeText(a)));
     final hasTarget = targets.any((t) => text.contains(_normalizeText(t)));
     return hasAction && hasTarget;
@@ -277,7 +289,8 @@ class VoiceCommandService {
   String? _extractFieldIdentifier(String text) {
     // Try to extract field number or name
     // Use normalized forms for Arabic ordinals (أ→ا, ة→ه)
-    final numberPattern = RegExp(r'(?:حقل|الحقل)\s*(?:رقم)?\s*(\d+|الاول|الثاني|الثالث|الرابع|الخامس)');
+    final numberPattern = RegExp(
+        r'(?:حقل|الحقل)\s*(?:رقم)?\s*(\d+|الاول|الثاني|الثالث|الرابع|الخامس)');
     final match = numberPattern.firstMatch(text);
 
     if (match != null) {

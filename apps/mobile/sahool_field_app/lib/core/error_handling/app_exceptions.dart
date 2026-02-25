@@ -161,7 +161,8 @@ class AppException implements Exception {
 
     switch (severity) {
       case ErrorSeverity.critical:
-        AppLogger.critical(message, tag: logTag, error: originalError, data: logData);
+        AppLogger.critical(message,
+            tag: logTag, error: originalError, data: logData);
         break;
       case ErrorSeverity.error:
         AppLogger.e(message, tag: logTag, error: originalError, data: logData);
@@ -252,7 +253,8 @@ class NetworkException extends AppException {
       code: 'TIMEOUT',
       isRetryable: true,
       originalError: originalError,
-      recoverySuggestion: 'The server is taking too long to respond. Try again later',
+      recoverySuggestion:
+          'The server is taking too long to respond. Try again later',
       recoverySuggestionAr: 'الخادم يستغرق وقتًا طويلاً للرد. حاول لاحقًا',
     );
   }
@@ -280,7 +282,8 @@ class ServerException extends AppException {
     super.originalError,
     super.originalStackTrace,
     super.context,
-    super.recoverySuggestion = 'Our servers are experiencing issues. Please try again later',
+    super.recoverySuggestion =
+        'Our servers are experiencing issues. Please try again later',
     super.recoverySuggestionAr = 'خوادمنا تواجه مشاكل. يرجى المحاولة لاحقًا',
   }) : super(
           type: ErrorType.server,
@@ -288,7 +291,8 @@ class ServerException extends AppException {
         );
 
   /// Internal server error (500)
-  factory ServerException.internalError({int? statusCode, Object? originalError}) {
+  factory ServerException.internalError(
+      {int? statusCode, Object? originalError}) {
     return ServerException(
       message: 'Internal server error',
       messageAr: 'خطأ داخلي في الخادم',
@@ -307,7 +311,8 @@ class ServerException extends AppException {
       statusCode: 503,
       isRetryable: true,
       originalError: originalError,
-      recoverySuggestion: 'The service is under maintenance. Please try again in a few minutes',
+      recoverySuggestion:
+          'The service is under maintenance. Please try again in a few minutes',
       recoverySuggestionAr: 'الخدمة قيد الصيانة. يرجى المحاولة بعد بضع دقائق',
     );
   }
@@ -352,7 +357,8 @@ class AuthException extends AppException {
       statusCode: 401,
       originalError: originalError,
       recoverySuggestion: 'Please check your email and password and try again',
-      recoverySuggestionAr: 'يرجى التحقق من البريد الإلكتروني وكلمة المرور والمحاولة مرة أخرى',
+      recoverySuggestionAr:
+          'يرجى التحقق من البريد الإلكتروني وكلمة المرور والمحاولة مرة أخرى',
     );
   }
 
@@ -393,7 +399,8 @@ class AuthException extends AppException {
   }
 
   /// Biometric authentication failed
-  factory AuthException.biometricFailed({String? reason, Object? originalError}) {
+  factory AuthException.biometricFailed(
+      {String? reason, Object? originalError}) {
     return AuthException(
       message: reason ?? 'Biometric authentication failed',
       messageAr: 'فشل التحقق بالبصمة',
@@ -430,7 +437,8 @@ class ValidationException extends AppException {
         );
 
   /// Required field missing
-  factory ValidationException.requiredField(String fieldName, String fieldNameAr) {
+  factory ValidationException.requiredField(
+      String fieldName, String fieldNameAr) {
     return ValidationException(
       message: '$fieldName is required',
       messageAr: '$fieldNameAr مطلوب',
@@ -441,7 +449,8 @@ class ValidationException extends AppException {
   }
 
   /// Invalid format
-  factory ValidationException.invalidFormat(String fieldName, String fieldNameAr) {
+  factory ValidationException.invalidFormat(
+      String fieldName, String fieldNameAr) {
     return ValidationException(
       message: '$fieldName has an invalid format',
       messageAr: 'صيغة $fieldNameAr غير صالحة',
@@ -452,7 +461,8 @@ class ValidationException extends AppException {
   }
 
   /// Value out of range
-  factory ValidationException.outOfRange(String fieldName, String fieldNameAr, {num? min, num? max}) {
+  factory ValidationException.outOfRange(String fieldName, String fieldNameAr,
+      {num? min, num? max}) {
     final rangeMsg = min != null && max != null
         ? 'must be between $min and $max'
         : min != null
@@ -641,7 +651,8 @@ class SyncException extends AppException {
     super.originalError,
     super.originalStackTrace,
     super.context,
-    super.recoverySuggestion = 'Your changes will sync when you\'re back online',
+    super.recoverySuggestion =
+        'Your changes will sync when you\'re back online',
     super.recoverySuggestionAr = 'سيتم مزامنة تغييراتك عندما تعود للاتصال',
   }) : super(
           type: ErrorType.sync,
@@ -650,7 +661,8 @@ class SyncException extends AppException {
         );
 
   /// Conflict during sync
-  factory SyncException.conflict({String? entityType, String? entityId, Object? originalError}) {
+  factory SyncException.conflict(
+      {String? entityType, String? entityId, Object? originalError}) {
     return SyncException(
       message: 'Sync conflict detected',
       messageAr: 'تم اكتشاف تعارض في المزامنة',
@@ -722,7 +734,8 @@ AppException fromDioException(DioException e) {
 }
 
 /// Convert HTTP status code to AppException
-AppException _fromHttpStatus(int? statusCode, dynamic responseData, Object? originalError) {
+AppException _fromHttpStatus(
+    int? statusCode, dynamic responseData, Object? originalError) {
   // Extract message from response
   String? serverMessage;
   String? serverMessageAr;
@@ -742,7 +755,8 @@ AppException _fromHttpStatus(int? statusCode, dynamic responseData, Object? orig
 
     case 401:
       // Check if it's a session expiry or invalid credentials
-      final isSessionExpired = serverMessage?.toLowerCase().contains('expired') ?? false;
+      final isSessionExpired =
+          serverMessage?.toLowerCase().contains('expired') ?? false;
       if (isSessionExpired) {
         return AuthException.sessionExpired(originalError: originalError);
       }
@@ -785,7 +799,8 @@ AppException _fromHttpStatus(int? statusCode, dynamic responseData, Object? orig
       return RateLimitException(originalError: originalError);
 
     case 500:
-      return ServerException.internalError(statusCode: 500, originalError: originalError);
+      return ServerException.internalError(
+          statusCode: 500, originalError: originalError);
 
     case 502:
       return ServerException(
@@ -804,7 +819,8 @@ AppException _fromHttpStatus(int? statusCode, dynamic responseData, Object? orig
 
     default:
       if (statusCode != null && statusCode >= 500) {
-        return ServerException.internalError(statusCode: statusCode, originalError: originalError);
+        return ServerException.internalError(
+            statusCode: statusCode, originalError: originalError);
       }
       return AppException(
         message: serverMessage ?? 'Request failed',

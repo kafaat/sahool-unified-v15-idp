@@ -138,7 +138,8 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.location_on, color: Colors.white70, size: 16),
+                        const Icon(Icons.location_on,
+                            color: Colors.white70, size: 16),
                         const SizedBox(width: 4),
                         Text(
                           location,
@@ -150,7 +151,8 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                         if (alertsCount > 0) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
                               color: Colors.orange,
                               borderRadius: BorderRadius.circular(10),
@@ -158,11 +160,13 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.warning_amber, color: Colors.white, size: 12),
+                                const Icon(Icons.warning_amber,
+                                    color: Colors.white, size: 12),
                                 const SizedBox(width: 2),
                                 Text(
                                   '$alertsCount',
-                                  style: const TextStyle(color: Colors.white, fontSize: 10),
+                                  style: const TextStyle(
+                                      color: Colors.white, fontSize: 10),
                                 ),
                               ],
                             ),

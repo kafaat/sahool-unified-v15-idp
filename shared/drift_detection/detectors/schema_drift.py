@@ -15,7 +15,6 @@ from __future__ import annotations
 import logging
 import re
 from pathlib import Path
-from typing import Any
 
 from shared.drift_detection.detectors.base import BaseDriftDetector
 from shared.drift_detection.models import (
@@ -86,17 +85,19 @@ class SchemaDriftDetector(BaseDriftDetector):
             for mig_dir in migration_dirs:
                 sql_file = mig_dir / "migration.sql"
                 if sql_file.exists() and sql_file.stat().st_size == 0:
-                    self.add_result(DriftResult(
-                        category=DriftCategory.SCHEMA,
-                        severity=DriftSeverity.MEDIUM,
-                        source="migration_ordering",
-                        description=f"Empty migration file in {service_name}: {mig_dir.name}",
-                        description_ar=f"ملف هجرة فارغ في {service_name}: {mig_dir.name}",
-                        file_path=str(sql_file),
-                        service_name=service_name,
-                        auto_fixable=False,
-                        remediation_hint="Remove empty migration or add SQL content",
-                    ))
+                    self.add_result(
+                        DriftResult(
+                            category=DriftCategory.SCHEMA,
+                            severity=DriftSeverity.MEDIUM,
+                            source="migration_ordering",
+                            description=f"Empty migration file in {service_name}: {mig_dir.name}",
+                            description_ar=f"ملف هجرة فارغ في {service_name}: {mig_dir.name}",
+                            file_path=str(sql_file),
+                            service_name=service_name,
+                            auto_fixable=False,
+                            remediation_hint="Remove empty migration or add SQL content",
+                        )
+                    )
 
     async def _check_breaking_migrations(self) -> None:
         """Check for potentially breaking migration patterns."""
@@ -123,36 +124,40 @@ class SchemaDriftDetector(BaseDriftDetector):
             for pattern, pattern_name in BREAKING_PATTERNS:
                 matches = pattern.findall(content)
                 if matches:
-                    self.add_result(DriftResult(
-                        category=DriftCategory.SCHEMA,
-                        severity=DriftSeverity.CRITICAL,
-                        source="breaking_migration",
-                        expected="Backwards-compatible migration (expand/migrate/contract)",
-                        actual=f"Breaking pattern: {pattern_name}",
-                        description=f"Potentially breaking migration in {service_name}: {pattern_name}",
-                        description_ar=f"هجرة قد تسبب كسر في {service_name}: {pattern_name}",
-                        file_path=str(mig_file),
-                        service_name=service_name,
-                        auto_fixable=False,
-                        remediation_hint=f"Use expand/migrate/contract pattern. Split '{pattern_name}' into safe steps.",
-                        remediation_hint_ar=f"استخدم نمط التوسيع/الهجرة/الانكماش. قسّم '{pattern_name}' إلى خطوات آمنة.",
-                    ))
+                    self.add_result(
+                        DriftResult(
+                            category=DriftCategory.SCHEMA,
+                            severity=DriftSeverity.CRITICAL,
+                            source="breaking_migration",
+                            expected="Backwards-compatible migration (expand/migrate/contract)",
+                            actual=f"Breaking pattern: {pattern_name}",
+                            description=f"Potentially breaking migration in {service_name}: {pattern_name}",
+                            description_ar=f"هجرة قد تسبب كسر في {service_name}: {pattern_name}",
+                            file_path=str(mig_file),
+                            service_name=service_name,
+                            auto_fixable=False,
+                            remediation_hint=f"Use expand/migrate/contract pattern. Split '{pattern_name}' into safe steps.",
+                            remediation_hint_ar=f"استخدم نمط التوسيع/الهجرة/الانكماش. قسّم '{pattern_name}' إلى خطوات آمنة.",
+                        )
+                    )
 
             # Check risky patterns
             for pattern, pattern_name in RISKY_PATTERNS:
                 matches = pattern.findall(content)
                 if matches:
-                    self.add_result(DriftResult(
-                        category=DriftCategory.SCHEMA,
-                        severity=DriftSeverity.MEDIUM,
-                        source="risky_migration",
-                        description=f"Risky migration pattern in {service_name}: {pattern_name}",
-                        description_ar=f"نمط هجرة محفوف بالمخاطر في {service_name}: {pattern_name}",
-                        file_path=str(mig_file),
-                        service_name=service_name,
-                        auto_fixable=False,
-                        remediation_hint=f"Review '{pattern_name}' for production safety. Consider CONCURRENTLY for indexes.",
-                    ))
+                    self.add_result(
+                        DriftResult(
+                            category=DriftCategory.SCHEMA,
+                            severity=DriftSeverity.MEDIUM,
+                            source="risky_migration",
+                            description=f"Risky migration pattern in {service_name}: {pattern_name}",
+                            description_ar=f"نمط هجرة محفوف بالمخاطر في {service_name}: {pattern_name}",
+                            file_path=str(mig_file),
+                            service_name=service_name,
+                            auto_fixable=False,
+                            remediation_hint=f"Review '{pattern_name}' for production safety. Consider CONCURRENTLY for indexes.",
+                        )
+                    )
 
     async def _check_prisma_drift(self) -> None:
         """Check Prisma schema consistency."""
@@ -171,15 +176,17 @@ class SchemaDriftDetector(BaseDriftDetector):
             model_count = content.count("model ")
             map_count = content.count("@@map(")
             if model_count > 0 and map_count == 0:
-                self.add_result(DriftResult(
-                    category=DriftCategory.SCHEMA,
-                    severity=DriftSeverity.LOW,
-                    source="prisma_schema",
-                    description=f"Service '{service_name}': Prisma models lack explicit @@map table names",
-                    description_ar=f"خدمة '{service_name}': نماذج Prisma تفتقر إلى أسماء جداول صريحة",
-                    file_path=str(schema_file),
-                    service_name=service_name,
-                ))
+                self.add_result(
+                    DriftResult(
+                        category=DriftCategory.SCHEMA,
+                        severity=DriftSeverity.LOW,
+                        source="prisma_schema",
+                        description=f"Service '{service_name}': Prisma models lack explicit @@map table names",
+                        description_ar=f"خدمة '{service_name}': نماذج Prisma تفتقر إلى أسماء جداول صريحة",
+                        file_path=str(schema_file),
+                        service_name=service_name,
+                    )
+                )
 
             # Check for tenant_id field on all models (multi-tenant requirement)
             models = re.findall(r"model\s+(\w+)\s*\{([^}]+)\}", content, re.DOTALL)
@@ -188,19 +195,21 @@ class SchemaDriftDetector(BaseDriftDetector):
                 if model_name.lower() in {"migration", "prisma", "session", "account"}:
                     continue
                 if "tenant_id" not in model_body and "tenantId" not in model_body:
-                    self.add_result(DriftResult(
-                        category=DriftCategory.SCHEMA,
-                        severity=DriftSeverity.HIGH,
-                        source="tenant_isolation",
-                        expected="tenant_id field on all data models",
-                        actual=f"Model '{model_name}' missing tenant_id",
-                        description=f"Multi-tenant violation: Model '{model_name}' in {service_name} lacks tenant_id",
-                        description_ar=f"انتهاك متعدد المستأجرين: النموذج '{model_name}' في {service_name} يفتقر إلى tenant_id",
-                        file_path=str(schema_file),
-                        service_name=service_name,
-                        auto_fixable=False,
-                        remediation_hint=f"Add 'tenantId String @map(\"tenant_id\")' to model {model_name}",
-                    ))
+                    self.add_result(
+                        DriftResult(
+                            category=DriftCategory.SCHEMA,
+                            severity=DriftSeverity.HIGH,
+                            source="tenant_isolation",
+                            expected="tenant_id field on all data models",
+                            actual=f"Model '{model_name}' missing tenant_id",
+                            description=f"Multi-tenant violation: Model '{model_name}' in {service_name} lacks tenant_id",
+                            description_ar=f"انتهاك متعدد المستأجرين: النموذج '{model_name}' في {service_name} يفتقر إلى tenant_id",
+                            file_path=str(schema_file),
+                            service_name=service_name,
+                            auto_fixable=False,
+                            remediation_hint=f"Add 'tenantId String @map(\"tenant_id\")' to model {model_name}",
+                        )
+                    )
 
     async def _check_rls_consistency(self) -> None:
         """Check Row-Level Security consistency."""
@@ -210,13 +219,15 @@ class SchemaDriftDetector(BaseDriftDetector):
         rls_files = list(root.glob("**/rls*.sql")) + list(root.glob("**/*rls*.sql"))
         if not rls_files:
             # Informational only
-            self.add_result(DriftResult(
-                category=DriftCategory.SCHEMA,
-                severity=DriftSeverity.INFO,
-                source="rls_check",
-                description="No RLS policy files found - consider adding Row-Level Security for multi-tenancy",
-                description_ar="لم يتم العثور على ملفات سياسة RLS - فكر في إضافة أمان مستوى الصف للحماية متعددة المستأجرين",
-            ))
+            self.add_result(
+                DriftResult(
+                    category=DriftCategory.SCHEMA,
+                    severity=DriftSeverity.INFO,
+                    source="rls_check",
+                    description="No RLS policy files found - consider adding Row-Level Security for multi-tenancy",
+                    description_ar="لم يتم العثور على ملفات سياسة RLS - فكر في إضافة أمان مستوى الصف للحماية متعددة المستأجرين",
+                )
+            )
 
     async def _check_missing_indexes(self) -> None:
         """Check for potentially missing indexes on critical query patterns."""

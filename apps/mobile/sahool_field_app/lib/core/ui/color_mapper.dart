@@ -12,7 +12,8 @@ extension WeatherColorMapper on WeatherColor {
   Color toFlutter() => Color(value);
 
   /// تحويل مع شفافية
-  Color toFlutterWithOpacity(double opacity) => Color(value).withOpacity(opacity);
+  Color toFlutterWithOpacity(double opacity) =>
+      Color(value).withOpacity(opacity);
 }
 
 /// Helper functions للاستخدام في UI
@@ -20,11 +21,13 @@ class ColorMapper {
   ColorMapper._();
 
   /// تحويل WeatherColor إلى Flutter Color
-  static Color fromWeather(WeatherColor weatherColor) => Color(weatherColor.value);
+  static Color fromWeather(WeatherColor weatherColor) =>
+      Color(weatherColor.value);
 
   /// تحويل قيمة int مباشرة
   static Color fromValue(int value) => Color(value);
 
   /// إنشاء WeatherColor من Flutter Color
-  static WeatherColor toWeather(Color flutterColor) => WeatherColor(flutterColor.value);
+  static WeatherColor toWeather(Color flutterColor) =>
+      WeatherColor(flutterColor.value);
 }

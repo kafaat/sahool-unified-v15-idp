@@ -129,15 +129,31 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
       ),
       loading: () => Row(
         children: [
-          Expanded(child: _StatusBox(icon: Icons.agriculture, count: "-", label: "معدات", color: SahoolColors.forestGreen)),
+          Expanded(
+              child: _StatusBox(
+                  icon: Icons.agriculture,
+                  count: "-",
+                  label: "معدات",
+                  color: SahoolColors.forestGreen)),
           const SizedBox(width: 12),
-          Expanded(child: _StatusBox(icon: Icons.check_circle, count: "-", label: "جاهزة", color: Colors.green)),
+          Expanded(
+              child: _StatusBox(
+                  icon: Icons.check_circle,
+                  count: "-",
+                  label: "جاهزة",
+                  color: Colors.green)),
           const SizedBox(width: 12),
-          Expanded(child: _StatusBox(icon: Icons.build, count: "-", label: "صيانة", color: SahoolColors.harvestGold)),
+          Expanded(
+              child: _StatusBox(
+                  icon: Icons.build,
+                  count: "-",
+                  label: "صيانة",
+                  color: SahoolColors.harvestGold)),
         ],
       ),
       error: (error, _) => Center(
-        child: Text('خطأ في تحميل الإحصائيات', style: TextStyle(color: SahoolColors.danger)),
+        child: Text('خطأ في تحميل الإحصائيات',
+            style: TextStyle(color: SahoolColors.danger)),
       ),
     );
   }
@@ -179,7 +195,8 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
             label: "حاصدات",
             icon: Icons.grass,
             isSelected: _selectedType == EquipmentType.harvester,
-            onTap: () => setState(() => _selectedType = EquipmentType.harvester),
+            onTap: () =>
+                setState(() => _selectedType = EquipmentType.harvester),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
@@ -274,7 +291,8 @@ class _EquipmentScreenState extends ConsumerState<EquipmentScreen> {
     );
   }
 
-  Widget _buildMaintenanceAlerts(AsyncValue<List<MaintenanceAlert>> alertsAsync) {
+  Widget _buildMaintenanceAlerts(
+      AsyncValue<List<MaintenanceAlert>> alertsAsync) {
     return alertsAsync.when(
       data: (alerts) {
         if (alerts.isEmpty) {
@@ -466,7 +484,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                     color: equipment.isLowFuel ? Colors.orange : Colors.green,
                   ),
                 ),
-              if (equipment.currentFuelPercent != null) const SizedBox(width: 12),
+              if (equipment.currentFuelPercent != null)
+                const SizedBox(width: 12),
               Expanded(
                 child: _StatBox(
                   icon: Icons.timer,
@@ -495,7 +514,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
               color: SahoolColors.paleOlive.withOpacity(0.5),
               child: Row(
                 children: [
-                  const Icon(Icons.location_on, color: SahoolColors.forestGreen),
+                  const Icon(Icons.location_on,
+                      color: SahoolColors.forestGreen),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -509,17 +529,20 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                           equipment.locationName ?? 'غير محدد',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-                        if (equipment.currentLat != null && equipment.currentLon != null)
+                        if (equipment.currentLat != null &&
+                            equipment.currentLon != null)
                           Text(
                             '${equipment.currentLat!.toStringAsFixed(4)}, ${equipment.currentLon!.toStringAsFixed(4)}',
-                            style: const TextStyle(fontSize: 11, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 11, color: Colors.grey),
                           ),
                       ],
                     ),
                   ),
                   TextButton(
                     onPressed: () {
-                      if (equipment.currentLat != null && equipment.currentLon != null) {
+                      if (equipment.currentLat != null &&
+                          equipment.currentLon != null) {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -546,7 +569,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
               color: SahoolColors.harvestGold.withOpacity(0.1),
               child: Row(
                 children: [
-                  const Icon(Icons.warning_amber, color: SahoolColors.harvestGold),
+                  const Icon(Icons.warning_amber,
+                      color: SahoolColors.harvestGold),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -559,7 +583,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                         if (equipment.nextMaintenanceAt != null)
                           Text(
                             'موعد الصيانة: ${_formatDate(equipment.nextMaintenanceAt!)}',
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                           ),
                       ],
                     ),
@@ -601,7 +626,8 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     Navigator.pop(context);
-                    _showAddMaintenanceRecord(context, ref, equipment.equipmentId);
+                    _showAddMaintenanceRecord(
+                        context, ref, equipment.equipmentId);
                   },
                   icon: const Icon(Icons.build),
                   label: const Text("صيانة"),
@@ -616,11 +642,14 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    final controller = ref.read(equipmentControllerProvider.notifier);
-                    final newStatus = equipment.status == EquipmentStatus.operational
-                        ? EquipmentStatus.inactive
-                        : EquipmentStatus.operational;
-                    await controller.updateStatus(equipment.equipmentId, newStatus);
+                    final controller =
+                        ref.read(equipmentControllerProvider.notifier);
+                    final newStatus =
+                        equipment.status == EquipmentStatus.operational
+                            ? EquipmentStatus.inactive
+                            : EquipmentStatus.operational;
+                    await controller.updateStatus(
+                        equipment.equipmentId, newStatus);
                     if (context.mounted) Navigator.pop(context);
                   },
                   icon: Icon(equipment.status == EquipmentStatus.operational
@@ -631,9 +660,10 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
                       : "تشغيل"),
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: equipment.status == EquipmentStatus.operational
-                        ? Colors.red
-                        : SahoolColors.forestGreen,
+                    backgroundColor:
+                        equipment.status == EquipmentStatus.operational
+                            ? Colors.red
+                            : SahoolColors.forestGreen,
                     foregroundColor: Colors.white,
                   ),
                 ),
@@ -645,12 +675,14 @@ class _EquipmentDetailsSheet extends ConsumerWidget {
     );
   }
 
-  void _showAddMaintenanceRecord(BuildContext context, WidgetRef ref, String equipmentId) {
+  void _showAddMaintenanceRecord(
+      BuildContext context, WidgetRef ref, String equipmentId) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => _AddMaintenanceRecordSheet(equipmentId: equipmentId),
+      builder: (context) =>
+          _AddMaintenanceRecordSheet(equipmentId: equipmentId),
     );
   }
 
@@ -773,7 +805,8 @@ class _AddEquipmentSheetState extends ConsumerState<_AddEquipmentSheet> {
                 }
 
                 // Call repository to create equipment
-                final controller = ref.read(equipmentControllerProvider.notifier);
+                final controller =
+                    ref.read(equipmentControllerProvider.notifier);
                 final success = await controller.createEquipment(
                   name: _nameController.text.trim(),
                   type: _selectedType,
@@ -934,7 +967,9 @@ class _CategoryChip extends StatelessWidget {
           color: isSelected ? SahoolColors.forestGreen : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? SahoolColors.forestGreen : Colors.grey.withOpacity(0.3),
+            color: isSelected
+                ? SahoolColors.forestGreen
+                : Colors.grey.withOpacity(0.3),
           ),
         ),
         child: Row(
@@ -1025,25 +1060,31 @@ class _EquipmentItem extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(Icons.location_on, size: 14, color: Colors.grey[400]),
+                      Icon(Icons.location_on,
+                          size: 14, color: Colors.grey[400]),
                       const SizedBox(width: 4),
                       Text(
                         equipment.locationName ?? 'غير محدد',
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                       const SizedBox(width: 16),
                       if (equipment.currentFuelPercent != null) ...[
                         Icon(
                           Icons.local_gas_station,
                           size: 14,
-                          color: equipment.isLowFuel ? Colors.orange : Colors.green,
+                          color: equipment.isLowFuel
+                              ? Colors.orange
+                              : Colors.green,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           "${equipment.currentFuelPercent!.toInt()}%",
                           style: TextStyle(
                             fontSize: 12,
-                            color: equipment.isLowFuel ? Colors.orange : Colors.green,
+                            color: equipment.isLowFuel
+                                ? Colors.orange
+                                : Colors.green,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1053,7 +1094,8 @@ class _EquipmentItem extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         "${equipment.currentHours?.toStringAsFixed(0) ?? '-'}h",
-                        style: const TextStyle(fontSize: 12, color: Colors.grey),
+                        style:
+                            const TextStyle(fontSize: 12, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -1107,7 +1149,8 @@ class _MaintenanceAlertWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: alert.isOverdue ? SahoolColors.danger : Colors.grey,
-                  fontWeight: alert.isOverdue ? FontWeight.bold : FontWeight.normal,
+                  fontWeight:
+                      alert.isOverdue ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
             const SizedBox(height: 4),
@@ -1388,7 +1431,8 @@ class _AddMaintenanceRecordSheetState
                             setState(() => _selectedType = type);
                           }
                         },
-                        selectedColor: SahoolColors.harvestGold.withOpacity(0.2),
+                        selectedColor:
+                            SahoolColors.harvestGold.withOpacity(0.2),
                         labelStyle: TextStyle(
                           color: isSelected
                               ? SahoolColors.harvestGold
@@ -1608,7 +1652,8 @@ class _EquipmentHistorySheet extends ConsumerWidget {
                       ),
                       Text(
                         equipmentName,
-                        style: const TextStyle(color: Colors.grey, fontSize: 14),
+                        style:
+                            const TextStyle(color: Colors.grey, fontSize: 14),
                       ),
                     ],
                   ),
@@ -1798,7 +1843,8 @@ class _MaintenanceRecordTile extends StatelessWidget {
                       ),
 
                     // Parts replaced
-                    if (record.partsReplaced != null && record.partsReplaced!.isNotEmpty)
+                    if (record.partsReplaced != null &&
+                        record.partsReplaced!.isNotEmpty)
                       _MetaChip(
                         icon: Icons.build,
                         label: '${record.partsReplaced!.length} قطع',

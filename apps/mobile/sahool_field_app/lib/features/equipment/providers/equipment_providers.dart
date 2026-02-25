@@ -31,7 +31,8 @@ final equipmentListProvider = FutureProvider.autoDispose
 });
 
 /// مزود قائمة المعدات المفلترة مع دعم البحث
-final filteredEquipmentProvider = FutureProvider.autoDispose<List<Equipment>>((ref) async {
+final filteredEquipmentProvider =
+    FutureProvider.autoDispose<List<Equipment>>((ref) async {
   final filter = ref.watch(selectedEquipmentFilterProvider);
   final equipmentAsync = ref.watch(equipmentListProvider(filter));
 
@@ -43,7 +44,8 @@ final filteredEquipmentProvider = FutureProvider.autoDispose<List<Equipment>>((r
 });
 
 /// مزود إحصائيات المعدات
-final equipmentStatsProvider = FutureProvider.autoDispose<EquipmentStats>((ref) async {
+final equipmentStatsProvider =
+    FutureProvider.autoDispose<EquipmentStats>((ref) async {
   final repo = ref.watch(equipmentRepositoryProvider);
   final result = await repo.getStats();
 
@@ -66,18 +68,22 @@ final maintenanceAlertsProvider = FutureProvider.autoDispose
 });
 
 /// مزود المعدات التي تحتاج صيانة
-final equipmentNeedingMaintenanceProvider = FutureProvider.autoDispose<List<Equipment>>((ref) async {
+final equipmentNeedingMaintenanceProvider =
+    FutureProvider.autoDispose<List<Equipment>>((ref) async {
   final equipmentAsync = ref.watch(equipmentListProvider(null));
 
   return equipmentAsync.when(
-    data: (data) => data.where((e) => e.needsMaintenanceSoon || e.isMaintenanceOverdue).toList(),
+    data: (data) => data
+        .where((e) => e.needsMaintenanceSoon || e.isMaintenanceOverdue)
+        .toList(),
     loading: () => [],
     error: (_, __) => [],
   );
 });
 
 /// مزود المعدات ذات الوقود المنخفض
-final lowFuelEquipmentProvider = FutureProvider.autoDispose<List<Equipment>>((ref) async {
+final lowFuelEquipmentProvider =
+    FutureProvider.autoDispose<List<Equipment>>((ref) async {
   final equipmentAsync = ref.watch(equipmentListProvider(null));
 
   return equipmentAsync.when(
@@ -104,8 +110,8 @@ final equipmentDetailsProvider = FutureProvider.autoDispose
 });
 
 /// مزود البحث عبر QR Code
-final equipmentByQrProvider = FutureProvider.autoDispose
-    .family<Equipment, String>((ref, qrCode) async {
+final equipmentByQrProvider =
+    FutureProvider.autoDispose.family<Equipment, String>((ref, qrCode) async {
   final repo = ref.watch(equipmentRepositoryProvider);
   final result = await repo.getEquipmentByQrCode(qrCode);
 
@@ -119,7 +125,8 @@ final equipmentByQrProvider = FutureProvider.autoDispose
 final selectedEquipmentIdProvider = StateProvider<String?>((ref) => null);
 
 /// مزود تفاصيل المعدة المحددة
-final selectedEquipmentProvider = FutureProvider.autoDispose<Equipment?>((ref) async {
+final selectedEquipmentProvider =
+    FutureProvider.autoDispose<Equipment?>((ref) async {
   final equipmentId = ref.watch(selectedEquipmentIdProvider);
   if (equipmentId == null) return null;
 
@@ -267,7 +274,8 @@ final usageSummaryProvider = FutureProvider.autoDispose
   if (result.isSuccess && result.data != null) {
     return result.data!;
   }
-  throw Exception(result.errorAr ?? result.error ?? 'فشل في جلب ملخص الاستخدام');
+  throw Exception(
+      result.errorAr ?? result.error ?? 'فشل في جلب ملخص الاستخدام');
 });
 
 /// مزود جلسة الاستخدام النشطة
@@ -287,16 +295,19 @@ final activeUsageSessionProvider = FutureProvider.autoDispose
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// حالة الفلتر المحددة
-final selectedEquipmentFilterProvider = StateProvider<EquipmentFilter?>((ref) => null);
+final selectedEquipmentFilterProvider =
+    StateProvider<EquipmentFilter?>((ref) => null);
 
 /// حالة البحث النصي
 final equipmentSearchQueryProvider = StateProvider<String>((ref) => '');
 
 /// حالة النوع المحدد
-final selectedEquipmentTypeProvider = StateProvider<EquipmentType?>((ref) => null);
+final selectedEquipmentTypeProvider =
+    StateProvider<EquipmentType?>((ref) => null);
 
 /// حالة الحالة المحددة
-final selectedEquipmentStatusProvider = StateProvider<EquipmentStatus?>((ref) => null);
+final selectedEquipmentStatusProvider =
+    StateProvider<EquipmentStatus?>((ref) => null);
 
 /// فلتر المعدات
 class EquipmentFilter {
@@ -326,7 +337,10 @@ class EquipmentFilter {
   }
 
   bool get hasFilters =>
-      type != null || status != null || fieldId != null || (search != null && search!.isNotEmpty);
+      type != null ||
+      status != null ||
+      fieldId != null ||
+      (search != null && search!.isNotEmpty);
 
   @override
   bool operator ==(Object other) =>
@@ -346,7 +360,8 @@ class EquipmentFilter {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /// مزود عدد العمليات المعلقة
-final pendingOperationsCountProvider = FutureProvider.autoDispose<int>((ref) async {
+final pendingOperationsCountProvider =
+    FutureProvider.autoDispose<int>((ref) async {
   final localDb = ref.watch(equipmentLocalDbProvider);
   return await localDb.getPendingOperationsCount();
 });
@@ -372,7 +387,8 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
   final EquipmentRepository _repo;
   final Ref _ref;
 
-  EquipmentController(this._repo, this._ref) : super(const AsyncValue.data(null));
+  EquipmentController(this._repo, this._ref)
+      : super(const AsyncValue.data(null));
 
   /// إنشاء معدة جديدة
   Future<bool> createEquipment({
@@ -424,7 +440,8 @@ class EquipmentController extends StateNotifier<AsyncValue<void>> {
   }
 
   /// تحديث معدة
-  Future<bool> updateEquipment(String equipmentId, Map<String, dynamic> updates) async {
+  Future<bool> updateEquipment(
+      String equipmentId, Map<String, dynamic> updates) async {
     state = const AsyncValue.loading();
 
     final result = await _repo.updateEquipment(equipmentId, updates);

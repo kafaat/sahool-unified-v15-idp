@@ -244,7 +244,8 @@ class WebSocketService {
 
   /// Broadcast message to a room
   /// بث رسالة إلى غرفة
-  Future<void> broadcastToRoom(String roomId, Map<String, dynamic> message) async {
+  Future<void> broadcastToRoom(
+      String roomId, Map<String, dynamic> message) async {
     if (!isConnected) {
       throw Exception('WebSocket not connected');
     }
@@ -284,7 +285,8 @@ class WebSocketService {
   void _handleMessage(dynamic message) {
     try {
       if (message is! String) {
-        AppLogger.warning('WebSocket received non-string message: ${message.runtimeType}');
+        AppLogger.warning(
+            'WebSocket received non-string message: ${message.runtimeType}');
         return;
       }
       final data = jsonDecode(message) as Map<String, dynamic>;
@@ -350,7 +352,8 @@ class WebSocketService {
     _reconnectAttempts++;
 
     final delay = _reconnectDelay * _reconnectAttempts;
-    AppLogger.info('Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)');
+    AppLogger.info(
+        'Scheduling reconnect in ${delay.inSeconds}s (attempt $_reconnectAttempts)');
 
     _updateState(ConnectionState.reconnecting);
 

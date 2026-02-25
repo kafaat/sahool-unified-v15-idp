@@ -108,7 +108,8 @@ class SoilHealthChart extends StatelessWidget {
 
     return Column(
       children: [
-        _buildTrendRow('Nitrogen', oldest.nitrogen, latest.nitrogen, Colors.blue),
+        _buildTrendRow(
+            'Nitrogen', oldest.nitrogen, latest.nitrogen, Colors.blue),
         const SizedBox(height: 8),
         _buildTrendRow(
             'Phosphorus', oldest.phosphorus, latest.phosphorus, Colors.orange),
@@ -177,7 +178,9 @@ class SoilHealthChart extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                isStable ? 'Stable' : '${isImproving ? '+' : ''}$percentChange%',
+                isStable
+                    ? 'Stable'
+                    : '${isImproving ? '+' : ''}$percentChange%',
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
@@ -533,7 +536,8 @@ class RadarChartPainter extends CustomPainter {
       textPainter.layout();
       textPainter.paint(
         canvas,
-        Offset(point.dx - textPainter.width / 2, point.dy - textPainter.height - 8),
+        Offset(point.dx - textPainter.width / 2,
+            point.dy - textPainter.height - 8),
       );
     }
   }

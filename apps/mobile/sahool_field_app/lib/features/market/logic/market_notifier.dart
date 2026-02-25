@@ -178,8 +178,11 @@ class HarvestSaleData {
     return HarvestSaleData(
       cropType: data['crop'] ?? data['crop_type'] ?? 'Unknown',
       cropTypeAr: data['cropAr'] ?? data['crop_type_ar'] ?? 'غير معروف',
-      predictedYieldTons: (data['predictedYieldTons'] ?? data['predicted_yield_tons'] ?? 0).toDouble(),
-      pricePerTon: (data['marketPrice'] ?? data['price_per_ton'] ?? 0).toDouble(),
+      predictedYieldTons:
+          (data['predictedYieldTons'] ?? data['predicted_yield_tons'] ?? 0)
+              .toDouble(),
+      pricePerTon:
+          (data['marketPrice'] ?? data['price_per_ton'] ?? 0).toDouble(),
       harvestDate: data['harvestDate'] ?? data['harvest_date'],
       qualityGrade: data['qualityGrade'] ?? data['quality_grade'],
       governorate: data['governorate'],
@@ -205,7 +208,8 @@ class HarvestSaleData {
 // =============================================================================
 
 /// مزود حالة السوق
-final marketNotifierProvider = StateNotifierProvider<MarketNotifier, MarketState>((ref) {
+final marketNotifierProvider =
+    StateNotifierProvider<MarketNotifier, MarketState>((ref) {
   return MarketNotifier(ref.read(marketRepoProvider));
 });
 

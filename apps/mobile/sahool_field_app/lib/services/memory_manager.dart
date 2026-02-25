@@ -193,13 +193,18 @@ class MemoryManager {
     return {
       'cacheSize': _cache.length,
       'maxSize': maxCacheSize,
-      'utilizationPercent': (_cache.length / maxCacheSize * 100).toStringAsFixed(1),
+      'utilizationPercent':
+          (_cache.length / maxCacheSize * 100).toStringAsFixed(1),
       'oldestEntry': _accessLog.isEmpty
           ? null
-          : _accessLog.values.reduce((a, b) => a.isBefore(b) ? a : b).toIso8601String(),
+          : _accessLog.values
+              .reduce((a, b) => a.isBefore(b) ? a : b)
+              .toIso8601String(),
       'newestEntry': _accessLog.isEmpty
           ? null
-          : _accessLog.values.reduce((a, b) => a.isAfter(b) ? a : b).toIso8601String(),
+          : _accessLog.values
+              .reduce((a, b) => a.isAfter(b) ? a : b)
+              .toIso8601String(),
     };
   }
 
@@ -222,13 +227,15 @@ class MemoryManager {
   /// Invalidate cache by pattern
   void invalidateByPattern(String pattern) {
     final regex = RegExp(pattern);
-    final keysToRemove = _cache.keys.where((key) => regex.hasMatch(key)).toList();
+    final keysToRemove =
+        _cache.keys.where((key) => regex.hasMatch(key)).toList();
 
     for (final key in keysToRemove) {
       remove(key);
     }
 
-    debugPrint('MemoryManager: Invalidated ${keysToRemove.length} entries matching $pattern');
+    debugPrint(
+        'MemoryManager: Invalidated ${keysToRemove.length} entries matching $pattern');
   }
 }
 

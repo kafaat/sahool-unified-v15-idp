@@ -38,19 +38,19 @@ class WeatherData {
   });
 
   Map<String, dynamic> toJson() => {
-    'temperature': temperature,
-    'humidity': humidity,
-    'windSpeed': windSpeed,
-    'windDirection': windDirection,
-    'precipitation': precipitation,
-    'cloudCover': cloudCover,
-    'uvIndex': uvIndex,
-    'condition': condition,
-    'conditionAr': conditionAr,
-    'icon': icon,
-    'timestamp': timestamp.toIso8601String(),
-    'provider': provider,
-  };
+        'temperature': temperature,
+        'humidity': humidity,
+        'windSpeed': windSpeed,
+        'windDirection': windDirection,
+        'precipitation': precipitation,
+        'cloudCover': cloudCover,
+        'uvIndex': uvIndex,
+        'condition': condition,
+        'conditionAr': conditionAr,
+        'icon': icon,
+        'timestamp': timestamp.toIso8601String(),
+        'provider': provider,
+      };
 }
 
 /// Forecast data model
@@ -118,8 +118,10 @@ class WeatherProviderService {
   });
 
   /// Get current weather with automatic provider fallback
-  Future<WeatherResult<WeatherData>> getCurrentWeather(double lat, double lng) async {
-    final cacheKey = 'current_${lat.toStringAsFixed(2)}_${lng.toStringAsFixed(2)}';
+  Future<WeatherResult<WeatherData>> getCurrentWeather(
+      double lat, double lng) async {
+    final cacheKey =
+        'current_${lat.toStringAsFixed(2)}_${lng.toStringAsFixed(2)}';
 
     // Check cache first
     final cached = _getFromCache<WeatherData>(cacheKey);
@@ -161,12 +163,10 @@ class WeatherProviderService {
   }
 
   /// Get weather forecast with automatic provider fallback
-  Future<WeatherResult<List<ForecastDay>>> getForecast(
-    double lat,
-    double lng,
-    {int days = 7}
-  ) async {
-    final cacheKey = 'forecast_${lat.toStringAsFixed(2)}_${lng.toStringAsFixed(2)}_$days';
+  Future<WeatherResult<List<ForecastDay>>> getForecast(double lat, double lng,
+      {int days = 7}) async {
+    final cacheKey =
+        'forecast_${lat.toStringAsFixed(2)}_${lng.toStringAsFixed(2)}_$days';
 
     final cached = _getFromCache<List<ForecastDay>>(cacheKey);
     if (cached != null) {
@@ -183,7 +183,8 @@ class WeatherProviderService {
       if (!provider.isConfigured) continue;
 
       try {
-        final result = await _fetchForecastFromProvider(provider, lat, lng, days);
+        final result =
+            await _fetchForecastFromProvider(provider, lat, lng, days);
         if (result != null && result.isNotEmpty) {
           _saveToCache(cacheKey, result);
           return WeatherResult(
@@ -215,11 +216,13 @@ class WeatherProviderService {
       case WeatherProviderType.openMeteo:
         return _fetchFromOpenMeteo(lat, lng, provider.name);
       case WeatherProviderType.openWeatherMap:
-        return _fetchFromOpenWeatherMap(lat, lng, provider.apiKey!, provider.name);
+        return _fetchFromOpenWeatherMap(
+            lat, lng, provider.apiKey!, provider.name);
       case WeatherProviderType.weatherApi:
         return _fetchFromWeatherApi(lat, lng, provider.apiKey!, provider.name);
       case WeatherProviderType.visualCrossing:
-        return _fetchFromVisualCrossing(lat, lng, provider.apiKey!, provider.name);
+        return _fetchFromVisualCrossing(
+            lat, lng, provider.apiKey!, provider.name);
     }
   }
 
@@ -234,11 +237,13 @@ class WeatherProviderService {
       case WeatherProviderType.openMeteo:
         return _fetchForecastFromOpenMeteo(lat, lng, days);
       case WeatherProviderType.openWeatherMap:
-        return _fetchForecastFromOpenWeatherMap(lat, lng, provider.apiKey!, days);
+        return _fetchForecastFromOpenWeatherMap(
+            lat, lng, provider.apiKey!, days);
       case WeatherProviderType.weatherApi:
         return _fetchForecastFromWeatherApi(lat, lng, provider.apiKey!, days);
       case WeatherProviderType.visualCrossing:
-        return _fetchForecastFromVisualCrossing(lat, lng, provider.apiKey!, days);
+        return _fetchForecastFromVisualCrossing(
+            lat, lng, provider.apiKey!, days);
     }
   }
 
@@ -246,14 +251,13 @@ class WeatherProviderService {
   // OPEN-METEO (FREE)
   // ─────────────────────────────────────────────────────────────────────────
 
-  Future<WeatherData?> _fetchFromOpenMeteo(double lat, double lng, String providerName) async {
-    final url = Uri.parse(
-      'https://api.open-meteo.com/v1/forecast?'
-      'latitude=$lat&longitude=$lng&'
-      'current=temperature_2m,relative_humidity_2m,precipitation,cloud_cover,'
-      'wind_speed_10m,wind_direction_10m,uv_index,weather_code&'
-      'timezone=auto'
-    );
+  Future<WeatherData?> _fetchFromOpenMeteo(
+      double lat, double lng, String providerName) async {
+    final url = Uri.parse('https://api.open-meteo.com/v1/forecast?'
+        'latitude=$lat&longitude=$lng&'
+        'current=temperature_2m,relative_humidity_2m,precipitation,cloud_cover,'
+        'wind_speed_10m,wind_direction_10m,uv_index,weather_code&'
+        'timezone=auto');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -277,15 +281,14 @@ class WeatherProviderService {
     );
   }
 
-  Future<List<ForecastDay>?> _fetchForecastFromOpenMeteo(double lat, double lng, int days) async {
-    final url = Uri.parse(
-      'https://api.open-meteo.com/v1/forecast?'
-      'latitude=$lat&longitude=$lng&'
-      'daily=temperature_2m_max,temperature_2m_min,precipitation_sum,'
-      'precipitation_probability_max,wind_speed_10m_max,weather_code,'
-      'sunrise,sunset&'
-      'forecast_days=$days&timezone=auto'
-    );
+  Future<List<ForecastDay>?> _fetchForecastFromOpenMeteo(
+      double lat, double lng, int days) async {
+    final url = Uri.parse('https://api.open-meteo.com/v1/forecast?'
+        'latitude=$lat&longitude=$lng&'
+        'daily=temperature_2m_max,temperature_2m_min,precipitation_sum,'
+        'precipitation_probability_max,wind_speed_10m_max,weather_code,'
+        'sunrise,sunset&'
+        'forecast_days=$days&timezone=auto');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -302,7 +305,8 @@ class WeatherProviderService {
         tempMax: (daily['temperature_2m_max'][i] as num).toDouble(),
         tempMin: (daily['temperature_2m_min'][i] as num).toDouble(),
         precipitation: (daily['precipitation_sum'][i] as num?)?.toDouble() ?? 0,
-        precipitationProbability: (daily['precipitation_probability_max'][i] as num?)?.toInt() ?? 0,
+        precipitationProbability:
+            (daily['precipitation_probability_max'][i] as num?)?.toInt() ?? 0,
         windSpeed: (daily['wind_speed_10m_max'][i] as num).toDouble(),
         condition: _wmoCodeToCondition(daily['weather_code'][i] as int),
         conditionAr: _wmoCodeToConditionAr(daily['weather_code'][i] as int),
@@ -325,10 +329,8 @@ class WeatherProviderService {
     String apiKey,
     String providerName,
   ) async {
-    final url = Uri.parse(
-      'https://api.openweathermap.org/data/2.5/weather?'
-      'lat=$lat&lon=$lng&appid=$apiKey&units=metric'
-    );
+    final url = Uri.parse('https://api.openweathermap.org/data/2.5/weather?'
+        'lat=$lat&lon=$lng&appid=$apiKey&units=metric');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -345,7 +347,8 @@ class WeatherProviderService {
       uvIndex: 0, // Not available in basic API
       condition: data['weather'][0]['main'],
       conditionAr: _owmConditionToAr(data['weather'][0]['main']),
-      icon: 'https://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png',
+      icon:
+          'https://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png',
       timestamp: DateTime.now(),
       provider: providerName,
     );
@@ -357,10 +360,8 @@ class WeatherProviderService {
     String apiKey,
     int days,
   ) async {
-    final url = Uri.parse(
-      'https://api.openweathermap.org/data/2.5/forecast?'
-      'lat=$lat&lon=$lng&appid=$apiKey&units=metric&cnt=${days * 8}'
-    );
+    final url = Uri.parse('https://api.openweathermap.org/data/2.5/forecast?'
+        'lat=$lat&lon=$lng&appid=$apiKey&units=metric&cnt=${days * 8}');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -377,19 +378,24 @@ class WeatherProviderService {
 
     return dailyData.entries.take(days).map((entry) {
       final dayItems = entry.value;
-      final temps = dayItems.map((i) => (i['main']['temp'] as num).toDouble()).toList();
-      final precips = dayItems.map((i) => (i['rain']?['3h'] as num?)?.toDouble() ?? 0.0).toList();
+      final temps =
+          dayItems.map((i) => (i['main']['temp'] as num).toDouble()).toList();
+      final precips = dayItems
+          .map((i) => (i['rain']?['3h'] as num?)?.toDouble() ?? 0.0)
+          .toList();
 
       return ForecastDay(
         date: DateTime.parse(entry.key),
         tempMax: temps.reduce((a, b) => a > b ? a : b),
         tempMin: temps.reduce((a, b) => a < b ? a : b),
         precipitation: precips.reduce((a, b) => a + b),
-        precipitationProbability: ((dayItems.first['pop'] as num?) ?? 0 * 100).toInt(),
+        precipitationProbability:
+            ((dayItems.first['pop'] as num?) ?? 0 * 100).toInt(),
         windSpeed: (dayItems.first['wind']['speed'] as num).toDouble() * 3.6,
         condition: dayItems.first['weather'][0]['main'],
         conditionAr: _owmConditionToAr(dayItems.first['weather'][0]['main']),
-        icon: 'https://openweathermap.org/img/wn/${dayItems.first['weather'][0]['icon']}@2x.png',
+        icon:
+            'https://openweathermap.org/img/wn/${dayItems.first['weather'][0]['icon']}@2x.png',
       );
     }).toList();
   }
@@ -404,10 +410,8 @@ class WeatherProviderService {
     String apiKey,
     String providerName,
   ) async {
-    final url = Uri.parse(
-      'https://api.weatherapi.com/v1/current.json?'
-      'key=$apiKey&q=$lat,$lng&aqi=no'
-    );
+    final url = Uri.parse('https://api.weatherapi.com/v1/current.json?'
+        'key=$apiKey&q=$lat,$lng&aqi=no');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -437,10 +441,8 @@ class WeatherProviderService {
     String apiKey,
     int days,
   ) async {
-    final url = Uri.parse(
-      'https://api.weatherapi.com/v1/forecast.json?'
-      'key=$apiKey&q=$lat,$lng&days=$days&aqi=no'
-    );
+    final url = Uri.parse('https://api.weatherapi.com/v1/forecast.json?'
+        'key=$apiKey&q=$lat,$lng&days=$days&aqi=no');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -454,7 +456,8 @@ class WeatherProviderService {
         tempMax: (day['day']['maxtemp_c'] as num).toDouble(),
         tempMin: (day['day']['mintemp_c'] as num).toDouble(),
         precipitation: (day['day']['totalprecip_mm'] as num).toDouble(),
-        precipitationProbability: (day['day']['daily_chance_of_rain'] as num).toInt(),
+        precipitationProbability:
+            (day['day']['daily_chance_of_rain'] as num).toInt(),
         windSpeed: (day['day']['maxwind_kph'] as num).toDouble(),
         condition: day['day']['condition']['text'],
         conditionAr: day['day']['condition']['text'],
@@ -476,9 +479,8 @@ class WeatherProviderService {
     String providerName,
   ) async {
     final url = Uri.parse(
-      'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
-      '$lat,$lng/today?unitGroup=metric&key=$apiKey&include=current'
-    );
+        'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
+        '$lat,$lng/today?unitGroup=metric&key=$apiKey&include=current');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -509,9 +511,8 @@ class WeatherProviderService {
     int days,
   ) async {
     final url = Uri.parse(
-      'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
-      '$lat,$lng/next${days}days?unitGroup=metric&key=$apiKey&include=days'
-    );
+        'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/'
+        '$lat,$lng/next${days}days?unitGroup=metric&key=$apiKey&include=days');
 
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
@@ -541,8 +542,24 @@ class WeatherProviderService {
   // ─────────────────────────────────────────────────────────────────────────
 
   String _degreeToDirection(num degree) {
-    const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE',
-                        'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+    const directions = [
+      'N',
+      'NNE',
+      'NE',
+      'ENE',
+      'E',
+      'ESE',
+      'SE',
+      'SSE',
+      'S',
+      'SSW',
+      'SW',
+      'WSW',
+      'W',
+      'WNW',
+      'NW',
+      'NNW'
+    ];
     final index = ((degree + 11.25) / 22.5).floor() % 16;
     return directions[index];
   }
@@ -610,7 +627,8 @@ class WeatherProviderService {
       if (!isPM && hour == 12) hour = 0;
 
       final dateTime = DateTime.parse(date);
-      return DateTime(dateTime.year, dateTime.month, dateTime.day, hour, minute);
+      return DateTime(
+          dateTime.year, dateTime.month, dateTime.day, hour, minute);
     } catch (e) {
       return null;
     }

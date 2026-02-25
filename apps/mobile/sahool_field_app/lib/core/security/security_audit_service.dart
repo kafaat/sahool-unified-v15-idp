@@ -136,10 +136,9 @@ class SecurityAuditSummary {
       biometricAttempts > 0 ? biometricSuccesses / biometricAttempts : 0.0;
 
   /// Token refresh success rate (0.0 - 1.0)
-  double get tokenRefreshSuccessRate =>
-      tokenRefreshAttempts > 0
-          ? tokenRefreshSuccesses / tokenRefreshAttempts
-          : 0.0;
+  double get tokenRefreshSuccessRate => tokenRefreshAttempts > 0
+      ? tokenRefreshSuccesses / tokenRefreshAttempts
+      : 0.0;
 }
 
 class SecurityAuditService {
@@ -182,9 +181,7 @@ class SecurityAuditService {
       action: success ? 'biometric_success' : 'biometric_failure',
       success: success,
       errorCode: errorCode,
-      details: success
-          ? 'تم التحقق من البصمة بنجاح'
-          : 'فشل التحقق من البصمة',
+      details: success ? 'تم التحقق من البصمة بنجاح' : 'فشل التحقق من البصمة',
       metadata: {
         if (biometricType != null) 'type': biometricType,
         if (remainingAttempts != null) 'remainingAttempts': remainingAttempts,
@@ -227,9 +224,7 @@ class SecurityAuditService {
       action: success ? 'token_refresh_success' : 'token_refresh_failure',
       success: success,
       errorCode: errorCode,
-      details: success
-          ? 'تم تجديد التوكن بنجاح'
-          : 'فشل تجديد التوكن',
+      details: success ? 'تم تجديد التوكن بنجاح' : 'فشل تجديد التوكن',
       metadata: {
         if (retryAttempt != null) 'retryAttempt': retryAttempt,
         if (backoffDelay != null) 'backoffDelayMs': backoffDelay.inMilliseconds,
@@ -270,9 +265,7 @@ class SecurityAuditService {
       severity: passed ? SecuritySeverity.info : SecuritySeverity.critical,
       action: passed ? 'integrity_check_passed' : 'integrity_check_failed',
       success: passed,
-      details: passed
-          ? 'فحص سلامة الجهاز ناجح'
-          : 'تم اكتشاف تهديدات أمنية',
+      details: passed ? 'فحص سلامة الجهاز ناجح' : 'تم اكتشاف تهديدات أمنية',
       metadata: {
         if (threats != null && threats.isNotEmpty) 'threats': threats,
       },
@@ -312,9 +305,7 @@ class SecurityAuditService {
 
   /// Get events by category
   List<SecurityEvent> getEventsByCategory(SecurityEventCategory category) {
-    return _eventBuffer
-        .where((e) => e.category == category)
-        .toList()
+    return _eventBuffer.where((e) => e.category == category).toList()
       ..sort((a, b) => b.timestamp.compareTo(a.timestamp));
   }
 
@@ -342,8 +333,7 @@ class SecurityAuditService {
     DateTime? lastEventTime;
 
     for (final event in _eventBuffer) {
-      if (lastEventTime == null ||
-          event.timestamp.isAfter(lastEventTime)) {
+      if (lastEventTime == null || event.timestamp.isAfter(lastEventTime)) {
         lastEventTime = event.timestamp;
       }
 
@@ -421,7 +411,8 @@ class SecurityAuditService {
         tag: 'SECURITY_AUDIT',
       );
     } catch (e) {
-      AppLogger.e('Failed to persist security events', error: e, tag: 'SECURITY_AUDIT');
+      AppLogger.e('Failed to persist security events',
+          error: e, tag: 'SECURITY_AUDIT');
     }
   }
 
@@ -434,7 +425,8 @@ class SecurityAuditService {
       final eventsJson = jsonDecode(stored) as List<dynamic>;
       _eventBuffer.clear();
       _eventBuffer.addAll(
-        eventsJson.map((e) => SecurityEvent.fromJson(e as Map<String, dynamic>)),
+        eventsJson
+            .map((e) => SecurityEvent.fromJson(e as Map<String, dynamic>)),
       );
 
       // Apply retention after loading
@@ -445,7 +437,8 @@ class SecurityAuditService {
         tag: 'SECURITY_AUDIT',
       );
     } catch (e) {
-      AppLogger.e('Failed to load security events', error: e, tag: 'SECURITY_AUDIT');
+      AppLogger.e('Failed to load security events',
+          error: e, tag: 'SECURITY_AUDIT');
     }
   }
 
@@ -492,7 +485,8 @@ class SecurityAuditService {
   }
 
   void _applyRetentionPolicy() {
-    final cutoff = DateTime.now().subtract(const Duration(days: _retentionDays));
+    final cutoff =
+        DateTime.now().subtract(const Duration(days: _retentionDays));
     _eventBuffer.removeWhere((e) => e.timestamp.isBefore(cutoff));
   }
 

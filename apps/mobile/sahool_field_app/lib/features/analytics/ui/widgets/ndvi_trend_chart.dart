@@ -42,8 +42,8 @@ class NdviTrendChart extends StatelessWidget {
         .toList();
 
     // تحديد الاتجاه للتلوين
-    final isImproving = history.length >= 2 &&
-        history.last.value >= history.first.value;
+    final isImproving =
+        history.length >= 2 && history.last.value >= history.first.value;
 
     return SizedBox(
       height: height,

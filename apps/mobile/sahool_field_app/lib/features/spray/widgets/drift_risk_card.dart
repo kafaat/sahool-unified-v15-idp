@@ -115,7 +115,8 @@ class DriftRiskCard extends StatelessWidget {
                   icon: Icons.thermostat,
                   label: isArabic ? 'درجة الحرارة' : 'Temperature',
                   value: '${weather.temperature.toStringAsFixed(1)}°C',
-                  riskContribution: _getTempRiskContribution(weather.temperature),
+                  riskContribution:
+                      _getTempRiskContribution(weather.temperature),
                   theme: theme,
                   isArabic: isArabic,
                 ),
@@ -125,7 +126,8 @@ class DriftRiskCard extends StatelessWidget {
                   icon: Icons.water_drop,
                   label: isArabic ? 'الرطوبة' : 'Humidity',
                   value: '${weather.humidity.toStringAsFixed(0)}%',
-                  riskContribution: _getHumidityRiskContribution(weather.humidity),
+                  riskContribution:
+                      _getHumidityRiskContribution(weather.humidity),
                   theme: theme,
                   isArabic: isArabic,
                 ),
@@ -236,7 +238,8 @@ class DriftRiskCard extends StatelessWidget {
     );
   }
 
-  Widget _buildRecommendation(DriftRiskLevel level, ThemeData theme, bool isArabic) {
+  Widget _buildRecommendation(
+      DriftRiskLevel level, ThemeData theme, bool isArabic) {
     String recommendation;
     IconData icon;
     Color color;

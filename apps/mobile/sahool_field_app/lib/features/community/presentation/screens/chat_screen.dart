@@ -99,7 +99,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
 
     // Add welcome message
-    _addSystemMessage('مرحباً بك في محادثة الخبراء. سيتم توصيلك بخبير زراعي قريباً...');
+    _addSystemMessage(
+        'مرحباً بك في محادثة الخبراء. سيتم توصيلك بخبير زراعي قريباً...');
 
     // Mock: Simulate expert joining after 2 seconds
     Future.delayed(const Duration(seconds: 2), () {
@@ -186,11 +187,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   String _getMockExpertResponse(String userMessage) {
     final lowerMessage = userMessage.toLowerCase();
 
-    if (lowerMessage.contains('مرض') || lowerMessage.contains('آفة') || lowerMessage.contains('مشكلة')) {
+    if (lowerMessage.contains('مرض') ||
+        lowerMessage.contains('آفة') ||
+        lowerMessage.contains('مشكلة')) {
       return 'هل يمكنك إرسال صورة للنبات المصاب؟ سيساعدني ذلك في تشخيص المشكلة بدقة أكبر.';
-    } else if (lowerMessage.contains('سقي') || lowerMessage.contains('ري') || lowerMessage.contains('ماء')) {
+    } else if (lowerMessage.contains('سقي') ||
+        lowerMessage.contains('ري') ||
+        lowerMessage.contains('ماء')) {
       return 'ما هو نوع المحصول وما هي طريقة الري المستخدمة حالياً؟';
-    } else if (lowerMessage.contains('سماد') || lowerMessage.contains('تسميد')) {
+    } else if (lowerMessage.contains('سماد') ||
+        lowerMessage.contains('تسميد')) {
       return 'يعتمد التسميد على نوع التربة والمحصول. ما هو المحصول المزروع ومرحلة النمو الحالية؟';
     } else if (lowerMessage.contains('شكر')) {
       return 'عفواً! لا تتردد في التواصل معنا في أي وقت. نتمنى لك موسماً زراعياً موفقاً 🌱';
@@ -207,9 +213,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _messageController.dispose();
     _scrollController.dispose();
     ref.read(chatRepositoryProvider).leaveRoom(
-      roomId: widget.roomId,
-      userName: widget.userName,
-    );
+          roomId: widget.roomId,
+          userName: widget.userName,
+        );
     super.dispose();
   }
 
@@ -347,7 +353,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     radius: 24,
                     backgroundColor: const Color(0xFF16A34A),
                     child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 20),
+                      icon:
+                          const Icon(Icons.send, color: Colors.white, size: 20),
                       onPressed: _sendMessage,
                     ),
                   ),
@@ -393,7 +400,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.75,
         ),
         child: Column(
-          crossAxisAlignment: isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+          crossAxisAlignment:
+              isMe ? CrossAxisAlignment.start : CrossAxisAlignment.end,
           children: [
             // Author name (for experts)
             if (!isMe)
@@ -465,7 +473,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             const SizedBox(height: 8),
             _buildInfoRow('الموضوع', widget.topic ?? 'استشارة عامة'),
             const SizedBox(height: 8),
-            _buildInfoRow('الحالة', _expertJoined ? 'متصل بخبير' : 'في انتظار خبير'),
+            _buildInfoRow(
+                'الحالة', _expertJoined ? 'متصل بخبير' : 'في انتظار خبير'),
             const SizedBox(height: 8),
             _buildInfoRow('عدد الرسائل', _messages.length.toString()),
           ],
@@ -734,7 +743,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt', 'csv', 'jpg', 'jpeg', 'png'],
+        allowedExtensions: [
+          'pdf',
+          'doc',
+          'docx',
+          'xls',
+          'xlsx',
+          'txt',
+          'csv',
+          'jpg',
+          'jpeg',
+          'png'
+        ],
         withData: false,
         withReadStream: false,
       );
@@ -808,7 +828,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     if (_expertJoined && _isImageFile(fileName)) {
       Future.delayed(const Duration(seconds: 2), () {
         if (mounted) {
-          _addMockExpertMessage('شكراً لإرسال الصورة. سأقوم بفحصها وأرد عليك في أقرب وقت.');
+          _addMockExpertMessage(
+              'شكراً لإرسال الصورة. سأقوم بفحصها وأرد عليك في أقرب وقت.');
         }
       });
     }

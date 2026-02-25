@@ -31,7 +31,7 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
 
@@ -115,7 +115,7 @@ class DriftDetectionEngine:
 
         # Resolve category strings to enums
         cats_to_run: list[DriftCategory] = []
-        for cat in (categories or list(DriftCategory)):
+        for cat in categories or list(DriftCategory):
             if isinstance(cat, str):
                 try:
                     cats_to_run.append(DriftCategory(cat))
@@ -140,15 +140,17 @@ class DriftDetectionEngine:
                 logger.info("  %s: %d drifts found", category.value, len(results))
             except Exception as e:
                 logger.error("Error in %s detector: %s", category.value, e)
-                report.results.append(DriftResult(
-                    category=category,
-                    severity=DriftSeverity.HIGH,
-                    source="detector_error",
-                    description=f"Detector failed for {category.value}: {e}",
-                    description_ar=f"فشل الكاشف لـ {category.value}: {e}",
-                ))
+                report.results.append(
+                    DriftResult(
+                        category=category,
+                        severity=DriftSeverity.HIGH,
+                        source="detector_error",
+                        description=f"Detector failed for {category.value}: {e}",
+                        description_ar=f"فشل الكاشف لـ {category.value}: {e}",
+                    )
+                )
 
-        report.completed_at = datetime.now(timezone.utc)
+        report.completed_at = datetime.now(UTC)
 
         # Log summary
         summary = report.summary()
@@ -236,12 +238,16 @@ class DriftDetectionEngine:
 
     def to_json(self, report: DriftReport) -> str:
         """Get JSON output for CI/CD integration."""
-        return json.dumps({
-            "summary": report.summary(),
-            "results": [r.to_dict() for r in report.results],
-            "remediation": self.remediation.summary(),
-            "quality_gates": self.quality_gates.get_all_results(),
-        }, indent=2, default=str)
+        return json.dumps(
+            {
+                "summary": report.summary(),
+                "results": [r.to_dict() for r in report.results],
+                "remediation": self.remediation.summary(),
+                "quality_gates": self.quality_gates.get_all_results(),
+            },
+            indent=2,
+            default=str,
+        )
 
     def print_report(
         self,
@@ -279,7 +285,7 @@ class DriftDetectionEngine:
             print("STATUS: CLEAN - No drift detected")
             print()
         else:
-            print(f"STATUS: DRIFT DETECTED")
+            print("STATUS: DRIFT DETECTED")
             print(f"  Total:      {summary['total_drifts']}")
             print(f"  Critical:   {summary['critical']}")
             print(f"  High:       {summary['high']}")
@@ -345,7 +351,7 @@ def create_baseline(report: DriftReport) -> dict[str, Any]:
 
     return {
         "version": 1,
-        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "generated_at": datetime.now(UTC).isoformat(),
         "environment": report.environment,
         "total": report.total_drifts,
         "critical": report.critical_count,
@@ -409,6 +415,7 @@ def compare_with_baseline(
 # CLI Entry Point
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def _main() -> int:
     """CLI entry point for drift detection."""
     import argparse
@@ -417,24 +424,28 @@ async def _main() -> int:
         description="SAHOOL Drift Detection Framework | إطار كشف الانحراف",
     )
     parser.add_argument(
-        "--dir", "-d",
+        "--dir",
+        "-d",
         default=".",
         help="Working directory (repository root)",
     )
     parser.add_argument(
-        "--categories", "-c",
+        "--categories",
+        "-c",
         nargs="*",
         choices=[c.value for c in DriftCategory],
         help="Categories to check (default: all)",
     )
     parser.add_argument(
-        "--format", "-f",
+        "--format",
+        "-f",
         choices=["text", "json", "markdown"],
         default="text",
         help="Output format",
     )
     parser.add_argument(
-        "--environment", "-e",
+        "--environment",
+        "-e",
         default="development",
         choices=["development", "staging", "production"],
         help="Target environment",
@@ -506,6 +517,7 @@ async def _main() -> int:
 def main() -> None:
     """Sync wrapper for CLI."""
     import asyncio
+
     exit_code = asyncio.run(_main())
     sys.exit(exit_code)
 

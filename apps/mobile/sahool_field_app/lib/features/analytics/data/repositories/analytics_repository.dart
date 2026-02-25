@@ -89,7 +89,8 @@ class AnalyticsRepository {
       );
 
       if (response.success && response.data != null) {
-        return _parseYieldPredictionFromApi(response.data!, fieldId, cropType, fieldAreaHectares);
+        return _parseYieldPredictionFromApi(
+            response.data!, fieldId, cropType, fieldAreaHectares);
       }
     } catch (_) {
       // Fall through to local computation
@@ -199,7 +200,8 @@ class AnalyticsRepository {
     }
 
     // Offline fallback
-    return _computeTrendLocally(fieldId: fieldId, metricName: metricName, days: days);
+    return _computeTrendLocally(
+        fieldId: fieldId, metricName: metricName, days: days);
   }
 
   void dispose() {
@@ -235,7 +237,8 @@ class AnalyticsRepository {
       pestRiskScore: (data['pest_risk_score'] ?? 0.0).toDouble(),
       nutrientScore: (data['nutrient_score'] ?? 0.0).toDouble(),
       trend: _parseTrend(data['trend']),
-      calculatedAt: DateTime.tryParse(data['calculated_at'] ?? '') ?? DateTime.now(),
+      calculatedAt:
+          DateTime.tryParse(data['calculated_at'] ?? '') ?? DateTime.now(),
       recommendations: recs,
     );
   }
@@ -261,10 +264,12 @@ class AnalyticsRepository {
       minYield: (data['min_yield'] ?? 0.0).toDouble(),
       maxYield: (data['max_yield'] ?? 0.0).toDouble(),
       confidence: (data['confidence'] ?? 0.75).toDouble(),
-      harvestDate: DateTime.tryParse(data['harvest_date'] ?? '') ?? DateTime.now().add(const Duration(days: 90)),
+      harvestDate: DateTime.tryParse(data['harvest_date'] ?? '') ??
+          DateTime.now().add(const Duration(days: 90)),
       revenueEstimate: (data['revenue_estimate'] ?? 0.0).toDouble(),
       factors: factors,
-      calculatedAt: DateTime.tryParse(data['calculated_at'] ?? '') ?? DateTime.now(),
+      calculatedAt:
+          DateTime.tryParse(data['calculated_at'] ?? '') ?? DateTime.now(),
     );
   }
 
@@ -281,8 +286,10 @@ class AnalyticsRepository {
                   level: _parseRiskLevel(r['level']),
                   probability: (r['probability'] ?? 0.0).toDouble(),
                   potentialImpact: (r['potential_impact'] ?? 0.0).toDouble(),
-                  mitigationSteps: (r['mitigation_steps'] as List?)?.cast<String>() ?? [],
-                  mitigationStepsAr: (r['mitigation_steps_ar'] as List?)?.cast<String>() ?? [],
+                  mitigationSteps:
+                      (r['mitigation_steps'] as List?)?.cast<String>() ?? [],
+                  mitigationStepsAr:
+                      (r['mitigation_steps_ar'] as List?)?.cast<String>() ?? [],
                 ))
             .toList() ??
         [];
@@ -291,7 +298,8 @@ class AnalyticsRepository {
       fieldId: fieldId,
       risks: risks,
       overallRiskScore: (data['overall_risk_score'] ?? 0.0).toDouble(),
-      assessedAt: DateTime.tryParse(data['assessed_at'] ?? '') ?? DateTime.now(),
+      assessedAt:
+          DateTime.tryParse(data['assessed_at'] ?? '') ?? DateTime.now(),
     );
   }
 
@@ -306,7 +314,8 @@ class AnalyticsRepository {
       fieldsNeedingAttention: data['fields_needing_attention'] ?? 0,
       topPerformingFields: const [],
       fieldsAtRisk: const [],
-      generatedAt: DateTime.tryParse(data['generated_at'] ?? '') ?? DateTime.now(),
+      generatedAt:
+          DateTime.tryParse(data['generated_at'] ?? '') ?? DateTime.now(),
     );
   }
 
@@ -420,8 +429,10 @@ class AnalyticsRepository {
   }) {
     final ndviScore = _calculateNdviScore(ndvi ?? 0.5);
     final soilHealthScore = _calculateSoilHealthScore(soilMoisture ?? 50);
-    final waterStressScore = _calculateWaterStressScore(soilMoisture ?? 50, temperature ?? 25);
-    final pestRiskScore = _calculatePestRiskScore(temperature ?? 25, humidity ?? 60);
+    final waterStressScore =
+        _calculateWaterStressScore(soilMoisture ?? 50, temperature ?? 25);
+    final pestRiskScore =
+        _calculatePestRiskScore(temperature ?? 25, humidity ?? 60);
     final nutrientScore = _calculateNutrientScore(ndvi ?? 0.5);
 
     final overallScore = (ndviScore * 0.25 +
@@ -463,30 +474,55 @@ class AnalyticsRepository {
     int? daysToHarvest,
   }) {
     final baseYields = {
-      'wheat': 2500.0, 'sorghum': 1800.0, 'millet': 1500.0,
-      'tomato': 35000.0, 'potato': 20000.0, 'corn': 4000.0,
-      'coffee': 800.0, 'date_palm': 6000.0, 'mango': 8000.0,
-      'citrus': 15000.0, 'grape': 12000.0, 'qat': 5000.0,
+      'wheat': 2500.0,
+      'sorghum': 1800.0,
+      'millet': 1500.0,
+      'tomato': 35000.0,
+      'potato': 20000.0,
+      'corn': 4000.0,
+      'coffee': 800.0,
+      'date_palm': 6000.0,
+      'mango': 8000.0,
+      'citrus': 15000.0,
+      'grape': 12000.0,
+      'qat': 5000.0,
     };
 
     final cropNamesAr = {
-      'wheat': 'قمح', 'sorghum': 'ذرة رفيعة', 'millet': 'دخن',
-      'tomato': 'طماطم', 'potato': 'بطاطس', 'corn': 'ذرة',
-      'coffee': 'بن', 'date_palm': 'نخيل', 'mango': 'مانجو',
-      'citrus': 'حمضيات', 'grape': 'عنب', 'qat': 'قات',
+      'wheat': 'قمح',
+      'sorghum': 'ذرة رفيعة',
+      'millet': 'دخن',
+      'tomato': 'طماطم',
+      'potato': 'بطاطس',
+      'corn': 'ذرة',
+      'coffee': 'بن',
+      'date_palm': 'نخيل',
+      'mango': 'مانجو',
+      'citrus': 'حمضيات',
+      'grape': 'عنب',
+      'qat': 'قات',
     };
 
     final prices = {
-      'wheat': 800.0, 'sorghum': 600.0, 'millet': 500.0,
-      'tomato': 300.0, 'potato': 400.0, 'corn': 500.0,
-      'coffee': 5000.0, 'date_palm': 1500.0, 'mango': 800.0,
-      'citrus': 600.0, 'grape': 1000.0, 'qat': 2000.0,
+      'wheat': 800.0,
+      'sorghum': 600.0,
+      'millet': 500.0,
+      'tomato': 300.0,
+      'potato': 400.0,
+      'corn': 500.0,
+      'coffee': 5000.0,
+      'date_palm': 1500.0,
+      'mango': 800.0,
+      'citrus': 600.0,
+      'grape': 1000.0,
+      'qat': 2000.0,
     };
 
     final baseYield = baseYields[cropType] ?? 2000.0;
     final cropTypeAr = cropNamesAr[cropType] ?? cropType;
     final ndviFactor = ndvi != null ? (ndvi * 0.5 + 0.5) : 0.8;
-    final moistureFactor = soilMoisture != null ? (soilMoisture / 100 * 0.3 + 0.7) : 0.85;
+    final moistureFactor =
+        soilMoisture != null ? (soilMoisture / 100 * 0.3 + 0.7) : 0.85;
 
     final predictedYieldPerHa = baseYield * ndviFactor * moistureFactor;
     final totalYield = predictedYieldPerHa * fieldAreaHectares;
@@ -505,13 +541,15 @@ class AnalyticsRepository {
       revenueEstimate: totalYield * pricePerKg,
       factors: [
         YieldFactor(
-          name: 'NDVI Health', nameAr: 'صحة الغطاء النباتي',
+          name: 'NDVI Health',
+          nameAr: 'صحة الغطاء النباتي',
           impact: (ndviFactor - 0.75) * 2,
           description: 'Vegetation health impact on yield',
           descriptionAr: 'تأثير صحة الغطاء النباتي على الإنتاجية',
         ),
         YieldFactor(
-          name: 'Soil Moisture', nameAr: 'رطوبة التربة',
+          name: 'Soil Moisture',
+          nameAr: 'رطوبة التربة',
           impact: (moistureFactor - 0.75) * 2,
           description: 'Water availability impact',
           descriptionAr: 'تأثير توفر المياه',
@@ -534,14 +572,22 @@ class AnalyticsRepository {
     if (rainfall != null && rainfall < 20) {
       final r = Risk(
         id: 'drought_${DateTime.now().millisecondsSinceEpoch}',
-        type: RiskType.drought, name: 'Drought Risk', nameAr: 'خطر الجفاف',
+        type: RiskType.drought,
+        name: 'Drought Risk',
+        nameAr: 'خطر الجفاف',
         description: 'Low rainfall may cause water stress',
         descriptionAr: 'قلة الأمطار قد تسبب إجهاد مائي',
         level: rainfall < 10 ? RiskLevel.high : RiskLevel.moderate,
         probability: 1 - (rainfall / 50).clamp(0.0, 1.0),
         potentialImpact: 70,
-        mitigationSteps: ['Increase irrigation frequency', 'Apply mulch to retain moisture'],
-        mitigationStepsAr: ['زيادة تكرار الري', 'استخدام الغطاء للحفاظ على الرطوبة'],
+        mitigationSteps: [
+          'Increase irrigation frequency',
+          'Apply mulch to retain moisture'
+        ],
+        mitigationStepsAr: [
+          'زيادة تكرار الري',
+          'استخدام الغطاء للحفاظ على الرطوبة'
+        ],
       );
       risks.add(r);
       totalRiskScore += r.probability * r.potentialImpact;
@@ -550,14 +596,22 @@ class AnalyticsRepository {
     if (temperature != null && temperature > 35) {
       final r = Risk(
         id: 'heat_${DateTime.now().millisecondsSinceEpoch}',
-        type: RiskType.heatWave, name: 'Heat Stress', nameAr: 'إجهاد حراري',
+        type: RiskType.heatWave,
+        name: 'Heat Stress',
+        nameAr: 'إجهاد حراري',
         description: 'High temperatures may damage crops',
         descriptionAr: 'درجات الحرارة العالية قد تضر بالمحاصيل',
         level: temperature > 40 ? RiskLevel.critical : RiskLevel.high,
         probability: ((temperature - 35) / 15).clamp(0.0, 1.0),
         potentialImpact: 60,
-        mitigationSteps: ['Provide shade where possible', 'Increase irrigation during peak heat'],
-        mitigationStepsAr: ['توفير الظل حيثما أمكن', 'زيادة الري خلال ذروة الحرارة'],
+        mitigationSteps: [
+          'Provide shade where possible',
+          'Increase irrigation during peak heat'
+        ],
+        mitigationStepsAr: [
+          'توفير الظل حيثما أمكن',
+          'زيادة الري خلال ذروة الحرارة'
+        ],
       );
       risks.add(r);
       totalRiskScore += r.probability * r.potentialImpact;
@@ -566,13 +620,18 @@ class AnalyticsRepository {
     if (humidity != null && humidity > 70) {
       final r = Risk(
         id: 'pest_${DateTime.now().millisecondsSinceEpoch}',
-        type: RiskType.pest, name: 'Pest Outbreak', nameAr: 'تفشي الآفات',
+        type: RiskType.pest,
+        name: 'Pest Outbreak',
+        nameAr: 'تفشي الآفات',
         description: 'High humidity increases pest activity',
         descriptionAr: 'الرطوبة العالية تزيد من نشاط الآفات',
         level: humidity > 85 ? RiskLevel.high : RiskLevel.moderate,
         probability: ((humidity - 70) / 30).clamp(0.0, 1.0),
         potentialImpact: 50,
-        mitigationSteps: ['Scout fields regularly', 'Apply preventive pesticides'],
+        mitigationSteps: [
+          'Scout fields regularly',
+          'Apply preventive pesticides'
+        ],
         mitigationStepsAr: ['فحص الحقول بانتظام', 'تطبيق المبيدات الوقائية'],
       );
       risks.add(r);
@@ -582,11 +641,14 @@ class AnalyticsRepository {
     if (ndvi != null && ndvi < 0.4) {
       final r = Risk(
         id: 'nutrient_${DateTime.now().millisecondsSinceEpoch}',
-        type: RiskType.nutrientDeficiency, name: 'Nutrient Deficiency', nameAr: 'نقص العناصر الغذائية',
+        type: RiskType.nutrientDeficiency,
+        name: 'Nutrient Deficiency',
+        nameAr: 'نقص العناصر الغذائية',
         description: 'Low vegetation indices suggest nutrient issues',
         descriptionAr: 'انخفاض مؤشرات الغطاء النباتي يشير إلى مشاكل غذائية',
         level: ndvi < 0.25 ? RiskLevel.high : RiskLevel.moderate,
-        probability: 1 - ndvi, potentialImpact: 55,
+        probability: 1 - ndvi,
+        potentialImpact: 55,
         mitigationSteps: ['Conduct soil test', 'Apply balanced fertilizer'],
         mitigationStepsAr: ['إجراء تحليل التربة', 'تطبيق سماد متوازن'],
       );
@@ -594,11 +656,15 @@ class AnalyticsRepository {
       totalRiskScore += r.probability * r.potentialImpact;
     }
 
-    final overallRiskScore = risks.isEmpty ? 10.0 : (totalRiskScore / risks.length).clamp(0.0, 100.0);
+    final overallRiskScore = risks.isEmpty
+        ? 10.0
+        : (totalRiskScore / risks.length).clamp(0.0, 100.0);
 
     return RiskAssessment(
-      fieldId: fieldId, risks: risks,
-      overallRiskScore: overallRiskScore, assessedAt: DateTime.now(),
+      fieldId: fieldId,
+      risks: risks,
+      overallRiskScore: overallRiskScore,
+      assessedAt: DateTime.now(),
     );
   }
 
@@ -608,7 +674,8 @@ class AnalyticsRepository {
 
     for (int i = 0; i < fieldIds.length; i++) {
       final score = _computeFieldHealthLocally(
-        fieldId: fieldIds[i], fieldName: 'حقل ${i + 1}',
+        fieldId: fieldIds[i],
+        fieldName: 'حقل ${i + 1}',
         ndvi: 0.3 + random.nextDouble() * 0.5,
         soilMoisture: 30 + random.nextDouble() * 50,
         temperature: 25 + random.nextDouble() * 15,
@@ -617,8 +684,10 @@ class AnalyticsRepository {
       healthScores.add(score);
     }
 
-    final avgHealth = healthScores.isEmpty ? 0.0
-        : healthScores.map((s) => s.overallScore).reduce((a, b) => a + b) / healthScores.length;
+    final avgHealth = healthScores.isEmpty
+        ? 0.0
+        : healthScores.map((s) => s.overallScore).reduce((a, b) => a + b) /
+            healthScores.length;
 
     return AnalyticsSummary(
       totalFields: fieldIds.length,
@@ -626,19 +695,26 @@ class AnalyticsRepository {
       totalPredictedYield: fieldIds.length * 2500.0,
       totalRevenueEstimate: fieldIds.length * 2500.0 * 600,
       highRiskFields: healthScores.where((s) => s.overallScore < 40).length,
-      fieldsNeedingAttention: healthScores.where((s) => s.overallScore < 60).length,
-      topPerformingFields: healthScores.where((s) => s.overallScore >= 70).take(3).toList(),
-      fieldsAtRisk: healthScores.where((s) => s.overallScore < 50).take(3).toList(),
+      fieldsNeedingAttention:
+          healthScores.where((s) => s.overallScore < 60).length,
+      topPerformingFields:
+          healthScores.where((s) => s.overallScore >= 70).take(3).toList(),
+      fieldsAtRisk:
+          healthScores.where((s) => s.overallScore < 50).take(3).toList(),
       generatedAt: DateTime.now(),
     );
   }
 
   HistoricalTrend _computeTrendLocally({
-    required String fieldId, required String metricName, required int days,
+    required String fieldId,
+    required String metricName,
+    required int days,
   }) {
     final metricNamesAr = {
-      'ndvi': 'مؤشر الغطاء النباتي', 'health_score': 'درجة الصحة',
-      'soil_moisture': 'رطوبة التربة', 'yield_estimate': 'تقدير الإنتاجية',
+      'ndvi': 'مؤشر الغطاء النباتي',
+      'health_score': 'درجة الصحة',
+      'soil_moisture': 'رطوبة التربة',
+      'yield_estimate': 'تقدير الإنتاجية',
     };
 
     final random = math.Random();
@@ -649,7 +725,8 @@ class AnalyticsRepository {
       final change = (random.nextDouble() - 0.5) * 10;
       lastValue = (lastValue + change).clamp(20.0, 90.0);
       dataPoints.add(HistoricalDataPoint(
-        date: DateTime.now().subtract(Duration(days: i)), value: lastValue,
+        date: DateTime.now().subtract(Duration(days: i)),
+        value: lastValue,
       ));
     }
 
@@ -658,10 +735,15 @@ class AnalyticsRepository {
     final changePercent = ((latestValue - firstValue) / firstValue) * 100;
 
     return HistoricalTrend(
-      metricName: metricName, metricNameAr: metricNamesAr[metricName] ?? metricName,
-      dataPoints: dataPoints, changePercent: changePercent,
-      trend: changePercent > 5 ? HealthTrend.improving
-          : changePercent < -5 ? HealthTrend.declining : HealthTrend.stable,
+      metricName: metricName,
+      metricNameAr: metricNamesAr[metricName] ?? metricName,
+      dataPoints: dataPoints,
+      changePercent: changePercent,
+      trend: changePercent > 5
+          ? HealthTrend.improving
+          : changePercent < -5
+              ? HealthTrend.declining
+              : HealthTrend.stable,
     );
   }
 
@@ -708,45 +790,61 @@ class AnalyticsRepository {
   }
 
   List<HealthRecommendation> _generateRecommendations({
-    required double ndviScore, required double soilHealthScore,
-    required double waterStressScore, required double pestRiskScore,
+    required double ndviScore,
+    required double soilHealthScore,
+    required double waterStressScore,
+    required double pestRiskScore,
     required double nutrientScore,
   }) {
     final recommendations = <HealthRecommendation>[];
 
     if (waterStressScore < 50) {
       recommendations.add(const HealthRecommendation(
-        id: 'rec_irrigation', title: 'Adjust Irrigation', titleAr: 'ضبط الري',
-        description: 'Water stress detected. Consider adjusting irrigation schedule.',
+        id: 'rec_irrigation',
+        title: 'Adjust Irrigation',
+        titleAr: 'ضبط الري',
+        description:
+            'Water stress detected. Consider adjusting irrigation schedule.',
         descriptionAr: 'تم اكتشاف إجهاد مائي. ضع في الاعتبار تعديل جدول الري.',
-        priority: RecommendationPriority.high, type: RecommendationType.irrigation,
+        priority: RecommendationPriority.high,
+        type: RecommendationType.irrigation,
       ));
     }
 
     if (nutrientScore < 60) {
       recommendations.add(const HealthRecommendation(
-        id: 'rec_fertilizer', title: 'Apply Fertilizer', titleAr: 'تطبيق السماد',
+        id: 'rec_fertilizer',
+        title: 'Apply Fertilizer',
+        titleAr: 'تطبيق السماد',
         description: 'Nutrient deficiency detected. Apply balanced fertilizer.',
-        descriptionAr: 'تم اكتشاف نقص في العناصر الغذائية. قم بتطبيق سماد متوازن.',
-        priority: RecommendationPriority.high, type: RecommendationType.fertilizer,
+        descriptionAr:
+            'تم اكتشاف نقص في العناصر الغذائية. قم بتطبيق سماد متوازن.',
+        priority: RecommendationPriority.high,
+        type: RecommendationType.fertilizer,
       ));
     }
 
     if (pestRiskScore < 50) {
       recommendations.add(const HealthRecommendation(
-        id: 'rec_pest', title: 'Scout for Pests', titleAr: 'فحص الآفات',
+        id: 'rec_pest',
+        title: 'Scout for Pests',
+        titleAr: 'فحص الآفات',
         description: 'High pest risk conditions. Increase scouting frequency.',
         descriptionAr: 'ظروف مخاطر آفات عالية. زيادة تكرار الفحص.',
-        priority: RecommendationPriority.medium, type: RecommendationType.pestControl,
+        priority: RecommendationPriority.medium,
+        type: RecommendationType.pestControl,
       ));
     }
 
     if (soilHealthScore < 50) {
       recommendations.add(const HealthRecommendation(
-        id: 'rec_soil', title: 'Soil Management', titleAr: 'إدارة التربة',
+        id: 'rec_soil',
+        title: 'Soil Management',
+        titleAr: 'إدارة التربة',
         description: 'Soil health needs attention. Consider soil testing.',
         descriptionAr: 'صحة التربة تحتاج اهتمام. ضع في الاعتبار فحص التربة.',
-        priority: RecommendationPriority.medium, type: RecommendationType.general,
+        priority: RecommendationPriority.medium,
+        type: RecommendationType.general,
       ));
     }
 

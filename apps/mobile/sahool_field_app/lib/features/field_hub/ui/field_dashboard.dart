@@ -200,7 +200,8 @@ class FieldDashboard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       'صحة المحصول',
-                      style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 14),
+                      style: TextStyle(
+                          color: Colors.white.withOpacity(0.8), fontSize: 14),
                     ),
                   ],
                 ),
@@ -215,7 +216,8 @@ class FieldDashboard extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(8),
@@ -223,7 +225,8 @@ class FieldDashboard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.satellite_alt, color: Colors.white, size: 16),
+                      const Icon(Icons.satellite_alt,
+                          color: Colors.white, size: 16),
                       const SizedBox(width: 6),
                       const Text(
                         'NDVI: 0.78',
@@ -238,7 +241,8 @@ class FieldDashboard extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'آخر تحديث: منذ ساعتين',
-                  style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12),
+                  style: TextStyle(
+                      color: Colors.white.withOpacity(0.6), fontSize: 12),
                 ),
               ],
             ),
@@ -374,7 +378,8 @@ class FieldDashboard extends StatelessWidget {
                 ),
               if (trend != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
                     color: trend > 0
                         ? SahoolColors.success.withOpacity(0.1)
@@ -387,14 +392,18 @@ class FieldDashboard extends StatelessWidget {
                       Icon(
                         trend > 0 ? Icons.arrow_upward : Icons.arrow_downward,
                         size: 12,
-                        color: trend > 0 ? SahoolColors.success : SahoolColors.danger,
+                        color: trend > 0
+                            ? SahoolColors.success
+                            : SahoolColors.danger,
                       ),
                       Text(
                         '${trend.abs()}%',
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
-                          color: trend > 0 ? SahoolColors.success : SahoolColors.danger,
+                          color: trend > 0
+                              ? SahoolColors.success
+                              : SahoolColors.danger,
                         ),
                       ),
                     ],
@@ -453,14 +462,18 @@ class FieldDashboard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
                     color: SahoolColors.danger,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Text(
                     '2',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -488,7 +501,8 @@ class FieldDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildAlertItem(String title, String subtitle, IconData icon, Color color, String time) {
+  Widget _buildAlertItem(
+      String title, String subtitle, IconData icon, Color color, String time) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -512,16 +526,19 @@ class FieldDashboard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+                Text(title,
+                    style: const TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                Text(subtitle,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12)),
               ],
             ),
           ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Text(time, style: TextStyle(color: Colors.grey[500], fontSize: 10)),
+              Text(time,
+                  style: TextStyle(color: Colors.grey[500], fontSize: 10)),
               const SizedBox(height: 8),
               Icon(Icons.chevron_left, color: Colors.grey[400]),
             ],
@@ -548,12 +565,14 @@ class FieldDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildTaskItem(String title, String time, IconData icon, bool completed) {
+  Widget _buildTaskItem(
+      String title, String time, IconData icon, bool completed) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: completed ? SahoolColors.success.withOpacity(0.05) : Colors.white,
+        color:
+            completed ? SahoolColors.success.withOpacity(0.05) : Colors.white,
         borderRadius: SahoolRadius.mediumRadius,
         boxShadow: SahoolShadows.small,
       ),
@@ -570,10 +589,14 @@ class FieldDashboard extends StatelessWidget {
                 width: 2,
               ),
             ),
-            child: completed ? const Icon(Icons.check, color: Colors.white, size: 16) : null,
+            child: completed
+                ? const Icon(Icons.check, color: Colors.white, size: 16)
+                : null,
           ),
           const SizedBox(width: 12),
-          Icon(icon, color: completed ? Colors.grey[400] : SahoolColors.primary, size: 20),
+          Icon(icon,
+              color: completed ? Colors.grey[400] : SahoolColors.primary,
+              size: 20),
           const SizedBox(width: 12),
           Expanded(
             child: Text(

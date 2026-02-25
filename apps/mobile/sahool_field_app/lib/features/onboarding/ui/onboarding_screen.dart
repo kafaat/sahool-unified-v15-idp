@@ -141,7 +141,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         elevation: 0,
                       ),
                       child: Text(
-                        _currentPage == _pages.length - 1 ? "ابدأ الآن" : "التالي",
+                        _currentPage == _pages.length - 1
+                            ? "ابدأ الآن"
+                            : "التالي",
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -326,7 +328,8 @@ class _FarmIllustration extends StatelessWidget {
           Positioned(
             top: 20,
             right: 40,
-            child: Icon(Icons.wb_sunny, size: 40, color: SahoolColors.harvestGold),
+            child:
+                Icon(Icons.wb_sunny, size: 40, color: SahoolColors.harvestGold),
           ),
         ],
       ),
@@ -570,7 +573,8 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 24,
               backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
-              child: Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
+              child:
+                  Icon(Icons.person, size: 28, color: SahoolColors.forestGreen),
             ),
           ),
           Positioned(
@@ -579,7 +583,8 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 20,
               backgroundColor: SahoolColors.harvestGold.withOpacity(0.5),
-              child: Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
+              child:
+                  Icon(Icons.person, size: 24, color: SahoolColors.earthBrown),
             ),
           ),
           Positioned(
@@ -588,7 +593,8 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 22,
               backgroundColor: SahoolColors.paleOlive,
-              child: Icon(Icons.person, size: 26, color: SahoolColors.forestGreen),
+              child:
+                  Icon(Icons.person, size: 26, color: SahoolColors.forestGreen),
             ),
           ),
           Positioned(
@@ -597,7 +603,8 @@ class _CommunityIllustration extends StatelessWidget {
             child: CircleAvatar(
               radius: 26,
               backgroundColor: SahoolColors.sageGreen.withOpacity(0.5),
-              child: Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
+              child:
+                  Icon(Icons.person, size: 30, color: SahoolColors.forestGreen),
             ),
           ),
           // Connection lines
@@ -622,7 +629,8 @@ class _CommunityIllustration extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Icon(Icons.chat_bubble, size: 20, color: SahoolColors.forestGreen),
+              child: const Icon(Icons.chat_bubble,
+                  size: 20, color: SahoolColors.forestGreen),
             ),
           ),
         ],

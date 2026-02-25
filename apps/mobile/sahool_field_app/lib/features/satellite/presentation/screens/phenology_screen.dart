@@ -114,7 +114,8 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
 
         // Current stage tasks
         if (phenology.currentTasks.isNotEmpty)
-          _buildTasksCard(phenology.currentTasks, phenology.currentTasksAr, isArabic),
+          _buildTasksCard(
+              phenology.currentTasks, phenology.currentTasksAr, isArabic),
         const SizedBox(height: 16),
 
         // Crop info
@@ -131,8 +132,11 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(int.parse(phenology.currentStage.colorHex.replaceFirst('#', '0xFF'))),
-            Color(int.parse(phenology.currentStage.colorHex.replaceFirst('#', '0xFF'))).withOpacity(0.7),
+            Color(int.parse(
+                phenology.currentStage.colorHex.replaceFirst('#', '0xFF'))),
+            Color(int.parse(
+                    phenology.currentStage.colorHex.replaceFirst('#', '0xFF')))
+                .withOpacity(0.7),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -283,7 +287,8 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
     );
   }
 
-  Widget _buildTasksCard(List<String> tasks, List<String> tasksAr, bool isArabic) {
+  Widget _buildTasksCard(
+      List<String> tasks, List<String> tasksAr, bool isArabic) {
     final displayTasks = isArabic ? tasksAr : tasks;
 
     return Container(
@@ -427,8 +432,34 @@ class _PhenologyScreenState extends ConsumerState<PhenologyScreen> {
 
   String _formatDate(DateTime date, bool isArabic) {
     final months = isArabic
-        ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
-        : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        ? [
+            'يناير',
+            'فبراير',
+            'مارس',
+            'أبريل',
+            'مايو',
+            'يونيو',
+            'يوليو',
+            'أغسطس',
+            'سبتمبر',
+            'أكتوبر',
+            'نوفمبر',
+            'ديسمبر'
+          ]
+        : [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

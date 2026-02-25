@@ -30,7 +30,6 @@ Usage:
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from dataclasses import dataclass, field
@@ -43,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 class DriftType(StrEnum):
     """Types of drift that can be detected."""
+
     CONFIG = "config"
     SCHEMA = "schema"
     SERVICE = "service"
@@ -53,20 +53,22 @@ class DriftType(StrEnum):
 
 class DriftSeverity(StrEnum):
     """Severity of detected drift."""
-    CRITICAL = "critical"    # Immediate action required
-    HIGH = "high"            # Action within 24h
-    MEDIUM = "medium"        # Action within 1 week
-    LOW = "low"              # Informational
+
+    CRITICAL = "critical"  # Immediate action required
+    HIGH = "high"  # Action within 24h
+    MEDIUM = "medium"  # Action within 1 week
+    LOW = "low"  # Informational
 
 
 @dataclass
 class DriftItem:
     """A single detected drift."""
+
     drift_type: DriftType
     severity: DriftSeverity
     resource: str  # What drifted (e.g., "advisory-service", "DATABASE_URL")
     expected: str  # What was expected
-    actual: str    # What was found
+    actual: str  # What was found
     message: str
     message_ar: str
     remediation: str = ""  # How to fix
@@ -76,6 +78,7 @@ class DriftItem:
 @dataclass
 class DriftReport:
     """Result of drift detection."""
+
     items: list[DriftItem] = field(default_factory=list)
     checks_run: int = 0
     timestamp: str = ""
@@ -178,17 +181,21 @@ class DriftDetector:
                 if var_name in ("DATABASE_URL", "JWT_SECRET_KEY", "NATS_URL"):
                     severity = DriftSeverity.HIGH
 
-                report.items.append(DriftItem(
-                    drift_type=DriftType.CONFIG,
-                    severity=severity,
-                    resource=var_name,
-                    expected=f"declared in .env.example (default: {default_value[:20]}...)" if len(default_value) > 20 else f"declared (default: {default_value})",
-                    actual="not set",
-                    message=f"Environment variable '{var_name}' is declared but not set",
-                    message_ar=f"متغير البيئة '{var_name}' معلن ولكنه غير معيّن",
-                    remediation=f"Set {var_name} in .env or environment",
-                    remediation_ar=f"قم بتعيين {var_name} في .env أو البيئة",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.CONFIG,
+                        severity=severity,
+                        resource=var_name,
+                        expected=f"declared in .env.example (default: {default_value[:20]}...)"
+                        if len(default_value) > 20
+                        else f"declared (default: {default_value})",
+                        actual="not set",
+                        message=f"Environment variable '{var_name}' is declared but not set",
+                        message_ar=f"متغير البيئة '{var_name}' معلن ولكنه غير معيّن",
+                        remediation=f"Set {var_name} in .env or environment",
+                        remediation_ar=f"قم بتعيين {var_name} في .env أو البيئة",
+                    )
+                )
 
         return report
 
@@ -253,47 +260,53 @@ class DriftDetector:
                 report.checks_run += 1
                 # But check if still present in active dir
                 if svc_name in actual_services:
-                    report.items.append(DriftItem(
-                        drift_type=DriftType.SERVICE,
-                        severity=DriftSeverity.MEDIUM,
-                        resource=svc_name,
-                        expected=f"lifecycle={lifecycle} (should be archived)",
-                        actual=f"still present in apps/services/{svc_name}",
-                        message=f"Deprecated service '{svc_name}' still in active directory",
-                        message_ar=f"الخدمة المهملة '{svc_name}' لا تزال في الدليل النشط",
-                        remediation=f"Move {svc_name} to archive/deprecated-services/",
-                        remediation_ar=f"انقل {svc_name} إلى archive/deprecated-services/",
-                    ))
+                    report.items.append(
+                        DriftItem(
+                            drift_type=DriftType.SERVICE,
+                            severity=DriftSeverity.MEDIUM,
+                            resource=svc_name,
+                            expected=f"lifecycle={lifecycle} (should be archived)",
+                            actual=f"still present in apps/services/{svc_name}",
+                            message=f"Deprecated service '{svc_name}' still in active directory",
+                            message_ar=f"الخدمة المهملة '{svc_name}' لا تزال في الدليل النشط",
+                            remediation=f"Move {svc_name} to archive/deprecated-services/",
+                            remediation_ar=f"انقل {svc_name} إلى archive/deprecated-services/",
+                        )
+                    )
                 continue
 
             if svc_name not in actual_services:
-                report.items.append(DriftItem(
-                    drift_type=DriftType.SERVICE,
-                    severity=DriftSeverity.MEDIUM,
-                    resource=svc_name,
-                    expected="registered in services.yaml",
-                    actual="directory not found",
-                    message=f"Registered service '{svc_name}' has no directory in apps/services/",
-                    message_ar=f"الخدمة المسجلة '{svc_name}' ليس لها دليل في apps/services/",
-                    remediation=f"Create directory or update services.yaml",
-                    remediation_ar=f"أنشئ الدليل أو حدّث services.yaml",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.SERVICE,
+                        severity=DriftSeverity.MEDIUM,
+                        resource=svc_name,
+                        expected="registered in services.yaml",
+                        actual="directory not found",
+                        message=f"Registered service '{svc_name}' has no directory in apps/services/",
+                        message_ar=f"الخدمة المسجلة '{svc_name}' ليس لها دليل في apps/services/",
+                        remediation="Create directory or update services.yaml",
+                        remediation_ar="أنشئ الدليل أو حدّث services.yaml",
+                    )
+                )
 
         # Directories not in registry
         for dir_name in actual_services:
             report.checks_run += 1
             if dir_name not in registered_services:
-                report.items.append(DriftItem(
-                    drift_type=DriftType.SERVICE,
-                    severity=DriftSeverity.LOW,
-                    resource=dir_name,
-                    expected="registered in services.yaml",
-                    actual="directory exists but not registered",
-                    message=f"Service directory '{dir_name}' not in governance registry",
-                    message_ar=f"دليل الخدمة '{dir_name}' غير مسجل في سجل الحوكمة",
-                    remediation=f"Add {dir_name} to governance/services.yaml",
-                    remediation_ar=f"أضف {dir_name} إلى governance/services.yaml",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.SERVICE,
+                        severity=DriftSeverity.LOW,
+                        resource=dir_name,
+                        expected="registered in services.yaml",
+                        actual="directory exists but not registered",
+                        message=f"Service directory '{dir_name}' not in governance registry",
+                        message_ar=f"دليل الخدمة '{dir_name}' غير مسجل في سجل الحوكمة",
+                        remediation=f"Add {dir_name} to governance/services.yaml",
+                        remediation_ar=f"أضف {dir_name} إلى governance/services.yaml",
+                    )
+                )
 
         return report
 
@@ -350,17 +363,19 @@ class DriftDetector:
         # Subjects in code but not in catalog
         for subject in code_subjects - catalog_subjects:
             report.checks_run += 1
-            report.items.append(DriftItem(
-                drift_type=DriftType.EVENT,
-                severity=DriftSeverity.LOW,
-                resource=subject,
-                expected="documented in catalog.yaml",
-                actual="defined in code only",
-                message=f"Event subject '{subject}' not in governance catalog",
-                message_ar=f"موضوع الحدث '{subject}' غير موجود في كتالوج الحوكمة",
-                remediation=f"Add '{subject}' to governance/events/catalog.yaml",
-                remediation_ar=f"أضف '{subject}' إلى governance/events/catalog.yaml",
-            ))
+            report.items.append(
+                DriftItem(
+                    drift_type=DriftType.EVENT,
+                    severity=DriftSeverity.LOW,
+                    resource=subject,
+                    expected="documented in catalog.yaml",
+                    actual="defined in code only",
+                    message=f"Event subject '{subject}' not in governance catalog",
+                    message_ar=f"موضوع الحدث '{subject}' غير موجود في كتالوج الحوكمة",
+                    remediation=f"Add '{subject}' to governance/events/catalog.yaml",
+                    remediation_ar=f"أضف '{subject}' إلى governance/events/catalog.yaml",
+                )
+            )
 
         return report
 
@@ -393,16 +408,18 @@ class DriftDetector:
             report.checks_run += 1
 
             if not dockerfile.is_file():
-                report.items.append(DriftItem(
-                    drift_type=DriftType.DOCKER,
-                    severity=DriftSeverity.MEDIUM,
-                    resource=service_dir.name,
-                    expected="Dockerfile present",
-                    actual="Dockerfile missing",
-                    message=f"Service '{service_dir.name}' has no Dockerfile",
-                    message_ar=f"الخدمة '{service_dir.name}' ليس لها Dockerfile",
-                    remediation=f"Create Dockerfile for {service_dir.name}",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.DOCKER,
+                        severity=DriftSeverity.MEDIUM,
+                        resource=service_dir.name,
+                        expected="Dockerfile present",
+                        actual="Dockerfile missing",
+                        message=f"Service '{service_dir.name}' has no Dockerfile",
+                        message_ar=f"الخدمة '{service_dir.name}' ليس لها Dockerfile",
+                        remediation=f"Create Dockerfile for {service_dir.name}",
+                    )
+                )
                 continue
 
             content = dockerfile.read_text()
@@ -410,30 +427,34 @@ class DriftDetector:
             # Check for non-root user
             report.checks_run += 1
             if "USER " not in content and "user " not in content:
-                report.items.append(DriftItem(
-                    drift_type=DriftType.SECURITY,
-                    severity=DriftSeverity.HIGH,
-                    resource=service_dir.name,
-                    expected="Non-root USER directive",
-                    actual="No USER directive found",
-                    message=f"Service '{service_dir.name}' Dockerfile has no USER directive (runs as root)",
-                    message_ar=f"ملف Docker للخدمة '{service_dir.name}' لا يحتوي على تعليمة USER (يعمل كـ root)",
-                    remediation="Add 'USER sahool' or 'USER 1000' directive",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.SECURITY,
+                        severity=DriftSeverity.HIGH,
+                        resource=service_dir.name,
+                        expected="Non-root USER directive",
+                        actual="No USER directive found",
+                        message=f"Service '{service_dir.name}' Dockerfile has no USER directive (runs as root)",
+                        message_ar=f"ملف Docker للخدمة '{service_dir.name}' لا يحتوي على تعليمة USER (يعمل كـ root)",
+                        remediation="Add 'USER sahool' or 'USER 1000' directive",
+                    )
+                )
 
             # Check for HEALTHCHECK
             report.checks_run += 1
             if "HEALTHCHECK" not in content:
-                report.items.append(DriftItem(
-                    drift_type=DriftType.DOCKER,
-                    severity=DriftSeverity.LOW,
-                    resource=service_dir.name,
-                    expected="HEALTHCHECK directive",
-                    actual="No HEALTHCHECK found",
-                    message=f"Service '{service_dir.name}' Dockerfile missing HEALTHCHECK",
-                    message_ar=f"ملف Docker للخدمة '{service_dir.name}' يفتقد HEALTHCHECK",
-                    remediation="Add HEALTHCHECK CMD curl -f http://localhost:PORT/healthz || exit 1",
-                ))
+                report.items.append(
+                    DriftItem(
+                        drift_type=DriftType.DOCKER,
+                        severity=DriftSeverity.LOW,
+                        resource=service_dir.name,
+                        expected="HEALTHCHECK directive",
+                        actual="No HEALTHCHECK found",
+                        message=f"Service '{service_dir.name}' Dockerfile missing HEALTHCHECK",
+                        message_ar=f"ملف Docker للخدمة '{service_dir.name}' يفتقد HEALTHCHECK",
+                        remediation="Add HEALTHCHECK CMD curl -f http://localhost:PORT/healthz || exit 1",
+                    )
+                )
 
         return report
 

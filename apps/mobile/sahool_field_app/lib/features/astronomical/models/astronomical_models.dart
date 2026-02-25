@@ -160,7 +160,8 @@ class WeeklyForecast with _$WeeklyForecast {
     @JsonKey(name: 'end_date') required String endDate,
     required List<DailyAstronomicalData> days,
     @JsonKey(name: 'best_planting_days') required List<String> bestPlantingDays,
-    @JsonKey(name: 'best_harvesting_days') required List<String> bestHarvestingDays,
+    @JsonKey(name: 'best_harvesting_days')
+    required List<String> bestHarvestingDays,
     @JsonKey(name: 'avoid_days') required List<String> avoidDays,
   }) = _WeeklyForecast;
 
@@ -177,7 +178,8 @@ class CropCalendar with _$CropCalendar {
   const factory CropCalendar({
     @JsonKey(name: 'crop_name') required String cropName,
     @JsonKey(name: 'crop_name_en') required String cropNameEn,
-    @JsonKey(name: 'best_planting_mansions') required List<int> bestPlantingMansions,
+    @JsonKey(name: 'best_planting_mansions')
+    required List<int> bestPlantingMansions,
     @JsonKey(name: 'best_moon_phases') required List<String> bestMoonPhases,
     @JsonKey(name: 'best_zodiac_signs') required List<String> bestZodiacSigns,
     @JsonKey(name: 'optimal_months') required List<int> optimalMonths,
@@ -337,8 +339,10 @@ class DailyWisdom with _$DailyWisdom {
   const factory DailyWisdom({
     required String date,
     @JsonKey(name: 'hijri_date') String? hijriDate,
-    @JsonKey(name: 'proverb_of_the_day') required DailyWisdomProverb proverbOfTheDay,
-    @JsonKey(name: 'current_mansion') required DailyWisdomMansion currentMansion,
+    @JsonKey(name: 'proverb_of_the_day')
+    required DailyWisdomProverb proverbOfTheDay,
+    @JsonKey(name: 'current_mansion')
+    required DailyWisdomMansion currentMansion,
     @JsonKey(name: 'moon_phase') required DailyWisdomMoonPhase moonPhase,
     @JsonKey(name: 'current_star') dynamic currentStar,
     required DailyWisdomSeason season,

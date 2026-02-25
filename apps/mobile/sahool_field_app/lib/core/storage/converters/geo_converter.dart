@@ -49,7 +49,8 @@ class GeoPolygonConverter extends TypeConverter<List<LatLng>, String> {
     try {
       final dynamic decoded = jsonDecode(fromDb);
       if (decoded is! List) {
-        AppLogger.w('Invalid polygon format - expected array', tag: 'GeoPolygonConverter');
+        AppLogger.w('Invalid polygon format - expected array',
+            tag: 'GeoPolygonConverter');
         return [];
       }
 
@@ -117,7 +118,8 @@ class GeoPointConverter extends TypeConverter<LatLng?, String?> {
     try {
       final dynamic decoded = jsonDecode(fromDb);
       if (decoded is! List || decoded.length < 2) {
-        AppLogger.w('Invalid point format - expected [lon, lat]', tag: 'GeoPointConverter');
+        AppLogger.w('Invalid point format - expected [lon, lat]',
+            tag: 'GeoPointConverter');
         return null;
       }
 
@@ -179,7 +181,8 @@ class GeoJsonUtils {
   static List<LatLng> parsePolygon(Map<String, dynamic> geoJson) {
     try {
       if (geoJson['type'] != 'Polygon') {
-        AppLogger.w('Expected Polygon type', tag: 'GeoJsonUtils', data: {'type': geoJson['type']});
+        AppLogger.w('Expected Polygon type',
+            tag: 'GeoJsonUtils', data: {'type': geoJson['type']});
         return [];
       }
 
@@ -206,7 +209,8 @@ class GeoJsonUtils {
         return const LatLng(0, 0);
       }).toList();
     } catch (e) {
-      AppLogger.e('Failed to parse GeoJSON polygon', tag: 'GeoJsonUtils', error: e);
+      AppLogger.e('Failed to parse GeoJSON polygon',
+          tag: 'GeoJsonUtils', error: e);
       return [];
     }
   }
@@ -223,7 +227,8 @@ class GeoJsonUtils {
   static LatLng? parsePoint(Map<String, dynamic> geoJson) {
     try {
       if (geoJson['type'] != 'Point') {
-        AppLogger.w('Expected Point type', tag: 'GeoJsonUtils', data: {'type': geoJson['type']});
+        AppLogger.w('Expected Point type',
+            tag: 'GeoJsonUtils', data: {'type': geoJson['type']});
         return null;
       }
 
@@ -240,17 +245,20 @@ class GeoJsonUtils {
         GeoPolygonConverter._clampLongitude(lon),
       );
     } catch (e) {
-      AppLogger.e('Failed to parse GeoJSON point', tag: 'GeoJsonUtils', error: e);
+      AppLogger.e('Failed to parse GeoJSON point',
+          tag: 'GeoJsonUtils', error: e);
       return null;
     }
   }
 
   /// Convert List<LatLng> to GeoJSON Polygon
   static Map<String, dynamic> toGeoJsonPolygon(List<LatLng> points) {
-    final coordinates = points.map((p) => [
-      GeoPolygonConverter._clampLongitude(p.longitude),
-      GeoPolygonConverter._clampLatitude(p.latitude),
-    ]).toList();
+    final coordinates = points
+        .map((p) => [
+              GeoPolygonConverter._clampLongitude(p.longitude),
+              GeoPolygonConverter._clampLatitude(p.latitude),
+            ])
+        .toList();
 
     // Ensure polygon is closed (first point == last point)
     if (coordinates.isNotEmpty && coordinates.first != coordinates.last) {
@@ -314,9 +322,11 @@ class GeoJsonUtils {
 
     // Convert square degrees to square meters (approximate)
     // 1 degree lat = ~111km, 1 degree lon varies by latitude
-    final avgLat = closed.map((p) => p.latitude).reduce((a, b) => a + b) / closed.length;
+    final avgLat =
+        closed.map((p) => p.latitude).reduce((a, b) => a + b) / closed.length;
     final latFactor = 111320.0; // meters per degree latitude
-    final lonFactor = 111320.0 * cos(avgLat * pi / 180); // meters per degree longitude
+    final lonFactor =
+        111320.0 * cos(avgLat * pi / 180); // meters per degree longitude
 
     final areaSquareMeters = area * latFactor * lonFactor;
 

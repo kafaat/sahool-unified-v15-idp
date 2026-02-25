@@ -161,11 +161,20 @@ class SahoolResponsiveBuilder extends StatelessWidget {
 
     switch (deviceType) {
       case SahoolDeviceType.mobileCompact:
-        return mobileCompact ?? mobileMedium ?? mobileExpanded ?? const SizedBox.shrink();
+        return mobileCompact ??
+            mobileMedium ??
+            mobileExpanded ??
+            const SizedBox.shrink();
       case SahoolDeviceType.mobileMedium:
-        return mobileMedium ?? mobileCompact ?? mobileExpanded ?? const SizedBox.shrink();
+        return mobileMedium ??
+            mobileCompact ??
+            mobileExpanded ??
+            const SizedBox.shrink();
       case SahoolDeviceType.mobileExpanded:
-        return mobileExpanded ?? tablet ?? mobileMedium ?? const SizedBox.shrink();
+        return mobileExpanded ??
+            tablet ??
+            mobileMedium ??
+            const SizedBox.shrink();
       case SahoolDeviceType.tablet:
         return tablet ?? mobileExpanded ?? desktop ?? const SizedBox.shrink();
       case SahoolDeviceType.desktop:
@@ -205,7 +214,11 @@ class SahoolResponsiveValue<T> {
       case SahoolDeviceType.tablet:
         return tablet ?? mobileExpanded ?? mobileMedium ?? mobileCompact;
       case SahoolDeviceType.desktop:
-        return desktop ?? tablet ?? mobileExpanded ?? mobileMedium ?? mobileCompact;
+        return desktop ??
+            tablet ??
+            mobileExpanded ??
+            mobileMedium ??
+            mobileCompact;
     }
   }
 }
@@ -230,7 +243,8 @@ class SahoolResponsiveText {
   static double caption(BuildContext context) => context.isMobile ? 12.0 : 14.0;
   static double body(BuildContext context) => context.isMobile ? 14.0 : 16.0;
   static double title(BuildContext context) => context.isMobile ? 18.0 : 22.0;
-  static double headline(BuildContext context) => context.isMobile ? 24.0 : 32.0;
+  static double headline(BuildContext context) =>
+      context.isMobile ? 24.0 : 32.0;
   static double display(BuildContext context) => context.isMobile ? 32.0 : 48.0;
 }
 
@@ -304,7 +318,8 @@ class SahoolResponsiveGrid extends StatelessWidget {
 /// Orientation builder wrapper with device type awareness
 /// غلاف بناء الاتجاه مع إدراك نوع الجهاز
 class SahoolOrientationBuilder extends StatelessWidget {
-  final Widget Function(BuildContext context, Orientation orientation, SahoolDeviceType deviceType) builder;
+  final Widget Function(BuildContext context, Orientation orientation,
+      SahoolDeviceType deviceType) builder;
 
   const SahoolOrientationBuilder({
     super.key,

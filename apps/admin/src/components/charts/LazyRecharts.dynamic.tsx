@@ -20,8 +20,6 @@ import dynamic from "next/dynamic";
 // loader avoids the TS2345 mismatch while the outer `dynamic()` still returns a
 // correctly-typed lazy component at runtime.
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export const DynamicAreaChart = dynamic(
   () => import("recharts").then((mod) => mod.AreaChart as any),
   { ssr: false, loading: () => null },

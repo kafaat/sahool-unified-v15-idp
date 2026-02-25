@@ -3,7 +3,7 @@
 // Alerts Panel Component
 // لوحة التنبيهات
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { AlertTriangle, Bell, X, Eye, CheckCircle } from "lucide-react";
 import AlertBadge from "@/components/ui/AlertBadge";
 import { formatDate } from "@/lib/utils";
@@ -42,10 +42,9 @@ function AlertsPanelInner({
   className = "",
 }: AlertsPanelProps) {
   const [filter, setFilter] = useState<"all" | "critical" | "unread">("all");
-  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>(alerts);
 
-  useEffect(() => {
-    let filtered = [...alerts];
+  const filteredAlerts = useMemo(() => {
+    let filtered = alerts;
 
     if (filter === "critical") {
       filtered = filtered.filter((a) => a.severity === "critical");
@@ -53,7 +52,7 @@ function AlertsPanelInner({
       filtered = filtered.filter((a) => !a.read);
     }
 
-    setFilteredAlerts(filtered.slice(0, maxItems));
+    return filtered.slice(0, maxItems);
   }, [alerts, filter, maxItems]);
 
   const getAlertIcon = (_type: string) => {

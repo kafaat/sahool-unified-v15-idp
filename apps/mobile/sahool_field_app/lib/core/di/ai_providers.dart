@@ -63,13 +63,15 @@ final skillServiceStatusProvider =
 ///
 /// Filters by domain if provided
 final availableSkillsProvider =
-    FutureProvider.family<List<Map<String, dynamic>>, String?>((ref, domain) async {
+    FutureProvider.family<List<Map<String, dynamic>>, String?>(
+        (ref, domain) async {
   final skillClient = ref.watch(skillClientProvider);
   return skillClient.listSkills(domain: domain);
 });
 
 /// Watch specific skill metadata
-final skillInfoProvider = FutureProvider.family<Map<String, dynamic>?, String>((ref, skillName) async {
+final skillInfoProvider = FutureProvider.family<Map<String, dynamic>?, String>(
+    (ref, skillName) async {
   final skillClient = ref.watch(skillClientProvider);
   return skillClient.getSkillInfo(skillName);
 });
@@ -79,13 +81,15 @@ final skillInfoProvider = FutureProvider.family<Map<String, dynamic>?, String>((
 // ============================================================
 
 /// Watch farm memory statistics
-final farmMemoryStatsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, tenantId) async {
+final farmMemoryStatsProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((ref, tenantId) async {
   final farmMemory = ref.watch(farmMemoryProvider);
   return farmMemory.getMemoryStats(tenantId);
 });
 
 /// Watch context cache statistics
-final contextCacheStatsProvider = FutureProvider.family<Map<String, dynamic>, String>((ref, tenantId) async {
+final contextCacheStatsProvider =
+    FutureProvider.family<Map<String, dynamic>, String>((ref, tenantId) async {
   final farmMemory = ref.watch(farmMemoryProvider);
   return farmMemory.getCacheStats(tenantId);
 });
@@ -97,8 +101,7 @@ final contextCacheStatsProvider = FutureProvider.family<Map<String, dynamic>, St
 /// Watch skill execution history for a field
 ///
 /// Parameters: (fieldId, skillName)
-final skillHistoryProvider = FutureProvider.family<
-    List<AiMemoryTableData>,
+final skillHistoryProvider = FutureProvider.family<List<AiMemoryTableData>,
     ({String fieldId, String skillName})>((ref, params) async {
   final farmMemory = ref.watch(farmMemoryProvider);
   return farmMemory.getSkillHistory(

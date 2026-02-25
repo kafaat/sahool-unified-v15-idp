@@ -152,27 +152,37 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
           ChecklistItem(
-            id: '2', titleAr: 'ب', titleEn: 'B',
+            id: '2',
+            titleAr: 'ب',
+            titleEn: 'B',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
           ChecklistItem(
-            id: '3', titleAr: 'ج', titleEn: 'C',
+            id: '3',
+            titleAr: 'ج',
+            titleEn: 'C',
             category: ChecklistCategory.security,
             status: ChecklistStatus.failed,
           ),
           ChecklistItem(
-            id: '4', titleAr: 'د', titleEn: 'D',
+            id: '4',
+            titleAr: 'د',
+            titleEn: 'D',
             category: ChecklistCategory.performance,
             status: ChecklistStatus.warning,
           ),
           ChecklistItem(
-            id: '5', titleAr: 'هـ', titleEn: 'E',
+            id: '5',
+            titleAr: 'هـ',
+            titleEn: 'E',
             category: ChecklistCategory.release,
             status: ChecklistStatus.notChecked,
           ),
@@ -192,12 +202,16 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
           ChecklistItem(
-            id: '2', titleAr: 'ب', titleEn: 'B',
+            id: '2',
+            titleAr: 'ب',
+            titleEn: 'B',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.failed,
           ),
@@ -218,13 +232,16 @@ void main() {
       expect(report.isReleaseReady, true); // no failures
     });
 
-    test('isReleaseReady should be true only when no failures and no unchecked', () {
+    test('isReleaseReady should be true only when no failures and no unchecked',
+        () {
       final ready = ReleaseReport(
         version: '16.0.0',
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
@@ -235,7 +252,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.failed,
           ),
@@ -252,7 +271,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.security,
             status: ChecklistStatus.failed,
           ),
@@ -263,7 +284,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.security,
             status: ChecklistStatus.passed,
           ),
@@ -280,17 +303,23 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
           ChecklistItem(
-            id: '2', titleAr: 'ب', titleEn: 'B',
+            id: '2',
+            titleAr: 'ب',
+            titleEn: 'B',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.failed,
           ),
           ChecklistItem(
-            id: '3', titleAr: 'ج', titleEn: 'C',
+            id: '3',
+            titleAr: 'ج',
+            titleEn: 'C',
             category: ChecklistCategory.security,
             status: ChecklistStatus.passed,
           ),
@@ -309,17 +338,23 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
           ChecklistItem(
-            id: '2', titleAr: 'ب', titleEn: 'B',
+            id: '2',
+            titleAr: 'ب',
+            titleEn: 'B',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.failed,
           ),
           ChecklistItem(
-            id: '3', titleAr: 'ج', titleEn: 'C',
+            id: '3',
+            titleAr: 'ج',
+            titleEn: 'C',
             category: ChecklistCategory.security,
             status: ChecklistStatus.passed,
           ),
@@ -338,7 +373,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),
@@ -353,7 +390,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.failed,
           ),
@@ -368,7 +407,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.notChecked,
           ),
@@ -384,7 +425,9 @@ void main() {
         generatedAt: DateTime.now(),
         items: const [
           ChecklistItem(
-            id: '1', titleAr: 'أ', titleEn: 'A',
+            id: '1',
+            titleAr: 'أ',
+            titleEn: 'A',
             category: ChecklistCategory.testing,
             status: ChecklistStatus.passed,
           ),

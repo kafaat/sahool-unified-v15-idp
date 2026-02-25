@@ -252,7 +252,8 @@ class ApiResult<T> {
   ApiResult._({this.data, this.error, required this.isSuccess});
 
   factory ApiResult.success(T data) => ApiResult._(data: data, isSuccess: true);
-  factory ApiResult.failure(String error) => ApiResult._(error: error, isSuccess: false);
+  factory ApiResult.failure(String error) =>
+      ApiResult._(error: error, isSuccess: false);
 }
 
 /// Notification list with pagination
@@ -290,7 +291,8 @@ class AppNotification {
   final String id;
   final String title;
   final String body;
-  final String category; // weather, task, alert, irrigation, crop_health, system
+  final String
+      category; // weather, task, alert, irrigation, crop_health, system
   final String priority; // low, normal, high, urgent
   final bool isRead;
   final DateTime createdAt;

@@ -75,7 +75,8 @@ class PivotDashboardScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<PivotDashboardScreen> createState() => _PivotDashboardScreenState();
+  ConsumerState<PivotDashboardScreen> createState() =>
+      _PivotDashboardScreenState();
 }
 
 class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
@@ -136,12 +137,10 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                 _pivotStatus.currentAngle,
             speedPercent: (data['speed_percent'] as num?)?.toDouble() ??
                 _pivotStatus.speedPercent,
-            currentFlowRateLph:
-                (data['flow_rate_lph'] as num?)?.toDouble() ??
-                    _pivotStatus.currentFlowRateLph,
-            currentPressureBar:
-                (data['pressure_bar'] as num?)?.toDouble() ??
-                    _pivotStatus.currentPressureBar,
+            currentFlowRateLph: (data['flow_rate_lph'] as num?)?.toDouble() ??
+                _pivotStatus.currentFlowRateLph,
+            currentPressureBar: (data['pressure_bar'] as num?)?.toDouble() ??
+                _pivotStatus.currentPressureBar,
             waterAppliedM3: (data['water_applied_m3'] as num?)?.toDouble() ??
                 _pivotStatus.waterAppliedM3,
             energyConsumedKwh:
@@ -215,8 +214,14 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
 
   List<PivotSector> _generateDemoSectors() {
     final colors = [
-      '#4CAF50', '#8BC34A', '#CDDC39', '#FFC107',
-      '#FF9800', '#FF5722', '#4CAF50', '#8BC34A',
+      '#4CAF50',
+      '#8BC34A',
+      '#CDDC39',
+      '#FFC107',
+      '#FF9800',
+      '#FF5722',
+      '#4CAF50',
+      '#8BC34A',
     ];
     final ndviValues = [0.75, 0.68, 0.72, 0.55, 0.62, 0.78, 0.71, 0.65];
 
@@ -284,7 +289,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
               Text(_pivotConfig.name),
               Text(
                 '${_pivotConfig.areaHectares.toStringAsFixed(1)} هكتار',
-                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.normal),
+                style: const TextStyle(
+                    fontSize: 12, fontWeight: FontWeight.normal),
               ),
             ],
           ),
@@ -345,7 +351,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
           // Pivot visualization
           Card(
             elevation: 4,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -355,7 +362,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                     children: [
                       const Text(
                         'عرض المحوري | Pivot View',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                       Row(
                         children: [
@@ -468,7 +476,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
   }
 
   String _formatRemainingTime() {
-    final remaining = _pivotStatus.timerHours * 60 - _pivotStatus.elapsedMinutes;
+    final remaining =
+        _pivotStatus.timerHours * 60 - _pivotStatus.elapsedMinutes;
     if (remaining <= 0) return '0:00';
     final hours = (remaining / 60).floor();
     final mins = (remaining % 60).floor();
@@ -543,7 +552,9 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                           onSelected: (selected) {},
                           selectedColor: const Color(0xFF367C2B),
                           labelStyle: TextStyle(
-                            color: period == 'الأسبوع' ? Colors.white : Colors.black87,
+                            color: period == 'الأسبوع'
+                                ? Colors.white
+                                : Colors.black87,
                           ),
                         ))
                     .toList(),
@@ -619,7 +630,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                       SizedBox(width: 8),
                       Text(
                         'كفاءة الري | Irrigation Efficiency',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
                       ),
                     ],
                   ),
@@ -641,7 +653,8 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
                                     value: 0.87,
                                     strokeWidth: 8,
                                     backgroundColor: Colors.grey[200],
-                                    valueColor: const AlwaysStoppedAnimation<Color>(
+                                    valueColor:
+                                        const AlwaysStoppedAnimation<Color>(
                                       Color(0xFF367C2B),
                                     ),
                                   ),
@@ -754,9 +767,11 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
         pivotId: widget.pivotId,
         commandType: command.commandType.name,
         params: {
-          if (command.speedPercent != null) 'speed_percent': command.speedPercent,
+          if (command.speedPercent != null)
+            'speed_percent': command.speedPercent,
           if (command.direction != null) 'direction': command.direction!.name,
-          if (command.endGunEnabled != null) 'end_gun_enabled': command.endGunEnabled,
+          if (command.endGunEnabled != null)
+            'end_gun_enabled': command.endGunEnabled,
         },
       );
     } catch (_) {
@@ -964,7 +979,9 @@ class _SectorTile extends StatelessWidget {
             ),
           ),
         ),
-        title: Text(sector.nameAr.isNotEmpty ? sector.nameAr : 'قطاع ${sector.sectorNumber}'),
+        title: Text(sector.nameAr.isNotEmpty
+            ? sector.nameAr
+            : 'قطاع ${sector.sectorNumber}'),
         subtitle: Row(
           children: [
             Text('${sector.startAngle.toInt()}° - ${sector.endAngle.toInt()}°'),
@@ -1176,7 +1193,8 @@ class _SectorDetailsSheetState extends State<SectorDetailsSheet> {
                           child: _InfoCard(
                             icon: Icons.water_drop,
                             label: 'رطوبة التربة',
-                            value: '${widget.sector.soilMoisturePercent!.toInt()}%',
+                            value:
+                                '${widget.sector.soilMoisturePercent!.toInt()}%',
                             color: Colors.blue,
                           ),
                         ),

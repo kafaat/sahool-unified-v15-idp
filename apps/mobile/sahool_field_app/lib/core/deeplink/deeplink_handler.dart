@@ -82,7 +82,8 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       );
 
       state = state.copyWith(isInitialized: true);
-      AppLogger.i('Deep link handler initialized successfully', tag: 'DEEPLINK');
+      AppLogger.i('Deep link handler initialized successfully',
+          tag: 'DEEPLINK');
     } catch (e, stackTrace) {
       AppLogger.e(
         'Failed to initialize deep link handler',

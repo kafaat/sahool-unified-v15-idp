@@ -24,7 +24,8 @@ class CropProfitabilityScreen extends ConsumerStatefulWidget {
       _CropProfitabilityScreenState();
 }
 
-class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScreen> {
+class _CropProfitabilityScreenState
+    extends ConsumerState<CropProfitabilityScreen> {
   final String locale = 'ar';
 
   @override
@@ -87,7 +88,8 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
                       ElevatedButton.icon(
                         onPressed: _refresh,
                         icon: const Icon(Icons.refresh),
-                        label: Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
+                        label:
+                            Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
                       ),
                     ],
                   ),
@@ -123,11 +125,13 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
                           const SizedBox(height: 16),
 
                           // ROI Card
-                          _buildRoiCard(profitabilityState.data!, currencyFormat),
+                          _buildRoiCard(
+                              profitabilityState.data!, currencyFormat),
                           const SizedBox(height: 16),
 
                           // Break-Even Analysis
-                          if (profitabilityState.data!.breakEvenAnalysis != null)
+                          if (profitabilityState.data!.breakEvenAnalysis !=
+                              null)
                             _buildBreakEvenCard(
                               profitabilityState.data!.breakEvenAnalysis!,
                               currencyFormat,
@@ -136,7 +140,8 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
 
                           // Cost Breakdown
                           CostBreakdownWidget(
-                            costsByType: profitabilityState.data!.getCostsByType(),
+                            costsByType:
+                                profitabilityState.data!.getCostsByType(),
                             totalCosts: profitabilityState.data!.totalCosts,
                             locale: locale,
                           ),
@@ -287,7 +292,9 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
           title: locale == 'ar' ? 'صافي الربح' : 'Net Profit',
           value: currencyFormat.format(profitability.netProfit),
           subtitle: locale == 'ar' ? 'ريال يمني' : 'YER',
-          icon: profitability.isProfitable ? Icons.trending_up : Icons.trending_down,
+          icon: profitability.isProfitable
+              ? Icons.trending_up
+              : Icons.trending_down,
           color: profitability.isProfitable ? Colors.green : Colors.orange,
         ),
         _buildMetricCard(
@@ -356,7 +363,8 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
     );
   }
 
-  Widget _buildRoiCard(CropProfitability profitability, NumberFormat currencyFormat) {
+  Widget _buildRoiCard(
+      CropProfitability profitability, NumberFormat currencyFormat) {
     final theme = Theme.of(context);
 
     return Card(
@@ -371,7 +379,9 @@ class _CropProfitabilityScreenState extends ConsumerState<CropProfitabilityScree
                 const Icon(Icons.analytics, color: Colors.purple),
                 const SizedBox(width: 8),
                 Text(
-                  locale == 'ar' ? 'العائد على الاستثمار' : 'Return on Investment',
+                  locale == 'ar'
+                      ? 'العائد على الاستثمار'
+                      : 'Return on Investment',
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),

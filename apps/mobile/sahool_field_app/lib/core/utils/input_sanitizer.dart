@@ -175,7 +175,8 @@ class InputSanitizer {
     // Email addresses
     RegExp(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'),
     // Phone numbers (international format)
-    RegExp(r'\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}'),
+    RegExp(
+        r'\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}'),
     // Social security numbers (if applicable)
     RegExp(r'\b\d{3}-\d{2}-\d{4}\b'),
     // IP addresses
@@ -183,7 +184,8 @@ class InputSanitizer {
     // API keys/tokens (common patterns)
     RegExp(r'\b[A-Za-z0-9]{32,}\b'),
     // Password fields (common keywords)
-    RegExp(r'(password|passwd|pwd|secret|token|key)[\s:=]+[^\s,]+', caseSensitive: false),
+    RegExp(r'(password|passwd|pwd|secret|token|key)[\s:=]+[^\s,]+',
+        caseSensitive: false),
   ];
 
   /// Convert string to log-safe format (remove sensitive data)
@@ -295,7 +297,8 @@ class InputSanitizer {
   }
 
   /// Comprehensive text sanitization
-  static String sanitizeText(String text, {
+  static String sanitizeText(
+    String text, {
     bool removeHtml = true,
     bool normalizeSpaces = true,
     bool removeControls = true,

@@ -10,7 +10,8 @@ library;
 
 import 'dart:math' as math;
 
-import '../../../weather/domain/entities/weather_entities.dart' as weather_entities;
+import '../../../weather/domain/entities/weather_entities.dart'
+    as weather_entities;
 import 'irrigation_scheduler.dart';
 
 /// Weather-Irrigation Integration Service
@@ -52,12 +53,15 @@ class WeatherIrrigationIntegration {
     const gamma = 0.066;
 
     // Slope of saturation vapor pressure curve
-    final delta = 4098 * (0.6108 * math.exp(17.27 * tMean / (tMean + 237.3))) /
+    final delta = 4098 *
+        (0.6108 * math.exp(17.27 * tMean / (tMean + 237.3))) /
         math.pow(tMean + 237.3, 2);
 
     // Saturation vapor pressure
-    final esTmax = 0.6108 * math.exp(17.27 * temperatureMax / (temperatureMax + 237.3));
-    final esTmin = 0.6108 * math.exp(17.27 * temperatureMin / (temperatureMin + 237.3));
+    final esTmax =
+        0.6108 * math.exp(17.27 * temperatureMax / (temperatureMax + 237.3));
+    final esTmin =
+        0.6108 * math.exp(17.27 * temperatureMin / (temperatureMin + 237.3));
     final es = (esTmax + esTmin) / 2;
 
     // Actual vapor pressure
@@ -66,11 +70,16 @@ class WeatherIrrigationIntegration {
     // Net radiation (estimated if not provided)
     double rn;
     if (solarRadiation != null) {
-      rn = _calculateNetRadiation(solarRadiation, temperatureMax, temperatureMin, ea);
+      rn = _calculateNetRadiation(
+          solarRadiation, temperatureMax, temperatureMin, ea);
     } else {
       rn = _estimateNetRadiation(
         latitude: latitude,
-        dayOfYear: dayOfYear ?? DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays + 1,
+        dayOfYear: dayOfYear ??
+            DateTime.now()
+                    .difference(DateTime(DateTime.now().year, 1, 1))
+                    .inDays +
+                1,
         temperatureMax: temperatureMax,
         temperatureMin: temperatureMin,
         ea: ea,
@@ -273,8 +282,10 @@ class WeatherIrrigationIntegration {
     if (rain48h > 15) {
       return SkipDecision(
         shouldSkip: true,
-        reason: 'Significant rain expected (${rain48h.toStringAsFixed(0)}mm in 48h)',
-        reasonAr: 'أمطار كبيرة متوقعة (${rain48h.toStringAsFixed(0)}ملم في 48 ساعة)',
+        reason:
+            'Significant rain expected (${rain48h.toStringAsFixed(0)}mm in 48h)',
+        reasonAr:
+            'أمطار كبيرة متوقعة (${rain48h.toStringAsFixed(0)}ملم في 48 ساعة)',
         postponeDays: 2,
       );
     }
@@ -334,26 +345,34 @@ class WeatherIrrigationIntegration {
 
     if (weather.temperature > 35) {
       // Hot day - prefer early morning
-      optimalStart = DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
-      optimalEnd = DateTime(weather.date.year, weather.date.month, weather.date.day, 8);
+      optimalStart =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
+      optimalEnd =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 8);
       reason = 'Early morning to avoid heat and evaporation';
       reasonAr = 'الصباح الباكر لتجنب الحرارة والتبخر';
     } else if (weather.windSpeed > 25) {
       // Windy - prefer calm periods (usually early morning/evening)
-      optimalStart = DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
-      optimalEnd = DateTime(weather.date.year, weather.date.month, weather.date.day, 7);
+      optimalStart =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
+      optimalEnd =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 7);
       reason = 'Early morning when wind is typically calmer';
       reasonAr = 'الصباح الباكر عندما تكون الرياح أهدأ';
     } else if (weather.humidity > 80) {
       // High humidity - midday acceptable
-      optimalStart = DateTime(weather.date.year, weather.date.month, weather.date.day, 6);
-      optimalEnd = DateTime(weather.date.year, weather.date.month, weather.date.day, 18);
+      optimalStart =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 6);
+      optimalEnd =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 18);
       reason = 'Flexible timing due to low evaporation risk';
       reasonAr = 'توقيت مرن بسبب انخفاض خطر التبخر';
     } else {
       // Normal conditions - morning or evening
-      optimalStart = DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
-      optimalEnd = DateTime(weather.date.year, weather.date.month, weather.date.day, 9);
+      optimalStart =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 5);
+      optimalEnd =
+          DateTime(weather.date.year, weather.date.month, weather.date.day, 9);
       reason = 'Morning hours for best efficiency';
       reasonAr = 'ساعات الصباح للحصول على أفضل كفاءة';
     }
@@ -413,13 +432,16 @@ class WeatherIrrigationIntegration {
     }
 
     // Heavy rain alert
-    final totalRain = forecast.take(3).fold<double>(0, (sum, w) => sum + w.precipitation);
+    final totalRain =
+        forecast.take(3).fold<double>(0, (sum, w) => sum + w.precipitation);
     if (totalRain > 30) {
       alerts.add(IrrigationWeatherAlert(
         type: IrrigationAlertType.heavyRain,
         severity: AlertSeverity.medium,
-        message: 'Heavy rain expected (${totalRain.toStringAsFixed(0)}mm) - skip irrigation',
-        messageAr: 'أمطار غزيرة متوقعة (${totalRain.toStringAsFixed(0)}ملم) - تخطي الري',
+        message:
+            'Heavy rain expected (${totalRain.toStringAsFixed(0)}mm) - skip irrigation',
+        messageAr:
+            'أمطار غزيرة متوقعة (${totalRain.toStringAsFixed(0)}ملم) - تخطي الري',
         action: 'Cancel scheduled irrigation for next 2-3 days',
         actionAr: 'إلغاء الري المجدول لمدة 2-3 أيام',
       ));

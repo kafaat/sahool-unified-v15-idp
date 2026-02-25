@@ -475,7 +475,8 @@ void main() {
         ));
 
         // Act
-        final creates = await outboxRepository.getByOperation(SyncOperation.create);
+        final creates =
+            await outboxRepository.getByOperation(SyncOperation.create);
 
         // Assert
         expect(creates.length, 1);
@@ -500,7 +501,8 @@ void main() {
         ));
 
         // Act
-        final hasPending = await outboxRepository.hasPendingChanges('task', 'task_123');
+        final hasPending =
+            await outboxRepository.hasPendingChanges('task', 'task_123');
 
         // Assert
         expect(hasPending, isTrue);
@@ -511,7 +513,8 @@ void main() {
         await outboxRepository.initialize();
 
         // Act
-        final hasPending = await outboxRepository.hasPendingChanges('task', 'task_123');
+        final hasPending =
+            await outboxRepository.hasPendingChanges('task', 'task_123');
 
         // Assert
         expect(hasPending, isFalse);

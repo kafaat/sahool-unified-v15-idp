@@ -111,7 +111,8 @@ void main() {
 
   group('ValidationException', () {
     test('should create required field exception', () {
-      final exception = ValidationException.requiredField('email', 'البريد الإلكتروني');
+      final exception =
+          ValidationException.requiredField('email', 'البريد الإلكتروني');
 
       expect(exception.code, 'REQUIRED_FIELD');
       expect(exception.message, contains('email'));
@@ -120,7 +121,8 @@ void main() {
     });
 
     test('should create invalid format exception', () {
-      final exception = ValidationException.invalidFormat('phone', 'رقم الهاتف');
+      final exception =
+          ValidationException.invalidFormat('phone', 'رقم الهاتف');
 
       expect(exception.code, 'INVALID_FORMAT');
       expect(exception.message, contains('phone'));

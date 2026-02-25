@@ -12,13 +12,10 @@ Detects configuration drift across:
 
 from __future__ import annotations
 
-import json
 import logging
-import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Any
 
 from shared.drift_detection.detectors.base import BaseDriftDetector
 from shared.drift_detection.models import (
@@ -57,17 +54,19 @@ class ConfigDriftDetector(BaseDriftDetector):
         env_example = root / ".env.example"
 
         if not env_example.exists():
-            self.add_result(DriftResult(
-                category=DriftCategory.CONFIG,
-                severity=DriftSeverity.MEDIUM,
-                source="env_drift",
-                description=".env.example file not found",
-                description_ar="ملف .env.example غير موجود",
-                file_path=str(env_example),
-                auto_fixable=False,
-                remediation_hint="Create .env.example with all required environment variables",
-                remediation_hint_ar="أنشئ ملف .env.example بجميع متغيرات البيئة المطلوبة",
-            ))
+            self.add_result(
+                DriftResult(
+                    category=DriftCategory.CONFIG,
+                    severity=DriftSeverity.MEDIUM,
+                    source="env_drift",
+                    description=".env.example file not found",
+                    description_ar="ملف .env.example غير موجود",
+                    file_path=str(env_example),
+                    auto_fixable=False,
+                    remediation_hint="Create .env.example with all required environment variables",
+                    remediation_hint_ar="أنشئ ملف .env.example بجميع متغيرات البيئة المطلوبة",
+                )
+            )
             return
 
         documented = _parse_env_file(env_example)
@@ -76,19 +75,21 @@ class ConfigDriftDetector(BaseDriftDetector):
         # Variables used but not documented
         missing = used - documented
         for var in sorted(missing):
-            self.add_result(DriftResult(
-                category=DriftCategory.CONFIG,
-                severity=DriftSeverity.HIGH,
-                source="env_drift",
-                expected=f"{var} documented in .env.example",
-                actual=f"{var} used in code but NOT documented",
-                description=f"ENV var '{var}' used in code but missing from .env.example",
-                description_ar=f"متغير البيئة '{var}' مستخدم في الكود لكنه مفقود من .env.example",
-                file_path=str(env_example),
-                auto_fixable=True,
-                remediation_hint=f"Add {var}=<value> to .env.example",
-                remediation_hint_ar=f"أضف {var}=<value> إلى .env.example",
-            ))
+            self.add_result(
+                DriftResult(
+                    category=DriftCategory.CONFIG,
+                    severity=DriftSeverity.HIGH,
+                    source="env_drift",
+                    expected=f"{var} documented in .env.example",
+                    actual=f"{var} used in code but NOT documented",
+                    description=f"ENV var '{var}' used in code but missing from .env.example",
+                    description_ar=f"متغير البيئة '{var}' مستخدم في الكود لكنه مفقود من .env.example",
+                    file_path=str(env_example),
+                    auto_fixable=True,
+                    remediation_hint=f"Add {var}=<value> to .env.example",
+                    remediation_hint_ar=f"أضف {var}=<value> إلى .env.example",
+                )
+            )
 
     async def _check_service_ports_drift(self) -> None:
         """Check service ports in governance/services.yaml vs docker-compose."""
@@ -152,18 +153,20 @@ class ConfigDriftDetector(BaseDriftDetector):
                         host_port = ps_str.split(":")[0]
                         try:
                             if int(host_port) != gov_port:
-                                self.add_result(DriftResult(
-                                    category=DriftCategory.CONFIG,
-                                    severity=DriftSeverity.HIGH,
-                                    source="port_drift",
-                                    expected=f"Port {gov_port} (governance/services.yaml)",
-                                    actual=f"Port {host_port} (docker-compose.yml)",
-                                    description=f"Service '{svc_name}' port mismatch: governance={gov_port}, compose={host_port}",
-                                    description_ar=f"عدم تطابق منفذ الخدمة '{svc_name}': الحوكمة={gov_port}، التركيب={host_port}",
-                                    service_name=svc_name,
-                                    auto_fixable=True,
-                                    remediation_hint=f"Update docker-compose.yml port for {svc_name} to {gov_port}",
-                                ))
+                                self.add_result(
+                                    DriftResult(
+                                        category=DriftCategory.CONFIG,
+                                        severity=DriftSeverity.HIGH,
+                                        source="port_drift",
+                                        expected=f"Port {gov_port} (governance/services.yaml)",
+                                        actual=f"Port {host_port} (docker-compose.yml)",
+                                        description=f"Service '{svc_name}' port mismatch: governance={gov_port}, compose={host_port}",
+                                        description_ar=f"عدم تطابق منفذ الخدمة '{svc_name}': الحوكمة={gov_port}، التركيب={host_port}",
+                                        service_name=svc_name,
+                                        auto_fixable=True,
+                                        remediation_hint=f"Update docker-compose.yml port for {svc_name} to {gov_port}",
+                                    )
+                                )
                         except ValueError:
                             pass
 
@@ -185,19 +188,21 @@ class ConfigDriftDetector(BaseDriftDetector):
         svc_ts = _get_latest_git_commit_ts(services_yaml)
 
         if gen_ts and svc_ts and svc_ts > gen_ts:
-            self.add_result(DriftResult(
-                category=DriftCategory.CONFIG,
-                severity=DriftSeverity.HIGH,
-                source="compose_drift",
-                expected="Generated compose in sync with services.yaml",
-                actual="services.yaml modified after compose generation",
-                description="Docker Compose generated file is stale - services.yaml was modified after last generation",
-                description_ar="ملف Docker Compose المُنشأ قديم - تم تعديل services.yaml بعد آخر إنشاء",
-                file_path=str(generated),
-                auto_fixable=True,
-                remediation_hint="Run 'make generate-infra' to regenerate",
-                remediation_hint_ar="شغّل 'make generate-infra' لإعادة الإنشاء",
-            ))
+            self.add_result(
+                DriftResult(
+                    category=DriftCategory.CONFIG,
+                    severity=DriftSeverity.HIGH,
+                    source="compose_drift",
+                    expected="Generated compose in sync with services.yaml",
+                    actual="services.yaml modified after compose generation",
+                    description="Docker Compose generated file is stale - services.yaml was modified after last generation",
+                    description_ar="ملف Docker Compose المُنشأ قديم - تم تعديل services.yaml بعد آخر إنشاء",
+                    file_path=str(generated),
+                    auto_fixable=True,
+                    remediation_hint="Run 'make generate-infra' to regenerate",
+                    remediation_hint_ar="شغّل 'make generate-infra' لإعادة الإنشاء",
+                )
+            )
 
     async def _check_helm_drift(self) -> None:
         """Check Helm values drift."""
@@ -213,19 +218,21 @@ class ConfigDriftDetector(BaseDriftDetector):
         svc_ts = _get_latest_git_commit_ts(services_yaml)
 
         if gen_ts and svc_ts and svc_ts > gen_ts:
-            self.add_result(DriftResult(
-                category=DriftCategory.CONFIG,
-                severity=DriftSeverity.HIGH,
-                source="helm_drift",
-                expected="Generated Helm values in sync with services.yaml",
-                actual="services.yaml modified after Helm values generation",
-                description="Helm values generated file is stale",
-                description_ar="ملف Helm المُنشأ قديم",
-                file_path=str(generated),
-                auto_fixable=True,
-                remediation_hint="Run 'make generate-infra' to regenerate",
-                remediation_hint_ar="شغّل 'make generate-infra' لإعادة الإنشاء",
-            ))
+            self.add_result(
+                DriftResult(
+                    category=DriftCategory.CONFIG,
+                    severity=DriftSeverity.HIGH,
+                    source="helm_drift",
+                    expected="Generated Helm values in sync with services.yaml",
+                    actual="services.yaml modified after Helm values generation",
+                    description="Helm values generated file is stale",
+                    description_ar="ملف Helm المُنشأ قديم",
+                    file_path=str(generated),
+                    auto_fixable=True,
+                    remediation_hint="Run 'make generate-infra' to regenerate",
+                    remediation_hint_ar="شغّل 'make generate-infra' لإعادة الإنشاء",
+                )
+            )
 
     async def _check_cors_domain_drift(self) -> None:
         """Check CORS/domain settings consistency across configs."""
@@ -243,19 +250,21 @@ class ConfigDriftDetector(BaseDriftDetector):
             content = kong_config.read_text()
             # Check for wildcard CORS (security issue in production)
             if "origins:\n      - '*'" in content or 'origins: ["*"]' in content:
-                self.add_result(DriftResult(
-                    category=DriftCategory.CONFIG,
-                    severity=DriftSeverity.HIGH,
-                    source="cors_drift",
-                    expected="Specific CORS origins per environment",
-                    actual="Wildcard CORS origin (*) configured",
-                    description="Kong has wildcard CORS origins - security risk in production",
-                    description_ar="Kong يحتوي على أصول CORS عامة - خطر أمني في الإنتاج",
-                    file_path=str(kong_config),
-                    auto_fixable=False,
-                    remediation_hint="Replace '*' with specific domain origins per environment",
-                    remediation_hint_ar="استبدل '*' بأصول نطاقات محددة لكل بيئة",
-                ))
+                self.add_result(
+                    DriftResult(
+                        category=DriftCategory.CONFIG,
+                        severity=DriftSeverity.HIGH,
+                        source="cors_drift",
+                        expected="Specific CORS origins per environment",
+                        actual="Wildcard CORS origin (*) configured",
+                        description="Kong has wildcard CORS origins - security risk in production",
+                        description_ar="Kong يحتوي على أصول CORS عامة - خطر أمني في الإنتاج",
+                        file_path=str(kong_config),
+                        auto_fixable=False,
+                        remediation_hint="Replace '*' with specific domain origins per environment",
+                        remediation_hint_ar="استبدل '*' بأصول نطاقات محددة لكل بيئة",
+                    )
+                )
         except Exception as e:
             logger.warning("Failed to check CORS config: %s", e)
 
@@ -301,8 +310,8 @@ async def _scan_env_usage(root: Path) -> set[str]:
     env_vars: set[str] = set()
     patterns = [
         re.compile(r'os\.(?:environ|getenv)\s*[\[\(]\s*["\'](\w+)["\']'),
-        re.compile(r'process\.env\.(\w+)'),
-        re.compile(r'Settings\(\)\.(\w+)'),
+        re.compile(r"process\.env\.(\w+)"),
+        re.compile(r"Settings\(\)\.(\w+)"),
     ]
 
     scan_dirs = ["apps/", "shared/", "packages/"]

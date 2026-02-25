@@ -60,7 +60,8 @@ class FieldHealthParams {
 /// Provider for field health score
 /// موفر درجة صحة الحقل
 final fieldHealthScoreProvider =
-    FutureProvider.family<FieldHealthScore, FieldHealthParams>((ref, params) async {
+    FutureProvider.family<FieldHealthScore, FieldHealthParams>(
+        (ref, params) async {
   final repository = ref.watch(analyticsRepositoryProvider);
   return repository.calculateFieldHealth(
     fieldId: params.fieldId,
@@ -112,7 +113,8 @@ class YieldPredictionParams {
 /// Provider for yield prediction
 /// موفر توقع الإنتاجية
 final yieldPredictionProvider =
-    FutureProvider.family<YieldPrediction, YieldPredictionParams>((ref, params) async {
+    FutureProvider.family<YieldPrediction, YieldPredictionParams>(
+        (ref, params) async {
   final repository = ref.watch(analyticsRepositoryProvider);
   return repository.predictYield(
     fieldId: params.fieldId,
@@ -163,7 +165,8 @@ class RiskAssessmentParams {
 /// Provider for risk assessment
 /// موفر تقييم المخاطر
 final riskAssessmentProvider =
-    FutureProvider.family<RiskAssessment, RiskAssessmentParams>((ref, params) async {
+    FutureProvider.family<RiskAssessment, RiskAssessmentParams>(
+        (ref, params) async {
   final repository = ref.watch(analyticsRepositoryProvider);
   return repository.assessRisks(
     fieldId: params.fieldId,
@@ -183,7 +186,8 @@ final riskAssessmentProvider =
 /// Provider for analytics summary
 /// موفر ملخص التحليلات
 final analyticsSummaryProvider =
-    FutureProvider.family<AnalyticsSummary, List<String>>((ref, fieldIds) async {
+    FutureProvider.family<AnalyticsSummary, List<String>>(
+        (ref, fieldIds) async {
   final repository = ref.watch(analyticsRepositoryProvider);
   return repository.getAnalyticsSummary(fieldIds);
 });
@@ -221,7 +225,8 @@ class HistoricalTrendParams {
 /// Provider for historical trend
 /// موفر الاتجاه التاريخي
 final historicalTrendProvider =
-    FutureProvider.family<HistoricalTrend, HistoricalTrendParams>((ref, params) async {
+    FutureProvider.family<HistoricalTrend, HistoricalTrendParams>(
+        (ref, params) async {
   final repository = ref.watch(analyticsRepositoryProvider);
   return repository.getHistoricalTrend(
     fieldId: params.fieldId,
@@ -272,8 +277,10 @@ class AnalyticsDashboardState {
       isLoading: isLoading ?? this.isLoading,
       selectedFieldId: selectedFieldId ?? this.selectedFieldId,
       selectedFieldHealth: selectedFieldHealth ?? this.selectedFieldHealth,
-      selectedYieldPrediction: selectedYieldPrediction ?? this.selectedYieldPrediction,
-      selectedRiskAssessment: selectedRiskAssessment ?? this.selectedRiskAssessment,
+      selectedYieldPrediction:
+          selectedYieldPrediction ?? this.selectedYieldPrediction,
+      selectedRiskAssessment:
+          selectedRiskAssessment ?? this.selectedRiskAssessment,
       summary: summary ?? this.summary,
       error: error,
       selectedDateRange: selectedDateRange ?? this.selectedDateRange,
@@ -285,10 +292,12 @@ enum DateRange { week, month, quarter, year }
 
 /// Notifier for analytics dashboard
 /// مُعلم لوحة تحكم التحليلات
-class AnalyticsDashboardNotifier extends StateNotifier<AnalyticsDashboardState> {
+class AnalyticsDashboardNotifier
+    extends StateNotifier<AnalyticsDashboardState> {
   final AnalyticsRepository _repository;
 
-  AnalyticsDashboardNotifier(this._repository) : super(const AnalyticsDashboardState());
+  AnalyticsDashboardNotifier(this._repository)
+      : super(const AnalyticsDashboardState());
 
   /// Load analytics for a specific field
   /// تحميل التحليلات لحقل محدد
@@ -303,7 +312,8 @@ class AnalyticsDashboardNotifier extends StateNotifier<AnalyticsDashboardState> 
     double? fieldArea,
     double? rainfall,
   }) async {
-    state = state.copyWith(isLoading: true, error: null, selectedFieldId: fieldId);
+    state =
+        state.copyWith(isLoading: true, error: null, selectedFieldId: fieldId);
 
     try {
       // Load all analytics in parallel
@@ -338,7 +348,8 @@ class AnalyticsDashboardNotifier extends StateNotifier<AnalyticsDashboardState> 
       state = state.copyWith(
         isLoading: false,
         selectedFieldHealth: results[0] as FieldHealthScore,
-        selectedYieldPrediction: results.length > 2 ? results[1] as YieldPrediction? : null,
+        selectedYieldPrediction:
+            results.length > 2 ? results[1] as YieldPrediction? : null,
         selectedRiskAssessment: results.last as RiskAssessment,
       );
     } catch (e) {
@@ -395,7 +406,8 @@ class AnalyticsDashboardNotifier extends StateNotifier<AnalyticsDashboardState> 
 /// Provider for analytics dashboard
 /// موفر لوحة تحكم التحليلات
 final analyticsDashboardProvider =
-    StateNotifierProvider<AnalyticsDashboardNotifier, AnalyticsDashboardState>((ref) {
+    StateNotifierProvider<AnalyticsDashboardNotifier, AnalyticsDashboardState>(
+        (ref) {
   final repository = ref.watch(analyticsRepositoryProvider);
   return AnalyticsDashboardNotifier(repository);
 });
@@ -440,7 +452,8 @@ class FieldComparisonState {
 class FieldComparisonNotifier extends StateNotifier<FieldComparisonState> {
   final AnalyticsRepository _repository;
 
-  FieldComparisonNotifier(this._repository) : super(const FieldComparisonState());
+  FieldComparisonNotifier(this._repository)
+      : super(const FieldComparisonState());
 
   /// Add field to comparison
   /// إضافة حقل للمقارنة
@@ -456,8 +469,10 @@ class FieldComparisonNotifier extends StateNotifier<FieldComparisonState> {
   /// Remove field from comparison
   /// إزالة حقل من المقارنة
   void removeField(String fieldId) {
-    final updated = state.selectedFieldIds.where((id) => id != fieldId).toList();
-    final scores = Map<String, FieldHealthScore>.from(state.healthScores)..remove(fieldId);
+    final updated =
+        state.selectedFieldIds.where((id) => id != fieldId).toList();
+    final scores = Map<String, FieldHealthScore>.from(state.healthScores)
+      ..remove(fieldId);
 
     state = state.copyWith(
       selectedFieldIds: updated,

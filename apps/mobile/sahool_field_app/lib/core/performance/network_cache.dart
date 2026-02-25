@@ -29,7 +29,8 @@ class NetworkCache {
   }
 
   /// الحصول على بيانات من الكاش
-  Future<T?> get<T>(String key, {
+  Future<T?> get<T>(
+    String key, {
     T Function(Map<String, dynamic>)? fromJson,
   }) async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();
@@ -56,13 +57,16 @@ class NetworkCache {
 
       return decoded as T;
     } catch (e) {
-      AppLogger.e('Failed to decode cached data', tag: 'NETWORK_CACHE', error: e);
+      AppLogger.e('Failed to decode cached data',
+          tag: 'NETWORK_CACHE', error: e);
       return null;
     }
   }
 
   /// حفظ بيانات في الكاش
-  Future<void> set<T>(String key, T data, {
+  Future<void> set<T>(
+    String key,
+    T data, {
     Duration ttl = const Duration(minutes: 5),
     CachePriority priority = CachePriority.normal,
   }) async {
@@ -90,7 +94,9 @@ class NetworkCache {
   }
 
   /// حفظ قائمة في الكاش
-  Future<void> setList<T>(String key, List<T> items, {
+  Future<void> setList<T>(
+    String key,
+    List<T> items, {
     Duration ttl = const Duration(minutes: 5),
     Map<String, dynamic> Function(T)? toJson,
   }) async {
@@ -105,7 +111,8 @@ class NetworkCache {
   }
 
   /// الحصول على قائمة من الكاش
-  Future<List<T>?> getList<T>(String key, {
+  Future<List<T>?> getList<T>(
+    String key, {
     T Function(Map<String, dynamic>)? fromJson,
   }) async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();
@@ -134,7 +141,8 @@ class NetworkCache {
 
       return decoded.cast<T>();
     } catch (e) {
-      AppLogger.e('Failed to decode cached list', tag: 'NETWORK_CACHE', error: e);
+      AppLogger.e('Failed to decode cached list',
+          tag: 'NETWORK_CACHE', error: e);
       return null;
     }
   }
@@ -163,7 +171,8 @@ class NetworkCache {
       }
     }
 
-    AppLogger.d('Removed $removed items matching: $pattern', tag: 'NETWORK_CACHE');
+    AppLogger.d('Removed $removed items matching: $pattern',
+        tag: 'NETWORK_CACHE');
   }
 
   /// تنظيف الكاش المنتهي الصلاحية
@@ -187,7 +196,8 @@ class NetworkCache {
     }
 
     if (cleaned > 0) {
-      AppLogger.i('Cleaned $cleaned expired cache entries', tag: 'NETWORK_CACHE');
+      AppLogger.i('Cleaned $cleaned expired cache entries',
+          tag: 'NETWORK_CACHE');
     }
   }
 
@@ -277,18 +287,18 @@ class CacheMeta {
   DateTime get expiresAt => createdAt.add(ttl);
 
   Map<String, dynamic> toJson() => {
-    'key': key,
-    'createdAt': createdAt.toIso8601String(),
-    'ttlSeconds': ttl.inSeconds,
-    'priority': priority.index,
-  };
+        'key': key,
+        'createdAt': createdAt.toIso8601String(),
+        'ttlSeconds': ttl.inSeconds,
+        'priority': priority.index,
+      };
 
   factory CacheMeta.fromJson(Map<String, dynamic> json) => CacheMeta(
-    key: json['key'] as String,
-    createdAt: DateTime.parse(json['createdAt'] as String),
-    ttl: Duration(seconds: json['ttlSeconds'] as int),
-    priority: CachePriority.values[json['priority'] as int],
-  );
+        key: json['key'] as String,
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        ttl: Duration(seconds: json['ttlSeconds'] as int),
+        priority: CachePriority.values[json['priority'] as int],
+      );
 }
 
 /// إحصائيات الكاش

@@ -108,7 +108,8 @@ class _CompactMetricsView extends StatelessWidget {
     );
   }
 
-  Widget _buildStatColumn(String label, String value, IconData icon, {Color? color}) {
+  Widget _buildStatColumn(String label, String value, IconData icon,
+      {Color? color}) {
     return Column(
       children: [
         Icon(icon, color: color ?? Colors.blue, size: 24),
@@ -362,7 +363,8 @@ class _FullMetricsView extends ConsumerWidget {
     );
   }
 
-  Widget _buildHistoricalTrendsCard(BuildContext context, List<DailyMetrics> dailyMetrics) {
+  Widget _buildHistoricalTrendsCard(
+      BuildContext context, List<DailyMetrics> dailyMetrics) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -438,7 +440,8 @@ class _FullMetricsView extends ConsumerWidget {
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 12),
-            ...metrics.retryStatistics.retryAttemptsByCount.entries.map((entry) {
+            ...metrics.retryStatistics.retryAttemptsByCount.entries
+                .map((entry) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Row(
@@ -461,7 +464,8 @@ class _FullMetricsView extends ConsumerWidget {
 
   Widget _buildQueueDepthChart(BuildContext context) {
     final recentSamples = metrics.queueDepthHistory.length > 100
-        ? metrics.queueDepthHistory.sublist(metrics.queueDepthHistory.length - 100)
+        ? metrics.queueDepthHistory
+            .sublist(metrics.queueDepthHistory.length - 100)
         : metrics.queueDepthHistory;
 
     return Card(
@@ -509,7 +513,8 @@ class _FullMetricsView extends ConsumerWidget {
                   op.success ? Icons.check_circle : Icons.error,
                   color: op.success ? Colors.green : Colors.red,
                 ),
-                title: Text('${_getOperationTypeText(op.type)} - ${op.entityType}'),
+                title: Text(
+                    '${_getOperationTypeText(op.type)} - ${op.entityType}'),
                 subtitle: Text(
                   '${_formatDuration(op.duration)}${op.wasConflict ? ' (تعارض)' : ''}',
                 ),
@@ -579,7 +584,8 @@ class _FullMetricsView extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricTile(String label, String value, IconData icon, Color color) {
+  Widget _buildMetricTile(
+      String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -682,7 +688,8 @@ class _FullMetricsView extends ConsumerWidget {
         // Total operations
         LineChartBarData(
           spots: dailyMetrics.asMap().entries.map((entry) {
-            return FlSpot(entry.key.toDouble(), entry.value.totalOperations.toDouble());
+            return FlSpot(
+                entry.key.toDouble(), entry.value.totalOperations.toDouble());
           }).toList(),
           isCurved: true,
           color: Colors.blue,
@@ -692,7 +699,8 @@ class _FullMetricsView extends ConsumerWidget {
         // Successful operations
         LineChartBarData(
           spots: dailyMetrics.asMap().entries.map((entry) {
-            return FlSpot(entry.key.toDouble(), entry.value.successfulOperations.toDouble());
+            return FlSpot(entry.key.toDouble(),
+                entry.value.successfulOperations.toDouble());
           }).toList(),
           isCurved: true,
           color: Colors.green,
@@ -702,7 +710,8 @@ class _FullMetricsView extends ConsumerWidget {
         // Failed operations
         LineChartBarData(
           spots: dailyMetrics.asMap().entries.map((entry) {
-            return FlSpot(entry.key.toDouble(), entry.value.failedOperations.toDouble());
+            return FlSpot(
+                entry.key.toDouble(), entry.value.failedOperations.toDouble());
           }).toList(),
           isCurved: true,
           color: Colors.red,

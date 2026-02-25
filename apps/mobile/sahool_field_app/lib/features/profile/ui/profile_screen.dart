@@ -202,7 +202,8 @@ class ProfileScreen extends StatelessWidget {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: () => _showLogoutDialog(context),
-                      icon: const Icon(Icons.logout, color: SahoolColors.danger),
+                      icon:
+                          const Icon(Icons.logout, color: SahoolColors.danger),
                       label: const Text(
                         'تسجيل الخروج',
                         style: TextStyle(color: SahoolColors.danger),
@@ -352,7 +353,8 @@ class ProfileScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
                         color: SahoolColors.danger,
                         borderRadius: BorderRadius.circular(10),
@@ -387,7 +389,8 @@ class ProfileScreen extends StatelessWidget {
               Navigator.pop(context);
               context.go('/splash');
             },
-            style: ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
+            style:
+                ElevatedButton.styleFrom(backgroundColor: SahoolColors.danger),
             child: const Text('خروج'),
           ),
         ],
@@ -400,7 +403,8 @@ class ProfileScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('مسح البيانات المؤقتة'),
-        content: const Text('سيتم حذف الملفات المؤقتة. البيانات المحفوظة لن تتأثر.'),
+        content:
+            const Text('سيتم حذف الملفات المؤقتة. البيانات المحفوظة لن تتأثر.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -445,7 +449,8 @@ class ProfileScreen extends StatelessWidget {
             const Text('منصة الزراعة الذكية'),
             const SizedBox(height: 16),
             Text('الإصدار: 15.3.0', style: TextStyle(color: Colors.grey[600])),
-            Text('Build: 2024.12.14', style: TextStyle(color: Colors.grey[600])),
+            Text('Build: 2024.12.14',
+                style: TextStyle(color: Colors.grey[600])),
             const SizedBox(height: 16),
             const Text('© 2024 KAFAAT'),
           ],

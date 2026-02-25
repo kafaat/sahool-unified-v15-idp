@@ -21,14 +21,18 @@ class ChatRepository {
   // Stream controllers for real-time updates
   final _messageController = StreamController<ChatMessage>.broadcast();
   final _typingController = StreamController<Map<String, dynamic>>.broadcast();
-  final _userJoinedController = StreamController<Map<String, dynamic>>.broadcast();
-  final _expertJoinedController = StreamController<Map<String, dynamic>>.broadcast();
+  final _userJoinedController =
+      StreamController<Map<String, dynamic>>.broadcast();
+  final _expertJoinedController =
+      StreamController<Map<String, dynamic>>.broadcast();
 
   // Streams
   Stream<ChatMessage> get messageStream => _messageController.stream;
   Stream<Map<String, dynamic>> get typingStream => _typingController.stream;
-  Stream<Map<String, dynamic>> get userJoinedStream => _userJoinedController.stream;
-  Stream<Map<String, dynamic>> get expertJoinedStream => _expertJoinedController.stream;
+  Stream<Map<String, dynamic>> get userJoinedStream =>
+      _userJoinedController.stream;
+  Stream<Map<String, dynamic>> get expertJoinedStream =>
+      _expertJoinedController.stream;
 
   bool get isConnected => _isConnected;
 

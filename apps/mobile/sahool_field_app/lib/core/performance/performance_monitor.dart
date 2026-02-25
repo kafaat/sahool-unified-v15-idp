@@ -4,7 +4,7 @@ import '../utils/app_logger.dart';
 
 /// Performance Monitor for tracking app performance metrics
 /// Tracks screen load times, API call durations, and memory usage
-/// 
+///
 /// مراقب الأداء لتتبع مقاييس أداء التطبيق
 class PerformanceMonitor {
   static final PerformanceMonitor _instance = PerformanceMonitor._internal();
@@ -85,7 +85,11 @@ class PerformanceMonitor {
       end(key, metadata: {'endpoint': endpoint, 'status': 'success'});
       return result;
     } catch (e) {
-      end(key, metadata: {'endpoint': endpoint, 'status': 'error', 'error': e.toString()});
+      end(key, metadata: {
+        'endpoint': endpoint,
+        'status': 'error',
+        'error': e.toString()
+      });
       rethrow;
     }
   }

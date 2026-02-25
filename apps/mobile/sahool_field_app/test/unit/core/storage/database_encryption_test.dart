@@ -183,7 +183,8 @@ void main() {
 
         verify(() => mockStorage.delete(key: 'sahool_db_encryption_key'))
             .called(1);
-        verify(() => mockStorage.delete(key: 'sahool_db_encryption_key_version'))
+        verify(() =>
+                mockStorage.delete(key: 'sahool_db_encryption_key_version'))
             .called(1);
       });
 

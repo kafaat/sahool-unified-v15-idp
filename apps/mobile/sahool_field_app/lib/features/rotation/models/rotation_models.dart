@@ -426,10 +426,12 @@ class RotationYear {
             ? Crop.fromJson(json['crop'] as Map<String, dynamic>)
             : null,
         soilHealthBefore: json['soilHealthBefore'] != null
-            ? SoilHealth.fromJson(json['soilHealthBefore'] as Map<String, dynamic>)
+            ? SoilHealth.fromJson(
+                json['soilHealthBefore'] as Map<String, dynamic>)
             : null,
         soilHealthAfter: json['soilHealthAfter'] != null
-            ? SoilHealth.fromJson(json['soilHealthAfter'] as Map<String, dynamic>)
+            ? SoilHealth.fromJson(
+                json['soilHealthAfter'] as Map<String, dynamic>)
             : null,
         plantingDate: json['plantingDate'] != null
             ? DateTime.parse(json['plantingDate'] as String)
@@ -489,7 +491,8 @@ class RotationPlan {
   int get totalYears => rotationYears.length;
 
   List<RotationYear> get pastRotations => rotationYears
-      .where((r) => r.harvestDate != null && r.harvestDate!.isBefore(DateTime.now()))
+      .where((r) =>
+          r.harvestDate != null && r.harvestDate!.isBefore(DateTime.now()))
       .toList();
 
   RotationYear? get currentRotation => rotationYears.firstWhere(
@@ -502,12 +505,11 @@ class RotationPlan {
           r.plantingDate == null || r.plantingDate!.isAfter(DateTime.now()))
       .toList();
 
-  List<CropFamily> get familiesUsed =>
-      rotationYears
-          .where((r) => r.crop != null)
-          .map((r) => r.crop!.family)
-          .toSet()
-          .toList();
+  List<CropFamily> get familiesUsed => rotationYears
+      .where((r) => r.crop != null)
+      .map((r) => r.crop!.family)
+      .toSet()
+      .toList();
 
   Map<String, dynamic> toJson() => {
         'id': id,

@@ -177,8 +177,7 @@ class ZonesNotifier extends StateNotifier<ZonesState> {
 }
 
 /// Zones Provider
-final zonesProvider =
-    StateNotifierProvider<ZonesNotifier, ZonesState>((ref) {
+final zonesProvider = StateNotifierProvider<ZonesNotifier, ZonesState>((ref) {
   final api = ref.watch(cropHealthApiProvider);
   return ZonesNotifier(api);
 });
@@ -251,7 +250,8 @@ final timelineProvider =
 });
 
 /// VRT Export Provider
-final vrtExportProvider = FutureProvider.family<Map<String, dynamic>, ({String fieldId, DateTime date, String? actionType})>(
+final vrtExportProvider = FutureProvider.family<Map<String, dynamic>,
+    ({String fieldId, DateTime date, String? actionType})>(
   (ref, params) async {
     final api = ref.watch(cropHealthApiProvider);
     return api.exportVrt(

@@ -11,8 +11,7 @@ void main() {
       expect(OnboardingStep.values, contains(OnboardingStep.welcome));
       expect(OnboardingStep.values, contains(OnboardingStep.featureTour));
       expect(OnboardingStep.values, contains(OnboardingStep.fieldSetup));
-      expect(
-          OnboardingStep.values, contains(OnboardingStep.notificationSetup));
+      expect(OnboardingStep.values, contains(OnboardingStep.notificationSetup));
       expect(OnboardingStep.values, contains(OnboardingStep.iotPairing));
       expect(OnboardingStep.values, contains(OnboardingStep.completed));
     });

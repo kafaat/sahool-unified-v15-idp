@@ -12,10 +12,12 @@ class RotationCalendarScreen extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<RotationCalendarScreen> createState() => _RotationCalendarScreenState();
+  ConsumerState<RotationCalendarScreen> createState() =>
+      _RotationCalendarScreenState();
 }
 
-class _RotationCalendarScreenState extends ConsumerState<RotationCalendarScreen> {
+class _RotationCalendarScreenState
+    extends ConsumerState<RotationCalendarScreen> {
   String? _selectedFieldId;
 
   @override
@@ -67,7 +69,8 @@ class _RotationCalendarScreenState extends ConsumerState<RotationCalendarScreen>
               Text('Error: $error'),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.invalidate(rotationPlanProvider(_selectedFieldId!)),
+                onPressed: () =>
+                    ref.invalidate(rotationPlanProvider(_selectedFieldId!)),
                 child: const Text('Retry'),
               ),
             ],

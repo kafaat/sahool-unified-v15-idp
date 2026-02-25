@@ -18,27 +18,35 @@ class SatelliteHistoryScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SatelliteHistoryScreen> createState() => _SatelliteHistoryScreenState();
+  ConsumerState<SatelliteHistoryScreen> createState() =>
+      _SatelliteHistoryScreenState();
 }
 
-class _SatelliteHistoryScreenState extends ConsumerState<SatelliteHistoryScreen> {
+class _SatelliteHistoryScreenState
+    extends ConsumerState<SatelliteHistoryScreen> {
   int _selectedDays = 90;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(ndviDetailProvider.notifier).loadNdviDetails(widget.fieldId, days: _selectedDays);
+      ref
+          .read(ndviDetailProvider.notifier)
+          .loadNdviDetails(widget.fieldId, days: _selectedDays);
     });
   }
 
   Future<void> _refreshData() async {
-    await ref.read(ndviDetailProvider.notifier).refreshNdviDetails(widget.fieldId, days: _selectedDays);
+    await ref
+        .read(ndviDetailProvider.notifier)
+        .refreshNdviDetails(widget.fieldId, days: _selectedDays);
   }
 
   void _changePeriod(int days) {
     setState(() => _selectedDays = days);
-    ref.read(ndviDetailProvider.notifier).loadNdviDetails(widget.fieldId, days: days);
+    ref
+        .read(ndviDetailProvider.notifier)
+        .loadNdviDetails(widget.fieldId, days: days);
   }
 
   @override
@@ -163,7 +171,9 @@ class _SatelliteHistoryScreenState extends ConsumerState<SatelliteHistoryScreen>
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isArabic ? 'سجل التحليلات التاريخية' : 'Historical Analysis Records',
+                  isArabic
+                      ? 'سجل التحليلات التاريخية'
+                      : 'Historical Analysis Records',
                   style: TextStyle(
                     fontSize: 14,
                     color: Colors.grey[600],
@@ -194,19 +204,23 @@ class _SatelliteHistoryScreenState extends ConsumerState<SatelliteHistoryScreen>
       child: Row(
         children: [
           Expanded(
-            child: _buildPeriodButton(30, isArabic ? '30 يوم' : '30 Days', isArabic),
+            child: _buildPeriodButton(
+                30, isArabic ? '30 يوم' : '30 Days', isArabic),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildPeriodButton(90, isArabic ? '90 يوم' : '90 Days', isArabic),
+            child: _buildPeriodButton(
+                90, isArabic ? '90 يوم' : '90 Days', isArabic),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildPeriodButton(180, isArabic ? '180 يوم' : '180 Days', isArabic),
+            child: _buildPeriodButton(
+                180, isArabic ? '180 يوم' : '180 Days', isArabic),
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: _buildPeriodButton(365, isArabic ? 'سنة' : '1 Year', isArabic),
+            child:
+                _buildPeriodButton(365, isArabic ? 'سنة' : '1 Year', isArabic),
           ),
         ],
       ),
@@ -414,8 +428,34 @@ class _SatelliteHistoryScreenState extends ConsumerState<SatelliteHistoryScreen>
 
   String _formatDate(DateTime date, bool isArabic) {
     final months = isArabic
-        ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
-        : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        ? [
+            'يناير',
+            'فبراير',
+            'مارس',
+            'أبريل',
+            'مايو',
+            'يونيو',
+            'يوليو',
+            'أغسطس',
+            'سبتمبر',
+            'أكتوبر',
+            'نوفمبر',
+            'ديسمبر'
+          ]
+        : [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec'
+          ];
 
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }

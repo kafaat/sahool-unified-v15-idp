@@ -70,9 +70,11 @@ class ApiClient {
     // Configure certificate pinning if enabled
     if (config.enableCertificatePinning) {
       // Determine environment for pin configuration
-      final environment = EnvConfig.isProduction ? 'production'
-          : EnvConfig.isStaging ? 'staging'
-          : 'development';
+      final environment = EnvConfig.isProduction
+          ? 'production'
+          : EnvConfig.isStaging
+              ? 'staging'
+              : 'development';
 
       final pins = CertificateConfig.getPinsForEnvironment(environment);
 
@@ -123,23 +125,27 @@ class ApiClient {
     } else if (kDebugMode && !enableRequestSigning) {
       AppLogger.w('Request signing is disabled', tag: 'ApiClient');
     } else if (kDebugMode && signingKeyService == null) {
-      AppLogger.w('Request signing disabled: no signing key service provided', tag: 'ApiClient');
+      AppLogger.w('Request signing disabled: no signing key service provided',
+          tag: 'ApiClient');
     }
 
     // Add security header validation interceptor
     // Validates response headers for security best practices
     if (enableSecurityHeaderValidation) {
-      final headerConfig = securityHeaderConfig ?? SecurityHeaderConfig.fromEnvironment();
+      final headerConfig =
+          securityHeaderConfig ?? SecurityHeaderConfig.fromEnvironment();
       _dio.interceptors.add(SecurityHeadersInterceptor(config: headerConfig));
 
       if (kDebugMode) {
-        AppLogger.i('Security header validation enabled', tag: 'ApiClient', data: {
-          'mode': headerConfig.mode.name,
-          'requiredHeaders': headerConfig.requiredHeaders.toList(),
-          'validateContentLength': headerConfig.validateContentLength,
-          'validateApiVersion': headerConfig.validateApiVersion,
-          'validateJsonStructure': headerConfig.validateJsonStructure,
-        });
+        AppLogger.i('Security header validation enabled',
+            tag: 'ApiClient',
+            data: {
+              'mode': headerConfig.mode.name,
+              'requiredHeaders': headerConfig.requiredHeaders.toList(),
+              'validateContentLength': headerConfig.validateContentLength,
+              'validateApiVersion': headerConfig.validateApiVersion,
+              'validateJsonStructure': headerConfig.validateJsonStructure,
+            });
       }
     } else if (kDebugMode) {
       AppLogger.w('Security header validation is disabled', tag: 'ApiClient');
@@ -149,7 +155,8 @@ class ApiClient {
     if (enableConnectivityMonitoring && _connectivityService != null) {
       _dio.interceptors.add(ConnectivityInterceptor(
         connectivityService: _connectivityService!,
-        blockOfflineRequests: false, // Allow requests, let retry handle failures
+        blockOfflineRequests:
+            false, // Allow requests, let retry handle failures
         queueOfflineRequests: false,
       ));
     }
@@ -175,7 +182,8 @@ class ApiClient {
         'sendTimeout': _networkConfig.sendTimeout.inSeconds,
         'receiveTimeout': _networkConfig.receiveTimeout.inSeconds,
         'certificatePinning': config.enableCertificatePinning,
-        'connectivityMonitoring': enableConnectivityMonitoring && _connectivityService != null,
+        'connectivityMonitoring':
+            enableConnectivityMonitoring && _connectivityService != null,
       });
     }
   }
@@ -201,7 +209,8 @@ class ApiClient {
           if (!_networkConfig.validateCertificates && kDebugMode) {
             // Only in debug mode, allow self-signed certificates
             client.badCertificateCallback = (cert, host, port) => true;
-            AppLogger.w('Certificate validation disabled (debug only)', tag: 'ApiClient');
+            AppLogger.w('Certificate validation disabled (debug only)',
+                tag: 'ApiClient');
           }
 
           return client;
@@ -230,7 +239,8 @@ class ApiClient {
 
   String? get authToken => _authToken;
   String get tenantId => _tenantId;
-  CertificatePinningService? get certificatePinningService => _certificatePinningService;
+  CertificatePinningService? get certificatePinningService =>
+      _certificatePinningService;
   RateLimiter get rateLimiter => _rateLimiter;
   NetworkConfig get networkConfig => _networkConfig;
   NetworkConnectivityService? get connectivityService => _connectivityService;
@@ -239,7 +249,8 @@ class ApiClient {
   bool get isNetworkConnected => _connectivityService?.isConnected ?? true;
 
   /// Get current network state
-  NetworkConnectivityState? get networkState => _connectivityService?.currentState;
+  NetworkConnectivityState? get networkState =>
+      _connectivityService?.currentState;
 
   /// Check if certificate pinning is enabled
   bool get isCertificatePinningEnabled => _certificatePinningService != null;
@@ -247,7 +258,8 @@ class ApiClient {
   /// Check for expiring certificate pins
   List<ExpiringPin> getExpiringPins({int daysThreshold = 30}) {
     if (_certificatePinningService == null) return [];
-    return _certificatePinningService!.getExpiringPins(daysThreshold: daysThreshold);
+    return _certificatePinningService!
+        .getExpiringPins(daysThreshold: daysThreshold);
   }
 
   /// Update certificate pins for a domain
@@ -420,7 +432,8 @@ class _BasicLoggingInterceptor extends Interceptor {
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
-      AppLogger.d('${response.statusCode} ${response.requestOptions.path}', tag: 'HTTP');
+      AppLogger.d('${response.statusCode} ${response.requestOptions.path}',
+          tag: 'HTTP');
       // Note: Response body is intentionally not logged to prevent data leakage
     }
     handler.next(response);
@@ -429,7 +442,8 @@ class _BasicLoggingInterceptor extends Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
-      AppLogger.e('${err.type} ${err.requestOptions.path}', tag: 'HTTP', error: err);
+      AppLogger.e('${err.type} ${err.requestOptions.path}',
+          tag: 'HTTP', error: err);
     }
     handler.next(err);
   }
@@ -464,7 +478,8 @@ class ApiException extends AppException {
                   : statusCode != null && statusCode >= 500
                       ? ErrorType.server
                       : ErrorType.client,
-          isRetryable: isNetworkError || (statusCode != null && statusCode >= 500),
+          isRetryable:
+              isNetworkError || (statusCode != null && statusCode >= 500),
         );
 
   @override

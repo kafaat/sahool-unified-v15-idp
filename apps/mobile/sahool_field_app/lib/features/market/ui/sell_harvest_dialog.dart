@@ -18,19 +18,21 @@ import '../data/market_repository.dart';
 // =============================================================================
 
 /// إظهار نافذة بيع الحصاد الذكي
-void showSellHarvestDialog(BuildContext context, WidgetRef ref, {Map<String, dynamic>? yieldData}) {
+void showSellHarvestDialog(BuildContext context, WidgetRef ref,
+    {Map<String, dynamic>? yieldData}) {
   // استخدام بيانات تجريبية إذا لم تتوفر بيانات فعلية
-  final data = yieldData ?? {
-    'crop_type': 'Wheat',
-    'crop_type_ar': 'قمح',
-    'predicted_yield_tons': 12.5,
-    'price_per_ton': 320000.0, // سعر الطن بالريال اليمني
-    'harvest_date': '2025-02-15',
-    'quality_grade': 'A',
-    'governorate': 'صنعاء',
-    'ai_confidence': 0.87,
-    'total_value': 12.5 * 320000.0,
-  };
+  final data = yieldData ??
+      {
+        'crop_type': 'Wheat',
+        'crop_type_ar': 'قمح',
+        'predicted_yield_tons': 12.5,
+        'price_per_ton': 320000.0, // سعر الطن بالريال اليمني
+        'harvest_date': '2025-02-15',
+        'quality_grade': 'A',
+        'governorate': 'صنعاء',
+        'ai_confidence': 0.87,
+        'total_value': 12.5 * 320000.0,
+      };
 
   showModalBottomSheet(
     context: context,
@@ -40,7 +42,8 @@ void showSellHarvestDialog(BuildContext context, WidgetRef ref, {Map<String, dyn
       borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
     ),
     builder: (context) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding:
+          EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: _SmartSellHarvestSheet(yieldData: data),
     ),
   );
@@ -74,7 +77,8 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
             ),
             backgroundColor: SahoolColors.forestGreen,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             margin: const EdgeInsets.all(16),
           ),
         );
@@ -167,7 +171,9 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
 
                 // AI Badge
                 _AIConfidenceBadge(
-                  confidence: (yieldData['ai_confidence'] ?? yieldData['confidence'] ?? 0.85) as double,
+                  confidence: (yieldData['ai_confidence'] ??
+                      yieldData['confidence'] ??
+                      0.85) as double,
                 ),
 
                 const SizedBox(height: 24),
@@ -184,19 +190,23 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                     children: [
                       _InvoiceRow(
                         label: 'المحصول',
-                        value: yieldData['crop_type_ar'] ?? yieldData['cropAr'] ?? 'قمح',
+                        value: yieldData['crop_type_ar'] ??
+                            yieldData['cropAr'] ??
+                            'قمح',
                         icon: Icons.grass,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'الكمية المتوقعة',
-                        value: '${yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons']} طن',
+                        value:
+                            '${yieldData['predicted_yield_tons'] ?? yieldData['predictedYieldTons']} طن',
                         icon: Icons.scale,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'سعر السوق الحالي',
-                        value: '${_formatNumber((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0).toDouble())} ر.ي/طن',
+                        value:
+                            '${_formatNumber((yieldData['price_per_ton'] ?? yieldData['marketPrice'] ?? 0).toDouble())} ر.ي/طن',
                         icon: Icons.trending_up,
                       ),
                       const Divider(height: 24),
@@ -208,13 +218,17 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'موعد الحصاد',
-                        value: yieldData['harvest_date'] ?? yieldData['harvestDate'] ?? 'قريباً',
+                        value: yieldData['harvest_date'] ??
+                            yieldData['harvestDate'] ??
+                            'قريباً',
                         icon: Icons.calendar_today,
                       ),
                       const Divider(height: 24),
                       _InvoiceRow(
                         label: 'درجة الجودة',
-                        value: yieldData['quality_grade'] ?? yieldData['qualityGrade'] ?? 'A',
+                        value: yieldData['quality_grade'] ??
+                            yieldData['qualityGrade'] ??
+                            'A',
                         icon: Icons.star,
                         valueColor: SahoolColors.harvestGold,
                       ),
@@ -306,7 +320,9 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
                   child: ElevatedButton(
                     onPressed: state.isLoading
                         ? null
-                        : () => ref.read(marketNotifierProvider.notifier).sellHarvest(yieldData),
+                        : () => ref
+                            .read(marketNotifierProvider.notifier)
+                            .sellHarvest(yieldData),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: SahoolColors.forestGreen,
                       foregroundColor: Colors.white,
@@ -366,8 +382,11 @@ class _SmartSellHarvestSheet extends ConsumerWidget {
   }
 
   double _calculateTotal(Map<String, dynamic> data) {
-    final quantity = (data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0).toDouble();
-    final price = (data['price_per_ton'] ?? data['marketPrice'] ?? 0).toDouble();
+    final quantity =
+        (data['predicted_yield_tons'] ?? data['predictedYieldTons'] ?? 0)
+            .toDouble();
+    final price =
+        (data['price_per_ton'] ?? data['marketPrice'] ?? 0).toDouble();
     return quantity * price;
   }
 

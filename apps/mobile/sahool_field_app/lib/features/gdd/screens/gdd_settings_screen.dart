@@ -122,7 +122,8 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
               value: _selectedCrop,
               decoration: const InputDecoration(
                 border: InputBorder.none,
-                contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 prefixIcon: Icon(Icons.grass),
               ),
               items: CropType.values.map((crop) {
@@ -275,7 +276,8 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
           Card(
             child: ListTile(
               leading: const Icon(Icons.event),
-              title: Text(DateFormat('dd MMMM yyyy', 'ar').format(_plantingDate)),
+              title:
+                  Text(DateFormat('dd MMMM yyyy', 'ar').format(_plantingDate)),
               subtitle: const Text('اضغط للتغيير'),
               onTap: () => _selectPlantingDate(context),
             ),
@@ -439,7 +441,8 @@ class _GDDSettingsScreenState extends ConsumerState<GDDSettingsScreen> {
     final controller = ref.read(gddSettingsControllerProvider.notifier);
 
     // تحقق مما إذا كانت الإعدادات موجودة
-    final existingSettings = await ref.read(gddSettingsProvider(widget.fieldId).future);
+    final existingSettings =
+        await ref.read(gddSettingsProvider(widget.fieldId).future);
 
     final success = existingSettings != null
         ? await controller.updateSettings(widget.fieldId, settings)

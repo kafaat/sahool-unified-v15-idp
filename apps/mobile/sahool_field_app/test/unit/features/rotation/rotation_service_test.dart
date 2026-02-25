@@ -137,13 +137,15 @@ void main() {
           season: 'Spring',
         );
 
-        final compatibility = await service.getCropCompatibility(tomato, potato);
+        final compatibility =
+            await service.getCropCompatibility(tomato, potato);
 
         expect(compatibility.score, lessThan(0.5));
         expect(compatibility.level, 'Avoid');
       });
 
-      test('should return high score for legume followed by heavy feeder', () async {
+      test('should return high score for legume followed by heavy feeder',
+          () async {
         final legume = YemenCrops.crops.firstWhere(
           (c) => c.family == CropFamily.fabaceae,
         );

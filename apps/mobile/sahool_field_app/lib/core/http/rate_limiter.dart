@@ -1,4 +1,4 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'dart:collection';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -79,12 +79,12 @@ class RateLimiter {
         path.contains('/refresh-token')) {
       return 'auth';
     } else if (path.contains('/sync') ||
-               path.contains('/tasks') ||
-               path.contains('/outbox')) {
+        path.contains('/tasks') ||
+        path.contains('/outbox')) {
       return 'sync';
     } else if (path.contains('/upload') ||
-               path.contains('/file') ||
-               path.contains('/attachment')) {
+        path.contains('/file') ||
+        path.contains('/attachment')) {
       return 'upload';
     }
     return 'default';
@@ -177,9 +177,9 @@ class RateLimiter {
       availableTokens: bucket.availableTokens,
       maxTokens: config.maxRequests,
       refillRate: config.maxRequests / config.windowDuration.inSeconds,
-      queuedRequests: _requestQueue.where(
-        (r) => _getEndpointType(r.options.path) == endpointType
-      ).length,
+      queuedRequests: _requestQueue
+          .where((r) => _getEndpointType(r.options.path) == endpointType)
+          .length,
     );
   }
 
@@ -317,7 +317,7 @@ class RateLimitStatus {
   @override
   String toString() {
     return 'RateLimitStatus($endpointType: $availableTokens/$maxTokens tokens, '
-           '${queuedRequests} queued, ${utilizationPercent.toStringAsFixed(1)}% utilized)';
+        '${queuedRequests} queued, ${utilizationPercent.toStringAsFixed(1)}% utilized)';
   }
 }
 
@@ -381,13 +381,15 @@ class RateLimitInterceptor extends Interceptor {
         if (queueExceededRequests) {
           // Wait for token availability
           if (kDebugMode) {
-            AppLogger.d('Rate limit reached, waiting...', tag: 'RateLimiter', data: {'path': options.path});
+            AppLogger.d('Rate limit reached, waiting...',
+                tag: 'RateLimiter', data: {'path': options.path});
           }
 
           await rateLimiter.waitForToken(options.path);
 
           if (kDebugMode) {
-            AppLogger.d('Token acquired, proceeding', tag: 'RateLimiter', data: {'path': options.path});
+            AppLogger.d('Token acquired, proceeding',
+                tag: 'RateLimiter', data: {'path': options.path});
           }
 
           handler.next(options);
@@ -426,7 +428,8 @@ class RateLimitInterceptor extends Interceptor {
     // Check if we should retry based on rate limiting
     if (_shouldRetryWithBackoff(err)) {
       final retryCount = err.requestOptions.extra['retryCount'] as int? ?? 0;
-      final endpointType = rateLimiter._getEndpointType(err.requestOptions.path);
+      final endpointType =
+          rateLimiter._getEndpointType(err.requestOptions.path);
       final config = rateLimiter.getConfig(endpointType);
 
       if (retryCount < config.maxRetries) {

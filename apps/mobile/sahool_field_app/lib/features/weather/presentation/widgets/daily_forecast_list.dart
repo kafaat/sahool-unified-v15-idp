@@ -25,8 +25,7 @@ class DailyForecastList extends StatelessWidget {
           children: [
             for (int i = 0; i < forecasts.length; i++) ...[
               _buildDayRow(context, forecasts[i], isToday: i == 0),
-              if (i < forecasts.length - 1)
-                const Divider(height: 24),
+              if (i < forecasts.length - 1) const Divider(height: 24),
             ],
           ],
         ),

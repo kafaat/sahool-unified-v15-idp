@@ -14,10 +14,12 @@ class FieldMapper {
     // Map boundary from LatLng to GeoLocation
     List<GeoLocation>? boundary;
     if (field.hasBoundary) {
-      boundary = field.boundary.map((latLng) => GeoLocation(
-        latitude: latLng.latitude,
-        longitude: latLng.longitude,
-      )).toList();
+      boundary = field.boundary
+          .map((latLng) => GeoLocation(
+                latitude: latLng.latitude,
+                longitude: latLng.longitude,
+              ))
+          .toList();
     }
 
     // Map centroid to GeoLocation
@@ -70,10 +72,12 @@ class FieldMapper {
     // Map boundary from GeoLocation to LatLng
     List<LatLng> boundary = [];
     if (entity.boundary != null && entity.boundary!.isNotEmpty) {
-      boundary = entity.boundary!.map((geo) => LatLng(
-        geo.latitude,
-        geo.longitude,
-      )).toList();
+      boundary = entity.boundary!
+          .map((geo) => LatLng(
+                geo.latitude,
+                geo.longitude,
+              ))
+          .toList();
     }
 
     // Map center to LatLng

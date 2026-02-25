@@ -13,13 +13,12 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from enum import StrEnum
 from typing import Any
 
 from shared.drift_detection.models import (
     DriftReport,
-    DriftSeverity,
 )
 
 logger = logging.getLogger(__name__)
@@ -28,10 +27,10 @@ logger = logging.getLogger(__name__)
 class GateStage(StrEnum):
     """Quality gate stage | مرحلة بوابة الجودة"""
 
-    PR = "pr"                # Pull request checks
-    MERGE = "merge"          # Merge to main checks
-    DEPLOY = "deploy"        # Deployment checks
-    RUNTIME = "runtime"      # Runtime monitoring
+    PR = "pr"  # Pull request checks
+    MERGE = "merge"  # Merge to main checks
+    DEPLOY = "deploy"  # Deployment checks
+    RUNTIME = "runtime"  # Runtime monitoring
 
 
 class GateStatus(StrEnum):
@@ -54,7 +53,7 @@ class GateCheck:
     name_ar: str
     stage: GateStage
     status: GateStatus = GateStatus.SKIPPED
-    required: bool = True          # If True, failure blocks the pipeline
+    required: bool = True  # If True, failure blocks the pipeline
     description: str = ""
     description_ar: str = ""
     details: str = ""
@@ -71,16 +70,14 @@ class GateResult:
 
     stage: GateStage
     checks: list[GateCheck] = field(default_factory=list)
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    started_at: datetime = field(default_factory=lambda: datetime.now(UTC))
     completed_at: datetime | None = None
 
     @property
     def passed(self) -> bool:
         """Gate passes if all required checks pass."""
         return all(
-            c.status in (GateStatus.PASSED, GateStatus.WARNING, GateStatus.SKIPPED)
-            for c in self.checks
-            if c.required
+            c.status in (GateStatus.PASSED, GateStatus.WARNING, GateStatus.SKIPPED) for c in self.checks if c.required
         )
 
     @property
@@ -287,8 +284,7 @@ class QualityGatesEngine:
                 if drift_report.has_critical or drift_report.high_count > 0:
                     drift_check.status = GateStatus.FAILED
                     drift_check.details = (
-                        f"Found {drift_report.critical_count} critical, "
-                        f"{drift_report.high_count} high severity drifts"
+                        f"Found {drift_report.critical_count} critical, {drift_report.high_count} high severity drifts"
                     )
                 elif drift_report.total_drifts > 0:
                     drift_check.status = GateStatus.WARNING
@@ -297,30 +293,27 @@ class QualityGatesEngine:
                     drift_check.status = GateStatus.PASSED
                     drift_check.details = "No drift detected"
 
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
         self._gate_results[GateStage.PR] = result
         return result
 
     async def evaluate_merge_gate(self) -> GateResult:
         """Evaluate merge-to-main quality gate."""
         result = GateResult(stage=GateStage.MERGE, checks=list(MERGE_GATE_CHECKS))
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
         self._gate_results[GateStage.MERGE] = result
         return result
 
     async def evaluate_deploy_gate(self) -> GateResult:
         """Evaluate deployment quality gate."""
         result = GateResult(stage=GateStage.DEPLOY, checks=list(DEPLOY_GATE_CHECKS))
-        result.completed_at = datetime.now(timezone.utc)
+        result.completed_at = datetime.now(UTC)
         self._gate_results[GateStage.DEPLOY] = result
         return result
 
     def get_all_results(self) -> dict[str, Any]:
         """Get all gate results."""
-        return {
-            stage.value: result.summary()
-            for stage, result in self._gate_results.items()
-        }
+        return {stage.value: result.summary() for stage, result in self._gate_results.items()}
 
     def get_gate_definitions(self) -> dict[str, list[dict[str, Any]]]:
         """Get all gate check definitions for documentation."""

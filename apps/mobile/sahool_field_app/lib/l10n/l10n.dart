@@ -55,7 +55,8 @@ class AppLocalizations {
   bool get isRTL => locale.languageCode == 'ar';
 
   /// Get text direction based on locale
-  TextDirection get textDirection => isRTL ? TextDirection.rtl : TextDirection.ltr;
+  TextDirection get textDirection =>
+      isRTL ? TextDirection.rtl : TextDirection.ltr;
 
   /// Get current language name
   String get languageName {
@@ -160,7 +161,8 @@ class LocalizedLayout {
     final isRTL = context.isRTL;
 
     if (horizontal != null) {
-      return EdgeInsets.symmetric(horizontal: horizontal, vertical: vertical ?? 0);
+      return EdgeInsets.symmetric(
+          horizontal: horizontal, vertical: vertical ?? 0);
     }
 
     if (vertical != null && start == null && end == null) {
@@ -201,7 +203,8 @@ class LocalizedLayout {
   }
 
   /// Get appropriate TextAlign based on text direction
-  TextAlign get defaultTextAlign => context.isRTL ? TextAlign.right : TextAlign.left;
+  TextAlign get defaultTextAlign =>
+      context.isRTL ? TextAlign.right : TextAlign.left;
 
   /// Get appropriate TextAlign (start)
   TextAlign get startAlign => context.isRTL ? TextAlign.right : TextAlign.left;

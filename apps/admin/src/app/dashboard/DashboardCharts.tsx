@@ -88,6 +88,7 @@ export function YieldTrendChart({ data }: YieldTrendChartProps) {
           fill="url(#yieldGradient)"
           strokeWidth={2}
           name="الإنتاج الفعلي"
+          isAnimationActive={false}
         />
         <Line
           type="monotone"
@@ -97,6 +98,7 @@ export function YieldTrendChart({ data }: YieldTrendChartProps) {
           strokeWidth={2}
           dot={false}
           name="التوقعات"
+          isAnimationActive={false}
         />
       </AreaChart>
     </ResponsiveContainer>
@@ -144,18 +146,21 @@ export function WeeklyActivityChart({ data }: WeeklyActivityChartProps) {
           fill={CHART_COLORS.primary}
           radius={[4, 4, 0, 0]}
           name="تشخيصات"
+          isAnimationActive={false}
         />
         <Bar
           dataKey="irrigations"
           fill={CHART_COLORS.info}
           radius={[4, 4, 0, 0]}
           name="عمليات ري"
+          isAnimationActive={false}
         />
         <Bar
           dataKey="alerts"
           fill={CHART_COLORS.danger}
           radius={[4, 4, 0, 0]}
           name="تنبيهات"
+          isAnimationActive={false}
         />
       </BarChart>
     </ResponsiveContainer>
@@ -194,6 +199,7 @@ export function CropDistributionChart({ data }: CropDistributionChartProps) {
             `${name} ${((percent || 0) * 100).toFixed(0)}%`
           }
           labelLine={false}
+          isAnimationActive={false}
         >
           {data.map((_entry, index) => (
             <Cell

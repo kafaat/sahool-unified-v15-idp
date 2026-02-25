@@ -198,9 +198,13 @@ final quickDiseaseDetectionProvider = FutureProvider.family<List<Detection>,
 
 /// Provider for quick plant counting
 /// موفر العد السريع للنباتات
-final quickPlantCountProvider = FutureProvider.family<PlantCountResult,
-    ({Uint8List imageBytes, String? fieldId, double? imageAreaM2})>(
-    (ref, params) async {
+final quickPlantCountProvider = FutureProvider.family<
+    PlantCountResult,
+    ({
+      Uint8List imageBytes,
+      String? fieldId,
+      double? imageAreaM2
+    })>((ref, params) async {
   final service = ref.watch(yolo26ServiceProvider);
   return service.countPlantsDetailed(
     params.imageBytes,

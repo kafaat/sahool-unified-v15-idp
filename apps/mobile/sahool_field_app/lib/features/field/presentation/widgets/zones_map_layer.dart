@@ -351,8 +351,8 @@ class _ZonesMapLayerState extends State<ZonesMapLayer>
               // Zones polygon layer
               PolygonLayer(
                 polygons: widget.zones.map((zone) {
-                  final isSelected =
-                      widget.enableSelection && widget.selectedZone?.id == zone.id;
+                  final isSelected = widget.enableSelection &&
+                      widget.selectedZone?.id == zone.id;
                   final color = _getHealthColor(
                     zone.healthStatus,
                     isSelected: isSelected,

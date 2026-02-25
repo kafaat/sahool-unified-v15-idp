@@ -115,7 +115,8 @@ void example4_checkExpiringCertificates() {
     if (kDebugMode) {
       debugPrint('⚠️ Warning: Certificate pins expiring soon:');
       for (final pin in expiringPins) {
-        debugPrint('   ${pin.domain}: ${pin.daysUntilExpiry} days until expiry');
+        debugPrint(
+            '   ${pin.domain}: ${pin.daysUntilExpiry} days until expiry');
       }
     }
 

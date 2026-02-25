@@ -60,7 +60,8 @@ class ContextCompressor {
     }
 
     final endSize = jsonEncode(compressed).length;
-    final compressionRatio = startSize > 0 ? (endSize / startSize * 100).round() : 0;
+    final compressionRatio =
+        startSize > 0 ? (endSize / startSize * 100).round() : 0;
 
     if (kDebugMode) {
       debugPrint(
@@ -126,7 +127,8 @@ class ContextCompressor {
           result[key] = compressed;
         }
       } else if (value is List) {
-        final filtered = value.whereType<dynamic>().where((v) => v != null).toList();
+        final filtered =
+            value.whereType<dynamic>().where((v) => v != null).toList();
         if (filtered.isNotEmpty) {
           result[key] = filtered;
         }
@@ -198,8 +200,7 @@ class ContextCompressor {
 
     // Check first element
     final first = value.first;
-    return first is List && first.length >= 2 &&
-        first.every((v) => v is num);
+    return first is List && first.length >= 2 && first.every((v) => v is num);
   }
 
   /// Remove duplicate entity references
@@ -257,11 +258,11 @@ class ContextCompressor {
     final limit = aggressive ? 10 : maxHistoryItems;
 
     data.forEach((key, value) {
-      if ((key.contains('history') || key.contains('events')) && value is List) {
+      if ((key.contains('history') || key.contains('events')) &&
+          value is List) {
         // Keep only recent items
-        result[key] = value.length > limit
-            ? value.sublist(value.length - limit)
-            : value;
+        result[key] =
+            value.length > limit ? value.sublist(value.length - limit) : value;
       } else if (value is Map<String, dynamic>) {
         result[key] = _truncateHistory(value, aggressive);
       } else {
@@ -277,10 +278,18 @@ class ContextCompressor {
     Map<String, dynamic> data,
   ) {
     final essential = {
-      'id', 'name', 'tenant_id', 'field_id',
-      'status', 'geometry', 'boundary',
-      'coordinates', 'lat', 'lng',
-      'created_at', 'updated_at',
+      'id',
+      'name',
+      'tenant_id',
+      'field_id',
+      'status',
+      'geometry',
+      'boundary',
+      'coordinates',
+      'lat',
+      'lng',
+      'created_at',
+      'updated_at',
     };
 
     final result = <String, dynamic>{};

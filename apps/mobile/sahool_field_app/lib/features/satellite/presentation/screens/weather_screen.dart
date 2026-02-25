@@ -32,7 +32,9 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
   }
 
   Future<void> _refreshWeather() async {
-    await ref.read(satelliteWeatherProvider.notifier).refreshWeather(widget.fieldId);
+    await ref
+        .read(satelliteWeatherProvider.notifier)
+        .refreshWeather(widget.fieldId);
   }
 
   @override
@@ -333,7 +335,8 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
                               toY: e.value.precipitation.toDouble(),
                               color: const Color(0xFF2196F3),
                               width: 20,
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                              borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(4)),
                             ),
                           ],
                         ))
@@ -495,8 +498,24 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen> {
 
   String _getDayName(DateTime date, bool isArabic) {
     final days = isArabic
-        ? ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
-        : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        ? [
+            'الأحد',
+            'الإثنين',
+            'الثلاثاء',
+            'الأربعاء',
+            'الخميس',
+            'الجمعة',
+            'السبت'
+          ]
+        : [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday'
+          ];
     return days[date.weekday % 7];
   }
 

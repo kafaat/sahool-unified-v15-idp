@@ -20,21 +20,26 @@ import '../create_task_screen.dart';
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /// مزود النشاط المحدد في ويدجت المهام الفلكية
-final astronomicalTaskActivityProvider = StateProvider<String>((ref) => 'زراعة');
+final astronomicalTaskActivityProvider =
+    StateProvider<String>((ref) => 'زراعة');
 
 /// مزود اليوم المحدد
 final selectedAstroDayProvider = StateProvider<BestDay?>((ref) => null);
 
 /// مزود عرض التقويم أو القائمة
-final astroViewModeProvider = StateProvider<AstroViewMode>((ref) => AstroViewMode.calendar);
+final astroViewModeProvider =
+    StateProvider<AstroViewMode>((ref) => AstroViewMode.calendar);
 
 /// مزود التخزين المؤقت للبيانات الفلكية
-final astronomicalCacheProvider = FutureProvider.family<BestDaysResult?, String>((ref, activity) async {
+final astronomicalCacheProvider =
+    FutureProvider.family<BestDaysResult?, String>((ref, activity) async {
   try {
     // محاولة جلب من الخادم أولاً
-    final result = await ref.watch(
-      bestDaysProvider(BestDaysParams(activity: activity, days: 30)),
-    ).future;
+    final result = await ref
+        .watch(
+          bestDaysProvider(BestDaysParams(activity: activity, days: 30)),
+        )
+        .future;
 
     // حفظ في التخزين المؤقت
     await _saveToCache(activity, result);
@@ -149,7 +154,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
                       : _buildListView(context, ref, result);
                 },
                 loading: () => const Center(child: CircularProgressIndicator()),
-                error: (error, stack) => _buildErrorState(context, error.toString()),
+                error: (error, stack) =>
+                    _buildErrorState(context, error.toString()),
               ),
             ),
 
@@ -161,7 +167,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, WidgetRef ref, String activity, AstroViewMode viewMode) {
+  Widget _buildHeader(BuildContext context, WidgetRef ref, String activity,
+      AstroViewMode viewMode) {
     final theme = Theme.of(context);
 
     return Container(
@@ -241,7 +248,9 @@ class AstronomicalTaskWidget extends ConsumerWidget {
                       : Icons.calendar_month,
                   color: Colors.white,
                 ),
-                tooltip: viewMode == AstroViewMode.calendar ? 'عرض القائمة' : 'عرض التقويم',
+                tooltip: viewMode == AstroViewMode.calendar
+                    ? 'عرض القائمة'
+                    : 'عرض التقويم',
               ),
             ],
           ),
@@ -250,7 +259,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildActivitySelector(BuildContext context, WidgetRef ref, String selectedActivity) {
+  Widget _buildActivitySelector(
+      BuildContext context, WidgetRef ref, String selectedActivity) {
     const activities = [
       {'label': 'زراعة', 'icon': Icons.park},
       {'label': 'ري', 'icon': Icons.water_drop},
@@ -304,7 +314,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildCalendarView(BuildContext context, WidgetRef ref, BestDaysResult result) {
+  Widget _buildCalendarView(
+      BuildContext context, WidgetRef ref, BestDaysResult result) {
     final selectedDay = ref.watch(selectedAstroDayProvider);
 
     return Column(
@@ -331,7 +342,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildListView(BuildContext context, WidgetRef ref, BestDaysResult result) {
+  Widget _buildListView(
+      BuildContext context, WidgetRef ref, BestDaysResult result) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: result.bestDays.length,
@@ -361,21 +373,24 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             Icon(
               Icons.event_busy,
               size: 80,
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurfaceVariant
+                  .withOpacity(0.5),
             ),
             const SizedBox(height: 16),
             Text(
               'لا توجد أيام مناسبة',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
               'جرب نشاط آخر أو تحقق من الاتصال بالإنترنت',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -400,15 +415,15 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             Text(
               'خطأ في تحميل البيانات',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                color: Theme.of(context).colorScheme.error,
-              ),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
               'يتم عرض البيانات المخزنة مؤقتاً',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -440,7 +455,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
           height: 50,
           child: ElevatedButton.icon(
             onPressed: selectedDay != null
-                ? () => _createTaskFromDay(context, ref, selectedDay, selectedActivity)
+                ? () => _createTaskFromDay(
+                    context, ref, selectedDay, selectedActivity)
                 : null,
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF367C2B),
@@ -506,7 +522,8 @@ class AstronomicalTaskWidget extends ConsumerWidget {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تم إنشاء مهمة $activity في ${_formatDate(day.date)}'),
+            content:
+                Text('تم إنشاء مهمة $activity في ${_formatDate(day.date)}'),
             backgroundColor: const Color(0xFF367C2B),
             action: SnackBarAction(
               label: 'عرض',
@@ -572,7 +589,15 @@ class _CalendarGrid extends StatelessWidget {
   }
 
   Widget _buildWeekdayHeaders(BuildContext context) {
-    const weekdays = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+    const weekdays = [
+      'أحد',
+      'اثنين',
+      'ثلاثاء',
+      'أربعاء',
+      'خميس',
+      'جمعة',
+      'سبت'
+    ];
 
     return Row(
       children: weekdays.map((day) {
@@ -611,9 +636,7 @@ class _CalendarGrid extends StatelessWidget {
                 height: 48,
                 margin: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: isSelected
-                      ? scoreColor
-                      : scoreColor.withOpacity(0.3),
+                  color: isSelected ? scoreColor : scoreColor.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
                       ? Border.all(color: scoreColor, width: 2)
@@ -797,7 +820,8 @@ class _DayDetailsCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: scoreColor.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -1043,7 +1067,8 @@ class _DayListTile extends StatelessWidget {
 
               // الدرجة
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
                   color: scoreColor.withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),

@@ -90,7 +90,8 @@ class _ProfitabilityDashboardScreenState
                       ElevatedButton.icon(
                         onPressed: _refresh,
                         icon: const Icon(Icons.refresh),
-                        label: Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
+                        label:
+                            Text(locale == 'ar' ? 'إعادة المحاولة' : 'Retry'),
                       ),
                     ],
                   ),
@@ -112,7 +113,8 @@ class _ProfitabilityDashboardScreenState
                           const SizedBox(height: 16),
 
                           // Profit Margin
-                          _buildProfitMarginCard(seasonState.data!, currencyFormat),
+                          _buildProfitMarginCard(
+                              seasonState.data!, currencyFormat),
                           const SizedBox(height: 16),
 
                           // Top Performing Crops
@@ -128,7 +130,8 @@ class _ProfitabilityDashboardScreenState
     );
   }
 
-  Widget _buildSummaryCards(SeasonSummary summary, NumberFormat currencyFormat) {
+  Widget _buildSummaryCards(
+      SeasonSummary summary, NumberFormat currencyFormat) {
     return Row(
       children: [
         Expanded(
@@ -201,7 +204,8 @@ class _ProfitabilityDashboardScreenState
     );
   }
 
-  Widget _buildProfitMarginCard(SeasonSummary summary, NumberFormat currencyFormat) {
+  Widget _buildProfitMarginCard(
+      SeasonSummary summary, NumberFormat currencyFormat) {
     final theme = Theme.of(context);
     final isProfitable = summary.netProfit > 0;
 

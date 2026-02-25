@@ -63,7 +63,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
               onPressed: _isSubmitting ? null : _submitTask,
               child: const Text(
                 'حفظ',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -162,7 +163,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
                             ),
                           )
                         : const Icon(Icons.add_task),
-                    label: Text(_isSubmitting ? 'جاري الحفظ...' : 'إنشاء المهمة'),
+                    label:
+                        Text(_isSubmitting ? 'جاري الحفظ...' : 'إنشاء المهمة'),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -453,7 +455,8 @@ class _CreateTaskScreenState extends ConsumerState<CreateTaskScreen> {
       final fullDescription = [
         if (_descriptionController.text.isNotEmpty) _descriptionController.text,
         'نوع المهمة: $taskTypeLabel',
-        if (_notesController.text.isNotEmpty) 'ملاحظات: ${_notesController.text}',
+        if (_notesController.text.isNotEmpty)
+          'ملاحظات: ${_notesController.text}',
       ].join('\n');
 
       // Create task using provider

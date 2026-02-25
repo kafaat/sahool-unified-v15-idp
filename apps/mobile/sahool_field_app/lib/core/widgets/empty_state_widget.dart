@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Reusable Empty State Widget
 /// Displays when lists or data are empty
-/// 
+///
 /// واجهة الحالة الفارغة - تُعرض عندما لا توجد بيانات
 class EmptyStateWidget extends StatelessWidget {
   final String title;
@@ -36,11 +36,12 @@ class EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isRtl = Directionality.of(context) == TextDirection.rtl;
-    
+
     // Use Arabic text if RTL and Arabic text provided
     final displayTitle = isRtl && titleAr != null ? titleAr! : title;
     final displayMessage = isRtl && messageAr != null ? messageAr! : message;
-    final displayActionLabel = isRtl && actionLabelAr != null ? actionLabelAr : actionLabel;
+    final displayActionLabel =
+        isRtl && actionLabelAr != null ? actionLabelAr : actionLabel;
 
     return Center(
       child: Padding(

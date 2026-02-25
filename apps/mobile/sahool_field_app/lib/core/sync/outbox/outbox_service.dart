@@ -224,7 +224,8 @@ class OutboxService {
         updatedAt: now,
       );
     } catch (e) {
-      AppLogger.w('Failed to aggregate update', tag: 'OUTBOX', data: {'error': e.toString()});
+      AppLogger.w('Failed to aggregate update',
+          tag: 'OUTBOX', data: {'error': e.toString()});
       return null;
     }
   }
@@ -429,13 +430,17 @@ class OutboxService {
       }
     }
 
-    final pendingResult = await _db.customSelect(
-      'SELECT COUNT(*) as count FROM outbox WHERE is_synced = 0',
-    ).getSingle();
+    final pendingResult = await _db
+        .customSelect(
+          'SELECT COUNT(*) as count FROM outbox WHERE is_synced = 0',
+        )
+        .getSingle();
 
-    final failedResult = await _db.customSelect(
-      'SELECT COUNT(*) as count FROM outbox WHERE is_synced = 0 AND retry_count > 0',
-    ).getSingle();
+    final failedResult = await _db
+        .customSelect(
+          'SELECT COUNT(*) as count FROM outbox WHERE is_synced = 0 AND retry_count > 0',
+        )
+        .getSingle();
 
     final completedTodayResult = await _db.customSelect(
       '''

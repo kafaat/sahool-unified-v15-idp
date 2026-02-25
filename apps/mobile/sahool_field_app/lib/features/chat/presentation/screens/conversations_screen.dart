@@ -20,7 +20,8 @@ class ConversationsScreen extends ConsumerStatefulWidget {
   const ConversationsScreen({super.key});
 
   @override
-  ConsumerState<ConversationsScreen> createState() => _ConversationsScreenState();
+  ConsumerState<ConversationsScreen> createState() =>
+      _ConversationsScreenState();
 }
 
 class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
@@ -63,7 +64,8 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
 
     return conversations.where((conversation) {
       // Search by contact name
-      final displayName = conversation.getDisplayName(currentUserId).toLowerCase();
+      final displayName =
+          conversation.getDisplayName(currentUserId).toLowerCase();
       if (displayName.contains(_searchQuery)) {
         return true;
       }
@@ -175,7 +177,8 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
         onRefresh: () async {
           await ref.read(chatProvider.notifier).refreshConversations();
         },
-        child: _buildBody(state, currentUserId, _filterConversations(state.conversations, currentUserId)),
+        child: _buildBody(state, currentUserId,
+            _filterConversations(state.conversations, currentUserId)),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showNewConversationDialog(context),
@@ -185,7 +188,8 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
     );
   }
 
-  Widget _buildBody(ChatState state, String currentUserId, List<Conversation> filteredConversations) {
+  Widget _buildBody(ChatState state, String currentUserId,
+      List<Conversation> filteredConversations) {
     if (state.isLoading && state.conversations.isEmpty) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -214,7 +218,9 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                ref.read(chatProvider.notifier).loadConversations(forceRefresh: true);
+                ref
+                    .read(chatProvider.notifier)
+                    .loadConversations(forceRefresh: true);
               },
               icon: const Icon(Icons.refresh),
               label: const Text('إعادة المحاولة'),
@@ -373,15 +379,17 @@ class _ConversationsScreenState extends ConsumerState<ConversationsScreen> {
                     return null;
                   },
                   textInputAction: TextInputAction.done,
-                  onFieldSubmitted: isLoading ? null : (_) => _startConversation(
-                    dialogContext,
-                    userIdController,
-                    formKey,
-                    setDialogState,
-                    () => isLoading,
-                    (value) => isLoading = value,
-                    (value) => errorText = value,
-                  ),
+                  onFieldSubmitted: isLoading
+                      ? null
+                      : (_) => _startConversation(
+                            dialogContext,
+                            userIdController,
+                            formKey,
+                            setDialogState,
+                            () => isLoading,
+                            (value) => isLoading = value,
+                            (value) => errorText = value,
+                          ),
                 ),
                 const SizedBox(height: 8),
                 Text(

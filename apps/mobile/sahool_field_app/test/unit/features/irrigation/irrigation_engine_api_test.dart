@@ -29,8 +29,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(samplePivotConfigJson()));
         });
 
@@ -72,8 +72,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson(statusData));
         });
 
@@ -99,8 +99,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'status': 'accepted',
             'command': 'start',
@@ -142,8 +142,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'accepted'}));
         });
 
@@ -163,14 +163,15 @@ void main() {
       test('should handle command rejection', () async {
         // Arrange
         when(() => mockGateway.post<Map<String, dynamic>>(
-              any(),
-              any(),
-              data: any(named: 'data'),
-              queryParams: any(named: 'queryParams'),
-              fromJson: any(named: 'fromJson'),
-              cancelToken: any(named: 'cancelToken'),
-            )).thenAnswer((_) async =>
-                errorResponse<Map<String, dynamic>>('COMMAND_REJECTED', 'Pivot is in emergency stop'));
+                  any(),
+                  any(),
+                  data: any(named: 'data'),
+                  queryParams: any(named: 'queryParams'),
+                  fromJson: any(named: 'fromJson'),
+                  cancelToken: any(named: 'cancelToken'),
+                ))
+            .thenAnswer((_) async => errorResponse<Map<String, dynamic>>(
+                'COMMAND_REJECTED', 'Pivot is in emergency stop'));
 
         // Act
         final result = await api.sendCommand(
@@ -194,8 +195,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'total_water_m3': 2500,
             'total_runtime_hours': 45,
@@ -230,8 +231,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'total_water_m3': 10000}));
         });
 
@@ -259,8 +260,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({
             'pivot_id': 'pivot-001',
             'schedules': [
@@ -297,8 +298,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'updated'}));
         });
 
@@ -331,11 +332,19 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as List<dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as List<dynamic> Function(dynamic);
           return ApiResponse.success(fromJson([
-            {'id': 'run-1', 'started_at': '2026-02-15T06:00:00Z', 'water_m3': 200},
-            {'id': 'run-2', 'started_at': '2026-02-12T06:00:00Z', 'water_m3': 185},
+            {
+              'id': 'run-1',
+              'started_at': '2026-02-15T06:00:00Z',
+              'water_m3': 200
+            },
+            {
+              'id': 'run-2',
+              'started_at': '2026-02-12T06:00:00Z',
+              'water_m3': 185
+            },
           ]));
         });
 
@@ -373,8 +382,8 @@ void main() {
               fromJson: any(named: 'fromJson'),
               cancelToken: any(named: 'cancelToken'),
             )).thenAnswer((_) async {
-          final fromJson =
-              _.namedArguments[const Symbol('fromJson')] as Map<String, dynamic> Function(dynamic);
+          final fromJson = _.namedArguments[const Symbol('fromJson')]
+              as Map<String, dynamic> Function(dynamic);
           return ApiResponse.success(fromJson({'status': 'updated'}));
         });
 

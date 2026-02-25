@@ -25,15 +25,17 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   late TabController _tabController;
 
   /// Returns the field entity, or a minimal placeholder when only fieldId was provided
-  FieldEntity get _field => widget.field ?? FieldEntity(
-    id: widget.fieldId!,
-    tenantId: '',
-    name: 'Field ${widget.fieldId}',
-    areaHectares: 0,
-    cropType: '',
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
-  );
+  FieldEntity get _field =>
+      widget.field ??
+      FieldEntity(
+        id: widget.fieldId!,
+        tenantId: '',
+        name: 'Field ${widget.fieldId}',
+        areaHectares: 0,
+        cropType: '',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
 
   @override
   void initState() {
@@ -325,9 +327,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildInfoRow(Icons.landscape, 'نوع التربة', _field.soilType ?? 'غير محدد'),
+            _buildInfoRow(
+                Icons.landscape, 'نوع التربة', _field.soilType ?? 'غير محدد'),
             const Divider(),
-            _buildInfoRow(Icons.water_drop, 'نظام الري', _field.irrigationType ?? 'غير محدد'),
+            _buildInfoRow(Icons.water_drop, 'نظام الري',
+                _field.irrigationType ?? 'غير محدد'),
             if (_field.lastIrrigation != null) ...[
               const Divider(),
               _buildInfoRow(
@@ -736,7 +740,8 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         child: Icon(icon, color: color, size: 20),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(description, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+      subtitle: Text(description,
+          style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(

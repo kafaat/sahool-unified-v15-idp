@@ -240,14 +240,16 @@ class _ExperimentCard extends StatelessWidget {
               // Info Row
               Row(
                 children: [
-                  Icon(Icons.person_outline, size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.person_outline,
+                      size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
                     experiment.principalResearcher,
                     style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                   ),
                   const SizedBox(width: 16),
-                  Icon(Icons.calendar_today, size: 16, color: Colors.grey.shade600),
+                  Icon(Icons.calendar_today,
+                      size: 16, color: Colors.grey.shade600),
                   const SizedBox(width: 4),
                   Text(
                     _formatDate(experiment.startDate),
@@ -267,7 +269,8 @@ class _ExperimentCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: experiment.progress,
                           backgroundColor: Colors.grey.shade200,
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.indigo),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Colors.indigo),
                           minHeight: 6,
                         ),
                       ),
@@ -374,7 +377,8 @@ class ExperimentDetailsScreen extends StatelessWidget {
                 final result = await Navigator.push<Experiment>(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => EditExperimentScreen(experiment: experiment),
+                    builder: (context) =>
+                        EditExperimentScreen(experiment: experiment),
                   ),
                 );
                 // Handle result when returning - pop details screen if experiment was updated
@@ -393,7 +397,8 @@ class ExperimentDetailsScreen extends StatelessWidget {
           children: [
             // Title Card
             Card(
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -543,11 +548,14 @@ class ExperimentDetailsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         // Demo plots list
-        ...List.generate(3, (index) => _PlotListItem(
-          plotCode: 'B-${(index + 1).toString().padLeft(2, '0')}',
-          treatmentCode: 'T${index + 1}',
-          lastObservation: DateTime.now().subtract(Duration(days: index)),
-        )),
+        ...List.generate(
+            3,
+            (index) => _PlotListItem(
+                  plotCode: 'B-${(index + 1).toString().padLeft(2, '0')}',
+                  treatmentCode: 'T${index + 1}',
+                  lastObservation:
+                      DateTime.now().subtract(Duration(days: index)),
+                )),
       ],
     );
   }
@@ -956,7 +964,8 @@ class _SearchResultCard extends StatelessWidget {
             const SizedBox(height: 4),
             Row(
               children: [
-                Icon(Icons.person_outline, size: 14, color: Colors.grey.shade500),
+                Icon(Icons.person_outline,
+                    size: 14, color: Colors.grey.shade500),
                 const SizedBox(width: 4),
                 Text(
                   experiment.principalResearcher,

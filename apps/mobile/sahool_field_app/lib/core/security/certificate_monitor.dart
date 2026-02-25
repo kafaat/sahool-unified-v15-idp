@@ -41,7 +41,8 @@ class _CertificateMonitorWidgetState extends State<CertificateMonitorWidget> {
     // For now, use the config
     _pins = CertificateConfig.getProductionPins();
     _expiringPins = widget.pinningService!.getExpiringPins(daysThreshold: 60);
-    _validationIssues = CertificateRotationHelper.validatePinConfiguration(_pins!);
+    _validationIssues =
+        CertificateRotationHelper.validatePinConfiguration(_pins!);
 
     setState(() {});
   }
@@ -322,7 +323,8 @@ class _CertificateMonitorWidgetState extends State<CertificateMonitorWidget> {
                 buffer.writeln('  CertificatePin(');
                 buffer.writeln('    type: PinType.sha256,');
                 buffer.writeln("    value: '${info.sha256Fingerprint}',");
-                buffer.writeln('    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
+                buffer.writeln(
+                    '    expiryDate: DateTime(${info.validUntil.year}, ${info.validUntil.month}, ${info.validUntil.day}),');
                 buffer.writeln('  ),');
                 buffer.writeln('],');
               }

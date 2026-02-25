@@ -350,9 +350,11 @@ class _RotationPlanScreenState extends ConsumerState<RotationPlanScreen> {
               if (year.yieldAmount != null) ...[
                 Row(
                   children: [
-                    const Icon(Icons.agriculture, size: 16, color: Colors.green),
+                    const Icon(Icons.agriculture,
+                        size: 16, color: Colors.green),
                     const SizedBox(width: 4),
-                    Text('Yield: ${year.yieldAmount!.toStringAsFixed(1)} tons/ha'),
+                    Text(
+                        'Yield: ${year.yieldAmount!.toStringAsFixed(1)} tons/ha'),
                   ],
                 ),
                 const SizedBox(height: 8),

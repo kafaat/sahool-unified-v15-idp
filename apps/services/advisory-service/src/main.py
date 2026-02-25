@@ -137,6 +137,13 @@ if REVOCATION_AVAILABLE:
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ============== Health Check ==============
 

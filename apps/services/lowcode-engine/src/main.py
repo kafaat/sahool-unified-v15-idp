@@ -1057,6 +1057,13 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Tenant Validation Helper

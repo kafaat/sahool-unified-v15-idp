@@ -326,6 +326,13 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 # Register weather endpoints
 from .weather_endpoints import register_weather_endpoints
 

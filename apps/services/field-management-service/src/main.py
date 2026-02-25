@@ -128,6 +128,13 @@ except ImportError as e:
 except Exception as e:
     logger.warning(f"Failed to setup rate limiting: {e}")
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 
 # ============== Health Check ==============
 

@@ -352,6 +352,13 @@ add_request_id_middleware(app)
 # Setup CORS
 setup_cors(app)
 
+# Add tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+    app.add_middleware(TenantContextMiddleware)
+except ImportError:
+    pass
+
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
     from fastapi import Request

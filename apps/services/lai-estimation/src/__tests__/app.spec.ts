@@ -1,5 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
+
+// Set JWT_SECRET_KEY for AuthModule.forRoot() validation
+process.env.JWT_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars";
+
 import { AppModule } from "../app.module";
 
 describe("LAIEstimation (AppModule)", () => {
@@ -15,7 +19,9 @@ describe("LAIEstimation (AppModule)", () => {
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it("should be defined", () => {

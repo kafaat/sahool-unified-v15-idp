@@ -136,18 +136,36 @@ jobs:
       - name: Install test dependencies
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-cov pytest-asyncio numpy
-          pip install fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog
+          # Install core test dependencies with mirror fallback
+          pip install --timeout=300 --retries=5 \
+            --index-url https://pypi.org/simple \
+            --trusted-host pypi.org \
+            --trusted-host files.pythonhosted.org \
+            pytest pytest-cov pytest-asyncio numpy \
+            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil || \
+          pip install --timeout=300 --retries=5 \
+            -i https://mirrors.aliyun.com/pypi/simple/ \
+            --trusted-host mirrors.aliyun.com \
+            pytest pytest-cov pytest-asyncio numpy \
+            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil || \
+          pip install --timeout=300 --retries=5 \
+            -i https://mirrors.cloud.tencent.com/pypi/simple \
+            --trusted-host mirrors.cloud.tencent.com \
+            pytest pytest-cov pytest-asyncio numpy \
+            fastapi httpx uvicorn pydantic sqlalchemy nats-py structlog \
+            psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil
 
       - name: Run NDVI Processor Tests
         run: |
           echo "Running NDVI Processor tests..."
-          pytest apps/services/ndvi-processor/tests/ -v --tb=short
+          PYTHONPATH=$PWD pytest apps/services/ndvi-processor/tests/ -v --tb=short
 
       - name: Run Alert Service Tests
         run: |
           echo "Running Alert Service tests..."
-          cd apps/services/alert-service && pytest tests/ -v --tb=short || {
+          PYTHONPATH=$PWD pytest apps/services/alert-service/tests/ -v --tb=short || {
             rc=$?; if [ $rc -eq 5 ]; then echo "⚠ No tests collected (skipped), continuing"; else exit $rc; fi
           }
 
@@ -165,7 +183,7 @@ jobs:
             echo "--- Testing $svc ---"
             COV_ARGS="--cov=apps/services"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
-            python -m pytest "apps/services/$svc/tests/" -v --tb=short \
+            PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
               -c pytest.ini $COV_ARGS --cov-report= --cov-fail-under=0 || {
               rc=$?
               echo "⚠ pytest exited with code $rc for $svc, continuing"

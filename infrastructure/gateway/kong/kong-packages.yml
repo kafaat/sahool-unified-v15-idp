@@ -49,7 +49,9 @@ services:
             config:
               minute: 100
               hour: 5000
-              policy: local
+              policy: redis
+              redis_host: kong-redis
+              redis_port: 6379
               fault_tolerant: true
           - name: response-transformer
             config:

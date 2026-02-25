@@ -24,8 +24,17 @@ plugins:
       # SECURITY: In production, set environment variable KONG_CORS_ORIGINS to:
       # "https://app.sahool.com,https://admin.sahool.com,https://mobile.sahool.com"
       # For development, "*" is used
+      # PRODUCTION: Override via KONG_CORS_ORIGINS env var
+      # DEVELOPMENT: Falls back to localhost origins
       origins:
-        - "*"  # Replace with ${KONG_CORS_ORIGINS:-*} in production
+        - "https://app.sahool.com"
+        - "https://admin.sahool.com"
+        - "https://mobile.sahool.com"
+        - "https://app.sahool.io"
+        - "https://admin.sahool.io"
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "http://localhost:5173"
       methods:
         - GET
         - POST
@@ -47,9 +56,8 @@ plugins:
         - X-Correlation-Id
         - X-RateLimit-Limit-Minute
         - X-RateLimit-Remaining-Minute
-      # SECURITY FIX: credentials cannot be true with wildcard origin
-      # Set to false for development, true only with specific origins in production
-      credentials: false
+      # credentials: true is now safe since origins are explicitly listed (not wildcard)
+      credentials: true
       max_age: 3600
       preflight_continue: false
 
@@ -152,7 +160,9 @@ services:
         config:
           minute: 30
           hour: 500
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # User Service - Protected Routes (requires JWT in production)
@@ -175,7 +185,9 @@ services:
         config:
           minute: 100
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # User Service - Health endpoints (no auth, no rate limit)
@@ -289,10 +301,11 @@ services:
         strip_path: true
         protocols: ["http", "https"]
 
-  # Community Chat - Posts and community features
+  # Community Chat - DEPRECATED: Merged into chat-service (2026-01-15)
+  # Routes preserved for backward compatibility, pointing to chat-service
   - name: community-chat
-    host: community-chat
-    port: 8097
+    host: chat-service
+    port: 8000
     protocol: http
     routes:
       - name: community-chat-route
@@ -687,6 +700,16 @@ services:
         paths: ["/api/v1/mcp", "/mcp"]
         strip_path: true
         protocols: ["http", "https"]
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - enterprise-users
+            - research-users
 
   - name: skills-service
     host: skills-service
@@ -932,7 +955,9 @@ services:
         config:
           minute: 30
           hour: 500
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Copilot API - AI copilot for agricultural advisory
@@ -954,7 +979,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # LLM Orchestrator Service - AI model orchestration
@@ -977,7 +1004,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Pest Detection Service - AI pest detection
@@ -995,11 +1024,22 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -1022,7 +1062,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Supply Chain Service - Agricultural supply chain management
@@ -1041,7 +1083,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Traceability Service - Product traceability and tracking
@@ -1061,7 +1105,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Cooperative Service - Farmer cooperative management
@@ -1080,7 +1126,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Drone Service - Agricultural drone integration
@@ -1107,7 +1155,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Ground Vision Service - Tower-based agricultural monitoring
@@ -1126,11 +1176,22 @@ services:
         strip_path: true
         protocols: ["http", "https"]
     plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
       - name: rate-limiting
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -1235,7 +1296,9 @@ services:
         config:
           minute: 60
           hour: 3000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: request-size-limiting
         config:
@@ -1307,7 +1370,9 @@ services:
         config:
           minute: 30
           hour: 1500
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: response-transformer
         config:
@@ -1364,7 +1429,9 @@ services:
         config:
           minute: 30
           hour: 1500
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: response-transformer
         config:
@@ -1421,7 +1488,9 @@ services:
         config:
           minute: 30
           hour: 1500
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: response-transformer
         config:
@@ -1478,7 +1547,9 @@ services:
         config:
           minute: 60
           hour: 3000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
       - name: response-transformer
         config:
@@ -1526,7 +1597,9 @@ services:
         config:
           minute: 120
           hour: 5000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
   # Agro Rules Worker - عامل القواعد الزراعية
@@ -1546,7 +1619,9 @@ services:
         config:
           minute: 60
           hour: 2000
-          policy: local
+          policy: redis
+          redis_host: kong-redis
+          redis_port: 6379
           fault_tolerant: true
 
 # ------------------------------------------------------------------------------

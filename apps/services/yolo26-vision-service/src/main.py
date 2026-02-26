@@ -24,7 +24,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.api.endpoints import analysis, batch, detection, models
 from src.api.schemas import ErrorResponse, HealthStatus, ReadinessStatus
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 from src.core.config import settings
 from src.core.errors import VisionError, vision_error_handler
@@ -224,7 +229,8 @@ app.add_middleware(
 )
 
 # Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # Request ID Middleware

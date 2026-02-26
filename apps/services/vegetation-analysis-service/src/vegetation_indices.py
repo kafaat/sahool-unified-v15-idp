@@ -361,8 +361,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B04_red == 0:
             return 0.0
-        value = (b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red)
-        return round(max(-1.0, min(1.0, value)), 4)
+        result = (b.B08_nir - b.B04_red) / (b.B08_nir + b.B04_red)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def ndwi(self, b: BandData) -> float:
         """
@@ -372,8 +372,8 @@ class VegetationIndicesCalculator:
         """
         if b.B08_nir + b.B11_swir1 == 0:
             return 0.0
-        value = (b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1)
-        return round(max(-1.0, min(1.0, value)), 4)
+        result = (b.B08_nir - b.B11_swir1) / (b.B08_nir + b.B11_swir1)
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def evi(self, b: BandData) -> float:
         """
@@ -385,7 +385,8 @@ class VegetationIndicesCalculator:
         denominator = b.B08_nir + 6 * b.B04_red - 7.5 * b.B02_blue + 1
         if denominator == 0:
             return 0.0
-        return round(2.5 * (b.B08_nir - b.B04_red) / denominator, 4)
+        result = 2.5 * (b.B08_nir - b.B04_red) / denominator
+        return round(max(-1.0, min(1.0, result)), 4)
 
     def savi(self, b: BandData, L: float = 0.5) -> float:
         """

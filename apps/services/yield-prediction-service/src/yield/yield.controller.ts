@@ -19,6 +19,7 @@ import {
   YieldService,
   ActionTemplate,
   PreHarvestAlertResponse,
+  FEATURE_SCHEMA,
 } from "./yield.service";
 
 const VALID_GOVERNORATES = [
@@ -39,6 +40,15 @@ const VALID_CROP_TYPES = ["wheat", "coffee", "sorghum", "tomato"] as const;
 @UseGuards(JwtAuthGuard)
 export class YieldController {
   constructor(private readonly yieldService: YieldService) {}
+
+  @Get("feature-schema")
+  @ApiOperation({
+    summary: "Get ML feature schema",
+    description: "Return the feature schema definition for data drift monitoring",
+  })
+  getFeatureSchema() {
+    return FEATURE_SCHEMA;
+  }
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Predict Field Yield - التنبؤ بإنتاجية الحقل

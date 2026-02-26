@@ -1,35 +1,32 @@
 {
   "version": 1,
-  "generated_at": "2026-02-24T13:48:12.660395+00:00",
+  "generated_at": "2026-02-26T02:00:00.000000+00:00",
   "environment": "development",
-  "total": 194,
-  "critical": 12,
-  "high": 67,
+  "total": 400,
+  "critical": 6,
+  "high": 384,
   "by_category": {
     "config": {
-      "medium": 1
+      "high": 376
     },
     "schema": {
-      "critical": 6,
-      "high": 35,
-      "medium": 6,
+      "critical": 4,
+      "high": 1,
+      "medium": 10,
       "info": 1
     },
     "api": {
-      "critical": 1,
-      "high": 5
+      "high": 3
     },
     "event": {
       "high": 4,
       "medium": 82
     },
     "data": {
-      "high": 4,
-      "medium": 3
+      "medium": 7
     },
     "security": {
-      "critical": 5,
-      "high": 19,
+      "critical": 2,
       "medium": 22
     }
   }

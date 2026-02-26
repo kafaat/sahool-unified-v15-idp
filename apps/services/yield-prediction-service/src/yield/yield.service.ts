@@ -71,21 +71,30 @@ export interface PreHarvestAlertResponse {
   nats_topic: string;
 }
 
-// ML feature schema for yield prediction pipeline
+// ═══════════════════════════════════════════════════════════════════════════════
+// Feature Schema Definition (v1.0)
+// تعريف مخطط المدخلات للكشف عن انحراف البيانات
+// ═══════════════════════════════════════════════════════════════════════════════
+
 export const FEATURE_SCHEMA = {
-  prediction_inputs: {
-    ndvi: { type: "float", range: [-1, 1], description: "Normalized Difference Vegetation Index" },
-    weather_factor: { type: "float", range: [0, 1], description: "Weather quality factor" },
-    soil_factor: { type: "float", range: [0, 1], description: "Soil quality factor" },
-    crop_type: { type: "enum", values: ["wheat", "coffee", "sorghum", "tomato"] },
-    area_hectares: { type: "float", range: [0.01, 10000], description: "Field area in hectares" },
-    growth_days: { type: "int", range: [1, 365], description: "Days since planting" },
+  version: "1.0.0",
+  service: "yield-prediction-service",
+  features: {
+    ndvi: { type: "float", min: -1.0, max: 1.0, unit: "index", typicalHealthy: [0.3, 0.9] },
+    areaHectares: { type: "float", min: 0.01, max: 10000, unit: "ha" },
+    growthStagePercent: { type: "float", min: 0, max: 100, unit: "%" },
+    historicalYieldKgHa: { type: "float", min: 0, max: 50000, unit: "kg/ha", optional: true },
+    waterStressFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    diseaseFactor: { type: "float", min: 0, max: 1, unit: "factor" },
+    grainMoisture: { type: "float", min: 0, max: 100, unit: "%" },
+    canopyTemperature: { type: "float", min: -10, max: 60, unit: "°C" },
+    cropType: { type: "enum", values: ["wheat", "coffee", "sorghum", "tomato", "barley", "date_palm", "mango", "grape"] },
   },
-  prediction_outputs: {
-    yield_per_hectare_kg: { type: "float", range: [0, 100000], description: "Predicted yield (kg/ha)" },
-    confidence_percent: { type: "float", range: [0, 100], description: "Prediction confidence" },
+  qualityRequirements: {
+    minConfidence: 0.5,
+    maxObservationAgeDays: 14,
   },
-} as const;
+};
 
 // Crop data constants
 const CROP_DATA: Record<

@@ -562,11 +562,12 @@ class TestStatsAndHealth:
     @pytest.mark.asyncio
     async def test_get_stats(self, revocation_store):
         """Test getting revocation statistics"""
-        revocation_store._redis.keys = AsyncMock(
+        # scan() returns (cursor, keys) tuples; cursor=0 means done
+        revocation_store._redis.scan = AsyncMock(
             side_effect=[
-                ["revoked:token:jti1", "revoked:token:jti2"],
-                ["revoked:user:user1"],
-                ["revoked:tenant:tenant1"],
+                (0, ["revoked:token:jti1", "revoked:token:jti2"]),
+                (0, ["revoked:user:user1"]),
+                (0, ["revoked:tenant:tenant1"]),
             ]
         )
 
@@ -580,7 +581,7 @@ class TestStatsAndHealth:
     @pytest.mark.asyncio
     async def test_get_stats_error(self, revocation_store):
         """Test stats retrieval with Redis error"""
-        revocation_store._redis.keys = AsyncMock(side_effect=Exception("Redis error"))
+        revocation_store._redis.scan = AsyncMock(side_effect=Exception("Redis error"))
 
         stats = await revocation_store.get_stats()
 

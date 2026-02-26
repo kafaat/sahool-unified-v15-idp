@@ -229,6 +229,7 @@ def create_app() -> FastAPI:
             "status": "running",
             "docs": "/docs",
             "health": "/healthz",
+            "readiness": "/readyz",
         }
 
     # Info endpoint

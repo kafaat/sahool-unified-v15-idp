@@ -567,11 +567,11 @@ class OTPService:
                 # Use sorted set for rate limiting
                 rate_key_zset = f"{rate_key}:requests"
 
-                # Remove old entries
-                self._redis_client._master.zremrangebyscore(rate_key_zset, "-inf", window_start)
+                # Remove old entries using public API
+                self._redis_client.zremrangebyscore(rate_key_zset, "-inf", window_start)
 
-                # Count current requests
-                request_count = self._redis_client._master.zcard(rate_key_zset)
+                # Count current requests using public API
+                request_count = self._redis_client.zcard(rate_key_zset, use_slave=False)
 
                 if request_count >= RATE_LIMIT_MAX_REQUESTS:
                     return False, 0
@@ -593,11 +593,11 @@ class OTPService:
                 now = time.time()
                 rate_key_zset = f"{rate_key}:requests"
 
-                # Add current timestamp to sorted set
-                self._redis_client._master.zadd(rate_key_zset, {str(now): now})
+                # Add current timestamp to sorted set using public API
+                self._redis_client.zadd(rate_key_zset, {str(now): now})
 
-                # Set expiration on the key
-                self._redis_client._master.expire(rate_key_zset, RATE_LIMIT_WINDOW_SECONDS * 2)
+                # Set expiration on the key using public API
+                self._redis_client.expire(rate_key_zset, RATE_LIMIT_WINDOW_SECONDS * 2)
             else:
                 await self._in_memory_storage.record_request(rate_key)
         except Exception as e:

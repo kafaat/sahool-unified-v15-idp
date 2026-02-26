@@ -51,7 +51,12 @@ class RedisSentinelConfig:
         self.sentinel_ports = [26379, 26380, 26381]  # Multiple sentinel ports
 
         # Redis configuration
-        self.password = os.getenv("REDIS_PASSWORD", "redis_password")
+        self.password = os.getenv("REDIS_PASSWORD")
+        if not self.password:
+            logger.warning(
+                "REDIS_PASSWORD environment variable is not set. "
+                "Redis authentication will fail in production."
+            )
         self.master_name = os.getenv("REDIS_MASTER_NAME", "sahool-master")
         self.db = int(os.getenv("REDIS_DB", "0"))
 
@@ -477,6 +482,35 @@ class RedisSentinelClient:
     def zrem(self, name: str, *values: Any) -> int:
         """إزالة عناصر من مجموعة مرتبة"""
         return self._execute_with_retry(self._master.zrem, name, *values)
+
+    def zcard(self, name: str, use_slave: bool = True) -> int:
+        """الحصول على عدد عناصر المجموعة المرتبة"""
+        conn = self._slave if use_slave else self._master
+        return self._execute_with_retry(conn.zcard, name)
+
+    def zremrangebyscore(
+        self,
+        name: str,
+        min_score: float | str,
+        max_score: float | str,
+    ) -> int:
+        """إزالة عناصر من مجموعة مرتبة حسب النتيجة"""
+        return self._execute_with_retry(
+            self._master.zremrangebyscore, name, min_score, max_score
+        )
+
+    def scan_iter(self, match: str = "*", count: int = 100):
+        """
+        مسح المفاتيح بشكل تدريجي (بديل آمن لـ KEYS)
+
+        Args:
+            match: نمط المطابقة
+            count: عدد المفاتيح المقترح لكل دفعة
+
+        Yields:
+            المفاتيح المطابقة
+        """
+        return self._master.scan_iter(match=match, count=count)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Pipeline Operations

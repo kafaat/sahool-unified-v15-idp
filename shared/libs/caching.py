@@ -135,12 +135,18 @@ class RedisCache:
         self._redis_url = redis_url
 
     async def initialize(self) -> None:
-        """Initialize Redis connection"""
+        """Initialize Redis connection with pooling and timeouts"""
         if self._redis is None:
             self._redis = await aioredis.from_url(
                 self._redis_url,
                 encoding="utf-8",
                 decode_responses=True,
+                max_connections=50,
+                socket_timeout=5,
+                socket_connect_timeout=5,
+                socket_keepalive=True,
+                health_check_interval=30,
+                retry_on_timeout=True,
             )
             logger.info("Redis cache initialized")
 
@@ -187,13 +193,17 @@ class RedisCache:
         await self._redis.delete(key)
 
     async def clear(self, pattern: str = "*") -> None:
-        """Clear cache by pattern"""
+        """Clear cache by pattern using SCAN (safe for production)"""
         if not self._redis:
             await self.initialize()
 
-        keys = await self._redis.keys(pattern)
-        if keys:
-            await self._redis.delete(*keys)
+        cursor = 0
+        while True:
+            cursor, keys = await self._redis.scan(cursor, match=pattern, count=100)
+            if keys:
+                await self._redis.delete(*keys)
+            if cursor == 0:
+                break
 
     async def exists(self, key: str) -> bool:
         """Check if key exists in cache"""

@@ -343,6 +343,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # Note: weather-core removed (deprecated, archived to archive/deprecated-services/)
         service:
           - field-management-service
           - vegetation-analysis-service

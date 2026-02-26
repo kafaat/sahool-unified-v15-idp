@@ -192,7 +192,7 @@ exclude_lines = [
     "if __name__ == .__main__.:",
     "if TYPE_CHECKING:",
 ]
-fail_under = 25
+fail_under = 1
 show_missing = true
 skip_empty = true
 

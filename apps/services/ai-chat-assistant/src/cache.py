@@ -181,24 +181,31 @@ class CacheManager:
             logger.error(f"Error invalidating cache: {e}")
 
     async def get_stats(self) -> dict:
-        """Get cache statistics."""
+        """Get cache statistics using SCAN (safe for production)."""
         try:
             if not self.redis_client:
                 return {}
 
-            # Get all cache keys
             pattern = f"{self.namespace}:*"
-            keys = await self.redis_client.keys(pattern)
-
-            total_entries = len(keys)
+            total_entries = 0
             total_hits = 0
+            cursor = 0
 
-            # Calculate total hits
-            for key in keys:
-                data = await self.redis_client.get(key)
-                if data:
-                    cached = json.loads(data)
-                    total_hits += cached.get("hit_count", 0)
+            while True:
+                cursor, keys = await self.redis_client.scan(cursor, match=pattern, count=100)
+                total_entries += len(keys)
+                if keys:
+                    # Use pipeline to batch GET requests
+                    pipe = self.redis_client.pipeline()
+                    for key in keys:
+                        pipe.get(key)
+                    results = await pipe.execute()
+                    for data in results:
+                        if data:
+                            cached = json.loads(data)
+                            total_hits += cached.get("hit_count", 0)
+                if cursor == 0:
+                    break
 
             return {
                 "total_entries": total_entries,

@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../../../core/map/sahool_tile_provider.dart';
-
 import '../../../../core/geo/geojson.dart';
+import '../../../ndvi/domain/spectral_index.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -31,10 +31,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   bool _showZones = true;
   bool _showNdvi = false;
   bool _showNdwi = false;
+  bool _showEvi = false;
+  bool _showSavi = false;
+  bool _showNdre = false;
   bool _showGpsTrack = false;
   bool _isTracking = false;
   String? _selectedZoneId;
   double _currentZoom = 15.0;
+
+  /// Currently active spectral index for legend display
+  SpectralIndex? get _activeIndex {
+    if (_showNdvi) return SpectralIndex.ndvi;
+    if (_showNdwi) return SpectralIndex.ndwi;
+    if (_showEvi) return SpectralIndex.evi;
+    if (_showSavi) return SpectralIndex.savi;
+    if (_showNdre) return SpectralIndex.ndre;
+    return null;
+  }
 
   /// Map controller for programmatic camera control
   late final MapController _mapController;
@@ -216,47 +229,9 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ],
           ),
 
-        // NDVI colored overlay (mock zones for visualization)
-        if (_showNdvi && _fieldBoundary.isNotEmpty)
-          PolygonLayer(
-            polygons: [
-              Polygon(
-                points: _fieldBoundary,
-                color: Colors.green.withOpacity(0.35),
-                borderColor: Colors.green[700]!,
-                borderStrokeWidth: 2,
-                isFilled: true,
-                label: 'NDVI: 0.72',
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
-                ),
-              ),
-            ],
-          ),
-
-        // NDWI overlay
-        if (_showNdwi && _fieldBoundary.isNotEmpty)
-          PolygonLayer(
-            polygons: [
-              Polygon(
-                points: _fieldBoundary,
-                color: Colors.blue.withOpacity(0.3),
-                borderColor: Colors.blue[700]!,
-                borderStrokeWidth: 2,
-                isFilled: true,
-                label: 'NDWI: -0.05',
-                labelStyle: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
-                ),
-              ),
-            ],
-          ),
+        // Spectral index overlays using SpectralColormap
+        if (_fieldBoundary.isNotEmpty)
+          ..._buildSpectralOverlays(),
 
         // Center marker
         MarkerLayer(
@@ -296,6 +271,49 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  /// Build spectral index polygon overlays using SpectralColormap
+  List<Widget> _buildSpectralOverlays() {
+    final overlays = <Widget>[];
+
+    // Map of active toggles to their index and mock values
+    final activeIndices = <SpectralIndex, double>{
+      if (_showNdvi) SpectralIndex.ndvi: 0.72,
+      if (_showNdwi) SpectralIndex.ndwi: -0.05,
+      if (_showEvi) SpectralIndex.evi: 0.58,
+      if (_showSavi) SpectralIndex.savi: 0.45,
+      if (_showNdre) SpectralIndex.ndre: 0.35,
+    };
+
+    for (final entry in activeIndices.entries) {
+      final idx = entry.key;
+      final value = entry.value;
+      final color = SpectralColormap.getColor(idx, value);
+
+      overlays.add(
+        PolygonLayer(
+          polygons: [
+            Polygon(
+              points: _fieldBoundary,
+              color: color.withOpacity(0.35),
+              borderColor: color,
+              borderStrokeWidth: 2,
+              isFilled: true,
+              label: '${idx.code}: ${value.toStringAsFixed(2)}',
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return overlays;
+  }
+
   Widget _buildToolbar() {
     return Card(
       elevation: 4,
@@ -328,17 +346,41 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               onPressed: () => setState(() => _showZones = !_showZones),
               tooltip: 'المناطق',
             ),
+            // Spectral index toggles
             _buildToolButton(
-              icon: Icons.grass,
+              icon: SpectralIndex.ndvi.icon,
               isActive: _showNdvi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndvi, 0.6),
               onPressed: () => setState(() => _showNdvi = !_showNdvi),
               tooltip: 'NDVI',
             ),
             _buildToolButton(
-              icon: Icons.water_drop,
+              icon: SpectralIndex.ndwi.icon,
               isActive: _showNdwi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndwi, 0.4),
               onPressed: () => setState(() => _showNdwi = !_showNdwi),
               tooltip: 'NDWI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.evi.icon,
+              isActive: _showEvi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.evi, 0.5),
+              onPressed: () => setState(() => _showEvi = !_showEvi),
+              tooltip: 'EVI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.savi.icon,
+              isActive: _showSavi,
+              activeColor: SpectralColormap.getColor(SpectralIndex.savi, 0.5),
+              onPressed: () => setState(() => _showSavi = !_showSavi),
+              tooltip: 'SAVI',
+            ),
+            _buildToolButton(
+              icon: SpectralIndex.ndre.icon,
+              isActive: _showNdre,
+              activeColor: SpectralColormap.getColor(SpectralIndex.ndre, 0.4),
+              onPressed: () => setState(() => _showNdre = !_showNdre),
+              tooltip: 'NDRE',
             ),
             const Divider(height: 16),
             _buildToolButton(
@@ -436,9 +478,24 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildIndicator('NDVI', '0.72', Colors.green),
-                _buildIndicator('NDWI', '-0.05', Colors.blue),
-                _buildIndicator('NDRE', '0.28', Colors.orange),
+                _buildIndicator('NDVI', '0.72',
+                    SpectralColormap.getColor(SpectralIndex.ndvi, 0.72)),
+                _buildIndicator('NDWI', '-0.05',
+                    SpectralColormap.getColor(SpectralIndex.ndwi, -0.05)),
+                _buildIndicator('NDRE', '0.28',
+                    SpectralColormap.getColor(SpectralIndex.ndre, 0.28)),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildIndicator('EVI', '0.58',
+                    SpectralColormap.getColor(SpectralIndex.evi, 0.58)),
+                _buildIndicator('SAVI', '0.45',
+                    SpectralColormap.getColor(SpectralIndex.savi, 0.45)),
+                _buildIndicator('LAI', '3.2',
+                    SpectralColormap.getColor(SpectralIndex.lai, 3.2)),
               ],
             ),
             const SizedBox(height: 16),
@@ -494,7 +551,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   Widget _buildLegend() {
-    if (!_showNdvi && !_showNdwi) return const SizedBox.shrink();
+    final idx = _activeIndex;
+    if (idx == null) return const SizedBox.shrink();
 
     return Card(
       elevation: 4,
@@ -505,9 +563,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(idx.icon, size: 16,
+                    color: SpectralColormap.getColor(idx, 0.6)),
+                const SizedBox(width: 6),
+                Text(
+                  idx.code,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
             Text(
-              _showNdvi ? 'NDVI' : 'NDWI',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              idx.nameAr,
+              style: TextStyle(fontSize: 10, color: Colors.grey[600]),
             ),
             const SizedBox(height: 8),
             Container(
@@ -516,35 +587,26 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 gradient: LinearGradient(
-                  colors: _showNdvi
-                      ? [
-                          Colors.red,
-                          Colors.yellow,
-                          Colors.green,
-                          Colors.green[800]!,
-                        ]
-                      : [
-                          Colors.brown,
-                          Colors.yellow,
-                          Colors.blue,
-                          Colors.blue[800]!,
-                        ],
+                  colors: SpectralColormap.generateGradient(idx, steps: 20),
                 ),
               ),
             ),
             const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _showNdvi ? '0' : '-1',
-                  style: const TextStyle(fontSize: 10),
-                ),
-                Text(
-                  _showNdvi ? '1' : '1',
-                  style: const TextStyle(fontSize: 10),
-                ),
-              ],
+            SizedBox(
+              width: 150,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    idx.minValue.toStringAsFixed(1),
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                  Text(
+                    idx.maxValue.toStringAsFixed(1),
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -615,23 +677,41 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 },
                 activeColor: const Color(0xFF367C2B),
               ),
+              // Spectral index toggles
               SwitchListTile(
-                secondary: const Icon(Icons.grass),
-                title: const Text('طبقة NDVI'),
+                secondary: Icon(SpectralIndex.ndvi.icon),
+                title: const Text('طبقة NDVI - الغطاء النباتي'),
                 value: _showNdvi,
-                onChanged: (v) {
-                  setState(() => _showNdvi = v);
-                },
+                onChanged: (v) => setState(() => _showNdvi = v),
                 activeColor: const Color(0xFF367C2B),
               ),
               SwitchListTile(
-                secondary: const Icon(Icons.water_drop),
-                title: const Text('طبقة NDWI'),
+                secondary: Icon(SpectralIndex.ndwi.icon),
+                title: const Text('طبقة NDWI - محتوى المياه'),
                 value: _showNdwi,
-                onChanged: (v) {
-                  setState(() => _showNdwi = v);
-                },
-                activeColor: const Color(0xFF367C2B),
+                onChanged: (v) => setState(() => _showNdwi = v),
+                activeColor: const Color(0xFF1E90FF),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.evi.icon),
+                title: const Text('طبقة EVI - النبات المحسّن'),
+                value: _showEvi,
+                onChanged: (v) => setState(() => _showEvi = v),
+                activeColor: const Color(0xFF2E8B57),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.savi.icon),
+                title: const Text('طبقة SAVI - المعدّل للتربة'),
+                value: _showSavi,
+                onChanged: (v) => setState(() => _showSavi = v),
+                activeColor: const Color(0xFF6B8E23),
+              ),
+              SwitchListTile(
+                secondary: Icon(SpectralIndex.ndre.icon),
+                title: const Text('طبقة NDRE - النيتروجين'),
+                value: _showNdre,
+                onChanged: (v) => setState(() => _showNdre = v),
+                activeColor: const Color(0xFF32CD32),
               ),
               const SizedBox(height: 16),
             ],

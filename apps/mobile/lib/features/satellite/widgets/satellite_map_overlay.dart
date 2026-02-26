@@ -1,9 +1,10 @@
 /// Satellite Map Overlay Widget - ودجت تراكب خريطة الأقمار الصناعية
-/// Map overlay showing NDVI visualization on field polygon
+/// Map overlay showing spectral index visualization on field polygon
 library;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import '../../ndvi/domain/spectral_index.dart';
 
 class SatelliteMapOverlay extends StatefulWidget {
   final String? imageUrl;
@@ -13,6 +14,12 @@ class SatelliteMapOverlay extends StatefulWidget {
   final ValueChanged<double>? onOpacityChanged;
   final VoidCallback? onTap;
 
+  /// Optional: map of all available index values for this field
+  final Map<SpectralIndex, double>? indexValues;
+
+  /// Callback when user selects a different index
+  final ValueChanged<SpectralIndex>? onIndexChanged;
+
   const SatelliteMapOverlay({
     super.key,
     this.imageUrl,
@@ -21,6 +28,8 @@ class SatelliteMapOverlay extends StatefulWidget {
     this.captureDate,
     this.onOpacityChanged,
     this.onTap,
+    this.indexValues,
+    this.onIndexChanged,
   });
 
   @override
@@ -31,6 +40,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
     with SingleTickerProviderStateMixin {
   double _opacity = 0.85;
   bool _showControls = false;
+  SpectralIndex _selectedIndex = SpectralIndex.ndvi;
   late final AnimationController _pulseController;
   late final Animation<double> _pulseAnimation;
 
@@ -44,7 +54,7 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-    // Pulse the NDVI badge briefly to draw attention
+    // Pulse the badge briefly to draw attention
     _pulseController.forward().then((_) => _pulseController.reverse());
   }
 
@@ -54,9 +64,28 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
     super.dispose();
   }
 
+  /// Get the current value for the selected index
+  double get _currentValue {
+    if (widget.indexValues != null &&
+        widget.indexValues!.containsKey(_selectedIndex)) {
+      return widget.indexValues![_selectedIndex]!;
+    }
+    // Fallback to ndviValue for backward compatibility
+    if (_selectedIndex == SpectralIndex.ndvi) return widget.ndviValue;
+    return 0.0;
+  }
+
+  /// Whether multi-index mode is available
+  bool get _hasMultipleIndices =>
+      widget.indexValues != null && widget.indexValues!.length > 1;
+
   @override
   Widget build(BuildContext context) {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+    final value = _currentValue;
+    final indexColor = SpectralColormap.getColor(_selectedIndex, value);
+    final healthLabel = SpectralColormap.getHealthLabel(
+        _selectedIndex, value, isArabic);
 
     return GestureDetector(
       onTap: () {
@@ -65,7 +94,9 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        height: _showControls ? 260 : 200,
+        height: _showControls
+            ? (_hasMultipleIndices ? 300 : 260)
+            : 200,
         decoration: BoxDecoration(
           color: Colors.grey[200],
           borderRadius: BorderRadius.circular(12),
@@ -91,35 +122,39 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
-                    progressIndicatorBuilder: (context, url, downloadProgress) {
+                    progressIndicatorBuilder:
+                        (context, url, downloadProgress) {
                       return Center(
                         child: CircularProgressIndicator(
                           value: downloadProgress.progress,
-                          valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF367C2B)),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF367C2B)),
                         ),
                       );
                     },
-                    errorWidget: (context, _, __) => _buildPlaceholder(isArabic),
+                    errorWidget: (context, _, __) =>
+                        _buildPlaceholder(isArabic),
                   ),
                 ),
               )
             else
               _buildPlaceholder(isArabic),
 
-            // NDVI badge with pulse animation
+            // Index badge with pulse animation
             Positioned(
               top: 12,
               right: 12,
               child: ScaleTransition(
                 scale: _pulseAnimation,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: _getNdviColor(widget.ndviValue),
+                    color: indexColor,
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: _getNdviColor(widget.ndviValue).withOpacity(0.4),
+                        color: indexColor.withOpacity(0.4),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -128,17 +163,24 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      const Text(
-                        'NDVI',
-                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
+                      Text(
+                        _selectedIndex.code,
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        widget.ndviValue.toStringAsFixed(2),
-                        style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        value.toStringAsFixed(2),
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        _getHealthLabel(widget.ndviValue, isArabic),
-                        style: const TextStyle(color: Colors.white70, fontSize: 10),
+                        healthLabel,
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 10),
                       ),
                     ],
                   ),
@@ -152,7 +194,8 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                 top: 12,
                 left: 60,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.black54,
                     borderRadius: BorderRadius.circular(8),
@@ -160,11 +203,13 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.calendar_today, size: 12, color: Colors.white70),
+                      const Icon(Icons.calendar_today,
+                          size: 12, color: Colors.white70),
                       const SizedBox(width: 4),
                       Text(
                         '${widget.captureDate!.day}/${widget.captureDate!.month}/${widget.captureDate!.year}',
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 11),
                       ),
                     ],
                   ),
@@ -189,7 +234,8 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                     ],
                   ),
                   child: IconButton(
-                    icon: const Icon(Icons.refresh, color: Color(0xFF367C2B)),
+                    icon: const Icon(Icons.refresh,
+                        color: Color(0xFF367C2B)),
                     onPressed: widget.onRefresh,
                     iconSize: 20,
                     tooltip: isArabic ? 'تحديث' : 'Refresh',
@@ -197,9 +243,11 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                 ),
               ),
 
-            // Gradient legend (replaces discrete dots)
+            // Gradient legend with index-specific colors
             Positioned(
-              bottom: _showControls ? 60 : 12,
+              bottom: _showControls
+                  ? (_hasMultipleIndices ? 100 : 60)
+                  : 12,
               left: 12,
               right: 12,
               child: AnimatedSlide(
@@ -213,32 +261,45 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                   ),
                   child: Column(
                     children: [
-                      // Gradient bar
+                      // Gradient bar from SpectralColormap
                       Container(
                         height: 12,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6),
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFFF44336), // Critical
-                              Color(0xFFFF9800), // Poor
-                              Color(0xFFFFC107), // Fair
-                              Color(0xFF8BC34A), // Good
-                              Color(0xFF4CAF50), // Excellent
-                            ],
+                          gradient: LinearGradient(
+                            colors: SpectralColormap.generateGradient(
+                                _selectedIndex,
+                                steps: 20),
                           ),
                         ),
                       ),
                       const SizedBox(height: 4),
-                      // Labels
+                      // Range labels
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(isArabic ? 'حرج' : 'Critical', style: const TextStyle(color: Colors.white70, fontSize: 9)),
-                          Text(isArabic ? 'ضعيف' : 'Poor', style: const TextStyle(color: Colors.white70, fontSize: 9)),
-                          Text(isArabic ? 'متوسط' : 'Fair', style: const TextStyle(color: Colors.white70, fontSize: 9)),
-                          Text(isArabic ? 'جيد' : 'Good', style: const TextStyle(color: Colors.white70, fontSize: 9)),
-                          Text(isArabic ? 'ممتاز' : 'Excellent', style: const TextStyle(color: Colors.white70, fontSize: 9)),
+                          Text(
+                            _selectedIndex.minValue
+                                .toStringAsFixed(1),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 9),
+                          ),
+                          Text(
+                            isArabic
+                                ? _selectedIndex.nameAr
+                                : _selectedIndex.code,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            _selectedIndex.maxValue
+                                .toStringAsFixed(1),
+                            style: const TextStyle(
+                                color: Colors.white70, fontSize: 9),
+                          ),
                         ],
                       ),
                     ],
@@ -247,27 +308,122 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
               ),
             ),
 
-            // Opacity slider (shown on tap)
-            if (_showControls)
+            // Controls panel (shown on tap)
+            if (_showControls) ...[
+              // Index selector chips (when multiple indices available)
+              if (_hasMultipleIndices)
+                Positioned(
+                  bottom: 56,
+                  left: 12,
+                  right: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.75),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children:
+                            widget.indexValues!.keys.map((idx) {
+                          final isActive = idx == _selectedIndex;
+                          final chipColor =
+                              SpectralColormap.getColor(idx, 0.6);
+                          return Padding(
+                            padding:
+                                const EdgeInsets.only(left: 6),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(
+                                    () => _selectedIndex = idx);
+                                widget.onIndexChanged?.call(idx);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(
+                                    milliseconds: 200),
+                                padding:
+                                    const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: isActive
+                                      ? chipColor
+                                      : chipColor.withOpacity(0.2),
+                                  borderRadius:
+                                      BorderRadius.circular(16),
+                                  border: isActive
+                                      ? Border.all(
+                                          color: Colors.white,
+                                          width: 1.5)
+                                      : null,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(idx.icon,
+                                        size: 14,
+                                        color: isActive
+                                            ? Colors.white
+                                            : chipColor),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      idx.code,
+                                      style: TextStyle(
+                                        color: isActive
+                                            ? Colors.white
+                                            : chipColor,
+                                        fontSize: 11,
+                                        fontWeight:
+                                            FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (isActive) ...[
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        widget
+                                            .indexValues![idx]!
+                                            .toStringAsFixed(2),
+                                        style: const TextStyle(
+                                          color: Colors.white70,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ),
+
+              // Opacity slider
               Positioned(
                 bottom: 12,
                 left: 12,
                 right: 12,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.75),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.opacity, size: 16, color: Colors.white70),
+                      const Icon(Icons.opacity,
+                          size: 16, color: Colors.white70),
                       Expanded(
                         child: Slider(
                           value: _opacity,
                           min: 0.1,
                           max: 1.0,
-                          activeColor: const Color(0xFF4CAF50),
+                          activeColor: indexColor,
                           inactiveColor: Colors.white24,
                           onChanged: (value) {
                             setState(() => _opacity = value);
@@ -277,12 +433,14 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
                       ),
                       Text(
                         '${(_opacity * 100).toInt()}%',
-                        style: const TextStyle(color: Colors.white, fontSize: 11),
+                        style: const TextStyle(
+                            color: Colors.white, fontSize: 11),
                       ),
                     ],
                   ),
                 ),
               ),
+            ],
           ],
         ),
       ),
@@ -321,10 +479,10 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
   }
 
   Color _getNdviColor(double ndvi) {
-    if (ndvi >= 0.8) return const Color(0xFF4CAF50); // Excellent - Dark Green
-    if (ndvi >= 0.6) return const Color(0xFF8BC34A); // Good - Light Green
-    if (ndvi >= 0.4) return const Color(0xFFFFC107); // Fair - Yellow
-    if (ndvi >= 0.2) return const Color(0xFFFF9800); // Poor - Orange
-    return const Color(0xFFF44336); // Critical - Red
+    if (ndvi >= 0.8) return const Color(0xFF4CAF50);
+    if (ndvi >= 0.6) return const Color(0xFF8BC34A);
+    if (ndvi >= 0.4) return const Color(0xFFFFC107);
+    if (ndvi >= 0.2) return const Color(0xFFFF9800);
+    return const Color(0xFFF44336);
   }
 }

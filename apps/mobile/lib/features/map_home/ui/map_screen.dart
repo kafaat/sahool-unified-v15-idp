@@ -8,6 +8,7 @@ import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
+import '../../ndvi/domain/spectral_index.dart';
 import '../../tasks/ui/widgets/daily_tasks_sheet.dart';
 import 'widgets/field_context_panel.dart';
 
@@ -37,11 +38,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
 
+  /// Active spectral index for overlay coloring
+  SpectralIndex _activeSpectralIndex = SpectralIndex.ndvi;
+
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
     MapLayerOption('الخريطة', Icons.map, false),
     MapLayerOption('NDVI', Icons.grass, false),
-    MapLayerOption('الرطوبة', Icons.water_drop, false),
+    MapLayerOption('NDWI', Icons.water_drop, false),
+    MapLayerOption('EVI', Icons.park, false),
+    MapLayerOption('SAVI', Icons.landscape, false),
   ];
 
   @override
@@ -217,14 +223,28 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Widget _buildMapPlaceholder() {
     // Determine tile URL based on selected layer
     final String tileUrl;
+    // Is a spectral index layer active? (indices 2-5: NDVI, NDWI, EVI, SAVI)
+    final bool isSpectralLayer = _selectedLayerIndex >= 2 && _selectedLayerIndex <= 5;
     switch (_selectedLayerIndex) {
       case 0: // Satellite
         tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
         break;
-      case 2: // NDVI - use satellite as base
+      case 2: // NDVI
+      case 3: // NDWI
+      case 4: // EVI
+      case 5: // SAVI
+        // Use satellite imagery as base for spectral overlays
         tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+        _activeSpectralIndex = const [
+          SpectralIndex.ndvi,
+          SpectralIndex.ndvi,
+          SpectralIndex.ndvi,
+          SpectralIndex.ndwi,
+          SpectralIndex.evi,
+          SpectralIndex.savi,
+        ][_selectedLayerIndex];
         break;
-      default: // Map / Moisture
+      default: // Map
         tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
     }
 
@@ -248,15 +268,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           tileProvider: SahoolTileProvider(),
         ),
 
-        // NDVI colored polygons overlay (when NDVI layer selected)
-        if (_selectedLayerIndex == 2)
+        // Spectral index colored polygons overlay (NDVI/NDWI/EVI/SAVI layers)
+        if (isSpectralLayer)
           PolygonLayer(
             polygons: _filteredFields.asMap().entries.map((entry) {
               final idx = entry.key;
               final field = entry.value;
               if (idx >= _fieldLocations.length) return null;
               final loc = _fieldLocations[idx];
-              final color = _getNdviColor(field.ndvi);
+              final color = _getIndexColor(field.ndvi);
               // Create a small polygon around each field location
               const offset = 0.005;
               return Polygon(
@@ -270,6 +290,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 borderColor: color,
                 borderStrokeWidth: 2,
                 isFilled: true,
+                label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
+                labelStyle: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+                ),
               );
             }).whereType<Polygon>().toList(),
           ),
@@ -305,11 +332,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }).whereType<Marker>().toList();
   }
 
-  Color _getNdviColor(double ndvi) {
-    if (ndvi >= 0.7) return Colors.green[700]!;
-    if (ndvi >= 0.5) return Colors.lightGreen;
-    if (ndvi >= 0.3) return Colors.orange;
-    return Colors.red;
+  Color _getIndexColor(double value) {
+    return SpectralColormap.getColor(_activeSpectralIndex, value);
   }
 
   /// تحديد حقل

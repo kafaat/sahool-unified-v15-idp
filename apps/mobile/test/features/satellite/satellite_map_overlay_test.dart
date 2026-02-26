@@ -4,13 +4,15 @@
 /// - StatefulWidget with animation
 /// - Opacity control slider
 /// - Gradient legend
-/// - NDVI badge with pulse animation
+/// - Index badge with pulse animation (NDVI, NDWI, EVI, SAVI, NDRE, LAI)
+/// - Multi-index selector
 /// - Capture date display
 /// - Health label (bilingual)
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sahool_field_app/features/ndvi/domain/spectral_index.dart';
 import 'package:sahool_field_app/features/satellite/widgets/satellite_map_overlay.dart';
 
 void main() {
@@ -186,10 +188,11 @@ void main() {
       expect(find.textContaining('جيد'), findsOneWidget);
     });
 
-    testWidgets('should show Fair for NDVI >= 0.4', (tester) async {
+    testWidgets('should show Fair/Moderate for NDVI >= 0.4', (tester) async {
       await tester.pumpWidget(createTestWidget(ndviValue: 0.45));
       await tester.pumpAndSettle();
 
+      // SpectralColormap uses 'مقبول' for Fair
       expect(find.textContaining('مقبول'), findsOneWidget);
     });
 
@@ -213,14 +216,112 @@ void main() {
   // ═══════════════════════════════════════════════════════════════════════════
 
   group('SatelliteMapOverlay Legend', () {
-    testWidgets('should display gradient legend with bilingual labels',
+    testWidgets('should display gradient legend with range labels',
         (tester) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Legend should have indicator labels (low/high vegetation)
-      // Check for NDVI range indicators
-      expect(find.textContaining('0.0'), findsWidgets);
+      // Legend should show NDVI range labels
+      expect(find.textContaining('-1.0'), findsWidgets);
+      expect(find.textContaining('1.0'), findsWidgets);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Multi-Index Tests
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  group('SatelliteMapOverlay Multi-Index', () {
+    testWidgets('should show index selector chips when multiple indices provided',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar'), Locale('en')],
+        home: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: SatelliteMapOverlay(
+                ndviValue: 0.72,
+                onOpacityChanged: (_) {},
+                onTap: () {},
+                indexValues: const {
+                  SpectralIndex.ndvi: 0.72,
+                  SpectralIndex.ndwi: -0.05,
+                  SpectralIndex.evi: 0.58,
+                },
+                onIndexChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap to show controls
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pumpAndSettle();
+
+      // Should show index chips
+      expect(find.text('NDVI'), findsWidgets);
+      expect(find.text('NDWI'), findsOneWidget);
+      expect(find.text('EVI'), findsOneWidget);
+    });
+
+    testWidgets('should NOT show index chips with single index',
+        (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar'), Locale('en')],
+        home: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: SatelliteMapOverlay(
+                ndviValue: 0.72,
+                onOpacityChanged: (_) {},
+                onTap: () {},
+                indexValues: const {SpectralIndex.ndvi: 0.72},
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Tap to show controls
+      await tester.tap(find.byType(GestureDetector).first);
+      await tester.pumpAndSettle();
+
+      // Should NOT show NDWI, EVI chips (only single index)
+      expect(find.text('NDWI'), findsNothing);
+      expect(find.text('EVI'), findsNothing);
+    });
+
+    testWidgets('should display NDVI by default', (tester) async {
+      await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar'), Locale('en')],
+        home: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            body: SingleChildScrollView(
+              child: SatelliteMapOverlay(
+                ndviValue: 0.72,
+                indexValues: const {
+                  SpectralIndex.ndvi: 0.72,
+                  SpectralIndex.ndwi: -0.05,
+                },
+              ),
+            ),
+          ),
+        ),
+      ));
+      await tester.pumpAndSettle();
+
+      // Badge should show NDVI by default
+      expect(find.text('NDVI'), findsWidgets);
+      expect(find.text('0.72'), findsOneWidget);
     });
   });
 

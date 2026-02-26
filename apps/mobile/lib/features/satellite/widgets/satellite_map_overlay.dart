@@ -447,14 +447,6 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
     );
   }
 
-  String _getHealthLabel(double ndvi, bool isArabic) {
-    if (ndvi >= 0.8) return isArabic ? 'ممتاز' : 'Excellent';
-    if (ndvi >= 0.6) return isArabic ? 'جيد' : 'Good';
-    if (ndvi >= 0.4) return isArabic ? 'متوسط' : 'Fair';
-    if (ndvi >= 0.2) return isArabic ? 'ضعيف' : 'Poor';
-    return isArabic ? 'حرج' : 'Critical';
-  }
-
   Widget _buildPlaceholder(bool isArabic) {
     return Center(
       child: Column(
@@ -476,13 +468,5 @@ class _SatelliteMapOverlayState extends State<SatelliteMapOverlay>
         ],
       ),
     );
-  }
-
-  Color _getNdviColor(double ndvi) {
-    if (ndvi >= 0.8) return const Color(0xFF4CAF50);
-    if (ndvi >= 0.6) return const Color(0xFF8BC34A);
-    if (ndvi >= 0.4) return const Color(0xFFFFC107);
-    if (ndvi >= 0.2) return const Color(0xFFFF9800);
-    return const Color(0xFFF44336);
   }
 }

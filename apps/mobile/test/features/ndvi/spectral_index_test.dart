@@ -361,6 +361,8 @@ void main() {
 
     testWidgets('should show gradient legend when visible', (tester) async {
       await tester.pumpWidget(MaterialApp(
+        locale: const Locale('ar'),
+        supportedLocales: const [Locale('ar'), Locale('en')],
         home: Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(

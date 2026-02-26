@@ -93,8 +93,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pump();
 
-      // Sync indicator should be present (badge or icon)
-      expect(find.byIcon(Icons.cloud_done), findsWidgets);
+      // Sync indicator should be present (cloud_upload when pendingSync > 0)
+      expect(find.byIcon(Icons.cloud_upload), findsWidgets);
     });
   });
 }

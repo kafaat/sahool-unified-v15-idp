@@ -40,12 +40,14 @@ RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../ne
 # Must build AFTER service npm install so peer deps (@nestjs/common etc.) are available
 # Install nestjs-auth peer deps needed for tsc compilation
 RUN cd /workspace/crop-growth-model && \
-    npm install --no-save redis @nestjs/passport passport passport-jwt @nestjs/jwt ioredis @liaoliaots/nestjs-redis 2>/dev/null || true
+    npm install --no-save \
+    @nestjs/common @nestjs/core rxjs \
+    @nestjs/passport passport passport-jwt @nestjs/jwt \
+    redis ioredis @liaoliaots/nestjs-redis \
+    --legacy-peer-deps || true
 RUN cd /workspace/nestjs-auth && \
     ln -sf /workspace/crop-growth-model/node_modules ./node_modules && \
-    npx tsc --skipLibCheck || \
-    npx -y typescript@5.9.3 tsc --skipLibCheck || \
-    echo "WARN: nestjs-auth build failed"
+    npx tsc --skipLibCheck
 
 # Build the application
 RUN npm run build
@@ -92,7 +94,7 @@ USER node
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -f http://localhost:3023/api/v1/simulation/health || exit 1
+    CMD curl -f http://localhost:3023/healthz || exit 1
 
 # Run the application
 CMD ["node", "dist/main.js"]

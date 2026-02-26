@@ -22,7 +22,7 @@ sendgrid==6.11.0
 
 # Authentication
 PyJWT>=2.8.0,<3.0.0
-cryptography>=42.0.0
+cryptography>=43.0.1
 
 # Redis for distributed notification queue
 redis>=7.1.0,<8.0.0

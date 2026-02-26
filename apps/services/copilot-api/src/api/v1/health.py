@@ -30,7 +30,7 @@ async def liveness():
     return HealthResponse(
         status="ok",
         service="copilot-api",
-        version="1.0.0",
+        version="16.0.0",
         mode=CopilotMode(settings.copilot_mode),
         timestamp=datetime.now(UTC),
     )
@@ -85,7 +85,7 @@ async def readiness():
     return HealthResponse(
         status=status,
         service="copilot-api",
-        version="1.0.0",
+        version="16.0.0",
         mode=CopilotMode(settings.copilot_mode),
         components=components,
         timestamp=datetime.now(UTC),

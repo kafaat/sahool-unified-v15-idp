@@ -22,7 +22,7 @@ nats-py==2.13.1
 
 # Authentication
 PyJWT>=2.8.0,<3.0.0
-cryptography>=42.0.0
+cryptography>=43.0.1
 
 # HTTP Client
 httpx==0.28.1

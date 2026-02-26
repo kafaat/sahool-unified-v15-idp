@@ -24,7 +24,7 @@ structlog>=24.0.0,<25.0.0
 
 # Security
 pyjwt>=2.9.0,<3.0.0
-cryptography>=42.0.0
+cryptography>=43.0.1
 
 # Rate Limiting
 slowapi>=0.1.9,<1.0.0

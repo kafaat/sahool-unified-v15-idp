@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 # Configuration - التكوين
 # =============================================================================
 
-# NDVI Engine service URL (internal Kubernetes service)
-NDVI_SERVICE_URL = "http://ndvi-engine:8107"
+# Vegetation Analysis service URL (internal Kubernetes service)
+# Migrated from deprecated ndvi-engine:8107
+NDVI_SERVICE_URL = "http://vegetation-analysis-service:8090"
 
 # Health thresholds for task suggestions
 HEALTH_THRESHOLDS = {

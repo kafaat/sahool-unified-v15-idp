@@ -116,7 +116,7 @@ export const SERVICE_PORTS = {
   KNOWLEDGE_GRAPH: 8140,
   /** Code fix agent - وكيل إصلاح الكود */
   CODE_FIX_AGENT: 8162,
-  /** Code review agent (NestJS) - وكيل مراجعة الكود */
+  /** @deprecated Non-HTTP service (NPM library). Removal: v17.0.0 - وكيل مراجعة الكود (ليس خدمة HTTP) */
   CODE_REVIEW_AGENT: 8145,
   /** Code review service - خدمة مراجعة الكود */
   CODE_REVIEW_SERVICE: 8102,
@@ -174,7 +174,7 @@ export const SERVICE_PORTS = {
   DIGITAL_TWIN: 8253,
   /** MCP server - خادم MCP (changed from 8200 to avoid Vault conflict) */
   MCP_SERVER: 8201,
-  /** Demo data generator - مولد البيانات التجريبية */
+  /** @deprecated Background worker, no HTTP server. Removal: v17.0.0 - مولد البيانات التجريبية (عامل خلفي) */
   DEMO_DATA: 8261,
 
   // ── Infrastructure ───────────────────────────────────────────────────

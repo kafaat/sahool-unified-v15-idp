@@ -93,7 +93,7 @@ async def health_check():
     return {
         "status": "ok",
         "service": settings.SERVICE_NAME,
-        "version": "1.0.0",
+        "version": "16.0.0",
         "environment": settings.ENVIRONMENT,
     }
 
@@ -145,7 +145,7 @@ async def combined_health():
     return {
         "status": "ok",
         "service": settings.SERVICE_NAME,
-        "version": "1.0.0",
+        "version": "16.0.0",
         "environment": settings.ENVIRONMENT,
         "connections": {
             "redis": "connected" if redis_connected else "disconnected",

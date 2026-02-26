@@ -2435,8 +2435,10 @@ services:
 
   # ⚠️ DEPRECATED: ndvi_processor - Migrating to vegetation-analysis-service
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
-  # Kept temporarily for backwards compatibility
+  # Kept temporarily for backwards compatibility - requires 'deprecated' profile to start
   ndvi-processor:
+    profiles:
+      - deprecated
     build:
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile

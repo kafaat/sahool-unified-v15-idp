@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from "@nestjs/common";
-import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import { JwtAuthGuard, SkipTenantCheck } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { LAIService, StressDetectionResponse } from "./lai.service";
 import {
@@ -196,6 +196,7 @@ export class LAIController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get("health")
+  @SkipTenantCheck()
   healthCheck() {
     return {
       status: "ok",

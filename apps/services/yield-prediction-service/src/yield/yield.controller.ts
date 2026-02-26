@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
-import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import { JwtAuthGuard, SkipTenantCheck } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
   YieldService,
@@ -158,6 +158,7 @@ export class YieldController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get("health")
+  @SkipTenantCheck()
   healthCheck() {
     return {
       status: "ok",

@@ -20,6 +20,8 @@ RUN npm install -g npm@11.7.0
 
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
+COPY packages/nestjs-auth ./packages/nestjs-auth
+COPY tsconfig.base.json /tsconfig.base.json
 
 # Build field-shared package first (needed for TypeScript compilation)
 WORKDIR /app/packages/field-shared
@@ -45,8 +47,9 @@ RUN --mount=type=cache,target=/root/.npm \
 WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
 
-# Fix the file: path reference for Docker build context (../../../packages -> ./packages)
+# Fix the file: path references for Docker build context (../../../packages -> ./packages)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
+RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:./packages/nestjs-auth"|' package.json || true
 
 # Install dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
@@ -76,6 +79,14 @@ RUN npx prisma generate
 COPY apps/services/field-management-service/tsconfig.json ./
 COPY apps/services/field-management-service/nest-cli.json ./
 COPY apps/services/field-management-service/src ./src
+# Build nestjs-auth package (dist/ is gitignored)
+RUN npm install --no-save redis 2>/dev/null || true
+RUN cd /app/packages/nestjs-auth && \
+    ln -sf /app/node_modules ./node_modules && \
+    npx tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    echo "WARN: nestjs-auth build failed"
+
 # Prisma already generated above; run nest build directly to avoid re-running prisma generate
 RUN npx nest build
 

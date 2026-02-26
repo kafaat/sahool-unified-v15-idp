@@ -5,10 +5,12 @@
 
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 import { IotService } from "../iot/iot.service";
 
 @ApiTags("Health")
 @Controller()
+@SkipTenantCheck()
 export class HealthController {
   constructor(private readonly iotService: IotService) {}
 

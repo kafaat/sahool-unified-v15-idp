@@ -19,6 +19,7 @@ import {
   ForbiddenException,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 import { MarketService } from "./market/market.service";
 import { FintechService } from "./fintech/fintech.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
@@ -46,6 +47,7 @@ export class AppController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("healthz")
+  @SkipTenantCheck()
   healthCheck() {
     return {
       status: "ok",
@@ -57,6 +59,7 @@ export class AppController {
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("readyz")
+  @SkipTenantCheck()
   readinessCheck() {
     return {
       status: "ready",

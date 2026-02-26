@@ -23,6 +23,7 @@ import {
   DisasterType,
 } from "./disaster.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 
 @ApiTags("disasters")
 @Controller("api/v1/disasters")
@@ -168,6 +169,7 @@ export class DisasterController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get("health")
+  @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: "Health check" })
   healthCheck() {

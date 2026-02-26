@@ -5,9 +5,11 @@
 
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 
 @ApiTags("health")
 @Controller()
+@SkipTenantCheck()
 export class HealthController {
   @Get("healthz")
   @ApiOperation({ summary: "Liveness probe | فحص الحياة" })

@@ -11,11 +11,13 @@ import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
 import { Response } from "express";
 import { Throttle, SkipThrottle } from "@nestjs/throttler";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 import { PrismaService } from "../prisma/prisma.service";
 import { CacheService } from "../cache/cache.service";
 
 @ApiTags("Health - الصحة")
 @Controller()
+@SkipTenantCheck()
 export class HealthController {
   constructor(
     private prisma: PrismaService,

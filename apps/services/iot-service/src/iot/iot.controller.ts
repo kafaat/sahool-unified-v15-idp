@@ -35,6 +35,7 @@ import {
 import { Throttle } from "@nestjs/throttler";
 import { IotService, SensorType, SensorReading } from "./iot.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 
 // =============================================================================
 // DTOs
@@ -93,6 +94,7 @@ export class IotController {
   // ==========================================================================
 
   @Get("health")
+  @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({ summary: "Health check" })
   healthCheck() {

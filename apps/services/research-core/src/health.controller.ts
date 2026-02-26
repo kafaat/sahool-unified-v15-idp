@@ -1,9 +1,11 @@
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation } from "@nestjs/swagger";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 import { PrismaService } from "./config/prisma.service";
 
 @ApiTags("health")
 @Controller()
+@SkipTenantCheck()
 export class HealthController {
   constructor(private readonly prisma: PrismaService) {}
 

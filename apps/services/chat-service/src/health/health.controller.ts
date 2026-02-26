@@ -5,10 +5,12 @@
 
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { SkipTenantCheck } from "@sahool/nestjs-auth";
 import { PrismaService } from "../prisma/prisma.service";
 
 @ApiTags("Health")
 @Controller()
+@SkipTenantCheck()
 export class HealthController {
   private readonly startTime: Date;
 

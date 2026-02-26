@@ -574,7 +574,15 @@ jobs:
       - name: Build workspace packages
         run: |
           # Build shared workspace packages that services depend on
-          for pkg in packages/nestjs-auth packages/field-shared packages/shared-types; do
+          # nestjs-auth needs redis peer dep installed for token-revocation.ts compilation
+          if [ -d "packages/nestjs-auth" ]; then
+            echo "Building packages/nestjs-auth..."
+            (cd packages/nestjs-auth && npm install --no-save redis 2>/dev/null || true)
+            npm run build --workspace=packages/nestjs-auth --if-present || \
+              (cd packages/nestjs-auth && npx tsc --skipLibCheck) || \
+              echo "::warning::nestjs-auth build failed"
+          fi
+          for pkg in packages/field-shared packages/shared-types; do
             if [ -f "$pkg/package.json" ] && grep -q '"build"' "$pkg/package.json"; then
               echo "Building $pkg..."
               npm run build --workspace=$pkg 2>/dev/null || true

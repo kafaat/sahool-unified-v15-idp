@@ -14,8 +14,15 @@ LABEL version="16.0.0"
 
 WORKDIR /app
 
+# Copy nestjs-auth package (workspace dependency: @sahool/nestjs-auth)
+COPY packages/nestjs-auth /nestjs-auth/
+COPY tsconfig.base.json /tsconfig.base.json
+
 # Copy package files first for better layer caching
 COPY apps/services/disaster-assessment/package*.json ./
+
+# Replace workspace dependency with local file path for Docker build
+RUN sed -i 's|"@sahool/nestjs-auth": "16.0.0"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
 # Copy prisma schema BEFORE installing dependencies (required for postinstall hook)
 COPY apps/services/disaster-assessment/prisma ./prisma/
@@ -36,6 +43,14 @@ RUN npx prisma generate
 # Copy source code
 COPY apps/services/disaster-assessment/ .
 
+# Build nestjs-auth package (dist/ is gitignored)
+RUN npm install --no-save redis 2>/dev/null || true
+RUN cd /nestjs-auth && \
+    ln -sf /app/node_modules ./node_modules && \
+    npx tsc --skipLibCheck || \
+    npx -y typescript@5.9.3 tsc --skipLibCheck || \
+    echo "WARN: nestjs-auth build failed"
+
 # Build the application
 RUN npm run build
 
@@ -51,6 +66,10 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
+
+# Copy nestjs-auth dist + package.json for runtime (file:../nestjs-auth reference)
+COPY --from=builder /nestjs-auth/dist /nestjs-auth/dist/
+COPY --from=builder /nestjs-auth/package.json /nestjs-auth/package.json
 
 # Copy package files from builder (includes generated package-lock.json)
 # NOTE: Using npm ci for deterministic builds
@@ -71,6 +90,9 @@ RUN npm config set registry https://registry.npmmirror.com; \
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma/
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client/
 
+# Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
+RUN ln -s /app/node_modules /nestjs-auth/node_modules
+
 # Copy built application
 COPY --from=builder /app/dist ./dist
 
@@ -78,7 +100,7 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 3020
 
 # Set ownership and switch to non-root user (use existing node user)
-RUN chown -R node:node /app
+RUN chown -R node:node /app /nestjs-auth
 USER node
 
 # Health check

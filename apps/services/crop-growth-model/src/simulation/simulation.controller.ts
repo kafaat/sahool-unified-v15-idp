@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Body, Query, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import { JwtAuthGuard, SkipTenantCheck } from "@sahool/nestjs-auth";
 import {
   ApiTags,
   ApiOperation,
@@ -293,6 +293,7 @@ export class GrowthSimulationController {
   // ─────────────────────────────────────────────────────────────────────────────
 
   @Get("health")
+  @SkipTenantCheck()
   @ApiOperation({
     summary: "Simulation service health check",
     description: "فحص صحة خدمة المحاكاة",

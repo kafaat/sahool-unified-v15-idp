@@ -553,15 +553,15 @@ def validate_device_authorization(device_id: str, tenant_id: str, field_id: str)
     if device.tenant_id != tenant_id:
         logger.error(
             f"Tenant isolation violation. "
-            f"Device: {device_id}, Device tenant: {device.tenant_id}, "
-            f"Requested tenant: {tenant_id}"
+            f"Device: {sanitize_log_value(device_id)}, Device tenant: {sanitize_log_value(device.tenant_id)}, "
+            f"Requested tenant: {sanitize_log_value(tenant_id)}"
         )
         return False
 
     # Check field association
     if device.field_id != field_id:
         logger.error(
-            f"Field mismatch. Device: {device_id}, Device field: {device.field_id}, Requested field: {field_id}"
+            f"Field mismatch. Device: {sanitize_log_value(device_id)}, Device field: {sanitize_log_value(device.field_id)}, Requested field: {sanitize_log_value(field_id)}"
         )
         return False
 
@@ -695,7 +695,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
     # First, validate device exists and authorization (once for all readings)
     device = registry.get(req.device_id)
     if not device:
-        logger.error(f"Batch reading rejected: Device {req.device_id} not registered")
+        logger.error(f"Batch reading rejected: Device {sanitize_log_value(req.device_id)} not registered")
         raise HTTPException(
             status_code=404,
             detail=f"Device {req.device_id} not registered. Please register device first.",
@@ -714,7 +714,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
             unit = reading.get("unit") or reading.get("u") or ""
 
             if not sensor_type or value is None:
-                logger.warning(f"Skipping reading {idx}: missing sensor_type or value. Device: {req.device_id}")
+                logger.warning(f"Skipping reading {idx}: missing sensor_type or value. Device: {sanitize_log_value(req.device_id)}")
                 continue
 
             # Validate value range
@@ -747,7 +747,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
         except HTTPException:
             raise  # Re-raise HTTP exceptions
         except Exception as e:
-            logger.error(f"Error processing batch reading {idx} for device {req.device_id}: {e}")
+            logger.error(f"Error processing batch reading {idx} for device {sanitize_log_value(req.device_id)}: {e}")
             raise HTTPException(status_code=400, detail=f"Error processing reading {idx}: {str(e)}")
 
     # Update device status - use async method if Redis-backed registry is available
@@ -756,7 +756,7 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
     else:
         registry.update_status(device_id=req.device_id)
 
-    logger.info(f"Batch reading published. Device: {req.device_id}, Count: {validated_count}, Events: {len(event_ids)}")
+    logger.info(f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}")
 
     return {
         "status": "ok",

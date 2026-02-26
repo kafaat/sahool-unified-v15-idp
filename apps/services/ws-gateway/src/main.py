@@ -28,6 +28,13 @@ from pydantic import BaseModel
 from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+
+def sanitize_log_input(value: str) -> str:
+    """Sanitize user input for safe logging to prevent log injection attacks."""
+    if not isinstance(value, str):
+        value = str(value)
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .handlers import WebSocketMessageHandler
@@ -313,7 +320,7 @@ async def websocket_endpoint(
     # JWT authentication is always required
     if not token:
         logger.warning(
-            f"WebSocket connection attempt without token. Connection ID: {connection_id}, Tenant: {tenant_id}"
+            f"WebSocket connection attempt without token. Connection ID: {connection_id}, Tenant: {sanitize_log_input(tenant_id)}"
         )
         await websocket.close(code=4001, reason="Authentication required")
         return
@@ -328,23 +335,23 @@ async def websocket_endpoint(
         if token_tenant and token_tenant != tenant_id:
             logger.error(
                 f"Tenant mismatch for connection {connection_id}. "
-                f"Token tenant: {token_tenant}, Requested tenant: {tenant_id}, "
-                f"User: {user_id}"
+                f"Token tenant: {sanitize_log_input(token_tenant)}, Requested tenant: {sanitize_log_input(tenant_id)}, "
+                f"User: {sanitize_log_input(user_id or '')}"
             )
             await websocket.close(code=4003, reason="Tenant mismatch")
             return
 
         logger.info(
             f"WebSocket authenticated successfully. "
-            f"Connection ID: {connection_id}, User: {user_id}, Tenant: {tenant_id}"
+            f"Connection ID: {connection_id}, User: {sanitize_log_input(user_id or '')}, Tenant: {sanitize_log_input(tenant_id)}"
         )
     except ValueError as e:
-        logger.error(f"JWT validation failed for connection {connection_id}. Error: {str(e)}, Tenant: {tenant_id}")
+        logger.error(f"JWT validation failed for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}")
         await websocket.close(code=4001, reason="Invalid authentication token")
         return
     except Exception as e:
         logger.error(
-            f"Unexpected authentication error for connection {connection_id}. Error: {str(e)}, Tenant: {tenant_id}"
+            f"Unexpected authentication error for connection {connection_id}. Error: {str(e)}, Tenant: {sanitize_log_input(tenant_id)}"
         )
         await websocket.close(code=4001, reason="Authentication failed")
         return
@@ -481,7 +488,7 @@ async def broadcast_message(
             if "super_admin" not in roles:
                 raise HTTPException(status_code=403, detail="Cannot broadcast to a different tenant")
 
-        logger.info(f"Broadcast by user {payload.get('sub')} to tenant {req.tenant_id}")
+        logger.info(f"Broadcast by user {sanitize_log_input(payload.get('sub', ''))} to tenant {sanitize_log_input(req.tenant_id)}")
 
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e)) from e

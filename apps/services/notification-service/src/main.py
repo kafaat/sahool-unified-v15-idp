@@ -37,6 +37,13 @@ shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."
 sys.path.insert(0, shared_path)
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+
+def sanitize_log_input(value: str) -> str:
+    """Sanitize user input for safe logging to prevent log injection attacks."""
+    if not isinstance(value, str):
+        value = str(value)
+    return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -393,7 +400,7 @@ async def create_notification(
         )
 
         if not should_send:
-            logger.debug(f"Skipping notification for user {farmer_id} - event type disabled in preferences")
+            logger.debug(f"Skipping notification for user {sanitize_log_input(farmer_id)} - event type disabled in preferences")
             continue
 
         # Use preferred channels if available, otherwise use provided channels
@@ -488,7 +495,7 @@ async def send_sms_notification(notification, farmer_id: str):
         # Get farmer profile from database to get phone number
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
-            logger.warning(f"No phone number for farmer {farmer_id}")
+            logger.warning(f"No phone number for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="sms",
@@ -548,7 +555,7 @@ async def send_email_notification(notification, farmer_id: str):
         # Get farmer profile from database to get email address
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.email:
-            logger.warning(f"No email address for farmer {farmer_id}")
+            logger.warning(f"No email address for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="email",
@@ -626,7 +633,7 @@ async def send_push_notification(notification, farmer_id: str):
         # Get farmer profile from database to get FCM token
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.fcm_token:
-            logger.warning(f"No FCM token for farmer {farmer_id}")
+            logger.warning(f"No FCM token for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="push",
@@ -679,7 +686,7 @@ async def send_push_notification(notification, farmer_id: str):
                 status="sent",
                 provider_message_id=message_id,
             )
-            logger.info(f"✅ Push notification sent to {farmer_id}: {message_id}")
+            logger.info(f"Push notification sent to {sanitize_log_input(farmer_id)}: {sanitize_log_input(str(message_id))}")
         else:
             raise Exception("Failed to send push notification")
 
@@ -699,7 +706,7 @@ async def send_whatsapp_notification(notification, farmer_id: str):
         # Get farmer profile from database to get WhatsApp number
         farmer_profile = await FarmerProfileRepository.get_by_farmer_id(farmer_id)
         if not farmer_profile or not farmer_profile.phone:
-            logger.warning(f"No WhatsApp number for farmer {farmer_id}")
+            logger.warning(f"No WhatsApp number for farmer {sanitize_log_input(farmer_id)}")
             await NotificationLogRepository.create_log(
                 notification_id=notification.id,
                 channel="whatsapp",
@@ -1481,7 +1488,7 @@ async def register_farmer(profile: FarmerProfile):
             language=profile.language,
         )
 
-        logger.info(f"👨‍🌾 Farmer registered: {profile.farmer_id} ({profile.name_ar})")
+        logger.info(f"Farmer registered: {sanitize_log_input(profile.farmer_id)} ({sanitize_log_input(profile.name_ar or '')})")
 
         return {
             "success": True,

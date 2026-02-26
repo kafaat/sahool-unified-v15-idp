@@ -1,0 +1,689 @@
+openapi: 3.0.3
+info:
+  title: SAHOOL Platform - Irrigation Services API
+  description: |
+    # SAHOOL Smart Irrigation API
+    ## خدمة الري الذكي
+
+    AI-powered irrigation scheduling and water management for optimal crop production.
+    - Smart irrigation calculation based on ET₀, crop coefficients, and soil type
+    - Water balance monitoring per field
+    - Efficiency reports and analytics
+    - Sensor-driven irrigation recommendations
+    - Action templates for offline-first field operations
+
+    ## Authentication
+    All endpoints require JWT authentication via `Authorization: Bearer <token>`.
+
+    ## Multi-tenancy
+    Most endpoints require `X-Tenant-ID` header.
+  version: 16.0.0
+  contact:
+    name: SAHOOL Platform Support
+    email: support@sahool.sa
+    url: https://sahool.sa
+  license:
+    name: Proprietary
+    url: https://sahool.sa/terms
+
+servers:
+  - url: https://api.sahool.sa/api/v1
+    description: Production server
+  - url: https://staging-api.sahool.sa/api/v1
+    description: Staging server
+  - url: http://localhost:8094
+    description: Development server (direct)
+
+tags:
+  - name: Irrigation
+    description: Irrigation calculation and scheduling - حساب الري والجدولة
+  - name: Water Balance
+    description: Water balance monitoring - مراقبة التوازن المائي
+  - name: Sensors
+    description: Sensor readings and integration - قراءات المستشعرات والتكامل
+  - name: Efficiency
+    description: Irrigation efficiency reports - تقارير كفاءة الري
+  - name: Health
+    description: Service health checks
+
+paths:
+  /healthz:
+    get:
+      tags: [Health]
+      summary: Liveness probe
+      operationId: healthCheck
+      security: []
+      responses:
+        '200':
+          description: Service is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /readyz:
+    get:
+      tags: [Health]
+      summary: Readiness probe
+      operationId: readinessCheck
+      security: []
+      responses:
+        '200':
+          description: Service is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+
+  /v1/crops:
+    get:
+      tags: [Irrigation]
+      summary: List supported crops
+      description: |
+        Get list of crops with their irrigation parameters (Kc coefficients, root depth, etc.)
+        الحصول على قائمة المحاصيل مع معاملات الري الخاصة بها
+      operationId: listCrops
+      responses:
+        '200':
+          description: List of supported crops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CropInfo'
+
+  /v1/methods:
+    get:
+      tags: [Irrigation]
+      summary: List irrigation methods
+      description: |
+        Get available irrigation methods with efficiency ratings.
+        الحصول على طرق الري المتاحة مع تقييمات الكفاءة
+      operationId: listMethods
+      responses:
+        '200':
+          description: List of irrigation methods
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/IrrigationMethod'
+
+  /v1/calculate:
+    post:
+      tags: [Irrigation]
+      summary: Calculate irrigation plan
+      description: |
+        Calculate optimal irrigation schedule based on crop, soil, weather, and field parameters.
+        Uses Penman-Monteith ET₀ reference and crop-specific Kc coefficients.
+        حساب جدول الري الأمثل بناءً على المحصول والتربة والطقس ومعاملات الحقل
+      operationId: calculateIrrigation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationRequest'
+            examples:
+              wheat_drip:
+                summary: Wheat with drip irrigation
+                value:
+                  crop: wheat
+                  stage: tillering
+                  method: drip
+                  field_size_ha: 5.5
+                  soil_type: sandy_loam
+                  et0: 5.5
+                  temperature: 28
+                  humidity: 45
+                  wind_speed: 12
+                  latitude: 15.37
+                  longitude: 44.19
+      responses:
+        '200':
+          description: Irrigation plan calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationPlan'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /v1/calculate-with-action:
+    post:
+      tags: [Irrigation]
+      summary: Calculate irrigation with action template
+      description: |
+        Calculate irrigation and return an ActionTemplate for offline-first field execution.
+        حساب الري وإرجاع قالب إجراء للتنفيذ الميداني بدون اتصال
+      operationId: calculateIrrigationWithAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationRequest'
+      responses:
+        '200':
+          description: Irrigation plan with action template
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/IrrigationPlan'
+                  - type: object
+                    properties:
+                      action_template:
+                        $ref: '#/components/schemas/ActionTemplate'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /v1/water-balance/{field_id}:
+    get:
+      tags: [Water Balance]
+      summary: Get field water balance
+      description: |
+        Get current water balance status for a specific field including soil moisture,
+        recent irrigation, rainfall, and recommended next irrigation.
+        الحصول على حالة التوازن المائي الحالي لحقل معين
+      operationId: getWaterBalance
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Field identifier
+      responses:
+        '200':
+          description: Water balance data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterBalance'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /v1/sensor-reading:
+    post:
+      tags: [Sensors]
+      summary: Submit sensor reading
+      description: |
+        Submit a soil moisture or weather sensor reading for irrigation adjustment.
+        إرسال قراءة مستشعر رطوبة التربة أو الطقس لتعديل الري
+      operationId: submitSensorReading
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorReading'
+      responses:
+        '200':
+          description: Sensor reading processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensorReadingResponse'
+
+  /v1/sensor-reading-with-action:
+    post:
+      tags: [Sensors]
+      summary: Submit sensor reading with action template
+      description: |
+        Submit sensor reading and get an ActionTemplate for the recommended action.
+        إرسال قراءة مستشعر والحصول على قالب إجراء للإجراء الموصى به
+      operationId: submitSensorReadingWithAction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorReading'
+      responses:
+        '200':
+          description: Sensor reading processed with action template
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reading:
+                    $ref: '#/components/schemas/SensorReadingResponse'
+                  action_template:
+                    $ref: '#/components/schemas/ActionTemplate'
+
+  /v1/irrigation-executed:
+    post:
+      tags: [Irrigation]
+      summary: Report irrigation execution
+      description: |
+        Report that a planned irrigation event was executed (for water balance tracking).
+        الإبلاغ عن تنفيذ حدث ري مخطط (لتتبع التوازن المائي)
+      operationId: reportIrrigationExecuted
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationExecutionReport'
+      responses:
+        '200':
+          description: Execution recorded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: recorded
+                  updated_balance:
+                    $ref: '#/components/schemas/WaterBalance'
+
+  /v1/efficiency-report/{field_id}:
+    get:
+      tags: [Efficiency]
+      summary: Get irrigation efficiency report
+      description: |
+        Get detailed irrigation efficiency metrics for a field over a time period.
+        Includes water use efficiency (WUE), uniformity, and savings estimates.
+        الحصول على مقاييس كفاءة الري التفصيلية لحقل خلال فترة زمنية
+      operationId: getEfficiencyReport
+      parameters:
+        - name: field_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: period_days
+          in: query
+          schema:
+            type: integer
+            default: 30
+            minimum: 7
+            maximum: 365
+          description: Report period in days
+      responses:
+        '200':
+          description: Efficiency report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EfficiencyReport'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Authentication required or token invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          example: ok
+        service:
+          type: string
+          example: irrigation-smart
+        version:
+          type: string
+          example: "16.0.0"
+        timestamp:
+          type: string
+          format: date-time
+
+    ReadinessResponse:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          example: ok
+        database:
+          type: boolean
+        nats:
+          type: boolean
+
+    CropInfo:
+      type: object
+      properties:
+        code:
+          type: string
+          example: wheat
+        name:
+          type: string
+          example: Wheat
+        name_ar:
+          type: string
+          example: قمح
+        kc_initial:
+          type: number
+          format: float
+          example: 0.3
+        kc_mid:
+          type: number
+          format: float
+          example: 1.15
+        kc_end:
+          type: number
+          format: float
+          example: 0.4
+        root_depth_m:
+          type: number
+          format: float
+          example: 1.5
+
+    IrrigationMethod:
+      type: object
+      properties:
+        code:
+          type: string
+          example: drip
+        name:
+          type: string
+          example: Drip Irrigation
+        name_ar:
+          type: string
+          example: الري بالتنقيط
+        efficiency:
+          type: number
+          format: float
+          example: 0.90
+          description: Application efficiency (0-1)
+
+    IrrigationRequest:
+      type: object
+      required: [crop, stage, method, field_size_ha, soil_type]
+      properties:
+        crop:
+          type: string
+          example: wheat
+        stage:
+          type: string
+          enum: [germination, seedling, tillering, stem_elongation, heading, flowering, grain_fill, maturity]
+          example: tillering
+        method:
+          type: string
+          enum: [drip, sprinkler, furrow, flood, center_pivot, subsurface]
+          example: drip
+        field_size_ha:
+          type: number
+          format: float
+          example: 5.5
+        soil_type:
+          type: string
+          enum: [sandy, sandy_loam, loam, clay_loam, clay, silty_clay]
+          example: sandy_loam
+        et0:
+          type: number
+          format: float
+          description: Reference evapotranspiration (mm/day)
+          example: 5.5
+        temperature:
+          type: number
+          format: float
+          description: Air temperature in Celsius
+          example: 28
+        humidity:
+          type: number
+          format: float
+          description: Relative humidity (%)
+          example: 45
+        wind_speed:
+          type: number
+          format: float
+          description: Wind speed (km/h)
+          example: 12
+        latitude:
+          type: number
+          format: float
+          example: 15.37
+        longitude:
+          type: number
+          format: float
+          example: 44.19
+        field_id:
+          type: string
+          description: Optional field ID for water balance tracking
+
+    IrrigationPlan:
+      type: object
+      properties:
+        crop:
+          type: string
+          example: wheat
+        stage:
+          type: string
+          example: tillering
+        method:
+          type: string
+          example: drip
+        et0_mm:
+          type: number
+          format: float
+          example: 5.5
+        etc_mm:
+          type: number
+          format: float
+          description: Crop evapotranspiration (mm/day)
+          example: 6.33
+        gross_irrigation_mm:
+          type: number
+          format: float
+          description: Gross irrigation requirement (mm)
+          example: 7.03
+        volume_m3:
+          type: number
+          format: float
+          description: Total volume needed (m³)
+          example: 386.5
+        duration_hours:
+          type: number
+          format: float
+          description: Irrigation duration (hours)
+          example: 4.8
+        frequency_days:
+          type: integer
+          description: Irrigation frequency (days)
+          example: 3
+        next_irrigation:
+          type: string
+          format: date-time
+          description: Recommended next irrigation time
+        recommendations:
+          type: array
+          items:
+            type: string
+          description: Additional recommendations
+        recommendations_ar:
+          type: array
+          items:
+            type: string
+          description: Recommendations in Arabic
+
+    WaterBalance:
+      type: object
+      properties:
+        field_id:
+          type: string
+        soil_moisture_pct:
+          type: number
+          format: float
+          example: 45.0
+        total_irrigation_mm:
+          type: number
+          format: float
+        total_rainfall_mm:
+          type: number
+          format: float
+        total_et_mm:
+          type: number
+          format: float
+        balance_mm:
+          type: number
+          format: float
+        status:
+          type: string
+          enum: [optimal, deficit, excess]
+        last_updated:
+          type: string
+          format: date-time
+
+    SensorReading:
+      type: object
+      required: [field_id, sensor_type, value]
+      properties:
+        field_id:
+          type: string
+        sensor_type:
+          type: string
+          enum: [soil_moisture, temperature, humidity, rain_gauge, flow_meter]
+        value:
+          type: number
+          format: float
+        unit:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        device_id:
+          type: string
+
+    SensorReadingResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: processed
+        recommendation:
+          type: string
+        recommendation_ar:
+          type: string
+        adjustment:
+          type: object
+          properties:
+            should_adjust:
+              type: boolean
+            reason:
+              type: string
+            new_schedule:
+              type: string
+
+    IrrigationExecutionReport:
+      type: object
+      required: [field_id, volume_applied_m3]
+      properties:
+        field_id:
+          type: string
+        volume_applied_m3:
+          type: number
+          format: float
+        duration_minutes:
+          type: number
+          format: float
+        method:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    EfficiencyReport:
+      type: object
+      properties:
+        field_id:
+          type: string
+        period_days:
+          type: integer
+        water_use_efficiency:
+          type: number
+          format: float
+          description: WUE (kg yield / m³ water)
+        application_efficiency:
+          type: number
+          format: float
+          description: Ratio of beneficial water use
+        total_water_used_m3:
+          type: number
+          format: float
+        total_savings_m3:
+          type: number
+          format: float
+        recommendations:
+          type: array
+          items:
+            type: string
+        recommendations_ar:
+          type: array
+          items:
+            type: string
+
+    ActionTemplate:
+      type: object
+      description: Offline-first action template for field execution
+      properties:
+        id:
+          type: string
+          format: uuid
+        action_type:
+          type: string
+          example: irrigate
+        parameters:
+          type: object
+        instructions:
+          type: string
+        instructions_ar:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        expires_at:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        message_ar:
+          type: string
+        details:
+          type: object
+        request_id:
+          type: string
+
+security:
+  - bearerAuth: []

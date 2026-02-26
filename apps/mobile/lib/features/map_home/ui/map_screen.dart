@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart';
+import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
@@ -190,110 +191,41 @@ class _MapScreenState extends State<MapScreen> {
         },
       ),
       children: [
-        // طبقة الخرائط الأساسية
+        // طبقة الخرائط الأساسية مع التخزين المحلي (offline-ready)
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.sahool.field',
           maxZoom: 19,
+          tileProvider: SahoolTileProvider(),
         ),
 
-        // طبقة علامات الحقول
+        // طبقة علامات الحقول (مع RepaintBoundary لتحسين الأداء)
         MarkerLayer(
-          markers: List.generate(_mockFields.length, (index) {
-            final field = _mockFields[index];
-            final location = _fieldLocations[index];
-            return Marker(
-              point: location,
-              width: 150,
-              height: 60,
-              child: _buildFieldMarker(field),
-            );
-          }),
+          markers: _buildFieldMarkers(),
         ),
       ],
     );
   }
 
-  /// علامة الحقل على الخريطة
-  Widget _buildFieldMarker(Field field) {
-    final isSelected = _selectedField?.id == field.id;
-
-    return GestureDetector(
-      onTap: () => _selectField(field),
-      child: AnimatedScale(
-        scale: isSelected ? 1.1 : 1.0,
-        duration: const Duration(milliseconds: 200),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: isSelected ? field.statusColor : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: field.statusColor.withOpacity(0.4),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                        ),
-                      ]
-                    : SahoolShadows.medium,
-                border: isSelected
-                    ? Border.all(color: Colors.white, width: 2)
-                    : null,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: isSelected ? Colors.white : field.statusColor,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    field.name,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : Colors.black87,
-                    ),
-                  ),
-                  if (field.pendingTasks > 0) ...[
-                    const SizedBox(width: 6),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Colors.white : Colors.orange,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${field.pendingTasks}',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? field.statusColor : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            CustomPaint(
-              size: const Size(20, 10),
-              painter: _TrianglePainter(
-                color: isSelected ? field.statusColor : Colors.white,
-              ),
-            ),
-          ],
+  /// بناء قائمة markers محسّنة (تُحسب مرة واحدة ما لم يتغير التحديد)
+  List<Marker> _buildFieldMarkers() {
+    return List.generate(_mockFields.length, (index) {
+      final field = _mockFields[index];
+      final location = _fieldLocations[index];
+      return Marker(
+        point: location,
+        width: 150,
+        height: 60,
+        child: RepaintBoundary(
+          child: _FieldMarkerWidget(
+            key: ValueKey('marker-${field.id}'),
+            field: field,
+            isSelected: _selectedField?.id == field.id,
+            onTap: () => _selectField(field),
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   /// تحديد حقل
@@ -670,6 +602,100 @@ class _MapScreenState extends State<MapScreen> {
             child: const Text('إبلاغ'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Widget مستقل لعلامة الحقل - يتجنب إعادة البناء غير الضرورية
+class _FieldMarkerWidget extends StatelessWidget {
+  final Field field;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _FieldMarkerWidget({
+    super.key,
+    required this.field,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedScale(
+        scale: isSelected ? 1.1 : 1.0,
+        duration: const Duration(milliseconds: 200),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: isSelected ? field.statusColor : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: field.statusColor.withValues(alpha: 0.4),
+                          blurRadius: 12,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : SahoolShadows.medium,
+                border: isSelected
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white : field.statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    field.name,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: isSelected ? Colors.white : Colors.black87,
+                    ),
+                  ),
+                  if (field.pendingTasks > 0) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: isSelected ? Colors.white : Colors.orange,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${field.pendingTasks}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? field.statusColor : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            CustomPaint(
+              size: const Size(20, 10),
+              painter: _TrianglePainter(
+                color: isSelected ? field.statusColor : Colors.white,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

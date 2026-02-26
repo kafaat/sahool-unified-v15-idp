@@ -1,6 +1,7 @@
 /// Add Item Screen - شاشة إضافة عنصر جديد
 library;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -81,12 +82,12 @@ class _AddItemScreenState extends ConsumerState<AddItemScreen> {
                         ? const CircularProgressIndicator()
                         : _imageUrl != null
                             ? ClipOval(
-                                child: Image.network(
-                                  _imageUrl!,
+                                child: CachedNetworkImage(
+                                  imageUrl: _imageUrl!,
                                   fit: BoxFit.cover,
                                   width: 120,
                                   height: 120,
-                                  errorBuilder: (context, error, stackTrace) =>
+                                  errorWidget: (context, _, __) =>
                                       Icon(Icons.broken_image, size: 60, color: Colors.grey.shade400),
                                 ),
                               )

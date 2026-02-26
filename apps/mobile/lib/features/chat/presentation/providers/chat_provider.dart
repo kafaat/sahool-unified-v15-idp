@@ -575,10 +575,10 @@ class ChatNotifier extends StateNotifier<ChatState> {
 // =============================================================================
 
 /// Current user ID provider
-final chatUserIdProvider = StateProvider<String>((ref) => '');
+final chatUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
 /// Chat API provider
-final chatApiProvider = Provider<ChatApi>((ref) {
+final chatApiProvider = Provider.autoDispose<ChatApi>((ref) {
   final userId = ref.watch(chatUserIdProvider);
   return ChatApi(
     baseUrl: ApiConfig.chatServiceUrl,

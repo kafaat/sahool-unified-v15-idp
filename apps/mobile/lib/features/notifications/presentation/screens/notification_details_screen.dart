@@ -6,6 +6,7 @@
 /// - Actions
 /// - Related entity navigation
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -318,11 +319,12 @@ class _NotificationDetailsScreenState
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Image.network(
-          _notification.imageUrl!,
+        child: CachedNetworkImage(
+          imageUrl: _notification.imageUrl!,
           width: double.infinity,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
+          placeholder: (_, __) => const SizedBox(height: 150, child: Center(child: CircularProgressIndicator(strokeWidth: 2))),
+          errorWidget: (context, _, __) => Container(
             height: 150,
             color: Colors.grey.shade200,
             child: const Center(

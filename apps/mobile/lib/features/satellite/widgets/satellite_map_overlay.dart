@@ -2,6 +2,7 @@
 /// Map overlay showing NDVI visualization on field polygon
 library;
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class SatelliteMapOverlay extends StatelessWidget {
@@ -39,24 +40,20 @@ class SatelliteMapOverlay extends StatelessWidget {
           if (imageUrl != null && imageUrl!.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                imageUrl!,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl!,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
+                progressIndicatorBuilder: (context, url, downloadProgress) {
                   return Center(
                     child: CircularProgressIndicator(
-                      value: loadingProgress.expectedTotalBytes != null
-                          ? loadingProgress.cumulativeBytesLoaded /
-                              loadingProgress.expectedTotalBytes!
-                          : null,
+                      value: downloadProgress.progress,
                       valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF367C2B)),
                     ),
                   );
                 },
-                errorBuilder: (context, error, stackTrace) {
+                errorWidget: (context, _, __) {
                   return _buildPlaceholder(isArabic);
                 },
               ),

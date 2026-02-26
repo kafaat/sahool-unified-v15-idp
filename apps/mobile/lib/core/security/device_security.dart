@@ -319,11 +319,12 @@ class DeviceSecurityService {
     } catch (e, stackTrace) {
       AppLogger.e('Security check failed', tag: 'DeviceSecurity', error: e, stackTrace: stackTrace);
 
-      // Return safe defaults on error
+      // Return insecure state on error - fail closed, not open
       return DeviceSecurityState(
         isInitialized: true,
-        isSecure: true,
-        threats: ['Error during security check'],
+        isSecure: false,
+        threats: ['Security check failed: unable to verify device integrity'],
+        threatLevel: ThreatLevel.medium,
         lastCheckTime: DateTime.now(),
         errorMessage: e.toString(),
         deviceInfo: deviceInfo,

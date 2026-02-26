@@ -90,7 +90,12 @@ except ImportError:
         pass
 
 
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 # Authentication imports
 try:
@@ -301,7 +306,8 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 # Include routers
 app.include_router(webhook_router)

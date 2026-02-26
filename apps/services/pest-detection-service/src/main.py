@@ -15,6 +15,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from src.api.v1 import pests, scouts, thresholds, treatments
 
 # Configure structured logging
@@ -125,6 +127,9 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id", "X-Request-ID"],
 )
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
 
 # Health endpoints
 @app.get("/healthz", tags=["Health"])
@@ -192,8 +197,8 @@ async def metrics():
         "# HELP pest_detection_up Service is up\n"
         "# TYPE pest_detection_up gauge\n"
         "pest_detection_up 1\n"
-        f'# HELP pest_detection_info Service version info\n'
-        f'# TYPE pest_detection_info gauge\n'
+        f"# HELP pest_detection_info Service version info\n"
+        f"# TYPE pest_detection_info gauge\n"
         f'pest_detection_info{{service="{SERVICE_NAME}",version="{SERVICE_VERSION}"}} 1\n'
     )
     return PlainTextResponse(content=metrics_text, media_type="text/plain; version=0.0.4")

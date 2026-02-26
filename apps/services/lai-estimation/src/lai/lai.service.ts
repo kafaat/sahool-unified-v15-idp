@@ -709,6 +709,7 @@ export class LAIService {
     fieldId: string,
     cropType: CropType = CropType.SOYBEAN,
     farmerId?: string,
+    tenantId?: string,
   ) {
     // Get time series to detect anomalies
     const timeSeries = await this.getLAITimeSeries(fieldId);

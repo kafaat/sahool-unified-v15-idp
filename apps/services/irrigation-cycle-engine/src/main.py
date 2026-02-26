@@ -269,11 +269,7 @@ class IrrigationCycleEngine:
         e_a = (e_s_min * humidity_max / 100.0 + e_s_max * humidity_min / 100.0) / 2.0
 
         # Slope of saturation vapor pressure curve (kPa/°C)
-        delta = (
-            4098.0
-            * (0.6108 * math.exp((17.27 * t_mean) / (t_mean + 237.3)))
-            / ((t_mean + 237.3) ** 2)
-        )
+        delta = 4098.0 * (0.6108 * math.exp((17.27 * t_mean) / (t_mean + 237.3))) / ((t_mean + 237.3) ** 2)
 
         # Net radiation (simplified)
         # Extraterrestrial radiation
@@ -287,10 +283,7 @@ class IrrigationCycleEngine:
             / math.pi
             * 0.0820
             * dr
-            * (
-                ws * math.sin(lat_rad) * math.sin(solar_decl)
-                + math.cos(lat_rad) * math.cos(solar_decl) * math.sin(ws)
-            )
+            * (ws * math.sin(lat_rad) * math.sin(solar_decl) + math.cos(lat_rad) * math.cos(solar_decl) * math.sin(ws))
         )
 
         # Clear sky radiation
@@ -315,9 +308,7 @@ class IrrigationCycleEngine:
         g = 0.0
 
         # ET0 (mm/day) - FAO Penman-Monteith
-        numerator = 0.408 * delta * (rn - g) + gamma * (
-            900.0 / (t_mean + 273.0)
-        ) * wind_speed_2m * (e_s - e_a)
+        numerator = 0.408 * delta * (rn - g) + gamma * (900.0 / (t_mean + 273.0)) * wind_speed_2m * (e_s - e_a)
         denominator = delta + gamma * (1.0 + 0.34 * wind_speed_2m)
 
         et0 = numerator / denominator
@@ -340,11 +331,7 @@ class IrrigationCycleEngine:
             # Find Kc for current growth stage
             if req.growth_stage:
                 stage = next(
-                    (
-                        s
-                        for s in crop_data.growth_stages
-                        if s.name.lower() == req.growth_stage.lower()
-                    ),
+                    (s for s in crop_data.growth_stages if s.name.lower() == req.growth_stage.lower()),
                     None,
                 )
                 kc = stage.kc if stage else crop_data.kc_mid
@@ -373,9 +360,7 @@ class IrrigationCycleEngine:
         etc = req.et0_mm_day * effective_kc
 
         # Calculate available water
-        theta_min = req.wilting_point + (req.field_capacity - req.wilting_point) * (
-            1.0 - req.depletion_fraction
-        )
+        theta_min = req.wilting_point + (req.field_capacity - req.wilting_point) * (1.0 - req.depletion_fraction)
         root_depth_mm = req.root_depth_m * 1000.0
 
         # Available water in root zone (mm)
@@ -390,9 +375,7 @@ class IrrigationCycleEngine:
         # Note: θ values are volumetric (cm³/cm³), so bulk density is NOT needed.
         # The product (θfc - θmin) × Zr_mm already gives mm of available water.
         if etc > 0:
-            cycle_days = ((req.field_capacity - theta_min) * root_depth_mm * req.beta) / (
-                etc * req.alpha * req.gamma
-            )
+            cycle_days = ((req.field_capacity - theta_min) * root_depth_mm * req.beta) / (etc * req.alpha * req.gamma)
             # Clamp to reasonable range (1-60 days)
             cycle_days = max(1.0, min(cycle_days, 60.0))
         else:
@@ -418,9 +401,7 @@ class IrrigationCycleEngine:
             recs_ar.append("دورة طويلة. راقب رطوبة التربة للتحقق من دقة الجدول.")
 
         if leaching_fraction and leaching_fraction > 0.15:
-            recs.append(
-                f"High leaching fraction ({leaching_fraction:.0%}). Salinity management critical."
-            )
+            recs.append(f"High leaching fraction ({leaching_fraction:.0%}). Salinity management critical.")
             recs_ar.append(f"نسبة غسيل عالية ({leaching_fraction:.0%}). إدارة الملوحة حرجة.")
 
         next_date = date.today() + timedelta(days=int(cycle_days))
@@ -611,6 +592,13 @@ try:
 
     setup_exception_handlers(app)
     add_request_id_middleware(app)
+except ImportError:
+    pass
+
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    app.add_middleware(TenantContextMiddleware)
 except ImportError:
     pass
 

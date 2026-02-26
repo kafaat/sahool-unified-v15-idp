@@ -6,6 +6,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
+import { TenantGuard } from "@sahool/nestjs-auth";
 import { LoggerModule } from "nestjs-pino";
 import { createPinoLoggerConfig } from "./utils/pino-logger.config";
 import { PrismaService } from "./prisma/prisma.service";
@@ -47,6 +48,11 @@ import { HealthController } from "./health/health.controller";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

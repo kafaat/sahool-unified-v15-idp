@@ -17,6 +17,7 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
+  Req,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -54,8 +55,12 @@ export class BuyerProfileController {
     description: "Buyer profile created successfully",
   })
   @ApiResponse({ status: 409, description: "Buyer profile already exists" })
-  async createBuyerProfile(@Body(ValidationPipe) dto: CreateBuyerProfileDto) {
-    return this.profilesService.createBuyerProfile(dto);
+  async createBuyerProfile(
+    @Req() req: any,
+    @Body(ValidationPipe) dto: CreateBuyerProfileDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.profilesService.createBuyerProfile(dto, tenantId);
   }
 
   /**
@@ -84,10 +89,12 @@ export class BuyerProfileController {
   })
   @ApiResponse({ status: 200, description: "List of buyers" })
   async getAllBuyers(
-    @Query("tenantId") tenantId?: string,
+    @Req() req: any,
+    @Query("tenantId") queryTenantId?: string,
     @Query("minPurchases") minPurchases?: string,
     @Query("minLoyaltyPoints") minLoyaltyPoints?: string,
   ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.profilesService.getAllBuyers({
       tenantId,
       minPurchases: minPurchases ? parseInt(minPurchases) : undefined,

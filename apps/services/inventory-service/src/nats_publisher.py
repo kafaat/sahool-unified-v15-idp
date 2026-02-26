@@ -73,9 +73,7 @@ class NATSPublisher:
             self._connected = False
             logger.info("NATS connection closed")
 
-    async def publish_alert(
-        self, alert: dict[str, Any], recipients: list[str] | None = None
-    ) -> bool:
+    async def publish_alert(self, alert: dict[str, Any], recipients: list[str] | None = None) -> bool:
         """
         Publish an alert notification to NATS
 
@@ -112,9 +110,7 @@ class NATSPublisher:
             }
 
             # Publish to NATS using shared publisher
-            success = await self._publisher.publish_json(
-                "sahool.alert.inventory", notification_data
-            )
+            success = await self._publisher.publish_json("sahool.inventory.alert", notification_data)
 
             if success:
                 logger.info(f"Published alert {alert['id']} to NATS")
@@ -124,9 +120,7 @@ class NATSPublisher:
             logger.error(f"Failed to publish alert to NATS: {e}")
             return False
 
-    async def publish_batch(
-        self, alerts: list[dict[str, Any]], recipients: list[str] | None = None
-    ) -> dict[str, int]:
+    async def publish_batch(self, alerts: list[dict[str, Any]], recipients: list[str] | None = None) -> dict[str, int]:
         """
         Publish multiple alerts in batch
 

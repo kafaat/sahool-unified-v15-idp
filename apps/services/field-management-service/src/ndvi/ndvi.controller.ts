@@ -11,6 +11,7 @@ import {
   Query,
   ParseUUIDPipe,
   ValidationPipe,
+  Req,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { NdviService } from "./ndvi.service";
@@ -82,9 +83,13 @@ export class NdviController {
    */
   @Get("ndvi/summary")
   @ApiOperation({ summary: "Get NDVI summary for tenant" })
-  @ApiQuery({ name: "tenantId", required: true })
+  @ApiQuery({ name: "tenantId", required: false })
   @ApiResponse({ status: 200, description: "NDVI summary retrieved" })
-  async getTenantSummary(@Query("tenantId") tenantId: string) {
+  async getTenantSummary(
+    @Req() req: any,
+    @Query("tenantId") queryTenantId?: string,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     const data = await this.ndviService.getTenantNdviSummary(tenantId);
     return {
       success: true,

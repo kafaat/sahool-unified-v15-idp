@@ -32,8 +32,10 @@ export class ProtocolsController {
   create(
     @Param("experimentId") experimentId: string,
     @Body() dto: CreateProtocolDto,
+    @Request() req: any,
   ) {
-    return this.service.create({ ...dto, experimentId });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.create({ ...dto, experimentId }, tenantId);
   }
 
   @Get()
@@ -42,33 +44,39 @@ export class ProtocolsController {
   @ApiQuery({ name: "limit", required: false, type: Number })
   findAll(
     @Param("experimentId") experimentId: string,
+    @Request() req: any,
     @Query("page") page?: number,
     @Query("limit") limit?: number,
   ) {
-    return this.service.findAll(experimentId, { page, limit });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findAll(experimentId, tenantId, { page, limit });
   }
 
   @Get(":id")
   @ApiOperation({ summary: "Get protocol details - تفاصيل البروتوكول" })
-  findOne(@Param("id") id: string) {
-    return this.service.findOne(id);
+  findOne(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.findOne(id, tenantId);
   }
 
   @Put(":id")
   @ApiOperation({ summary: "Update protocol - تحديث البروتوكول" })
-  update(@Param("id") id: string, @Body() dto: UpdateProtocolDto) {
-    return this.service.update(id, dto);
+  update(@Param("id") id: string, @Body() dto: UpdateProtocolDto, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.update(id, dto, tenantId);
   }
 
   @Post(":id/approve")
   @ApiOperation({ summary: "Approve protocol - اعتماد البروتوكول" })
   approve(@Param("id") id: string, @Request() req: any) {
-    return this.service.approve(id, req.user?.id || "system");
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.approve(id, req.user?.id || "system", tenantId);
   }
 
   @Delete(":id")
   @ApiOperation({ summary: "Delete protocol - حذف البروتوكول" })
-  delete(@Param("id") id: string) {
-    return this.service.delete(id);
+  delete(@Param("id") id: string, @Request() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.service.delete(id, tenantId);
   }
 }

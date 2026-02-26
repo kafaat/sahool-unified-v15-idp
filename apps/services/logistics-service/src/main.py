@@ -61,6 +61,8 @@ except ImportError:
         pass
 
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # NATS import
 _nats_client = None
 _nats_available = False
@@ -601,10 +603,7 @@ def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> fl
     R = 6371  # Earth's radius in km
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = (
-        math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
-    )
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
@@ -688,6 +687,9 @@ app.add_middleware(
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 
 # ==============================================================================
 # Health Endpoints
@@ -741,18 +743,13 @@ async def combined_health():
             "vehicles": len(VEHICLES),
             "facilities": len(STORAGE_FACILITIES),
             "active_collections": len(
-                [
-                    c
-                    for c in HARVEST_COLLECTIONS.values()
-                    if c["status"] != ShipmentStatus.DELIVERED.value
-                ]
+                [c for c in HARVEST_COLLECTIONS.values() if c["status"] != ShipmentStatus.DELIVERED.value]
             ),
             "active_shipments": len(
                 [
                     s
                     for s in SHIPMENTS.values()
-                    if s["status"]
-                    not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]
+                    if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]
                 ]
             ),
         },
@@ -788,9 +785,7 @@ async def list_vehicles(
 
     # Add Arabic translations
     for v in vehicles:
-        v["vehicle_type_ar"] = VEHICLE_TYPE_AR.get(
-            VehicleType(v["vehicle_type"]), v["vehicle_type"]
-        )
+        v["vehicle_type_ar"] = VEHICLE_TYPE_AR.get(VehicleType(v["vehicle_type"]), v["vehicle_type"])
         v["status_ar"] = VEHICLE_STATUS_AR.get(VehicleStatus(v["status"]), v["status"])
 
     return {
@@ -1056,13 +1051,9 @@ async def update_facility_conditions(
     alerts = []
     if temperature_c is not None:
         if facility.get("temperature_min_c") and temperature_c < facility["temperature_min_c"]:
-            alerts.append(
-                f"Temperature below minimum: {temperature_c}C < {facility['temperature_min_c']}C"
-            )
+            alerts.append(f"Temperature below minimum: {temperature_c}C < {facility['temperature_min_c']}C")
         if facility.get("temperature_max_c") and temperature_c > facility["temperature_max_c"]:
-            alerts.append(
-                f"Temperature above maximum: {temperature_c}C > {facility['temperature_max_c']}C"
-            )
+            alerts.append(f"Temperature above maximum: {temperature_c}C > {facility['temperature_max_c']}C")
 
     return {
         "status": "ok",
@@ -1261,9 +1252,7 @@ async def optimize_route(
             collections.append(col)
 
     if not collections:
-        raise HTTPException(
-            status_code=400, detail="No valid collections found | لم يتم العثور على جمع صالح"
-        )
+        raise HTTPException(status_code=400, detail="No valid collections found | لم يتم العثور على جمع صالح")
 
     # Simple nearest-neighbor optimization
     optimized_order = []
@@ -1276,13 +1265,9 @@ async def optimize_route(
         # Find nearest collection
         nearest = min(
             remaining,
-            key=lambda c: calculate_distance(
-                current_lat, current_lon, c["pickup_lat"], c["pickup_lon"]
-            ),
+            key=lambda c: calculate_distance(current_lat, current_lon, c["pickup_lat"], c["pickup_lon"]),
         )
-        distance = calculate_distance(
-            current_lat, current_lon, nearest["pickup_lat"], nearest["pickup_lon"]
-        )
+        distance = calculate_distance(current_lat, current_lon, nearest["pickup_lat"], nearest["pickup_lon"])
         total_distance += distance
 
         optimized_order.append(nearest["collection_id"])
@@ -1303,9 +1288,7 @@ async def optimize_route(
 
     # Return to start if requested
     if data.return_to_start:
-        return_distance = calculate_distance(
-            current_lat, current_lon, data.start_lat, data.start_lon
-        )
+        return_distance = calculate_distance(current_lat, current_lon, data.start_lat, data.start_lon)
         total_distance += return_distance
         waypoints.append(
             {
@@ -1481,30 +1464,18 @@ async def get_logistics_stats(
     shipments = [s for s in SHIPMENTS.values() if s["tenant_id"] == tenant_id]
 
     available_vehicles = len([v for v in vehicles if v["status"] == VehicleStatus.AVAILABLE.value])
-    in_transit_vehicles = len(
-        [v for v in vehicles if v["status"] == VehicleStatus.IN_TRANSIT.value]
-    )
+    in_transit_vehicles = len([v for v in vehicles if v["status"] == VehicleStatus.IN_TRANSIT.value])
 
     total_storage_capacity = sum(f["total_capacity_kg"] for f in facilities)
     available_storage = sum(f["available_capacity_kg"] for f in facilities)
 
-    pending_collections = len(
-        [c for c in collections if c["status"] == ShipmentStatus.SCHEDULED.value]
-    )
+    pending_collections = len([c for c in collections if c["status"] == ShipmentStatus.SCHEDULED.value])
     active_collections = len(
-        [
-            c
-            for c in collections
-            if c["status"] in [ShipmentStatus.COLLECTING.value, ShipmentStatus.IN_TRANSIT.value]
-        ]
+        [c for c in collections if c["status"] in [ShipmentStatus.COLLECTING.value, ShipmentStatus.IN_TRANSIT.value]]
     )
 
     active_shipments = len(
-        [
-            s
-            for s in shipments
-            if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]
-        ]
+        [s for s in shipments if s["status"] not in [ShipmentStatus.DELIVERED.value, ShipmentStatus.CANCELLED.value]]
     )
 
     return {

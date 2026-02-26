@@ -157,6 +157,7 @@ SAHOOL_INVENTORY_BATCH_EXPIRED = "sahool.inventory.batch.expired"
 SAHOOL_INVENTORY_BATCH_EXPIRING = "sahool.inventory.batch.expiring"
 SAHOOL_INVENTORY_RESTOCKED = "sahool.inventory.restocked"
 SAHOOL_INVENTORY_ADJUSTED = "sahool.inventory.adjusted"
+SAHOOL_INVENTORY_ALERT = "sahool.inventory.alert"
 
 # Product events
 SAHOOL_INVENTORY_PRODUCT_CREATED = "sahool.inventory.product.created"

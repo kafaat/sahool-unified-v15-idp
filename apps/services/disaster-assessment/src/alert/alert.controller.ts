@@ -3,7 +3,7 @@
 // Early Warning System for Agricultural Disasters
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Post, Body, Param, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Req } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import { AlertService } from "./alert.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -32,11 +32,13 @@ export class AlertController {
   })
   @ApiResponse({ status: 200, description: "List of active alerts" })
   async getActiveAlerts(
+    @Req() req: any,
     @Query("governorate") governorate?: string,
     @Query("type") type?: string,
     @Query("severity") severity?: string,
   ) {
-    return this.alertService.getActiveAlerts({ governorate, type, severity });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.alertService.getActiveAlerts(tenantId, { governorate, type, severity });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -49,8 +51,9 @@ export class AlertController {
     description: "الحصول على تنبيهات الطقس الزراعي",
   })
   @ApiQuery({ name: "governorate", required: false })
-  async getWeatherAlerts(@Query("governorate") governorate?: string) {
-    return this.alertService.getWeatherAlerts(governorate);
+  async getWeatherAlerts(@Req() req: any, @Query("governorate") governorate?: string) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.alertService.getWeatherAlerts(tenantId, governorate);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -65,10 +68,12 @@ export class AlertController {
   @ApiQuery({ name: "governorate", required: false })
   @ApiQuery({ name: "cropType", required: false })
   async getPestDiseaseAlerts(
+    @Req() req: any,
     @Query("governorate") governorate?: string,
     @Query("cropType") cropType?: string,
   ) {
-    return this.alertService.getPestDiseaseAlerts({ governorate, cropType });
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.alertService.getPestDiseaseAlerts(tenantId, { governorate, cropType });
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -81,9 +86,11 @@ export class AlertController {
     description: "الاشتراك في تنبيهات منطقة معينة",
   })
   async subscribeToAlerts(
+    @Req() req: any,
     @Body() dto: { userId: string; governorate: string; types: string[] },
   ) {
-    return this.alertService.subscribeToAlerts(dto);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.alertService.subscribeToAlerts(tenantId, dto);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -95,7 +102,8 @@ export class AlertController {
     summary: "Mark alert as read",
     description: "تحديد التنبيه كمقروء",
   })
-  async markAsRead(@Param("id") id: string) {
-    return this.alertService.markAsRead(id);
+  async markAsRead(@Param("id") id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.alertService.markAsRead(id, tenantId);
   }
 }

@@ -155,6 +155,10 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
 )
 
+# Tenant context middleware - عزل المستأجرين
+if TenantContextMiddleware:
+    app.add_middleware(TenantContextMiddleware)
+
 
 # ==================== Health Endpoints ====================
 

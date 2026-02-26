@@ -36,6 +36,7 @@ except ImportError:
         id: str = ""
         tenant_id: str = ""
 
+
 # Security headers middleware
 try:
     from shared.middleware.security_headers import setup_security_headers
@@ -47,6 +48,8 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -82,8 +85,7 @@ if not DATABASE_URL:
         logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
     else:
         raise ValueError(
-            "DATABASE_URL environment variable is required. "
-            "Set ALLOW_DEV_DEFAULTS=true for local development only."
+            "DATABASE_URL environment variable is required. Set ALLOW_DEV_DEFAULTS=true for local development only."
         )
 
 # Fix: Convert postgres:// to postgresql+asyncpg:// for SQLAlchemy
@@ -180,6 +182,9 @@ except Exception as e:
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 @app.get("/health")
@@ -407,9 +412,7 @@ async def get_seasonal_patterns(
     analytics = InventoryAnalytics(db, verified_tenant)
     pattern = await analytics.get_seasonal_patterns(item_id)
     if not pattern:
-        raise HTTPException(
-            status_code=404, detail="Item not found or insufficient historical data"
-        )
+        raise HTTPException(status_code=404, detail="Item not found or insufficient historical data")
     return pattern.to_dict()
 
 

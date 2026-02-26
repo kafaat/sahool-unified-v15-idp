@@ -65,7 +65,9 @@ def client(setup_test_data):
     except ImportError:
         pytest.skip("fastapi not installed")
     app.dependency_overrides[get_current_user] = _fake_current_user
-    yield TestClient(app)
+    c = TestClient(app)
+    c.headers["X-Tenant-ID"] = "test_tenant"
+    yield c
     app.dependency_overrides.clear()
 
 

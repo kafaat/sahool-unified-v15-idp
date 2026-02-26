@@ -34,15 +34,12 @@ from slowapi.util import get_remote_address
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
 sys.path.insert(
     0,
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        )
-    ),
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),
 )
 
 # Service configuration
@@ -213,9 +210,7 @@ class MessageFetchRequest(BaseModel):
 
     chat_id: str = Field(..., description="WeChat chat/group ID | معرف المحادثة")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    limit: int = Field(
-        50, ge=1, le=200, description="Maximum messages to fetch | الحد الأقصى للرسائل"
-    )
+    limit: int = Field(50, ge=1, le=200, description="Maximum messages to fetch | الحد الأقصى للرسائل")
     before_timestamp: datetime | None = Field(
         None, description="Fetch messages before this time | جلب الرسائل قبل هذا الوقت"
     )
@@ -262,15 +257,9 @@ class MessageSendRequest(BaseModel):
     chat_id: str = Field(..., description="Target chat/group ID | معرف المحادثة المستهدفة")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
     message_type: MessageType = Field(MessageType.TEXT, description="Message type | نوع الرسالة")
-    content: str = Field(
-        ..., min_length=1, max_length=10000, description="Message content | محتوى الرسالة"
-    )
-    media_url: str | None = Field(
-        None, description="Media URL for non-text messages | رابط الوسائط"
-    )
-    reply_to_id: str | None = Field(
-        None, description="Message ID to reply to | معرف الرسالة للرد عليها"
-    )
+    content: str = Field(..., min_length=1, max_length=10000, description="Message content | محتوى الرسالة")
+    media_url: str | None = Field(None, description="Media URL for non-text messages | رابط الوسائط")
+    reply_to_id: str | None = Field(None, description="Message ID to reply to | معرف الرسالة للرد عليها")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata | بيانات إضافية")
 
 
@@ -292,15 +281,9 @@ class ContactAddRequest(BaseModel):
 
     wechat_id: str = Field(..., description="WeChat ID or phone number | معرف ويتشات أو رقم الهاتف")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    contact_type: ContactType = Field(
-        ContactType.FRIEND, description="Contact type | نوع جهة الاتصال"
-    )
-    greeting_message: str | None = Field(
-        None, max_length=500, description="Friend request message | رسالة طلب الصداقة"
-    )
-    greeting_message_ar: str | None = Field(
-        None, max_length=500, description="Greeting in Arabic | الترحيب بالعربية"
-    )
+    contact_type: ContactType = Field(ContactType.FRIEND, description="Contact type | نوع جهة الاتصال")
+    greeting_message: str | None = Field(None, max_length=500, description="Friend request message | رسالة طلب الصداقة")
+    greeting_message_ar: str | None = Field(None, max_length=500, description="Greeting in Arabic | الترحيب بالعربية")
     notes: str | None = Field(None, max_length=1000, description="Personal notes | ملاحظات شخصية")
     tags: list[str] | None = Field(None, description="Contact tags | وسوم جهة الاتصال")
 
@@ -326,20 +309,12 @@ class MomentPublishRequest(BaseModel):
     """Request to publish a moment | طلب نشر لحظة"""
 
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    content: str = Field(
-        ..., min_length=1, max_length=2000, description="Moment text content | محتوى النص"
-    )
-    content_ar: str | None = Field(
-        None, max_length=2000, description="Content in Arabic | المحتوى بالعربية"
-    )
-    media_urls: list[str] | None = Field(
-        None, max_length=9, description="Media URLs (max 9) | روابط الوسائط"
-    )
+    content: str = Field(..., min_length=1, max_length=2000, description="Moment text content | محتوى النص")
+    content_ar: str | None = Field(None, max_length=2000, description="Content in Arabic | المحتوى بالعربية")
+    media_urls: list[str] | None = Field(None, max_length=9, description="Media URLs (max 9) | روابط الوسائط")
     location: str | None = Field(None, description="Location tag | علامة الموقع")
     location_ar: str | None = Field(None, description="Location in Arabic | الموقع بالعربية")
-    visibility: MomentVisibility = Field(
-        MomentVisibility.FRIENDS, description="Visibility setting | إعداد الرؤية"
-    )
+    visibility: MomentVisibility = Field(MomentVisibility.FRIENDS, description="Visibility setting | إعداد الرؤية")
     visible_to: list[str] | None = Field(
         None,
         description="Specific user IDs if visibility is 'selected' | معرفات المستخدمين المحددين",
@@ -373,19 +348,11 @@ class ChatSummarizeRequest(BaseModel):
 
     chat_id: str = Field(..., description="Chat ID to summarize | معرف المحادثة للتلخيص")
     tenant_id: str = Field(..., description="Tenant ID | معرف المستأجر")
-    time_range_hours: int = Field(
-        24, ge=1, le=168, description="Hours of chat to summarize | ساعات المحادثة للتلخيص"
-    )
-    max_messages: int = Field(
-        500, ge=10, le=2000, description="Maximum messages to analyze | الحد الأقصى للرسائل"
-    )
+    time_range_hours: int = Field(24, ge=1, le=168, description="Hours of chat to summarize | ساعات المحادثة للتلخيص")
+    max_messages: int = Field(500, ge=10, le=2000, description="Maximum messages to analyze | الحد الأقصى للرسائل")
     language: str = Field("en", description="Output language (en/ar/both) | لغة المخرجات")
-    include_participants: bool = Field(
-        True, description="Include participant summary | تضمين ملخص المشاركين"
-    )
-    include_timeline: bool = Field(
-        False, description="Include activity timeline | تضمين الجدول الزمني"
-    )
+    include_participants: bool = Field(True, description="Include participant summary | تضمين ملخص المشاركين")
+    include_timeline: bool = Field(False, description="Include activity timeline | تضمين الجدول الزمني")
 
 
 class ParticipantSummary(BaseModel):
@@ -531,9 +498,7 @@ async def lifespan(app: FastAPI):
         try:
             from shared.events.publisher import get_publisher
 
-            app.state.publisher = await get_publisher(
-                service_name=SERVICE_NAME, service_version=SERVICE_VERSION
-            )
+            app.state.publisher = await get_publisher(service_name=SERVICE_NAME, service_version=SERVICE_VERSION)
             app.state.nats_connected = True
             print(f"NATS connected: {nats_url}")
         except Exception as e:
@@ -916,9 +881,7 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware
-cors_origins = os.getenv(
-    "CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080"
-).split(",")
+cors_origins = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
 
 app.add_middleware(
     CORSMiddleware,
@@ -927,6 +890,9 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 
 # ===============================================================================
@@ -1029,17 +995,11 @@ async def fetch_messages(
     # Apply filters
     filtered_messages = chat_messages
     if fetch_request.before_timestamp:
-        filtered_messages = [
-            m for m in filtered_messages if m.timestamp < fetch_request.before_timestamp
-        ]
+        filtered_messages = [m for m in filtered_messages if m.timestamp < fetch_request.before_timestamp]
     if fetch_request.after_timestamp:
-        filtered_messages = [
-            m for m in filtered_messages if m.timestamp > fetch_request.after_timestamp
-        ]
+        filtered_messages = [m for m in filtered_messages if m.timestamp > fetch_request.after_timestamp]
     if fetch_request.message_types:
-        filtered_messages = [
-            m for m in filtered_messages if m.message_type in fetch_request.message_types
-        ]
+        filtered_messages = [m for m in filtered_messages if m.message_type in fetch_request.message_types]
 
     # Apply limit
     limited_messages = filtered_messages[: fetch_request.limit]
@@ -1347,9 +1307,7 @@ async def summarize_chat(
 
     # Get messages for analysis
     chat_messages = messages.get(chat_id, [])
-    filtered_messages = [m for m in chat_messages if m.timestamp >= time_range_start][
-        : summarize_request.max_messages
-    ]
+    filtered_messages = [m for m in chat_messages if m.timestamp >= time_range_start][: summarize_request.max_messages]
 
     # Generate summary (in production, use AI model)
     participants = []

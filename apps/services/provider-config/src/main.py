@@ -27,6 +27,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .database_service import CacheManager, ProviderConfigService
 
@@ -61,6 +62,9 @@ except ImportError:
         allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
     )
+
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ENUMS & MODELS
@@ -899,9 +903,7 @@ async def check_weather_provider_health(
     # Build test URL based on provider
     test_url = ""
     if provider_name == WeatherProviderName.OPEN_METEO:
-        test_url = (
-            f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
-        )
+        test_url = f"{provider['base_url']}/forecast?latitude=15.37&longitude=44.19&current=temperature_2m"
     elif provider_name == WeatherProviderName.OPENWEATHERMAP:
         if not api_key:
             return ProviderStatusResponse(
@@ -1005,12 +1007,8 @@ async def list_all_providers():
     """List all available providers"""
     return ProvidersListResponse(
         map_providers=[{**v, "id": k.value, "type": "map"} for k, v in MAP_PROVIDERS.items()],
-        weather_providers=[
-            {**v, "id": k.value, "type": "weather"} for k, v in WEATHER_PROVIDERS.items()
-        ],
-        satellite_providers=[
-            {**v, "id": k.value, "type": "satellite"} for k, v in SATELLITE_PROVIDERS.items()
-        ],
+        weather_providers=[{**v, "id": k.value, "type": "weather"} for k, v in WEATHER_PROVIDERS.items()],
+        satellite_providers=[{**v, "id": k.value, "type": "satellite"} for k, v in SATELLITE_PROVIDERS.items()],
     )
 
 
@@ -1028,9 +1026,7 @@ async def list_weather_providers():
     """List all weather providers"""
     return {
         "providers": [{**v, "id": k.value} for k, v in WEATHER_PROVIDERS.items()],
-        "free_providers": [
-            k.value for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]
-        ],
+        "free_providers": [k.value for k, v in WEATHER_PROVIDERS.items() if not v["requires_api_key"]],
     }
 
 
@@ -1039,9 +1035,7 @@ async def list_satellite_providers():
     """List all satellite providers"""
     return {
         "providers": [{**v, "id": k.value} for k, v in SATELLITE_PROVIDERS.items()],
-        "free_providers": [
-            k.value for k, v in SATELLITE_PROVIDERS.items() if not v["requires_api_key"]
-        ],
+        "free_providers": [k.value for k, v in SATELLITE_PROVIDERS.items() if not v["requires_api_key"]],
     }
 
 
@@ -1056,9 +1050,7 @@ async def list_payment_providers():
             "YE": ["tharwatt", "hyperpay", "stripe"],  # Tharwatt is primary for Yemen
             "global": ["stripe", "paypal"],
         },
-        "supports_mada": [
-            k.value for k, v in PAYMENT_PROVIDERS.items() if v.get("supports_mada", False)
-        ],
+        "supports_mada": [k.value for k, v in PAYMENT_PROVIDERS.items() if v.get("supports_mada", False)],
     }
 
 
@@ -1071,9 +1063,7 @@ async def list_sms_providers():
             "middle_east": ["unifonic", "yamamah"],
             "global": ["twilio", "vonage"],
         },
-        "supports_arabic_sender": [
-            k.value for k, v in SMS_PROVIDERS.items() if v.get("supports_arabic_sender", False)
-        ],
+        "supports_arabic_sender": [k.value for k, v in SMS_PROVIDERS.items() if v.get("supports_arabic_sender", False)],
     }
 
 
@@ -1083,9 +1073,7 @@ async def list_notification_providers():
     return {
         "providers": [{**v, "id": k.value} for k, v in NOTIFICATION_PROVIDERS.items()],
         "free_providers": [
-            k.value
-            for k, v in NOTIFICATION_PROVIDERS.items()
-            if v.get("cost_per_1k_notifications", 1) == 0
+            k.value for k, v in NOTIFICATION_PROVIDERS.items() if v.get("cost_per_1k_notifications", 1) == 0
         ],
     }
 
@@ -1268,9 +1256,7 @@ async def check_provider_health(request: HealthCheckRequest):
             provider_name = MapProviderName(request.provider_name)
             return await check_map_provider_health(provider_name, request.api_key)
         except ValueError:
-            raise HTTPException(
-                status_code=400, detail=f"Unknown map provider: {request.provider_name}"
-            )
+            raise HTTPException(status_code=400, detail=f"Unknown map provider: {request.provider_name}")
 
     elif request.provider_type == ProviderType.WEATHER:
         try:
@@ -1282,9 +1268,7 @@ async def check_provider_health(request: HealthCheckRequest):
                 detail=f"Unknown weather provider: {request.provider_name}",
             )
 
-    raise HTTPException(
-        status_code=400, detail=f"Unsupported provider type: {request.provider_type}"
-    )
+    raise HTTPException(status_code=400, detail=f"Unsupported provider type: {request.provider_type}")
 
 
 @app.get("/providers/check/all")
@@ -1361,14 +1345,10 @@ async def get_tenant_config(tenant_id: str, session: Session = Depends(get_db_se
         "tenant_id": tenant_id,
         "map_providers": [c.to_dict() for c in map_configs] if map_configs else [],
         "weather_providers": [c.to_dict() for c in weather_configs] if weather_configs else [],
-        "satellite_providers": [c.to_dict() for c in satellite_configs]
-        if satellite_configs
-        else [],
+        "satellite_providers": [c.to_dict() for c in satellite_configs] if satellite_configs else [],
         "payment_providers": [c.to_dict() for c in payment_configs] if payment_configs else [],
         "sms_providers": [c.to_dict() for c in sms_configs] if sms_configs else [],
-        "notification_providers": [c.to_dict() for c in notification_configs]
-        if notification_configs
-        else [],
+        "notification_providers": [c.to_dict() for c in notification_configs] if notification_configs else [],
         "is_default": False,
     }
 
@@ -1384,9 +1364,7 @@ async def update_tenant_config(
     try:
         # Update map providers
         for provider in config.map_providers:
-            existing = config_service.get_config_by_name(
-                session, tenant_id, "map", provider.provider_name
-            )
+            existing = config_service.get_config_by_name(session, tenant_id, "map", provider.provider_name)
             previous_enabled = existing.enabled if existing else None
 
             if existing:
@@ -1437,9 +1415,7 @@ async def update_tenant_config(
 
         # Update weather providers
         for provider in config.weather_providers:
-            existing = config_service.get_config_by_name(
-                session, tenant_id, "weather", provider.provider_name
-            )
+            existing = config_service.get_config_by_name(session, tenant_id, "weather", provider.provider_name)
             previous_enabled = existing.enabled if existing else None
 
             if existing:
@@ -1490,9 +1466,7 @@ async def update_tenant_config(
 
         # Update satellite providers
         for provider in config.satellite_providers:
-            existing = config_service.get_config_by_name(
-                session, tenant_id, "satellite", provider.provider_name
-            )
+            existing = config_service.get_config_by_name(session, tenant_id, "satellite", provider.provider_name)
             previous_enabled = existing.enabled if existing else None
 
             if existing:
@@ -1559,9 +1533,7 @@ async def reset_tenant_config(tenant_id: str, session: Session = Depends(get_db_
 
         # Delete all configs and publish events
         for config in all_configs:
-            config_service.delete_config(
-                session, tenant_id, config.provider_type, config.provider_name
-            )
+            config_service.delete_config(session, tenant_id, config.provider_type, config.provider_name)
 
             # Publish config updated event for deletion
             await publish_config_updated(

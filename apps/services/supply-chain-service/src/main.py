@@ -13,6 +13,8 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 from .api.endpoints import (
     auto_purchase_router,
     orders_router,
@@ -185,6 +187,9 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Tenant-ID"],
 )
 
+# Tenant context middleware
+app.add_middleware(TenantContextMiddleware)
+
 
 # Request ID middleware
 @app.middleware("http")
@@ -231,8 +236,7 @@ async def health() -> dict[str, str]:
     "/readyz",
     tags=["health"],
     summary="Readiness Probe | فحص الجاهزية",
-    description="Check if the service is ready to accept traffic. "
-    "فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
+    description="Check if the service is ready to accept traffic. فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.",
 )
 @app.get("/health/ready", tags=["health"], include_in_schema=False)
 async def readiness(request: Request) -> dict[str, Any]:

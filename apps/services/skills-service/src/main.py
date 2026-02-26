@@ -40,6 +40,8 @@ from shared.errors_py import (
 )
 
 # Import authentication dependencies
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
@@ -89,9 +91,7 @@ async def lifespan(app: FastAPI):
             app.state.revocation_store = revocation_store
             logger.info("Token revocation store initialized")
         except Exception as e:
-            logger.warning(
-                "Token revocation store failed (running without revocation)", error=str(e)
-            )
+            logger.warning("Token revocation store failed (running without revocation)", error=str(e))
 
     # Initialize NATS connection
     nats_url = os.getenv("NATS_URL")
@@ -137,6 +137,9 @@ if REVOCATION_AVAILABLE:
         exempt_paths=["/healthz", "/health", "/docs", "/redoc", "/openapi.json"],
     )
 
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
+
 
 # ============== Event Publishing Helper ==============
 
@@ -169,9 +172,7 @@ class CompressRequest(BaseModel):
 
     skill_id: str = Field(..., description="Unique identifier for the skill")
     skill_data: dict[str, Any] = Field(..., description="The skill data to compress")
-    compression_level: int = Field(
-        default=1, ge=1, le=9, description="Compression level 1-9 (1=fastest, 9=best)"
-    )
+    compression_level: int = Field(default=1, ge=1, le=9, description="Compression level 1-9 (1=fastest, 9=best)")
     target_size_kb: int = Field(default=None, description="Target compressed size in KB")
 
 
@@ -192,9 +193,7 @@ class MemoryStoreRequest(BaseModel):
     skill_id: str = Field(..., description="Unique skill identifier")
     namespace: str = Field(default="default", description="Memory namespace for organization")
     skill_data: dict[str, Any] = Field(..., description="Skill data to store")
-    ttl_seconds: int = Field(
-        default=3600, ge=0, description="Time to live in seconds (0=permanent)"
-    )
+    ttl_seconds: int = Field(default=3600, ge=0, description="Time to live in seconds (0=permanent)")
     metadata: dict[str, Any] = Field(default_factory=dict, description="Optional metadata")
 
 
@@ -232,9 +231,7 @@ class EvaluateRequest(BaseModel):
 
     skill_id: str = Field(..., description="Skill ID to evaluate")
     input_data: dict[str, Any] = Field(..., description="Test input data")
-    expected_output: dict[str, Any] = Field(
-        default=None, description="Expected output for validation"
-    )
+    expected_output: dict[str, Any] = Field(default=None, description="Expected output for validation")
     metrics: list[str] = Field(default=["accuracy", "latency"], description="Metrics to evaluate")
 
 
@@ -265,9 +262,7 @@ class LearningPathRequest(BaseModel):
     farmer_id: str = Field(..., description="Unique farmer identifier")
     current_skills: list[str] = Field(default_factory=list, description="List of current skill IDs")
     target_skills: list[str] = Field(default_factory=list, description="Desired skills to learn")
-    preferred_difficulty: str = Field(
-        default="intermediate", description="Preferred difficulty level"
-    )
+    preferred_difficulty: str = Field(default="intermediate", description="Preferred difficulty level")
     max_modules: int = Field(default=5, ge=1, le=20, description="Maximum modules in path")
 
 
@@ -288,9 +283,7 @@ class SkillAssessmentRequest(BaseModel):
     farmer_id: str = Field(..., description="Unique farmer identifier")
     skill_type: str = Field(..., description="Type of skill being assessed")
     assessment_data: dict[str, Any] = Field(..., description="Assessment input data")
-    assessment_type: str = Field(
-        default="quiz", description="Type of assessment (quiz, practical, self)"
-    )
+    assessment_type: str = Field(default="quiz", description="Type of assessment (quiz, practical, self)")
 
 
 class SkillAssessmentResponse(BaseModel):
@@ -488,9 +481,7 @@ async def evaluate_skill(
             metrics[metric] = round(random.uniform(0.5, 1.0), 3)
 
     # Calculate overall performance score
-    performance_score = sum(v for k, v in metrics.items() if k == "accuracy") or sum(
-        metrics.values()
-    ) / len(metrics)
+    performance_score = sum(v for k, v in metrics.items() if k == "accuracy") or sum(metrics.values()) / len(metrics)
     performance_score = min(1.0, performance_score)
 
     timestamp = datetime.now(UTC).isoformat()
@@ -726,9 +717,7 @@ async def create_learning_path(
 
     # Build learning path based on target skills
     modules = []
-    target_skills = (
-        request.target_skills if request.target_skills else list(skill_modules.keys())[:2]
-    )
+    target_skills = request.target_skills if request.target_skills else list(skill_modules.keys())[:2]
 
     for skill in target_skills:
         if skill in skill_modules:
@@ -745,8 +734,7 @@ async def create_learning_path(
                             "intermediate",
                         ]
                         or request.preferred_difficulty == "advanced"
-                        or request.preferred_difficulty
-                        not in ["beginner", "intermediate", "advanced"]
+                        or request.preferred_difficulty not in ["beginner", "intermediate", "advanced"]
                     ):
                         modules.append(module)
 

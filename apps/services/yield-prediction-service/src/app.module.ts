@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
-import { AuthModule } from "@sahool/nestjs-auth";
+import { AuthModule, TenantGuard } from "@sahool/nestjs-auth";
 import { HealthController } from "./health/health.controller";
 import { YieldController } from "./yield/yield.controller";
 import { YieldService } from "./yield/yield.service";
@@ -39,6 +39,11 @@ import { YieldService } from "./yield/yield.service";
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    // Global tenant isolation guard
+    {
+      provide: APP_GUARD,
+      useClass: TenantGuard,
     },
   ],
 })

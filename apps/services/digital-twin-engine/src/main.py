@@ -41,6 +41,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from shared.middleware.tenant_context import TenantContextMiddleware
+
 # ---------------------------------------------------------------------------
 # Authentication dependency
 # ---------------------------------------------------------------------------
@@ -59,6 +61,7 @@ except ImportError:
     async def get_current_user() -> User:  # type: ignore[misc]
         """Fallback when shared.auth is not importable (dev/test)."""
         return User()
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "digital-twin-engine"
@@ -396,9 +399,7 @@ class DigitalTwinEngine:
 
             # Water balance
             water_input = irr + rain
-            sm_change = (
-                (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
-            )
+            sm_change = (water_input - etc) / (crop_data.root_depth_m * 1000 if crop_data else 1000) * 100
 
             sm += sm_change
 
@@ -628,21 +629,15 @@ class DigitalTwinEngine:
         candidates = []
 
         # Strategy 1: Fixed interval (every 7 days)
-        sched_7 = [
-            {"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)
-        ]
+        sched_7 = [{"day": d, "amount_mm": max_water / (days // 7 + 1)} for d in range(7, days + 1, 7)]
         candidates.append({"name": "Fixed 7-day cycle", "schedule": sched_7})
 
         # Strategy 2: Fixed interval (every 5 days)
-        sched_5 = [
-            {"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)
-        ]
+        sched_5 = [{"day": d, "amount_mm": max_water / (days // 5 + 1)} for d in range(5, days + 1, 5)]
         candidates.append({"name": "Fixed 5-day cycle", "schedule": sched_5})
 
         # Strategy 3: Fixed interval (every 10 days)
-        sched_10 = [
-            {"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)
-        ]
+        sched_10 = [{"day": d, "amount_mm": max_water / (days // 10 + 1)} for d in range(10, days + 1, 10)]
         candidates.append({"name": "Fixed 10-day cycle", "schedule": sched_10})
 
         # Strategy 4: Front-loaded (more water early)
@@ -653,10 +648,7 @@ class DigitalTwinEngine:
         candidates.append({"name": "Front-loaded", "schedule": sched_fl})
 
         # Strategy 5: Minimal water (conservation)
-        sched_min = [
-            {"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)}
-            for d in range(7, days + 1, 7)
-        ]
+        sched_min = [{"day": d, "amount_mm": max_water * 0.6 / (days // 7 + 1)} for d in range(7, days + 1, 7)]
         candidates.append({"name": "Conservation (60%)", "schedule": sched_min})
 
         return candidates
@@ -751,6 +743,9 @@ try:
     add_request_id_middleware(app)
 except ImportError:
     pass
+
+# Tenant context middleware - عزل المستأجرين
+app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints
@@ -882,9 +877,7 @@ async def get_dt_info():
             "closed_loop": "Simulate → decide → execute → feedback",
         },
         "supported_crops": list(dt_engine._yemen_crops.keys()) if dt_engine._yemen_crops else [],
-        "supported_climate_zones": list(dt_engine._yemen_climate.keys())
-        if dt_engine._yemen_climate
-        else [],
+        "supported_climate_zones": list(dt_engine._yemen_climate.keys()) if dt_engine._yemen_climate else [],
         "active_twins": len(dt_engine.estimators),
     }
 

@@ -87,9 +87,7 @@ async def get_current_user(
                     )
 
                 if not cached_user.get("is_verified", False):
-                    logger.warning(
-                        f"Authentication failed: User {user_id} is not verified (cached)"
-                    )
+                    logger.warning(f"Authentication failed: User {user_id} is not verified (cached)")
                     raise HTTPException(
                         status_code=status.HTTP_403_FORBIDDEN,
                         detail=AuthErrors.ACCOUNT_NOT_VERIFIED.en,
@@ -254,6 +252,56 @@ async def get_current_active_user(
     return user
 
 
+def enforce_tenant(user: User, requested_tenant_id: str | None = None) -> str:
+    """
+    Enforce tenant isolation by validating the user's tenant access.
+
+    Returns the validated tenant_id to use for database queries.
+    If requested_tenant_id is provided, validates that the user has access.
+    Otherwise, returns the user's own tenant_id.
+
+    Args:
+        user: Authenticated user from get_current_user
+        requested_tenant_id: Optional tenant_id from request path/body
+
+    Returns:
+        str: The validated tenant_id
+
+    Raises:
+        HTTPException 400: If no tenant_id is available
+        HTTPException 403: If user doesn't have access to requested tenant
+
+    Example:
+        ```python
+        @app.get("/fields")
+        async def list_fields(user: User = Depends(get_current_user)):
+            tenant_id = enforce_tenant(user)
+            return await db.query("SELECT * FROM fields WHERE tenant_id = $1", tenant_id)
+        ```
+    """
+    user_tenant = user.tenant_id
+
+    if not user_tenant and not requested_tenant_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Tenant context is required but not available",
+        )
+
+    if requested_tenant_id:
+        # Admin users can access any tenant
+        if "admin" in (user.roles or []):
+            return requested_tenant_id
+        # Non-admin users must match their own tenant
+        if user_tenant and user_tenant != requested_tenant_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: tenant mismatch",
+            )
+        return requested_tenant_id
+
+    return user_tenant  # type: ignore[return-value]
+
+
 def require_roles(*required_roles: str) -> Callable:
     """
     Decorator/dependency to require specific roles.
@@ -354,9 +402,7 @@ def require_farm_access(farm_id_param: str = "farm_id") -> Callable:
         ```
     """
 
-    async def farm_access_checker(
-        request: Request, user: User = Depends(get_current_active_user)
-    ) -> User:
+    async def farm_access_checker(request: Request, user: User = Depends(get_current_active_user)) -> User:
         farm_id = request.path_params.get(farm_id_param)
 
         if not farm_id:
@@ -411,9 +457,7 @@ class RateLimiter:
         window_start = now - self.window_seconds
 
         # Clean old requests
-        self.storage[key] = [
-            timestamp for timestamp in self.storage[key] if timestamp > window_start
-        ]
+        self.storage[key] = [timestamp for timestamp in self.storage[key] if timestamp > window_start]
 
         current_count = len(self.storage[key])
         remaining = max(0, self.requests - current_count)
@@ -483,9 +527,7 @@ async def rate_limit_dependency(
 
     if not allowed:
         violation_count = _rate_limiter.get_violation_count(key)
-        logger.error(
-            f"Rate limit exceeded for user {user.id} (total violations: {violation_count})"
-        )
+        logger.error(f"Rate limit exceeded for user {user.id} (total violations: {violation_count})")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail=AuthErrors.RATE_LIMIT_EXCEEDED.en,

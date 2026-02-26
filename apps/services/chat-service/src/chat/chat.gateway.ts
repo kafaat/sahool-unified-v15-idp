@@ -74,7 +74,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * Verify JWT token from socket handshake
    * Validates JWT tokens in production
    */
-  private verifyAuthentication(client: Socket): string | null {
+  private verifyAuthentication(client: Socket): { userId: string; tenantId: string } | null {
     try {
       // Extract token from auth or query parameters
       const token =
@@ -124,7 +124,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       const decoded = jwt.verify(token, jwtSecret, {
         algorithms: ALLOWED_ALGORITHMS,
-      }) as { userId: string; sub?: string };
+      }) as { userId: string; sub?: string; tenant_id?: string };
       const userId = decoded.userId || decoded.sub;
 
       if (!userId) {
@@ -132,7 +132,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         return null;
       }
 
-      return userId;
+      return { userId, tenantId: decoded.tenant_id || '' };
     } catch (error) {
       this.logger.error(
         "Authentication verification failed",
@@ -149,17 +149,20 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.logger.log("Client attempting connection", { clientId: this.sanitizeForLog(client.id) });
 
     // Verify authentication
-    const userId = this.verifyAuthentication(client);
+    const authResult = this.verifyAuthentication(client);
 
-    if (!userId) {
+    if (!authResult) {
       this.logger.warn("Unauthenticated connection attempt", { clientId: this.sanitizeForLog(client.id) });
       client.emit("error", { message: "Authentication required" });
       client.disconnect();
       return;
     }
 
-    // Store userId in client data for later use
+    const { userId, tenantId } = authResult;
+
+    // Store userId and tenantId in client data for later use
     client.data.userId = userId;
+    client.data.tenantId = tenantId;
 
     // Update userSocketMap with timestamp
     this.userSocketMap.set(userId, {
@@ -169,7 +172,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     try {
       // Update user online status
-      await this.chatService.updateOnlineStatus(userId, true);
+      await this.chatService.updateOnlineStatus(userId, true, tenantId);
 
       // Notify other users that this user is online
       this.server.emit("user_online", { userId, timestamp: new Date() });
@@ -192,8 +195,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleDisconnect(client: Socket) {
     this.logger.log("Client disconnected", { clientId: this.sanitizeForLog(client.id) });
 
-    // Get userId from client data (set during authentication)
+    // Get userId and tenantId from client data (set during authentication)
     const disconnectedUserId = client.data.userId;
+    const tenantId = client.data.tenantId;
 
     if (disconnectedUserId) {
       // Remove from userSocketMap
@@ -201,7 +205,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       try {
         // Update user offline status
-        await this.chatService.updateOnlineStatus(disconnectedUserId, false);
+        await this.chatService.updateOnlineStatus(disconnectedUserId, false, tenantId);
 
         // Notify other users that this user is offline
         this.server.emit("user_offline", {
@@ -229,8 +233,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const { conversationId } = data;
 
-      // Use authenticated userId from client.data, not from client-provided data
+      // Use authenticated userId and tenantId from client.data, not from client-provided data
       const userId = client.data.userId;
+      const tenantId = client.data.tenantId;
 
       if (!userId) {
         return {
@@ -241,7 +246,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       // Verify conversation exists and user is a participant
       const conversation =
-        await this.chatService.getConversationById(conversationId);
+        await this.chatService.getConversationById(conversationId, tenantId);
 
       if (!conversation.participantIds.includes(userId)) {
         return {
@@ -285,8 +290,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     try {
-      // Use authenticated userId from client.data, not from client-provided data
+      // Use authenticated userId and tenantId from client.data, not from client-provided data
       const authenticatedUserId = client.data.userId;
+      const tenantId = client.data.tenantId;
 
       if (!authenticatedUserId) {
         return {
@@ -304,7 +310,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Save message to database
-      const message = await this.chatService.sendMessage(data);
+      const message = await this.chatService.sendMessage(data, tenantId);
 
       // Emit message to all participants in the conversation room
       this.server.to(data.conversationId).emit("message_received", {
@@ -353,10 +359,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Update typing status in database
+      const tenantId = client.data.tenantId;
       await this.chatService.updateTypingIndicator(
         conversationId,
         userId,
         isTyping,
+        tenantId,
       );
 
       // Broadcast typing indicator to other participants in the conversation
@@ -403,7 +411,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Mark message as read
-      await this.chatService.markMessageAsRead(messageId, userId);
+      const tenantId = client.data.tenantId;
+      await this.chatService.markMessageAsRead(messageId, userId, tenantId);
 
       // Notify sender that message was read
       this.server.to(conversationId).emit("message_read", {
@@ -449,7 +458,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
 
       // Mark all messages as read
-      await this.chatService.markConversationAsRead(conversationId, userId);
+      const tenantId = client.data.tenantId;
+      await this.chatService.markConversationAsRead(conversationId, userId, tenantId);
 
       // Notify other participants
       client.to(conversationId).emit("conversation_read", {

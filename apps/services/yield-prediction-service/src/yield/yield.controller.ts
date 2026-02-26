@@ -3,7 +3,7 @@
 // Field-First Architecture - Pre-Harvest Alerts
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import { Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Param, Query, UseGuards, Req } from "@nestjs/common";
 import { JwtAuthGuard } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from "@nestjs/swagger";
 import {
@@ -124,10 +124,12 @@ export class YieldController {
     description: "Pre-harvest alert with ActionTemplate",
   })
   async predictWithAction(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("farmerId") farmerId?: string,
-    @Query("tenantId") tenantId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ): Promise<PreHarvestAlertResponse> {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
     return this.yieldService.predictWithAction(fieldId, farmerId, tenantId);
   }
 
@@ -142,10 +144,13 @@ export class YieldController {
     description: "فحص جاهزية الحصاد مع توصيات عملية",
   })
   async getHarvestReadiness(
+    @Req() req: any,
     @Param("fieldId") fieldId: string,
     @Query("farmerId") farmerId?: string,
+    @Query("tenantId") queryTenantId?: string,
   ) {
-    return this.yieldService.getHarvestReadiness(fieldId, farmerId);
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || queryTenantId;
+    return this.yieldService.getHarvestReadiness(fieldId, farmerId, tenantId);
   }
 
   // ─────────────────────────────────────────────────────────────────────────────

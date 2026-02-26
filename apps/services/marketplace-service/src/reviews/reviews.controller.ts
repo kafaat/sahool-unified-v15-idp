@@ -17,6 +17,7 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
+  Req,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -63,8 +64,12 @@ export class ReviewsController {
     status: 409,
     description: "Review already exists for this product and order",
   })
-  async createProductReview(@Body(ValidationPipe) dto: CreateProductReviewDto) {
-    return this.reviewsService.createProductReview(dto);
+  async createProductReview(
+    @Req() req: any,
+    @Body(ValidationPipe) dto: CreateProductReviewDto,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    return this.reviewsService.createProductReview(dto, tenantId);
   }
 
   /**

@@ -73,7 +73,6 @@ const mapSeverity = (severity: Severity): PrismaSeverity => {
 @Injectable()
 export class DisasterService {
   private readonly logger = new Logger(DisasterService.name);
-  private readonly DEFAULT_TENANT_ID = "default";
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -118,7 +117,7 @@ export class DisasterService {
         totalEstimatedLossYER: BigInt(15000000),
         startDate: new Date("2024-12-15T00:00:00Z"),
         reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
       {
         type: PrismaDisasterType.drought,
@@ -135,7 +134,7 @@ export class DisasterService {
         totalEstimatedLossYER: BigInt(8500000),
         startDate: new Date("2024-11-01T00:00:00Z"),
         reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
       {
         type: PrismaDisasterType.locust,
@@ -153,7 +152,7 @@ export class DisasterService {
         totalEstimatedLossYER: BigInt(45000000),
         startDate: new Date("2024-12-17T00:00:00Z"),
         reportedBy: "system",
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId: "default",
       },
     ];
 
@@ -168,12 +167,12 @@ export class DisasterService {
   // Get Active Disasters
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getActiveDisasters(params: {
+  async getActiveDisasters(tenantId: string, params: {
     type?: DisasterType;
     governorate?: string;
     severity?: string;
   }) {
-    const where: any = {};
+    const where: any = { tenantId };
 
     if (params.type) {
       where.type = mapDisasterType(params.type);
@@ -221,9 +220,9 @@ export class DisasterService {
   // Get Disaster by ID
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getDisasterById(id: string) {
-    const disaster = await this.prisma.disasterReport.findUnique({
-      where: { id },
+  async getDisasterById(id: string, tenantId: string) {
+    const disaster = await this.prisma.disasterReport.findFirst({
+      where: { id, tenantId },
       include: {
         fieldAssessments: true,
       },
@@ -271,7 +270,7 @@ export class DisasterService {
   // Report New Disaster
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async reportDisaster(dto: CreateDisasterReportDto) {
+  async reportDisaster(dto: CreateDisasterReportDto, tenantId: string) {
     const disaster = await this.prisma.disasterReport.create({
       data: {
         type: mapDisasterType(dto.type),
@@ -287,7 +286,7 @@ export class DisasterService {
         startDate: dto.startDate ? new Date(dto.startDate) : null,
         images: dto.images as any,
         reportedBy: dto.reportedBy || "anonymous",
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId,
         affectedFieldsCount: 0,
         totalAffectedAreaHectares: 0,
         totalEstimatedLossYER: BigInt(0),
@@ -317,7 +316,7 @@ export class DisasterService {
   // Assess Field Damage
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async assessFieldDamage(fieldId: string, dto: DisasterAssessmentDto) {
+  async assessFieldDamage(fieldId: string, dto: DisasterAssessmentDto, tenantId: string) {
     const damagePercentage = dto.damagePercentage ?? Math.random() * 80 + 10;
     const affectedArea = dto.affectedAreaHectares ?? Math.random() * 20 + 5;
 
@@ -354,7 +353,7 @@ export class DisasterService {
           damagePercentage >= 30 ? BigInt(Math.round(estimatedLoss * 0.7)) : null,
         assessmentNotes: dto.assessmentNotes,
         assessmentImages: dto.assessmentImages as any,
-        tenantId: this.DEFAULT_TENANT_ID,
+        tenantId,
       },
     });
 
@@ -414,7 +413,7 @@ export class DisasterService {
   // Get Flood Risk Map
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getFloodRiskMap(governorate: string) {
+  async getFloodRiskMap(governorate: string, tenantId: string) {
     // Mock flood risk zones (could be enhanced with actual GIS data)
     const riskZones = [
       { zone: "high", zoneAr: "عالي", percentage: 15, color: "#dc2626" },
@@ -448,7 +447,7 @@ export class DisasterService {
   // Get Drought Index
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getDroughtIndex(governorate: string) {
+  async getDroughtIndex(governorate: string, tenantId: string) {
     // Mock drought indices
     const currentIndex = Math.random() * 3 - 1.5; // SPI typically ranges -3 to +3
 
@@ -502,12 +501,13 @@ export class DisasterService {
   // Get Statistics
   // ─────────────────────────────────────────────────────────────────────────────
 
-  async getStatistics(params: { year?: number; governorate?: string }) {
+  async getStatistics(tenantId: string, params: { year?: number; governorate?: string }) {
     const year = params.year || new Date().getFullYear();
     const startOfYear = new Date(`${year}-01-01T00:00:00Z`);
     const endOfYear = new Date(`${year}-12-31T23:59:59Z`);
 
     const where: any = {
+      tenantId,
       createdAt: {
         gte: startOfYear,
         lte: endOfYear,
@@ -570,7 +570,7 @@ export class DisasterService {
     });
 
     // Get monthly distribution
-    const byMonth = await this.getMonthlyDistribution(year, params.governorate);
+    const byMonth = await this.getMonthlyDistribution(year, tenantId, params.governorate);
 
     return {
       year,
@@ -595,13 +595,14 @@ export class DisasterService {
     };
   }
 
-  private async getMonthlyDistribution(year: number, governorate?: string) {
+  private async getMonthlyDistribution(year: number, tenantId: string, governorate?: string) {
     const months = [];
     for (let month = 1; month <= 12; month++) {
       const startOfMonth = new Date(`${year}-${month.toString().padStart(2, "0")}-01`);
       const endOfMonth = new Date(year, month, 0, 23, 59, 59);
 
       const where: any = {
+        tenantId,
         createdAt: {
           gte: startOfMonth,
           lte: endOfMonth,

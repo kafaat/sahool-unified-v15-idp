@@ -377,9 +377,7 @@ jobs:
           if [ -f "apps/services/${{ matrix.service }}/Dockerfile" ]; then
             docker build -t ${{ matrix.service }}:scan \
               --file apps/services/${{ matrix.service }}/Dockerfile \
-              . 2>/dev/null || \
-            docker build -t ${{ matrix.service }}:scan \
-              apps/services/${{ matrix.service }}
+              .
           fi
 
       - name: Run Trivy vulnerability scanner

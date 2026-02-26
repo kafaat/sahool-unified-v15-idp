@@ -49,7 +49,13 @@ except ImportError:
         pass
 
 
-from shared.middleware.tenant_context import TenantContextMiddleware
+# Tenant context middleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -184,7 +190,8 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 @app.get("/health")

@@ -97,11 +97,14 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-    User = None
 
-    def get_current_user():
+    async def get_current_user():
         """Placeholder when auth not available"""
         return None
+
+    class User:  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
 
 
 @asynccontextmanager

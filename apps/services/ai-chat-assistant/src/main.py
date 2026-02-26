@@ -7,7 +7,12 @@ import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from shared.middleware.tenant_context import TenantContextMiddleware
+try:
+    from shared.middleware.tenant_context import TenantContextMiddleware
+
+    TENANT_MIDDLEWARE_AVAILABLE = True
+except ImportError:
+    TENANT_MIDDLEWARE_AVAILABLE = False
 
 from src.config import settings
 from src.cache import cache_manager
@@ -79,7 +84,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(TenantContextMiddleware)
+if TENANT_MIDDLEWARE_AVAILABLE:
+    app.add_middleware(TenantContextMiddleware)
 
 
 # Health endpoints
